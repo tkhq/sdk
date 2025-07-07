@@ -9,9 +9,11 @@ import {
 import { useModal } from "./Provider";
 import { IconButton } from "../../components/design/Buttons";
 import { faArrowLeft, faClose } from "@fortawesome/free-solid-svg-icons";
+import { useTurnkey } from "../client/Provider";
 
 export function ModalRoot() {
   const { modalStack, popPage, closeModal } = useModal();
+  const { config } = useTurnkey();
   const current = modalStack[modalStack.length - 1];
   const hasBack = modalStack.length > 1;
 
@@ -88,8 +90,10 @@ export function ModalRoot() {
         </TransitionChild>
 
         {/* Modal Panel */
-        /* NOTE (Amir): dark is applied manually here. This should be controlled in a variable. Idk why but, tailwind's default dark mode auto selecting causes so many bugs. If we have UI anywhere else, we need to add this modifer also! */}
-        <div className="fixed inset-0 flex items-center justify-center dark">
+        /* TODO (Amir): Does adding transition-colors here mess with the children? Probably. If you see some weird slow colour transitions, this is most likely the culprit! */}
+        <div
+          className={`fixed inset-0 flex items-center justify-center transition-colors duration-300 ${config?.ui?.darkMode ? "dark" : ""}`}
+        >
           <DialogPanel>
             {/* White background container */}
             <TransitionChild
@@ -136,7 +140,7 @@ export function ModalRoot() {
                   />
                 </div>
                 <TransitionChild
-                  as={"div"}
+                  as={Fragment}
                   enter="ease-in duration-200"
                   enterFrom="opacity-0"
                   enterTo="opacity-100"

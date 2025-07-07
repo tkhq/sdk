@@ -3,6 +3,7 @@ import { ClientProvider } from "./client/Provider";
 import { ModalProvider } from "./modal/Provider";
 import { ModalRoot } from "./modal/Root";
 import { Session, TurnkeyError, TurnkeyNetworkError } from "@turnkey/sdk-types";
+import { ThemeOverrides, TurnkeyThemeOverrides } from "./theme/Overrides";
 
 export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   auth?: {
@@ -31,7 +32,11 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     autoRefreshSession?: boolean;
   };
   ui?: {
-    // Good mornig!
+    darkMode?: boolean;
+    theme?: {
+      light?: Partial<ThemeOverrides>;
+      dark?: Partial<ThemeOverrides>;
+    };
   };
   language?: {
     // Ohayō!
@@ -58,6 +63,10 @@ export function TurnkeyProvider({
   return (
     <ModalProvider>
       <ClientProvider config={config} callbacks={callbacks}>
+        <TurnkeyThemeOverrides
+          light={config.ui?.theme?.light}
+          dark={config.ui?.theme?.dark}
+        />
         {children}
         <ModalRoot />
       </ClientProvider>

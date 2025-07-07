@@ -1,6 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { OAuthButton } from "./OAuth";
-import { faGoogle } from "@fortawesome/free-brands-svg-icons";
+import {
+  faApple,
+  faFacebook,
+  faGoogle,
+} from "@fortawesome/free-brands-svg-icons";
 import { useModal, useTurnkey } from "../../providers";
 import { EmailInput } from "./Email";
 import { OrSeparator } from "./OrSeparator";
@@ -16,15 +20,22 @@ export function AuthComponent() {
   const {
     config,
     handleGoogleOauth,
+    handleAppleOauth,
+    handleFacebookOauth,
     initOtp,
     loginWithPasskey,
     signUpWithPasskey,
   } = useTurnkey();
   const { pushPage } = useModal();
 
-  if (!config) return <Spinner className="w-48 h-48" />;
+  if (!config)
+    return (
+      <div className="flex flex-col items-center w-96 py-5">
+        <Spinner strokeWidth={2} className="w-48 h-48" />
+      </div>
+    );
 
-  const { methods = {}, methodOrder = [], oauthOrder = [] } = config.auth || {}; // TODO (Amir): This should have default values!
+  const { methods = {}, methodOrder = [], oauthOrder = [] } = config.auth || {};
 
   const handleEmailSubmit = async (email: string) => {
     try {
@@ -125,6 +136,42 @@ export function AuthComponent() {
     });
   };
 
+  const handleApple = async () => {
+    pushPage({
+      key: "Apple OAuth",
+      content: (
+        <ActionPage
+          title="Authenticating with Apple..."
+          action={() =>
+            handleAppleOauth({
+              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+            })
+          }
+          icon={<FontAwesomeIcon size="3x" icon={faApple} />}
+        />
+      ),
+      showTitle: false,
+    });
+  };
+
+  const handleFacebook = async () => {
+    pushPage({
+      key: "Facebook OAuth",
+      content: (
+        <ActionPage
+          title="Authenticating with Facebook..."
+          action={() =>
+            handleFacebookOauth({
+              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+            })
+          }
+          icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
+        />
+      ),
+      showTitle: false,
+    });
+  };
+
   const oauthButtonMap: Record<string, JSX.Element | null> = {
     google: methods.googleOAuthEnabled ? (
       <OAuthButton
@@ -134,8 +181,22 @@ export function AuthComponent() {
         onClick={handleGoogle}
       />
     ) : null,
-    // apple: ...
-    // facebook: ...
+    apple: methods.appleOAuthEnabled ? (
+      <OAuthButton
+        key="apple"
+        name="Apple"
+        icon={<FontAwesomeIcon icon={faApple} />}
+        onClick={handleApple}
+      />
+    ) : null,
+    facebook: methods.facebookOAuthEnabled ? (
+      <OAuthButton
+        key="facebook"
+        name="Facebook"
+        icon={<FontAwesomeIcon icon={faFacebook} />}
+        onClick={handleFacebook}
+      />
+    ) : null,
   };
 
   const oauthButtons = oauthOrder
