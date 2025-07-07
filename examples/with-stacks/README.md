@@ -1,7 +1,7 @@
 # Example: `with-stacks`
 
 A sample script that is showing how to sign a [Stacks](https://docs.hiro.so/stacks/stacks.js) transaction with Turnkey.
-Stacks uses the secp256k1 curve for transaction signing but there is some specific data formatting we that takes place for the [signing process](https://github.com/stacksgov/sips/blob/main/sips/sip-005/sip-005-blocks-and-transactions.md#transaction-signing-and-verifying).
+Stacks uses the secp256k1 curve for transaction signing but there is some specific data formatting that takes place for the [signing process](https://github.com/stacksgov/sips/blob/main/sips/sip-005/sip-005-blocks-and-transactions.md#transaction-signing-and-verifying).
 
 Simplified step-by-step process of what this example script is showing:
 

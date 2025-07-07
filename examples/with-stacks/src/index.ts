@@ -112,10 +112,7 @@ const signStacksTx = async () => {
     });
 
     // r and s values returned are in hex format, padStart r and s values
-    const nextSig = `${signature!.v}${signature!.r.padStart(
-      64,
-      "0",
-    )}${signature!.s.padStart(64, "0")}`;
+    const nextSig = `${signature!.v}${signature!.r.padStart(64,"0")}${signature!.s.padStart(64, "0")}`;
 
     let nextSigHash = generatePostSignSigHash(
       stacksPublicKey!,
@@ -146,8 +143,7 @@ const handleBroadcastTx = async () => {
     network: "testnet",
   });
 
-  console.log("Broadcast Result:");
-  console.dir(result, { depth: null });
+  console.log("Broadcast Result:", result);
 };
 
 (async () => {
