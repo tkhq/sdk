@@ -17,7 +17,7 @@ export function OAuthButton(props: OAuthButtonProps) {
     const observer = new ResizeObserver(([entry]) => {
       if (!entry) return;
       const width = entry.contentRect.width;
-      setShowText(width > 200);
+      setShowText(width > 300);
     });
 
     if (containerRef.current) {
