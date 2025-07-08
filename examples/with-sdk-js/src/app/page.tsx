@@ -9,6 +9,7 @@ import { Session, v1AddressFormat, v1Attestation } from "@turnkey/sdk-types";
 import { OtpType } from "@turnkey/sdk-js";
 import { useModal, useTurnkey } from "@turnkey/react-wallet-kit";
 import { SessionKey } from "@turnkey/sdk-js/dist/__storage__/base";
+import { WalletType } from "@turnkey/wallet-stamper";
 
 export default function AuthPage() {
   const [email, setEmail] = useState<string>("");
@@ -24,9 +25,12 @@ export default function AuthPage() {
     user,
     login,
     handleGoogleOauth,
-    loginWithPasskey,
     createPasskey,
+    loginWithPasskey,
     signUpWithPasskey,
+    getWalletProviders,
+    loginWithWallet,
+    signUpWithWallet,
     fetchUser,
     fetchWallets,
     initOtp,
@@ -195,6 +199,57 @@ export default function AuthPage() {
         }}
       >
         Sign Up with Passkey
+      </button>
+
+      <button
+        onClick={async () => {
+          const providers = getWalletProviders();
+          console.log("Wallet Providers:", providers);
+        }}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Get Wallet Providers
+      </button>
+
+      <button
+        onClick={async () => {
+          const provider = getWalletProviders(WalletType.Solana);
+          console.log("Injected Solana Provider:", provider);
+          await signUpWithWallet({
+            walletProvider: provider[1],
+          });
+        }}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Sign Up with Wallet
+      </button>
+
+      <button
+        onClick={async () => {
+          const provider = getWalletProviders(WalletType.Solana);
+          console.log("Injected Solana Provider:", provider);
+          await loginWithWallet({
+            walletProvider: provider[1],
+          });
+        }}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Login with Wallet
       </button>
 
       <input
