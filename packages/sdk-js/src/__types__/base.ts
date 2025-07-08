@@ -1,5 +1,5 @@
 import type { TActivityId, TActivityStatus } from "@turnkey/http";
-import type { WalletStamper } from "@turnkey/wallet-stamper";
+import type { WalletStamper, WalletType } from "@turnkey/wallet-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import type {
@@ -11,6 +11,7 @@ import type {
 } from "@turnkey/sdk-types";
 import { StorageBase } from "../__storage__/base";
 import { TPasskeyStamperConfig } from "../__stampers__/passkey/base";
+import { TWalletStamperConfig } from "../__stampers__/wallet/base";
 
 // TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
 
@@ -114,6 +115,7 @@ export interface TurnkeyHttpClientConfig {
   activityPoller?: TActivityPollerConfig | undefined;
   apiKeyStamper?: TStamper | undefined;
   passkeyStamper?: TStamper | undefined;
+  walletStamper?: TStamper | undefined;
   storageManager?: StorageBase | undefined;
   readOnlySession?: string | undefined; // TODO (Amir): Shouldn't this be getten from the storage manager?
 }
@@ -127,6 +129,7 @@ export interface TurnkeySDKClientConfig {
   importIframeUrl: string;
 
   passkeyConfig?: TPasskeyStamperConfig;
+  walletConfig?: TWalletStamperConfig;
 }
 
 export type Stamper = WebauthnStamper | WalletStamper | IndexedDbStamper;
@@ -217,6 +220,7 @@ export enum AuthClient {
 export enum StamperType {
   ApiKey = "api-key",
   Passkey = "passkey",
+  Wallet = "wallet",
 }
 
 export enum OtpType {
@@ -228,6 +232,8 @@ export enum FilterType {
   Email = "EMAIL",
   Sms = "SMS",
 }
+
+export type Chain = WalletType;
 
 export const OtpTypeToFilterTypeMap = {
   [OtpType.Email]: FilterType.Email,
