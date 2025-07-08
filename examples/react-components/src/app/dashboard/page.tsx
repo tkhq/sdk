@@ -476,6 +476,9 @@ export default function Dashboard() {
         : "Verification failed.",
     );
   };
+  const ethAddress = accounts.find((account: any) =>
+  account.address.startsWith("0x")
+)?.address;
   if (loading) {
     return (
       <main className="main">
@@ -729,7 +732,8 @@ export default function Dashboard() {
               onHandleImportSuccess={handleImportSuccess}
             />
           </div>
-          <div className = "onRampContainer"><OnRamp /></div>
+          
+          <div className = "onRampContainer"> <OnRamp ethAddress={ethAddress || ""} /></div>
                         
           <div className="authFooter">
             <div className="authFooterLeft">
