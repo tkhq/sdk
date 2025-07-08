@@ -50,7 +50,9 @@
   },
   "dependencies": {
     "@turnkey/crypto": "workspace:*",
-    "@turnkey/encoding": "workspace:*"
+    "@turnkey/encoding": "workspace:*",
+    "@wallet-standard/app": "^1.1.0",
+    "@wallet-standard/base": "^1.1.0"
   },
   "optionalDependencies": {
     "viem": "^2.21.35"
