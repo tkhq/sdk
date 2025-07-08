@@ -56,20 +56,20 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
    *
    * This method accesses the first available account on the wallet and returns its address.
    */
-async getPublicKey(provider: WalletRpcProvider): Promise<string> {
-  const wallet = asSolana(provider);
-  await ensureConnected(wallet);
-  const account = wallet.accounts[0];
-  if (!account) {
-    throw new WalletStamperError("No account in wallet");
+  async getPublicKey(provider: WalletRpcProvider): Promise<string> {
+    const wallet = asSolana(provider);
+    await ensureConnected(wallet);
+    const account = wallet.accounts[0];
+    if (!account) {
+      throw new WalletStamperError("No account in wallet");
+    }
+
+    // Convert from Base58 to hex
+    const publicKeyBytes = new PublicKey(account.address).toBytes();
+    const publicKeyHex = Buffer.from(publicKeyBytes).toString("hex");
+
+    return publicKeyHex;
   }
-
-  // Convert from Base58 to hex
-  const publicKeyBytes = new PublicKey(account.address).toBytes();
-  const publicKeyHex = Buffer.from(publicKeyBytes).toString("hex");
-
-  return publicKeyHex;
-}
 
   /**
    * Retrieves available Solana wallet providers using Wallet Standard.

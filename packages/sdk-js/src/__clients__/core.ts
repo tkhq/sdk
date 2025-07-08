@@ -463,8 +463,6 @@ export class TurnkeyClient {
       sessionKey = SessionKey.DefaultSessionkey,
     } = params;
 
-    console.log("Signing up with wallet...");
-
     if (!this.walletStamper) {
       throw new Error("Wallet stamper is not initialized");
     }
@@ -482,7 +480,6 @@ export class TurnkeyClient {
         walletProvider.type,
         walletProvider.provider,
       );
-      console.log("Public key from wallet:", publicKey);
 
       if (!publicKey) {
         throw new Error("Failed to get publicKey from wallet");
@@ -491,7 +488,6 @@ export class TurnkeyClient {
       const { type } = this.walletStamper!.getWalletInterface(
         walletProvider?.type,
       );
-      console.log("Wallet type:", type);
 
       // Build the request body for OTP init
       const signUpBody = {
@@ -543,7 +539,6 @@ export class TurnkeyClient {
       });
 
       if (!res.ok) {
-        console.log("Sign up failed with response:", res);
         const errorText = await res.text();
         throw new Error(`Sign up failed: ${res.status} ${errorText}`);
       }

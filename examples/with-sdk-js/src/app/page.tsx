@@ -60,10 +60,6 @@ export default function AuthPage() {
   const getWalletProvider1 = async () => {
     const providers = await getWalletProviders();
     console.log("Wallet Providers:", providers);
-    console.log("Wallet Providers:", providers[3]);
-    await loginWithWallet({
-      walletProvider: providers[3],
-    });
   };
 
   const indexedDB = async () => {

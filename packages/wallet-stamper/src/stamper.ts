@@ -25,23 +25,16 @@ export class WalletStamper {
   async stamp(payload: string, provider: WalletRpcProvider): Promise<TStamp> {
     let signature: string;
     try {
-      console.log("Signing payload:", payload);
-      console.log("Using wallet:", this.wallet.type);
-      console.log("Using provider:", provider);
       signature = await this.wallet.signMessage(payload, provider);
-      console.log("Signature:", signature);
     } catch (error) {
       throw new WalletStamperError("Failed to sign the message", error);
     }
 
-    console.log("HELLO I AM RUNNING");
     // Determine the signature scheme based on the wallet type.
     const scheme =
       this.wallet.type === WalletType.Solana
         ? SIGNATURE_SCHEME_TK_API_ED25519
         : SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191;
-
-    console.log("Scheme:", scheme);
 
     let publicKey: string;
     try {
@@ -68,9 +61,7 @@ export class WalletStamper {
         signature = toDerSignature(signature.replace("0x", ""));
       } else {
         // For Solana, we can directly use the public key.
-        console.log("Getting public key from wallet");
         publicKey = await this.wallet.getPublicKey(provider);
-        console.log("Public key:", publicKey);
       }
     } catch (error) {
       throw new WalletStamperError("Failed to recover public key", error);
