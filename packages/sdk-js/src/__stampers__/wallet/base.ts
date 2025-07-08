@@ -63,15 +63,20 @@ export class CrossPlatformWalletStamper implements TStamper {
   ): Promise<TStamp> {
     const c = this.getCtx(chain);
     const p = provider ?? c.provider;
+
+    if (!p) {
+      throw new Error(`Could not find a provider for chain '${chain}'.`);
+    }
+
     return c.stamper.stamp(payload, p);
   }
 
   async getPublicKey(
     chain: Chain = this.defaultChain(),
-    provider?: WalletRpcProvider,
+    provider: WalletRpcProvider,
   ): Promise<string> {
     const c = this.getCtx(chain);
-    return c.wallet.getPublicKey(provider ?? c.provider);
+    return c.wallet.getPublicKey(provider);
   }
 
   getProviders(chain?: Chain): WalletProvider[] {

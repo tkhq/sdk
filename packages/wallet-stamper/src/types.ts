@@ -29,9 +29,9 @@ export interface BaseWalletInterface {
   type: WalletType.Ethereum | WalletType.Solana;
   signMessage: (
     message: string,
-    provider?: WalletRpcProvider,
+    provider: WalletRpcProvider,
   ) => Promise<string>;
-  getPublicKey: (provider?: WalletRpcProvider) => Promise<string>;
+  getPublicKey: (provider: WalletRpcProvider) => Promise<string>;
   getProviders: () => WalletProvider[];
 }
 
@@ -81,9 +81,9 @@ export enum WalletType {
 export type WalletRpcProvider = EIP1193Provider | SWSWallet;
 
 export interface WalletProviderInfo {
-  uuid?: string;
   name: string;
-  icon: string;
+  uuid?: string;
+  icon?: string;
   rdns?: string;
 }
 

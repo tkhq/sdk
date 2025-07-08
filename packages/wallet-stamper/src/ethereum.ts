@@ -40,7 +40,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    */
   abstract signMessage(
     message: string | Hex,
-    provider?: WalletRpcProvider,
+    provider: WalletRpcProvider,
   ): Promise<Hex>;
 
   /**
@@ -49,7 +49,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    * @param provider - Optional Ethereum provider to use for signing.
    * @returns A promise that resolves to a string representing the compressed public key.
    */
-  async getPublicKey(provider?: WalletRpcProvider): Promise<string> {
+  async getPublicKey(provider: WalletRpcProvider): Promise<string> {
     const message = "GET_PUBLIC_KEY";
     const signature = await this.signMessage(message, provider);
     return getCompressedPublicKey(signature, message);
@@ -115,8 +115,8 @@ export class EthereumWallet extends BaseEthereumWallet {
    * This method uses the 'personal_sign' method of the Ethereum provider
    * to sign the message with the user's account.
    */
-  async signMessage(message: string | Hex, provider?: WalletRpcProvider) {
-    const selectedProvider = asEip1193(provider ?? this.getDefaultProvider());
+  async signMessage(message: string | Hex, provider: WalletRpcProvider) {
+    const selectedProvider = asEip1193(provider);
     const account = await this.getAccount(selectedProvider);
 
     const signature = await selectedProvider.request({
@@ -125,22 +125,6 @@ export class EthereumWallet extends BaseEthereumWallet {
     });
 
     return signature;
-  }
-
-  /**
-   * Retrieves the Ethereum provider from the window object.
-   *
-   * @returns The WalletRpcProvider instance.
-   *
-   * This method checks if the Ethereum provider is available in the
-   * window object and throws an error if not found.
-   */
-  private getDefaultProvider(): EIP1193Provider {
-    if (!window?.ethereum) {
-      throw new WalletStamperError("No ethereum provider found");
-    }
-
-    return window.ethereum;
   }
 
   /**

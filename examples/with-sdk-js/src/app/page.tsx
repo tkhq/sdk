@@ -9,6 +9,7 @@ import { Session, v1AddressFormat, v1Attestation } from "@turnkey/sdk-types";
 import { OtpType } from "@turnkey/sdk-js";
 import { useModal, useTurnkey } from "@turnkey/react-wallet-kit";
 import { SessionKey } from "@turnkey/sdk-js/dist/__storage__/base";
+import { WalletType } from "../../../../packages/wallet-stamper/dist";
 
 export default function AuthPage() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -59,6 +60,10 @@ export default function AuthPage() {
   const getWalletProvider1 = async () => {
     const providers = await getWalletProviders();
     console.log("Wallet Providers:", providers);
+    console.log("Wallet Providers:", providers[3]);
+    await loginWithWallet({
+      walletProvider: providers[3],
+    });
   };
 
   const indexedDB = async () => {
@@ -211,7 +216,11 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          await signUpWithWallet();
+          const provider = getWalletProviders(WalletType.Solana);
+          console.log("Injected Solana Provider:", provider);
+          await signUpWithWallet({
+            walletProvider: provider[1],
+          });
         }}
         style={{
           backgroundColor: "rebeccapurple",
@@ -225,7 +234,11 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          await loginWithWallet();
+          const provider = getWalletProviders(WalletType.Solana);
+          console.log("Injected Solana Provider:", provider);
+          await loginWithWallet({
+            walletProvider: provider[1],
+          });
         }}
         style={{
           backgroundColor: "rebeccapurple",

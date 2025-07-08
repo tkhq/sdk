@@ -374,16 +374,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return res;
   }
 
-  function getWalletProviders(chain?: Chain): Promise<WalletProvider[]> {
+  function getWalletProviders(chain?: Chain): WalletProvider[] {
     if (!client) throw new Error("Client is not initialized.");
     return client.getWalletProviders(chain);
   }
 
-  async function loginWithWallet(params?: {
+  async function loginWithWallet(params: {
+    walletProvider: WalletProvider;
     sessionType?: SessionType;
     publicKey?: string;
     sessionKey?: string | undefined;
-    walletProvider?: WalletProvider;
   }): Promise<string> {
     if (!client) {
       throw new Error("Client is not initialized.");
@@ -399,11 +399,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return res;
   }
 
-  async function signUpWithWallet(params?: {
+  async function signUpWithWallet(params: {
+    walletProvider: WalletProvider;
     createSubOrgParams?: CreateSubOrgParams;
     sessionType?: SessionType;
     sessionKey?: string | undefined;
-    walletProvider?: WalletProvider;
   }): Promise<string> {
     if (!client) {
       throw new Error("Client is not initialized.");

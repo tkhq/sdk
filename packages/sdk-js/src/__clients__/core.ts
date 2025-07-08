@@ -387,7 +387,7 @@ export class TurnkeyClient {
     }
   };
 
-  getWalletProviders = async (chain?: Chain): Promise<WalletProvider[]> => {
+  getWalletProviders = (chain?: Chain): WalletProvider[] => {
     try {
       if (!this.walletStamper) {
         throw new Error("Wallet stamper is not initialized");
@@ -399,22 +399,22 @@ export class TurnkeyClient {
     }
   };
 
-  loginWithWallet = async (params?: {
+  loginWithWallet = async (params: {
+    walletProvider: WalletProvider;
     sessionType?: SessionType;
     publicKey?: string;
     sessionKey?: string | undefined;
-    walletProvider?: WalletProvider;
   }): Promise<string> => {
     if (!this.walletStamper) {
       throw new Error("Wallet stamper is not initialized");
     }
 
     try {
-      const sessionType = params?.sessionType || SessionType.READ_WRITE;
+      const sessionType = params.sessionType || SessionType.READ_WRITE;
       const publicKey =
-        params?.publicKey || (await this.apiKeyStamper?.createKeyPair());
-      const sessionKey = params?.sessionKey || SessionKey.DefaultSessionkey;
-      const walletProvider = params?.walletProvider;
+        params.publicKey || (await this.apiKeyStamper?.createKeyPair());
+      const sessionKey = params.sessionKey || SessionKey.DefaultSessionkey;
+      const walletProvider = params.walletProvider;
 
       if (sessionType === SessionType.READ_WRITE) {
         if (!publicKey) {
@@ -423,12 +423,10 @@ export class TurnkeyClient {
           );
         }
 
-        if (walletProvider) {
-          this.walletStamper?.setProvider(
-            walletProvider.type,
-            walletProvider.provider,
-          );
-        }
+        this.walletStamper?.setProvider(
+          walletProvider.type,
+          walletProvider.provider,
+        );
 
         const sessionResponse = await this.httpClient.stampLogin(
           {
@@ -452,18 +450,18 @@ export class TurnkeyClient {
     }
   };
 
-  signUpWithWallet = async (params?: {
+  signUpWithWallet = async (params: {
+    walletProvider: WalletProvider;
     createSubOrgParams?: CreateSubOrgParams;
     sessionType?: SessionType;
     sessionKey?: string | undefined;
-    walletProvider?: WalletProvider;
   }): Promise<string> => {
     const {
-      createSubOrgParams,
       walletProvider,
+      createSubOrgParams,
       sessionType = SessionType.READ_WRITE,
       sessionKey = SessionKey.DefaultSessionkey,
-    } = params || {};
+    } = params;
 
     console.log("Signing up with wallet...");
 
@@ -475,22 +473,25 @@ export class TurnkeyClient {
     try {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
 
-      if (walletProvider) {
-        this.walletStamper?.setProvider(
-          walletProvider.type,
-          walletProvider.provider,
-        );
-      }
+      this.walletStamper?.setProvider(
+        walletProvider.type,
+        walletProvider.provider,
+      );
 
-      console.log("Getting public key from wallet stamper...");
-      const publicKey = await this.walletStamper?.getPublicKey();
-      console.log("Public key:", publicKey);
+      const publicKey = await this.walletStamper?.getPublicKey(
+        walletProvider.type,
+        walletProvider.provider,
+      );
+      console.log("Public key from wallet:", publicKey);
 
       if (!publicKey) {
         throw new Error("Failed to get publicKey from wallet");
       }
 
-      const { type } = this.walletStamper!.getWalletInterface();
+      const { type } = this.walletStamper!.getWalletInterface(
+        walletProvider?.type,
+      );
+      console.log("Wallet type:", type);
 
       // Build the request body for OTP init
       const signUpBody = {

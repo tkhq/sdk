@@ -44,7 +44,7 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
    */
   abstract signMessage(
     message: string | Uint8Array,
-    provider?: WalletRpcProvider,
+    provider: WalletRpcProvider,
   ): Promise<string>;
 
   /**
@@ -55,9 +55,11 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
    *
    * This method accesses the first available account on the wallet and returns its address.
    */
-  async getPublicKey(provider?: WalletRpcProvider): Promise<string> {
-    const sol = asSolana(provider ?? this.getDefaultProvider());
-    const account = sol.accounts[0];
+  async getPublicKey(provider: WalletRpcProvider): Promise<string> {
+    const wallet = asSolana(provider);
+    await ensureConnected(wallet);
+
+    const account = wallet.accounts[0];
     if (!account) {
       throw new WalletStamperError("No account in wallet");
     }
@@ -79,20 +81,6 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
         info: { name: w.name, icon: w.icon },
         provider: w,
       }));
-  }
-
-  /**
-   * Retrieves the default Solana provider from the window object.
-   *
-   * @returns The SWSWallet instance from `window.solana`.
-   *
-   * Throws an error if no provider is found.
-   */
-  getDefaultProvider(): SWSWallet {
-    if (window?.solana) {
-      return window.solana;
-    }
-    throw new Error("No Solana provider found");
   }
 }
 
@@ -116,24 +104,25 @@ export class SolanaWallet extends BaseSolanaWallet {
    */
   async signMessage(
     message: string | Uint8Array,
-    provider?: WalletRpcProvider,
+    provider: WalletRpcProvider,
   ): Promise<string> {
-    const wallet = asSolana(provider ?? this.getDefaultProvider());
+    const wallet = asSolana(provider);
     await ensureConnected(wallet);
 
-    const data = typeof message === "string"
-      ? new TextEncoder().encode(message)
-      : message;
+    const data =
+      typeof message === "string" ? new TextEncoder().encode(message) : message;
 
     const solanaSignMessage = wallet.features["solana:signMessage"] as
       | {
           signMessage: (args: {
-            account: typeof wallet.accounts[0];
+            account: (typeof wallet.accounts)[0];
             message: Uint8Array;
-          }) => Promise<readonly {
-            signedMessage: Uint8Array;
-            signature: Uint8Array;
-          }[]>;
+          }) => Promise<
+            readonly {
+              signedMessage: Uint8Array;
+              signature: Uint8Array;
+            }[]
+          >;
         }
       | undefined;
 
