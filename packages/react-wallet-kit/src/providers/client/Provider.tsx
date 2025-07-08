@@ -121,6 +121,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
   handleImport: (params: {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccount[];
     onImportSuccess?: (walletId: string) => void;
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   }) => Promise<void>;
 }
 
@@ -2041,8 +2042,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleImport = async (params: {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccount[];
     onImportSuccess?: (walletId: string) => void;
+    successPageDuration?: number | undefined;
   }) => {
-    const { defaultWalletAccounts, onImportSuccess } = params;
+    const { defaultWalletAccounts, onImportSuccess, successPageDuration } =
+      params;
     pushPage({
       key: "Import Wallet",
       content: (
@@ -2051,6 +2054,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             ? { defaultWalletAccounts }
             : {})}
           {...(onImportSuccess !== undefined ? { onImportSuccess } : {})}
+          {...(successPageDuration !== undefined
+            ? { successPageDuration }
+            : {})}
         />
       ),
     });

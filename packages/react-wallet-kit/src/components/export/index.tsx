@@ -111,7 +111,7 @@ export function ExportComponent(params: {
             : "opacity-0 pointer-events-none w-0 h-0"
         }`}
       >
-        <p className="text-xs">
+        <p className="text-xs text-icon-text-light dark:text-icon-text-dark">
           Your seed phrase is the key to your wallet. Save it in a secure
           location.
         </p>
@@ -133,6 +133,7 @@ export function ExportComponent(params: {
         <div className="mt-4">
           <ActionButton
             onClick={closeModal}
+            spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
             className="text-primary-text-light dark:text-primary-text-dark bg-primary-light dark:bg-primary-dark"
           >
             Done

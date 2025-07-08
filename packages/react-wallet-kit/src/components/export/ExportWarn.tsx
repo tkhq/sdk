@@ -34,7 +34,7 @@ export function ExportWarn(props: {
   const { exportWallet, session } = useTurnkey();
   return (
     <div className="flex flex-col w-full px-10">
-      <div className="flex flex-col gap-4 py-6">
+      <div className="flex flex-col gap-4 py-6 text-icon-text-light dark:text-icon-text-dark">
         <IconText
           icon={faTriangleExclamation}
           text="Keep your seed phrase private."
@@ -50,6 +50,7 @@ export function ExportWarn(props: {
       </div>
       <ActionButton
         loading={isLoading}
+        spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         className="text-primary-text-light dark:text-primary-text-dark bg-primary-light dark:bg-primary-dark"
         onClick={async () => {
           setIsLoading(true);
@@ -95,7 +96,9 @@ export function ExportWarn(props: {
 function IconText(props: { icon: IconDefinition; text: string }) {
   return (
     <div className="flex items-center gap-4">
-      <FontAwesomeIcon size={"lg"} icon={props.icon} />
+      <div className="w-6 h-fit shrink-0 flex items-center justify-center">
+        <FontAwesomeIcon size={"lg"} icon={props.icon} />
+      </div>
       <span className="text-sm">{props.text}</span>
     </div>
   );
