@@ -13,6 +13,7 @@ import {
   generateWalletAccountsFromAddressFormat,
   WalletAccount,
 } from "@turnkey/sdk-js";
+import { SuccessPage } from "../design/Success";
 
 export enum ExportType {
   Wallet = "WALLET",
@@ -25,8 +26,10 @@ const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 export function ImportComponent(params: {
   defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccount[];
   onImportSuccess?: (walletId: string) => void;
+  successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
 }) {
-  const { onImportSuccess, defaultWalletAccounts } = params;
+  const { onImportSuccess, defaultWalletAccounts, successPageDuration } =
+    params;
 
   const { config, session, importWallet, httpClient } = useTurnkey();
   const [walletName, setWalletName] = useState<string>("");
@@ -43,7 +46,7 @@ export function ImportComponent(params: {
   const apiBaseUrl = config?.apiBaseUrl;
   const importIframeUrl = config?.importIframeUrl!;
 
-  const { closeModal } = useModal();
+  const { closeModal, pushPage } = useModal();
 
   const [importIframeClient, setImportIframeClient] =
     useState<IframeStamper | null>(null);
@@ -146,7 +149,7 @@ export function ImportComponent(params: {
       if (
         Array.isArray(defaultWalletAccounts) &&
         defaultWalletAccounts.length > 0 &&
-        (defaultWalletAccounts as any[])[0]?.addressFormat !== undefined
+        (defaultWalletAccounts as any[])[0]?.addressFormat === undefined
       ) {
         accounts = generateWalletAccountsFromAddressFormat(
           defaultWalletAccounts as v1AddressFormat[],
@@ -163,9 +166,29 @@ export function ImportComponent(params: {
 
       if (response) {
         onImportSuccess?.(response);
+        if (successPageDuration && successPageDuration !== 0) {
+          pushPage({
+            key: "success",
+            content: (
+              <SuccessPage
+                text="Wallet Imported Successfully!"
+                duration={successPageDuration}
+                onComplete={() => {
+                  handleImportModalClose();
+                  closeModal();
+                }}
+              />
+            ),
+            preventBack: true,
+            showTitle: false,
+          });
+        } else {
+          handleImportModalClose();
+          closeModal();
+        }
         handleImportModalClose();
-        closeModal();
       } else {
+        await importIframeClient.clear();
         throw new TurnkeyError(
           "Failed to import wallet",
           TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
@@ -195,7 +218,7 @@ export function ImportComponent(params: {
 
   return (
     <div className="flex flex-col items-center w-[21rem] pt-4 p-2">
-      <p className="text-sm">
+      <p className="text-sm text-icon-text-light dark:text-icon-text-dark">
         Enter your seed phrase. Seed phrases are typically 12-24 words.
       </p>
       <div
@@ -224,13 +247,14 @@ export function ImportComponent(params: {
       />
       <ActionButton
         loading={isLoading}
+        spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         onClick={handleImport}
         className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
       >
         Import
       </ActionButton>
       <p
-        className={`text-sm text-red-500 mt-2 transition-opacity delay-75 ${error ? "opacitiy-100 pointer-events-auto" : "opacity-0 pointer-events-none h-0"}`}
+        className={`text-sm text-red-500 transition-opacity delay-75 ${error ? "opacitiy-100 pointer-events-auto mt-2" : "opacity-0 pointer-events-none absolute"}`}
       >
         {error?.message}:{" "}
         {error?.cause instanceof TurnkeyError
