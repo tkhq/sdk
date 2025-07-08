@@ -244,6 +244,29 @@ export function AuthComponent() {
           {component}
         </div>
       ))}
+      <div className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-xs mt-3 text-center">
+        <span>
+          By continuing, you agree to our{" "}
+          <a
+            href="https://www.turnkey.com/legal/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold no-underline text-icon-text-light/80 dark:text-icon-text-dark/80"
+          >
+            Terms of Service
+          </a>{" "}
+          &{" "}
+          <a
+            href="https://www.turnkey.com/legal/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold no-underline text-icon-text-light/80 dark:text-icon-text-dark/80"
+          >
+            Privacy Policy
+          </a>
+          {"."}
+        </span>
+      </div>
     </div>
   );
 }
