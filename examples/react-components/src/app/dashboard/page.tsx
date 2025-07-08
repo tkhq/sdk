@@ -715,7 +715,6 @@ export default function Dashboard() {
               <button className="signMessage" onClick={handleSignMessageClick}>
                 Sign a message
               </button>
-              <OnRamp />
             </div>
           </RadioGroup>
 
@@ -730,6 +729,8 @@ export default function Dashboard() {
               onHandleImportSuccess={handleImportSuccess}
             />
           </div>
+          <div className = "onRampContainer"><OnRamp /></div>
+                        
           <div className="authFooter">
             <div className="authFooterLeft">
               <div onClick={handleLogout} className="authFooterButton">
