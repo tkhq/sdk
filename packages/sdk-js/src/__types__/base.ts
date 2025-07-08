@@ -123,6 +123,8 @@ export interface TurnkeySDKClientConfig {
   authProxyUrl: string;
   authProxyId: string;
   organizationId: string;
+  exportIframeUrl: string;
+  importIframeUrl: string;
 
   passkeyConfig?: TPasskeyStamperConfig;
 }
