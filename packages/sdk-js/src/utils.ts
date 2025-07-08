@@ -381,6 +381,5 @@ export function generateWalletAccountsFromAddressFormat(
     return newAccount;
   });
 
-  console.log(walletAccounts);
   return walletAccounts;
 }
