@@ -456,6 +456,7 @@ export default function AuthPage() {
               "ADDRESS_FORMAT_SOLANA",
               "ADDRESS_FORMAT_ETHEREUM",
             ],
+            successPageDuration: 5000,
           })
         }
         style={{

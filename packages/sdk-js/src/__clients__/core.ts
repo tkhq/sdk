@@ -1459,50 +1459,6 @@ export class TurnkeyClient {
     }
   };
 
-  updateUser = async (params: {
-    userId?: string;
-    userName?: string;
-    userEmail?: string;
-    userTagIds?: string[];
-    userPhoneNumber?: string;
-  }): Promise<v1User> => {
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-
-    const { userId = session.userId, ...updateFields } = params;
-    const organizationId = session.organizationId;
-
-    try {
-      const updatedUser = await this.httpClient.updateUser({
-        organizationId: organizationId || session.organizationId,
-        userId,
-        ...updateFields,
-      });
-
-      if (!updatedUser || !updatedUser.userId) {
-        throw new TurnkeyError(
-          "No updated user found in the response",
-          TurnkeyErrorCodes.BAD_RESPONSE,
-        );
-      }
-
-      const user = await this.fetchUser();
-      return user;
-    } catch (error) {
-      if (error instanceof TurnkeyError) throw error;
-      throw new TurnkeyError(
-        `Failed to update user`,
-        TurnkeyErrorCodes.UPDATE_USER_ERROR,
-        error,
-      );
-    }
-  };
-
   createWallet = async (params: {
     walletName: string;
     accounts?: WalletAccount[] | v1AddressFormat[];
