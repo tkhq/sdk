@@ -21,7 +21,7 @@ export const OnRamp = () => {
 
   const ethToken: Token = {
     name: "ETH",
-    address: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
+    address: "0x958E4A3364a25e5555f3e1b1171e91322DEe0589",
     symbol: "ETH",
     decimals: 6,
     chainId: 8453,
@@ -66,7 +66,7 @@ export const OnRamp = () => {
         const initFiatOnRampResponse = await indexedDbClient?.initFiatOnRamp({
           organizationId: session?.organizationId!,
           onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
-          walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
+          walletAddress: "0x958E4A3364a25e5555f3e1b1171e91322DEe0589",
           network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
           cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
           fiatCurrencyCode: "FIAT_ON_RAMP_CURRENCY_USD",
@@ -148,7 +148,7 @@ export const OnRamp = () => {
           await indexedDbClient?.initFiatOnRamp({
             organizationId: session?.organizationId!,
             onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
-            walletAddress: "0x652bd17D489F283A03bb52DAFa138764Be04Bc66",
+            walletAddress: "0x958E4A3364a25e5555f3e1b1171e91322DEe0589",
             network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
             cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
             fiatCurrencyCode: "FIAT_ON_RAMP_CURRENCY_USD",
@@ -156,7 +156,7 @@ export const OnRamp = () => {
 
         console.log(
           "initMoonPayFiatOnRampResponse:",
-          initMoonPayFiatOnRampResponse,
+          initMoonPayFiatOnRampResponse
         );
         // console.log(
         //   "https://buy-sandbox.moonpay.com?apiKey=pk_test_zEGwLvmLma8crfMBnJwzom7jzKeu6Jsk&currencyCode=ETH&walletAddress=0xf2C35a22F398a00097E7621638D3931173850811&signature=wecT6rA1h8Fo5xL3wtjMH2nvUdAwGbHHTu8NRI85Xeo%3D"
