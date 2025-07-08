@@ -91,7 +91,7 @@ export function OtpVerification(props: OtpVerificationProps) {
         />
 
         <div className="flex flex-col text-center">
-          <span className="text-lg font-medium">{`Enter the ${otpLength}-digit code we sent to:`}</span>
+          <span className="text-lg font-medium">{`Enter the ${otpLength}-digit code we sent to`}</span>
           <span className="text-base font-semibold">
             {formattedContact ?? contact}
           </span>
