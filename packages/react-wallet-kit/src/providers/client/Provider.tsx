@@ -67,6 +67,8 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { WalletType } from "@turnkey/wallet-stamper";
 import { ActionPage } from "../../components/auth/Action";
+import { ExportComponent, ExportType } from "../../components/export";
+import { ImportComponent } from "../../components/import";
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -97,6 +99,16 @@ export interface ClientContextType extends TurnkeyClientMethods {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
+  }) => Promise<void>;
+  handleExport: (params: {
+    walletId: string;
+    exportType: ExportType;
+    targetPublicKey?: string;
+    stamperType?: StamperType;
+  }) => Promise<void>;
+  handleImport: (params: {
+    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccount[];
+    onImportSuccess?: (walletId: string) => void;
   }) => Promise<void>;
 }
 
@@ -377,6 +389,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         authProxyUrl: config.authProxyUrl,
         authProxyId: config.authProxyId,
         organizationId: config.organizationId,
+        importIframeUrl: config.importIframeUrl ?? "https://import.turnkey.com",
+        exportIframeUrl: config.exportIframeUrl ?? "https://export.turnkey.com",
         passkeyConfig: {
           rpId: config.passkeyConfig?.rpId,
           timeout: config.passkeyConfig?.timeout || 60000, // 60 seconds
@@ -1878,6 +1892,44 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     });
   };
 
+  const handleExport = async (params: {
+    walletId: string;
+    exportType: ExportType;
+    targetPublicKey?: string;
+    stamperType?: StamperType;
+  }) => {
+    const { walletId, exportType, targetPublicKey, stamperType } = params;
+    pushPage({
+      key: "Export Wallet",
+      content: (
+        <ExportComponent
+          walletId={walletId ?? wallets[0]?.walletId!}
+          exportType={exportType ?? ExportType.Wallet}
+          {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
+          {...(stamperType !== undefined ? { stamperType } : {})}
+        />
+      ),
+    });
+  };
+
+  const handleImport = async (params: {
+    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccount[];
+    onImportSuccess?: (walletId: string) => void;
+  }) => {
+    const { defaultWalletAccounts, onImportSuccess } = params;
+    pushPage({
+      key: "Import Wallet",
+      content: (
+        <ImportComponent
+          {...(defaultWalletAccounts !== undefined
+            ? { defaultWalletAccounts }
+            : {})}
+          {...(onImportSuccess !== undefined ? { onImportSuccess } : {})}
+        />
+      ),
+    });
+  };
+
   return (
     <ClientContext.Provider
       value={{
@@ -1927,6 +1979,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleAppleOauth,
         handleFacebookOauth,
         getProxyAuthConfig,
+        handleExport,
+        handleImport,
       }}
     >
       {children}
