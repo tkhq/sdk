@@ -1112,7 +1112,7 @@ export type definitions = {
     smartContractInterface: string;
     type: definitions["v1SmartContractInterfaceType"];
     /** @description Human-readable name for a Smart Contract Interface. */
-    label?: string;
+    label: string;
     /** @description Notes for a Smart Contract Interface. */
     notes?: string;
   };
@@ -2590,6 +2590,7 @@ export type definitions = {
     rootQuorum?: definitions["externaldatav1Quorum"];
     features?: definitions["v1Feature"][];
     wallets?: definitions["v1Wallet"][];
+    smartContractInterfaceReferences?: definitions["v1SmartContractInterfaceReference"][];
   };
   v1OtpAuthIntent: {
     /** @description ID representing the result of an init OTP activity. */
@@ -3023,9 +3024,9 @@ export type definitions = {
     /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
     smartContractInterfaceId: string;
     /** @description The address corresponding to the Smart Contract or Program. */
-    contractAddress: string;
-    /** @description The JSON corresponding to the Smart Contract Interface. */
-    interface: string;
+    smartContractAddress: string;
+    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+    smartContractInterface: string;
     /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
     type: string;
     /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
@@ -3034,6 +3035,11 @@ export type definitions = {
     notes: string;
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1SmartContractInterfaceReference: {
+    smartContractInterfaceId?: string;
+    smartContractAddress?: string;
+    digest?: string;
   };
   /** @enum {string} */
   v1SmartContractInterfaceType:
