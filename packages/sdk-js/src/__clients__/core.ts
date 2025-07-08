@@ -1334,7 +1334,7 @@ export class TurnkeyClient {
 
   signMessage = async (params: {
     message: string;
-    wallet?: v1WalletAccount;
+    wallet: v1WalletAccount;
     stampWith?: StamperType;
   }): Promise<v1SignRawPayloadResult> => {
     const { message, wallet, stampWith } = params;

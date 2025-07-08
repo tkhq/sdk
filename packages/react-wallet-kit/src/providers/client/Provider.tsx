@@ -68,6 +68,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { WalletProvider } from "@turnkey/wallet-stamper";
 import { ActionPage } from "../../components/auth/Action";
+import { SignMessageModal } from "../../components/sign/Message";
 import { ExportComponent, ExportType } from "../../components/export";
 import { ImportComponent } from "../../components/import";
 
@@ -85,6 +86,16 @@ export interface ClientContextType extends TurnkeyClientMethods {
   config?: TurnkeyProviderConfig | undefined;
   user: v1User | undefined;
   wallets: Wallet[];
+  signMessage: (params: {
+    // TODO (Amir): We should have standard input types for the core functions I think. Redefining them is annoying
+    message: string;
+    wallet: v1WalletAccount;
+    stampWith?: StamperType;
+    modalOptions?: {
+      enabled?: boolean;
+      subText?: string;
+    };
+  }) => Promise<v1SignRawPayloadResult>;
   login: () => Promise<void>;
   handleGoogleOauth: (params: {
     clientId?: string;
@@ -1058,19 +1069,57 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   async function signMessage(params: {
     message: string;
-    wallet?: v1WalletAccount;
+    wallet: v1WalletAccount;
     stampWith?: StamperType;
+    modalOptions?: {
+      enabled?: boolean;
+      subText?: string;
+    };
   }): Promise<v1SignRawPayloadResult> {
+    // Set modalOptions.enabled default to true if not specified
+    if (params.modalOptions === undefined) {
+      params.modalOptions = { enabled: true };
+    } else if (params.modalOptions.enabled === undefined) {
+      params.modalOptions.enabled = true;
+    }
+
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
-      () => client.signMessage(params),
-      callbacks,
-      "Failed to sign message",
-    );
+    if (params.modalOptions?.enabled) {
+      return withTurnkeyErrorHandling(
+        () =>
+          new Promise((resolve, reject) => {
+            pushPage({
+              key: "Sign Message",
+              content: (
+                <SignMessageModal
+                  message={params.message}
+                  subText={params.modalOptions?.subText}
+                  wallet={params.wallet}
+                  stampWith={params.stampWith}
+                  onSuccess={(result) => {
+                    resolve(result);
+                  }}
+                  onError={(error) => {
+                    reject(error);
+                  }}
+                />
+              ),
+            });
+          }),
+        callbacks,
+        "Failed to sign message",
+      );
+    } else {
+      return withTurnkeyErrorHandling(
+        () => client.signMessage(params),
+        callbacks,
+        "Failed to sign message",
+      );
+    }
   }
 
   async function signTransaction(params: {
