@@ -156,7 +156,7 @@ export const OnRamp = () => {
 
         console.log(
           "initMoonPayFiatOnRampResponse:",
-          initMoonPayFiatOnRampResponse
+          initMoonPayFiatOnRampResponse,
         );
         // console.log(
         //   "https://buy-sandbox.moonpay.com?apiKey=pk_test_zEGwLvmLma8crfMBnJwzom7jzKeu6Jsk&currencyCode=ETH&walletAddress=0xf2C35a22F398a00097E7621638D3931173850811&signature=wecT6rA1h8Fo5xL3wtjMH2nvUdAwGbHHTu8NRI85Xeo%3D"
