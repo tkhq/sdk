@@ -36,6 +36,8 @@ export default function AuthPage() {
     createWallet,
     logout,
     setActiveSession,
+    handleExport,
+    handleImport,
   } = useTurnkey();
 
   useEffect(() => {
@@ -342,6 +344,31 @@ export default function AuthPage() {
       >
         Show Modal
       </button>
+
+      <button
+        onClick={handleExport}
+        style={{
+          backgroundColor: "purple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Show Export Modal
+      </button>
+
+      <button
+        onClick={handleImport}
+        style={{
+          backgroundColor: "purple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Show Import Modal
+      </button>
+
       {session ? (
         <button
           onClick={getWallets}

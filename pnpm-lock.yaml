@@ -2108,6 +2108,9 @@ importers:
       '@fortawesome/free-brands-svg-icons':
         specifier: ^6.7.2
         version: 6.7.2
+      '@fortawesome/free-regular-svg-icons':
+        specifier: ^6.7.2
+        version: 6.7.2
       '@fortawesome/free-solid-svg-icons':
         specifier: ^6.7.2
         version: 6.7.2
@@ -2120,6 +2123,9 @@ importers:
       '@noble/hashes':
         specifier: ^1.8.0
         version: 1.8.0
+      '@turnkey/iframe-stamper':
+        specifier: workspace:^
+        version: link:../iframe-stamper
       '@turnkey/sdk-js':
         specifier: workspace:*
         version: link:../sdk-js
@@ -2128,7 +2134,7 @@ importers:
         version: link:../sdk-types
       '@turnkey/wallet-stamper':
         specifier: ^1.0.5
-        version: 1.0.5(typescript@5.4.3)
+        version: link:../wallet-stamper
       '@types/react':
         specifier: ^18.2.75
         version: 18.3.3
@@ -3969,6 +3975,13 @@ packages:
 
   /@fortawesome/free-brands-svg-icons@6.7.2:
     resolution: {integrity: sha512-zu0evbcRTgjKfrr77/2XX+bU+kuGfjm0LbajJHVIgBWNIDzrhpRxiCPNT8DW5AdmSsq7Mcf9D1bH0aSeSUSM+Q==}
+    engines: {node: '>=6'}
+    dependencies:
+      '@fortawesome/fontawesome-common-types': 6.7.2
+    dev: false
+
+  /@fortawesome/free-regular-svg-icons@6.7.2:
+    resolution: {integrity: sha512-7Z/ur0gvCMW8G93dXIQOkQqHo2M5HLhYrRVC0//fakJXxcF1VmMPsxnG6Ee8qEylA8b8Q3peQXWMNZ62lYF28g==}
     engines: {node: '>=6'}
     dependencies:
       '@fortawesome/fontawesome-common-types': 6.7.2
@@ -7706,6 +7719,7 @@ packages:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   '@tybys/wasm-util@0.9.0':
     resolution: {integrity: sha512-6+7nlbMVX/PVDCwaIQ8nTOPveOcFLSt8GcXdx8hD0bt39uWxYT88uXzqTd4fTvqta7oeUJqudepapKNt2DYJFw==}
 
@@ -7741,6 +7755,8 @@ packages:
       - zod
     dev: false
 
+=======
+>>>>>>> 7303f913 (added import and export modals)
   /@typechain/ethers-v6@0.5.1(ethers@6.10.0)(typechain@8.3.2)(typescript@5.4.3):
 >>>>>>> 1e98a940 (added all sugared functions from core to react-wallet-kit provider, added more robust session management options)
     resolution: {integrity: sha512-F+GklO8jBWlsaVV+9oHaPh5NJdd6rAKN4tklGfInX1Q7h0xPgVLP39Jl3eCulPB5qexI71ZFHwbljx4ZXNfouA==}
