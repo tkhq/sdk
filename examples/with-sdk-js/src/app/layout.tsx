@@ -37,7 +37,7 @@ function RootLayout({ children }: RootLayoutProps) {
               autoRefreshSession: true,
             },
             ui: {
-              darkMode: false,
+              darkMode: true,
             },
             passkeyConfig: {
               rpId: process.env.NEXT_PUBLIC_RPID!,

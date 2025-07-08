@@ -10,6 +10,7 @@ import { OtpType } from "@turnkey/sdk-js";
 import { useModal, useTurnkey } from "@turnkey/react-wallet-kit";
 import { SessionKey } from "@turnkey/sdk-js/dist/__storage__/base";
 import { WalletType } from "@turnkey/wallet-stamper";
+import { ExportType } from "@turnkey/react-wallet-kit/dist/components/export";
 
 export default function AuthPage() {
   const [email, setEmail] = useState<string>("");
@@ -119,6 +120,7 @@ export default function AuthPage() {
       const res = await signMessage({
         message: "Hello, Turnkey!",
         wallet: walletAccount,
+        modalOptions: { enabled: false },
       });
 
       console.log("Signed message response:", res);
@@ -151,8 +153,26 @@ export default function AuthPage() {
     await setActiveSession({ sessionKey });
   };
 
-  const showModal = () => {
+  const showLoginModal = () => {
     login();
+  };
+
+  const showSigningModal = async () => {
+    if (
+      (wallets.length === 0 && !wallets[0]) ||
+      !wallets[0].accounts ||
+      wallets[0].accounts.length < 1
+    ) {
+      console.error("No wallets available to sign message");
+      return;
+    }
+
+    const result = await signMessage({
+      message:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. . Sed id maximus elit. Mauris lacus ligula, dictum nec purus sit amet, mollis tempor nisl. Morbi neque lectus, tempor sed tristique sit amet, ornare eget dui",
+      wallet: wallets[0].accounts[0],
+    });
+    console.log("Signing result:", result);
   };
 
   return (
@@ -389,7 +409,7 @@ export default function AuthPage() {
       </button>
 
       <button
-        onClick={showModal}
+        onClick={showLoginModal}
         style={{
           backgroundColor: "purple",
           borderRadius: "8px",
@@ -397,11 +417,28 @@ export default function AuthPage() {
           color: "white",
         }}
       >
-        Show Modal
+        Show Login Modal
       </button>
 
       <button
-        onClick={handleExport}
+        onClick={showSigningModal}
+        style={{
+          backgroundColor: "purple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Show Signing Modal
+      </button>
+
+      <button
+        onClick={() =>
+          handleExport({
+            walletId: wallets[0]?.walletId,
+            exportType: ExportType.Wallet,
+          })
+        }
         style={{
           backgroundColor: "purple",
           borderRadius: "8px",
@@ -413,7 +450,14 @@ export default function AuthPage() {
       </button>
 
       <button
-        onClick={handleImport}
+        onClick={() =>
+          handleImport({
+            defaultWalletAccounts: [
+              "ADDRESS_FORMAT_SOLANA",
+              "ADDRESS_FORMAT_ETHEREUM",
+            ],
+          })
+        }
         style={{
           backgroundColor: "purple",
           borderRadius: "8px",

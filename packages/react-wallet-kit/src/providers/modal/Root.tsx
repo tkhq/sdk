@@ -10,12 +10,13 @@ import { useModal } from "./Provider";
 import { IconButton } from "../../components/design/Buttons";
 import { faArrowLeft, faClose } from "@fortawesome/free-solid-svg-icons";
 import { useTurnkey } from "../client/Provider";
+import { TurnkeyLogo } from "../../components/design/Svg";
 
 export function ModalRoot() {
   const { modalStack, popPage, closeModal } = useModal();
   const { config } = useTurnkey();
   const current = modalStack[modalStack.length - 1];
-  const hasBack = modalStack.length > 1;
+  const hasBack = modalStack.length > 1 && !current?.preventBack;
 
   const [contentBlur, setContentBlur] = useState(0);
   const innerPadding = 16;
@@ -117,15 +118,16 @@ export function ModalRoot() {
                   className="h-6.5 absolute z-30 flex items-center justify-between transition-all"
                   style={{ width }}
                 >
-                  {hasBack ? (
-                    <IconButton
-                      className="w-6.5 h-6.5"
-                      icon={faArrowLeft}
-                      onClick={popPage}
-                    />
-                  ) : (
-                    <div className="w-6.5 h-6.5" />
-                  )}
+                  <div className="w-6.5 h-6.5">
+                    {hasBack && (
+                      <IconButton
+                        className="w-6.5 h-6.5"
+                        icon={faArrowLeft}
+                        onClick={popPage}
+                      />
+                    )}
+                  </div>
+
                   <DialogTitle className="text-base font-medium">
                     {current?.showTitle === undefined
                       ? current?.key
@@ -133,12 +135,15 @@ export function ModalRoot() {
                         ? current?.key
                         : null}
                   </DialogTitle>
-                  <IconButton
-                    className="w-6.5 h-6.5"
-                    icon={faClose}
-                    onClick={closeModal}
-                  />
+                  <div className="w-6.5 h-6.5">
+                    <IconButton
+                      className="w-6.5 h-6.5"
+                      icon={faClose}
+                      onClick={closeModal}
+                    />
+                  </div>
                 </div>
+
                 <TransitionChild
                   as={Fragment}
                   enter="ease-in duration-200"
@@ -156,6 +161,17 @@ export function ModalRoot() {
                     ref={containerRef}
                   >
                     {current?.content}
+
+                    <a
+                      href="https://www.turnkey.com/"
+                      className="flex flex-row items-center justify-center gap-0.5 mt-2 mb-1 text-icon-text-light/50 dark:text-icon-text-dark/50 text-xs no-underline"
+                      style={{
+                        opacity: current?.content ? 1 : 0,
+                      }}
+                    >
+                      <span>Secured by</span>
+                      <TurnkeyLogo />
+                    </a>
                   </div>
                 </TransitionChild>
               </div>
