@@ -2,18 +2,12 @@ import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import {
   broadcastTransaction,
   createMessageSignature,
-  createStacksPublicKey,
-  leftPadHex,
   makeUnsignedSTXTokenTransfer,
-  PubKeyEncoding,
-  publicKeyIsCompressed,
   sigHashPreSign,
   SingleSigSpendingCondition,
   TransactionSigner,
-  txidFromData,
   type StacksTransactionWire,
 } from "@stacks/transactions";
-import { hexToBytes } from "@stacks/common";
 import * as path from "path";
 import * as dotenv from "dotenv";
 
@@ -63,33 +57,6 @@ const generatePreSignSigHash = (
   return preSignSigHash;
 };
 
-const generatePostSignSigHash = (
-  pubKey: string,
-  preSignSigHash: string,
-  nextSig: string,
-) => {
-  const RECOVERABLE_ECDSA_SIG_LENGTH_BYTES = 65;
-  const hashLength = 32 + 1 + RECOVERABLE_ECDSA_SIG_LENGTH_BYTES;
-
-  let pubKeyStacksWire = createStacksPublicKey(pubKey);
-
-  const pubKeyEncoding = publicKeyIsCompressed(pubKeyStacksWire.data)
-    ? PubKeyEncoding.Compressed
-    : PubKeyEncoding.Uncompressed;
-
-  const sigHash =
-    preSignSigHash + leftPadHex(pubKeyEncoding.toString(16)) + nextSig;
-  const sigHashBytes = hexToBytes(sigHash);
-
-  if (sigHashBytes.byteLength > hashLength) {
-    throw Error("Invalid signature hash length");
-  }
-
-  let nextSigHash = txidFromData(sigHashBytes);
-
-  return nextSigHash;
-};
-
 const signStacksTx = async () => {
   try {
     const stacksPublicKey = process.env.TURNKEY_SIGNER_PUBLIC_KEY!;
@@ -113,15 +80,6 @@ const signStacksTx = async () => {
 
     // r and s values returned are in hex format, padStart r and s values
     const nextSig = `${signature!.v}${signature!.r.padStart(64, "0")}${signature!.s.padStart(64, "0")}`;
-
-    let nextSigHash = generatePostSignSigHash(
-      stacksPublicKey!,
-      preSignSigHash,
-      nextSig,
-    );
-
-    // Reassign current sigHash with `nextSigHash`
-    stacksTxSigner.sigHash = nextSigHash;
 
     // Reassign signature field in transaction with `nextSig`
     let spendingCondition = stacksTransaction.auth

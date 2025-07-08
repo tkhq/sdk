@@ -11,9 +11,6 @@ Simplified step-by-step process of what this example script is showing:
 4. Concatenate outputted raw signature (from step 3) components in the order of V + R + S
 5. The resulting signature of step 4 will be the nextSig
 6. Reassign spendingCondition.signature with nextSig
-7. Generate postSignSigHash by combining the preSignSigHash, public key encoding byte, and nextSig
-8. The result of step 7 will be called the nextSigHash
-9. Reassign the current signer.sigHash with the nextSigHash
 
 **Note:** The hashFunction `HASH_FUNCTION_NO_OP` should be set this way because the payload has already been hashed.
 
