@@ -20,7 +20,11 @@ export const OnRamp = () => {
       });
 
       if (response?.onRampUrl) {
-        window.open(response.onRampUrl, "_blank");
+window.open(
+  response.onRampUrl,
+  "_blank",
+  "popup,width=500,height=700,scrollbars=yes,resizable=yes"
+);
       }
     } catch (error) {
       console.error("Failed to init Coinbase on-ramp:", error);
@@ -41,7 +45,11 @@ export const OnRamp = () => {
       });
 
       if (response?.onRampUrl) {
-        window.open(response.onRampUrl, "_blank");
+       window.open(
+  response.onRampUrl,
+  "_blank",
+  "popup,width=500,height=700,scrollbars=yes,resizable=yes"
+);
       }
     } catch (error) {
       console.error("Failed to init MoonPay on-ramp:", error);
@@ -54,10 +62,12 @@ export const OnRamp = () => {
         <div className="fundingTitle">Funding</div>
         <div className="fundingSub">Add funds via Coinbase or MoonPay.</div>
       </div>
-      <button className="whiteButton" onClick={generateMoonPayUrl}>
+      <button className="whiteButton" onClick={generateMoonPayUrl} >
+                <img src="/images/moonpay.jpg"/>
         Buy with MoonPay
       </button>
       <button className="whiteButton" onClick={generateCoinbaseUrl}>
+         <img src="/images/coinbase.png" />
         Buy with Coinbase
       </button>
     </div>

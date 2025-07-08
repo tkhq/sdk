@@ -522,6 +522,11 @@ font-weight: 400;
   transition: background-color 0.3s ease;
 }
 
+.whiteButton img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
 .whiteButton:hover {
   background-color: var(--button-hover-bg);
 }
