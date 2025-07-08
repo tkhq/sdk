@@ -22,6 +22,8 @@ function RootLayout({ children }: RootLayoutProps) {
             authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
             authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
             organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+            importIframeUrl: process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!,
+            exportIframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
             auth: {
               oAuthConfig: {
                 googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
