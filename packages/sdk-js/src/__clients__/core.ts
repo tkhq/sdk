@@ -485,7 +485,7 @@ export class TurnkeyClient {
 
       return initOtpRes.otpId;
     } catch (error) {
-     if (error instanceof TurnkeyError) throw error;
+      if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
         `Failed to initialize OTP`,
         TurnkeyErrorCodes.INIT_OTP_ERROR,
