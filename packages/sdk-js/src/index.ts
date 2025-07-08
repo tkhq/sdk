@@ -1,5 +1,7 @@
 // marked as internal to prevent inclusion in the sdk-browser docs
 
+import { generateWalletAccountsFromAddressFormat } from "@utils";
+
 /** @internal */
 export {
   ApiKeyStamper,
@@ -104,3 +106,5 @@ export * from "./__types__/base";
 // marked as internal to prevent inclusion in the sdk-browser docs
 /** @internal */
 export type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
+
+export { generateWalletAccountsFromAddressFormat } from "./utils";
