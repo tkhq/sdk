@@ -16,6 +16,7 @@ import {
   withTurnkeyErrorHandling,
 } from "../../utils";
 import {
+  Chain,
   CreateSubOrgParams,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   ExportBundle,
@@ -65,7 +66,7 @@ import {
   faFacebook,
   faGoogle,
 } from "@fortawesome/free-brands-svg-icons";
-import { WalletType } from "@turnkey/wallet-stamper";
+import { WalletProvider } from "@turnkey/wallet-stamper";
 import { ActionPage } from "../../components/auth/Action";
 
 interface ClientProviderProps {
@@ -383,6 +384,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           userVerification:
             config.passkeyConfig?.userVerification || "preferred",
           allowCredentials: config.passkeyConfig?.allowCredentials || [],
+        },
+        walletConfig: {
+          ethereum: config.walletConfig?.ethereum,
+          solana: config.walletConfig?.solana,
         },
       });
 
@@ -711,6 +716,78 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       () => client.signUpWithPasskey({ ...params, expirationSeconds }),
       callbacks,
       "Failed to sign up with passkey",
+    );
+    if (res) {
+      await handlePostAuth();
+      setAuthState(AuthState.Authenticated);
+    } else {
+      setAuthState(AuthState.Unauthenticated);
+    }
+    return res;
+  }
+
+  function getWalletProviders(chain?: Chain): WalletProvider[] {
+    if (!client) {
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    return client.getWalletProviders(chain);
+  }
+
+  async function loginWithWallet(params: {
+    walletProvider: WalletProvider;
+    sessionType?: SessionType;
+    publicKey?: string;
+    sessionKey?: string;
+  }): Promise<string> {
+    if (!client) {
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    setAuthState(AuthState.Loading);
+
+    const expirationSeconds =
+      masterConfig?.auth?.sessionExpirationSeconds?.passkey ??
+      DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+    const res = await withTurnkeyErrorHandling(
+      () => client.loginWithWallet({ ...params, expirationSeconds }),
+      callbacks,
+      "Failed to login with wallet",
+    );
+    if (res) {
+      await handlePostAuth();
+      setAuthState(AuthState.Authenticated);
+    } else {
+      setAuthState(AuthState.Unauthenticated);
+    }
+    return res;
+  }
+
+  async function signUpWithWallet(params: {
+    walletProvider: WalletProvider;
+    createSubOrgParams?: CreateSubOrgParams;
+    sessionType?: SessionType;
+    sessionKey?: string;
+  }): Promise<string> {
+    if (!client) {
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    setAuthState(AuthState.Loading);
+
+    const expirationSeconds =
+      masterConfig?.auth?.sessionExpirationSeconds?.passkey ??
+      DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+    const res = await withTurnkeyErrorHandling(
+      () => client.signUpWithWallet({ ...params, expirationSeconds }),
+      callbacks,
+      "Failed to sign up with wallet",
     );
     if (res) {
       await handlePostAuth();
@@ -1146,7 +1223,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     customAccounts?: WalletAccount[];
     wallet?: {
       publicKey: string;
-      type: WalletType;
+      type: Chain;
     };
   }): Promise<TCreateSubOrganizationResponse> {
     if (!client)
@@ -1893,6 +1970,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         logout,
         loginWithPasskey,
         signUpWithPasskey,
+        getWalletProviders,
+        loginWithWallet,
+        signUpWithWallet,
         initOtp,
         verifyOtp,
         loginWithOtp,

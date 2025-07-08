@@ -43,6 +43,10 @@ function RootLayout({ children }: RootLayoutProps) {
               userVerification: "preferred",
               allowCredentials: [],
             },
+            walletConfig: {
+              ethereum: true,
+              solana: true,
+            },
           }}
           callbacks={{
             onError: (error) => {
