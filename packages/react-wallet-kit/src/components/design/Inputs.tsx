@@ -213,7 +213,7 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
 
           <ListboxOptions
             transition
-            className="absolute tk-scrollbar z-10 mt-1 bg-white dark:bg-button-dark border border-gray-300 dark:border-modal-background-light/20 rounded-md shadow-lg max-h-60 overflow-auto text-sm 
+            className="absolute tk-scrollbar z-50 mt-1 bg-white dark:bg-button-dark border border-gray-300 dark:border-modal-background-light/20 rounded-md shadow-lg max-h-72 overflow-auto text-sm 
             transition duration-200 ease-out data-closed:-translate-y-2 data-closed:opacity-0"
           >
             {countries.map((c) => {

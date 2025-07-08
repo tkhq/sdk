@@ -4,6 +4,7 @@ export type ModalPage = {
   key: string;
   content: ReactNode;
   showTitle?: boolean;
+  preventBack?: boolean;
 };
 
 type ModalContextType = {
