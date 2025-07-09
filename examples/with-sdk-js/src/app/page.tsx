@@ -23,6 +23,7 @@ export default function AuthPage() {
   const [otpId, setOtpId] = useState<string>("");
   const [newEmail, setNewEmail] = useState<string>("");
   const [newPhoneNumber, setNewPhoneNumber] = useState<string>("");
+  const [newUserName, setNewUserName] = useState<string>("");
 
   const {
     httpClient,
@@ -43,6 +44,7 @@ export default function AuthPage() {
     fetchWallets,
     initOtp,
     completeOtp,
+    handleSignMessage,
     signMessage,
     refreshSession,
     createWallet,
@@ -53,6 +55,7 @@ export default function AuthPage() {
     handleUpdateUserEmail,
     handleUpdateUserPhoneNumber,
     handleAddOAuthProvider,
+    handleUpdateUserName,
   } = useTurnkey();
 
   useEffect(() => {
@@ -116,7 +119,7 @@ export default function AuthPage() {
     }
   };
 
-  const handleSignMessage = async () => {
+  const doSignMessage = async () => {
     if (
       (wallets.length === 0 && !wallets[0]) ||
       !wallets[0].accounts ||
@@ -130,7 +133,6 @@ export default function AuthPage() {
       const res = await signMessage({
         message: "Hello, Turnkey!",
         wallet: walletAccount,
-        modalOptions: { enabled: false },
       });
 
       console.log("Signed message response:", res);
@@ -177,7 +179,7 @@ export default function AuthPage() {
       return;
     }
 
-    const result = await signMessage({
+    const result = await handleSignMessage({
       message:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. . Sed id maximus elit. Mauris lacus ligula, dictum nec purus sit amet, mollis tempor nisl. Morbi neque lectus, tempor sed tristique sit amet, ornare eget dui",
       wallet: wallets[0].accounts[0],
@@ -559,7 +561,7 @@ export default function AuthPage() {
 
       {wallets.length > 0 && (
         <button
-          onClick={handleSignMessage}
+          onClick={doSignMessage}
           style={{
             backgroundColor: "pink",
             borderRadius: "8px",
@@ -632,6 +634,36 @@ export default function AuthPage() {
             }}
           >
             Update Phone Number
+          </button>
+          <input
+            type="text"
+            placeholder="Enter your user name"
+            style={{
+              margin: "12px 0",
+              padding: "8px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              width: "300px",
+            }}
+            onChange={(e) => {
+              setNewUserName(e.target.value);
+            }}
+          />
+          <button
+            onClick={async () => {
+              await handleUpdateUserName({
+                successPageDuration: 5000,
+                subTitle: "Edit your user name",
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Update User Name
           </button>
         </>
       )}
