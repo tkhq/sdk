@@ -477,8 +477,8 @@ export default function Dashboard() {
     );
   };
   const ethAddress = accounts.find((account: any) =>
-  account.address.startsWith("0x")
-)?.address;
+    account.address.startsWith("0x"),
+  )?.address;
   if (loading) {
     return (
       <main className="main">
@@ -732,9 +732,12 @@ export default function Dashboard() {
               onHandleImportSuccess={handleImportSuccess}
             />
           </div>
-          
-          <div className = "onRampContainer"> <OnRamp ethAddress={ethAddress || ""} /></div>
-                        
+
+          <div className="onRampContainer">
+            {" "}
+            <OnRamp ethAddress={ethAddress || ""} />
+          </div>
+
           <div className="authFooter">
             <div className="authFooterLeft">
               <div onClick={handleLogout} className="authFooterButton">
