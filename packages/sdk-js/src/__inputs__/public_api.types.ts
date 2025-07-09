@@ -48,6 +48,14 @@ export type paths = {
     /** Get details about a Private Key */
     post: operations["PublicApiService_GetPrivateKey"];
   };
+  "/public/v1/query/get_proxy_auth_config": {
+    /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
+    post: operations["PublicApiService_GetProxyAuthConfig"];
+  };
+  "/public/v1/query/get_smart_contract_interface": {
+    /** Get details about a Smart Contract Interface */
+    post: operations["PublicApiService_GetSmartContractInterface"];
+  };
   "/public/v1/query/get_user": {
     /** Get details about a User */
     post: operations["PublicApiService_GetUser"];
@@ -75,6 +83,10 @@ export type paths = {
   "/public/v1/query/list_private_keys": {
     /** List all Private Keys within an Organization */
     post: operations["PublicApiService_GetPrivateKeys"];
+  };
+  "/public/v1/query/list_smart_contract_interfaces": {
+    /** List all Smart Contract Interfaces within an Organization */
+    post: operations["PublicApiService_GetSmartContractInterfaces"];
   };
   "/public/v1/query/list_suborgs": {
     /** Get all suborg IDs associated given a parent org ID and an optional filter. */
@@ -152,6 +164,10 @@ export type paths = {
     /** Create a read write session for a user */
     post: operations["PublicApiService_CreateReadWriteSession"];
   };
+  "/public/v1/submit/create_smart_contract_interface": {
+    /** Create an ABI/IDL in JSON */
+    post: operations["PublicApiService_CreateSmartContractInterface"];
+  };
   "/public/v1/submit/create_sub_organization": {
     /** Create a new Sub-Organization */
     post: operations["PublicApiService_CreateSubOrganization"];
@@ -200,6 +216,10 @@ export type paths = {
     /** Deletes private keys for an organization */
     post: operations["PublicApiService_DeletePrivateKeys"];
   };
+  "/public/v1/submit/delete_smart_contract_interface": {
+    /** Delete a Smart Contract Interface */
+    post: operations["PublicApiService_DeleteSmartContractInterface"];
+  };
   "/public/v1/submit/delete_sub_organization": {
     /** Deletes a sub organization */
     post: operations["PublicApiService_DeleteSubOrganization"];
@@ -216,9 +236,17 @@ export type paths = {
     /** Deletes wallets for an organization */
     post: operations["PublicApiService_DeleteWallets"];
   };
+  "/public/v1/submit/disable_user_initiated_auth": {
+    /** Disable User Initiated Auth */
+    post: operations["PublicApiService_DisableUserInitiatedAuth"];
+  };
   "/public/v1/submit/email_auth": {
     /** Authenticate a user via Email */
     post: operations["PublicApiService_EmailAuth"];
+  };
+  "/public/v1/submit/enable_user_initiated_auth": {
+    /** Enable User Initiated Auth */
+    post: operations["PublicApiService_EnableUserInitiatedAuth"];
   };
   "/public/v1/submit/export_private_key": {
     /** Exports a Private Key */
@@ -239,6 +267,10 @@ export type paths = {
   "/public/v1/submit/import_wallet": {
     /** Imports a wallet */
     post: operations["PublicApiService_ImportWallet"];
+  };
+  "/public/v1/submit/init_fiat_on_ramp": {
+    /** Initiate a fiat on ramp flow */
+    post: operations["PublicApiService_InitFiatOnRamp"];
   };
   "/public/v1/submit/init_import_private_key": {
     /** Initializes a new private key import */
@@ -316,6 +348,10 @@ export type paths = {
     /** Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
     post: operations["PublicApiService_UpdatePrivateKeyTag"];
   };
+  "/public/v1/submit/update_proxy_auth_config": {
+    /** Update the proxy-auth configuration (allowed origins, etc.) for an Organization */
+    post: operations["PublicApiService_UpdateProxyAuthConfig"];
+  };
   "/public/v1/submit/update_root_quorum": {
     /** Set the threshold and members of the root quorum. This activity must be approved by the current root quorum. */
     post: operations["PublicApiService_UpdateRootQuorum"];
@@ -323,6 +359,18 @@ export type paths = {
   "/public/v1/submit/update_user": {
     /** Update a User in an existing Organization */
     post: operations["PublicApiService_UpdateUser"];
+  };
+  "/public/v1/submit/update_user_email": {
+    /** Update a User's email in an existing Organization */
+    post: operations["PublicApiService_UpdateUserEmail"];
+  };
+  "/public/v1/submit/update_user_name": {
+    /** Update a User's name in an existing Organization */
+    post: operations["PublicApiService_UpdateUserName"];
+  };
+  "/public/v1/submit/update_user_phone_number": {
+    /** Update a User's phone number in an existing Organization */
+    post: operations["PublicApiService_UpdateUserPhoneNumber"];
   };
   "/public/v1/submit/update_user_tag": {
     /** Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
@@ -593,7 +641,16 @@ export type definitions = {
     | "ACTIVITY_TYPE_VERIFY_OTP"
     | "ACTIVITY_TYPE_OTP_LOGIN"
     | "ACTIVITY_TYPE_STAMP_LOGIN"
-    | "ACTIVITY_TYPE_OAUTH_LOGIN";
+    | "ACTIVITY_TYPE_OAUTH_LOGIN"
+    | "ACTIVITY_TYPE_UPDATE_USER_NAME"
+    | "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
+    | "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
+    | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
+    | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
+    | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
+    | "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH"
+    | "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH"
+    | "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1067,6 +1124,30 @@ export type definitions = {
     /** @description HPKE encrypted credential bundle */
     credentialBundle: string;
   };
+  v1CreateSmartContractInterfaceIntent: {
+    /** @description Corresponding contract address or program ID */
+    smartContractAddress: string;
+    /** @description ABI/IDL as a JSON string */
+    smartContractInterface: string;
+    type: definitions["v1SmartContractInterfaceType"];
+    /** @description Human-readable name for a Smart Contract Interface. */
+    label?: string;
+    /** @description Notes for a Smart Contract Interface. */
+    notes?: string;
+  };
+  v1CreateSmartContractInterfaceRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateSmartContractInterfaceIntent"];
+  };
+  v1CreateSmartContractInterfaceResult: {
+    /** @description The ID of the created Smart Contract Interface. */
+    smartContractInterfaceId: string;
+  };
   v1CreateSubOrganizationIntent: {
     /** @description Name for this sub-organization */
     name: string;
@@ -1168,6 +1249,8 @@ export type definitions = {
     disableSmsAuth?: boolean;
     /** @description Disable OTP email auth for the sub-organization */
     disableOtpEmailAuth?: boolean;
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken?: string;
   };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
@@ -1453,6 +1536,23 @@ export type definitions = {
     /** @description A list of private key unique identifiers that were removed */
     privateKeyIds: string[];
   };
+  v1DeleteSmartContractInterfaceIntent: {
+    /** @description The ID of a Smart Contract Interface intended for deletion. */
+    smartContractInterfaceId: string;
+  };
+  v1DeleteSmartContractInterfaceRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteSmartContractInterfaceIntent"];
+  };
+  v1DeleteSmartContractInterfaceResult: {
+    /** @description The ID of the deleted Smart Contract Interface. */
+    smartContractInterfaceId: string;
+  };
   v1DeleteSubOrganizationIntent: {
     /** @description Sub-organization deletion, by default, requires associated wallets and private keys to be exported for security reasons. Set this boolean to true to force sub-organization deletion even if some wallets or private keys within it have not been exported yet. Default: false. */
     deleteWithoutExport?: boolean;
@@ -1533,6 +1633,22 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
+  v1DisableUserInitiatedAuthIntent: {
+    /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
+    userId?: string;
+    /** @description Unique identifier for a given Policy. (representing the turnkey signer associated policy) */
+    policyId?: string;
+  };
+  v1DisableUserInitiatedAuthRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DisableUserInitiatedAuthIntent"];
+  };
+  v1DisableUserInitiatedAuthResult: { [key: string]: unknown };
   /** @enum {string} */
   v1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
   v1EmailAuthIntent: {
@@ -1601,6 +1717,32 @@ export type definitions = {
     templateVariables?: string;
     /** @description Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template. */
     templateId?: string;
+  };
+  v1EnableUserInitiatedAuthIntent: { [key: string]: unknown };
+  v1EnableUserInitiatedAuthRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1EnableUserInitiatedAuthIntent"];
+  };
+  v1EnableUserInitiatedAuthResult: {
+    /** @description A User ID. */
+    userId: string;
+    /** @description A Policy ID. */
+    policyId: string;
+  };
+  v1EwkSettingsParams: {
+    /** @description Enable Sign in with Apple */
+    appleEnabled?: boolean;
+    /** @description Enable Sign in with Google */
+    googleEnabled?: boolean;
+    /** @description Enable Sign in with Facebook */
+    facebookEnabled?: boolean;
+    /** @description Whether to open OAuth providers in-page instead of a popup */
+    openOauthInPage?: boolean;
   };
   v1ExportPrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -1680,6 +1822,73 @@ export type definitions = {
     | "FEATURE_NAME_WEBHOOK"
     | "FEATURE_NAME_SMS_AUTH"
     | "FEATURE_NAME_OTP_EMAIL_AUTH";
+  /** @enum {string} */
+  v1FiatOnRampBlockchainNetwork:
+    | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
+    | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM"
+    | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA"
+    | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BASE";
+  /** @enum {string} */
+  v1FiatOnRampCryptoCurrency:
+    | "FIAT_ON_RAMP_CRYPTO_CURRENCY_BTC"
+    | "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH"
+    | "FIAT_ON_RAMP_CRYPTO_CURRENCY_SOL"
+    | "FIAT_ON_RAMP_CRYPTO_CURRENCY_USDC";
+  /** @enum {string} */
+  v1FiatOnRampCurrency:
+    | "FIAT_ON_RAMP_CURRENCY_AUD"
+    | "FIAT_ON_RAMP_CURRENCY_BGN"
+    | "FIAT_ON_RAMP_CURRENCY_BRL"
+    | "FIAT_ON_RAMP_CURRENCY_CAD"
+    | "FIAT_ON_RAMP_CURRENCY_CHF"
+    | "FIAT_ON_RAMP_CURRENCY_COP"
+    | "FIAT_ON_RAMP_CURRENCY_CZK"
+    | "FIAT_ON_RAMP_CURRENCY_DKK"
+    | "FIAT_ON_RAMP_CURRENCY_DOP"
+    | "FIAT_ON_RAMP_CURRENCY_EGP"
+    | "FIAT_ON_RAMP_CURRENCY_EUR"
+    | "FIAT_ON_RAMP_CURRENCY_GBP"
+    | "FIAT_ON_RAMP_CURRENCY_HKD"
+    | "FIAT_ON_RAMP_CURRENCY_IDR"
+    | "FIAT_ON_RAMP_CURRENCY_ILS"
+    | "FIAT_ON_RAMP_CURRENCY_JOD"
+    | "FIAT_ON_RAMP_CURRENCY_KES"
+    | "FIAT_ON_RAMP_CURRENCY_KWD"
+    | "FIAT_ON_RAMP_CURRENCY_LKR"
+    | "FIAT_ON_RAMP_CURRENCY_MXN"
+    | "FIAT_ON_RAMP_CURRENCY_NGN"
+    | "FIAT_ON_RAMP_CURRENCY_NOK"
+    | "FIAT_ON_RAMP_CURRENCY_NZD"
+    | "FIAT_ON_RAMP_CURRENCY_OMR"
+    | "FIAT_ON_RAMP_CURRENCY_PEN"
+    | "FIAT_ON_RAMP_CURRENCY_PLN"
+    | "FIAT_ON_RAMP_CURRENCY_RON"
+    | "FIAT_ON_RAMP_CURRENCY_SEK"
+    | "FIAT_ON_RAMP_CURRENCY_THB"
+    | "FIAT_ON_RAMP_CURRENCY_TRY"
+    | "FIAT_ON_RAMP_CURRENCY_TWD"
+    | "FIAT_ON_RAMP_CURRENCY_USD"
+    | "FIAT_ON_RAMP_CURRENCY_VND"
+    | "FIAT_ON_RAMP_CURRENCY_ZAR";
+  /** @enum {string} */
+  v1FiatOnRampPaymentMethod:
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_APPLE_PAY"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_BANK_TRANSFER"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_GBP_OPEN_BANKING_PAYMENT"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_GOOGLE_PAY"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_SEPA_BANK_TRANSFER"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_PIX_INSTANT_PAYMENT"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_PAYPAL"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_VENMO"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_MOONPAY_BALANCE"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_CRYPTO_ACCOUNT"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_FIAT_WALLET"
+    | "FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT";
+  /** @enum {string} */
+  v1FiatOnRampProvider:
+    | "FIAT_ON_RAMP_PROVIDER_COINBASE"
+    | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
   v1GetActivitiesRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -1814,6 +2023,32 @@ export type definitions = {
   v1GetPrivateKeysResponse: {
     /** @description A list of Private Keys. */
     privateKeys: definitions["v1PrivateKey"][];
+  };
+  v1GetProxyAuthConfigRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1GetProxyAuthConfigResponse: {
+    /** @description Proxy authentication configuration (e.g., allowed origins). */
+    proxyAuthConfig: definitions["v1ProxyAuthConfig"];
+  };
+  v1GetSmartContractInterfaceRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface. */
+    smartContractInterfaceId: string;
+  };
+  v1GetSmartContractInterfaceResponse: {
+    /** @description Object to be used in conjunction with Policies to guard transaction signing. */
+    smartContractInterface: definitions["v1SmartContractInterface"];
+  };
+  v1GetSmartContractInterfacesRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1GetSmartContractInterfacesResponse: {
+    /** @description A list of Smart Contract Interfaces. */
+    smartContractInterfaces: definitions["v1SmartContractInterface"][];
   };
   v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
@@ -1976,6 +2211,41 @@ export type definitions = {
     walletId: string;
     /** @description A list of account addresses. */
     addresses: string[];
+  };
+  v1InitFiatOnRampIntent: {
+    /** @description Enum to specifiy which on-ramp provider to use */
+    onrampProvider: definitions["v1FiatOnRampProvider"];
+    /** @description Destination wallet address for the buy transaction. */
+    walletAddress: string;
+    /** @description Blockchain network to be used for the transaction, e.g., bitcoin, ethereum. Maps to MoonPay's network or Coinbase's defaultNetwork. */
+    network: definitions["v1FiatOnRampBlockchainNetwork"];
+    /** @description Code for the cryptocurrency to be purchased, e.g., btc, eth. Maps to MoonPay's currencyCode or Coinbase's defaultAsset. */
+    cryptoCurrencyCode: definitions["v1FiatOnRampCryptoCurrency"];
+    /** @description Code for the fiat currency to be used in the transaction, e.g., USD, EUR. */
+    fiatCurrencyCode?: definitions["v1FiatOnRampCurrency"];
+    /** @description Specifies a preset fiat amount for the transaction, e.g., '100'. Must be greater than '20'. If not provided, the user will be prompted to enter an amount. */
+    fiatCurrencyAmount?: string;
+    /** @description Pre-selected payment method, e.g., CREDIT_DEBIT_CARD, APPLE_PAY. Validated against the chosen provider. */
+    paymentMethod?: definitions["v1FiatOnRampPaymentMethod"];
+    /** @description ISO 3166-1 two-digit country code for Coinbase representing the purchasing user’s country of residence, e.g., US, GB. */
+    countryCode?: string;
+    /** @description ISO 3166-2 two-digit country subdivision code for Coinbase representing the purchasing user’s subdivision of residence within their country, e.g. NY. Required if country_code=US. */
+    countrySubdivisionCode?: string;
+  };
+  v1InitFiatOnRampRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1InitFiatOnRampIntent"];
+  };
+  v1InitFiatOnRampResult: {
+    /** @description Unique URL for a given fiat on-ramp flow. */
+    onRampUrl: string;
+    /** @description Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
+    onRampTransactionId: string;
   };
   v1InitImportPrivateKeyIntent: {
     /** @description The ID of the User importing a Private Key. */
@@ -2223,6 +2493,15 @@ export type definitions = {
     otpLoginIntent?: definitions["v1OtpLoginIntent"];
     stampLoginIntent?: definitions["v1StampLoginIntent"];
     oauthLoginIntent?: definitions["v1OauthLoginIntent"];
+    updateUserNameIntent?: definitions["v1UpdateUserNameIntent"];
+    updateUserEmailIntent?: definitions["v1UpdateUserEmailIntent"];
+    updateUserPhoneNumberIntent?: definitions["v1UpdateUserPhoneNumberIntent"];
+    initFiatOnRampIntent?: definitions["v1InitFiatOnRampIntent"];
+    createSmartContractInterfaceIntent?: definitions["v1CreateSmartContractInterfaceIntent"];
+    deleteSmartContractInterfaceIntent?: definitions["v1DeleteSmartContractInterfaceIntent"];
+    enableUserInitiatedAuthIntent?: definitions["v1EnableUserInitiatedAuthIntent"];
+    disableUserInitiatedAuthIntent?: definitions["v1DisableUserInitiatedAuthIntent"];
+    updateProxyAuthConfigIntent?: definitions["v1UpdateProxyAuthConfigIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2385,6 +2664,7 @@ export type definitions = {
     rootQuorum?: definitions["externaldatav1Quorum"];
     features?: definitions["v1Feature"][];
     wallets?: definitions["v1Wallet"][];
+    smartContractInterfaceReferences?: definitions["v1SmartContractInterfaceReference"][];
   };
   v1OtpAuthIntent: {
     /** @description ID representing the result of an init OTP activity. */
@@ -2453,7 +2733,8 @@ export type definitions = {
   /** @enum {string} */
   v1PayloadEncoding:
     | "PAYLOAD_ENCODING_HEXADECIMAL"
-    | "PAYLOAD_ENCODING_TEXT_UTF8";
+    | "PAYLOAD_ENCODING_TEXT_UTF8"
+    | "PAYLOAD_ENCODING_EIP712";
   v1Policy: {
     /** @description Unique identifier for a given Policy. */
     policyId: string;
@@ -2503,6 +2784,42 @@ export type definitions = {
   v1PrivateKeyResult: {
     privateKeyId?: string;
     addresses?: definitions["immutableactivityv1Address"][];
+  };
+  v1ProxyAuthConfig: {
+    organizationId?: string;
+    allowedOrigins?: string[];
+    allowedAuthMethods?: string[];
+    encryptedApiKey?: string;
+    turnkeySignerUserId?: string;
+    sendFromEmailAddress?: string;
+    replyToEmailAddress?: string;
+    emailAuthTemplateId?: string;
+    otpTemplateId?: string;
+    emailCustomizationParams?: string;
+    smsCustomizationParams?: string;
+    /** Format: int32 */
+    otpExpirationSeconds?: number;
+    /** Format: int32 */
+    verificationTokenExpirationSeconds?: number;
+    /** Format: int32 */
+    otpSessionExpirationSeconds?: number;
+    /** Format: int32 */
+    oauthSessionExpirationSeconds?: number;
+    /** Format: int32 */
+    passkeySessionExpirationSeconds?: number;
+    /** Format: int32 */
+    walletSessionExpirationSeconds?: number;
+    /** Format: date-time */
+    createdAt?: string;
+    /** Format: date-time */
+    updatedAt?: string;
+    otpAlphanumeric?: boolean;
+    /** Format: int32 */
+    otpLength?: number;
+    socialLinking?: boolean;
+    policyId?: string;
+    proxyId?: string;
+    ewkSettings?: string;
   };
   v1PublicKeyCredentialWithAttestation: {
     id: string;
@@ -2637,6 +2954,15 @@ export type definitions = {
     otpLoginResult?: definitions["v1OtpLoginResult"];
     stampLoginResult?: definitions["v1StampLoginResult"];
     oauthLoginResult?: definitions["v1OauthLoginResult"];
+    updateUserNameResult?: definitions["v1UpdateUserNameResult"];
+    updateUserEmailResult?: definitions["v1UpdateUserEmailResult"];
+    updateUserPhoneNumberResult?: definitions["v1UpdateUserPhoneNumberResult"];
+    initFiatOnRampResult?: definitions["v1InitFiatOnRampResult"];
+    createSmartContractInterfaceResult?: definitions["v1CreateSmartContractInterfaceResult"];
+    deleteSmartContractInterfaceResult?: definitions["v1DeleteSmartContractInterfaceResult"];
+    enableUserInitiatedAuthResult?: definitions["v1EnableUserInitiatedAuthResult"];
+    disableUserInitiatedAuthResult?: definitions["v1DisableUserInitiatedAuthResult"];
+    updateProxyAuthConfigResult?: definitions["v1UpdateProxyAuthConfigResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2805,6 +3131,33 @@ export type definitions = {
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
   };
+  v1SmartContractInterface: {
+    /** @description The Organization the Smart Contract Interface belongs to. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+    smartContractInterfaceId: string;
+    /** @description The address corresponding to the Smart Contract or Program. */
+    smartContractAddress: string;
+    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+    smartContractInterface: string;
+    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    type: string;
+    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    label: string;
+    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    notes: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1SmartContractInterfaceReference: {
+    smartContractInterfaceId?: string;
+    smartContractAddress?: string;
+    digest?: string;
+  };
+  /** @enum {string} */
+  v1SmartContractInterfaceType:
+    | "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM"
+    | "SMART_CONTRACT_INTERFACE_TYPE_SOLANA";
   v1SmsCustomizationParams: {
     /** @description Template containing references to .OtpCode i.e Your OTP is {{.OtpCode}} */
     template?: string;
@@ -2922,6 +3275,75 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key Tag. */
     privateKeyTagId: string;
   };
+  v1UpdateProxyAuthConfigIntent: {
+    /** @description Updated list of allowed origins for CORS. */
+    allowedOrigins?: string[];
+    /** @description Updated list of allowed origins for CORS. */
+    allowedAuthMethods?: string[];
+    /** @description Custom 'from' address for auth-related emails. */
+    sendFromEmailAddress?: string;
+    /** @description Custom reply-to address for auth-related emails. */
+    replyToEmailAddress?: string;
+    /** @description Template ID for email-auth messages. */
+    emailAuthTemplateId?: string;
+    /** @description Template ID for OTP SMS messages. */
+    otpTemplateId?: string;
+    /** @description Overrides for auth-related email content. */
+    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
+    /** @description Overrides for auth-related SMS content. */
+    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
+    /** @description Overrides for EWK related settings. */
+    ewkSettings?: definitions["v1EwkSettingsParams"];
+    /**
+     * Format: int32
+     * @description OTP code lifetime in seconds.
+     */
+    otpExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description Verification-token lifetime in seconds.
+     */
+    verificationTokenExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description OTP session lifetime in seconds.
+     */
+    otpSessionExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description Passkey session lifetime in seconds.
+     */
+    passkeySessionExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description Wallet session lifetime in seconds.
+     */
+    walletSessionExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description OAuth session lifetime in seconds.
+     */
+    oauthSessionExpirationSeconds?: number;
+    /** @description Enable alphanumeric OTP codes. */
+    otpAlphanumeric?: boolean;
+    /**
+     * Format: int32
+     * @description Desired OTP code length (6–9).
+     */
+    otpLength?: number;
+    /** @description Enable social linking (userEmail <-> gmail) */
+    socialLinking?: boolean;
+  };
+  v1UpdateProxyAuthConfigRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateProxyAuthConfigIntent"];
+  };
+  v1UpdateProxyAuthConfigResult: { [key: string]: unknown };
   v1UpdateRootQuorumIntent: {
     /**
      * Format: int32
@@ -2941,6 +3363,27 @@ export type definitions = {
     parameters: definitions["v1UpdateRootQuorumIntent"];
   };
   v1UpdateRootQuorumResult: { [key: string]: unknown };
+  v1UpdateUserEmailIntent: {
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description The user's email address. Setting this to an empty string will remove the user's email. */
+    userEmail: string;
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken?: string;
+  };
+  v1UpdateUserEmailRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateUserEmailIntent"];
+  };
+  v1UpdateUserEmailResult: {
+    /** @description Unique identifier of the User whose email was updated. */
+    userId: string;
+  };
   v1UpdateUserIntent: {
     /** @description Unique identifier for a given User. */
     userId: string;
@@ -2952,6 +3395,46 @@ export type definitions = {
     userTagIds?: string[];
     /** @description The user's phone number in E.164 format e.g. +13214567890 */
     userPhoneNumber?: string;
+  };
+  v1UpdateUserNameIntent: {
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description Human-readable name for a User. */
+    userName: string;
+  };
+  v1UpdateUserNameRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_USER_NAME";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateUserNameIntent"];
+  };
+  v1UpdateUserNameResult: {
+    /** @description Unique identifier of the User whose name was updated. */
+    userId: string;
+  };
+  v1UpdateUserPhoneNumberIntent: {
+    /** @description Unique identifier for a given User. */
+    userId: string;
+    /** @description The user's phone number in E.164 format e.g. +13214567890. Setting this to an empty string will remove the user's phone number. */
+    userPhoneNumber: string;
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken?: string;
+  };
+  v1UpdateUserPhoneNumberRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateUserPhoneNumberIntent"];
+  };
+  v1UpdateUserPhoneNumberResult: {
+    /** @description Unique identifier of the User whose phone number was updated. */
+    userId: string;
   };
   v1UpdateUserRequest: {
     /** @enum {string} */
@@ -3383,6 +3866,42 @@ export type operations = {
       };
     };
   };
+  /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
+  PublicApiService_GetProxyAuthConfig: {
+    parameters: {
+      body: {
+        body: definitions["v1GetProxyAuthConfigRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetProxyAuthConfigResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about a Smart Contract Interface */
+  PublicApiService_GetSmartContractInterface: {
+    parameters: {
+      body: {
+        body: definitions["v1GetSmartContractInterfaceRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetSmartContractInterfaceResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get details about a User */
   PublicApiService_GetUser: {
     parameters: {
@@ -3502,6 +4021,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetPrivateKeysResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all Smart Contract Interfaces within an Organization */
+  PublicApiService_GetSmartContractInterfaces: {
+    parameters: {
+      body: {
+        body: definitions["v1GetSmartContractInterfacesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetSmartContractInterfacesResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -3851,6 +4388,24 @@ export type operations = {
       };
     };
   };
+  /** Create an ABI/IDL in JSON */
+  PublicApiService_CreateSmartContractInterface: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateSmartContractInterfaceRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create a new Sub-Organization */
   PublicApiService_CreateSubOrganization: {
     parameters: {
@@ -4067,6 +4622,24 @@ export type operations = {
       };
     };
   };
+  /** Delete a Smart Contract Interface */
+  PublicApiService_DeleteSmartContractInterface: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteSmartContractInterfaceRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Deletes a sub organization */
   PublicApiService_DeleteSubOrganization: {
     parameters: {
@@ -4139,11 +4712,47 @@ export type operations = {
       };
     };
   };
+  /** Disable User Initiated Auth */
+  PublicApiService_DisableUserInitiatedAuth: {
+    parameters: {
+      body: {
+        body: definitions["v1DisableUserInitiatedAuthRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Authenticate a user via Email */
   PublicApiService_EmailAuth: {
     parameters: {
       body: {
         body: definitions["v1EmailAuthRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Enable User Initiated Auth */
+  PublicApiService_EnableUserInitiatedAuth: {
+    parameters: {
+      body: {
+        body: definitions["v1EnableUserInitiatedAuthRequest"];
       };
     };
     responses: {
@@ -4234,6 +4843,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1ImportWalletRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Initiate a fiat on ramp flow */
+  PublicApiService_InitFiatOnRamp: {
+    parameters: {
+      body: {
+        body: definitions["v1InitFiatOnRampRequest"];
       };
     };
     responses: {
@@ -4589,6 +5216,24 @@ export type operations = {
       };
     };
   };
+  /** Update the proxy-auth configuration (allowed origins, etc.) for an Organization */
+  PublicApiService_UpdateProxyAuthConfig: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateProxyAuthConfigRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Set the threshold and members of the root quorum. This activity must be approved by the current root quorum. */
   PublicApiService_UpdateRootQuorum: {
     parameters: {
@@ -4612,6 +5257,60 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1UpdateUserRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update a User's email in an existing Organization */
+  PublicApiService_UpdateUserEmail: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateUserEmailRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update a User's name in an existing Organization */
+  PublicApiService_UpdateUserName: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateUserNameRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update a User's phone number in an existing Organization */
+  PublicApiService_UpdateUserPhoneNumber: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateUserPhoneNumberRequest"];
       };
     };
     responses: {
