@@ -87,7 +87,16 @@ export function ModalRoot() {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+          <div
+            className="fixed inset-0 bg-black/40"
+            style={{
+              backdropFilter: `blur(${
+                typeof config?.ui?.backgroundBlur === "number"
+                  ? `${config.ui.backgroundBlur}px`
+                  : (config?.ui?.backgroundBlur ?? "8px")
+              })`,
+            }}
+          />
         </TransitionChild>
 
         {/* Modal Panel */
@@ -111,8 +120,9 @@ export function ModalRoot() {
                   height,
                   width,
                   padding: innerPadding,
+                  borderRadius: config?.ui?.borderRadius ?? "16px",
                 }}
-                className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex rounded-2xl shadow-xl transition-all"
+                className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex shadow-xl transition-all"
               >
                 <div
                   className="h-6.5 absolute z-30 flex items-center justify-between transition-all"

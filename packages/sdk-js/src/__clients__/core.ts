@@ -347,11 +347,12 @@ export class TurnkeyClient {
     let generatedKeyPair = null;
     try {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+      const passkeyName =
+        passkeyDisplayName || createSubOrgParams?.passkeyName || "A Passkey";
+
       const passkey = await this.createPasskey({
-        ...(passkeyDisplayName && {
-          name: passkeyDisplayName,
-          displayName: passkeyDisplayName,
-        }),
+        name: passkeyName,
+        displayName: passkeyName,
       });
 
       if (!passkey) {
@@ -370,8 +371,7 @@ export class TurnkeyClient {
         userEmail: createSubOrgParams?.userEmail,
         authenticators: [
           {
-            authenticatorName:
-              createSubOrgParams?.passkeyName || "Default Passkey",
+            authenticatorName: passkeyName,
             challenge: passkey.encodedChallenge,
             attestation: passkey.attestation,
           },
