@@ -5,7 +5,12 @@ import styles from "./index.module.css";
 
 import { StamperType, TurnkeyClient, Wallet } from "@turnkey/sdk-js";
 import { useContext, useEffect, useState } from "react";
-import { Session, v1AddressFormat, v1Attestation } from "@turnkey/sdk-types";
+import {
+  OAuthProviders,
+  Session,
+  v1AddressFormat,
+  v1Attestation,
+} from "@turnkey/sdk-types";
 import { OtpType } from "@turnkey/sdk-js";
 import { useModal, useTurnkey } from "@turnkey/react-wallet-kit";
 import { SessionKey } from "@turnkey/sdk-js/dist/__storage__/base";
@@ -16,6 +21,8 @@ export default function AuthPage() {
   const [email, setEmail] = useState<string>("");
   const [otpCode, setOtpCode] = useState<string>("");
   const [otpId, setOtpId] = useState<string>("");
+  const [newEmail, setNewEmail] = useState<string>("");
+  const [newPhoneNumber, setNewPhoneNumber] = useState<string>("");
 
   const {
     httpClient,
@@ -24,7 +31,7 @@ export default function AuthPage() {
     authState,
     wallets,
     user,
-    login,
+    handleLogin,
     handleGoogleOauth,
     createPasskey,
     loginWithPasskey,
@@ -43,6 +50,9 @@ export default function AuthPage() {
     setActiveSession,
     handleExport,
     handleImport,
+    handleUpdateUserEmail,
+    handleUpdateUserPhoneNumber,
+    handleAddOAuthProvider,
   } = useTurnkey();
 
   useEffect(() => {
@@ -154,7 +164,7 @@ export default function AuthPage() {
   };
 
   const showLoginModal = () => {
-    login();
+    handleLogin();
   };
 
   const showSigningModal = async () => {
@@ -558,6 +568,122 @@ export default function AuthPage() {
           }}
         >
           Sign Message
+        </button>
+      )}
+      {session && (
+        <>
+          <input
+            type="text"
+            placeholder="Enter your email"
+            style={{
+              margin: "12px 0",
+              padding: "8px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              width: "300px",
+            }}
+            onChange={(e) => {
+              setNewEmail(e.target.value);
+            }}
+          />
+          <button
+            onClick={async () => {
+              await handleUpdateUserEmail({
+                successPageDuration: 5000,
+                subTitle: "Add your email to your Turnkey Auth Demo account",
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Update Email
+          </button>
+          <input
+            type="text"
+            placeholder="Enter your email"
+            style={{
+              margin: "12px 0",
+              padding: "8px",
+              borderRadius: "4px",
+              border: "1px solid #ccc",
+              width: "300px",
+            }}
+            onChange={(e) => {
+              setNewPhoneNumber(e.target.value);
+            }}
+          />
+          <button
+            onClick={async () => {
+              await handleUpdateUserPhoneNumber({
+                successPageDuration: 5000,
+                subTitle:
+                  "Add your phone number to your Turnkey Auth Demo account",
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Update Phone Number
+          </button>
+        </>
+      )}
+      {session && (
+        <button
+          onClick={async () => {
+            await handleAddOAuthProvider({
+              providerName: OAuthProviders.GOOGLE,
+            });
+          }}
+          style={{
+            backgroundColor: "rebeccapurple",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Add Google OAuth
+        </button>
+      )}
+      {session && (
+        <button
+          onClick={async () => {
+            await handleAddOAuthProvider({
+              providerName: OAuthProviders.APPLE,
+            });
+          }}
+          style={{
+            backgroundColor: "rebeccapurple",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Add Apple OAuth
+        </button>
+      )}
+      {session && (
+        <button
+          onClick={async () => {
+            await handleAddOAuthProvider({
+              providerName: OAuthProviders.FACEBOOK,
+            });
+          }}
+          style={{
+            backgroundColor: "rebeccapurple",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Add Facebook OAuth
         </button>
       )}
     </main>

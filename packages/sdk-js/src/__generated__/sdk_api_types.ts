@@ -132,6 +132,30 @@ export type TGetPrivateKeyBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetProxyAuthConfigResponse =
+  operations["PublicApiService_GetProxyAuthConfig"]["responses"]["200"]["schema"];
+
+export type TGetProxyAuthConfigInput = { body: TGetProxyAuthConfigBody };
+
+export type TGetProxyAuthConfigBody = Omit<
+  operations["PublicApiService_GetProxyAuthConfig"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetSmartContractInterfaceResponse =
+  operations["PublicApiService_GetSmartContractInterface"]["responses"]["200"]["schema"];
+
+export type TGetSmartContractInterfaceInput = {
+  body: TGetSmartContractInterfaceBody;
+};
+
+export type TGetSmartContractInterfaceBody = Omit<
+  operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetUserResponse =
   operations["PublicApiService_GetUser"]["responses"]["200"]["schema"];
 
@@ -205,6 +229,19 @@ export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
 
 export type TGetPrivateKeysBody = Omit<
   operations["PublicApiService_GetPrivateKeys"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetSmartContractInterfacesResponse =
+  operations["PublicApiService_GetSmartContractInterfaces"]["responses"]["200"]["schema"];
+
+export type TGetSmartContractInterfacesInput = {
+  body: TGetSmartContractInterfacesBody;
+};
+
+export type TGetSmartContractInterfacesBody = Omit<
+  operations["PublicApiService_GetSmartContractInterfaces"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -408,6 +445,18 @@ export type TCreateReadWriteSessionBody =
   operations["PublicApiService_CreateReadWriteSession"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateSmartContractInterfaceResponse =
+  operations["PublicApiService_CreateSmartContractInterface"]["responses"]["200"]["schema"]["activity"]["result"]["createSmartContractInterfaceResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateSmartContractInterfaceInput = {
+  body: TCreateSmartContractInterfaceBody;
+};
+
+export type TCreateSmartContractInterfaceBody =
+  operations["PublicApiService_CreateSmartContractInterface"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateSubOrganizationResponse =
   operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV7"] &
     definitions["v1ActivityResponse"];
@@ -528,6 +577,18 @@ export type TDeletePrivateKeysBody =
   operations["PublicApiService_DeletePrivateKeys"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDeleteSmartContractInterfaceResponse =
+  operations["PublicApiService_DeleteSmartContractInterface"]["responses"]["200"]["schema"]["activity"]["result"]["deleteSmartContractInterfaceResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteSmartContractInterfaceInput = {
+  body: TDeleteSmartContractInterfaceBody;
+};
+
+export type TDeleteSmartContractInterfaceBody =
+  operations["PublicApiService_DeleteSmartContractInterface"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TDeleteSubOrganizationResponse =
   operations["PublicApiService_DeleteSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["deleteSubOrganizationResult"] &
     definitions["v1ActivityResponse"];
@@ -568,6 +629,18 @@ export type TDeleteWalletsBody =
   operations["PublicApiService_DeleteWallets"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDisableUserInitiatedAuthResponse =
+  operations["PublicApiService_DisableUserInitiatedAuth"]["responses"]["200"]["schema"]["activity"]["result"]["disableUserInitiatedAuthResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDisableUserInitiatedAuthInput = {
+  body: TDisableUserInitiatedAuthBody;
+};
+
+export type TDisableUserInitiatedAuthBody =
+  operations["PublicApiService_DisableUserInitiatedAuth"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TEmailAuthResponse =
   operations["PublicApiService_EmailAuth"]["responses"]["200"]["schema"]["activity"]["result"]["emailAuthResult"] &
     definitions["v1ActivityResponse"];
@@ -576,6 +649,18 @@ export type TEmailAuthInput = { body: TEmailAuthBody };
 
 export type TEmailAuthBody =
   operations["PublicApiService_EmailAuth"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEnableUserInitiatedAuthResponse =
+  operations["PublicApiService_EnableUserInitiatedAuth"]["responses"]["200"]["schema"]["activity"]["result"]["enableUserInitiatedAuthResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEnableUserInitiatedAuthInput = {
+  body: TEnableUserInitiatedAuthBody;
+};
+
+export type TEnableUserInitiatedAuthBody =
+  operations["PublicApiService_EnableUserInitiatedAuth"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TExportPrivateKeyResponse =
@@ -626,6 +711,16 @@ export type TImportWalletInput = { body: TImportWalletBody };
 
 export type TImportWalletBody =
   operations["PublicApiService_ImportWallet"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TInitFiatOnRampResponse =
+  operations["PublicApiService_InitFiatOnRamp"]["responses"]["200"]["schema"]["activity"]["result"]["initFiatOnRampResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TInitFiatOnRampInput = { body: TInitFiatOnRampBody };
+
+export type TInitFiatOnRampBody =
+  operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TInitImportPrivateKeyResponse =
@@ -822,6 +917,16 @@ export type TUpdatePrivateKeyTagBody =
   operations["PublicApiService_UpdatePrivateKeyTag"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TUpdateProxyAuthConfigResponse =
+  operations["PublicApiService_UpdateProxyAuthConfig"]["responses"]["200"]["schema"]["activity"]["result"]["updateProxyAuthConfigResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateProxyAuthConfigInput = { body: TUpdateProxyAuthConfigBody };
+
+export type TUpdateProxyAuthConfigBody =
+  operations["PublicApiService_UpdateProxyAuthConfig"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TUpdateRootQuorumResponse =
   operations["PublicApiService_UpdateRootQuorum"]["responses"]["200"]["schema"]["activity"]["result"]["updateRootQuorumResult"] &
     definitions["v1ActivityResponse"];
@@ -840,6 +945,36 @@ export type TUpdateUserInput = { body: TUpdateUserBody };
 
 export type TUpdateUserBody =
   operations["PublicApiService_UpdateUser"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateUserEmailResponse =
+  operations["PublicApiService_UpdateUserEmail"]["responses"]["200"]["schema"]["activity"]["result"]["updateUserEmailResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateUserEmailInput = { body: TUpdateUserEmailBody };
+
+export type TUpdateUserEmailBody =
+  operations["PublicApiService_UpdateUserEmail"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateUserNameResponse =
+  operations["PublicApiService_UpdateUserName"]["responses"]["200"]["schema"]["activity"]["result"]["updateUserNameResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateUserNameInput = { body: TUpdateUserNameBody };
+
+export type TUpdateUserNameBody =
+  operations["PublicApiService_UpdateUserName"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateUserPhoneNumberResponse =
+  operations["PublicApiService_UpdateUserPhoneNumber"]["responses"]["200"]["schema"]["activity"]["result"]["updateUserPhoneNumberResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateUserPhoneNumberInput = { body: TUpdateUserPhoneNumberBody };
+
+export type TUpdateUserPhoneNumberBody =
+  operations["PublicApiService_UpdateUserPhoneNumber"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TUpdateUserTagResponse =
