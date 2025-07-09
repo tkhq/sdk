@@ -2160,6 +2160,8 @@ export type definitions = {
     countryCode?: string;
     /** @description ISO 3166-2 two-digit country subdivision code for Coinbase representing the purchasing user’s subdivision of residence within their country, e.g. NY. Required if country_code=US. */
     countrySubdivisionCode?: string;
+    /** @description Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false. */
+    sandboxMode?: boolean;
   };
   v1InitFiatOnRampRequest: {
     /** @enum {string} */
