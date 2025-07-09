@@ -66,7 +66,7 @@ export function SuccessPage(props: SuccessPageProps) {
           }
         />
       </div>
-      <p className="text-lg font-medium mt-2">{text}</p>
+      <p className="text-lg font-medium mt-2 text-center">{text}</p>
     </div>
   );
 }
