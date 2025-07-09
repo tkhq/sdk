@@ -76,6 +76,7 @@ import { OtpVerification } from "../../components/auth/OTP";
 import { SuccessPage } from "../../components/design/Success";
 import { UpdateEmail } from "../../components/user/UpdateEmail";
 import { UpdatePhoneNumber } from "../../components/user/UpdatePhoneNumber";
+import { UpdateUserName } from "../../components/user/UpdateUserName";
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -91,16 +92,6 @@ export interface ClientContextType extends TurnkeyClientMethods {
   config?: TurnkeyProviderConfig | undefined;
   user: v1User | undefined;
   wallets: Wallet[];
-  signMessage: (params: {
-    // TODO (Amir): We should have standard input types for the core functions I think. Redefining them is annoying
-    message: string;
-    wallet: v1WalletAccount;
-    stampWith?: StamperType;
-    modalOptions?: {
-      enabled?: boolean;
-      subText?: string;
-    };
-  }) => Promise<v1SignRawPayloadResult>;
   googleOidcToken: (params?: { clientId?: string }) => Promise<string>;
   appleOidcToken: (params?: { clientId?: string }) => Promise<string>;
   facebookOidcToken: (params?: { clientId?: string }) => Promise<string>;
@@ -141,6 +132,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
   handleUpdateUserPhoneNumber: (params?: {
     phone?: string;
     formattedPhone?: string;
+    title?: string;
+    subTitle?: string;
+    onSuccess?: () => void;
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  }) => Promise<void>;
+  handleUpdateUserName: (params?: {
+    userName?: string;
     title?: string;
     subTitle?: string;
     onSuccess?: () => void;
@@ -1173,18 +1171,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     message: string;
     wallet: v1WalletAccount;
     stampWith?: StamperType;
-    modalOptions?: {
-      enabled?: boolean;
-      subText?: string;
-    };
   }): Promise<v1SignRawPayloadResult> {
-    // Set modalOptions.enabled default to true if not specified
-    if (params.modalOptions === undefined) {
-      params.modalOptions = { enabled: true };
-    } else if (params.modalOptions.enabled === undefined) {
-      params.modalOptions.enabled = true;
-    }
-
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1332,6 +1319,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       () => client.addOAuthProvider(params),
       callbacks,
       "Failed to add OAuth provider",
+    );
+  }
+
+  async function addPasskey(params?: {
+    name?: string;
+    displayName?: string;
+    userId?: string;
+  }): Promise<string[]> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    return withTurnkeyErrorHandling(
+      () => client.addPasskey(params),
+      callbacks,
+      "Failed to add passkey",
     );
   }
 
@@ -2217,6 +2221,103 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     });
   };
 
+  const handleUpdateUserName = async (params?: {
+    userName?: string;
+    title?: string;
+    subTitle?: string;
+    onSuccess?: (userId: string) => void;
+    successPageDuration?: number | undefined;
+  }) => {
+    const {
+      onSuccess = undefined,
+      successPageDuration,
+      subTitle,
+      title,
+    } = params || {};
+
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    const onContinue = async (userName: string) => {
+      if (!userName || userName === "") {
+        throw new TurnkeyError(
+          "User name is required for verification.",
+          TurnkeyErrorCodes.MISSING_PARAMS,
+        );
+      }
+      const res = await updateUserName({
+        userName,
+        userId: session.userId,
+      });
+
+      if (res) {
+        if (onSuccess) {
+          onSuccess(res);
+        } else {
+          if (successPageDuration && successPageDuration !== 0) {
+            pushPage({
+              key: "success",
+              content: (
+                <SuccessPage
+                  text="User Name Changed Successfully!"
+                  duration={successPageDuration}
+                  onComplete={() => {
+                    closeModal();
+                  }}
+                />
+              ),
+              preventBack: true,
+              showTitle: false,
+            });
+          }
+        }
+        await refreshUser();
+      } else {
+        closeModal();
+        throw new TurnkeyError(
+          "Failed to update user name.",
+          TurnkeyErrorCodes.UPDATE_USER_NAME_ERROR,
+        );
+      }
+    };
+
+    try {
+      if (!params?.userName && params?.userName !== "") {
+        pushPage({
+          key: "",
+          content: (
+            <UpdateUserName
+              onContinue={onContinue}
+              {...(title !== undefined ? { title } : {})}
+              {...(subTitle !== undefined ? { subTitle } : {})}
+            />
+          ),
+        });
+      } else {
+        onContinue(params?.userName);
+      }
+    } catch (error) {
+      if (error instanceof TurnkeyError) {
+        throw error;
+      }
+      throw new TurnkeyError(
+        "Failed to update user name.",
+        TurnkeyErrorCodes.UPDATE_USER_NAME_ERROR,
+        error,
+      );
+    }
+  };
+
   const handleUpdateUserPhoneNumber = async (params?: {
     phoneNumber?: string;
     formattedPhone?: string;
@@ -2873,6 +2974,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         updateUserPhoneNumber,
         updateUserName,
         addOAuthProvider,
+        addPasskey,
         createWallet,
         createWalletAccounts,
         exportWallet,
@@ -2902,6 +3004,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleImport,
         handleUpdateUserEmail,
         handleUpdateUserPhoneNumber,
+        handleUpdateUserName,
         handleAddOAuthProvider,
         handleSignMessage,
       }}
