@@ -1,4 +1,4 @@
-import { TurnkeySDKClientConfig } from "@turnkey/sdk-js";
+import { CreateSubOrgParams, TurnkeySDKClientConfig } from "@turnkey/sdk-js";
 import { ClientProvider } from "./client/Provider";
 import { ModalProvider } from "./modal/Provider";
 import { ModalRoot } from "./modal/Root";
@@ -29,14 +29,24 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       passkey?: string;
       wallet?: string;
     };
+    createSuborgParams?: {
+      email?: CreateSubOrgParams;
+      sms?: CreateSubOrgParams;
+      passkey?: CreateSubOrgParams;
+      wallet?: CreateSubOrgParams;
+      oAuth?: CreateSubOrgParams;
+    };
     autoRefreshSession?: boolean;
   };
   ui?: {
     darkMode?: boolean;
-    theme?: {
+    colors?: {
       light?: Partial<ThemeOverrides>;
       dark?: Partial<ThemeOverrides>;
     };
+    preferLargeActionButtons?: boolean; // If true, this will use full width buttons for actions like "Continue". Otherwise, small icon buttons will be used instead.
+    borderRadius?: string | number; // e.g., 8, "1rem"
+    backgroundBlur?: string | number; // e.g., 10, "1rem"
   };
   language?: {
     // Ohayō!
@@ -64,8 +74,8 @@ export function TurnkeyProvider({
     <ModalProvider>
       <ClientProvider config={config} callbacks={callbacks}>
         <TurnkeyThemeOverrides
-          light={config.ui?.theme?.light}
-          dark={config.ui?.theme?.dark}
+          light={config.ui?.colors?.light}
+          dark={config.ui?.colors?.dark}
         />
         {children}
         <ModalRoot />

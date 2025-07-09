@@ -3,19 +3,20 @@ import { ActionButton, IconButton } from "../design/Buttons";
 import { PhoneInputBox } from "../design/Inputs";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
+import { useTurnkey } from "../../providers";
 
 interface PhoneNumberInputProps {
   onContinue?: (phone: string, formattedPhone: string) => void;
 }
 
 export function PhoneNumberInput(props: PhoneNumberInputProps) {
+  const { config } = useTurnkey();
   const { onContinue } = props;
   const [phone, setPhone] = useState("");
   const [formattedPhone, setFormattedPhone] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [loading, setLoading] = useState(false);
-
-  const [useIconButton] = useState(true); // TODO (Amir): Pull from config
+  const useContinueButton = config?.ui?.preferLargeActionButtons ?? false;
 
   const handleContinue = async () => {
     if (isValid && onContinue) {
@@ -32,7 +33,7 @@ export function PhoneNumberInput(props: PhoneNumberInputProps) {
 
   const buttonClass = clsx(
     "transition-all duration-300",
-    (isValid || !useIconButton) &&
+    (isValid || useContinueButton) &&
       "bg-primary-light dark:bg-primary-dark hover:bg-primary-light/90 dark:hover:bg-primary-dark/90 text-primary-text-light dark:text-primary-text-dark",
   );
 
@@ -40,13 +41,13 @@ export function PhoneNumberInput(props: PhoneNumberInputProps) {
     <div
       className={clsx(
         "w-full items-center justify-center space-y-3",
-        useIconButton ? "flex flex-row" : "flex flex-col",
+        useContinueButton ? "flex flex-col" : "flex flex-row",
       )}
     >
       <div
         className={clsx(
           "w-full",
-          useIconButton && "relative flex items-center",
+          !useContinueButton && "relative flex items-center",
         )}
       >
         <PhoneInputBox
@@ -59,7 +60,7 @@ export function PhoneNumberInput(props: PhoneNumberInputProps) {
           onEnter={handleContinue}
         />
 
-        {useIconButton && (
+        {!useContinueButton && (
           <IconButton
             icon={faArrowRight}
             onClick={handleContinue}
@@ -71,7 +72,7 @@ export function PhoneNumberInput(props: PhoneNumberInputProps) {
         )}
       </div>
 
-      {!useIconButton && (
+      {useContinueButton && (
         <ActionButton
           onClick={handleContinue}
           disabled={buttonDisabled}
