@@ -14,6 +14,7 @@ interface OtpVerificationProps {
   otpLength?: number;
   alphanumeric?: boolean;
   formattedContact?: string; // Optional formatted contact for display purposes
+  onContinue?: (optCode: string) => Promise<void>; // Optional callback for continue action
 }
 export function OtpVerification(props: OtpVerificationProps) {
   const {
@@ -22,6 +23,7 @@ export function OtpVerification(props: OtpVerificationProps) {
     otpLength = 6,
     alphanumeric = true,
     formattedContact,
+    onContinue = null, // Default to null if not provided
   } = props;
   const { initOtp, completeOtp } = useTurnkey();
   const { closeModal } = useModal();
@@ -40,15 +42,18 @@ export function OtpVerification(props: OtpVerificationProps) {
   const handleContinue = async (otpCode: string) => {
     try {
       setSubmitting(true);
-      await completeOtp({
-        otpId,
-        otpCode,
-        contact,
-        otpType,
-        // TODO (Amir): We need to be able to pass createSuborgParams. And maybe the other params too.
-      });
-
-      closeModal();
+      if (onContinue) {
+        await onContinue(otpCode);
+      } else {
+        await completeOtp({
+          otpId,
+          otpCode,
+          contact,
+          otpType,
+          // TODO (Amir): We need to be able to pass createSuborgParams. And maybe the other params too.
+        });
+        closeModal();
+      }
     } catch (error) {
       const niceError = (error as Error).message.includes("Invalid OTP")
         ? "Invalid OTP code"

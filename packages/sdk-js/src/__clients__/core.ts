@@ -59,6 +59,7 @@ import {
   DEFAULT_SOLANA_ACCOUNTS,
 } from "../turnkey-helpers";
 import { WalletProvider, WalletType } from "@turnkey/wallet-stamper";
+import { jwtDecode } from "jwt-decode";
 
 type PublicMethods<T> = {
   [K in keyof T as K extends string | number | symbol
@@ -756,7 +757,6 @@ export class TurnkeyClient {
       );
       if (!verifyRes.ok) {
         const error = await verifyRes.text();
-        console.log(error);
         if (error.includes("Invalid OTP code")) {
           throw new TurnkeyNetworkError(
             "Invalid OTP code provided",
@@ -1052,7 +1052,12 @@ export class TurnkeyClient {
 
       if (!accountRes.ok && accountRes.status !== 404) {
         const error = await accountRes.text();
-        throw new Error(`Account fetch failed: ${accountRes.status} ${error}`);
+        throw new TurnkeyNetworkError(
+          `Account fetch failed`,
+          accountRes.status,
+          TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+          error,
+        );
       }
 
       let subOrganizationId: string | undefined = undefined;
@@ -1454,6 +1459,211 @@ export class TurnkeyClient {
       throw new TurnkeyError(
         `Failed to fetch user`,
         TurnkeyErrorCodes.FETCH_USER_ERROR,
+        error,
+      );
+    }
+  };
+
+  updateUserEmail = async (params: {
+    email: string;
+    verificationToken?: string;
+    userId?: string;
+  }): Promise<string> => {
+    const { verificationToken, email } = params;
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    const userId = params?.userId || session.userId;
+    try {
+      const res = await this.httpClient.updateUserEmail({
+        userId: userId,
+        userEmail: email,
+        ...(verificationToken && { verificationToken }),
+      });
+
+      if (!res || !res.userId) {
+        throw new TurnkeyError(
+          "No user ID found in the update user email response",
+          TurnkeyErrorCodes.BAD_RESPONSE,
+        );
+      }
+
+      return res.userId;
+    } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
+      throw new TurnkeyError(
+        `Failed to update user email`,
+        TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR,
+        error,
+      );
+    }
+  };
+
+  updateUserPhoneNumber = async (params: {
+    phoneNumber: string;
+    verificationToken?: string;
+    userId?: string;
+  }): Promise<string> => {
+    const { verificationToken, phoneNumber } = params;
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    const userId = params?.userId || session.userId;
+    try {
+      const res = await this.httpClient.updateUserPhoneNumber({
+        userId,
+        userPhoneNumber: phoneNumber,
+        ...(verificationToken && { verificationToken }),
+      });
+
+      if (!res || !res.userId) {
+        throw new TurnkeyError(
+          "No user ID found in the update user phone number response",
+          TurnkeyErrorCodes.BAD_RESPONSE,
+        );
+      }
+
+      return res.userId;
+    } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
+      throw new TurnkeyError(
+        `Failed to update user phone number`,
+        TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
+        error,
+      );
+    }
+  };
+
+  updateUserName = async (params: {
+    userName: string;
+    userId?: string;
+  }): Promise<string> => {
+    const { userName } = params;
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    const userId = params?.userId || session.userId;
+
+    try {
+      const res = await this.httpClient.updateUserName({
+        userId,
+        userName,
+      });
+
+      if (!res || !res.userId) {
+        throw new TurnkeyError(
+          "No user ID found in the update user name response",
+          TurnkeyErrorCodes.BAD_RESPONSE,
+        );
+      }
+
+      return res.userId;
+    } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
+      throw new TurnkeyError(
+        `Failed to update user name`,
+        TurnkeyErrorCodes.UPDATE_USER_NAME_ERROR,
+        error,
+      );
+    }
+  };
+
+  addOAuthProvider = async (params: {
+    providerName: string;
+    oidcToken: string;
+    userId?: string;
+  }): Promise<string[]> => {
+    const { providerName, oidcToken } = params;
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (this.config.authProxyId) {
+      headers["X-Proxy-ID"] = this.config.authProxyId;
+    }
+
+    try {
+      const url = new URL(`${this.config.authProxyUrl}/v1/account`);
+      url.searchParams.append("filterType", "OIDC_TOKEN");
+      url.searchParams.append("filterValue", oidcToken);
+
+      const accountRes = await fetch(url.toString(), {
+        method: "GET",
+        headers,
+      });
+
+      if (!accountRes.ok && accountRes.status !== 404) {
+        const error = await accountRes.text();
+        throw new Error(`Account fetch failed: ${accountRes.status} ${error}`);
+      }
+
+      const accountText = (await accountRes.text()).trim();
+      if (accountText != "account not found") {
+        throw new TurnkeyError(
+          "Account already exists with this OIDC token",
+          TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
+        );
+      }
+
+      const userId = params?.userId || session.userId;
+      const { email: oidcEmail } = jwtDecode<any>(oidcToken) || {}; // Parse the oidc token so we can get the email. Pass it in to updateUser then call createOauthProviders. This will be verified by Turnkey.
+
+      const verifiedSuborgs = await this.httpClient.getVerifiedSubOrgIds({
+        filterType: "EMAIL",
+        filterValue: oidcEmail,
+      });
+      const isVerified = verifiedSuborgs.organizationIds.some(
+        (orgId) => orgId === session.organizationId,
+      );
+
+      const user = await this.fetchUser({
+        userId,
+      });
+
+      if (!user?.userEmail && !isVerified) {
+        await this.updateUserEmail({
+          email: oidcEmail,
+          userId,
+        });
+      }
+
+      const createProviderRes = await this.httpClient.createOauthProviders({
+        userId,
+        oauthProviders: [
+          {
+            providerName,
+            oidcToken,
+          },
+        ],
+      });
+
+      return createProviderRes?.providerIds || [];
+    } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
+      throw new TurnkeyError(
+        `Failed to fetch account for OAuth provider`,
+        TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
         error,
       );
     }

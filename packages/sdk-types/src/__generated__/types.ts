@@ -2448,6 +2448,7 @@ export type v1OrganizationData = {
   rootQuorum?: externaldatav1Quorum;
   features?: v1Feature[];
   wallets?: v1Wallet[];
+  smartContractInterfaceReferences?: v1SmartContractInterfaceReference[];
 };
 
 export type v1OtpAuthIntent = {
@@ -2944,9 +2945,9 @@ export type v1SmartContractInterface = {
   /** Unique identifier for a given Smart Contract Interface (ABI or IDL). */
   smartContractInterfaceId: string;
   /** The address corresponding to the Smart Contract or Program. */
-  contractAddress: string;
-  /** The JSON corresponding to the Smart Contract Interface. */
-  interface: string;
+  smartContractAddress: string;
+  /** The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+  smartContractInterface: string;
   /** The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
   type: string;
   /** The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
@@ -2955,6 +2956,12 @@ export type v1SmartContractInterface = {
   notes: string;
   createdAt: externaldatav1Timestamp;
   updatedAt: externaldatav1Timestamp;
+};
+
+export type v1SmartContractInterfaceReference = {
+  smartContractInterfaceId?: string;
+  smartContractAddress?: string;
+  digest?: string;
 };
 
 export type v1SmartContractInterfaceType =
