@@ -3,6 +3,7 @@ import { Input } from "@headlessui/react";
 import { ActionButton, IconButton } from "../design/Buttons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
+import { useTurnkey } from "../../providers";
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -14,9 +15,10 @@ interface EmailInputProps {
 
 export function EmailInput(props: EmailInputProps) {
   const { onContinue } = props;
+  const { config } = useTurnkey();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
-  const [useIconButton] = useState(true); // TODO (Amir): Pull from config
+  const useContinueButton = config?.ui?.preferLargeActionButtons ?? false;
 
   const emailIsValid = isValidEmail(email);
 
@@ -41,7 +43,7 @@ export function EmailInput(props: EmailInputProps) {
 
   const buttonClass = clsx(
     "transition-all duration-300",
-    (emailIsValid || !useIconButton) &&
+    (emailIsValid || useContinueButton) &&
       "bg-primary-light dark:bg-primary-dark hover:bg-primary-light/90 dark:hover:bg-primary-dark/90 text-primary-text-light dark:text-primary-text-dark",
   );
 
@@ -49,13 +51,13 @@ export function EmailInput(props: EmailInputProps) {
     <div
       className={clsx(
         "w-full items-center justify-center space-y-3",
-        useIconButton ? "flex flex-row" : "flex flex-col",
+        useContinueButton ? "flex flex-col" : "flex flex-row",
       )}
     >
       <div
         className={clsx(
           "w-full",
-          useIconButton && "relative flex items-center",
+          !useContinueButton && "relative flex items-center",
         )}
       >
         <Input
@@ -67,7 +69,7 @@ export function EmailInput(props: EmailInputProps) {
           className="w-full py-3 px-4 rounded-md text-inherit bg-button-light dark:bg-button-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 box-border"
         />
 
-        {useIconButton && (
+        {!useContinueButton && (
           <IconButton
             icon={faArrowRight}
             onClick={handleContinue}
@@ -79,7 +81,7 @@ export function EmailInput(props: EmailInputProps) {
         )}
       </div>
 
-      {!useIconButton && (
+      {useContinueButton && (
         <ActionButton
           onClick={handleContinue}
           disabled={buttonDisabled}
