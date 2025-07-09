@@ -2,7 +2,7 @@
 
 import React from "react";
 import { OnchainKitProvider } from "@coinbase/onchainkit";
-import { baseSepolia } from "viem/chains";
+import { sepolia } from "viem/chains";
 
 interface CoinbaseCryptoProviderProps {
   children: React.ReactNode;
@@ -13,7 +13,7 @@ const CoinbaseCryptoProvider = ({ children }: CoinbaseCryptoProviderProps) => {
     <OnchainKitProvider
       apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY!}
       projectId={process.env.NEXT_PUBLIC_CDP_PROJECT_ID!}
-      chain={baseSepolia}
+      chain={sepolia}
     >
       {children}
     </OnchainKitProvider>
