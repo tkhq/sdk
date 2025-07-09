@@ -10227,13 +10227,13 @@
           "type": "string",
           "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
         },
-        "contractAddress": {
+        "smartContractAddress": {
           "type": "string",
           "description": "The address corresponding to the Smart Contract or Program."
         },
-        "interface": {
+        "smartContractInterface": {
           "type": "string",
-          "description": "The JSON corresponding to the Smart Contract Interface."
+          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
         },
         "type": {
           "type": "string",
@@ -10257,8 +10257,8 @@
       "required": [
         "organizationId",
         "smartContractInterfaceId",
-        "contractAddress",
-        "interface",
+        "smartContractAddress",
+        "smartContractInterface",
         "type",
         "label",
         "notes",
@@ -10266,6 +10266,20 @@
         "updatedAt"
       ]
 >>>>>>> 57ef158e (updated auth proxy type generation)
+    },
+    "v1SmartContractInterfaceReference": {
+      "type": "object",
+      "properties": {
+        "smartContractInterfaceId": {
+          "type": "string"
+        },
+        "smartContractAddress": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        }
+      }
     },
     "v1SmartContractInterfaceType": {
       "type": "string",

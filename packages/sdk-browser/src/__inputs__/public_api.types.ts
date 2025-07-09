@@ -3301,9 +3301,9 @@ export type definitions = {
     /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
     smartContractInterfaceId: string;
     /** @description The address corresponding to the Smart Contract or Program. */
-    contractAddress: string;
-    /** @description The JSON corresponding to the Smart Contract Interface. */
-    interface: string;
+    smartContractAddress: string;
+    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+    smartContractInterface: string;
     /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
     type: string;
     /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
@@ -3313,6 +3313,11 @@ export type definitions = {
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
 >>>>>>> 57ef158e (updated auth proxy type generation)
+  };
+  v1SmartContractInterfaceReference: {
+    smartContractInterfaceId?: string;
+    smartContractAddress?: string;
+    digest?: string;
   };
   /** @enum {string} */
   v1SmartContractInterfaceType:
