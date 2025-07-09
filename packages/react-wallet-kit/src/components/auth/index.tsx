@@ -105,7 +105,12 @@ export function AuthComponent() {
           action={async () => {
             const websiteName = window.location.hostname;
             const timestamp = Date.now();
-            const passkeyDisplayName = `${websiteName}-${timestamp}`;
+
+            // The default passkey name is just "A Passkey" from the core signUpWithPasskey method.
+            // Since we know we are on a website, default it to the website name if not provided in the conifg
+            const passkeyDisplayName =
+              config.auth?.createSuborgParams?.passkey?.passkeyName ??
+              `${websiteName}-${timestamp}`;
 
             await signUpWithPasskey({
               passkeyDisplayName,

@@ -37,13 +37,7 @@ function RootLayout({ children }: RootLayoutProps) {
               autoRefreshSession: true,
             },
             ui: {
-              darkMode: true,
-            },
-            passkeyConfig: {
-              rpId: process.env.NEXT_PUBLIC_RPID!,
-              timeout: 60000, // 60 seconds
-              userVerification: "preferred",
-              allowCredentials: [],
+              darkMode: false,
             },
             walletConfig: {
               ethereum: true,
