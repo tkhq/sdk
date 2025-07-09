@@ -1669,6 +1669,59 @@ export class TurnkeyClient {
     }
   };
 
+  addPasskey = async (params?: {
+    name?: string;
+    displayName?: string;
+    userId?: string;
+  }): Promise<string[]> => {
+    const name = params?.name || `Turnkey Passkey-${Date.now()}`;
+    const displayName = params?.displayName || name;
+
+    try {
+      const session = await this.storageManager.getActiveSession();
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found. Please log in first.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+
+      const userId = params?.userId || session.userId;
+
+      const { encodedChallenge, attestation } = await this.createPasskey({
+        name,
+        displayName,
+      });
+
+      if (!attestation || !encodedChallenge) {
+        throw new TurnkeyError(
+          "Failed to create passkey challenge and attestation",
+          TurnkeyErrorCodes.CREATE_PASSKEY_ERROR,
+        );
+      }
+
+      const res = await this.httpClient.createAuthenticators({
+        userId,
+        authenticators: [
+          {
+            authenticatorName: name,
+            challenge: encodedChallenge,
+            attestation,
+          },
+        ],
+      });
+
+      return res?.authenticatorIds || [];
+    } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
+      throw new TurnkeyError(
+        `Failed to add passkey`,
+        TurnkeyErrorCodes.ADD_PASSKEY_ERROR,
+        error,
+      );
+    }
+  };
+
   createWallet = async (params: {
     walletName: string;
     accounts?: WalletAccount[] | v1AddressFormat[];
