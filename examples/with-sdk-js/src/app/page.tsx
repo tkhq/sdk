@@ -56,6 +56,9 @@ export default function AuthPage() {
     handleUpdateUserPhoneNumber,
     handleAddOAuthProvider,
     handleUpdateUserName,
+    handleAddEmail,
+    handleAddPhoneNumber,
+    handleRemoveOAuthProvider,
   } = useTurnkey();
 
   useEffect(() => {
@@ -718,6 +721,66 @@ export default function AuthPage() {
           Add Facebook OAuth
         </button>
       )}
+      {session && (
+        <button
+          onClick={async () => {
+            await handleAddEmail({
+              successPageDuration: 5000,
+            });
+          }}
+          style={{
+            backgroundColor: "rebeccapurple",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Add Email
+        </button>
+      )}
+
+      {session && (
+        <button
+          onClick={async () => {
+            await handleAddPhoneNumber({
+              successPageDuration: 5000,
+            });
+          }}
+          style={{
+            backgroundColor: "rebeccapurple",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Add Phone Number
+        </button>
+      )}
+
+      {session && (
+        <button
+          onClick={async () => {
+            const providerId = user?.oauthProviders?.[0]?.providerId;
+            if (!providerId) {
+              console.error("No OAuth provider found to remove");
+              return;
+            }
+            await handleRemoveOAuthProvider({
+              providerId: providerId,
+            });
+          }}
+          style={{
+            backgroundColor: "rebeccapurple",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Remove OAuth Provider
+        </button>
+      )}
     </main>
   );
 }
+
+// ddc592bc-68ea-4b4c-a614-663949a5cc1a
