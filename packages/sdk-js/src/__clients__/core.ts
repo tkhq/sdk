@@ -61,11 +61,10 @@ import {
   DEFAULT_SOLANA_ACCOUNTS,
 } from "../turnkey-helpers";
 import {
-  getCompressedPublicKey,
+  getPublicKeyFromStampHeader,
   WalletProvider,
   WalletType,
 } from "@turnkey/wallet-stamper";
-import { TActivity, TSignedRequest } from "@turnkey/http";
 
 type PublicMethods<T> = {
   [K in keyof T as K extends string | number | symbol
@@ -733,18 +732,16 @@ export class TurnkeyClient {
           TurnkeyErrorCodes.BAD_RESPONSE,
         );
       }
-      console.log("Signed request created successfully");
-      console.log("Signed Request:", signedRequest);
 
       let publicKey: string | undefined;
       switch (walletProvider.type) {
         case WalletType.Ethereum: {
           // for Ethereum, there is no way to get the public key from the wallet address
           // so we derive it from the signed request
-          publicKey = await getCompressedPublicKey(
+          publicKey = getPublicKeyFromStampHeader(
             signedRequest.stamp.stampHeaderValue,
-            signedRequest.body,
           );
+
           break;
         }
 
@@ -766,9 +763,6 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.INVALID_REQUEST,
           );
       }
-
-      console.log("We now have the public key of the wallet");
-      console.log("Public Key:", publicKey);
 
       // here we check if the subOrg exists and create one
       // then we send off the stamped request to the Turnkey
@@ -804,7 +798,6 @@ export class TurnkeyClient {
         const res = await JSON.parse(accountText);
         subOrganizationId = res.organizationId;
       }
-      console.log("Sub Organization ID result:", subOrganizationId);
 
       // if there is no subOrganizationId, we create one
       if (!subOrganizationId) {
@@ -860,16 +853,12 @@ export class TurnkeyClient {
         }
       }
 
-      console.log("sending off the stamped request to the Turnkey");
       // now we can send the stamped request to the Turnkey
       headers = {
         "Content-Type": "application/json",
         [signedRequest.stamp.stampHeaderName]:
           signedRequest.stamp.stampHeaderValue,
       };
-
-      console.log("Headers for the request:", headers);
-      console.log("Signed Request Body:", signedRequest.body);
 
       const res = await fetch(signedRequest.url, {
         method: "POST",
@@ -878,7 +867,6 @@ export class TurnkeyClient {
       });
 
       if (!res.ok) {
-        console.log("Response not ok:", res.status);
         const errorText = await res.text();
         throw new TurnkeyNetworkError(
           `Stamped request failed`,
@@ -889,7 +877,6 @@ export class TurnkeyClient {
       }
 
       const sessionResponse = await res.json();
-      console.log("Session response received:", sessionResponse);
       const sessionToken =
         sessionResponse.activity.result.stampLoginResult?.session;
       if (!sessionToken) {
@@ -898,8 +885,6 @@ export class TurnkeyClient {
           TurnkeyErrorCodes.BAD_RESPONSE,
         );
       }
-
-      console.log("Session token received:", sessionToken);
 
       await this.storeSession({
         sessionToken: sessionToken,
