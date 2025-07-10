@@ -23,7 +23,6 @@ import {
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
   v1GetWalletKitConfigResponse,
-  v1Authenticator,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -38,6 +37,7 @@ import {
   OtpTypeToFilterTypeMap,
   CreateSubOrgParams,
   Chain,
+  FilterType,
 } from "@types"; // AHHHH, SDK-TYPES
 import {
   generateWalletAccountsFromAddressFormat,
@@ -59,7 +59,11 @@ import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   DEFAULT_SOLANA_ACCOUNTS,
 } from "../turnkey-helpers";
-import { WalletProvider, WalletType } from "@turnkey/wallet-stamper";
+import {
+  getPublicKeyFromStampHeader,
+  WalletProvider,
+  WalletType,
+} from "@turnkey/wallet-stamper";
 import { jwtDecode } from "jwt-decode";
 
 type PublicMethods<T> = {
@@ -503,8 +507,9 @@ export class TurnkeyClient {
 
       if (sessionType === SessionType.READ_WRITE) {
         if (!publicKey) {
-          throw new Error(
-            "You must provide a publicKey to create a wallet read write session.",
+          throw new TurnkeyError(
+            "A publickey could not be found or generated.",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
           );
         }
 
@@ -529,10 +534,18 @@ export class TurnkeyClient {
 
         return sessionResponse.session;
       } else {
-        throw new Error(`Invalid session type passed: ${sessionType}`);
+        throw new TurnkeyError(
+          `Invalid session type passed: ${sessionType}`,
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
       }
-    } catch (error) {
-      throw new Error(`Unable to log in with the provided wallet: ${error}`);
+    } catch (error: any) {
+      if (error instanceof TurnkeyError) throw error;
+      throw new TurnkeyError(
+        `Unable to log in with the provided wallet`,
+        TurnkeyErrorCodes.WALLET_LOGIN_AUTH_ERROR,
+        error,
+      );
     }
   };
 
@@ -552,7 +565,10 @@ export class TurnkeyClient {
     } = params;
 
     if (!this.walletStamper) {
-      throw new Error("Wallet stamper is not initialized");
+      throw new TurnkeyError(
+        "Wallet stamper is not initialized",
+        TurnkeyErrorCodes.INTERNAL_ERROR,
+      );
     }
 
     let generatedKeyPair = null;
@@ -628,7 +644,12 @@ export class TurnkeyClient {
 
       if (!res.ok) {
         const errorText = await res.text();
-        throw new Error(`Sign up failed: ${res.status} ${errorText}`);
+        throw new TurnkeyNetworkError(
+          `Sign up failed`,
+          res.status,
+          TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
+          errorText,
+        );
       }
 
       const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
@@ -665,6 +686,218 @@ export class TurnkeyClient {
           );
         }
       }
+    }
+  };
+
+  loginOrSignupWithWallet = async (params: {
+    walletProvider: WalletProvider;
+    createSubOrgParams?: CreateSubOrgParams;
+    sessionKey?: string;
+    expirationSeconds?: string;
+  }): Promise<string> => {
+    if (!this.walletStamper) {
+      throw new Error("Wallet stamper is not initialized");
+    }
+
+    const createSubOrgParams = params.createSubOrgParams;
+    const sessionKey = params.sessionKey || SessionKey.DefaultSessionkey;
+    const walletProvider = params.walletProvider;
+    const expirationSeconds =
+      params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
+    let generatedKeyPair = null;
+    try {
+      generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+
+      this.walletStamper?.setProvider(
+        walletProvider.type,
+        walletProvider.provider,
+      );
+
+      // here we sign the request with the wallet, but we don't send it to the Turnkey yet
+      // this is because we need to check if the subOrg exists first, and create one if it doesn't
+      // once we have the subOrg for the publicKey, we then can send the request to the Turnkey
+      const signedRequest = await this.httpClient.stampStampLogin(
+        {
+          publicKey: generatedKeyPair!,
+          organizationId: this.config.organizationId,
+          expirationSeconds,
+        },
+        StamperType.Wallet,
+      );
+
+      if (!signedRequest) {
+        throw new TurnkeyError(
+          "Failed to create stamped request for wallet login",
+          TurnkeyErrorCodes.BAD_RESPONSE,
+        );
+      }
+
+      let publicKey: string | undefined;
+      switch (walletProvider.type) {
+        case WalletType.Ethereum: {
+          // for Ethereum, there is no way to get the public key from the wallet address
+          // so we derive it from the signed request
+          publicKey = getPublicKeyFromStampHeader(
+            signedRequest.stamp.stampHeaderValue,
+          );
+
+          break;
+        }
+
+        case WalletType.Solana: {
+          // for Solana, we can get the public key from the wallet address
+          // since the wallet address is the public key
+          // this doesn't require any action from the user as long as the wallet is connected
+          // which it has to be since they just called stampStampLogin()
+          publicKey = await this.walletStamper?.getPublicKey(
+            walletProvider.type,
+            walletProvider.provider,
+          );
+          break;
+        }
+
+        default:
+          throw new TurnkeyError(
+            `Unsupported wallet type: ${walletProvider.type}`,
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+      }
+
+      // here we check if the subOrg exists and create one
+      // then we send off the stamped request to the Turnkey
+
+      const url = new URL(`${this.config.authProxyUrl}/v1/account`);
+      url.searchParams.append("filterType", FilterType.PublicKey);
+      url.searchParams.append("filterValue", publicKey);
+
+      let headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (this.config.authProxyId) {
+        headers["X-Proxy-ID"] = this.config.authProxyId;
+      }
+
+      const accountRes = await fetch(url.toString(), {
+        method: "GET",
+        headers,
+      });
+
+      if (!accountRes.ok && accountRes.status !== 404) {
+        throw new TurnkeyNetworkError(
+          `Account fetch failed`,
+          accountRes.status,
+          TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+          await accountRes.text(),
+        );
+      }
+
+      let subOrganizationId: string | undefined;
+      const accountText = (await accountRes.text()).trim();
+      if (accountText != "account not found") {
+        const res = await JSON.parse(accountText);
+        subOrganizationId = res.organizationId;
+      }
+
+      // if there is no subOrganizationId, we create one
+      if (!subOrganizationId) {
+        const signUpBody = {
+          userName:
+            createSubOrgParams?.userName ||
+            createSubOrgParams?.userEmail ||
+            `user-${Date.now()}`,
+          userEmail: createSubOrgParams?.userEmail,
+          userPhoneNumber: createSubOrgParams?.userPhoneNumber,
+          userTag: createSubOrgParams?.userTag,
+          subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
+          apiKeys: [
+            {
+              apiKeyName: `wallet-auth:${publicKey}`,
+              publicKey: publicKey,
+              curveType:
+                walletProvider.type === WalletType.Ethereum
+                  ? ("API_KEY_CURVE_SECP256K1" as const)
+                  : ("API_KEY_CURVE_ED25519" as const),
+            },
+          ],
+          oauthProviders: createSubOrgParams?.oauthProviders,
+          ...(createSubOrgParams?.customWallet && {
+            wallet: {
+              walletName: createSubOrgParams?.customWallet.walletName,
+              accounts: createSubOrgParams?.customWallet.walletAccounts,
+            },
+          }),
+        };
+
+        const headers: Record<string, string> = {
+          "Content-Type": "application/json",
+        };
+        if (this.config.authProxyId) {
+          headers["X-Proxy-ID"] = this.config.authProxyId;
+        }
+
+        const res = await fetch(`${this.config.authProxyUrl}/v1/signup`, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(signUpBody),
+        });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          throw new TurnkeyNetworkError(
+            `Sign up failed`,
+            res.status,
+            TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
+            errorText,
+          );
+        }
+      }
+
+      // now we can send the stamped request to the Turnkey
+      headers = {
+        "Content-Type": "application/json",
+        [signedRequest.stamp.stampHeaderName]:
+          signedRequest.stamp.stampHeaderValue,
+      };
+
+      const res = await fetch(signedRequest.url, {
+        method: "POST",
+        headers,
+        body: signedRequest.body,
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new TurnkeyNetworkError(
+          `Stamped request failed`,
+          res.status,
+          TurnkeyErrorCodes.WALLET_LOGIN_AUTH_ERROR,
+          errorText,
+        );
+      }
+
+      const sessionResponse = await res.json();
+      const sessionToken =
+        sessionResponse.activity.result.stampLoginResult?.session;
+      if (!sessionToken) {
+        throw new TurnkeyError(
+          "Session token not found in the response",
+          TurnkeyErrorCodes.BAD_RESPONSE,
+        );
+      }
+
+      await this.storeSession({
+        sessionToken: sessionToken,
+        sessionKey,
+      });
+
+      return sessionToken;
+    } catch (error) {
+      throw new TurnkeyError(
+        `Unable to log in or signup with the provided wallet`,
+        TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
+        error,
+      );
     }
   };
 

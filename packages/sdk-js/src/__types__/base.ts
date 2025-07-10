@@ -231,6 +231,7 @@ export enum OtpType {
 export enum FilterType {
   Email = "EMAIL",
   Sms = "SMS",
+  PublicKey = "PUBLIC_KEY",
 }
 
 export type Chain = WalletType;

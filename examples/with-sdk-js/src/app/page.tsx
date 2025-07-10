@@ -40,6 +40,7 @@ export default function AuthPage() {
     getWalletProviders,
     loginWithWallet,
     signUpWithWallet,
+    loginOrSignupWithWallet,
     fetchUser,
     fetchWallets,
     initOtp,
@@ -285,6 +286,24 @@ export default function AuthPage() {
         }}
       >
         Login with Wallet
+      </button>
+
+      <button
+        onClick={async () => {
+          const provider = getWalletProviders(WalletType.Ethereum);
+          console.log("Injected Solana Provider:", provider);
+          await loginOrSignupWithWallet({
+            walletProvider: provider[0],
+          });
+        }}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Continue with Wallet
       </button>
 
       <input

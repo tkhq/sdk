@@ -17,6 +17,7 @@ import { WalletStamperError } from "./errors";
 
 import { compressRawPublicKey } from "@turnkey/crypto";
 import { asEip1193 } from "./utils";
+import { decodeBase64urlToString } from "@turnkey/encoding";
 
 /**
  * Abstract class representing a base Ethereum wallet.
@@ -158,7 +159,7 @@ export class EthereumWallet extends BaseEthereumWallet {
  * @returns A promise that resolves to the compressed public key as a hex string.
  */
 export const getCompressedPublicKey = async (
-  signature: Hex,
+  signature: string,
   message: string,
 ) => {
   const secp256k1PublicKey = await recoverPublicKey({
@@ -169,3 +170,30 @@ export const getCompressedPublicKey = async (
   const publicKeyBytes = Uint8Array.from(Buffer.from(publicKey, "hex"));
   return Buffer.from(compressRawPublicKey(publicKeyBytes)).toString("hex");
 };
+
+/**
+ * Extracts the public key from a Turnkey stamp header value.
+ * @param stampHeaderValue - The base64url encoded stamp header value
+ * @returns The public key as a hex string
+ */
+export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
+  try {
+    // we decode the base64url string to get the JSON stamp
+    const stampJson = decodeBase64urlToString(stampHeaderValue);
+
+    // we parse the JSON to get the stamp object
+    const stamp = JSON.parse(stampJson) as {
+      publicKey: string;
+      scheme: string;
+      signature: string;
+    };
+
+    return stamp.publicKey;
+  } catch (error) {
+    throw new Error(
+      `Failed to extract public key from stamp header: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+}
