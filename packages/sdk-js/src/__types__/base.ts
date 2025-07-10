@@ -121,6 +121,7 @@ export interface TurnkeyHttpClientConfig {
 }
 
 export interface TurnkeySDKClientConfig {
+  // TODO (Amir): Make optional!
   apiBaseUrl: string;
   authProxyUrl?: string;
   authProxyId: string;
