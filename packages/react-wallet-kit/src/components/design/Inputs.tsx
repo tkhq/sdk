@@ -199,12 +199,10 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
       <Listbox as="div" value={country.iso2} onChange={setCountry}>
         <div className="relative">
           <ListboxButton className="cursor-pointer px-3 gap-2 bg-button-light dark:bg-button-dark border-none rounded-md text-left flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <FlagImage iso2={country.iso2} className="w-5 h-4 rounded-sm" />
-              <span className="text-sm text-modal-text-light dark:text-modal-text-dark">
-                +{country.dialCode}
-              </span>
-            </span>
+            <FlagImage iso2={country.iso2} className="w-5 h-4 rounded-sm" />
+            <div className="text-sm text-modal-text-light dark:text-modal-text-dark">
+              +{country.dialCode}
+            </div>
             <FontAwesomeIcon
               icon={faChevronDown}
               className="w-3 h-3 text-gray-400"
@@ -213,7 +211,7 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
 
           <ListboxOptions
             transition
-            className="absolute tk-scrollbar z-50 mt-1 bg-white dark:bg-button-dark border border-gray-300 dark:border-modal-background-light/20 rounded-md shadow-lg max-h-72 overflow-auto text-sm 
+            className="absolute tk-scrollbar z-50 mt-1 bg-white dark:bg-button-dark border border-gray-300 dark:border-modal-background-light/20 rounded-md shadow-lg max-h-72 overflow-y-auto overflow-x-hidden text-sm 
             transition duration-200 ease-out data-closed:-translate-y-2 data-closed:opacity-0"
           >
             {countries.map((c) => {

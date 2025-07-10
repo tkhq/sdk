@@ -9,12 +9,17 @@ import {
 import { useModal } from "./Provider";
 import { IconButton } from "../../components/design/Buttons";
 import { faArrowLeft, faClose } from "@fortawesome/free-solid-svg-icons";
-import { useTurnkey } from "../client/Provider";
 import { TurnkeyLogo } from "../../components/design/Svg";
+import { TurnkeyProviderConfig } from "../TurnkeyProvider";
 
-export function ModalRoot() {
+interface ModalRootProps {
+  config: TurnkeyProviderConfig;
+}
+
+export function ModalRoot(props: ModalRootProps) {
+  const { config } = props; // Note: This is the config passed into the TurnkeyProvider. If we ever need to get config from the dashboard as well, grab `config` from the useTurnkey hook instead.
   const { modalStack, popPage, closeModal } = useModal();
-  const { config } = useTurnkey();
+
   const current = modalStack[modalStack.length - 1];
   const hasBack = modalStack.length > 1 && !current?.preventBack;
 
@@ -67,16 +72,39 @@ export function ModalRoot() {
     if (current) {
       setObserveResize(true);
       requestAnimationFrame(resize);
+
+      if (config?.ui?.renderModalInProvider) {
+        // If the modal is rendered in the provider, we need to prevent body scroll.
+        const originalStyle = window.getComputedStyle(document.body).overflow;
+        document.body.style.overflow = "hidden";
+
+        return () => {
+          document.body.style.overflow = originalStyle;
+        };
+      }
+
+      return;
     } else {
       setObserveResize(false);
       setHeight(height / 1.3);
       setWidth(width / 1.3);
+      return;
     }
   }, [current]);
 
   return (
     <Transition appear show={!!current} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={closeModal}>
+      <Dialog
+        // https://github.com/tailwindlabs/headlessui/blob/38986df81ecc7b7c86abab33d61ce18ffd55fac6/packages/%40headlessui-react/src/components/dialog/dialog.tsx#L205-L206
+        // If we are rendering the modal in the provider, set __demoMode to true to avoid "inert" being applied to all ansestors of the modal.
+        __demoMode={config?.ui?.renderModalInProvider ? true : false}
+        as="div"
+        className="relative z-50"
+        onClose={() => {
+          // prevent default outside-click close behavior
+          // we'll manually handle backdrop clicks below
+        }}
+      >
         {/* Backdrop */}
         <TransitionChild
           as={Fragment}
@@ -102,7 +130,8 @@ export function ModalRoot() {
         {/* Modal Panel */
         /* TODO (Amir): Does adding transition-colors here mess with the children? Probably. If you see some weird slow colour transitions, this is most likely the culprit! */}
         <div
-          className={`fixed inset-0 flex items-center justify-center transition-colors duration-300 ${config?.ui?.darkMode ? "dark" : ""}`}
+          onClick={closeModal}
+          className={`tk-modal fixed inset-0 flex items-center justify-center transition-colors duration-300 ${config?.ui?.darkMode ? "dark" : ""}`}
         >
           <DialogPanel>
             {/* White background container */}
