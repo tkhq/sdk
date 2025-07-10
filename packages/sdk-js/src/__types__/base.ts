@@ -122,11 +122,11 @@ export interface TurnkeyHttpClientConfig {
 
 export interface TurnkeySDKClientConfig {
   apiBaseUrl: string;
-  authProxyUrl: string;
+  authProxyUrl?: string;
   authProxyId: string;
   organizationId: string;
-  exportIframeUrl: string;
-  importIframeUrl: string;
+  exportIframeUrl?: string;
+  importIframeUrl?: string;
 
   passkeyConfig?: TPasskeyStamperConfig;
   walletConfig?: TWalletStamperConfig;
