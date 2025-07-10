@@ -24,10 +24,13 @@ import {
   assertActivityCompleted,
   assertNonNull,
   type TSignature,
+  type TurnkeyApiTypes,
   isHttpClient,
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient } from "@turnkey/sdk-server";
+
+type TPayloadEncoding = TurnkeyApiTypes["v1PayloadEncoding"];
 
 type TConfig = {
   /**
@@ -211,10 +214,13 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
     return `${signedMessage}`;
   }
 
-  async _signMessageWithErrorWrapping(message: string): Promise<string> {
+  async _signMessageWithErrorWrapping(
+    message: string,
+    payloadEncoding: TPayloadEncoding = "PAYLOAD_ENCODING_HEXADECIMAL",
+  ): Promise<string> {
     let signedMessage: string;
     try {
-      signedMessage = await this._signMessageImpl(message);
+      signedMessage = await this._signMessageImpl(message, payloadEncoding);
     } catch (error) {
       if (
         error instanceof TurnkeyActivityError ||
@@ -232,7 +238,10 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
     return signedMessage;
   }
 
-  async _signMessageImpl(message: string): Promise<string> {
+  async _signMessageImpl(
+    message: string,
+    payloadEncoding: TPayloadEncoding = "PAYLOAD_ENCODING_HEXADECIMAL",
+  ): Promise<string> {
     let result;
 
     if (isHttpClient(this.client)) {
@@ -242,7 +251,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         parameters: {
           signWith: this.signWith,
           payload: message,
-          encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+          encoding: payloadEncoding,
           hashFunction: "HASH_FUNCTION_NO_OP",
         },
         timestampMs: String(Date.now()), // millisecond timestamp
@@ -290,8 +299,16 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       },
     );
 
+    // Build the full EIP-712 payload (domain, types, and message)
+    const payload = TypedDataEncoder.getPayload(
+      populated.domain,
+      types,
+      populated.value,
+    );
+
     return this._signMessageWithErrorWrapping(
-      TypedDataEncoder.hash(populated.domain, types, populated.value),
+      JSON.stringify(payload),
+      "PAYLOAD_ENCODING_EIP712",
     );
   }
 
