@@ -77,6 +77,7 @@ import { SuccessPage } from "../../components/design/Success";
 import { UpdateEmail } from "../../components/user/UpdateEmail";
 import { UpdatePhoneNumber } from "../../components/user/UpdatePhoneNumber";
 import { UpdateUserName } from "../../components/user/UpdateUserName";
+import { RemoveOAuthProvider } from "../../components/user/RemoveOAuthProvider";
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -126,7 +127,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
     email?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: () => void;
+    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   }) => Promise<void>;
   handleUpdateUserPhoneNumber: (params?: {
@@ -134,18 +135,40 @@ export interface ClientContextType extends TurnkeyClientMethods {
     formattedPhone?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: () => void;
+    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   }) => Promise<void>;
   handleUpdateUserName: (params?: {
     userName?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: () => void;
+    onSuccess?: (userId: string) => void;
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  }) => Promise<void>;
+  handleAddEmail: (params?: {
+    email?: string;
+    title?: string;
+    subTitle?: string;
+    onSuccess?: (userId: string) => void;
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  }) => Promise<void>;
+  handleAddPhoneNumber: (params?: {
+    phoneNumber?: string;
+    formattedPhone?: string;
+    title?: string;
+    subTitle?: string;
+    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   }) => Promise<void>;
   handleAddOAuthProvider: (params: {
     providerName: OAuthProviders;
+  }) => Promise<void>;
+  handleRemoveOAuthProvider: (params: {
+    providerId: string;
+    title?: string;
+    subTitle?: string;
+    onSuccess?: (providerIds: string[]) => void;
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   }) => Promise<void>;
   handleSignMessage: (params: {
     message: string;
@@ -430,6 +453,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         oauthOrder,
       },
       passkeyConfig, // TODO (Amir): This should technically be inside auth object. Also walletconfig
+      importIframeUrl: config.importIframeUrl ?? "https://import.turnkey.com",
+      exportIframeUrl: config.exportIframeUrl ?? "https://export.turnkey.com",
     } as TurnkeyProviderConfig;
   };
 
@@ -1134,7 +1159,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   async function fetchWallets(params?: {
     stamperType?: StamperType;
-    saveInClient?: boolean;
   }): Promise<Wallet[]> {
     if (!client) {
       throw new TurnkeyError(
@@ -1272,6 +1296,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
+  async function removeUserEmail(params: { userId?: string }): Promise<string> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    return withTurnkeyErrorHandling(
+      () => client.removeUserEmail(params),
+      callbacks,
+      "Failed to remove user email",
+    );
+  }
+
   async function updateUserPhoneNumber(params: {
     phoneNumber: string;
     verificationToken?: string;
@@ -1286,6 +1323,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       () => client.updateUserPhoneNumber(params),
       callbacks,
       "Failed to update user phone number",
+    );
+  }
+
+  async function removeUserPhoneNumber(params: {
+    userId?: string;
+  }): Promise<string> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    return withTurnkeyErrorHandling(
+      () => client.removeUserPhoneNumber(params),
+      callbacks,
+      "Failed to remove user phone number",
     );
   }
 
@@ -1322,6 +1374,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
+  async function removeOAuthProvider(params: {
+    providerId: string;
+    userId?: string;
+  }): Promise<string[]> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    return withTurnkeyErrorHandling(
+      () => client.removeOAuthProvider(params),
+      callbacks,
+      "Failed to remove OAuth provider",
+    );
+  }
+
   async function addPasskey(params?: {
     name?: string;
     displayName?: string;
@@ -1336,6 +1404,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       () => client.addPasskey(params),
       callbacks,
       "Failed to add passkey",
+    );
+  }
+
+  async function removePasskey(params: {
+    authenticatorId: string;
+    userId?: string;
+  }): Promise<string[]> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    return withTurnkeyErrorHandling(
+      () => client.removePasskey(params),
+      callbacks,
+      "Failed to remove passkey",
     );
   }
 
@@ -2279,6 +2363,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               preventBack: true,
               showTitle: false,
             });
+          } else {
+            closeModal();
           }
         }
         await refreshUser();
@@ -2294,7 +2380,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     try {
       if (!params?.userName && params?.userName !== "") {
         pushPage({
-          key: "",
+          key: "Update User Name",
           content: (
             <UpdateUserName
               onContinue={onContinue}
@@ -2302,6 +2388,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               {...(subTitle !== undefined ? { subTitle } : {})}
             />
           ),
+          showTitle: false,
         });
       } else {
         onContinue(params?.userName);
@@ -2366,7 +2453,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     ) => {
       if (!phone || phone === "") {
         throw new TurnkeyError(
-          "Email is required for email verification.",
+          "Phone number is required for sms verification.",
           TurnkeyErrorCodes.MISSING_PARAMS,
         );
       }
@@ -2411,6 +2498,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       preventBack: true,
                       showTitle: false,
                     });
+                  } else {
+                    closeModal();
                   }
                 }
                 await refreshUser();
@@ -2431,7 +2520,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     try {
       if (!params?.phoneNumber && params?.phoneNumber !== "") {
         pushPage({
-          key: "",
+          key: "Update Phone Number",
           content: (
             <UpdatePhoneNumber
               onContinue={continueToVerification}
@@ -2439,6 +2528,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               {...(subTitle !== undefined ? { subTitle } : {})}
             />
           ),
+          showTitle: false,
         });
       } else {
         continueToVerification(
@@ -2451,7 +2541,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
       throw new TurnkeyError(
-        "Failed to initialize OTP for email verification.",
+        "Failed to initialize OTP for sms verification.",
         TurnkeyErrorCodes.INIT_OTP_ERROR,
         error,
       );
@@ -2532,6 +2622,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       preventBack: true,
                       showTitle: false,
                     });
+                  } else {
+                    closeModal();
                   }
                 }
                 await refreshUser();
@@ -2552,7 +2644,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     try {
       if (!params?.email && params?.email !== "") {
         pushPage({
-          key: "",
+          key: "Update Email",
           content: (
             <UpdateEmail
               onContinue={continueToVerification}
@@ -2560,6 +2652,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               {...(subTitle !== undefined ? { subTitle } : {})}
             />
           ),
+          showTitle: false,
         });
       } else {
         continueToVerification(params?.email);
@@ -2571,6 +2664,344 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       throw new TurnkeyError(
         "Failed to initialize OTP for email verification.",
         TurnkeyErrorCodes.INIT_OTP_ERROR,
+        error,
+      );
+    }
+  };
+
+  const handleAddEmail = async (params?: {
+    email?: string;
+    title?: string;
+    subTitle?: string;
+    onSuccess?: (userId: string) => void;
+    successPageDuration?: number | undefined;
+  }) => {
+    const {
+      onSuccess = undefined,
+      successPageDuration,
+      subTitle,
+      title,
+    } = params || {};
+
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    const continueToVerification = async (email: string) => {
+      if (!email || email === "") {
+        throw new TurnkeyError(
+          "Email is required for email verification.",
+          TurnkeyErrorCodes.MISSING_PARAMS,
+        );
+      }
+      const otpId = await initOtp({ otpType: OtpType.Email, contact: email });
+      pushPage({
+        key: "Verify OTP",
+        content: (
+          <OtpVerification
+            contact={email}
+            otpId={otpId}
+            otpType={OtpType.Email}
+            onContinue={async (otpCode: string) => {
+              const { verificationToken } = await verifyOtp({
+                otpId,
+                otpCode,
+                contact: email,
+                otpType: OtpType.Email,
+              });
+              const res = await updateUserEmail({
+                email,
+                verificationToken,
+                userId: session.userId,
+              });
+
+              if (res) {
+                if (onSuccess) {
+                  onSuccess(res);
+                } else {
+                  if (successPageDuration && successPageDuration !== 0) {
+                    pushPage({
+                      key: "success",
+                      content: (
+                        <SuccessPage
+                          text="Email Added Successfully!"
+                          duration={successPageDuration}
+                          onComplete={() => {
+                            closeModal();
+                          }}
+                        />
+                      ),
+                      preventBack: true,
+                      showTitle: false,
+                    });
+                  } else {
+                    closeModal();
+                  }
+                }
+                await refreshUser();
+              } else {
+                closeModal();
+                throw new TurnkeyError(
+                  "Failed to add user email.",
+                  TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR,
+                );
+              }
+            }}
+          />
+        ),
+        showTitle: false,
+      });
+    };
+
+    try {
+      if (!params?.email && params?.email !== "") {
+        pushPage({
+          key: "Add Email",
+          content: (
+            <UpdateEmail
+              onContinue={continueToVerification}
+              title={title ?? "Connect an email"}
+              {...(subTitle !== undefined ? { subTitle } : {})}
+            />
+          ),
+          showTitle: false,
+        });
+      } else {
+        continueToVerification(params?.email);
+      }
+    } catch (error) {
+      if (error instanceof TurnkeyError) {
+        throw error;
+      }
+      throw new TurnkeyError(
+        "Failed to initialize OTP for email verification.",
+        TurnkeyErrorCodes.INIT_OTP_ERROR,
+        error,
+      );
+    }
+  };
+
+  const handleAddPhoneNumber = async (params?: {
+    phoneNumber?: string;
+    formattedPhone?: string;
+    title?: string;
+    subTitle?: string;
+    onSuccess?: (userId: string) => void;
+    successPageDuration?: number | undefined;
+  }) => {
+    const {
+      onSuccess = undefined,
+      successPageDuration,
+      subTitle,
+      title,
+    } = params || {};
+
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    const continueToVerification = async (
+      phone: string,
+      formattedPhone: string,
+    ) => {
+      if (!phone || phone === "") {
+        throw new TurnkeyError(
+          "Phone number is required for sms verification.",
+          TurnkeyErrorCodes.MISSING_PARAMS,
+        );
+      }
+      const otpId = await initOtp({ otpType: OtpType.Sms, contact: phone });
+      pushPage({
+        key: "Verify OTP",
+        content: (
+          <OtpVerification
+            contact={phone}
+            formattedContact={formattedPhone}
+            otpId={otpId}
+            otpType={OtpType.Sms}
+            onContinue={async (otpCode: string) => {
+              const { verificationToken } = await verifyOtp({
+                otpId,
+                otpCode,
+                contact: phone,
+                otpType: OtpType.Sms,
+              });
+              const res = await updateUserPhoneNumber({
+                phoneNumber: phone,
+                verificationToken,
+                userId: session.userId,
+              });
+
+              if (res) {
+                if (onSuccess) {
+                  onSuccess(res);
+                } else {
+                  if (successPageDuration && successPageDuration !== 0) {
+                    pushPage({
+                      key: "success",
+                      content: (
+                        <SuccessPage
+                          text="Phone Number Added Successfully!"
+                          duration={successPageDuration}
+                          onComplete={() => {
+                            closeModal();
+                          }}
+                        />
+                      ),
+                      preventBack: true,
+                      showTitle: false,
+                    });
+                  } else {
+                    closeModal();
+                  }
+                }
+                await refreshUser();
+              } else {
+                closeModal();
+                throw new TurnkeyError(
+                  "Failed to add phone number.",
+                  TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
+                );
+              }
+            }}
+          />
+        ),
+        showTitle: false,
+      });
+    };
+
+    try {
+      if (!params?.phoneNumber && params?.phoneNumber !== "") {
+        pushPage({
+          key: "Add Phone Number",
+          content: (
+            <UpdatePhoneNumber
+              onContinue={continueToVerification}
+              title={title ?? "Connect a phone number"}
+              {...(subTitle !== undefined ? { subTitle } : {})}
+            />
+          ),
+          showTitle: false,
+        });
+      } else {
+        continueToVerification(
+          params?.phoneNumber,
+          params?.formattedPhone || params?.phoneNumber,
+        );
+      }
+    } catch (error) {
+      if (error instanceof TurnkeyError) {
+        throw error;
+      }
+      throw new TurnkeyError(
+        "Failed to initialize OTP for sms verification.",
+        TurnkeyErrorCodes.INIT_OTP_ERROR,
+        error,
+      );
+    }
+  };
+
+  const handleRemoveOAuthProvider = async (params: {
+    providerId: string;
+    title?: string;
+    subTitle?: string;
+    onSuccess?: (providerIds: string[]) => void;
+    successPageDuration?: number | undefined;
+  }) => {
+    const {
+      providerId,
+      onSuccess = undefined,
+      successPageDuration,
+      subTitle,
+      title,
+    } = params;
+
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    try {
+      pushPage({
+        key: "Remove OAuth Provider",
+        content: (
+          <RemoveOAuthProvider
+            providerId={providerId}
+            onContinue={async () => {
+              const res = await removeOAuthProvider({
+                providerId,
+                userId: session.userId,
+              });
+
+              if (res) {
+                if (onSuccess) {
+                  onSuccess(res);
+                } else {
+                  if (successPageDuration && successPageDuration !== 0) {
+                    pushPage({
+                      key: "success",
+                      content: (
+                        <SuccessPage
+                          text="OAuth Provider Removed Successfully!"
+                          duration={successPageDuration}
+                          onComplete={() => {
+                            closeModal();
+                          }}
+                        />
+                      ),
+                      preventBack: true,
+                      showTitle: false,
+                    });
+                  } else {
+                    closeModal();
+                  }
+                }
+                await refreshUser();
+              } else {
+                closeModal();
+                throw new TurnkeyError(
+                  "Failed to remove OAuth provider.",
+                  TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR,
+                );
+              }
+            }}
+            {...(title !== undefined ? { title } : {})}
+            {...(subTitle !== undefined ? { subTitle } : {})}
+          />
+        ),
+        showTitle: false,
+      });
+    } catch (error) {
+      if (error instanceof TurnkeyError) {
+        throw error;
+      }
+      throw new TurnkeyError(
+        "Failed to remove OAuth provider in handler.",
+        TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR,
         error,
       );
     }
@@ -2971,10 +3402,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         signTransaction,
         fetchUser,
         updateUserEmail,
+        removeUserEmail,
         updateUserPhoneNumber,
+        removeUserPhoneNumber,
         updateUserName,
         addOAuthProvider,
+        removeOAuthProvider,
         addPasskey,
+        removePasskey,
         createWallet,
         createWalletAccounts,
         exportWallet,
@@ -3006,6 +3441,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleUpdateUserPhoneNumber,
         handleUpdateUserName,
         handleAddOAuthProvider,
+        handleRemoveOAuthProvider,
+        handleAddEmail,
+        handleAddPhoneNumber,
         handleSignMessage,
       }}
     >
