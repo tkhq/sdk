@@ -215,6 +215,13 @@ body {
   margin-bottom: 12px;
   /* margin-top: 24px; */
 }
+
+
+.signMessage {
+  margin-bottom: 12px;
+  /* margin-top: 24px; */
+}
+
 .exportImportGroup {
   margin-top: 12px;
   display: flex;
@@ -466,43 +473,10 @@ button:hover {
   pointer-events: auto;
 }
 
-.onRamp {
-  display: flex;
-  min-height: 36.02px;
-  padding: 24px;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  align-self: stretch;
-  border-radius: 8px;
-  background: #fff;
-  background: color(display-p3 1 1 1);
-  box-shadow: 0px 2px 4px 0px rgba(0, 0, 0, 0.1);
-  box-shadow: 0px 2px 4px 0px color(display-p3 0 0 0 / 0.1);
-}
-
-.fundingText {
+.purchaseButtons {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-.fundingTitle {
-  color: #000;
-  color: color(display-p3 0 0 0);
-  font-family: Inter;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 700;
-}
-
-.fundingSub {
-  color: #6d7681;
-  color: color(display-p3 0.4351 0.4613 0.5033);
-  font-family: Inter;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 400;
+  gap: 12px;
 }
 
 .whiteButton {
@@ -536,13 +510,4 @@ button:hover {
   background: var(--button-disabled-bg);
   border-color: var(--button-disabled-border);
   cursor: default;
-}
-
-.onRampContainer {
-  display: flex;
-  flex-direction: column;
-  margin-top: 24px;
-  padding-top: 16px;
-  padding-bottom: 16px;
-  border-top: 1px solid var(--Greyscale-200, #ebedf2);
 }
