@@ -718,7 +718,9 @@ export default function Dashboard() {
               <button className="signMessage" onClick={handleSignMessageClick}>
                 Sign a message
               </button>
+
             </div>
+            <OnRamp ethAddress={ethAddress || ""} />
           </RadioGroup>
 
           <div className="exportImportGroup">
@@ -733,10 +735,6 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className="onRampContainer">
-            {" "}
-            <OnRamp ethAddress={ethAddress || ""} />
-          </div>
 
           <div className="authFooter">
             <div className="authFooterLeft">
