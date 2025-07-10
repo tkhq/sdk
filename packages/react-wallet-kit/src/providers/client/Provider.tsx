@@ -916,6 +916,51 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return res;
   }
 
+  async function loginOrSignupWithWallet(params: {
+    walletProvider: WalletProvider;
+    createSubOrgParams?: CreateSubOrgParams;
+    sessionKey?: string;
+    expirationSeconds?: string;
+  }): Promise<string> {
+    if (!client) {
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    if (!masterConfig) {
+      throw new TurnkeyError(
+        "Config is not ready yet!",
+        TurnkeyErrorCodes.INVALID_CONFIGURATION,
+      );
+    }
+    // If createSubOrgParams is not provided, use the default from masterConfig
+    let createSubOrgParams =
+      params.createSubOrgParams ??
+      masterConfig.auth?.createSuborgParams?.wallet;
+    params =
+      createSubOrgParams !== undefined
+        ? { ...params, createSubOrgParams }
+        : { ...params };
+    setAuthState(AuthState.Loading);
+
+    const expirationSeconds =
+      masterConfig?.auth?.sessionExpirationSeconds?.passkey ??
+      DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+    const res = await withTurnkeyErrorHandling(
+      () => client.loginOrSignupWithWallet({ ...params, expirationSeconds }),
+      callbacks,
+      "Failed to login or sign up with wallet",
+    );
+    if (res) {
+      await handlePostAuth();
+      setAuthState(AuthState.Authenticated);
+    } else {
+      setAuthState(AuthState.Unauthenticated);
+    }
+    return res;
+  }
+
   async function initOtp(params: {
     otpType: OtpType;
     contact: string;
@@ -3388,6 +3433,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         getWalletProviders,
         loginWithWallet,
         signUpWithWallet,
+        loginOrSignupWithWallet,
         initOtp,
         verifyOtp,
         loginWithOtp,
