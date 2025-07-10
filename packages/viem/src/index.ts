@@ -2,7 +2,6 @@ import {
   BaseError,
   hashMessage,
   isAddress,
-  hashTypedData,
   serializeTransaction,
   hexToBigInt,
   hexToBytes,
@@ -15,7 +14,6 @@ import {
 } from "viem/accounts";
 import type {
   Hex,
-  HashTypedDataParameters,
   LocalAccount,
   SerializeTransactionFn,
   SignableMessage,
@@ -54,6 +52,11 @@ type TSignAuthorizationParameters = Omit<
 >;
 
 type TSignatureFormat = "object" | "bytes" | "hex";
+
+type TPayloadEncoding =
+  | "PAYLOAD_ENCODING_HEXADECIMAL"
+  | "PAYLOAD_ENCODING_TEXT_UTF8"
+  | "PAYLOAD_ENCODING_EIP712";
 
 type TSignatureExtended = Omit<TSignature, "v"> & {
   v: string | BigInt;
@@ -437,14 +440,13 @@ export async function signTypedData(
   organizationId: string,
   signWith: string,
 ): Promise<Hex> {
-  const hashToSign = hashTypedData(data as HashTypedDataParameters);
-
   return (await signMessageWithErrorWrapping(
     client,
-    hashToSign,
+    JSON.stringify(data),
     organizationId,
     signWith,
     "hex",
+    "PAYLOAD_ENCODING_EIP712",
   )) as Hex;
 }
 
@@ -531,6 +533,7 @@ async function signMessageWithErrorWrapping(
   organizationId: string,
   signWith: string,
   to?: TSignatureFormat,
+  payloadEncoding: TPayloadEncoding = "PAYLOAD_ENCODING_HEXADECIMAL",
 ): Promise<TSignMessageResult> {
   let signedMessage: TSignMessageResult;
 
@@ -541,6 +544,7 @@ async function signMessageWithErrorWrapping(
       organizationId,
       signWith,
       to,
+      payloadEncoding,
     );
   } catch (error: any) {
     // Wrap Turnkey error in Viem-specific error
@@ -574,6 +578,7 @@ async function signMessageImpl(
   organizationId: string,
   signWith: string,
   to?: TSignatureFormat,
+  payloadEncoding: TPayloadEncoding = "PAYLOAD_ENCODING_HEXADECIMAL",
 ): Promise<TSignMessageResult> {
   let result: TSignature;
 
@@ -584,7 +589,7 @@ async function signMessageImpl(
       parameters: {
         signWith,
         payload: message,
-        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+        encoding: payloadEncoding,
         hashFunction: "HASH_FUNCTION_NO_OP",
       },
       timestampMs: String(Date.now()), // millisecond timestamp
