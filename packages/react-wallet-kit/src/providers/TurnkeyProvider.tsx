@@ -47,6 +47,8 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     preferLargeActionButtons?: boolean; // If true, this will use full width buttons for actions like "Continue". Otherwise, small icon buttons will be used instead.
     borderRadius?: string | number; // e.g., 8, "1rem"
     backgroundBlur?: string | number; // e.g., 10, "1rem"
+
+    renderModalInProvider?: boolean; // If true, the modal will be rendered as a child of the TurnkeyProvider instead of a sibling to the body. This is useful for font inheritance, and css manipulations to modals.
   };
   language?: {
     // Ohayō!
@@ -78,7 +80,15 @@ export function TurnkeyProvider({
           dark={config.ui?.colors?.dark}
         />
         {children}
-        <ModalRoot />
+
+        {config.ui?.renderModalInProvider && (
+          // https://github.com/tailwindlabs/headlessui/discussions/666#discussioncomment-3449763
+          <div id="headlessui-portal-root">
+            <div></div>
+          </div>
+        )}
+
+        <ModalRoot config={config} />
       </ClientProvider>
     </ModalProvider>
   );
