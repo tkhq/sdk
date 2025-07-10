@@ -158,7 +158,7 @@ export class EthereumWallet extends BaseEthereumWallet {
  * @returns A promise that resolves to the compressed public key as a hex string.
  */
 export const getCompressedPublicKey = async (
-  signature: Hex,
+  signature: string,
   message: string,
 ) => {
   const secp256k1PublicKey = await recoverPublicKey({
