@@ -53,6 +53,37 @@
     -webkit-text-fill-color: var(--color-modal-text-dark) !important;
     caret-color: var(--color-modal-text-dark);
   }
+
+  .tk-modal {
+    /* Reset line-height which preflight sets to 1.5 */
+    line-height: normal;
+  }
+
+  .tk-modal *,
+  .tk-modal *::before,
+  .tk-modal *::after {
+    /* Reset box-sizing which preflight sets to border-box */
+    box-sizing: revert;
+    /* Reset margins */
+    margin: revert;
+    /* Reset borders */
+    border-width: revert;
+    border-style: revert;
+  }
+
+  /* Reset button styles */
+  .tk-modal button {
+    background-color: transparent;
+    background-image: none;
+    padding: 0;
+  }
+
+  /* Reset input styles */
+  .tk-modal input {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+  }
 }
 
 @layer components {
