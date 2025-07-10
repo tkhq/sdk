@@ -23,6 +23,7 @@ import {
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
   v1GetWalletKitConfigResponse,
+  v1Authenticator,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -81,10 +82,6 @@ export class TurnkeyClient {
   config: TurnkeySDKClientConfig; // Type TBD
   httpClient!: TurnkeySDKClientBase;
 
-  // public session?: Session | undefined;  // TODO (Amir): Define session type. Or not maybe???
-  public user?: User; // TO IMPLEMENT: fetchUser
-  public wallets?: Wallet[];
-
   private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined; // TODO (Amir): TEMPORARILY PUBLIC, MAKE PRIVATE LATER
   private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
   private walletStamper?: CrossPlatformWalletStamper | undefined;
@@ -133,6 +130,13 @@ export class TurnkeyClient {
       );
       await this.walletStamper.init();
     }
+
+    if (!this.config.apiBaseUrl)
+      this.config.apiBaseUrl = "https://api.turnkey.com";
+    if (!this.config.exportIframeUrl)
+      this.config.exportIframeUrl = "https://export.turnkey.com";
+    if (!this.config.importIframeUrl)
+      this.config.importIframeUrl = "https://import.turnkey.com";
 
     // Initialize the HTTP client with the appropriate stampers
     this.httpClient = new TurnkeySDKClientBase({
@@ -1244,9 +1248,8 @@ export class TurnkeyClient {
 
   fetchWallets = async (params?: {
     stamperType?: StamperType;
-    saveInClient?: boolean;
   }): Promise<Wallet[]> => {
-    const { stamperType, saveInClient = true } = params || {};
+    const { stamperType } = params || {};
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -1279,10 +1282,6 @@ export class TurnkeyClient {
         }
 
         i++;
-      }
-
-      if (saveInClient) {
-        this.wallets = wallets;
       }
       return wallets;
     } catch (error) {
@@ -1504,6 +1503,28 @@ export class TurnkeyClient {
     }
   };
 
+  removeUserEmail = async (params: { userId?: string }): Promise<string> => {
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    const userId = params?.userId || session.userId;
+    const res = await this.httpClient.updateUserEmail({
+      userId: userId,
+      userEmail: "",
+    });
+    if (!res || !res.userId) {
+      throw new TurnkeyError(
+        "No user ID found in the remove user email response",
+        TurnkeyErrorCodes.BAD_RESPONSE,
+      );
+    }
+    return res.userId;
+  };
+
   updateUserPhoneNumber = async (params: {
     phoneNumber: string;
     verificationToken?: string;
@@ -1528,8 +1549,8 @@ export class TurnkeyClient {
 
       if (!res || !res.userId) {
         throw new TurnkeyError(
-          "No user ID found in the update user phone number response",
-          TurnkeyErrorCodes.BAD_RESPONSE,
+          "Failed to update user phone number",
+          TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
         );
       }
 
@@ -1542,6 +1563,30 @@ export class TurnkeyClient {
         error,
       );
     }
+  };
+
+  removeUserPhoneNumber = async (params: {
+    userId?: string;
+  }): Promise<string> => {
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    const userId = params?.userId || session.userId;
+    const res = await this.httpClient.updateUserPhoneNumber({
+      userId,
+      userPhoneNumber: "",
+    });
+    if (!res || !res.userId) {
+      throw new TurnkeyError(
+        "Failed to remove user phone number",
+        TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
+      );
+    }
+    return res.userId;
   };
 
   updateUserName = async (params: {
@@ -1658,6 +1703,13 @@ export class TurnkeyClient {
         ],
       });
 
+      if (!createProviderRes) {
+        throw new TurnkeyError(
+          "Failed to create OAuth provider",
+          TurnkeyErrorCodes.ADD_OAUTH_PROVIDER_ERROR,
+        );
+      }
+
       return createProviderRes?.providerIds || [];
     } catch (error) {
       if (error instanceof TurnkeyError) throw error;
@@ -1667,6 +1719,32 @@ export class TurnkeyClient {
         error,
       );
     }
+  };
+
+  removeOAuthProvider = async (params: {
+    providerId: string;
+    userId?: string;
+  }): Promise<string[]> => {
+    const { providerId } = params;
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    const userId = params?.userId || session.userId;
+    const res = await this.httpClient.deleteOauthProviders({
+      userId,
+      providerIds: [providerId],
+    });
+    if (!res) {
+      throw new TurnkeyError(
+        "Failed to remove OAuth provider",
+        TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR,
+      );
+    }
+    return res.providerIds;
   };
 
   addPasskey = async (params?: {
@@ -1720,6 +1798,33 @@ export class TurnkeyClient {
         error,
       );
     }
+  };
+
+  removePasskey = async (params: {
+    authenticatorId: string;
+    userId?: string;
+  }): Promise<string[]> => {
+    const { authenticatorId } = params;
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    const userId = params?.userId || session.userId;
+
+    const res = await this.httpClient.deleteAuthenticators({
+      userId,
+      authenticatorIds: [authenticatorId],
+    });
+    if (!res) {
+      throw new TurnkeyError(
+        "Failed to remove passkey",
+        TurnkeyErrorCodes.REMOVE_PASSKEY_ERROR,
+      );
+    }
+    return res.authenticatorIds;
   };
 
   createWallet = async (params: {
