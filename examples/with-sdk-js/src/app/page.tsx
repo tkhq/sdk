@@ -293,7 +293,7 @@ export default function AuthPage() {
           const provider = getWalletProviders(WalletType.Ethereum);
           console.log("Injected Solana Provider:", provider);
           await loginOrSignupWithWallet({
-            walletProvider: provider[1],
+            walletProvider: provider[0],
           });
         }}
         style={{
