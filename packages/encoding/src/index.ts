@@ -29,6 +29,17 @@ export function stringToBase64urlString(input: string): string {
   return base64StringToBase64UrlEncodedString(base64String);
 }
 
+export function base64UrlToBase64(input: string): string {
+  let b64 = input.replace(/-/g, "+").replace(/_/g, "/");
+  const padLen = (4 - (b64.length % 4)) % 4;
+  return b64 + "=".repeat(padLen);
+}
+
+export function decodeBase64urlToString(input: string): string {
+  const b64 = base64UrlToBase64(input);
+  return atob(b64);
+}
+
 export function hexStringToBase64url(input: string, length?: number): string {
   // Add an extra 0 to the start of the string to get a valid hex string (even length)
   // (e.g. 0x0123 instead of 0x123)
@@ -199,4 +210,43 @@ function btoaLookup(index: number) {
 
   // Throw INVALID_CHARACTER_ERR exception here -- won't be hit in the tests.
   return undefined;
+}
+
+// Pure JS implementation of atob.
+export function atob(input: string): string {
+  if (arguments.length === 0) {
+    throw new TypeError("1 argument required, but only 0 present.");
+  }
+  // coerce to string
+  let s = `${input}`;
+  // strip out any non-Base64 chars (whitespace, invalid stuff)
+  s = s.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+  // "The atob() method must throw an "InvalidCharacterError" if
+  // its not a multiple of 4
+  if (s.length % 4 === 1) {
+    throw new Error(
+      "InvalidCharacterError: The string to be decoded is not correctly encoded.",
+    );
+  }
+
+  const keyStr =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  let output = "";
+  // bc = byte counter, bs = 6-bit buffer storage, buffer = lookup value, idx = input index
+  for (
+    let bc = 0, bs = 0, buffer: number | undefined, idx = 0;
+    // the loop condition: pull keyStr.indexOf; when char not in keyStr, indexOf returns -1 and loop stops
+    (buffer = keyStr.indexOf(s.charAt(idx++))) > -1;
+
+  ) {
+    // pack the 6-bit group into bs
+    bs = bc % 4 ? (bs << 6) + buffer : buffer;
+    // every time we have assembled 4 groups (i.e. bc%4 !== 0), flush out one byte
+    if (bc++ % 4) {
+      output += String.fromCharCode((bs >> ((-2 * bc) & 6)) & 0xff);
+    }
+  }
+
+  return output;
 }
