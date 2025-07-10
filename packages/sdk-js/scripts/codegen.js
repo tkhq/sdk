@@ -516,6 +516,13 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     }`,
       );
     }
+
+    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
+      .replace(/([a-z])([A-Z])/g, "$1_$2")
+      .toUpperCase()}`;
+    const versionedActivityType =
+      VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
+
     // generate a stamping method for each method
     codeBuffer.push(
       `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
@@ -524,11 +531,24 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
       return undefined;
     }
 
+    const { organizationId${methodType === "command" || methodType === "activityDecision" ? ", timestampMs" : ""}, ...parameters } = input;
+
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,${
+        methodType === "command" || methodType === "activityDecision"
+          ? "\n      timestampMs: timestampMs ?? String(Date.now()),"
+          : ""
+      }
+      type: "${versionedActivityType ?? unversionedActivityType}"
+    };
+
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
