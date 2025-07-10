@@ -23,7 +23,6 @@ import {
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
   v1GetWalletKitConfigResponse,
-  v1Authenticator,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -65,6 +64,7 @@ import {
   WalletProvider,
   WalletType,
 } from "@turnkey/wallet-stamper";
+import { jwtDecode } from "jwt-decode";
 
 type PublicMethods<T> = {
   [K in keyof T as K extends string | number | symbol
