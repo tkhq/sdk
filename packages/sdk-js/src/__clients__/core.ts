@@ -898,6 +898,20 @@ export class TurnkeyClient {
         TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
         error,
       );
+    } finally {
+      // Clean up the generated key pair if it wasn't successfully used
+      this.apiKeyStamper?.clearOverridePublicKey();
+      if (generatedKeyPair) {
+        try {
+          await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+        } catch (cleanupError) {
+          throw new TurnkeyError(
+            `Failed to clean up generated key pair`,
+            TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+            cleanupError,
+          );
+        }
+      }
     }
   };
 

@@ -217,35 +217,50 @@ export function atob(input: string): string {
   if (arguments.length === 0) {
     throw new TypeError("1 argument required, but only 0 present.");
   }
-  // coerce to string
-  let s = `${input}`;
-  // strip out any non-Base64 chars (whitespace, invalid stuff)
-  s = s.replace(/[^A-Za-z0-9\+\/\=]/g, "");
 
-  // "The atob() method must throw an "InvalidCharacterError" if
-  // its not a multiple of 4
-  if (s.length % 4 === 1) {
+  // convert to string and remove invalid characters upfront
+  const str = String(input).replace(/[^A-Za-z0-9+/=]/g, "");
+
+  // "The btoa() method must throw an "InvalidCharacterError" if
+  // the length of the string is not a multiple of 4
+  if (str.length % 4 === 1) {
     throw new Error(
       "InvalidCharacterError: The string to be decoded is not correctly encoded.",
     );
   }
 
   const keyStr =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
   let output = "";
-  // bc = byte counter, bs = 6-bit buffer storage, buffer = lookup value, idx = input index
-  for (
-    let bc = 0, bs = 0, buffer: number | undefined, idx = 0;
-    // the loop condition: pull keyStr.indexOf; when char not in keyStr, indexOf returns -1 and loop stops
-    (buffer = keyStr.indexOf(s.charAt(idx++))) > -1;
+  let buffer = 0;
+  let bits = 0;
+  let i = 0;
 
-  ) {
-    // pack the 6-bit group into bs
-    bs = bc % 4 ? (bs << 6) + buffer : buffer;
-    // every time we have assembled 4 groups (i.e. bc%4 !== 0), flush out one byte
-    if (bc++ % 4) {
-      output += String.fromCharCode((bs >> ((-2 * bc) & 6)) & 0xff);
+  // process each character
+  while (i < str.length) {
+    const ch = str.charAt(i);
+    const index = keyStr.indexOf(ch);
+
+    if (index < 0 || index > 64) {
+      i++;
+      continue;
     }
+
+    if (ch === "=") {
+      // we skip padding characters
+      bits = 0;
+    } else {
+      buffer = (buffer << 6) | index;
+      bits += 6;
+    }
+
+    // output complete bytes
+    while (bits >= 8) {
+      bits -= 8;
+      output += String.fromCharCode((buffer >> bits) & 0xff);
+    }
+
+    i++;
   }
 
   return output;
