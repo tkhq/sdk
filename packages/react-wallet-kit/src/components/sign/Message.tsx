@@ -49,7 +49,6 @@ export function SignMessageModal(props: SignMessageModalProps) {
         message,
         wallet,
         ...(stampWith ? { stampWith } : {}),
-        modalOptions: { enabled: false }, // Disable modal for direct signing
       });
       handleSuccess(result);
     } catch (error) {
