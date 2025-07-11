@@ -24,7 +24,7 @@ export function UpdateEmail(params: {
     if (isValidEmail(emailInput) && onContinue) {
       setIsLoading(true);
       try {
-        await Promise.resolve(onContinue(email));
+        await Promise.resolve(onContinue(emailInput));
       } finally {
         setIsLoading(false);
       }
@@ -53,7 +53,7 @@ export function UpdateEmail(params: {
       <div className="flex flex-col gap-4 my-3">
         <Input
           type="email"
-          placeholder={email}
+          placeholder={email ? email : "your@email.com"}
           className="w-full py-3 px-4 rounded-md text-inherit bg-button-light dark:bg-button-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 box-border"
           value={emailInput}
           onChange={(e) => setEmailInput(e.target.value)}

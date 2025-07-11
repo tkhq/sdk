@@ -72,12 +72,20 @@ import { ActionPage } from "../../components/auth/Action";
 import { SignMessageModal } from "../../components/sign/Message";
 import { ExportComponent, ExportType } from "../../components/export";
 import { ImportComponent } from "../../components/import";
-import { OtpVerification } from "../../components/auth/OTP";
 import { SuccessPage } from "../../components/design/Success";
 import { UpdateEmail } from "../../components/user/UpdateEmail";
 import { UpdatePhoneNumber } from "../../components/user/UpdatePhoneNumber";
 import { UpdateUserName } from "../../components/user/UpdateUserName";
 import { RemoveOAuthProvider } from "../../components/user/RemoveOAuthProvider";
+import {
+  addEmailContinue,
+  addPhoneNumberContinue,
+  removeOAuthProviderContinue,
+  removePasskeyContinue,
+  updateEmailContinue,
+  updatePhoneNumberContinue,
+} from "../../helpers";
+import { RemovePasskey } from "../../components/user/RemovePasskey";
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -93,9 +101,8 @@ export interface ClientContextType extends TurnkeyClientMethods {
   config?: TurnkeyProviderConfig | undefined;
   user: v1User | undefined;
   wallets: Wallet[];
-  googleOidcToken: (params?: { clientId?: string }) => Promise<string>;
-  appleOidcToken: (params?: { clientId?: string }) => Promise<string>;
-  facebookOidcToken: (params?: { clientId?: string }) => Promise<string>;
+  refreshUser: () => Promise<void>;
+  refreshWallets: () => Promise<void>;
   handleLogin: () => Promise<void>;
   handleGoogleOauth: (params: {
     clientId?: string;
@@ -168,6 +175,20 @@ export interface ClientContextType extends TurnkeyClientMethods {
     title?: string;
     subTitle?: string;
     onSuccess?: (providerIds: string[]) => void;
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  }) => Promise<void>;
+  handleAddPasskey: (params?: {
+    name?: string;
+    displayName?: string;
+    userId?: string;
+    onSuccess?: (authenticatorIds: string[]) => void;
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  }) => Promise<void>;
+  handleRemovePasskey: (params: {
+    authenticatorId: string;
+    title?: string;
+    subTitle?: string;
+    onSuccess?: (authenticatorIds: string[]) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   }) => Promise<void>;
   handleSignMessage: (params: {
@@ -1837,6 +1858,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     clientId?: string;
     openInPage?: boolean;
     additionalState?: Record<string, string>;
+    onOAuthSuccess?: (params: {
+      oidcToken: string;
+      providerName: string;
+    }) => any;
   }): Promise<void> {
     const {
       clientId = masterConfig?.auth?.oAuthConfig?.googleClientId,
@@ -1950,7 +1975,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   authWindow.close();
                   clearInterval(interval);
 
-                  if (callbacks?.onOauthRedirect) {
+                  if (params.onOAuthSuccess) {
+                    params.onOAuthSuccess({
+                      oidcToken: idToken,
+                      providerName: "google",
+                    });
+                  } else if (callbacks?.onOauthRedirect) {
                     callbacks.onOauthRedirect({ idToken, publicKey });
                   } else {
                     completeOauth({
@@ -1984,6 +2014,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     clientId?: string;
     openInPage?: boolean;
     additionalState?: Record<string, string>;
+    onOAuthSuccess?: (params: {
+      oidcToken: string;
+      providerName: string;
+    }) => any;
   }): Promise<void> {
     const {
       clientId = masterConfig?.auth?.oAuthConfig?.appleClientId,
@@ -2093,7 +2127,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   authWindow.close();
                   clearInterval(interval);
 
-                  if (callbacks?.onOauthRedirect) {
+                  if (params.onOAuthSuccess) {
+                    params.onOAuthSuccess({
+                      oidcToken: idToken,
+                      providerName: "apple",
+                    });
+                  } else if (callbacks?.onOauthRedirect) {
                     callbacks.onOauthRedirect({ idToken, publicKey });
                   } else {
                     completeOauth({
@@ -2127,6 +2166,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     clientId?: string;
     openInPage?: boolean;
     additionalState?: Record<string, string>;
+    onOAuthSuccess?: (params: {
+      oidcToken: string;
+      providerName: string;
+    }) => any;
   }): Promise<void> {
     const {
       clientId = masterConfig?.auth?.oAuthConfig?.facebookClientId,
@@ -2265,7 +2308,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     .then((tokenData) => {
                       sessionStorage.removeItem("facebook_verifier");
 
-                      if (callbacks?.onOauthRedirect) {
+                      if (params.onOAuthSuccess) {
+                        params.onOAuthSuccess({
+                          oidcToken: tokenData.id_token,
+                          providerName: "apple",
+                        });
+                      } else if (callbacks?.onOauthRedirect) {
                         callbacks.onOauthRedirect({
                           idToken: tokenData.id_token,
                           publicKey,
@@ -2492,83 +2540,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
 
-    const continueToVerification = async (
-      phone: string,
-      formattedPhone: string,
-    ) => {
-      if (!phone || phone === "") {
-        throw new TurnkeyError(
-          "Phone number is required for sms verification.",
-          TurnkeyErrorCodes.MISSING_PARAMS,
-        );
-      }
-      const otpId = await initOtp({ otpType: OtpType.Sms, contact: phone });
-      pushPage({
-        key: "Verify OTP",
-        content: (
-          <OtpVerification
-            contact={phone}
-            formattedContact={formattedPhone}
-            otpId={otpId}
-            otpType={OtpType.Sms}
-            onContinue={async (otpCode: string) => {
-              const { verificationToken } = await verifyOtp({
-                otpId,
-                otpCode,
-                contact: phone,
-                otpType: OtpType.Sms,
-              });
-              const res = await updateUserPhoneNumber({
-                phoneNumber: phone,
-                verificationToken,
-                userId: session.userId,
-              });
-
-              if (res) {
-                if (onSuccess) {
-                  onSuccess(res);
-                } else {
-                  if (successPageDuration && successPageDuration !== 0) {
-                    pushPage({
-                      key: "success",
-                      content: (
-                        <SuccessPage
-                          text="Phone Number Changed Successfully!"
-                          duration={successPageDuration}
-                          onComplete={() => {
-                            closeModal();
-                          }}
-                        />
-                      ),
-                      preventBack: true,
-                      showTitle: false,
-                    });
-                  } else {
-                    closeModal();
-                  }
-                }
-                await refreshUser();
-              } else {
-                closeModal();
-                throw new TurnkeyError(
-                  "Failed to update user phone number.",
-                  TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
-                );
-              }
-            }}
-          />
-        ),
-        showTitle: false,
-      });
-    };
-
     try {
       if (!params?.phoneNumber && params?.phoneNumber !== "") {
         pushPage({
           key: "Update Phone Number",
           content: (
             <UpdatePhoneNumber
-              onContinue={continueToVerification}
+              onContinue={(phone: string, formattedPhone: string) =>
+                updatePhoneNumberContinue({
+                  phone,
+                  formattedPhone,
+                  onSuccess,
+                  successPageDuration,
+                  initOtp,
+                  verifyOtp,
+                  updateUserPhoneNumber,
+                  refreshUser,
+                  pushPage,
+                  closeModal,
+                  session,
+                })
+              }
               {...(title !== undefined ? { title } : {})}
               {...(subTitle !== undefined ? { subTitle } : {})}
             />
@@ -2576,10 +2568,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           showTitle: false,
         });
       } else {
-        continueToVerification(
-          params?.phoneNumber,
-          params?.formattedPhone || params?.phoneNumber,
-        );
+        updatePhoneNumberContinue({
+          phone: params?.phoneNumber,
+          formattedPhone: params?.formattedPhone || params?.phoneNumber,
+          onSuccess,
+          successPageDuration,
+          initOtp,
+          verifyOtp,
+          updateUserPhoneNumber,
+          refreshUser,
+          pushPage,
+          closeModal,
+          session,
+        });
       }
     } catch (error) {
       if (error instanceof TurnkeyError) {
@@ -2620,79 +2621,26 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
 
-    const continueToVerification = async (email: string) => {
-      if (!email || email === "") {
-        throw new TurnkeyError(
-          "Email is required for email verification.",
-          TurnkeyErrorCodes.MISSING_PARAMS,
-        );
-      }
-      const otpId = await initOtp({ otpType: OtpType.Email, contact: email });
-      pushPage({
-        key: "Verify OTP",
-        content: (
-          <OtpVerification
-            contact={email}
-            otpId={otpId}
-            otpType={OtpType.Email}
-            onContinue={async (otpCode: string) => {
-              const { verificationToken } = await verifyOtp({
-                otpId,
-                otpCode,
-                contact: email,
-                otpType: OtpType.Email,
-              });
-              const res = await updateUserEmail({
-                email,
-                verificationToken,
-                userId: session.userId,
-              });
-
-              if (res) {
-                if (onSuccess) {
-                  onSuccess(res);
-                } else {
-                  if (successPageDuration && successPageDuration !== 0) {
-                    pushPage({
-                      key: "success",
-                      content: (
-                        <SuccessPage
-                          text="Email Changed Successfully!"
-                          duration={successPageDuration}
-                          onComplete={() => {
-                            closeModal();
-                          }}
-                        />
-                      ),
-                      preventBack: true,
-                      showTitle: false,
-                    });
-                  } else {
-                    closeModal();
-                  }
-                }
-                await refreshUser();
-              } else {
-                closeModal();
-                throw new TurnkeyError(
-                  "Failed to update user email.",
-                  TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR,
-                );
-              }
-            }}
-          />
-        ),
-        showTitle: false,
-      });
-    };
-
     try {
       if (!params?.email && params?.email !== "") {
         pushPage({
           key: "Update Email",
           content: (
             <UpdateEmail
-              onContinue={continueToVerification}
+              onContinue={(emailInput: string) =>
+                updateEmailContinue({
+                  email: emailInput,
+                  onSuccess,
+                  successPageDuration,
+                  initOtp,
+                  verifyOtp,
+                  updateUserEmail,
+                  refreshUser,
+                  pushPage,
+                  closeModal,
+                  session,
+                })
+              }
               {...(title !== undefined ? { title } : {})}
               {...(subTitle !== undefined ? { subTitle } : {})}
             />
@@ -2700,7 +2648,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           showTitle: false,
         });
       } else {
-        continueToVerification(params?.email);
+        updateEmailContinue({
+          email: params.email,
+          onSuccess,
+          successPageDuration,
+          initOtp,
+          verifyOtp,
+          updateUserEmail,
+          refreshUser,
+          pushPage,
+          closeModal,
+          session,
+        });
       }
     } catch (error) {
       if (error instanceof TurnkeyError) {
@@ -2741,87 +2700,47 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
 
-    const continueToVerification = async (email: string) => {
-      if (!email || email === "") {
-        throw new TurnkeyError(
-          "Email is required for email verification.",
-          TurnkeyErrorCodes.MISSING_PARAMS,
-        );
-      }
-      const otpId = await initOtp({ otpType: OtpType.Email, contact: email });
-      pushPage({
-        key: "Verify OTP",
-        content: (
-          <OtpVerification
-            contact={email}
-            otpId={otpId}
-            otpType={OtpType.Email}
-            onContinue={async (otpCode: string) => {
-              const { verificationToken } = await verifyOtp({
-                otpId,
-                otpCode,
-                contact: email,
-                otpType: OtpType.Email,
-              });
-              const res = await updateUserEmail({
-                email,
-                verificationToken,
-                userId: session.userId,
-              });
-
-              if (res) {
-                if (onSuccess) {
-                  onSuccess(res);
-                } else {
-                  if (successPageDuration && successPageDuration !== 0) {
-                    pushPage({
-                      key: "success",
-                      content: (
-                        <SuccessPage
-                          text="Email Added Successfully!"
-                          duration={successPageDuration}
-                          onComplete={() => {
-                            closeModal();
-                          }}
-                        />
-                      ),
-                      preventBack: true,
-                      showTitle: false,
-                    });
-                  } else {
-                    closeModal();
-                  }
-                }
-                await refreshUser();
-              } else {
-                closeModal();
-                throw new TurnkeyError(
-                  "Failed to add user email.",
-                  TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR,
-                );
-              }
-            }}
-          />
-        ),
-        showTitle: false,
-      });
-    };
-
     try {
       if (!params?.email && params?.email !== "") {
         pushPage({
           key: "Add Email",
           content: (
             <UpdateEmail
-              onContinue={continueToVerification}
-              title={title ?? "Connect an email"}
+              onContinue={async (emailInput: string) => {
+                await addEmailContinue({
+                  email: emailInput,
+                  onSuccess,
+                  successPageDuration,
+                  initOtp,
+                  verifyOtp,
+                  updateUserEmail,
+                  refreshUser,
+                  pushPage,
+                  closeModal,
+                  session,
+                });
+              }}
+              {...(!user?.userEmail
+                ? { title: title ?? "Connect an email" }
+                : {})}
               {...(subTitle !== undefined ? { subTitle } : {})}
             />
           ),
           showTitle: false,
         });
       } else {
-        continueToVerification(params?.email);
+        await addEmailContinue({
+          email: params.email,
+          onSuccess,
+          successPageDuration,
+          initOtp,
+          verifyOtp,
+          updateUserEmail,
+          refreshUser,
+          pushPage,
+          closeModal,
+          session,
+        });
       }
     } catch (error) {
       if (error instanceof TurnkeyError) {
@@ -2863,94 +2782,49 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
 
-    const continueToVerification = async (
-      phone: string,
-      formattedPhone: string,
-    ) => {
-      if (!phone || phone === "") {
-        throw new TurnkeyError(
-          "Phone number is required for sms verification.",
-          TurnkeyErrorCodes.MISSING_PARAMS,
-        );
-      }
-      const otpId = await initOtp({ otpType: OtpType.Sms, contact: phone });
-      pushPage({
-        key: "Verify OTP",
-        content: (
-          <OtpVerification
-            contact={phone}
-            formattedContact={formattedPhone}
-            otpId={otpId}
-            otpType={OtpType.Sms}
-            onContinue={async (otpCode: string) => {
-              const { verificationToken } = await verifyOtp({
-                otpId,
-                otpCode,
-                contact: phone,
-                otpType: OtpType.Sms,
-              });
-              const res = await updateUserPhoneNumber({
-                phoneNumber: phone,
-                verificationToken,
-                userId: session.userId,
-              });
-
-              if (res) {
-                if (onSuccess) {
-                  onSuccess(res);
-                } else {
-                  if (successPageDuration && successPageDuration !== 0) {
-                    pushPage({
-                      key: "success",
-                      content: (
-                        <SuccessPage
-                          text="Phone Number Added Successfully!"
-                          duration={successPageDuration}
-                          onComplete={() => {
-                            closeModal();
-                          }}
-                        />
-                      ),
-                      preventBack: true,
-                      showTitle: false,
-                    });
-                  } else {
-                    closeModal();
-                  }
-                }
-                await refreshUser();
-              } else {
-                closeModal();
-                throw new TurnkeyError(
-                  "Failed to add phone number.",
-                  TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
-                );
-              }
-            }}
-          />
-        ),
-        showTitle: false,
-      });
-    };
-
     try {
       if (!params?.phoneNumber && params?.phoneNumber !== "") {
         pushPage({
           key: "Add Phone Number",
           content: (
             <UpdatePhoneNumber
-              onContinue={continueToVerification}
-              title={title ?? "Connect a phone number"}
+              onContinue={(phone: string, formattedPhone: string) =>
+                addPhoneNumberContinue({
+                  phone,
+                  formattedPhone,
+                  onSuccess,
+                  successPageDuration,
+                  initOtp,
+                  verifyOtp,
+                  updateUserPhoneNumber,
+                  refreshUser,
+                  pushPage,
+                  closeModal,
+                  session,
+                })
+              }
+              {...(!user?.userPhoneNumber
+                ? { title: title ?? "Connect a phone number" }
+                : {})}
               {...(subTitle !== undefined ? { subTitle } : {})}
             />
           ),
           showTitle: false,
         });
       } else {
-        continueToVerification(
-          params?.phoneNumber,
-          params?.formattedPhone || params?.phoneNumber,
-        );
+        addPhoneNumberContinue({
+          phone: params.phoneNumber,
+          formattedPhone: params?.formattedPhone || params.phoneNumber,
+          onSuccess,
+          successPageDuration,
+          initOtp,
+          verifyOtp,
+          updateUserPhoneNumber,
+          refreshUser,
+          pushPage,
+          closeModal,
+          session,
+        });
       }
     } catch (error) {
       if (error instanceof TurnkeyError) {
@@ -2959,6 +2833,135 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       throw new TurnkeyError(
         "Failed to initialize OTP for sms verification.",
         TurnkeyErrorCodes.INIT_OTP_ERROR,
+        error,
+      );
+    }
+  };
+
+  const handleRemovePasskey = async (params: {
+    authenticatorId: string;
+    title?: string;
+    subTitle?: string;
+    onSuccess?: (authenticatorIds: string[]) => void;
+    successPageDuration?: number | undefined;
+  }) => {
+    const {
+      authenticatorId,
+      successPageDuration,
+      onSuccess = undefined,
+      subTitle,
+      title,
+    } = params;
+
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    try {
+      pushPage({
+        key: "Remove Passkey",
+        content: (
+          <RemovePasskey
+            authenticatorId={authenticatorId}
+            onContinue={async () => {
+              removePasskeyContinue({
+                authenticatorId,
+                onSuccess,
+                successPageDuration,
+                refreshUser,
+                pushPage,
+                closeModal,
+                session,
+                removePasskey,
+              });
+            }}
+            {...(title !== undefined ? { title } : {})}
+            {...(subTitle !== undefined ? { subTitle } : {})}
+          />
+        ),
+        showTitle: false,
+      });
+    } catch (error) {
+      if (error instanceof TurnkeyError) {
+        throw error;
+      }
+      throw new TurnkeyError(
+        "Failed to remove passkey in handler.",
+        TurnkeyErrorCodes.REMOVE_PASSKEY_ERROR,
+        error,
+      );
+    }
+  };
+
+  const handleAddPasskey = async (params?: {
+    name?: string;
+    displayName?: string;
+    userId?: string;
+    onSuccess?: (authenticatorIds: string[]) => void;
+    successPageDuration?: number | undefined;
+  }): Promise<void> => {
+    const {
+      name,
+      displayName,
+      onSuccess = undefined,
+      successPageDuration,
+    } = params || {};
+
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    const userId = params?.userId || session.userId;
+    try {
+      const res = await withTurnkeyErrorHandling(
+        () =>
+          addPasskey({
+            ...(name && { name }),
+            ...(displayName && { displayName }),
+            userId,
+          }),
+        callbacks,
+        "Failed to create passkey",
+      );
+      pushPage({
+        key: "Passkey Added",
+        content: (
+          <SuccessPage
+            text="Successfully added passkey!"
+            duration={successPageDuration}
+            onComplete={() => {
+              closeModal();
+              if (onSuccess) {
+                onSuccess(res);
+              }
+            }}
+          />
+        ),
+        preventBack: true,
+        showTitle: false,
+      });
+      await refreshUser();
+    } catch (error) {
+      if (error instanceof TurnkeyError) {
+        throw error;
+      }
+      throw new TurnkeyError(
+        "Failed to add passkey in handler.",
+        TurnkeyErrorCodes.ADD_PASSKEY_ERROR,
         error,
       );
     }
@@ -2997,42 +3000,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           <RemoveOAuthProvider
             providerId={providerId}
             onContinue={async () => {
-              const res = await removeOAuthProvider({
+              removeOAuthProviderContinue({
                 providerId,
-                userId: session.userId,
+                onSuccess,
+                successPageDuration,
+                refreshUser,
+                pushPage,
+                closeModal,
+                session,
+                removeOAuthProvider,
               });
-
-              if (res) {
-                if (onSuccess) {
-                  onSuccess(res);
-                } else {
-                  if (successPageDuration && successPageDuration !== 0) {
-                    pushPage({
-                      key: "success",
-                      content: (
-                        <SuccessPage
-                          text="OAuth Provider Removed Successfully!"
-                          duration={successPageDuration}
-                          onComplete={() => {
-                            closeModal();
-                          }}
-                        />
-                      ),
-                      preventBack: true,
-                      showTitle: false,
-                    });
-                  } else {
-                    closeModal();
-                  }
-                }
-                await refreshUser();
-              } else {
-                closeModal();
-                throw new TurnkeyError(
-                  "Failed to remove OAuth provider.",
-                  TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR,
-                );
-              }
             }}
             {...(title !== undefined ? { title } : {})}
             {...(subTitle !== undefined ? { subTitle } : {})}
@@ -3069,18 +3046,57 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     const { providerName } = params;
 
-    let oidcToken;
+    const onOAuthSuccess = async (params: {
+      providerName: string;
+      oidcToken: string;
+    }) => {
+      await withTurnkeyErrorHandling(
+        () =>
+          addOAuthProvider({
+            providerName: params.providerName,
+            oidcToken: params.oidcToken,
+          }),
+        callbacks,
+        "Failed to add OAuth provider",
+      );
+      pushPage({
+        key: "OAuth Provider Added",
+        content: (
+          <SuccessPage
+            text={`Successfully added ${params.providerName} OAuth provider!`}
+            duration={3000}
+            onComplete={() => {
+              closeModal();
+            }}
+          />
+        ),
+        preventBack: true,
+        showTitle: false,
+      });
+
+      await refreshUser();
+    };
+
     switch (providerName) {
       case OAuthProviders.GOOGLE: {
-        oidcToken = await googleOidcToken();
+        await handleGoogleOauth({
+          openInPage: false,
+          onOAuthSuccess,
+        });
         break;
       }
       case OAuthProviders.APPLE: {
-        oidcToken = await appleOidcToken();
+        await handleAppleOauth({
+          openInPage: false,
+          onOAuthSuccess,
+        });
         break;
       }
       case OAuthProviders.FACEBOOK: {
-        oidcToken = await facebookOidcToken();
+        await handleFacebookOauth({
+          openInPage: false,
+          onOAuthSuccess,
+        });
         break;
       }
       default: {
@@ -3090,330 +3106,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     }
-    if (!oidcToken) {
-      throw new TurnkeyError(
-        "Failed to obtain OIDC token.",
-        TurnkeyErrorCodes.OIDC_TOKEN_ERROR,
-      );
-    }
-
-    const res = await withTurnkeyErrorHandling(
-      () => addOAuthProvider({ providerName, oidcToken }),
-      callbacks,
-      "Failed to add OAuth provider",
-    );
-
-    if (res) {
-      await refreshUser();
-    }
-  };
-
-  const appleOidcToken = async (params?: {
-    clientId?: string;
-  }): Promise<string> => {
-    const clientId =
-      params?.clientId || masterConfig?.auth?.oAuthConfig?.appleClientId;
-
-    if (!clientId) {
-      throw new TurnkeyError(
-        "Apple Client ID is not configured.",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
-      );
-    }
-    if (!masterConfig.auth?.oAuthConfig?.oAuthRedirectUri) {
-      throw new TurnkeyError(
-        "OAuth Redirect URI is not configured.",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-
-    const redirectURI = masterConfig.auth?.oAuthConfig.oAuthRedirectUri.replace(
-      /\/$/,
-      "",
-    );
-
-    // Create key pair and generate nonce
-    const publicKey = await createApiKeyPair();
-    if (!publicKey) {
-      throw new Error("Failed to create public key for OAuth.");
-    }
-    const nonce = bytesToHex(sha256(publicKey));
-    const appleAuthUrl = new URL(APPLE_AUTH_URL);
-    appleAuthUrl.searchParams.set("client_id", clientId);
-    appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
-    appleAuthUrl.searchParams.set("response_type", "code id_token");
-    appleAuthUrl.searchParams.set("response_mode", "fragment");
-    appleAuthUrl.searchParams.set("nonce", nonce);
-
-    const width = popupWidth;
-    const height = popupHeight;
-    const left = window.screenX + (window.innerWidth - width) / 2;
-    const top = window.screenY + (window.innerHeight - height) / 2;
-
-    return new Promise((resolve, reject) => {
-      const authWindow = window.open(
-        appleAuthUrl.toString(),
-        "_blank",
-        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-      );
-
-      if (!authWindow) {
-        reject(new Error("Failed to open Apple login window."));
-        return;
-      }
-
-      const interval = setInterval(() => {
-        try {
-          const url = authWindow?.location.href || "";
-          if (url.startsWith(window.location.origin)) {
-            const hashParams = new URLSearchParams(url.split("#")[1]);
-            const idToken = hashParams.get("id_token");
-            if (idToken) {
-              authWindow?.close();
-              clearInterval(interval);
-              resolve(idToken);
-            } else {
-              reject(
-                new TurnkeyError(
-                  "ID Token not found in the response.",
-                  TurnkeyErrorCodes.OIDC_TOKEN_ERROR,
-                ),
-              );
-            }
-          }
-        } catch (error) {
-          // Ignore cross-origin errors until the popup redirects to the same origin.
-          // These errors occur because the script attempts to access the URL of the popup window while it's on a different domain.
-          // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
-          // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
-        }
-
-        if (authWindow?.closed) {
-          clearInterval(interval);
-        }
-      }, 500);
-    });
-  };
-
-  const googleOidcToken = async (params?: {
-    clientId?: string;
-  }): Promise<string> => {
-    const clientId =
-      params?.clientId || masterConfig?.auth?.oAuthConfig?.googleClientId;
-
-    if (!clientId) {
-      throw new TurnkeyError(
-        "Google Client ID is not configured.",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
-      );
-    }
-    if (!masterConfig.auth?.oAuthConfig?.oAuthRedirectUri) {
-      throw new TurnkeyError(
-        "OAuth Redirect URI is not configured.",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-
-    const redirectURI = masterConfig.auth?.oAuthConfig.oAuthRedirectUri.replace(
-      /\/$/,
-      "",
-    );
-
-    // Create key pair and generate nonce
-    const publicKey = await createApiKeyPair();
-    if (!publicKey) {
-      throw new Error("Failed to create public key for OAuth.");
-    }
-    const nonce = bytesToHex(sha256(publicKey));
-    const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
-    googleAuthUrl.searchParams.set("client_id", clientId);
-    googleAuthUrl.searchParams.set("redirect_uri", redirectURI);
-    googleAuthUrl.searchParams.set("response_type", "id_token");
-    googleAuthUrl.searchParams.set("scope", "openid email profile");
-    googleAuthUrl.searchParams.set("nonce", nonce);
-    googleAuthUrl.searchParams.set("prompt", "select_account");
-
-    const width = popupWidth;
-    const height = popupHeight;
-    const left = window.screenX + (window.innerWidth - width) / 2;
-    const top = window.screenY + (window.innerHeight - height) / 2;
-
-    return new Promise((resolve, reject) => {
-      const authWindow = window.open(
-        googleAuthUrl.toString(),
-        "_blank",
-        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-      );
-
-      if (!authWindow) {
-        reject(new Error("Failed to open Google login window."));
-        return;
-      }
-
-      const interval = setInterval(() => {
-        try {
-          const url = authWindow?.location.href || "";
-          if (url.startsWith(window.location.origin)) {
-            const hashParams = new URLSearchParams(url.split("#")[1]);
-            const idToken = hashParams.get("id_token");
-            if (idToken) {
-              authWindow?.close();
-              clearInterval(interval);
-              resolve(idToken);
-            } else {
-              reject(
-                new TurnkeyError(
-                  "ID Token not found in the response.",
-                  TurnkeyErrorCodes.OIDC_TOKEN_ERROR,
-                ),
-              );
-            }
-          }
-        } catch (error) {
-          // Ignore cross-origin errors until the popup redirects to the same origin.
-          // These errors occur because the script attempts to access the URL of the popup window while it's on a different domain.
-          // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
-          // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
-        }
-
-        if (authWindow?.closed) {
-          clearInterval(interval);
-        }
-      }, 500);
-    });
-  };
-
-  const facebookOidcToken = async (params?: {
-    clientId?: string;
-  }): Promise<string> => {
-    const clientId =
-      params?.clientId || masterConfig?.auth?.oAuthConfig?.facebookClientId;
-
-    if (!clientId) {
-      throw new TurnkeyError(
-        "Apple Client ID is not configured.",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
-      );
-    }
-    if (!masterConfig.auth?.oAuthConfig?.oAuthRedirectUri) {
-      throw new TurnkeyError(
-        "OAuth Redirect URI is not configured.",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-
-    const redirectURI = masterConfig.auth?.oAuthConfig.oAuthRedirectUri.replace(
-      /\/$/,
-      "",
-    );
-
-    // Create key pair and generate nonce
-    const publicKey = await createApiKeyPair();
-    if (!publicKey) {
-      throw new Error("Failed to create public key for OAuth.");
-    }
-
-    const { verifier, codeChallenge } = await generateChallengePair();
-    sessionStorage.setItem("facebook_verifier", verifier);
-
-    const searchParams = new URLSearchParams({
-      client_id: clientId,
-      redirect_uri: redirectURI,
-      state: verifier,
-      code_challenge: codeChallenge,
-      code_challenge_method: "S256",
-      nonce: bytesToHex(sha256(publicKey)),
-      scope: "openid",
-      response_type: "code",
-    });
-
-    const facebookOAuthURL = `${FACEBOOK_AUTH_URL}?${searchParams.toString()}`;
-    const width = popupWidth;
-    const height = popupHeight;
-    const left = window.screenX + (window.innerWidth - width) / 2;
-    const top = window.screenY + (window.innerHeight - height) / 2;
-
-    return new Promise((resolve, reject) => {
-      const popup = window.open(
-        facebookOAuthURL,
-        "_blank",
-        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-      );
-
-      if (!popup) {
-        reject(new Error("Failed to open login popup"));
-        return;
-      }
-
-      const interval = setInterval(async () => {
-        try {
-          if (popup.closed) {
-            clearInterval(interval);
-            reject(
-              new Error(
-                "Popup closed by user before completing authentication",
-              ),
-            );
-            return;
-          }
-
-          const popupUrl = new URL(popup.location.href);
-          const authCode = popupUrl.searchParams.get("code");
-
-          if (authCode) {
-            popup.close();
-            clearInterval(interval);
-            const verifier = sessionStorage.getItem("facebook_verifier");
-            if (!verifier) {
-              reject(new Error("No verifier found in sessionStorage"));
-              return;
-            }
-
-            try {
-              const tokenData = await exchangeCodeForToken(
-                clientId,
-                redirectURI,
-                authCode,
-                verifier,
-              );
-              sessionStorage.removeItem("facebook_verifier");
-              resolve(tokenData.id_token);
-            } catch (error) {
-              reject(
-                new TurnkeyError(
-                  `Error during token exchange`,
-                  TurnkeyErrorCodes.OIDC_TOKEN_ERROR,
-                  error,
-                ),
-              );
-            }
-          }
-        } catch (error) {
-          // Ignore cross-origin errors until the popup redirects to the same origin.
-          // These errors occur because the script attempts to access the URL of the popup window while it's on a different domain.
-          // Due to browser security policies (Same-Origin Policy), accessing properties like location.href on a window that is on a different domain will throw an exception.
-          // Once the popup redirects to the same origin as the parent window, these errors will no longer occur, and the script can safely access the popup's location to extract parameters.
-        }
-      }, 250);
-    });
   };
 
   return (
@@ -3444,9 +3136,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         completeOauth,
         fetchWallets,
         fetchWalletAccounts,
+        refreshWallets,
         signMessage,
         signTransaction,
         fetchUser,
+        refreshUser,
         updateUserEmail,
         removeUserEmail,
         updateUserPhoneNumber,
@@ -3472,15 +3166,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         clearUnusedKeyPairs,
         getActiveSessionKey,
         createApiKeyPair,
-        googleOidcToken,
-        appleOidcToken,
-        facebookOidcToken,
+        getProxyAuthConfig,
 
         handleLogin,
         handleGoogleOauth,
         handleAppleOauth,
         handleFacebookOauth,
-        getProxyAuthConfig,
         handleExport,
         handleImport,
         handleUpdateUserEmail,
@@ -3488,6 +3179,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleUpdateUserName,
         handleAddOAuthProvider,
         handleRemoveOAuthProvider,
+        handleAddPasskey,
+        handleRemovePasskey,
         handleAddEmail,
         handleAddPhoneNumber,
         handleSignMessage,
