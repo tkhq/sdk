@@ -11,8 +11,8 @@
   --color-primary-text-light: rgb(255, 255, 255);
   --color-primary-text-dark: rgb(255, 255, 255);
 
-  --color-danger-light: oklch(0.7 0.1825 30.71);
-  --color-danger-dark: oklch(0.4794 0.1357 30.71);
+  --color-danger-light: oklch(0.65 0.1406 12.71);
+  --color-danger-dark: oklch(0.6088 0.1801 30.71);
   /* This is the color of the text that goes on top of danger color buttons */
   --color-danger-text-light: rgb(255, 255, 255);
   --color-danger-text-dark: rgb(255, 255, 255);
