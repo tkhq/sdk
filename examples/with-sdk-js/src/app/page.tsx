@@ -3,7 +3,6 @@
 import Image from "next/image";
 import styles from "./index.module.css";
 
-import { StamperType, TurnkeyClient, Wallet } from "@turnkey/sdk-js";
 import { useContext, useEffect, useState } from "react";
 import {
   OAuthProviders,
@@ -51,6 +50,7 @@ export default function AuthPage() {
     createWallet,
     logout,
     setActiveSession,
+    addPasskey,
     handleExport,
     handleImport,
     handleUpdateUserEmail,
@@ -60,6 +60,8 @@ export default function AuthPage() {
     handleAddEmail,
     handleAddPhoneNumber,
     handleRemoveOAuthProvider,
+    handleAddPasskey,
+    handleRemovePasskey,
   } = useTurnkey();
 
   useEffect(() => {
@@ -779,6 +781,24 @@ export default function AuthPage() {
       {session && (
         <button
           onClick={async () => {
+            await handleAddPasskey({
+              successPageDuration: 5000,
+            });
+          }}
+          style={{
+            backgroundColor: "rebeccapurple",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Add Passkey
+        </button>
+      )}
+
+      {session && (
+        <button
+          onClick={async () => {
             const providerId = user?.oauthProviders?.[0]?.providerId;
             if (!providerId) {
               console.error("No OAuth provider found to remove");
@@ -798,8 +818,28 @@ export default function AuthPage() {
           Remove OAuth Provider
         </button>
       )}
+      {session && (
+        <button
+          onClick={async () => {
+            const authenticatorId = user?.authenticators?.[0]?.authenticatorId;
+            if (!authenticatorId) {
+              console.error("No passkey found to remove");
+              return;
+            }
+            await handleRemovePasskey({
+              authenticatorId: authenticatorId,
+            });
+          }}
+          style={{
+            backgroundColor: "rebeccapurple",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Remove Passkey
+        </button>
+      )}
     </main>
   );
 }
-
-// ddc592bc-68ea-4b4c-a614-663949a5cc1a
