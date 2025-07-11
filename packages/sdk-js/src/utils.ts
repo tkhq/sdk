@@ -4,8 +4,9 @@ import type {
   v1PayloadEncoding,
   Session,
   externaldatav1Timestamp,
+  v1Attestation,
 } from "@turnkey/sdk-types";
-import { WalletAccount } from "@types";
+import { CreateSubOrgParams, Passkey, SignUpBody, WalletAccount } from "@types";
 // Import all defaultAccountAtIndex functions for each address format
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
@@ -42,6 +43,7 @@ import {
   DEFAULT_TON_V3R2_ACCOUNTS,
   DEFAULT_TON_V4R2_ACCOUNTS,
 } from "./turnkey-helpers";
+import { create } from "domain";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -396,4 +398,52 @@ export function generateWalletAccountsFromAddressFormat(
   });
 
   return walletAccounts;
+}
+
+export function buildSignUpBody(params: {
+  createSubOrgParams: CreateSubOrgParams | undefined;
+}): SignUpBody {
+  const { createSubOrgParams } = params;
+  const websiteName = window.location.hostname;
+
+  const authenticators =
+    createSubOrgParams?.authenticators?.map((authenticator) => ({
+      authenticatorName:
+        authenticator.authenticatorName || `${websiteName}-${Date.now()}`,
+      challenge: authenticator.challenge,
+      attestation: authenticator.attestation,
+    })) || [];
+
+  const apiKeys =
+    createSubOrgParams?.apiKeys?.map((apiKey) => ({
+      apiKeyName: apiKey.apiKeyName || `api-key-${Date.now()}`,
+      publicKey: apiKey.publicKey,
+      expirationSeconds: apiKey.expirationSeconds || "60", // Default to 60 seconds
+      curveType: apiKey.curveType,
+    })) || [];
+
+  return {
+    userName:
+      createSubOrgParams?.userName ||
+      createSubOrgParams?.userEmail ||
+      `user-${Date.now()}`,
+    userEmail: createSubOrgParams?.userEmail,
+    ...(createSubOrgParams?.authenticators?.length && {
+      authenticators,
+    }),
+    userPhoneNumber: createSubOrgParams?.userPhoneNumber,
+    userTag: createSubOrgParams?.userTag,
+    subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
+    verificationToken: createSubOrgParams?.verificationToken,
+    ...(createSubOrgParams?.apiKeys?.length && {
+      apiKeys,
+    }),
+    oauthProviders: createSubOrgParams?.oauthProviders,
+    ...(createSubOrgParams?.customWallet && {
+      wallet: {
+        walletName: createSubOrgParams.customWallet.walletName,
+        accounts: createSubOrgParams.customWallet.walletAccounts,
+      },
+    }),
+  };
 }
