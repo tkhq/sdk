@@ -107,3 +107,27 @@ export class CrossPlatformWalletStamper implements TStamper {
     return c;
   }
 }
+
+export async function getConnectedEthAddress(
+  provider: any,
+): Promise<string | null> {
+  try {
+    const accounts = await provider.request({
+      method: "eth_accounts",
+    });
+    return accounts.length > 0 ? accounts[0] : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function getConnectedSolAddress(
+  wallet: any,
+): Promise<string | null> {
+  try {
+    const account = wallet.accounts?.[0];
+    return account?.address ?? null;
+  } catch {
+    return null;
+  }
+}
