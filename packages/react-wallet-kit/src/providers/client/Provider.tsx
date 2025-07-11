@@ -1110,6 +1110,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
+    if (!masterConfig) {
+      throw new TurnkeyError(
+        "Config is not ready yet!",
+        TurnkeyErrorCodes.INVALID_CONFIGURATION,
+      );
+    }
+
+    // If createSubOrgParams is not provided, use the default from masterConfig
+    let createSubOrgParams = params.createSubOrgParams;
+    if (!createSubOrgParams && masterConfig?.auth?.createSuborgParams) {
+      if (params.otpType === OtpType.Email) {
+        createSubOrgParams = masterConfig.auth.createSuborgParams.email;
+      } else if (params.otpType === OtpType.Sms) {
+        createSubOrgParams = masterConfig.auth.createSuborgParams.sms;
+      }
+    }
+    params =
+      createSubOrgParams !== undefined
+        ? { ...params, createSubOrgParams }
+        : { ...params };
+
     setAuthState(AuthState.Loading);
     const res = await withTurnkeyErrorHandling(
       () => client.completeOtp(params),
@@ -1139,6 +1160,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
+    if (!masterConfig) {
+      throw new TurnkeyError(
+        "Config is not ready yet!",
+        TurnkeyErrorCodes.INVALID_CONFIGURATION,
+      );
+    }
+
+    // If createSubOrgParams is not provided, use the default from masterConfig
+    const createSubOrgParams =
+      params.createSubOrgParams ?? masterConfig.auth?.createSuborgParams?.oAuth;
+
+    params =
+      createSubOrgParams !== undefined
+        ? { ...params, createSubOrgParams }
+        : { ...params };
+
     setAuthState(AuthState.Loading);
     const res = await withTurnkeyErrorHandling(
       () => client.completeOauth(params),

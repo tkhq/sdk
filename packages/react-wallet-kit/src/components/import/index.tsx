@@ -254,7 +254,7 @@ export function ImportComponent(params: {
         Import
       </ActionButton>
       <p
-        className={`text-sm text-red-500 transition-opacity delay-75 ${error ? "opacitiy-100 pointer-events-auto mt-2" : "opacity-0 pointer-events-none absolute"}`}
+        className={`text-sm text-red-500 transition-opacity delay-75 line-clamp-2 ${error ? "opacitiy-100 pointer-events-auto mt-2" : "opacity-0 pointer-events-none absolute"}`}
       >
         {error?.message}:{" "}
         {error?.cause instanceof TurnkeyError
