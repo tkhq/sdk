@@ -292,10 +292,10 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const provider = getWalletProviders(WalletType.Ethereum);
-          console.log("Injected Solana Provider:", provider);
+          const provider = getWalletProviders(WalletType.Solana);
+          console.log("Injected Etheruem Provider:", provider);
           await loginOrSignupWithWallet({
-            walletProvider: provider[0],
+            walletProvider: provider[1],
           });
         }}
         style={{
