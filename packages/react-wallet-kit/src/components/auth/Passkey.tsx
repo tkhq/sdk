@@ -8,7 +8,7 @@ interface PasskeyButtonsProps {
 export function PasskeyButtons(props: PasskeyButtonsProps) {
   const { onLogin, onSignUp } = props;
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-2 w-full">
       <ActionButton
         onClick={onLogin}
         className="w-full text-inherit bg-button-light dark:bg-button-dark"
