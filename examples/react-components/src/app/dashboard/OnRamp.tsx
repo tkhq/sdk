@@ -26,13 +26,14 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
         fiatCurrencyCode: "FIAT_ON_RAMP_CURRENCY_USD",
         countryCode: "US",
         countrySubdivisionCode: "ME",
+        sandboxMode: true,
       });
 
       if (response?.onRampUrl) {
         window.open(
           response.onRampUrl,
           "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
+          "popup,width=500,height=700,scrollbars=yes,resizable=yes"
         );
       }
     } catch (error) {
@@ -51,13 +52,14 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
         network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
         cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
         fiatCurrencyCode: "FIAT_ON_RAMP_CURRENCY_USD",
+        sandboxMode: true,
       });
 
       if (response?.onRampUrl) {
         window.open(
           response.onRampUrl,
           "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
+          "popup,width=500,height=700,scrollbars=yes,resizable=yes"
         );
       }
     } catch (error) {
@@ -68,9 +70,18 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
   return (
     <>
       <button className="whiteButton" onClick={handleModalOpen}>
-                                                  <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none">
-<path d="M11.5 13H5.5V11H11.5V5H13.5V11H19.5V13H13.5V19H11.5V13Z" fill="#878C94"/>
-</svg>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="25"
+          height="24"
+          viewBox="0 0 25 24"
+          fill="none"
+        >
+          <path
+            d="M11.5 13H5.5V11H11.5V5H13.5V11H19.5V13H13.5V19H11.5V13Z"
+            fill="#878C94"
+          />
+        </svg>
         Add Funds
       </button>
 
@@ -111,15 +122,15 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
           <Typography variant="subtitle2" sx={{ color: "#6C727E", mb: 2 }}>
             Your crypto will be deposited directly into your Turnkey wallet
           </Typography>
-            <div className = "purchaseButtons">
-          <button className="whiteButton" onClick={generateMoonPayUrl}>
-            <img src="/images/moonpay.jpg" alt="MoonPay" />
-            Buy with MoonPay
-          </button>
-          <button className="whiteButton" onClick={generateCoinbaseUrl}>
-            <img src="/images/coinbase.png" alt="Coinbase" />
-            Buy with Coinbase
-          </button>
+          <div className="purchaseButtons">
+            <button className="whiteButton" onClick={generateMoonPayUrl}>
+              <img src="/images/moonpay.jpg" alt="MoonPay" />
+              Buy with MoonPay
+            </button>
+            <button className="whiteButton" onClick={generateCoinbaseUrl}>
+              <img src="/images/coinbase.png" alt="Coinbase" />
+              Buy with Coinbase
+            </button>
           </div>
         </Box>
       </Modal>
