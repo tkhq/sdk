@@ -8,6 +8,8 @@ import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import type {
   SessionType,
+  v1ApiKeyCurve,
+  v1Attestation,
   v1User,
   v1Wallet,
   v1WalletAccount,
@@ -224,8 +226,46 @@ export type CreateSubOrgParams = {
   subOrgName?: string | undefined;
   userEmail?: string | undefined;
   userTag?: string | undefined;
-  passkeyName?: string | undefined;
+  authenticators?: {
+    authenticatorName: string;
+    challenge: string;
+    attestation: v1Attestation;
+  }[];
   userPhoneNumber?: string | undefined;
+  verificationToken?: string | undefined;
+  apiKeys?: {
+    apiKeyName?: string | undefined;
+    publicKey: string;
+    expirationSeconds?: string | undefined;
+    curveType?: v1ApiKeyCurve | undefined;
+  }[];
+  customWallet?:
+    | {
+        walletName: string;
+        walletAccounts: WalletAccount[];
+      }
+    | undefined;
+  oauthProviders?: Provider[] | undefined;
+};
+
+export type SignUpBody = {
+  userName: string;
+  subOrgName: string;
+  userEmail?: string | undefined;
+  userTag?: string | undefined;
+  authenticators?: {
+    authenticatorName: string;
+    challenge: string;
+    attestation: v1Attestation;
+  }[];
+  userPhoneNumber?: string | undefined;
+  verificationToken?: string | undefined;
+  apiKeys?: {
+    apiKeyName: string;
+    publicKey: string;
+    expirationSeconds: string;
+    curveType?: v1ApiKeyCurve | undefined;
+  }[];
   customWallet?:
     | {
         walletName: string;
