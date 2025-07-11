@@ -718,7 +718,6 @@ export default function Dashboard() {
               <button className="signMessage" onClick={handleSignMessageClick}>
                 Sign a message
               </button>
-
             </div>
             <OnRamp ethAddress={ethAddress || ""} />
           </RadioGroup>
@@ -734,7 +733,6 @@ export default function Dashboard() {
               onHandleImportSuccess={handleImportSuccess}
             />
           </div>
-
 
           <div className="authFooter">
             <div className="authFooterLeft">
