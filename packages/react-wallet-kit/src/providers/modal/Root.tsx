@@ -130,7 +130,12 @@ export function ModalRoot(props: ModalRootProps) {
         {/* Modal Panel */
         /* TODO (Amir): Does adding transition-colors here mess with the children? Probably. If you see some weird slow colour transitions, this is most likely the culprit! */}
         <div
-          onClick={closeModal}
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) {
+              e.stopPropagation();
+              closeModal();
+            }
+          }}
           className={`tk-modal fixed inset-0 flex items-center justify-center transition-colors duration-300 ${config?.ui?.darkMode ? "dark" : ""}`}
         >
           <DialogPanel>
@@ -151,7 +156,7 @@ export function ModalRoot(props: ModalRootProps) {
                   padding: innerPadding,
                   borderRadius: config?.ui?.borderRadius ?? "16px",
                 }}
-                className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex shadow-xl transition-all"
+                className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex shadow-xl transition-all overflow-x-clip" // TODO (Amir): Ideally, we should have overflow-y-clip as well but it breaks the phone country selector 0_o. Try and fix this
               >
                 <div
                   className="h-6.5 absolute z-30 flex items-center justify-between transition-all"

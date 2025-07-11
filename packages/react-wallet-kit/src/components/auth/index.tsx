@@ -15,6 +15,8 @@ import { ActionPage } from "./Action";
 import { PasskeyButtons } from "./Passkey";
 import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
 import { Spinner } from "../design/Spinners";
+import { ExternalWalletSelector, WalletAuthButton } from "./Wallet";
+import { WalletProvider } from "@turnkey/wallet-stamper";
 
 export function AuthComponent() {
   const {
@@ -25,6 +27,8 @@ export function AuthComponent() {
     initOtp,
     loginWithPasskey,
     signUpWithPasskey,
+    getWalletProviders,
+    loginOrSignupWithWallet,
   } = useTurnkey();
   const { pushPage } = useModal();
 
@@ -177,6 +181,43 @@ export function AuthComponent() {
     });
   };
 
+  const handleWalletLoginOrSignup = async (provider: WalletProvider) => {
+    pushPage({
+      key: "Wallet Login/Signup",
+      content: (
+        <ActionPage
+          title={`Authenticating with ${provider.info.name}...`}
+          action={async () => {
+            await loginOrSignupWithWallet({
+              walletProvider: provider,
+            });
+          }}
+          icon={
+            <img
+              className="size-11 rounded-full"
+              src={provider.info.icon || ""}
+            />
+          }
+        />
+      ),
+      showTitle: false,
+    });
+  };
+
+  const handleShowWalletSelector = () => {
+    const walletProviders = getWalletProviders();
+
+    pushPage({
+      key: "Select wallet provider",
+      content: (
+        <ExternalWalletSelector
+          providers={walletProviders}
+          onSelect={handleWalletLoginOrSignup}
+        />
+      ),
+    });
+  };
+
   const oauthButtonMap: Record<string, JSX.Element | null> = {
     google: methods.googleOAuthEnabled ? (
       <OAuthButton
@@ -233,6 +274,9 @@ export function AuthComponent() {
         onSignUp={handlePasskeySignUp}
       />
     ) : null,
+    wallet: methods.walletAuthEnabled ? (
+      <WalletAuthButton onContinue={handleShowWalletSelector} />
+    ) : null,
   };
 
   // -- Final Rendering Order --
@@ -249,7 +293,7 @@ export function AuthComponent() {
           {component}
         </div>
       ))}
-      <div className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-xs mt-3 text-center">
+      <div className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-xs mt-4 text-center">
         <span>
           By continuing, you agree to our{" "}
           <a
