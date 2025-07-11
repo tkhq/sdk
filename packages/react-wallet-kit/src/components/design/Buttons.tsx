@@ -55,6 +55,8 @@ export function IconButton(props: IconButtonProps) {
 interface ActionButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   disabled?: boolean;
   loading?: boolean;
   className?: string;
@@ -62,11 +64,21 @@ interface ActionButtonProps {
 }
 
 export function ActionButton(props: ActionButtonProps) {
-  const { children, onClick, disabled, loading, className, spinnerClassName } =
-    props;
+  const {
+    children,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    disabled,
+    loading,
+    className,
+    spinnerClassName,
+  } = props;
   return (
     <BaseButton
       onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       disabled={disabled || loading}
       className={clsx(
         "w-full px-4 py-3 rounded-md border border-modal-background-dark/15 dark:border-modal-background-light/15 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-all duration-300",
