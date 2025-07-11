@@ -43,6 +43,7 @@ import {
   Curve,
 } from "@types"; // AHHHH, SDK-TYPES
 import {
+  buildSignUpBody,
   generateWalletAccountsFromAddressFormat,
   getMessageHashAndEncodingType,
   isReactNative,
@@ -360,8 +361,7 @@ export class TurnkeyClient {
     let generatedKeyPair = null;
     try {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
-      const passkeyName =
-        passkeyDisplayName || createSubOrgParams?.passkeyName || "A Passkey";
+      const passkeyName = passkeyDisplayName || `passkey-${Date.now()}`;
 
       const passkey = await this.createPasskey({
         name: passkeyName,
@@ -375,39 +375,26 @@ export class TurnkeyClient {
         );
       }
 
-      // Build the request body for OTP init
-      const signUpBody = {
-        userName:
-          createSubOrgParams?.userName ||
-          createSubOrgParams?.userEmail ||
-          `user-${Date.now()}`,
-        userEmail: createSubOrgParams?.userEmail,
-        authenticators: [
-          {
-            authenticatorName: passkeyName,
-            challenge: passkey.encodedChallenge,
-            attestation: passkey.attestation,
-          },
-        ],
-        userPhoneNumber: createSubOrgParams?.userPhoneNumber,
-        userTag: createSubOrgParams?.userTag,
-        subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
-        apiKeys: [
-          {
-            apiKeyName: `passkey-auth-${generatedKeyPair}`,
-            publicKey: generatedKeyPair,
-            curveType: "API_KEY_CURVE_P256",
-            expirationSeconds: "60",
-          },
-        ],
-        oauthProviders: createSubOrgParams?.oauthProviders,
-        ...(createSubOrgParams?.customWallet && {
-          wallet: {
-            walletName: createSubOrgParams?.customWallet.walletName,
-            accounts: createSubOrgParams?.customWallet.walletAccounts,
-          },
-        }),
-      };
+      const signUpBody = buildSignUpBody({
+        createSubOrgParams: {
+          ...createSubOrgParams,
+          authenticators: [
+            {
+              authenticatorName: passkeyName,
+              challenge: passkey.encodedChallenge,
+              attestation: passkey.attestation,
+            },
+          ],
+          apiKeys: [
+            {
+              apiKeyName: `passkey-auth-${generatedKeyPair}`,
+              publicKey: generatedKeyPair!,
+              curveType: "API_KEY_CURVE_P256",
+              expirationSeconds: "60",
+            },
+          ],
+        },
+      });
 
       // Set up headers, including X-Proxy-ID if needed
       const headers: Record<string, string> = {
@@ -609,40 +596,27 @@ export class TurnkeyClient {
         walletProvider?.type,
       );
 
-      // Build the request body for OTP init
-      const signUpBody = {
-        userName:
-          createSubOrgParams?.userName ||
-          createSubOrgParams?.userEmail ||
-          `user-${Date.now()}`,
-        userEmail: createSubOrgParams?.userEmail,
-        userPhoneNumber: createSubOrgParams?.userPhoneNumber,
-        userTag: createSubOrgParams?.userTag,
-        subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
-        apiKeys: [
-          {
-            apiKeyName: `wallet-auth:${publicKey}`,
-            publicKey: publicKey,
-            curveType:
-              type === WalletType.Ethereum
-                ? ("API_KEY_CURVE_SECP256K1" as const)
-                : ("API_KEY_CURVE_ED25519" as const),
-          },
-          {
-            apiKeyName: `wallet-auth-${generatedKeyPair}`,
-            publicKey: generatedKeyPair,
-            curveType: "API_KEY_CURVE_P256",
-            expirationSeconds: "60",
-          },
-        ],
-        oauthProviders: createSubOrgParams?.oauthProviders,
-        ...(createSubOrgParams?.customWallet && {
-          wallet: {
-            walletName: createSubOrgParams?.customWallet.walletName,
-            accounts: createSubOrgParams?.customWallet.walletAccounts,
-          },
-        }),
-      };
+      const signUpBody = buildSignUpBody({
+        createSubOrgParams: {
+          ...createSubOrgParams,
+          apiKeys: [
+            {
+              apiKeyName: `wallet-auth:${publicKey}`,
+              publicKey: publicKey,
+              curveType:
+                type === WalletType.Ethereum
+                  ? ("API_KEY_CURVE_SECP256K1" as const)
+                  : ("API_KEY_CURVE_ED25519" as const),
+            },
+            {
+              apiKeyName: `wallet-auth-${generatedKeyPair}`,
+              publicKey: generatedKeyPair!,
+              curveType: "API_KEY_CURVE_P256",
+              expirationSeconds: "60",
+            },
+          ],
+        },
+      });
 
       // Set up headers, including X-Proxy-ID if needed
       const headers: Record<string, string> = {
@@ -817,6 +791,22 @@ export class TurnkeyClient {
 
       // if there is no subOrganizationId, we create one
       if (!subOrganizationId) {
+        // const signUpBody = buildSignUpBody({
+        //   createSubOrgParams: {
+        //     ...createSubOrgParams,
+        //     apiKeys: [
+        //       {
+        //         apiKeyName: `wallet-auth:${publicKey}`,
+        //         publicKey: publicKey,
+        //         curveType:
+        //           walletProvider.type === WalletType.Ethereum
+        //             ? ("API_KEY_CURVE_SECP256K1" as const)
+        //             : ("API_KEY_CURVE_ED25519" as const),
+        //       },
+        //     ],
+        //   },
+        // });
+
         const signUpBody = {
           userName:
             createSubOrgParams?.userName ||
@@ -1146,19 +1136,15 @@ export class TurnkeyClient {
       sessionKey,
     } = params;
 
-    const signUpBody = {
-      userName:
-        createSubOrgParams?.userName ||
-        createSubOrgParams?.userEmail ||
-        `user-${Date.now()}`,
-      ...(otpType === OtpType.Email
-        ? { userEmail: contact }
-        : { userPhoneNumber: contact }),
-      userTag: createSubOrgParams?.userTag,
-      subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
-      verificationToken,
-      oauthProviders: createSubOrgParams?.oauthProviders,
-    };
+    const signUpBody = buildSignUpBody({
+      createSubOrgParams: {
+        ...createSubOrgParams,
+        ...(otpType === OtpType.Email
+          ? { userEmail: contact }
+          : { userPhoneNumber: contact }),
+        verificationToken,
+      },
+    });
 
     // Set up headers, including X-Proxy-ID if needed
     const headers: Record<string, string> = {
@@ -1442,21 +1428,17 @@ export class TurnkeyClient {
     const { oidcToken, publicKey, providerName, createSubOrgParams } = params;
 
     try {
-      const signUpBody = {
-        userName:
-          createSubOrgParams?.userName ||
-          createSubOrgParams?.userEmail ||
-          `user-${Date.now()}`,
-        userTag: createSubOrgParams?.userTag,
-        subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
-        oauthProviders: [
-          {
-            providerName: providerName,
-            oidcToken,
-          },
-          ...(createSubOrgParams?.oauthProviders || []),
-        ],
-      };
+      const signUpBody = buildSignUpBody({
+        createSubOrgParams: {
+          ...createSubOrgParams,
+          oauthProviders: [
+            {
+              providerName,
+              oidcToken,
+            },
+          ],
+        },
+      });
 
       // Set up headers, including X-Proxy-ID if needed
       const headers: Record<string, string> = {
@@ -1646,7 +1628,7 @@ export class TurnkeyClient {
 
       for (const address of provider.connectedAddresses) {
         const account: WalletAccount = {
-          walletAccountId: `${wallet.walletId}-${provider.type}-${address}`,
+          walletAccountId: ${wallet.walletId}-${provider.type}-${address},
           organizationId: session.organizationId,
           walletId: wallet.walletId,
           curve:
