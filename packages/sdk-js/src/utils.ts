@@ -3,6 +3,7 @@ import type {
   v1HashFunction,
   v1PayloadEncoding,
   Session,
+  externaldatav1Timestamp,
 } from "@turnkey/sdk-types";
 import { WalletAccount } from "@types";
 // Import all defaultAccountAtIndex functions for each address format
@@ -266,6 +267,19 @@ export const bytesToHex = (bytes: Uint8Array): string => {
     hex += hexByByte[byte];
   }
   return hex;
+};
+
+export const toExternalTimestamp = (
+  date: Date = new Date(),
+): externaldatav1Timestamp => {
+  const millis = date.getTime();
+  const seconds = Math.floor(millis / 1000);
+  const nanos = (millis % 1000) * 1_000_000;
+
+  return {
+    seconds: seconds.toString(),
+    nanos: nanos.toString(),
+  };
 };
 
 export function parseSession(token: string | Session): Session {
