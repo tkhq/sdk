@@ -38,6 +38,10 @@ import {
   CreateSubOrgParams,
   Chain,
   FilterType,
+  EmbeddedWallet,
+  WalletSource,
+  InjectedWallet,
+  Curve,
 } from "@types"; // AHHHH, SDK-TYPES
 import {
   generateWalletAccountsFromAddressFormat,
@@ -45,6 +49,7 @@ import {
   isReactNative,
   isWalletAccountArray,
   isWeb,
+  toExternalTimestamp,
   // otpTypeToFilterMap,
 } from "@utils";
 import {
@@ -54,7 +59,11 @@ import {
 } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
-import { CrossPlatformWalletStamper } from "../__stampers__/wallet/base";
+import {
+  CrossPlatformWalletStamper,
+  getConnectedEthAddress,
+  getConnectedSolAddress,
+} from "../__stampers__/wallet/base";
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   DEFAULT_SOLANA_ACCOUNTS,
@@ -65,6 +74,7 @@ import {
   WalletType,
 } from "@turnkey/wallet-stamper";
 import { jwtDecode } from "jwt-decode";
+import { time } from "console";
 
 type PublicMethods<T> = {
   [K in keyof T as K extends string | number | symbol
@@ -1490,6 +1500,7 @@ export class TurnkeyClient {
         TurnkeyErrorCodes.NO_SESSION_FOUND,
       );
     }
+
     try {
       const res = await this.httpClient.getWallets(
         { organizationId: session.organizationId },
@@ -1503,20 +1514,80 @@ export class TurnkeyClient {
         );
       }
 
-      const wallets: Wallet[] = res.wallets;
-      let i = 0;
-      for (const wallet of wallets) {
-        const walletAccounts = await this.fetchWalletAccounts({
-          walletId: wallet.walletId,
-        });
+      const embedded: EmbeddedWallet[] = await Promise.all(
+        res.wallets.map(async (w) => {
+          const { accounts } = await this.fetchWalletAccounts({
+            walletId: w.walletId,
+          });
+          return {
+            ...w,
+            source: WalletSource.Embedded,
+            accounts,
+          };
+        }),
+      );
 
-        if (walletAccounts.accounts.length > 0) {
-          wallets[i]!.accounts = walletAccounts.accounts;
+      const injectedMap = new Map<string, InjectedWallet>();
+
+      if (this.walletStamper) {
+        const providers = this.getWalletProviders();
+
+        for (const p of providers) {
+          let address: string | null = null;
+
+          if (p.type === WalletType.Ethereum) {
+            address = await getConnectedEthAddress(p.provider);
+          } else if (p.type === WalletType.Solana) {
+            address = await getConnectedSolAddress(p.provider);
+          }
+
+          if (!address) continue;
+
+          const timestamp = toExternalTimestamp();
+          const providerName = p.info?.name ?? "Unknown";
+
+          const account: v1WalletAccount = {
+            walletAccountId: `${providerName.toLowerCase().replace(/\s+/g, "-")}-${p.type}`,
+            organizationId: session.organizationId,
+            walletId: `${providerName.toLowerCase().replace(/\s+/g, "-")}`,
+            curve:
+              p.type === WalletType.Ethereum ? Curve.SECP256K1 : Curve.ED25519,
+            pathFormat: "PATH_FORMAT_BIP32",
+            path: "injected",
+            addressFormat:
+              p.type === WalletType.Ethereum
+                ? "ADDRESS_FORMAT_ETHEREUM"
+                : "ADDRESS_FORMAT_SOLANA",
+            address,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+            ...(p.type === WalletType.Solana && { publicKey: address }),
+          };
+
+          const existingWallet = injectedMap.get(providerName);
+
+          if (existingWallet) {
+            existingWallet.accounts.push(account);
+          } else {
+            const injectedWallet: InjectedWallet = {
+              source: WalletSource.Injected,
+              walletId: `${providerName.toLowerCase().replace(/\s+/g, "-")}`,
+              walletName: providerName,
+              createdAt: timestamp,
+              updatedAt: timestamp,
+              exported: false,
+              imported: false,
+              accounts: [account],
+            };
+
+            injectedMap.set(providerName, injectedWallet);
+          }
         }
-
-        i++;
       }
-      return wallets;
+
+      const injected = Array.from(injectedMap.values());
+
+      return [...embedded, ...injected];
     } catch (error) {
       if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(

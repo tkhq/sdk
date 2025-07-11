@@ -178,9 +178,27 @@ export type User = v1User; // TODO (Amir): I dunno if we need this. We may want 
 
 export type ExportBundle = string;
 
-export type Wallet = v1Wallet & {
-  accounts?: v1WalletAccount[] | undefined;
-};
+export enum Curve {
+  SECP256K1 = "CURVE_SECP256K1",
+  ED25519 = "CURVE_ED25519",
+}
+
+export enum WalletSource {
+  Embedded = "embedded",
+  Injected = "injected",
+}
+
+export interface EmbeddedWallet extends v1Wallet {
+  source: WalletSource.Embedded;
+  accounts: v1WalletAccount[];
+}
+
+export interface InjectedWallet extends v1Wallet {
+  source: WalletSource.Injected;
+  accounts: v1WalletAccount[];
+}
+
+export type Wallet = EmbeddedWallet | InjectedWallet;
 
 export type WalletAccount = v1WalletAccountParams;
 
