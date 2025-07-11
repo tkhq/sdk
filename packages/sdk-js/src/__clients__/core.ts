@@ -1515,25 +1515,23 @@ export class TurnkeyClient {
         );
       }
 
-      const embedded: EmbeddedWallet[] = (
-        await Promise.all(
-          res.wallets.map(async (wallet) => {
-            const embeddedWallet: Wallet = {
-              ...wallet,
-              source: WalletSource.Embedded,
-              accounts: [],
-            };
+      const embedded: EmbeddedWallet[] = await Promise.all(
+        res.wallets.map(async (wallet) => {
+          const embeddedWallet: Wallet = {
+            ...wallet,
+            source: WalletSource.Embedded,
+            accounts: [],
+          };
 
-            const accounts = await this.fetchWalletAccounts({
-              wallet: embeddedWallet,
-              ...(stamperType !== undefined && { stamperType }),
-            });
+          const accounts = await this.fetchWalletAccounts({
+            wallet: embeddedWallet,
+            ...(stamperType !== undefined && { stamperType }),
+          });
 
-            embeddedWallet.accounts = accounts;
-            return embeddedWallet;
-          }),
-        )
-      )
+          embeddedWallet.accounts = accounts;
+          return embeddedWallet;
+        }),
+      );
 
       if (!this.walletStamper) {
         return embedded;
