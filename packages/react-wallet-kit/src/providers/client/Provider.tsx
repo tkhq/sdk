@@ -42,7 +42,6 @@ import {
   SessionType,
   TCreateSubOrganizationResponse,
   TDeleteSubOrganizationResponse,
-  TGetWalletAccountsResponse,
   TSignTransactionResponse,
   TStampLoginResponse,
   TurnkeyError,
@@ -1219,10 +1218,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }
 
   async function fetchWalletAccounts(params: {
-    walletId: string;
+    wallet: Wallet;
     stamperType?: StamperType;
     paginationOptions?: v1Pagination;
-  }): Promise<TGetWalletAccountsResponse> {
+    walletProviders?: WalletProvider[];
+  }): Promise<v1WalletAccount[]> {
     if (!client) {
       throw new TurnkeyError(
         "Client is not initialized.",
