@@ -38,6 +38,10 @@ import {
   CreateSubOrgParams,
   Chain,
   FilterType,
+  EmbeddedWallet,
+  WalletSource,
+  InjectedWallet,
+  Curve,
 } from "@types"; // AHHHH, SDK-TYPES
 import {
   generateWalletAccountsFromAddressFormat,
@@ -45,6 +49,7 @@ import {
   isReactNative,
   isWalletAccountArray,
   isWeb,
+  toExternalTimestamp,
   // otpTypeToFilterMap,
 } from "@utils";
 import {
@@ -54,7 +59,11 @@ import {
 } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
-import { CrossPlatformWalletStamper } from "../__stampers__/wallet/base";
+import {
+  CrossPlatformWalletStamper,
+  getConnectedEthAddress,
+  getConnectedSolAddress,
+} from "../__stampers__/wallet/base";
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   DEFAULT_SOLANA_ACCOUNTS,
@@ -65,6 +74,7 @@ import {
   WalletType,
 } from "@turnkey/wallet-stamper";
 import { jwtDecode } from "jwt-decode";
+import { time } from "console";
 
 type PublicMethods<T> = {
   [K in keyof T as K extends string | number | symbol
@@ -1484,12 +1494,14 @@ export class TurnkeyClient {
   }): Promise<Wallet[]> => {
     const { stamperType } = params || {};
     const session = await this.storageManager.getActiveSession();
+
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
         TurnkeyErrorCodes.NO_SESSION_FOUND,
       );
     }
+
     try {
       const res = await this.httpClient.getWallets(
         { organizationId: session.organizationId },
@@ -1503,24 +1515,76 @@ export class TurnkeyClient {
         );
       }
 
-      const wallets: Wallet[] = res.wallets;
-      let i = 0;
-      for (const wallet of wallets) {
-        const walletAccounts = await this.fetchWalletAccounts({
-          walletId: wallet.walletId,
-        });
+      const embedded: EmbeddedWallet[] = await Promise.all(
+        res.wallets.map(async (wallet) => {
+          const embeddedWallet: Wallet = {
+            ...wallet,
+            source: WalletSource.Embedded,
+            accounts: [],
+          };
 
-        if (walletAccounts.accounts.length > 0) {
-          wallets[i]!.accounts = walletAccounts.accounts;
-        }
+          const accounts = await this.fetchWalletAccounts({
+            wallet: embeddedWallet,
+            ...(stamperType !== undefined && { stamperType }),
+          });
 
-        i++;
+          embeddedWallet.accounts = accounts;
+          return embeddedWallet;
+        }),
+      );
+
+      if (!this.walletStamper) {
+        return embedded;
       }
-      return wallets;
+
+      const providers = this.getWalletProviders();
+      const groupedProviders = new Map<string, WalletProvider[]>();
+
+      for (const provider of providers) {
+        const walletId =
+          provider.info?.name?.toLowerCase().replace(/\s+/g, "-") || "unknown";
+
+        const group = groupedProviders.get(walletId) || [];
+        group.push(provider);
+        groupedProviders.set(walletId, group);
+      }
+
+      const injected: InjectedWallet[] = (
+        await Promise.all(
+          Array.from(groupedProviders.entries()).map(
+            async ([walletId, grouped]) => {
+              const timestamp = toExternalTimestamp();
+
+              const wallet: Wallet = {
+                source: WalletSource.Injected,
+                walletId,
+                walletName: grouped[0]?.info?.name ?? "Unknown",
+                createdAt: timestamp,
+                updatedAt: timestamp,
+                exported: false,
+                imported: false,
+                accounts: [],
+              };
+
+              const accounts = await this.fetchWalletAccounts({
+                wallet,
+                walletProviders: grouped,
+                ...(stamperType !== undefined && { stamperType }),
+              });
+
+              wallet.accounts = accounts;
+              return wallet;
+            },
+          ),
+        )
+      ).filter((wallet) => wallet.accounts.length > 0);
+
+      return [...embedded, ...injected];
     } catch (error) {
       if (error instanceof TurnkeyError) throw error;
+
       throw new TurnkeyError(
-        `Failed to fetch wallets`,
+        "Failed to fetch wallets",
         TurnkeyErrorCodes.FETCH_WALLETS_ERROR,
         error,
       );
@@ -1528,12 +1592,14 @@ export class TurnkeyClient {
   };
 
   fetchWalletAccounts = async (params: {
-    walletId: string;
+    wallet: Wallet;
     stamperType?: StamperType;
+    walletProviders?: WalletProvider[];
     paginationOptions?: v1Pagination;
-  }): Promise<TGetWalletAccountsResponse> => {
-    const { walletId, stamperType, paginationOptions } = params;
+  }): Promise<v1WalletAccount[]> => {
+    const { wallet, stamperType, walletProviders, paginationOptions } = params;
     const session = await this.storageManager.getActiveSession();
+
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
@@ -1541,32 +1607,75 @@ export class TurnkeyClient {
       );
     }
 
-    try {
-      const walletAccountRes = await this.httpClient.getWalletAccounts(
+    if (wallet.source === WalletSource.Embedded) {
+      const res = await this.httpClient.getWalletAccounts(
         {
-          walletId,
+          walletId: wallet.walletId,
           organizationId: session.organizationId,
           paginationOptions: paginationOptions || { limit: "100" },
         },
         stamperType,
       );
 
-      if (!walletAccountRes || !walletAccountRes.accounts) {
+      if (!res || !res.accounts) {
         throw new TurnkeyError(
           "No wallet accounts found in the response",
           TurnkeyErrorCodes.BAD_RESPONSE,
         );
       }
 
-      return walletAccountRes as TGetWalletAccountsResponse;
-    } catch (error) {
-      if (error instanceof TurnkeyError) throw error;
-      throw new TurnkeyError(
-        `Failed to fetch wallet accounts`,
-        TurnkeyErrorCodes.FETCH_WALLET_ACCOUNTS_ERROR,
-        error,
-      );
+      return res.accounts;
     }
+
+    const providers = walletProviders || this.getWalletProviders();
+    const matchingProviders = providers.filter(
+      (p) =>
+        p.info?.name?.toLowerCase().replace(/\s+/g, "-") === wallet.walletId,
+    );
+
+    if (matchingProviders.length === 0) {
+      return [];
+    }
+
+    const accounts: v1WalletAccount[] = [];
+
+    for (const provider of matchingProviders) {
+      let address: string | null = null;
+
+      if (provider.type === WalletType.Ethereum) {
+        address = await getConnectedEthAddress(provider.provider);
+      } else if (provider.type === WalletType.Solana) {
+        address = await getConnectedSolAddress(provider.provider);
+      }
+
+      if (!address) continue;
+
+      const timestamp = toExternalTimestamp();
+
+      const account: v1WalletAccount = {
+        walletAccountId: `${wallet.walletId}-${provider.type}`,
+        organizationId: session.organizationId,
+        walletId: wallet.walletId,
+        curve:
+          provider.type === WalletType.Ethereum
+            ? Curve.SECP256K1
+            : Curve.ED25519,
+        pathFormat: "PATH_FORMAT_BIP32",
+        path: "injected",
+        addressFormat:
+          provider.type === WalletType.Ethereum
+            ? "ADDRESS_FORMAT_ETHEREUM"
+            : "ADDRESS_FORMAT_SOLANA",
+        address,
+        createdAt: timestamp,
+        updatedAt: timestamp,
+        ...(provider.type === WalletType.Solana && { publicKey: address }),
+      };
+
+      accounts.push(account);
+    }
+
+    return accounts;
   };
 
   signMessage = async (params: {
