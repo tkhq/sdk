@@ -1,5 +1,52 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
+
+@theme {
+  --color-primary-light: oklch(0.547 0.2389 266.82);
+  --color-primary-dark: oklch(0.547 0.2389 266.82);
+  /* This is the color of the text that goes on top of primary color buttons */
+  --color-primary-text-light: rgb(255, 255, 255);
+  --color-primary-text-dark: rgb(255, 255, 255);
+
+  --color-danger-light: oklch(0.65 0.1406 12.71);
+  --color-danger-dark: oklch(0.6088 0.1801 30.71);
+  /* This is the color of the text that goes on top of danger color buttons */
+  --color-danger-text-light: rgb(255, 255, 255);
+  --color-danger-text-dark: rgb(255, 255, 255);
+
+  --color-button-light: rgb(255, 255, 255);
+  --color-button-dark: oklch(0.2532 0.0056 285.99);
+
+  --color-background-light: oklch(0.9758 0.0057 264.53);
+  --color-background-dark: oklch(0.15 0 0);
+  --color-text-light: oklch(0 0.1 41);
+  --color-text-dark: rgb(255, 255, 255);
+
+  --color-panel-background-light: #ffffff;
+  --color-panel-background-dark: oklch(0.15 0 0);
+
+  --color-icon-background-light: oklch(0.928 0.006 264.531);
+  --color-icon-background-dark: oklch(0.3222 0.0053 286.1);
+  --color-icon-text-light: oklch(0.6066 0 0);
+  --color-icon-text-dark: oklch(0.7174 0.0029 286.32);
+
+  --animate-shake: shake 250ms ease-in-out;
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-5px);
+    }
+    75% {
+      transform: translateX(5px);
+    }
+  }
+}
+
 @font-face {
   font-family: "Inter";
   font-style: normal;
