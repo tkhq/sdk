@@ -850,14 +850,26 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return res;
   }
 
-  function getWalletProviders(chain?: Chain): WalletProvider[] {
+  async function getWalletProviders(chain?: Chain): Promise<WalletProvider[]> {
     if (!client) {
       throw new TurnkeyError(
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    return client.getWalletProviders(chain);
+    return await client.getWalletProviders(chain);
+  }
+
+  async function connectWalletAccount(
+    walletProvider: WalletProvider,
+  ): Promise<void> {
+    if (!client) {
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    await client.connectWalletAccount(walletProvider);
   }
 
   async function loginWithWallet(params: {
@@ -3160,6 +3172,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         loginWithPasskey,
         signUpWithPasskey,
         getWalletProviders,
+        connectWalletAccount,
         loginWithWallet,
         signUpWithWallet,
         loginOrSignupWithWallet,
