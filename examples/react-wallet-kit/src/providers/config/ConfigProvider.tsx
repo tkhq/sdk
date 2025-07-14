@@ -5,13 +5,14 @@ import {
   ReactNode,
   useEffect,
 } from "react";
-import { Transition } from "@headlessui/react";
+import { Button, Transition } from "@headlessui/react";
 import {
   TurnkeyProviderConfig,
   TurnkeyProvider,
   TurnkeyCallbacks,
   useModal,
 } from "@turnkey/react-wallet-kit";
+import { TurnkeyConfigPanel } from "./Panel";
 
 type ConfigContextValue = {
   config: TurnkeyProviderConfig;
@@ -47,14 +48,6 @@ export function TurnkeyConfigProvider({
   return (
     <ConfigContext.Provider value={{ config, setConfig }}>
       <div className="overflow-hidden h-screen absolute inset-0 flex">
-        {/* Toggle Button */}
-        <button
-          onClick={() => setPanelOpen((v) => !v)}
-          className="absolute z-30 top-4 left-4 p-2 rounded-md bg-white dark:bg-black border border-gray-300 dark:border-gray-700 shadow transition hover:bg-gray-100 dark:hover:bg-gray-900"
-        >
-          <div className="w-5 h-5 bg-yellow-400 text-gray-700 dark:text-gray-200" />
-        </button>
-
         {/* Sliding Config Panel */}
         <Transition
           show={panelOpen}
@@ -65,7 +58,7 @@ export function TurnkeyConfigProvider({
           leaveFrom="translate-x-0"
           leaveTo="-translate-x-full"
         >
-          <div className="z-20 fixed top-0 left-0 h-full w-72 bg-white dark:bg-zinc-900 border-r border-gray-300 dark:border-gray-700 shadow-lg flex flex-col px-4 py-6 space-y-4">
+          <div className="z-20 fixed top-0 left-0 h-full w-72 bg-panel-background-light dark:bg-panel-background-dark border-r border-gray-300 dark:border-gray-700 shadow-lg flex flex-col px-4 py-6 space-y-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Config Panel</h2>
               <button onClick={() => setPanelOpen(false)}>X</button>
@@ -73,9 +66,7 @@ export function TurnkeyConfigProvider({
 
             {/* Place for future toggles */}
             <div className="flex flex-col space-y-3">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Add configuration toggles here.
-              </p>
+              <TurnkeyConfigPanel />
             </div>
           </div>
         </Transition>
@@ -90,6 +81,14 @@ export function TurnkeyConfigProvider({
           <TurnkeyProvider config={config} callbacks={callbacks}>
             {children}
           </TurnkeyProvider>
+          <Button
+            onClick={() => setPanelOpen(!panelOpen)}
+            className="fixed z-50 cursor-pointer top-1/2 -translate-y-1/2 w-[80px] h-[250px] rounded-r-xl bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center"
+          >
+            <span className="transform -rotate-90 text-xl font-mediumtext-center w-[250px] whitespace-pre text-black dark:text-white">
+              Config
+            </span>
+          </Button>
         </div>
       </div>
     </ConfigContext.Provider>

@@ -21,7 +21,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-brands-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@headlessui/react": "^2.2.4",
+    "@hello-pangea/dnd": "^17.0.0",
     "@noble/hashes": "1.4.0",
     "@tailwindcss/postcss": "^4.1.10",
     "@turnkey/react-wallet-kit": "workspace:*",
