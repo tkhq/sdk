@@ -2,7 +2,7 @@
 
 import "@turnkey/react-wallet-kit/dist/styles.css";
 import "./global.css";
-import { TurnkeyConfigProvider } from "@/providers/ConfigProvider";
+import { TurnkeyConfigProvider } from "@/providers/config/ConfigProvider";
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -15,7 +15,7 @@ function RootLayout({ children }: RootLayoutProps) {
         <title>Turnkey Demo EWK</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
-      <body className="bg-red-400 ">
+      <body className="bg-background-light dark:bg-background-dark">
         <TurnkeyConfigProvider
           initialConfig={{
             apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
@@ -30,14 +30,20 @@ function RootLayout({ children }: RootLayoutProps) {
                 appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
                 facebookClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID,
                 oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
+                openOAuthInPage: true,
               },
               methods: {
-                smsOtpAuthEnabled: true,
+                emailOtpAuthEnabled: true,
+                smsOtpAuthEnabled: false,
+                passkeyAuthEnabled: true,
+                walletAuthEnabled: true,
+                googleOAuthEnabled: true,
+                appleOAuthEnabled: false,
+                facebookOAuthEnabled: false,
               },
               autoRefreshSession: true,
             },
             ui: {
-              darkMode: false,
               renderModalInProvider: true, // This is needed for the config panel to push the modal over
             },
             walletConfig: {
