@@ -37,6 +37,7 @@ export default function AuthPage() {
     loginWithPasskey,
     signUpWithPasskey,
     getWalletProviders,
+    connectWalletAccount,
     loginWithWallet,
     signUpWithWallet,
     loginOrSignupWithWallet,
@@ -241,7 +242,7 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const providers = getWalletProviders();
+          const providers = await getWalletProviders();
           console.log("Wallet Providers:", providers);
         }}
         style={{
@@ -256,7 +257,23 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const provider = getWalletProviders(WalletType.Solana);
+          const providers = await getWalletProviders();
+          console.log("Wallet Providers:", providers);
+          await connectWalletAccount(providers[4]);
+        }}
+        style={{
+          backgroundColor: "rebeccapurple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Connect A Wallet
+      </button>
+
+      <button
+        onClick={async () => {
+          const provider = await getWalletProviders(WalletType.Solana);
           console.log("Injected Solana Provider:", provider);
           await signUpWithWallet({
             walletProvider: provider[1],
@@ -274,7 +291,7 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const provider = getWalletProviders(WalletType.Solana);
+          const provider = await getWalletProviders(WalletType.Solana);
           console.log("Injected Solana Provider:", provider);
           await loginWithWallet({
             walletProvider: provider[1],
@@ -292,7 +309,7 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const provider = getWalletProviders(WalletType.Solana);
+          const provider = await getWalletProviders(WalletType.Solana);
           console.log("Injected Etheruem Provider:", provider);
           await loginOrSignupWithWallet({
             walletProvider: provider[1],
