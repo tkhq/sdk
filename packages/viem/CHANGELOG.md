@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.10.0
+
+### Minor Changes
+
+- [#733](https://github.com/tkhq/sdk/pull/733) [`cc463d3`](https://github.com/tkhq/sdk/commit/cc463d3fde57f4d434fc41c5ed4ce42a0a506874) Author [@besler613](https://github.com/besler613) - Typed data hashing is now performed server-side using the new `PAYLOAD_ENCODING_EIP712` encoding, and EIP-712 Policies are supported via the `eth.eip_712` namespace.
+
 ## 0.9.12
 
 ### Patch Changes
