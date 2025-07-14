@@ -32,7 +32,8 @@ export interface BaseWalletInterface {
     provider: WalletRpcProvider,
   ) => Promise<string>;
   getPublicKey: (provider: WalletRpcProvider) => Promise<string>;
-  getProviders: () => WalletProvider[];
+  getProviders: () => Promise<WalletProvider[]>;
+  connectWalletAccount: (provider: WalletRpcProvider) => Promise<void>;
 }
 
 /**
@@ -89,4 +90,5 @@ export interface WalletProvider {
   type: WalletType;
   info: WalletProviderInfo;
   provider: WalletRpcProvider;
+  connectedAddresses: string[];
 }

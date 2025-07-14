@@ -1,5 +1,9 @@
 import type { TActivityId, TActivityStatus } from "@turnkey/http";
-import type { WalletStamper, WalletType } from "@turnkey/wallet-stamper";
+import type {
+  WalletProvider,
+  WalletStamper,
+  WalletType,
+} from "@turnkey/wallet-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import type {
@@ -11,7 +15,7 @@ import type {
 } from "@turnkey/sdk-types";
 import { StorageBase } from "../__storage__/base";
 import { TPasskeyStamperConfig } from "../__stampers__/passkey/base";
-import { TWalletStamperConfig } from "../__stampers__/wallet/base";
+import { TWalletManagerConfig } from "../__stampers__/wallet/base";
 
 // TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
 
@@ -130,7 +134,7 @@ export interface TurnkeySDKClientConfig {
   importIframeUrl?: string;
 
   passkeyConfig?: TPasskeyStamperConfig;
-  walletConfig?: TWalletStamperConfig;
+  walletConfig?: TWalletManagerConfig;
 }
 
 export type Stamper = WebauthnStamper | WalletStamper | IndexedDbStamper;
@@ -188,19 +192,23 @@ export enum WalletSource {
   Injected = "injected",
 }
 
+export interface WalletAccount extends v1WalletAccount {
+  provider?: WalletProvider;
+}
+
 export interface EmbeddedWallet extends v1Wallet {
   source: WalletSource.Embedded;
-  accounts: v1WalletAccount[];
+  accounts: WalletAccount[];
 }
 
 export interface InjectedWallet extends v1Wallet {
   source: WalletSource.Injected;
-  accounts: v1WalletAccount[];
+  accounts: WalletAccount[];
 }
 
 export type Wallet = EmbeddedWallet | InjectedWallet;
 
-export type WalletAccount = v1WalletAccountParams;
+export type WalletAccountParams = v1WalletAccountParams;
 
 export type Provider = {
   providerName: string;
@@ -221,7 +229,7 @@ export type CreateSubOrgParams = {
   customWallet?:
     | {
         walletName: string;
-        walletAccounts: WalletAccount[];
+        walletAccounts: WalletAccountParams[];
       }
     | undefined;
   oauthProviders?: Provider[] | undefined;

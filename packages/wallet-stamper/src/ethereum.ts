@@ -29,7 +29,7 @@ import { decodeBase64urlToString } from "@turnkey/encoding";
  * the signature of the provided message.
  */
 export abstract class BaseEthereumWallet implements EthereumWalletInterface {
-  type: WalletType.Ethereum = WalletType.Ethereum;
+  readonly type: WalletType.Ethereum = WalletType.Ethereum;
 
   /**
    * Abstract method to sign a message.
@@ -64,7 +64,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    * This method checks if the Ethereum provider is available in the
    * window object and throws an error if not found.
    */
-  getProviders(): WalletProvider[] {
+  async getProviders(): Promise<WalletProvider[]> {
     const discovered: WalletProvider[] = [];
 
     type AnnounceEvent = CustomEvent<{
@@ -72,27 +72,63 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
       provider: WalletRpcProvider;
     }>;
 
+    const providerPromises: Promise<void>[] = [];
+
     const handler = (ev: AnnounceEvent): void => {
-      discovered.push({
-        type: WalletType.Ethereum,
-        info: ev.detail.info,
-        provider: ev.detail.provider,
-      });
+      const { provider, info } = ev.detail;
+
+      const promise = (async () => {
+        let connectedAddresses: string[] = [];
+
+        try {
+          const accounts = await (provider as any).request?.({
+            method: "eth_accounts",
+          });
+
+          if (Array.isArray(accounts)) {
+            connectedAddresses = accounts;
+          }
+        } catch {
+          // we silentlyt fail and just use empty array if not connected or errored
+        }
+
+        discovered.push({
+          type: WalletType.Ethereum,
+          info,
+          provider,
+          connectedAddresses,
+        });
+      })();
+
+      providerPromises.push(promise);
     };
 
     window.addEventListener(
       "eip6963:announceProvider",
       handler as EventListener,
     );
-
     window.dispatchEvent(new Event("eip6963:requestProvider"));
-
     window.removeEventListener(
       "eip6963:announceProvider",
       handler as EventListener,
     );
 
-    return discovered.length ? discovered : [];
+    await Promise.all(providerPromises);
+
+    return discovered;
+  }
+
+  /**
+   * Ensures the wallet is connected using Wallet Standard's `standard:connect` feature.
+   *
+   * @param w - The Wallet Standard wallet instance.
+   * @returns A promise that resolves once the wallet is connected.
+   *
+   * Throws an error if no account is connected and the wallet doesn't support `standard:connect`.
+   */
+  async connectWalletAccount(provider: WalletRpcProvider): Promise<void> {
+    const wallet = asEip1193(provider);
+    await getAccount(wallet);
   }
 }
 
@@ -118,7 +154,7 @@ export class EthereumWallet extends BaseEthereumWallet {
    */
   async signMessage(message: string | Hex, provider: WalletRpcProvider) {
     const selectedProvider = asEip1193(provider);
-    const account = await this.getAccount(selectedProvider);
+    const account = await getAccount(selectedProvider);
 
     const signature = await selectedProvider.request({
       method: "personal_sign" as const,
@@ -127,28 +163,28 @@ export class EthereumWallet extends BaseEthereumWallet {
 
     return signature;
   }
+}
 
-  /**
-   * Requests the user's Ethereum account from the provider.
-   *
-   * @param provider - The EIP1193 provider to request accounts from.
-   * @returns A promise that resolves to the user's Ethereum address.
-   *
-   * This method uses the 'eth_requestAccounts' method of the Ethereum
-   * provider to request access to the user's account. It throws an error
-   * if no account is connected.
-   */
-  private async getAccount(provider: EIP1193Provider): Promise<Address> {
-    const [connectedAccount] = await provider.request({
-      method: "eth_requestAccounts",
-    });
+/**
+ * Requests the user's Ethereum account from the provider.
+ *
+ * @param provider - The EIP1193 provider to request accounts from.
+ * @returns A promise that resolves to the user's Ethereum address.
+ *
+ * This method uses the 'eth_requestAccounts' method of the Ethereum
+ * provider to request access to the user's account. It throws an error
+ * if no account is connected.
+ */
+async function getAccount(provider: EIP1193Provider): Promise<Address> {
+  const [connectedAccount] = await provider.request({
+    method: "eth_requestAccounts",
+  });
 
-    if (!connectedAccount) {
-      throw new WalletStamperError("No connected account found");
-    }
-
-    return connectedAccount;
+  if (!connectedAccount) {
+    throw new WalletStamperError("No connected account found");
   }
+
+  return connectedAccount;
 }
 
 /**
