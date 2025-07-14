@@ -204,8 +204,8 @@ export function AuthComponent() {
     });
   };
 
-  const handleShowWalletSelector = () => {
-    const walletProviders = getWalletProviders();
+  const handleShowWalletSelector = async () => {
+    const walletProviders = await getWalletProviders();
 
     pushPage({
       key: "Select wallet provider",
