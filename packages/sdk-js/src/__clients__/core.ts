@@ -2,7 +2,6 @@ import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
   TCreateSubOrganizationResponse,
   TDeleteSubOrganizationResponse,
-  TGetWalletAccountsResponse,
   Session,
   SessionType,
   TSignTransactionResponse,
@@ -59,11 +58,7 @@ import {
 } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
-import {
-  CrossPlatformWalletStamper,
-  getConnectedEthAddress,
-  getConnectedSolAddress,
-} from "../__stampers__/wallet/base";
+import { CrossPlatformWalletManager } from "../__stampers__/wallet/base";
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   DEFAULT_SOLANA_ACCOUNTS,
@@ -74,7 +69,6 @@ import {
   WalletType,
 } from "@turnkey/wallet-stamper";
 import { jwtDecode } from "jwt-decode";
-import { time } from "console";
 
 type PublicMethods<T> = {
   [K in keyof T as K extends string | number | symbol
@@ -98,7 +92,7 @@ export class TurnkeyClient {
 
   private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined; // TODO (Amir): TEMPORARILY PUBLIC, MAKE PRIVATE LATER
   private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
-  private walletStamper?: CrossPlatformWalletStamper | undefined;
+  private walletManager?: CrossPlatformWalletManager | undefined;
   private storageManager!: StorageBase;
 
   constructor(
@@ -107,14 +101,14 @@ export class TurnkeyClient {
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
     passkeyStamper?: CrossPlatformPasskeyStamper,
-    walletStamper?: CrossPlatformWalletStamper,
+    walletManager?: CrossPlatformWalletManager,
   ) {
     this.config = config;
 
     // Just store any explicitly provided stampers
     this.apiKeyStamper = apiKeyStamper;
     this.passkeyStamper = passkeyStamper;
-    this.walletStamper = walletStamper;
+    this.walletManager = walletManager;
 
     // Actual initialization will happen in init()
   }
@@ -139,10 +133,10 @@ export class TurnkeyClient {
       this.config.walletConfig?.ethereum ||
       this.config.walletConfig?.solana
     ) {
-      this.walletStamper = new CrossPlatformWalletStamper(
+      this.walletManager = new CrossPlatformWalletManager(
         this.config.walletConfig,
       );
-      await this.walletStamper.init();
+      await this.walletManager.init();
     }
 
     if (!this.config.apiBaseUrl)
@@ -156,7 +150,7 @@ export class TurnkeyClient {
     this.httpClient = new TurnkeySDKClientBase({
       apiKeyStamper: this.apiKeyStamper,
       passkeyStamper: this.passkeyStamper!,
-      walletStamper: this.walletStamper!,
+      walletStamper: this.walletManager!.stamper,
       storageManager: this.storageManager,
       ...this.config,
     });
@@ -482,15 +476,27 @@ export class TurnkeyClient {
     }
   };
 
-  getWalletProviders = (chain?: Chain): WalletProvider[] => {
+  getWalletProviders = async (chain?: Chain): Promise<WalletProvider[]> => {
     try {
-      if (!this.walletStamper) {
-        throw new Error("Wallet stamper is not initialized");
+      if (!this.walletManager) {
+        throw new Error("Wallet manager is not initialized");
       }
 
-      return this.walletStamper.getProviders(chain);
+      return await this.walletManager.getProviders(chain);
     } catch (error) {
       throw new Error(`Unable to get wallet providers: ${error}`);
+    }
+  };
+
+  connectWalletAccount = async (walletProvider: WalletProvider) => {
+    if (!this.walletManager) {
+      throw new Error("Wallet manager is not initialized");
+    }
+
+    try {
+      await this.walletManager.signer.connectWalletAccount(walletProvider);
+    } catch (error) {
+      throw new Error(`Unable to connect wallet account: ${error}`);
     }
   };
 
@@ -501,7 +507,7 @@ export class TurnkeyClient {
     sessionKey?: string;
     expirationSeconds?: string;
   }): Promise<string> => {
-    if (!this.walletStamper) {
+    if (!this.walletManager) {
       throw new Error("Wallet stamper is not initialized");
     }
 
@@ -523,7 +529,7 @@ export class TurnkeyClient {
           );
         }
 
-        this.walletStamper?.setProvider(
+        this.walletManager.stamper.setProvider(
           walletProvider.type,
           walletProvider.provider,
         );
@@ -574,9 +580,9 @@ export class TurnkeyClient {
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params;
 
-    if (!this.walletStamper) {
+    if (!this.walletManager) {
       throw new TurnkeyError(
-        "Wallet stamper is not initialized",
+        "Wallet manager is not initialized",
         TurnkeyErrorCodes.INTERNAL_ERROR,
       );
     }
@@ -585,12 +591,12 @@ export class TurnkeyClient {
     try {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
 
-      this.walletStamper?.setProvider(
+      this.walletManager.stamper.setProvider(
         walletProvider.type,
         walletProvider.provider,
       );
 
-      const publicKey = await this.walletStamper?.getPublicKey(
+      const publicKey = await this.walletManager.stamper.getPublicKey(
         walletProvider.type,
         walletProvider.provider,
       );
@@ -599,7 +605,7 @@ export class TurnkeyClient {
         throw new Error("Failed to get publicKey from wallet");
       }
 
-      const { type } = this.walletStamper!.getWalletInterface(
+      const { type } = this.walletManager.stamper.getWalletInterface(
         walletProvider?.type,
       );
 
@@ -705,8 +711,8 @@ export class TurnkeyClient {
     sessionKey?: string;
     expirationSeconds?: string;
   }): Promise<string> => {
-    if (!this.walletStamper) {
-      throw new Error("Wallet stamper is not initialized");
+    if (!this.walletManager) {
+      throw new Error("Wallet manager is not initialized");
     }
 
     const createSubOrgParams = params.createSubOrgParams;
@@ -719,7 +725,7 @@ export class TurnkeyClient {
     try {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
 
-      this.walletStamper?.setProvider(
+      this.walletManager.stamper.setProvider(
         walletProvider.type,
         walletProvider.provider,
       );
@@ -760,7 +766,7 @@ export class TurnkeyClient {
           // since the wallet address is the public key
           // this doesn't require any action from the user as long as the wallet is connected
           // which it has to be since they just called stampStampLogin()
-          publicKey = await this.walletStamper?.getPublicKey(
+          publicKey = await this.walletManager.stamper.getPublicKey(
             walletProvider.type,
             walletProvider.provider,
           );
@@ -1533,17 +1539,14 @@ export class TurnkeyClient {
         }),
       );
 
-      if (!this.walletStamper) {
-        return embedded;
-      }
+      if (!this.walletManager) return embedded;
 
-      const providers = this.getWalletProviders();
+      const providers = await this.getWalletProviders();
+
       const groupedProviders = new Map<string, WalletProvider[]>();
-
       for (const provider of providers) {
         const walletId =
           provider.info?.name?.toLowerCase().replace(/\s+/g, "-") || "unknown";
-
         const group = groupedProviders.get(walletId) || [];
         group.push(provider);
         groupedProviders.set(walletId, group);
@@ -1627,52 +1630,44 @@ export class TurnkeyClient {
       return res.accounts;
     }
 
-    const providers = walletProviders || this.getWalletProviders();
-    const matchingProviders = providers.filter(
+    const providers = walletProviders ?? (await this.getWalletProviders());
+    const matching = providers.filter(
       (p) =>
-        p.info?.name?.toLowerCase().replace(/\s+/g, "-") === wallet.walletId,
+        p.info?.name?.toLowerCase().replace(/\s+/g, "-") === wallet.walletId &&
+        p.connectedAddresses.length > 0,
     );
 
-    if (matchingProviders.length === 0) {
-      return [];
-    }
+    if (matching.length === 0) return [];
 
     const accounts: v1WalletAccount[] = [];
 
-    for (const provider of matchingProviders) {
-      let address: string | null = null;
-
-      if (provider.type === WalletType.Ethereum) {
-        address = await getConnectedEthAddress(provider.provider);
-      } else if (provider.type === WalletType.Solana) {
-        address = await getConnectedSolAddress(provider.provider);
-      }
-
-      if (!address) continue;
-
+    for (const provider of matching) {
       const timestamp = toExternalTimestamp();
 
-      const account: v1WalletAccount = {
-        walletAccountId: `${wallet.walletId}-${provider.type}`,
-        organizationId: session.organizationId,
-        walletId: wallet.walletId,
-        curve:
-          provider.type === WalletType.Ethereum
-            ? Curve.SECP256K1
-            : Curve.ED25519,
-        pathFormat: "PATH_FORMAT_BIP32",
-        path: "injected",
-        addressFormat:
-          provider.type === WalletType.Ethereum
-            ? "ADDRESS_FORMAT_ETHEREUM"
-            : "ADDRESS_FORMAT_SOLANA",
-        address,
-        createdAt: timestamp,
-        updatedAt: timestamp,
-        ...(provider.type === WalletType.Solana && { publicKey: address }),
-      };
+      for (const address of provider.connectedAddresses) {
+        const account: WalletAccount = {
+          walletAccountId: `${wallet.walletId}-${provider.type}-${address}`,
+          organizationId: session.organizationId,
+          walletId: wallet.walletId,
+          curve:
+            provider.type === WalletType.Ethereum
+              ? Curve.SECP256K1
+              : Curve.ED25519,
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "injected",
+          addressFormat:
+            provider.type === WalletType.Ethereum
+              ? "ADDRESS_FORMAT_ETHEREUM"
+              : "ADDRESS_FORMAT_SOLANA",
+          address,
+          createdAt: timestamp,
+          updatedAt: timestamp,
+          provider,
+          ...(provider.type === WalletType.Solana && { publicKey: address }),
+        };
 
-      accounts.push(account);
+        accounts.push(account);
+      }
     }
 
     return accounts;
