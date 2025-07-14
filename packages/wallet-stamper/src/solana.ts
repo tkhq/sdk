@@ -3,6 +3,7 @@ import {
   SolanaWalletInterface,
   WalletType,
   WalletProvider,
+  WalletProviderInfo,
 } from "./types";
 
 import { WalletStamperError } from "./errors";
@@ -58,7 +59,7 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
    */
   async getPublicKey(provider: WalletRpcProvider): Promise<string> {
     const wallet = asSolana(provider);
-    await ensureConnected(wallet);
+    await connectAccount(wallet);
     const account = wallet.accounts[0];
     if (!account) {
       throw new WalletStamperError("No account in wallet");
@@ -76,16 +77,58 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
    *
    * @returns An array of WalletProvider objects representing Solana wallets.
    */
-  getProviders(): WalletProvider[] {
+  async getProviders(): Promise<WalletProvider[]> {
+    const discovered: WalletProvider[] = [];
     const walletsApi = getWallets();
-    return walletsApi
+    const providers = walletsApi
       .get()
-      .filter((w) => w.chains.some((c) => c.startsWith("solana:")))
-      .map((w) => ({
-        type: WalletType.Solana,
-        info: { name: w.name, icon: w.icon },
-        provider: w,
-      }));
+      .filter((w) => w.chains.some((c) => c.startsWith("solana:")));
+
+    const providerPromises: Promise<void>[] = [];
+
+    for (const wallet of providers) {
+      const promise = (async () => {
+        let connectedAddresses: string[] = [];
+
+        try {
+          connectedAddresses =
+            wallet.accounts?.map((a: any) => a.address) ?? [];
+        } catch {
+          // we silentlyt fail and just use empty array if not connected or errored
+          connectedAddresses = [];
+        }
+
+        const info: WalletProviderInfo = {
+          name: wallet.name,
+          icon: wallet.icon,
+        };
+
+        discovered.push({
+          type: WalletType.Solana,
+          info,
+          provider: wallet as WalletRpcProvider,
+          connectedAddresses,
+        });
+      })();
+
+      providerPromises.push(promise);
+    }
+
+    await Promise.all(providerPromises);
+    return discovered;
+  }
+
+  /**
+   * Ensures the wallet is connected using Wallet Standard's `standard:connect` feature.
+   *
+   * @param w - The Wallet Standard wallet instance.
+   * @returns A promise that resolves once the wallet is connected.
+   *
+   * Throws an error if no account is connected and the wallet doesn't support `standard:connect`.
+   */
+  async connectWalletAccount(provider: WalletRpcProvider): Promise<void> {
+    const wallet = asSolana(provider);
+    await connectAccount(wallet);
   }
 }
 
@@ -112,7 +155,7 @@ export class SolanaWallet extends BaseSolanaWallet {
     provider: WalletRpcProvider,
   ): Promise<string> {
     const wallet = asSolana(provider);
-    await ensureConnected(wallet);
+    await connectAccount(wallet);
 
     const data =
       typeof message === "string" ? new TextEncoder().encode(message) : message;
@@ -163,7 +206,7 @@ export class SolanaWallet extends BaseSolanaWallet {
  *
  * Throws an error if no account is connected and the wallet doesn't support `standard:connect`.
  */
-async function ensureConnected(w: SWSWallet): Promise<void> {
+async function connectAccount(w: SWSWallet): Promise<void> {
   if (w.accounts.length) return;
 
   const stdConnect = w.features["standard:connect"] as
