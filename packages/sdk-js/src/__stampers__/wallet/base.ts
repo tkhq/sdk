@@ -1,133 +1,50 @@
-import { isWeb, isReactNative } from "@utils";
+import { CrossPlatformWalletStamper } from "./stamper";
+import { CrossPlatformWalletSigner } from "./signer";
 import {
   EthereumWallet,
   SolanaWallet,
   WalletInterface,
   WalletProvider,
-  WalletRpcProvider,
-  WalletStamper,
   WalletType,
 } from "@turnkey/wallet-stamper";
-import { TStamp, TStamper } from "../..";
 
-export type TWalletStamperConfig = {
+export type TWalletManagerConfig = {
   ethereum?: boolean;
   solana?: boolean;
 };
 
-interface WalletContext {
-  wallet: WalletInterface;
-  stamper: WalletStamper;
+export class CrossPlatformWalletManager {
+  readonly wallets: Partial<Record<WalletType, WalletInterface>> = {};
 
-  // we set this later using setProvider()
-  provider?: WalletRpcProvider;
-}
+  readonly stamper: CrossPlatformWalletStamper;
+  readonly signer: CrossPlatformWalletSigner;
 
-type ContextMap = Partial<Record<WalletType, WalletContext>>;
+  constructor(cfg: TWalletManagerConfig) {
+    if (cfg.ethereum) {
+      this.wallets[WalletType.Ethereum] = new EthereumWallet();
+    }
+    if (cfg.solana) {
+      this.wallets[WalletType.Solana] = new SolanaWallet();
+    }
 
-export class CrossPlatformWalletStamper implements TStamper {
-  private readonly ctx: ContextMap = {};
-  private activeChain?: WalletType;
-
-  constructor(private readonly cfg: TWalletStamperConfig) {}
+    this.stamper = new CrossPlatformWalletStamper(this.wallets);
+    this.signer = new CrossPlatformWalletSigner(this.wallets);
+  }
 
   async init(): Promise<void> {
-    if (!isWeb()) {
-      if (isReactNative()) {
-        throw new Error("WalletStamper isn’t available on React Native (yet)");
-      }
-      throw new Error("Unsupported runtime");
-    }
-
-    const add = (chain: WalletType, wallet: WalletInterface) => {
-      this.ctx[chain] = {
-        wallet,
-        stamper: new WalletStamper(wallet),
-      };
-    };
-
-    if (this.cfg.ethereum) add(WalletType.Ethereum, new EthereumWallet());
-    if (this.cfg.solana) add(WalletType.Solana, new SolanaWallet());
-
-    if (!Object.keys(this.ctx).length) {
-      throw new Error("No chains enabled in CrossPlatformWalletStamper config");
-    }
+    await this.stamper.init();
   }
 
-  async stamp(
-    payload: string,
-    chain: WalletType = this.defaultChain(),
-    provider?: WalletRpcProvider,
-  ): Promise<TStamp> {
-    const c = this.getCtx(chain);
-    const p = provider ?? c.provider;
-
-    if (!p) {
-      throw new Error(`Could not find a provider for chain '${chain}'.`);
-    }
-
-    return c.stamper.stamp(payload, p);
-  }
-
-  async getPublicKey(
-    chain: WalletType = this.defaultChain(),
-    provider: WalletRpcProvider,
-  ): Promise<string> {
-    const c = this.getCtx(chain);
-    return c.wallet.getPublicKey(provider);
-  }
-
-  getProviders(chain?: WalletType): WalletProvider[] {
+  async getProviders(chain?: WalletType): Promise<WalletProvider[]> {
     if (chain) {
-      return this.getCtx(chain).wallet.getProviders();
+      const wallet = this.wallets[chain];
+      if (!wallet) throw new Error(`Wallet for ${chain} not initialized`);
+      return await wallet.getProviders();
     }
-    return Object.values(this.ctx).flatMap((c) => c.wallet.getProviders());
-  }
 
-  setProvider(chain: WalletType, provider: WalletRpcProvider): void {
-    this.getCtx(chain).provider = provider;
-    this.activeChain = chain;
-  }
-
-  getWalletInterface(chain: WalletType = this.defaultChain()): WalletInterface {
-    return this.getCtx(chain).wallet;
-  }
-
-  // ETH wins tie-break
-  private defaultChain(): WalletType {
-    if (this.activeChain) return this.activeChain;
-    if (this.cfg.ethereum) return WalletType.Ethereum;
-    if (this.cfg.solana) return WalletType.Solana;
-    throw new Error("No chains enabled");
-  }
-
-  private getCtx(chain: WalletType): WalletContext {
-    const c = this.ctx[chain];
-    if (!c) throw new Error(`Chain '${chain}' not initialised`);
-    return c;
-  }
-}
-
-export async function getConnectedEthAddress(
-  provider: any,
-): Promise<string | null> {
-  try {
-    const accounts = await provider.request({
-      method: "eth_accounts",
-    });
-    return accounts.length > 0 ? accounts[0] : null;
-  } catch {
-    return null;
-  }
-}
-
-export async function getConnectedSolAddress(
-  wallet: any,
-): Promise<string | null> {
-  try {
-    const account = wallet.accounts?.[0];
-    return account?.address ?? null;
-  } catch {
-    return null;
+    const providersArrays = await Promise.all(
+      Object.values(this.wallets).map((wallet) => wallet.getProviders()),
+    );
+    return providersArrays.flat();
   }
 }
