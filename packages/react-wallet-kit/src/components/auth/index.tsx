@@ -205,17 +205,21 @@ export function AuthComponent() {
   };
 
   const handleShowWalletSelector = async () => {
-    const walletProviders = await getWalletProviders();
+    try {
+      const walletProviders = await getWalletProviders();
 
-    pushPage({
-      key: "Select wallet provider",
-      content: (
-        <ExternalWalletSelector
-          providers={walletProviders}
-          onSelect={handleWalletLoginOrSignup}
-        />
-      ),
-    });
+      pushPage({
+        key: "Select wallet provider",
+        content: (
+          <ExternalWalletSelector
+            providers={walletProviders}
+            onSelect={handleWalletLoginOrSignup}
+          />
+        ),
+      });
+    } catch (error) {
+      throw new Error(`Error fetching wallet providers: ${error}`);
+    }
   };
 
   const oauthButtonMap: Record<string, JSX.Element | null> = {
