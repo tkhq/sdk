@@ -5,11 +5,12 @@ import { Spinner } from "../design/Spinners";
 interface ActionPageProps {
   title: string;
   icon: React.ReactNode;
+  closeOnComplete?: boolean;
   action?: () => Promise<void>;
 }
 
 export function ActionPage(props: ActionPageProps) {
-  const { title, icon, action } = props;
+  const { title, icon, closeOnComplete = true, action } = props;
   const { popPage, closeModal } = useModal();
   const hasRun = useRef(false);
   const iconRef = useRef<HTMLDivElement>(null);
@@ -34,7 +35,9 @@ export function ActionPage(props: ActionPageProps) {
           popPage();
           throw new Error(`${error}`);
         }
-        closeModal();
+        if (closeOnComplete) {
+          closeModal();
+        }
       }
     };
     runAction();
