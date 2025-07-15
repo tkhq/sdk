@@ -1251,10 +1251,14 @@ export type definitions = {
     type: definitions["v1SmartContractInterfaceType"];
     /** @description Human-readable name for a Smart Contract Interface. */
 <<<<<<< HEAD
+<<<<<<< HEAD
     label: string;
 =======
     label?: string;
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+    label: string;
+>>>>>>> ee82ffcf (started adding proto gen auth proxy methods)
     /** @description Notes for a Smart Contract Interface. */
     notes?: string;
   };
