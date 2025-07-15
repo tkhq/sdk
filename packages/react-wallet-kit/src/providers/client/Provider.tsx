@@ -50,7 +50,7 @@ import {
   v1AddressFormat,
   v1Attestation,
   v1AuthenticatorParamsV2,
-  v1GetWalletKitConfigResponse,
+  ProxyTGetWalletKitConfigResponse,
   v1Pagination,
   v1SignRawPayloadResult,
   v1TransactionType,
@@ -229,7 +229,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     AuthState.Unauthenticated,
   );
   const expiryTimeoutsRef = useRef<Record<string, NodeJS.Timeout>>({});
-  const proxyAuthConfigRef = useRef<v1GetWalletKitConfigResponse | null>(null);
+  const proxyAuthConfigRef = useRef<ProxyTGetWalletKitConfigResponse | null>(
+    null,
+  );
 
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
@@ -243,7 +245,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   // Handle redirect-based auth
   useEffect(() => {
     // Check for either hash or search parameters that could indicate an OAuth redirect
-    if ((window.location.hash || window.location.search) && client) {
+    if (
+      (window.location.hash || window.location.search) &&
+      client &&
+      masterConfig
+    ) {
       // Handle Facebook redirect (uses search params with code)
       if (
         window.location.search &&
@@ -406,7 +412,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     setMasterConfig(buildConfig(proxyAuthConfigRef.current));
   }, [config]);
 
-  const buildConfig = (proxyAuthConfig: v1GetWalletKitConfigResponse) => {
+  const buildConfig = (proxyAuthConfig: ProxyTGetWalletKitConfigResponse) => {
     // Juggle the local overrides with the values set in the dashboard (proxyAuthConfig).
     const resolvedMethods = {
       emailOtpAuthEnabled:
@@ -582,6 +588,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function scheduleSessionExpiration(params: {
     sessionKey: string;
     expiry: number;
+    expirationSeconds?: string;
   }) {
     const { sessionKey, expiry } = params;
 
@@ -596,6 +603,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
 
       const timeUntilExpiry = expiry * 1000 - Date.now();
+      console.log(timeUntilExpiry / 1000);
+      const expirationSeconds =
+        params.expirationSeconds ||
+        Math.ceil(timeUntilExpiry / 1000).toString();
+
+      console.log(params.expirationSeconds);
+      console.log(expirationSeconds);
 
       const beforeExpiry = async () => {
         console.log("Session is about to expire, refreshing session...");
@@ -615,6 +629,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         if (autoRefreshSession) {
           await refreshSession({
             sessionType: session.sessionType,
+            expirationSeconds: expirationSeconds.toString(),
             sessionKey,
           });
         }
@@ -696,7 +711,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       });
 
       if (session && sessionKey)
-        await scheduleSessionExpiration({ sessionKey, expiry: session.expiry });
+        await scheduleSessionExpiration({
+          sessionKey,
+          expiry: session.expiry,
+        });
 
       const allSessions = await client!.getAllSessions();
 
@@ -1407,11 +1425,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
+    const res = await withTurnkeyErrorHandling(
       () => client.updateUserEmail(params),
       callbacks,
       "Failed to update user email",
     );
+    if (res) await refreshUser();
+    return res;
   }
 
   async function removeUserEmail(params: { userId?: string }): Promise<string> {
@@ -1420,11 +1440,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
+    const res = await withTurnkeyErrorHandling(
       () => client.removeUserEmail(params),
       callbacks,
       "Failed to remove user email",
     );
+    if (res) await refreshUser();
+    return res;
   }
 
   async function updateUserPhoneNumber(params: {
@@ -1437,11 +1459,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
+    const res = await withTurnkeyErrorHandling(
       () => client.updateUserPhoneNumber(params),
       callbacks,
       "Failed to update user phone number",
     );
+    if (res) await refreshUser();
+    return res;
   }
 
   async function removeUserPhoneNumber(params: {
@@ -1452,11 +1476,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
+    const res = await withTurnkeyErrorHandling(
       () => client.removeUserPhoneNumber(params),
       callbacks,
       "Failed to remove user phone number",
     );
+    if (res) await refreshUser();
+    return res;
   }
 
   async function updateUserName(params: {
@@ -1468,11 +1494,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
+    const res = await withTurnkeyErrorHandling(
       () => client.updateUserName(params),
       callbacks,
       "Failed to update user name",
     );
+    if (res) await refreshUser();
+    return res;
   }
 
   async function addOAuthProvider(params: {
@@ -1485,11 +1513,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
+    const res = await withTurnkeyErrorHandling(
       () => client.addOAuthProvider(params),
       callbacks,
       "Failed to add OAuth provider",
     );
+    if (res) await refreshUser();
+    return res;
   }
 
   async function removeOAuthProvider(params: {
@@ -1501,11 +1531,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
+    const res = await withTurnkeyErrorHandling(
       () => client.removeOAuthProvider(params),
       callbacks,
       "Failed to remove OAuth provider",
     );
+    if (res) await refreshUser();
+    return res;
   }
 
   async function addPasskey(params?: {
@@ -1518,11 +1550,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
+    const res = await withTurnkeyErrorHandling(
       () => client.addPasskey(params),
       callbacks,
       "Failed to add passkey",
     );
+    if (res) await refreshUser();
+    return res;
   }
 
   async function removePasskey(params: {
@@ -1534,11 +1568,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
+    const res = await withTurnkeyErrorHandling(
       () => client.removePasskey(params),
       callbacks,
       "Failed to remove passkey",
     );
+    if (res) await refreshUser();
+    return res;
   }
 
   async function createWallet(params: {
@@ -1677,15 +1713,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to store session",
     );
-    const sessionKey = await client.getActiveSessionKey();
-    const session = await client.getSession({
+    const sessionKey = await getActiveSessionKey();
+    const session = await getSession({
       ...(sessionKey && { sessionKey }),
     });
 
     if (session && sessionKey)
       await scheduleSessionExpiration({ sessionKey, expiry: session.expiry });
 
-    const allSessions = await client.getAllSessions();
+    const allSessions = await getAllSessions();
     setSession(session);
     setAllSessions(allSessions);
     return;
@@ -1702,8 +1738,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to clear session",
     );
-    const session = await client.getSession();
-    const allSessions = await client.getAllSessions();
+    const session = await getSession();
+    const allSessions = await getAllSessions();
     setSession(session);
     setAllSessions(allSessions);
     return;
@@ -1752,13 +1788,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to refresh session",
     );
-    const session = await client.getSession({ sessionKey });
+    const session = await getSession({ sessionKey });
 
     if (session && sessionKey) {
-      await scheduleSessionExpiration({ sessionKey, expiry: session.expiry });
+      await scheduleSessionExpiration({
+        sessionKey,
+        expiry: session.expiry,
+        ...(params?.expirationSeconds && {
+          expirationSeconds: params?.expirationSeconds,
+        }),
+      });
     }
 
-    const allSessions = await client.getAllSessions();
+    const allSessions = await getAllSessions();
     setSession(session);
     setAllSessions(allSessions);
     return;
@@ -1861,7 +1903,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function getProxyAuthConfig(): Promise<v1GetWalletKitConfigResponse> {
+  async function getProxyAuthConfig(): Promise<ProxyTGetWalletKitConfigResponse> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1906,7 +1948,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   }
 
-  async function handleGoogleOauth(params: {
+  async function handleGoogleOauth(params?: {
     clientId?: string;
     openInPage?: boolean;
     additionalState?: Record<string, string>;
@@ -1919,7 +1961,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       clientId = masterConfig?.auth?.oAuthConfig?.googleClientId,
       openInPage = masterConfig?.auth?.oAuthConfig?.openOAuthInPage ?? false,
       additionalState: additionalParameters,
-    } = params;
+    } = params || {};
     try {
       if (!masterConfig) {
         throw new TurnkeyError(
@@ -2027,7 +2069,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   authWindow.close();
                   clearInterval(interval);
 
-                  if (params.onOAuthSuccess) {
+                  if (params?.onOAuthSuccess) {
                     params.onOAuthSuccess({
                       oidcToken: idToken,
                       providerName: "google",
@@ -2607,7 +2649,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   initOtp,
                   verifyOtp,
                   updateUserPhoneNumber,
-                  refreshUser,
                   pushPage,
                   closeModal,
                   session,
@@ -2628,7 +2669,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           initOtp,
           verifyOtp,
           updateUserPhoneNumber,
-          refreshUser,
           pushPage,
           closeModal,
           session,
@@ -2687,7 +2727,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   initOtp,
                   verifyOtp,
                   updateUserEmail,
-                  refreshUser,
                   pushPage,
                   closeModal,
                   session,
@@ -2707,7 +2746,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           initOtp,
           verifyOtp,
           updateUserEmail,
-          refreshUser,
           pushPage,
           closeModal,
           session,
@@ -2766,7 +2804,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   initOtp,
                   verifyOtp,
                   updateUserEmail,
-                  refreshUser,
                   pushPage,
                   closeModal,
                   session,
@@ -2788,7 +2825,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           initOtp,
           verifyOtp,
           updateUserEmail,
-          refreshUser,
           pushPage,
           closeModal,
           session,
@@ -2849,7 +2885,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   initOtp,
                   verifyOtp,
                   updateUserPhoneNumber,
-                  refreshUser,
                   pushPage,
                   closeModal,
                   session,
@@ -2872,7 +2907,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           initOtp,
           verifyOtp,
           updateUserPhoneNumber,
-          refreshUser,
           pushPage,
           closeModal,
           session,
@@ -2927,7 +2961,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 authenticatorId,
                 onSuccess,
                 successPageDuration,
-                refreshUser,
                 pushPage,
                 closeModal,
                 session,
@@ -3056,7 +3089,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 providerId,
                 onSuccess,
                 successPageDuration,
-                refreshUser,
                 pushPage,
                 closeModal,
                 session,
