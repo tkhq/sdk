@@ -8,6 +8,7 @@ export type Session = {
   userId: string;
   organizationId: string;
   expiry: number;
+  expirationSeconds: string;
   token: string;
   publicKey: string;
 };

@@ -5029,15 +5029,21 @@
         }
       },
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ee82ffcf (started adding proto gen auth proxy methods)
       "required": [
         "smartContractAddress",
         "smartContractInterface",
         "type",
         "label"
       ]
+<<<<<<< HEAD
 =======
       "required": ["smartContractAddress", "smartContractInterface", "type"]
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+>>>>>>> ee82ffcf (started adding proto gen auth proxy methods)
     },
     "v1CreateSmartContractInterfaceRequest": {
       "type": "object",
