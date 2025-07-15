@@ -3,19 +3,31 @@ import { ActionButton } from "../design/Buttons";
 import { useModal } from "../../providers";
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faChevronRight, faClose } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 
 interface WalletAuthButtonProps {
-  onContinue: () => void;
+  onContinue: () => Promise<void>;
 }
 export function WalletAuthButton(props: WalletAuthButtonProps) {
   const { onContinue } = props;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleContinue = async () => {
+    setIsLoading(true);
+
+    try {
+      await Promise.resolve(onContinue());
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <div className="flex flex-col w-full">
       <ActionButton
-        onClick={onContinue}
+        onClick={handleContinue}
+        loading={isLoading}
         className="w-full text-inherit bg-button-light dark:bg-button-dark"
       >
         Continue with wallet
@@ -24,10 +36,28 @@ export function WalletAuthButton(props: WalletAuthButtonProps) {
   );
 }
 
+const canUnlink = (provider: WalletProvider, shouldShowUnlink?: boolean) => {
+  return (
+    shouldShowUnlink &&
+    provider.connectedAddresses &&
+    provider.connectedAddresses.length > 0
+  );
+};
+
 export function ExternalWalletChainSelector(
   props: ExternalWalletSelectorProps,
 ) {
-  const { providers, onSelect } = props;
+  const { providers, onSelect, onUnlink } = props;
+
+  const shouldShowUnlink = onUnlink !== undefined;
+
+  const handleSelect = (provider: WalletProvider) => {
+    if (canUnlink(provider, shouldShowUnlink)) {
+      onUnlink!(provider);
+    } else {
+      onSelect(provider);
+    }
+  };
 
   return (
     <div className="flex flex-col w-72 gap-4 mt-11 items-center justify-center">
@@ -36,31 +66,70 @@ export function ExternalWalletChainSelector(
         {providers[0]?.info.name ?? "This wallet provider"}
         {" supports multiple chains. Select which chain you would like to use."}
       </span>
-      {providers.map((p) => (
-        <ActionButton
-          key={p.type}
-          onClick={() => onSelect(p)}
-          className="relative flex items-center justify-start gap-2 w-full text-inherit bg-button-light dark:bg-button-dark"
-        >
-          {p.type === "ethereum" ? (
-            <EthereumLogo className="size-5" />
-          ) : (
-            <SolanaLogo className="size-5" />
-          )}
-          {p.type === "ethereum" ? "EVM" : "Solana"}
-        </ActionButton>
-      ))}
+      <div className="w-full flex flex-col gap-2">
+        {providers.map((p) => {
+          const [isHovering, setIsHovering] = useState(false);
+          return (
+            <ActionButton
+              key={p.type}
+              onClick={() => handleSelect(p)}
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              className="relative overflow-hidden flex items-center justify-start gap-2 w-full text-inherit bg-button-light dark:bg-button-dark"
+            >
+              {p.type === "ethereum" ? (
+                <div className="relative">
+                  <EthereumLogo className="size-5" />
+                  {canUnlink(p, shouldShowUnlink) && (
+                    <ConnectedIndicator isPinging />
+                  )}
+                </div>
+              ) : (
+                <div className="relative">
+                  <SolanaLogo className="size-5" />
+                  {canUnlink(p, shouldShowUnlink) && (
+                    <ConnectedIndicator isPinging />
+                  )}
+                </div>
+              )}
+              <div className="flex flex-col items-start">
+                {p.type === "ethereum" ? "EVM" : "Solana"}
+                {canUnlink(p, shouldShowUnlink) && (
+                  <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
+                    Connected: {p.connectedAddresses[0]?.slice(0, 4)}...
+                    {p.connectedAddresses[0]?.slice(-3)}
+                  </span>
+                )}
+              </div>
+              <FontAwesomeIcon
+                className={clsx(
+                  `absolute transition-all duration-200`,
+                  isHovering ? "right-4" : "-right-4",
+                  canUnlink(p, shouldShowUnlink)
+                    ? "text-danger-light dark:text-danger-dark"
+                    : "text-icon-text-light dark:text-icon-text-dark",
+                )}
+                size={canUnlink(p, shouldShowUnlink) ? "lg" : "1x"}
+                icon={canUnlink(p, shouldShowUnlink) ? faClose : faChevronRight}
+              />
+            </ActionButton>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 interface ExternalWalletSelectorProps {
   providers: WalletProvider[];
+  onUnlink?: ((provider: WalletProvider) => void) | undefined;
   onSelect: (provider: WalletProvider) => void;
 }
 export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
-  const { providers, onSelect } = props;
+  const { providers, onUnlink, onSelect } = props;
   const { pushPage, popPage } = useModal();
+
+  const shouldShowUnlink = onUnlink !== undefined;
 
   // Group providers by name
   const grouped = providers.reduce<Record<string, WalletProvider[]>>(
@@ -74,12 +143,20 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
   );
   const handleSelectGroup = (group: WalletProvider[]) => {
     if (group.length === 1) {
-      onSelect(group[0]!);
+      if (canUnlink(group[0]!, shouldShowUnlink)) {
+        onUnlink!(group[0]!);
+      } else {
+        onSelect(group[0]!);
+      }
     } else {
       pushPage({
         key: `Select chain`,
         content: (
-          <ExternalWalletChainSelector providers={group} onSelect={onSelect} />
+          <ExternalWalletChainSelector
+            providers={group}
+            onUnlink={onUnlink}
+            onSelect={onSelect}
+          />
         ),
       });
     }
@@ -111,7 +188,6 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
           ([name, group]: [string, WalletProvider[]]) => {
             const [isHovering, setIsHovering] = useState(false);
             const first = group[0];
-            const chainTypes = group.map((p: WalletProvider) => p.type);
 
             return (
               <ActionButton
@@ -130,35 +206,114 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                   {first?.info.name}
                 </div>
                 <div className={clsx(`flex items-center transition-all gap-1`)}>
-                  {chainTypes.includes(WalletType.Ethereum) && (
-                    <EthereumLogo
-                      className={clsx(
-                        `size-4 transition-all delay-150 duration-200`,
-                        isHovering ? "-translate-x-8" : "translate-x-0",
-                      )}
-                    />
-                  )}
-                  {chainTypes.includes(WalletType.Solana) && (
-                    <SolanaLogo
-                      className={clsx(
-                        `size-4 transition-all delay-100 duration-200`,
-                        isHovering ? "-translate-x-8" : "translate-x-0",
-                      )}
-                    />
-                  )}
+                  {group.map((c, idx) => {
+                    const Logo =
+                      c.type === WalletType.Ethereum
+                        ? EthereumLogo
+                        : SolanaLogo;
+                    const delay = 50 + idx * 30; // Staggered delay: leftmost has largest
+                    return (
+                      <div
+                        key={c.type}
+                        style={{ transitionDelay: `${delay}ms` }}
+                        className={clsx(
+                          "relative",
+                          "size-4",
+                          "transition-all duration-200",
+                          isHovering ? "-translate-x-8" : "translate-x-0",
+                        )}
+                      >
+                        <Logo className="size-4" />
+                        {canUnlink(c, shouldShowUnlink) && (
+                          <ConnectedIndicator isPinging={isHovering} />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
                 <FontAwesomeIcon
                   className={clsx(
-                    `size-4 absolute text-icon-text-light dark:text-icon-text-dark transition-all duration-200`,
+                    `absolute transition-all duration-200`,
                     isHovering ? "right-4" : "-right-4",
+                    group.length === 1 && canUnlink(group[0]!, shouldShowUnlink)
+                      ? "text-danger-light dark:text-danger-dark"
+                      : "text-icon-text-light dark:text-icon-text-dark",
                   )}
-                  icon={faChevronRight}
+                  size={
+                    group.length === 1 && canUnlink(group[0]!, shouldShowUnlink)
+                      ? "lg"
+                      : "1x"
+                  }
+                  icon={
+                    group.length === 1 && canUnlink(group[0]!, shouldShowUnlink)
+                      ? faClose
+                      : faChevronRight
+                  }
                 />
               </ActionButton>
             );
           },
         )}
       </div>
+    </div>
+  );
+}
+
+interface UnlinkWalletScreenProps {
+  provider: WalletProvider;
+  onUnlink: (provider: WalletProvider) => Promise<void>;
+}
+
+export function UnlinkWalletScreen(props: UnlinkWalletScreenProps) {
+  const { provider, onUnlink } = props;
+  const [isLoading, setIsLoading] = useState(false);
+  const handleUnlink = async () => {
+    setIsLoading(true);
+    try {
+      await onUnlink(provider);
+    } catch (error) {
+      console.error("Failed to unlink wallet:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="mt-8 w-96">
+      <div className="mt-6 mb-5 flex flex-col items-center gap-3">
+        <img src={provider.info.icon ?? ""} className="size-14 rounded-full" />
+        <div className="text-2xl font-bold text-center">
+          Unlink {provider.info.name}
+        </div>
+        <div className="text-icon-text-light dark:text-icon-text-dark text-center !p-0">
+          You can always link this wallet again later.
+        </div>
+      </div>
+      <div className="flex my-2 mt-0">
+        <ActionButton
+          onClick={handleUnlink}
+          loading={isLoading}
+          className="w-full max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
+          spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
+        >
+          Unlink Wallet
+        </ActionButton>
+      </div>
+    </div>
+  );
+}
+
+interface ConnectedIndicatorProps {
+  isPinging?: boolean;
+}
+export function ConnectedIndicator(props: ConnectedIndicatorProps) {
+  const { isPinging = false } = props;
+  return (
+    <div className="flex absolute top-[-2px] right-0 ">
+      {isPinging && (
+        <div className="absolute animate-ping size-[6px] bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
+      )}
+      <div className="size-[6px] bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
     </div>
   );
 }
