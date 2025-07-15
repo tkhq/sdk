@@ -85,6 +85,8 @@ import {
   updatePhoneNumberContinue,
 } from "../../helpers";
 import { RemovePasskey } from "../../components/user/RemovePasskey";
+import { ExternalWalletSelector } from "../../components/auth/Wallet";
+import { LinkWalletModal } from "../../components/user/LinkWallet";
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -196,6 +198,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
     stampWith?: StamperType;
     subText?: string;
   }) => Promise<v1SignRawPayloadResult>;
+  handleLinkExternalWallet: (params: {}) => Promise<void>;
 }
 
 export const ClientContext = createContext<ClientContextType | undefined>(
@@ -3157,6 +3160,35 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
+  const handleLinkExternalWallet = async (params: {
+    successPageDuration?: number | undefined;
+  }): Promise<void> => {
+    const { successPageDuration = 2000 } = params; // TODO (Amir / Ethan): This 2 second default should be standard on all modals! Or should they??
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    const providers = await getWalletProviders();
+
+    pushPage({
+      key: "Link Wallet",
+      content: (
+        <LinkWalletModal
+          providers={providers}
+          successPageDuration={successPageDuration}
+        />
+      ),
+    });
+  };
+
   return (
     <ClientContext.Provider
       value={{
@@ -3234,6 +3266,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleAddEmail,
         handleAddPhoneNumber,
         handleSignMessage,
+        handleLinkExternalWallet,
       }}
     >
       {children}
