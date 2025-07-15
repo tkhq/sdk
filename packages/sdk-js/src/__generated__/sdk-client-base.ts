@@ -20,6 +20,8 @@ import { VERSION } from "../__generated__/version";
 
 import type * as SdkTypes from "@turnkey/sdk-types";
 
+import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
+
 import { StorageBase } from "../__storage__/base";
 
 import { parseSession } from "../utils";
@@ -202,6 +204,44 @@ export class TurnkeySDKClientBase {
       ...activityData["activity"]["result"],
       ...activityData,
     } as TResponseType;
+  }
+
+  async authProxyRequest<TBodyType, TResponseType>(
+    url: string,
+    body: TBodyType,
+  ): Promise<TResponseType> {
+    if (!this.config.authProxyUrl || !this.config.authProxyId) {
+      throw new TurnkeyError(
+        "Auth Proxy URL or ID is not configured.",
+        TurnkeyErrorCodes.INVALID_CONFIGURATION,
+      );
+    }
+    const fullUrl = this.config.authProxyUrl + url;
+    const stringifiedBody = JSON.stringify(body);
+    var headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "X-Proxy-ID": this.config.authProxyId,
+    };
+
+    const response = await fetch(fullUrl, {
+      method: "POST",
+      headers: headers,
+      body: stringifiedBody,
+    });
+
+    if (!response.ok) {
+      let res: GrpcStatus;
+      try {
+        res = await response.json();
+      } catch (_) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+
+      throw new TurnkeyRequestError(res);
+    }
+
+    const data = await response.json();
+    return data as TResponseType;
   }
 
   getActivity = async (
@@ -743,12 +783,20 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_proxy_auth_config";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_PROXY_AUTH_CONFIG",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -782,12 +830,20 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_SMART_CONTRACT_INTERFACE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -1146,13 +1202,21 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/query/list_smart_contract_interfaces";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_SMART_CONTRACT_INTERFACES",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -2148,13 +2212,22 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, timestampMs, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/create_smart_contract_interface";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -2826,13 +2899,22 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, timestampMs, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/delete_smart_contract_interface";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -3081,12 +3163,21 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, timestampMs, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/disable_user_initiated_auth";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -3177,12 +3268,21 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, timestampMs, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/enable_user_initiated_auth";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -3484,12 +3584,21 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, timestampMs, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_fiat_on_ramp";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -4524,12 +4633,21 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, timestampMs, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_proxy_auth_config";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -4673,12 +4791,21 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, timestampMs, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_email";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -4717,12 +4844,21 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, timestampMs, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_name";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_USER_NAME",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -4761,12 +4897,21 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, timestampMs, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_phone_number";
-    const body = JSON.stringify(input);
-    const stamp = await activeStamper.stamp(body);
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
@@ -4973,5 +5118,47 @@ export class TurnkeySDKClientBase {
       stamp: stamp,
       url: fullUrl,
     };
+  };
+
+  proxyGetAccount = async (
+    input: SdkTypes.ProxyTGetAccountBody,
+  ): Promise<SdkTypes.ProxyTGetAccountResponse> => {
+    return this.authProxyRequest("/v1/account", input);
+  };
+
+  proxyOAuthLogin = async (
+    input: SdkTypes.ProxyTOAuthLoginBody,
+  ): Promise<SdkTypes.ProxyTOAuthLoginResponse> => {
+    return this.authProxyRequest("/v1/oauth_login", input);
+  };
+
+  proxyInitOtp = async (
+    input: SdkTypes.ProxyTInitOtpBody,
+  ): Promise<SdkTypes.ProxyTInitOtpResponse> => {
+    return this.authProxyRequest("/v1/otp_init", input);
+  };
+
+  proxyOtpLogin = async (
+    input: SdkTypes.ProxyTOtpLoginBody,
+  ): Promise<SdkTypes.ProxyTOtpLoginResponse> => {
+    return this.authProxyRequest("/v1/otp_login", input);
+  };
+
+  proxyVerifyOtp = async (
+    input: SdkTypes.ProxyTVerifyOtpBody,
+  ): Promise<SdkTypes.ProxyTVerifyOtpResponse> => {
+    return this.authProxyRequest("/v1/otp_verify", input);
+  };
+
+  proxySignup = async (
+    input: SdkTypes.ProxyTSignupBody,
+  ): Promise<SdkTypes.ProxyTSignupResponse> => {
+    return this.authProxyRequest("/v1/signup", input);
+  };
+
+  proxyGetWalletKitConfig = async (
+    input: SdkTypes.ProxyTGetWalletKitConfigBody,
+  ): Promise<SdkTypes.ProxyTGetWalletKitConfigResponse> => {
+    return this.authProxyRequest("/v1/wallet_kit_config", input);
   };
 }

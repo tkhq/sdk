@@ -4,9 +4,14 @@ import type {
   v1PayloadEncoding,
   Session,
   externaldatav1Timestamp,
-  v1Attestation,
+  ProxyTSignupBody,
+  v1ApiKeyParamsV2,
+  v1ApiKeyCurve,
+  v1Authenticator,
+  v1AuthenticatorParamsV2,
+  v1WalletAccountParams,
 } from "@turnkey/sdk-types";
-import { CreateSubOrgParams, Passkey, SignUpBody, WalletAccount } from "@types";
+import { CreateSubOrgParams, WalletAccount } from "@types";
 // Import all defaultAccountAtIndex functions for each address format
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
@@ -43,7 +48,6 @@ import {
   DEFAULT_TON_V3R2_ACCOUNTS,
   DEFAULT_TON_V4R2_ACCOUNTS,
 } from "./turnkey-helpers";
-import { create } from "domain";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -306,11 +310,14 @@ export function parseSession(token: string | Session): Session {
     throw new Error("JWT payload missing required fields");
   }
 
+  const expSeconds = Math.ceil((exp * 1000 - Date.now()) / 1000);
+
   return {
     sessionType,
     userId,
     organizationId,
     expiry: exp,
+    expirationSeconds: expSeconds.toString(),
     publicKey,
     token,
   };
@@ -377,7 +384,7 @@ export function createWalletAccountFromAddressFormat(
 export function generateWalletAccountsFromAddressFormat(
   addresses: v1AddressFormat[],
 ) {
-  let walletAccounts: WalletAccount[] = [];
+  let walletAccounts: v1WalletAccountParams[] = [];
   const pathMap = new Map<string, number>();
   walletAccounts = addresses.map((addressFormat) => {
     const account = createWalletAccountFromAddressFormat(addressFormat);
@@ -388,7 +395,7 @@ export function generateWalletAccountsFromAddressFormat(
       (_, prefix, _oldIdx) => `${prefix}${pathIndex}`,
     );
     pathMap.set(account.path, pathIndex + 1);
-    const newAccount: WalletAccount = {
+    const newAccount: v1WalletAccountParams = {
       curve: account.curve,
       pathFormat: account.pathFormat,
       path: pathWithIndex,
@@ -402,43 +409,68 @@ export function generateWalletAccountsFromAddressFormat(
 
 export function buildSignUpBody(params: {
   createSubOrgParams: CreateSubOrgParams | undefined;
-}): SignUpBody {
+}): ProxyTSignupBody {
   const { createSubOrgParams } = params;
   const websiteName = window.location.hostname;
 
-  const authenticators =
-    createSubOrgParams?.authenticators?.map((authenticator) => ({
-      authenticatorName:
-        authenticator.authenticatorName || `${websiteName}-${Date.now()}`,
-      challenge: authenticator.challenge,
-      attestation: authenticator.attestation,
-    })) || [];
+  let authenticators: v1AuthenticatorParamsV2[] = [];
+  if (createSubOrgParams?.authenticators?.length) {
+    authenticators =
+      createSubOrgParams?.authenticators?.map((authenticator) => ({
+        authenticatorName:
+          authenticator.authenticatorName || `${websiteName}-${Date.now()}`,
+        challenge: authenticator.challenge,
+        attestation: authenticator.attestation,
+      })) || [];
+  }
 
-  const apiKeys =
-    createSubOrgParams?.apiKeys?.map((apiKey) => ({
-      apiKeyName: apiKey.apiKeyName || `api-key-${Date.now()}`,
-      publicKey: apiKey.publicKey,
-      expirationSeconds: apiKey.expirationSeconds || "60", // Default to 60 seconds
-      curveType: apiKey.curveType,
-    })) || [];
+  let apiKeys: v1ApiKeyParamsV2[] = [];
+  if (createSubOrgParams?.apiKeys?.length) {
+    apiKeys = createSubOrgParams.apiKeys
+      .filter((apiKey) => apiKey.curveType !== undefined)
+      .map((apiKey) => ({
+        apiKeyName: apiKey.apiKeyName || `api-key-${Date.now()}`,
+        publicKey: apiKey.publicKey,
+        curveType: apiKey.curveType as v1ApiKeyCurve,
+        ...(apiKey?.expirationSeconds && {
+          expirationSeconds: apiKey.expirationSeconds,
+        }),
+      }));
+  }
 
   return {
     userName:
       createSubOrgParams?.userName ||
       createSubOrgParams?.userEmail ||
       `user-${Date.now()}`,
-    userEmail: createSubOrgParams?.userEmail,
-    ...(createSubOrgParams?.authenticators?.length && {
-      authenticators,
+    ...(createSubOrgParams?.userEmail && {
+      userEmail: createSubOrgParams?.userEmail,
     }),
-    userPhoneNumber: createSubOrgParams?.userPhoneNumber,
-    userTag: createSubOrgParams?.userTag,
+    ...(createSubOrgParams?.authenticators?.length
+      ? {
+          authenticators,
+        }
+      : { authenticators: [] }),
+    ...(createSubOrgParams?.userPhoneNumber && {
+      userPhoneNumber: createSubOrgParams.userPhoneNumber,
+    }),
+    ...(createSubOrgParams?.userTag && {
+      userTag: createSubOrgParams?.userTag,
+    }),
     subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
-    verificationToken: createSubOrgParams?.verificationToken,
-    ...(createSubOrgParams?.apiKeys?.length && {
-      apiKeys,
+    ...(createSubOrgParams?.verificationToken && {
+      verificationToken: createSubOrgParams?.verificationToken,
     }),
-    oauthProviders: createSubOrgParams?.oauthProviders,
+    ...(createSubOrgParams?.apiKeys?.length
+      ? {
+          apiKeys,
+        }
+      : { apiKeys: [] }),
+    ...(createSubOrgParams?.oauthProviders?.length
+      ? {
+          oauthProviders: createSubOrgParams.oauthProviders,
+        }
+      : { oauthProviders: [] }),
     ...(createSubOrgParams?.customWallet && {
       wallet: {
         walletName: createSubOrgParams.customWallet.walletName,

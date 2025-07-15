@@ -10,6 +10,7 @@ import type {
   SessionType,
   v1ApiKeyCurve,
   v1Attestation,
+  v1OauthProviderParams,
   v1User,
   v1Wallet,
   v1WalletAccount,
@@ -116,6 +117,8 @@ export type Passkey = {
 export interface TurnkeyHttpClientConfig {
   apiBaseUrl: string;
   organizationId: string;
+  authProxyUrl?: string;
+  authProxyId?: string;
 
   // TODO (Amir): Remove this in a user-facing config and add passkey and wallet configs
   activityPoller?: TActivityPollerConfig | undefined;
@@ -242,7 +245,7 @@ export type CreateSubOrgParams = {
   customWallet?:
     | {
         walletName: string;
-        walletAccounts: WalletAccount[];
+        walletAccounts: v1WalletAccountParams[];
       }
     | undefined;
   oauthProviders?: Provider[] | undefined;
@@ -272,7 +275,7 @@ export type SignUpBody = {
         walletAccounts: WalletAccountParams[];
       }
     | undefined;
-  oauthProviders?: Provider[] | undefined;
+  oauthProviders?: v1OauthProviderParams[] | undefined;
 };
 
 /**
