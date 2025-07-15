@@ -4852,7 +4852,12 @@
           "description": "Notes for a Smart Contract Interface."
         }
       },
-      "required": ["smartContractAddress", "smartContractInterface", "type"]
+      "required": [
+        "smartContractAddress",
+        "smartContractInterface",
+        "type",
+        "label"
+      ]
     },
     "v1CreateSmartContractInterfaceRequest": {
       "type": "object",
@@ -7490,6 +7495,10 @@
         "countrySubdivisionCode": {
           "type": "string",
           "description": "ISO 3166-2 two-digit country subdivision code for Coinbase representing the purchasing user’s subdivision of residence within their country, e.g. NY. Required if country_code=US."
+        },
+        "sandboxMode": {
+          "type": "boolean",
+          "description": "Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false."
         }
       },
       "required": [

@@ -151,7 +151,7 @@ export default function AuthPage() {
     return await refreshSession({});
   };
 
-  const handleCreateWallet = async (walletName: string) => {
+  const doCreateWallet = async (walletName: string) => {
     // List of all v1AddressFormat values
     const allAddressFormats: v1AddressFormat[] = [
       "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH",
@@ -539,7 +539,7 @@ export default function AuthPage() {
 
       {session ? (
         <button
-          onClick={() => handleCreateWallet(`EVERYTHING ${wallets.length + 1}`)}
+          onClick={() => doCreateWallet(`EVERYTHING ${wallets.length + 1}`)}
           style={{
             backgroundColor: "gray",
             borderRadius: "8px",
