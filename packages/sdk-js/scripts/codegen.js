@@ -6,6 +6,10 @@ const PUBLIC_API_SWAGGER_PATH = path.resolve(
   `${SOURCE_DIRECTORY}/__inputs__`,
   "public_api.swagger.json",
 );
+const AUTH_PROXY_SWAGGER_PATH = path.resolve(
+  `${SOURCE_DIRECTORY}/__inputs__`,
+  "auth_proxy.swagger.json",
+);
 const TARGET_API_TYPES_PATH = path.resolve(
   `${SOURCE_DIRECTORY}/__generated__`,
   "sdk_api_types.ts",
@@ -241,8 +245,15 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
   );
 };
 
-const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
+const generateSDKClientFromSwagger = async (
+  swaggerSpec,
+  authProxySwaggerSpec,
+  targetPath,
+) => {
   const namespace = swaggerSpec.tags?.find((item) => item.name != null)?.name;
+  const authProxyNamespace = authProxySwaggerSpec.tags?.find(
+    (item) => item.name != null,
+  )?.name;
 
   /** @type {Array<string>} */
   const codeBuffer = [];
@@ -267,6 +278,9 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
   // imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
   imports.push('import type * as SdkTypes from "@turnkey/sdk-types";');
+  imports.push(
+    'import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";',
+  );
 
   imports.push('import { StorageBase } from "../__storage__/base";');
   imports.push('import { parseSession } from "../utils";');
@@ -430,6 +444,41 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
         ...activityData["activity"]["result"],
         ...activityData
         } as TResponseType;
+    }
+    
+    async authProxyRequest<TBodyType, TResponseType>(
+        url: string,
+        body: TBodyType,
+    ): Promise<TResponseType> {
+        if (!this.config.authProxyUrl || !this.config.authProxyId) {
+        throw new TurnkeyError("Auth Proxy URL or ID is not configured.", TurnkeyErrorCodes.INVALID_CONFIGURATION);
+        }
+        const fullUrl = this.config.authProxyUrl + url;
+        const stringifiedBody = JSON.stringify(body);
+        var headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        "X-Proxy-ID": this.config.authProxyId,
+        }
+
+        const response = await fetch(fullUrl, {
+        method: "POST",
+        headers: headers,
+        body: stringifiedBody,
+        });
+
+        if (!response.ok) {
+        let res: GrpcStatus;
+        try {
+            res = await response.json();
+        } catch (_) {
+            throw new Error(\`\${response.status} \${response.statusText}\`);
+        }
+
+        throw new TurnkeyRequestError(res);
+        }
+
+        const data = await response.json();
+        return data as TResponseType;
     }`);
   const latestVersions = extractLatestVersions(swaggerSpec.definitions);
 
@@ -556,6 +605,36 @@ const generateSDKClientFromSwagger = async (swaggerSpec, targetPath) => {
     );
   }
 
+  for (const endpointPath in authProxySwaggerSpec.paths) {
+    console.log(`Processing auth proxy endpoint: ${endpointPath}`);
+    const methodMap = authProxySwaggerSpec.paths[endpointPath];
+    const operation = methodMap.post;
+    const operationId = operation.operationId;
+
+    const operationNameWithoutNamespace = operationId.replace(
+      new RegExp(`${authProxyNamespace}_`),
+      "",
+    );
+
+    const methodName = `proxy${
+      operationNameWithoutNamespace.charAt(0).toUpperCase() +
+      operationNameWithoutNamespace.slice(1)
+    }`;
+
+    const inputType = `ProxyT${operationNameWithoutNamespace}Body`;
+    const responseType = `ProxyT${operationNameWithoutNamespace}Response`;
+
+    codeBuffer.push(
+      `\n\t${methodName} = async (input: SdkTypes.${inputType}${
+        METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
+          ? " = {}"
+          : ""
+      }): Promise<SdkTypes.${responseType}> => {
+      return this.authProxyRequest("${endpointPath}", input);
+    }`,
+    );
+  }
+
   // End of the TurnkeySDKClient Class Definition
   codeBuffer.push(`}`);
 
@@ -576,8 +655,18 @@ async function main() {
     PUBLIC_API_SWAGGER_PATH,
     "utf-8",
   );
+  const authProxySwaggerSpecFile = await fs.promises.readFile(
+    AUTH_PROXY_SWAGGER_PATH,
+    "utf-8",
+  );
+
   const swaggerSpec = JSON.parse(swaggerSpecFile);
+  const authProxySwaggerSpec = JSON.parse(authProxySwaggerSpecFile);
 
   await generateApiTypesFromSwagger(swaggerSpec, TARGET_API_TYPES_PATH);
-  await generateSDKClientFromSwagger(swaggerSpec, TARGET_SDK_CLIENT_PATH);
+  await generateSDKClientFromSwagger(
+    swaggerSpec,
+    authProxySwaggerSpec,
+    TARGET_SDK_CLIENT_PATH,
+  );
 }
