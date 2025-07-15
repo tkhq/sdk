@@ -149,6 +149,9 @@ function methodTypeFromMethodName(methodName) {
   if (methodName.startsWith("nOOP")) {
     return "noop";
   }
+  if (methodName.startsWith("proxy")) {
+    return "proxy";
+  }
   // TODO: filter out unnecessary client methods, whether here or from the source
   if (
     methodName.startsWith("tget") ||
@@ -226,7 +229,7 @@ function generateInlineProperties(def, isAllOptional = false) {
   return out;
 }
 
-function generateApiTypes(swagger) {
+function generateApiTypes(swagger, prefix = "") {
   const namespace = swagger.tags?.find((item) => item.name != null)?.name;
   let output = "";
   const latestVersions = extractLatestVersions(swagger.definitions);
@@ -239,7 +242,7 @@ function generateApiTypes(swagger) {
 
     const operationNameWithoutNamespace = operationId.replace(
       new RegExp(`${namespace}_`),
-      "T",
+      `${prefix}T`,
     );
     const methodName =
       operationNameWithoutNamespace.charAt(0).toLowerCase() +
@@ -336,7 +339,11 @@ function generateApiTypes(swagger) {
         output += generateInlineProperties(definitions[resultTypeName]);
       }
       output += "}\n\n";
-    } else if (methodType === "query" || methodType === "noop") {
+    } else if (
+      methodType === "query" ||
+      methodType === "noop" ||
+      methodType === "proxy"
+    ) {
       const respDef = definitions[responseTypeName];
       if (respDef) {
         if (respDef.properties) {
@@ -422,6 +429,35 @@ function generateApiTypes(swagger) {
           output += `${desc}  ${propName}${required}: ${type};\n`;
         }
       }
+    } else if (methodType === "proxy") {
+      if (requestTypeDef.properties) {
+        const isAllOptional =
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName);
+        const requiredProps = Array.isArray(requestTypeDef.required)
+          ? requestTypeDef.required
+          : [];
+        for (const [prop, schema] of Object.entries(
+          requestTypeDef.properties,
+        )) {
+          if (prop === "organizationId") continue;
+          let type = "any";
+          if (schema.$ref) {
+            type = refToTs(schema.$ref);
+          } else if (schema.type) {
+            type = swaggerTypeToTs(schema.type, schema);
+          }
+          const desc = schema.description
+            ? `  /** ${schema.description} */\n`
+            : "";
+          const propName = isValidIdentifier(prop) ? prop : `"${prop}"`;
+          const required = isAllOptional
+            ? "?"
+            : requiredProps.includes(prop)
+              ? ""
+              : "?";
+          output += `${desc}  ${propName}${required}: ${type};\n`;
+        }
+      }
     }
     output += "}\n\n";
 
@@ -435,20 +471,6 @@ function main() {
   const swaggerAuthProxy = JSON.parse(
     fs.readFileSync(authProxySwaggerPath, "utf8"),
   );
-
-  // Merge definitions and paths
-  const mergedSwagger = {
-    ...swaggerMain,
-    definitions: {
-      ...swaggerMain.definitions,
-      ...swaggerAuthProxy.definitions,
-    },
-    paths: {
-      ...swaggerMain.paths,
-      ...swaggerAuthProxy.paths,
-    },
-    // Optionally merge other top-level keys if needed
-  };
 
   const typesSrc = fs.readFileSync(typesPath, "utf8");
 
@@ -469,7 +491,7 @@ function main() {
   // --- Base Types ---
   output += `// --- Base Types from Swagger Definitions ---\n`;
 
-  for (const [defName, def] of Object.entries(mergedSwagger.definitions)) {
+  for (const [defName, def] of Object.entries(swaggerMain.definitions)) {
     if (
       (def.type === "object" && def.properties) ||
       (def.type === "string" && def.enum)
@@ -483,7 +505,8 @@ function main() {
   // -- Api Types --
   output += "\n// --- API Types from Swagger Paths ---\n";
 
-  output += generateApiTypes(mergedSwagger);
+  output += generateApiTypes(swaggerMain);
+  output += generateApiTypes(swaggerAuthProxy, "Proxy");
 
   fs.writeFileSync(outputPath, output);
 }
