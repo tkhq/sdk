@@ -31,6 +31,14 @@ function RootLayout({ children }: RootLayoutProps) {
                 facebookClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID,
                 oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
               },
+              createSuborgParams: {
+                email: {
+                  userName: "ASIDHAIUDHASIUDHASODIHASOIDhASIDHASIUDHASOIDH",
+                },
+                passkey: {
+                  userName: "ASIDHAIUDHASIUDHASODIHASOIDhASIDHASIUDHASOIDH",
+                },
+              },
               methods: {
                 smsOtpAuthEnabled: true,
               },

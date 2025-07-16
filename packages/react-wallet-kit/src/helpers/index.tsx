@@ -23,7 +23,6 @@ export const addEmailContinue = async (params: {
     verificationToken?: string;
     userId?: string;
   }) => Promise<string>;
-  refreshUser: () => Promise<void>;
   pushPage: (page: ModalPage) => void;
   closeModal: () => void;
   onSuccess?: ((userId: string) => void) | undefined;
@@ -37,7 +36,6 @@ export const addEmailContinue = async (params: {
     initOtp,
     verifyOtp,
     updateUserEmail,
-    refreshUser,
     pushPage,
     closeModal,
   } = params;
@@ -91,7 +89,6 @@ export const addEmailContinue = async (params: {
                 closeModal();
               }
             }
-            await refreshUser();
           } else {
             closeModal();
             throw new TurnkeyError(
@@ -126,7 +123,6 @@ export const updateEmailContinue = async (params: {
     verificationToken?: string;
     userId?: string;
   }) => Promise<string>;
-  refreshUser: () => Promise<void>;
   pushPage: (page: ModalPage) => void;
   closeModal: () => void;
   onSuccess?: ((userId: string) => void) | undefined;
@@ -139,7 +135,6 @@ export const updateEmailContinue = async (params: {
     initOtp,
     verifyOtp,
     updateUserEmail,
-    refreshUser,
     pushPage,
     closeModal,
   } = params;
@@ -193,7 +188,6 @@ export const updateEmailContinue = async (params: {
                 closeModal();
               }
             }
-            await refreshUser();
           } else {
             closeModal();
             throw new TurnkeyError(
@@ -228,7 +222,6 @@ export const addPhoneNumberContinue = async (params: {
     verificationToken?: string;
     userId?: string;
   }) => Promise<string>;
-  refreshUser: () => Promise<void>;
   pushPage: (page: ModalPage) => void;
   closeModal: () => void;
   onSuccess?: ((userId: string) => void) | undefined;
@@ -242,7 +235,6 @@ export const addPhoneNumberContinue = async (params: {
     initOtp,
     verifyOtp,
     updateUserPhoneNumber,
-    refreshUser,
     session,
     pushPage,
     closeModal,
@@ -298,7 +290,6 @@ export const addPhoneNumberContinue = async (params: {
                 closeModal();
               }
             }
-            await refreshUser();
           } else {
             closeModal();
             throw new TurnkeyError(
@@ -333,7 +324,6 @@ export const updatePhoneNumberContinue = async (params: {
     verificationToken?: string;
     userId?: string;
   }) => Promise<string>;
-  refreshUser: () => Promise<void>;
   pushPage: (page: ModalPage) => void;
   closeModal: () => void;
   onSuccess?: ((userId: string) => void) | undefined;
@@ -347,7 +337,6 @@ export const updatePhoneNumberContinue = async (params: {
     initOtp,
     verifyOtp,
     updateUserPhoneNumber,
-    refreshUser,
     session,
     pushPage,
     closeModal,
@@ -403,7 +392,6 @@ export const updatePhoneNumberContinue = async (params: {
                 closeModal();
               }
             }
-            await refreshUser();
           } else {
             closeModal();
             throw new TurnkeyError(
@@ -426,7 +414,6 @@ export const removeOAuthProviderContinue = async (params: {
     providerId: string;
     userId?: string;
   }) => Promise<string[]>;
-  refreshUser: () => Promise<void>;
   pushPage: (page: ModalPage) => void;
   closeModal: () => void;
   onSuccess?: ((providerIds: string[]) => void) | undefined;
@@ -436,7 +423,6 @@ export const removeOAuthProviderContinue = async (params: {
     session,
     providerId,
     removeOAuthProvider,
-    refreshUser,
     pushPage,
     closeModal,
     onSuccess,
@@ -470,7 +456,6 @@ export const removeOAuthProviderContinue = async (params: {
         closeModal();
       }
     }
-    await refreshUser();
   } else {
     closeModal();
     throw new TurnkeyError(
@@ -487,7 +472,6 @@ export const removePasskeyContinue = async (params: {
     authenticatorId: string;
     userId?: string;
   }) => Promise<string[]>;
-  refreshUser: () => Promise<void>;
   pushPage: (page: ModalPage) => void;
   closeModal: () => void;
   onSuccess?: ((authenticatorIds: string[]) => void) | undefined;
@@ -497,7 +481,6 @@ export const removePasskeyContinue = async (params: {
     session,
     authenticatorId,
     removePasskey,
-    refreshUser,
     pushPage,
     closeModal,
     onSuccess,
@@ -531,7 +514,6 @@ export const removePasskeyContinue = async (params: {
         closeModal();
       }
     }
-    await refreshUser();
   } else {
     closeModal();
     throw new TurnkeyError(

@@ -8,6 +8,9 @@ import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import type {
   SessionType,
+  v1ApiKeyCurve,
+  v1Attestation,
+  v1OauthProviderParams,
   v1User,
   v1Wallet,
   v1WalletAccount,
@@ -114,6 +117,8 @@ export type Passkey = {
 export interface TurnkeyHttpClientConfig {
   apiBaseUrl: string;
   organizationId: string;
+  authProxyUrl?: string;
+  authProxyId?: string;
 
   // TODO (Amir): Remove this in a user-facing config and add passkey and wallet configs
   activityPoller?: TActivityPollerConfig | undefined;
@@ -224,15 +229,53 @@ export type CreateSubOrgParams = {
   subOrgName?: string | undefined;
   userEmail?: string | undefined;
   userTag?: string | undefined;
-  passkeyName?: string | undefined;
+  authenticators?: {
+    authenticatorName: string;
+    challenge: string;
+    attestation: v1Attestation;
+  }[];
   userPhoneNumber?: string | undefined;
+  verificationToken?: string | undefined;
+  apiKeys?: {
+    apiKeyName?: string | undefined;
+    publicKey: string;
+    expirationSeconds?: string | undefined;
+    curveType?: v1ApiKeyCurve | undefined;
+  }[];
+  customWallet?:
+    | {
+        walletName: string;
+        walletAccounts: v1WalletAccountParams[];
+      }
+    | undefined;
+  oauthProviders?: Provider[] | undefined;
+};
+
+export type SignUpBody = {
+  userName: string;
+  subOrgName: string;
+  userEmail?: string | undefined;
+  userTag?: string | undefined;
+  authenticators?: {
+    authenticatorName: string;
+    challenge: string;
+    attestation: v1Attestation;
+  }[];
+  userPhoneNumber?: string | undefined;
+  verificationToken?: string | undefined;
+  apiKeys?: {
+    apiKeyName: string;
+    publicKey: string;
+    expirationSeconds: string;
+    curveType?: v1ApiKeyCurve | undefined;
+  }[];
   customWallet?:
     | {
         walletName: string;
         walletAccounts: WalletAccountParams[];
       }
     | undefined;
-  oauthProviders?: Provider[] | undefined;
+  oauthProviders?: v1OauthProviderParams[] | undefined;
 };
 
 /**
