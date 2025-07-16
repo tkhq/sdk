@@ -30,6 +30,7 @@ import {
 import {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -66,7 +67,7 @@ import {
   faFacebook,
   faGoogle,
 } from "@fortawesome/free-brands-svg-icons";
-import { WalletProvider } from "@turnkey/wallet-stamper";
+import { WalletProvider, WalletType } from "@turnkey/wallet-stamper";
 import { ActionPage } from "../../components/auth/Action";
 import { SignMessageModal } from "../../components/sign/Message";
 import { ExportComponent, ExportType } from "../../components/export";
@@ -239,6 +240,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   useEffect(() => {
     initializeClient();
   }, []);
+
+  useEffect(() => {
+    if (client) {
+      initializeProviders();
+    }
+  }, [client]);
 
   // Handle redirect-based auth
   useEffect(() => {
@@ -873,7 +880,96 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
     await client.connectWalletAccount(walletProvider);
+    await refreshWallets();
   }
+
+  async function disconnectWalletAccount(
+    walletProvider: WalletProvider,
+  ): Promise<void> {
+    if (!client) {
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    await client.disconnectWalletAccount(walletProvider);
+    await refreshWallets();
+  }
+
+  const initializeProviders = useCallback(async () => {
+    const [ethProviders, solProviders] = await Promise.all([
+      getWalletProviders(WalletType.Ethereum),
+      getWalletProviders(WalletType.Solana),
+    ]);
+
+    console.log("I am running");
+
+    const cleanups: Array<() => void> = [];
+
+    ethProviders
+      .filter((p) => p.connectedAddresses.length > 0)
+      .forEach((p) => {
+        const onAccountsChanged = (accs: string[]) => {
+          console.log("onAccountsChanged eth");
+          if (accs.length === 0) fetchWallets();
+        };
+        const onDisconnect = () => {
+          console.log("onDisconnect eth");
+          fetchWallets();
+        };
+
+        // cast to any so TS won’t complain
+        (p.provider as any).on("accountsChanged", onAccountsChanged);
+        (p.provider as any).on("disconnect", onDisconnect);
+
+        cleanups.push(() => {
+          (p.provider as any).removeListener(
+            "accountsChanged",
+            onAccountsChanged,
+          );
+          (p.provider as any).removeListener("disconnect", onDisconnect);
+        });
+      });
+
+    solProviders
+      .filter((p) => p.connectedAddresses.length > 0)
+      .forEach((p) => {
+        const onAccountsChanged = (accs: string[]) => {
+          console.log("onAccountsChanged sol");
+          if (accs.length === 0) fetchWallets();
+        };
+        const onDisconnect = () => {
+          console.log("onDisconnect sol");
+          fetchWallets();
+        };
+
+        // Phantom‑style
+        (p.provider as any).on("accountChanged", onAccountsChanged);
+        (p.provider as any).on("disconnect", onDisconnect);
+
+        cleanups.push(() => {
+          (p.provider as any).removeListener(
+            "accountChanged",
+            onAccountsChanged,
+          );
+          (p.provider as any).removeListener("disconnect", onDisconnect);
+        });
+
+        // Wallet‑Standard events, if supported
+        const ev = (p.provider as any).features?.["standard:events"];
+        if (ev) {
+          ev.on("accountsChanged", onAccountsChanged);
+          ev.on("disconnect", onDisconnect);
+
+          cleanups.push(() => {
+            ev.off("accountsChanged", onAccountsChanged);
+            ev.off("disconnect", onDisconnect);
+          });
+        }
+      });
+
+    return () => cleanups.forEach((fn) => fn());
+  }, [fetchWallets]);
 
   async function loginWithWallet(params: {
     walletProvider: WalletProvider;
@@ -3205,6 +3301,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         signUpWithPasskey,
         getWalletProviders,
         connectWalletAccount,
+        disconnectWalletAccount,
         loginWithWallet,
         signUpWithWallet,
         loginOrSignupWithWallet,

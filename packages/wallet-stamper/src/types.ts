@@ -34,6 +34,7 @@ export interface BaseWalletInterface {
   getPublicKey: (provider: WalletRpcProvider) => Promise<string>;
   getProviders: () => Promise<WalletProvider[]>;
   connectWalletAccount: (provider: WalletRpcProvider) => Promise<void>;
+  disconnectWalletAccount: (provider: WalletRpcProvider) => Promise<void>;
 }
 
 /**
