@@ -130,6 +130,20 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
     const wallet = asSolana(provider);
     await connectAccount(wallet);
   }
+
+  async disconnectWalletAccount(provider: WalletRpcProvider): Promise<void> {
+    const wallet = asSolana(provider);
+    const disconnectFeature = wallet.features["standard:disconnect"] as
+      | { disconnect: () => Promise<void> }
+      | undefined;
+    if (disconnectFeature) {
+      await disconnectFeature.disconnect();
+    } else {
+      throw new WalletStamperError(
+        "Wallet does not support standard:disconnect",
+      );
+    }
+  }
 }
 
 /**
