@@ -394,6 +394,32 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getPolicyEvaluations = async (
+    input: SdkApiTypes.TGetPolicyEvaluationsBody,
+  ): Promise<SdkApiTypes.TGetPolicyEvaluationsResponse> => {
+    return this.request("/public/v1/query/get_policy_evaluations", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetPolicyEvaluations = async (
+    input: SdkApiTypes.TGetPolicyEvaluationsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_policy_evaluations";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getPrivateKey = async (
     input: SdkApiTypes.TGetPrivateKeyBody,
   ): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
@@ -410,6 +436,32 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_private_key";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getSmartContractInterface = async (
+    input: SdkApiTypes.TGetSmartContractInterfaceBody,
+  ): Promise<SdkApiTypes.TGetSmartContractInterfaceResponse> => {
+    return this.request("/public/v1/query/get_smart_contract_interface", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetSmartContractInterface = async (
+    input: SdkApiTypes.TGetSmartContractInterfaceBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -588,6 +640,33 @@ export class TurnkeySDKClientBase {
     }
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getSmartContractInterfaces = async (
+    input: SdkApiTypes.TGetSmartContractInterfacesBody,
+  ): Promise<SdkApiTypes.TGetSmartContractInterfacesResponse> => {
+    return this.request("/public/v1/query/list_smart_contract_interfaces", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetSmartContractInterfaces = async (
+    input: SdkApiTypes.TGetSmartContractInterfacesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/query/list_smart_contract_interfaces";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1165,6 +1244,40 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  createSmartContractInterface = async (
+    input: SdkApiTypes.TCreateSmartContractInterfaceBody,
+  ): Promise<SdkApiTypes.TCreateSmartContractInterfaceResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_smart_contract_interface",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
+      },
+      "createSmartContractInterfaceResult",
+    );
+  };
+
+  stampCreateSmartContractInterface = async (
+    input: SdkApiTypes.TCreateSmartContractInterfaceBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/create_smart_contract_interface";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   createSubOrganization = async (
     input: SdkApiTypes.TCreateSubOrganizationBody,
   ): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
@@ -1549,6 +1662,40 @@ export class TurnkeySDKClientBase {
     }
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteSmartContractInterface = async (
+    input: SdkApiTypes.TDeleteSmartContractInterfaceBody,
+  ): Promise<SdkApiTypes.TDeleteSmartContractInterfaceResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_smart_contract_interface",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
+      },
+      "deleteSmartContractInterfaceResult",
+    );
+  };
+
+  stampDeleteSmartContractInterface = async (
+    input: SdkApiTypes.TDeleteSmartContractInterfaceBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/delete_smart_contract_interface";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
