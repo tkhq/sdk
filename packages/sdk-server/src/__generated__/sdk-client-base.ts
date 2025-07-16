@@ -394,6 +394,32 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getPolicyEvaluations = async (
+    input: SdkApiTypes.TGetPolicyEvaluationsBody,
+  ): Promise<SdkApiTypes.TGetPolicyEvaluationsResponse> => {
+    return this.request("/public/v1/query/get_policy_evaluations", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetPolicyEvaluations = async (
+    input: SdkApiTypes.TGetPolicyEvaluationsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_policy_evaluations";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getPrivateKey = async (
     input: SdkApiTypes.TGetPrivateKeyBody,
   ): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {

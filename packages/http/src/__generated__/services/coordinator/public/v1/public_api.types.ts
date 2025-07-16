@@ -44,6 +44,10 @@ export type paths = {
     /** Get details about a Policy */
     post: operations["PublicApiService_GetPolicy"];
   };
+  "/public/v1/query/get_policy_evaluations": {
+    /** Get the policy evaluations for an Activity */
+    post: operations["PublicApiService_GetPolicyEvaluations"];
+  };
   "/public/v1/query/get_private_key": {
     /** Get details about a Private Key */
     post: operations["PublicApiService_GetPrivateKey"];
@@ -441,6 +445,19 @@ export type definitions = {
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
   };
+  externalactivityv1PolicyEvaluation: {
+    /** @description Unique identifier for a given policy evaluation. */
+    id: string;
+    /** @description Unique identifier for a given Activity. */
+    activityId: string;
+    /** @description Unique identifier for the Organization the Activity belongs to. */
+    organizationId: string;
+    /** @description Unique identifier for the Vote associated with this policy evaluation. */
+    voteId: string;
+    /** @description Detailed evaluation result for each Policy that was run. */
+    policyEvaluations: definitions["privateumpv1PolicyEvaluation"][];
+    createdAt: definitions["externaldatav1Timestamp"];
+  };
   externaldatav1Address: {
     format?: definitions["v1AddressFormat"];
     address?: string;
@@ -459,6 +476,24 @@ export type definitions = {
     /** @description Unique identifiers of quorum set members. */
     userIds: string[];
   };
+  externaldatav1SmartContractInterface: {
+    /** @description The Organization the Smart Contract Interface belongs to. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+    smartContractInterfaceId: string;
+    /** @description The address corresponding to the Smart Contract or Program. */
+    smartContractAddress: string;
+    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+    smartContractInterface: string;
+    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    type: string;
+    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    label: string;
+    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    notes: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
   externaldatav1Timestamp: {
     seconds: string;
     nanos: string;
@@ -466,6 +501,10 @@ export type definitions = {
   immutableactivityv1Address: {
     format?: definitions["v1AddressFormat"];
     address?: string;
+  };
+  privateumpv1PolicyEvaluation: {
+    policyId?: string;
+    outcome?: definitions["v1Outcome"];
   };
   protobufAny: {
     "@type"?: string;
@@ -1933,6 +1972,15 @@ export type definitions = {
     /** @description A list of Policies. */
     policies: definitions["v1Policy"][];
   };
+  v1GetPolicyEvaluationsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given Activity. */
+    activityId: string;
+  };
+  v1GetPolicyEvaluationsResponse: {
+    policyEvaluations: definitions["externalactivityv1PolicyEvaluation"][];
+  };
   v1GetPolicyRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -1969,7 +2017,7 @@ export type definitions = {
   };
   v1GetSmartContractInterfaceResponse: {
     /** @description Object to be used in conjunction with Policies to guard transaction signing. */
-    smartContractInterface: definitions["v1SmartContractInterface"];
+    smartContractInterface: definitions["externaldatav1SmartContractInterface"];
   };
   v1GetSmartContractInterfacesRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -1977,7 +2025,7 @@ export type definitions = {
   };
   v1GetSmartContractInterfacesResponse: {
     /** @description A list of Smart Contract Interfaces. */
-    smartContractInterfaces: definitions["v1SmartContractInterface"][];
+    smartContractInterfaces: definitions["externaldatav1SmartContractInterface"][];
   };
   v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
@@ -2648,6 +2696,14 @@ export type definitions = {
     /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
     session: string;
   };
+  /** @enum {string} */
+  v1Outcome:
+    | "OUTCOME_ALLOW"
+    | "OUTCOME_DENY_EXPLICIT"
+    | "OUTCOME_DENY_IMPLICIT"
+    | "OUTCOME_REQUIRES_CONSENSUS"
+    | "OUTCOME_REJECTED"
+    | "OUTCOME_ERROR";
   v1Pagination: {
     /** @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
     limit?: string;
@@ -3019,24 +3075,6 @@ export type definitions = {
     appid?: boolean;
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
-  };
-  v1SmartContractInterface: {
-    /** @description The Organization the Smart Contract Interface belongs to. */
-    organizationId: string;
-    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
-    smartContractInterfaceId: string;
-    /** @description The address corresponding to the Smart Contract or Program. */
-    smartContractAddress: string;
-    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
-    smartContractInterface: string;
-    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    type: string;
-    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    label: string;
-    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    notes: string;
-    createdAt: definitions["externaldatav1Timestamp"];
-    updatedAt: definitions["externaldatav1Timestamp"];
   };
   v1SmartContractInterfaceReference: {
     smartContractInterfaceId?: string;
@@ -3661,6 +3699,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetPolicyResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the policy evaluations for an Activity */
+  PublicApiService_GetPolicyEvaluations: {
+    parameters: {
+      body: {
+        body: definitions["v1GetPolicyEvaluationsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetPolicyEvaluationsResponse"];
       };
       /** An unexpected error response. */
       default: {

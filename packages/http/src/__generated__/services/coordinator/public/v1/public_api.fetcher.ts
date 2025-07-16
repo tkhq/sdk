@@ -502,6 +502,58 @@ export const signGetPolicy = (
   });
 
 /**
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export type TGetPolicyEvaluationsResponse =
+  operations["PublicApiService_GetPolicyEvaluations"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export type TGetPolicyEvaluationsInput = { body: TGetPolicyEvaluationsBody };
+
+/**
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export type TGetPolicyEvaluationsBody =
+  operations["PublicApiService_GetPolicyEvaluations"]["parameters"]["body"]["body"];
+
+/**
+ * Get Policy Evaluations
+ *
+ * Get the policy evaluations for an Activity
+ *
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export const getPolicyEvaluations = (input: TGetPolicyEvaluationsInput) =>
+  request<
+    TGetPolicyEvaluationsResponse,
+    TGetPolicyEvaluationsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_policy_evaluations",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetPolicyEvaluations` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetPolicyEvaluations}
+ */
+export const signGetPolicyEvaluations = (
+  input: TGetPolicyEvaluationsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetPolicyEvaluationsBody, never, never>({
+    uri: "/public/v1/query/get_policy_evaluations",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_private_key`
  */
 export type TGetPrivateKeyResponse =

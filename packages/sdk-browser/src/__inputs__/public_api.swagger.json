@@ -388,6 +388,38 @@
         "tags": ["Policies"]
       }
     },
+    "/public/v1/query/get_policy_evaluations": {
+      "post": {
+        "summary": "Get Policy Evaluations",
+        "description": "Get the policy evaluations for an Activity",
+        "operationId": "PublicApiService_GetPolicyEvaluations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetPolicyEvaluationsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetPolicyEvaluationsRequest"
+            }
+          }
+        ],
+        "tags": ["Activities"]
+      }
+    },
     "/public/v1/query/get_private_key": {
       "post": {
         "summary": "Get Private Key",
@@ -3188,6 +3220,46 @@
       },
       "required": ["tagId", "tagName", "tagType", "createdAt", "updatedAt"]
     },
+    "externalactivityv1PolicyEvaluation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for a given policy evaluation."
+        },
+        "activityId": {
+          "type": "string",
+          "description": "Unique identifier for a given Activity."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for the Organization the Activity belongs to."
+        },
+        "voteId": {
+          "type": "string",
+          "description": "Unique identifier for the Vote associated with this policy evaluation."
+        },
+        "policyEvaluations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/privateumpv1PolicyEvaluation"
+          },
+          "description": "Detailed evaluation result for each Policy that was run."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "activityId",
+        "organizationId",
+        "voteId",
+        "policyEvaluations",
+        "createdAt"
+      ]
+    },
     "externaldatav1Address": {
       "type": "object",
       "properties": {
@@ -3230,6 +3302,56 @@
       },
       "required": ["threshold", "userIds"]
     },
+    "externaldatav1SmartContractInterface": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "The Organization the Smart Contract Interface belongs to."
+        },
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
+        },
+        "smartContractAddress": {
+          "type": "string",
+          "description": "The address corresponding to the Smart Contract or Program."
+        },
+        "smartContractInterface": {
+          "type": "string",
+          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "label": {
+          "type": "string",
+          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "organizationId",
+        "smartContractInterfaceId",
+        "smartContractAddress",
+        "smartContractInterface",
+        "type",
+        "label",
+        "notes",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
     "externaldatav1Timestamp": {
       "type": "object",
       "properties": {
@@ -3250,6 +3372,17 @@
         },
         "address": {
           "type": "string"
+        }
+      }
+    },
+    "privateumpv1PolicyEvaluation": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "type": "string"
+        },
+        "outcome": {
+          "$ref": "#/definitions/v1Outcome"
         }
       }
     },
@@ -6677,6 +6810,33 @@
       },
       "required": ["policies"]
     },
+    "v1GetPolicyEvaluationsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "activityId": {
+          "type": "string",
+          "description": "Unique identifier for a given Activity."
+        }
+      },
+      "required": ["organizationId", "activityId"]
+    },
+    "v1GetPolicyEvaluationsResponse": {
+      "type": "object",
+      "properties": {
+        "policyEvaluations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/externalactivityv1PolicyEvaluation"
+          }
+        }
+      },
+      "required": ["policyEvaluations"]
+    },
     "v1GetPolicyRequest": {
       "type": "object",
       "properties": {
@@ -6767,7 +6927,7 @@
       "type": "object",
       "properties": {
         "smartContractInterface": {
-          "$ref": "#/definitions/v1SmartContractInterface",
+          "$ref": "#/definitions/externaldatav1SmartContractInterface",
           "description": "Object to be used in conjunction with Policies to guard transaction signing."
         }
       },
@@ -6790,7 +6950,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1SmartContractInterface"
+            "$ref": "#/definitions/externaldatav1SmartContractInterface"
           },
           "description": "A list of Smart Contract Interfaces."
         }
@@ -8469,6 +8629,17 @@
       },
       "required": ["session"]
     },
+    "v1Outcome": {
+      "type": "string",
+      "enum": [
+        "OUTCOME_ALLOW",
+        "OUTCOME_DENY_EXPLICIT",
+        "OUTCOME_DENY_IMPLICIT",
+        "OUTCOME_REQUIRES_CONSENSUS",
+        "OUTCOME_REJECTED",
+        "OUTCOME_ERROR"
+      ]
+    },
     "v1Pagination": {
       "type": "object",
       "properties": {
@@ -9492,56 +9663,6 @@
           "$ref": "#/definitions/v1CredPropsAuthenticationExtensionsClientOutputs"
         }
       }
-    },
-    "v1SmartContractInterface": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "The Organization the Smart Contract Interface belongs to."
-        },
-        "smartContractInterfaceId": {
-          "type": "string",
-          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
-        },
-        "smartContractAddress": {
-          "type": "string",
-          "description": "The address corresponding to the Smart Contract or Program."
-        },
-        "smartContractInterface": {
-          "type": "string",
-          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
-        },
-        "type": {
-          "type": "string",
-          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "label": {
-          "type": "string",
-          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "notes": {
-          "type": "string",
-          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "createdAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "updatedAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        }
-      },
-      "required": [
-        "organizationId",
-        "smartContractInterfaceId",
-        "smartContractAddress",
-        "smartContractInterface",
-        "type",
-        "label",
-        "notes",
-        "createdAt",
-        "updatedAt"
-      ]
     },
     "v1SmartContractInterfaceReference": {
       "type": "object",
