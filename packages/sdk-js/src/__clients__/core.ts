@@ -500,6 +500,18 @@ export class TurnkeyClient {
     }
   };
 
+  disconnectWalletAccount = async (walletProvider: WalletProvider) => {
+    if (!this.walletManager) {
+      throw new Error("Wallet manager is not initialized");
+    }
+
+    try {
+      await this.walletManager.signer.disconnectWalletAccount(walletProvider);
+    } catch (error) {
+      throw new Error(`Unable to disconnect wallet account: ${error}`);
+    }
+  };
+
   loginWithWallet = async (params: {
     walletProvider: WalletProvider;
     sessionType?: SessionType;

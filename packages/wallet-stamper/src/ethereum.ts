@@ -130,6 +130,14 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
     const wallet = asEip1193(provider);
     await getAccount(wallet);
   }
+
+  async disconnectWalletAccount(provider: WalletRpcProvider): Promise<void> {
+    const wallet = asEip1193(provider);
+    await wallet.request({
+      method: "wallet_revokePermissions",
+      params: [{ eth_accounts: {} }],
+    });
+  }
 }
 
 /**
