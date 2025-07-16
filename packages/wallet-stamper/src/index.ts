@@ -3,3 +3,4 @@ export * from "./errors";
 export * from "./types";
 export * from "./stamper";
 export * from "./ethereum";
+export * from "./solana";
