@@ -22,6 +22,12 @@ export class CrossPlatformWalletSigner implements WalletSignerInterface {
     await wallet.connectWalletAccount(provider.provider);
   }
 
+  async disconnectWalletAccount(provider: WalletProvider): Promise<void> {
+    const wallet = this.wallets[provider.type];
+    if (!wallet) throw new Error(`Wallet for ${provider.type} not initialized`);
+    await wallet.disconnectWalletAccount(provider.provider);
+  }
+
   async signMessage(
     message: string,
     walletProvider: WalletProvider,

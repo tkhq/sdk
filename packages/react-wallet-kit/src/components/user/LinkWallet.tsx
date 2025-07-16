@@ -11,7 +11,7 @@ interface LinkWalletModalProps {
 export function LinkWalletModal(props: LinkWalletModalProps) {
   const { providers, successPageDuration } = props;
   const { pushPage, closeModal } = useModal();
-  const { connectWalletAccount } = useTurnkey();
+  const { connectWalletAccount, disconnectWalletAccount } = useTurnkey();
 
   const hanldeLinkWallet = (provider: WalletProvider) => {
     pushPage({
@@ -56,7 +56,24 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
       content: (
         <UnlinkWalletScreen
           provider={provider}
-          onUnlink={async () => console.log("unimplemented")}
+          onUnlink={async () => {
+            await disconnectWalletAccount(provider);
+            if (successPageDuration && successPageDuration > 0) {
+              pushPage({
+                key: "Unlink Success",
+                content: (
+                  <SuccessPage
+                    text="Successfully unlinked wallet!"
+                    onComplete={() => closeModal()}
+                    duration={successPageDuration}
+                  />
+                ),
+                showTitle: false,
+              });
+            } else {
+              closeModal();
+            }
+          }}
         />
       ),
       showTitle: false,
