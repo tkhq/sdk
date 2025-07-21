@@ -28,6 +28,7 @@ export default function AuthPage() {
     httpClient,
     session,
     allSessions,
+    clientState,
     authState,
     wallets,
     user,
@@ -81,6 +82,10 @@ export default function AuthPage() {
   useEffect(() => {
     console.log("Auth state", authState);
   }, [authState]);
+
+  useEffect(() => {
+    console.log("Client state", clientState);
+  }, [clientState]);
 
   const logInWithPasskey1 = async () => {
     await loginWithPasskey({ sessionKey: "session-1" });

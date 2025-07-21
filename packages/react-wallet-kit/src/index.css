@@ -60,6 +60,14 @@
     caret-color: var(--color-modal-text-dark);
   }
 
+  .tk-style-sentinel {
+    position: absolute;
+    width: 1234px;
+    height: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
   .tk-modal {
     /* Reset line-height which preflight sets to 1.5 */
     line-height: normal;
