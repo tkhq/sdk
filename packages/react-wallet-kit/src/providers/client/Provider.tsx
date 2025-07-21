@@ -25,7 +25,6 @@ import {
   StamperType,
   TurnkeyClient,
   Wallet,
-  WalletAccount,
 } from "@turnkey/sdk-js";
 import {
   createContext,
@@ -57,6 +56,7 @@ import {
   v1TransactionType,
   v1User,
   v1WalletAccount,
+  v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Provider";
 import { TurnkeyCallbacks, TurnkeyProviderConfig } from "../TurnkeyProvider";
@@ -128,7 +128,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
     stamperType?: StamperType;
   }) => Promise<void>;
   handleImport: (params: {
-    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccount[];
+    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
     onImportSuccess?: (walletId: string) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   }) => Promise<void>;
@@ -595,7 +595,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function scheduleSessionExpiration(params: {
     sessionKey: string;
     expiry: number;
-    expirationSeconds?: string;
   }) {
     const { sessionKey, expiry } = params;
 
@@ -610,13 +609,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
 
       const timeUntilExpiry = expiry * 1000 - Date.now();
-      console.log(timeUntilExpiry / 1000);
-      const expirationSeconds =
-        params.expirationSeconds ||
-        Math.ceil(timeUntilExpiry / 1000).toString();
-
-      console.log(params.expirationSeconds);
-      console.log(expirationSeconds);
 
       const beforeExpiry = async () => {
         console.log("Session is about to expire, refreshing session...");
@@ -633,10 +625,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         if (!session) return;
 
         callbacks?.beforeSessionExpiry?.({ sessionKey });
+        console.log(session.expirationSeconds);
         if (autoRefreshSession) {
           await refreshSession({
             sessionType: session.sessionType,
-            expirationSeconds: expirationSeconds.toString(),
+            expirationSeconds: session.expirationSeconds,
             sessionKey,
           });
         }
@@ -712,10 +705,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   const handlePostAuth = async () => {
     try {
-      const sessionKey = await client!.getActiveSessionKey();
-      const session = await client!.getSession({
+      const sessionKey = await getActiveSessionKey();
+      const session = await getSession({
         ...(sessionKey && { sessionKey }),
       });
+
+      console.log("Post-auth session:", session);
 
       if (session && sessionKey)
         await scheduleSessionExpiration({
@@ -1675,7 +1670,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   async function createWallet(params: {
     walletName: string;
-    accounts?: WalletAccount[] | v1AddressFormat[];
+    accounts?: v1WalletAccountParams[] | v1AddressFormat[];
     organizationId?: string;
     mnemonicLength?: number;
     stampWith?: StamperType;
@@ -1695,7 +1690,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }
 
   async function createWalletAccounts(params: {
-    accounts: WalletAccount[];
+    accounts: v1WalletAccountParams[];
     walletId: string;
     organizationId?: string;
     stampWith?: StamperType;
@@ -1737,7 +1732,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function importWallet(params: {
     encryptedBundle: string;
     walletName: string;
-    accounts?: WalletAccount[];
+    accounts?: v1WalletAccountParams[];
     userId?: string;
   }): Promise<string> {
     if (!client)
@@ -1777,7 +1772,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     userName?: string;
     subOrgName?: string;
     passkey?: v1AuthenticatorParamsV2;
-    customAccounts?: WalletAccount[];
+    customAccounts?: v1WalletAccountParams[];
     wallet?: {
       publicKey: string;
       type: Chain;
@@ -2566,7 +2561,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   };
 
   const handleImport = async (params: {
-    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccount[];
+    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
     onImportSuccess?: (walletId: string) => void;
     successPageDuration?: number | undefined;
   }) => {

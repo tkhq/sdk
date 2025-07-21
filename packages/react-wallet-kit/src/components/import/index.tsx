@@ -5,7 +5,7 @@ import {
   TurnkeyError,
   TurnkeyErrorCodes,
   v1AddressFormat,
-  v1WalletAccount,
+  v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 import { ActionButton } from "../design/Buttons";
 import { Input } from "@headlessui/react";
@@ -24,7 +24,7 @@ const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 
 export function ImportComponent(params: {
-  defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccount[];
+  defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
   onImportSuccess?: (walletId: string) => void;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
 }) {
@@ -145,7 +145,7 @@ export function ImportComponent(params: {
         );
       }
 
-      let accounts: WalletAccount[] = [];
+      let accounts: v1WalletAccountParams[] = [];
       if (
         Array.isArray(defaultWalletAccounts) &&
         defaultWalletAccounts.length > 0 &&
@@ -155,7 +155,7 @@ export function ImportComponent(params: {
           defaultWalletAccounts as v1AddressFormat[],
         );
       } else if (Array.isArray(defaultWalletAccounts)) {
-        accounts = defaultWalletAccounts as WalletAccount[];
+        accounts = defaultWalletAccounts as v1WalletAccountParams[];
       }
 
       const response = await importWallet({
