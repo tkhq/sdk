@@ -11,7 +11,7 @@ import type {
   v1AuthenticatorParamsV2,
   v1WalletAccountParams,
 } from "@turnkey/sdk-types";
-import { CreateSubOrgParams, WalletAccount } from "@types";
+import { CreateSubOrgParams } from "@types";
 // Import all defaultAccountAtIndex functions for each address format
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
@@ -52,7 +52,7 @@ import {
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
   hashFunction: v1HashFunction;
-  defaultAccounts: WalletAccount[] | null;
+  defaultAccounts: v1WalletAccountParams[] | null;
 };
 
 const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> = {
@@ -355,7 +355,9 @@ export function getMessageHashAndEncodingType(
 }
 
 // Type guard to check if accounts is WalletAccount[]
-export function isWalletAccountArray(arr: any[]): arr is WalletAccount[] {
+export function isWalletAccountArray(
+  arr: any[],
+): arr is v1WalletAccountParams[] {
   return (
     arr.length === 0 ||
     (typeof arr[0] === "object" &&
@@ -366,7 +368,7 @@ export function isWalletAccountArray(arr: any[]): arr is WalletAccount[] {
 
 export function createWalletAccountFromAddressFormat(
   addressFormat: v1AddressFormat,
-): WalletAccount {
+): v1WalletAccountParams {
   const walletAccount = addressFormatConfig[addressFormat].defaultAccounts;
   if (!walletAccount) {
     throw new Error(`Unsupported address format: ${addressFormat}`);
