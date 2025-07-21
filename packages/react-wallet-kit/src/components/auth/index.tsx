@@ -113,7 +113,7 @@ export function AuthComponent() {
             // The default passkey name is just "A Passkey" from the core signUpWithPasskey method.
             // Since we know we are on a website, default it to the website name if not provided in the conifg
             const passkeyDisplayName =
-              config.auth?.createSuborgParams?.passkey?.authenticators?.[0]
+              config.auth?.createSuborgParams?.passkeyAuth?.authenticators?.[0]
                 ?.authenticatorName ?? `${websiteName}-${timestamp}`;
 
             await signUpWithPasskey({

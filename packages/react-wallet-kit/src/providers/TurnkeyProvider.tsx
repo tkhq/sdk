@@ -6,6 +6,11 @@ import { Session, TurnkeyError, TurnkeyNetworkError } from "@turnkey/sdk-types";
 import { ThemeOverrides, TurnkeyThemeOverrides } from "./theme/Overrides";
 
 export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
+  // All other optional urls are part of the TurnkeySDKClientConfig interface.
+  // We add them here directly since the core js package does not use iframes at all!
+  exportIframeUrl?: string | undefined;
+  importIframeUrl?: string | undefined;
+
   auth?: {
     methods?: {
       emailOtpAuthEnabled?: boolean;
@@ -30,10 +35,10 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       wallet?: string;
     };
     createSuborgParams?: {
-      email?: CreateSubOrgParams;
-      sms?: CreateSubOrgParams;
-      passkey?: CreateSubOrgParams;
-      wallet?: CreateSubOrgParams;
+      emailOtpAuth?: CreateSubOrgParams;
+      smsOtpAuth?: CreateSubOrgParams;
+      passkeyAuth?: CreateSubOrgParams;
+      walletAuth?: CreateSubOrgParams;
       oAuth?: CreateSubOrgParams;
     };
     autoRefreshSession?: boolean;
