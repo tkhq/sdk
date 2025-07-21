@@ -63,7 +63,12 @@ export enum AuthState {
   Unauthenticated = "unauthenticated",
   Loading = "loading",
   Authenticated = "authenticated",
+}
+
+export enum ClientState {
+  Loading = "loading",
   Ready = "ready",
+  Error = "error",
 }
 
 export const isValidSession = (session?: Session | undefined): boolean => {
