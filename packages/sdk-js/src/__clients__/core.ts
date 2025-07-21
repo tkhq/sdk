@@ -1,27 +1,20 @@
 import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
-  TCreateSubOrganizationResponse,
   TDeleteSubOrganizationResponse,
   Session,
   TSignTransactionResponse,
   TStampLoginResponse,
   v1AddressFormat,
   v1Attestation,
-  v1AuthenticatorParamsV2,
-  v1InitOtpResult,
-  v1OauthLoginResult,
-  v1OtpLoginResult,
   v1Pagination,
   v1SignRawPayloadResult,
   v1TransactionType,
   v1User,
-  v1VerifyOtpResult,
   v1WalletAccount,
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
   ProxyTGetWalletKitConfigResponse,
-  SessionType,
   v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 import {
@@ -31,7 +24,6 @@ import {
   User,
   TurnkeySDKClientConfig,
   WalletAccount,
-  Provider,
   Wallet,
   OtpType,
   OtpTypeToFilterTypeMap,
@@ -43,7 +35,7 @@ import {
   InjectedWallet,
   Curve,
   TurnkeyRequestError,
-} from "@types"; // AHHHH, SDK-TYPES
+} from "@types"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
   generateWalletAccountsFromAddressFormat,
@@ -52,7 +44,6 @@ import {
   isWalletAccountArray,
   isWeb,
   toExternalTimestamp,
-  // otpTypeToFilterMap,
 } from "@utils";
 import {
   createStorageManager,
@@ -90,16 +81,16 @@ type PublicMethods<T> = {
 export type TurnkeyClientMethods = PublicMethods<TurnkeyClient>;
 
 export class TurnkeyClient {
-  config: TurnkeySDKClientConfig; // Type TBD
+  config: TurnkeySDKClientConfig;
   httpClient!: TurnkeySDKClientBase;
 
-  private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined; // TODO (Amir): TEMPORARILY PUBLIC, MAKE PRIVATE LATER
+  private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined;
   private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
   private walletManager?: CrossPlatformWalletManager | undefined;
   private storageManager!: StorageBase;
 
   constructor(
-    config: any,
+    config: TurnkeySDKClientConfig,
 
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
@@ -142,20 +133,20 @@ export class TurnkeyClient {
       await this.walletManager.init();
     }
 
-    if (!this.config.apiBaseUrl)
-      this.config.apiBaseUrl = "https://api.turnkey.com";
-    if (!this.config.exportIframeUrl)
-      this.config.exportIframeUrl = "https://export.turnkey.com";
-    if (!this.config.importIframeUrl)
-      this.config.importIframeUrl = "https://import.turnkey.com";
+    // We can comfortably default to the prod urls here
+    const apiBaseUrl = this.config.apiBaseUrl || "https://api.turnkey.com";
+    const authProxyUrl =
+      this.config.authProxyUrl || "we don't have this yet lol"; // TODO (Amir): Add auth proxy URL
 
     // Initialize the HTTP client with the appropriate stampers
     this.httpClient = new TurnkeySDKClientBase({
-      apiKeyStamper: this.apiKeyStamper,
-      passkeyStamper: this.passkeyStamper!,
-      walletStamper: this.walletManager!.stamper,
-      storageManager: this.storageManager,
       ...this.config,
+      apiBaseUrl,
+      authProxyUrl,
+      apiKeyStamper: this.apiKeyStamper,
+      passkeyStamper: this.passkeyStamper,
+      walletStamper: this.walletManager?.stamper,
+      storageManager: this.storageManager,
     });
   }
 
@@ -2122,88 +2113,12 @@ export class TurnkeyClient {
     }
   };
 
-  createSubOrganization = async (params?: {
-    oauthProviders?: Provider[];
-    userEmail?: string;
-    userPhoneNumber?: string;
-    userName?: string;
-    subOrgName?: string;
-    passkey?: v1AuthenticatorParamsV2;
-    customAccounts?: v1WalletAccountParams[];
-    wallet?: {
-      publicKey: string;
-      type: Chain;
-    };
-  }): Promise<TCreateSubOrganizationResponse> => {
-    const {
-      oauthProviders,
-      passkey,
-      customAccounts,
-      wallet,
-      subOrgName,
-      userName,
-      userEmail,
-      userPhoneNumber,
-    } = params || {};
-
-    try {
-      const response = await this.httpClient.createSubOrganization({
-        subOrganizationName: subOrgName || `sub-org-${Date.now()}`,
-        rootQuorumThreshold: 1,
-        rootUsers: [
-          {
-            userName: userName ?? userEmail ?? "",
-            userEmail: userEmail ?? "",
-            ...(userPhoneNumber ? { userPhoneNumber } : {}),
-            apiKeys: wallet
-              ? [
-                  {
-                    apiKeyName: `wallet-auth:${wallet.publicKey}`,
-                    publicKey: wallet.publicKey,
-                    curveType:
-                      wallet.type === WalletType.Ethereum
-                        ? ("API_KEY_CURVE_SECP256K1" as const)
-                        : ("API_KEY_CURVE_ED25519" as const),
-                  },
-                ]
-              : [],
-            authenticators: passkey ? [passkey] : [],
-            oauthProviders: oauthProviders || [],
-          },
-        ],
-        wallet: {
-          walletName: `Wallet 1`,
-          accounts: customAccounts ?? [
-            ...DEFAULT_ETHEREUM_ACCOUNTS,
-            ...DEFAULT_SOLANA_ACCOUNTS,
-          ],
-        },
-      });
-
-      if (!response.subOrganizationId) {
-        throw new TurnkeyError(
-          "Expected a non-null subOrganizationId in response",
-          TurnkeyErrorCodes.BAD_RESPONSE,
-        );
-      }
-      return response as TCreateSubOrganizationResponse;
-    } catch (error) {
-      if (error instanceof TurnkeyError) throw error;
-      throw new TurnkeyError(
-        `Failed to create sub-organization`,
-        TurnkeyErrorCodes.CREATE_SUB_ORGANIZATION_ERROR,
-        error,
-      );
-    }
-  };
-
   storeSession = async (params: {
     sessionToken: string;
     sessionKey?: string;
   }): Promise<void> => {
     const { sessionToken, sessionKey = SessionKey.DefaultSessionkey } = params;
     try {
-      // TODO (Amir): This should be done in a helper or something. It's very strange that we have to delete the key pair here
       const sessionToReplace = await this.storageManager.getSession(sessionKey);
       if (sessionToReplace) {
         await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.publicKey);

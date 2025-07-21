@@ -3,6 +3,7 @@ import { bytesToHex } from "@noble/hashes/utils";
 import {
   APPLE_AUTH_URL,
   AuthState,
+  ClientState,
   exchangeCodeForToken,
   FACEBOOK_AUTH_URL,
   generateChallengePair,
@@ -21,7 +22,6 @@ import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   ExportBundle,
   OtpType,
-  Provider,
   StamperType,
   TurnkeyClient,
   Wallet,
@@ -40,7 +40,6 @@ import {
   OAuthProviders,
   Session,
   SessionType,
-  TCreateSubOrganizationResponse,
   TDeleteSubOrganizationResponse,
   TSignTransactionResponse,
   TStampLoginResponse,
@@ -49,7 +48,6 @@ import {
   TurnkeyNetworkError,
   v1AddressFormat,
   v1Attestation,
-  v1AuthenticatorParamsV2,
   ProxyTGetWalletKitConfigResponse,
   v1Pagination,
   v1SignRawPayloadResult,
@@ -86,7 +84,6 @@ import {
   updatePhoneNumberContinue,
 } from "../../helpers";
 import { RemovePasskey } from "../../components/user/RemovePasskey";
-import { ExternalWalletSelector } from "../../components/auth/Wallet";
 import { LinkWalletModal } from "../../components/user/LinkWallet";
 
 interface ClientProviderProps {
@@ -99,6 +96,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
   httpClient: TurnkeySDKClientBase | undefined;
   session: Session | undefined;
   allSessions?: Record<string, Session> | undefined;
+  clientState: ClientState;
   authState: AuthState;
   config?: TurnkeyProviderConfig | undefined;
   user: v1User | undefined;
@@ -226,6 +224,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   >(undefined);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [user, setUser] = useState<v1User | undefined>(undefined);
+  const [clientState, setClientState] = useState<ClientState>(
+    ClientState.Loading,
+  );
   const [authState, setAuthState] = useState<AuthState>(
     AuthState.Unauthenticated,
   );
@@ -362,7 +363,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     await completeOauth({
                       oidcToken: idToken,
                       publicKey,
-                      providerName: provider ?? "oauth-provider", // Keep lowercase provider name
+                      ...(provider ? { providerName: provider } : {}),
                     });
                   }}
                   icon={icon}
@@ -376,7 +377,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             completeOauth({
               oidcToken: idToken,
               publicKey,
-              providerName: provider ?? "oauth-provider", // Keep lowercase provider name
+              ...(provider ? { providerName: provider } : {}),
             });
           }
 
@@ -405,9 +406,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     // Only fetch the proxy auth config once. Use that to build the master config.
     const fetchProxyAuthConfig = async () => {
-      const proxyAuthConfig = await client.getProxyAuthConfig();
-      proxyAuthConfigRef.current = proxyAuthConfig;
-      setMasterConfig(buildConfig(proxyAuthConfig));
+      try {
+        let proxyAuthConfig: ProxyTGetWalletKitConfigResponse | undefined;
+        if (config.authProxyId) {
+          proxyAuthConfig = await client.getProxyAuthConfig();
+          proxyAuthConfigRef.current = proxyAuthConfig;
+        }
+
+        setMasterConfig(buildConfig(proxyAuthConfig));
+        setClientState(ClientState.Ready); // Set the client state to ready only after we have the master config
+      } catch {
+        setClientState(ClientState.Error);
+      }
     };
 
     fetchProxyAuthConfig();
@@ -415,32 +425,35 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   useEffect(() => {
     // If the proxyAuthConfigRef is already set, we don't need to fetch it again. Rebuild the master config with the updated config and stored proxyAuthConfig
-    if (!proxyAuthConfigRef.current) return;
-    setMasterConfig(buildConfig(proxyAuthConfigRef.current));
+    if (!proxyAuthConfigRef.current && config.authProxyId) return;
+    setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
   }, [config]);
 
-  const buildConfig = (proxyAuthConfig: ProxyTGetWalletKitConfigResponse) => {
+  const buildConfig = (
+    proxyAuthConfig?: ProxyTGetWalletKitConfigResponse | undefined,
+  ) => {
     // Juggle the local overrides with the values set in the dashboard (proxyAuthConfig).
     const resolvedMethods = {
       emailOtpAuthEnabled:
         config.auth?.methods?.emailOtpAuthEnabled ??
-        proxyAuthConfig.emailEnabled,
+        proxyAuthConfig?.emailEnabled,
       smsOtpAuthEnabled:
-        config.auth?.methods?.smsOtpAuthEnabled ?? proxyAuthConfig.smsEnabled,
+        config.auth?.methods?.smsOtpAuthEnabled ?? proxyAuthConfig?.smsEnabled,
       passkeyAuthEnabled:
         config.auth?.methods?.passkeyAuthEnabled ??
-        proxyAuthConfig.passkeyEnabled,
+        proxyAuthConfig?.passkeyEnabled,
       walletAuthEnabled:
         config.auth?.methods?.walletAuthEnabled ??
-        proxyAuthConfig.walletEnabled,
+        proxyAuthConfig?.walletEnabled,
       googleOAuthEnabled:
         config.auth?.methods?.googleOAuthEnabled ??
-        proxyAuthConfig.googleEnabled,
+        proxyAuthConfig?.googleEnabled,
       appleOAuthEnabled:
-        config.auth?.methods?.appleOAuthEnabled ?? proxyAuthConfig.appleEnabled,
+        config.auth?.methods?.appleOAuthEnabled ??
+        proxyAuthConfig?.appleEnabled,
       facebookOAuthEnabled:
         config.auth?.methods?.facebookOAuthEnabled ??
-        proxyAuthConfig.facebookEnabled,
+        proxyAuthConfig?.facebookEnabled,
     };
 
     // Set a default ordering for the oAuth methods
@@ -463,11 +476,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "socials" | "email" | "sms" | "passkey" | "wallet"
       >);
 
-    const passkeyConfig = {
-      ...config.passkeyConfig,
-      rpId: config.passkeyConfig?.rpId ?? window.location.hostname,
-      timeout: config.passkeyConfig?.timeout ?? 60000,
-    };
     return {
       ...config,
 
@@ -479,7 +487,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ...config.auth?.oAuthConfig,
           openOAuthInPage:
             config.auth?.oAuthConfig?.openOAuthInPage ??
-            proxyAuthConfig.openOAuthInPage,
+            proxyAuthConfig?.openOAuthInPage,
         },
         sessionExpirationSeconds: {
           passkey: proxyAuthConfig?.passkeySessionExpirationSeconds,
@@ -488,7 +496,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         methodOrder,
         oauthOrder,
       },
-      passkeyConfig, // TODO (Amir): This should technically be inside auth object. Also walletconfig
       importIframeUrl: config.importIframeUrl ?? "https://import.turnkey.com",
       exportIframeUrl: config.exportIframeUrl ?? "https://export.turnkey.com",
     } as TurnkeyProviderConfig;
@@ -496,13 +503,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   const initializeClient = async () => {
     try {
+      setClientState(ClientState.Loading);
       const turnkeyClient = new TurnkeyClient({
         apiBaseUrl: config.apiBaseUrl,
         authProxyUrl: config.authProxyUrl,
         authProxyId: config.authProxyId,
         organizationId: config.organizationId,
-        importIframeUrl: config.importIframeUrl ?? "https://import.turnkey.com",
-        exportIframeUrl: config.exportIframeUrl ?? "https://export.turnkey.com",
+
+        // Define passkey and wallet config here. If we don't pass it into the client, Mr. Client will assume that we don't want to use passkeys/wallets and not create the stamper!
         passkeyConfig: {
           rpId: config.passkeyConfig?.rpId,
           timeout: config.passkeyConfig?.timeout || 60000, // 60 seconds
@@ -511,8 +519,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           allowCredentials: config.passkeyConfig?.allowCredentials || [],
         },
         walletConfig: {
-          ethereum: config.walletConfig?.ethereum,
-          solana: config.walletConfig?.solana,
+          ethereum: config.walletConfig?.ethereum ?? true,
+          solana: config.walletConfig?.solana ?? true,
         },
       });
 
@@ -520,7 +528,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       await turnkeyClient.init();
       setClient(turnkeyClient);
+
+      // Don't set clientState to ready until we fetch the proxy auth config (See other fetchProxyAuthConfig useEffect)
     } catch (error) {
+      setClientState(ClientState.Error);
       if (
         error instanceof TurnkeyError ||
         error instanceof TurnkeyNetworkError
@@ -611,7 +622,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const timeUntilExpiry = expiry * 1000 - Date.now();
 
       const beforeExpiry = async () => {
-        console.log("Session is about to expire, refreshing session...");
         const activeSession = await getSession();
         if (!activeSession && expiryTimeoutsRef.current[sessionKey]) {
           expiryTimeoutsRef.current[`${sessionKey}-warning`] = setTimeout(
@@ -625,7 +635,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         if (!session) return;
 
         callbacks?.beforeSessionExpiry?.({ sessionKey });
-        console.log(session.expirationSeconds);
         if (autoRefreshSession) {
           await refreshSession({
             sessionType: session.sessionType,
@@ -709,8 +718,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const session = await getSession({
         ...(sessionKey && { sessionKey }),
       });
-
-      console.log("Post-auth session:", session);
 
       if (session && sessionKey)
         await scheduleSessionExpiration({
@@ -848,7 +855,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     // If createSubOrgParams is not provided, use the default from masterConfig
     let createSubOrgParams =
       params?.createSubOrgParams ??
-      masterConfig.auth?.createSuborgParams?.passkey;
+      masterConfig.auth?.createSuborgParams?.passkeyAuth;
     params =
       createSubOrgParams !== undefined
         ? { ...params, createSubOrgParams }
@@ -915,19 +922,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       getWalletProviders(WalletType.Solana),
     ]);
 
-    console.log("I am running");
-
     const cleanups: Array<() => void> = [];
 
     ethProviders
       .filter((p) => p.connectedAddresses.length > 0)
       .forEach((p) => {
         const onAccountsChanged = (accs: string[]) => {
-          console.log("onAccountsChanged eth");
           if (accs.length === 0) fetchWallets();
         };
         const onDisconnect = () => {
-          console.log("onDisconnect eth");
           fetchWallets();
         };
 
@@ -948,11 +951,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       .filter((p) => p.connectedAddresses.length > 0)
       .forEach((p) => {
         const onAccountsChanged = (accs: string[]) => {
-          console.log("onAccountsChanged sol");
           if (accs.length === 0) fetchWallets();
         };
         const onDisconnect = () => {
-          console.log("onDisconnect sol");
           fetchWallets();
         };
 
@@ -1036,7 +1037,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     // If createSubOrgParams is not provided, use the default from masterConfig
     let createSubOrgParams =
       params.createSubOrgParams ??
-      masterConfig.auth?.createSuborgParams?.wallet;
+      masterConfig.auth?.createSuborgParams?.walletAuth;
     params =
       createSubOrgParams !== undefined
         ? { ...params, createSubOrgParams }
@@ -1081,7 +1082,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     // If createSubOrgParams is not provided, use the default from masterConfig
     let createSubOrgParams =
       params.createSubOrgParams ??
-      masterConfig.auth?.createSuborgParams?.wallet;
+      masterConfig.auth?.createSuborgParams?.walletAuth;
     params =
       createSubOrgParams !== undefined
         ? { ...params, createSubOrgParams }
@@ -1193,9 +1194,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     let createSubOrgParams = params.createSubOrgParams;
     if (!createSubOrgParams && masterConfig?.auth?.createSuborgParams) {
       if (params.otpType === OtpType.Email) {
-        createSubOrgParams = masterConfig.auth.createSuborgParams.email;
+        createSubOrgParams = masterConfig.auth.createSuborgParams.emailOtpAuth;
       } else if (params.otpType === OtpType.Sms) {
-        createSubOrgParams = masterConfig.auth.createSuborgParams.sms;
+        createSubOrgParams = masterConfig.auth.createSuborgParams.smsOtpAuth;
       }
     }
     params =
@@ -1244,9 +1245,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     let createSubOrgParams = params.createSubOrgParams;
     if (!createSubOrgParams && masterConfig?.auth?.createSuborgParams) {
       if (params.otpType === OtpType.Email) {
-        createSubOrgParams = masterConfig.auth.createSuborgParams.email;
+        createSubOrgParams = masterConfig.auth.createSuborgParams.emailOtpAuth;
       } else if (params.otpType === OtpType.Sms) {
-        createSubOrgParams = masterConfig.auth.createSuborgParams.sms;
+        createSubOrgParams = masterConfig.auth.createSuborgParams.smsOtpAuth;
       }
     }
     params =
@@ -1765,31 +1766,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function createSubOrganization(params?: {
-    oauthProviders?: Provider[];
-    userEmail?: string;
-    userPhoneNumber?: string;
-    userName?: string;
-    subOrgName?: string;
-    passkey?: v1AuthenticatorParamsV2;
-    customAccounts?: v1WalletAccountParams[];
-    wallet?: {
-      publicKey: string;
-      type: Chain;
-    };
-  }): Promise<TCreateSubOrganizationResponse> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    return withTurnkeyErrorHandling(
-      () => client.createSubOrganization(params),
-      callbacks,
-      "Failed to create sub-organization",
-    );
-  }
-
   async function storeSession(params: {
     sessionToken: string;
     sessionKey?: string;
@@ -1813,6 +1789,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       await scheduleSessionExpiration({ sessionKey, expiry: session.expiry });
 
     const allSessions = await getAllSessions();
+    setAuthState(AuthState.Authenticated);
     setSession(session);
     setAllSessions(allSessions);
     return;
@@ -1853,7 +1830,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   async function refreshSession(params?: {
     sessionType?: SessionType;
-    expirationSeconds?: string; // TODO: Need to pull from proxyAuthConfig
+    expirationSeconds?: string;
     publicKey?: string;
     sessionKey?: string;
     invalidateExisitng?: boolean;
@@ -3317,6 +3294,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       value={{
         session,
         allSessions,
+        clientState,
         authState,
         user,
         wallets,
@@ -3361,7 +3339,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         exportWallet,
         importWallet,
         deleteSubOrganization,
-        createSubOrganization,
         storeSession,
         clearSession,
         clearAllSessions,
