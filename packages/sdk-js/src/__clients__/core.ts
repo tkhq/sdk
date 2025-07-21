@@ -22,6 +22,7 @@ import {
   TurnkeyNetworkError,
   ProxyTGetWalletKitConfigResponse,
   SessionType,
+  v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -1913,7 +1914,7 @@ export class TurnkeyClient {
 
   createWallet = async (params: {
     walletName: string;
-    accounts?: WalletAccount[] | v1AddressFormat[];
+    accounts?: v1WalletAccountParams[] | v1AddressFormat[];
     organizationId?: string;
     mnemonicLength?: number;
     stampWith?: StamperType;
@@ -1928,11 +1929,11 @@ export class TurnkeyClient {
       );
     }
 
-    let walletAccounts: WalletAccount[] = [];
+    let walletAccounts: v1WalletAccountParams[] = [];
     if (accounts && !isWalletAccountArray(accounts)) {
       walletAccounts = generateWalletAccountsFromAddressFormat(accounts);
     } else {
-      walletAccounts = (accounts as WalletAccount[]) || [
+      walletAccounts = (accounts as v1WalletAccountParams[]) || [
         ...DEFAULT_ETHEREUM_ACCOUNTS,
         ...DEFAULT_SOLANA_ACCOUNTS,
       ];
@@ -1967,7 +1968,7 @@ export class TurnkeyClient {
   };
 
   createWalletAccounts = async (params: {
-    accounts: WalletAccount[];
+    accounts: v1WalletAccountParams[];
     walletId: string;
     organizationId?: string;
     stampWith?: StamperType;
@@ -2051,7 +2052,7 @@ export class TurnkeyClient {
   importWallet = async (params: {
     encryptedBundle: string;
     walletName: string;
-    accounts?: WalletAccount[];
+    accounts?: v1WalletAccountParams[];
     userId?: string;
   }): Promise<string> => {
     const { encryptedBundle, accounts, walletName, userId } = params;
@@ -2128,7 +2129,7 @@ export class TurnkeyClient {
     userName?: string;
     subOrgName?: string;
     passkey?: v1AuthenticatorParamsV2;
-    customAccounts?: WalletAccount[];
+    customAccounts?: v1WalletAccountParams[];
     wallet?: {
       publicKey: string;
       type: Chain;
