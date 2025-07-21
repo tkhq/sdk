@@ -22,22 +22,12 @@ function RootLayout({ children }: RootLayoutProps) {
             authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
             authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
             organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-            importIframeUrl: process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!,
-            exportIframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
             auth: {
               oAuthConfig: {
                 googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
                 appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
                 facebookClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID,
                 oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
-              },
-              createSuborgParams: {
-                email: {
-                  userName: "ASIDHAIUDHASIUDHASODIHASOIDhASIDHASIUDHASOIDH",
-                },
-                passkey: {
-                  userName: "ASIDHAIUDHASIUDHASODIHASOIDhASIDHASIUDHASOIDH",
-                },
               },
               methods: {
                 smsOtpAuthEnabled: true,
@@ -46,10 +36,6 @@ function RootLayout({ children }: RootLayoutProps) {
             },
             ui: {
               darkMode: false,
-            },
-            walletConfig: {
-              ethereum: true,
-              solana: true,
             },
           }}
           callbacks={{
