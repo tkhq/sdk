@@ -117,26 +117,22 @@ export type Passkey = {
 export interface TurnkeyHttpClientConfig {
   apiBaseUrl: string;
   organizationId: string;
-  authProxyUrl?: string;
-  authProxyId?: string;
+  authProxyUrl?: string | undefined;
+  authProxyId?: string | undefined;
 
-  // TODO (Amir): Remove this in a user-facing config and add passkey and wallet configs
   activityPoller?: TActivityPollerConfig | undefined;
   apiKeyStamper?: TStamper | undefined;
   passkeyStamper?: TStamper | undefined;
   walletStamper?: TStamper | undefined;
   storageManager?: StorageBase | undefined;
-  readOnlySession?: string | undefined; // TODO (Amir): Shouldn't this be getten from the storage manager?
+  readOnlySession?: string | undefined; // TODO (Amir): Shouldn't this be getten from the storage manager?. TODO (Amir) from the future: I thought we were getting rid of readOnlySessions all together. So..... delete this????
 }
 
 export interface TurnkeySDKClientConfig {
-  // TODO (Amir): Make optional!
-  apiBaseUrl: string;
-  authProxyUrl?: string;
-  authProxyId: string;
+  apiBaseUrl?: string | undefined;
+  authProxyUrl?: string | undefined;
+  authProxyId?: string | undefined; // Auth proxy won't be used
   organizationId: string;
-  exportIframeUrl?: string;
-  importIframeUrl?: string;
 
   passkeyConfig?: TPasskeyStamperConfig;
   walletConfig?: TWalletManagerConfig;

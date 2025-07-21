@@ -6,19 +6,22 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import { useModal } from "./Provider";
+import { ModalPage, useModal } from "./Provider";
 import { IconButton } from "../../components/design/Buttons";
 import { faArrowLeft, faClose } from "@fortawesome/free-solid-svg-icons";
 import { TurnkeyLogo } from "../../components/design/Svg";
 import { TurnkeyProviderConfig } from "../TurnkeyProvider";
+import { useTurnkey } from "../client/Provider";
+import { ClientState } from "@utils";
 
 interface ModalRootProps {
   config: TurnkeyProviderConfig;
 }
 
 export function ModalRoot(props: ModalRootProps) {
-  const { config } = props; // Note: This is the config passed into the TurnkeyProvider. If we ever need to get config from the dashboard as well, grab `config` from the useTurnkey hook instead.
+  const { config } = props;
   const { modalStack, popPage, closeModal } = useModal();
+  const { clientState } = useTurnkey();
 
   const current = modalStack[modalStack.length - 1];
   const hasBack = modalStack.length > 1 && !current?.preventBack;
@@ -31,41 +34,33 @@ export function ModalRoot(props: ModalRootProps) {
   const [width, setWidth] = useState<number>(300);
   const [observeResize, setObserveResize] = useState(true);
 
+  useCssLoaded(modalStack); // triggers warning overlay if CSS missing
+
   useEffect(() => {
-    // This useEffect sets up a ResizeObserver to monitor changes in the size of the modal content.
-    // This only needs to run when the content is changing size without the page being swapped out
     const node = containerRef.current;
     if (!node || !observeResize) return;
 
     const observer = new ResizeObserver(([entry]) => {
       if (!entry) return;
       setContentBlur(10);
-
       const { width: newWidth, height: newHeight } = entry.contentRect;
       setHeight(newHeight);
       setWidth(newWidth);
-
-      setTimeout(() => setContentBlur(0), 100); // Remove blur after short delay
+      setTimeout(() => setContentBlur(0), 100);
     });
 
     observer.observe(node);
-
-    return () => {
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, [containerRef.current, observeResize]);
 
   useEffect(() => {
-    // This useEffect handles the resizing of the modal when the current page changes.
-    // This only needs to run when the current page is changing. I.e, when the modal is pushed or popped.
     const resize = () => {
       if (containerRef.current) {
-        setContentBlur(10); // Blur the content during resize.
+        setContentBlur(10);
         const rect = containerRef.current.getBoundingClientRect();
-
         setHeight(rect.height);
         setWidth(rect.width);
-        setTimeout(() => setContentBlur(0), 100); // Remove blur after resize
+        setTimeout(() => setContentBlur(0), 100);
       }
     };
 
@@ -74,10 +69,8 @@ export function ModalRoot(props: ModalRootProps) {
       requestAnimationFrame(resize);
 
       if (config?.ui?.renderModalInProvider) {
-        // If the modal is rendered in the provider, we need to prevent body scroll.
         const originalStyle = window.getComputedStyle(document.body).overflow;
         document.body.style.overflow = "hidden";
-
         return () => {
           document.body.style.overflow = originalStyle;
         };
@@ -95,17 +88,11 @@ export function ModalRoot(props: ModalRootProps) {
   return (
     <Transition appear show={!!current} as={Fragment}>
       <Dialog
-        // https://github.com/tailwindlabs/headlessui/blob/38986df81ecc7b7c86abab33d61ce18ffd55fac6/packages/%40headlessui-react/src/components/dialog/dialog.tsx#L205-L206
-        // If we are rendering the modal in the provider, set __demoMode to true to avoid "inert" being applied to all ansestors of the modal.
         __demoMode={config?.ui?.renderModalInProvider ? true : false}
         as="div"
         className="relative z-50"
-        onClose={() => {
-          // prevent default outside-click close behavior
-          // we'll manually handle backdrop clicks below
-        }}
+        onClose={() => {}}
       >
-        {/* Backdrop */}
         <TransitionChild
           as={Fragment}
           enter="ease-out duration-200"
@@ -127,8 +114,6 @@ export function ModalRoot(props: ModalRootProps) {
           />
         </TransitionChild>
 
-        {/* Modal Panel */
-        /* TODO (Amir): Does adding transition-colors here mess with the children? Probably. If you see some weird slow colour transitions, this is most likely the culprit! */}
         <div
           onMouseDown={(e) => {
             if (e.target === e.currentTarget) {
@@ -136,10 +121,11 @@ export function ModalRoot(props: ModalRootProps) {
               closeModal();
             }
           }}
-          className={`tk-modal fixed inset-0 flex items-center justify-center transition-colors duration-300 ${config?.ui?.darkMode ? "dark" : ""}`}
+          className={`tk-modal fixed inset-0 flex items-center justify-center transition-colors duration-300 ${
+            config?.ui?.darkMode ? "dark" : ""
+          }`}
         >
           <DialogPanel>
-            {/* White background container */}
             <TransitionChild
               as={Fragment}
               enter="ease-out duration-150"
@@ -156,7 +142,7 @@ export function ModalRoot(props: ModalRootProps) {
                   padding: innerPadding,
                   borderRadius: config?.ui?.borderRadius ?? "16px",
                 }}
-                className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex shadow-xl transition-all overflow-x-clip" // TODO (Amir): Ideally, we should have overflow-y-clip as well but it breaks the phone country selector 0_o. Try and fix this
+                className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex shadow-xl transition-all overflow-x-clip"
               >
                 <div
                   className="h-6.5 absolute z-30 flex items-center justify-between transition-all"
@@ -199,12 +185,14 @@ export function ModalRoot(props: ModalRootProps) {
                 >
                   <div
                     className="z-10 transition-all duration-50 self-start"
-                    style={{
-                      filter: `blur(${contentBlur}px)`,
-                    }}
+                    style={{ filter: `blur(${contentBlur}px)` }}
                     ref={containerRef}
                   >
-                    {current?.content}
+                    {clientState === ClientState.Error ? (
+                      <InitFailed />
+                    ) : (
+                      current?.content
+                    )}
 
                     <a
                       href="https://www.turnkey.com/"
@@ -224,5 +212,88 @@ export function ModalRoot(props: ModalRootProps) {
         </div>
       </Dialog>
     </Transition>
+  );
+}
+
+function useCssLoaded(modalStack: ModalPage[]) {
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+
+    const el = document.createElement("div");
+    el.className = "tk-style-sentinel";
+    document.body.appendChild(el);
+
+    const width = window.getComputedStyle(el).width;
+    const cssLoaded = width === "1234px";
+    document.body.removeChild(el);
+
+    if (!cssLoaded && modalStack.length > 0) renderMissingStylesOverlay();
+  }, [modalStack]);
+}
+
+function renderMissingStylesOverlay() {
+  if (typeof document === "undefined") return;
+  if (document.getElementById("turnkey-missing-css")) return;
+
+  const div = document.createElement("div");
+  div.id = "turnkey-missing-css";
+
+  Object.assign(div.style, {
+    position: "fixed",
+    inset: "0",
+    backgroundColor: "rgba(255,255,255,0.96)",
+    color: "#b91c1c",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    fontFamily: "monospace",
+    zIndex: "999999",
+    padding: "2rem",
+    textAlign: "center",
+  });
+
+  div.innerHTML = `
+    <div style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem;">
+      ⚠️ Turnkey styles are missing
+    </div>
+    <div style="font-size: 1rem; max-width: 600px;">
+      You must import the Turnkey React Wallet Kit styles in your app:
+      <pre style="background-color: #f3f4f6; color: #111827; padding: 0.5rem 1rem; margin-top: 1rem; border-radius: 6px; font-size: 0.875rem;">
+        import "@turnkey/react-wallet-kit/dist/styles.css";
+      </pre>
+      <p style="margin-top: 1rem; font-size: 0.875rem; color: #6b7280;">
+        This warning only shows in development mode.
+      </p>
+    </div>
+  `;
+
+  document.body.appendChild(div);
+}
+
+function InitFailed() {
+  return (
+    <div className="flex items-center justify-center w-64 min-48 text-sm text-center">
+      {process.env.NODE_ENV === "development" ? (
+        <div className="flex flex-col items-center gap-2 mt-10 text-sm font-normal">
+          <strong className="text-danger-light dark:text-danger-dark">
+            Turnkey SDK failed to initialize.
+          </strong>
+          <div>
+            Check your config and ensure you're connected to the internet.
+          </div>
+          <div>
+            Try attaching an onError callback to the TurnkeyProvider's callbacks
+            to see more details. You can also inspect the network tab to see any
+            failed network requests.
+          </div>
+          <div className="text-xs mt-3 font-extralight italic">
+            You will only see this error if you are a developer!
+          </div>
+        </div>
+      ) : (
+        <p>An underlying error occurred. Try refreshing the page</p>
+      )}
+    </div>
   );
 }
