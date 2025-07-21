@@ -4,8 +4,14 @@ import type {
   v1PayloadEncoding,
   Session,
   externaldatav1Timestamp,
+  ProxyTSignupBody,
+  v1ApiKeyParamsV2,
+  v1ApiKeyCurve,
+  v1Authenticator,
+  v1AuthenticatorParamsV2,
+  v1WalletAccountParams,
 } from "@turnkey/sdk-types";
-import { WalletAccount } from "@types";
+import { CreateSubOrgParams } from "@types";
 // Import all defaultAccountAtIndex functions for each address format
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
@@ -46,7 +52,7 @@ import {
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
   hashFunction: v1HashFunction;
-  defaultAccounts: WalletAccount[] | null;
+  defaultAccounts: v1WalletAccountParams[] | null;
 };
 
 const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> = {
@@ -304,11 +310,14 @@ export function parseSession(token: string | Session): Session {
     throw new Error("JWT payload missing required fields");
   }
 
+  const expSeconds = Math.ceil((exp * 1000 - Date.now()) / 1000);
+
   return {
     sessionType,
     userId,
     organizationId,
     expiry: exp,
+    expirationSeconds: expSeconds.toString(),
     publicKey,
     token,
   };
@@ -346,7 +355,9 @@ export function getMessageHashAndEncodingType(
 }
 
 // Type guard to check if accounts is WalletAccount[]
-export function isWalletAccountArray(arr: any[]): arr is WalletAccount[] {
+export function isWalletAccountArray(
+  arr: any[],
+): arr is v1WalletAccountParams[] {
   return (
     arr.length === 0 ||
     (typeof arr[0] === "object" &&
@@ -357,7 +368,7 @@ export function isWalletAccountArray(arr: any[]): arr is WalletAccount[] {
 
 export function createWalletAccountFromAddressFormat(
   addressFormat: v1AddressFormat,
-): WalletAccount {
+): v1WalletAccountParams {
   const walletAccount = addressFormatConfig[addressFormat].defaultAccounts;
   if (!walletAccount) {
     throw new Error(`Unsupported address format: ${addressFormat}`);
@@ -375,7 +386,7 @@ export function createWalletAccountFromAddressFormat(
 export function generateWalletAccountsFromAddressFormat(
   addresses: v1AddressFormat[],
 ) {
-  let walletAccounts: WalletAccount[] = [];
+  let walletAccounts: v1WalletAccountParams[] = [];
   const pathMap = new Map<string, number>();
   walletAccounts = addresses.map((addressFormat) => {
     const account = createWalletAccountFromAddressFormat(addressFormat);
@@ -386,7 +397,7 @@ export function generateWalletAccountsFromAddressFormat(
       (_, prefix, _oldIdx) => `${prefix}${pathIndex}`,
     );
     pathMap.set(account.path, pathIndex + 1);
-    const newAccount: WalletAccount = {
+    const newAccount: v1WalletAccountParams = {
       curve: account.curve,
       pathFormat: account.pathFormat,
       path: pathWithIndex,
@@ -396,4 +407,77 @@ export function generateWalletAccountsFromAddressFormat(
   });
 
   return walletAccounts;
+}
+
+export function buildSignUpBody(params: {
+  createSubOrgParams: CreateSubOrgParams | undefined;
+}): ProxyTSignupBody {
+  const { createSubOrgParams } = params;
+  const websiteName = window.location.hostname;
+
+  let authenticators: v1AuthenticatorParamsV2[] = [];
+  if (createSubOrgParams?.authenticators?.length) {
+    authenticators =
+      createSubOrgParams?.authenticators?.map((authenticator) => ({
+        authenticatorName:
+          authenticator.authenticatorName || `${websiteName}-${Date.now()}`,
+        challenge: authenticator.challenge,
+        attestation: authenticator.attestation,
+      })) || [];
+  }
+
+  let apiKeys: v1ApiKeyParamsV2[] = [];
+  if (createSubOrgParams?.apiKeys?.length) {
+    apiKeys = createSubOrgParams.apiKeys
+      .filter((apiKey) => apiKey.curveType !== undefined)
+      .map((apiKey) => ({
+        apiKeyName: apiKey.apiKeyName || `api-key-${Date.now()}`,
+        publicKey: apiKey.publicKey,
+        curveType: apiKey.curveType as v1ApiKeyCurve,
+        ...(apiKey?.expirationSeconds && {
+          expirationSeconds: apiKey.expirationSeconds,
+        }),
+      }));
+  }
+
+  return {
+    userName:
+      createSubOrgParams?.userName ||
+      createSubOrgParams?.userEmail ||
+      `user-${Date.now()}`,
+    ...(createSubOrgParams?.userEmail && {
+      userEmail: createSubOrgParams?.userEmail,
+    }),
+    ...(createSubOrgParams?.authenticators?.length
+      ? {
+          authenticators,
+        }
+      : { authenticators: [] }),
+    ...(createSubOrgParams?.userPhoneNumber && {
+      userPhoneNumber: createSubOrgParams.userPhoneNumber,
+    }),
+    ...(createSubOrgParams?.userTag && {
+      userTag: createSubOrgParams?.userTag,
+    }),
+    subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
+    ...(createSubOrgParams?.verificationToken && {
+      verificationToken: createSubOrgParams?.verificationToken,
+    }),
+    ...(createSubOrgParams?.apiKeys?.length
+      ? {
+          apiKeys,
+        }
+      : { apiKeys: [] }),
+    ...(createSubOrgParams?.oauthProviders?.length
+      ? {
+          oauthProviders: createSubOrgParams.oauthProviders,
+        }
+      : { oauthProviders: [] }),
+    ...(createSubOrgParams?.customWallet && {
+      wallet: {
+        walletName: createSubOrgParams.customWallet.walletName,
+        accounts: createSubOrgParams.customWallet.walletAccounts,
+      },
+    }),
+  };
 }
