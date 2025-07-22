@@ -5,7 +5,7 @@ import * as crypto from "crypto";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient } from "@turnkey/http";
+import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 import { refineNonNull } from "../../utils";
@@ -23,7 +23,12 @@ async function main() {
     }),
   );
 
-  const { activity } = await turnkeyClient.createWallet({
+  const activityPoller = createActivityPoller({
+    client: turnkeyClient,
+    requestFn: turnkeyClient.createWallet,
+  });
+
+  const completedActivity = await activityPoller({
     type: "ACTIVITY_TYPE_CREATE_WALLET",
     timestampMs: String(Date.now()),
     organizationId: process.env.ORGANIZATION_ID!,
@@ -32,7 +37,6 @@ async function main() {
       accounts: [
         {
           pathFormat: "PATH_FORMAT_BIP32",
-          // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
           path: "m/44'/501'/0'/0'",
           curve: "CURVE_ED25519",
           addressFormat: "ADDRESS_FORMAT_SOLANA",
@@ -41,7 +45,7 @@ async function main() {
     },
   });
 
-  const wallet = refineNonNull(activity.result.createWalletResult);
+  const wallet = refineNonNull(completedActivity.result.createWalletResult);
   const walletId = refineNonNull(wallet.walletId);
   const address = refineNonNull(wallet.addresses[0]);
 
