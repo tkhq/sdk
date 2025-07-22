@@ -48,7 +48,7 @@ export function ExternalWalletChainSelector(
   props: ExternalWalletSelectorProps,
 ) {
   const { providers, onSelect, onUnlink } = props;
-
+  const { isMobile } = useModal();
   const shouldShowUnlink = onUnlink !== undefined;
 
   const handleSelect = (provider: WalletProvider) => {
@@ -60,7 +60,12 @@ export function ExternalWalletChainSelector(
   };
 
   return (
-    <div className="flex flex-col w-72 gap-4 mt-11 items-center justify-center">
+    <div
+      className={clsx(
+        "flex flex-col w-72 gap-4 mt-11 items-center justify-center",
+        isMobile ? "w-full" : "w-72",
+      )}
+    >
       <img src={providers[0]?.info.icon} className="size-14 rounded-full" />
       <span className="text-sm text-center text-icon-text-light dark:text-icon-text-dark">
         {providers[0]?.info.name ?? "This wallet provider"}
@@ -127,7 +132,7 @@ interface ExternalWalletSelectorProps {
 }
 export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
   const { providers, onUnlink, onSelect } = props;
-  const { pushPage, popPage } = useModal();
+  const { pushPage, popPage, isMobile } = useModal();
 
   const shouldShowUnlink = onUnlink !== undefined;
 
@@ -172,7 +177,12 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
   }, [grouped]);
 
   return Object.keys(grouped).length === 0 ? (
-    <div className="flex flex-col w-72 h-40 mt-4 gap-2 justify-center items-center text-xs text-center text-icon-text-light dark:text-icon-text-dark">
+    <div
+      className={clsx(
+        "flex flex-col h-40 mt-4 gap-2 justify-center items-center text-xs text-center text-icon-text-light dark:text-icon-text-dark",
+        isMobile ? "w-full" : "w-72",
+      )}
+    >
       <span className="text-sm font-medium">
         No wallet providers available.
       </span>
@@ -182,7 +192,12 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
       </span>
     </div>
   ) : (
-    <div className="w-72 min-h-42 max-h-64 mt-12 overflow-y-auto tk-scrollbar p-0.5">
+    <div
+      className={clsx(
+        "w-72 min-h-42 max-h-64 mt-12 overflow-y-auto tk-scrollbar p-0.5",
+        isMobile ? "w-full" : "w-72",
+      )}
+    >
       <div className="flex flex-col gap-2">
         {Object.entries(grouped).map(
           ([name, group]: [string, WalletProvider[]]) => {
@@ -266,35 +281,52 @@ interface UnlinkWalletScreenProps {
 
 export function UnlinkWalletScreen(props: UnlinkWalletScreenProps) {
   const { provider, onUnlink } = props;
+  const { isMobile } = useModal();
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
   const handleUnlink = async () => {
     setIsLoading(true);
+    setHasError(false);
     try {
       await onUnlink(provider);
-    } catch (error) {
-      console.error("Failed to unlink wallet:", error);
+    } catch {
+      setHasError(true);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="mt-8 w-96">
+    <div className={clsx("mt-8", isMobile ? "w-full" : "w-96")}>
       <div className="mt-6 mb-5 flex flex-col items-center gap-3">
         <img src={provider.info.icon ?? ""} className="size-14 rounded-full" />
-        <div className="text-2xl font-bold text-center">
-          Unlink {provider.info.name}
+        <div
+          className={clsx(
+            "text-2xl font-bold text-center",
+            hasError && "text-danger-light dark:text-danger-dark",
+          )}
+        >
+          {hasError
+            ? "You can't unlink this wallet!"
+            : `Unlink ${provider.info.name}`}
         </div>
         <div className="text-icon-text-light dark:text-icon-text-dark text-center !p-0">
-          You can always link this wallet again later.
+          {hasError
+            ? `Try unlinking directly from the ${provider.info.name} app`
+            : "You can always link this wallet again later."}
         </div>
       </div>
+
       <div className="flex my-2 mt-0">
         <ActionButton
           onClick={handleUnlink}
           loading={isLoading}
-          className="w-full max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
-          spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
+          className={clsx(
+            "w-full max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark",
+            hasError && "animate-shake opacity-50",
+          )}
+          spinnerClassName="text-primary-danger-text-light dark:text-primary-danger-text-dark"
         >
           Unlink Wallet
         </ActionButton>
@@ -309,7 +341,7 @@ interface ConnectedIndicatorProps {
 export function ConnectedIndicator(props: ConnectedIndicatorProps) {
   const { isPinging = false } = props;
   return (
-    <div className="flex absolute top-[-2px] right-0 ">
+    <div className="flex absolute top-[-2px] right-0">
       {isPinging && (
         <div className="absolute animate-ping size-[6px] bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
       )}

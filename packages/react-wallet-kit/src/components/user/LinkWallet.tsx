@@ -38,6 +38,7 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
                     duration={successPageDuration}
                   />
                 ),
+                preventBack: true,
                 showTitle: false,
               });
             } else {
@@ -68,6 +69,7 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
                     duration={successPageDuration}
                   />
                 ),
+                preventBack: true,
                 showTitle: false,
               });
             } else {
