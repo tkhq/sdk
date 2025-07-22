@@ -1,7 +1,9 @@
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Player } from "@lottiefiles/react-lottie-player";
+import clsx from "clsx";
 import { useEffect, useState } from "react";
+import { useModal } from "../../providers";
 
 interface SuccessPageProps {
   text?: string | undefined;
@@ -12,6 +14,7 @@ interface SuccessPageProps {
 export function SuccessPage(props: SuccessPageProps) {
   const { text = "Success", duration = 2000, onComplete } = props;
   const [pulsing, setPulsing] = useState(false);
+  const { isMobile } = useModal();
   const [scale, setScale] = useState(0);
 
   useEffect(() => {
@@ -29,7 +32,12 @@ export function SuccessPage(props: SuccessPageProps) {
   }, [duration, onComplete]);
 
   return (
-    <div className="flex flex-col items-center justify-center w-72 p-4">
+    <div
+      className={clsx(
+        "flex flex-col items-center justify-center",
+        isMobile ? "w-full py-4" : "w-72 p-4",
+      )}
+    >
       <div
         className="flex flex-col items-center justify-center"
         style={{ height: "150px", width: "150px" }}

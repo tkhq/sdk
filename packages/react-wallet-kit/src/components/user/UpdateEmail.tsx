@@ -1,9 +1,10 @@
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Input } from "@headlessui/react";
-import { useTurnkey } from "../../providers";
+import { useModal, useTurnkey } from "../../providers";
 import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
+import clsx from "clsx";
 
 export function UpdateEmail(params: {
   onContinue?: (email: string) => Promise<void>;
@@ -12,6 +13,7 @@ export function UpdateEmail(params: {
 }) {
   const { onContinue } = params;
   const { user } = useTurnkey();
+  const { isMobile } = useModal();
   const email = user?.userEmail || "";
   const [emailInput, setEmailInput] = useState(email);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +40,7 @@ export function UpdateEmail(params: {
   };
 
   return (
-    <div className="mt-8 w-72">
+    <div className={clsx("mt-8", isMobile ? "w-full" : "w-72")}>
       <div className="my-6 flex flex-col items-center">
         <FontAwesomeIcon icon={faEnvelope} size={"2xl"} />
         <div className="text-2xl font-bold py-2 text-center">

@@ -13,14 +13,15 @@ import { TurnkeyLogo } from "../../components/design/Svg";
 import { TurnkeyProviderConfig } from "../TurnkeyProvider";
 import { useTurnkey } from "../client/Provider";
 import { ClientState } from "@utils";
+import clsx from "clsx";
 
 interface ModalRootProps {
   config: TurnkeyProviderConfig;
 }
 
 export function ModalRoot(props: ModalRootProps) {
-  const { config } = props;
-  const { modalStack, popPage, closeModal } = useModal();
+  const { config } = props; // Note: This is the config passed into the TurnkeyProvider. If we ever need to get config from the dashboard as well, grab `config` from the useTurnkey hook instead.
+  const { modalStack, popPage, closeModal, screenWidth, isMobile } = useModal();
   const { clientState } = useTurnkey();
 
   const current = modalStack[modalStack.length - 1];
@@ -36,17 +37,23 @@ export function ModalRoot(props: ModalRootProps) {
 
   useCssLoaded(modalStack); // triggers warning overlay if CSS missing
 
+  const maxMobileScreenWidth = screenWidth * 0.9; // Only take up 90% of the screen width on mobile
+
   useEffect(() => {
+    // This useEffect sets up a ResizeObserver to monitor changes in the size of the modal content.
+    // This only needs to run when the content is changing size without the page being swapped out
     const node = containerRef.current;
     if (!node || !observeResize) return;
 
     const observer = new ResizeObserver(([entry]) => {
       if (!entry) return;
       setContentBlur(10);
+
       const { width: newWidth, height: newHeight } = entry.contentRect;
+
       setHeight(newHeight);
       setWidth(newWidth);
-      setTimeout(() => setContentBlur(0), 100);
+      setTimeout(() => setContentBlur(0), 100); // Remove blur after short delay
     });
 
     observer.observe(node);
@@ -60,7 +67,7 @@ export function ModalRoot(props: ModalRootProps) {
         const rect = containerRef.current.getBoundingClientRect();
         setHeight(rect.height);
         setWidth(rect.width);
-        setTimeout(() => setContentBlur(0), 100);
+        setTimeout(() => setContentBlur(0), 100); // Remove blur after short delay
       }
     };
 
@@ -80,7 +87,7 @@ export function ModalRoot(props: ModalRootProps) {
     } else {
       setObserveResize(false);
       setHeight(height / 1.3);
-      setWidth(width / 1.3);
+      setWidth(isMobile ? width : width / 1.3);
       return;
     }
   }, [current]);
@@ -88,10 +95,15 @@ export function ModalRoot(props: ModalRootProps) {
   return (
     <Transition appear show={!!current} as={Fragment}>
       <Dialog
+        // https://github.com/tailwindlabs/headlessui/blob/38986df81ecc7b7c86abab33d61ce18ffd55fac6/packages/%40headlessui-react/src/components/dialog/dialog.tsx#L205-L206
+        // If we are rendering the modal in the provider, set __demoMode to true to avoid "inert" being applied to all ansestors of the modal.
         __demoMode={config?.ui?.renderModalInProvider ? true : false}
         as="div"
         className="relative z-50"
-        onClose={() => {}}
+        onClose={() => {
+          // prevent default outside-click close behavior
+          // we'll manually handle backdrop clicks below
+        }}
       >
         <TransitionChild
           as={Fragment}
@@ -114,6 +126,8 @@ export function ModalRoot(props: ModalRootProps) {
           />
         </TransitionChild>
 
+        {/* Modal Panel */
+        /* TODO (Amir): Does adding transition-colors here mess with the children? Probably. If you see some weird slow colour transitions, this is most likely the culprit! */}
         <div
           onMouseDown={(e) => {
             if (e.target === e.currentTarget) {
@@ -121,11 +135,21 @@ export function ModalRoot(props: ModalRootProps) {
               closeModal();
             }
           }}
-          className={`tk-modal fixed inset-0 flex items-center justify-center transition-colors duration-300 ${
-            config?.ui?.darkMode ? "dark" : ""
-          }`}
+          onTouchStart={(e) => {
+            if (e.target === e.currentTarget) {
+              e.stopPropagation();
+              closeModal();
+            }
+          }}
+          className={clsx(
+            "tk-modal fixed inset-0 flex justify-center transition-colors duration-300",
+            { dark: config?.ui?.darkMode },
+            { "items-end": isMobile },
+            { "items-center": !isMobile },
+          )}
         >
           <DialogPanel>
+            {/* White / Black background container */}
             <TransitionChild
               as={Fragment}
               enter="ease-out duration-150"
@@ -138,15 +162,20 @@ export function ModalRoot(props: ModalRootProps) {
               <div
                 style={{
                   height,
-                  width,
+                  width: isMobile ? maxMobileScreenWidth : width,
                   padding: innerPadding,
-                  borderRadius: config?.ui?.borderRadius ?? "16px",
+                  borderRadius: isMobile
+                    ? // Remove bottom border radius on mobile to avoid rounded corners at the bottom of the screen
+                      `${config?.ui?.borderRadius ?? "16px"} ${config?.ui?.borderRadius ?? "16px"} 0 0`
+                    : (config?.ui?.borderRadius ?? "16px"),
                 }}
-                className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex shadow-xl transition-all overflow-x-clip"
+                className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex justify-center shadow-xl transition-all overflow-x-clip"
               >
                 <div
                   className="h-6.5 absolute z-30 flex items-center justify-between transition-all"
-                  style={{ width }}
+                  style={{
+                    width: isMobile ? maxMobileScreenWidth : width,
+                  }}
                 >
                   <div className="w-6.5 h-6.5">
                     {hasBack && (
@@ -184,7 +213,11 @@ export function ModalRoot(props: ModalRootProps) {
                   leaveTo="opacity-0"
                 >
                   <div
-                    className="z-10 transition-all duration-50 self-start"
+                    className={clsx(
+                      "flex flex-col z-10 transition-all duration-50 self-start",
+                      // This allows the content to take the static `maxMobileScreenWidth` width on mobile
+                      isMobile && "w-full items-center",
+                    )}
                     style={{ filter: `blur(${contentBlur}px)` }}
                     ref={containerRef}
                   >
@@ -217,14 +250,14 @@ export function ModalRoot(props: ModalRootProps) {
 
 function useCssLoaded(modalStack: ModalPage[]) {
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") return;
+    if (process.env.NODE_ENV !== "development") return; // Only check in development mode
 
     const el = document.createElement("div");
-    el.className = "tk-style-sentinel";
+    el.className = "tk-style-sentinel"; // See index.css for this class
     document.body.appendChild(el);
 
     const width = window.getComputedStyle(el).width;
-    const cssLoaded = width === "1234px";
+    const cssLoaded = width === "1234px"; // We check for a specific width to ensure the styles are loaded. If this width is not set, it means the styles are not loaded!
     document.body.removeChild(el);
 
     if (!cssLoaded && modalStack.length > 0) renderMissingStylesOverlay();
@@ -272,6 +305,7 @@ function renderMissingStylesOverlay() {
 }
 
 function InitFailed() {
+  // TODO (Amir): Should this look fancy? I think barebones error message screens are scary which is good for developers!
   return (
     <div className="flex items-center justify-center w-64 min-48 text-sm text-center">
       {process.env.NODE_ENV === "development" ? (
