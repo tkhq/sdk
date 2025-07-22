@@ -2,8 +2,9 @@ import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
-import { useTurnkey } from "../../providers";
+import { useModal, useTurnkey } from "../../providers";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
+import clsx from "clsx";
 
 export function RemovePasskey(params: {
   authenticatorId: string;
@@ -14,6 +15,7 @@ export function RemovePasskey(params: {
   const { user } = useTurnkey();
   const { onContinue } = params;
   const [isLoading, setIsLoading] = useState(false);
+  const { isMobile } = useModal();
 
   const handleContinue = async () => {
     if (onContinue) {
@@ -38,7 +40,7 @@ export function RemovePasskey(params: {
   }
 
   return (
-    <div className="mt-8 w-96">
+    <div className={clsx("mt-8", isMobile ? "w-full" : "w-96")}>
       <div className="mt-6 mb-5 flex flex-col items-center gap-3">
         <FontAwesomeIcon
           icon={faTriangleExclamation}

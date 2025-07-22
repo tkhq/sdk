@@ -1,9 +1,10 @@
 import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useTurnkey } from "../../providers";
+import { useModal, useTurnkey } from "../../providers";
 import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
 import { PhoneInputBox } from "../design/Inputs";
+import clsx from "clsx";
 
 export function UpdatePhoneNumber(params: {
   onContinue?: (phone: string, formattedPhone: string) => Promise<void>;
@@ -11,6 +12,7 @@ export function UpdatePhoneNumber(params: {
   subTitle?: string;
 }) {
   const { user } = useTurnkey();
+  const { isMobile } = useModal();
   const phone = user?.userPhoneNumber || "";
   const [phoneInput, setPhoneInput] = useState(phone);
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export function UpdatePhoneNumber(params: {
   };
 
   return (
-    <div className="mt-8 w-72">
+    <div className={clsx("mt-8", isMobile ? "w-full" : "w-72")}>
       <div className="my-6 flex flex-col items-center">
         <FontAwesomeIcon icon={faPhone} size={"2xl"} />
         <div className="text-2xl font-bold py-2 text-center">

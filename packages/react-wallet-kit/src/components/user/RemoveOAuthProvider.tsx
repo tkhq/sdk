@@ -2,8 +2,9 @@ import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
-import { useTurnkey } from "../../providers";
+import { useModal, useTurnkey } from "../../providers";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
+import clsx from "clsx";
 
 export function RemoveOAuthProvider(params: {
   providerId: string;
@@ -12,6 +13,7 @@ export function RemoveOAuthProvider(params: {
   subTitle?: string;
 }) {
   const { user } = useTurnkey();
+  const { isMobile } = useModal();
   const { onContinue } = params;
   const [isLoading, setIsLoading] = useState(false);
 
@@ -38,7 +40,7 @@ export function RemoveOAuthProvider(params: {
   }
 
   return (
-    <div className="mt-8 w-96">
+    <div className={clsx("mt-8", isMobile ? "w-full" : "w-96")}>
       <div className="mt-6 mb-5 flex flex-col items-center gap-3">
         <FontAwesomeIcon
           icon={faTriangleExclamation}

@@ -5,6 +5,7 @@ import { IframeStamper } from "@turnkey/iframe-stamper";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { ExportWarn } from "./ExportWarn";
 import { ActionButton } from "../design/Buttons";
+import clsx from "clsx";
 
 export enum ExportType {
   Wallet = "WALLET",
@@ -26,7 +27,7 @@ export function ExportComponent(
 
   const [exportIframeVisible, setExportIframeVisible] = useState(false);
 
-  const { closeModal } = useModal();
+  const { closeModal, isMobile } = useModal();
 
   const apiBaseUrl = config?.apiBaseUrl ?? "http://localhost:8081/";
   const exportIframeUrl = config?.exportIframeUrl;
@@ -94,7 +95,12 @@ export function ExportComponent(
   }
 
   return (
-    <div className="flex flex-col items-center w-72 pt-8">
+    <div
+      className={clsx(
+        "flex flex-col items-center pt-8",
+        isMobile ? "w-full" : "w-72",
+      )}
+    >
       {!exportIframeVisible && (
         <ExportWarn
           walletId={walletId}
