@@ -786,8 +786,12 @@ export class TurnkeyIframeClient extends TurnkeyBrowserClient {
     return await (this.stamper as IframeStamper).extractWalletEncryptedBundle();
   };
 
-  extractKeyEncryptedBundle = async (): Promise<string> => {
-    return await (this.stamper as IframeStamper).extractKeyEncryptedBundle();
+  extractKeyEncryptedBundle = async (
+    keyFormat?: KeyFormat | undefined,
+  ): Promise<string> => {
+    return await (this.stamper as IframeStamper).extractKeyEncryptedBundle(
+      keyFormat,
+    );
   };
 
   getEmbeddedPublicKey = async (): Promise<string | null> => {
