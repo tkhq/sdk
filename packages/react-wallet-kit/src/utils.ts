@@ -1,5 +1,6 @@
 import { Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { TurnkeyCallbacks } from "./providers";
+import { useCallback, useRef } from "react";
 
 export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 export const APPLE_AUTH_URL = "https://account.apple.com/auth/authorize";
@@ -70,6 +71,25 @@ export enum ClientState {
   Ready = "ready",
   Error = "error",
 }
+
+export const useDebouncedCallback = <T extends (...args: any[]) => void>(
+  fn: T,
+  wait = 100,
+): T => {
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  return useCallback(
+    ((...args: any[]) => {
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = setTimeout(() => {
+        console.log("Debounced function called with args:", args);
+        fn(...args);
+        timer.current = null;
+      }, wait);
+    }) as T,
+    [fn, wait],
+  );
+};
 
 export const isValidSession = (session?: Session | undefined): boolean => {
   return session?.expiry !== undefined && session.expiry * 1000 > Date.now();
