@@ -35,6 +35,7 @@ import {
   InjectedWallet,
   Curve,
   TurnkeyRequestError,
+  DefaultParams,
 } from "@types"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
@@ -150,10 +151,12 @@ export class TurnkeyClient {
     });
   }
 
-  createPasskey = async (params?: {
-    name?: string;
-    displayName?: string;
-  }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> => {
+  createPasskey = async (
+    params?: {
+      name?: string;
+      displayName?: string;
+    } & DefaultParams,
+  ): Promise<{ attestation: v1Attestation; encodedChallenge: string }> => {
     try {
       const name = params?.name || "A Passkey";
       const displayName = params?.displayName || "A Passkey";
@@ -1244,10 +1247,8 @@ export class TurnkeyClient {
     }
   };
 
-  fetchWallets = async (params?: {
-    stamperType?: StamperType;
-  }): Promise<Wallet[]> => {
-    const { stamperType } = params || {};
+  fetchWallets = async (params?: DefaultParams): Promise<Wallet[]> => {
+    const { stampWith } = params || {};
     const session = await this.storageManager.getActiveSession();
 
     if (!session) {
@@ -1260,7 +1261,7 @@ export class TurnkeyClient {
     try {
       const res = await this.httpClient.getWallets(
         { organizationId: session.organizationId },
-        stamperType,
+        stampWith,
       );
 
       if (!res || !res.wallets) {
@@ -1280,7 +1281,7 @@ export class TurnkeyClient {
 
           const accounts = await this.fetchWalletAccounts({
             wallet: embeddedWallet,
-            ...(stamperType !== undefined && { stamperType }),
+            ...(stampWith !== undefined && { stampWith }),
           });
 
           embeddedWallet.accounts = accounts;
@@ -1321,7 +1322,7 @@ export class TurnkeyClient {
               const accounts = await this.fetchWalletAccounts({
                 wallet,
                 walletProviders: grouped,
-                ...(stamperType !== undefined && { stamperType }),
+                ...(stampWith !== undefined && { stampWith }),
               });
 
               wallet.accounts = accounts;
@@ -1343,13 +1344,14 @@ export class TurnkeyClient {
     }
   };
 
-  fetchWalletAccounts = async (params: {
-    wallet: Wallet;
-    stamperType?: StamperType;
-    walletProviders?: WalletProvider[];
-    paginationOptions?: v1Pagination;
-  }): Promise<v1WalletAccount[]> => {
-    const { wallet, stamperType, walletProviders, paginationOptions } = params;
+  fetchWalletAccounts = async (
+    params: {
+      wallet: Wallet;
+      walletProviders?: WalletProvider[];
+      paginationOptions?: v1Pagination;
+    } & DefaultParams,
+  ): Promise<v1WalletAccount[]> => {
+    const { wallet, stampWith, walletProviders, paginationOptions } = params;
     const session = await this.storageManager.getActiveSession();
 
     if (!session) {
@@ -1366,7 +1368,7 @@ export class TurnkeyClient {
           organizationId: session.organizationId,
           paginationOptions: paginationOptions || { limit: "100" },
         },
-        stamperType,
+        stampWith,
       );
 
       if (!res || !res.accounts) {
@@ -1422,11 +1424,12 @@ export class TurnkeyClient {
     return accounts;
   };
 
-  signMessage = async (params: {
-    message: string;
-    wallet: v1WalletAccount;
-    stampWith?: StamperType;
-  }): Promise<v1SignRawPayloadResult> => {
+  signMessage = async (
+    params: {
+      message: string;
+      wallet: v1WalletAccount;
+    } & DefaultParams,
+  ): Promise<v1SignRawPayloadResult> => {
     const { message, wallet, stampWith } = params;
     if (!wallet) {
       throw new TurnkeyError(
@@ -1476,12 +1479,13 @@ export class TurnkeyClient {
     }
   };
 
-  signTransaction = async (params: {
-    signWith: string;
-    unsignedTransaction: string;
-    type: v1TransactionType;
-    stampWith?: StamperType;
-  }): Promise<TSignTransactionResponse> => {
+  signTransaction = async (
+    params: {
+      signWith: string;
+      unsignedTransaction: string;
+      type: v1TransactionType;
+    } & DefaultParams,
+  ): Promise<TSignTransactionResponse> => {
     const { signWith, unsignedTransaction, type, stampWith } = params;
 
     try {
@@ -1503,10 +1507,13 @@ export class TurnkeyClient {
     }
   };
 
-  fetchUser = async (params?: {
-    organizationId?: string;
-    userId?: string;
-  }): Promise<v1User> => {
+  fetchUser = async (
+    params?: {
+      organizationId?: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<v1User> => {
+    const { stampWith } = params || {};
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -1528,7 +1535,7 @@ export class TurnkeyClient {
     try {
       const userResponse = await this.httpClient.getUser(
         { organizationId, userId },
-        StamperType.ApiKey,
+        stampWith,
       );
 
       if (!userResponse || !userResponse.user) {
@@ -1549,12 +1556,14 @@ export class TurnkeyClient {
     }
   };
 
-  updateUserEmail = async (params: {
-    email: string;
-    verificationToken?: string;
-    userId?: string;
-  }): Promise<string> => {
-    const { verificationToken, email } = params;
+  updateUserEmail = async (
+    params: {
+      email: string;
+      verificationToken?: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string> => {
+    const { verificationToken, email, stampWith } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -1565,11 +1574,14 @@ export class TurnkeyClient {
 
     const userId = params?.userId || session.userId;
     try {
-      const res = await this.httpClient.updateUserEmail({
-        userId: userId,
-        userEmail: email,
-        ...(verificationToken && { verificationToken }),
-      });
+      const res = await this.httpClient.updateUserEmail(
+        {
+          userId: userId,
+          userEmail: email,
+          ...(verificationToken && { verificationToken }),
+        },
+        stampWith,
+      );
 
       if (!res || !res.userId) {
         throw new TurnkeyError(
@@ -1589,7 +1601,10 @@ export class TurnkeyClient {
     }
   };
 
-  removeUserEmail = async (params: { userId?: string }): Promise<string> => {
+  removeUserEmail = async (
+    params: { userId?: string } & DefaultParams,
+  ): Promise<string> => {
+    const { stampWith } = params || {};
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -1598,10 +1613,13 @@ export class TurnkeyClient {
       );
     }
     const userId = params?.userId || session.userId;
-    const res = await this.httpClient.updateUserEmail({
-      userId: userId,
-      userEmail: "",
-    });
+    const res = await this.httpClient.updateUserEmail(
+      {
+        userId: userId,
+        userEmail: "",
+      },
+      stampWith,
+    );
     if (!res || !res.userId) {
       throw new TurnkeyError(
         "No user ID found in the remove user email response",
@@ -1611,12 +1629,14 @@ export class TurnkeyClient {
     return res.userId;
   };
 
-  updateUserPhoneNumber = async (params: {
-    phoneNumber: string;
-    verificationToken?: string;
-    userId?: string;
-  }): Promise<string> => {
-    const { verificationToken, phoneNumber } = params;
+  updateUserPhoneNumber = async (
+    params: {
+      phoneNumber: string;
+      verificationToken?: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string> => {
+    const { verificationToken, phoneNumber, stampWith } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -1627,11 +1647,14 @@ export class TurnkeyClient {
 
     const userId = params?.userId || session.userId;
     try {
-      const res = await this.httpClient.updateUserPhoneNumber({
-        userId,
-        userPhoneNumber: phoneNumber,
-        ...(verificationToken && { verificationToken }),
-      });
+      const res = await this.httpClient.updateUserPhoneNumber(
+        {
+          userId,
+          userPhoneNumber: phoneNumber,
+          ...(verificationToken && { verificationToken }),
+        },
+        stampWith,
+      );
 
       if (!res || !res.userId) {
         throw new TurnkeyError(
@@ -1651,9 +1674,12 @@ export class TurnkeyClient {
     }
   };
 
-  removeUserPhoneNumber = async (params: {
-    userId?: string;
-  }): Promise<string> => {
+  removeUserPhoneNumber = async (
+    params: {
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string> => {
+    const { stampWith } = params || {};
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -1662,10 +1688,13 @@ export class TurnkeyClient {
       );
     }
     const userId = params?.userId || session.userId;
-    const res = await this.httpClient.updateUserPhoneNumber({
-      userId,
-      userPhoneNumber: "",
-    });
+    const res = await this.httpClient.updateUserPhoneNumber(
+      {
+        userId,
+        userPhoneNumber: "",
+      },
+      stampWith,
+    );
     if (!res || !res.userId) {
       throw new TurnkeyError(
         "Failed to remove user phone number",
@@ -1675,11 +1704,13 @@ export class TurnkeyClient {
     return res.userId;
   };
 
-  updateUserName = async (params: {
-    userName: string;
-    userId?: string;
-  }): Promise<string> => {
-    const { userName } = params;
+  updateUserName = async (
+    params: {
+      userName: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string> => {
+    const { userName, stampWith } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -1690,10 +1721,13 @@ export class TurnkeyClient {
     const userId = params?.userId || session.userId;
 
     try {
-      const res = await this.httpClient.updateUserName({
-        userId,
-        userName,
-      });
+      const res = await this.httpClient.updateUserName(
+        {
+          userId,
+          userName,
+        },
+        stampWith,
+      );
 
       if (!res || !res.userId) {
         throw new TurnkeyError(
@@ -1713,12 +1747,14 @@ export class TurnkeyClient {
     }
   };
 
-  addOAuthProvider = async (params: {
-    providerName: string;
-    oidcToken: string;
-    userId?: string;
-  }): Promise<string[]> => {
-    const { providerName, oidcToken } = params;
+  addOAuthProvider = async (
+    params: {
+      providerName: string;
+      oidcToken: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string[]> => {
+    const { providerName, oidcToken, stampWith } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -1750,34 +1786,42 @@ export class TurnkeyClient {
       const userId = params?.userId || session.userId;
       const { email: oidcEmail } = jwtDecode<any>(oidcToken) || {}; // Parse the oidc token so we can get the email. Pass it in to updateUser then call createOauthProviders. This will be verified by Turnkey.
 
-      const verifiedSuborgs = await this.httpClient.getVerifiedSubOrgIds({
-        filterType: "EMAIL",
-        filterValue: oidcEmail,
-      });
+      const verifiedSuborgs = await this.httpClient.getVerifiedSubOrgIds(
+        {
+          filterType: "EMAIL",
+          filterValue: oidcEmail,
+        },
+        stampWith,
+      );
       const isVerified = verifiedSuborgs.organizationIds.some(
         (orgId) => orgId === session.organizationId,
       );
 
       const user = await this.fetchUser({
         userId,
+        stampWith,
       });
 
       if (!user?.userEmail && !isVerified) {
         await this.updateUserEmail({
           email: oidcEmail,
           userId,
+          stampWith,
         });
       }
 
-      const createProviderRes = await this.httpClient.createOauthProviders({
-        userId,
-        oauthProviders: [
-          {
-            providerName,
-            oidcToken,
-          },
-        ],
-      });
+      const createProviderRes = await this.httpClient.createOauthProviders(
+        {
+          userId,
+          oauthProviders: [
+            {
+              providerName,
+              oidcToken,
+            },
+          ],
+        },
+        stampWith,
+      );
 
       if (!createProviderRes) {
         throw new TurnkeyError(
@@ -1797,11 +1841,13 @@ export class TurnkeyClient {
     }
   };
 
-  removeOAuthProvider = async (params: {
-    providerId: string;
-    userId?: string;
-  }): Promise<string[]> => {
-    const { providerId } = params;
+  removeOAuthProvider = async (
+    params: {
+      providerId: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string[]> => {
+    const { providerId, stampWith } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -1810,10 +1856,13 @@ export class TurnkeyClient {
       );
     }
     const userId = params?.userId || session.userId;
-    const res = await this.httpClient.deleteOauthProviders({
-      userId,
-      providerIds: [providerId],
-    });
+    const res = await this.httpClient.deleteOauthProviders(
+      {
+        userId,
+        providerIds: [providerId],
+      },
+      stampWith,
+    );
     if (!res) {
       throw new TurnkeyError(
         "Failed to remove OAuth provider",
@@ -1823,11 +1872,14 @@ export class TurnkeyClient {
     return res.providerIds;
   };
 
-  addPasskey = async (params?: {
-    name?: string;
-    displayName?: string;
-    userId?: string;
-  }): Promise<string[]> => {
+  addPasskey = async (
+    params?: {
+      name?: string;
+      displayName?: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string[]> => {
+    const { stampWith } = params || {};
     const name = params?.name || `Turnkey Passkey-${Date.now()}`;
     const displayName = params?.displayName || name;
 
@@ -1845,6 +1897,7 @@ export class TurnkeyClient {
       const { encodedChallenge, attestation } = await this.createPasskey({
         name,
         displayName,
+        stampWith,
       });
 
       if (!attestation || !encodedChallenge) {
@@ -1854,16 +1907,19 @@ export class TurnkeyClient {
         );
       }
 
-      const res = await this.httpClient.createAuthenticators({
-        userId,
-        authenticators: [
-          {
-            authenticatorName: name,
-            challenge: encodedChallenge,
-            attestation,
-          },
-        ],
-      });
+      const res = await this.httpClient.createAuthenticators(
+        {
+          userId,
+          authenticators: [
+            {
+              authenticatorName: name,
+              challenge: encodedChallenge,
+              attestation,
+            },
+          ],
+        },
+        stampWith,
+      );
 
       return res?.authenticatorIds || [];
     } catch (error) {
@@ -1876,11 +1932,13 @@ export class TurnkeyClient {
     }
   };
 
-  removePasskey = async (params: {
-    authenticatorId: string;
-    userId?: string;
-  }): Promise<string[]> => {
-    const { authenticatorId } = params;
+  removePasskey = async (
+    params: {
+      authenticatorId: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string[]> => {
+    const { authenticatorId, stampWith } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -1890,10 +1948,13 @@ export class TurnkeyClient {
     }
     const userId = params?.userId || session.userId;
 
-    const res = await this.httpClient.deleteAuthenticators({
-      userId,
-      authenticatorIds: [authenticatorId],
-    });
+    const res = await this.httpClient.deleteAuthenticators(
+      {
+        userId,
+        authenticatorIds: [authenticatorId],
+      },
+      stampWith,
+    );
     if (!res) {
       throw new TurnkeyError(
         "Failed to remove passkey",
@@ -1903,13 +1964,14 @@ export class TurnkeyClient {
     return res.authenticatorIds;
   };
 
-  createWallet = async (params: {
-    walletName: string;
-    accounts?: v1WalletAccountParams[] | v1AddressFormat[];
-    organizationId?: string;
-    mnemonicLength?: number;
-    stampWith?: StamperType;
-  }) => {
+  createWallet = async (
+    params: {
+      walletName: string;
+      accounts?: v1WalletAccountParams[] | v1AddressFormat[];
+      organizationId?: string;
+      mnemonicLength?: number;
+    } & DefaultParams,
+  ) => {
     const { walletName, accounts, organizationId, mnemonicLength, stampWith } =
       params;
     const session = await this.storageManager.getActiveSession();
@@ -1922,7 +1984,9 @@ export class TurnkeyClient {
 
     let walletAccounts: v1WalletAccountParams[] = [];
     if (accounts && !isWalletAccountArray(accounts)) {
-      walletAccounts = generateWalletAccountsFromAddressFormat(accounts);
+      walletAccounts = generateWalletAccountsFromAddressFormat({
+        addresses: accounts,
+      });
     } else {
       walletAccounts = (accounts as v1WalletAccountParams[]) || [
         ...DEFAULT_ETHEREUM_ACCOUNTS,
@@ -1958,12 +2022,13 @@ export class TurnkeyClient {
     }
   };
 
-  createWalletAccounts = async (params: {
-    accounts: v1WalletAccountParams[];
-    walletId: string;
-    organizationId?: string;
-    stampWith?: StamperType;
-  }): Promise<string[]> => {
+  createWalletAccounts = async (
+    params: {
+      accounts: v1WalletAccountParams[] | v1AddressFormat[];
+      walletId: string;
+      organizationId?: string;
+    } & DefaultParams,
+  ): Promise<string[]> => {
     const { accounts, walletId, organizationId, stampWith } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
@@ -1973,11 +2038,30 @@ export class TurnkeyClient {
       );
     }
     try {
+      let walletAccounts: v1WalletAccountParams[] = [];
+      if (accounts && !isWalletAccountArray(accounts)) {
+        // Query existing wallet accounts to avoid duplicates
+        const existingWalletAccounts = await this.httpClient.getWalletAccounts(
+          {
+            walletId,
+            organizationId: organizationId || session.organizationId,
+            paginationOptions: { limit: "100" },
+          },
+          stampWith,
+        );
+        walletAccounts = generateWalletAccountsFromAddressFormat({
+          addresses: accounts,
+          existingWalletAccounts: existingWalletAccounts.accounts || [],
+        });
+      } else {
+        walletAccounts = accounts;
+      }
+
       const res = await this.httpClient.createWalletAccounts(
         {
           organizationId: organizationId || session.organizationId,
           walletId,
-          accounts: accounts,
+          accounts: walletAccounts,
         },
         stampWith,
       );
@@ -1999,13 +2083,14 @@ export class TurnkeyClient {
     }
   };
 
-  exportWallet = async (params: {
-    walletId: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stamperType?: StamperType;
-  }): Promise<ExportBundle> => {
-    const { walletId, targetPublicKey, stamperType, organizationId } = params;
+  exportWallet = async (
+    params: {
+      walletId: string;
+      targetPublicKey: string;
+      organizationId?: string;
+    } & DefaultParams,
+  ): Promise<ExportBundle> => {
+    const { walletId, targetPublicKey, stampWith, organizationId } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -2020,7 +2105,7 @@ export class TurnkeyClient {
           targetPublicKey,
           organizationId: organizationId || session.organizationId,
         },
-        stamperType,
+        stampWith,
       );
 
       if (!res.exportBundle) {
@@ -2040,13 +2125,15 @@ export class TurnkeyClient {
     }
   };
 
-  importWallet = async (params: {
-    encryptedBundle: string;
-    walletName: string;
-    accounts?: v1WalletAccountParams[];
-    userId?: string;
-  }): Promise<string> => {
-    const { encryptedBundle, accounts, walletName, userId } = params;
+  importWallet = async (
+    params: {
+      encryptedBundle: string;
+      walletName: string;
+      accounts?: v1WalletAccountParams[];
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string> => {
+    const { encryptedBundle, accounts, walletName, userId, stampWith } = params;
 
     const session = await this.storageManager.getActiveSession();
     if (!session) {
@@ -2057,16 +2144,19 @@ export class TurnkeyClient {
     }
 
     try {
-      const res = await this.httpClient.importWallet({
-        organizationId: session.organizationId,
-        userId: userId || session.userId,
-        encryptedBundle,
-        walletName,
-        accounts: accounts || [
-          ...DEFAULT_ETHEREUM_ACCOUNTS,
-          ...DEFAULT_SOLANA_ACCOUNTS,
-        ],
-      });
+      const res = await this.httpClient.importWallet(
+        {
+          organizationId: session.organizationId,
+          userId: userId || session.userId,
+          encryptedBundle,
+          walletName,
+          accounts: accounts || [
+            ...DEFAULT_ETHEREUM_ACCOUNTS,
+            ...DEFAULT_SOLANA_ACCOUNTS,
+          ],
+        },
+        stampWith,
+      );
 
       if (!res || !res.walletId) {
         throw new TurnkeyError(
@@ -2085,11 +2175,12 @@ export class TurnkeyClient {
     }
   };
 
-  deleteSubOrganization = async (params?: {
-    deleteWithoutExport?: boolean;
-    stamperWith?: StamperType;
-  }): Promise<TDeleteSubOrganizationResponse> => {
-    const { deleteWithoutExport = false, stamperWith } = params || {};
+  deleteSubOrganization = async (
+    params?: {
+      deleteWithoutExport?: boolean;
+    } & DefaultParams,
+  ): Promise<TDeleteSubOrganizationResponse> => {
+    const { deleteWithoutExport = false, stampWith } = params || {};
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -2101,7 +2192,7 @@ export class TurnkeyClient {
     try {
       return await this.httpClient.deleteSubOrganization(
         { deleteWithoutExport },
-        stamperWith,
+        stampWith,
       );
     } catch (error) {
       if (error instanceof TurnkeyError) throw error;
@@ -2182,12 +2273,14 @@ export class TurnkeyClient {
     }
   };
 
-  refreshSession = async (params?: {
-    expirationSeconds?: string;
-    publicKey?: string;
-    sessionKey?: string;
-    invalidateExisitng?: boolean;
-  }): Promise<TStampLoginResponse | undefined> => {
+  refreshSession = async (
+    params?: {
+      expirationSeconds?: string;
+      publicKey?: string;
+      sessionKey?: string;
+      invalidateExisitng?: boolean;
+    } & DefaultParams,
+  ): Promise<TStampLoginResponse | undefined> => {
     const {
       sessionKey = await this.storageManager.getActiveSessionKey(),
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
