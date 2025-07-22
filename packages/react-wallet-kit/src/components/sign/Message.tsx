@@ -12,6 +12,7 @@ import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { useRef, useEffect, useState } from "react";
 import { useModal, useTurnkey } from "../../providers";
 import { SuccessPage } from "../design/Success";
+import clsx from "clsx";
 
 interface SignMessageModalProps {
   message: string;
@@ -37,7 +38,7 @@ export function SignMessageModal(props: SignMessageModalProps) {
   } = props;
 
   const { signMessage } = useTurnkey();
-  const { pushPage, closeModal } = useModal();
+  const { pushPage, closeModal, isMobile } = useModal();
   const [loading, setLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -89,7 +90,12 @@ export function SignMessageModal(props: SignMessageModalProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-80 p-4">
+    <div
+      className={clsx(
+        "flex flex-col items-center",
+        isMobile ? "w-full py-4" : "w-80 p-4",
+      )}
+    >
       <p className="mt-3 text-sm text-icon-text-light/70 dark:text-icon-text-dark/70">
         {subText}
       </p>
@@ -115,7 +121,7 @@ export function SignMessageModal(props: SignMessageModalProps) {
         onClick={handleSign}
         spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         loading={loading}
-        className="mt-4 bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
+        className="mt-4 bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark w-full"
       >
         Sign
       </ActionButton>

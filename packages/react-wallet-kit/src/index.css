@@ -89,14 +89,29 @@
   .tk-modal button {
     background-color: transparent;
     background-image: none;
-    padding: 0;
+    padding: revert;
+    font-size: revert;
+  }
+
+  @media (max-width: 440px) {
+    .tk-modal button {
+      font-size: medium;
+    }
   }
 
   /* Reset input styles */
   .tk-modal input {
     background-color: transparent;
     border: none;
-    padding: 0;
+    padding: revert;
+    font-size: revert;
+  }
+
+  /* Text size on mobile is important for inputs. The screen will zoom in if the font size is less than 16px */
+  @media (max-width: 440px) {
+    .tk-modal input {
+      font-size: medium;
+    }
   }
 }
 
