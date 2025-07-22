@@ -22,7 +22,6 @@ import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   ExportBundle,
   OtpType,
-  StamperType,
   TurnkeyClient,
   Wallet,
 } from "@turnkey/sdk-js";
@@ -59,6 +58,8 @@ import {
   v1User,
   v1WalletAccount,
   v1WalletAccountParams,
+  v1PayloadEncoding,
+  v1HashFunction,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Provider";
 import { TurnkeyCallbacks, TurnkeyProviderConfig } from "../TurnkeyProvider";
@@ -211,7 +212,9 @@ export interface ClientContextType extends TurnkeyClientMethods {
   handleSignMessage: (
     params: {
       message: string;
-      wallet: v1WalletAccount;
+      walletAccount: v1WalletAccount;
+      encoding?: v1PayloadEncoding;
+      hashFunction?: v1HashFunction;
       subText?: string;
     } & DefaultParams,
   ) => Promise<v1SignRawPayloadResult>;
@@ -786,11 +789,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
-  async function createPasskey(params?: {
-    name?: string;
-    displayName?: string;
-    stampWith?: StamperType;
-  }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> {
+  async function createPasskey(
+    params?: {
+      name?: string;
+      displayName?: string;
+    } & DefaultParams,
+  ): Promise<{ attestation: v1Attestation; encodedChallenge: string }> {
     if (!client) {
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1420,7 +1424,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function fetchWalletAccounts(
     params: {
       wallet: Wallet;
-      stamperType?: StamperType;
       paginationOptions?: v1Pagination;
       walletProviders?: WalletProvider[];
     } & DefaultParams,
@@ -1441,8 +1444,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function signMessage(
     params: {
       message: string;
-      wallet: v1WalletAccount;
-      stampWith?: StamperType;
+      walletAccount: v1WalletAccount;
+      encoding?: v1PayloadEncoding;
+      hashFunction?: v1HashFunction;
     } & DefaultParams,
   ): Promise<v1SignRawPayloadResult> {
     if (!client)
@@ -1460,7 +1464,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function handleSignMessage(
     params: {
       message: string;
-      wallet: v1WalletAccount;
+      walletAccount: v1WalletAccount;
+      encoding?: v1PayloadEncoding;
+      hashFunction?: v1HashFunction;
       subText?: string;
     } & DefaultParams,
   ): Promise<v1SignRawPayloadResult> {
@@ -1478,7 +1484,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               <SignMessageModal
                 message={params.message}
                 subText={params?.subText}
-                wallet={params.wallet}
+                walletAccount={params.walletAccount}
                 stampWith={params.stampWith}
                 onSuccess={(result) => {
                   resolve(result);
@@ -1486,6 +1492,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 onError={(error) => {
                   reject(error);
                 }}
+                {...(params?.encoding ? { encoding: params.encoding } : {})}
+                {...(params?.hashFunction
+                  ? { hashFunction: params.hashFunction }
+                  : {})}
               />
             ),
           });
