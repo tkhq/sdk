@@ -14,6 +14,7 @@ import {
   popupHeight,
   popupWidth,
   SESSION_WARNING_THRESHOLD_MS,
+  useDebouncedCallback,
   withTurnkeyErrorHandling,
 } from "../../utils";
 import {
@@ -28,7 +29,6 @@ import {
 import {
   createContext,
   ReactNode,
-  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -265,11 +265,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     initializeClient();
   }, []);
 
+  // we use debouncedFetchWallets() to prevent multiple rapid wallet events
+  // like accountsChanged and disconnect from triggering fetchWallets repeatedly
+  // it must be defined outside the useEffect so all event listeners share the same
+  // debounced function instance - otherwise, a new one would be created on every render
+  const debouncedFetchWallets = useDebouncedCallback(fetchWallets, 100);
   useEffect(() => {
-    if (client) {
-      initializeProviders();
-    }
-  }, [client]);
+    if (!client) return;
+
+    let cleanup = () => {};
+    initializeProviders(getWalletProviders, debouncedFetchWallets)
+      .then((fn) => {
+        cleanup = fn;
+      })
+      .catch((err) => {
+        console.error("Failed to init providers:", err);
+      });
+
+    return () => {
+      cleanup();
+    };
+  }, [client, debouncedFetchWallets]);
 
   // Handle redirect-based auth
   useEffect(() => {
@@ -939,74 +955,87 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     await refreshWallets();
   }
 
-  const initializeProviders = useCallback(async () => {
+  async function initializeProviders(
+    getWalletProviders: (chain: Chain) => Promise<WalletProvider[]>,
+    onWalletsChanged: () => void,
+  ): Promise<() => void> {
+    const cleanups: Array<() => void> = [];
+
     const [ethProviders, solProviders] = await Promise.all([
       getWalletProviders(WalletType.Ethereum),
       getWalletProviders(WalletType.Solana),
     ]);
 
-    const cleanups: Array<() => void> = [];
+    function attachEthereumListeners(
+      provider: any,
+      onWalletsChanged: () => void,
+    ) {
+      if (typeof provider.on !== "function") return;
 
-    ethProviders
-      .filter((p) => p.connectedAddresses.length > 0)
-      .forEach((p) => {
-        const onAccountsChanged = (accs: string[]) => {
-          if (accs.length === 0) fetchWallets();
-        };
-        const onDisconnect = () => {
-          fetchWallets();
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length === 0) onWalletsChanged();
+      };
+      const handleDisconnect = () => onWalletsChanged();
+
+      provider.on("accountsChanged", handleAccountsChanged);
+      provider.on("disconnect", handleDisconnect);
+
+      return () => {
+        provider.removeListener("accountsChanged", handleAccountsChanged);
+        provider.removeListener("disconnect", handleDisconnect);
+      };
+    }
+
+    function attachSolanaListeners(
+      provider: any,
+      onWalletsChanged: () => void,
+    ) {
+      const cleanups: Array<() => void> = [];
+
+      const walletEvents = provider.features?.["standard:events"];
+      if (walletEvents?.on) {
+        const handleChange = (event: { type: string }) => {
+          if (event.type === "change" || event.type === "accountsChanged") {
+            onWalletsChanged();
+          }
         };
 
-        // cast to any so TS won’t complain
-        (p.provider as any).on("accountsChanged", onAccountsChanged);
-        (p.provider as any).on("disconnect", onDisconnect);
+        walletEvents.on("change", handleChange);
+        walletEvents.on("accountsChanged", handleChange);
 
         cleanups.push(() => {
-          (p.provider as any).removeListener(
-            "accountsChanged",
-            onAccountsChanged,
-          );
-          (p.provider as any).removeListener("disconnect", onDisconnect);
+          walletEvents.off?.("change", handleChange);
+          walletEvents.off?.("accountsChanged", handleChange);
         });
-      });
+      }
 
-    solProviders
-      .filter((p) => p.connectedAddresses.length > 0)
-      .forEach((p) => {
-        const onAccountsChanged = (accs: string[]) => {
-          if (accs.length === 0) fetchWallets();
-        };
-        const onDisconnect = () => {
-          fetchWallets();
-        };
+      return cleanups.length > 0
+        ? () => {
+            cleanups.forEach((fn) => fn());
+          }
+        : () => {};
+    }
 
-        // Phantom‑style
-        (p.provider as any).on("accountChanged", onAccountsChanged);
-        (p.provider as any).on("disconnect", onDisconnect);
+    ethProviders.forEach((p) => {
+      const cleanup = attachEthereumListeners(
+        (p as any).provider,
+        onWalletsChanged,
+      );
+      if (cleanup) cleanups.push(cleanup);
+    });
 
-        cleanups.push(() => {
-          (p.provider as any).removeListener(
-            "accountChanged",
-            onAccountsChanged,
-          );
-          (p.provider as any).removeListener("disconnect", onDisconnect);
-        });
+    solProviders.forEach((p) => {
+      const cleanup = attachSolanaListeners(
+        (p as any).provider,
+        onWalletsChanged,
+      );
+      if (cleanup) cleanups.push(cleanup);
+    });
 
-        // Wallet‑Standard events, if supported
-        const ev = (p.provider as any).features?.["standard:events"];
-        if (ev) {
-          ev.on("accountsChanged", onAccountsChanged);
-          ev.on("disconnect", onDisconnect);
-
-          cleanups.push(() => {
-            ev.off("accountsChanged", onAccountsChanged);
-            ev.off("disconnect", onDisconnect);
-          });
-        }
-      });
-
-    return () => cleanups.forEach((fn) => fn());
-  }, [fetchWallets]);
+    return () => {
+      cleanups.forEach((remove) => remove());
+    };
+  }
 
   async function loginWithWallet(params: {
     walletProvider: WalletProvider;
