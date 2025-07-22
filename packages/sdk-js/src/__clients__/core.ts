@@ -16,6 +16,8 @@ import {
   TurnkeyNetworkError,
   ProxyTGetWalletKitConfigResponse,
   v1WalletAccountParams,
+  v1PayloadEncoding,
+  v1HashFunction,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -40,7 +42,9 @@ import {
 import {
   buildSignUpBody,
   generateWalletAccountsFromAddressFormat,
-  getMessageHashAndEncodingType,
+  getEncodedMessage,
+  getHashFunction,
+  getEncodingType,
   isReactNative,
   isWalletAccountArray,
   isWeb,
@@ -1427,46 +1431,37 @@ export class TurnkeyClient {
   signMessage = async (
     params: {
       message: string;
-      wallet: v1WalletAccount;
+      walletAccount: v1WalletAccount;
+      encoding?: v1PayloadEncoding;
+      hashFunction?: v1HashFunction;
     } & DefaultParams,
   ): Promise<v1SignRawPayloadResult> => {
-    const { message, wallet, stampWith } = params;
-    if (!wallet) {
-      throw new TurnkeyError(
-        "A wallet account must be provided for signing",
-        TurnkeyErrorCodes.MISSING_PARAMS,
-      );
-    }
-
-    if (!wallet.address || !wallet.addressFormat) {
-      throw new TurnkeyError(
-        "Wallet must have an address and addressFormat",
-        TurnkeyErrorCodes.INVALID_REQUEST,
-      );
-    }
-
+    const { message, walletAccount, stampWith } = params;
     try {
-      // Get the proper encoding and hash function for the address format
-      const { hashFunction, payloadEncoding, encodedMessage } =
-        getMessageHashAndEncodingType(wallet.addressFormat, message);
+      const hashFunction =
+        params.hashFunction || getHashFunction(walletAccount.addressFormat);
+      const payloadEncoding =
+        params.encoding || getEncodingType(walletAccount.addressFormat);
+      const encodedMessage = getEncodedMessage(
+        walletAccount.addressFormat,
+        message,
+      );
 
       const response = await this.httpClient.signRawPayload(
         {
-          signWith: wallet.address,
+          signWith: walletAccount.address,
           payload: encodedMessage,
           encoding: payloadEncoding,
           hashFunction,
         },
         stampWith,
       );
-
       if (response.activity.failure) {
         throw new TurnkeyError(
           "Failed to sign message, no signed payload returned",
           TurnkeyErrorCodes.SIGN_MESSAGE_ERROR,
         );
       }
-
       return response.activity.result
         .signRawPayloadResult as v1SignRawPayloadResult;
     } catch (error) {
