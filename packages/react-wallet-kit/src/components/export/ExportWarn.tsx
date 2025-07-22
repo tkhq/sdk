@@ -5,7 +5,7 @@ import {
   faUnlock,
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
-import { StamperType } from "@turnkey/sdk-js";
+import { DefaultParams } from "@turnkey/sdk-js";
 import { ExportType } from ".";
 import { useTurnkey } from "../../providers";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
@@ -13,20 +13,21 @@ import { ActionButton } from "../design/Buttons";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { useState } from "react";
 
-export function ExportWarn(props: {
-  walletId: string;
-  exportIframeClient?: IframeStamper | null; // Replace with actual type if available
-  targetPublicKey?: string | undefined;
-  exportType: ExportType;
-  stamperType?: StamperType | undefined;
-  setExportIframeVisible?: (visible: boolean) => void;
-}) {
+export function ExportWarn(
+  props: {
+    walletId: string;
+    exportIframeClient?: IframeStamper | null; // Replace with actual type if available
+    targetPublicKey?: string | undefined;
+    exportType: ExportType;
+    setExportIframeVisible?: (visible: boolean) => void;
+  } & DefaultParams,
+) {
   const {
     walletId,
     exportIframeClient,
     targetPublicKey,
     exportType,
-    stamperType,
+    stampWith,
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +60,7 @@ export function ExportWarn(props: {
               walletId: walletId,
               targetPublicKey:
                 targetPublicKey || exportIframeClient?.iframePublicKey!,
-              ...(stamperType && { stamperType: stamperType }),
+              ...(stampWith && { stampWith: stampWith }),
             });
             if (!exportBundle) {
               throw new TurnkeyError(
