@@ -14,6 +14,7 @@ import {
   generateWalletAccountsFromAddressFormat,
 } from "@turnkey/sdk-js";
 import { SuccessPage } from "../design/Success";
+import clsx from "clsx";
 
 export enum ExportType {
   Wallet = "WALLET",
@@ -52,7 +53,7 @@ export function ImportComponent(
   const apiBaseUrl = config?.apiBaseUrl;
   const importIframeUrl = config?.importIframeUrl!;
 
-  const { closeModal, pushPage } = useModal();
+  const { closeModal, pushPage, isMobile } = useModal();
 
   const [importIframeClient, setImportIframeClient] =
     useState<IframeStamper | null>(null);
@@ -74,6 +75,11 @@ export function ImportComponent(
           ),
         });
         await newImportIframeClient.init();
+        await newImportIframeClient.applySettings({
+          styles: {
+            fontSize: "16px",
+          },
+        });
         setImportIframeClient(newImportIframeClient);
       } catch (error) {
         throw new TurnkeyError(
@@ -90,9 +96,12 @@ export function ImportComponent(
     }
 
     const iframeElement = document.getElementById(TurnkeyIframeElementId);
+
     if (iframeElement) {
-      iframeElement.className = "w-full h-full overflow-hidden border-none";
+      iframeElement.className =
+        "w-full h-full overflow-hidden border-none !text-base";
     }
+
     return () => {
       handleImportModalClose();
     };
@@ -224,7 +233,12 @@ export function ImportComponent(
   }
 
   return (
-    <div className="flex flex-col items-center w-[21rem] pt-4 p-2">
+    <div
+      className={clsx(
+        "flex flex-col items-center pt-4",
+        isMobile ? "w-full" : "w-[21rem]",
+      )}
+    >
       <p className="text-sm text-icon-text-light dark:text-icon-text-dark">
         Enter your seed phrase. Seed phrases are typically 12-24 words.
       </p>
@@ -261,7 +275,12 @@ export function ImportComponent(
         Import
       </ActionButton>
       <p
-        className={`text-sm text-red-500 transition-opacity delay-75 line-clamp-2 ${error ? "opacitiy-100 pointer-events-auto mt-2" : "opacity-0 pointer-events-none absolute"}`}
+        className={clsx(
+          "text-sm text-red-500 transition-opacity delay-75 line-clamp-2 w-full",
+          error
+            ? "opacity-100 pointer-events-auto mt-2"
+            : "opacity-0 pointer-events-none absolute",
+        )}
       >
         {error?.message}:{" "}
         {error?.cause instanceof TurnkeyError

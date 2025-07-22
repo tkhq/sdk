@@ -1,9 +1,10 @@
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useTurnkey } from "../../providers";
+import { useModal, useTurnkey } from "../../providers";
 import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
 import { Input } from "@headlessui/react";
+import clsx from "clsx";
 
 export function UpdateUserName(params: {
   onContinue?: (userName: string) => Promise<void>;
@@ -11,6 +12,7 @@ export function UpdateUserName(params: {
   subTitle?: string;
 }) {
   const { user } = useTurnkey();
+  const { isMobile } = useModal();
   const userName = user?.userName || "";
   const [userNameInput, setUserNameInput] = useState(userName);
   const [loading, setLoading] = useState(false);
@@ -37,7 +39,7 @@ export function UpdateUserName(params: {
   };
 
   return (
-    <div className="mt-8 w-72">
+    <div className={clsx("mt-8", isMobile ? "w-full" : "w-72")}>
       <div className="my-6 flex flex-col items-center">
         <FontAwesomeIcon icon={faUser} size={"2xl"} />
         <div className="text-2xl font-bold py-2 text-center">
