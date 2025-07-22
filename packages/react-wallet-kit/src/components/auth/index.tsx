@@ -17,6 +17,7 @@ import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
 import { Spinner } from "../design/Spinners";
 import { ExternalWalletSelector, WalletAuthButton } from "./Wallet";
 import { WalletProvider } from "@turnkey/wallet-stamper";
+import clsx from "clsx";
 
 export function AuthComponent() {
   const {
@@ -30,7 +31,7 @@ export function AuthComponent() {
     getWalletProviders,
     loginOrSignupWithWallet,
   } = useTurnkey();
-  const { pushPage } = useModal();
+  const { pushPage, isMobile } = useModal();
 
   if (!config)
     return (
@@ -289,7 +290,12 @@ export function AuthComponent() {
     .filter(Boolean);
 
   return (
-    <div className="flex flex-col items-center w-96">
+    <div
+      className={clsx(
+        "flex flex-col items-center ",
+        isMobile ? "w-full" : "w-96",
+      )}
+    >
       <div className="mt-12" />
       {rendered.map((component, index) => (
         <div key={index} className="w-full">
