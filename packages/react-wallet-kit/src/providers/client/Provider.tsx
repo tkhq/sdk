@@ -35,7 +35,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { TurnkeyClientMethods, TurnkeySDKClientBase } from "@turnkey/sdk-js";
+import {
+  TurnkeyClientMethods,
+  TurnkeySDKClientBase,
+  DefaultParams,
+} from "@turnkey/sdk-js";
 import {
   OAuthProviders,
   Session,
@@ -101,8 +105,8 @@ export interface ClientContextType extends TurnkeyClientMethods {
   config?: TurnkeyProviderConfig | undefined;
   user: v1User | undefined;
   wallets: Wallet[];
-  refreshUser: () => Promise<void>;
-  refreshWallets: () => Promise<void>;
+  refreshUser: (params?: DefaultParams) => Promise<void>;
+  refreshWallets: (params?: DefaultParams) => Promise<void>;
   handleLogin: () => Promise<void>;
   handleGoogleOauth: (params: {
     clientId?: string;
@@ -119,17 +123,20 @@ export interface ClientContextType extends TurnkeyClientMethods {
     additionalState?: Record<string, string>;
     openInPage?: boolean;
   }) => Promise<void>;
-  handleExport: (params: {
-    walletId: string;
-    exportType: ExportType;
-    targetPublicKey?: string;
-    stamperType?: StamperType;
-  }) => Promise<void>;
-  handleImport: (params: {
-    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-    onImportSuccess?: (walletId: string) => void;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
+  handleExport: (
+    params: {
+      walletId: string;
+      exportType: ExportType;
+      targetPublicKey?: string;
+    } & DefaultParams,
+  ) => Promise<void>;
+  handleImport: (
+    params: {
+      defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
+      onImportSuccess?: (walletId: string) => void;
+      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+    } & DefaultParams,
+  ) => Promise<void>;
   handleUpdateUserEmail: (params?: {
     email?: string;
     title?: string;
@@ -145,13 +152,15 @@ export interface ClientContextType extends TurnkeyClientMethods {
     onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   }) => Promise<void>;
-  handleUpdateUserName: (params?: {
-    userName?: string;
-    title?: string;
-    subTitle?: string;
-    onSuccess?: (userId: string) => void;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
+  handleUpdateUserName: (
+    params?: {
+      userName?: string;
+      title?: string;
+      subTitle?: string;
+      onSuccess?: (userId: string) => void;
+      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+    } & DefaultParams,
+  ) => Promise<void>;
   handleAddEmail: (params?: {
     email?: string;
     title?: string;
@@ -167,36 +176,45 @@ export interface ClientContextType extends TurnkeyClientMethods {
     onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   }) => Promise<void>;
-  handleAddOAuthProvider: (params: {
-    providerName: OAuthProviders;
-  }) => Promise<void>;
-  handleRemoveOAuthProvider: (params: {
-    providerId: string;
-    title?: string;
-    subTitle?: string;
-    onSuccess?: (providerIds: string[]) => void;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
-  handleAddPasskey: (params?: {
-    name?: string;
-    displayName?: string;
-    userId?: string;
-    onSuccess?: (authenticatorIds: string[]) => void;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
-  handleRemovePasskey: (params: {
-    authenticatorId: string;
-    title?: string;
-    subTitle?: string;
-    onSuccess?: (authenticatorIds: string[]) => void;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
-  handleSignMessage: (params: {
-    message: string;
-    wallet: v1WalletAccount;
-    stampWith?: StamperType;
-    subText?: string;
-  }) => Promise<v1SignRawPayloadResult>;
+  handleAddOAuthProvider: (
+    params: {
+      providerName: OAuthProviders;
+    } & DefaultParams,
+  ) => Promise<void>;
+  handleRemoveOAuthProvider: (
+    params: {
+      providerId: string;
+      title?: string;
+      subTitle?: string;
+      onSuccess?: (providerIds: string[]) => void;
+      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+    } & DefaultParams,
+  ) => Promise<void>;
+  handleAddPasskey: (
+    params?: {
+      name?: string;
+      displayName?: string;
+      userId?: string;
+      onSuccess?: (authenticatorIds: string[]) => void;
+      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+    } & DefaultParams,
+  ) => Promise<void>;
+  handleRemovePasskey: (
+    params: {
+      authenticatorId: string;
+      title?: string;
+      subTitle?: string;
+      onSuccess?: (authenticatorIds: string[]) => void;
+      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+    } & DefaultParams,
+  ) => Promise<void>;
+  handleSignMessage: (
+    params: {
+      message: string;
+      wallet: v1WalletAccount;
+      subText?: string;
+    } & DefaultParams,
+  ) => Promise<v1SignRawPayloadResult>;
   handleLinkExternalWallet: (params: {}) => Promise<void>;
 }
 
@@ -771,6 +789,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   async function createPasskey(params?: {
     name?: string;
     displayName?: string;
+    stampWith?: StamperType;
   }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> {
     if (!client) {
       throw new TurnkeyError(
@@ -1384,9 +1403,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return res;
   }
 
-  async function fetchWallets(params?: {
-    stamperType?: StamperType;
-  }): Promise<Wallet[]> {
+  async function fetchWallets(params?: DefaultParams): Promise<Wallet[]> {
     if (!client) {
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1400,12 +1417,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function fetchWalletAccounts(params: {
-    wallet: Wallet;
-    stamperType?: StamperType;
-    paginationOptions?: v1Pagination;
-    walletProviders?: WalletProvider[];
-  }): Promise<v1WalletAccount[]> {
+  async function fetchWalletAccounts(
+    params: {
+      wallet: Wallet;
+      stamperType?: StamperType;
+      paginationOptions?: v1Pagination;
+      walletProviders?: WalletProvider[];
+    } & DefaultParams,
+  ): Promise<v1WalletAccount[]> {
     if (!client) {
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1419,11 +1438,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function signMessage(params: {
-    message: string;
-    wallet: v1WalletAccount;
-    stampWith?: StamperType;
-  }): Promise<v1SignRawPayloadResult> {
+  async function signMessage(
+    params: {
+      message: string;
+      wallet: v1WalletAccount;
+      stampWith?: StamperType;
+    } & DefaultParams,
+  ): Promise<v1SignRawPayloadResult> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1436,12 +1457,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function handleSignMessage(params: {
-    message: string;
-    wallet: v1WalletAccount;
-    stampWith?: StamperType;
-    subText?: string;
-  }): Promise<v1SignRawPayloadResult> {
+  async function handleSignMessage(
+    params: {
+      message: string;
+      wallet: v1WalletAccount;
+      subText?: string;
+    } & DefaultParams,
+  ): Promise<v1SignRawPayloadResult> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1473,12 +1495,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function signTransaction(params: {
-    signWith: string;
-    unsignedTransaction: string;
-    type: v1TransactionType;
-    stampWith?: StamperType;
-  }): Promise<TSignTransactionResponse> {
+  async function signTransaction(
+    params: {
+      signWith: string;
+      unsignedTransaction: string;
+      type: v1TransactionType;
+    } & DefaultParams,
+  ): Promise<TSignTransactionResponse> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1491,10 +1514,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function fetchUser(params?: {
-    organizationId?: string;
-    userId?: string;
-  }): Promise<v1User> {
+  async function fetchUser(
+    params?: {
+      organizationId?: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<v1User> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1507,11 +1532,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function updateUserEmail(params: {
-    email: string;
-    verificationToken?: string;
-    userId?: string;
-  }): Promise<string> {
+  async function updateUserEmail(
+    params: {
+      email: string;
+      verificationToken?: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1522,11 +1549,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to update user email",
     );
-    if (res) await refreshUser();
     return res;
   }
 
-  async function removeUserEmail(params: { userId?: string }): Promise<string> {
+  async function removeUserEmail(
+    params: { userId?: string } & DefaultParams,
+  ): Promise<string> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1537,15 +1565,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to remove user email",
     );
-    if (res) await refreshUser();
     return res;
   }
 
-  async function updateUserPhoneNumber(params: {
-    phoneNumber: string;
-    verificationToken?: string;
-    userId?: string;
-  }): Promise<string> {
+  async function updateUserPhoneNumber(
+    params: {
+      phoneNumber: string;
+      verificationToken?: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1556,13 +1585,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to update user phone number",
     );
-    if (res) await refreshUser();
     return res;
   }
 
-  async function removeUserPhoneNumber(params: {
-    userId?: string;
-  }): Promise<string> {
+  async function removeUserPhoneNumber(
+    params: {
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1573,14 +1603,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to remove user phone number",
     );
-    if (res) await refreshUser();
     return res;
   }
 
-  async function updateUserName(params: {
-    userName: string;
-    userId?: string;
-  }): Promise<string> {
+  async function updateUserName(
+    params: {
+      userName: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1591,15 +1622,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to update user name",
     );
-    if (res) await refreshUser();
     return res;
   }
 
-  async function addOAuthProvider(params: {
-    providerName: string;
-    oidcToken: string;
-    userId?: string;
-  }): Promise<string[]> {
+  async function addOAuthProvider(
+    params: {
+      providerName: string;
+      oidcToken: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string[]> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1610,14 +1642,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to add OAuth provider",
     );
-    if (res) await refreshUser();
     return res;
   }
 
-  async function removeOAuthProvider(params: {
-    providerId: string;
-    userId?: string;
-  }): Promise<string[]> {
+  async function removeOAuthProvider(
+    params: {
+      providerId: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string[]> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1628,15 +1661,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to remove OAuth provider",
     );
-    if (res) await refreshUser();
     return res;
   }
 
-  async function addPasskey(params?: {
-    name?: string;
-    displayName?: string;
-    userId?: string;
-  }): Promise<string[]> {
+  async function addPasskey(
+    params?: {
+      name?: string;
+      displayName?: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string[]> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1647,14 +1681,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to add passkey",
     );
-    if (res) await refreshUser();
     return res;
   }
 
-  async function removePasskey(params: {
-    authenticatorId: string;
-    userId?: string;
-  }): Promise<string[]> {
+  async function removePasskey(
+    params: {
+      authenticatorId: string;
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string[]> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1665,17 +1700,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to remove passkey",
     );
-    if (res) await refreshUser();
     return res;
   }
 
-  async function createWallet(params: {
-    walletName: string;
-    accounts?: v1WalletAccountParams[] | v1AddressFormat[];
-    organizationId?: string;
-    mnemonicLength?: number;
-    stampWith?: StamperType;
-  }): Promise<string> {
+  async function createWallet(
+    params: {
+      walletName: string;
+      accounts?: v1WalletAccountParams[] | v1AddressFormat[];
+      organizationId?: string;
+      mnemonicLength?: number;
+    } & DefaultParams,
+  ): Promise<string> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1686,16 +1721,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to create wallet",
     );
-    if (res) await refreshWallets();
     return res;
   }
 
-  async function createWalletAccounts(params: {
-    accounts: v1WalletAccountParams[];
-    walletId: string;
-    organizationId?: string;
-    stampWith?: StamperType;
-  }): Promise<string[]> {
+  async function createWalletAccounts(
+    params: {
+      accounts: v1WalletAccountParams[] | v1AddressFormat[];
+      walletId: string;
+      organizationId?: string;
+    } & DefaultParams,
+  ): Promise<string[]> {
+    const { stampWith } = params;
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1706,16 +1742,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to create wallet accounts",
     );
-    if (res) await refreshWallets();
+    if (res) await refreshWallets({ stampWith });
     return res;
   }
 
-  async function exportWallet(params: {
-    walletId: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stamperType?: StamperType;
-  }): Promise<ExportBundle> {
+  async function exportWallet(
+    params: {
+      walletId: string;
+      targetPublicKey: string;
+      organizationId?: string;
+    } & DefaultParams,
+  ): Promise<ExportBundle> {
+    const { stampWith } = params;
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1726,16 +1764,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to export wallet",
     );
-    if (res) await refreshWallets();
+    if (res) await refreshWallets({ stampWith });
     return res;
   }
 
-  async function importWallet(params: {
-    encryptedBundle: string;
-    walletName: string;
-    accounts?: v1WalletAccountParams[];
-    userId?: string;
-  }): Promise<string> {
+  async function importWallet(
+    params: {
+      encryptedBundle: string;
+      walletName: string;
+      accounts?: v1WalletAccountParams[];
+      userId?: string;
+    } & DefaultParams,
+  ): Promise<string> {
+    const { stampWith } = params;
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1746,14 +1787,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to import wallet",
     );
-    if (res) await refreshWallets();
+    if (res) await refreshWallets({ stampWith });
     return res;
   }
 
-  async function deleteSubOrganization(params?: {
-    deleteWithoutExport?: boolean;
-    stamperWith?: StamperType;
-  }): Promise<TDeleteSubOrganizationResponse> {
+  async function deleteSubOrganization(
+    params?: {
+      deleteWithoutExport?: boolean;
+    } & DefaultParams,
+  ): Promise<TDeleteSubOrganizationResponse> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1828,13 +1870,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function refreshSession(params?: {
-    sessionType?: SessionType;
-    expirationSeconds?: string;
-    publicKey?: string;
-    sessionKey?: string;
-    invalidateExisitng?: boolean;
-  }): Promise<TStampLoginResponse | undefined> {
+  async function refreshSession(
+    params?: {
+      sessionType?: SessionType;
+      expirationSeconds?: string;
+      publicKey?: string;
+      sessionKey?: string;
+      invalidateExisitng?: boolean;
+    } & DefaultParams,
+  ): Promise<TStampLoginResponse | undefined> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1984,14 +2028,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
   }
 
-  async function refreshUser(): Promise<void> {
+  async function refreshUser(params?: DefaultParams): Promise<void> {
+    const { stampWith } = params || {};
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     const user = await withTurnkeyErrorHandling(
-      () => client.fetchUser(),
+      () => fetchUser({ stampWith }),
       callbacks,
       "Failed to refresh user",
     );
@@ -2000,14 +2045,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   }
 
-  async function refreshWallets(): Promise<void> {
+  async function refreshWallets(params?: DefaultParams): Promise<void> {
+    const { stampWith } = params || {};
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     const wallets = await withTurnkeyErrorHandling(
-      () => fetchWallets(),
+      () => fetchWallets({ stampWith }),
       callbacks,
       "Failed to refresh wallets",
     );
@@ -2517,13 +2563,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     });
   };
 
-  const handleExport = async (params: {
-    walletId: string;
-    exportType: ExportType;
-    targetPublicKey?: string;
-    stamperType?: StamperType;
-  }) => {
-    const { walletId, exportType, targetPublicKey, stamperType } = params;
+  const handleExport = async (
+    params: {
+      walletId: string;
+      exportType: ExportType;
+      targetPublicKey?: string;
+    } & DefaultParams,
+  ) => {
+    const { walletId, exportType, targetPublicKey, stampWith } = params;
     pushPage({
       key: "Export Wallet",
       content: (
@@ -2531,19 +2578,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           walletId={walletId ?? wallets[0]?.walletId!}
           exportType={exportType ?? ExportType.Wallet}
           {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
-          {...(stamperType !== undefined ? { stamperType } : {})}
+          {...(stampWith !== undefined ? { stampWith } : {})}
         />
       ),
     });
   };
 
-  const handleImport = async (params: {
-    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-    onImportSuccess?: (walletId: string) => void;
-    successPageDuration?: number | undefined;
-  }) => {
-    const { defaultWalletAccounts, onImportSuccess, successPageDuration } =
-      params;
+  const handleImport = async (
+    params: {
+      defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
+      onImportSuccess?: (walletId: string) => void;
+      successPageDuration?: number | undefined;
+    } & DefaultParams,
+  ) => {
+    const {
+      defaultWalletAccounts,
+      onImportSuccess,
+      successPageDuration,
+      stampWith,
+    } = params;
     pushPage({
       key: "Import Wallet",
       content: (
@@ -2555,23 +2608,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           {...(successPageDuration !== undefined
             ? { successPageDuration }
             : {})}
+          {...(stampWith !== undefined ? { stampWith } : {})}
         />
       ),
     });
   };
 
-  const handleUpdateUserName = async (params?: {
-    userName?: string;
-    title?: string;
-    subTitle?: string;
-    onSuccess?: (userId: string) => void;
-    successPageDuration?: number | undefined;
-  }) => {
+  const handleUpdateUserName = async (
+    params?: {
+      userName?: string;
+      title?: string;
+      subTitle?: string;
+      onSuccess?: (userId: string) => void;
+      successPageDuration?: number | undefined;
+    } & DefaultParams,
+  ) => {
     const {
       onSuccess = undefined,
       successPageDuration,
       subTitle,
       title,
+      stampWith,
     } = params || {};
 
     if (!client)
@@ -2597,6 +2654,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const res = await updateUserName({
         userName,
         userId: session.userId,
+        stampWith,
       });
 
       if (res) {
@@ -2622,7 +2680,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             closeModal();
           }
         }
-        await refreshUser();
+        await refreshUser({ stampWith });
       } else {
         closeModal();
         throw new TurnkeyError(
@@ -2992,19 +3050,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
-  const handleRemovePasskey = async (params: {
-    authenticatorId: string;
-    title?: string;
-    subTitle?: string;
-    onSuccess?: (authenticatorIds: string[]) => void;
-    successPageDuration?: number | undefined;
-  }) => {
+  const handleRemovePasskey = async (
+    params: {
+      authenticatorId: string;
+      title?: string;
+      subTitle?: string;
+      onSuccess?: (authenticatorIds: string[]) => void;
+      successPageDuration?: number | undefined;
+    } & DefaultParams,
+  ) => {
     const {
       authenticatorId,
       successPageDuration,
       onSuccess = undefined,
       subTitle,
       title,
+      stampWith,
     } = params;
 
     if (!client)
@@ -3033,6 +3094,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 closeModal,
                 session,
                 removePasskey,
+                stampWith,
               });
             }}
             {...(title !== undefined ? { title } : {})}
@@ -3053,18 +3115,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
-  const handleAddPasskey = async (params?: {
-    name?: string;
-    displayName?: string;
-    userId?: string;
-    onSuccess?: (authenticatorIds: string[]) => void;
-    successPageDuration?: number | undefined;
-  }): Promise<void> => {
+  const handleAddPasskey = async (
+    params?: {
+      name?: string;
+      displayName?: string;
+      userId?: string;
+      onSuccess?: (authenticatorIds: string[]) => void;
+      successPageDuration?: number | undefined;
+    } & DefaultParams,
+  ): Promise<void> => {
     const {
       name,
       displayName,
       onSuccess = undefined,
       successPageDuration,
+      stampWith,
     } = params || {};
 
     if (!client)
@@ -3086,6 +3151,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             ...(name && { name }),
             ...(displayName && { displayName }),
             userId,
+            stampWith,
           }),
         callbacks,
         "Failed to create passkey",
@@ -3107,7 +3173,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         preventBack: true,
         showTitle: false,
       });
-      await refreshUser();
+      await refreshUser({ stampWith });
     } catch (error) {
       if (error instanceof TurnkeyError) {
         throw error;
@@ -3120,19 +3186,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
-  const handleRemoveOAuthProvider = async (params: {
-    providerId: string;
-    title?: string;
-    subTitle?: string;
-    onSuccess?: (providerIds: string[]) => void;
-    successPageDuration?: number | undefined;
-  }) => {
+  const handleRemoveOAuthProvider = async (
+    params: {
+      providerId: string;
+      title?: string;
+      subTitle?: string;
+      onSuccess?: (providerIds: string[]) => void;
+      successPageDuration?: number | undefined;
+    } & DefaultParams,
+  ) => {
     const {
       providerId,
       onSuccess = undefined,
       successPageDuration,
       subTitle,
       title,
+      stampWith,
     } = params;
 
     if (!client)
@@ -3161,6 +3230,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 closeModal,
                 session,
                 removeOAuthProvider,
+                stampWith,
               });
             }}
             {...(title !== undefined ? { title } : {})}
@@ -3181,9 +3251,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
-  const handleAddOAuthProvider = async (params: {
-    providerName: OAuthProviders;
-  }): Promise<void> => {
+  const handleAddOAuthProvider = async (
+    params: {
+      providerName: OAuthProviders;
+    } & DefaultParams,
+  ): Promise<void> => {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -3196,7 +3268,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
 
-    const { providerName } = params;
+    const { providerName, stampWith } = params;
 
     const onOAuthSuccess = async (params: {
       providerName: string;
@@ -3207,6 +3279,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           addOAuthProvider({
             providerName: params.providerName,
             oidcToken: params.oidcToken,
+            stampWith,
           }),
         callbacks,
         "Failed to add OAuth provider",
@@ -3226,7 +3299,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         showTitle: false,
       });
 
-      await refreshUser();
+      await refreshUser({ stampWith });
     };
 
     switch (providerName) {

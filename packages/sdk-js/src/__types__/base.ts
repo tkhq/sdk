@@ -30,6 +30,10 @@ export type GrpcStatus = {
   details: unknown[] | null;
 };
 
+export type DefaultParams = {
+  stampWith?: StamperType | undefined;
+};
+
 export enum MethodType {
   Get,
   List,
