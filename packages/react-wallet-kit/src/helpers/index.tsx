@@ -3,31 +3,40 @@ import { OtpType } from "@utils";
 import { OtpVerification } from "../components/auth/OTP";
 import { SuccessPage } from "../components/design/Success";
 import { ModalPage } from "../providers/modal/Provider";
+import { DefaultParams } from "@turnkey/sdk-js";
 
 // --- addEmailContinue ---
-export const addEmailContinue = async (params: {
-  email: string;
-  session: Session;
-  initOtp: (params: { otpType: OtpType; contact: string }) => Promise<string>;
-  verifyOtp: (params: {
-    otpId: string;
-    otpCode: string;
-    contact: string;
-    otpType: OtpType;
-  }) => Promise<{
-    subOrganizationId: string;
-    verificationToken: string;
-  }>;
-  updateUserEmail: (params: {
+export const addEmailContinue = async (
+  params: {
     email: string;
-    verificationToken?: string;
-    userId?: string;
-  }) => Promise<string>;
-  pushPage: (page: ModalPage) => void;
-  closeModal: () => void;
-  onSuccess?: ((userId: string) => void) | undefined;
-  successPageDuration?: number | undefined;
-}) => {
+    session: Session;
+    initOtp: (
+      params: { otpType: OtpType; contact: string } & DefaultParams,
+    ) => Promise<string>;
+    verifyOtp: (
+      params: {
+        otpId: string;
+        otpCode: string;
+        contact: string;
+        otpType: OtpType;
+      } & DefaultParams,
+    ) => Promise<{
+      subOrganizationId: string;
+      verificationToken: string;
+    }>;
+    updateUserEmail: (
+      params: {
+        email: string;
+        verificationToken?: string;
+        userId?: string;
+      } & DefaultParams,
+    ) => Promise<string>;
+    pushPage: (page: ModalPage) => void;
+    closeModal: () => void;
+    onSuccess?: ((userId: string) => void) | undefined;
+    successPageDuration?: number | undefined;
+  } & DefaultParams,
+) => {
   const {
     email,
     session,
@@ -38,6 +47,7 @@ export const addEmailContinue = async (params: {
     updateUserEmail,
     pushPage,
     closeModal,
+    stampWith,
   } = params;
   if (!email || email === "") {
     throw new TurnkeyError(
@@ -59,11 +69,13 @@ export const addEmailContinue = async (params: {
             otpCode,
             contact: email,
             otpType: OtpType.Email,
+            stampWith,
           });
           const res = await updateUserEmail({
             email,
             verificationToken,
             userId: session!.userId,
+            stampWith,
           });
 
           if (res) {
@@ -104,29 +116,37 @@ export const addEmailContinue = async (params: {
 };
 
 // --- updateEmailContinue ---
-export const updateEmailContinue = async (params: {
-  email: string;
-  session: Session;
-  successPageDuration?: number | undefined;
-  initOtp: (params: { otpType: OtpType; contact: string }) => Promise<string>;
-  verifyOtp: (params: {
-    otpId: string;
-    otpCode: string;
-    contact: string;
-    otpType: OtpType;
-  }) => Promise<{
-    subOrganizationId: string;
-    verificationToken: string;
-  }>;
-  updateUserEmail: (params: {
+export const updateEmailContinue = async (
+  params: {
     email: string;
-    verificationToken?: string;
-    userId?: string;
-  }) => Promise<string>;
-  pushPage: (page: ModalPage) => void;
-  closeModal: () => void;
-  onSuccess?: ((userId: string) => void) | undefined;
-}) => {
+    session: Session;
+    successPageDuration?: number | undefined;
+    initOtp: (
+      params: { otpType: OtpType; contact: string } & DefaultParams,
+    ) => Promise<string>;
+    verifyOtp: (
+      params: {
+        otpId: string;
+        otpCode: string;
+        contact: string;
+        otpType: OtpType;
+      } & DefaultParams,
+    ) => Promise<{
+      subOrganizationId: string;
+      verificationToken: string;
+    }>;
+    updateUserEmail: (
+      params: {
+        email: string;
+        verificationToken?: string;
+        userId?: string;
+      } & DefaultParams,
+    ) => Promise<string>;
+    pushPage: (page: ModalPage) => void;
+    closeModal: () => void;
+    onSuccess?: ((userId: string) => void) | undefined;
+  } & DefaultParams,
+) => {
   const {
     email,
     session,
@@ -137,6 +157,7 @@ export const updateEmailContinue = async (params: {
     updateUserEmail,
     pushPage,
     closeModal,
+    stampWith,
   } = params;
   if (!email || email === "") {
     throw new TurnkeyError(
@@ -144,7 +165,11 @@ export const updateEmailContinue = async (params: {
       TurnkeyErrorCodes.MISSING_PARAMS,
     );
   }
-  const otpId = await initOtp({ otpType: OtpType.Email, contact: email });
+  const otpId = await initOtp({
+    otpType: OtpType.Email,
+    contact: email,
+    stampWith,
+  });
   pushPage({
     key: "Verify OTP",
     content: (
@@ -158,11 +183,13 @@ export const updateEmailContinue = async (params: {
             otpCode,
             contact: email,
             otpType: OtpType.Email,
+            stampWith,
           });
           const res = await updateUserEmail({
             email,
             verificationToken,
             userId: session!.userId,
+            stampWith,
           });
 
           if (res) {
@@ -203,30 +230,38 @@ export const updateEmailContinue = async (params: {
 };
 
 // --- addPhoneNumberContinue ---
-export const addPhoneNumberContinue = async (params: {
-  phone: string;
-  formattedPhone?: string;
-  session: Session;
-  initOtp: (params: { otpType: OtpType; contact: string }) => Promise<string>;
-  verifyOtp: (params: {
-    otpId: string;
-    otpCode: string;
-    contact: string;
-    otpType: OtpType;
-  }) => Promise<{
-    subOrganizationId: string;
-    verificationToken: string;
-  }>;
-  updateUserPhoneNumber: (params: {
-    phoneNumber: string;
-    verificationToken?: string;
-    userId?: string;
-  }) => Promise<string>;
-  pushPage: (page: ModalPage) => void;
-  closeModal: () => void;
-  onSuccess?: ((userId: string) => void) | undefined;
-  successPageDuration?: number | undefined;
-}) => {
+export const addPhoneNumberContinue = async (
+  params: {
+    phone: string;
+    formattedPhone?: string;
+    session: Session;
+    initOtp: (
+      params: { otpType: OtpType; contact: string } & DefaultParams,
+    ) => Promise<string>;
+    verifyOtp: (
+      params: {
+        otpId: string;
+        otpCode: string;
+        contact: string;
+        otpType: OtpType;
+      } & DefaultParams,
+    ) => Promise<{
+      subOrganizationId: string;
+      verificationToken: string;
+    }>;
+    updateUserPhoneNumber: (
+      params: {
+        phoneNumber: string;
+        verificationToken?: string;
+        userId?: string;
+      } & DefaultParams,
+    ) => Promise<string>;
+    pushPage: (page: ModalPage) => void;
+    closeModal: () => void;
+    onSuccess?: ((userId: string) => void) | undefined;
+    successPageDuration?: number | undefined;
+  } & DefaultParams,
+) => {
   const {
     phone,
     formattedPhone,
@@ -238,6 +273,7 @@ export const addPhoneNumberContinue = async (params: {
     session,
     pushPage,
     closeModal,
+    stampWith,
   } = params;
   if (!phone || phone === "") {
     throw new TurnkeyError(
@@ -260,11 +296,13 @@ export const addPhoneNumberContinue = async (params: {
             otpCode,
             contact: phone,
             otpType: OtpType.Sms,
+            stampWith,
           });
           const res = await updateUserPhoneNumber({
             phoneNumber: phone,
             verificationToken,
             userId: session!.userId,
+            stampWith,
           });
 
           if (res) {
@@ -305,30 +343,38 @@ export const addPhoneNumberContinue = async (params: {
 };
 
 // --- updatePhoneNumberContinue ---
-export const updatePhoneNumberContinue = async (params: {
-  phone: string;
-  formattedPhone?: string;
-  session: Session;
-  initOtp: (params: { otpType: OtpType; contact: string }) => Promise<string>;
-  verifyOtp: (params: {
-    otpId: string;
-    otpCode: string;
-    contact: string;
-    otpType: OtpType;
-  }) => Promise<{
-    subOrganizationId: string;
-    verificationToken: string;
-  }>;
-  updateUserPhoneNumber: (params: {
-    phoneNumber: string;
-    verificationToken?: string;
-    userId?: string;
-  }) => Promise<string>;
-  pushPage: (page: ModalPage) => void;
-  closeModal: () => void;
-  onSuccess?: ((userId: string) => void) | undefined;
-  successPageDuration?: number | undefined;
-}) => {
+export const updatePhoneNumberContinue = async (
+  params: {
+    phone: string;
+    formattedPhone?: string;
+    session: Session;
+    initOtp: (
+      params: { otpType: OtpType; contact: string } & DefaultParams,
+    ) => Promise<string>;
+    verifyOtp: (
+      params: {
+        otpId: string;
+        otpCode: string;
+        contact: string;
+        otpType: OtpType;
+      } & DefaultParams,
+    ) => Promise<{
+      subOrganizationId: string;
+      verificationToken: string;
+    }>;
+    updateUserPhoneNumber: (
+      params: {
+        phoneNumber: string;
+        verificationToken?: string;
+        userId?: string;
+      } & DefaultParams,
+    ) => Promise<string>;
+    pushPage: (page: ModalPage) => void;
+    closeModal: () => void;
+    onSuccess?: ((userId: string) => void) | undefined;
+    successPageDuration?: number | undefined;
+  } & DefaultParams,
+) => {
   const {
     phone,
     formattedPhone,
@@ -340,6 +386,7 @@ export const updatePhoneNumberContinue = async (params: {
     session,
     pushPage,
     closeModal,
+    stampWith,
   } = params;
   if (!phone || phone === "") {
     throw new TurnkeyError(
@@ -362,11 +409,13 @@ export const updatePhoneNumberContinue = async (params: {
             otpCode,
             contact: phone,
             otpType: OtpType.Sms,
+            stampWith,
           });
           const res = await updateUserPhoneNumber({
             phoneNumber: phone,
             verificationToken,
             userId: session!.userId,
+            stampWith,
           });
 
           if (res) {
@@ -407,18 +456,22 @@ export const updatePhoneNumberContinue = async (params: {
 };
 
 // --- removeOAuthProviderContinue ---
-export const removeOAuthProviderContinue = async (params: {
-  providerId: string;
-  session: Session;
-  removeOAuthProvider: (params: {
+export const removeOAuthProviderContinue = async (
+  params: {
     providerId: string;
-    userId?: string;
-  }) => Promise<string[]>;
-  pushPage: (page: ModalPage) => void;
-  closeModal: () => void;
-  onSuccess?: ((providerIds: string[]) => void) | undefined;
-  successPageDuration?: number | undefined;
-}) => {
+    session: Session;
+    removeOAuthProvider: (
+      params: {
+        providerId: string;
+        userId?: string;
+      } & DefaultParams,
+    ) => Promise<string[]>;
+    pushPage: (page: ModalPage) => void;
+    closeModal: () => void;
+    onSuccess?: ((providerIds: string[]) => void) | undefined;
+    successPageDuration?: number | undefined;
+  } & DefaultParams,
+) => {
   const {
     session,
     providerId,
@@ -427,10 +480,12 @@ export const removeOAuthProviderContinue = async (params: {
     closeModal,
     onSuccess,
     successPageDuration,
+    stampWith,
   } = params;
   const res = await removeOAuthProvider({
     providerId,
     userId: session!.userId,
+    stampWith,
   });
 
   if (res) {
@@ -465,18 +520,22 @@ export const removeOAuthProviderContinue = async (params: {
   }
 };
 
-export const removePasskeyContinue = async (params: {
-  authenticatorId: string;
-  session: Session;
-  removePasskey: (params: {
+export const removePasskeyContinue = async (
+  params: {
     authenticatorId: string;
-    userId?: string;
-  }) => Promise<string[]>;
-  pushPage: (page: ModalPage) => void;
-  closeModal: () => void;
-  onSuccess?: ((authenticatorIds: string[]) => void) | undefined;
-  successPageDuration?: number | undefined;
-}) => {
+    session: Session;
+    removePasskey: (
+      params: {
+        authenticatorId: string;
+        userId?: string;
+      } & DefaultParams,
+    ) => Promise<string[]>;
+    pushPage: (page: ModalPage) => void;
+    closeModal: () => void;
+    onSuccess?: ((authenticatorIds: string[]) => void) | undefined;
+    successPageDuration?: number | undefined;
+  } & DefaultParams,
+) => {
   const {
     session,
     authenticatorId,
@@ -485,10 +544,12 @@ export const removePasskeyContinue = async (params: {
     closeModal,
     onSuccess,
     successPageDuration,
+    stampWith,
   } = params;
   const res = await removePasskey({
     authenticatorId,
     userId: session!.userId,
+    stampWith,
   });
 
   if (res) {
