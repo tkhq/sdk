@@ -1,16 +1,17 @@
-import type {
-  v1AddressFormat,
-  v1HashFunction,
-  v1PayloadEncoding,
-  Session,
-  externaldatav1Timestamp,
-  ProxyTSignupBody,
-  v1ApiKeyParamsV2,
-  v1ApiKeyCurve,
-  v1Authenticator,
-  v1AuthenticatorParamsV2,
-  v1WalletAccountParams,
-  v1WalletAccount,
+import {
+  type v1AddressFormat,
+  type v1HashFunction,
+  type v1PayloadEncoding,
+  type Session,
+  type externaldatav1Timestamp,
+  type ProxyTSignupBody,
+  type v1ApiKeyParamsV2,
+  type v1ApiKeyCurve,
+  type v1AuthenticatorParamsV2,
+  type v1WalletAccountParams,
+  type v1WalletAccount,
+  TurnkeyError,
+  TurnkeyErrorCodes,
 } from "@turnkey/sdk-types";
 import { CreateSubOrgParams } from "@types";
 // Import all defaultAccountAtIndex functions for each address format
@@ -324,35 +325,46 @@ export function parseSession(token: string | Session): Session {
   };
 }
 
-export function getMessageHashAndEncodingType(
-  addressFormat: v1AddressFormat,
-  rawMessage: string,
-): {
-  hashFunction: v1HashFunction;
-  payloadEncoding: v1PayloadEncoding;
-  encodedMessage: string;
-} {
+export function getHashFunction(addressFormat: v1AddressFormat) {
   const config = addressFormatConfig[addressFormat];
   if (!config) {
-    throw new Error(`Unsupported address format: ${addressFormat}`);
+    throw new TurnkeyError(
+      `Unsupported address format: ${addressFormat}`,
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
   }
+  return config.hashFunction;
+}
 
-  let encodedMessage: string;
+export function getEncodingType(addressFormat: v1AddressFormat) {
+  const config = addressFormatConfig[addressFormat];
+  if (!config) {
+    throw new TurnkeyError(
+      `Unsupported address format: ${addressFormat}`,
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+  return config.encoding;
+}
+
+export function getEncodedMessage(
+  addressFormat: v1AddressFormat,
+  rawMessage: string,
+): string {
+  const config = addressFormatConfig[addressFormat];
+  if (!config) {
+    throw new TurnkeyError(
+      `Unsupported address format: ${addressFormat}`,
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
   if (config.encoding === "PAYLOAD_ENCODING_HEXADECIMAL") {
-    encodedMessage =
-      "0x" +
+    return ("0x" +
       Array.from(new TextEncoder().encode(rawMessage))
         .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-  } else {
-    encodedMessage = rawMessage;
+        .join("")) as string;
   }
-
-  return {
-    hashFunction: config.hashFunction,
-    payloadEncoding: config.encoding,
-    encodedMessage,
-  };
+  return rawMessage;
 }
 
 // Type guard to check if accounts is WalletAccount[]
