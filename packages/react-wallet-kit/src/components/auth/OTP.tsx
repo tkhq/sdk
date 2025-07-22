@@ -6,6 +6,7 @@ import { BaseButton } from "../design/Buttons";
 import { OtpType } from "@turnkey/sdk-js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faPhone } from "@fortawesome/free-solid-svg-icons";
+import clsx from "clsx";
 
 interface OtpVerificationProps {
   contact: string;
@@ -26,7 +27,7 @@ export function OtpVerification(props: OtpVerificationProps) {
     onContinue = null, // Default to null if not provided
   } = props;
   const { initOtp, completeOtp } = useTurnkey();
-  const { closeModal } = useModal();
+  const { closeModal, isMobile } = useModal();
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [resending, setResending] = useState<boolean>(false);
   const [resent, setResent] = useState<boolean>(false);
@@ -80,7 +81,12 @@ export function OtpVerification(props: OtpVerificationProps) {
   };
 
   return (
-    <div className="flex items-center justify-center min-w-96 py-3">
+    <div
+      className={clsx(
+        "flex items-center justify-center py-3",
+        isMobile ? "min-w-80 max-w-80" : "min-w-96",
+      )}
+    >
       <div
         className={`flex flex-col items-center justify-center gap-6 transition-all duration-300 ${submitting && "opacity-30 blur"}`}
       >
@@ -147,7 +153,7 @@ interface OtpInputProps {
 
 export function OtpInput(props: OtpInputProps) {
   const { otpLength, onContinue, alphanumeric = false } = props;
-
+  const { isMobile } = useModal();
   const [values, setValues] = useState<string[]>(Array(otpLength).fill(""));
   const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
 
@@ -229,7 +235,10 @@ export function OtpInput(props: OtpInputProps) {
           onKeyDown={(e) => handleKeyDown(e, i)}
           onPaste={handlePaste}
           ref={(el) => (inputsRef.current[i] = el as HTMLInputElement | null)}
-          className="w-12 h-12 text-center text-lg rounded-md border border-modal-background-dark/20 dark:border-modal-background-light/20 bg-button-light dark:bg-button-dark text-inherit focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-all"
+          className={clsx(
+            "text-center text-lg rounded-md border border-modal-background-dark/20 dark:border-modal-background-light/20 bg-button-light dark:bg-button-dark text-inherit focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-all",
+            isMobile ? "size-10" : "size-12",
+          )}
         />
       ))}
     </div>

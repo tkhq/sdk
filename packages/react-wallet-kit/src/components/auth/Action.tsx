@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { useModal } from "../../providers";
 import { Spinner } from "../design/Spinners";
+import clsx from "clsx";
 
 interface ActionPageProps {
   title: string;
@@ -11,7 +12,7 @@ interface ActionPageProps {
 
 export function ActionPage(props: ActionPageProps) {
   const { title, icon, closeOnComplete = true, action } = props;
-  const { popPage, closeModal } = useModal();
+  const { popPage, closeModal, isMobile } = useModal();
   const hasRun = useRef(false);
   const iconRef = useRef<HTMLDivElement>(null);
   const [spinnerSize, setSpinnerSize] = useState<number>(40);
@@ -44,7 +45,12 @@ export function ActionPage(props: ActionPageProps) {
   }, []);
 
   return (
-    <div className="flex items-center justify-center w-96 py-10">
+    <div
+      className={clsx(
+        "flex items-center justify-center py-10",
+        isMobile ? "w-full" : "w-96",
+      )}
+    >
       <div className="flex flex-col items-center justify-center gap-8">
         <div className="relative flex items-center justify-center">
           <div ref={iconRef} className="flex items-center justify-center">
