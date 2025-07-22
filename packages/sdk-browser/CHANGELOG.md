@@ -1,5 +1,11 @@
 # @turnkey/sdk-browser
 
+## 5.3.3
+
+### Patch Changes
+
+- [#750](https://github.com/tkhq/sdk/pull/750) [`2c4f42c`](https://github.com/tkhq/sdk/commit/2c4f42c747ac8017cf17e86b0ca0c3fa6f593bbf) Thanks [@moe-dev](https://github.com/moe-dev)! - Surface keyFormat for extractKeyEncryptedBundle in iframe client abstraction
+
 ## 5.3.2
 
 ### Patch Changes

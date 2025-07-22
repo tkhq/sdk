@@ -1,5 +1,12 @@
 # @turnkey/ethers
 
+## 1.2.1
+
+### Patch Changes
+
+- Updated dependencies [[`2c4f42c`](https://github.com/tkhq/sdk/commit/2c4f42c747ac8017cf17e86b0ca0c3fa6f593bbf)]:
+  - @turnkey/sdk-browser@5.3.3
+
 ## 1.2.0
 
 ### Minor Changes
