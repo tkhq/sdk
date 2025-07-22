@@ -20,6 +20,8 @@ function RootLayout({ children }: RootLayoutProps) {
           config={{
             apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
             authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
+            importIframeUrl: process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!,
+            exportIframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
             authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
             organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
             auth: {

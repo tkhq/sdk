@@ -10,7 +10,7 @@ import {
   v1AddressFormat,
   v1Attestation,
 } from "@turnkey/sdk-types";
-import { OtpType } from "@turnkey/sdk-js";
+import { OtpType, StamperType } from "@turnkey/sdk-js";
 import { useModal, useTurnkey } from "@turnkey/react-wallet-kit";
 import { SessionKey } from "@turnkey/sdk-js/dist/__storage__/base";
 import { WalletType } from "@turnkey/wallet-stamper";
@@ -53,6 +53,7 @@ export default function AuthPage() {
     logout,
     setActiveSession,
     addPasskey,
+    createWalletAccounts,
     handleExport,
     handleImport,
     handleUpdateUserEmail,
@@ -101,7 +102,7 @@ export default function AuthPage() {
   };
 
   const handleCreatePasskey = async () => {
-    const res = await createPasskey();
+    const res = await createPasskey({ stampWith: StamperType.Passkey });
     console.log("Created passkey:", res);
   };
 
@@ -169,6 +170,7 @@ export default function AuthPage() {
     const res = await createWallet({
       walletName,
       accounts: allAddressFormats,
+      stampWith: StamperType.Passkey,
     });
 
     console.log("Created wallet response:", res);
@@ -196,6 +198,7 @@ export default function AuthPage() {
       message:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. . Sed id maximus elit. Mauris lacus ligula, dictum nec purus sit amet, mollis tempor nisl. Morbi neque lectus, tempor sed tristique sit amet, ornare eget dui",
       wallet: wallets[0].accounts[0],
+      stampWith: StamperType.Passkey,
     });
     console.log("Signing result:", result);
   };
@@ -496,6 +499,7 @@ export default function AuthPage() {
           handleExport({
             walletId: wallets[0]?.walletId,
             exportType: ExportType.Wallet,
+            stampWith: StamperType.Passkey,
           })
         }
         style={{
@@ -516,6 +520,7 @@ export default function AuthPage() {
               "ADDRESS_FORMAT_ETHEREUM",
             ],
             successPageDuration: 5000,
+            stampWith: StamperType.Passkey,
           })
         }
         style={{
@@ -701,6 +706,7 @@ export default function AuthPage() {
               await handleUpdateUserName({
                 successPageDuration: 5000,
                 subTitle: "Edit your user name",
+                stampWith: StamperType.Passkey,
               });
             }}
             style={{
@@ -719,6 +725,7 @@ export default function AuthPage() {
           onClick={async () => {
             await handleAddOAuthProvider({
               providerName: OAuthProviders.GOOGLE,
+              stampWith: StamperType.Passkey,
             });
           }}
           style={{
@@ -753,6 +760,7 @@ export default function AuthPage() {
           onClick={async () => {
             await handleAddOAuthProvider({
               providerName: OAuthProviders.FACEBOOK,
+              stampWith: StamperType.Passkey,
             });
           }}
           style={{
@@ -806,6 +814,7 @@ export default function AuthPage() {
           onClick={async () => {
             await handleAddPasskey({
               successPageDuration: 5000,
+              stampWith: StamperType.Passkey,
             });
           }}
           style={{
@@ -829,6 +838,7 @@ export default function AuthPage() {
             }
             await handleRemoveOAuthProvider({
               providerId: providerId,
+              stampWith: StamperType.Passkey,
             });
           }}
           style={{
@@ -851,6 +861,7 @@ export default function AuthPage() {
             }
             await handleRemovePasskey({
               authenticatorId: authenticatorId,
+              stampWith: StamperType.Passkey,
             });
           }}
           style={{
@@ -874,6 +885,27 @@ export default function AuthPage() {
           }}
         >
           Link Wallet
+        </button>
+      )}
+      {session && (
+        <button
+          onClick={async () => {
+            await createWalletAccounts({
+              accounts: ["ADDRESS_FORMAT_SOLANA", "ADDRESS_FORMAT_ETHEREUM"],
+              walletId: wallets[0]?.walletId!,
+              organizationId: session?.organizationId!,
+              stampWith: StamperType.Passkey,
+            });
+            console.log("Wallet accounts created successfully");
+          }}
+          style={{
+            backgroundColor: "rebeccapurple",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Create Wallet Accounts
         </button>
       )}
     </main>
