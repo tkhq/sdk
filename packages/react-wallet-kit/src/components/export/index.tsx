@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useModal, useTurnkey } from "../../providers";
-import { StamperType } from "@turnkey/sdk-js";
+import { DefaultParams } from "@turnkey/sdk-js";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { ExportWarn } from "./ExportWarn";
@@ -14,13 +14,14 @@ export enum ExportType {
 const TurnkeyExportIframeContainerId = "turnkey-export-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 
-export function ExportComponent(params: {
-  walletId: string;
-  exportType: ExportType;
-  targetPublicKey?: string;
-  stamperType?: StamperType;
-}) {
-  const { exportType, targetPublicKey, stamperType, walletId } = params;
+export function ExportComponent(
+  params: {
+    walletId: string;
+    exportType: ExportType;
+    targetPublicKey?: string;
+  } & DefaultParams,
+) {
+  const { exportType, targetPublicKey, stampWith, walletId } = params;
   const { config } = useTurnkey();
 
   const [exportIframeVisible, setExportIframeVisible] = useState(false);
@@ -100,7 +101,7 @@ export function ExportComponent(params: {
           exportIframeClient={exportIframeClient}
           targetPublicKey={targetPublicKey}
           exportType={exportType}
-          stamperType={stamperType}
+          stampWith={stampWith}
           setExportIframeVisible={setExportIframeVisible}
         />
       )}
