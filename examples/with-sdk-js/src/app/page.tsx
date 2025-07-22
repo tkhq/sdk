@@ -146,7 +146,7 @@ export default function AuthPage() {
     for (const walletAccount of wallets[0].accounts) {
       const res = await signMessage({
         message: "Hello, Turnkey!",
-        wallet: walletAccount,
+        walletAccount,
       });
 
       console.log("Signed message response:", res);
@@ -197,7 +197,7 @@ export default function AuthPage() {
     const result = await handleSignMessage({
       message:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. . Sed id maximus elit. Mauris lacus ligula, dictum nec purus sit amet, mollis tempor nisl. Morbi neque lectus, tempor sed tristique sit amet, ornare eget dui",
-      wallet: wallets[0].accounts[0],
+      walletAccount: wallets[0].accounts[0],
       stampWith: StamperType.Passkey,
     });
     console.log("Signing result:", result);

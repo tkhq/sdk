@@ -1,6 +1,11 @@
 import { Textarea } from "@headlessui/react";
 import { StamperType } from "@turnkey/sdk-js";
-import { v1SignRawPayloadResult, v1WalletAccount } from "@turnkey/sdk-types";
+import {
+  v1HashFunction,
+  v1PayloadEncoding,
+  v1SignRawPayloadResult,
+  v1WalletAccount,
+} from "@turnkey/sdk-types";
 import { ActionButton } from "../design/Buttons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
@@ -10,18 +15,20 @@ import { SuccessPage } from "../design/Success";
 
 interface SignMessageModalProps {
   message: string;
-  wallet: v1WalletAccount;
+  walletAccount: v1WalletAccount;
   subText?: string | undefined;
   stampWith?: StamperType | undefined;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   onSuccess: (result: v1SignRawPayloadResult) => void;
   onError: (error: any) => void;
+  encoding?: v1PayloadEncoding;
+  hashFunction?: v1HashFunction;
 }
 
 export function SignMessageModal(props: SignMessageModalProps) {
   const {
     message,
-    wallet,
+    walletAccount,
     subText = "Use your wallet to sign this message",
     stampWith,
     successPageDuration,
@@ -47,7 +54,9 @@ export function SignMessageModal(props: SignMessageModalProps) {
       setLoading(true);
       const result = await signMessage({
         message,
-        wallet,
+        walletAccount,
+        ...(props?.encoding ? { encoding: props.encoding } : {}),
+        ...(props?.hashFunction ? { hashFunction: props?.hashFunction } : {}),
         ...(stampWith ? { stampWith } : {}),
       });
       handleSuccess(result);
@@ -89,9 +98,9 @@ export function SignMessageModal(props: SignMessageModalProps) {
           <FontAwesomeIcon icon={faWallet} />
         </div>
 
-        {wallet.address.length > 8
-          ? `${wallet.address.slice(0, 4)}...${wallet.address.slice(-4)}`
-          : wallet.address}
+        {walletAccount.address?.length > 8
+          ? `${walletAccount.address.slice(0, 4)}...${walletAccount.address.slice(-4)}`
+          : walletAccount.address}
       </div>
 
       <div className="w-full flex flex-col mt-2 px-3 space-y-2">
