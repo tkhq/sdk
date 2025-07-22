@@ -10,8 +10,8 @@ import {
 import { ActionButton } from "../design/Buttons";
 import { Input } from "@headlessui/react";
 import {
+  DefaultParams,
   generateWalletAccountsFromAddressFormat,
-  WalletAccount,
 } from "@turnkey/sdk-js";
 import { SuccessPage } from "../design/Success";
 
@@ -23,13 +23,19 @@ export enum ExportType {
 const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 
-export function ImportComponent(params: {
-  defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-  onImportSuccess?: (walletId: string) => void;
-  successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-}) {
-  const { onImportSuccess, defaultWalletAccounts, successPageDuration } =
-    params;
+export function ImportComponent(
+  params: {
+    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
+    onImportSuccess?: (walletId: string) => void;
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  } & DefaultParams,
+) {
+  const {
+    onImportSuccess,
+    defaultWalletAccounts,
+    successPageDuration,
+    stampWith,
+  } = params;
 
   const { config, session, importWallet, httpClient } = useTurnkey();
   const [walletName, setWalletName] = useState<string>("");
@@ -151,9 +157,9 @@ export function ImportComponent(params: {
         defaultWalletAccounts.length > 0 &&
         (defaultWalletAccounts as any[])[0]?.addressFormat === undefined
       ) {
-        accounts = generateWalletAccountsFromAddressFormat(
-          defaultWalletAccounts as v1AddressFormat[],
-        );
+        accounts = generateWalletAccountsFromAddressFormat({
+          addresses: defaultWalletAccounts as v1AddressFormat[],
+        });
       } else if (Array.isArray(defaultWalletAccounts)) {
         accounts = defaultWalletAccounts as v1WalletAccountParams[];
       }
@@ -162,6 +168,7 @@ export function ImportComponent(params: {
         walletName: walletName,
         accounts,
         encryptedBundle,
+        stampWith,
       });
 
       if (response) {

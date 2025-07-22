@@ -10,6 +10,7 @@ import type {
   v1Authenticator,
   v1AuthenticatorParamsV2,
   v1WalletAccountParams,
+  v1WalletAccount,
 } from "@turnkey/sdk-types";
 import { CreateSubOrgParams } from "@types";
 // Import all defaultAccountAtIndex functions for each address format
@@ -383,30 +384,51 @@ export function createWalletAccountFromAddressFormat(
   );
 }
 
-export function generateWalletAccountsFromAddressFormat(
-  addresses: v1AddressFormat[],
-) {
-  let walletAccounts: v1WalletAccountParams[] = [];
+export function generateWalletAccountsFromAddressFormat(params: {
+  addresses: v1AddressFormat[];
+  existingWalletAccounts?: v1WalletAccount[];
+}): v1WalletAccountParams[] {
+  const { addresses, existingWalletAccounts } = params;
   const pathMap = new Map<string, number>();
-  walletAccounts = addresses.map((addressFormat) => {
+
+  // Build a lookup for max index per (addressFormat, basePath)
+  const maxIndexMap = new Map<string, number>();
+  if (existingWalletAccounts && existingWalletAccounts.length > 0) {
+    for (const acc of existingWalletAccounts) {
+      // Normalize base path (remove account index)
+      const basePath = acc.path.replace(/^((?:[^\/]+\/){3})[^\/]+/, "$1");
+      const key = `${acc.addressFormat}:${basePath}`;
+      const idxSegment = acc.path.split("/")[3];
+      const idx = idxSegment ? parseInt(idxSegment.replace(/'/, ""), 10) : -1;
+      if (!isNaN(idx)) {
+        maxIndexMap.set(key, Math.max(maxIndexMap.get(key) ?? -1, idx));
+      }
+    }
+  }
+
+  return addresses.map((addressFormat) => {
     const account = createWalletAccountFromAddressFormat(addressFormat);
-    const pathIndex = pathMap.get(account.path) ?? 0;
-    // Replace the number after the first 3 slashes (the 4th segment)
+    const basePath = account.path.replace(/^((?:[^\/]+\/){3})[^\/]+/, "$1");
+    const key = `${addressFormat}:${basePath}`;
+    let nextIndex = 0;
+
+    if (maxIndexMap.has(key)) {
+      nextIndex = maxIndexMap.get(key)! + 1;
+    } else if (pathMap.has(account.path)) {
+      nextIndex = pathMap.get(account.path)!;
+    }
+
     const pathWithIndex = account.path.replace(
       /^((?:[^\/]*\/){3})(\d+)/,
-      (_, prefix, _oldIdx) => `${prefix}${pathIndex}`,
+      (_, prefix) => `${prefix}${nextIndex}`,
     );
-    pathMap.set(account.path, pathIndex + 1);
-    const newAccount: v1WalletAccountParams = {
-      curve: account.curve,
-      pathFormat: account.pathFormat,
-      path: pathWithIndex,
-      addressFormat: account.addressFormat,
-    };
-    return newAccount;
-  });
+    pathMap.set(account.path, nextIndex + 1);
 
-  return walletAccounts;
+    return {
+      ...account,
+      path: pathWithIndex,
+    } as v1WalletAccountParams;
+  });
 }
 
 export function buildSignUpBody(params: {
