@@ -817,7 +817,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    // return client.createPasskey(params);
     return await withTurnkeyErrorHandling(
       () => client.createPasskey(params),
       callbacks,
