@@ -37,7 +37,7 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     createSuborgParams?: {
       emailOtpAuth?: CreateSubOrgParams;
       smsOtpAuth?: CreateSubOrgParams;
-      passkeyAuth?: CreateSubOrgParams;
+      passkeyAuth?: CreateSubOrgParams & { passkeyName?: string };
       walletAuth?: CreateSubOrgParams;
       oAuth?: CreateSubOrgParams;
     };
