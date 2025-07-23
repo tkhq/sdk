@@ -1600,7 +1600,7 @@ export class TurnkeyClient {
   };
 
   removeUserEmail = async (
-    params: { userId?: string } & DefaultParams,
+    params?: { userId?: string } & DefaultParams,
   ): Promise<string> => {
     const { stampWith } = params || {};
     const session = await this.storageManager.getActiveSession();
@@ -1673,7 +1673,7 @@ export class TurnkeyClient {
   };
 
   removeUserPhoneNumber = async (
-    params: {
+    params?: {
       userId?: string;
     } & DefaultParams,
   ): Promise<string> => {
