@@ -24,6 +24,9 @@ import {
   OtpType,
   TurnkeyClient,
   Wallet,
+  TurnkeyClientMethods,
+  TurnkeySDKClientBase,
+  type DefaultParams,
 } from "@turnkey/sdk-js";
 import {
   createContext,
@@ -34,11 +37,6 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  TurnkeyClientMethods,
-  TurnkeySDKClientBase,
-  DefaultParams,
-} from "@turnkey/sdk-js";
 import {
   OAuthProviders,
   Session,

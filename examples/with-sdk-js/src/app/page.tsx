@@ -10,8 +10,12 @@ import {
   v1AddressFormat,
   v1Attestation,
 } from "@turnkey/sdk-types";
-import { OtpType, StamperType } from "@turnkey/sdk-js";
-import { useModal, useTurnkey } from "@turnkey/react-wallet-kit";
+import {
+  OtpType,
+  StamperType,
+  useModal,
+  useTurnkey,
+} from "@turnkey/react-wallet-kit";
 import { SessionKey } from "@turnkey/sdk-js/dist/__storage__/base";
 import { WalletType } from "@turnkey/wallet-stamper";
 import { ExportType } from "@turnkey/react-wallet-kit/dist/components/export";
