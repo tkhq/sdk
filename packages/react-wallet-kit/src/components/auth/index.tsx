@@ -18,10 +18,13 @@ import { Spinner } from "../design/Spinners";
 import { ExternalWalletSelector, WalletAuthButton } from "./Wallet";
 import { WalletProvider } from "@turnkey/wallet-stamper";
 import clsx from "clsx";
+import { ClientState } from "@utils";
+import { DeveloperError } from "../design/Failure";
 
 export function AuthComponent() {
   const {
     config,
+    clientState,
     handleGoogleOauth,
     handleAppleOauth,
     handleFacebookOauth,
@@ -33,12 +36,14 @@ export function AuthComponent() {
   } = useTurnkey();
   const { pushPage, isMobile } = useModal();
 
-  if (!config)
+  if (!config || clientState === ClientState.Loading) {
+    // Don't check ClientState.Error here. We already check in the modal root
     return (
       <div className="flex flex-col items-center w-96 py-5">
         <Spinner strokeWidth={2} className="w-48 h-48" />
       </div>
     );
+  }
 
   const { methods = {}, methodOrder = [], oauthOrder = [] } = config.auth || {};
 
@@ -108,18 +113,7 @@ export function AuthComponent() {
         <ActionPage
           title="Creating account with passkey..."
           action={async () => {
-            const websiteName = window.location.hostname;
-            const timestamp = Date.now();
-
-            // The default passkey name is just "A Passkey" from the core signUpWithPasskey method.
-            // Since we know we are on a website, default it to the website name if not provided in the conifg
-            const passkeyDisplayName =
-              config.auth?.createSuborgParams?.passkeyAuth?.authenticators?.[0]
-                ?.authenticatorName ?? `${websiteName}-${timestamp}`;
-
-            await signUpWithPasskey({
-              passkeyDisplayName,
-            });
+            await signUpWithPasskey({});
           }}
           icon={<FontAwesomeIcon size="3x" icon={faFingerprint} />}
         />
@@ -296,13 +290,42 @@ export function AuthComponent() {
         isMobile ? "w-full" : "w-96",
       )}
     >
-      <div className="mt-12" />
-      {rendered.map((component, index) => (
-        <div key={index} className="w-full">
-          {index > 0 && <OrSeparator />}
-          {component}
-        </div>
-      ))}
+      {config.authProxyId ? (
+        rendered.length > 0 ? (
+          <>
+            <div className="mt-12" />
+            {rendered.map((component, index) => (
+              <div key={index} className="w-full">
+                {index > 0 && <OrSeparator />}
+                {component}
+              </div>
+            ))}
+          </>
+        ) : (
+          // TODO (Amir / Ethan): We will probably change the auth proxy name and authProxyId field. Make sure to update this!
+          <DeveloperError
+            developerTitle="No Auth Methods Enabled"
+            developerMessages={[
+              "You are using Turnkey's Auth Proxy, but no auth methods are enabled.",
+              "To use this modal, you must enable auth methods within the Turnkey dashboard.",
+              "If you disabled all auth methods within the TurnkeyProvider config, you will also see this error.",
+            ]}
+            userMessages={["No authentication methods are available."]}
+          />
+        )
+      ) : (
+        <DeveloperError
+          developerTitle="Proxy not Enabled"
+          developerMessages={[
+            "You have not passed in authProxyId into the TurnkeyProvider.",
+            "To use this modal, you must be using Turnkey's Auth Proxy.",
+            "Please enable it in the Turnkey dashboard and pass in the authProxyId into the TurnkeyProvider.",
+          ]}
+          // Users should never see this message ever. We should give a reward for anyone who does see this.
+          userMessages={["You touched fuzzy.... and got dizzy."]}
+        />
+      )}
+
       <div className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-xs mt-4 text-center">
         <span>
           By continuing, you agree to our{" "}
