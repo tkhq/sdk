@@ -444,6 +444,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       try {
         let proxyAuthConfig: ProxyTGetWalletKitConfigResponse | undefined;
         if (config.authProxyId) {
+          // Only fetch the proxy auth config if we have an authProxyId. This is a way for devs to explicitly disable the proxy auth.
           proxyAuthConfig = await client.getProxyAuthConfig();
           proxyAuthConfigRef.current = proxyAuthConfig;
         }
@@ -464,6 +465,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
   }, [config]);
 
+  useEffect(() => {
+    // authState must be consistent with session state. We found during testing that there are cases where the session and authState can be out of sync in very rare edge cases.
+    // This will ensure that they are always in sync and remove the need to setAuthState manually in other places.
+    if (session) {
+      setAuthState(AuthState.Authenticated);
+    } else {
+      setAuthState(AuthState.Unauthenticated);
+    }
+  }, [session]);
   const buildConfig = (
     proxyAuthConfig?: ProxyTGetWalletKitConfigResponse | undefined,
   ) => {
@@ -585,11 +595,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   };
 
   const initializeSessions = async () => {
-    setAuthState(AuthState.Loading);
     try {
       const allSessions = await getAllSessions();
       if (!allSessions) {
-        setAuthState(AuthState.Unauthenticated);
         return;
       }
 
@@ -615,10 +623,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         await refreshUser();
         await refreshWallets();
 
-        setAuthState(AuthState.Authenticated);
         return;
       }
-      setAuthState(AuthState.Unauthenticated);
     } catch (error) {
       if (
         error instanceof TurnkeyError ||
@@ -634,7 +640,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ),
         );
       }
-      setAuthState(AuthState.Unauthenticated);
     }
   };
 
@@ -762,11 +767,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const allSessions = await client!.getAllSessions();
 
-      await refreshWallets();
-      await refreshUser();
-
       setSession(session);
       setAllSessions(allSessions);
+
+      await refreshWallets();
+      await refreshUser();
     } catch (error) {
       if (
         error instanceof TurnkeyError ||
@@ -829,14 +834,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    setAuthState(AuthState.Loading);
+
     await withTurnkeyErrorHandling(
       () => client.logout(params),
       callbacks,
       "Failed to logout",
     );
     handlePostLogout();
-    setAuthState(AuthState.Unauthenticated);
+
     return;
   }
 
@@ -851,7 +856,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    setAuthState(AuthState.Loading);
 
     const expirationSeconds =
       masterConfig?.auth?.sessionExpirationSeconds?.passkey ??
@@ -863,9 +867,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
-    } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -897,21 +898,36 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         ? { ...params, createSubOrgParams }
         : { ...params };
 
-    setAuthState(AuthState.Loading);
-
     const expirationSeconds =
       masterConfig?.auth?.sessionExpirationSeconds?.passkey ??
       DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
+    const websiteName = window.location.hostname;
+    const timestamp =
+      new Date().toLocaleDateString() +
+      "-" +
+      new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+    // We allow passkeyName to be passed in thru the provider or thru the params of this function directly.
+    // This is because signUpWithPasskey will create a new passkey using that name.
+    // Any extra authenticators will be created after the first one. (see core implementation)
+    const passkeyName =
+      params?.passkeyDisplayName ??
+      masterConfig.auth?.createSuborgParams?.passkeyAuth?.passkeyName ??
+      `${websiteName}-${timestamp}`;
+
     const res = await withTurnkeyErrorHandling(
-      () => client.signUpWithPasskey({ ...params, expirationSeconds }),
+      () =>
+        client.signUpWithPasskey({
+          ...params,
+          passkeyDisplayName: passkeyName,
+          expirationSeconds,
+        }),
       callbacks,
       "Failed to sign up with passkey",
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
-    } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -1046,10 +1062,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    setAuthState(AuthState.Loading);
 
     const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds?.passkey ??
+      masterConfig?.auth?.sessionExpirationSeconds?.wallet ??
       DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
     const res = await withTurnkeyErrorHandling(
       () => client.loginWithWallet({ ...params, expirationSeconds }),
@@ -1058,9 +1073,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
-    } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -1091,10 +1103,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       createSubOrgParams !== undefined
         ? { ...params, createSubOrgParams }
         : { ...params };
-    setAuthState(AuthState.Loading);
 
     const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds?.passkey ??
+      masterConfig?.auth?.sessionExpirationSeconds?.wallet ??
       DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
     const res = await withTurnkeyErrorHandling(
       () => client.signUpWithWallet({ ...params, expirationSeconds }),
@@ -1103,9 +1114,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -1136,10 +1145,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       createSubOrgParams !== undefined
         ? { ...params, createSubOrgParams }
         : { ...params };
-    setAuthState(AuthState.Loading);
 
     const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds?.passkey ??
+      masterConfig?.auth?.sessionExpirationSeconds?.wallet ??
       DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
     const res = await withTurnkeyErrorHandling(
       () => client.loginOrSignupWithWallet({ ...params, expirationSeconds }),
@@ -1148,9 +1156,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -1204,7 +1210,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    setAuthState(AuthState.Loading);
+
     const res = await withTurnkeyErrorHandling(
       () => client.loginWithOtp(params),
       callbacks,
@@ -1212,9 +1218,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -1252,7 +1256,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       createSubOrgParams !== undefined
         ? { ...params, createSubOrgParams }
         : { ...params };
-    setAuthState(AuthState.Loading);
+
     const res = await withTurnkeyErrorHandling(
       () => client.signUpWithOtp(params),
       callbacks,
@@ -1260,9 +1264,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -1304,7 +1306,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         ? { ...params, createSubOrgParams }
         : { ...params };
 
-    setAuthState(AuthState.Loading);
     const res = await withTurnkeyErrorHandling(
       () => client.completeOtp(params),
       callbacks,
@@ -1312,9 +1313,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -1349,7 +1348,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         ? { ...params, createSubOrgParams }
         : { ...params };
 
-    setAuthState(AuthState.Loading);
     const res = await withTurnkeyErrorHandling(
       () => client.completeOauth(params),
       callbacks,
@@ -1357,9 +1355,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -1376,7 +1372,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    setAuthState(AuthState.Loading);
+
     const res = await withTurnkeyErrorHandling(
       () => client.loginWithOauth(params),
       callbacks,
@@ -1384,9 +1380,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
     } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -1418,7 +1412,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       createSubOrgParams !== undefined
         ? { ...params, createSubOrgParams }
         : { ...params };
-    setAuthState(AuthState.Loading);
+
     const res = await withTurnkeyErrorHandling(
       () => client.signUpWithOauth(params),
       callbacks,
@@ -1426,9 +1420,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     );
     if (res) {
       await handlePostAuth();
-      setAuthState(AuthState.Authenticated);
-    } else {
-      setAuthState(AuthState.Unauthenticated);
     }
     return res;
   }
@@ -1874,7 +1865,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       await scheduleSessionExpiration({ sessionKey, expiry: session.expiry });
 
     const allSessions = await getAllSessions();
-    setAuthState(AuthState.Authenticated);
+
     setSession(session);
     setAllSessions(allSessions);
     return;

@@ -341,6 +341,7 @@ export class TurnkeyClient {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
       const passkeyName = passkeyDisplayName || `passkey-${Date.now()}`;
 
+      // A passkey will be created automatically when you call this function. The name is passed in
       const passkey = await this.createPasskey({
         name: passkeyName,
         displayName: passkeyName,
@@ -357,8 +358,10 @@ export class TurnkeyClient {
         createSubOrgParams: {
           ...createSubOrgParams,
           authenticators: [
+            ...(createSubOrgParams?.authenticators ?? []), // Any extra authenticators can be passed into createSubOrgParams
             {
-              authenticatorName: passkeyName,
+              // Add our passkey that we made earlier.
+              authenticatorName: passkeyName, // Ensure the name in orgData is the same name as the created passkey
               challenge: passkey.encodedChallenge,
               attestation: passkey.attestation,
             },
