@@ -14,6 +14,7 @@ import { TurnkeyProviderConfig } from "../TurnkeyProvider";
 import { useTurnkey } from "../client/Provider";
 import { ClientState } from "@utils";
 import clsx from "clsx";
+import { DeveloperError } from "../../components/design/Failure";
 
 interface ModalRootProps {
   config: TurnkeyProviderConfig;
@@ -222,7 +223,17 @@ export function ModalRoot(props: ModalRootProps) {
                     ref={containerRef}
                   >
                     {clientState === ClientState.Error ? (
-                      <InitFailed />
+                      <DeveloperError
+                        developerTitle="Turnkey SDK failed to initialize."
+                        developerMessages={[
+                          "Check your config and ensure you're connected to the internet.",
+                          "Try attaching an onError callback to the TurnkeyProvider's callbacks to see more details.",
+                          "You can also inspect the network tab to see any failed network requests.",
+                        ]}
+                        userMessages={[
+                          "An underlying error occurred. Try refreshing the page",
+                        ]}
+                      />
                     ) : (
                       current?.content
                     )}
@@ -302,32 +313,4 @@ function renderMissingStylesOverlay() {
   `;
 
   document.body.appendChild(div);
-}
-
-function InitFailed() {
-  // TODO (Amir): Should this look fancy? I think barebones error message screens are scary which is good for developers!
-  return (
-    <div className="flex items-center justify-center w-64 min-48 text-sm text-center">
-      {process.env.NODE_ENV === "development" ? (
-        <div className="flex flex-col items-center gap-2 mt-10 text-sm font-normal">
-          <strong className="text-danger-light dark:text-danger-dark">
-            Turnkey SDK failed to initialize.
-          </strong>
-          <div>
-            Check your config and ensure you're connected to the internet.
-          </div>
-          <div>
-            Try attaching an onError callback to the TurnkeyProvider's callbacks
-            to see more details. You can also inspect the network tab to see any
-            failed network requests.
-          </div>
-          <div className="text-xs mt-3 font-extralight italic">
-            You will only see this error if you are a developer!
-          </div>
-        </div>
-      ) : (
-        <p>An underlying error occurred. Try refreshing the page</p>
-      )}
-    </div>
-  );
 }
