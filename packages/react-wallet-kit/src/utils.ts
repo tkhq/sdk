@@ -62,7 +62,6 @@ export enum FilterType {
 
 export enum AuthState {
   Unauthenticated = "unauthenticated",
-  Loading = "loading",
   Authenticated = "authenticated",
 }
 
