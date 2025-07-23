@@ -1585,11 +1585,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to update user email",
     );
+    if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
   }
 
   async function removeUserEmail(
-    params: { userId?: string } & DefaultParams,
+    params?: { userId?: string } & DefaultParams,
   ): Promise<string> {
     if (!client)
       throw new TurnkeyError(
@@ -1601,6 +1602,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to remove user email",
     );
+    if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
   }
 
@@ -1621,11 +1623,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to update user phone number",
     );
+    if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
   }
 
   async function removeUserPhoneNumber(
-    params: {
+    params?: {
       userId?: string;
     } & DefaultParams,
   ): Promise<string> {
@@ -1639,6 +1642,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to remove user phone number",
     );
+    if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
   }
 
@@ -1658,6 +1662,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to update user name",
     );
+    if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
   }
 
@@ -1678,6 +1683,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to add OAuth provider",
     );
+    if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
   }
 
@@ -1697,6 +1703,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to remove OAuth provider",
     );
+    if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
   }
 
@@ -1717,6 +1724,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to add passkey",
     );
+    if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
   }
 
@@ -1736,6 +1744,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to remove passkey",
     );
+    if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
   }
 
@@ -1757,6 +1766,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to create wallet",
     );
+    if (res) await refreshWallets({ stampWith: params?.stampWith });
     return res;
   }
 
@@ -1767,7 +1777,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       organizationId?: string;
     } & DefaultParams,
   ): Promise<string[]> {
-    const { stampWith } = params;
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1778,7 +1787,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to create wallet accounts",
     );
-    if (res) await refreshWallets({ stampWith });
+    if (res) await refreshWallets({ stampWith: params?.stampWith });
     return res;
   }
 
@@ -1789,7 +1798,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       organizationId?: string;
     } & DefaultParams,
   ): Promise<ExportBundle> {
-    const { stampWith } = params;
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1800,7 +1808,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to export wallet",
     );
-    if (res) await refreshWallets({ stampWith });
+    if (res) await refreshWallets({ stampWith: params?.stampWith });
     return res;
   }
 
@@ -1812,7 +1820,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       userId?: string;
     } & DefaultParams,
   ): Promise<string> {
-    const { stampWith } = params;
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1823,7 +1830,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to import wallet",
     );
-    if (res) await refreshWallets({ stampWith });
+    if (res) await refreshWallets({ stampWith: params?.stampWith });
     return res;
   }
 
