@@ -37,7 +37,6 @@ import {
   InjectedWallet,
   Curve,
   TurnkeyRequestError,
-  DefaultParams,
 } from "@types"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
@@ -81,6 +80,10 @@ type PublicMethods<T> = {
       ? never
       : K
     : never]: T[K] extends Function ? T[K] : never;
+};
+
+export type DefaultParams = {
+  stampWith?: StamperType | undefined;
 };
 
 export type TurnkeyClientMethods = PublicMethods<TurnkeyClient>;
