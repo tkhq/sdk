@@ -391,12 +391,17 @@
     "/public/v1/query/get_policy_evaluations": {
       "post": {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "summary": "Get policy evaluations",
         "description": "Get the policy evaluations for an activity.",
 =======
         "summary": "Get Policy Evaluations",
         "description": "Get the policy evaluations for an Activity",
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+        "summary": "Get Policy Evaluations",
+        "description": "Get the policy evaluations for an Activity",
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
         "operationId": "PublicApiService_GetPolicyEvaluations",
         "responses": {
           "200": {
@@ -3429,7 +3434,10 @@
       ]
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
     "externalactivityv1UpdateProxyAuthConfigRequest": {
       "type": "object",
       "properties": {
@@ -3451,7 +3459,10 @@
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
+<<<<<<< HEAD
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
     "externaldatav1Address": {
       "type": "object",
       "properties": {
@@ -7158,18 +7169,24 @@
         "organizationId": {
           "type": "string",
 <<<<<<< HEAD
+<<<<<<< HEAD
           "description": "Unique identifier for a given organization."
         },
         "activityId": {
           "type": "string",
           "description": "Unique identifier for a given activity."
 =======
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
           "description": "Unique identifier for a given Organization."
         },
         "activityId": {
           "type": "string",
           "description": "Unique identifier for a given Activity."
+<<<<<<< HEAD
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
         }
       },
       "required": ["organizationId", "activityId"]
@@ -10225,6 +10242,7 @@
     },
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     "v1SmartContractInterfaceReference": {
       "type": "object",
       "properties": {
@@ -10292,6 +10310,8 @@
     },
 =======
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
     "v1SmartContractInterfaceReference": {
       "type": "object",
       "properties": {
