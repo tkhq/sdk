@@ -5,12 +5,12 @@ import {
   faUnlock,
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
-import { DefaultParams } from "@turnkey/sdk-js";
-import { ExportType } from ".";
-import { useTurnkey } from "../../providers";
+import type { DefaultParams } from "@turnkey/sdk-js";
+import { ExportType } from "../../types/base";
+import { useTurnkey } from "../../providers/client/Hook";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { ActionButton } from "../design/Buttons";
-import { IframeStamper } from "@turnkey/iframe-stamper";
+import type { IframeStamper } from "@turnkey/iframe-stamper";
 import { useState } from "react";
 
 export function ExportWarn(

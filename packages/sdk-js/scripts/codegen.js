@@ -10,10 +10,6 @@ const AUTH_PROXY_SWAGGER_PATH = path.resolve(
   `${SOURCE_DIRECTORY}/__inputs__`,
   "auth_proxy.swagger.json",
 );
-const TARGET_API_TYPES_PATH = path.resolve(
-  `${SOURCE_DIRECTORY}/__generated__`,
-  "sdk_api_types.ts",
-);
 const TARGET_SDK_CLIENT_PATH = path.resolve(
   `${SOURCE_DIRECTORY}/__generated__`,
   "sdk-client-base.ts",
@@ -51,15 +47,6 @@ const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "listPrivateKeys",
   "listUserTags",
 ];
-
-// Helper Functions
-/**
- * @param {Array<string | null>} input
- * @returns {string}
- */
-function joinPropertyList(input) {
-  return input.filter(Boolean).join(",\n");
-}
 
 /**
  * @param {string} methodName
@@ -121,130 +108,6 @@ function extractLatestVersions(definitions) {
   return latestVersions;
 }
 
-// Generators
-const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
-  const namespace = swaggerSpec.tags?.find((item) => item.name != null)?.name;
-
-  /** @type {Array<string>} */
-  const codeBuffer = [];
-
-  /** @type {Array<string>} */
-  const imports = [];
-
-  imports.push(
-    'import type { operations, definitions } from "../__inputs__/public_api.types";',
-  );
-
-  imports.push(
-    'import type { queryOverrideParams, commandOverrideParams } from "../__types__/base";',
-  );
-
-  const latestVersions = extractLatestVersions(swaggerSpec.definitions);
-
-  for (const endpointPath in swaggerSpec.paths) {
-    const methodMap = swaggerSpec.paths[endpointPath];
-    const operation = methodMap.post;
-    const operationId = operation.operationId;
-
-    const operationNameWithoutNamespace = operationId.replace(
-      new RegExp(`${namespace}_`),
-      "",
-    );
-
-    const methodName = `${
-      operationNameWithoutNamespace.charAt(0).toLowerCase() +
-      operationNameWithoutNamespace.slice(1)
-    }`;
-
-    const methodType = methodTypeFromMethodName(methodName);
-
-    const parameterList = operation["parameters"] ?? [];
-
-    let responseValue = "void";
-    if (methodType === "command") {
-      const resultKey = operationNameWithoutNamespace + "Result";
-      const versionedMethodName = latestVersions[resultKey].formattedKeyName;
-
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${versionedMethodName}"] & definitions["v1ActivityResponse"]`;
-    } else if (["noop", "query"].includes(methodType)) {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
-    } else if (methodType === "activityDecision") {
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"] & definitions["v1ActivityResponse"]`;
-    }
-
-    /** @type {TBinding} */
-    const responseTypeBinding = {
-      name: `T${operationNameWithoutNamespace}Response`,
-      isBound: true,
-      value: operation.responses["200"] == null ? `void` : responseValue,
-    };
-
-    let bodyValue = "{}";
-    if (["activityDecision", "command"].includes(methodType)) {
-      bodyValue = `operations["${operationId}"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams`;
-    } else if (methodType === "query") {
-      bodyValue = `Omit<operations["${operationId}"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams`;
-    }
-
-    /** @type {TBinding} */
-    const bodyTypeBinding = {
-      name: `T${operationNameWithoutNamespace}Body`,
-      isBound: parameterList.find((item) => item.in === "body") != null,
-      value: bodyValue,
-    };
-
-    // What are these used for?
-    /** @type {TBinding} */
-    const queryTypeBinding = {
-      name: `T${operationNameWithoutNamespace}Query`,
-      isBound: parameterList.find((item) => item.in === "query") != null,
-      value: `operations["${operationId}"]["parameters"]["query"]`,
-    };
-
-    /** @type {TBinding} */
-    const substitutionTypeBinding = {
-      name: `T${operationNameWithoutNamespace}Substitution`,
-      isBound: parameterList.find((item) => item.in === "path") != null,
-      value: `operations["${operationId}"]["parameters"]["path"]`,
-    };
-
-    /** @type {TBinding} */
-    const inputTypeBinding = {
-      name: `T${operationNameWithoutNamespace}Input`,
-      isBound:
-        bodyTypeBinding.isBound ||
-        queryTypeBinding.isBound ||
-        substitutionTypeBinding.isBound,
-      value: `{ ${joinPropertyList([
-        bodyTypeBinding.isBound ? `body: ${bodyTypeBinding.name}` : null,
-        queryTypeBinding.isBound ? `query: ${queryTypeBinding.name}` : null,
-        substitutionTypeBinding.isBound
-          ? `substitution: ${substitutionTypeBinding.name}`
-          : null,
-      ])} }`,
-    };
-
-    // local type aliases
-    codeBuffer.push(
-      ...[queryTypeBinding, substitutionTypeBinding]
-        .filter((binding) => binding.isBound)
-        .map((binding) => `type ${binding.name} = ${binding.value};`),
-    );
-
-    // exported type aliases
-    codeBuffer.push(
-      ...[responseTypeBinding, inputTypeBinding, bodyTypeBinding]
-        .filter((binding) => binding.isBound)
-        .map((binding) => `export type ${binding.name} = ${binding.value};`),
-    );
-  }
-
-  await fs.promises.writeFile(
-    targetPath,
-    [COMMENT_HEADER].concat(imports).concat(codeBuffer).join("\n\n"),
-  );
-};
-
 const generateSDKClientFromSwagger = async (
   swaggerSpec,
   authProxySwaggerSpec,
@@ -270,19 +133,16 @@ const generateSDKClientFromSwagger = async (
   );
 
   imports.push(
-    'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeyHttpClientConfig } from "../__types__/base";',
+    'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeyHttpClientConfig, StorageBase } from "../__types__/base";',
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
-
-  // imports.push('import type * as SdkApiTypes from "./sdk_api_types";');
 
   imports.push('import type * as SdkTypes from "@turnkey/sdk-types";');
   imports.push(
     'import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";',
   );
 
-  imports.push('import { StorageBase } from "../__storage__/base";');
   imports.push('import { parseSession } from "../utils";');
 
   imports.push('import { StamperType } from "../__types__/base";');
@@ -606,7 +466,6 @@ const generateSDKClientFromSwagger = async (
   }
 
   for (const endpointPath in authProxySwaggerSpec.paths) {
-    console.log(`Processing auth proxy endpoint: ${endpointPath}`);
     const methodMap = authProxySwaggerSpec.paths[endpointPath];
     const operation = methodMap.post;
     const operationId = operation.operationId;
@@ -663,7 +522,6 @@ async function main() {
   const swaggerSpec = JSON.parse(swaggerSpecFile);
   const authProxySwaggerSpec = JSON.parse(authProxySwaggerSpecFile);
 
-  await generateApiTypesFromSwagger(swaggerSpec, TARGET_API_TYPES_PATH);
   await generateSDKClientFromSwagger(
     swaggerSpec,
     authProxySwaggerSpec,

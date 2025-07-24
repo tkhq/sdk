@@ -15,10 +15,9 @@ import type {
   v1Wallet,
   v1WalletAccount,
   v1WalletAccountParams,
+  Session,
 } from "@turnkey/sdk-types";
-import { StorageBase } from "../__storage__/base";
-import { TPasskeyStamperConfig } from "../__stampers__/passkey/base";
-import { TWalletManagerConfig } from "../__stampers__/wallet/base";
+import type { TWalletManagerConfig } from "../__stampers__/wallet/base";
 
 // TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
 
@@ -306,3 +305,61 @@ export const OtpTypeToFilterTypeMap = {
   [OtpType.Email]: FilterType.Email,
   [OtpType.Sms]: FilterType.Sms,
 };
+
+export enum SessionKey {
+  DefaultSessionkey = "@turnkey/session/v3",
+}
+
+export interface StorageBase {
+  getStorageValue(sessionKey: string): Promise<any>;
+  setStorageValue(sessionKey: string, storageValue: any): Promise<void>;
+  setActiveSessionKey(sessionKey: string): Promise<void>;
+  removeStorageValue(sessionKey: string): Promise<void>;
+  storeSession(session: string, sessionKey?: string): Promise<void>;
+  getSession(sessionKey?: string): Promise<Session | undefined>;
+  getActiveSessionKey(): Promise<string | undefined>;
+  getActiveSession(): Promise<Session | undefined>;
+  listSessionKeys(): Promise<string[]>;
+  clearSession(sessionKey: string): Promise<void>;
+  clearAllSessions(): Promise<void>;
+}
+
+// TODO (Amir) This would be nice in sdk-types
+export type TPasskeyStamperConfig = {
+  // The RPID ("Relying Party ID") for your app. This is automatically determined in web environments based on the current hostname.
+  // See https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration to set this up for react-native.
+  rpId: string;
+
+  // Optional timeout value in milliseconds. Defaults to 5 minutes.
+  timeout?: number;
+
+  // Optional override for UV flag. Defaults to "preferred".
+  userVerification?: UserVerificationRequirement;
+
+  // Optional list of credentials to pass. Defaults to empty.
+  allowCredentials?: PublicKeyCredentialDescriptor[];
+
+  // The below options do not exist in the WebauthnStamper:
+
+  // Optional name for the Relying Party (RP). This is used in the passkey creation flow on mobile.
+  rpName?: string;
+
+  // Option to force security passkeys on native platforms
+  withSecurityKey?: boolean;
+
+  // Option to force platform passkeys on native platforms
+  withPlatformKey?: boolean;
+
+  // Optional extensions. Defaults to empty.
+  extensions?: Record<string, unknown>;
+};
+
+export interface ApiKeyStamperBase {
+  listKeyPairs(): Promise<string[]>;
+  createKeyPair(
+    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
+  ): Promise<string>;
+  deleteKeyPair(publicKeyHex: string): Promise<void>;
+  clearKeyPairs(): Promise<void>;
+  stamp(payload: string, publicKeyHex: string): Promise<TStamp>;
+}

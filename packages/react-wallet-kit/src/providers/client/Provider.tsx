@@ -25,42 +25,37 @@ import {
   OtpType,
   TurnkeyClient,
   Wallet,
-  TurnkeyClientMethods,
-  TurnkeySDKClientBase,
   type DefaultParams,
 } from "@turnkey/sdk-js";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import {
-  OAuthProviders,
-  Session,
-  SessionType,
-  TDeleteSubOrganizationResponse,
-  TSignTransactionResponse,
-  TStampLoginResponse,
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
-  v1AddressFormat,
-  v1Attestation,
-  ProxyTGetWalletKitConfigResponse,
-  v1Pagination,
-  v1SignRawPayloadResult,
-  v1TransactionType,
-  v1User,
-  v1WalletAccount,
-  v1WalletAccountParams,
-  v1PayloadEncoding,
-  v1HashFunction,
+  SessionType,
+  OAuthProviders,
+  type Session,
+  type TDeleteSubOrganizationResponse,
+  type TSignTransactionResponse,
+  type TStampLoginResponse,
+  type v1AddressFormat,
+  type v1Attestation,
+  type ProxyTGetWalletKitConfigResponse,
+  type v1Pagination,
+  type v1SignRawPayloadResult,
+  type v1TransactionType,
+  type v1User,
+  type v1WalletAccount,
+  type v1WalletAccountParams,
+  type v1PayloadEncoding,
+  type v1HashFunction,
 } from "@turnkey/sdk-types";
-import { useModal } from "../modal/Provider";
-import { TurnkeyCallbacks, TurnkeyProviderConfig } from "../TurnkeyProvider";
+import { useModal } from "../modal/Hook";
+import {
+  type TurnkeyCallbacks,
+  type TurnkeyProviderConfig,
+  ExportType,
+} from "../../types/base";
 import { AuthComponent } from "../../components/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -71,8 +66,8 @@ import {
 import { WalletProvider, WalletType } from "@turnkey/wallet-stamper";
 import { ActionPage } from "../../components/auth/Action";
 import { SignMessageModal } from "../../components/sign/Message";
-import { ExportComponent, ExportType } from "../../components/export";
-import { ImportComponent } from "../../components/import";
+import { ExportComponent } from "../../components/export/Export";
+import { ImportComponent } from "../../components/import/Import";
 import { SuccessPage } from "../../components/design/Success";
 import { UpdateEmail } from "../../components/user/UpdateEmail";
 import { UpdatePhoneNumber } from "../../components/user/UpdatePhoneNumber";
@@ -88,147 +83,13 @@ import {
 } from "../../helpers";
 import { RemovePasskey } from "../../components/user/RemovePasskey";
 import { LinkWalletModal } from "../../components/user/LinkWallet";
+import { ClientContext } from "./Types";
 
 interface ClientProviderProps {
   children: ReactNode;
   config: TurnkeyProviderConfig;
   callbacks?: TurnkeyCallbacks | undefined;
 }
-
-export interface ClientContextType extends TurnkeyClientMethods {
-  httpClient: TurnkeySDKClientBase | undefined;
-  session: Session | undefined;
-  allSessions?: Record<string, Session> | undefined;
-  clientState: ClientState;
-  authState: AuthState;
-  config?: TurnkeyProviderConfig | undefined;
-  user: v1User | undefined;
-  wallets: Wallet[];
-  refreshUser: (params?: DefaultParams) => Promise<void>;
-  refreshWallets: (params?: DefaultParams) => Promise<void>;
-  handleLogin: () => Promise<void>;
-  handleGoogleOauth: (params: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    openInPage?: boolean;
-  }) => Promise<void>;
-  handleAppleOauth: (params: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    openInPage?: boolean;
-  }) => Promise<void>;
-  handleFacebookOauth: (params: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    openInPage?: boolean;
-  }) => Promise<void>;
-  handleExport: (
-    params: {
-      walletId: string;
-      exportType: ExportType;
-      targetPublicKey?: string;
-    } & DefaultParams,
-  ) => Promise<void>;
-  handleImport: (
-    params: {
-      defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-      onImportSuccess?: (walletId: string) => void;
-      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    } & DefaultParams,
-  ) => Promise<void>;
-  handleUpdateUserEmail: (params?: {
-    email?: string;
-    title?: string;
-    subTitle?: string;
-    onSuccess?: (userId: string) => void;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
-  handleUpdateUserPhoneNumber: (params?: {
-    phone?: string;
-    formattedPhone?: string;
-    title?: string;
-    subTitle?: string;
-    onSuccess?: (userId: string) => void;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
-  handleUpdateUserName: (
-    params?: {
-      userName?: string;
-      title?: string;
-      subTitle?: string;
-      onSuccess?: (userId: string) => void;
-      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    } & DefaultParams,
-  ) => Promise<void>;
-  handleAddEmail: (params?: {
-    email?: string;
-    title?: string;
-    subTitle?: string;
-    onSuccess?: (userId: string) => void;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
-  handleAddPhoneNumber: (params?: {
-    phoneNumber?: string;
-    formattedPhone?: string;
-    title?: string;
-    subTitle?: string;
-    onSuccess?: (userId: string) => void;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
-  handleAddOAuthProvider: (
-    params: {
-      providerName: OAuthProviders;
-    } & DefaultParams,
-  ) => Promise<void>;
-  handleRemoveOAuthProvider: (
-    params: {
-      providerId: string;
-      title?: string;
-      subTitle?: string;
-      onSuccess?: (providerIds: string[]) => void;
-      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    } & DefaultParams,
-  ) => Promise<void>;
-  handleAddPasskey: (
-    params?: {
-      name?: string;
-      displayName?: string;
-      userId?: string;
-      onSuccess?: (authenticatorIds: string[]) => void;
-      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    } & DefaultParams,
-  ) => Promise<void>;
-  handleRemovePasskey: (
-    params: {
-      authenticatorId: string;
-      title?: string;
-      subTitle?: string;
-      onSuccess?: (authenticatorIds: string[]) => void;
-      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    } & DefaultParams,
-  ) => Promise<void>;
-  handleSignMessage: (
-    params: {
-      message: string;
-      walletAccount: v1WalletAccount;
-      encoding?: v1PayloadEncoding;
-      hashFunction?: v1HashFunction;
-      subText?: string;
-    } & DefaultParams,
-  ) => Promise<v1SignRawPayloadResult>;
-  handleLinkExternalWallet: (params: {}) => Promise<void>;
-}
-
-export const ClientContext = createContext<ClientContextType | undefined>(
-  undefined,
-);
-
-export const useTurnkey = (): ClientContextType => {
-  const context = useContext(ClientContext);
-  if (!context)
-    throw new Error("useTurnkey must be used within TurnkeyProvider");
-  return context;
-};
 
 export const ClientProvider: React.FC<ClientProviderProps> = ({
   config,
@@ -534,10 +395,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             config.auth?.oAuthConfig?.openOAuthInPage ??
             proxyAuthConfig?.openOAuthInPage,
         },
-        sessionExpirationSeconds: {
-          passkey: proxyAuthConfig?.passkeySessionExpirationSeconds,
-          wallet: proxyAuthConfig?.walletSessionExpirationSeconds,
-        },
+        sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
         methodOrder,
         oauthOrder,
       },
@@ -858,7 +716,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
 
     const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds?.passkey ??
+      masterConfig?.auth?.sessionExpirationSeconds ??
       DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
     const res = await withTurnkeyErrorHandling(
       () => client.loginWithPasskey({ ...params, expirationSeconds }),
@@ -899,7 +757,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         : { ...params };
 
     const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds?.passkey ??
+      masterConfig?.auth?.sessionExpirationSeconds ??
       DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
     const websiteName = window.location.hostname;
@@ -1064,7 +922,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
 
     const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds?.wallet ??
+      masterConfig?.auth?.sessionExpirationSeconds ??
       DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
     const res = await withTurnkeyErrorHandling(
       () => client.loginWithWallet({ ...params, expirationSeconds }),
@@ -1105,7 +963,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         : { ...params };
 
     const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds?.wallet ??
+      masterConfig?.auth?.sessionExpirationSeconds ??
       DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
     const res = await withTurnkeyErrorHandling(
       () => client.signUpWithWallet({ ...params, expirationSeconds }),
@@ -1147,7 +1005,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         : { ...params };
 
     const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds?.wallet ??
+      masterConfig?.auth?.sessionExpirationSeconds ??
       DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
     const res = await withTurnkeyErrorHandling(
       () => client.loginOrSignupWithWallet({ ...params, expirationSeconds }),
