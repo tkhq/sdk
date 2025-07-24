@@ -1,4 +1,5 @@
 import {
+  SignMode,
   WalletInterface,
   WalletProvider,
   WalletType,
@@ -8,6 +9,7 @@ export interface WalletSignerInterface {
   signMessage(
     message: string | Uint8Array,
     walletProvider: WalletProvider,
+    mode: SignMode,
   ): Promise<string>;
 }
 
@@ -31,11 +33,12 @@ export class CrossPlatformWalletSigner implements WalletSignerInterface {
   async signMessage(
     message: string,
     walletProvider: WalletProvider,
+    mode: SignMode,
   ): Promise<string> {
     const wallet = this.wallets[walletProvider.type];
     if (!wallet)
       throw new Error(`Wallet for ${walletProvider.type} not initialized`);
-    return wallet.signMessage(message, walletProvider.provider);
+    return wallet.signMessage(message, walletProvider.provider, mode);
   }
 }
 

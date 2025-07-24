@@ -12,8 +12,10 @@ import {
   type v1WalletAccount,
   TurnkeyError,
   TurnkeyErrorCodes,
+  v1SignRawPayloadResult,
 } from "@turnkey/sdk-types";
 import { CreateSubOrgParams } from "@types";
+import { keccak256 } from "ethers";
 // Import all defaultAccountAtIndex functions for each address format
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
@@ -50,6 +52,11 @@ import {
   DEFAULT_TON_V3R2_ACCOUNTS,
   DEFAULT_TON_V4R2_ACCOUNTS,
 } from "./turnkey-helpers";
+import { fromDerSignature } from "@turnkey/crypto";
+import {
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -365,6 +372,81 @@ export function getEncodedMessage(
         .join("")) as string;
   }
   return rawMessage;
+}
+
+export const hashPayload = async (
+  encodedMessage: string,
+  hashFn: v1HashFunction,
+): Promise<string> => {
+  // when no hashing is required, we just return the string untouched
+  if (
+    hashFn === "HASH_FUNCTION_NOT_APPLICABLE" ||
+    hashFn === "HASH_FUNCTION_NO_OP"
+  ) {
+    return encodedMessage;
+  }
+
+  const msgBytes = encodedMessage.startsWith("0x")
+    ? uint8ArrayFromHexString(encodedMessage.slice(2))
+    : new TextEncoder().encode(encodedMessage);
+
+  if (hashFn === "HASH_FUNCTION_SHA256") {
+    const digest = await crypto.subtle.digest("SHA-256", msgBytes);
+    return "0x" + bytesToHex(new Uint8Array(digest));
+  }
+
+  if (hashFn === "HASH_FUNCTION_KECCAK256") {
+    return keccak256(msgBytes);
+  }
+
+  throw new Error(`Unsupported hash function: ${hashFn}`);
+};
+
+export function splitSignature(
+  signature: string,
+  addressFormat: v1AddressFormat,
+): v1SignRawPayloadResult {
+  const hex = signature.replace(/^0x/, "");
+
+  if (addressFormat === "ADDRESS_FORMAT_ETHEREUM") {
+    // this is a ECDSA signature
+    if (hex.length === 130) {
+      const r = hex.slice(0, 64);
+      const s = hex.slice(64, 128);
+      const v = hex.slice(128, 130);
+      return { r, s, v };
+    }
+
+    // this is a DER-encoded signatures (e.g., Ledger)
+    const raw = fromDerSignature(hex);
+    const r = uint8ArrayToHexString(raw.slice(0, 32));
+    const s = uint8ArrayToHexString(raw.slice(32, 64));
+
+    // DER signatures do not have a v component
+    // so we return 00 to match what Turnkey does
+    const v = "00";
+    return { r, s, v };
+  }
+
+  if (addressFormat === "ADDRESS_FORMAT_SOLANA") {
+    if (hex.length !== 128) {
+      throw new Error(
+        `Invalid Solana signature length: expected 64 bytes (128 hex), got ${hex.length}`,
+      );
+    }
+
+    // this is a Ed25519 signature
+    const r = hex.slice(0, 64);
+    const s = hex.slice(64, 128);
+
+    // solana signatures do not have a v component
+    // so we return 00 to match what Turnkey does
+    return { r, s, v: "00" };
+  }
+
+  throw new Error(
+    `Unsupported address format or invalid signature length: ${hex.length}`,
+  );
 }
 
 // Type guard to check if accounts is WalletAccount[]
