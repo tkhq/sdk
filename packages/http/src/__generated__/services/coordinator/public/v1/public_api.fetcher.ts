@@ -548,6 +548,62 @@ export const signGetPrivateKey = (
   });
 
 /**
+ * `POST /public/v1/query/get_smart_contract_interface`
+ */
+export type TGetSmartContractInterfaceResponse =
+  operations["PublicApiService_GetSmartContractInterface"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_smart_contract_interface`
+ */
+export type TGetSmartContractInterfaceInput = {
+  body: TGetSmartContractInterfaceBody;
+};
+
+/**
+ * `POST /public/v1/query/get_smart_contract_interface`
+ */
+export type TGetSmartContractInterfaceBody =
+  operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"];
+
+/**
+ * Get Smart Contract Interface
+ *
+ * Get details about a Smart Contract Interface
+ *
+ * `POST /public/v1/query/get_smart_contract_interface`
+ */
+export const getSmartContractInterface = (
+  input: TGetSmartContractInterfaceInput,
+) =>
+  request<
+    TGetSmartContractInterfaceResponse,
+    TGetSmartContractInterfaceBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_smart_contract_interface",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetSmartContractInterface` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetSmartContractInterface}
+ */
+export const signGetSmartContractInterface = (
+  input: TGetSmartContractInterfaceInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetSmartContractInterfaceBody, never, never>({
+    uri: "/public/v1/query/get_smart_contract_interface",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_user`
  */
 export type TGetUserResponse =
@@ -877,6 +933,62 @@ export const signGetPrivateKeys = (
 ) =>
   signedRequest<TGetPrivateKeysBody, never, never>({
     uri: "/public/v1/query/list_private_keys",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_smart_contract_interfaces`
+ */
+export type TGetSmartContractInterfacesResponse =
+  operations["PublicApiService_GetSmartContractInterfaces"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_smart_contract_interfaces`
+ */
+export type TGetSmartContractInterfacesInput = {
+  body: TGetSmartContractInterfacesBody;
+};
+
+/**
+ * `POST /public/v1/query/list_smart_contract_interfaces`
+ */
+export type TGetSmartContractInterfacesBody =
+  operations["PublicApiService_GetSmartContractInterfaces"]["parameters"]["body"]["body"];
+
+/**
+ * List Smart Contract Interfaces
+ *
+ * List all Smart Contract Interfaces within an Organization
+ *
+ * `POST /public/v1/query/list_smart_contract_interfaces`
+ */
+export const getSmartContractInterfaces = (
+  input: TGetSmartContractInterfacesInput,
+) =>
+  request<
+    TGetSmartContractInterfacesResponse,
+    TGetSmartContractInterfacesBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_smart_contract_interfaces",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetSmartContractInterfaces` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetSmartContractInterfaces}
+ */
+export const signGetSmartContractInterfaces = (
+  input: TGetSmartContractInterfacesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetSmartContractInterfacesBody, never, never>({
+    uri: "/public/v1/query/list_smart_contract_interfaces",
     body: input.body,
     options,
   });
@@ -1818,6 +1930,62 @@ export const signCreateReadWriteSession = (
   });
 
 /**
+ * `POST /public/v1/submit/create_smart_contract_interface`
+ */
+export type TCreateSmartContractInterfaceResponse =
+  operations["PublicApiService_CreateSmartContractInterface"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_smart_contract_interface`
+ */
+export type TCreateSmartContractInterfaceInput = {
+  body: TCreateSmartContractInterfaceBody;
+};
+
+/**
+ * `POST /public/v1/submit/create_smart_contract_interface`
+ */
+export type TCreateSmartContractInterfaceBody =
+  operations["PublicApiService_CreateSmartContractInterface"]["parameters"]["body"]["body"];
+
+/**
+ * Create Smart Contract Interface
+ *
+ * Create an ABI/IDL in JSON
+ *
+ * `POST /public/v1/submit/create_smart_contract_interface`
+ */
+export const createSmartContractInterface = (
+  input: TCreateSmartContractInterfaceInput,
+) =>
+  request<
+    TCreateSmartContractInterfaceResponse,
+    TCreateSmartContractInterfaceBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_smart_contract_interface",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateSmartContractInterface` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateSmartContractInterface}
+ */
+export const signCreateSmartContractInterface = (
+  input: TCreateSmartContractInterfaceInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateSmartContractInterfaceBody, never, never>({
+    uri: "/public/v1/submit/create_smart_contract_interface",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/create_sub_organization`
  */
 export type TCreateSubOrganizationResponse =
@@ -2407,6 +2575,62 @@ export const signDeletePrivateKeys = (
 ) =>
   signedRequest<TDeletePrivateKeysBody, never, never>({
     uri: "/public/v1/submit/delete_private_keys",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_smart_contract_interface`
+ */
+export type TDeleteSmartContractInterfaceResponse =
+  operations["PublicApiService_DeleteSmartContractInterface"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_smart_contract_interface`
+ */
+export type TDeleteSmartContractInterfaceInput = {
+  body: TDeleteSmartContractInterfaceBody;
+};
+
+/**
+ * `POST /public/v1/submit/delete_smart_contract_interface`
+ */
+export type TDeleteSmartContractInterfaceBody =
+  operations["PublicApiService_DeleteSmartContractInterface"]["parameters"]["body"]["body"];
+
+/**
+ * Create Smart Contract Interface
+ *
+ * Delete a Smart Contract Interface
+ *
+ * `POST /public/v1/submit/delete_smart_contract_interface`
+ */
+export const deleteSmartContractInterface = (
+  input: TDeleteSmartContractInterfaceInput,
+) =>
+  request<
+    TDeleteSmartContractInterfaceResponse,
+    TDeleteSmartContractInterfaceBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_smart_contract_interface",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteSmartContractInterface` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteSmartContractInterface}
+ */
+export const signDeleteSmartContractInterface = (
+  input: TDeleteSmartContractInterfaceInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteSmartContractInterfaceBody, never, never>({
+    uri: "/public/v1/submit/delete_smart_contract_interface",
     body: input.body,
     options,
   });
