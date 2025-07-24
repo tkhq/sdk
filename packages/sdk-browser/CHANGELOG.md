@@ -1,5 +1,18 @@
 # @turnkey/sdk-browser
 
+## 5.3.4
+
+### Patch Changes
+
+- [#763](https://github.com/tkhq/sdk/pull/763) [`cb13c26`](https://github.com/tkhq/sdk/commit/cb13c26edb79a01ab651e3b2897334fd154b436a) Author [@andrewkmin](https://github.com/andrewkmin) - Release per mono v2025.7.1. This release contains the following API changes:
+
+  - Introduction of `SmartContractInterfaces`: we've now exposed endpoints for uploading ABIs and IDLs to help secure EVM and Solana signing flows. For more information, see our docs [here](https://docs.turnkey.com/concepts/policies/smart-contract-interfaces)
+
+- Updated dependencies [[`cb13c26`](https://github.com/tkhq/sdk/commit/cb13c26edb79a01ab651e3b2897334fd154b436a)]:
+  - @turnkey/http@3.5.1
+  - @turnkey/crypto@2.4.3
+  - @turnkey/wallet-stamper@1.0.7
+
 ## 5.3.3
 
 ### Patch Changes

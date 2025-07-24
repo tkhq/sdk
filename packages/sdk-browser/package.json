@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-browser",
-  "version": "5.3.3",
+  "version": "5.3.4",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
