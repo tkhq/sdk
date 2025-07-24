@@ -11,7 +11,8 @@ import { WalletStamperError } from "./errors";
 import { Wallet as SWSWallet } from "@wallet-standard/base";
 import { getWallets } from "@wallet-standard/app";
 import { asSolana } from "./utils";
-import { PublicKey } from "@solana/web3.js";
+import bs58 from "bs58";
+import { uint8ArrayToHexString } from "@turnkey/encoding";
 
 declare global {
   interface Window {
@@ -68,8 +69,8 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
     }
 
     // Convert from Base58 to hex
-    const publicKeyBytes = new PublicKey(account.address).toBytes();
-    const publicKeyHex = Buffer.from(publicKeyBytes).toString("hex");
+    const rawBytes = bs58.decode(account.address);
+    const publicKeyHex = uint8ArrayToHexString(rawBytes);
 
     return publicKeyHex;
   }
