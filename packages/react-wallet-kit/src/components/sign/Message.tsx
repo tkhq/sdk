@@ -1,6 +1,6 @@
 import { Textarea } from "@headlessui/react";
-import { StamperType } from "@turnkey/sdk-js";
-import {
+import type { StamperType } from "@turnkey/sdk-js";
+import type {
   v1HashFunction,
   v1PayloadEncoding,
   v1SignRawPayloadResult,
@@ -10,7 +10,8 @@ import { ActionButton } from "../design/Buttons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { useRef, useEffect, useState } from "react";
-import { useModal, useTurnkey } from "../../providers";
+import { useModal } from "../../providers/modal/Hook";
+import { useTurnkey } from "../../providers/client/Hook";
 import { SuccessPage } from "../design/Success";
 import clsx from "clsx";
 

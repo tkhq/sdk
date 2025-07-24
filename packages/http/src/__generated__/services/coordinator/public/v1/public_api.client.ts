@@ -44,6 +44,10 @@ import type {
 } from "./public_api.fetcher";
 import type { TGetPolicyBody, TGetPolicyResponse } from "./public_api.fetcher";
 import type {
+  TGetPolicyEvaluationsBody,
+  TGetPolicyEvaluationsResponse,
+} from "./public_api.fetcher";
+import type {
   TGetPrivateKeyBody,
   TGetPrivateKeyResponse,
 } from "./public_api.fetcher";
@@ -695,6 +699,38 @@ export class TurnkeyClient {
    */
   stampGetPolicy = async (input: TGetPolicyBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_policy";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get the policy evaluations for an Activity
+   *
+   * Sign the provided `TGetPolicyEvaluationsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_policy_evaluations).
+   *
+   * See also {@link stampGetPolicyEvaluations}.
+   */
+  getPolicyEvaluations = async (
+    input: TGetPolicyEvaluationsBody,
+  ): Promise<TGetPolicyEvaluationsResponse> => {
+    return this.request("/public/v1/query/get_policy_evaluations", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetPolicyEvaluationsBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetPolicyEvaluations}.
+   */
+  stampGetPolicyEvaluations = async (
+    input: TGetPolicyEvaluationsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_policy_evaluations";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

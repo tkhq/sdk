@@ -14,7 +14,7 @@ import {
   TurnkeyErrorCodes,
   v1SignRawPayloadResult,
 } from "@turnkey/sdk-types";
-import { CreateSubOrgParams } from "@types";
+import type { CreateSubOrgParams } from "@types";
 import { keccak256 } from "ethers";
 // Import all defaultAccountAtIndex functions for each address format
 import {

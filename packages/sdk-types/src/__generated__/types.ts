@@ -73,6 +73,29 @@ export type datav1Tag = {
   updatedAt: externaldatav1Timestamp;
 };
 
+export type externalactivityv1PolicyEvaluation = {
+  /** Unique identifier for a given policy evaluation. */
+  id: string;
+  /** Unique identifier for a given Activity. */
+  activityId: string;
+  /** Unique identifier for the Organization the Activity belongs to. */
+  organizationId: string;
+  /** Unique identifier for the Vote associated with this policy evaluation. */
+  voteId: string;
+  /** Detailed evaluation result for each Policy that was run. */
+  policyEvaluations: privateumpv1PolicyEvaluation[];
+  createdAt: externaldatav1Timestamp;
+};
+
+export type externalactivityv1UpdateProxyAuthConfigRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpdateProxyAuthConfigIntent;
+};
+
 export type externaldatav1Address = {
   format?: v1AddressFormat;
   address?: string;
@@ -91,6 +114,25 @@ export type externaldatav1Quorum = {
   userIds: string[];
 };
 
+export type externaldatav1SmartContractInterface = {
+  /** The Organization the Smart Contract Interface belongs to. */
+  organizationId: string;
+  /** Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+  smartContractInterfaceId: string;
+  /** The address corresponding to the Smart Contract or Program. */
+  smartContractAddress: string;
+  /** The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+  smartContractInterface: string;
+  /** The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  type: string;
+  /** The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  label: string;
+  /** The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  notes: string;
+  createdAt: externaldatav1Timestamp;
+  updatedAt: externaldatav1Timestamp;
+};
+
 export type externaldatav1Timestamp = {
   seconds: string;
   nanos: string;
@@ -99,6 +141,11 @@ export type externaldatav1Timestamp = {
 export type immutableactivityv1Address = {
   format?: v1AddressFormat;
   address?: string;
+};
+
+export type privateumpv1PolicyEvaluation = {
+  policyId?: string;
+  outcome?: v1Outcome;
 };
 
 export type protobufAny = {
@@ -1329,13 +1376,7 @@ export type v1DisablePrivateKeyResult = {
   privateKeyId: string;
 };
 
-export type v1DisableUserInitiatedAuthIntent = {
-  /** Unique identifier for a given User. (representing the turnkey signer user id) */
-  userId?: string;
-  /** Unique identifier for a given Policy. (representing the turnkey signer associated policy) */
-  policyId?: string;
-};
-
+export type v1DisableUserInitiatedAuthIntent = {};
 export type v1DisableUserInitiatedAuthRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
@@ -1430,21 +1471,8 @@ export type v1EnableUserInitiatedAuthRequest = {
 };
 
 export type v1EnableUserInitiatedAuthResult = {
-  /** A User ID. */
+  /** A User ID with permission to initiate authentication. */
   userId: string;
-  /** A Policy ID. */
-  policyId: string;
-};
-
-export type v1EwkSettingsParams = {
-  /** Enable Sign in with Apple */
-  appleEnabled?: boolean;
-  /** Enable Sign in with Google */
-  googleEnabled?: boolean;
-  /** Enable Sign in with Facebook */
-  facebookEnabled?: boolean;
-  /** Whether to open OAuth providers in-page instead of a popup */
-  openOauthInPage?: boolean;
 };
 
 export type v1ExportPrivateKeyIntent = {
@@ -1530,7 +1558,8 @@ export type v1FeatureName =
   | "FEATURE_NAME_EMAIL_RECOVERY"
   | "FEATURE_NAME_WEBHOOK"
   | "FEATURE_NAME_SMS_AUTH"
-  | "FEATURE_NAME_OTP_EMAIL_AUTH";
+  | "FEATURE_NAME_OTP_EMAIL_AUTH"
+  | "FEATURE_NAME_AUTH_KIT";
 
 export type v1FiatOnRampBlockchainNetwork =
   | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
@@ -1724,6 +1753,17 @@ export type v1GetPoliciesResponse = {
   policies: v1Policy[];
 };
 
+export type v1GetPolicyEvaluationsRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Unique identifier for a given Activity. */
+  activityId: string;
+};
+
+export type v1GetPolicyEvaluationsResponse = {
+  policyEvaluations: externalactivityv1PolicyEvaluation[];
+};
+
 export type v1GetPolicyRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -1777,7 +1817,7 @@ export type v1GetSmartContractInterfaceRequest = {
 
 export type v1GetSmartContractInterfaceResponse = {
   /** Object to be used in conjunction with Policies to guard transaction signing. */
-  smartContractInterface: v1SmartContractInterface;
+  smartContractInterface: externaldatav1SmartContractInterface;
 };
 
 export type v1GetSmartContractInterfacesRequest = {
@@ -1787,13 +1827,13 @@ export type v1GetSmartContractInterfacesRequest = {
 
 export type v1GetSmartContractInterfacesResponse = {
   /** A list of Smart Contract Interfaces. */
-  smartContractInterfaces: v1SmartContractInterface[];
+  smartContractInterfaces: externaldatav1SmartContractInterface[];
 };
 
 export type v1GetSubOrgIdsRequest = {
   /** Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
   organizationId: string;
-  /** Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN' or 'PUBLIC_KEY' */
+  /** Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'WALLET_ACCOUNT_ADDRESS' or 'PUBLIC_KEY' */
   filterType?: string;
   /** The value of the filter to apply for the specified type. For example, a specific email or name string. */
   filterValue?: string;
@@ -2511,6 +2551,14 @@ export type v1OtpLoginResult = {
   session: string;
 };
 
+export type v1Outcome =
+  | "OUTCOME_ALLOW"
+  | "OUTCOME_DENY_EXPLICIT"
+  | "OUTCOME_DENY_IMPLICIT"
+  | "OUTCOME_REQUIRES_CONSENSUS"
+  | "OUTCOME_REJECTED"
+  | "OUTCOME_ERROR";
+
 export type v1Pagination = {
   /** A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
   limit?: string;
@@ -2595,18 +2643,13 @@ export type v1ProxyAuthConfig = {
   smsCustomizationParams?: string;
   otpExpirationSeconds?: number;
   verificationTokenExpirationSeconds?: number;
-  otpSessionExpirationSeconds?: number;
-  oauthSessionExpirationSeconds?: number;
-  passkeySessionExpirationSeconds?: number;
-  walletSessionExpirationSeconds?: number;
+  sessionExpirationSeconds?: number;
   createdAt?: string;
   updatedAt?: string;
   otpAlphanumeric?: boolean;
   otpLength?: number;
-  socialLinking?: boolean;
-  policyId?: string;
   proxyId?: string;
-  ewkSettings?: string;
+  walletKitSettings?: string;
 };
 
 export type v1PublicKeyCredentialWithAttestation = {
@@ -2941,25 +2984,6 @@ export type v1SimpleClientExtensionResults = {
   credProps?: v1CredPropsAuthenticationExtensionsClientOutputs;
 };
 
-export type v1SmartContractInterface = {
-  /** The Organization the Smart Contract Interface belongs to. */
-  organizationId: string;
-  /** Unique identifier for a given Smart Contract Interface (ABI or IDL). */
-  smartContractInterfaceId: string;
-  /** The address corresponding to the Smart Contract or Program. */
-  smartContractAddress: string;
-  /** The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
-  smartContractInterface: string;
-  /** The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-  type: string;
-  /** The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-  label: string;
-  /** The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-  notes: string;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-};
-
 export type v1SmartContractInterfaceReference = {
   smartContractInterfaceId?: string;
   smartContractAddress?: string;
@@ -3098,7 +3122,7 @@ export type v1UpdatePrivateKeyTagResult = {
 export type v1UpdateProxyAuthConfigIntent = {
   /** Updated list of allowed origins for CORS. */
   allowedOrigins?: string[];
-  /** Updated list of allowed origins for CORS. */
+  /** Updated list of allowed proxy authentication methods. */
   allowedAuthMethods?: string[];
   /** Custom 'from' address for auth-related emails. */
   sendFromEmailAddress?: string;
@@ -3112,38 +3136,25 @@ export type v1UpdateProxyAuthConfigIntent = {
   emailCustomizationParams?: v1EmailCustomizationParams;
   /** Overrides for auth-related SMS content. */
   smsCustomizationParams?: v1SmsCustomizationParams;
-  /** Overrides for EWK related settings. */
-  ewkSettings?: v1EwkSettingsParams;
+  /** Overrides for react wallet kit related settings. */
+  walletKitSettings?: v1WalletKitSettingsParams;
   /** OTP code lifetime in seconds. */
   otpExpirationSeconds?: number;
   /** Verification-token lifetime in seconds. */
   verificationTokenExpirationSeconds?: number;
-  /** OTP session lifetime in seconds. */
-  otpSessionExpirationSeconds?: number;
-  /** Passkey session lifetime in seconds. */
-  passkeySessionExpirationSeconds?: number;
-  /** Wallet session lifetime in seconds. */
-  walletSessionExpirationSeconds?: number;
-  /** OAuth session lifetime in seconds. */
-  oauthSessionExpirationSeconds?: number;
+  /** Session lifetime in seconds. */
+  sessionExpirationSeconds?: number;
   /** Enable alphanumeric OTP codes. */
   otpAlphanumeric?: boolean;
   /** Desired OTP code length (6–9). */
   otpLength?: number;
-  /** Enable social linking (userEmail <-> gmail) */
-  socialLinking?: boolean;
 };
 
-export type v1UpdateProxyAuthConfigRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1UpdateProxyAuthConfigIntent;
+export type v1UpdateProxyAuthConfigResult = {
+  /** Unique identifier for a given User. (representing the turnkey signer user id) */
+  configId?: string;
 };
 
-export type v1UpdateProxyAuthConfigResult = {};
 export type v1UpdateRootQuorumIntent = {
   /** The threshold of unique approvals to reach quorum. */
   threshold: number;
@@ -3458,6 +3469,17 @@ export type v1WalletAccountParams = {
   addressFormat: v1AddressFormat;
 };
 
+export type v1WalletKitSettingsParams = {
+  /** Enable Sign in with Apple */
+  appleEnabled?: boolean;
+  /** Enable Sign in with Google */
+  googleEnabled?: boolean;
+  /** Enable Sign in with Facebook */
+  facebookEnabled?: boolean;
+  /** Whether to open OAuth providers in-page instead of a popup */
+  openOauthInPage?: boolean;
+};
+
 export type v1WalletParams = {
   /** Human-readable name for a Wallet. */
   walletName: string;
@@ -3615,6 +3637,18 @@ export type TGetPolicyBody = {
 
 export type TGetPolicyInput = { body: TGetPolicyBody };
 
+export type TGetPolicyEvaluationsResponse = {
+  policyEvaluations: externalactivityv1PolicyEvaluation[];
+};
+
+export type TGetPolicyEvaluationsBody = {
+  organizationId?: string;
+  /** Unique identifier for a given Activity. */
+  activityId: string;
+};
+
+export type TGetPolicyEvaluationsInput = { body: TGetPolicyEvaluationsBody };
+
 export type TGetPrivateKeyResponse = {
   /** Cryptographic public/private key pair that can be used for cryptocurrency needs or more generalized encryption. */
   privateKey: v1PrivateKey;
@@ -3641,7 +3675,7 @@ export type TGetProxyAuthConfigInput = { body: TGetProxyAuthConfigBody };
 
 export type TGetSmartContractInterfaceResponse = {
   /** Object to be used in conjunction with Policies to guard transaction signing. */
-  smartContractInterface: v1SmartContractInterface;
+  smartContractInterface: externaldatav1SmartContractInterface;
 };
 
 export type TGetSmartContractInterfaceBody = {
@@ -3749,7 +3783,7 @@ export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
 
 export type TGetSmartContractInterfacesResponse = {
   /** A list of Smart Contract Interfaces. */
-  smartContractInterfaces: v1SmartContractInterface[];
+  smartContractInterfaces: externaldatav1SmartContractInterface[];
 };
 
 export type TGetSmartContractInterfacesBody = {
@@ -3767,7 +3801,7 @@ export type TGetSubOrgIdsResponse = {
 
 export type TGetSubOrgIdsBody = {
   organizationId?: string;
-  /** Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN' or 'PUBLIC_KEY' */
+  /** Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'WALLET_ACCOUNT_ADDRESS' or 'PUBLIC_KEY' */
   filterType?: string;
   /** The value of the filter to apply for the specified type. For example, a specific email or name string. */
   filterValue?: string;
@@ -4413,10 +4447,6 @@ export type TDisableUserInitiatedAuthResponse = {
 export type TDisableUserInitiatedAuthBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Unique identifier for a given User. (representing the turnkey signer user id) */
-  userId?: string;
-  /** Unique identifier for a given Policy. (representing the turnkey signer associated policy) */
-  policyId?: string;
 };
 
 export type TDisableUserInitiatedAuthInput = {
@@ -4458,10 +4488,8 @@ export type TEmailAuthInput = { body: TEmailAuthBody };
 
 export type TEnableUserInitiatedAuthResponse = {
   activity: v1Activity;
-  /** A User ID. */
+  /** A User ID with permission to initiate authentication. */
   userId: string;
-  /** A Policy ID. */
-  policyId: string;
 };
 
 export type TEnableUserInitiatedAuthBody = {
@@ -5034,7 +5062,7 @@ export type TUpdateProxyAuthConfigBody = {
   organizationId?: string;
   /** Updated list of allowed origins for CORS. */
   allowedOrigins?: string[];
-  /** Updated list of allowed origins for CORS. */
+  /** Updated list of allowed proxy authentication methods. */
   allowedAuthMethods?: string[];
   /** Custom 'from' address for auth-related emails. */
   sendFromEmailAddress?: string;
@@ -5048,26 +5076,18 @@ export type TUpdateProxyAuthConfigBody = {
   emailCustomizationParams?: v1EmailCustomizationParams;
   /** Overrides for auth-related SMS content. */
   smsCustomizationParams?: v1SmsCustomizationParams;
-  /** Overrides for EWK related settings. */
-  ewkSettings?: v1EwkSettingsParams;
+  /** Overrides for react wallet kit related settings. */
+  walletKitSettings?: v1WalletKitSettingsParams;
   /** OTP code lifetime in seconds. */
   otpExpirationSeconds?: number;
   /** Verification-token lifetime in seconds. */
   verificationTokenExpirationSeconds?: number;
-  /** OTP session lifetime in seconds. */
-  otpSessionExpirationSeconds?: number;
-  /** Passkey session lifetime in seconds. */
-  passkeySessionExpirationSeconds?: number;
-  /** Wallet session lifetime in seconds. */
-  walletSessionExpirationSeconds?: number;
-  /** OAuth session lifetime in seconds. */
-  oauthSessionExpirationSeconds?: number;
+  /** Session lifetime in seconds. */
+  sessionExpirationSeconds?: number;
   /** Enable alphanumeric OTP codes. */
   otpAlphanumeric?: boolean;
   /** Desired OTP code length (6–9). */
   otpLength?: number;
-  /** Enable social linking (userEmail <-> gmail) */
-  socialLinking?: boolean;
 };
 
 export type TUpdateProxyAuthConfigInput = { body: TUpdateProxyAuthConfigBody };
@@ -5343,8 +5363,7 @@ export type ProxyTGetWalletKitConfigResponse = {
   passkeyEnabled: boolean;
   walletEnabled: boolean;
   openOAuthInPage: boolean;
-  passkeySessionExpirationSeconds: string;
-  walletSessionExpirationSeconds: string;
+  sessionExpirationSeconds: string;
   organizationId: string;
 };
 

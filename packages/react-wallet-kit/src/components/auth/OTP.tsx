@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { useModal, useTurnkey } from "../../providers";
+import { useModal } from "../../providers/modal/Hook";
+import { useTurnkey } from "../../providers/client/Hook";
 import { Spinner } from "../design/Spinners";
 import { Input } from "@headlessui/react";
 import { BaseButton } from "../design/Buttons";

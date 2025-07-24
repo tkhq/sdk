@@ -1,8 +1,7 @@
 import WindowWrapper from "@polyfills/window";
-import { StorageBase, SessionKey } from "../base";
+import { type StorageBase, type Wallet, SessionKey } from "@types";
 import { parseSession } from "@utils";
-import { Session } from "@turnkey/sdk-types";
-import { Wallet } from "@types";
+import type { Session } from "@turnkey/sdk-types";
 
 const browserStorage = WindowWrapper.localStorage;
 

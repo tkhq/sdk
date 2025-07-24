@@ -1,6 +1,6 @@
 import { WalletProvider, WalletType } from "@turnkey/wallet-stamper";
 import { ActionButton } from "../design/Buttons";
-import { useModal } from "../../providers";
+import { useModal } from "../../providers/modal/Hook";
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight, faClose } from "@fortawesome/free-solid-svg-icons";
@@ -141,7 +141,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     (acc, provider) => {
       const name = provider.info.name;
       if (!acc[name]) acc[name] = [];
-      acc[name].push(provider);
+      acc[name]!.push(provider);
       return acc;
     },
     {},
