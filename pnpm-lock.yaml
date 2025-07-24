@@ -2553,6 +2553,9 @@ importers:
       '@wallet-standard/base':
         specifier: ^1.1.0
         version: 1.1.0
+      bs58:
+        specifier: 6.0.0
+        version: 6.0.0
     optionalDependencies:
       viem:
         specifier: ^2.21.35
