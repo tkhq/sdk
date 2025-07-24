@@ -390,8 +390,13 @@
     },
     "/public/v1/query/get_policy_evaluations": {
       "post": {
+<<<<<<< HEAD
         "summary": "Get policy evaluations",
         "description": "Get the policy evaluations for an activity.",
+=======
+        "summary": "Get Policy Evaluations",
+        "description": "Get the policy evaluations for an Activity",
+>>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
         "operationId": "PublicApiService_GetPolicyEvaluations",
         "responses": {
           "200": {
@@ -2912,7 +2917,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1UpdateProxyAuthConfigRequest"
+              "$ref": "#/definitions/externalactivityv1UpdateProxyAuthConfigRequest"
             }
           }
         ],
@@ -3423,6 +3428,30 @@
         "createdAt"
       ]
     },
+<<<<<<< HEAD
+=======
+    "externalactivityv1UpdateProxyAuthConfigRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateProxyAuthConfigIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+>>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
     "externaldatav1Address": {
       "type": "object",
       "properties": {
@@ -6318,17 +6347,7 @@
       "required": ["privateKeyId"]
     },
     "v1DisableUserInitiatedAuthIntent": {
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string",
-          "description": "Unique identifier for a given User. (representing the turnkey signer user id)"
-        },
-        "policyId": {
-          "type": "string",
-          "description": "Unique identifier for a given Policy. (representing the turnkey signer associated policy)"
-        }
-      }
+      "type": "object"
     },
     "v1DisableUserInitiatedAuthRequest": {
       "type": "object",
@@ -6531,35 +6550,10 @@
       "properties": {
         "userId": {
           "type": "string",
-          "description": "A User ID."
-        },
-        "policyId": {
-          "type": "string",
-          "description": "A Policy ID."
+          "description": "A User ID with permission to initiate authentication."
         }
       },
-      "required": ["userId", "policyId"]
-    },
-    "v1EwkSettingsParams": {
-      "type": "object",
-      "properties": {
-        "appleEnabled": {
-          "type": "boolean",
-          "description": "Enable Sign in with Apple"
-        },
-        "googleEnabled": {
-          "type": "boolean",
-          "description": "Enable Sign in with Google"
-        },
-        "facebookEnabled": {
-          "type": "boolean",
-          "description": "Enable Sign in with Facebook"
-        },
-        "openOauthInPage": {
-          "type": "boolean",
-          "description": "Whether to open OAuth providers in-page instead of a popup"
-        }
-      }
+      "required": ["userId"]
     },
     "v1ExportPrivateKeyIntent": {
       "type": "object",
@@ -6732,7 +6726,8 @@
         "FEATURE_NAME_EMAIL_RECOVERY",
         "FEATURE_NAME_WEBHOOK",
         "FEATURE_NAME_SMS_AUTH",
-        "FEATURE_NAME_OTP_EMAIL_AUTH"
+        "FEATURE_NAME_OTP_EMAIL_AUTH",
+        "FEATURE_NAME_AUTH_KIT"
       ]
     },
     "v1FiatOnRampBlockchainNetwork": {
@@ -7099,11 +7094,19 @@
       "properties": {
         "organizationId": {
           "type": "string",
+<<<<<<< HEAD
           "description": "Unique identifier for a given organization."
         },
         "activityId": {
           "type": "string",
           "description": "Unique identifier for a given activity."
+=======
+          "description": "Unique identifier for a given Organization."
+        },
+        "activityId": {
+          "type": "string",
+          "description": "Unique identifier for a given Activity."
+>>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
         }
       },
       "required": ["organizationId", "activityId"]
@@ -7279,7 +7282,7 @@
       "type": "object",
       "properties": {
         "smartContractInterface": {
-          "$ref": "#/definitions/v1SmartContractInterface",
+          "$ref": "#/definitions/externaldatav1SmartContractInterface",
           "description": "Object to be used in conjunction with Policies to guard transaction signing."
         }
       },
@@ -7302,7 +7305,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1SmartContractInterface"
+            "$ref": "#/definitions/externaldatav1SmartContractInterface"
           },
           "description": "A list of Smart Contract Interfaces."
         }
@@ -9244,19 +9247,7 @@
           "type": "integer",
           "format": "int32"
         },
-        "otpSessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "oauthSessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "passkeySessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "walletSessionExpirationSeconds": {
+        "sessionExpirationSeconds": {
           "type": "integer",
           "format": "int32"
         },
@@ -9275,16 +9266,10 @@
           "type": "integer",
           "format": "int32"
         },
-        "socialLinking": {
-          "type": "boolean"
-        },
-        "policyId": {
-          "type": "string"
-        },
         "proxyId": {
           "type": "string"
         },
-        "ewkSettings": {
+        "walletKitSettings": {
           "type": "string"
         }
       }
@@ -10148,6 +10133,7 @@
       }
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
     "v1SmartContractInterfaceReference": {
       "type": "object",
       "properties": {
@@ -10213,6 +10199,8 @@
       ]
 >>>>>>> 57ef158e (updated auth proxy type generation)
     },
+=======
+>>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
     "v1SmartContractInterfaceReference": {
       "type": "object",
       "properties": {
@@ -10517,7 +10505,7 @@
           "items": {
             "type": "string"
           },
-          "description": "Updated list of allowed origins for CORS."
+          "description": "Updated list of allowed proxy authentication methods."
         },
         "sendFromEmailAddress": {
           "type": "string",
@@ -10543,9 +10531,9 @@
           "$ref": "#/definitions/v1SmsCustomizationParams",
           "description": "Overrides for auth-related SMS content."
         },
-        "ewkSettings": {
-          "$ref": "#/definitions/v1EwkSettingsParams",
-          "description": "Overrides for EWK related settings."
+        "walletKitSettings": {
+          "$ref": "#/definitions/v1WalletKitSettingsParams",
+          "description": "Overrides for react wallet kit related settings."
         },
         "otpExpirationSeconds": {
           "type": "integer",
@@ -10557,25 +10545,10 @@
           "format": "int32",
           "description": "Verification-token lifetime in seconds."
         },
-        "otpSessionExpirationSeconds": {
+        "sessionExpirationSeconds": {
           "type": "integer",
           "format": "int32",
-          "description": "OTP session lifetime in seconds."
-        },
-        "passkeySessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32",
-          "description": "Passkey session lifetime in seconds."
-        },
-        "walletSessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32",
-          "description": "Wallet session lifetime in seconds."
-        },
-        "oauthSessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32",
-          "description": "OAuth session lifetime in seconds."
+          "description": "Session lifetime in seconds."
         },
         "otpAlphanumeric": {
           "type": "boolean",
@@ -10585,36 +10558,17 @@
           "type": "integer",
           "format": "int32",
           "description": "Desired OTP code length (6–9)."
-        },
-        "socialLinking": {
-          "type": "boolean",
-          "description": "Enable social linking (userEmail \u003c-\u003e gmail)"
         }
       }
     },
-    "v1UpdateProxyAuthConfigRequest": {
+    "v1UpdateProxyAuthConfigResult": {
       "type": "object",
       "properties": {
-        "type": {
+        "configId": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1UpdateProxyAuthConfigIntent"
+          "description": "Unique identifier for a given User. (representing the turnkey signer user id)"
         }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1UpdateProxyAuthConfigResult": {
-      "type": "object"
+      }
     },
     "v1UpdateRootQuorumIntent": {
       "type": "object",
@@ -11392,6 +11346,27 @@
         }
       },
       "required": ["curve", "pathFormat", "path", "addressFormat"]
+    },
+    "v1WalletKitSettingsParams": {
+      "type": "object",
+      "properties": {
+        "appleEnabled": {
+          "type": "boolean",
+          "description": "Enable Sign in with Apple"
+        },
+        "googleEnabled": {
+          "type": "boolean",
+          "description": "Enable Sign in with Google"
+        },
+        "facebookEnabled": {
+          "type": "boolean",
+          "description": "Enable Sign in with Facebook"
+        },
+        "openOauthInPage": {
+          "type": "boolean",
+          "description": "Whether to open OAuth providers in-page instead of a popup"
+        }
+      }
     },
     "v1WalletParams": {
       "type": "object",

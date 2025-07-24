@@ -1,17 +1,6 @@
 import { isReactNative, isWeb } from "@utils";
 import { IndexedDbStamper } from "./web/stamper";
-import { StorageBase } from "../../__storage__/base";
-import { TStamp, TStamper } from "@types";
-
-export interface ApiKeyStamperBase {
-  listKeyPairs(): Promise<string[]>;
-  createKeyPair(
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
-  ): Promise<string>;
-  deleteKeyPair(publicKeyHex: string): Promise<void>;
-  clearKeyPairs(): Promise<void>;
-  stamp(payload: string, publicKeyHex: string): Promise<TStamp>;
-}
+import type { TStamp, TStamper, StorageBase, ApiKeyStamperBase } from "@types";
 
 export class CrossPlatformApiKeyStamper implements TStamper {
   private stamper!: ApiKeyStamperBase;

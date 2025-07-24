@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Player } from "@lottiefiles/react-lottie-player";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import { useModal } from "../../providers";
+import { useModal } from "../../providers/modal/Hook";
 
 interface SuccessPageProps {
   text?: string | undefined;

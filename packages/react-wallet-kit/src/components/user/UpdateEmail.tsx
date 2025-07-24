@@ -1,7 +1,8 @@
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Input } from "@headlessui/react";
-import { useModal, useTurnkey } from "../../providers";
+import { useModal } from "../../providers/modal/Hook";
+import { useTurnkey } from "../../providers/client/Hook";
 import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
 import clsx from "clsx";

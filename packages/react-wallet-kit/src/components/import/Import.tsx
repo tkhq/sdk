@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useModal, useTurnkey } from "../../providers";
+import { useModal } from "../../providers/modal/Hook";
+import { useTurnkey } from "../../providers/client/Hook";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import {
   TurnkeyError,

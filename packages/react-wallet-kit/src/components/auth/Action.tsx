@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect } from "react";
-import { useModal } from "../../providers";
+import { useModal } from "../../providers/modal/Hook";
 import { Spinner } from "../design/Spinners";
 import clsx from "clsx";
 
