@@ -30,6 +30,7 @@ export interface BaseWalletInterface {
   signMessage: (
     message: string,
     provider: WalletRpcProvider,
+    mode: SignMode,
   ) => Promise<string>;
   getPublicKey: (provider: WalletRpcProvider) => Promise<string>;
   getProviders: () => Promise<WalletProvider[]>;
@@ -92,4 +93,9 @@ export interface WalletProvider {
   info: WalletProviderInfo;
   provider: WalletRpcProvider;
   connectedAddresses: string[];
+}
+
+export enum SignMode {
+  Message = "message",
+  Transaction = "transaction",
 }
