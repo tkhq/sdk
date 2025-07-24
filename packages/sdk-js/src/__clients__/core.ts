@@ -34,7 +34,7 @@ import {
   FilterType,
   EmbeddedWallet,
   WalletSource,
-  InjectedWallet,
+  ConnectedWallet,
   Curve,
   TurnkeyRequestError,
 } from "@types"; // TODO (Amir): How many of these should we keep in sdk-types
@@ -48,6 +48,8 @@ import {
   isWalletAccountArray,
   isWeb,
   toExternalTimestamp,
+  splitSignature,
+  hashPayload,
 } from "@utils";
 import {
   createStorageManager,
@@ -63,6 +65,7 @@ import {
 } from "../turnkey-helpers";
 import {
   getPublicKeyFromStampHeader,
+  SignMode,
   WalletProvider,
   WalletType,
 } from "@turnkey/wallet-stamper";
@@ -1312,14 +1315,14 @@ export class TurnkeyClient {
         groupedProviders.set(walletId, group);
       }
 
-      const injected: InjectedWallet[] = (
+      const connected: ConnectedWallet[] = (
         await Promise.all(
           Array.from(groupedProviders.entries()).map(
             async ([walletId, grouped]) => {
               const timestamp = toExternalTimestamp();
 
               const wallet: Wallet = {
-                source: WalletSource.Injected,
+                source: WalletSource.Connected,
                 walletId,
                 walletName: grouped[0]?.info?.name ?? "Unknown",
                 createdAt: timestamp,
@@ -1342,7 +1345,7 @@ export class TurnkeyClient {
         )
       ).filter((wallet) => wallet.accounts.length > 0);
 
-      return [...embedded, ...injected];
+      return [...embedded, ...connected];
     } catch (error) {
       if (error instanceof TurnkeyError) throw error;
 
@@ -1415,7 +1418,7 @@ export class TurnkeyClient {
               ? Curve.SECP256K1
               : Curve.ED25519,
           pathFormat: "PATH_FORMAT_BIP32",
-          path: "injected",
+          path: WalletSource.Connected,
           addressFormat:
             provider.type === WalletType.Ethereum
               ? "ADDRESS_FORMAT_ETHEREUM"
@@ -1423,7 +1426,13 @@ export class TurnkeyClient {
           address,
           createdAt: timestamp,
           updatedAt: timestamp,
-          provider,
+          signMessage: async (message: string, mode: SignMode) => {
+            return this.walletManager!.signer.signMessage(
+              message,
+              provider,
+              mode,
+            );
+          },
           ...(provider.type === WalletType.Solana && { publicKey: address }),
         };
 
@@ -1437,17 +1446,28 @@ export class TurnkeyClient {
   signMessage = async (
     params: {
       message: string;
-      walletAccount: v1WalletAccount;
+      walletAccount: WalletAccount;
       encoding?: v1PayloadEncoding;
       hashFunction?: v1HashFunction;
     } & DefaultParams,
   ): Promise<v1SignRawPayloadResult> => {
     const { message, walletAccount, stampWith } = params;
+
+    const hashFunction =
+      params.hashFunction || getHashFunction(walletAccount.addressFormat);
+    const payloadEncoding =
+      params.encoding || getEncodingType(walletAccount.addressFormat);
+
     try {
-      const hashFunction =
-        params.hashFunction || getHashFunction(walletAccount.addressFormat);
-      const payloadEncoding =
-        params.encoding || getEncodingType(walletAccount.addressFormat);
+      if (walletAccount.signMessage) {
+        const payloadToSign = await hashPayload(message, hashFunction);
+        const sigHex = await walletAccount.signMessage(
+          payloadToSign,
+          SignMode.Message,
+        );
+        return splitSignature(sigHex, walletAccount.addressFormat);
+      }
+
       const encodedMessage = getEncodedMessage(
         walletAccount.addressFormat,
         message,
@@ -1462,12 +1482,14 @@ export class TurnkeyClient {
         },
         stampWith,
       );
+
       if (response.activity.failure) {
         throw new TurnkeyError(
           "Failed to sign message, no signed payload returned",
           TurnkeyErrorCodes.SIGN_MESSAGE_ERROR,
         );
       }
+
       return response.activity.result
         .signRawPayloadResult as v1SignRawPayloadResult;
     } catch (error) {
