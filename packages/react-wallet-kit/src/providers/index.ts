@@ -1,3 +1,3 @@
-export { useModal } from "./modal/Provider";
-export { useTurnkey } from "./client/Provider";
+export { useModal } from "./modal/Hook";
+export { useTurnkey } from "./client/Hook";
 export * from "./TurnkeyProvider";

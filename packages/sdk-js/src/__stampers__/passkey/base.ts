@@ -4,43 +4,13 @@ import {
   isReactNative,
   isWeb,
 } from "@utils";
-import { Passkey, TStamp, TStamper } from "@types";
+import type { Passkey, TStamp, TStamper, TPasskeyStamperConfig } from "@types";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
 import { getWebAuthnAttestation, TurnkeyApiTypes } from "@turnkey/http";
 import { v4 as uuidv4 } from "uuid";
 
 let PasskeyStamperModule: typeof import("@turnkey/react-native-passkey-stamper");
-
-// TODO (Amir) This would be nice in sdk-types
-export type TPasskeyStamperConfig = {
-  // The RPID ("Relying Party ID") for your app. This is automatically determined in web environments based on the current hostname.
-  // See https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration to set this up for react-native.
-  rpId: string;
-
-  // Optional timeout value in milliseconds. Defaults to 5 minutes.
-  timeout?: number;
-
-  // Optional override for UV flag. Defaults to "preferred".
-  userVerification?: UserVerificationRequirement;
-
-  // Optional list of credentials to pass. Defaults to empty.
-  allowCredentials?: PublicKeyCredentialDescriptor[];
-
-  // The below options do not exist in the WebauthnStamper:
-
-  // Optional name for the Relying Party (RP). This is used in the passkey creation flow on mobile.
-  rpName?: string;
-
-  // Option to force security passkeys on native platforms
-  withSecurityKey?: boolean;
-
-  // Option to force platform passkeys on native platforms
-  withPlatformKey?: boolean;
-
-  // Optional extensions. Defaults to empty.
-  extensions?: Record<string, unknown>;
-};
 
 export type TurnkeyAuthenticatorParams =
   TurnkeyApiTypes["v1AuthenticatorParamsV2"];

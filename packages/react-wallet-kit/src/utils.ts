@@ -1,5 +1,5 @@
 import { Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
-import { TurnkeyCallbacks } from "./providers";
+import type { TurnkeyCallbacks } from "./types/base";
 import { useCallback, useRef, useState, useEffect } from "react";
 
 export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
