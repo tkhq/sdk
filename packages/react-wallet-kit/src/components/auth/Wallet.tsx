@@ -141,7 +141,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     (acc, provider) => {
       const name = provider.info.name;
       if (!acc[name]) acc[name] = [];
-      acc[name].push(provider);
+      acc[name]!.push(provider);
       return acc;
     },
     {},

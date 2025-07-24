@@ -1,11 +1,11 @@
 import { isWeb, isReactNative } from "@utils";
 import {
-  WalletInterface,
-  WalletRpcProvider,
+  type WalletInterface,
+  type WalletRpcProvider,
   WalletStamper,
   WalletType,
 } from "@turnkey/wallet-stamper";
-import { TStamp, TStamper } from "../..";
+import type { TStamp, TStamper } from "../..";
 
 interface WalletContext {
   wallet: WalletInterface;
