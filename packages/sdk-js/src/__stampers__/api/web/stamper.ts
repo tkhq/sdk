@@ -3,8 +3,7 @@ import {
   stringToBase64urlString,
   pointEncode,
 } from "@turnkey/encoding";
-import { ApiKeyStamperBase } from "../base";
-import { TStamp } from "@types";
+import type { TStamp, ApiKeyStamperBase } from "@types";
 
 const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";

@@ -3,7 +3,7 @@ import { Input } from "@headlessui/react";
 import { ActionButton, IconButton } from "../design/Buttons";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
-import { useTurnkey } from "../../providers";
+import { useTurnkey } from "../../providers/client/Hook";
 
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

@@ -2,8 +2,8 @@ import { Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { OtpType } from "@utils";
 import { OtpVerification } from "../components/auth/OTP";
 import { SuccessPage } from "../components/design/Success";
-import { ModalPage } from "../providers/modal/Provider";
-import { DefaultParams } from "@turnkey/sdk-js";
+import type { ModalPage } from "../providers/modal/Provider";
+import type { DefaultParams } from "@turnkey/sdk-js";
 
 // --- addEmailContinue ---
 export const addEmailContinue = async (
