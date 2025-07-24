@@ -18,7 +18,7 @@ import {
 } from "@turnkey/react-wallet-kit";
 import { SessionKey } from "@turnkey/react-wallet-kit";
 import { WalletType } from "@turnkey/wallet-stamper";
-import { ExportType } from "@turnkey/react-wallet-kit/dist/components/export";
+import { ExportType } from "@turnkey/react-wallet-kit/dist/types/base";
 
 export default function AuthPage() {
   const [email, setEmail] = useState<string>("");
