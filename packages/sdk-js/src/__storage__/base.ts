@@ -1,35 +1,7 @@
-import { Session } from "@turnkey/sdk-types";
 import { WebStorageManager } from "./web/storage";
 import { isReactNative, isWeb } from "@utils";
+import type { StorageBase } from "@types";
 
-export enum SessionKey {
-  DefaultSessionkey = "@turnkey/session/v3",
-}
-
-export interface StorageBase {
-  // These functions take in strings for sessions. This is just the JWT that is returned from Turnkey.
-  getStorageValue(sessionKey: string): Promise<any>;
-
-  setStorageValue(sessionKey: string, storageValue: any): Promise<void>;
-
-  setActiveSessionKey(sessionKey: string): Promise<void>;
-
-  removeStorageValue(sessionKey: string): Promise<void>;
-
-  storeSession(session: string, sessionKey?: string): Promise<void>;
-
-  getSession(sessionKey?: string): Promise<Session | undefined>;
-
-  getActiveSessionKey(): Promise<string | undefined>;
-
-  getActiveSession(): Promise<Session | undefined>;
-
-  listSessionKeys(): Promise<string[]>;
-
-  clearSession(sessionKey: string): Promise<void>;
-
-  clearAllSessions(): Promise<void>;
-}
 // TODO (Amir): Turn this into a class that extends StorageBase and make an init function. See stamper
 export async function createStorageManager(): Promise<StorageBase> {
   if (isReactNative()) {

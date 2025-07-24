@@ -1,6 +1,6 @@
-import { StorageBase, SessionKey } from "../base";
+import { type StorageBase, SessionKey } from "@types";
 import { parseSession } from "@utils";
-import { Session } from "@turnkey/sdk-types";
+import type { Session } from "@turnkey/sdk-types";
 
 let AsyncStorage: (typeof import("@react-native-async-storage/async-storage"))["default"];
 

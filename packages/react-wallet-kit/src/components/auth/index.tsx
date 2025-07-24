@@ -1,25 +1,26 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { OAuthButton } from "./OAuth";
 import {
   faApple,
   faFacebook,
   faGoogle,
 } from "@fortawesome/free-brands-svg-icons";
-import { useModal, useTurnkey } from "../../providers";
+import { OtpType } from "@turnkey/sdk-js";
+import type { WalletProvider } from "@turnkey/wallet-stamper";
+import { ClientState } from "@utils";
+import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
+import clsx from "clsx";
+import { OAuthButton } from "./OAuth";
 import { EmailInput } from "./Email";
 import { OrSeparator } from "./OrSeparator";
 import { OtpVerification } from "./OTP";
-import { OtpType } from "@turnkey/sdk-js";
 import { PhoneNumberInput } from "./Phone";
 import { ActionPage } from "./Action";
 import { PasskeyButtons } from "./Passkey";
-import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
 import { Spinner } from "../design/Spinners";
 import { ExternalWalletSelector, WalletAuthButton } from "./Wallet";
-import { WalletProvider } from "@turnkey/wallet-stamper";
-import clsx from "clsx";
-import { ClientState } from "@utils";
 import { DeveloperError } from "../design/Failure";
+import { useModal } from "../../providers/modal/Hook";
+import { useTurnkey } from "../../providers/client/Hook";
 
 export function AuthComponent() {
   const {
