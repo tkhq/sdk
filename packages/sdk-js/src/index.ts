@@ -1,7 +1,4 @@
-// marked as internal to prevent inclusion in the sdk-browser docs
-
-import { generateWalletAccountsFromAddressFormat } from "@utils";
-
+// marked as internal to prevent inclusion in the sdk-js docs
 /** @internal */
 export {
   ApiKeyStamper,
@@ -9,7 +6,7 @@ export {
   type TApiKeyStamperConfig,
 } from "@turnkey/api-key-stamper";
 
-// marked as internal to prevent inclusion in the sdk-browser docs
+// marked as internal to prevent inclusion in the sdk-js docs
 /** @internal */
 export {
   type TWebauthnStamperConfig,
@@ -25,7 +22,7 @@ export { type TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 
 // export { getStorageValue, setStorageValue, StorageKeys } from "@storage";
 
-// marked as internal to prevent inclusion in the sdk-browser docs
+// marked as internal to prevent inclusion in the sdk-js docs
 /** @internal */
 // export {
 //   defaultEthereumAccountAtIndex,
@@ -95,20 +92,10 @@ export { type TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 //   DEFAULT_TON_V4R2_ACCOUNTS,
 // } from "./turnkey-helpers";
 
-// marked as internal to prevent inclusion in the sdk-browser docs
+// marked as internal to prevent inclusion in the sdk-js docs
 /** @internal */
-// export type { WalletAccount } from "./turnkey-helpers";
 
 // Export all types and values from __types__/base
 export * from "./__types__/base";
-
-// Export all models from models
-// export * from "@models";
-
-// export { type Session, SessionType } from "@turnkey/sdk-types";
-
-// marked as internal to prevent inclusion in the sdk-browser docs
-/** @internal */
-export type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
 
 export { generateWalletAccountsFromAddressFormat } from "./utils";

@@ -37,6 +37,8 @@ import {
   ConnectedWallet,
   Curve,
   TurnkeyRequestError,
+  StorageBase,
+  SessionKey,
 } from "@types"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
@@ -51,11 +53,7 @@ import {
   splitSignature,
   hashPayload,
 } from "@utils";
-import {
-  createStorageManager,
-  StorageBase,
-  SessionKey,
-} from "../__storage__/base";
+import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
 import { CrossPlatformWalletManager } from "../__stampers__/wallet/base";

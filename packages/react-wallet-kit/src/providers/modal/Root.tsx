@@ -6,12 +6,13 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import { ModalPage, useModal } from "./Provider";
+import type { ModalPage } from "./Provider";
+import { useModal } from "./Hook";
 import { IconButton } from "../../components/design/Buttons";
 import { faArrowLeft, faClose } from "@fortawesome/free-solid-svg-icons";
 import { TurnkeyLogo } from "../../components/design/Svg";
-import { TurnkeyProviderConfig } from "../TurnkeyProvider";
-import { useTurnkey } from "../client/Provider";
+import type { TurnkeyProviderConfig } from "../../types/base";
+import { useTurnkey } from "../client/Hook";
 import { ClientState } from "@utils";
 import clsx from "clsx";
 import { DeveloperError } from "../../components/design/Failure";
