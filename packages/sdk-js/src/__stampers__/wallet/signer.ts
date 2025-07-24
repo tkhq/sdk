@@ -1,8 +1,8 @@
-import {
+import type {
   SignMode,
+  WalletType,
   WalletInterface,
   WalletProvider,
-  WalletType,
 } from "@turnkey/wallet-stamper";
 
 export interface WalletSignerInterface {

@@ -50,10 +50,14 @@ export type paths = {
   };
   "/public/v1/query/get_policy_evaluations": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     /** Get the policy evaluations for an activity. */
 =======
     /** Get the policy evaluations for an Activity */
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+    /** Get the policy evaluations for an Activity */
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
     post: operations["PublicApiService_GetPolicyEvaluations"];
   };
   "/public/v1/query/get_private_key": {
@@ -515,7 +519,10 @@ export type definitions = {
     createdAt: definitions["externaldatav1Timestamp"];
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
   externalactivityv1UpdateProxyAuthConfigRequest: {
     /** @enum {string} */
     type: "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
@@ -525,7 +532,10 @@ export type definitions = {
     organizationId: string;
     parameters: definitions["v1UpdateProxyAuthConfigIntent"];
   };
+<<<<<<< HEAD
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
   externaldatav1Address: {
     format?: definitions["v1AddressFormat"];
     address?: string;
@@ -2179,8 +2189,11 @@ export type definitions = {
   };
   v1GetPolicyEvaluationsRequest: {
 <<<<<<< HEAD
+<<<<<<< HEAD
     /** @description Unique identifier for a given organization. */
 =======
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     /** @description Unique identifier for a given Activity. */
@@ -2262,6 +2275,7 @@ export type definitions = {
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
     organizationId: string;
 <<<<<<< HEAD
+<<<<<<< HEAD
     /** @description Unique identifier for a given smart contract interface. */
     smartContractInterfaceId: string;
   };
@@ -2282,6 +2296,8 @@ export type definitions = {
     organizationId: string;
 =======
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
     /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'WALLET_ACCOUNT_ADDRESS' or 'PUBLIC_KEY' */
     filterType?: string;
     /** @description The value of the filter to apply for the specified type. For example, a specific email or name string. */
@@ -3457,6 +3473,7 @@ export type definitions = {
   };
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   v1SmartContractInterfaceReference: {
     smartContractInterfaceId?: string;
     smartContractAddress?: string;
@@ -3483,6 +3500,8 @@ export type definitions = {
   };
 =======
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
   v1SmartContractInterfaceReference: {
     smartContractInterfaceId?: string;
     smartContractAddress?: string;
@@ -4269,10 +4288,14 @@ export type operations = {
     };
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** Get the policy evaluations for an activity. */
 =======
   /** Get the policy evaluations for an Activity */
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+  /** Get the policy evaluations for an Activity */
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
   PublicApiService_GetPolicyEvaluations: {
     parameters: {
       body: {
@@ -4291,8 +4314,11 @@ export type operations = {
     };
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** Get details about a private key. */
 =======
+=======
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
   /** Get details about a Private Key */
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
   PublicApiService_GetPrivateKey: {

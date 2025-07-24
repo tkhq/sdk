@@ -572,6 +572,7 @@ export type TGetPolicyEvaluationsBody =
 
 /**
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Get policy evaluations
  *
  * Get the policy evaluations for an activity.
@@ -580,6 +581,11 @@ export type TGetPolicyEvaluationsBody =
  *
  * Get the policy evaluations for an Activity
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+ * Get Policy Evaluations
+ *
+ * Get the policy evaluations for an Activity
+>>>>>>> 72519ac7 (fixed circular dependencies and type issues)
  *
  * `POST /public/v1/query/get_policy_evaluations`
  */
