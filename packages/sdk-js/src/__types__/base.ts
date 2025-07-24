@@ -1,6 +1,6 @@
 import type { TActivityId, TActivityStatus } from "@turnkey/http";
 import type {
-  WalletProvider,
+  SignMode,
   WalletStamper,
   WalletType,
 } from "@turnkey/wallet-stamper";
@@ -194,11 +194,11 @@ export enum Curve {
 
 export enum WalletSource {
   Embedded = "embedded",
-  Injected = "injected",
+  Connected = "connected",
 }
 
 export interface WalletAccount extends v1WalletAccount {
-  provider?: WalletProvider;
+  signMessage?: (message: string, mode: SignMode) => Promise<string>;
 }
 
 export interface EmbeddedWallet extends v1Wallet {
@@ -206,12 +206,12 @@ export interface EmbeddedWallet extends v1Wallet {
   accounts: WalletAccount[];
 }
 
-export interface InjectedWallet extends v1Wallet {
-  source: WalletSource.Injected;
+export interface ConnectedWallet extends v1Wallet {
+  source: WalletSource.Connected;
   accounts: WalletAccount[];
 }
 
-export type Wallet = EmbeddedWallet | InjectedWallet;
+export type Wallet = EmbeddedWallet | ConnectedWallet;
 
 export type WalletAccountParams = v1WalletAccountParams;
 

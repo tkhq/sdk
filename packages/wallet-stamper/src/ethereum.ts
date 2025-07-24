@@ -1,5 +1,6 @@
 import {
   EthereumWalletInterface,
+  SignMode,
   WalletProvider,
   WalletProviderInfo,
   WalletRpcProvider,
@@ -42,6 +43,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
   abstract signMessage(
     message: string | Hex,
     provider: WalletRpcProvider,
+    mode: SignMode,
   ): Promise<Hex>;
 
   /**
@@ -52,7 +54,11 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    */
   async getPublicKey(provider: WalletRpcProvider): Promise<string> {
     const message = "GET_PUBLIC_KEY";
-    const signature = await this.signMessage(message, provider);
+    const signature = await this.signMessage(
+      message,
+      provider,
+      SignMode.Message,
+    );
     return getCompressedPublicKey(signature, message);
   }
 
@@ -160,16 +166,30 @@ export class EthereumWallet extends BaseEthereumWallet {
    * This method uses the 'personal_sign' method of the Ethereum provider
    * to sign the message with the user's account.
    */
-  async signMessage(message: string | Hex, provider: WalletRpcProvider) {
+  async signMessage(
+    message: string | Hex,
+    provider: WalletRpcProvider,
+    mode: SignMode,
+  ) {
     const selectedProvider = asEip1193(provider);
     const account = await getAccount(selectedProvider);
 
-    const signature = await selectedProvider.request({
-      method: "personal_sign" as const,
-      params: [message as Hex, account],
-    });
+    switch (mode) {
+      case "message":
+        return await selectedProvider.request({
+          method: "personal_sign",
+          params: [message as Hex, account],
+        });
 
-    return signature;
+      case "transaction":
+        return await selectedProvider.request({
+          method: "eth_sign",
+          params: [account, message as Hex],
+        });
+
+      default:
+        throw new WalletStamperError(`Unsupported sign mode: ${mode}`);
+    }
   }
 }
 

@@ -4,6 +4,7 @@ import {
   WalletType,
   WalletProvider,
   WalletProviderInfo,
+  SignMode,
 } from "./types";
 
 import { WalletStamperError } from "./errors";
@@ -47,6 +48,7 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
   abstract signMessage(
     message: string | Uint8Array,
     provider: WalletRpcProvider,
+    mode: SignMode,
   ): Promise<string>;
 
   /**
@@ -167,6 +169,7 @@ export class SolanaWallet extends BaseSolanaWallet {
   async signMessage(
     message: string | Uint8Array,
     provider: WalletRpcProvider,
+    mode: SignMode,
   ): Promise<string> {
     const wallet = asSolana(provider);
     await connectAccount(wallet);

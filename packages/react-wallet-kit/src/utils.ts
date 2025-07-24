@@ -82,7 +82,6 @@ export const useDebouncedCallback = <T extends (...args: any[]) => void>(
     ((...args: any[]) => {
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => {
-        console.log("Debounced function called with args:", args);
         fn(...args);
         timer.current = null;
       }, wait);
