@@ -48,6 +48,10 @@ export type paths = {
     /** Get details about a Private Key */
     post: operations["PublicApiService_GetPrivateKey"];
   };
+  "/public/v1/query/get_smart_contract_interface": {
+    /** Get details about a Smart Contract Interface */
+    post: operations["PublicApiService_GetSmartContractInterface"];
+  };
   "/public/v1/query/get_user": {
     /** Get details about a User */
     post: operations["PublicApiService_GetUser"];
@@ -75,6 +79,10 @@ export type paths = {
   "/public/v1/query/list_private_keys": {
     /** List all Private Keys within an Organization */
     post: operations["PublicApiService_GetPrivateKeys"];
+  };
+  "/public/v1/query/list_smart_contract_interfaces": {
+    /** List all Smart Contract Interfaces within an Organization */
+    post: operations["PublicApiService_GetSmartContractInterfaces"];
   };
   "/public/v1/query/list_suborgs": {
     /** Get all suborg IDs associated given a parent org ID and an optional filter. */
@@ -152,6 +160,10 @@ export type paths = {
     /** Create a read write session for a user */
     post: operations["PublicApiService_CreateReadWriteSession"];
   };
+  "/public/v1/submit/create_smart_contract_interface": {
+    /** Create an ABI/IDL in JSON */
+    post: operations["PublicApiService_CreateSmartContractInterface"];
+  };
   "/public/v1/submit/create_sub_organization": {
     /** Create a new Sub-Organization */
     post: operations["PublicApiService_CreateSubOrganization"];
@@ -199,6 +211,10 @@ export type paths = {
   "/public/v1/submit/delete_private_keys": {
     /** Deletes private keys for an organization */
     post: operations["PublicApiService_DeletePrivateKeys"];
+  };
+  "/public/v1/submit/delete_smart_contract_interface": {
+    /** Delete a Smart Contract Interface */
+    post: operations["PublicApiService_DeleteSmartContractInterface"];
   };
   "/public/v1/submit/delete_sub_organization": {
     /** Deletes a sub organization */
@@ -613,7 +629,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_USER_NAME"
     | "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
     | "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
-    | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP";
+    | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
+    | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
+    | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1087,6 +1105,30 @@ export type definitions = {
     /** @description HPKE encrypted credential bundle */
     credentialBundle: string;
   };
+  v1CreateSmartContractInterfaceIntent: {
+    /** @description Corresponding contract address or program ID */
+    smartContractAddress: string;
+    /** @description ABI/IDL as a JSON string */
+    smartContractInterface: string;
+    type: definitions["v1SmartContractInterfaceType"];
+    /** @description Human-readable name for a Smart Contract Interface. */
+    label: string;
+    /** @description Notes for a Smart Contract Interface. */
+    notes?: string;
+  };
+  v1CreateSmartContractInterfaceRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateSmartContractInterfaceIntent"];
+  };
+  v1CreateSmartContractInterfaceResult: {
+    /** @description The ID of the created Smart Contract Interface. */
+    smartContractInterfaceId: string;
+  };
   v1CreateSubOrganizationIntent: {
     /** @description Name for this sub-organization */
     name: string;
@@ -1472,6 +1514,23 @@ export type definitions = {
   v1DeletePrivateKeysResult: {
     /** @description A list of private key unique identifiers that were removed */
     privateKeyIds: string[];
+  };
+  v1DeleteSmartContractInterfaceIntent: {
+    /** @description The ID of a Smart Contract Interface intended for deletion. */
+    smartContractInterfaceId: string;
+  };
+  v1DeleteSmartContractInterfaceRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteSmartContractInterfaceIntent"];
+  };
+  v1DeleteSmartContractInterfaceResult: {
+    /** @description The ID of the deleted Smart Contract Interface. */
+    smartContractInterfaceId: string;
   };
   v1DeleteSubOrganizationIntent: {
     /** @description Sub-organization deletion, by default, requires associated wallets and private keys to be exported for security reasons. Set this boolean to true to force sub-organization deletion even if some wallets or private keys within it have not been exported yet. Default: false. */
@@ -1901,6 +1960,24 @@ export type definitions = {
   v1GetPrivateKeysResponse: {
     /** @description A list of Private Keys. */
     privateKeys: definitions["v1PrivateKey"][];
+  };
+  v1GetSmartContractInterfaceRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface. */
+    smartContractInterfaceId: string;
+  };
+  v1GetSmartContractInterfaceResponse: {
+    /** @description Object to be used in conjunction with Policies to guard transaction signing. */
+    smartContractInterface: definitions["v1SmartContractInterface"];
+  };
+  v1GetSmartContractInterfacesRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1GetSmartContractInterfacesResponse: {
+    /** @description A list of Smart Contract Interfaces. */
+    smartContractInterfaces: definitions["v1SmartContractInterface"][];
   };
   v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
@@ -2349,6 +2426,8 @@ export type definitions = {
     updateUserEmailIntent?: definitions["v1UpdateUserEmailIntent"];
     updateUserPhoneNumberIntent?: definitions["v1UpdateUserPhoneNumberIntent"];
     initFiatOnRampIntent?: definitions["v1InitFiatOnRampIntent"];
+    createSmartContractInterfaceIntent?: definitions["v1CreateSmartContractInterfaceIntent"];
+    deleteSmartContractInterfaceIntent?: definitions["v1DeleteSmartContractInterfaceIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2511,6 +2590,7 @@ export type definitions = {
     rootQuorum?: definitions["externaldatav1Quorum"];
     features?: definitions["v1Feature"][];
     wallets?: definitions["v1Wallet"][];
+    smartContractInterfaceReferences?: definitions["v1SmartContractInterfaceReference"][];
   };
   v1OtpAuthIntent: {
     /** @description ID representing the result of an init OTP activity. */
@@ -2768,6 +2848,8 @@ export type definitions = {
     updateUserEmailResult?: definitions["v1UpdateUserEmailResult"];
     updateUserPhoneNumberResult?: definitions["v1UpdateUserPhoneNumberResult"];
     initFiatOnRampResult?: definitions["v1InitFiatOnRampResult"];
+    createSmartContractInterfaceResult?: definitions["v1CreateSmartContractInterfaceResult"];
+    deleteSmartContractInterfaceResult?: definitions["v1DeleteSmartContractInterfaceResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -2936,6 +3018,33 @@ export type definitions = {
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
   };
+  v1SmartContractInterface: {
+    /** @description The Organization the Smart Contract Interface belongs to. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+    smartContractInterfaceId: string;
+    /** @description The address corresponding to the Smart Contract or Program. */
+    smartContractAddress: string;
+    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+    smartContractInterface: string;
+    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    type: string;
+    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    label: string;
+    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    notes: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1SmartContractInterfaceReference: {
+    smartContractInterfaceId?: string;
+    smartContractAddress?: string;
+    digest?: string;
+  };
+  /** @enum {string} */
+  v1SmartContractInterfaceType:
+    | "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM"
+    | "SMART_CONTRACT_INTERFACE_TYPE_SOLANA";
   v1SmsCustomizationParams: {
     /** @description Template containing references to .OtpCode i.e Your OTP is {{.OtpCode}} */
     template?: string;
@@ -3575,6 +3684,24 @@ export type operations = {
       };
     };
   };
+  /** Get details about a Smart Contract Interface */
+  PublicApiService_GetSmartContractInterface: {
+    parameters: {
+      body: {
+        body: definitions["v1GetSmartContractInterfaceRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetSmartContractInterfaceResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get details about a User */
   PublicApiService_GetUser: {
     parameters: {
@@ -3694,6 +3821,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetPrivateKeysResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all Smart Contract Interfaces within an Organization */
+  PublicApiService_GetSmartContractInterfaces: {
+    parameters: {
+      body: {
+        body: definitions["v1GetSmartContractInterfacesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetSmartContractInterfacesResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -4043,6 +4188,24 @@ export type operations = {
       };
     };
   };
+  /** Create an ABI/IDL in JSON */
+  PublicApiService_CreateSmartContractInterface: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateSmartContractInterfaceRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create a new Sub-Organization */
   PublicApiService_CreateSubOrganization: {
     parameters: {
@@ -4246,6 +4409,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeletePrivateKeysRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Delete a Smart Contract Interface */
+  PublicApiService_DeleteSmartContractInterface: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteSmartContractInterfaceRequest"];
       };
     };
     responses: {
