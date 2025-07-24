@@ -1,5 +1,5 @@
 import { useScreenSize } from "@utils";
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useState, ReactNode } from "react";
 
 export type ModalPage = {
   key: string;
@@ -8,7 +8,7 @@ export type ModalPage = {
   preventBack?: boolean;
 };
 
-type ModalContextType = {
+export type ModalContextType = {
   openModal: (page: ModalPage) => void;
   pushPage: (page: ModalPage) => void;
   popPage: () => void;
@@ -18,13 +18,9 @@ type ModalContextType = {
   screenWidth: number;
 };
 
-const ModalContext = createContext<ModalContextType | undefined>(undefined);
-
-export const useModal = (): ModalContextType => {
-  const context = useContext(ModalContext);
-  if (!context) throw new Error("useModal must be used within ModalProvider");
-  return context;
-};
+export const ModalContext = createContext<ModalContextType | undefined>(
+  undefined,
+);
 
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [modalStack, setModalStack] = useState<ModalPage[]>([]);

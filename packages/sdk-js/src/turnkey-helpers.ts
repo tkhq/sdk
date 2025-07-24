@@ -1,4 +1,4 @@
-import { v1WalletAccountParams } from "@turnkey/sdk-types";
+import type { v1WalletAccountParams } from "@turnkey/sdk-types";
 
 // ----------------------------
 // CURVE_SECP256K1 Accounts

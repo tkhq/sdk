@@ -1,6 +1,7 @@
-import { WalletProvider } from "@turnkey/wallet-stamper";
+import type { WalletProvider } from "@turnkey/wallet-stamper";
 import { ExternalWalletSelector, UnlinkWalletScreen } from "../auth/Wallet";
-import { useModal, useTurnkey } from "../../providers";
+import { useModal } from "../../providers/modal/Hook";
+import { useTurnkey } from "../../providers/client/Hook";
 import { ActionPage } from "../auth/Action";
 import { SuccessPage } from "../design/Success";
 

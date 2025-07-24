@@ -770,7 +770,11 @@ export class TurnkeyClient {
   };
 
   /**
+<<<<<<< HEAD
    * Get the policy evaluations for an activity.
+=======
+   * Get the policy evaluations for an Activity
+>>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
    *
    * Sign the provided `TGetPolicyEvaluationsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_policy_evaluations).
    *
@@ -802,7 +806,11 @@ export class TurnkeyClient {
   };
 
   /**
+<<<<<<< HEAD
    * Get details about a private key.
+=======
+   * Get details about a Private Key
+>>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
    *
    * Sign the provided `TGetPrivateKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_private_key).
    *

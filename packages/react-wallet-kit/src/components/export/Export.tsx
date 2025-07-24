@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
-import { useModal, useTurnkey } from "../../providers";
-import { DefaultParams } from "@turnkey/sdk-js";
+import { useModal } from "../../providers/modal/Hook";
+import { useTurnkey } from "../../providers/client/Hook";
+import type { DefaultParams } from "@turnkey/sdk-js";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { ExportWarn } from "./ExportWarn";
 import { ActionButton } from "../design/Buttons";
+import type { ExportType } from "../../types/base";
 import clsx from "clsx";
-
-export enum ExportType {
-  Wallet = "WALLET",
-  PrivateKey = "PRIVATE_KEY",
-}
 
 const TurnkeyExportIframeContainerId = "turnkey-export-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
