@@ -5,7 +5,7 @@ import {
   type TStamp,
   WalletType,
   WalletRpcProvider,
-  SignMode,
+  SignIntent,
 } from "./types";
 import {
   SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191,
@@ -26,10 +26,10 @@ export class WalletStamper {
   async stamp(payload: string, provider: WalletRpcProvider): Promise<TStamp> {
     let signature: string;
     try {
-      signature = await this.wallet.signMessage(
+      signature = await this.wallet.sign(
         payload,
         provider,
-        SignMode.Message,
+        SignIntent.SignMessage,
       );
     } catch (error) {
       throw new WalletStamperError("Failed to sign the message", error);
