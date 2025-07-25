@@ -26,6 +26,7 @@ import {
   TurnkeyClient,
   Wallet,
   type DefaultParams,
+  WalletAccount,
 } from "@turnkey/sdk-js";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import {
@@ -1718,11 +1719,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    */
   async function signTransaction(
     params: {
-      signWith: string;
       unsignedTransaction: string;
-      type: v1TransactionType;
+      transactionType: v1TransactionType;
+      walletAccount: WalletAccount;
     } & DefaultParams,
-  ): Promise<TSignTransactionResponse> {
+  ): Promise<string> {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
