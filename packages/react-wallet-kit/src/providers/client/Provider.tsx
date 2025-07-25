@@ -37,7 +37,6 @@ import {
   OAuthProviders,
   type Session,
   type TDeleteSubOrganizationResponse,
-  type TSignTransactionResponse,
   type TStampLoginResponse,
   type v1AddressFormat,
   type v1Attestation,
