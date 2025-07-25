@@ -37,6 +37,8 @@ import {
   TurnkeyRequestError,
   StorageBase,
   SessionKey,
+  EmbeddedWalletAccount,
+  ConnectedWalletAccount,
 } from "@types"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
@@ -1655,23 +1657,25 @@ export class TurnkeyClient {
   /**
    * Signs a message using the specified wallet account.
    *
-   * - This function signs an arbitrary message using the provided wallet account, supporting both embedded and connected wallets.
-   * - Automatically determines the appropriate encoding and hash function for the account's address type unless explicitly overridden.
-   * - For connected wallets, delegates signing to the wallet provider's native signing method.
-   * - For embedded wallets, uses the Turnkey API to sign the message.
-   * - Handles message hashing and encoding internally to ensure compatibility with the wallet's address format.
+   * - Supports both embedded and connected wallets.
+   * - For **connected wallets**:
+   *   - Delegates signing to the wallet provider’s native signing method.
+   *   - **Important:** For Ethereum wallets (e.g., MetaMask), signatures follow [EIP-191](https://eips.ethereum.org/EIPS/eip-191).
+   *     The message is automatically prefixed with `"\x19Ethereum Signed Message:\n" + message length`
+   *     before signing. As a result, this signature **cannot be used as a raw transaction signature**
+   *     or broadcast on-chain.
+   * - For **embedded wallets**, uses the Turnkey API to sign the message directly.
+   * - Automatically handles message encoding and hashing based on the wallet account’s address format,
+   *   unless explicitly overridden.
    *
    * @param message - The message to sign.
    * @param walletAccount - The wallet account to use for signing.
    * @param encoding - Optional override for the payload encoding (defaults to the encoding appropriate for the address type).
    * @param hashFunction - Optional override for the hash function (defaults to the hash function appropriate for the address type).
-   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
-   * @returns A promise that resolves to a `v1SignRawPayloadResult` object containing the signature and related metadata.
-   * @throws {TurnkeyError} If message signing fails, if the wallet account does not support signing, or if the response is invalid.
+   * @param stampWith - Optional stamper to tag the signing request (e.g., Passkey, ApiKey, or Wallet).
+   * @returns A promise resolving to a `v1SignRawPayloadResult` containing the signature and metadata.
+   * @throws {TurnkeyError} If signing fails, if the wallet account does not support signing, or if the response is invalid.
    */
-  // Note: When signing with a connected Ethereum wallet (e.g., MetaMask), due to EIP-191 restrictions,
-  // the message is automatically prefixed with "\x19Ethereum Signed Message:\n" + message length before signing.
-  // This means the message cannot be used as a transaction or other on-chain data.
   signMessage = async (
     params: {
       message: string;

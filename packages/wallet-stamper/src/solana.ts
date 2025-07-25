@@ -12,7 +12,10 @@ import { Wallet as SWSWallet } from "@wallet-standard/base";
 import { getWallets } from "@wallet-standard/app";
 import { asSolana } from "./utils";
 import bs58 from "bs58";
-import { uint8ArrayToHexString } from "@turnkey/encoding";
+import {
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
 
 declare global {
   interface Window {
