@@ -189,7 +189,7 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
         onChange(
           data.phone,
           `+${data.country.dialCode} ${data.inputValue}`,
-          isValidPhone(data.phone),
+          isValidPhone(data.phone)
         );
       },
     });
@@ -213,7 +213,7 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
 
           <ListboxOptions
             transition
-            className="absolute tk-scrollbar z-50 mt-1 bg-white dark:bg-button-dark border border-gray-300 dark:border-modal-background-light/20 rounded-md shadow-lg max-h-72 overflow-auto text-sm 
+            className="absolute tk-scrollbar z-50 mt-1 border border-modal-background-dark/20 dark:border-modal-background-light/20 rounded-md shadow-lg max-h-72 overflow-y-auto overflow-x-hidden text-sm 
             transition duration-200 ease-out data-closed:-translate-y-2 data-closed:opacity-0"
           >
             {countries.map((c) => {
@@ -223,8 +223,10 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
                   key={iso2}
                   value={iso2}
                   className={({ active }) =>
-                    `cursor-pointer select-none py-2 px-3 flex items-center gap-2 ${
-                      active ? "bg-gray-100 dark:bg-modal-background-dark" : ""
+                    `cursor-pointer select-none py-2 px-3 bg-button-light dark:bg-button-dark flex items-center gap-2 ${
+                      active
+                        ? "bg-modal-background-light dark:bg-modal-background-dark"
+                        : ""
                     }`
                   }
                 >
@@ -251,7 +253,7 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
           if (e.key === "Enter") onEnter?.();
         }}
         placeholder="Phone number"
-        className="w-full py-3 bg-transparent border-none text-inherit focus:outline-none focus:ring-0 focus:border-none"
+        className="w-full py-3 bg-transparent border-none text-inherit placeholder-icon-text-light dark:placeholder-icon-text-dark focus:outline-none focus:ring-0 focus:border-none"
       />
     </div>
   );
