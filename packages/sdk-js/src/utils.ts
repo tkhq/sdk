@@ -57,6 +57,11 @@ import {
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
+import {
+  SignIntent,
+  WalletProvider,
+  WalletType,
+} from "@turnkey/wallet-stamper";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -400,6 +405,45 @@ export const hashPayload = async (
   }
 
   throw new Error(`Unsupported hash function: ${hashFn}`);
+};
+
+export const getWalletAccountMethods = (
+  sign: (
+    message: string,
+    provider: WalletProvider,
+    intent: SignIntent,
+  ) => Promise<string>,
+  provider: WalletProvider,
+) => {
+  const signWithIntent = (intent: SignIntent) => {
+    return async (input: string) => {
+      return sign(input, provider, intent);
+    };
+  };
+
+  switch (provider.type) {
+    case WalletType.Ethereum:
+      return {
+        signMessage: signWithIntent(SignIntent.SignMessage),
+        signAndSendTransaction: signWithIntent(
+          SignIntent.SignAndSendTransaction,
+        ),
+      };
+
+    case WalletType.Solana:
+      return {
+        signMessage: signWithIntent(SignIntent.SignMessage),
+        signTransaction: signWithIntent(SignIntent.SignTransaction),
+        signAndSendTransaction: signWithIntent(
+          SignIntent.SignAndSendTransaction,
+        ),
+      };
+
+    default:
+      throw new Error(
+        `Unsupported wallet type: ${provider.type}. Supported types are Ethereum and Solana.`,
+      );
+  }
 };
 
 export function splitSignature(

@@ -27,10 +27,10 @@ export interface TStamper {
  */
 export interface BaseWalletInterface {
   type: WalletType;
-  signMessage: (
+  sign: (
     message: string,
     provider: WalletRpcProvider,
-    mode: SignMode,
+    intent: SignIntent,
   ) => Promise<string>;
   getPublicKey: (provider: WalletRpcProvider) => Promise<string>;
   getProviders: () => Promise<WalletProvider[]>;
@@ -95,7 +95,8 @@ export interface WalletProvider {
   connectedAddresses: string[];
 }
 
-export enum SignMode {
-  Message = "message",
-  Transaction = "transaction",
+export enum SignIntent {
+  SignMessage = "sign_message",
+  SignTransaction = "sign_transaction",
+  SignAndSendTransaction = "sign_and_send",
 }
