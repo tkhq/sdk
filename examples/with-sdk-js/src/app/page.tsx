@@ -19,6 +19,8 @@ import {
 import { SessionKey } from "@turnkey/react-wallet-kit";
 import { WalletType } from "@turnkey/wallet-stamper";
 import { ExportType } from "@turnkey/react-wallet-kit/dist/types/base";
+import { parseEther, Transaction as EthTransaction } from "ethers";
+import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
 export default function AuthPage() {
   const [email, setEmail] = useState<string>("");

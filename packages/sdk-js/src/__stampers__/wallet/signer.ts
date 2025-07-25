@@ -1,5 +1,5 @@
 import type {
-  SignMode,
+  SignIntent,
   WalletType,
   WalletInterface,
   WalletProvider,
