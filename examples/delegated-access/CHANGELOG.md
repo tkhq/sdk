@@ -1,5 +1,12 @@
 # @turnkey/delegated-access
 
+## 0.0.10
+
+### Patch Changes
+
+- Updated dependencies [[`cb13c26`](https://github.com/tkhq/sdk/commit/cb13c26edb79a01ab651e3b2897334fd154b436a)]:
+  - @turnkey/sdk-server@4.2.3
+
 ## 0.0.9
 
 ### Patch Changes
