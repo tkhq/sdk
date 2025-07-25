@@ -1,11 +1,5 @@
 import { Fragment, useRef, useEffect, useState } from "react";
-import {
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-  Transition,
-  TransitionChild,
-} from "@headlessui/react";
+import { Portal, Transition, TransitionChild } from "@headlessui/react";
 import type { ModalPage } from "./Provider";
 import { useModal } from "./Hook";
 import { IconButton } from "../../components/design/Buttons";
@@ -40,6 +34,18 @@ export function ModalRoot(props: ModalRootProps) {
   useCssLoaded(modalStack); // triggers warning overlay if CSS missing
 
   const maxMobileScreenWidth = screenWidth * 0.9; // Only take up 90% of the screen width on mobile
+
+  const getBorderRadius = () => {
+    // Border radius can be passed in as either a number or a string, so we need to handle both cases
+    const value = config?.ui?.borderRadius ?? 16;
+    const stringBorderRadius = typeof value === "number" ? `${value}px` : value;
+
+    // Remove bottom border radius on mobile to avoid rounded corners at the bottom of the screen
+
+    return isMobile
+      ? `${stringBorderRadius} ${stringBorderRadius} 0 0`
+      : stringBorderRadius;
+  };
 
   useEffect(() => {
     // This useEffect sets up a ResizeObserver to monitor changes in the size of the modal content.
@@ -96,80 +102,65 @@ export function ModalRoot(props: ModalRootProps) {
 
   return (
     <Transition appear show={!!current} as={Fragment}>
-      <Dialog
-        // https://github.com/tailwindlabs/headlessui/blob/38986df81ecc7b7c86abab33d61ce18ffd55fac6/packages/%40headlessui-react/src/components/dialog/dialog.tsx#L205-L206
-        // If we are rendering the modal in the provider, set __demoMode to true to avoid "inert" being applied to all ansestors of the modal.
-        __demoMode={config?.ui?.renderModalInProvider ? true : false}
-        as="div"
-        className="relative z-50"
-        onClose={() => {
-          // prevent default outside-click close behavior
-          // we'll manually handle backdrop clicks below
-        }}
-      >
-        <TransitionChild
-          as={Fragment}
-          enter="ease-out duration-200"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-150"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
-          <div
-            className="fixed inset-0 bg-black/40"
-            style={{
-              backdropFilter: `blur(${
-                typeof config?.ui?.backgroundBlur === "number"
-                  ? `${config.ui.backgroundBlur}px`
-                  : (config?.ui?.backgroundBlur ?? "8px")
-              })`,
-            }}
-          />
-        </TransitionChild>
+      {/* When open, jump into a portal – just like <Dialog> would do */}
+      <Portal as={Fragment}>
+        {/* relative wrapper (positioned by the portal root) */}
+        <div className="relative z-40">
+          {/* --- Backdrop --- */}
+          <TransitionChild
+            as={Fragment}
+            enter="ease-out duration-200"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-150"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div
+              className="fixed inset-0 bg-black/40"
+              style={{
+                backdropFilter: `blur(${
+                  typeof config?.ui?.backgroundBlur === "number"
+                    ? `${config.ui.backgroundBlur}px`
+                    : (config?.ui?.backgroundBlur ?? "8px")
+                })`,
+              }}
+            />
+          </TransitionChild>
 
-        {/* Modal Panel */
-        /* TODO (Amir): Does adding transition-colors here mess with the children? Probably. If you see some weird slow colour transitions, this is most likely the culprit! */}
-        <div
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) {
-              e.stopPropagation();
-              closeModal();
-            }
-          }}
-          onTouchStart={(e) => {
-            if (e.target === e.currentTarget) {
-              e.stopPropagation();
-              closeModal();
-            }
-          }}
-          className={clsx(
-            "tk-modal fixed inset-0 flex justify-center transition-colors duration-300",
-            { dark: config?.ui?.darkMode },
-            { "items-end": isMobile },
-            { "items-center": !isMobile },
-          )}
-        >
-          <DialogPanel>
-            {/* White / Black background container */}
+          {/* TODO (Amir): Does adding transition-colors here mess with the children? Probably. If you see some weird slow colour transitions, this is most likely the culprit! */}
+          <div
+            className={clsx(
+              "tk-modal fixed inset-0 flex justify-center transition-colors duration-300",
+              { dark: config?.ui?.darkMode },
+              { "items-end": isMobile },
+              { "items-center": !isMobile }
+            )}
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget) {
+                e.stopPropagation();
+                closeModal();
+              }
+            }}
+          >
             <TransitionChild
               as={Fragment}
               enter="ease-out duration-150"
               enterFrom="opacity-0"
               enterTo="opacity-100"
-              leave="ease-in duration-150"
+              leave="ease-in duration-100"
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
+              {/* Inner panel – we stop propagation so clicks INSIDE the modal never reach the backdrop */}
               <div
+                onClick={(e) => e.stopPropagation()}
+                /* White / Black background container */
                 style={{
                   height,
                   width: isMobile ? maxMobileScreenWidth : width,
                   padding: innerPadding,
-                  borderRadius: isMobile
-                    ? // Remove bottom border radius on mobile to avoid rounded corners at the bottom of the screen
-                      `${config?.ui?.borderRadius ?? "16px"} ${config?.ui?.borderRadius ?? "16px"} 0 0`
-                    : (config?.ui?.borderRadius ?? "16px"),
+                  borderRadius: getBorderRadius(),
                 }}
                 className="bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex justify-center shadow-xl transition-all overflow-x-clip"
               >
@@ -189,13 +180,14 @@ export function ModalRoot(props: ModalRootProps) {
                     )}
                   </div>
 
-                  <DialogTitle className="text-base font-medium">
+                  <h2 className="text-base font-medium">
                     {current?.showTitle === undefined
                       ? current?.key
                       : current.showTitle
                         ? current?.key
                         : null}
-                  </DialogTitle>
+                  </h2>
+
                   <div className="w-6.5 h-6.5">
                     <IconButton
                       className="w-6.5 h-6.5"
@@ -205,6 +197,7 @@ export function ModalRoot(props: ModalRootProps) {
                   </div>
                 </div>
 
+                {/* --- Sliding / fading page stack inside the modal --- */}
                 <TransitionChild
                   as={Fragment}
                   enter="ease-in duration-200"
@@ -218,7 +211,7 @@ export function ModalRoot(props: ModalRootProps) {
                     className={clsx(
                       "flex flex-col z-10 transition-all duration-50 self-start",
                       // This allows the content to take the static `maxMobileScreenWidth` width on mobile
-                      isMobile && "w-full items-center",
+                      isMobile && "w-full items-center"
                     )}
                     style={{ filter: `blur(${contentBlur}px)` }}
                     ref={containerRef}
@@ -254,9 +247,9 @@ export function ModalRoot(props: ModalRootProps) {
                 </TransitionChild>
               </div>
             </TransitionChild>
-          </DialogPanel>
+          </div>
         </div>
-      </Dialog>
+      </Portal>
     </Transition>
   );
 }
