@@ -159,6 +159,21 @@ export class TurnkeyClient {
     });
   }
 
+  /**
+   * Creates a new passkey authenticator for the user.
+   *
+   * - This function generates a new passkey attestation and challenge, suitable for registration with the user's device.
+   * - Handles both web and React Native environments, automatically selecting the appropriate passkey creation flow.
+   * - The resulting attestation and challenge can be used to register the passkey with Turnkey.
+   *
+   * @param name - Optional. The name of the passkey. If not provided, defaults to "A Passkey".
+   * @param displayName - Optional. The display name for the passkey. If not provided, defaults to "A Passkey".
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an object containing:
+   *   - attestation: The attestation object returned from the passkey creation process.
+   *   - encodedChallenge: The encoded challenge string used for passkey registration.
+   * @throws {TurnkeyError} If there is an error during passkey creation, or if the platform is unsupported.
+   */
   createPasskey = async (
     params?: {
       name?: string;
@@ -229,6 +244,17 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Logs out the current client session.
+   *
+   * - This function clears the specified session and removes any associated key pairs from storage.
+   * - If a sessionKey is provided, it logs out from that session; otherwise, it logs out from the active session.
+   * - Cleans up any api keys associated with the session.
+   *
+   * @param sessionKey - Optional session key to specify which session to log out from (defaults to the active session).
+   * @returns A promise that resolves when the logout process is complete.
+   * @throws {TurnkeyError} If there is no active session or if there is an error during the logout process.
+   */
   logout = async (params?: { sessionKey?: string }): Promise<void> => {
     try {
       if (params?.sessionKey) {
@@ -258,6 +284,21 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Logs in a user using a passkey, optionally specifying the public key, session key, and session expiration.
+   *
+   * - This function initiates the login process with a passkey and handles session creation and storage.
+   * - If a public key is not provided, a new key pair will be generated for authentication.
+   * - If a session key is not provided, the default session key will be used.
+   * - The session expiration can be customized via the expirationSeconds parameter.
+   * - Handles cleanup of unused key pairs if login fails.
+   *
+   * @param publicKey - Optional public key to use for authentication. If not provided, a new key pair will be generated.
+   * @param sessionKey - Optional session key to use for session creation (defaults to the default session key).
+   * @param expirationSeconds - Optional session expiration time in seconds (defaults to the configured default).
+   * @returns A promise that resolves to a signed JWT session token.
+   * @throws {TurnkeyError} If there is an error during the passkey login process or if the user cancels the passkey prompt.
+   */
   loginWithPasskey = async (params?: {
     publicKey?: string;
     sessionKey?: string;
@@ -324,6 +365,22 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Signs up a user using a passkey, creating a new sub-organization and session.
+   *
+   * - This function creates a new passkey authenticator and uses it to register a new sub-organization for the user.
+   * - Handles both passkey creation and sub-organization creation in a single flow.
+   * - Optionally accepts additional sub-organization parameters, a custom session key, a custom passkey display name, and a custom session expiration.
+   * - Automatically generates a new API key pair for authentication and session management.
+   * - Stores the resulting session token and manages cleanup of unused key pairs.
+   *
+   * @param createSubOrgParams - Optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
+   * @param sessionKey - Optional session key to use for storing the session (defaults to the default session key).
+   * @param passkeyDisplayName - Optional display name for the passkey (defaults to a generated name based on the current timestamp).
+   * @param expirationSeconds - Optional session expiration time in seconds (defaults to the configured default).
+   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @throws {TurnkeyError} If there is an error during passkey creation, sub-organization creation, or session storage.
+   */
   signUpWithPasskey = async (params?: {
     createSubOrgParams?: CreateSubOrgParams;
     sessionKey?: string;
@@ -430,6 +487,7 @@ export class TurnkeyClient {
     }
   };
 
+  // MOOOOE
   getWalletProviders = async (chain?: Chain): Promise<WalletProvider[]> => {
     try {
       if (!this.walletManager) {
@@ -442,6 +500,7 @@ export class TurnkeyClient {
     }
   };
 
+  // MOOOOE
   connectWalletAccount = async (walletProvider: WalletProvider) => {
     if (!this.walletManager) {
       throw new Error("Wallet manager is not initialized");
@@ -454,6 +513,7 @@ export class TurnkeyClient {
     }
   };
 
+  // MOOOOE
   disconnectWalletAccount = async (walletProvider: WalletProvider) => {
     if (!this.walletManager) {
       throw new Error("Wallet manager is not initialized");
@@ -466,6 +526,7 @@ export class TurnkeyClient {
     }
   };
 
+  // MOOOOE
   loginWithWallet = async (params: {
     walletProvider: WalletProvider;
     publicKey?: string;
@@ -522,6 +583,7 @@ export class TurnkeyClient {
     }
   };
 
+  // MOOOOE
   signUpWithWallet = async (params: {
     walletProvider: WalletProvider;
     createSubOrgParams?: CreateSubOrgParams;
@@ -632,6 +694,7 @@ export class TurnkeyClient {
     }
   };
 
+  // MOOOOE
   loginOrSignupWithWallet = async (params: {
     walletProvider: WalletProvider;
     createSubOrgParams?: CreateSubOrgParams;
@@ -800,16 +863,22 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Initializes the OTP process by sending an OTP code to the provided contact.
+   *
+   * - This function initiates the OTP flow by sending a one-time password (OTP) code to the user's contact information (email address or phone number) via the auth proxy.
+   * - Supports both email and SMS OTP types.
+   * - Returns an OTP ID that is required for subsequent OTP verification.
+   *
+   * @param otpType - The type of OTP to initialize (OtpType.Email or OtpType.Sms).
+   * @param contact - The contact information for the user (e.g., email address or phone number).
+   * @returns A promise that resolves to the OTP ID required for verification.
+   * @throws {TurnkeyError} If there is an error during the OTP initialization process or if the maximum number of OTPs has been reached.
+   */
   initOtp = async (params: {
     otpType: OtpType;
     contact: string;
   }): Promise<string> => {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (this.config.authProxyId) {
-      headers["X-Proxy-ID"] = this.config.authProxyId;
-    }
     try {
       const initOtpRes = await this.httpClient.proxyInitOtp(params);
 
@@ -839,6 +908,23 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Verifies the OTP code sent to the user.
+   *
+   * - This function verifies the OTP code entered by the user against the OTP sent to their contact information (email or phone) using the auth proxy.
+   * - If verification is successful, it returns the sub-organization ID associated with the contact (if it exists) and a verification token.
+   * - The verification token can be used for subsequent login or sign-up flows.
+   * - Handles both email and SMS OTP types.
+   *
+   * @param otpId - The ID of the OTP to verify (returned from `initOtp`).
+   * @param otpCode - The OTP code entered by the user.
+   * @param contact - The contact information for the user (e.g., email address or phone number).
+   * @param otpType - The type of OTP being verified (OtpType.Email or OtpType.Sms).
+   * @returns A promise that resolves to an object containing:
+   *   - subOrganizationId: The sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
+   *   - verificationToken: The verification token to be used for login or sign-up.
+   * @throws {TurnkeyError} If there is an error during the OTP verification process, such as an invalid code or network failure.
+   */
   verifyOtp = async (params: {
     otpId: string;
     otpCode: string;
@@ -895,6 +981,22 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Logs in a user using an OTP verification token.
+   *
+   * - This function logs in a user using the verification token received after OTP verification (from email or SMS).
+   * - If a public key is not provided, a new API key pair will be generated for authentication.
+   * - Optionally invalidates any existing sessions for the user if `invalidateExisting` is set to true.
+   * - Stores the resulting session token under the specified session key, or the default session key if not provided.
+   * - Handles cleanup of unused key pairs if login fails.
+   *
+   * @param verificationToken - The verification token received after OTP verification.
+   * @param publicKey - Optional public key to use for authentication. If not provided, a new key pair will be generated.
+   * @param invalidateExisting - Optional flag to invalidate existing session for the user.
+   * @param sessionKey - Optional session key to use for session creation (defaults to the default session key).
+   * @returns A promise that resolves to a signed JWT session token.
+   * @throws {TurnkeyError} If there is an error during the OTP login process or if key pair cleanup fails.
+   */
   loginWithOtp = async (params: {
     verificationToken: string;
     publicKey?: string;
@@ -958,6 +1060,24 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Signs up a user using an OTP verification token.
+   *
+   * - This function signs up a user using the verification token received after OTP verification (from email or SMS).
+   * - Creates a new sub-organization for the user with the provided parameters and associates the contact (email or phone) with the sub-organization.
+   * - Automatically generates a new API key pair for authentication and session management.
+   * - Stores the resulting session token under the specified session key, or the default session key if not provided.
+   * - Handles both email and SMS OTP types, and supports additional sub-organization creation parameters.
+   *
+   * @param verificationToken - The verification token received after OTP verification.
+   * @param contact - The contact information for the user (e.g., email address or phone number).
+   * @param otpType - The type of OTP being used (OtpType.Email or OtpType.Sms).
+   * @param createSubOrgParams - Optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
+   * @param invalidateExisting - Optional flag to invalidate existing session for the user.
+   * @param sessionKey - Optional session key to use for session creation (defaults to the default session key).
+   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @throws {TurnkeyError} If there is an error during the OTP sign-up process or session storage.
+   */
   signUpWithOtp = async (params: {
     verificationToken: string;
     contact: string;
@@ -1012,6 +1132,26 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Completes the OTP authentication flow by verifying the OTP code and then either signing up or logging in the user.
+   *
+   * - This function first verifies the OTP code for the provided contact and OTP type.
+   * - If the contact is not associated with an existing sub-organization, it will automatically create a new sub-organization and complete the sign-up flow.
+   * - If the contact is already associated with a sub-organization, it will complete the login flow.
+   * - Supports passing a custom public key for authentication, invalidating existing session, specifying a session key, and providing additional sub-organization creation parameters.
+   * - Handles both email and SMS OTP types.
+   *
+   * @param otpId - The ID of the OTP to complete (returned from `initOtp`).
+   * @param otpCode - The OTP code entered by the user.
+   * @param contact - The contact information for the user (e.g., email address or phone number).
+   * @param otpType - The type of OTP being completed (OtpType.Email or OtpType.Sms).
+   * @param publicKey - Optional public key to use for authentication. If not provided, a new key pair may be generated.
+   * @param invalidateExisting - Optional flag to invalidate existing sessions for the user.
+   * @param sessionKey - Optional session key to use for session creation (defaults to the default session key).
+   * @param createSubOrgParams - Optional parameters for sub-organization creation (e.g., authenticators, user metadata).
+   * @returns A promise that resolves to a signed JWT session token for the user.
+   * @throws {TurnkeyError} If there is an error during OTP verification, sign-up, or login.
+   */
   completeOtp = async (params: {
     otpId: string;
     otpCode: string;
@@ -1077,6 +1217,24 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Completes the OAuth authentication flow by either signing up or logging in the user, depending on whether a sub-organization already exists for the provided OIDC token.
+   *
+   * - This function first checks if there is an existing sub-organization associated with the OIDC token.
+   * - If a sub-organization exists, it proceeds with the OAuth login flow.
+   * - If no sub-organization exists, it creates a new sub-organization and completes the sign-up flow.
+   * - Optionally accepts a custom OAuth provider name, session key, and additional sub-organization creation parameters.
+   * - Handles session storage and management, and supports invalidating existing sessions if specified.
+   *
+   * @param oidcToken - The OIDC token received after successful authentication with the OAuth provider.
+   * @param publicKey - The public key to use for authentication. Must be generated prior to calling this function.
+   * @param providerName - Optional name of the OAuth provider (defaults to a generated name with a timestamp).
+   * @param sessionKey - Optional session key to use for session creation (defaults to the default session key).
+   * @param invalidateExisting - Optional flag to invalidate existing sessions for the user.
+   * @param createSubOrgParams - Optional parameters for sub-organization creation (e.g., authenticators, user metadata).
+   * @returns A promise that resolves to a signed JWT session token for the user.
+   * @throws {TurnkeyError} If there is an error during the OAuth completion process, such as account lookup, sign-up, or login.
+   */
   completeOauth = async (params: {
     oidcToken: string;
     publicKey: string;
@@ -1135,6 +1293,21 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Logs in a user using OAuth authentication.
+   *
+   * - This function logs in a user using the provided OIDC token and public key.
+   * - Optionally invalidates any existing sessions for the user if `invalidateExisting` is set to true.
+   * - Stores the resulting session token under the specified session key, or the default session key if not provided.
+   * - Handles cleanup of unused key pairs if login fails.
+   *
+   * @param oidcToken - The OIDC token received after successful authentication with the OAuth provider.
+   * @param publicKey - The public key to use for authentication. Must be generated prior to calling this function.
+   * @param invalidateExisting - Optional flag to invalidate existing sessions for the user.
+   * @param sessionKey - Optional session key to use for session creation (defaults to the default session key).
+   * @returns A promise that resolves to a signed JWT session token.
+   * @throws {TurnkeyError} If there is an error during the OAuth login process or if key pair cleanup fails.
+   */
   loginWithOauth = async (params: {
     oidcToken: string;
     publicKey: string;
@@ -1156,15 +1329,6 @@ export class TurnkeyClient {
     }
 
     try {
-      // const res = await fetch(`${this.config.authProxyUrl}/v1/oauth_login`, {
-      //   method: "POST",
-      //   headers,
-      //   body: JSON.stringify({
-      //     oidcToken,
-      //     publicKey,
-      //     invalidateExisting,
-      //   }),
-      // });
       const loginRes = await this.httpClient.proxyOAuthLogin({
         oidcToken,
         publicKey,
@@ -1213,6 +1377,22 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Signs up a user using OAuth authentication.
+   *
+   * - This function creates a new sub-organization for the user using the provided OIDC token, public key, and provider name.
+   * - Handles the full OAuth sign-up flow, including sub-organization creation and session management.
+   * - Optionally accepts additional sub-organization creation parameters and a custom session key.
+   * - After successful sign-up, automatically logs in the user and returns a signed JWT session token.
+   *
+   * @param oidcToken - The OIDC token received after successful authentication with the OAuth provider.
+   * @param publicKey - The public key to associate with the new sub-organization.
+   * @param providerName - The name of the OAuth provider (e.g., "Google", "Apple").
+   * @param createSubOrgParams - Optional parameters for sub-organization creation (e.g., authenticators, user metadata).
+   * @param sessionKey - Optional session key to use for session creation (defaults to the default session key).
+   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @throws {TurnkeyError} If there is an error during the OAuth sign-up or login process.
+   */
   signUpWithOauth = async (params: {
     oidcToken: string;
     publicKey: string;
@@ -1258,6 +1438,19 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Fetches all wallets for the current user, including both embedded and connected wallets.
+   *
+   * - Retrieves all wallets associated with the organizationId from the current active session.
+   * - For each embedded wallet, automatically fetches and attaches all associated wallet accounts.
+   * - For connected wallets (e.g., browser extensions or external providers), groups providers by wallet name and attaches all connected accounts.
+   * - Returns both embedded and connected wallets in a single array, each with their respective accounts populated.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an array of `Wallet` objects.
+   * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallets.
+   */
   fetchWallets = async (params?: DefaultParams): Promise<Wallet[]> => {
     const { stampWith } = params || {};
     const session = await this.storageManager.getActiveSession();
@@ -1355,6 +1548,22 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Fetches all accounts for a specific wallet, including both embedded and connected wallet accounts.
+   *
+   * - For embedded wallets, retrieves accounts from the Turnkey API, supporting pagination (defaults to the first page with a limit of 100 accounts).
+   * - For connected wallets (e.g., browser extensions or external providers), constructs account objects for each connected address from the provided or discovered wallet providers.
+   * - Automatically determines the account type and populates relevant fields such as address, curve, and signing capability.
+   * - Optionally allows filtering by a specific set of wallet providers and supports custom pagination options.
+   * - Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param wallet - The wallet for which to fetch accounts.
+   * @param walletProviders - Optional list of wallet providers to filter by (used for connected wallets).
+   * @param paginationOptions - Optional pagination options for embedded wallets.
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an array of `v1WalletAccount` objects.
+   * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallet accounts.
+   */
   fetchWalletAccounts = async (
     params: {
       wallet: Wallet;
@@ -1441,6 +1650,23 @@ export class TurnkeyClient {
     return accounts;
   };
 
+  /**
+   * Signs a message using the specified wallet account.
+   *
+   * - This function signs an arbitrary message using the provided wallet account, supporting both embedded and connected wallets.
+   * - Automatically determines the appropriate encoding and hash function for the account's address type unless explicitly overridden.
+   * - For connected wallets, delegates signing to the wallet provider's native signing method.
+   * - For embedded wallets, uses the Turnkey API to sign the message.
+   * - Handles message hashing and encoding internally to ensure compatibility with the wallet's address format.
+   *
+   * @param message - The message to sign.
+   * @param walletAccount - The wallet account to use for signing.
+   * @param encoding - Optional override for the payload encoding (defaults to the encoding appropriate for the address type).
+   * @param hashFunction - Optional override for the hash function (defaults to the hash function appropriate for the address type).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to a `v1SignRawPayloadResult` object containing the signature and related metadata.
+   * @throws {TurnkeyError} If message signing fails, if the wallet account does not support signing, or if the response is invalid.
+   */
   signMessage = async (
     params: {
       message: string;
@@ -1500,6 +1726,22 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Signs a transaction using the specified wallet account.
+   *
+   * - This function signs a blockchain transaction using the provided wallet address and transaction data.
+   * - Supports all Turnkey-supported blockchain networks (e.g., Ethereum, Solana, Tron).
+   * - Automatically determines the appropriate signing method based on the transaction type.
+   * - Delegates signing to the Turnkey API, which returns the signed transaction and related metadata.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param signWith - The wallet address or account to use for signing the transaction.
+   * @param unsignedTransaction - The unsigned transaction data (serialized as a string) to be signed.
+   * @param type - The type of transaction (e.g., "TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA", "TRANSACTION_TYPE_TRON").
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to a `TSignTransactionResponse` object containing the signed transaction and any additional signing metadata.
+   * @throws {TurnkeyError} If there is an error signing the transaction or if the response is invalid.
+   */
   signTransaction = async (
     params: {
       signWith: string;
@@ -1528,6 +1770,21 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Fetches the user details for the current session or a specified user.
+   *
+   * - Retrieves user details from the Turnkey API using the provided userId and organizationId, or defaults to those from the active session.
+   * - If no userId is provided, the userId from the current session is used.
+   * - If no organizationId is provided, the organizationId from the current session is used.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * - Ensures that an active session exists before making the request.
+   *
+   * @param organizationId - Optional organization ID to specify the sub-organization (defaults to the current session's organizationId).
+   * @param userId - Optional user ID to fetch specific user details (defaults to the current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to a `v1User` object containing the user details.
+   * @throws {TurnkeyError} If there is no active session, if there is no userId, or if there is an error fetching user details.
+   */
   fetchUser = async (
     params?: {
       organizationId?: string;
@@ -1577,6 +1834,22 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Updates the user's email address.
+   *
+   * - This function updates the user's email address and, if provided, verifies it using a verification token (typically from an OTP flow).
+   * - If a userId is provided, it updates the email for that specific user; otherwise, it uses the current session's userId.
+   * - If a verificationToken is not provided, the email will be updated but will not be marked as verified.
+   * - Automatically ensures an active session exists before making the request.
+   * - Handles session management and error reporting for both update and verification flows.
+   *
+   * @param email - The new email address to set for the user.
+   * @param verificationToken - Optional verification token from OTP email verification (required if verifying the email).
+   * @param userId - Optional user ID to update a specific user's email (defaults to the current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to the userId of the updated user.
+   * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating or verifying the user email.
+   */
   updateUserEmail = async (
     params: {
       email: string;
@@ -1622,6 +1895,19 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Removes the user's email address.
+   *
+   * - This function removes the user's email address by setting it to an empty string.
+   * - If a userId is provided, it removes the email for that specific user; otherwise, it uses the current session's userId.
+   * - Automatically ensures an active session exists before making the request.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param userId - Optional user ID to remove a specific user's email address (defaults to the current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to the userId of the user whose email was removed.
+   * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the user email.
+   */
   removeUserEmail = async (
     params?: { userId?: string } & DefaultParams,
   ): Promise<string> => {
@@ -1650,6 +1936,22 @@ export class TurnkeyClient {
     return res.userId;
   };
 
+  /**
+   * Updates the user's phone number.
+   *
+   * - This function updates the user's phone number and, if provided, verifies it using a verification token (from an OTP flow).
+   * - If a userId is provided, it updates the phone number for that specific user; otherwise, it uses the current session's userId.
+   * - If a verificationToken is not provided, the phone number will be updated but will not be marked as verified.
+   * - Automatically ensures an active session exists before making the request.
+   * - Handles session management and error reporting for both update and verification flows.
+   *
+   * @param phoneNumber - The new phone number to set for the user.
+   * @param verificationToken - Optional verification token from OTP phone verification (required if verifying the phone number).
+   * @param userId - Optional user ID to update a specific user's phone number (defaults to the current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to the userId of the updated user.
+   * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating or verifying the user phone number.
+   */
   updateUserPhoneNumber = async (
     params: {
       phoneNumber: string;
@@ -1695,6 +1997,19 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Removes the user's phone number.
+   *
+   * - This function removes the user's phone number by setting it to an empty string.
+   * - If a userId is provided, it removes the phone number for that specific user; otherwise, it uses the current session's userId.
+   * - Automatically ensures an active session exists before making the request.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param userId - Optional user ID to remove a specific user's phone number (defaults to the current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to the userId of the user whose phone number was removed.
+   * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the user phone number.
+   */
   removeUserPhoneNumber = async (
     params?: {
       userId?: string;
@@ -1725,6 +2040,21 @@ export class TurnkeyClient {
     return res.userId;
   };
 
+  /**
+   * Updates the user's name.
+   *
+   * - This function updates the user's display name.
+   * - If a userId is provided, it updates the name for that specific user; otherwise, it uses the current session's userId.
+   * - Automatically ensures an active session exists before making the request.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * - Handles session management and error reporting for the update flow.
+   *
+   * @param userName - The new name to set for the user.
+   * @param userId - Optional user ID to update a specific user's name (defaults to the current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to the userId of the updated user.
+   * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating the user name.
+   */
   updateUserName = async (
     params: {
       userName: string;
@@ -1768,6 +2098,23 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Adds an OAuth provider to the user.
+   *
+   * - This function adds an OAuth provider (e.g., Google, Apple) to the user account.
+   * - If a userId is provided, it adds the provider for that specific user; otherwise, it uses the current session's userId.
+   * - Automatically checks if an account already exists for the provided OIDC token and prevents duplicate associations.
+   * - If the user's email is not set or not verified, attempts to update and verify the email using the email from the OIDC token.
+   * - Handles session management and error reporting for the add provider flow.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param providerName - The name of the OAuth provider to add (e.g., "Google", "Apple").
+   * @param oidcToken - The OIDC token for the OAuth provider.
+   * @param userId - Optional user ID to add the provider for a specific user (defaults to current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an array of provider IDs associated with the user.
+   * @throws {TurnkeyError} If there is no active session, if the account already exists, or if there is an error adding the OAuth provider.
+   */
   addOAuthProvider = async (
     params: {
       providerName: string;
@@ -1862,6 +2209,21 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Removes an OAuth provider from the user.
+   *
+   * - This function removes an OAuth provider (e.g., Google, Apple) from the user's account.
+   * - If a userId is provided, it removes the provider for that specific user; otherwise, it uses the current session's userId.
+   * - Automatically ensures an active session exists before making the request.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * - Returns an array of remaining provider IDs associated with the user after removal.
+   *
+   * @param providerId - The ID of the OAuth provider to remove.
+   * @param userId - Optional user ID to remove the provider for a specific user (defaults to the current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an array of remaining provider IDs.
+   * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the OAuth provider.
+   */
   removeOAuthProvider = async (
     params: {
       providerId: string;
@@ -1893,6 +2255,23 @@ export class TurnkeyClient {
     return res.providerIds;
   };
 
+  /**
+   * Adds a new passkey authenticator for the user.
+   *
+   * - This function prompts the user to create a new passkey (WebAuthn/FIDO2) and adds it as an authenticator for the user.
+   * - Handles both web and React Native environments, automatically selecting the appropriate passkey creation flow.
+   * - If a userId is provided, the passkey is added for that specific user; otherwise, it uses the current session's userId.
+   * - The passkey's name and display name can be customized; if not provided, defaults are generated.
+   * - The resulting passkey attestation and challenge are registered with Turnkey as a new authenticator.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param name - Optional. The name of the passkey (defaults to "Turnkey Passkey-{timestamp}").
+   * @param displayName - Optional. The display name of the passkey (defaults to the value of `name`).
+   * @param userId - Optional user ID to add the passkey for a specific user (defaults to the current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an array of authenticator IDs for the newly added passkey(s).
+   * @throws {TurnkeyError} If there is no active session, if passkey creation fails, or if there is an error adding the passkey.
+   */
   addPasskey = async (
     params?: {
       name?: string;
@@ -1953,6 +2332,21 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Removes a passkey (authenticator) from the user.
+   *
+   * - This function removes a passkey (WebAuthn/FIDO2 authenticator) from the user's account.
+   * - If a userId is provided, it removes the passkey for that specific user; otherwise, it uses the current session's userId.
+   * - Automatically ensures an active session exists before making the request.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * - Returns an array of remaining authenticator IDs for the user after removal.
+   *
+   * @param authenticatorId - The ID of the authenticator (passkey) to remove.
+   * @param userId - Optional user ID to remove the passkey for a specific user (defaults to the current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an array of remaining authenticator IDs for the user.
+   * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the passkey.
+   */
   removePasskey = async (
     params: {
       authenticatorId: string;
@@ -1985,6 +2379,25 @@ export class TurnkeyClient {
     return res.authenticatorIds;
   };
 
+  /**
+   * Creates a new wallet for sub-organization.
+   *
+   * - This function creates a new wallet for the current sub-organization.
+   * - If an organizationId is provided, the wallet will be created under that specific sub-organization; otherwise, it uses the current session's organizationId.
+   * - If a list of address formats is provided, accounts will be created in the wallet based on those formats (starting from path index 0).
+   * - If a list of account parameters is provided, those accounts will be created in the wallet.
+   * - If no accounts or address formats are provided, default Ethereum and Solana accounts will be created.
+   * - Optionally allows specifying the mnemonic length for the wallet seed phrase (defaults to 12).
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param walletName - The name of the wallet to create.
+   * @param accounts - Optional array of account parameters or address formats to create in the wallet.
+   * @param organizationId - Optional organization ID to create the wallet under a specific sub-organization (defaults to the current session's organizationId).
+   * @param mnemonicLength - Optional mnemonic length for the wallet seed phrase (defaults to 12).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to the ID of the newly created wallet.
+   * @throws {TurnkeyError} If there is no active session or if there is an error creating the wallet.
+   */
   createWallet = async (
     params: {
       walletName: string;
@@ -2043,6 +2456,23 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Creates new accounts in the specified wallet.
+   *
+   * - This function creates new wallet accounts based on the provided account parameters or address formats.
+   * - If a walletId is provided, it creates the accounts in that specific wallet; otherwise, it uses the current session's wallet.
+   * - If a list of address formats is provided, it will create accounts in the wallet based on those formats, automatically determining the next available path indexes to avoid duplicates with existing accounts.
+   * - If account parameters are provided, they are used directly for account creation.
+   * - Automatically queries existing wallet accounts to prevent duplicate account creation for the same address format and path.
+   * - Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param accounts - An array of account parameters or address formats to create in the wallet.
+   * @param walletId - The ID of the wallet to create accounts in.
+   * @param organizationId - Optional organization ID to create the accounts under a specific organization (walletId must be associated with the sub-organization).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an array of addresses for the newly created accounts.
+   * @throws {TurnkeyError} If there is no active session, if the wallet does not exist, or if there is an error creating the wallet accounts.
+   */
   createWalletAccounts = async (
     params: {
       accounts: v1WalletAccountParams[] | v1AddressFormat[];
@@ -2104,6 +2534,23 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Exports a wallet as an encrypted bundle.
+   *
+   * - This function exports the specified wallet and its accounts as an encrypted bundle, suitable for backup or transfer.
+   * - The exported bundle contains the wallet's seed phrase, encrypted to the provided target public key.
+   * - If a targetPublicKey is provided, the bundle will be encrypted to that public key; otherwise, an error will be thrown.
+   * - If an organizationId is provided, the wallet will be exported under that sub-organization; otherwise, the current session's organizationId is used.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * - The exported bundle can later be imported using the `importWallet` method.
+   *
+   * @param walletId - The ID of the wallet to export.
+   * @param targetPublicKey - The public key to encrypt the bundle to (required).
+   * @param organizationId - Optional organization ID to export the wallet under a specific sub-organization (walletId must be associated with the sub-organization).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an `ExportBundle` object containing the encrypted wallet seed phrase and metadata.
+   * @throws {TurnkeyError} If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the wallet.
+   */
   exportWallet = async (
     params: {
       walletId: string;
@@ -2146,6 +2593,24 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Imports a wallet from an encrypted bundle.
+   *
+   * - This function imports a wallet using the provided encrypted bundle and creates accounts based on the provided parameters.
+   * - If a userId is provided, the wallet will be imported for that specific user; otherwise, it uses the current session's userId.
+   * - If an accounts array is provided, those accounts will be created in the imported wallet; otherwise, default Ethereum and Solana accounts will be created.
+   * - The encrypted bunlde MUST be encrypted to
+   * - Automatically ensures an active session exists before making the request.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param encryptedBundle - The encrypted bundle containing the wallet seed phrase and metadata.
+   * @param walletName - The name of the wallet to create upon import.
+   * @param accounts - Optional array of account parameters to create in the imported wallet (defaults to standard Ethereum and Solana accounts).
+   * @param userId - Optional user ID to import the wallet for a specific user (defaults to the current session's userId).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to the ID of the imported wallet.
+   * @throws {TurnkeyError} If there is no active session, if the encrypted bundle is invalid, or if there is an error importing the wallet.
+   */
   importWallet = async (
     params: {
       encryptedBundle: string;
@@ -2196,6 +2661,20 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Deletes the current sub-organization (sub-org) for the active session.
+   *
+   * - This function deletes the sub-organization associated with the current active session.
+   * - By default, the deletion will fail if any wallets associated with the sub-organization have not been exported.
+   * - If `deleteWithoutExport` is set to true, the sub-organization will be deleted even if its wallets have not been exported (potentially resulting in loss of access to those wallets).
+   * - Requires an active session; otherwise, an error is thrown.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param deleteWithoutExport - Optional flag to delete the sub-organization without requiring all wallets to be exported first (defaults to false).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper.
+   * @returns A promise that resolves to a `TDeleteSubOrganizationResponse` object containing the result of the deletion.
+   * @throws {TurnkeyError} If there is no active session or if there is an error deleting the sub-organization.
+   */
   deleteSubOrganization = async (
     params?: {
       deleteWithoutExport?: boolean;
@@ -2225,6 +2704,20 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Stores a session token and updates the session associated with the specified session key, or by default the active session.
+   *
+   * - This function parses and stores a signed JWT session token in local storage, associating it with the given session key.
+   * - If a sessionKey is provided, the session will be stored under that key; otherwise, it will use the default session key.
+   * - If a session already exists for the session key, its associated key pair will be deleted before storing the new session.
+   * - After storing the session, any unused key pairs are automatically cleared from storage.
+   * - Ensures that session management is consistent and prevents orphaned key pairs.
+   *
+   * @param sessionToken - The JWT session token to store.
+   * @param sessionKey - Optional session key to store the session under (defaults to the default session key).
+   * @returns A promise that resolves when the session is successfully stored.
+   * @throws {TurnkeyError} If there is an error storing the session or cleaning up key pairs.
+   */
   storeSession = async (params: {
     sessionToken: string;
     sessionKey?: string;
@@ -2249,6 +2742,18 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Clears the session associated with the specified session key, or the active session by default.
+   *
+   * - This function deletes the session and its associated key pair from storage.
+   * - If a sessionKey is provided, it will clear the session under that key; otherwise, it will clear the default (active) session.
+   * - Removes the session data from local storage and deletes the corresponding API key pair from the key store.
+   * - Throws an error if the session does not exist or if there is an error during the clearing process.
+   *
+   * @param sessionKey - Optional session key to clear the session under (defaults to the default session key).
+   * @returns A promise that resolves when the session is successfully cleared.
+   * @throws {TurnkeyError} If the session does not exist or if there is an error clearing the session.
+   */
   clearSession = async (params?: { sessionKey?: string }): Promise<void> => {
     const { sessionKey = SessionKey.DefaultSessionkey } = params || {};
     try {
@@ -2272,6 +2777,17 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Clears all sessions and resets the active session state.
+   *
+   * - This function removes all session data from the client and persistent storage, including all associated key pairs.
+   * - Iterates through all stored session keys, clearing each session and deleting its corresponding API key pair.
+   * - After clearing, there will be no active session, and all session-related data will be removed from local storage.
+   * - Throws an error if no sessions exist or if there is an error during the clearing process.
+   *
+   * @returns A promise that resolves when all sessions are successfully cleared.
+   * @throws {TurnkeyError} If no sessions exist or if there is an error clearing all sessions.
+   */
   clearAllSessions = async (): Promise<void> => {
     try {
       const sessionKeys = await this.storageManager.listSessionKeys();
@@ -2294,6 +2810,24 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Refreshes the session associated with the specified session key, or the active session by default.
+   *
+   * - This function refreshes the session and updates the session token and key pair associated with the given session key.
+   * - If a sessionKey is provided, it will refresh the session under that key; otherwise, it will use the current active session key.
+   * - Optionally allows specifying a new expiration time for the session, a custom public key, and whether to invalidate the existing session after refreshing.
+   * - Makes a request to the Turnkey API to stamp a new login and stores the refreshed session token.
+   * - Automatically manages key pair cleanup and session storage to ensure consistency.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param sessionKey - Optional session key to refresh the session under (defaults to the active session key).
+   * @param expirationSeconds - Optional expiration time in seconds for the refreshed session (defaults to the configured default).
+   * @param publicKey - Optional public key to use for the refreshed session (if not provided, a new key pair will be generated).
+   * @param invalidateExisitng - Optional flag to invalidate the existing session before refreshing (defaults to false).
+   * @param stampWith - Optional parameter to stamp the request with a specific stamper.
+   * @returns A promise that resolves to a `TStampLoginResponse` object containing the refreshed session details.
+   * @throws {TurnkeyError} If the session key does not exist, if there is no active session, or if there is an error refreshing the session.
+   */
   refreshSession = async (
     params?: {
       expirationSeconds?: string;
@@ -2352,6 +2886,17 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Retrieves the session associated with the specified session key, or the active session by default.
+   *
+   * - This function retrieves the session object from storage, using the provided session key or, if not specified, the current active session key.
+   * - If no session key is provided and there is no active session, it returns undefined.
+   * - Returns the session details, including public key, organization ID, user ID, and expiration.
+   *
+   * @param sessionKey - Optional session key to retrieve a specific session (defaults to the current active session key).
+   * @returns A promise that resolves to a `Session` object containing the session details, or undefined if not found.
+   * @throws {TurnkeyError} If there is an error retrieving the session from storage.
+   */
   getSession = async (params?: {
     sessionKey?: string;
   }): Promise<Session | undefined> => {
@@ -2369,6 +2914,17 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Retrieves all sessions stored in persistent storage.
+   *
+   * - This function fetches all session objects currently stored by the client, including those that are not active.
+   * - Returns a record mapping each session key to its corresponding `Session` object.
+   * - Useful for session management, auditing, or displaying all available sessions to the user.
+   * - Automatically skips any session keys that do not have a valid session object.
+   *
+   * @returns A promise that resolves to a record of session keys and their corresponding `Session` objects, or `undefined` if no sessions exist.
+   * @throws {TurnkeyError} If there is an error retrieving sessions from storage.
+   */
   getAllSessions = async (): Promise<Record<string, Session> | undefined> => {
     try {
       const sessionKeys = await this.storageManager.listSessionKeys();
@@ -2393,6 +2949,18 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Sets the active session to the specified session key.
+   *
+   * - This function updates the `activeSessionKey` in persistent storage to the specified session key.
+   * - Ensures that subsequent operations use the session associated with this key as the active session.
+   * - Does not validate whether the session key exists or is valid; it simply updates the pointer.
+   * - Useful for switching between multiple stored sessions or restoring a previous session context.
+   *
+   * @param sessionKey - The session key to set as the active session.
+   * @returns A promise that resolves when the active session key is successfully set.
+   * @throws {TurnkeyError} If the client is not initialized or if there is an error setting the active session key.
+   */
   setActiveSession = async (params: { sessionKey: string }): Promise<void> => {
     const { sessionKey } = params;
     try {
@@ -2407,6 +2975,17 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Retrieves the active session key currently set in persistent storage.
+   *
+   * - This function fetches the session key that is currently marked as active in the client's persistent storage.
+   * - The active session key determines which session is used for all session-dependent operations.
+   * - If no active session key is set, returns `undefined`.
+   * - Useful for determining which session is currently in use, especially when managing multiple sessions.
+   *
+   * @returns A promise that resolves to the active session key as a string, or `undefined` if no active session is set.
+   * @throws {TurnkeyError} If there is an error retrieving the active session key from storage.
+   */
   getActiveSessionKey = async (): Promise<string | undefined> => {
     try {
       return await this.storageManager.getActiveSessionKey();
@@ -2420,6 +2999,17 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Clears any unused API key pairs from persistent storage.
+   *
+   * - This function scans all API key pairs stored in indexedDB and removes any key pairs that are not associated with a session in persistent storage.
+   * - Ensures that only key pairs referenced by existing sessions are retained, preventing orphaned or stale key pairs from accumulating.
+   * - Iterates through all stored session keys and builds a map of in-use public keys, then deletes any key pairs not present in this map.
+   * - Intended to be called after session changes (e.g., login, logout, session replacement) to keep key storage clean and secure.
+   *
+   * @returns A promise that resolves when all unused key pairs are successfully cleared.
+   * @throws {TurnkeyError} If there is an error listing, checking, or deleting unused key pairs.
+   */
   clearUnusedKeyPairs = async (): Promise<void> => {
     try {
       const publicKeys = await this.apiKeyStamper?.listKeyPairs();
@@ -2459,6 +3049,20 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Creates a new API key pair and returns the public key.
+   *
+   * - This function generates a new API key pair and stores it in the underlying key store (IndexedDB).
+   * - If an external key pair is provided, it will use that key pair for creation instead of generating a new one.
+   * - If `storeOverride` is set to true, the generated or provided public key will be set as the override key in the API key stamper, making it the active key for subsequent signing operations.
+   * - Ensures the API key stamper is initialized before proceeding.
+   * - Handles both native CryptoKeyPair objects and raw key material ({ publicKey, privateKey }).
+   *
+   * @param externalKeyPair - Optional. An externally generated key pair (either a CryptoKeyPair or an object with publicKey/privateKey strings) to use instead of generating a new one.
+   * @param storeOverride - Optional. If true, sets the generated or provided public key as the override key in the API key stamper (defaults to false).
+   * @returns A promise that resolves to the public key of the created or provided API key pair as a string.
+   * @throws {TurnkeyError} If the API key stamper is not initialized or if there is an error during key pair creation or storage.
+   */
   createApiKeyPair = async (params?: {
     externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string };
     storeOverride?: boolean;
@@ -2492,6 +3096,17 @@ export class TurnkeyClient {
     }
   };
 
+  /**
+   * Fetches the WalletKit proxy authentication configuration from the auth proxy.
+   *
+   * - This function makes a request to the Turnkey auth proxy to retrieve the current WalletKit configuration,
+   *   including supported authentication methods, OAuth providers, and any custom proxy settings.
+   * - Useful for dynamically configuring the client UI or authentication flows based on the proxy's capabilities.
+   * - Ensures that the client is aware of the latest proxy-side configuration, which may affect available login/signup options.
+   *
+   * @returns A promise that resolves to a `ProxyTGetWalletKitConfigResponse` object containing the proxy authentication configuration.
+   * @throws {TurnkeyError} If there is an error retrieving the proxy authentication configuration from the auth proxy.
+   */
   getProxyAuthConfig = async (): Promise<ProxyTGetWalletKitConfigResponse> => {
     try {
       const res = await this.httpClient.proxyGetWalletKitConfig({});
