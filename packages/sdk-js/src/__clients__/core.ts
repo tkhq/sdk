@@ -2,7 +2,6 @@ import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
   TDeleteSubOrganizationResponse,
   Session,
-  TSignTransactionResponse,
   TStampLoginResponse,
   v1AddressFormat,
   v1Attestation,
@@ -10,7 +9,6 @@ import {
   v1SignRawPayloadResult,
   v1TransactionType,
   v1User,
-  v1WalletAccount,
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
@@ -39,6 +37,8 @@ import {
   TurnkeyRequestError,
   StorageBase,
   SessionKey,
+  EmbeddedWalletAccount,
+  ConnectedWalletAccount,
 } from "@types"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
@@ -52,6 +52,7 @@ import {
   toExternalTimestamp,
   splitSignature,
   hashPayload,
+  getWalletAccountMethods,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -63,7 +64,6 @@ import {
 } from "../turnkey-helpers";
 import {
   getPublicKeyFromStampHeader,
-  SignMode,
   WalletProvider,
   WalletType,
 } from "@turnkey/wallet-stamper";
@@ -1570,7 +1570,7 @@ export class TurnkeyClient {
       walletProviders?: WalletProvider[];
       paginationOptions?: v1Pagination;
     } & DefaultParams,
-  ): Promise<v1WalletAccount[]> => {
+  ): Promise<WalletAccount[]> => {
     const { wallet, stampWith, walletProviders, paginationOptions } = params;
     const session = await this.storageManager.getActiveSession();
 
@@ -1580,6 +1580,9 @@ export class TurnkeyClient {
         TurnkeyErrorCodes.NO_SESSION_FOUND,
       );
     }
+
+    const embedded: EmbeddedWalletAccount[] = [];
+    const connected: ConnectedWalletAccount[] = [];
 
     if (wallet.source === WalletSource.Embedded) {
       const res = await this.httpClient.getWalletAccounts(
@@ -1598,7 +1601,14 @@ export class TurnkeyClient {
         );
       }
 
-      return res.accounts;
+      for (const account of res.accounts) {
+        embedded.push({
+          ...account,
+          source: WalletSource.Embedded,
+        });
+      }
+
+      return embedded;
     }
 
     const providers = walletProviders ?? (await this.getWalletProviders());
@@ -1608,15 +1618,11 @@ export class TurnkeyClient {
         p.connectedAddresses.length > 0,
     );
 
-    if (matching.length === 0) return [];
-
-    const accounts: v1WalletAccount[] = [];
-
     for (const provider of matching) {
       const timestamp = toExternalTimestamp();
 
       for (const address of provider.connectedAddresses) {
-        const account: WalletAccount = {
+        const account: ConnectedWalletAccount = {
           walletAccountId: `${wallet.walletId}-${provider.type}-${address}`,
           organizationId: session.organizationId,
           walletId: wallet.walletId,
@@ -1626,6 +1632,7 @@ export class TurnkeyClient {
               : Curve.ED25519,
           pathFormat: "PATH_FORMAT_BIP32",
           path: WalletSource.Connected,
+          source: WalletSource.Connected,
           addressFormat:
             provider.type === WalletType.Ethereum
               ? "ADDRESS_FORMAT_ETHEREUM"
@@ -1633,39 +1640,41 @@ export class TurnkeyClient {
           address,
           createdAt: timestamp,
           updatedAt: timestamp,
-          signMessage: async (message: string, mode: SignMode) => {
-            return this.walletManager!.signer.signMessage(
-              message,
-              provider,
-              mode,
-            );
-          },
+          ...getWalletAccountMethods(
+            this.walletManager!.signer.sign.bind(this.walletManager!.signer),
+            provider,
+          ),
           ...(provider.type === WalletType.Solana && { publicKey: address }),
         };
 
-        accounts.push(account);
+        connected.push(account);
       }
     }
 
-    return accounts;
+    return [...embedded, ...connected];
   };
 
   /**
    * Signs a message using the specified wallet account.
    *
-   * - This function signs an arbitrary message using the provided wallet account, supporting both embedded and connected wallets.
-   * - Automatically determines the appropriate encoding and hash function for the account's address type unless explicitly overridden.
-   * - For connected wallets, delegates signing to the wallet provider's native signing method.
-   * - For embedded wallets, uses the Turnkey API to sign the message.
-   * - Handles message hashing and encoding internally to ensure compatibility with the wallet's address format.
+   * - Supports both embedded and connected wallets.
+   * - For **connected wallets**:
+   *   - Delegates signing to the wallet provider’s native signing method.
+   *   - **Important:** For Ethereum wallets (e.g., MetaMask), signatures follow [EIP-191](https://eips.ethereum.org/EIPS/eip-191).
+   *     The message is automatically prefixed with `"\x19Ethereum Signed Message:\n" + message length`
+   *     before signing. As a result, this signature **cannot be used as a raw transaction signature**
+   *     or broadcast on-chain.
+   * - For **embedded wallets**, uses the Turnkey API to sign the message directly.
+   * - Automatically handles message encoding and hashing based on the wallet account’s address format,
+   *   unless explicitly overridden.
    *
    * @param message - The message to sign.
    * @param walletAccount - The wallet account to use for signing.
    * @param encoding - Optional override for the payload encoding (defaults to the encoding appropriate for the address type).
    * @param hashFunction - Optional override for the hash function (defaults to the hash function appropriate for the address type).
-   * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
-   * @returns A promise that resolves to a `v1SignRawPayloadResult` object containing the signature and related metadata.
-   * @throws {TurnkeyError} If message signing fails, if the wallet account does not support signing, or if the response is invalid.
+   * @param stampWith - Optional stamper to tag the signing request (e.g., Passkey, ApiKey, or Wallet).
+   * @returns A promise resolving to a `v1SignRawPayloadResult` containing the signature and metadata.
+   * @throws {TurnkeyError} If signing fails, if the wallet account does not support signing, or if the response is invalid.
    */
   signMessage = async (
     params: {
@@ -1683,15 +1692,14 @@ export class TurnkeyClient {
       params.encoding || getEncodingType(walletAccount.addressFormat);
 
     try {
-      if (walletAccount.signMessage) {
+      if (walletAccount.source === WalletSource.Connected) {
+        // this is a connected wallet account
         const payloadToSign = await hashPayload(message, hashFunction);
-        const sigHex = await walletAccount.signMessage(
-          payloadToSign,
-          SignMode.Message,
-        );
+        const sigHex = await walletAccount.signMessage(payloadToSign);
         return splitSignature(sigHex, walletAccount.addressFormat);
       }
 
+      // this is an embedded wallet account
       const encodedMessage = getEncodedMessage(
         walletAccount.addressFormat,
         message,
@@ -1744,22 +1752,49 @@ export class TurnkeyClient {
    */
   signTransaction = async (
     params: {
-      signWith: string;
       unsignedTransaction: string;
-      type: v1TransactionType;
+      transactionType: v1TransactionType;
+      walletAccount: WalletAccount;
     } & DefaultParams,
-  ): Promise<TSignTransactionResponse> => {
-    const { signWith, unsignedTransaction, type, stampWith } = params;
+  ): Promise<string> => {
+    const { walletAccount, unsignedTransaction, transactionType, stampWith } =
+      params;
 
     try {
-      return await this.httpClient.signTransaction(
+      if (walletAccount.source === WalletSource.Connected) {
+        // this is a connected wallet account
+
+        if (!walletAccount.signTransaction) {
+          const isEthereum =
+            walletAccount.addressFormat === "ADDRESS_FORMAT_ETHEREUM";
+
+          const reason = isEthereum
+            ? "Ethereum connected wallets do not support raw transaction signing due to EIP-1193 limitations."
+            : "This connected wallet does not support raw transaction signing.";
+
+          throw new TurnkeyError(
+            `Failed to sign transaction: ${reason} ${
+              isEthereum ? "Use signAndSendTransaction instead." : ""
+            }`,
+            TurnkeyErrorCodes.SIGN_TRANSACTION_ERROR,
+          );
+        }
+
+        const hash = await walletAccount?.signTransaction(unsignedTransaction);
+        return hash;
+      }
+
+      // this is an embedded wallet account
+      const signTransaction = await this.httpClient.signTransaction(
         {
-          signWith,
+          signWith: walletAccount.address,
           unsignedTransaction,
-          type,
+          type: transactionType,
         },
         stampWith,
       );
+
+      return signTransaction.signedTransaction;
     } catch (error) {
       if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(

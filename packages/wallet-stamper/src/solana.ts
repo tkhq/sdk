@@ -4,7 +4,7 @@ import {
   WalletType,
   WalletProvider,
   WalletProviderInfo,
-  SignMode,
+  SignIntent,
 } from "./types";
 
 import { WalletStamperError } from "./errors";
@@ -12,7 +12,10 @@ import { Wallet as SWSWallet } from "@wallet-standard/base";
 import { getWallets } from "@wallet-standard/app";
 import { asSolana } from "./utils";
 import bs58 from "bs58";
-import { uint8ArrayToHexString } from "@turnkey/encoding";
+import {
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
 
 declare global {
   interface Window {
@@ -46,10 +49,10 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
    * @param provider - Optional Solana provider to use for signing.
    * @returns A promise that resolves to a hex string representing the signature.
    */
-  abstract signMessage(
+  abstract sign(
     message: string | Uint8Array,
     provider: WalletRpcProvider,
-    mode: SignMode,
+    intent: SignIntent,
   ): Promise<string>;
 
   /**
@@ -167,52 +170,126 @@ export class SolanaWallet extends BaseSolanaWallet {
    *
    * This method uses the 'solana:signMessage' feature of the wallet to sign messages.
    */
-  async signMessage(
-    message: string | Uint8Array,
+  async sign(
+    message: string,
     provider: WalletRpcProvider,
-    mode: SignMode,
+    intent: SignIntent,
   ): Promise<string> {
     const wallet = asSolana(provider);
     await connectAccount(wallet);
 
-    const data =
-      typeof message === "string" ? new TextEncoder().encode(message) : message;
-
-    const solanaSignMessage = wallet.features["solana:signMessage"] as
-      | {
-          signMessage: (args: {
-            account: (typeof wallet.accounts)[0];
-            message: Uint8Array;
-          }) => Promise<
-            readonly {
-              signedMessage: Uint8Array;
-              signature: Uint8Array;
-            }[]
-          >;
-        }
-      | undefined;
-
-    if (!solanaSignMessage) {
-      throw new WalletStamperError(
-        "No supported signing methods found. Tried: solana:signMessage",
-      );
-    }
-
     const account = wallet.accounts[0];
     if (!account) throw new WalletStamperError("No account available");
 
-    const results = await solanaSignMessage.signMessage({
-      account,
-      message: data,
-    });
+    switch (intent) {
+      case SignIntent.SignMessage: {
+        const signFeature = wallet.features["solana:signMessage"] as
+          | {
+              signMessage: (args: {
+                account: (typeof wallet.accounts)[0];
+                message: Uint8Array;
+              }) => Promise<
+                readonly {
+                  signedMessage: Uint8Array;
+                  signature: Uint8Array;
+                }[]
+              >;
+            }
+          | undefined;
 
-    if (!results?.length || !results[0]?.signature) {
-      throw new WalletStamperError("No signature returned from signing");
+        if (!signFeature) {
+          throw new WalletStamperError(
+            "Provider does not support solana:signMessage",
+          );
+        }
+
+        const data = new TextEncoder().encode(message);
+        const results = await signFeature.signMessage({
+          account,
+          message: data,
+        });
+        if (!results?.length || !results[0]?.signature) {
+          throw new WalletStamperError(
+            "No signature returned from signMessage",
+          );
+        }
+
+        return Buffer.from(results[0].signature).toString("hex");
+      }
+
+      case SignIntent.SignTransaction: {
+        const signFeature = wallet.features["solana:signTransaction"] as
+          | {
+              signTransaction: (args: {
+                account: (typeof wallet.accounts)[0];
+                transaction: Uint8Array;
+              }) => Promise<
+                readonly {
+                  signature: Uint8Array;
+                }[]
+              >;
+            }
+          | undefined;
+
+        if (!signFeature) {
+          throw new WalletStamperError(
+            "Provider does not support solana:signTransaction",
+          );
+        }
+
+        const data = uint8ArrayFromHexString(message);
+        const results = await signFeature.signTransaction({
+          account,
+          transaction: data,
+        });
+
+        if (!results?.length || !results[0]?.signature) {
+          throw new WalletStamperError(
+            "No signature returned from signTransaction",
+          );
+        }
+
+        return Buffer.from(results[0].signature).toString("hex");
+      }
+
+      case SignIntent.SignAndSendTransaction: {
+        const sendFeature = wallet.features["solana:sendTransaction"] as
+          | {
+              sendTransaction: (args: {
+                account: (typeof wallet.accounts)[0];
+                transaction: Uint8Array;
+              }) => Promise<
+                readonly {
+                  signature: string;
+                }[]
+              >;
+            }
+          | undefined;
+
+        if (!sendFeature) {
+          throw new WalletStamperError(
+            "Provider does not support solana:sendTransaction",
+          );
+        }
+
+        const data = uint8ArrayFromHexString(message);
+        const results = await sendFeature.sendTransaction({
+          account,
+          transaction: data,
+        });
+
+        if (!results?.length || !results[0]?.signature) {
+          throw new WalletStamperError(
+            "No signature returned from sendTransaction",
+          );
+        }
+
+        return results[0].signature;
+      }
+
+      default:
+        throw new WalletStamperError(`Unsupported sign intent: ${intent}`);
     }
-
-    return Array.from(results[0].signature)
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
   }
 }
 
