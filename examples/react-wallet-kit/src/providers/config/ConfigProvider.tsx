@@ -1,18 +1,15 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useEffect,
-} from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { Button, Transition } from "@headlessui/react";
 import {
   TurnkeyProviderConfig,
   TurnkeyProvider,
   TurnkeyCallbacks,
-  useModal,
 } from "@turnkey/react-wallet-kit";
 import { TurnkeyConfigPanel } from "./Panel";
+import clsx from "clsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { ThreeDimensionalBackground } from "@/components/3D/Background";
 
 type ConfigContextValue = {
   config: TurnkeyProviderConfig;
@@ -47,7 +44,12 @@ export function TurnkeyConfigProvider({
 
   return (
     <ConfigContext.Provider value={{ config, setConfig }}>
-      <div className="overflow-hidden h-screen absolute inset-0 flex">
+      <div
+        className={clsx(
+          "overflow-hidden h-full absolute inset-0 flex",
+          config.ui?.darkMode && "dark",
+        )}
+      >
         {/* Sliding Config Panel */}
         <Transition
           show={panelOpen}
@@ -58,10 +60,15 @@ export function TurnkeyConfigProvider({
           leaveFrom="translate-x-0"
           leaveTo="-translate-x-full"
         >
-          <div className="z-20 fixed top-0 left-0 h-full w-72 bg-panel-background-light dark:bg-panel-background-dark border-r border-gray-300 dark:border-gray-700 shadow-lg flex flex-col px-4 py-6 space-y-4">
+          <div className="z-20 fixed top-0 left-0 h-full w-96 bg-panel-background-light dark:bg-panel-background-dark border-r border-gray-300 dark:border-gray-700 text-text-light dark:text-text-dark shadow-lg flex flex-col px-4 py-6 space-y-4 transition-all">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Config Panel</h2>
-              <button onClick={() => setPanelOpen(false)}>X</button>
+              <Button
+                className="cursor-pointer"
+                onClick={() => setPanelOpen(false)}
+              >
+                <FontAwesomeIcon icon={faClose} />
+              </Button>
             </div>
 
             {/* Place for future toggles */}
@@ -74,13 +81,15 @@ export function TurnkeyConfigProvider({
         {/* Content (shifted when panel is open) */}
         <div
           style={{
-            transform: `translateX(${panelOpen ? "288px" : "0px"})`, // 72 * 4 (padding + border)
+            transform: `translateX(${panelOpen ? "384px" : "0px"})`,
           }}
           className={`flex-1 transition-all duration-300`}
         >
           <TurnkeyProvider config={config} callbacks={callbacks}>
-            {children}
+            <ThreeDimensionalBackground />
+            <div className="relative z-10">{children}</div>
           </TurnkeyProvider>
+
           <Button
             onClick={() => setPanelOpen(!panelOpen)}
             className="fixed z-50 cursor-pointer top-1/2 -translate-y-1/2 w-[80px] h-[250px] rounded-r-xl bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center"
