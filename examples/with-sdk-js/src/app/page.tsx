@@ -58,6 +58,7 @@ export default function AuthPage() {
     setActiveSession,
     addPasskey,
     createWalletAccounts,
+    signTransaction,
     handleExport,
     handleImport,
     handleUpdateUserEmail,
@@ -201,8 +202,7 @@ export default function AuthPage() {
     const result = await handleSignMessage({
       message:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. . Sed id maximus elit. Mauris lacus ligula, dictum nec purus sit amet, mollis tempor nisl. Morbi neque lectus, tempor sed tristique sit amet, ornare eget dui",
-      walletAccount: wallets[0].accounts[0],
-      stampWith: StamperType.Passkey,
+      walletAccount: wallets[4].accounts[0],
     });
     console.log("Signing result:", result);
   };
@@ -496,6 +496,79 @@ export default function AuthPage() {
         }}
       >
         Show Signing Modal
+      </button>
+
+      <button
+        onClick={async () => {
+          const tx = {
+            to: "0x0000000000000000000000000000000000000000",
+            value: parseEther("0.001"),
+            nonce: 0,
+            gasLimit: BigInt("21000"),
+            maxFeePerGas: BigInt("1000000000"),
+            maxPriorityFeePerGas: BigInt("1000000000"),
+            chainId: 1,
+          };
+
+          const unsignedTransaction =
+            EthTransaction.from(tx).unsignedSerialized;
+          console.log("Unsigned Transaction:", unsignedTransaction);
+
+          const signature = await signTransaction({
+            unsignedTransaction,
+            walletAccount: wallets[3].accounts[0],
+            transactionType: "TRANSACTION_TYPE_ETHEREUM",
+          });
+          console.log("Transaction Signature:", signature);
+        }}
+        style={{
+          backgroundColor: "purple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Sign Ethereum Transaction
+      </button>
+
+      <button
+        onClick={async () => {
+          const solanaAccount = wallets[4].accounts[0];
+          const from = new PublicKey(solanaAccount.address);
+
+          const tx = new Transaction().add(
+            SystemProgram.transfer({
+              fromPubkey: from,
+              toPubkey: from,
+              lamports: 1_000,
+            }),
+          );
+
+          tx.recentBlockhash = "11111111111111111111111111111111";
+          tx.feePayer = from;
+
+          const raw = tx.serialize({
+            requireAllSignatures: false,
+            verifySignatures: false,
+          });
+          const unsignedTransaction = raw.toString("hex");
+          console.log("Unsigned Solana tx (hex):", unsignedTransaction);
+
+          const signature = await signTransaction({
+            unsignedTransaction,
+            walletAccount: solanaAccount,
+            transactionType: "TRANSACTION_TYPE_SOLANA",
+          });
+          console.log("Transaction Signature:", signature);
+        }}
+        style={{
+          backgroundColor: "purple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Sign Solana Transaction
       </button>
 
       <button
