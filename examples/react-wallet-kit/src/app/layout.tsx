@@ -41,10 +41,22 @@ function RootLayout({ children }: RootLayoutProps) {
                 appleOAuthEnabled: false,
                 facebookOAuthEnabled: false,
               },
+              methodOrder: ["socials", "email", "sms", "passkey", "wallet"],
+              oauthOrder: ["google", "apple", "facebook"],
               autoRefreshSession: true,
             },
             ui: {
+              borderRadius: 16,
+              backgroundBlur: 8,
               renderModalInProvider: true, // This is needed for the config panel to push the modal over
+              colors: {
+                light: {
+                  primary: "#335bf9",
+                },
+                dark: {
+                  primary: "#335bf9",
+                },
+              },
             },
             walletConfig: {
               ethereum: true,
@@ -53,7 +65,7 @@ function RootLayout({ children }: RootLayoutProps) {
           }}
           callbacks={{
             onError: (error) => {
-              console.log("Turnkey error:", error.code);
+              console.error("Turnkey error:", error);
             },
           }}
         >
