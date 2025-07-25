@@ -1,6 +1,6 @@
 import {
   EthereumWalletInterface,
-  SignMode,
+  SignIntent,
   WalletProvider,
   WalletProviderInfo,
   WalletRpcProvider,
@@ -12,8 +12,10 @@ import {
   Hex,
   Address,
   EIP1193Provider,
+  toHex,
 } from "viem";
 import "viem/window";
+import { Transaction } from "ethers";
 import { WalletStamperError } from "./errors";
 
 import { compressRawPublicKey } from "@turnkey/crypto";
@@ -40,10 +42,10 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    * @param provider - Optional Ethereum provider to use for signing.
    * @returns A promise that resolves to a Hex string representing the signature.
    */
-  abstract signMessage(
+  abstract sign(
     message: string | Hex,
     provider: WalletRpcProvider,
-    mode: SignMode,
+    intent: SignIntent,
   ): Promise<Hex>;
 
   /**
@@ -54,10 +56,10 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    */
   async getPublicKey(provider: WalletRpcProvider): Promise<string> {
     const message = "GET_PUBLIC_KEY";
-    const signature = await this.signMessage(
+    const signature = await this.sign(
       message,
       provider,
-      SignMode.Message,
+      SignIntent.SignMessage,
     );
     return getCompressedPublicKey(signature, message);
   }
@@ -166,29 +168,39 @@ export class EthereumWallet extends BaseEthereumWallet {
    * This method uses the 'personal_sign' method of the Ethereum provider
    * to sign the message with the user's account.
    */
-  async signMessage(
-    message: string | Hex,
-    provider: WalletRpcProvider,
-    mode: SignMode,
-  ) {
+  async sign(message: string, provider: WalletRpcProvider, intent: SignIntent) {
     const selectedProvider = asEip1193(provider);
     const account = await getAccount(selectedProvider);
 
-    switch (mode) {
-      case "message":
+    switch (intent) {
+      case SignIntent.SignMessage:
         return await selectedProvider.request({
           method: "personal_sign",
           params: [message as Hex, account],
         });
 
-      case "transaction":
+      case SignIntent.SignAndSendTransaction:
+        const tx = Transaction.from(message);
+
+        const txParams = {
+          from: account,
+          to: tx.to?.toString() as Hex,
+          value: toHex(tx.value),
+          gas: toHex(tx.gasLimit),
+          maxFeePerGas: toHex(tx.maxFeePerGas ?? 0n),
+          maxPriorityFeePerGas: toHex(tx.maxPriorityFeePerGas ?? 0n),
+          nonce: toHex(tx.nonce),
+          chainId: toHex(tx.chainId),
+          data: (tx.data?.toString() as Hex) ?? "0x",
+        };
+
         return await selectedProvider.request({
-          method: "eth_sign",
-          params: [account, message as Hex],
+          method: "eth_sendTransaction",
+          params: [txParams],
         });
 
       default:
-        throw new WalletStamperError(`Unsupported sign mode: ${mode}`);
+        throw new WalletStamperError(`Unsupported sign intent: ${intent}`);
     }
   }
 }

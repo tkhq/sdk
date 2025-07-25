@@ -6,10 +6,10 @@ import type {
 } from "@turnkey/wallet-stamper";
 
 export interface WalletSignerInterface {
-  signMessage(
+  sign(
     message: string | Uint8Array,
     walletProvider: WalletProvider,
-    mode: SignMode,
+    intent: SignIntent,
   ): Promise<string>;
 }
 
@@ -30,15 +30,15 @@ export class CrossPlatformWalletSigner implements WalletSignerInterface {
     await wallet.disconnectWalletAccount(provider.provider);
   }
 
-  async signMessage(
+  async sign(
     message: string,
     walletProvider: WalletProvider,
-    mode: SignMode,
+    intent: SignIntent,
   ): Promise<string> {
     const wallet = this.wallets[walletProvider.type];
     if (!wallet)
       throw new Error(`Wallet for ${walletProvider.type} not initialized`);
-    return wallet.signMessage(message, walletProvider.provider, mode);
+    return wallet.sign(message, walletProvider.provider, intent);
   }
 }
 
