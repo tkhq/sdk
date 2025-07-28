@@ -109,7 +109,7 @@ export default function AuthPage() {
   };
 
   const handleCreatePasskey = async () => {
-    const res = await createPasskey({ stampWith: StamperType.Passkey });
+    const res = await createPasskey();
     console.log("Created passkey:", res);
   };
 
@@ -177,7 +177,6 @@ export default function AuthPage() {
     const res = await createWallet({
       walletName,
       accounts: allAddressFormats,
-      stampWith: StamperType.Passkey,
     });
 
     console.log("Created wallet response:", res);
@@ -204,9 +203,18 @@ export default function AuthPage() {
     const result = await handleSignMessage({
       message:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. . Sed id maximus elit. Mauris lacus ligula, dictum nec purus sit amet, mollis tempor nisl. Morbi neque lectus, tempor sed tristique sit amet, ornare eget dui",
-      walletAccount: wallets[4].accounts[0],
+      walletAccount: wallets[0].accounts[0],
+      successPageDuration: 0,
     });
     console.log("Signing result:", result);
+  };
+
+  const showUpdateUserNameModal = async () => {
+    const res = await handleUpdateUserName({
+      successPageDuration: 5000,
+      subTitle: "Edit your user name",
+    });
+    console.log("User name updated successfully: ", res);
   };
 
   return (
@@ -578,7 +586,6 @@ export default function AuthPage() {
           handleExport({
             walletId: wallets[0]?.walletId,
             exportType: ExportType.Wallet,
-            stampWith: StamperType.Passkey,
           })
         }
         style={{
@@ -599,7 +606,6 @@ export default function AuthPage() {
               "ADDRESS_FORMAT_ETHEREUM",
             ],
             successPageDuration: 5000,
-            stampWith: StamperType.Passkey,
           })
         }
         style={{
@@ -722,6 +728,7 @@ export default function AuthPage() {
           <button
             onClick={async () => {
               await handleUpdateUserEmail({
+                email: newEmail,
                 successPageDuration: 5000,
                 subTitle: "Add your email to your Turnkey Auth Demo account",
               });
@@ -781,13 +788,7 @@ export default function AuthPage() {
             }}
           />
           <button
-            onClick={async () => {
-              await handleUpdateUserName({
-                successPageDuration: 5000,
-                subTitle: "Edit your user name",
-                stampWith: StamperType.Passkey,
-              });
-            }}
+            onClick={showUpdateUserNameModal}
             style={{
               backgroundColor: "rebeccapurple",
               borderRadius: "8px",
@@ -804,7 +805,6 @@ export default function AuthPage() {
           onClick={async () => {
             await handleAddOAuthProvider({
               providerName: OAuthProviders.GOOGLE,
-              stampWith: StamperType.Passkey,
             });
           }}
           style={{
@@ -837,10 +837,11 @@ export default function AuthPage() {
       {session && (
         <button
           onClick={async () => {
-            await handleAddOAuthProvider({
+            const res = await handleAddOAuthProvider({
               providerName: OAuthProviders.FACEBOOK,
-              stampWith: StamperType.Passkey,
             });
+
+            console.log("Facebook OAuth added successfully:", res);
           }}
           style={{
             backgroundColor: "rebeccapurple",
@@ -855,9 +856,10 @@ export default function AuthPage() {
       {session && (
         <button
           onClick={async () => {
-            await handleAddEmail({
+            const res = await handleAddEmail({
               successPageDuration: 5000,
             });
+            console.log("Email added successfully:", res);
           }}
           style={{
             backgroundColor: "rebeccapurple",
@@ -873,9 +875,10 @@ export default function AuthPage() {
       {session && (
         <button
           onClick={async () => {
-            await handleAddPhoneNumber({
+            const res = await handleAddPhoneNumber({
               successPageDuration: 5000,
             });
+            console.log("Phone number added successfully:", res);
           }}
           style={{
             backgroundColor: "rebeccapurple",
@@ -891,10 +894,10 @@ export default function AuthPage() {
       {session && (
         <button
           onClick={async () => {
-            await handleAddPasskey({
+            const res = await handleAddPasskey({
               successPageDuration: 5000,
-              stampWith: StamperType.Passkey,
             });
+            console.log("Passkey added successfully:", res);
           }}
           style={{
             backgroundColor: "rebeccapurple",
@@ -915,10 +918,11 @@ export default function AuthPage() {
               console.error("No OAuth provider found to remove");
               return;
             }
-            await handleRemoveOAuthProvider({
+            const res = await handleRemoveOAuthProvider({
               providerId: providerId,
-              stampWith: StamperType.Passkey,
             });
+
+            console.log("OAuth provider removed successfully:", res);
           }}
           style={{
             backgroundColor: "rebeccapurple",
@@ -938,10 +942,11 @@ export default function AuthPage() {
               console.error("No passkey found to remove");
               return;
             }
-            await handleRemovePasskey({
+            const res = await handleRemovePasskey({
               authenticatorId: authenticatorId,
-              stampWith: StamperType.Passkey,
             });
+
+            console.log("Passkey removed successfully:", res);
           }}
           style={{
             backgroundColor: "rebeccapurple",
@@ -973,7 +978,6 @@ export default function AuthPage() {
               accounts: ["ADDRESS_FORMAT_SOLANA", "ADDRESS_FORMAT_ETHEREUM"],
               walletId: wallets[0]?.walletId!,
               organizationId: session?.organizationId!,
-              stampWith: StamperType.Passkey,
             });
             console.log("Wallet accounts created successfully");
           }}

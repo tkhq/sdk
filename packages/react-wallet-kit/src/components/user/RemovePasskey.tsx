@@ -6,27 +6,66 @@ import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import clsx from "clsx";
+import { SuccessPage } from "../design/Success";
 
 export function RemovePasskey(params: {
   authenticatorId: string;
-  onContinue?: () => Promise<void>;
+  userId?: string;
+  onSuccess: (authenticators: string[]) => void;
+  onError: (error: any) => void;
+  successPageDuration?: number | undefined;
+  stampWith?: string | undefined;
   title?: string;
   subTitle?: string;
 }) {
-  const { user } = useTurnkey();
-  const { onContinue } = params;
+  const { user, removePasskeys } = useTurnkey();
+  const {
+    onSuccess,
+    onError,
+    userId = user?.userId,
+    successPageDuration,
+    authenticatorId,
+  } = params;
   const [isLoading, setIsLoading] = useState(false);
-  const { isMobile } = useModal();
+  const { isMobile, pushPage, closeModal } = useModal();
 
   const handleContinue = async () => {
-    if (onContinue) {
+    try {
       setIsLoading(true);
-      try {
-        await Promise.resolve(onContinue());
-      } finally {
-        setIsLoading(false);
-      }
+      const res = await removePasskeys({
+        authenticatorIds: [authenticatorId],
+        ...(userId && { userId }),
+      });
+      handleSuccess(res);
+    } catch (error) {
+      onError(error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleSuccess = (authenticators: string[]) => {
+    onSuccess(authenticators);
+
+    if (!successPageDuration) {
+      closeModal();
+      return;
+    }
+
+    pushPage({
+      key: "success",
+      content: (
+        <SuccessPage
+          text="Passkey removed successfully!"
+          duration={successPageDuration}
+          onComplete={() => {
+            closeModal();
+          }}
+        />
+      ),
+      preventBack: true,
+      showTitle: false,
+    });
   };
 
   const authenticator = user?.authenticators?.find(
@@ -56,10 +95,10 @@ export function RemovePasskey(params: {
         </div>
         <div className="p-2 h-full mt-2 max-h-72 rounded-md border border-modal-background-dark/10 dark:border-modal-background-light/10 bg-icon-background-light dark:bg-icon-background-dark text-icon-text-light dark:text-icon-text-dark">
           <div className="text-sm font-mono!">
-            Passkey Name: {authenticator.authenticatorName}
+            Passkey Name: {authenticator?.authenticatorName}
           </div>
           <div className="text-sm font-mono!">
-            Passkey ID: {authenticator.authenticatorId}
+            Passkey ID: {authenticator?.authenticatorId}
           </div>
         </div>
       </div>
