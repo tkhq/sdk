@@ -1,11 +1,10 @@
 import { stringToBase64urlString } from "@turnkey/encoding";
 import { WalletStamperError } from "./errors";
 import {
+  type TStamper,
   type WalletInterface,
   type TStamp,
   WalletType,
-  WalletRpcProvider,
-  SignIntent,
 } from "./types";
 import {
   SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191,
@@ -16,21 +15,17 @@ import type { Hex } from "viem";
 
 // WalletStamper class implements the TStamper interface to use wallet's signature and public key
 // to authenticate requests to Turnkey.
-export class WalletStamper {
+export class WalletStamper implements TStamper {
   private wallet: WalletInterface;
 
   constructor(wallet: WalletInterface) {
     this.wallet = wallet;
   }
 
-  async stamp(payload: string, provider: WalletRpcProvider): Promise<TStamp> {
+  async stamp(payload: string): Promise<TStamp> {
     let signature: string;
     try {
-      signature = await this.wallet.sign(
-        payload,
-        provider,
-        SignIntent.SignMessage,
-      );
+      signature = await this.wallet.signMessage(payload);
     } catch (error) {
       throw new WalletStamperError("Failed to sign the message", error);
     }
@@ -66,7 +61,7 @@ export class WalletStamper {
         signature = toDerSignature(signature.replace("0x", ""));
       } else {
         // For Solana, we can directly use the public key.
-        publicKey = await this.wallet.getPublicKey(provider);
+        publicKey = await this.wallet.getPublicKey();
       }
     } catch (error) {
       throw new WalletStamperError("Failed to recover public key", error);
