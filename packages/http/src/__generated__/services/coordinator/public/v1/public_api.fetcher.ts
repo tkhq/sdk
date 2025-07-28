@@ -25,9 +25,9 @@ export type TGetActivityBody =
   operations["PublicApiService_GetActivity"]["parameters"]["body"]["body"];
 
 /**
- * Get Activity
+ * Get activity
  *
- * Get details about an Activity
+ * Get details about an activity.
  *
  * `POST /public/v1/query/get_activity`
  */
@@ -73,7 +73,7 @@ export type TGetApiKeyBody =
 /**
  * Get API key
  *
- * Get details about an API key
+ * Get details about an API key.
  *
  * `POST /public/v1/query/get_api_key`
  */
@@ -119,7 +119,7 @@ export type TGetApiKeysBody =
 /**
  * Get API keys
  *
- * Get details about API keys for a user
+ * Get details about API keys for a user.
  *
  * `POST /public/v1/query/get_api_keys`
  */
@@ -217,9 +217,9 @@ export type TGetAuthenticatorBody =
   operations["PublicApiService_GetAuthenticator"]["parameters"]["body"]["body"];
 
 /**
- * Get Authenticator
+ * Get authenticator
  *
- * Get details about an authenticator
+ * Get details about an authenticator.
  *
  * `POST /public/v1/query/get_authenticator`
  */
@@ -269,9 +269,9 @@ export type TGetAuthenticatorsBody =
   operations["PublicApiService_GetAuthenticators"]["parameters"]["body"]["body"];
 
 /**
- * Get Authenticators
+ * Get authenticators
  *
- * Get details about authenticators for a user
+ * Get details about authenticators for a user.
  *
  * `POST /public/v1/query/get_authenticators`
  */
@@ -323,7 +323,7 @@ export type TGetOauthProvidersBody =
 /**
  * Get Oauth providers
  *
- * Get details about Oauth providers for a user
+ * Get details about Oauth providers for a user.
  *
  * `POST /public/v1/query/get_oauth_providers`
  */
@@ -373,9 +373,9 @@ export type TGetOrganizationBody =
   operations["PublicApiService_GetOrganization"]["parameters"]["body"]["body"];
 
 /**
- * Get Organization
+ * Get organization
  *
- * Get details about an Organization
+ * Get details about an organization.
  *
  * `POST /public/v1/query/get_organization`
  */
@@ -421,9 +421,9 @@ export type TGetOrganizationConfigsBody =
   operations["PublicApiService_GetOrganizationConfigs"]["parameters"]["body"]["body"];
 
 /**
- * Get Configs
+ * Get configs
  *
- * Get quorum settings and features for an organization
+ * Get quorum settings and features for an organization.
  *
  * `POST /public/v1/query/get_organization_configs`
  */
@@ -473,9 +473,9 @@ export type TGetPolicyBody =
   operations["PublicApiService_GetPolicy"]["parameters"]["body"]["body"];
 
 /**
- * Get Policy
+ * Get policy
  *
- * Get details about a Policy
+ * Get details about a policy.
  *
  * `POST /public/v1/query/get_policy`
  */
@@ -502,6 +502,58 @@ export const signGetPolicy = (
   });
 
 /**
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export type TGetPolicyEvaluationsResponse =
+  operations["PublicApiService_GetPolicyEvaluations"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export type TGetPolicyEvaluationsInput = { body: TGetPolicyEvaluationsBody };
+
+/**
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export type TGetPolicyEvaluationsBody =
+  operations["PublicApiService_GetPolicyEvaluations"]["parameters"]["body"]["body"];
+
+/**
+ * Get policy evaluations
+ *
+ * Get the policy evaluations for an activity.
+ *
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export const getPolicyEvaluations = (input: TGetPolicyEvaluationsInput) =>
+  request<
+    TGetPolicyEvaluationsResponse,
+    TGetPolicyEvaluationsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_policy_evaluations",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetPolicyEvaluations` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetPolicyEvaluations}
+ */
+export const signGetPolicyEvaluations = (
+  input: TGetPolicyEvaluationsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetPolicyEvaluationsBody, never, never>({
+    uri: "/public/v1/query/get_policy_evaluations",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_private_key`
  */
 export type TGetPrivateKeyResponse =
@@ -519,9 +571,9 @@ export type TGetPrivateKeyBody =
   operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"];
 
 /**
- * Get Private Key
+ * Get private key
  *
- * Get details about a Private Key
+ * Get details about a private key.
  *
  * `POST /public/v1/query/get_private_key`
  */
@@ -567,9 +619,9 @@ export type TGetSmartContractInterfaceBody =
   operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
- * Get Smart Contract Interface
+ * Get smart contract interface
  *
- * Get details about a Smart Contract Interface
+ * Get details about a smart contract interface.
  *
  * `POST /public/v1/query/get_smart_contract_interface`
  */
@@ -621,9 +673,9 @@ export type TGetUserBody =
   operations["PublicApiService_GetUser"]["parameters"]["body"]["body"];
 
 /**
- * Get User
+ * Get user
  *
- * Get details about a User
+ * Get details about a user.
  *
  * `POST /public/v1/query/get_user`
  */
@@ -667,9 +719,9 @@ export type TGetWalletBody =
   operations["PublicApiService_GetWallet"]["parameters"]["body"]["body"];
 
 /**
- * Get Wallet
+ * Get wallet
  *
- * Get details about a Wallet
+ * Get details about a wallet.
  *
  * `POST /public/v1/query/get_wallet`
  */
@@ -713,9 +765,9 @@ export type TGetWalletAccountBody =
   operations["PublicApiService_GetWalletAccount"]["parameters"]["body"]["body"];
 
 /**
- * Get Wallet Account
+ * Get wallet account
  *
- * Get a single wallet account
+ * Get a single wallet account.
  *
  * `POST /public/v1/query/get_wallet_account`
  */
@@ -765,9 +817,9 @@ export type TGetActivitiesBody =
   operations["PublicApiService_GetActivities"]["parameters"]["body"]["body"];
 
 /**
- * List Activities
+ * List activities
  *
- * List all Activities within an Organization
+ * List all activities within an organization.
  *
  * `POST /public/v1/query/list_activities`
  */
@@ -811,9 +863,9 @@ export type TGetPoliciesBody =
   operations["PublicApiService_GetPolicies"]["parameters"]["body"]["body"];
 
 /**
- * List Policies
+ * List policies
  *
- * List all Policies within an Organization
+ * List all policies within an organization.
  *
  * `POST /public/v1/query/list_policies`
  */
@@ -857,9 +909,9 @@ export type TListPrivateKeyTagsBody =
   operations["PublicApiService_ListPrivateKeyTags"]["parameters"]["body"]["body"];
 
 /**
- * List Private Key Tags
+ * List private key tags
  *
- * List all Private Key Tags within an Organization
+ * List all private key tags within an organization.
  *
  * `POST /public/v1/query/list_private_key_tags`
  */
@@ -909,9 +961,9 @@ export type TGetPrivateKeysBody =
   operations["PublicApiService_GetPrivateKeys"]["parameters"]["body"]["body"];
 
 /**
- * List Private Keys
+ * List private keys
  *
- * List all Private Keys within an Organization
+ * List all private keys within an organization.
  *
  * `POST /public/v1/query/list_private_keys`
  */
@@ -957,9 +1009,9 @@ export type TGetSmartContractInterfacesBody =
   operations["PublicApiService_GetSmartContractInterfaces"]["parameters"]["body"]["body"];
 
 /**
- * List Smart Contract Interfaces
+ * List smart contract interfaces
  *
- * List all Smart Contract Interfaces within an Organization
+ * List all smart contract interfaces within an organization.
  *
  * `POST /public/v1/query/list_smart_contract_interfaces`
  */
@@ -1011,7 +1063,7 @@ export type TGetSubOrgIdsBody =
   operations["PublicApiService_GetSubOrgIds"]["parameters"]["body"]["body"];
 
 /**
- * Get Suborgs
+ * Get sub-organizations
  *
  * Get all suborg IDs associated given a parent org ID and an optional filter.
  *
@@ -1057,9 +1109,9 @@ export type TListUserTagsBody =
   operations["PublicApiService_ListUserTags"]["parameters"]["body"]["body"];
 
 /**
- * List User Tags
+ * List user tags
  *
- * List all User Tags within an Organization
+ * List all user tags within an organization.
  *
  * `POST /public/v1/query/list_user_tags`
  */
@@ -1103,9 +1155,9 @@ export type TGetUsersBody =
   operations["PublicApiService_GetUsers"]["parameters"]["body"]["body"];
 
 /**
- * List Users
+ * List users
  *
- * List all Users within an Organization
+ * List all users within an organization.
  *
  * `POST /public/v1/query/list_users`
  */
@@ -1149,7 +1201,7 @@ export type TGetVerifiedSubOrgIdsBody =
   operations["PublicApiService_GetVerifiedSubOrgIds"]["parameters"]["body"]["body"];
 
 /**
- * Get Verified Suborgs
+ * Get verified sub-organizations
  *
  * Get all email or phone verified suborg IDs associated given a parent org ID.
  *
@@ -1201,9 +1253,9 @@ export type TGetWalletAccountsBody =
   operations["PublicApiService_GetWalletAccounts"]["parameters"]["body"]["body"];
 
 /**
- * List Wallets Accounts
+ * List wallets accounts
  *
- * List all Accounts within a Wallet
+ * List all accounts within a wallet.
  *
  * `POST /public/v1/query/list_wallet_accounts`
  */
@@ -1253,9 +1305,9 @@ export type TGetWalletsBody =
   operations["PublicApiService_GetWallets"]["parameters"]["body"]["body"];
 
 /**
- * List Wallets
+ * List wallets
  *
- * List all Wallets within an Organization
+ * List all wallets within an organization.
  *
  * `POST /public/v1/query/list_wallets`
  */
@@ -1301,7 +1353,7 @@ export type TGetWhoamiBody =
 /**
  * Who am I?
  *
- * Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users.
+ * Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users.
  *
  * `POST /public/v1/query/whoami`
  */
@@ -1345,9 +1397,9 @@ export type TApproveActivityBody =
   operations["PublicApiService_ApproveActivity"]["parameters"]["body"]["body"];
 
 /**
- * Approve Activity
+ * Approve activity
  *
- * Approve an Activity
+ * Approve an activity.
  *
  * `POST /public/v1/submit/approve_activity`
  */
@@ -1391,9 +1443,9 @@ export type TCreateApiKeysBody =
   operations["PublicApiService_CreateApiKeys"]["parameters"]["body"]["body"];
 
 /**
- * Create API Keys
+ * Create API keys
  *
- * Add api keys to an existing User
+ * Add API keys to an existing user.
  *
  * `POST /public/v1/submit/create_api_keys`
  */
@@ -1437,9 +1489,9 @@ export type TCreateApiOnlyUsersBody =
   operations["PublicApiService_CreateApiOnlyUsers"]["parameters"]["body"]["body"];
 
 /**
- * Create API-only Users
+ * Create API-only users
  *
- * Create API-only Users in an existing Organization
+ * Create API-only users in an existing organization.
  *
  * `POST /public/v1/submit/create_api_only_users`
  */
@@ -1489,9 +1541,9 @@ export type TCreateAuthenticatorsBody =
   operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"];
 
 /**
- * Create Authenticators
+ * Create authenticators
  *
- * Create Authenticators to authenticate requests to Turnkey
+ * Create authenticators to authenticate requests to Turnkey.
  *
  * `POST /public/v1/submit/create_authenticators`
  */
@@ -1541,9 +1593,9 @@ export type TCreateInvitationsBody =
   operations["PublicApiService_CreateInvitations"]["parameters"]["body"]["body"];
 
 /**
- * Create Invitations
+ * Create invitations
  *
- * Create Invitations to join an existing Organization
+ * Create invitations to join an existing organization.
  *
  * `POST /public/v1/submit/create_invitations`
  */
@@ -1593,9 +1645,9 @@ export type TCreateOauthProvidersBody =
   operations["PublicApiService_CreateOauthProviders"]["parameters"]["body"]["body"];
 
 /**
- * Create Oauth Providers
+ * Create Oauth providers
  *
- * Creates Oauth providers for a specified user - BETA
+ * Create Oauth providers for a specified user.
  *
  * `POST /public/v1/submit/create_oauth_providers`
  */
@@ -1645,9 +1697,9 @@ export type TCreatePoliciesBody =
   operations["PublicApiService_CreatePolicies"]["parameters"]["body"]["body"];
 
 /**
- * Create Policies
+ * Create policies
  *
- * Create new Policies
+ * Create new policies.
  *
  * `POST /public/v1/submit/create_policies`
  */
@@ -1691,9 +1743,9 @@ export type TCreatePolicyBody =
   operations["PublicApiService_CreatePolicy"]["parameters"]["body"]["body"];
 
 /**
- * Create Policy
+ * Create policy
  *
- * Create a new Policy
+ * Create a new policy.
  *
  * `POST /public/v1/submit/create_policy`
  */
@@ -1737,7 +1789,7 @@ export type TCreatePrivateKeyTagBody =
   operations["PublicApiService_CreatePrivateKeyTag"]["parameters"]["body"]["body"];
 
 /**
- * Create Private Key Tag
+ * Create private key tag
  *
  * Create a private key tag and add it to private keys.
  *
@@ -1789,9 +1841,9 @@ export type TCreatePrivateKeysBody =
   operations["PublicApiService_CreatePrivateKeys"]["parameters"]["body"]["body"];
 
 /**
- * Create Private Keys
+ * Create private keys
  *
- * Create new Private Keys
+ * Create new private keys.
  *
  * `POST /public/v1/submit/create_private_keys`
  */
@@ -1841,9 +1893,9 @@ export type TCreateReadOnlySessionBody =
   operations["PublicApiService_CreateReadOnlySession"]["parameters"]["body"]["body"];
 
 /**
- * Create Read Only Session
+ * Create read only session
  *
- * Create a read only session for a user (valid for 1 hour)
+ * Create a read only session for a user (valid for 1 hour).
  *
  * `POST /public/v1/submit/create_read_only_session`
  */
@@ -1895,9 +1947,9 @@ export type TCreateReadWriteSessionBody =
   operations["PublicApiService_CreateReadWriteSession"]["parameters"]["body"]["body"];
 
 /**
- * Create Read Write Session
+ * Create read write session
  *
- * Create a read write session for a user
+ * Create a read write session for a user.
  *
  * `POST /public/v1/submit/create_read_write_session`
  */
@@ -1949,9 +2001,9 @@ export type TCreateSmartContractInterfaceBody =
   operations["PublicApiService_CreateSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
- * Create Smart Contract Interface
+ * Create smart contract interface
  *
- * Create an ABI/IDL in JSON
+ * Create an ABI/IDL in JSON.
  *
  * `POST /public/v1/submit/create_smart_contract_interface`
  */
@@ -2003,9 +2055,9 @@ export type TCreateSubOrganizationBody =
   operations["PublicApiService_CreateSubOrganization"]["parameters"]["body"]["body"];
 
 /**
- * Create Sub-Organization
+ * Create sub-organization
  *
- * Create a new Sub-Organization
+ * Create a new sub-organization.
  *
  * `POST /public/v1/submit/create_sub_organization`
  */
@@ -2055,7 +2107,7 @@ export type TCreateUserTagBody =
   operations["PublicApiService_CreateUserTag"]["parameters"]["body"]["body"];
 
 /**
- * Create User Tag
+ * Create user tag
  *
  * Create a user tag and add it to users.
  *
@@ -2101,9 +2153,9 @@ export type TCreateUsersBody =
   operations["PublicApiService_CreateUsers"]["parameters"]["body"]["body"];
 
 /**
- * Create Users
+ * Create users
  *
- * Create Users in an existing Organization
+ * Create users in an existing organization.
  *
  * `POST /public/v1/submit/create_users`
  */
@@ -2147,9 +2199,9 @@ export type TCreateWalletBody =
   operations["PublicApiService_CreateWallet"]["parameters"]["body"]["body"];
 
 /**
- * Create Wallet
+ * Create wallet
  *
- * Create a Wallet and derive addresses
+ * Create a wallet and derive addresses.
  *
  * `POST /public/v1/submit/create_wallet`
  */
@@ -2193,9 +2245,9 @@ export type TCreateWalletAccountsBody =
   operations["PublicApiService_CreateWalletAccounts"]["parameters"]["body"]["body"];
 
 /**
- * Create Wallet Accounts
+ * Create wallet accounts
  *
- * Derive additional addresses using an existing wallet
+ * Derive additional addresses using an existing wallet.
  *
  * `POST /public/v1/submit/create_wallet_accounts`
  */
@@ -2245,9 +2297,9 @@ export type TDeleteApiKeysBody =
   operations["PublicApiService_DeleteApiKeys"]["parameters"]["body"]["body"];
 
 /**
- * Delete API Keys
+ * Delete API keys
  *
- * Remove api keys from a User
+ * Remove api keys from a user.
  *
  * `POST /public/v1/submit/delete_api_keys`
  */
@@ -2291,9 +2343,9 @@ export type TDeleteAuthenticatorsBody =
   operations["PublicApiService_DeleteAuthenticators"]["parameters"]["body"]["body"];
 
 /**
- * Delete Authenticators
+ * Delete authenticators
  *
- * Remove authenticators from a User
+ * Remove authenticators from a user.
  *
  * `POST /public/v1/submit/delete_authenticators`
  */
@@ -2343,9 +2395,9 @@ export type TDeleteInvitationBody =
   operations["PublicApiService_DeleteInvitation"]["parameters"]["body"]["body"];
 
 /**
- * Delete Invitation
+ * Delete invitation
  *
- * Delete an existing Invitation
+ * Delete an existing invitation.
  *
  * `POST /public/v1/submit/delete_invitation`
  */
@@ -2395,9 +2447,9 @@ export type TDeleteOauthProvidersBody =
   operations["PublicApiService_DeleteOauthProviders"]["parameters"]["body"]["body"];
 
 /**
- * Delete Oauth Providers
+ * Delete Oauth providers
  *
- * Removes Oauth providers for a specified user - BETA
+ * Remove Oauth providers for a specified user.
  *
  * `POST /public/v1/submit/delete_oauth_providers`
  */
@@ -2447,9 +2499,9 @@ export type TDeletePolicyBody =
   operations["PublicApiService_DeletePolicy"]["parameters"]["body"]["body"];
 
 /**
- * Delete Policy
+ * Delete policy
  *
- * Delete an existing Policy
+ * Delete an existing policy.
  *
  * `POST /public/v1/submit/delete_policy`
  */
@@ -2493,9 +2545,9 @@ export type TDeletePrivateKeyTagsBody =
   operations["PublicApiService_DeletePrivateKeyTags"]["parameters"]["body"]["body"];
 
 /**
- * Delete Private Key Tags
+ * Delete private key tags
  *
- * Delete Private Key Tags within an Organization
+ * Delete private key tags within an organization.
  *
  * `POST /public/v1/submit/delete_private_key_tags`
  */
@@ -2545,9 +2597,9 @@ export type TDeletePrivateKeysBody =
   operations["PublicApiService_DeletePrivateKeys"]["parameters"]["body"]["body"];
 
 /**
- * Delete Private Keys
+ * Delete private keys
  *
- * Deletes private keys for an organization
+ * Delete private keys for an organization.
  *
  * `POST /public/v1/submit/delete_private_keys`
  */
@@ -2599,9 +2651,9 @@ export type TDeleteSmartContractInterfaceBody =
   operations["PublicApiService_DeleteSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
- * Create Smart Contract Interface
+ * Delete smart contract interface
  *
- * Delete a Smart Contract Interface
+ * Delete a smart contract interface.
  *
  * `POST /public/v1/submit/delete_smart_contract_interface`
  */
@@ -2653,9 +2705,9 @@ export type TDeleteSubOrganizationBody =
   operations["PublicApiService_DeleteSubOrganization"]["parameters"]["body"]["body"];
 
 /**
- * Delete Sub Organization
+ * Delete sub-organization
  *
- * Deletes a sub organization
+ * Delete a sub-organization.
  *
  * `POST /public/v1/submit/delete_sub_organization`
  */
@@ -2705,9 +2757,9 @@ export type TDeleteUserTagsBody =
   operations["PublicApiService_DeleteUserTags"]["parameters"]["body"]["body"];
 
 /**
- * Delete User Tags
+ * Delete user tags
  *
- * Delete User Tags within an Organization
+ * Delete user tags within an organization.
  *
  * `POST /public/v1/submit/delete_user_tags`
  */
@@ -2751,9 +2803,9 @@ export type TDeleteUsersBody =
   operations["PublicApiService_DeleteUsers"]["parameters"]["body"]["body"];
 
 /**
- * Delete Users
+ * Delete users
  *
- * Delete Users within an Organization
+ * Delete users within an organization.
  *
  * `POST /public/v1/submit/delete_users`
  */
@@ -2797,9 +2849,9 @@ export type TDeleteWalletsBody =
   operations["PublicApiService_DeleteWallets"]["parameters"]["body"]["body"];
 
 /**
- * Delete Wallets
+ * Delete wallets
  *
- * Deletes wallets for an organization
+ * Delete wallets for an organization.
  *
  * `POST /public/v1/submit/delete_wallets`
  */
@@ -2843,9 +2895,9 @@ export type TEmailAuthBody =
   operations["PublicApiService_EmailAuth"]["parameters"]["body"]["body"];
 
 /**
- * Perform Email Auth
+ * Perform email auth
  *
- * Authenticate a user via Email
+ * Authenticate a user via email.
  *
  * `POST /public/v1/submit/email_auth`
  */
@@ -2889,9 +2941,9 @@ export type TExportPrivateKeyBody =
   operations["PublicApiService_ExportPrivateKey"]["parameters"]["body"]["body"];
 
 /**
- * Export Private Key
+ * Export private key
  *
- * Exports a Private Key
+ * Export a private key.
  *
  * `POST /public/v1/submit/export_private_key`
  */
@@ -2941,9 +2993,9 @@ export type TExportWalletBody =
   operations["PublicApiService_ExportWallet"]["parameters"]["body"]["body"];
 
 /**
- * Export Wallet
+ * Export wallet
  *
- * Exports a Wallet
+ * Export a wallet.
  *
  * `POST /public/v1/submit/export_wallet`
  */
@@ -2987,9 +3039,9 @@ export type TExportWalletAccountBody =
   operations["PublicApiService_ExportWalletAccount"]["parameters"]["body"]["body"];
 
 /**
- * Export Wallet Account
+ * Export wallet account
  *
- * Exports a Wallet Account
+ * Export a wallet account.
  *
  * `POST /public/v1/submit/export_wallet_account`
  */
@@ -3039,9 +3091,9 @@ export type TImportPrivateKeyBody =
   operations["PublicApiService_ImportPrivateKey"]["parameters"]["body"]["body"];
 
 /**
- * Import Private Key
+ * Import private key
  *
- * Imports a private key
+ * Import a private key.
  *
  * `POST /public/v1/submit/import_private_key`
  */
@@ -3091,9 +3143,9 @@ export type TImportWalletBody =
   operations["PublicApiService_ImportWallet"]["parameters"]["body"]["body"];
 
 /**
- * Import Wallet
+ * Import wallet
  *
- * Imports a wallet
+ * Import a wallet.
  *
  * `POST /public/v1/submit/import_wallet`
  */
@@ -3137,9 +3189,9 @@ export type TInitFiatOnRampBody =
   operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"];
 
 /**
- * Init Fiat On Ramp
+ * Init fiat on ramp
  *
- * Initiate a fiat on ramp flow
+ * Initiate a fiat on ramp flow.
  *
  * `POST /public/v1/submit/init_fiat_on_ramp`
  */
@@ -3183,9 +3235,9 @@ export type TInitImportPrivateKeyBody =
   operations["PublicApiService_InitImportPrivateKey"]["parameters"]["body"]["body"];
 
 /**
- * Init Import Private Key
+ * Init import private key
  *
- * Initializes a new private key import
+ * Initialize a new private key import.
  *
  * `POST /public/v1/submit/init_import_private_key`
  */
@@ -3235,9 +3287,9 @@ export type TInitImportWalletBody =
   operations["PublicApiService_InitImportWallet"]["parameters"]["body"]["body"];
 
 /**
- * Init Import Wallet
+ * Init import wallet
  *
- * Initializes a new wallet import
+ * Initialize a new wallet import.
  *
  * `POST /public/v1/submit/init_import_wallet`
  */
@@ -3287,9 +3339,9 @@ export type TInitOtpBody =
   operations["PublicApiService_InitOtp"]["parameters"]["body"]["body"];
 
 /**
- * Init Generic OTP
+ * Init generic OTP
  *
- * Initiate a Generic OTP activity
+ * Initiate a generic OTP activity.
  *
  * `POST /public/v1/submit/init_otp`
  */
@@ -3335,7 +3387,7 @@ export type TInitOtpAuthBody =
 /**
  * Init OTP auth
  *
- * Initiate an OTP auth activity
+ * Initiate an OTP auth activity.
  *
  * `POST /public/v1/submit/init_otp_auth`
  */
@@ -3379,9 +3431,9 @@ export type TInitUserEmailRecoveryBody =
   operations["PublicApiService_InitUserEmailRecovery"]["parameters"]["body"]["body"];
 
 /**
- * Init Email Recovery
+ * Init email recovery
  *
- * Initializes a new email recovery
+ * Initialize a new email recovery.
  *
  * `POST /public/v1/submit/init_user_email_recovery`
  */
@@ -3433,7 +3485,7 @@ export type TOauthBody =
 /**
  * Oauth
  *
- * Authenticate a user with an Oidc token (Oauth) - BETA
+ * Authenticate a user with an OIDC token (Oauth).
  *
  * `POST /public/v1/submit/oauth`
  */
@@ -3479,7 +3531,7 @@ export type TOauthLoginBody =
 /**
  * Login with Oauth
  *
- * Create an Oauth session for a user
+ * Create an Oauth session for a user.
  *
  * `POST /public/v1/submit/oauth_login`
  */
@@ -3525,7 +3577,7 @@ export type TOtpAuthBody =
 /**
  * OTP auth
  *
- * Authenticate a user with an OTP code sent via email or SMS
+ * Authenticate a user with an OTP code sent via email or SMS.
  *
  * `POST /public/v1/submit/otp_auth`
  */
@@ -3571,7 +3623,7 @@ export type TOtpLoginBody =
 /**
  * Login with OTP
  *
- * Create an OTP session for a user
+ * Create an OTP session for a user.
  *
  * `POST /public/v1/submit/otp_login`
  */
@@ -3617,7 +3669,7 @@ export type TRecoverUserBody =
 /**
  * Recover a user
  *
- * Completes the process of recovering a user by adding an authenticator
+ * Complete the process of recovering a user by adding an authenticator.
  *
  * `POST /public/v1/submit/recover_user`
  */
@@ -3661,9 +3713,9 @@ export type TRejectActivityBody =
   operations["PublicApiService_RejectActivity"]["parameters"]["body"]["body"];
 
 /**
- * Reject Activity
+ * Reject activity
  *
- * Reject an Activity
+ * Reject an activity.
  *
  * `POST /public/v1/submit/reject_activity`
  */
@@ -3709,9 +3761,9 @@ export type TRemoveOrganizationFeatureBody =
   operations["PublicApiService_RemoveOrganizationFeature"]["parameters"]["body"]["body"];
 
 /**
- * Remove Organization Feature
+ * Remove organization feature
  *
- * Removes an organization feature. This activity must be approved by the current root quorum.
+ * Remove an organization feature. This activity must be approved by the current root quorum.
  *
  * `POST /public/v1/submit/remove_organization_feature`
  */
@@ -3765,9 +3817,9 @@ export type TSetOrganizationFeatureBody =
   operations["PublicApiService_SetOrganizationFeature"]["parameters"]["body"]["body"];
 
 /**
- * Set Organization Feature
+ * Set organization feature
  *
- * Sets an organization feature. This activity must be approved by the current root quorum.
+ * Set an organization feature. This activity must be approved by the current root quorum.
  *
  * `POST /public/v1/submit/set_organization_feature`
  */
@@ -3817,9 +3869,9 @@ export type TSignRawPayloadBody =
   operations["PublicApiService_SignRawPayload"]["parameters"]["body"]["body"];
 
 /**
- * Sign Raw Payload
+ * Sign raw payload
  *
- * Sign a raw payload
+ * Sign a raw payload.
  *
  * `POST /public/v1/submit/sign_raw_payload`
  */
@@ -3863,9 +3915,9 @@ export type TSignRawPayloadsBody =
   operations["PublicApiService_SignRawPayloads"]["parameters"]["body"]["body"];
 
 /**
- * Sign Raw Payloads
+ * Sign raw payloads
  *
- * Sign multiple raw payloads with the same signing parameters
+ * Sign multiple raw payloads with the same signing parameters.
  *
  * `POST /public/v1/submit/sign_raw_payloads`
  */
@@ -3909,9 +3961,9 @@ export type TSignTransactionBody =
   operations["PublicApiService_SignTransaction"]["parameters"]["body"]["body"];
 
 /**
- * Sign Transaction
+ * Sign transaction
  *
- * Sign a transaction
+ * Sign a transaction.
  *
  * `POST /public/v1/submit/sign_transaction`
  */
@@ -3955,9 +4007,9 @@ export type TStampLoginBody =
   operations["PublicApiService_StampLogin"]["parameters"]["body"]["body"];
 
 /**
- * Login with a Stamp
+ * Login with a stamp
  *
- * Create a session for a user through stamping client side (api key, wallet client, or passkey client)
+ * Create a session for a user through stamping client side (API key, wallet client, or passkey client).
  *
  * `POST /public/v1/submit/stamp_login`
  */
@@ -4001,9 +4053,9 @@ export type TUpdatePolicyBody =
   operations["PublicApiService_UpdatePolicy"]["parameters"]["body"]["body"];
 
 /**
- * Update Policy
+ * Update policy
  *
- * Update an existing Policy
+ * Update an existing policy.
  *
  * `POST /public/v1/submit/update_policy`
  */
@@ -4047,7 +4099,7 @@ export type TUpdatePrivateKeyTagBody =
   operations["PublicApiService_UpdatePrivateKeyTag"]["parameters"]["body"]["body"];
 
 /**
- * Update Private Key Tag
+ * Update private key tag
  *
  * Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.
  *
@@ -4099,7 +4151,7 @@ export type TUpdateRootQuorumBody =
   operations["PublicApiService_UpdateRootQuorum"]["parameters"]["body"]["body"];
 
 /**
- * Update Root Quorum
+ * Update root quorum
  *
  * Set the threshold and members of the root quorum. This activity must be approved by the current root quorum.
  *
@@ -4151,9 +4203,9 @@ export type TUpdateUserBody =
   operations["PublicApiService_UpdateUser"]["parameters"]["body"]["body"];
 
 /**
- * Update User
+ * Update user
  *
- * Update a User in an existing Organization
+ * Update a user in an existing organization.
  *
  * `POST /public/v1/submit/update_user`
  */
@@ -4197,9 +4249,9 @@ export type TUpdateUserEmailBody =
   operations["PublicApiService_UpdateUserEmail"]["parameters"]["body"]["body"];
 
 /**
- * Update User's Email
+ * Update user's email
  *
- * Update a User's email in an existing Organization
+ * Update a user's email in an existing organization.
  *
  * `POST /public/v1/submit/update_user_email`
  */
@@ -4243,9 +4295,9 @@ export type TUpdateUserNameBody =
   operations["PublicApiService_UpdateUserName"]["parameters"]["body"]["body"];
 
 /**
- * Update User's Name
+ * Update user's name
  *
- * Update a User's name in an existing Organization
+ * Update a user's name in an existing organization.
  *
  * `POST /public/v1/submit/update_user_name`
  */
@@ -4289,9 +4341,9 @@ export type TUpdateUserPhoneNumberBody =
   operations["PublicApiService_UpdateUserPhoneNumber"]["parameters"]["body"]["body"];
 
 /**
- * Update User's Phone Number
+ * Update user's phone number
  *
- * Update a User's phone number in an existing Organization
+ * Update a user's phone number in an existing organization.
  *
  * `POST /public/v1/submit/update_user_phone_number`
  */
@@ -4341,7 +4393,7 @@ export type TUpdateUserTagBody =
   operations["PublicApiService_UpdateUserTag"]["parameters"]["body"]["body"];
 
 /**
- * Update User Tag
+ * Update user tag
  *
  * Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.
  *
@@ -4387,9 +4439,9 @@ export type TUpdateWalletBody =
   operations["PublicApiService_UpdateWallet"]["parameters"]["body"]["body"];
 
 /**
- * Update Wallet
+ * Update wallet
  *
- * Update a wallet for an organization
+ * Update a wallet for an organization.
  *
  * `POST /public/v1/submit/update_wallet`
  */
@@ -4433,9 +4485,9 @@ export type TVerifyOtpBody =
   operations["PublicApiService_VerifyOtp"]["parameters"]["body"]["body"];
 
 /**
- * Verify Generic OTP
+ * Verify generic OTP
  *
- * Verify a Generic OTP
+ * Verify a generic OTP.
  *
  * `POST /public/v1/submit/verify_otp`
  */
@@ -4504,9 +4556,9 @@ export type TTestRateLimitsBody =
   operations["PublicApiService_TestRateLimits"]["parameters"]["body"]["body"];
 
 /**
- * Test Rate Limit
+ * Test rate limit
  *
- * Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite
+ * Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite.
  *
  * `POST /tkhq/api/v1/test_rate_limits`
  */
