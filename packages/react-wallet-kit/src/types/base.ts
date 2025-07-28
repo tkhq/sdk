@@ -73,3 +73,14 @@ export enum ExportType {
   Wallet = "WALLET",
   PrivateKey = "PRIVATE_KEY",
 }
+
+export enum AuthState {
+  Unauthenticated = "unauthenticated",
+  Authenticated = "authenticated",
+}
+
+export enum ClientState {
+  Loading = "loading",
+  Ready = "ready",
+  Error = "error",
+}

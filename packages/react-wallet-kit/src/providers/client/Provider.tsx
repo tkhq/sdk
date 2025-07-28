@@ -2,8 +2,6 @@ import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import {
   APPLE_AUTH_URL,
-  AuthState,
-  ClientState,
   exchangeCodeForToken,
   FACEBOOK_AUTH_URL,
   generateChallengePair,
@@ -56,6 +54,8 @@ import { useModal } from "../modal/Hook";
 import {
   type TurnkeyCallbacks,
   type TurnkeyProviderConfig,
+  AuthState,
+  ClientState,
   ExportType,
 } from "../../types/base";
 import { AuthComponent } from "../../components/auth";

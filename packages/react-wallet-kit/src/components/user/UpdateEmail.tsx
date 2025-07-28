@@ -6,9 +6,9 @@ import { useTurnkey } from "../../providers/client/Hook";
 import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
 import clsx from "clsx";
-import { OtpType } from "@utils";
 import { OtpVerification } from "../auth/OTP";
 import { SuccessPage } from "../design/Success";
+import { OtpType } from "../..";
 
 export function UpdateEmail(params: {
   onSuccess: (userId: string) => void;
