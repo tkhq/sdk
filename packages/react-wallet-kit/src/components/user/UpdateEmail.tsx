@@ -6,15 +6,20 @@ import { useTurnkey } from "../../providers/client/Hook";
 import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
 import clsx from "clsx";
+import { OtpType } from "@utils";
+import { OtpVerification } from "../auth/OTP";
+import { SuccessPage } from "../design/Success";
 
 export function UpdateEmail(params: {
-  onContinue?: (email: string) => Promise<void>;
+  onSuccess: (userId: string) => void;
+  onError: (error: any) => void;
+  successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show
   title?: string;
   subTitle?: string;
 }) {
-  const { onContinue } = params;
-  const { user } = useTurnkey();
-  const { isMobile } = useModal();
+  const { onSuccess, onError, successPageDuration } = params;
+  const { user, updateUserEmail, initOtp, verifyOtp } = useTurnkey();
+  const { isMobile, pushPage, closeModal } = useModal();
   const email = user?.userEmail || "";
   const [emailInput, setEmailInput] = useState(email);
   const [isLoading, setIsLoading] = useState(false);
@@ -24,14 +29,67 @@ export function UpdateEmail(params: {
   };
 
   const handleContinue = async () => {
-    if (isValidEmail(emailInput) && onContinue) {
-      setIsLoading(true);
+    if (isValidEmail(emailInput)) {
       try {
-        await Promise.resolve(onContinue(emailInput));
+        const otpId = await initOtp({
+          otpType: OtpType.Email,
+          contact: emailInput,
+        });
+        pushPage({
+          key: "Verify OTP",
+          content: (
+            <OtpVerification
+              contact={emailInput}
+              otpId={otpId}
+              otpType={OtpType.Email}
+              onContinue={async (otpCode: string) => {
+                const { verificationToken } = await verifyOtp({
+                  otpId,
+                  otpCode,
+                  contact: emailInput,
+                  otpType: OtpType.Email,
+                });
+                const res = await updateUserEmail({
+                  email: emailInput,
+                  verificationToken,
+                  userId: user!.userId,
+                });
+                handleSuccess(res);
+              }}
+            />
+          ),
+          showTitle: false,
+        });
+      } catch (error) {
+        onError(error);
       } finally {
         setIsLoading(false);
       }
     }
+  };
+
+  const handleSuccess = (userId: string) => {
+    onSuccess(userId);
+
+    if (!successPageDuration) {
+      closeModal();
+      return;
+    }
+
+    pushPage({
+      key: "success",
+      content: (
+        <SuccessPage
+          text="Email updated successfully!"
+          duration={successPageDuration}
+          onComplete={() => {
+            closeModal();
+          }}
+        />
+      ),
+      preventBack: true,
+      showTitle: false,
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

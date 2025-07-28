@@ -6,31 +6,68 @@ import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
 import { Input } from "@headlessui/react";
 import clsx from "clsx";
+import type { DefaultParams } from "@turnkey/sdk-js";
+import { SuccessPage } from "../design/Success";
 
-export function UpdateUserName(params: {
-  onContinue?: (userName: string) => Promise<void>;
-  title?: string;
-  subTitle?: string;
-}) {
-  const { user } = useTurnkey();
-  const { isMobile } = useModal();
+export function UpdateUserName(
+  params: {
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+    onSuccess: (userId: string) => void;
+    onError: (error: any) => void;
+    userName?: string; // Optional initial user name to pre-fill the input
+    title?: string;
+    subTitle?: string;
+  } & DefaultParams,
+) {
+  const { user, updateUserName } = useTurnkey();
+  const { isMobile, pushPage, closeModal } = useModal();
   const userName = user?.userName || "";
   const [userNameInput, setUserNameInput] = useState(userName);
   const [loading, setLoading] = useState(false);
+
+  const { onSuccess, onError, successPageDuration } = params;
 
   const isValidUserName = (un: string): boolean => {
     return un.length > 0 && un !== userName;
   };
 
   const handleContinue = async () => {
-    if (isValidUserName(userNameInput) && params.onContinue) {
+    if (isValidUserName(userNameInput)) {
       setLoading(true);
       try {
-        await Promise.resolve(params.onContinue(userNameInput));
+        const res = await updateUserName({
+          userName: userNameInput,
+          userId: user!.userId,
+          stampWith: params?.stampWith,
+        });
+        handleSuccess(res);
+      } catch (error) {
+        onError(error);
       } finally {
         setLoading(false);
       }
     }
+  };
+
+  const handleSuccess = (userId: string) => {
+    onSuccess(userId);
+
+    if (!successPageDuration) return;
+
+    pushPage({
+      key: "success",
+      content: (
+        <SuccessPage
+          text="User name updated successfully!"
+          duration={successPageDuration}
+          onComplete={() => {
+            closeModal();
+          }}
+        />
+      ),
+      preventBack: true,
+      showTitle: false,
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
