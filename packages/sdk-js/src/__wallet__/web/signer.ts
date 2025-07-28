@@ -5,7 +5,7 @@ import {
   WalletInterface,
 } from "@types";
 
-export interface WebWalletSignerInterface {
+export interface WebWalletConnectorInterface {
   sign(
     message: string | Uint8Array,
     walletProvider: WalletProvider,
@@ -13,7 +13,7 @@ export interface WebWalletSignerInterface {
   ): Promise<string>;
 }
 
-export class WebWalletSigner implements WebWalletSignerInterface {
+export class WebWalletConnector implements WebWalletConnectorInterface {
   constructor(
     private readonly wallets: Partial<Record<WalletType, WalletInterface>>,
   ) {}
