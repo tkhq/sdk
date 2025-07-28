@@ -1,10 +1,4 @@
-import {
-  Disclosure,
-  DisclosurePanel,
-  DisclosureButton,
-  Transition,
-} from "@headlessui/react";
-import { faChevronDown, faGripLines } from "@fortawesome/free-solid-svg-icons";
+import { faGripLines } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { Draggable, DragDropContext, Droppable } from "@hello-pangea/dnd";
