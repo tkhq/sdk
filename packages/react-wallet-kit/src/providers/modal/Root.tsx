@@ -241,6 +241,7 @@ export function ModalRoot(props: ModalRootProps) {
 
                     <a
                       href="https://www.turnkey.com/"
+                      target="_blank"
                       className="flex flex-row items-center justify-center gap-0.5 mt-2 mb-1 text-icon-text-light/50 dark:text-icon-text-dark/50 text-xs no-underline"
                       style={{
                         opacity: current?.content ? 1 : 0,
