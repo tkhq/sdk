@@ -73,17 +73,10 @@ import { UpdateEmail } from "../../components/user/UpdateEmail";
 import { UpdatePhoneNumber } from "../../components/user/UpdatePhoneNumber";
 import { UpdateUserName } from "../../components/user/UpdateUserName";
 import { RemoveOAuthProvider } from "../../components/user/RemoveOAuthProvider";
-import {
-  addEmailContinue,
-  addPhoneNumberContinue,
-  removeOAuthProviderContinue,
-  removePasskeyContinue,
-  updateEmailContinue,
-  updatePhoneNumberContinue,
-} from "../../helpers";
 import { RemovePasskey } from "../../components/user/RemovePasskey";
 import { LinkWalletModal } from "../../components/user/LinkWallet";
 import { ClientContext } from "./Types";
+import { OtpVerification } from "../../components/auth/OTP";
 
 interface ClientProviderProps {
   children: ReactNode;
@@ -1653,6 +1646,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @param hashFunction - Optional hash function to use (defaults to the appropriate function for the account type).
    * @param subText - Optional subtext to display in the modal.
    * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param successPageDuration - Optional duration in seconds to display the success page after signing.
    * @returns A promise that resolves to a `v1SignRawPayloadResult` object containing the signed message.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error during the signing process.
    */
@@ -1663,6 +1657,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       encoding?: v1PayloadEncoding;
       hashFunction?: v1HashFunction;
       subText?: string;
+      successPageDuration?: number | undefined;
     } & DefaultParams,
   ): Promise<v1SignRawPayloadResult> {
     if (!client)
@@ -1681,6 +1676,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 subText={params?.subText}
                 walletAccount={params.walletAccount}
                 stampWith={params.stampWith}
+                successPageDuration={params.successPageDuration}
                 onSuccess={(result) => {
                   resolve(result);
                 }}
@@ -1978,23 +1974,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }
 
   /**
-   * Removes an OAuth provider from the user.
+   * Removes OAuth providers from the user.
    *
-   * - This function removes an OAuth provider (such as Google, Apple, or Facebook) from the user's linked authentication methods.
+   * - This function removes OAuth providers (such as Google, Apple, or Facebook) from the user's linked authentication methods.
    * - Automatically refreshes the user details state variable after removal to ensure the latest provider list is available in the provider.
-   * - If a userId is provided, it removes the provider for that specific user; otherwise, it defaults to the current session's userId.
+   * - If a userId is provided, it removes the providers for that specific user; otherwise, it defaults to the current session's userId.
    * - Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - Can be used as part of modal-driven UI flows or directly in code.
    *
-   * @param providerId - The ID of the OAuth provider to remove (as found in the user's provider list).
-   * @param userId - Optional user ID to remove the provider for a specific user (defaults to the current session's userId).
+   * @param providerIds - The IDs of the OAuth providers to remove (as found in the user's provider list).
+   * @param userId - Optional user ID to remove the providers for a specific user (defaults to the current session's userId).
    * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
-   * @returns A promise that resolves to an array of remaining provider IDs after removal.
+   * @returns A promise that resolves to an array of provider IDs that were removed.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error removing the OAuth provider.
    */
-  async function removeOAuthProvider(
+  async function removeOAuthProviders(
     params: {
-      providerId: string;
+      providerIds: string[];
       userId?: string;
     } & DefaultParams,
   ): Promise<string[]> {
@@ -2004,9 +2000,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     const res = await withTurnkeyErrorHandling(
-      () => client.removeOAuthProvider(params),
+      () => client.removeOAuthProviders(params),
       callbacks,
-      "Failed to remove OAuth provider",
+      "Failed to remove OAuth providers",
     );
     if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
@@ -2053,10 +2049,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }
 
   /**
-   * Removes a passkey (authenticator) for the user.
+   * Removes passkeys (authenticators) for the user.
    *
-   * - This function removes a passkey authenticator from the user's data and automatically refreshes the user details state variable to reflect the change.
-   * - If a userId is provided, it removes the passkey for that specific user; otherwise, it defaults to the current session's userId.
+   * - This function removes passkey authenticators from the user's data and automatically refreshes the user details state variable to reflect the change.
+   * - If a userId is provided, it removes the passkeys for that specific user; otherwise, it defaults to the current session's userId.
    * - Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - After removal, the user details are refreshed to ensure the latest authenticators list is available in the provider.
    * - Can be used as part of modal-driven UI flows or directly in code.
@@ -2064,12 +2060,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @param authenticatorId - The ID of the authenticator (passkey) to remove.
    * @param userId - Optional user ID to remove the passkey for a specific user (defaults to the current session's userId).
    * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
-   * @returns A promise that resolves to an array of remaining authenticator IDs after removal.
+   * @returns A promise that resolves to an array of authenticator IDs that were removed.
    * @throws {TurnkeyError} If the client is not initialized, no session is found, or if there is an error removing the passkey.
    */
-  async function removePasskey(
+  async function removePasskeys(
     params: {
-      authenticatorId: string;
+      authenticatorIds: string[];
       userId?: string;
     } & DefaultParams,
   ): Promise<string[]> {
@@ -2079,9 +2075,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     const res = await withTurnkeyErrorHandling(
-      () => client.removePasskey(params),
+      () => client.removePasskeys(params),
       callbacks,
-      "Failed to remove passkey",
+      "Failed to remove passkeys",
     );
     if (res) await refreshUser({ stampWith: params?.stampWith });
     return res;
@@ -3345,43 +3341,52 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * - Ensures the imported wallet is added to the user's wallet list and the provider state is refreshed.
    *
    * @param defaultWalletAccounts - Optional array of default wallet accounts (v1AddressFormat[] or v1WalletAccountParams[]) to pre-fill the import form.
-   * @param onImportSuccess - Optional callback function to handle successful import (receives the imported walletId).
    * @param successPageDuration - Optional duration (in ms) for the success page after import (default: 0, no success page).
    * @param stampWith - Optional parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
    *
-   * onImportSuccess params:
-   * - walletId: The ID of the wallet that was successfully imported.
-   *
-   * @returns A void promise.
+   * @returns A promise that resolves to the new wallet's ID.
    */
   const handleImport = async (
     params: {
       defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-      onImportSuccess?: (walletId: string) => void;
       successPageDuration?: number | undefined;
     } & DefaultParams,
-  ) => {
-    const {
-      defaultWalletAccounts,
-      onImportSuccess,
-      successPageDuration,
-      stampWith,
-    } = params;
-    pushPage({
-      key: "Import Wallet",
-      content: (
-        <ImportComponent
-          {...(defaultWalletAccounts !== undefined
-            ? { defaultWalletAccounts }
-            : {})}
-          {...(onImportSuccess !== undefined ? { onImportSuccess } : {})}
-          {...(successPageDuration !== undefined
-            ? { successPageDuration }
-            : {})}
-          {...(stampWith !== undefined ? { stampWith } : {})}
-        />
-      ),
-    });
+  ): Promise<string> => {
+    const { defaultWalletAccounts, successPageDuration, stampWith } = params;
+    try {
+      return withTurnkeyErrorHandling(
+        () =>
+          new Promise<string>((resolve, reject) =>
+            pushPage({
+              key: "Import Wallet",
+              content: (
+                <ImportComponent
+                  onError={(error) => {
+                    reject(error);
+                  }}
+                  onSuccess={(walletId) => resolve(walletId)}
+                  {...(defaultWalletAccounts !== undefined && {
+                    defaultWalletAccounts,
+                  })}
+                  {...(successPageDuration !== undefined && {
+                    successPageDuration,
+                  })}
+                  {...(stampWith !== undefined && { stampWith })}
+                />
+              ),
+            }),
+          ),
+      );
+    } catch (error) {
+      if (error instanceof TurnkeyError) {
+        throw error;
+      }
+      throw new TurnkeyError(
+        "Failed to import wallet.",
+        TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+        error,
+      );
+    }
   };
 
   /**
@@ -3392,21 +3397,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * - Uses updateUserName under the hood to perform the update and automatically refreshes the user details state after a successful update.
    * - Optionally displays a success page after the update, with customizable duration.
    * - Supports passing a custom title and subtitle for the modal UI.
-   * - Allows specifying a callback to handle successful update, which receives the updated userId.
    * - Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes.
    *
    * @param userName - Optional parameter to specify the new user name.
    * @param title - Optional title for the modal.
    * @param subTitle - Optional subtitle for the modal.
-   * @param onSuccess - Optional callback function to handle successful update (receives the updated userId).
    * @param successPageDuration - Optional duration (in ms) for the success page after update (default: 0, no success page).
    * @param stampWith - Optional parameter to specify the stamper to use for the update (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * onSuccess params:
-   * - userId: The ID of the user whose name was successfully updated.
-   *
-   * @returns A void promise.
+   * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error updating the user name.
    */
   const handleUpdateUserName = async (
@@ -3414,17 +3414,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       userName?: string;
       title?: string;
       subTitle?: string;
-      onSuccess?: (userId: string) => void;
       successPageDuration?: number | undefined;
     } & DefaultParams,
-  ) => {
-    const {
-      onSuccess = undefined,
-      successPageDuration,
-      subTitle,
-      title,
-      stampWith,
-    } = params || {};
+  ): Promise<string> => {
+    const { successPageDuration, subTitle, title, stampWith } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -3439,67 +3432,57 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
 
-    const onContinue = async (userName: string) => {
-      if (!userName || userName === "") {
-        throw new TurnkeyError(
-          "User name is required for verification.",
-          TurnkeyErrorCodes.MISSING_PARAMS,
-        );
-      }
-      const res = await updateUserName({
-        userName,
-        userId: session.userId,
-        stampWith,
+    const onSuccess = () => {
+      if (!successPageDuration) return;
+      pushPage({
+        key: "success",
+        content: (
+          <SuccessPage
+            text="User name changed successfully!"
+            duration={successPageDuration}
+            onComplete={() => {
+              closeModal();
+            }}
+          />
+        ),
+        preventBack: true,
+        showTitle: false,
       });
-
-      if (res) {
-        if (onSuccess) {
-          onSuccess(res);
-        } else {
-          if (successPageDuration && successPageDuration !== 0) {
-            pushPage({
-              key: "success",
-              content: (
-                <SuccessPage
-                  text="User Name Changed Successfully!"
-                  duration={successPageDuration}
-                  onComplete={() => {
-                    closeModal();
-                  }}
-                />
-              ),
-              preventBack: true,
-              showTitle: false,
-            });
-          } else {
-            closeModal();
-          }
-        }
-        await refreshUser({ stampWith });
-      } else {
-        closeModal();
-        throw new TurnkeyError(
-          "Failed to update user name.",
-          TurnkeyErrorCodes.UPDATE_USER_NAME_ERROR,
-        );
-      }
     };
 
     try {
       if (!params?.userName && params?.userName !== "") {
-        pushPage({
-          key: "Update User Name",
-          content: (
-            <UpdateUserName
-              onContinue={onContinue}
-              {...(title !== undefined ? { title } : {})}
-              {...(subTitle !== undefined ? { subTitle } : {})}
-            />
-          ),
-          showTitle: false,
-        });
+        return withTurnkeyErrorHandling(
+          () =>
+            new Promise((resolve, reject) => {
+              pushPage({
+                key: "Update User Name",
+                content: (
+                  <UpdateUserName
+                    onSuccess={(userId) => {
+                      resolve(userId);
+                    }}
+                    onError={(error) => {
+                      reject(error);
+                    }}
+                    successPageDuration={successPageDuration}
+                    stampWith={stampWith}
+                    {...(title !== undefined ? { title } : {})}
+                    {...(subTitle !== undefined ? { subTitle } : {})}
+                  />
+                ),
+                showTitle: false,
+              });
+            }),
+        );
       } else {
-        onContinue(params?.userName);
+        const res = await updateUserName({
+          userName: params.userName!,
+          userId: user!.userId,
+          stampWith,
+        });
+        onSuccess();
+        return res;
       }
     } catch (error) {
       if (error instanceof TurnkeyError) {
@@ -3521,7 +3504,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * - Supports both manual entry and pre-filled phone numbers, as well as custom modal titles and subtitles.
    * - Uses the updatePhoneNumberContinue helper to manage the OTP flow, verification, and update logic.
    * - After successful verification and update, the user details state is refreshed and an optional success page can be shown.
-   * - Allows specifying a callback to handle successful update, which receives the updated userId.
    * - Supports customizing the duration of the success page after update.
    * - Throws a TurnkeyError if the client is not initialized, no active session is found, SMS OTP is not enabled, or if there is an error updating the phone number.
    *
@@ -3529,13 +3511,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @param formattedPhone - Optional parameter to specify the formatted phone number.
    * @param title - Optional title for the modal.
    * @param subTitle - Optional subtitle for the modal.
-   * @param onSuccess - Optional callback function to handle successful update (default: no-op).
    * @param successPageDuration - Optional duration for the success page (default: 0, no success page).
    *
-   * onSuccess params:
-   * - userId: The ID of the user whose phone number was successfully updated.
-   *
-   * @returns A void promise.
+   * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, SMS OTP is not enabled, or if there is an error updating the phone number.
    */
   const handleUpdateUserPhoneNumber = async (params?: {
@@ -3543,15 +3521,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     formattedPhone?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined;
-  }) => {
-    const {
-      onSuccess = undefined,
-      successPageDuration,
-      subTitle,
-      title,
-    } = params || {};
+  }): Promise<string> => {
+    const { successPageDuration, subTitle, title } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -3580,45 +3552,93 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
 
+    const onSuccess = () => {
+      if (!successPageDuration) return;
+      pushPage({
+        key: "success",
+        content: (
+          <SuccessPage
+            text="Phone number changed successfully!"
+            duration={successPageDuration}
+            onComplete={() => {
+              closeModal();
+            }}
+          />
+        ),
+        preventBack: true,
+        showTitle: false,
+      });
+    };
+
     try {
       if (!params?.phoneNumber && params?.phoneNumber !== "") {
-        pushPage({
-          key: "Update Phone Number",
-          content: (
-            <UpdatePhoneNumber
-              onContinue={(phone: string, formattedPhone: string) =>
-                updatePhoneNumberContinue({
-                  phone,
-                  formattedPhone,
-                  onSuccess,
-                  successPageDuration,
-                  initOtp,
-                  verifyOtp,
-                  updateUserPhoneNumber,
-                  pushPage,
-                  closeModal,
-                  session,
-                })
-              }
-              {...(title !== undefined ? { title } : {})}
-              {...(subTitle !== undefined ? { subTitle } : {})}
-            />
-          ),
-          showTitle: false,
-        });
+        return withTurnkeyErrorHandling(
+          () =>
+            new Promise((resolve, reject) => {
+              pushPage({
+                key: "Update Phone Number",
+                content: (
+                  <UpdatePhoneNumber
+                    successPageDuration={successPageDuration}
+                    onSuccess={(userId: string) => resolve(userId)}
+                    onError={(error) => reject(error)}
+                    {...(title !== undefined ? { title } : {})}
+                    {...(subTitle !== undefined ? { subTitle } : {})}
+                  />
+                ),
+                showTitle: false,
+              });
+            }),
+        );
       } else {
-        updatePhoneNumberContinue({
-          phone: params?.phoneNumber,
-          formattedPhone: params?.formattedPhone || params?.phoneNumber,
-          onSuccess,
-          successPageDuration,
-          initOtp,
-          verifyOtp,
-          updateUserPhoneNumber,
-          pushPage,
-          closeModal,
-          session,
+        const otpId = await initOtp({
+          otpType: OtpType.Sms,
+          contact: params.phoneNumber,
         });
+        return withTurnkeyErrorHandling(
+          () =>
+            new Promise((resolve, reject) => {
+              pushPage({
+                key: "Update Phone Number",
+                content: (
+                  <OtpVerification
+                    otpType={OtpType.Sms}
+                    contact={params.phoneNumber!}
+                    otpId={otpId}
+                    onContinue={async (otpCode: string) => {
+                      try {
+                        const { verificationToken } = await verifyOtp({
+                          otpId,
+                          otpCode,
+                          contact: params.phoneNumber!,
+                          otpType: OtpType.Sms,
+                        });
+                        const res = await updateUserPhoneNumber({
+                          phoneNumber: params.phoneNumber!,
+                          verificationToken,
+                          userId: user!.userId,
+                        });
+                        onSuccess();
+                        resolve(res);
+                      } catch (error) {
+                        reject(error);
+                      }
+                    }}
+                    {...(!user?.userPhoneNumber && {
+                      title: title ?? "Connect a phone number",
+                    })}
+                    {...(subTitle !== undefined && { subTitle })}
+                    {...(params!.formattedPhone && {
+                      formattedPhone: params.formattedPhone,
+                    })}
+                  />
+                ),
+                showTitle: false,
+              });
+            }),
+          callbacks,
+          "Failed to update phone number",
+        );
       }
     } catch (error) {
       if (error instanceof TurnkeyError) {
@@ -3640,35 +3660,24 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * - Supports both manual entry and pre-filled email addresses, as well as custom modal titles and subtitles.
    * - Uses the updateEmailContinue helper to manage the OTP flow, verification, and update logic.
    * - After successful verification and update, the user details state is refreshed and an optional success page can be shown.
-   * - Allows specifying a callback to handle successful update, which receives the updated userId.
    * - Supports customizing the duration of the success page after update.
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes.
    *
    * @param email - Optional parameter to specify the new email address.
    * @param title - Optional title for the modal.
    * @param subTitle - Optional subtitle for the modal.
-   * @param onSuccess - Optional callback function to handle successful update (default: no-op).
    * @param successPageDuration - Optional duration (in ms) for the success page after update (default: 0, no success page).
    *
-   * onSuccess params:
-   * - userId: The ID of the user whose email was successfully updated.
-   *
-   * @returns A void promise.
+   * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error updating the email.
    */
   const handleUpdateUserEmail = async (params?: {
     email?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined;
-  }) => {
-    const {
-      onSuccess = undefined,
-      successPageDuration,
-      subTitle,
-      title,
-    } = params || {};
+  }): Promise<string> => {
+    const { successPageDuration, subTitle, title } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -3683,43 +3692,92 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
 
+    const onSuccess = () => {
+      if (!successPageDuration) return;
+      pushPage({
+        key: "success",
+        content: (
+          <SuccessPage
+            text="Email changed successfully!"
+            duration={successPageDuration}
+            onComplete={() => {
+              closeModal();
+            }}
+          />
+        ),
+        preventBack: true,
+        showTitle: false,
+      });
+    };
+
     try {
       if (!params?.email && params?.email !== "") {
-        pushPage({
-          key: "Update Email",
-          content: (
-            <UpdateEmail
-              onContinue={(emailInput: string) =>
-                updateEmailContinue({
-                  email: emailInput,
-                  onSuccess,
-                  successPageDuration,
-                  initOtp,
-                  verifyOtp,
-                  updateUserEmail,
-                  pushPage,
-                  closeModal,
-                  session,
-                })
-              }
-              {...(title !== undefined ? { title } : {})}
-              {...(subTitle !== undefined ? { subTitle } : {})}
-            />
-          ),
-          showTitle: false,
-        });
+        return withTurnkeyErrorHandling(
+          () =>
+            new Promise((resolve, reject) => {
+              pushPage({
+                key: "Update Email",
+                content: (
+                  <UpdateEmail
+                    successPageDuration={successPageDuration}
+                    onSuccess={(userId: string) => {
+                      resolve(userId);
+                    }}
+                    onError={(error) => reject(error)}
+                    {...(title !== undefined ? { title } : {})}
+                    {...(subTitle !== undefined ? { subTitle } : {})}
+                  />
+                ),
+                showTitle: false,
+              });
+            }),
+        );
       } else {
-        updateEmailContinue({
-          email: params.email,
-          onSuccess,
-          successPageDuration,
-          initOtp,
-          verifyOtp,
-          updateUserEmail,
-          pushPage,
-          closeModal,
-          session,
+        const otpId = await initOtp({
+          otpType: OtpType.Email,
+          contact: params.email,
         });
+        return withTurnkeyErrorHandling(
+          () =>
+            new Promise((resolve, reject) => {
+              pushPage({
+                key: "Update Email",
+                content: (
+                  <OtpVerification
+                    otpType={OtpType.Email}
+                    contact={params.email!}
+                    otpId={otpId}
+                    onContinue={async (otpCode: string) => {
+                      try {
+                        const { verificationToken } = await verifyOtp({
+                          otpId,
+                          otpCode,
+                          contact: params.email!,
+                          otpType: OtpType.Email,
+                        });
+                        const res = await updateUserEmail({
+                          email: params.email!,
+                          verificationToken,
+                          userId: user!.userId,
+                        });
+                        onSuccess();
+                        resolve(res);
+                      } catch (error) {
+                        reject(error);
+                      }
+                    }}
+                    {...(!user?.userEmail && {
+                      title: title ?? "Connect an email",
+                    })}
+                    {...(subTitle !== undefined && { subTitle })}
+                  />
+                ),
+                showTitle: false,
+              });
+            }),
+          callbacks,
+          "Failed to update email",
+        );
       }
     } catch (error) {
       if (error instanceof TurnkeyError) {
@@ -3741,35 +3799,24 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * - Supports both manual entry and pre-filled email addresses, as well as custom modal titles and subtitles.
    * - Uses the addEmailContinue helper to manage the OTP flow, verification, and update logic.
    * - After successful verification and update, the user details state is refreshed and an optional success page can be shown.
-   * - Allows specifying a callback to handle successful update, which receives the updated userId.
    * - Supports customizing the duration of the success page after update.
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes.
    *
    * @param email - Optional parameter to specify the new email address.
    * @param title - Optional title for the modal (defaults to "Connect an email" if the user does not have an email).
    * @param subTitle - Optional subtitle for the modal.
-   * @param onSuccess - Optional callback function to handle successful update (default: no-op).
    * @param successPageDuration - Optional duration (in ms) for the success page after update (default: 0, no success page).
    *
-   * onSuccess params:
-   * - userId: The ID of the user whose email was successfully added.
-   *
-   * @returns A void promise.
+   * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the email.
    */
   const handleAddEmail = async (params?: {
     email?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined;
-  }) => {
-    const {
-      onSuccess = undefined,
-      successPageDuration,
-      subTitle,
-      title,
-    } = params || {};
+  }): Promise<string> => {
+    const { successPageDuration, subTitle, title } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -3784,45 +3831,94 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
 
+    const onSuccess = () => {
+      if (!successPageDuration) return;
+      pushPage({
+        key: "success",
+        content: (
+          <SuccessPage
+            text="Email added successfully!"
+            duration={successPageDuration}
+            onComplete={() => {
+              closeModal();
+            }}
+          />
+        ),
+        preventBack: true,
+        showTitle: false,
+      });
+    };
+
     try {
       if (!params?.email && params?.email !== "") {
-        pushPage({
-          key: "Add Email",
-          content: (
-            <UpdateEmail
-              onContinue={async (emailInput: string) => {
-                await addEmailContinue({
-                  email: emailInput,
-                  onSuccess,
-                  successPageDuration,
-                  initOtp,
-                  verifyOtp,
-                  updateUserEmail,
-                  pushPage,
-                  closeModal,
-                  session,
-                });
-              }}
-              {...(!user?.userEmail
-                ? { title: title ?? "Connect an email" }
-                : {})}
-              {...(subTitle !== undefined ? { subTitle } : {})}
-            />
-          ),
-          showTitle: false,
-        });
+        return withTurnkeyErrorHandling(
+          () =>
+            new Promise((resolve, reject) => {
+              pushPage({
+                key: "Add Email",
+                content: (
+                  <UpdateEmail
+                    successPageDuration={successPageDuration}
+                    onSuccess={(userId: string) => {
+                      resolve(userId);
+                    }}
+                    onError={(error) => reject(error)}
+                    {...(!user?.userEmail
+                      ? { title: title ?? "Connect an email" }
+                      : {})}
+                    {...(subTitle !== undefined ? { subTitle } : {})}
+                  />
+                ),
+                showTitle: false,
+              });
+            }),
+        );
       } else {
-        await addEmailContinue({
-          email: params.email,
-          onSuccess,
-          successPageDuration,
-          initOtp,
-          verifyOtp,
-          updateUserEmail,
-          pushPage,
-          closeModal,
-          session,
+        const otpId = await initOtp({
+          otpType: OtpType.Email,
+          contact: params.email,
         });
+        return withTurnkeyErrorHandling(
+          () =>
+            new Promise((resolve, reject) => {
+              pushPage({
+                key: "Add Email",
+                content: (
+                  <OtpVerification
+                    otpType={OtpType.Email}
+                    contact={params.email!}
+                    otpId={otpId}
+                    onContinue={async (otpCode: string) => {
+                      try {
+                        const { verificationToken } = await verifyOtp({
+                          otpId,
+                          otpCode,
+                          contact: params.email!,
+                          otpType: OtpType.Email,
+                        });
+                        const res = await updateUserEmail({
+                          email: params.email!,
+                          verificationToken,
+                          userId: user!.userId,
+                        });
+                        onSuccess();
+                        resolve(res);
+                      } catch (error) {
+                        reject(error);
+                      }
+                    }}
+                    {...(!user?.userEmail && {
+                      title: title ?? "Connect an email",
+                    })}
+                    {...(subTitle !== undefined && { subTitle })}
+                  />
+                ),
+                showTitle: false,
+              });
+            }),
+          callbacks,
+          "Failed to add email",
+        );
       }
     } catch (error) {
       if (error instanceof TurnkeyError) {
@@ -3844,7 +3940,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * - Supports both manual entry and pre-filled phone numbers, as well as custom modal titles and subtitles.
    * - Uses the addPhoneNumberContinue helper to manage the OTP flow, verification, and update logic.
    * - After successful verification and update, the user details state is refreshed and an optional success page can be shown.
-   * - Allows specifying a callback to handle successful update, which receives the updated userId.
    * - Supports customizing the duration of the success page after update.
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes.
    *
@@ -3852,13 +3947,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @param formattedPhone - Optional parameter to specify the formatted phone number.
    * @param title - Optional title for the modal.
    * @param subTitle - Optional subtitle for the modal.
-   * @param onSuccess - Optional callback function to handle successful update (default: no-op).
    * @param successPageDuration - Optional duration (in ms) for the success page after update (default: 0, no success page).
    *
-   * onSuccess params:
-   * - userId: The ID of the user whose phone number was successfully added.
-   *
-   * @returns A void promise.
+   * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the phone number.
    */
   const handleAddPhoneNumber = async (params?: {
@@ -3866,15 +3957,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     formattedPhone?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined;
-  }) => {
-    const {
-      onSuccess = undefined,
-      successPageDuration,
-      subTitle,
-      title,
-    } = params || {};
+  }): Promise<string> => {
+    const { successPageDuration, subTitle, title } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -3888,48 +3973,115 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.NO_SESSION_FOUND,
       );
     }
+    if (!masterConfig) {
+      throw new TurnkeyError(
+        "Config is not ready yet!",
+        TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
+      );
+    }
+
+    if (!masterConfig.auth?.methods?.smsOtpAuthEnabled) {
+      throw new TurnkeyError(
+        "SMS OTP authentication is not enabled in the configuration.",
+        TurnkeyErrorCodes.AUTH_METHOD_NOT_ENABLED,
+      );
+    }
+
+    const onSuccess = () => {
+      if (!successPageDuration) return;
+      pushPage({
+        key: "success",
+        content: (
+          <SuccessPage
+            text="Phone number updated successfully!"
+            duration={successPageDuration}
+            onComplete={() => {
+              closeModal();
+            }}
+          />
+        ),
+        preventBack: true,
+        showTitle: false,
+      });
+    };
 
     try {
       if (!params?.phoneNumber && params?.phoneNumber !== "") {
-        pushPage({
-          key: "Add Phone Number",
-          content: (
-            <UpdatePhoneNumber
-              onContinue={(phone: string, formattedPhone: string) =>
-                addPhoneNumberContinue({
-                  phone,
-                  formattedPhone,
-                  onSuccess,
-                  successPageDuration,
-                  initOtp,
-                  verifyOtp,
-                  updateUserPhoneNumber,
-                  pushPage,
-                  closeModal,
-                  session,
-                })
-              }
-              {...(!user?.userPhoneNumber
-                ? { title: title ?? "Connect a phone number" }
-                : {})}
-              {...(subTitle !== undefined ? { subTitle } : {})}
-            />
-          ),
-          showTitle: false,
-        });
+        return withTurnkeyErrorHandling(
+          () =>
+            new Promise((resolve, reject) => {
+              pushPage({
+                key: "Add Phone Number",
+                content: (
+                  <UpdatePhoneNumber
+                    successPageDuration={successPageDuration}
+                    onSuccess={(userId: string) => {
+                      resolve(userId);
+                    }}
+                    onError={(error) => {
+                      reject(error);
+                    }}
+                    {...(!user?.userPhoneNumber && {
+                      title: title ?? "Connect a phone number",
+                    })}
+                    {...(subTitle !== undefined && { subTitle })}
+                  />
+                ),
+                showTitle: false,
+              });
+            }),
+          callbacks,
+          "Failed to add phone number",
+        );
       } else {
-        addPhoneNumberContinue({
-          phone: params.phoneNumber,
-          formattedPhone: params?.formattedPhone || params.phoneNumber,
-          onSuccess,
-          successPageDuration,
-          initOtp,
-          verifyOtp,
-          updateUserPhoneNumber,
-          pushPage,
-          closeModal,
-          session,
+        const otpId = await initOtp({
+          otpType: OtpType.Sms,
+          contact: params.phoneNumber,
         });
+        return withTurnkeyErrorHandling(
+          () =>
+            new Promise((resolve, reject) => {
+              pushPage({
+                key: "Add Phone Number",
+                content: (
+                  <OtpVerification
+                    otpType={OtpType.Sms}
+                    contact={params.phoneNumber!}
+                    otpId={otpId}
+                    onContinue={async (otpCode: string) => {
+                      try {
+                        const { verificationToken } = await verifyOtp({
+                          otpId,
+                          otpCode,
+                          contact: params.phoneNumber!,
+                          otpType: OtpType.Sms,
+                        });
+                        const res = await updateUserPhoneNumber({
+                          phoneNumber: params.phoneNumber!,
+                          verificationToken,
+                          userId: user!.userId,
+                        });
+                        onSuccess();
+                        resolve(res);
+                      } catch (error) {
+                        reject(error);
+                      }
+                    }}
+                    {...(!user?.userPhoneNumber && {
+                      title: title ?? "Connect a phone number",
+                    })}
+                    {...(subTitle !== undefined && { subTitle })}
+                    {...(params!.formattedPhone && {
+                      formattedPhone: params.formattedPhone,
+                    })}
+                  />
+                ),
+                showTitle: false,
+              });
+            }),
+          callbacks,
+          "Failed to add phone number",
+        );
       }
     } catch (error) {
       if (error instanceof TurnkeyError) {
@@ -3949,40 +4101,36 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * - This function opens a modal with the RemovePasskey component, allowing the user to confirm and remove a passkey authenticator from their account.
    * - It supports specifying the authenticator ID to remove, as well as optional modal title and subtitle for custom UI messaging.
    * - After successful removal, the user details state is refreshed to reflect the updated list of authenticators.
-   * - Optionally, a callback can be provided to handle successful removal, receiving the updated list of authenticator IDs.
    * - Supports customizing the duration of the success page shown after removal.
    * - Allows specifying the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes.
    *
    * @param authenticatorId - The ID of the authenticator (passkey) to remove.
+   * @param userId - Optional user ID to remove the passkey for a specific user (defaults to current session's userId).
    * @param title - Optional title for the modal.
    * @param subTitle - Optional subtitle for the modal.
-   * @param onSuccess - Optional callback function to handle successful removal (receives the updated list of authenticator IDs).
    * @param successPageDuration - Optional duration (in ms) for the success page after removal (default: 0, no success page).
    * @param stampWith - Optional parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * onSuccess params:
-   * - authenticatorIds: The list of authenticator IDs remaining after the removal.
-   *
-   * @returns A void promise.
+   * @returns A promise that resolves to an array of authenticator IDs that were removed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error removing the passkey.
    */
   const handleRemovePasskey = async (
     params: {
       authenticatorId: string;
+      userId?: string;
       title?: string;
       subTitle?: string;
-      onSuccess?: (authenticatorIds: string[]) => void;
       successPageDuration?: number | undefined;
     } & DefaultParams,
-  ) => {
+  ): Promise<string[]> => {
     const {
       authenticatorId,
       successPageDuration,
-      onSuccess = undefined,
       subTitle,
       title,
       stampWith,
+      userId,
     } = params;
 
     if (!client)
@@ -3996,40 +4144,34 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.NO_SESSION_FOUND,
       );
     }
-    try {
-      pushPage({
-        key: "Remove Passkey",
-        content: (
-          <RemovePasskey
-            authenticatorId={authenticatorId}
-            onContinue={async () => {
-              removePasskeyContinue({
-                authenticatorId,
-                onSuccess,
-                successPageDuration,
-                pushPage,
-                closeModal,
-                session,
-                removePasskey,
-                stampWith,
-              });
-            }}
-            {...(title !== undefined ? { title } : {})}
-            {...(subTitle !== undefined ? { subTitle } : {})}
-          />
-        ),
-        showTitle: false,
-      });
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
-      }
-      throw new TurnkeyError(
-        "Failed to remove passkey in handler.",
-        TurnkeyErrorCodes.REMOVE_PASSKEY_ERROR,
-        error,
-      );
-    }
+    return withTurnkeyErrorHandling(
+      () =>
+        new Promise((resolve, reject) => {
+          pushPage({
+            key: "Remove Passkey",
+            content: (
+              <RemovePasskey
+                authenticatorId={authenticatorId}
+                successPageDuration={successPageDuration}
+                onSuccess={(authenticatorIds: string[]) => {
+                  resolve(authenticatorIds);
+                }}
+                onError={(error) => {
+                  reject(error);
+                }}
+                stampWith={stampWith}
+                {...(userId && { userId })}
+                {...(title !== undefined && { title })}
+                {...(subTitle !== undefined && { subTitle })}
+              />
+            ),
+            showTitle: false,
+            preventBack: true,
+          });
+        }),
+      callbacks,
+      "Failed to remove passkey",
+    );
   };
 
   /**
@@ -4039,7 +4181,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * - If a `name` or `displayName` is provided, those will be used for the passkey metadata; otherwise, defaults are generated based on the website and timestamp.
    * - The passkey is created and linked to the specified user (by `userId`) or the current session's user if not provided.
    * - After successful addition, a success page is shown for the specified duration (or skipped if `successPageDuration` is 0).
-   * - Optionally, an `onSuccess` callback is called with the updated list of authenticator IDs after the passkey is added.
    * - Supports stamping the request with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`) for granular authentication control.
    * - Automatically refreshes the user details state after successful addition to ensure the latest authenticators list is available in the provider.
    * - Handles all error cases and throws a `TurnkeyError` with appropriate error codes.
@@ -4047,14 +4188,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @param name - Optional internal name for the passkey (for backend or developer reference).
    * @param displayName - Optional display name for the passkey (shown to the user in the UI).
    * @param userId - Optional user ID to add the passkey for a specific user (defaults to current session's userId).
-   * @param onSuccess - Optional callback function to handle successful addition (receives the updated list of authenticator IDs).
    * @param successPageDuration - Optional duration (in ms) for the success page after addition (default: 0, no success page).
    * @param stampWith - Optional parameter to stamp the request with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
    *
-   * onSuccess params:
-   * - authenticatorIds: The list of authenticator IDs after the passkey is added.
-   *
-   * @returns A void promise.
+   * @returns A promise that resolves to the user's updated passkeys.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the passkey.
    */
   const handleAddPasskey = async (
@@ -4062,17 +4199,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       name?: string;
       displayName?: string;
       userId?: string;
-      onSuccess?: (authenticatorIds: string[]) => void;
       successPageDuration?: number | undefined;
     } & DefaultParams,
-  ): Promise<void> => {
-    const {
-      name,
-      displayName,
-      onSuccess = undefined,
-      successPageDuration,
-      stampWith,
-    } = params || {};
+  ): Promise<string[]> => {
+    const { name, displayName, successPageDuration, stampWith } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -4098,7 +4228,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to create passkey",
       );
-      resPromise.then((res) => {
+      resPromise.then(() => {
         pushPage({
           key: "Passkey Added",
           content: (
@@ -4107,18 +4237,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               duration={successPageDuration}
               onComplete={() => {
                 closeModal();
-                if (onSuccess) {
-                  onSuccess(res);
-                }
               }}
             />
           ),
           preventBack: true,
           showTitle: false,
         });
-        refreshUser({ stampWith });
       });
-      await resPromise;
+      return await resPromise;
     } catch (error) {
       if (error instanceof TurnkeyError) {
         throw error;
@@ -4145,14 +4271,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @param providerId - The ID of the OAuth provider to remove (as found in the user's provider list).
    * @param title - Optional title for the modal.
    * @param subTitle - Optional subtitle for the modal.
-   * @param onSuccess - Optional callback function to handle successful removal (receives the updated list of provider IDs).
    * @param successPageDuration - Optional duration (in ms) for the success page after removal (default: 0, no success page).
    * @param stampWith - Optional parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * onSuccess params:
-   * - providerIds: The list of provider IDs remaining after the removal.
-   *
-   * @returns A void promise.
+   * @returns A promise that resolves to an array of provider IDs that were removed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error removing the provider.
    */
   const handleRemoveOAuthProvider = async (
@@ -4160,18 +4282,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       providerId: string;
       title?: string;
       subTitle?: string;
-      onSuccess?: (providerIds: string[]) => void;
       successPageDuration?: number | undefined;
     } & DefaultParams,
-  ) => {
-    const {
-      providerId,
-      onSuccess = undefined,
-      successPageDuration,
-      subTitle,
-      title,
-      stampWith,
-    } = params;
+  ): Promise<string[]> => {
+    const { providerId, successPageDuration, subTitle, title, stampWith } =
+      params;
 
     if (!client)
       throw new TurnkeyError(
@@ -4185,28 +4300,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
     try {
-      pushPage({
-        key: "Remove OAuth Provider",
-        content: (
-          <RemoveOAuthProvider
-            providerId={providerId}
-            onContinue={async () => {
-              removeOAuthProviderContinue({
-                providerId,
-                onSuccess,
-                successPageDuration,
-                pushPage,
-                closeModal,
-                session,
-                removeOAuthProvider,
-                stampWith,
-              });
-            }}
-            {...(title !== undefined ? { title } : {})}
-            {...(subTitle !== undefined ? { subTitle } : {})}
-          />
-        ),
-        showTitle: false,
+      return new Promise((resolve, reject) => {
+        pushPage({
+          key: "Remove OAuth Provider",
+          content: (
+            <RemoveOAuthProvider
+              providerId={providerId}
+              stampWith={stampWith}
+              successPageDuration={successPageDuration}
+              onSuccess={(providerIds) => {
+                resolve(providerIds);
+              }}
+              onError={(error) => {
+                reject(error);
+              }}
+              {...(title !== undefined && { title })}
+              {...(subTitle !== undefined && { subTitle })}
+            />
+          ),
+          showTitle: false,
+          preventBack: true,
+        });
       });
     } catch (error) {
       if (error instanceof TurnkeyError) {
@@ -4284,8 +4398,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         preventBack: true,
         showTitle: false,
       });
-
-      await refreshUser({ stampWith });
     };
 
     switch (providerName) {
@@ -4405,9 +4517,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         removeUserPhoneNumber,
         updateUserName,
         addOAuthProvider,
-        removeOAuthProvider,
+        removeOAuthProviders,
         addPasskey,
-        removePasskey,
+        removePasskeys,
         createWallet,
         createWalletAccounts,
         exportWallet,

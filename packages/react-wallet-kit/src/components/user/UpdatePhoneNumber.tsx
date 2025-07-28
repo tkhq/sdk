@@ -6,29 +6,90 @@ import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
 import { PhoneInputBox } from "../design/Inputs";
 import clsx from "clsx";
+import { OtpType } from "@utils";
+import { OtpVerification } from "../auth/OTP";
+import { SuccessPage } from "../design/Success";
 
 export function UpdatePhoneNumber(params: {
-  onContinue?: (phone: string, formattedPhone: string) => Promise<void>;
+  successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  onSuccess: (userId: string) => void;
+  onError: (error: any) => void;
   title?: string;
   subTitle?: string;
 }) {
-  const { user } = useTurnkey();
-  const { isMobile } = useModal();
+  const { user, initOtp, verifyOtp, updateUserPhoneNumber } = useTurnkey();
+  const { isMobile, pushPage, closeModal } = useModal();
   const phone = user?.userPhoneNumber || "";
   const [phoneInput, setPhoneInput] = useState(phone);
   const [loading, setLoading] = useState(false);
   const [isValid, setIsValid] = useState(false);
   const [formattedPhone, setFormattedPhone] = useState("");
 
+  const { onSuccess, onError, successPageDuration } = params;
+
   const handleContinue = async () => {
-    if (isValid && params.onContinue) {
-      setLoading(true);
+    if (isValid) {
       try {
-        await Promise.resolve(params.onContinue(phoneInput, formattedPhone));
+        const otpId = await initOtp({
+          otpType: OtpType.Sms,
+          contact: phoneInput,
+        });
+        pushPage({
+          key: "Verify OTP",
+          content: (
+            <OtpVerification
+              contact={phoneInput}
+              {...(formattedPhone && { formattedPhone })}
+              otpId={otpId}
+              otpType={OtpType.Sms}
+              onContinue={async (otpCode: string) => {
+                const { verificationToken } = await verifyOtp({
+                  otpId,
+                  otpCode,
+                  contact: phoneInput,
+                  otpType: OtpType.Sms,
+                });
+                const res = await updateUserPhoneNumber({
+                  phoneNumber: phoneInput,
+                  verificationToken,
+                  userId: user!.userId,
+                });
+                handleSuccess(res);
+              }}
+            />
+          ),
+          showTitle: false,
+        });
+      } catch (error) {
+        onError(error);
       } finally {
         setLoading(false);
       }
     }
+  };
+
+  const handleSuccess = (res: string) => {
+    onSuccess(res);
+
+    if (!successPageDuration) {
+      closeModal();
+      return;
+    }
+
+    pushPage({
+      key: "success",
+      content: (
+        <SuccessPage
+          text="Phone number updated successfully!"
+          duration={successPageDuration}
+          onComplete={() => {
+            closeModal();
+          }}
+        />
+      ),
+      preventBack: true,
+      showTitle: false,
+    });
   };
 
   return (
