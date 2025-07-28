@@ -1,9 +1,9 @@
-import type { WalletProvider } from "@turnkey/wallet-stamper";
 import { ExternalWalletSelector, UnlinkWalletScreen } from "../auth/Wallet";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ActionPage } from "../auth/Action";
 import { SuccessPage } from "../design/Success";
+import type { WalletProvider } from "@turnkey/sdk-js";
 
 interface LinkWalletModalProps {
   providers: WalletProvider[];

@@ -31,7 +31,6 @@
     "@turnkey/iframe-stamper": "workspace:^",
     "@turnkey/sdk-js": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
-    "@turnkey/wallet-stamper": "workspace:*",
     "clsx": "^2.1.1",
     "libphonenumber-js": "^1.11.14",
     "react-international-phone": "^4.3.0"
