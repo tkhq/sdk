@@ -14,7 +14,12 @@ import {
   TurnkeyErrorCodes,
   v1SignRawPayloadResult,
 } from "@turnkey/sdk-types";
-import type { CreateSubOrgParams } from "@types";
+import {
+  WalletType,
+  type CreateSubOrgParams,
+  SignIntent,
+  type WalletProvider,
+} from "@types";
 import { keccak256 } from "ethers";
 // Import all defaultAccountAtIndex functions for each address format
 import {
@@ -54,14 +59,10 @@ import {
 } from "./turnkey-helpers";
 import { fromDerSignature } from "@turnkey/crypto";
 import {
+  decodeBase64urlToString,
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
-import {
-  SignIntent,
-  WalletProvider,
-  WalletType,
-} from "@turnkey/wallet-stamper";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -640,4 +641,31 @@ export function buildSignUpBody(params: {
       },
     }),
   };
+}
+
+/**
+ * Extracts the public key from a Turnkey stamp header value.
+ * @param stampHeaderValue - The base64url encoded stamp header value
+ * @returns The public key as a hex string
+ */
+export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
+  try {
+    // we decode the base64url string to get the JSON stamp
+    const stampJson = decodeBase64urlToString(stampHeaderValue);
+
+    // we parse the JSON to get the stamp object
+    const stamp = JSON.parse(stampJson) as {
+      publicKey: string;
+      scheme: string;
+      signature: string;
+    };
+
+    return stamp.publicKey;
+  } catch (error) {
+    throw new Error(
+      `Failed to extract public key from stamp header: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
 }

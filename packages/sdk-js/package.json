@@ -27,14 +27,17 @@
     "@turnkey/http": "workspace:*",
     "@turnkey/indexed-db-stamper": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
-    "@turnkey/wallet-stamper": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",
+    "@wallet-standard/app": "^1.1.0",
+    "@wallet-standard/base": "^1.1.0",
+    "bs58": "^6.0.0",
     "bs58check": "3.0.1",
     "buffer": "^6.0.3",
     "cross-fetch": "^3.1.5",
     "ethers": "^6.10.0",
     "jwt-decode": "4.0.0",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "viem": "^2.33.1"
   },
   "devDependencies": {
     "glob": "^8.0.3",
