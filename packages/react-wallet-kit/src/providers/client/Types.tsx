@@ -29,17 +29,16 @@ import type {
 import type { AuthState, ClientState } from "@utils";
 import type { TurnkeyProviderConfig, ExportType } from "../../types/base";
 import { createContext } from "react";
-import type { WalletProvider } from "@turnkey/wallet-stamper";
-
+import type { WalletProvider } from "@turnkey/sdk-js";
 
 // In order for jsdocs params to show up properly you must redeclare the core client method here using FUNCTION SIGNATURE. ex:
-// 
+//
 // DO:
 // methodName(params: { param1: string, param2?: number }): Promise<ReturnType>;
-// 
+//
 // NOT:
 // methodName: (params: { param1: string, param2?: number }) => Promise<ReturnType>;
-// 
+//
 // This is because of some weird typescript behavior where it doesn't recognize arrow-function-typed methods as methods for jsdocs purposes.
 // Same goes for new functions in the provider!!
 
