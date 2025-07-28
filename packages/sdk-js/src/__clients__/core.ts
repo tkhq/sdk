@@ -503,7 +503,7 @@ export class TurnkeyClient {
     }
 
     try {
-      await this.walletManager.signer.connectWalletAccount(walletProvider);
+      await this.walletManager.connector.connectWalletAccount(walletProvider);
     } catch (error) {
       throw new Error(`Unable to connect wallet account: ${error}`);
     }
@@ -516,7 +516,9 @@ export class TurnkeyClient {
     }
 
     try {
-      await this.walletManager.signer.disconnectWalletAccount(walletProvider);
+      await this.walletManager.connector.disconnectWalletAccount(
+        walletProvider,
+      );
     } catch (error) {
       throw new Error(`Unable to disconnect wallet account: ${error}`);
     }
@@ -1637,7 +1639,9 @@ export class TurnkeyClient {
           createdAt: timestamp,
           updatedAt: timestamp,
           ...getWalletAccountMethods(
-            this.walletManager!.signer.sign.bind(this.walletManager!.signer),
+            this.walletManager!.connector.sign.bind(
+              this.walletManager!.connector,
+            ),
             provider,
           ),
           ...(provider.type === WalletType.Solana && { publicKey: address }),
