@@ -15,7 +15,7 @@ import type {
   Session,
 } from "@turnkey/sdk-types";
 import { WalletStamper, WebWalletStamper } from "../__wallet__/web/stamper";
-import { WebWalletSigner } from "../__wallet__/web/signer";
+import { WebWalletConnector } from "../__wallet__/web/signer";
 
 // TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
 
@@ -334,7 +334,7 @@ export interface StorageBase {
 export interface WalletManagerBase {
   getProviders: (chain?: WalletType) => Promise<WalletProvider[]>;
   stamper: WebWalletStamper;
-  signer: WebWalletSigner;
+  connector: WebWalletConnector;
 }
 
 // TODO (Amir) This would be nice in sdk-types

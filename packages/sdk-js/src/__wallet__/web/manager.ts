@@ -1,5 +1,5 @@
 import { WebWalletStamper } from "./stamper";
-import { WebWalletSigner } from "./signer";
+import { WebWalletConnector } from "./signer";
 import { EthereumWallet } from "./connector/ethereum";
 import { SolanaWallet } from "./connector/solana";
 import {
@@ -13,7 +13,7 @@ export class WebWalletManager {
   readonly wallets: Partial<Record<WalletType, WalletInterface>> = {};
 
   readonly stamper: WebWalletStamper;
-  readonly signer: WebWalletSigner;
+  readonly connector: WebWalletConnector;
 
   constructor(cfg: TWalletManagerConfig) {
     if (cfg.ethereum) {
@@ -25,7 +25,7 @@ export class WebWalletManager {
     }
 
     this.stamper = new WebWalletStamper(this.wallets);
-    this.signer = new WebWalletSigner(this.wallets);
+    this.connector = new WebWalletConnector(this.wallets);
   }
 
   async init(): Promise<void> {
