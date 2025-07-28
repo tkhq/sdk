@@ -26,8 +26,12 @@ import type {
   v1WalletAccount,
   v1WalletAccountParams,
 } from "@turnkey/sdk-types";
-import type { AuthState, ClientState } from "@utils";
-import type { TurnkeyProviderConfig, ExportType } from "../../types/base";
+import type {
+  TurnkeyProviderConfig,
+  ExportType,
+  AuthState,
+  ClientState,
+} from "../../types/base";
 import { createContext } from "react";
 import type { WalletProvider } from "@turnkey/sdk-js";
 
