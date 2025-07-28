@@ -28,12 +28,14 @@ const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 export function ImportComponent(
   params: {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-    onImportSuccess?: (walletId: string) => void;
+    onSuccess: (walletId: string) => void;
+    onError: (error: TurnkeyError) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   } & DefaultParams,
 ) {
   const {
-    onImportSuccess,
+    onSuccess,
+    onError,
     defaultWalletAccounts,
     successPageDuration,
     stampWith,
@@ -182,13 +184,13 @@ export function ImportComponent(
       });
 
       if (response) {
-        onImportSuccess?.(response);
+        onSuccess(response);
         if (successPageDuration && successPageDuration !== 0) {
           pushPage({
             key: "success",
             content: (
               <SuccessPage
-                text="Wallet Imported Successfully!"
+                text="Wallet imported successfully!"
                 duration={successPageDuration}
                 onComplete={() => {
                   handleImportModalClose();
@@ -222,7 +224,8 @@ export function ImportComponent(
               error,
             ),
       );
-      if (error instanceof TurnkeyError) throw error; // Re-throw known Turnkey errors
+
+      if (error instanceof TurnkeyError) onError(error);
       throw new TurnkeyError(
         `Error importing wallet`,
         TurnkeyErrorCodes.IMPORT_WALLET_ERROR,

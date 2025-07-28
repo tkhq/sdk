@@ -57,9 +57,9 @@ export function SignMessageModal(props: SignMessageModalProps) {
       const result = await signMessage({
         message,
         walletAccount,
-        ...(props?.encoding ? { encoding: props.encoding } : {}),
-        ...(props?.hashFunction ? { hashFunction: props?.hashFunction } : {}),
-        ...(stampWith ? { stampWith } : {}),
+        ...(props?.encoding && { encoding: props.encoding }),
+        ...(props?.hashFunction && { hashFunction: props?.hashFunction }),
+        ...(stampWith && { stampWith }),
       });
       handleSuccess(result);
     } catch (error) {
@@ -72,13 +72,16 @@ export function SignMessageModal(props: SignMessageModalProps) {
   const handleSuccess = (result: v1SignRawPayloadResult) => {
     onSuccess(result); // Run the success callback first before showing the success page.
 
-    if (successPageDuration && successPageDuration === 0) return;
+    if (!successPageDuration) {
+      closeModal();
+      return;
+    }
 
     pushPage({
       key: "success",
       content: (
         <SuccessPage
-          text="Message Signed Successfully!"
+          text="Message signed successfully!"
           duration={successPageDuration}
           onComplete={() => {
             closeModal();
