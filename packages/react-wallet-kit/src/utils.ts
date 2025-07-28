@@ -48,29 +48,6 @@ export const authErrors = {
   },
 };
 
-export enum OtpType {
-  Email = "OTP_TYPE_EMAIL",
-  Sms = "OTP_TYPE_SMS",
-}
-
-export enum FilterType {
-  Email = "EMAIL",
-  PhoneNumber = "PHONE_NUMBER",
-  OidcToken = "OIDC_TOKEN",
-  PublicKey = "PUBLIC_KEY",
-}
-
-export enum AuthState {
-  Unauthenticated = "unauthenticated",
-  Authenticated = "authenticated",
-}
-
-export enum ClientState {
-  Loading = "loading",
-  Ready = "ready",
-  Error = "error",
-}
-
 export const useDebouncedCallback = <T extends (...args: any[]) => void>(
   fn: T,
   wait = 100,
