@@ -56,49 +56,43 @@ export interface ClientContextType extends TurnkeyClientMethods {
   handleImport: (
     params: {
       defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-      onImportSuccess?: (walletId: string) => void;
       successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     } & DefaultParams,
-  ) => Promise<void>;
+  ) => Promise<string>;
   handleUpdateUserEmail: (params?: {
     email?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
+  }) => Promise<string>;
   handleUpdateUserPhoneNumber: (params?: {
-    phone?: string;
+    phoneNumber?: string;
     formattedPhone?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
+  }) => Promise<string>;
   handleUpdateUserName: (
     params?: {
       userName?: string;
       title?: string;
       subTitle?: string;
-      onSuccess?: (userId: string) => void;
       successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     } & DefaultParams,
-  ) => Promise<void>;
+  ) => Promise<string>;
   handleAddEmail: (params?: {
     email?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
+  }) => Promise<string>;
   handleAddPhoneNumber: (params?: {
     phoneNumber?: string;
     formattedPhone?: string;
     title?: string;
     subTitle?: string;
-    onSuccess?: (userId: string) => void;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<void>;
+  }) => Promise<string>;
   handleAddOAuthProvider: (
     params: {
       providerName: OAuthProviders;
@@ -109,28 +103,26 @@ export interface ClientContextType extends TurnkeyClientMethods {
       providerId: string;
       title?: string;
       subTitle?: string;
-      onSuccess?: (providerIds: string[]) => void;
       successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     } & DefaultParams,
-  ) => Promise<void>;
+  ) => Promise<string[]>;
   handleAddPasskey: (
     params?: {
       name?: string;
       displayName?: string;
       userId?: string;
-      onSuccess?: (authenticatorIds: string[]) => void;
       successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     } & DefaultParams,
-  ) => Promise<void>;
+  ) => Promise<string[]>;
   handleRemovePasskey: (
     params: {
       authenticatorId: string;
+      userId?: string;
       title?: string;
       subTitle?: string;
-      onSuccess?: (authenticatorIds: string[]) => void;
       successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     } & DefaultParams,
-  ) => Promise<void>;
+  ) => Promise<string[]>;
   handleSignMessage: (
     params: {
       message: string;
@@ -138,6 +130,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
       encoding?: v1PayloadEncoding;
       hashFunction?: v1HashFunction;
       subText?: string;
+      successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     } & DefaultParams,
   ) => Promise<v1SignRawPayloadResult>;
   handleLinkExternalWallet: (params: {}) => Promise<void>;

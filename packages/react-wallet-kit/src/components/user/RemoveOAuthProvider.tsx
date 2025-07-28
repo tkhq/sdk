@@ -6,27 +6,63 @@ import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import clsx from "clsx";
+import { SuccessPage } from "../design/Success";
+import type { DefaultParams } from "@turnkey/sdk-js";
 
-export function RemoveOAuthProvider(params: {
-  providerId: string;
-  onContinue?: () => Promise<void>;
-  title?: string;
-  subTitle?: string;
-}) {
-  const { user } = useTurnkey();
-  const { isMobile } = useModal();
-  const { onContinue } = params;
+export function RemoveOAuthProvider(
+  params: {
+    providerId: string;
+    title?: string;
+    subTitle?: string;
+    successPageDuration?: number | undefined;
+    onSuccess: (providerIds: string[]) => void;
+    onError: (error: any) => void;
+  } & DefaultParams,
+) {
+  const { user, removeOAuthProviders } = useTurnkey();
+  const { isMobile, closeModal, pushPage } = useModal();
   const [isLoading, setIsLoading] = useState(false);
 
+  const { onSuccess, onError, successPageDuration } = params;
+
   const handleContinue = async () => {
-    if (onContinue) {
+    try {
       setIsLoading(true);
-      try {
-        await Promise.resolve(onContinue());
-      } finally {
-        setIsLoading(false);
-      }
+      const res = await removeOAuthProviders({
+        providerIds: [params.providerId],
+        userId: user?.userId!,
+        stampWith: params.stampWith,
+      });
+      handleSuccess(res);
+    } catch (error) {
+      onError(error);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const handleSuccess = (providerIds: string[]) => {
+    onSuccess(providerIds);
+
+    if (!successPageDuration) {
+      closeModal();
+      return;
+    }
+
+    pushPage({
+      key: "success",
+      content: (
+        <SuccessPage
+          text="OAuth provider removed successfully!"
+          duration={successPageDuration}
+          onComplete={() => {
+            closeModal();
+          }}
+        />
+      ),
+      preventBack: true,
+      showTitle: false,
+    });
   };
 
   const oAuthProvider = user?.oauthProviders?.find(
@@ -35,7 +71,7 @@ export function RemoveOAuthProvider(params: {
 
   if (!oAuthProvider) {
     throw new TurnkeyError(
-      "OAuthProviderNotFound",
+      "OAuth provider not found",
       TurnkeyErrorCodes.NOT_FOUND,
     );
   }

@@ -2245,27 +2245,27 @@ export class TurnkeyClient {
   };
 
   /**
-   * Removes an OAuth provider from the user.
+   * Removes a list of OAuth providers from the user.
    *
-   * - This function removes an OAuth provider (e.g., Google, Apple) from the user's account.
-   * - If a userId is provided, it removes the provider for that specific user; otherwise, it uses the current session's userId.
+   * - This function removes OAuth providers (e.g., Google, Apple) from the user's account.
+   * - If a userId is provided, it removes the providers for that specific user; otherwise, it uses the current session's userId.
    * - Automatically ensures an active session exists before making the request.
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * - Returns an array of remaining provider IDs associated with the user after removal.
    *
-   * @param providerId - The ID of the OAuth provider to remove.
+   * @param providerIds - The IDs of the OAuth providers to remove.
    * @param userId - Optional user ID to remove the provider for a specific user (defaults to the current session's userId).
    * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
-   * @returns A promise that resolves to an array of remaining provider IDs.
+   * @returns A promise that resolves to an array of provider IDs that were removed.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the OAuth provider.
    */
-  removeOAuthProvider = async (
+  removeOAuthProviders = async (
     params: {
-      providerId: string;
+      providerIds: string[];
       userId?: string;
     } & DefaultParams,
   ): Promise<string[]> => {
-    const { providerId, stampWith } = params;
+    const { providerIds, stampWith } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -2277,7 +2277,7 @@ export class TurnkeyClient {
     const res = await this.httpClient.deleteOauthProviders(
       {
         userId,
-        providerIds: [providerId],
+        providerIds,
       },
       stampWith,
     );
@@ -2368,27 +2368,27 @@ export class TurnkeyClient {
   };
 
   /**
-   * Removes a passkey (authenticator) from the user.
+   * Removes passkeys (authenticator) from the user.
    *
-   * - This function removes a passkey (WebAuthn/FIDO2 authenticator) from the user's account.
-   * - If a userId is provided, it removes the passkey for that specific user; otherwise, it uses the current session's userId.
+   * - This function removes passkeys (WebAuthn/FIDO2 authenticators) from the user's account.
+   * - If a userId is provided, it removes the passkeys for that specific user; otherwise, it uses the current session's userId.
    * - Automatically ensures an active session exists before making the request.
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * - Returns an array of remaining authenticator IDs for the user after removal.
    *
-   * @param authenticatorId - The ID of the authenticator (passkey) to remove.
-   * @param userId - Optional user ID to remove the passkey for a specific user (defaults to the current session's userId).
+   * @param authenticatorIds - The IDs of the authenticators (passkeys) to remove.
+   * @param userId - Optional user ID to remove the passkeys for a specific user (defaults to the current session's userId).
    * @param stampWith - Optional parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
-   * @returns A promise that resolves to an array of remaining authenticator IDs for the user.
-   * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the passkey.
+   * @returns A promise that resolves to an array of authenticator IDs that were removed.
+   * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the passkeys.
    */
-  removePasskey = async (
+  removePasskeys = async (
     params: {
-      authenticatorId: string;
+      authenticatorIds: string[];
       userId?: string;
     } & DefaultParams,
   ): Promise<string[]> => {
-    const { authenticatorId, stampWith } = params;
+    const { authenticatorIds, stampWith } = params;
     const session = await this.storageManager.getActiveSession();
     if (!session) {
       throw new TurnkeyError(
@@ -2401,7 +2401,7 @@ export class TurnkeyClient {
     const res = await this.httpClient.deleteAuthenticators(
       {
         userId,
-        authenticatorIds: [authenticatorId],
+        authenticatorIds,
       },
       stampWith,
     );

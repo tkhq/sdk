@@ -4,13 +4,14 @@ import { useTurnkey } from "../../providers/client/Hook";
 import type { DefaultParams } from "@turnkey/sdk-js";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
-import { ExportWarn } from "./ExportWarn";
+import { ExportWarning } from "./ExportWarning";
 import { ActionButton } from "../design/Buttons";
 import type { ExportType } from "../../types/base";
 import clsx from "clsx";
 
 const TurnkeyExportIframeContainerId = "turnkey-export-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
+const TurnkeyIframeClassNames = "w-full border-none";
 
 export function ExportComponent(
   params: {
@@ -26,7 +27,7 @@ export function ExportComponent(
 
   const { closeModal, isMobile } = useModal();
 
-  const apiBaseUrl = config?.apiBaseUrl ?? "http://localhost:8081/";
+  const apiBaseUrl = config?.apiBaseUrl;
   const exportIframeUrl = config?.exportIframeUrl;
 
   if (!exportIframeUrl || !apiBaseUrl) {
@@ -42,6 +43,7 @@ export function ExportComponent(
   if (!apiBaseUrl) {
     throw new TurnkeyError(
       "API base URL is not configured. Please set it in the Turnkey configuration.",
+      TurnkeyErrorCodes.INVALID_CONFIGURATION,
     );
   }
 
@@ -60,7 +62,7 @@ export function ExportComponent(
       } catch (error) {
         throw new TurnkeyError(
           `Error initializing IframeStamper`,
-          TurnkeyErrorCodes.INTERNAL_ERROR,
+          TurnkeyErrorCodes.INITIALIZE_IFRAME_ERROR,
           error,
         );
       }
@@ -73,7 +75,7 @@ export function ExportComponent(
 
     const iframeElement = document.getElementById(TurnkeyIframeElementId);
     if (iframeElement) {
-      iframeElement.className = "w-full border-none";
+      iframeElement.className = TurnkeyIframeClassNames;
     }
     return () => {
       handleExportModalClose();
@@ -99,7 +101,7 @@ export function ExportComponent(
       )}
     >
       {!exportIframeVisible && (
-        <ExportWarn
+        <ExportWarning
           walletId={walletId}
           exportIframeClient={exportIframeClient}
           targetPublicKey={targetPublicKey}
