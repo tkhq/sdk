@@ -1,26 +1,15 @@
-import {
-  EthereumWalletInterface,
-  SignIntent,
-  WalletProvider,
-  WalletProviderInfo,
-  WalletRpcProvider,
-  WalletType,
-} from "./types";
+import { EthereumWalletInterface, WalletType } from "./types";
 import {
   recoverPublicKey,
   hashMessage,
   Hex,
   Address,
   EIP1193Provider,
-  toHex,
 } from "viem";
 import "viem/window";
-import { Transaction } from "ethers";
 import { WalletStamperError } from "./errors";
 
 import { compressRawPublicKey } from "@turnkey/crypto";
-import { asEip1193 } from "./utils";
-import { decodeBase64urlToString } from "@turnkey/encoding";
 
 /**
  * Abstract class representing a base Ethereum wallet.
@@ -32,119 +21,26 @@ import { decodeBase64urlToString } from "@turnkey/encoding";
  * the signature of the provided message.
  */
 export abstract class BaseEthereumWallet implements EthereumWalletInterface {
-  readonly type: WalletType.Ethereum = WalletType.Ethereum;
+  type: WalletType.Ethereum = WalletType.Ethereum;
 
   /**
    * Abstract method to sign a message.
    * Must be implemented by subclasses to provide a custom signing function.
    *
    * @param message - The message to be signed, either as a string or a Hex.
-   * @param provider - Optional Ethereum provider to use for signing.
    * @returns A promise that resolves to a Hex string representing the signature.
    */
-  abstract sign(
-    message: string | Hex,
-    provider: WalletRpcProvider,
-    intent: SignIntent,
-  ): Promise<Hex>;
+  abstract signMessage(message: string | Hex): Promise<Hex>;
 
   /**
    * Retrieves the public key associated with the wallet.
    *
-   * @param provider - Optional Ethereum provider to use for signing.
    * @returns A promise that resolves to a string representing the compressed public key.
    */
-  async getPublicKey(provider: WalletRpcProvider): Promise<string> {
+  async getPublicKey(): Promise<string> {
     const message = "GET_PUBLIC_KEY";
-    const signature = await this.sign(
-      message,
-      provider,
-      SignIntent.SignMessage,
-    );
+    const signature = await this.signMessage(message);
     return getCompressedPublicKey(signature, message);
-  }
-
-  /**
-   * Retrieves the Ethereum provider from the window object.
-   *
-   * @returns The WalletProvider instance.
-   *
-   * This method checks if the Ethereum provider is available in the
-   * window object and throws an error if not found.
-   */
-  async getProviders(): Promise<WalletProvider[]> {
-    const discovered: WalletProvider[] = [];
-
-    type AnnounceEvent = CustomEvent<{
-      info: WalletProviderInfo;
-      provider: WalletRpcProvider;
-    }>;
-
-    const providerPromises: Promise<void>[] = [];
-
-    const handler = (ev: AnnounceEvent): void => {
-      const { provider, info } = ev.detail;
-
-      const promise = (async () => {
-        let connectedAddresses: string[] = [];
-
-        try {
-          const accounts = await (provider as any).request?.({
-            method: "eth_accounts",
-          });
-
-          if (Array.isArray(accounts)) {
-            connectedAddresses = accounts;
-          }
-        } catch {
-          // we silentlyt fail and just use empty array if not connected or errored
-        }
-
-        discovered.push({
-          type: WalletType.Ethereum,
-          info,
-          provider,
-          connectedAddresses,
-        });
-      })();
-
-      providerPromises.push(promise);
-    };
-
-    window.addEventListener(
-      "eip6963:announceProvider",
-      handler as EventListener,
-    );
-    window.dispatchEvent(new Event("eip6963:requestProvider"));
-    window.removeEventListener(
-      "eip6963:announceProvider",
-      handler as EventListener,
-    );
-
-    await Promise.all(providerPromises);
-
-    return discovered;
-  }
-
-  /**
-   * Ensures the wallet is connected using Wallet Standard's `standard:connect` feature.
-   *
-   * @param w - The Wallet Standard wallet instance.
-   * @returns A promise that resolves once the wallet is connected.
-   *
-   * Throws an error if no account is connected and the wallet doesn't support `standard:connect`.
-   */
-  async connectWalletAccount(provider: WalletRpcProvider): Promise<void> {
-    const wallet = asEip1193(provider);
-    await getAccount(wallet);
-  }
-
-  async disconnectWalletAccount(provider: WalletRpcProvider): Promise<void> {
-    const wallet = asEip1193(provider);
-    await wallet.request({
-      method: "wallet_revokePermissions",
-      params: [{ eth_accounts: {} }],
-    });
   }
 }
 
@@ -162,80 +58,64 @@ export class EthereumWallet extends BaseEthereumWallet {
    * Signs a message using the Ethereum provider.
    *
    * @param message - The message to be signed, either as a string or a Hex.
-   * @param provider - Optional Ethereum provider to use.
    * @returns A promise that resolves to a Hex string representing the signature.
    *
    * This method uses the 'personal_sign' method of the Ethereum provider
    * to sign the message with the user's account.
    */
-  async sign(message: string, provider: WalletRpcProvider, intent: SignIntent) {
-    const selectedProvider = asEip1193(provider);
-    const account = await getAccount(selectedProvider);
+  async signMessage(message: string | Hex) {
+    const account = await this.getAccount();
 
-    switch (intent) {
-      case SignIntent.SignMessage:
-        return await selectedProvider.request({
-          method: "personal_sign",
-          params: [message as Hex, account],
-        });
+    const signature = await this.getProvider().request({
+      method: "personal_sign" as const,
+      params: [message as Hex, account],
+    });
 
-      case SignIntent.SignAndSendTransaction:
-        const tx = Transaction.from(message);
+    return signature;
+  }
 
-        const txParams = {
-          from: account,
-          to: tx.to?.toString() as Hex,
-          value: toHex(tx.value),
-          gas: toHex(tx.gasLimit),
-          maxFeePerGas: toHex(tx.maxFeePerGas ?? 0n),
-          maxPriorityFeePerGas: toHex(tx.maxPriorityFeePerGas ?? 0n),
-          nonce: toHex(tx.nonce),
-          chainId: toHex(tx.chainId),
-          data: (tx.data?.toString() as Hex) ?? "0x",
-        };
-
-        return await selectedProvider.request({
-          method: "eth_sendTransaction",
-          params: [txParams],
-        });
-
-      default:
-        throw new WalletStamperError(`Unsupported sign intent: ${intent}`);
+  /**
+   * Retrieves the Ethereum provider from the window object.
+   *
+   * @returns The EIP1193Provider instance.
+   *
+   * This method checks if the Ethereum provider is available in the
+   * window object and throws an error if not found.
+   */
+  private getProvider(): EIP1193Provider {
+    if (!window?.ethereum) {
+      throw new WalletStamperError("No ethereum provider found");
     }
+
+    return window.ethereum;
+  }
+
+  /**
+   * Requests the user's Ethereum account from the provider.
+   *
+   * @returns A promise that resolves to the user's Ethereum address.
+   *
+   * This method uses the 'eth_requestAccounts' method of the Ethereum
+   * provider to request access to the user's account. It throws an error
+   * if no account is connected.
+   */
+  private async getAccount(): Promise<Address> {
+    const provider = this.getProvider();
+
+    const [connectedAccount] = await provider.request({
+      method: "eth_requestAccounts",
+    });
+
+    if (!connectedAccount) {
+      throw new WalletStamperError("No connected account found");
+    }
+
+    return connectedAccount;
   }
 }
 
-/**
- * Requests the user's Ethereum account from the provider.
- *
- * @param provider - The EIP1193 provider to request accounts from.
- * @returns A promise that resolves to the user's Ethereum address.
- *
- * This method uses the 'eth_requestAccounts' method of the Ethereum
- * provider to request access to the user's account. It throws an error
- * if no account is connected.
- */
-async function getAccount(provider: EIP1193Provider): Promise<Address> {
-  const [connectedAccount] = await provider.request({
-    method: "eth_requestAccounts",
-  });
-
-  if (!connectedAccount) {
-    throw new WalletStamperError("No connected account found");
-  }
-
-  return connectedAccount;
-}
-
-/**
- * Recovers and compresses the SECP256K1 public key from a signed message.
- *
- * @param signature - Hex string of the signature.
- * @param message - The original signed message.
- * @returns A promise that resolves to the compressed public key as a hex string.
- */
 export const getCompressedPublicKey = async (
-  signature: string,
+  signature: Hex,
   message: string,
 ) => {
   const secp256k1PublicKey = await recoverPublicKey({
@@ -246,30 +126,3 @@ export const getCompressedPublicKey = async (
   const publicKeyBytes = Uint8Array.from(Buffer.from(publicKey, "hex"));
   return Buffer.from(compressRawPublicKey(publicKeyBytes)).toString("hex");
 };
-
-/**
- * Extracts the public key from a Turnkey stamp header value.
- * @param stampHeaderValue - The base64url encoded stamp header value
- * @returns The public key as a hex string
- */
-export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
-  try {
-    // we decode the base64url string to get the JSON stamp
-    const stampJson = decodeBase64urlToString(stampHeaderValue);
-
-    // we parse the JSON to get the stamp object
-    const stamp = JSON.parse(stampJson) as {
-      publicKey: string;
-      scheme: string;
-      signature: string;
-    };
-
-    return stamp.publicKey;
-  } catch (error) {
-    throw new Error(
-      `Failed to extract public key from stamp header: ${
-        error instanceof Error ? error.message : String(error)
-      }`,
-    );
-  }
-}

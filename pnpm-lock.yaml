@@ -2734,6 +2734,7 @@ importers:
         specifier: workspace:*
         version: link:../encoding
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
 =======
@@ -2749,6 +2750,8 @@ importers:
       ethers:
         specifier: ^6.10.0
         version: 6.10.0
+=======
+>>>>>>> b94c1db4 (reverted changes to wallet-stamper)
     optionalDependencies:
       viem:
         specifier: ^2.21.35
