@@ -2253,9 +2253,6 @@ importers:
       '@turnkey/sdk-types':
         specifier: workspace:*
         version: link:../sdk-types
-      '@turnkey/wallet-stamper':
-        specifier: workspace:*
-        version: link:../wallet-stamper
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
