@@ -303,6 +303,7 @@ export enum OtpType {
 export enum FilterType {
   Email = "EMAIL",
   Sms = "SMS",
+  OidcToken = "OIDC_TOKEN",
   PublicKey = "PUBLIC_KEY",
 }
 

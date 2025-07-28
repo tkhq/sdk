@@ -3,6 +3,7 @@
 import "@turnkey/react-wallet-kit/dist/styles.css";
 import "./global.css";
 import { TurnkeyConfigProvider } from "@/providers/config/ConfigProvider";
+import "@fortawesome/fontawesome-svg-core/styles.css";
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -46,6 +47,7 @@ function RootLayout({ children }: RootLayoutProps) {
               autoRefreshSession: true,
             },
             ui: {
+              darkMode: true,
               borderRadius: 16,
               backgroundBlur: 8,
               renderModalInProvider: true, // This is needed for the config panel to push the modal over
