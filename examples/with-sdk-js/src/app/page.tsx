@@ -59,6 +59,7 @@ export default function AuthPage() {
     logout,
     setActiveSession,
     addPasskey,
+    removeUserEmail,
     createWalletAccounts,
     signTransaction,
     handleExport,
@@ -248,9 +249,6 @@ export default function AuthPage() {
         onClick={async () => {
           await signUpWithPasskey({
             passkeyDisplayName: `local-shmocal-passkey_${Date.now()}`,
-            createSubOrgParams: {
-              passkeyName: `local-shmocal-passkey_${Date.now()}`,
-            },
           });
         }}
         style={{
@@ -365,7 +363,7 @@ export default function AuthPage() {
       <button
         onClick={async () => {
           const res = await initOtp({
-            otpType: "OTP_TYPE_EMAIL",
+            otpType: OtpType.Email,
             contact: email,
           });
 
