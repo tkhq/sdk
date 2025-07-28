@@ -19,13 +19,13 @@
   --color-button-light: rgb(255, 255, 255);
   --color-button-dark: oklch(0.2532 0.0056 285.99);
 
-  --color-background-light: oklch(0.9758 0.0057 264.53);
-  --color-background-dark: oklch(0.2 0 0);
+  --color-background-light: oklch(0.9774 0 76.65);
+  --color-background-dark: oklch(0.25 0 0);
   --color-text-light: oklch(0 0.1 41);
   --color-text-dark: rgb(255, 255, 255);
 
   --color-panel-background-light: #ffffff;
-  --color-panel-background-dark: oklch(0.18 0 0);
+  --color-panel-background-dark: oklch(0.2 0 0);
 
   --color-icon-background-light: oklch(0.928 0.006 264.531);
   --color-icon-background-dark: oklch(0.3222 0.0053 286.1);

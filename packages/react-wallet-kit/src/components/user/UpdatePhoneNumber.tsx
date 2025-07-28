@@ -6,9 +6,9 @@ import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
 import { PhoneInputBox } from "../design/Inputs";
 import clsx from "clsx";
-import { OtpType } from "@utils";
 import { OtpVerification } from "../auth/OTP";
 import { SuccessPage } from "../design/Success";
+import { OtpType } from "../..";
 
 export function UpdatePhoneNumber(params: {
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.

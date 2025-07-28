@@ -5,7 +5,6 @@ import {
   faGoogle,
 } from "@fortawesome/free-brands-svg-icons";
 import { OtpType, type WalletProvider } from "@turnkey/sdk-js";
-import { ClientState } from "@utils";
 import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
 import { OAuthButton } from "./OAuth";
@@ -20,6 +19,7 @@ import { ExternalWalletSelector, WalletAuthButton } from "./Wallet";
 import { DeveloperError } from "../design/Failure";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
+import { ClientState } from "../..";
 
 export function AuthComponent() {
   const {

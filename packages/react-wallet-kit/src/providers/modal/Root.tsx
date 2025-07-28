@@ -5,9 +5,8 @@ import { useModal } from "./Hook";
 import { IconButton } from "../../components/design/Buttons";
 import { faArrowLeft, faClose } from "@fortawesome/free-solid-svg-icons";
 import { TurnkeyLogo } from "../../components/design/Svg";
-import type { TurnkeyProviderConfig } from "../../types/base";
+import { ClientState, type TurnkeyProviderConfig } from "../../types/base";
 import { useTurnkey } from "../client/Hook";
-import { ClientState } from "@utils";
 import clsx from "clsx";
 import { DeveloperError } from "../../components/design/Failure";
 
@@ -134,7 +133,7 @@ export function ModalRoot(props: ModalRootProps) {
               "tk-modal fixed inset-0 flex justify-center transition-colors duration-300",
               { dark: config?.ui?.darkMode },
               { "items-end": isMobile },
-              { "items-center": !isMobile }
+              { "items-center": !isMobile },
             )}
             onMouseDown={(e) => {
               if (e.target === e.currentTarget) {
@@ -211,7 +210,7 @@ export function ModalRoot(props: ModalRootProps) {
                     className={clsx(
                       "flex flex-col z-10 transition-all duration-50 self-start",
                       // This allows the content to take the static `maxMobileScreenWidth` width on mobile
-                      isMobile && "w-full items-center"
+                      isMobile && "w-full items-center",
                     )}
                     style={{ filter: `blur(${contentBlur}px)` }}
                     ref={containerRef}
