@@ -13,7 +13,7 @@ import { ActionButton } from "../design/Buttons";
 import type { IframeStamper } from "@turnkey/iframe-stamper";
 import { useState } from "react";
 
-export function ExportWarn(
+export function ExportWarning(
   props: {
     walletId: string;
     exportIframeClient?: IframeStamper | null; // Replace with actual type if available
