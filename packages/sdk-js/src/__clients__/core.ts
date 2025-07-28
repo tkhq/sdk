@@ -39,6 +39,9 @@ import {
   SessionKey,
   EmbeddedWalletAccount,
   ConnectedWalletAccount,
+  WalletManagerBase,
+  WalletProvider,
+  WalletType,
 } from "@types"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
@@ -53,21 +56,17 @@ import {
   splitSignature,
   hashPayload,
   getWalletAccountMethods,
+  getPublicKeyFromStampHeader,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
-import { CrossPlatformWalletManager } from "../__stampers__/wallet/base";
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   DEFAULT_SOLANA_ACCOUNTS,
 } from "../turnkey-helpers";
-import {
-  getPublicKeyFromStampHeader,
-  WalletProvider,
-  WalletType,
-} from "@turnkey/wallet-stamper";
 import { jwtDecode } from "jwt-decode";
+import { createWalletManager } from "../__wallet__/base";
 
 type PublicMethods<T> = {
   [K in keyof T as K extends string | number | symbol
@@ -95,7 +94,7 @@ export class TurnkeyClient {
 
   private apiKeyStamper?: CrossPlatformApiKeyStamper | undefined;
   private passkeyStamper?: CrossPlatformPasskeyStamper | undefined;
-  private walletManager?: CrossPlatformWalletManager | undefined;
+  private walletManager?: WalletManagerBase | undefined;
   private storageManager!: StorageBase;
 
   constructor(
@@ -104,7 +103,7 @@ export class TurnkeyClient {
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
     passkeyStamper?: CrossPlatformPasskeyStamper,
-    walletManager?: CrossPlatformWalletManager,
+    walletManager?: WalletManagerBase,
   ) {
     this.config = config;
 
@@ -136,10 +135,7 @@ export class TurnkeyClient {
       this.config.walletConfig?.ethereum ||
       this.config.walletConfig?.solana
     ) {
-      this.walletManager = new CrossPlatformWalletManager(
-        this.config.walletConfig,
-      );
-      await this.walletManager.init();
+      this.walletManager = await createWalletManager(this.config.walletConfig);
     }
 
     // We can comfortably default to the prod urls here
@@ -507,7 +503,7 @@ export class TurnkeyClient {
     }
 
     try {
-      await this.walletManager.signer.connectWalletAccount(walletProvider);
+      await this.walletManager.connector.connectWalletAccount(walletProvider);
     } catch (error) {
       throw new Error(`Unable to connect wallet account: ${error}`);
     }
@@ -520,7 +516,9 @@ export class TurnkeyClient {
     }
 
     try {
-      await this.walletManager.signer.disconnectWalletAccount(walletProvider);
+      await this.walletManager.connector.disconnectWalletAccount(
+        walletProvider,
+      );
     } catch (error) {
       throw new Error(`Unable to disconnect wallet account: ${error}`);
     }
@@ -1641,7 +1639,9 @@ export class TurnkeyClient {
           createdAt: timestamp,
           updatedAt: timestamp,
           ...getWalletAccountMethods(
-            this.walletManager!.signer.sign.bind(this.walletManager!.signer),
+            this.walletManager!.connector.sign.bind(
+              this.walletManager!.connector,
+            ),
             provider,
           ),
           ...(provider.type === WalletType.Solana && { publicKey: address }),
