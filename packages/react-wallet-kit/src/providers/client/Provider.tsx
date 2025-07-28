@@ -27,6 +27,8 @@ import {
   Wallet,
   type DefaultParams,
   WalletAccount,
+  WalletProvider,
+  WalletType,
 } from "@turnkey/sdk-js";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import {
@@ -63,7 +65,6 @@ import {
   faFacebook,
   faGoogle,
 } from "@fortawesome/free-brands-svg-icons";
-import { WalletProvider, WalletType } from "@turnkey/wallet-stamper";
 import { ActionPage } from "../../components/auth/Action";
 import { SignMessageModal } from "../../components/sign/Message";
 import { ExportComponent } from "../../components/export/Export";

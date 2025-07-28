@@ -4,8 +4,7 @@ import {
   faFacebook,
   faGoogle,
 } from "@fortawesome/free-brands-svg-icons";
-import { OtpType } from "@turnkey/sdk-js";
-import type { WalletProvider } from "@turnkey/wallet-stamper";
+import { OtpType, type WalletProvider } from "@turnkey/sdk-js";
 import { ClientState } from "@utils";
 import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
