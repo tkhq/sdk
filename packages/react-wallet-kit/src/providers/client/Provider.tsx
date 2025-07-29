@@ -362,24 +362,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     const resolvedMethods = {
       emailOtpAuthEnabled:
         config.auth?.methods?.emailOtpAuthEnabled ??
-        proxyAuthConfig?.emailEnabled,
+        proxyAuthConfig?.enabledProviders.includes("email"),
       smsOtpAuthEnabled:
-        config.auth?.methods?.smsOtpAuthEnabled ?? proxyAuthConfig?.smsEnabled,
+        config.auth?.methods?.smsOtpAuthEnabled ??
+        proxyAuthConfig?.enabledProviders.includes("sms"),
       passkeyAuthEnabled:
         config.auth?.methods?.passkeyAuthEnabled ??
-        proxyAuthConfig?.passkeyEnabled,
+        proxyAuthConfig?.enabledProviders.includes("passkey"),
       walletAuthEnabled:
         config.auth?.methods?.walletAuthEnabled ??
-        proxyAuthConfig?.walletEnabled,
+        proxyAuthConfig?.enabledProviders.includes("wallet"),
       googleOAuthEnabled:
         config.auth?.methods?.googleOAuthEnabled ??
-        proxyAuthConfig?.googleEnabled,
+        proxyAuthConfig?.enabledProviders.includes("google"),
       appleOAuthEnabled:
         config.auth?.methods?.appleOAuthEnabled ??
-        proxyAuthConfig?.appleEnabled,
+        proxyAuthConfig?.enabledProviders.includes("apple"),
       facebookOAuthEnabled:
         config.auth?.methods?.facebookOAuthEnabled ??
-        proxyAuthConfig?.facebookEnabled,
+        proxyAuthConfig?.enabledProviders.includes("facebook"),
     };
 
     // Set a default ordering for the oAuth methods
@@ -3544,7 +3545,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         getActiveSessionKey,
         createApiKeyPair,
         getProxyAuthConfig,
-
         handleLogin,
         handleGoogleOauth,
         handleAppleOauth,

@@ -47,6 +47,7 @@ export type paths = {
   "/public/v1/query/get_policy_evaluations": {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     /** Get the policy evaluations for an activity. */
 =======
     /** Get the policy evaluations for an Activity */
@@ -54,6 +55,9 @@ export type paths = {
 =======
     /** Get the policy evaluations for an Activity */
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
+=======
+    /** Get the policy evaluations for an activity. */
+>>>>>>> 2f14b8cf (updated types)
     post: operations["PublicApiService_GetPolicyEvaluations"];
   };
   "/public/v1/query/get_private_key": {
@@ -71,7 +75,7 @@ export type paths = {
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
   };
   "/public/v1/query/get_smart_contract_interface": {
-    /** Get details about a Smart Contract Interface */
+    /** Get details about a smart contract interface. */
     post: operations["PublicApiService_GetSmartContractInterface"];
   };
   "/public/v1/query/get_user": {
@@ -104,10 +108,14 @@ export type paths = {
   };
   "/public/v1/query/list_smart_contract_interfaces": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     /** List all smart contract interfaces within an organization. */
 =======
     /** List all Smart Contract Interfaces within an Organization */
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+    /** List all smart contract interfaces within an organization. */
+>>>>>>> 2f14b8cf (updated types)
     post: operations["PublicApiService_GetSmartContractInterfaces"];
   };
   "/public/v1/query/list_suborgs": {
@@ -188,10 +196,14 @@ export type paths = {
   };
   "/public/v1/submit/create_smart_contract_interface": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     /** Create an ABI/IDL in JSON. */
 =======
     /** Create an ABI/IDL in JSON */
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+    /** Create an ABI/IDL in JSON. */
+>>>>>>> 2f14b8cf (updated types)
     post: operations["PublicApiService_CreateSmartContractInterface"];
   };
   "/public/v1/submit/create_sub_organization": {
@@ -244,10 +256,14 @@ export type paths = {
   };
   "/public/v1/submit/delete_smart_contract_interface": {
 <<<<<<< HEAD
+<<<<<<< HEAD
     /** Delete a smart contract interface. */
 =======
     /** Delete a Smart Contract Interface */
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+    /** Delete a smart contract interface. */
+>>>>>>> 2f14b8cf (updated types)
     post: operations["PublicApiService_DeleteSmartContractInterface"];
   };
   "/public/v1/submit/delete_sub_organization": {
@@ -2117,19 +2133,24 @@ export type definitions = {
   v1GetPolicyEvaluationsRequest: {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     /** @description Unique identifier for a given organization. */
 =======
 =======
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
     /** @description Unique identifier for a given Organization. */
+=======
+    /** @description Unique identifier for a given organization. */
+>>>>>>> 2f14b8cf (updated types)
     organizationId: string;
-    /** @description Unique identifier for a given Activity. */
+    /** @description Unique identifier for a given activity. */
     activityId: string;
   };
   v1GetPolicyEvaluationsResponse: {
     policyEvaluations: definitions["externalactivityv1PolicyEvaluation"][];
   };
   v1GetPolicyRequest: {
+<<<<<<< HEAD
     /** @description Unique identifier for a given Organization. */
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
     organizationId: string;
@@ -2142,6 +2163,10 @@ export type definitions = {
   v1GetPolicyRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
+=======
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+>>>>>>> 2f14b8cf (updated types)
     /** @description Unique identifier for a given policy. */
     policyId: string;
   };
@@ -2180,26 +2205,30 @@ export type definitions = {
     proxyAuthConfig: definitions["v1ProxyAuthConfig"];
   };
   v1GetSmartContractInterfaceRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given Smart Contract Interface. */
+    /** @description Unique identifier for a given smart contract interface. */
     smartContractInterfaceId: string;
   };
   v1GetSmartContractInterfaceResponse: {
-    /** @description Object to be used in conjunction with Policies to guard transaction signing. */
+    /** @description Object to be used in conjunction with policies to guard transaction signing. */
     smartContractInterface: definitions["externaldatav1SmartContractInterface"];
   };
   v1GetSmartContractInterfacesRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
   };
   v1GetSmartContractInterfacesResponse: {
-    /** @description A list of Smart Contract Interfaces. */
+    /** @description A list of smart contract interfaces. */
     smartContractInterfaces: definitions["externaldatav1SmartContractInterface"][];
   };
   v1GetSubOrgIdsRequest: {
+<<<<<<< HEAD
     /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+    /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
+>>>>>>> 2f14b8cf (updated types)
     organizationId: string;
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2991,8 +3020,10 @@ export type definitions = {
     replyToEmailAddress?: string;
     emailAuthTemplateId?: string;
     otpTemplateId?: string;
-    emailCustomizationParams?: string;
-    smsCustomizationParams?: string;
+    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
+    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
+    /** @description Optional parameters for customizing SMS. If not provided, the default SMS will be used. */
+    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
     /** Format: int32 */
     otpExpirationSeconds?: number;
     /** Format: int32 */
@@ -3879,11 +3910,15 @@ export type definitions = {
   };
   v1WalletKitSettingsParams: {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> eff0e238 (updated types)
     /**
      * Enabled Social Providers
      * @description List of enabled social login providers (e.g., 'apple', 'google', 'facebook')
      */
     enabledSocialProviders?: string[];
+<<<<<<< HEAD
 =======
     /** @description Enable Sign in with Apple */
     appleEnabled?: boolean;
@@ -3891,6 +3926,8 @@ export type definitions = {
     googleEnabled?: boolean;
     /** @description Enable Sign in with Facebook */
     facebookEnabled?: boolean;
+=======
+>>>>>>> eff0e238 (updated types)
     /** @description Whether to open OAuth providers in-page instead of a popup */
     openOauthInPage?: boolean;
 >>>>>>> 6d3d616b (fixed circular dependencies and type issues)
@@ -4106,6 +4143,7 @@ export type operations = {
   };
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** Get the policy evaluations for an activity. */
 =======
   /** Get the policy evaluations for an Activity */
@@ -4113,6 +4151,9 @@ export type operations = {
 =======
   /** Get the policy evaluations for an Activity */
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
+=======
+  /** Get the policy evaluations for an activity. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_GetPolicyEvaluations: {
     parameters: {
       body: {
@@ -4132,12 +4173,16 @@ export type operations = {
   };
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** Get details about a private key. */
 =======
 =======
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
   /** Get details about a Private Key */
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+  /** Get details about a private key. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_GetPrivateKey: {
     parameters: {
       body: {
@@ -4187,10 +4232,14 @@ export type operations = {
   };
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** Get details about a user. */
 =======
 =======
   /** Get details about a Smart Contract Interface */
+=======
+  /** Get details about a smart contract interface. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_GetSmartContractInterface: {
     parameters: {
       body: {
@@ -4208,9 +4257,13 @@ export type operations = {
       };
     };
   };
+<<<<<<< HEAD
 >>>>>>> 57ef158e (updated auth proxy type generation)
   /** Get details about a User */
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+  /** Get details about a user. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_GetUser: {
     parameters: {
       body: {
@@ -4337,10 +4390,14 @@ export type operations = {
     };
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** List all smart contract interfaces within an organization. */
 =======
   /** List all Smart Contract Interfaces within an Organization */
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+  /** List all smart contract interfaces within an organization. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_GetSmartContractInterfaces: {
     parameters: {
       body: {
@@ -4701,10 +4758,14 @@ export type operations = {
     };
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** Create an ABI/IDL in JSON. */
 =======
   /** Create an ABI/IDL in JSON */
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+  /** Create an ABI/IDL in JSON. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_CreateSmartContractInterface: {
     parameters: {
       body: {
@@ -4723,10 +4784,14 @@ export type operations = {
     };
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** Create a new sub-organization. */
 =======
   /** Create a new Sub-Organization */
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+  /** Create a new sub-organization. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_CreateSubOrganization: {
     parameters: {
       body: {
@@ -4943,10 +5008,14 @@ export type operations = {
     };
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** Delete a smart contract interface. */
 =======
   /** Delete a Smart Contract Interface */
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+  /** Delete a smart contract interface. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_DeleteSmartContractInterface: {
     parameters: {
       body: {
@@ -4965,10 +5034,14 @@ export type operations = {
     };
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
   /** Delete a sub-organization. */
 =======
   /** Deletes a sub organization */
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+  /** Delete a sub-organization. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_DeleteSubOrganization: {
     parameters: {
       body: {
@@ -5061,8 +5134,12 @@ export type operations = {
       };
     };
   };
+<<<<<<< HEAD
   /** Authenticate a user via Email */
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+  /** Authenticate a user via email. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_EmailAuth: {
     parameters: {
       body: {
@@ -5101,8 +5178,12 @@ export type operations = {
       };
     };
   };
+<<<<<<< HEAD
   /** Exports a Private Key */
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+  /** Export a private key. */
+>>>>>>> 2f14b8cf (updated types)
   PublicApiService_ExportPrivateKey: {
     parameters: {
       body: {

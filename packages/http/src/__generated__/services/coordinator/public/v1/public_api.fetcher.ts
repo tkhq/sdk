@@ -521,6 +521,7 @@ export type TGetPolicyEvaluationsBody =
 /**
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Get policy evaluations
  *
  * Get the policy evaluations for an activity.
@@ -534,6 +535,11 @@ export type TGetPolicyEvaluationsBody =
  *
  * Get the policy evaluations for an Activity
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
+=======
+ * Get policy evaluations
+ *
+ * Get the policy evaluations for an activity.
+>>>>>>> 2f14b8cf (updated types)
  *
  * `POST /public/v1/query/get_policy_evaluations`
  */
@@ -734,9 +740,9 @@ export type TGetSmartContractInterfaceBody =
   operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
- * Get Smart Contract Interface
+ * Get smart contract interface
  *
- * Get details about a Smart Contract Interface
+ * Get details about a smart contract interface.
  *
  * `POST /public/v1/query/get_smart_contract_interface`
  */
@@ -1125,6 +1131,7 @@ export type TGetSmartContractInterfacesBody =
 
 /**
 <<<<<<< HEAD
+<<<<<<< HEAD
  * List smart contract interfaces
  *
  * List all smart contract interfaces within an organization.
@@ -1133,6 +1140,11 @@ export type TGetSmartContractInterfacesBody =
  *
  * List all Smart Contract Interfaces within an Organization
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+ * List smart contract interfaces
+ *
+ * List all smart contract interfaces within an organization.
+>>>>>>> 2f14b8cf (updated types)
  *
  * `POST /public/v1/query/list_smart_contract_interfaces`
  */
@@ -2123,6 +2135,7 @@ export type TCreateSmartContractInterfaceBody =
 
 /**
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Create smart contract interface
  *
  * Create an ABI/IDL in JSON.
@@ -2131,6 +2144,11 @@ export type TCreateSmartContractInterfaceBody =
  *
  * Create an ABI/IDL in JSON
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+ * Create smart contract interface
+ *
+ * Create an ABI/IDL in JSON.
+>>>>>>> 2f14b8cf (updated types)
  *
  * `POST /public/v1/submit/create_smart_contract_interface`
  */
@@ -2779,6 +2797,7 @@ export type TDeleteSmartContractInterfaceBody =
 
 /**
 <<<<<<< HEAD
+<<<<<<< HEAD
  * Delete smart contract interface
  *
  * Delete a smart contract interface.
@@ -2787,6 +2806,11 @@ export type TDeleteSmartContractInterfaceBody =
  *
  * Delete a Smart Contract Interface
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+ * Delete smart contract interface
+ *
+ * Delete a smart contract interface.
+>>>>>>> 2f14b8cf (updated types)
  *
  * `POST /public/v1/submit/delete_smart_contract_interface`
  */
