@@ -392,6 +392,7 @@
       "post": {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         "summary": "Get policy evaluations",
         "description": "Get the policy evaluations for an activity.",
 =======
@@ -402,6 +403,10 @@
         "summary": "Get Policy Evaluations",
         "description": "Get the policy evaluations for an Activity",
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
+=======
+        "summary": "Get policy evaluations",
+        "description": "Get the policy evaluations for an activity.",
+>>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_GetPolicyEvaluations",
         "responses": {
           "200": {
@@ -516,8 +521,8 @@
     },
     "/public/v1/query/get_smart_contract_interface": {
       "post": {
-        "summary": "Get Smart Contract Interface",
-        "description": "Get details about a Smart Contract Interface",
+        "summary": "Get smart contract interface",
+        "description": "Get details about a smart contract interface.",
         "operationId": "PublicApiService_GetSmartContractInterface",
         "responses": {
           "200": {
@@ -773,12 +778,17 @@
     "/public/v1/query/list_smart_contract_interfaces": {
       "post": {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "summary": "List smart contract interfaces",
         "description": "List all smart contract interfaces within an organization.",
 =======
         "summary": "List Smart Contract Interfaces",
         "description": "List all Smart Contract Interfaces within an Organization",
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+        "summary": "List smart contract interfaces",
+        "description": "List all smart contract interfaces within an organization.",
+>>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_GetSmartContractInterfaces",
         "responses": {
           "200": {
@@ -1418,12 +1428,17 @@
     "/public/v1/submit/create_smart_contract_interface": {
       "post": {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "summary": "Create smart contract interface",
         "description": "Create an ABI/IDL in JSON.",
 =======
         "summary": "Create Smart Contract Interface",
         "description": "Create an ABI/IDL in JSON",
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+        "summary": "Create smart contract interface",
+        "description": "Create an ABI/IDL in JSON.",
+>>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_CreateSmartContractInterface",
         "responses": {
           "200": {
@@ -1839,12 +1854,17 @@
     "/public/v1/submit/delete_smart_contract_interface": {
       "post": {
 <<<<<<< HEAD
+<<<<<<< HEAD
         "summary": "Delete smart contract interface",
         "description": "Delete a smart contract interface.",
 =======
         "summary": "Create Smart Contract Interface",
         "description": "Delete a Smart Contract Interface",
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+        "summary": "Delete smart contract interface",
+        "description": "Delete a smart contract interface.",
+>>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_DeleteSmartContractInterface",
         "responses": {
           "200": {
@@ -7170,6 +7190,7 @@
           "type": "string",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           "description": "Unique identifier for a given organization."
         },
         "activityId": {
@@ -7187,6 +7208,13 @@
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
 =======
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
+=======
+          "description": "Unique identifier for a given organization."
+        },
+        "activityId": {
+          "type": "string",
+          "description": "Unique identifier for a given activity."
+>>>>>>> 2f14b8cf (updated types)
         }
       },
       "required": ["organizationId", "activityId"]
@@ -7349,11 +7377,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "smartContractInterfaceId": {
           "type": "string",
-          "description": "Unique identifier for a given Smart Contract Interface."
+          "description": "Unique identifier for a given smart contract interface."
         }
       },
       "required": ["organizationId", "smartContractInterfaceId"]
@@ -7363,7 +7391,7 @@
       "properties": {
         "smartContractInterface": {
           "$ref": "#/definitions/externaldatav1SmartContractInterface",
-          "description": "Object to be used in conjunction with Policies to guard transaction signing."
+          "description": "Object to be used in conjunction with policies to guard transaction signing."
         }
       },
       "required": ["smartContractInterface"]
@@ -7373,7 +7401,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -7387,7 +7415,7 @@
             "type": "object",
             "$ref": "#/definitions/externaldatav1SmartContractInterface"
           },
-          "description": "A list of Smart Contract Interfaces."
+          "description": "A list of smart contract interfaces."
         }
       },
       "required": ["smartContractInterfaces"]
@@ -9332,10 +9360,12 @@
           "type": "string"
         },
         "emailCustomizationParams": {
-          "type": "string"
+          "$ref": "#/definitions/v1EmailCustomizationParams",
+          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
         },
         "smsCustomizationParams": {
-          "type": "string"
+          "$ref": "#/definitions/v1SmsCustomizationParams",
+          "description": "Optional parameters for customizing SMS. If not provided, the default SMS will be used."
         },
         "otpExpirationSeconds": {
           "type": "integer",
@@ -11551,6 +11581,9 @@
       "type": "object",
       "properties": {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> eff0e238 (updated types)
         "enabledSocialProviders": {
           "type": "array",
           "items": {
@@ -11558,6 +11591,7 @@
           },
           "description": "List of enabled social login providers (e.g., 'apple', 'google', 'facebook')",
           "title": "Enabled Social Providers"
+<<<<<<< HEAD
 =======
         "appleEnabled": {
           "type": "boolean",
@@ -11570,6 +11604,8 @@
         "facebookEnabled": {
           "type": "boolean",
           "description": "Enable Sign in with Facebook"
+=======
+>>>>>>> eff0e238 (updated types)
         },
         "openOauthInPage": {
           "type": "boolean",
