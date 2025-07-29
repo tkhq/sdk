@@ -215,7 +215,7 @@ export type v1Activity = {
 };
 
 export type v1ActivityResponse = {
-  /** An action that can that can be taken within the Turnkey infrastructure. */
+  /** An action that can be taken within the Turnkey infrastructure. */
   activity: v1Activity;
 };
 
@@ -1629,30 +1629,30 @@ export type v1FiatOnRampProvider =
   | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
 
 export type v1GetActivitiesRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Array of Activity Statuses filtering which Activities will be listed in the response. */
+  /** Array of activity statuses filtering which activities will be listed in the response. */
   filterByStatus?: v1ActivityStatus[];
   /** Parameters used for cursor-based pagination. */
   paginationOptions?: v1Pagination;
-  /** Array of Activity Types filtering which Activities will be listed in the response. */
+  /** Array of activity types filtering which activities will be listed in the response. */
   filterByType?: v1ActivityType[];
 };
 
 export type v1GetActivitiesResponse = {
-  /** A list of Activities. */
+  /** A list of activities. */
   activities: v1Activity[];
 };
 
 export type v1GetActivityRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given Activity object. */
+  /** Unique identifier for a given activity object. */
   activityId: string;
 };
 
 export type v1GetApiKeyRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
   /** Unique identifier for a given API key. */
   apiKeyId: string;
@@ -1664,9 +1664,9 @@ export type v1GetApiKeyResponse = {
 };
 
 export type v1GetApiKeysRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given User. */
+  /** Unique identifier for a given user. */
   userId?: string;
 };
 
@@ -1676,21 +1676,21 @@ export type v1GetApiKeysResponse = {
 };
 
 export type v1GetAttestationDocumentRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** The enclave type, one of: ump, notarizer, signer, evm-parser */
+  /** The enclave type, one of: ump, notarizer, signer, evm-parser. */
   enclaveType: string;
 };
 
 export type v1GetAttestationDocumentResponse = {
-  /** Raw (CBOR-encoded) attestation document */
+  /** Raw (CBOR-encoded) attestation document. */
   attestationDocument: string;
 };
 
 export type v1GetAuthenticatorRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given Authenticator. */
+  /** Unique identifier for a given authenticator. */
   authenticatorId: string;
 };
 
@@ -1700,9 +1700,9 @@ export type v1GetAuthenticatorResponse = {
 };
 
 export type v1GetAuthenticatorsRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given User. */
+  /** Unique identifier for a given user. */
   userId: string;
 };
 
@@ -1712,51 +1712,51 @@ export type v1GetAuthenticatorsResponse = {
 };
 
 export type v1GetOauthProvidersRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given User. */
+  /** Unique identifier for a given user. */
   userId?: string;
 };
 
 export type v1GetOauthProvidersResponse = {
-  /** A list of Oauth Providers */
+  /** A list of Oauth providers. */
   oauthProviders: v1OauthProvider[];
 };
 
 export type v1GetOrganizationConfigsRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
 };
 
 export type v1GetOrganizationConfigsResponse = {
-  /** Organization configs including quorum settings and organization features */
+  /** Organization configs including quorum settings and organization features. */
   configs: v1Config;
 };
 
 export type v1GetOrganizationRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
 };
 
 export type v1GetOrganizationResponse = {
-  /** Object representing the full current and deleted / disabled collection of Users, Policies, Private Keys, and Invitations attributable to a particular Organization. */
+  /** Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization. */
   organizationData: v1OrganizationData;
 };
 
 export type v1GetPoliciesRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
 };
 
 export type v1GetPoliciesResponse = {
-  /** A list of Policies. */
+  /** A list of policies. */
   policies: v1Policy[];
 };
 
 export type v1GetPolicyEvaluationsRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given Activity. */
+  /** Unique identifier for a given activity. */
   activityId: string;
 };
 
@@ -1765,21 +1765,21 @@ export type v1GetPolicyEvaluationsResponse = {
 };
 
 export type v1GetPolicyRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given Policy. */
+  /** Unique identifier for a given policy. */
   policyId: string;
 };
 
 export type v1GetPolicyResponse = {
-  /** Object that codifies rules defining the actions that are permissible within an Organization. */
+  /** Object that codifies rules defining the actions that are permissible within an organization. */
   policy: v1Policy;
 };
 
 export type v1GetPrivateKeyRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given Private Key. */
+  /** Unique identifier for a given private key. */
   privateKeyId: string;
 };
 
@@ -1789,12 +1789,12 @@ export type v1GetPrivateKeyResponse = {
 };
 
 export type v1GetPrivateKeysRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
 };
 
 export type v1GetPrivateKeysResponse = {
-  /** A list of Private Keys. */
+  /** A list of private keys. */
   privateKeys: v1PrivateKey[];
 };
 
@@ -1809,29 +1809,29 @@ export type v1GetProxyAuthConfigResponse = {
 };
 
 export type v1GetSmartContractInterfaceRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given Smart Contract Interface. */
+  /** Unique identifier for a given smart contract interface. */
   smartContractInterfaceId: string;
 };
 
 export type v1GetSmartContractInterfaceResponse = {
-  /** Object to be used in conjunction with Policies to guard transaction signing. */
+  /** Object to be used in conjunction with policies to guard transaction signing. */
   smartContractInterface: externaldatav1SmartContractInterface;
 };
 
 export type v1GetSmartContractInterfacesRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
 };
 
 export type v1GetSmartContractInterfacesResponse = {
-  /** A list of Smart Contract Interfaces. */
+  /** A list of smart contract interfaces. */
   smartContractInterfaces: externaldatav1SmartContractInterface[];
 };
 
 export type v1GetSubOrgIdsRequest = {
-  /** Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
+  /** Unique identifier for the parent organization. This is used to find sub-organizations within it. */
   organizationId: string;
   /** Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'WALLET_ACCOUNT_ADDRESS' or 'PUBLIC_KEY' */
   filterType?: string;
@@ -1847,31 +1847,31 @@ export type v1GetSubOrgIdsResponse = {
 };
 
 export type v1GetUserRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given User. */
+  /** Unique identifier for a given user. */
   userId: string;
 };
 
 export type v1GetUserResponse = {
-  /** Web and/or API user within your Organization. */
+  /** Web and/or API user within your organization. */
   user: v1User;
 };
 
 export type v1GetUsersRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
 };
 
 export type v1GetUsersResponse = {
-  /** A list of Users. */
+  /** A list of users. */
   users: v1User[];
 };
 
 export type v1GetVerifiedSubOrgIdsRequest = {
-  /** Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
+  /** Unique identifier for the parent organization. This is used to find sub-organizations within it. */
   organizationId: string;
-  /** Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER' */
+  /** Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER'. */
   filterType?: string;
   /** The value of the filter to apply for the specified type. For example, a specific email or phone number string. */
   filterValue?: string;
@@ -1885,70 +1885,70 @@ export type v1GetVerifiedSubOrgIdsResponse = {
 };
 
 export type v1GetWalletAccountRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given Wallet. */
+  /** Unique identifier for a given wallet. */
   walletId: string;
-  /** Address corresponding to a Wallet Account. */
+  /** Address corresponding to a wallet account. */
   address?: string;
-  /** Path corresponding to a Wallet Account. */
+  /** Path corresponding to a wallet account. */
   path?: string;
 };
 
 export type v1GetWalletAccountResponse = {
-  /** The resulting Wallet Account. */
+  /** The resulting wallet account. */
   account: v1WalletAccount;
 };
 
 export type v1GetWalletAccountsRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given Wallet. */
-  walletId: string;
+  /** Unique identifier for a given wallet. If not provided, all accounts for the organization will be returned. */
+  walletId?: string;
   /** Parameters used for cursor-based pagination. */
   paginationOptions?: v1Pagination;
 };
 
 export type v1GetWalletAccountsResponse = {
-  /** A list of Accounts generated from a Wallet that share a common seed. */
+  /** A list of accounts generated from a wallet that share a common seed. */
   accounts: v1WalletAccount[];
 };
 
 export type v1GetWalletRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Unique identifier for a given Wallet. */
+  /** Unique identifier for a given wallet. */
   walletId: string;
 };
 
 export type v1GetWalletResponse = {
-  /** A collection of deterministically generated cryptographic public / private key pairs that share a common seed */
+  /** A collection of deterministically generated cryptographic public / private key pairs that share a common seed. */
   wallet: v1Wallet;
 };
 
 export type v1GetWalletsRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
 };
 
 export type v1GetWalletsResponse = {
-  /** A list of Wallets. */
+  /** A list of wallets. */
   wallets: v1Wallet[];
 };
 
 export type v1GetWhoamiRequest = {
-  /** Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
+  /** Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons. */
   organizationId: string;
 };
 
 export type v1GetWhoamiResponse = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Human-readable name for an Organization. */
+  /** Human-readable name for an organization. */
   organizationName: string;
-  /** Unique identifier for a given User. */
+  /** Unique identifier for a given user. */
   userId: string;
-  /** Human-readable name for a User. */
+  /** Human-readable name for a user. */
   username: string;
 };
 
@@ -2354,22 +2354,22 @@ export type v1InvitationStatus =
   | "INVITATION_STATUS_REVOKED";
 
 export type v1ListPrivateKeyTagsRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
 };
 
 export type v1ListPrivateKeyTagsResponse = {
-  /** A list of Private Key Tags */
+  /** A list of private key tags. */
   privateKeyTags: datav1Tag[];
 };
 
 export type v1ListUserTagsRequest = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
 };
 
 export type v1ListUserTagsResponse = {
-  /** A list of User Tags */
+  /** A list of user tags. */
   userTags: datav1Tag[];
 };
 
@@ -2639,8 +2639,10 @@ export type v1ProxyAuthConfig = {
   replyToEmailAddress?: string;
   emailAuthTemplateId?: string;
   otpTemplateId?: string;
-  emailCustomizationParams?: string;
-  smsCustomizationParams?: string;
+  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
+  emailCustomizationParams?: v1EmailCustomizationParams;
+  /** Optional parameters for customizing SMS. If not provided, the default SMS will be used. */
+  smsCustomizationParams?: v1SmsCustomizationParams;
   otpExpirationSeconds?: number;
   verificationTokenExpirationSeconds?: number;
   sessionExpirationSeconds?: number;
@@ -3025,11 +3027,11 @@ export type v1StampLoginResult = {
 export type v1TagType = "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
 
 export type v1TestRateLimitsRequest = {
-  /** Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
+  /** Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons. */
   organizationId: string;
   /** Whether or not to set a limit on this request. */
   isSetLimit: boolean;
-  /** Rate limit to set for org, if is_set_limit is set to true */
+  /** Rate limit to set for org, if is_set_limit is set to true. */
   limit: number;
 };
 
@@ -3470,12 +3472,8 @@ export type v1WalletAccountParams = {
 };
 
 export type v1WalletKitSettingsParams = {
-  /** Enable Sign in with Apple */
-  appleEnabled?: boolean;
-  /** Enable Sign in with Google */
-  googleEnabled?: boolean;
-  /** Enable Sign in with Facebook */
-  facebookEnabled?: boolean;
+  /** List of enabled social login providers (e.g., 'apple', 'google', 'facebook') */
+  enabledSocialProviders?: string[];
   /** Whether to open OAuth providers in-page instead of a popup */
   openOauthInPage?: boolean;
 };
@@ -3508,13 +3506,13 @@ export type v1WebAuthnStamp = {
 
 // --- API Types from Swagger Paths ---
 export type TGetActivityResponse = {
-  /** An action that can that can be taken within the Turnkey infrastructure. */
+  /** An action that can be taken within the Turnkey infrastructure. */
   activity: v1Activity;
 };
 
 export type TGetActivityBody = {
   organizationId?: string;
-  /** Unique identifier for a given Activity object. */
+  /** Unique identifier for a given activity object. */
   activityId: string;
 };
 
@@ -3540,20 +3538,20 @@ export type TGetApiKeysResponse = {
 
 export type TGetApiKeysBody = {
   organizationId?: string;
-  /** Unique identifier for a given User. */
+  /** Unique identifier for a given user. */
   userId?: string;
 };
 
 export type TGetApiKeysInput = { body: TGetApiKeysBody };
 
 export type TGetAttestationDocumentResponse = {
-  /** Raw (CBOR-encoded) attestation document */
+  /** Raw (CBOR-encoded) attestation document. */
   attestationDocument: string;
 };
 
 export type TGetAttestationDocumentBody = {
   organizationId?: string;
-  /** The enclave type, one of: ump, notarizer, signer, evm-parser */
+  /** The enclave type, one of: ump, notarizer, signer, evm-parser. */
   enclaveType: string;
 };
 
@@ -3568,7 +3566,7 @@ export type TGetAuthenticatorResponse = {
 
 export type TGetAuthenticatorBody = {
   organizationId?: string;
-  /** Unique identifier for a given Authenticator. */
+  /** Unique identifier for a given authenticator. */
   authenticatorId: string;
 };
 
@@ -3581,27 +3579,27 @@ export type TGetAuthenticatorsResponse = {
 
 export type TGetAuthenticatorsBody = {
   organizationId?: string;
-  /** Unique identifier for a given User. */
+  /** Unique identifier for a given user. */
   userId: string;
 };
 
 export type TGetAuthenticatorsInput = { body: TGetAuthenticatorsBody };
 
 export type TGetOauthProvidersResponse = {
-  /** A list of Oauth Providers */
+  /** A list of Oauth providers. */
   oauthProviders: v1OauthProvider[];
 };
 
 export type TGetOauthProvidersBody = {
   organizationId?: string;
-  /** Unique identifier for a given User. */
+  /** Unique identifier for a given user. */
   userId?: string;
 };
 
 export type TGetOauthProvidersInput = { body: TGetOauthProvidersBody };
 
 export type TGetOrganizationResponse = {
-  /** Object representing the full current and deleted / disabled collection of Users, Policies, Private Keys, and Invitations attributable to a particular Organization. */
+  /** Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization. */
   organizationData: v1OrganizationData;
 };
 
@@ -3612,7 +3610,7 @@ export type TGetOrganizationBody = {
 export type TGetOrganizationInput = { body: TGetOrganizationBody };
 
 export type TGetOrganizationConfigsResponse = {
-  /** Organization configs including quorum settings and organization features */
+  /** Organization configs including quorum settings and organization features. */
   configs: v1Config;
 };
 
@@ -3625,13 +3623,13 @@ export type TGetOrganizationConfigsInput = {
 };
 
 export type TGetPolicyResponse = {
-  /** Object that codifies rules defining the actions that are permissible within an Organization. */
+  /** Object that codifies rules defining the actions that are permissible within an organization. */
   policy: v1Policy;
 };
 
 export type TGetPolicyBody = {
   organizationId?: string;
-  /** Unique identifier for a given Policy. */
+  /** Unique identifier for a given policy. */
   policyId: string;
 };
 
@@ -3643,7 +3641,7 @@ export type TGetPolicyEvaluationsResponse = {
 
 export type TGetPolicyEvaluationsBody = {
   organizationId?: string;
-  /** Unique identifier for a given Activity. */
+  /** Unique identifier for a given activity. */
   activityId: string;
 };
 
@@ -3656,7 +3654,7 @@ export type TGetPrivateKeyResponse = {
 
 export type TGetPrivateKeyBody = {
   organizationId?: string;
-  /** Unique identifier for a given Private Key. */
+  /** Unique identifier for a given private key. */
   privateKeyId: string;
 };
 
@@ -3674,13 +3672,13 @@ export type TGetProxyAuthConfigBody = {
 export type TGetProxyAuthConfigInput = { body: TGetProxyAuthConfigBody };
 
 export type TGetSmartContractInterfaceResponse = {
-  /** Object to be used in conjunction with Policies to guard transaction signing. */
+  /** Object to be used in conjunction with policies to guard transaction signing. */
   smartContractInterface: externaldatav1SmartContractInterface;
 };
 
 export type TGetSmartContractInterfaceBody = {
   organizationId?: string;
-  /** Unique identifier for a given Smart Contract Interface. */
+  /** Unique identifier for a given smart contract interface. */
   smartContractInterfaceId: string;
 };
 
@@ -3689,67 +3687,67 @@ export type TGetSmartContractInterfaceInput = {
 };
 
 export type TGetUserResponse = {
-  /** Web and/or API user within your Organization. */
+  /** Web and/or API user within your organization. */
   user: v1User;
 };
 
 export type TGetUserBody = {
   organizationId?: string;
-  /** Unique identifier for a given User. */
+  /** Unique identifier for a given user. */
   userId: string;
 };
 
 export type TGetUserInput = { body: TGetUserBody };
 
 export type TGetWalletResponse = {
-  /** A collection of deterministically generated cryptographic public / private key pairs that share a common seed */
+  /** A collection of deterministically generated cryptographic public / private key pairs that share a common seed. */
   wallet: v1Wallet;
 };
 
 export type TGetWalletBody = {
   organizationId?: string;
-  /** Unique identifier for a given Wallet. */
+  /** Unique identifier for a given wallet. */
   walletId: string;
 };
 
 export type TGetWalletInput = { body: TGetWalletBody };
 
 export type TGetWalletAccountResponse = {
-  /** The resulting Wallet Account. */
+  /** The resulting wallet account. */
   account: v1WalletAccount;
 };
 
 export type TGetWalletAccountBody = {
   organizationId?: string;
-  /** Unique identifier for a given Wallet. */
+  /** Unique identifier for a given wallet. */
   walletId: string;
-  /** Address corresponding to a Wallet Account. */
+  /** Address corresponding to a wallet account. */
   address?: string;
-  /** Path corresponding to a Wallet Account. */
+  /** Path corresponding to a wallet account. */
   path?: string;
 };
 
 export type TGetWalletAccountInput = { body: TGetWalletAccountBody };
 
 export type TGetActivitiesResponse = {
-  /** A list of Activities. */
+  /** A list of activities. */
   activities: v1Activity[];
 };
 
 export type TGetActivitiesBody = {
   organizationId?: string;
-  /** Array of Activity Statuses filtering which Activities will be listed in the response. */
+  /** Array of activity statuses filtering which activities will be listed in the response. */
   filterByStatus?: v1ActivityStatus[];
   /** Parameters used for cursor-based pagination. */
   paginationOptions?: v1Pagination;
-  /** Array of Activity Types filtering which Activities will be listed in the response. */
+  /** Array of activity types filtering which activities will be listed in the response. */
   filterByType?: v1ActivityType[];
 };
 
 export type TGetActivitiesInput = { body: TGetActivitiesBody };
 
 export type TGetPoliciesResponse = {
-  /** A list of Policies. */
+  /** A list of policies. */
   policies: v1Policy[];
 };
 
@@ -3760,7 +3758,7 @@ export type TGetPoliciesBody = {
 export type TGetPoliciesInput = { body: TGetPoliciesBody };
 
 export type TListPrivateKeyTagsResponse = {
-  /** A list of Private Key Tags */
+  /** A list of private key tags. */
   privateKeyTags: datav1Tag[];
 };
 
@@ -3771,7 +3769,7 @@ export type TListPrivateKeyTagsBody = {
 export type TListPrivateKeyTagsInput = { body: TListPrivateKeyTagsBody };
 
 export type TGetPrivateKeysResponse = {
-  /** A list of Private Keys. */
+  /** A list of private keys. */
   privateKeys: v1PrivateKey[];
 };
 
@@ -3782,7 +3780,7 @@ export type TGetPrivateKeysBody = {
 export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
 
 export type TGetSmartContractInterfacesResponse = {
-  /** A list of Smart Contract Interfaces. */
+  /** A list of smart contract interfaces. */
   smartContractInterfaces: externaldatav1SmartContractInterface[];
 };
 
@@ -3812,7 +3810,7 @@ export type TGetSubOrgIdsBody = {
 export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
 
 export type TListUserTagsResponse = {
-  /** A list of User Tags */
+  /** A list of user tags. */
   userTags: datav1Tag[];
 };
 
@@ -3823,7 +3821,7 @@ export type TListUserTagsBody = {
 export type TListUserTagsInput = { body: TListUserTagsBody };
 
 export type TGetUsersResponse = {
-  /** A list of Users. */
+  /** A list of users. */
   users: v1User[];
 };
 
@@ -3840,7 +3838,7 @@ export type TGetVerifiedSubOrgIdsResponse = {
 
 export type TGetVerifiedSubOrgIdsBody = {
   organizationId?: string;
-  /** Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER' */
+  /** Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER'. */
   filterType?: string;
   /** The value of the filter to apply for the specified type. For example, a specific email or phone number string. */
   filterValue?: string;
@@ -3851,14 +3849,14 @@ export type TGetVerifiedSubOrgIdsBody = {
 export type TGetVerifiedSubOrgIdsInput = { body: TGetVerifiedSubOrgIdsBody };
 
 export type TGetWalletAccountsResponse = {
-  /** A list of Accounts generated from a Wallet that share a common seed. */
+  /** A list of accounts generated from a wallet that share a common seed. */
   accounts: v1WalletAccount[];
 };
 
 export type TGetWalletAccountsBody = {
   organizationId?: string;
-  /** Unique identifier for a given Wallet. */
-  walletId: string;
+  /** Unique identifier for a given wallet. If not provided, all accounts for the organization will be returned. */
+  walletId?: string;
   /** Parameters used for cursor-based pagination. */
   paginationOptions?: v1Pagination;
 };
@@ -3866,7 +3864,7 @@ export type TGetWalletAccountsBody = {
 export type TGetWalletAccountsInput = { body: TGetWalletAccountsBody };
 
 export type TGetWalletsResponse = {
-  /** A list of Wallets. */
+  /** A list of wallets. */
   wallets: v1Wallet[];
 };
 
@@ -3877,13 +3875,13 @@ export type TGetWalletsBody = {
 export type TGetWalletsInput = { body: TGetWalletsBody };
 
 export type TGetWhoamiResponse = {
-  /** Unique identifier for a given Organization. */
+  /** Unique identifier for a given organization. */
   organizationId: string;
-  /** Human-readable name for an Organization. */
+  /** Human-readable name for an organization. */
   organizationName: string;
-  /** Unique identifier for a given User. */
+  /** Unique identifier for a given user. */
   userId: string;
-  /** Human-readable name for a User. */
+  /** Human-readable name for a user. */
   username: string;
 };
 
@@ -5252,7 +5250,7 @@ export type TTestRateLimitsBody = {
   organizationId?: string;
   /** Whether or not to set a limit on this request. */
   isSetLimit: boolean;
-  /** Rate limit to set for org, if is_set_limit is set to true */
+  /** Rate limit to set for org, if is_set_limit is set to true. */
   limit: number;
 };
 
@@ -5355,15 +5353,13 @@ export type ProxyTSignupBody = {
 export type ProxyTSignupInput = { body: ProxyTSignupBody };
 
 export type ProxyTGetWalletKitConfigResponse = {
-  facebookEnabled: boolean;
-  googleEnabled: boolean;
-  appleEnabled: boolean;
-  emailEnabled: boolean;
-  smsEnabled: boolean;
-  passkeyEnabled: boolean;
-  walletEnabled: boolean;
+  /** List of enabled authentication providers (e.g., 'facebook', 'google', 'apple', 'email', 'sms', 'passkey', 'wallet') */
+  enabledProviders: string[];
+  /** Whether to open OAuth providers in-page instead of a popup */
   openOAuthInPage: boolean;
+  /** Session expiration duration in seconds */
   sessionExpirationSeconds: string;
+  /** The organization ID this configuration applies to */
   organizationId: string;
 };
 
