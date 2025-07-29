@@ -716,6 +716,7 @@ export class TurnkeyClient {
   /**
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    * Get the policy evaluations for an activity.
 =======
    * Get the policy evaluations for an Activity
@@ -723,6 +724,9 @@ export class TurnkeyClient {
 =======
    * Get the policy evaluations for an Activity
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
+=======
+   * Get the policy evaluations for an activity.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TGetPolicyEvaluationsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_policy_evaluations).
    *
@@ -756,12 +760,16 @@ export class TurnkeyClient {
   /**
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    * Get details about a private key.
 =======
 =======
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
    * Get details about a Private Key
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
+=======
+   * Get details about a private key.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TGetPrivateKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_private_key).
    *
@@ -851,10 +859,14 @@ export class TurnkeyClient {
   /**
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
    * Get details about a user.
 =======
 =======
    * Get details about a Smart Contract Interface
+=======
+   * Get details about a smart contract interface.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TGetSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_smart_contract_interface).
    *
@@ -886,9 +898,13 @@ export class TurnkeyClient {
   };
 
   /**
+<<<<<<< HEAD
 >>>>>>> 57ef158e (updated auth proxy type generation)
    * Get details about a User
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+   * Get details about a user.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TGetUserBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_user).
    *
@@ -1099,10 +1115,14 @@ export class TurnkeyClient {
 
   /**
 <<<<<<< HEAD
+<<<<<<< HEAD
    * List all smart contract interfaces within an organization.
 =======
    * List all Smart Contract Interfaces within an Organization
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+   * List all smart contract interfaces within an organization.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TGetSmartContractInterfacesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_smart_contract_interfaces).
    *
@@ -1725,10 +1745,14 @@ export class TurnkeyClient {
 
   /**
 <<<<<<< HEAD
+<<<<<<< HEAD
    * Create an ABI/IDL in JSON.
 =======
    * Create an ABI/IDL in JSON
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+   * Create an ABI/IDL in JSON.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TCreateSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_smart_contract_interface).
    *
@@ -1764,10 +1788,14 @@ export class TurnkeyClient {
 
   /**
 <<<<<<< HEAD
+<<<<<<< HEAD
    * Create a new sub-organization.
 =======
    * Create a new Sub-Organization
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+   * Create a new sub-organization.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TCreateSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_sub_organization).
    *
@@ -2146,10 +2174,14 @@ export class TurnkeyClient {
 
   /**
 <<<<<<< HEAD
+<<<<<<< HEAD
    * Delete a smart contract interface.
 =======
    * Delete a Smart Contract Interface
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+   * Delete a smart contract interface.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TDeleteSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_smart_contract_interface).
    *
@@ -2185,10 +2217,14 @@ export class TurnkeyClient {
 
   /**
 <<<<<<< HEAD
+<<<<<<< HEAD
    * Delete a sub-organization.
 =======
    * Deletes a sub organization
 >>>>>>> 57ef158e (updated auth proxy type generation)
+=======
+   * Delete a sub-organization.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TDeleteSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_sub_organization).
    *
@@ -2348,8 +2384,12 @@ export class TurnkeyClient {
   };
 
   /**
+<<<<<<< HEAD
    * Authenticate a user via Email
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+   * Authenticate a user via email.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TEmailAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/email_auth).
    *
@@ -2411,8 +2451,12 @@ export class TurnkeyClient {
   };
 
   /**
+<<<<<<< HEAD
    * Exports a Private Key
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+   * Export a private key.
+>>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TExportPrivateKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/export_private_key).
    *
