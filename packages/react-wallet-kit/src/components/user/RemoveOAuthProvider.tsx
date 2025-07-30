@@ -7,18 +7,17 @@ import { useTurnkey } from "../../providers/client/Hook";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import clsx from "clsx";
 import { SuccessPage } from "../design/Success";
-import type { DefaultParams } from "@turnkey/sdk-js";
+import type { StamperType } from "@turnkey/sdk-js";
 
-export function RemoveOAuthProvider(
-  params: {
-    providerId: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined;
-    onSuccess: (providerIds: string[]) => void;
-    onError: (error: any) => void;
-  } & DefaultParams,
-) {
+export function RemoveOAuthProvider(params: {
+  providerId: string;
+  title?: string;
+  subTitle?: string;
+  successPageDuration?: number | undefined;
+  onSuccess: (providerIds: string[]) => void;
+  onError: (error: any) => void;
+  stampWith?: StamperType | undefined;
+}) {
   const { user, removeOAuthProviders } = useTurnkey();
   const { isMobile, closeModal, pushPage } = useModal();
   const [isLoading, setIsLoading] = useState(false);

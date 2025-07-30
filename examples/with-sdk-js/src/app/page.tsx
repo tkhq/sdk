@@ -958,7 +958,7 @@ export default function AuthPage() {
       )}
       {session && (
         <button
-          onClick={handleLinkExternalWallet}
+          onClick={() => handleLinkExternalWallet()}
           style={{
             backgroundColor: "rebeccapurple",
             borderRadius: "8px",

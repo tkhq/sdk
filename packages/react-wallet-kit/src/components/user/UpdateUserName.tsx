@@ -6,19 +6,18 @@ import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
 import { Input } from "@headlessui/react";
 import clsx from "clsx";
-import type { DefaultParams } from "@turnkey/sdk-js";
+import type { StamperType } from "@turnkey/sdk-js";
 import { SuccessPage } from "../design/Success";
 
-export function UpdateUserName(
-  params: {
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    onSuccess: (userId: string) => void;
-    onError: (error: any) => void;
-    userName?: string; // Optional initial user name to pre-fill the input
-    title?: string;
-    subTitle?: string;
-  } & DefaultParams,
-) {
+export function UpdateUserName(params: {
+  successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  onSuccess: (userId: string) => void;
+  onError: (error: any) => void;
+  userName?: string; // Optional initial user name to pre-fill the input
+  title?: string;
+  subTitle?: string;
+  stampWith?: StamperType | undefined;
+}) {
   const { user, updateUserName } = useTurnkey();
   const { isMobile, pushPage, closeModal } = useModal();
   const userName = user?.userName || "";
