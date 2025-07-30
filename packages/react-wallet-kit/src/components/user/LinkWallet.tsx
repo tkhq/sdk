@@ -60,7 +60,7 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
           provider={provider}
           onUnlink={async () => {
             await disconnectWalletAccount(provider);
-            if (successPageDuration && successPageDuration > 0) {
+            if (successPageDuration) {
               pushPage({
                 key: "Unlink Success",
                 content: (

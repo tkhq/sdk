@@ -5,7 +5,7 @@ import {
   faUnlock,
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
-import type { DefaultParams } from "@turnkey/sdk-js";
+import type { StamperType } from "@turnkey/sdk-js";
 import { ExportType } from "../../types/base";
 import { useTurnkey } from "../../providers/client/Hook";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
@@ -13,15 +13,14 @@ import { ActionButton } from "../design/Buttons";
 import type { IframeStamper } from "@turnkey/iframe-stamper";
 import { useState } from "react";
 
-export function ExportWarning(
-  props: {
-    walletId: string;
-    exportIframeClient?: IframeStamper | null; // Replace with actual type if available
-    targetPublicKey?: string | undefined;
-    exportType: ExportType;
-    setExportIframeVisible?: (visible: boolean) => void;
-  } & DefaultParams,
-) {
+export function ExportWarning(props: {
+  walletId: string;
+  exportIframeClient?: IframeStamper | null; // Replace with actual type if available
+  targetPublicKey?: string | undefined;
+  exportType: ExportType;
+  setExportIframeVisible?: (visible: boolean) => void;
+  stampWith?: StamperType | undefined;
+}) {
   const {
     walletId,
     exportIframeClient,
