@@ -8,9 +8,9 @@ export type Session = {
   userId: string;
   organizationId: string;
   expiry: number;
-  expirationSeconds: string;
+  expirationSeconds?: string | undefined;
   token: string;
-  publicKey: string;
+  publicKey?: string | undefined;
 };
 
 export type SessionResponse = {
