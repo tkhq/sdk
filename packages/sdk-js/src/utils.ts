@@ -269,14 +269,6 @@ export const generateRandomBuffer = (): ArrayBuffer => {
   return arr.buffer;
 };
 
-export const base64UrlEncode = (challenge: ArrayBuffer): string => {
-  return Buffer.from(challenge)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-};
-
 const hexByByte = Array.from({ length: 256 }, (_, i) =>
   i.toString(16).padStart(2, "0"),
 );

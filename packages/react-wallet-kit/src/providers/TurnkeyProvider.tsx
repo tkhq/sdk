@@ -1,3 +1,5 @@
+"use client";
+
 import { ClientProvider } from "./client/Provider";
 import { ModalProvider } from "./modal/Provider";
 import { ModalRoot } from "./modal/Root";
