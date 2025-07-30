@@ -1,13 +1,13 @@
 import {
   SignIntent,
-  WalletRpcProvider,
+  type WalletRpcProvider,
   WalletType,
-  WalletInterface,
-  TStamp,
-  TStamper,
+  type WalletInterface,
+  type TStamp,
+  type TStamper,
 } from "@types";
 import { stringToBase64urlString } from "@turnkey/encoding";
-import { Hex } from "viem";
+import type { Hex } from "viem";
 
 const SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191 =
   "SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191";
