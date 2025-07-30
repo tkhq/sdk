@@ -8,7 +8,7 @@ import { useState } from "react";
 import clsx from "clsx";
 import { OtpVerification } from "../auth/OTP";
 import { SuccessPage } from "../design/Success";
-import { OtpType } from "../..";
+import { OtpType } from "@turnkey/sdk-js";
 
 export function UpdateEmail(params: {
   onSuccess: (userId: string) => void;

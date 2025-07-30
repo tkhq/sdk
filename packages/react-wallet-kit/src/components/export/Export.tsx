@@ -1,25 +1,24 @@
 import { useEffect, useState } from "react";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
-import type { DefaultParams } from "@turnkey/sdk-js";
 import { IframeStamper } from "@turnkey/iframe-stamper";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { ExportWarning } from "./ExportWarning";
 import { ActionButton } from "../design/Buttons";
 import type { ExportType } from "../../types/base";
 import clsx from "clsx";
+import type { StamperType } from "@turnkey/sdk-js";
 
 const TurnkeyExportIframeContainerId = "turnkey-export-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 const TurnkeyIframeClassNames = "w-full border-none";
 
-export function ExportComponent(
-  params: {
-    walletId: string;
-    exportType: ExportType;
-    targetPublicKey?: string;
-  } & DefaultParams,
-) {
+export function ExportComponent(params: {
+  walletId: string;
+  exportType: ExportType;
+  targetPublicKey?: string;
+  stampWith?: StamperType | undefined;
+}) {
   const { exportType, targetPublicKey, stampWith, walletId } = params;
   const { config } = useTurnkey();
 

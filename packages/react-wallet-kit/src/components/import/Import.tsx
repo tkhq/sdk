@@ -11,7 +11,7 @@ import {
 import { ActionButton } from "../design/Buttons";
 import { Input } from "@headlessui/react";
 import {
-  DefaultParams,
+  type StamperType,
   generateWalletAccountsFromAddressFormat,
 } from "@turnkey/sdk-js";
 import { SuccessPage } from "../design/Success";
@@ -25,14 +25,13 @@ export enum ExportType {
 const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 
-export function ImportComponent(
-  params: {
-    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-    onSuccess: (walletId: string) => void;
-    onError: (error: TurnkeyError) => void;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  } & DefaultParams,
-) {
+export function ImportComponent(params: {
+  defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
+  onSuccess: (walletId: string) => void;
+  onError: (error: TurnkeyError) => void;
+  successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  stampWith?: StamperType | undefined;
+}) {
   const {
     onSuccess,
     onError,

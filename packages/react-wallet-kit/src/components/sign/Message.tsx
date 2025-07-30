@@ -1,10 +1,9 @@
 import { Textarea } from "@headlessui/react";
-import type { StamperType } from "@turnkey/sdk-js";
+import type { StamperType, WalletAccount } from "@turnkey/sdk-js";
 import type {
   v1HashFunction,
   v1PayloadEncoding,
   v1SignRawPayloadResult,
-  v1WalletAccount,
 } from "@turnkey/sdk-types";
 import { ActionButton } from "../design/Buttons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -17,7 +16,7 @@ import clsx from "clsx";
 
 interface SignMessageModalProps {
   message: string;
-  walletAccount: v1WalletAccount;
+  walletAccount: WalletAccount;
   subText?: string | undefined;
   stampWith?: StamperType | undefined;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.

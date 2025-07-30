@@ -1,6 +1,6 @@
 import { WebWalletManager } from "./web/manager";
 import { isReactNative, isWeb } from "@utils";
-import { TWalletManagerConfig, WalletManagerBase } from "@types";
+import type { TWalletManagerConfig, WalletManagerBase } from "@types";
 
 export async function createWalletManager(
   cfg: TWalletManagerConfig,
