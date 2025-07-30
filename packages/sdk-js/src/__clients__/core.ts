@@ -157,12 +157,12 @@ export class TurnkeyClient {
    * - Handles both web and React Native environments, automatically selecting the appropriate passkey creation flow.
    * - The resulting attestation and challenge can be used to register the passkey with Turnkey.
    *
-   * @param params.name - The name of the passkey. If not provided, defaults to "A Passkey".
-   * @param params.displayName - The display name for the passkey. If not provided, defaults to "A Passkey".
-   * @param {StamperType | undefined} params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.name - name of the passkey. If not provided, defaults to "A Passkey".
+   * @param params.displayName - display name for the passkey. If not provided, defaults to "A Passkey".
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an object containing:
-   *   - attestation: The attestation object returned from the passkey creation process.
-   *   - encodedChallenge: The encoded challenge string used for passkey registration.
+   *   - attestation: attestation object returned from the passkey creation process.
+   *   - encodedChallenge: encoded challenge string used for passkey registration.
    * @throws {TurnkeyError} If there is an error during passkey creation, or if the platform is unsupported.
    */
   createPasskey = async (params?: {
@@ -862,8 +862,8 @@ export class TurnkeyClient {
    * - Supports both email and SMS OTP types.
    * - Returns an OTP ID that is required for subsequent OTP verification.
    *
-   * @param params.otpType - The type of OTP to initialize (OtpType.Email or OtpType.Sms).
-   * @param params.contact - The contact information for the user (e.g., email address or phone number).
+   * @param params.otpType - type of OTP to initialize (OtpType.Email or OtpType.Sms).
+   * @param params.contact - contact information for the user (e.g., email address or phone number).
    * @returns A promise that resolves to the OTP ID required for verification.
    * @throws {TurnkeyError} If there is an error during the OTP initialization process or if the maximum number of OTPs has been reached.
    */
@@ -908,13 +908,13 @@ export class TurnkeyClient {
    * - The verification token can be used for subsequent login or sign-up flows.
    * - Handles both email and SMS OTP types.
    *
-   * @param params.otpId - The ID of the OTP to verify (returned from `initOtp`).
-   * @param params.otpCode - The OTP code entered by the user.
-   * @param params.contact - The contact information for the user (e.g., email address or phone number).
-   * @param params.otpType - The type of OTP being verified (OtpType.Email or OtpType.Sms).
+   * @param params.otpId - ID of the OTP to verify (returned from `initOtp`).
+   * @param params.otpCode - OTP code entered by the user.
+   * @param params.contact - contact information for the user (e.g., email address or phone number).
+   * @param params.otpType - type of OTP being verified (OtpType.Email or OtpType.Sms).
    * @returns A promise that resolves to an object containing:
-   *   - subOrganizationId: The sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
-   *   - verificationToken: The verification token to be used for login or sign-up.
+   *   - subOrganizationId: sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
+   *   - verificationToken: verification token to be used for login or sign-up.
    * @throws {TurnkeyError} If there is an error during the OTP verification process, such as an invalid code or network failure.
    */
   verifyOtp = async (params: {
@@ -982,7 +982,7 @@ export class TurnkeyClient {
    * - Stores the resulting session token under the specified session key, or the default session key if not provided.
    * - Handles cleanup of unused key pairs if login fails.
    *
-   * @param params.verificationToken - The verification token received after OTP verification.
+   * @param params.verificationToken - verification token received after OTP verification.
    * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
@@ -1061,9 +1061,9 @@ export class TurnkeyClient {
    * - Stores the resulting session token under the specified session key, or the default session key if not provided.
    * - Handles both email and SMS OTP types, and supports additional sub-organization creation parameters.
    *
-   * @param params.verificationToken - The verification token received after OTP verification.
-   * @param params.contact - The contact information for the user (e.g., email address or phone number).
-   * @param params.otpType - The type of OTP being used (OtpType.Email or OtpType.Sms).
+   * @param params.verificationToken - verification token received after OTP verification.
+   * @param params.contact - contact information for the user (e.g., email address or phone number).
+   * @param params.otpType - type of OTP being used (OtpType.Email or OtpType.Sms).
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
@@ -1133,10 +1133,10 @@ export class TurnkeyClient {
    * - Supports passing a custom public key for authentication, invalidating existing session, specifying a session key, and providing additional sub-organization creation parameters.
    * - Handles both email and SMS OTP types.
    *
-   * @param params.otpId - The ID of the OTP to complete (returned from `initOtp`).
-   * @param params.otpCode - The OTP code entered by the user.
-   * @param params.contact - The contact information for the user (e.g., email address or phone number).
-   * @param params.otpType - The type of OTP being completed (OtpType.Email or OtpType.Sms).
+   * @param params.otpId - ID of the OTP to complete (returned from `initOtp`).
+   * @param params.otpCode - OTP code entered by the user.
+   * @param params.contact - contact information for the user (e.g., email address or phone number).
+   * @param params.otpType - type of OTP being completed (OtpType.Email or OtpType.Sms).
    * @param params.publicKey - public key to use for authentication. If not provided, a new key pair may be generated.
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
@@ -1218,8 +1218,8 @@ export class TurnkeyClient {
    * - Optionally accepts a custom OAuth provider name, session key, and additional sub-organization creation parameters.
    * - Handles session storage and management, and supports invalidating existing sessions if specified.
    *
-   * @param params.oidcToken - The OIDC token received after successful authentication with the OAuth provider.
-   * @param params.publicKey - The public key to use for authentication. Must be generated prior to calling this function.
+   * @param params.oidcToken - OIDC token received after successful authentication with the OAuth provider.
+   * @param params.publicKey - public key to use for authentication. Must be generated prior to calling this function.
    * @param params.providerName - name of the OAuth provider (defaults to a generated name with a timestamp).
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
@@ -1293,8 +1293,8 @@ export class TurnkeyClient {
    * - Stores the resulting session token under the specified session key, or the default session key if not provided.
    * - Handles cleanup of unused key pairs if login fails.
    *
-   * @param params.oidcToken - The OIDC token received after successful authentication with the OAuth provider.
-   * @param params.publicKey - The public key to use for authentication. Must be generated prior to calling this function.
+   * @param params.oidcToken - OIDC token received after successful authentication with the OAuth provider.
+   * @param params.publicKey - public key to use for authentication. Must be generated prior to calling this function.
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @returns A promise that resolves to a signed JWT session token.
@@ -1377,9 +1377,9 @@ export class TurnkeyClient {
    * - Optionally accepts additional sub-organization creation parameters and a custom session key.
    * - After successful sign-up, automatically logs in the user and returns a signed JWT session token.
    *
-   * @param params.oidcToken - The OIDC token received after successful authentication with the OAuth provider.
-   * @param params.publicKey - The public key to associate with the new sub-organization.
-   * @param params.providerName - The name of the OAuth provider (e.g., "Google", "Apple").
+   * @param params.oidcToken - OIDC token received after successful authentication with the OAuth provider.
+   * @param params.publicKey - public key to associate with the new sub-organization.
+   * @param params.providerName - name of the OAuth provider (e.g., "Google", "Apple").
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
@@ -1551,7 +1551,7 @@ export class TurnkeyClient {
    * - Optionally allows filtering by a specific set of wallet providers and supports custom pagination options.
    * - Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * @param params.wallet - The wallet for which to fetch accounts.
+   * @param params.wallet - wallet for which to fetch accounts.
    * @param params.walletProviders - list of wallet providers to filter by (used for connected wallets).
    * @param params.paginationOptions - pagination options for embedded wallets.
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
@@ -1663,8 +1663,8 @@ export class TurnkeyClient {
    * - Automatically handles message encoding and hashing based on the wallet account’s address format,
    *   unless explicitly overridden.
    *
-   * @param params.message - The message to sign.
-   * @param params.walletAccount - The wallet account to use for signing.
+   * @param params.message - message to sign.
+   * @param params.walletAccount - wallet account to use for signing.
    * @param params.encoding - override for the payload encoding (defaults to the encoding appropriate for the address type).
    * @param params.hashFunction - override for the hash function (defaults to the hash function appropriate for the address type).
    * @param params.stampWith - stamper to tag the signing request (e.g., Passkey, ApiKey, or Wallet).
@@ -1737,9 +1737,9 @@ export class TurnkeyClient {
    * - Delegates signing to the Turnkey API, which returns the signed transaction and related metadata.
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * @param params.walletAccount - The wallet account to use for signing the transaction.
-   * @param params.unsignedTransaction - The unsigned transaction data (serialized as a string) to be signed.
-   * @param params.transactionType - The type of transaction (e.g., "TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA", "TRANSACTION_TYPE_TRON").
+   * @param params.walletAccount - wallet account to use for signing the transaction.
+   * @param params.unsignedTransaction - unsigned transaction data (serialized as a string) to be signed.
+   * @param params.transactionType - type of transaction (e.g., "TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA", "TRANSACTION_TYPE_TRON").
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to a `TSignTransactionResponse` object containing the signed transaction and any additional signing metadata.
    * @throws {TurnkeyError} If there is an error signing the transaction or if the response is invalid.
@@ -1870,7 +1870,7 @@ export class TurnkeyClient {
    * - Automatically ensures an active session exists before making the request.
    * - Handles session management and error reporting for both update and verification flows.
    *
-   * @param params.email - The new email address to set for the user.
+   * @param params.email - new email address to set for the user.
    * @param params.verificationToken - verification token from OTP email verification (required if verifying the email).
    * @param params.userId - user ID to update a specific user's email (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
@@ -1972,7 +1972,7 @@ export class TurnkeyClient {
    * - Automatically ensures an active session exists before making the request.
    * - Handles session management and error reporting for both update and verification flows.
    *
-   * @param params.phoneNumber - The new phone number to set for the user.
+   * @param params.phoneNumber - new phone number to set for the user.
    * @param params.verificationToken - verification token from OTP phone verification (required if verifying the phone number).
    * @param params.userId - user ID to update a specific user's phone number (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
@@ -2074,7 +2074,7 @@ export class TurnkeyClient {
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * - Handles session management and error reporting for the update flow.
    *
-   * @param params.userName - The new name to set for the user.
+   * @param params.userName - new name to set for the user.
    * @param params.userId - user ID to update a specific user's name (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to the userId of the updated user.
@@ -2132,8 +2132,8 @@ export class TurnkeyClient {
    * - Handles session management and error reporting for the add provider flow.
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * @param params.providerName - The name of the OAuth provider to add (e.g., "Google", "Apple").
-   * @param params.oidcToken - The OIDC token for the OAuth provider.
+   * @param params.providerName - name of the OAuth provider to add (e.g., "Google", "Apple").
+   * @param params.oidcToken - OIDC token for the OAuth provider.
    * @param params.userId - user ID to add the provider for a specific user (defaults to current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an array of provider IDs associated with the user.
@@ -2241,7 +2241,7 @@ export class TurnkeyClient {
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * - Returns an array of remaining provider IDs associated with the user after removal.
    *
-   * @param params.providerIds - The IDs of the OAuth providers to remove.
+   * @param params.providerIds - IDs of the OAuth providers to remove.
    * @param params.userId - user ID to remove the provider for a specific user (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an array of provider IDs that were removed.
@@ -2285,10 +2285,9 @@ export class TurnkeyClient {
    * - If a userId is provided, the passkey is added for that specific user; otherwise, it uses the current session's userId.
    * - The passkey's name and display name can be customized; if not provided, defaults are generated.
    * - The resulting passkey attestation and challenge are registered with Turnkey as a new authenticator.
-   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * @param params.name - The name of the passkey (defaults to "Turnkey Passkey-`timestamp`").
-   * @param params.displayName - The display name of the passkey (defaults to the value of `name`).
+   * @param params.name - name of the passkey (defaults to "Turnkey Passkey-`timestamp`").
+   * @param params.displayName - display name of the passkey (defaults to the value of `name`).
    * @param params.userId - user ID to add the passkey for a specific user (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an array of authenticator IDs for the newly added passkey(s).
@@ -2362,7 +2361,7 @@ export class TurnkeyClient {
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * - Returns an array of remaining authenticator IDs for the user after removal.
    *
-   * @param params.authenticatorIds - The IDs of the authenticators (passkeys) to remove.
+   * @param params.authenticatorIds - IDs of the authenticators (passkeys) to remove.
    * @param params.userId - user ID to remove the passkeys for a specific user (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an array of authenticator IDs that were removed.
@@ -2410,7 +2409,7 @@ export class TurnkeyClient {
    * - Optionally allows specifying the mnemonic length for the wallet seed phrase (defaults to 12).
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * @param params.walletName - The name of the wallet to create.
+   * @param params.walletName - name of the wallet to create.
    * @param params.accounts - array of account parameters or address formats to create in the wallet.
    * @param params.organizationId - organization ID to create the wallet under a specific sub-organization (defaults to the current session's organizationId).
    * @param params.mnemonicLength - mnemonic length for the wallet seed phrase (defaults to 12).
@@ -2486,7 +2485,7 @@ export class TurnkeyClient {
    * - Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
    * @param params.accounts - An array of account parameters or address formats to create in the wallet.
-   * @param params.walletId - The ID of the wallet to create accounts in.
+   * @param params.walletId - ID of the wallet to create accounts in.
    * @param params.organizationId - organization ID to create the accounts under a specific organization (walletId must be associated with the sub-organization).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an array of addresses for the newly created accounts.
@@ -2562,8 +2561,8 @@ export class TurnkeyClient {
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * - The exported bundle can later be imported using the `importWallet` method.
    *
-   * @param params.walletId - The ID of the wallet to export.
-   * @param params.targetPublicKey - The public key to encrypt the bundle to (required).
+   * @param params.walletId - ID of the wallet to export.
+   * @param params.targetPublicKey - public key to encrypt the bundle to (required).
    * @param params.organizationId - organization ID to export the wallet under a specific sub-organization (walletId must be associated with the sub-organization).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an `ExportBundle` object containing the encrypted wallet seed phrase and metadata.
@@ -2620,8 +2619,8 @@ export class TurnkeyClient {
    * - Automatically ensures an active session exists before making the request.
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * @param params.encryptedBundle - The encrypted bundle containing the wallet seed phrase and metadata.
-   * @param params.walletName - The name of the wallet to create upon import.
+   * @param params.encryptedBundle - encrypted bundle containing the wallet seed phrase and metadata.
+   * @param params.walletName - name of the wallet to create upon import.
    * @param params.accounts - array of account parameters to create in the imported wallet (defaults to standard Ethereum and Solana accounts).
    * @param params.userId - user ID to import the wallet for a specific user (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
@@ -2728,7 +2727,7 @@ export class TurnkeyClient {
    * - After storing the session, any unused key pairs are automatically cleared from storage.
    * - Ensures that session management is consistent and prevents orphaned key pairs.
    *
-   * @param params.sessionToken - The JWT session token to store.
+   * @param params.sessionToken - JWT session token to store.
    * @param params.sessionKey - session key to store the session under (defaults to the default session key).
    * @returns A promise that resolves when the session is successfully stored.
    * @throws {TurnkeyError} If there is an error storing the session or cleaning up key pairs.
@@ -2971,7 +2970,7 @@ export class TurnkeyClient {
    * - Does not validate whether the session key exists or is valid; it simply updates the pointer.
    * - Useful for switching between multiple stored sessions or restoring a previous session context.
    *
-   * @param params.sessionKey - The session key to set as the active session.
+   * @param params.sessionKey - session key to set as the active session.
    * @returns A promise that resolves when the active session key is successfully set.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error setting the active session key.
    */
