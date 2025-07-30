@@ -288,8 +288,12 @@ jobs:
 
       - name: Set up NPM .npmrc config for NPM registry
         run: |
-          cp .npmrc.ci .npmrc || echo "No .npmrc.ci found, creating new .npmrc"
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+          if [ -f .npmrc.ci ]; then
+            cat .npmrc.ci > .npmrc
+          else
+            echo "No .npmrc.ci found, creating new .npmrc"
+          fi
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
