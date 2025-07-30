@@ -1,3 +1,5 @@
+"use client";
+
 import { useScreenSize } from "@utils";
 import { createContext, useState, ReactNode } from "react";
 

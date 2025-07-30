@@ -1,5 +1,4 @@
 "use client";
-
 import { TurnkeyProvider } from "@turnkey/react-wallet-kit";
 import "@turnkey/react-wallet-kit/dist/styles.css";
 import "./global.css";

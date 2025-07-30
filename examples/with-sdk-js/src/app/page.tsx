@@ -205,14 +205,12 @@ export default function AuthPage() {
       message:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. . Sed id maximus elit. Mauris lacus ligula, dictum nec purus sit amet, mollis tempor nisl. Morbi neque lectus, tempor sed tristique sit amet, ornare eget dui",
       walletAccount: wallets[0].accounts[0],
-      successPageDuration: 0,
     });
     console.log("Signing result:", result);
   };
 
   const showUpdateUserNameModal = async () => {
     const res = await handleUpdateUserName({
-      successPageDuration: 5000,
       subTitle: "Edit your user name",
     });
     console.log("User name updated successfully: ", res);
