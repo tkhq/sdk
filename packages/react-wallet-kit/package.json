@@ -31,11 +31,15 @@
     "@turnkey/iframe-stamper": "workspace:^",
     "@turnkey/sdk-js": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
+    "buffer": "^6.0.3",
     "clsx": "^2.1.1",
     "libphonenumber-js": "^1.11.14",
     "react-international-phone": "^4.3.0"
   },
   "devDependencies": {
+    "@rollup/plugin-babel": "5.3.0",
+    "@rollup/plugin-node-resolve": "16.0.0",
+    "@rollup/plugin-strip": "^3.0.4",
     "@tailwindcss/postcss": "^4.1.10",
     "@types/react": "^18.2.75",
     "@types/react-dom": "^18.2.7",
@@ -48,9 +52,13 @@
     "typescript": "5.4.3"
   },
   "peerDependencies": {
-    "@types/react": "^18.2.75",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
     "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=18.0.0"
