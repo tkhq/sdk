@@ -271,9 +271,9 @@ jobs:
       - name: Confirm environment variables
         run: |
           if [ -n "${{ secrets.NPM_TOKEN }}" ]; then
-            echo "NODE_AUTH_TOKEN is set"
+            echo "NPM_TOKEN is set"
           else
-            echo "NODE_AUTH_TOKEN is not set"
+            echo "NPM_TOKEN is not set"
             exit 1
           fi
           if [ -n "${{ secrets.GITHUB_TOKEN }}" ]; then
@@ -283,14 +283,15 @@ jobs:
             exit 1
           fi
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up NPM .npmrc config for NPM registry
         run: |
+          cp .npmrc.ci .npmrc || echo "No .npmrc.ci found, creating new .npmrc"
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Debug npm config
         run: |
@@ -306,7 +307,7 @@ jobs:
           echo "npm publish dry run summary:"
           cat publish-summary.json || echo "No NPM dry run summary generated"
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish packages to NPM
         run: |
@@ -316,14 +317,14 @@ jobs:
           cat publish-summary.json || echo "No NPM publish summary generated"
           rm .npmrc
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         continue-on-error: true
 
       - name: Set up NPM config for GitHub Packages
         run: |
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
+          echo "//npm.pkg.github.com/:_authToken=\${NODE_AUTH_TOKEN}" > .npmrc
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to GitHub Packages (dry run)
         run: |
