@@ -1,4 +1,4 @@
-import { Wallet as SWSWallet } from "@wallet-standard/base";
+import type { Wallet as SWSWallet } from "@wallet-standard/base";
 import { getWallets } from "@wallet-standard/app";
 import bs58 from "bs58";
 
