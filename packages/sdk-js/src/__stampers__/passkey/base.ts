@@ -1,12 +1,10 @@
-import {
-  base64UrlEncode,
-  generateRandomBuffer,
-  isReactNative,
-  isWeb,
-} from "@utils";
+import { generateRandomBuffer, isReactNative, isWeb } from "@utils";
 import type { Passkey, TStamp, TStamper, TPasskeyStamperConfig } from "@types";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
-import { uint8ArrayToHexString } from "@turnkey/encoding";
+import {
+  base64StringToBase64UrlEncodedString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
 import { getWebAuthnAttestation, TurnkeyApiTypes } from "@turnkey/http";
 import { v4 as uuidv4 } from "uuid";
 
@@ -26,7 +24,8 @@ export class CrossPlatformPasskeyStamper implements TStamper {
 
   async init(): Promise<void> {
     if (isWeb()) {
-      const { default: WindowWrapper } = await import("@polyfills/window"); // TODO (Amir): Why did I do this?
+      const { default: WindowWrapper } = await import("@polyfills/window");
+
       this.stamper = new WebauthnStamper({
         ...this.config,
         rpId: this.config.rpId ?? WindowWrapper.location.hostname,
@@ -76,7 +75,9 @@ export class CrossPlatformPasskeyStamper implements TStamper {
     config: Record<any, any> = {},
   ): Promise<Passkey> => {
     const challenge = generateRandomBuffer();
-    const encodedChallenge = base64UrlEncode(challenge);
+    const encodedChallenge = base64StringToBase64UrlEncodedString(
+      btoa(String.fromCharCode(...new Uint8Array(challenge))),
+    );
     const authenticatorUserId = generateRandomBuffer();
 
     // WebAuthn credential options options can be found here:
@@ -130,7 +131,7 @@ export class CrossPlatformPasskeyStamper implements TStamper {
 
     return {
       encodedChallenge: config.publicKey?.challenge
-        ? base64UrlEncode(config.publicKey?.challenge)
+        ? base64StringToBase64UrlEncodedString(config.publicKey?.challenge)
         : encodedChallenge,
       attestation,
     };
