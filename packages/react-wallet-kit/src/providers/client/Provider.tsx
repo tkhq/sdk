@@ -1,3 +1,5 @@
+"use client";
+
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import {
@@ -1421,6 +1423,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     successPageDuration?: number | undefined;
     stampWith?: StamperType | undefined;
   }): Promise<v1SignRawPayloadResult> {
+    const { successPageDuration = 2000 } = params;
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1437,7 +1440,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 subText={params?.subText}
                 walletAccount={params.walletAccount}
                 stampWith={params.stampWith}
-                successPageDuration={params.successPageDuration}
+                successPageDuration={successPageDuration}
                 onSuccess={(result) => {
                   resolve(result);
                 }}
@@ -2545,7 +2548,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     successPageDuration?: number | undefined;
     stampWith?: StamperType | undefined;
   }): Promise<string> => {
-    const { defaultWalletAccounts, successPageDuration, stampWith } = params;
+    const {
+      defaultWalletAccounts,
+      successPageDuration = 2000,
+      stampWith,
+    } = params;
     try {
       return withTurnkeyErrorHandling(
         () =>
@@ -2589,7 +2596,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     successPageDuration?: number | undefined;
     stampWith?: StamperType | undefined;
   }): Promise<string> => {
-    const { successPageDuration, subTitle, title, stampWith } = params || {};
+    const {
+      successPageDuration = 2000,
+      subTitle,
+      title,
+      stampWith,
+    } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -2675,7 +2687,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     subTitle?: string;
     successPageDuration?: number | undefined;
   }): Promise<string> => {
-    const { successPageDuration, subTitle, title } = params || {};
+    const { successPageDuration = 2000, subTitle, title } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -2810,7 +2822,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     subTitle?: string;
     successPageDuration?: number | undefined;
   }): Promise<string> => {
-    const { successPageDuration, subTitle, title } = params || {};
+    const { successPageDuration = 2000, subTitle, title } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -2930,7 +2942,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     subTitle?: string;
     successPageDuration?: number | undefined;
   }): Promise<string> => {
-    const { successPageDuration, subTitle, title } = params || {};
+    const { successPageDuration = 2000, subTitle, title } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -3053,7 +3065,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     subTitle?: string;
     successPageDuration?: number | undefined;
   }): Promise<string> => {
-    const { successPageDuration, subTitle, title } = params || {};
+    const { successPageDuration = 2000, subTitle, title } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -3199,7 +3211,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }): Promise<string[]> => {
     const {
       authenticatorId,
-      successPageDuration,
+      successPageDuration = 2000,
       subTitle,
       title,
       stampWith,
@@ -3254,7 +3266,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     successPageDuration?: number | undefined;
     stampWith?: StamperType | undefined;
   }): Promise<string[]> => {
-    const { name, displayName, successPageDuration, stampWith } = params || {};
+    const {
+      name,
+      displayName,
+      successPageDuration = 2000,
+      stampWith,
+    } = params || {};
 
     if (!client)
       throw new TurnkeyError(
@@ -3316,8 +3333,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     successPageDuration?: number | undefined;
     stampWith?: StamperType | undefined;
   }): Promise<string[]> => {
-    const { providerId, successPageDuration, subTitle, title, stampWith } =
-      params;
+    const {
+      providerId,
+      successPageDuration = 2000,
+      subTitle,
+      title,
+      stampWith,
+    } = params;
 
     if (!client)
       throw new TurnkeyError(
@@ -3447,7 +3469,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleLinkExternalWallet = async (params?: {
     successPageDuration?: number | undefined;
   }): Promise<void> => {
-    const { successPageDuration = 2000 } = params || {}; // TODO (Amir / Ethan): This 2 second default should be standard on all modals! Or should they??
+    const { successPageDuration = 2000 } = params || {};
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
