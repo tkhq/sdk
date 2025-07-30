@@ -1,7 +1,7 @@
 import type { TActivityId, TActivityStatus } from "@turnkey/http";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
-import { EIP1193Provider } from "viem";
+import type { EIP1193Provider } from "viem";
 import type { Wallet as SWSWallet } from "@wallet-standard/base";
 import type {
   SessionType,
@@ -14,8 +14,11 @@ import type {
   v1WalletAccountParams,
   Session,
 } from "@turnkey/sdk-types";
-import { WalletStamper, WebWalletStamper } from "../__wallet__/web/stamper";
-import { WebWalletConnector } from "../__wallet__/web/signer";
+import type {
+  WalletStamper,
+  WebWalletStamper,
+} from "../__wallet__/web/stamper";
+import type { WebWalletConnector } from "../__wallet__/web/signer";
 
 // TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
 
@@ -342,7 +345,7 @@ export interface WalletManagerBase {
 export type TPasskeyStamperConfig = {
   // The RPID ("Relying Party ID") for your app. This is automatically determined in web environments based on the current hostname.
   // See https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration to set this up for react-native.
-  rpId: string;
+  rpId?: string | undefined;
 
   // Optional timeout value in milliseconds. Defaults to 5 minutes.
   timeout?: number;
