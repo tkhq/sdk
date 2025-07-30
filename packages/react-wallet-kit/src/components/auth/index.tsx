@@ -19,7 +19,7 @@ import { ExternalWalletSelector, WalletAuthButton } from "./Wallet";
 import { DeveloperError } from "../design/Failure";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
-import { ClientState } from "../..";
+import { ClientState } from "../../types/base";
 
 export function AuthComponent() {
   const {
