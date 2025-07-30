@@ -51,7 +51,10 @@ export function UpdateUserName(params: {
   const handleSuccess = (userId: string) => {
     onSuccess(userId);
 
-    if (!successPageDuration) return;
+    if (!successPageDuration) {
+      closeModal();
+      return;
+    }
 
     pushPage({
       key: "success",
