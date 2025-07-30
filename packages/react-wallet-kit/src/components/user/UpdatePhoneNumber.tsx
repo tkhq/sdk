@@ -8,7 +8,7 @@ import { PhoneInputBox } from "../design/Inputs";
 import clsx from "clsx";
 import { OtpVerification } from "../auth/OTP";
 import { SuccessPage } from "../design/Success";
-import { OtpType } from "../..";
+import { OtpType } from "@turnkey/sdk-js";
 
 export function UpdatePhoneNumber(params: {
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.

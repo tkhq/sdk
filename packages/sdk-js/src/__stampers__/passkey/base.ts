@@ -46,6 +46,7 @@ export class CrossPlatformPasskeyStamper implements TStamper {
 
         this.stamper = new PasskeyStamper({
           ...this.config,
+          rpId: this.config.rpId!,
           allowCredentials: this.config.allowCredentials?.map((cred) => ({
             id: uint8ArrayToHexString(cred.id as Uint8Array),
             type: cred.type,
@@ -149,7 +150,7 @@ export class CrossPlatformPasskeyStamper implements TStamper {
 
     return await createPasskey({
       rp: {
-        id: this.config.rpId,
+        id: this.config.rpId!,
         name: this.config.rpName ?? "Turnkey",
       },
       user: {
