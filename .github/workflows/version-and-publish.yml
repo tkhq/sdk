@@ -294,7 +294,7 @@ jobs:
           if [ -f .npmrc.ci ]; then
             echo "Rendering .npmrc from .npmrc.ci template"
             # use envsubst to replace the token in the .npmrc.ci template
-            envsubst '$NPM_TOKEN' < .npmrc.ci > .npmrc
+            envsubst '${NPM_TOKEN}' < .npmrc.ci > .npmrc
           else
             echo "No .npmrc.ci found, creating new .npmrc"
             # use envsubst to replace the token in the .npmrc template
