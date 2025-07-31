@@ -6,7 +6,7 @@ import {
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
 import { getWebAuthnAttestation, TurnkeyApiTypes } from "@turnkey/http";
-import { v4 as uuidv4 } from "uuid";
+import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
 let PasskeyStamperModule: typeof import("@turnkey/react-native-passkey-stamper");
 
@@ -88,7 +88,6 @@ export class CrossPlatformPasskeyStamper implements TStamper {
       btoa(String.fromCharCode(...new Uint8Array(challenge))),
     );
     const authenticatorUserId = generateRandomBuffer();
-
     // TODO: consider un-nesting these config params
     const webauthnConfig: CredentialCreationOptions = {
       publicKey: {
@@ -138,29 +137,16 @@ export class CrossPlatformPasskeyStamper implements TStamper {
     };
   };
 
-  createReactNativePasskey = async (
-    config: Record<any, any> = {},
-  ): Promise<TurnkeyAuthenticatorParams> => {
-    const { name, displayName } = config;
-    const { createPasskey } = PasskeyStamperModule; // We do a 'selective' import when initializing the stamper. This is safe to do here.
-
-    if (!createPasskey) {
-      throw new Error(
-        "Ensure you have @turnkey/react-native-passkey-stamper installed and linked correctly. Are you not on React Native?",
-      );
+  createReactNativePasskey = async (): Promise<undefined> => {
+    try {
+        new Promise((reject) => {
+            reject(new TurnkeyError(
+                "createReactNativePasskey is not implemented in the web version of the passkey stamper. Please use createWebPasskey instead.",
+                TurnkeyErrorCodes.PLATFORM_MISMATCH
+            ))
+        })
+    } catch (error) {
+        throw error;
     }
-
-    return await createPasskey({
-      rp: {
-        id: this.config.rpId!,
-        name: this.config.rpName ?? "Turnkey",
-      },
-      user: {
-        id: uuidv4(),
-        name,
-        displayName,
-      },
-      authenticatorName: "End-User Passkey",
-    });
   };
 }

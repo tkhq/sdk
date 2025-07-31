@@ -1,4 +1,3 @@
-import { isMobile, isWeb } from "@utils";
 import { IndexedDbStamper } from "./web/stamper";
 import type { TStamp, TStamper, StorageBase, ApiKeyStamperBase } from "@types";
 
@@ -10,21 +9,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
   }
 
   async init(): Promise<void> {
-    if (isWeb()) {
-      this.stamper = new IndexedDbStamper();
-    } else if (isMobile()) {
-      try {
-        // Dynamic import to prevent bundling the native module in web environments.
-        const { ReactNativeKeychainStamper } = await import("./mobile/stamper");
-        this.stamper = new ReactNativeKeychainStamper();
-      } catch (error) {
-        throw new Error(
-          `Failed to load keychain stamper for react-native: ${error}`,
-        );
-      }
-    } else {
-      throw new Error("Unsupported platform for API key stamper");
-    }
+    this.stamper = new IndexedDbStamper();
   }
 
   listKeyPairs(): Promise<string[]> {

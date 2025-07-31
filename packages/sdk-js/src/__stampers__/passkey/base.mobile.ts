@@ -7,8 +7,7 @@ import {
 } from "@turnkey/encoding";
 import { getWebAuthnAttestation, TurnkeyApiTypes } from "@turnkey/http";
 import { v4 as uuidv4 } from "uuid";
-
-let PasskeyStamperModule: typeof import("@turnkey/react-native-passkey-stamper");
+import { PasskeyStamper, createPasskey} from "@turnkey/react-native-passkey-stamper";
 
 export type TurnkeyAuthenticatorParams =
   TurnkeyApiTypes["v1AuthenticatorParamsV2"];
@@ -32,17 +31,6 @@ export class CrossPlatformPasskeyStamper implements TStamper {
       });
     } else if (isMobile()) {
       try {
-        // Dynamic import to prevent bundling the native module in web environments.
-        let PasskeyStamper;
-        try {
-          PasskeyStamperModule = require("@turnkey/react-native-passkey-stamper");
-          PasskeyStamper = PasskeyStamperModule.PasskeyStamper;
-        } catch {
-          throw new Error(
-            "Please install react-native-passkeys and @turnkey/react-native-passkey-stamper in your app to use passkeys.",
-          );
-        }
-
         this.stamper = new PasskeyStamper({
           ...this.config,
           rpId: this.config.rpId!,
@@ -142,8 +130,6 @@ export class CrossPlatformPasskeyStamper implements TStamper {
     config: Record<any, any> = {},
   ): Promise<TurnkeyAuthenticatorParams> => {
     const { name, displayName } = config;
-    const { createPasskey } = PasskeyStamperModule; // We do a 'selective' import when initializing the stamper. This is safe to do here.
-
     if (!createPasskey) {
       throw new Error(
         "Ensure you have @turnkey/react-native-passkey-stamper installed and linked correctly. Are you not on React Native?",

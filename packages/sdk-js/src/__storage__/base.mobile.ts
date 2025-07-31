@@ -1,19 +1,12 @@
 import { WebStorageManager } from "./web/storage";
+import { MobileStorageManager } from "./mobile/storage";
 import { isMobile, isWeb } from "@utils";
 import type { StorageBase } from "@types";
 
 // TODO (Amir): Turn this into a class that extends StorageBase and make an init function. See stamper
 export async function createStorageManager(): Promise<StorageBase> {
   if (isMobile()) {
-    try {
-      // Dynamic import to prevent bundling the native module in web environments
-      const { MobileStorageManager } = await import("./mobile/storage");
-      return new MobileStorageManager();
-    } catch (error) {
-      throw new Error(
-        `Failed to load storage manager for react-native: ${error}`,
-      );
-    }
+    return new MobileStorageManager();
   } else if (isWeb()) {
     return new WebStorageManager();
   } else {

@@ -253,7 +253,7 @@ const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> = {
   },
 };
 
-export const isReactNative = (): boolean => {
+export const isMobile = (): boolean => {
   return (
     typeof navigator !== "undefined" && navigator.product === "ReactNative"
   );
