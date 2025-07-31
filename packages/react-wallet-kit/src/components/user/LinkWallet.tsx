@@ -1,9 +1,13 @@
-import { ExternalWalletSelector, UnlinkWalletScreen } from "../auth/Wallet";
+import {
+  ExternalWalletSelector,
+  UnlinkWalletScreen,
+  WalletConnectScreen,
+} from "../auth/Wallet";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ActionPage } from "../auth/Action";
 import { SuccessPage } from "../design/Success";
-import type { WalletProvider } from "@turnkey/sdk-js";
+import { WalletType, type WalletProvider } from "@turnkey/sdk-js";
 
 interface LinkWalletModalProps {
   providers: WalletProvider[];
@@ -14,7 +18,24 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
   const { pushPage, closeModal } = useModal();
   const { connectWalletAccount, disconnectWalletAccount } = useTurnkey();
 
-  const hanldeLinkWallet = (provider: WalletProvider) => {
+  const handleLinkWallet = async (provider: WalletProvider) => {
+    if (provider.type === WalletType.EthereumWalletConnect) {
+      // for WalletConnect we route to a dedicated screen
+      // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
+      pushPage({
+        key: `Link ${provider.info.name}`,
+        content: (
+          <WalletConnectScreen
+            provider={provider}
+            onConnect={connectWalletAccount}
+            successPageDuration={successPageDuration}
+          />
+        ),
+        showTitle: false,
+      });
+      return;
+    }
+
     pushPage({
       key: `Link ${provider.info.name}`,
       content: (
@@ -52,7 +73,7 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
     });
   };
 
-  const handleUnlinkWallet = (provider: WalletProvider) => {
+  const handleUnlinkWallet = async (provider: WalletProvider) => {
     pushPage({
       key: `Unlink ${provider.info.name}`,
       content: (
@@ -85,7 +106,7 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
   return (
     <ExternalWalletSelector
       providers={providers}
-      onSelect={hanldeLinkWallet}
+      onSelect={handleLinkWallet}
       onUnlink={handleUnlinkWallet}
     />
   );
