@@ -223,8 +223,8 @@ export async function getSuborgs(
     filterValue: request.filterValue,
   });
 
-  if (!response?.organizationIds) {
-    throw new Error("Expected a non-null response with organizationIds.");
+  if (!response || !response?.organizationIds) {
+    throw new Error("Expected a non-null response.");
   }
 
   return { organizationIds: response.organizationIds };
@@ -239,8 +239,8 @@ export async function getVerifiedSuborgs(
     filterValue: request.filterValue,
   });
 
-  if (!response?.organizationIds) {
-    throw new Error("Expected a non-null response with organizationIds.");
+  if (!response || !response?.organizationIds) {
+    throw new Error("Expected a non-null response.");
   }
 
   return { organizationIds: response.organizationIds };
