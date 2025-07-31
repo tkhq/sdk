@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.10.3
+
+### Patch Changes
+
+- [#777](https://github.com/tkhq/sdk/pull/777) [`cbb0ba0`](https://github.com/tkhq/sdk/commit/cbb0ba0dc2ea960415e1e7f21c3621e85765b02a) Author [@turnekybc](https://github.com/turnekybc) - Publish latest version of @turnkey/viem
+
 ## 0.10.2
 
 ### Patch Changes
