@@ -1,3 +1,5 @@
+"use client";
+
 import { Fragment, useRef, useEffect, useState } from "react";
 import { Portal, Transition, TransitionChild } from "@headlessui/react";
 import type { ModalPage } from "./Provider";
