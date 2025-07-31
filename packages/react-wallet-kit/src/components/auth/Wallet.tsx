@@ -6,6 +6,8 @@ import { faChevronRight, faClose } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { type WalletProvider, WalletType } from "@turnkey/sdk-js";
+import { QRCodeSVG } from "qrcode.react";
+import { SuccessPage } from "../design/Success";
 
 interface WalletAuthButtonProps {
   onContinue: () => Promise<void>;
@@ -127,8 +129,8 @@ export function ExternalWalletChainSelector(
 
 interface ExternalWalletSelectorProps {
   providers: WalletProvider[];
-  onUnlink?: ((provider: WalletProvider) => void) | undefined;
-  onSelect: (provider: WalletProvider) => void;
+  onUnlink?: ((provider: WalletProvider) => Promise<void>) | undefined;
+  onSelect: (provider: WalletProvider) => Promise<void>;
 }
 export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
   const { providers, onUnlink, onSelect } = props;
@@ -146,6 +148,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     },
     {},
   );
+
   const handleSelectGroup = (group: WalletProvider[]) => {
     if (group.length === 1) {
       if (canUnlink(group[0]!, shouldShowUnlink)) {
@@ -223,7 +226,8 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                 <div className={clsx(`flex items-center transition-all gap-1`)}>
                   {group.map((c, idx) => {
                     const Logo =
-                      c.type === WalletType.Ethereum
+                      c.type === WalletType.Ethereum ||
+                      c.type === WalletType.EthereumWalletConnect
                         ? EthereumLogo
                         : SolanaLogo;
                     const delay = 50 + idx * 30; // Staggered delay: leftmost has largest
@@ -346,6 +350,68 @@ export function ConnectedIndicator(props: ConnectedIndicatorProps) {
         <div className="absolute animate-ping size-[6px] bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
       )}
       <div className="size-[6px] bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
+    </div>
+  );
+}
+export interface WalletConnectScreenProps {
+  provider: WalletProvider;
+  successPageDuration: number | undefined;
+  onConnect: (provider: WalletProvider) => Promise<void>;
+}
+
+export function WalletConnectScreen(props: WalletConnectScreenProps) {
+  const { provider, successPageDuration, onConnect } = props;
+  const { pushPage, closeModal } = useModal();
+
+  // once we have a URI, kick off the approval flow
+  useEffect(() => {
+    // if there's no URI yet, nothing to do
+    if (!provider.uri) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        // this will await the user scanning & approving
+        await onConnect(provider);
+        if (cancelled) return;
+
+        // then show your success screen
+        pushPage({
+          key: "Link Success",
+          content: (
+            <SuccessPage
+              text="Successfully linked wallet!"
+              onComplete={closeModal}
+              duration={successPageDuration}
+            />
+          ),
+          preventBack: true,
+          showTitle: false,
+        });
+      } catch (e) {
+        console.error("WalletConnect failed:", e);
+        // you could push an error page here if you want
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [provider.uri, onConnect, pushPage, closeModal, successPageDuration]);
+
+  return (
+    <div className="flex flex-col items-center p-6">
+      {provider.uri ? (
+        <div className="bg-white p-4 rounded-md shadow-md">
+          {/* @ts-expect-error: qrcode.react uses a different React type version */}
+          <QRCodeSVG value={provider.uri} size={200} />
+        </div>
+      ) : (
+        <p className="text-center text-gray-600">Preparing WalletConnect QR…</p>
+      )}
+      <p className="mt-4 text-center text-sm text-gray-600">
+        Scan this QR code with your WalletConnect-compatible wallet.
+      </p>
     </div>
   );
 }
