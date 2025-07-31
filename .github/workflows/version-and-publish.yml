@@ -288,12 +288,18 @@ jobs:
 
       - name: Set up NPM .npmrc config for NPM registry
         run: |
+          # mask the token in logs
+          echo "::add-mask::$NPM_TOKEN"
+
           if [ -f .npmrc.ci ]; then
-            cat .npmrc.ci > .npmrc
+            echo "Rendering .npmrc from .npmrc.ci template"
+            # use envsubst to replace the token in the .npmrc.ci template
+            envsubst '$NPM_TOKEN' < .npmrc.ci > .npmrc
           else
             echo "No .npmrc.ci found, creating new .npmrc"
+            # use envsubst to replace the token in the .npmrc template
+            envsubst '${NPM_TOKEN}' <<< '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc
           fi
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
