@@ -88,6 +88,10 @@ export class WebWalletStamper implements TStamper {
       return WalletType.Solana;
     }
 
+    if (initializedChains.includes(WalletType.EthereumWalletConnect)) {
+      return WalletType.EthereumWalletConnect;
+    }
+
     throw new Error("No chains initialized");
   }
 
@@ -125,7 +129,10 @@ export class WalletStamper {
         : SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191;
 
     try {
-      if (this.wallet.type === WalletType.Ethereum) {
+      if (
+        this.wallet.type === WalletType.Ethereum ||
+        this.wallet.type === WalletType.EthereumWalletConnect
+      ) {
         const { recoverPublicKey, hashMessage } = await import("viem");
         const { compressRawPublicKey, toDerSignature } = await import(
           "@turnkey/crypto"
