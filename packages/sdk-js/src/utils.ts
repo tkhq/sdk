@@ -416,6 +416,7 @@ export const getWalletAccountMethods = (
 
   switch (provider.type) {
     case WalletType.Ethereum:
+    case WalletType.EthereumWalletConnect:
       return {
         signMessage: signWithIntent(SignIntent.SignMessage),
         signAndSendTransaction: signWithIntent(
