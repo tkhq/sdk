@@ -626,7 +626,8 @@ export class TurnkeyClient {
               apiKeyName: `wallet-auth:${publicKey}`,
               publicKey: publicKey,
               curveType:
-                type === WalletType.Ethereum
+                type === WalletType.Ethereum ||
+                type === WalletType.EthereumWalletConnect
                   ? ("API_KEY_CURVE_SECP256K1" as const)
                   : ("API_KEY_CURVE_ED25519" as const),
             },
@@ -672,7 +673,6 @@ export class TurnkeyClient {
       throw new Error(`Failed to sign up with wallet: ${error}`);
     } finally {
       // Clean up the generated key pair if it wasn't successfully used
-      console.log("Cleaning up generated key pair if any");
       this.apiKeyStamper?.clearOverridePublicKey();
       if (generatedKeyPair) {
         try {
@@ -733,7 +733,8 @@ export class TurnkeyClient {
 
       let publicKey: string | undefined;
       switch (walletProvider.type) {
-        case WalletType.Ethereum: {
+        case WalletType.Ethereum:
+        case WalletType.EthereumWalletConnect: {
           // for Ethereum, there is no way to get the public key from the wallet address
           // so we derive it from the signed request
           publicKey = getPublicKeyFromStampHeader(
@@ -789,7 +790,8 @@ export class TurnkeyClient {
                 apiKeyName: `wallet-auth:${publicKey}`,
                 publicKey: publicKey,
                 curveType:
-                  walletProvider.type === WalletType.Ethereum
+                  walletProvider.type === WalletType.Ethereum ||
+                  walletProvider.type === WalletType.EthereumWalletConnect
                     ? ("API_KEY_CURVE_SECP256K1" as const)
                     : ("API_KEY_CURVE_ED25519" as const),
               },
@@ -1620,14 +1622,16 @@ export class TurnkeyClient {
           organizationId: session.organizationId,
           walletId: wallet.walletId,
           curve:
-            provider.type === WalletType.Ethereum
+            provider.type === WalletType.Ethereum ||
+            provider.type === WalletType.EthereumWalletConnect
               ? Curve.SECP256K1
               : Curve.ED25519,
           pathFormat: "PATH_FORMAT_BIP32",
           path: WalletSource.Connected,
           source: WalletSource.Connected,
           addressFormat:
-            provider.type === WalletType.Ethereum
+            provider.type === WalletType.Ethereum ||
+            provider.type === WalletType.EthereumWalletConnect
               ? "ADDRESS_FORMAT_ETHEREUM"
               : "ADDRESS_FORMAT_SOLANA",
           address,

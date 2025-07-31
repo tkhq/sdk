@@ -459,6 +459,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         walletConfig: {
           ethereum: config.walletConfig?.ethereum ?? true,
           solana: config.walletConfig?.solana ?? true,
+          walletConnect: config.walletConfig?.walletConnect,
         },
       });
 
