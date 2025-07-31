@@ -1,11 +1,11 @@
 import { WebWalletManager } from "./web/manager";
-import { isReactNative, isWeb } from "@utils";
+import { isMobile, isWeb } from "@utils";
 import type { TWalletManagerConfig, WalletManagerBase } from "@types";
 
 export async function createWalletManager(
   cfg: TWalletManagerConfig,
 ): Promise<WalletManagerBase> {
-  if (isReactNative()) {
+  if (isMobile()) {
     try {
       // const { MobileWalletManager } = await import("../mobile/base");
       // return new MobileWalletManager(cfg);

@@ -14,7 +14,7 @@
       "@utils": ["./src/utils"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json", "src/**/*.mobile.ts", "src/**/*.web.ts", "src/**/*.core.ts"],
   "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
   "references": [
     { "path": "../api-key-stamper" },

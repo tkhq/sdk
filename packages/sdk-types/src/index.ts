@@ -108,6 +108,8 @@ export enum TurnkeyErrorCodes {
   TIMEOUT = "TIMEOUT",
   SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE",
   GATEWAY_TIMEOUT = "GATEWAY_TIMEOUT",
+
+  PLATFORM_MISMATCH = "PLATFORM_MISMATCH",
 }
 
 export class TurnkeyError extends Error {

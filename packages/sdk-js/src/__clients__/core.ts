@@ -49,7 +49,7 @@ import {
   getEncodedMessage,
   getHashFunction,
   getEncodingType,
-  isReactNative,
+  isMobile,
   isWalletAccountArray,
   isWeb,
   toExternalTimestamp,
@@ -193,7 +193,7 @@ export class TurnkeyClient {
           encodedChallenge: res?.encodedChallenge,
           attestation: res?.attestation,
         };
-      } else if (isReactNative()) {
+      } else if (isMobile()) {
         const res = await this.passkeyStamper?.createReactNativePasskey({
           name,
           displayName,
