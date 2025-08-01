@@ -124,7 +124,7 @@ export class WalletStamper {
 
     let publicKey: string;
     const scheme =
-      this.wallet.type === WalletType.Solana
+      this.wallet.type === WalletType.Solana || this.wallet.type === WalletType.SolanaWalletConnect
         ? SIGNATURE_SCHEME_TK_API_ED25519
         : SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191;
 
