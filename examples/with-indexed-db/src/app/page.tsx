@@ -54,7 +54,6 @@ export default function AuthPage() {
       sessionType: SessionType.READ_WRITE,
       publicKey: pubKey!,
       expirationSeconds: (60 * 15).toString(), // 15 minutes from now
-      organizationId: "b55eb475-87fb-440a-a82a-97d0452730eb",
     });
     const session = await turnkey?.getSession();
     setSession(session);
