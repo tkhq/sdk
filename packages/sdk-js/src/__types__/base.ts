@@ -485,6 +485,11 @@ export interface EthereumWalletConnectInterface extends BaseWalletInterface {
   init: () => Promise<void>;
 }
 
+export interface SolanaWalletConnectInterface extends BaseWalletInterface {
+  type: WalletType.SolanaWalletConnect;
+  init: () => Promise<void>;
+}
+
 /**
  * Union type for wallet interfaces, supporting both Solana and Ethereum wallets.
  * @typedef {SolanaWalletInterface | EthereumWalletInterface} WalletInterface
@@ -492,4 +497,5 @@ export interface EthereumWalletConnectInterface extends BaseWalletInterface {
 export type WalletInterface =
   | SolanaWalletInterface
   | EthereumWalletInterface
-  | EthereumWalletConnectInterface;
+  | EthereumWalletConnectInterface
+  | SolanaWalletConnectInterface;
