@@ -1,5 +1,14 @@
 # @turnkey/sdk-react
 
+## 5.2.11
+
+### Patch Changes
+
+- [#787](https://github.com/tkhq/sdk/pull/787) [`0d1eb2c`](https://github.com/tkhq/sdk/commit/0d1eb2c464bac3cf6f4386f402604ecf8f373f15) Author [@andrewkmin](https://github.com/andrewkmin) - Add `showTitle` toggle in authConfig for the Auth component to control visibility of the "Log in or Sign up" title.
+
+- Updated dependencies [[`0d1eb2c`](https://github.com/tkhq/sdk/commit/0d1eb2c464bac3cf6f4386f402604ecf8f373f15)]:
+  - @turnkey/sdk-browser@5.4.1
+
 ## 5.2.10
 
 ### Patch Changes
