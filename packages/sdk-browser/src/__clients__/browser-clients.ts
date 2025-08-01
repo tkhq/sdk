@@ -312,8 +312,9 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   loginWithPasskey = async (params: LoginWithPasskeyParams): Promise<void> => {
     try {
       const {
-        sessionType = SessionType.READ_WRITE,
         publicKey,
+        organizationId,
+        sessionType = SessionType.READ_WRITE,
         expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       } = params;
       // Create a read-only session
@@ -339,6 +340,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         const sessionResponse = await this.stampLogin({
           publicKey,
           expirationSeconds,
+          ...(organizationId && { organizationId }),
         });
 
         await storeSession(sessionResponse.session, AuthClient.IndexedDb);
@@ -362,8 +364,9 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
   loginWithWallet = async (params: LoginWithWalletParams): Promise<void> => {
     try {
       const {
-        sessionType = SessionType.READ_WRITE,
         publicKey,
+        organizationId,
+        sessionType = SessionType.READ_WRITE,
         expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       } = params;
 
@@ -389,6 +392,7 @@ export class TurnkeyBrowserClient extends TurnkeyBaseClient {
         const sessionResponse = await this.stampLogin({
           publicKey: publicKey,
           expirationSeconds,
+          ...(organizationId && { organizationId }),
         });
 
         await storeSession(sessionResponse.session, AuthClient.IndexedDb);
