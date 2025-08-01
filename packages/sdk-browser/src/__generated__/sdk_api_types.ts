@@ -121,6 +121,17 @@ export type TGetPolicyBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetPolicyEvaluationsResponse =
+  operations["PublicApiService_GetPolicyEvaluations"]["responses"]["200"]["schema"];
+
+export type TGetPolicyEvaluationsInput = { body: TGetPolicyEvaluationsBody };
+
+export type TGetPolicyEvaluationsBody = Omit<
+  operations["PublicApiService_GetPolicyEvaluations"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetPrivateKeyResponse =
   operations["PublicApiService_GetPrivateKey"]["responses"]["200"]["schema"];
 
