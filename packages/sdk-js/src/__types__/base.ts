@@ -1,8 +1,8 @@
 import type { TActivityId, TActivityStatus } from "@turnkey/http";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
-import type { EIP1193Provider } from "viem";
-import type { Wallet as SWSWallet } from "@wallet-standard/base";
+import type { EIP1193Provider as EthereumProvider } from "viem";
+import type { Wallet as SolanaProvider } from "@wallet-standard/base";
 import type {
   SessionType,
   v1ApiKeyCurve,
