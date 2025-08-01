@@ -140,15 +140,17 @@ export interface LoginWithBundleParams {
 }
 
 export interface LoginWithPasskeyParams {
+  publicKey?: string;
+  organizationId?: string;
   sessionType: SessionType;
   expirationSeconds?: string | undefined;
-  publicKey?: string;
 }
 
 export interface LoginWithWalletParams {
+  publicKey?: string;
+  organizationId?: string;
   sessionType: SessionType;
   expirationSeconds?: string | undefined;
-  publicKey?: string;
 }
 
 export interface TurnkeyWalletClientConfig extends SDKClientConfigWithStamper {

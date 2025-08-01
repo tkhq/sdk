@@ -68,6 +68,7 @@ interface AuthProps {
   onAuthSuccess: () => Promise<void>;
   onError: (errorMessage: string) => void;
   authConfig: {
+    showTitle?: boolean;
     emailEnabled: boolean;
     passkeyEnabled: boolean;
     phoneEnabled: boolean;
@@ -762,7 +763,9 @@ const Auth: React.FC<AuthProps> = ({
             <div className={styles.authCard}>
               {otpId && renderBackButton()}
               <h2 className={styles.primaryText}>
-                {!otpId && "Log in or sign up"}
+                {!otpId &&
+                  authConfig.showTitle !== false &&
+                  "Log in or sign up"}
               </h2>
               <div className={styles.authForm}>
                 {!otpId &&

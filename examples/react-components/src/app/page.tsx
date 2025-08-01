@@ -149,6 +149,7 @@ export default function AuthPage() {
   };
 
   const authConfig = {
+    showTitle: false,
     emailEnabled: config.email,
     passkeyEnabled: config.passkey,
     phoneEnabled: config.phone,
