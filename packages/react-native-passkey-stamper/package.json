@@ -56,8 +56,12 @@
   "dependencies": {
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "buffer": "^6.0.3",
-    "react-native-passkey": "^3.0.0",
-    "sha256-uint8array": "^0.10.7"
+    "buffer": "6.0.3",
+    "react-native-passkey": "3.0.0",
+    "sha256-uint8array": "0.10.7"
+  },
+  "devDependencies": {
+    "@babel/core": "7.26.9",
+    "@rollup/plugin-babel": "5.3.0"
   }
 }
