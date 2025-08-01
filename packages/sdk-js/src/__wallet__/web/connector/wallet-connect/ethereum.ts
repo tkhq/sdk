@@ -10,15 +10,15 @@ import {
   EthereumWalletConnectInterface,
 } from "@types";
 import { CoreTypes } from "@walletconnect/types";
-import { WalletConnectAdapter } from "./base";
+import { WalletConnectClient } from "./base";
 
 export class WalletConnectEthereumWallet
   implements EthereumWalletConnectInterface
 {
   readonly type = WalletType.EthereumWalletConnect;
-  private adapter = new WalletConnectAdapter();
+  private client = new WalletConnectClient();
   private address?: string | undefined;
-  private uri?: string | undefined;
+  private uri?: string;
 
   constructor(
     private cfg: {
@@ -26,30 +26,34 @@ export class WalletConnectEthereumWallet
       metadata: CoreTypes.Metadata;
       relayUrl?: string;
     },
-  ) {}
+  ) {
+    // we subscribe to the session deletions
+    // notification that the client emits
+    this.client.onSessionDelete(() => {
+      this.address = undefined;
+    });
+  }
 
   async init(): Promise<void> {
-    await this.adapter.init(this.cfg);
-    const session = this.adapter.getSession();
-
-    if (session?.self.metadata.url) {
-      this.uri = session.self.metadata.url;
-    }
+    await this.client.init(this.cfg);
+    const session = this.client.getSession();
 
     if (session?.namespaces.eip155?.accounts?.[0]) {
       this.address = session.namespaces.eip155.accounts[0].split(":")[2];
     }
+
+    this.uri = await this.client.pair({
+      eip155: {
+        methods: ["personal_sign", "eth_sendTransaction"],
+        chains: ["eip155:1"],
+        events: ["accountsChanged", "chainChanged"],
+      },
+    });
   }
 
   async getProviders(): Promise<WalletProvider[]> {
     if (!this.uri) {
-      this.uri = await this.adapter.pair({
-        eip155: {
-          methods: ["personal_sign", "eth_sendTransaction"],
-          chains: ["eip155:1"],
-          events: ["accountsChanged", "chainChanged"],
-        },
-      });
+      throw new Error("WalletConnectEthereumWallet not initialized");
     }
 
     const info: WalletProviderInfo = {
@@ -67,7 +71,7 @@ export class WalletConnectEthereumWallet
   }
 
   async connectWalletAccount(_provider: WalletRpcProvider): Promise<void> {
-    const session = await this.adapter.approve();
+    const session = await this.client.approve();
     if (!session) throw new Error("No active WalletConnect session");
     const eip155Namespace = session.namespaces.eip155;
     if (
@@ -97,13 +101,13 @@ export class WalletConnectEthereumWallet
 
     switch (intent) {
       case SignIntent.SignMessage:
-        return (await this.adapter.request("eip155:1", "personal_sign", [
+        return (await this.client.request("eip155:1", "personal_sign", [
           message as Hex,
           this.address,
         ])) as string;
       case SignIntent.SignAndSendTransaction:
         const txParams = JSON.parse(message);
-        return (await this.adapter.request("eip155:1", "eth_sendTransaction", [
+        return (await this.client.request("eip155:1", "eth_sendTransaction", [
           txParams,
         ])) as string;
       default:
@@ -113,7 +117,7 @@ export class WalletConnectEthereumWallet
 
   async getPublicKey(): Promise<string> {
     if (!this.address) throw new Error("Not connected");
-    const sig = (await this.adapter.request("eip155:1", "personal_sign", [
+    const sig = (await this.client.request("eip155:1", "personal_sign", [
       "GET_PUBLIC_KEY",
       this.address,
     ])) as string;
@@ -126,15 +130,29 @@ export class WalletConnectEthereumWallet
   }
 
   async disconnectWalletAccount(_provider: WalletRpcProvider): Promise<void> {
-    await this.adapter.disconnect();
+    await this.client.disconnect();
     this.address = undefined;
-    this.uri = undefined;
+
+    // we create a new URI for the next connection
+    // we do this in the background because this is kind of slow
+    // and we don't want to block the UI
+    this.client
+      .pair({
+        eip155: {
+          methods: ["personal_sign", "eth_sendTransaction"],
+          chains: ["eip155:1"],
+          events: ["accountsChanged", "chainChanged"],
+        },
+      })
+      .then((newUri) => {
+        this.uri = newUri;
+      });
   }
 
   private makeProvider(): WalletConnectProvider {
     return {
       request: async ({ method, params }: any) =>
-        this.adapter.request("eip155:1", method, params ?? []),
+        this.client.request("eip155:1", method, params ?? []),
     };
   }
 }
