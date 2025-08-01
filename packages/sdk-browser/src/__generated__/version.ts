@@ -1,1 +1,1 @@
-export const VERSION = "@turnkey/sdk-browser@5.3.4";
+export const VERSION = "@turnkey/sdk-browser@5.4.0";
