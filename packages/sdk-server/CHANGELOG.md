@@ -1,5 +1,11 @@
 # @turnkey/sdk-server
 
+## 4.2.4
+
+### Patch Changes
+
+- [#780](https://github.com/tkhq/sdk/pull/780) [`2db00b0`](https://github.com/tkhq/sdk/commit/2db00b0a799d09ae33fa08a117e3b2f433f2b0b4) Thanks [@moe-dev](https://github.com/moe-dev)! - Patch fix for server actions leading to unwanted suborg creation when query requests time out
+
 ## 4.2.3
 
 ### Patch Changes
