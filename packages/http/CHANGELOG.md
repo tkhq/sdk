@@ -1,5 +1,11 @@
 # @turnkey/http
 
+## 3.6.0
+
+### Minor Changes
+
+- [#782](https://github.com/tkhq/sdk/pull/782) [`e90a478`](https://github.com/tkhq/sdk/commit/e90a478c9208d858b1144df9b2c2c7ba956c406e) Thanks [@r-n-o](https://github.com/r-n-o)! - Release v2025.7.16
+
 ## 3.5.1
 
 ### Patch Changes
