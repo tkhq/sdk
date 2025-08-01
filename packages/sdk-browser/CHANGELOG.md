@@ -1,5 +1,11 @@
 # @turnkey/sdk-browser
 
+## 5.4.1
+
+### Patch Changes
+
+- [#787](https://github.com/tkhq/sdk/pull/787) [`0d1eb2c`](https://github.com/tkhq/sdk/commit/0d1eb2c464bac3cf6f4386f402604ecf8f373f15) Author [@andrewkmin](https://github.com/andrewkmin) - Add optional `organizationId` parameter to `loginWithPasskey()` and `loginWithWallet()` to allow targeting a specific organization.
+
 ## 5.4.0
 
 ### Minor Changes
