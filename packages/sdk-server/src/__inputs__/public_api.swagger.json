@@ -70,8 +70,8 @@
   "paths": {
     "/public/v1/query/get_activity": {
       "post": {
-        "summary": "Get Activity",
-        "description": "Get details about an Activity",
+        "summary": "Get activity",
+        "description": "Get details about an activity.",
         "operationId": "PublicApiService_GetActivity",
         "responses": {
           "200": {
@@ -103,7 +103,7 @@
     "/public/v1/query/get_api_key": {
       "post": {
         "summary": "Get API key",
-        "description": "Get details about an API key",
+        "description": "Get details about an API key.",
         "operationId": "PublicApiService_GetApiKey",
         "responses": {
           "200": {
@@ -135,7 +135,7 @@
     "/public/v1/query/get_api_keys": {
       "post": {
         "summary": "Get API keys",
-        "description": "Get details about API keys for a user",
+        "description": "Get details about API keys for a user.",
         "operationId": "PublicApiService_GetApiKeys",
         "responses": {
           "200": {
@@ -198,8 +198,8 @@
     },
     "/public/v1/query/get_authenticator": {
       "post": {
-        "summary": "Get Authenticator",
-        "description": "Get details about an authenticator",
+        "summary": "Get authenticator",
+        "description": "Get details about an authenticator.",
         "operationId": "PublicApiService_GetAuthenticator",
         "responses": {
           "200": {
@@ -230,8 +230,8 @@
     },
     "/public/v1/query/get_authenticators": {
       "post": {
-        "summary": "Get Authenticators",
-        "description": "Get details about authenticators for a user",
+        "summary": "Get authenticators",
+        "description": "Get details about authenticators for a user.",
         "operationId": "PublicApiService_GetAuthenticators",
         "responses": {
           "200": {
@@ -263,7 +263,7 @@
     "/public/v1/query/get_oauth_providers": {
       "post": {
         "summary": "Get Oauth providers",
-        "description": "Get details about Oauth providers for a user",
+        "description": "Get details about Oauth providers for a user.",
         "operationId": "PublicApiService_GetOauthProviders",
         "responses": {
           "200": {
@@ -294,8 +294,8 @@
     },
     "/public/v1/query/get_organization": {
       "post": {
-        "summary": "Get Organization",
-        "description": "Get details about an Organization",
+        "summary": "Get organization",
+        "description": "Get details about an organization.",
         "operationId": "PublicApiService_GetOrganization",
         "responses": {
           "200": {
@@ -326,8 +326,8 @@
     },
     "/public/v1/query/get_organization_configs": {
       "post": {
-        "summary": "Get Configs",
-        "description": "Get quorum settings and features for an organization",
+        "summary": "Get configs",
+        "description": "Get quorum settings and features for an organization.",
         "operationId": "PublicApiService_GetOrganizationConfigs",
         "responses": {
           "200": {
@@ -358,8 +358,8 @@
     },
     "/public/v1/query/get_policy": {
       "post": {
-        "summary": "Get Policy",
-        "description": "Get details about a Policy",
+        "summary": "Get policy",
+        "description": "Get details about a policy.",
         "operationId": "PublicApiService_GetPolicy",
         "responses": {
           "200": {
@@ -388,10 +388,42 @@
         "tags": ["Policies"]
       }
     },
+    "/public/v1/query/get_policy_evaluations": {
+      "post": {
+        "summary": "Get policy evaluations",
+        "description": "Get the policy evaluations for an activity.",
+        "operationId": "PublicApiService_GetPolicyEvaluations",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetPolicyEvaluationsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetPolicyEvaluationsRequest"
+            }
+          }
+        ],
+        "tags": ["Activities"]
+      }
+    },
     "/public/v1/query/get_private_key": {
       "post": {
-        "summary": "Get Private Key",
-        "description": "Get details about a Private Key",
+        "summary": "Get private key",
+        "description": "Get details about a private key.",
         "operationId": "PublicApiService_GetPrivateKey",
         "responses": {
           "200": {
@@ -422,8 +454,8 @@
     },
     "/public/v1/query/get_smart_contract_interface": {
       "post": {
-        "summary": "Get Smart Contract Interface",
-        "description": "Get details about a Smart Contract Interface",
+        "summary": "Get smart contract interface",
+        "description": "Get details about a smart contract interface.",
         "operationId": "PublicApiService_GetSmartContractInterface",
         "responses": {
           "200": {
@@ -454,8 +486,8 @@
     },
     "/public/v1/query/get_user": {
       "post": {
-        "summary": "Get User",
-        "description": "Get details about a User",
+        "summary": "Get user",
+        "description": "Get details about a user.",
         "operationId": "PublicApiService_GetUser",
         "responses": {
           "200": {
@@ -486,8 +518,8 @@
     },
     "/public/v1/query/get_wallet": {
       "post": {
-        "summary": "Get Wallet",
-        "description": "Get details about a Wallet",
+        "summary": "Get wallet",
+        "description": "Get details about a wallet.",
         "operationId": "PublicApiService_GetWallet",
         "responses": {
           "200": {
@@ -518,8 +550,8 @@
     },
     "/public/v1/query/get_wallet_account": {
       "post": {
-        "summary": "Get Wallet Account",
-        "description": "Get a single wallet account",
+        "summary": "Get wallet account",
+        "description": "Get a single wallet account.",
         "operationId": "PublicApiService_GetWalletAccount",
         "responses": {
           "200": {
@@ -550,8 +582,8 @@
     },
     "/public/v1/query/list_activities": {
       "post": {
-        "summary": "List Activities",
-        "description": "List all Activities within an Organization",
+        "summary": "List activities",
+        "description": "List all activities within an organization.",
         "operationId": "PublicApiService_GetActivities",
         "responses": {
           "200": {
@@ -582,8 +614,8 @@
     },
     "/public/v1/query/list_policies": {
       "post": {
-        "summary": "List Policies",
-        "description": "List all Policies within an Organization",
+        "summary": "List policies",
+        "description": "List all policies within an organization.",
         "operationId": "PublicApiService_GetPolicies",
         "responses": {
           "200": {
@@ -614,8 +646,8 @@
     },
     "/public/v1/query/list_private_key_tags": {
       "post": {
-        "summary": "List Private Key Tags",
-        "description": "List all Private Key Tags within an Organization",
+        "summary": "List private key tags",
+        "description": "List all private key tags within an organization.",
         "operationId": "PublicApiService_ListPrivateKeyTags",
         "responses": {
           "200": {
@@ -646,8 +678,8 @@
     },
     "/public/v1/query/list_private_keys": {
       "post": {
-        "summary": "List Private Keys",
-        "description": "List all Private Keys within an Organization",
+        "summary": "List private keys",
+        "description": "List all private keys within an organization.",
         "operationId": "PublicApiService_GetPrivateKeys",
         "responses": {
           "200": {
@@ -678,8 +710,8 @@
     },
     "/public/v1/query/list_smart_contract_interfaces": {
       "post": {
-        "summary": "List Smart Contract Interfaces",
-        "description": "List all Smart Contract Interfaces within an Organization",
+        "summary": "List smart contract interfaces",
+        "description": "List all smart contract interfaces within an organization.",
         "operationId": "PublicApiService_GetSmartContractInterfaces",
         "responses": {
           "200": {
@@ -710,7 +742,7 @@
     },
     "/public/v1/query/list_suborgs": {
       "post": {
-        "summary": "Get Suborgs",
+        "summary": "Get sub-organizations",
         "description": "Get all suborg IDs associated given a parent org ID and an optional filter.",
         "operationId": "PublicApiService_GetSubOrgIds",
         "responses": {
@@ -742,8 +774,8 @@
     },
     "/public/v1/query/list_user_tags": {
       "post": {
-        "summary": "List User Tags",
-        "description": "List all User Tags within an Organization",
+        "summary": "List user tags",
+        "description": "List all user tags within an organization.",
         "operationId": "PublicApiService_ListUserTags",
         "responses": {
           "200": {
@@ -774,8 +806,8 @@
     },
     "/public/v1/query/list_users": {
       "post": {
-        "summary": "List Users",
-        "description": "List all Users within an Organization",
+        "summary": "List users",
+        "description": "List all users within an organization.",
         "operationId": "PublicApiService_GetUsers",
         "responses": {
           "200": {
@@ -806,7 +838,7 @@
     },
     "/public/v1/query/list_verified_suborgs": {
       "post": {
-        "summary": "Get Verified Suborgs",
+        "summary": "Get verified sub-organizations",
         "description": "Get all email or phone verified suborg IDs associated given a parent org ID.",
         "operationId": "PublicApiService_GetVerifiedSubOrgIds",
         "responses": {
@@ -838,8 +870,8 @@
     },
     "/public/v1/query/list_wallet_accounts": {
       "post": {
-        "summary": "List Wallets Accounts",
-        "description": "List all Accounts within a Wallet",
+        "summary": "List wallets accounts",
+        "description": "List all accounts within a wallet.",
         "operationId": "PublicApiService_GetWalletAccounts",
         "responses": {
           "200": {
@@ -870,8 +902,8 @@
     },
     "/public/v1/query/list_wallets": {
       "post": {
-        "summary": "List Wallets",
-        "description": "List all Wallets within an Organization",
+        "summary": "List wallets",
+        "description": "List all wallets within an organization.",
         "operationId": "PublicApiService_GetWallets",
         "responses": {
           "200": {
@@ -903,7 +935,7 @@
     "/public/v1/query/whoami": {
       "post": {
         "summary": "Who am I?",
-        "description": "Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users.",
+        "description": "Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users.",
         "operationId": "PublicApiService_GetWhoami",
         "responses": {
           "200": {
@@ -934,8 +966,8 @@
     },
     "/public/v1/submit/approve_activity": {
       "post": {
-        "summary": "Approve Activity",
-        "description": "Approve an Activity",
+        "summary": "Approve activity",
+        "description": "Approve an activity.",
         "operationId": "PublicApiService_ApproveActivity",
         "responses": {
           "200": {
@@ -966,8 +998,8 @@
     },
     "/public/v1/submit/create_api_keys": {
       "post": {
-        "summary": "Create API Keys",
-        "description": "Add api keys to an existing User",
+        "summary": "Create API keys",
+        "description": "Add API keys to an existing user.",
         "operationId": "PublicApiService_CreateApiKeys",
         "responses": {
           "200": {
@@ -998,8 +1030,8 @@
     },
     "/public/v1/submit/create_api_only_users": {
       "post": {
-        "summary": "Create API-only Users",
-        "description": "Create API-only Users in an existing Organization",
+        "summary": "Create API-only users",
+        "description": "Create API-only users in an existing organization.",
         "operationId": "PublicApiService_CreateApiOnlyUsers",
         "responses": {
           "200": {
@@ -1030,8 +1062,8 @@
     },
     "/public/v1/submit/create_authenticators": {
       "post": {
-        "summary": "Create Authenticators",
-        "description": "Create Authenticators to authenticate requests to Turnkey",
+        "summary": "Create authenticators",
+        "description": "Create authenticators to authenticate requests to Turnkey.",
         "operationId": "PublicApiService_CreateAuthenticators",
         "responses": {
           "200": {
@@ -1062,8 +1094,8 @@
     },
     "/public/v1/submit/create_invitations": {
       "post": {
-        "summary": "Create Invitations",
-        "description": "Create Invitations to join an existing Organization",
+        "summary": "Create invitations",
+        "description": "Create invitations to join an existing organization.",
         "operationId": "PublicApiService_CreateInvitations",
         "responses": {
           "200": {
@@ -1094,8 +1126,8 @@
     },
     "/public/v1/submit/create_oauth_providers": {
       "post": {
-        "summary": "Create Oauth Providers",
-        "description": "Creates Oauth providers for a specified user - BETA",
+        "summary": "Create Oauth providers",
+        "description": "Create Oauth providers for a specified user.",
         "operationId": "PublicApiService_CreateOauthProviders",
         "responses": {
           "200": {
@@ -1126,8 +1158,8 @@
     },
     "/public/v1/submit/create_policies": {
       "post": {
-        "summary": "Create Policies",
-        "description": "Create new Policies",
+        "summary": "Create policies",
+        "description": "Create new policies.",
         "operationId": "PublicApiService_CreatePolicies",
         "responses": {
           "200": {
@@ -1158,8 +1190,8 @@
     },
     "/public/v1/submit/create_policy": {
       "post": {
-        "summary": "Create Policy",
-        "description": "Create a new Policy",
+        "summary": "Create policy",
+        "description": "Create a new policy.",
         "operationId": "PublicApiService_CreatePolicy",
         "responses": {
           "200": {
@@ -1190,7 +1222,7 @@
     },
     "/public/v1/submit/create_private_key_tag": {
       "post": {
-        "summary": "Create Private Key Tag",
+        "summary": "Create private key tag",
         "description": "Create a private key tag and add it to private keys.",
         "operationId": "PublicApiService_CreatePrivateKeyTag",
         "responses": {
@@ -1222,8 +1254,8 @@
     },
     "/public/v1/submit/create_private_keys": {
       "post": {
-        "summary": "Create Private Keys",
-        "description": "Create new Private Keys",
+        "summary": "Create private keys",
+        "description": "Create new private keys.",
         "operationId": "PublicApiService_CreatePrivateKeys",
         "responses": {
           "200": {
@@ -1254,8 +1286,8 @@
     },
     "/public/v1/submit/create_read_only_session": {
       "post": {
-        "summary": "Create Read Only Session",
-        "description": "Create a read only session for a user (valid for 1 hour)",
+        "summary": "Create read only session",
+        "description": "Create a read only session for a user (valid for 1 hour).",
         "operationId": "PublicApiService_CreateReadOnlySession",
         "responses": {
           "200": {
@@ -1286,8 +1318,8 @@
     },
     "/public/v1/submit/create_read_write_session": {
       "post": {
-        "summary": "Create Read Write Session",
-        "description": "Create a read write session for a user",
+        "summary": "Create read write session",
+        "description": "Create a read write session for a user.",
         "operationId": "PublicApiService_CreateReadWriteSession",
         "responses": {
           "200": {
@@ -1318,8 +1350,8 @@
     },
     "/public/v1/submit/create_smart_contract_interface": {
       "post": {
-        "summary": "Create Smart Contract Interface",
-        "description": "Create an ABI/IDL in JSON",
+        "summary": "Create smart contract interface",
+        "description": "Create an ABI/IDL in JSON.",
         "operationId": "PublicApiService_CreateSmartContractInterface",
         "responses": {
           "200": {
@@ -1350,8 +1382,8 @@
     },
     "/public/v1/submit/create_sub_organization": {
       "post": {
-        "summary": "Create Sub-Organization",
-        "description": "Create a new Sub-Organization",
+        "summary": "Create sub-organization",
+        "description": "Create a new sub-organization.",
         "operationId": "PublicApiService_CreateSubOrganization",
         "responses": {
           "200": {
@@ -1382,7 +1414,7 @@
     },
     "/public/v1/submit/create_user_tag": {
       "post": {
-        "summary": "Create User Tag",
+        "summary": "Create user tag",
         "description": "Create a user tag and add it to users.",
         "operationId": "PublicApiService_CreateUserTag",
         "responses": {
@@ -1414,8 +1446,8 @@
     },
     "/public/v1/submit/create_users": {
       "post": {
-        "summary": "Create Users",
-        "description": "Create Users in an existing Organization",
+        "summary": "Create users",
+        "description": "Create users in an existing organization.",
         "operationId": "PublicApiService_CreateUsers",
         "responses": {
           "200": {
@@ -1446,8 +1478,8 @@
     },
     "/public/v1/submit/create_wallet": {
       "post": {
-        "summary": "Create Wallet",
-        "description": "Create a Wallet and derive addresses",
+        "summary": "Create wallet",
+        "description": "Create a wallet and derive addresses.",
         "operationId": "PublicApiService_CreateWallet",
         "responses": {
           "200": {
@@ -1478,8 +1510,8 @@
     },
     "/public/v1/submit/create_wallet_accounts": {
       "post": {
-        "summary": "Create Wallet Accounts",
-        "description": "Derive additional addresses using an existing wallet",
+        "summary": "Create wallet accounts",
+        "description": "Derive additional addresses using an existing wallet.",
         "operationId": "PublicApiService_CreateWalletAccounts",
         "responses": {
           "200": {
@@ -1510,8 +1542,8 @@
     },
     "/public/v1/submit/delete_api_keys": {
       "post": {
-        "summary": "Delete API Keys",
-        "description": "Remove api keys from a User",
+        "summary": "Delete API keys",
+        "description": "Remove api keys from a user.",
         "operationId": "PublicApiService_DeleteApiKeys",
         "responses": {
           "200": {
@@ -1542,8 +1574,8 @@
     },
     "/public/v1/submit/delete_authenticators": {
       "post": {
-        "summary": "Delete Authenticators",
-        "description": "Remove authenticators from a User",
+        "summary": "Delete authenticators",
+        "description": "Remove authenticators from a user.",
         "operationId": "PublicApiService_DeleteAuthenticators",
         "responses": {
           "200": {
@@ -1574,8 +1606,8 @@
     },
     "/public/v1/submit/delete_invitation": {
       "post": {
-        "summary": "Delete Invitation",
-        "description": "Delete an existing Invitation",
+        "summary": "Delete invitation",
+        "description": "Delete an existing invitation.",
         "operationId": "PublicApiService_DeleteInvitation",
         "responses": {
           "200": {
@@ -1606,8 +1638,8 @@
     },
     "/public/v1/submit/delete_oauth_providers": {
       "post": {
-        "summary": "Delete Oauth Providers",
-        "description": "Removes Oauth providers for a specified user - BETA",
+        "summary": "Delete Oauth providers",
+        "description": "Remove Oauth providers for a specified user.",
         "operationId": "PublicApiService_DeleteOauthProviders",
         "responses": {
           "200": {
@@ -1638,8 +1670,8 @@
     },
     "/public/v1/submit/delete_policy": {
       "post": {
-        "summary": "Delete Policy",
-        "description": "Delete an existing Policy",
+        "summary": "Delete policy",
+        "description": "Delete an existing policy.",
         "operationId": "PublicApiService_DeletePolicy",
         "responses": {
           "200": {
@@ -1670,8 +1702,8 @@
     },
     "/public/v1/submit/delete_private_key_tags": {
       "post": {
-        "summary": "Delete Private Key Tags",
-        "description": "Delete Private Key Tags within an Organization",
+        "summary": "Delete private key tags",
+        "description": "Delete private key tags within an organization.",
         "operationId": "PublicApiService_DeletePrivateKeyTags",
         "responses": {
           "200": {
@@ -1702,8 +1734,8 @@
     },
     "/public/v1/submit/delete_private_keys": {
       "post": {
-        "summary": "Delete Private Keys",
-        "description": "Deletes private keys for an organization",
+        "summary": "Delete private keys",
+        "description": "Delete private keys for an organization.",
         "operationId": "PublicApiService_DeletePrivateKeys",
         "responses": {
           "200": {
@@ -1734,8 +1766,8 @@
     },
     "/public/v1/submit/delete_smart_contract_interface": {
       "post": {
-        "summary": "Create Smart Contract Interface",
-        "description": "Delete a Smart Contract Interface",
+        "summary": "Delete smart contract interface",
+        "description": "Delete a smart contract interface.",
         "operationId": "PublicApiService_DeleteSmartContractInterface",
         "responses": {
           "200": {
@@ -1766,8 +1798,8 @@
     },
     "/public/v1/submit/delete_sub_organization": {
       "post": {
-        "summary": "Delete Sub Organization",
-        "description": "Deletes a sub organization",
+        "summary": "Delete sub-organization",
+        "description": "Delete a sub-organization.",
         "operationId": "PublicApiService_DeleteSubOrganization",
         "responses": {
           "200": {
@@ -1798,8 +1830,8 @@
     },
     "/public/v1/submit/delete_user_tags": {
       "post": {
-        "summary": "Delete User Tags",
-        "description": "Delete User Tags within an Organization",
+        "summary": "Delete user tags",
+        "description": "Delete user tags within an organization.",
         "operationId": "PublicApiService_DeleteUserTags",
         "responses": {
           "200": {
@@ -1830,8 +1862,8 @@
     },
     "/public/v1/submit/delete_users": {
       "post": {
-        "summary": "Delete Users",
-        "description": "Delete Users within an Organization",
+        "summary": "Delete users",
+        "description": "Delete users within an organization.",
         "operationId": "PublicApiService_DeleteUsers",
         "responses": {
           "200": {
@@ -1862,8 +1894,8 @@
     },
     "/public/v1/submit/delete_wallets": {
       "post": {
-        "summary": "Delete Wallets",
-        "description": "Deletes wallets for an organization",
+        "summary": "Delete wallets",
+        "description": "Delete wallets for an organization.",
         "operationId": "PublicApiService_DeleteWallets",
         "responses": {
           "200": {
@@ -1894,8 +1926,8 @@
     },
     "/public/v1/submit/email_auth": {
       "post": {
-        "summary": "Perform Email Auth",
-        "description": "Authenticate a user via Email",
+        "summary": "Perform email auth",
+        "description": "Authenticate a user via email.",
         "operationId": "PublicApiService_EmailAuth",
         "responses": {
           "200": {
@@ -1926,8 +1958,8 @@
     },
     "/public/v1/submit/export_private_key": {
       "post": {
-        "summary": "Export Private Key",
-        "description": "Exports a Private Key",
+        "summary": "Export private key",
+        "description": "Export a private key.",
         "operationId": "PublicApiService_ExportPrivateKey",
         "responses": {
           "200": {
@@ -1958,8 +1990,8 @@
     },
     "/public/v1/submit/export_wallet": {
       "post": {
-        "summary": "Export Wallet",
-        "description": "Exports a Wallet",
+        "summary": "Export wallet",
+        "description": "Export a wallet.",
         "operationId": "PublicApiService_ExportWallet",
         "responses": {
           "200": {
@@ -1990,8 +2022,8 @@
     },
     "/public/v1/submit/export_wallet_account": {
       "post": {
-        "summary": "Export Wallet Account",
-        "description": "Exports a Wallet Account",
+        "summary": "Export wallet account",
+        "description": "Export a wallet account.",
         "operationId": "PublicApiService_ExportWalletAccount",
         "responses": {
           "200": {
@@ -2022,8 +2054,8 @@
     },
     "/public/v1/submit/import_private_key": {
       "post": {
-        "summary": "Import Private Key",
-        "description": "Imports a private key",
+        "summary": "Import private key",
+        "description": "Import a private key.",
         "operationId": "PublicApiService_ImportPrivateKey",
         "responses": {
           "200": {
@@ -2054,8 +2086,8 @@
     },
     "/public/v1/submit/import_wallet": {
       "post": {
-        "summary": "Import Wallet",
-        "description": "Imports a wallet",
+        "summary": "Import wallet",
+        "description": "Import a wallet.",
         "operationId": "PublicApiService_ImportWallet",
         "responses": {
           "200": {
@@ -2086,8 +2118,8 @@
     },
     "/public/v1/submit/init_fiat_on_ramp": {
       "post": {
-        "summary": "Init Fiat On Ramp",
-        "description": "Initiate a fiat on ramp flow",
+        "summary": "Init fiat on ramp",
+        "description": "Initiate a fiat on ramp flow.",
         "operationId": "PublicApiService_InitFiatOnRamp",
         "responses": {
           "200": {
@@ -2118,8 +2150,8 @@
     },
     "/public/v1/submit/init_import_private_key": {
       "post": {
-        "summary": "Init Import Private Key",
-        "description": "Initializes a new private key import",
+        "summary": "Init import private key",
+        "description": "Initialize a new private key import.",
         "operationId": "PublicApiService_InitImportPrivateKey",
         "responses": {
           "200": {
@@ -2150,8 +2182,8 @@
     },
     "/public/v1/submit/init_import_wallet": {
       "post": {
-        "summary": "Init Import Wallet",
-        "description": "Initializes a new wallet import",
+        "summary": "Init import wallet",
+        "description": "Initialize a new wallet import.",
         "operationId": "PublicApiService_InitImportWallet",
         "responses": {
           "200": {
@@ -2182,8 +2214,8 @@
     },
     "/public/v1/submit/init_otp": {
       "post": {
-        "summary": "Init Generic OTP",
-        "description": "Initiate a Generic OTP activity",
+        "summary": "Init generic OTP",
+        "description": "Initiate a generic OTP activity.",
         "operationId": "PublicApiService_InitOtp",
         "responses": {
           "200": {
@@ -2215,7 +2247,7 @@
     "/public/v1/submit/init_otp_auth": {
       "post": {
         "summary": "Init OTP auth",
-        "description": "Initiate an OTP auth activity",
+        "description": "Initiate an OTP auth activity.",
         "operationId": "PublicApiService_InitOtpAuth",
         "responses": {
           "200": {
@@ -2246,8 +2278,8 @@
     },
     "/public/v1/submit/init_user_email_recovery": {
       "post": {
-        "summary": "Init Email Recovery",
-        "description": "Initializes a new email recovery",
+        "summary": "Init email recovery",
+        "description": "Initialize a new email recovery.",
         "operationId": "PublicApiService_InitUserEmailRecovery",
         "responses": {
           "200": {
@@ -2279,7 +2311,7 @@
     "/public/v1/submit/oauth": {
       "post": {
         "summary": "Oauth",
-        "description": "Authenticate a user with an Oidc token (Oauth) - BETA",
+        "description": "Authenticate a user with an OIDC token (Oauth).",
         "operationId": "PublicApiService_Oauth",
         "responses": {
           "200": {
@@ -2311,7 +2343,7 @@
     "/public/v1/submit/oauth_login": {
       "post": {
         "summary": "Login with Oauth",
-        "description": "Create an Oauth session for a user",
+        "description": "Create an Oauth session for a user.",
         "operationId": "PublicApiService_OauthLogin",
         "responses": {
           "200": {
@@ -2343,7 +2375,7 @@
     "/public/v1/submit/otp_auth": {
       "post": {
         "summary": "OTP auth",
-        "description": "Authenticate a user with an OTP code sent via email or SMS",
+        "description": "Authenticate a user with an OTP code sent via email or SMS.",
         "operationId": "PublicApiService_OtpAuth",
         "responses": {
           "200": {
@@ -2375,7 +2407,7 @@
     "/public/v1/submit/otp_login": {
       "post": {
         "summary": "Login with OTP",
-        "description": "Create an OTP session for a user",
+        "description": "Create an OTP session for a user.",
         "operationId": "PublicApiService_OtpLogin",
         "responses": {
           "200": {
@@ -2407,7 +2439,7 @@
     "/public/v1/submit/recover_user": {
       "post": {
         "summary": "Recover a user",
-        "description": "Completes the process of recovering a user by adding an authenticator",
+        "description": "Complete the process of recovering a user by adding an authenticator.",
         "operationId": "PublicApiService_RecoverUser",
         "responses": {
           "200": {
@@ -2438,8 +2470,8 @@
     },
     "/public/v1/submit/reject_activity": {
       "post": {
-        "summary": "Reject Activity",
-        "description": "Reject an Activity",
+        "summary": "Reject activity",
+        "description": "Reject an activity.",
         "operationId": "PublicApiService_RejectActivity",
         "responses": {
           "200": {
@@ -2470,8 +2502,8 @@
     },
     "/public/v1/submit/remove_organization_feature": {
       "post": {
-        "summary": "Remove Organization Feature",
-        "description": "Removes an organization feature. This activity must be approved by the current root quorum.",
+        "summary": "Remove organization feature",
+        "description": "Remove an organization feature. This activity must be approved by the current root quorum.",
         "operationId": "PublicApiService_RemoveOrganizationFeature",
         "responses": {
           "200": {
@@ -2502,8 +2534,8 @@
     },
     "/public/v1/submit/set_organization_feature": {
       "post": {
-        "summary": "Set Organization Feature",
-        "description": "Sets an organization feature. This activity must be approved by the current root quorum.",
+        "summary": "Set organization feature",
+        "description": "Set an organization feature. This activity must be approved by the current root quorum.",
         "operationId": "PublicApiService_SetOrganizationFeature",
         "responses": {
           "200": {
@@ -2534,8 +2566,8 @@
     },
     "/public/v1/submit/sign_raw_payload": {
       "post": {
-        "summary": "Sign Raw Payload",
-        "description": "Sign a raw payload",
+        "summary": "Sign raw payload",
+        "description": "Sign a raw payload.",
         "operationId": "PublicApiService_SignRawPayload",
         "responses": {
           "200": {
@@ -2566,8 +2598,8 @@
     },
     "/public/v1/submit/sign_raw_payloads": {
       "post": {
-        "summary": "Sign Raw Payloads",
-        "description": "Sign multiple raw payloads with the same signing parameters",
+        "summary": "Sign raw payloads",
+        "description": "Sign multiple raw payloads with the same signing parameters.",
         "operationId": "PublicApiService_SignRawPayloads",
         "responses": {
           "200": {
@@ -2598,8 +2630,8 @@
     },
     "/public/v1/submit/sign_transaction": {
       "post": {
-        "summary": "Sign Transaction",
-        "description": "Sign a transaction",
+        "summary": "Sign transaction",
+        "description": "Sign a transaction.",
         "operationId": "PublicApiService_SignTransaction",
         "responses": {
           "200": {
@@ -2630,8 +2662,8 @@
     },
     "/public/v1/submit/stamp_login": {
       "post": {
-        "summary": "Login with a Stamp",
-        "description": "Create a session for a user through stamping client side (api key, wallet client, or passkey client)",
+        "summary": "Login with a stamp",
+        "description": "Create a session for a user through stamping client side (API key, wallet client, or passkey client).",
         "operationId": "PublicApiService_StampLogin",
         "responses": {
           "200": {
@@ -2662,8 +2694,8 @@
     },
     "/public/v1/submit/update_policy": {
       "post": {
-        "summary": "Update Policy",
-        "description": "Update an existing Policy",
+        "summary": "Update policy",
+        "description": "Update an existing policy.",
         "operationId": "PublicApiService_UpdatePolicy",
         "responses": {
           "200": {
@@ -2694,7 +2726,7 @@
     },
     "/public/v1/submit/update_private_key_tag": {
       "post": {
-        "summary": "Update Private Key Tag",
+        "summary": "Update private key tag",
         "description": "Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.",
         "operationId": "PublicApiService_UpdatePrivateKeyTag",
         "responses": {
@@ -2726,7 +2758,7 @@
     },
     "/public/v1/submit/update_root_quorum": {
       "post": {
-        "summary": "Update Root Quorum",
+        "summary": "Update root quorum",
         "description": "Set the threshold and members of the root quorum. This activity must be approved by the current root quorum.",
         "operationId": "PublicApiService_UpdateRootQuorum",
         "responses": {
@@ -2758,8 +2790,8 @@
     },
     "/public/v1/submit/update_user": {
       "post": {
-        "summary": "Update User",
-        "description": "Update a User in an existing Organization",
+        "summary": "Update user",
+        "description": "Update a user in an existing organization.",
         "operationId": "PublicApiService_UpdateUser",
         "responses": {
           "200": {
@@ -2790,8 +2822,8 @@
     },
     "/public/v1/submit/update_user_email": {
       "post": {
-        "summary": "Update User's Email",
-        "description": "Update a User's email in an existing Organization",
+        "summary": "Update user's email",
+        "description": "Update a user's email in an existing organization.",
         "operationId": "PublicApiService_UpdateUserEmail",
         "responses": {
           "200": {
@@ -2822,8 +2854,8 @@
     },
     "/public/v1/submit/update_user_name": {
       "post": {
-        "summary": "Update User's Name",
-        "description": "Update a User's name in an existing Organization",
+        "summary": "Update user's name",
+        "description": "Update a user's name in an existing organization.",
         "operationId": "PublicApiService_UpdateUserName",
         "responses": {
           "200": {
@@ -2854,8 +2886,8 @@
     },
     "/public/v1/submit/update_user_phone_number": {
       "post": {
-        "summary": "Update User's Phone Number",
-        "description": "Update a User's phone number in an existing Organization",
+        "summary": "Update user's phone number",
+        "description": "Update a user's phone number in an existing organization.",
         "operationId": "PublicApiService_UpdateUserPhoneNumber",
         "responses": {
           "200": {
@@ -2886,7 +2918,7 @@
     },
     "/public/v1/submit/update_user_tag": {
       "post": {
-        "summary": "Update User Tag",
+        "summary": "Update user tag",
         "description": "Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.",
         "operationId": "PublicApiService_UpdateUserTag",
         "responses": {
@@ -2918,8 +2950,8 @@
     },
     "/public/v1/submit/update_wallet": {
       "post": {
-        "summary": "Update Wallet",
-        "description": "Update a wallet for an organization",
+        "summary": "Update wallet",
+        "description": "Update a wallet for an organization.",
         "operationId": "PublicApiService_UpdateWallet",
         "responses": {
           "200": {
@@ -2950,8 +2982,8 @@
     },
     "/public/v1/submit/verify_otp": {
       "post": {
-        "summary": "Verify Generic OTP",
-        "description": "Verify a Generic OTP",
+        "summary": "Verify generic OTP",
+        "description": "Verify a generic OTP.",
         "operationId": "PublicApiService_VerifyOtp",
         "responses": {
           "200": {
@@ -3002,8 +3034,8 @@
     },
     "/tkhq/api/v1/test_rate_limits": {
       "post": {
-        "summary": "Test Rate Limit",
-        "description": "Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite",
+        "summary": "Test rate limit",
+        "description": "Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite.",
         "operationId": "PublicApiService_TestRateLimits",
         "responses": {
           "200": {
@@ -3188,6 +3220,46 @@
       },
       "required": ["tagId", "tagName", "tagType", "createdAt", "updatedAt"]
     },
+    "externalactivityv1PolicyEvaluation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for a given policy evaluation."
+        },
+        "activityId": {
+          "type": "string",
+          "description": "Unique identifier for a given Activity."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for the Organization the Activity belongs to."
+        },
+        "voteId": {
+          "type": "string",
+          "description": "Unique identifier for the Vote associated with this policy evaluation."
+        },
+        "policyEvaluations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/privateumpv1PolicyEvaluation"
+          },
+          "description": "Detailed evaluation result for each Policy that was run."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "activityId",
+        "organizationId",
+        "voteId",
+        "policyEvaluations",
+        "createdAt"
+      ]
+    },
     "externaldatav1Address": {
       "type": "object",
       "properties": {
@@ -3230,6 +3302,56 @@
       },
       "required": ["threshold", "userIds"]
     },
+    "externaldatav1SmartContractInterface": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "The Organization the Smart Contract Interface belongs to."
+        },
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
+        },
+        "smartContractAddress": {
+          "type": "string",
+          "description": "The address corresponding to the Smart Contract or Program."
+        },
+        "smartContractInterface": {
+          "type": "string",
+          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "label": {
+          "type": "string",
+          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "organizationId",
+        "smartContractInterfaceId",
+        "smartContractAddress",
+        "smartContractInterface",
+        "type",
+        "label",
+        "notes",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
     "externaldatav1Timestamp": {
       "type": "object",
       "properties": {
@@ -3250,6 +3372,17 @@
         },
         "address": {
           "type": "string"
+        }
+      }
+    },
+    "privateumpv1PolicyEvaluation": {
+      "type": "object",
+      "properties": {
+        "policyId": {
+          "type": "string"
+        },
+        "outcome": {
+          "$ref": "#/definitions/v1Outcome"
         }
       }
     },
@@ -3411,7 +3544,7 @@
       "properties": {
         "activity": {
           "$ref": "#/definitions/v1Activity",
-          "description": "An action that can that can be taken within the Turnkey infrastructure."
+          "description": "An action that can be taken within the Turnkey infrastructure."
         }
       },
       "required": ["activity"]
@@ -6405,14 +6538,14 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "filterByStatus": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1ActivityStatus"
           },
-          "description": "Array of Activity Statuses filtering which Activities will be listed in the response."
+          "description": "Array of activity statuses filtering which activities will be listed in the response."
         },
         "paginationOptions": {
           "$ref": "#/definitions/v1Pagination",
@@ -6423,7 +6556,7 @@
           "items": {
             "$ref": "#/definitions/v1ActivityType"
           },
-          "description": "Array of Activity Types filtering which Activities will be listed in the response."
+          "description": "Array of activity types filtering which activities will be listed in the response."
         }
       },
       "required": ["organizationId"]
@@ -6437,7 +6570,7 @@
             "type": "object",
             "$ref": "#/definitions/v1Activity"
           },
-          "description": "A list of Activities."
+          "description": "A list of activities."
         }
       },
       "required": ["activities"]
@@ -6447,11 +6580,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "activityId": {
           "type": "string",
-          "description": "Unique identifier for a given Activity object."
+          "description": "Unique identifier for a given activity object."
         }
       },
       "required": ["organizationId", "activityId"]
@@ -6461,7 +6594,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "apiKeyId": {
           "type": "string",
@@ -6485,11 +6618,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "userId": {
           "type": "string",
-          "description": "Unique identifier for a given User."
+          "description": "Unique identifier for a given user."
         }
       },
       "required": ["organizationId"]
@@ -6513,11 +6646,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "enclaveType": {
           "type": "string",
-          "description": "The enclave type, one of: ump, notarizer, signer, evm-parser"
+          "description": "The enclave type, one of: ump, notarizer, signer, evm-parser."
         }
       },
       "required": ["organizationId", "enclaveType"]
@@ -6528,7 +6661,7 @@
         "attestationDocument": {
           "type": "string",
           "format": "byte",
-          "description": "Raw (CBOR-encoded) attestation document"
+          "description": "Raw (CBOR-encoded) attestation document."
         }
       },
       "required": ["attestationDocument"]
@@ -6538,11 +6671,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "authenticatorId": {
           "type": "string",
-          "description": "Unique identifier for a given Authenticator."
+          "description": "Unique identifier for a given authenticator."
         }
       },
       "required": ["organizationId", "authenticatorId"]
@@ -6562,11 +6695,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "userId": {
           "type": "string",
-          "description": "Unique identifier for a given User."
+          "description": "Unique identifier for a given user."
         }
       },
       "required": ["organizationId", "userId"]
@@ -6590,11 +6723,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "userId": {
           "type": "string",
-          "description": "Unique identifier for a given User."
+          "description": "Unique identifier for a given user."
         }
       },
       "required": ["organizationId"]
@@ -6608,7 +6741,7 @@
             "type": "object",
             "$ref": "#/definitions/v1OauthProvider"
           },
-          "description": "A list of Oauth Providers"
+          "description": "A list of Oauth providers."
         }
       },
       "required": ["oauthProviders"]
@@ -6618,7 +6751,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -6628,7 +6761,7 @@
       "properties": {
         "configs": {
           "$ref": "#/definitions/v1Config",
-          "description": "Organization configs including quorum settings and organization features"
+          "description": "Organization configs including quorum settings and organization features."
         }
       },
       "required": ["configs"]
@@ -6638,7 +6771,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -6648,7 +6781,7 @@
       "properties": {
         "organizationData": {
           "$ref": "#/definitions/v1OrganizationData",
-          "description": "Object representing the full current and deleted / disabled collection of Users, Policies, Private Keys, and Invitations attributable to a particular Organization."
+          "description": "Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization."
         }
       },
       "required": ["organizationData"]
@@ -6658,7 +6791,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -6672,21 +6805,48 @@
             "type": "object",
             "$ref": "#/definitions/v1Policy"
           },
-          "description": "A list of Policies."
+          "description": "A list of policies."
         }
       },
       "required": ["policies"]
+    },
+    "v1GetPolicyEvaluationsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "activityId": {
+          "type": "string",
+          "description": "Unique identifier for a given activity."
+        }
+      },
+      "required": ["organizationId", "activityId"]
+    },
+    "v1GetPolicyEvaluationsResponse": {
+      "type": "object",
+      "properties": {
+        "policyEvaluations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/externalactivityv1PolicyEvaluation"
+          }
+        }
+      },
+      "required": ["policyEvaluations"]
     },
     "v1GetPolicyRequest": {
       "type": "object",
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "policyId": {
           "type": "string",
-          "description": "Unique identifier for a given Policy."
+          "description": "Unique identifier for a given policy."
         }
       },
       "required": ["organizationId", "policyId"]
@@ -6696,7 +6856,7 @@
       "properties": {
         "policy": {
           "$ref": "#/definitions/v1Policy",
-          "description": "Object that codifies rules defining the actions that are permissible within an Organization."
+          "description": "Object that codifies rules defining the actions that are permissible within an organization."
         }
       },
       "required": ["policy"]
@@ -6706,11 +6866,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "privateKeyId": {
           "type": "string",
-          "description": "Unique identifier for a given Private Key."
+          "description": "Unique identifier for a given private key."
         }
       },
       "required": ["organizationId", "privateKeyId"]
@@ -6730,7 +6890,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -6744,7 +6904,7 @@
             "type": "object",
             "$ref": "#/definitions/v1PrivateKey"
           },
-          "description": "A list of Private Keys."
+          "description": "A list of private keys."
         }
       },
       "required": ["privateKeys"]
@@ -6754,11 +6914,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "smartContractInterfaceId": {
           "type": "string",
-          "description": "Unique identifier for a given Smart Contract Interface."
+          "description": "Unique identifier for a given smart contract interface."
         }
       },
       "required": ["organizationId", "smartContractInterfaceId"]
@@ -6767,8 +6927,8 @@
       "type": "object",
       "properties": {
         "smartContractInterface": {
-          "$ref": "#/definitions/v1SmartContractInterface",
-          "description": "Object to be used in conjunction with Policies to guard transaction signing."
+          "$ref": "#/definitions/externaldatav1SmartContractInterface",
+          "description": "Object to be used in conjunction with policies to guard transaction signing."
         }
       },
       "required": ["smartContractInterface"]
@@ -6778,7 +6938,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -6790,9 +6950,9 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1SmartContractInterface"
+            "$ref": "#/definitions/externaldatav1SmartContractInterface"
           },
-          "description": "A list of Smart Contract Interfaces."
+          "description": "A list of smart contract interfaces."
         }
       },
       "required": ["smartContractInterfaces"]
@@ -6802,11 +6962,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for the parent Organization. This is used to find sub-organizations within it."
+          "description": "Unique identifier for the parent organization. This is used to find sub-organizations within it."
         },
         "filterType": {
           "type": "string",
-          "description": "Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN' or 'PUBLIC_KEY'"
+          "description": "Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'WALLET_ACCOUNT_ADDRESS' or 'PUBLIC_KEY'"
         },
         "filterValue": {
           "type": "string",
@@ -6837,11 +6997,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "userId": {
           "type": "string",
-          "description": "Unique identifier for a given User."
+          "description": "Unique identifier for a given user."
         }
       },
       "required": ["organizationId", "userId"]
@@ -6851,7 +7011,7 @@
       "properties": {
         "user": {
           "$ref": "#/definitions/v1User",
-          "description": "Web and/or API user within your Organization."
+          "description": "Web and/or API user within your organization."
         }
       },
       "required": ["user"]
@@ -6861,7 +7021,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -6875,7 +7035,7 @@
             "type": "object",
             "$ref": "#/definitions/v1User"
           },
-          "description": "A list of Users."
+          "description": "A list of users."
         }
       },
       "required": ["users"]
@@ -6885,11 +7045,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for the parent Organization. This is used to find sub-organizations within it."
+          "description": "Unique identifier for the parent organization. This is used to find sub-organizations within it."
         },
         "filterType": {
           "type": "string",
-          "description": "Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER'"
+          "description": "Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER'."
         },
         "filterValue": {
           "type": "string",
@@ -6920,19 +7080,19 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "walletId": {
           "type": "string",
-          "description": "Unique identifier for a given Wallet."
+          "description": "Unique identifier for a given wallet."
         },
         "address": {
           "type": "string",
-          "description": "Address corresponding to a Wallet Account."
+          "description": "Address corresponding to a wallet account."
         },
         "path": {
           "type": "string",
-          "description": "Path corresponding to a Wallet Account."
+          "description": "Path corresponding to a wallet account."
         }
       },
       "required": ["organizationId", "walletId"]
@@ -6942,7 +7102,7 @@
       "properties": {
         "account": {
           "$ref": "#/definitions/v1WalletAccount",
-          "description": "The resulting Wallet Account."
+          "description": "The resulting wallet account."
         }
       },
       "required": ["account"]
@@ -6952,18 +7112,18 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "walletId": {
           "type": "string",
-          "description": "Unique identifier for a given Wallet."
+          "description": "Unique identifier for a given wallet. If not provided, all accounts for the organization will be returned."
         },
         "paginationOptions": {
           "$ref": "#/definitions/v1Pagination",
           "description": "Parameters used for cursor-based pagination."
         }
       },
-      "required": ["organizationId", "walletId"]
+      "required": ["organizationId"]
     },
     "v1GetWalletAccountsResponse": {
       "type": "object",
@@ -6974,7 +7134,7 @@
             "type": "object",
             "$ref": "#/definitions/v1WalletAccount"
           },
-          "description": "A list of Accounts generated from a Wallet that share a common seed."
+          "description": "A list of accounts generated from a wallet that share a common seed."
         }
       },
       "required": ["accounts"]
@@ -6984,11 +7144,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "walletId": {
           "type": "string",
-          "description": "Unique identifier for a given Wallet."
+          "description": "Unique identifier for a given wallet."
         }
       },
       "required": ["organizationId", "walletId"]
@@ -6998,7 +7158,7 @@
       "properties": {
         "wallet": {
           "$ref": "#/definitions/v1Wallet",
-          "description": "A collection of deterministically generated cryptographic public / private key pairs that share a common seed"
+          "description": "A collection of deterministically generated cryptographic public / private key pairs that share a common seed."
         }
       },
       "required": ["wallet"]
@@ -7008,7 +7168,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -7022,7 +7182,7 @@
             "type": "object",
             "$ref": "#/definitions/v1Wallet"
           },
-          "description": "A list of Wallets."
+          "description": "A list of wallets."
         }
       },
       "required": ["wallets"]
@@ -7032,7 +7192,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons."
+          "description": "Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons."
         }
       },
       "required": ["organizationId"]
@@ -7042,19 +7202,19 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         },
         "organizationName": {
           "type": "string",
-          "description": "Human-readable name for an Organization."
+          "description": "Human-readable name for an organization."
         },
         "userId": {
           "type": "string",
-          "description": "Unique identifier for a given User."
+          "description": "Unique identifier for a given user."
         },
         "username": {
           "type": "string",
-          "description": "Human-readable name for a User."
+          "description": "Human-readable name for a user."
         }
       },
       "required": ["organizationId", "organizationName", "userId", "username"]
@@ -7244,6 +7404,10 @@
         "countrySubdivisionCode": {
           "type": "string",
           "description": "ISO 3166-2 two-digit country subdivision code for Coinbase representing the purchasing user’s subdivision of residence within their country, e.g. NY. Required if country_code=US."
+        },
+        "sandboxMode": {
+          "type": "boolean",
+          "description": "Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false."
         }
       },
       "required": [
@@ -8019,7 +8183,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -8033,7 +8197,7 @@
             "type": "object",
             "$ref": "#/definitions/datav1Tag"
           },
-          "description": "A list of Private Key Tags"
+          "description": "A list of private key tags."
         }
       },
       "required": ["privateKeyTags"]
@@ -8043,7 +8207,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization."
+          "description": "Unique identifier for a given organization."
         }
       },
       "required": ["organizationId"]
@@ -8057,7 +8221,7 @@
             "type": "object",
             "$ref": "#/definitions/datav1Tag"
           },
-          "description": "A list of User Tags"
+          "description": "A list of user tags."
         }
       },
       "required": ["userTags"]
@@ -8464,6 +8628,17 @@
         }
       },
       "required": ["session"]
+    },
+    "v1Outcome": {
+      "type": "string",
+      "enum": [
+        "OUTCOME_ALLOW",
+        "OUTCOME_DENY_EXPLICIT",
+        "OUTCOME_DENY_IMPLICIT",
+        "OUTCOME_REQUIRES_CONSENSUS",
+        "OUTCOME_REJECTED",
+        "OUTCOME_ERROR"
+      ]
     },
     "v1Pagination": {
       "type": "object",
@@ -9489,56 +9664,6 @@
         }
       }
     },
-    "v1SmartContractInterface": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "The Organization the Smart Contract Interface belongs to."
-        },
-        "smartContractInterfaceId": {
-          "type": "string",
-          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
-        },
-        "smartContractAddress": {
-          "type": "string",
-          "description": "The address corresponding to the Smart Contract or Program."
-        },
-        "smartContractInterface": {
-          "type": "string",
-          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
-        },
-        "type": {
-          "type": "string",
-          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "label": {
-          "type": "string",
-          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "notes": {
-          "type": "string",
-          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "createdAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "updatedAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        }
-      },
-      "required": [
-        "organizationId",
-        "smartContractInterfaceId",
-        "smartContractAddress",
-        "smartContractInterface",
-        "type",
-        "label",
-        "notes",
-        "createdAt",
-        "updatedAt"
-      ]
-    },
     "v1SmartContractInterfaceReference": {
       "type": "object",
       "properties": {
@@ -9627,7 +9752,7 @@
       "properties": {
         "organizationId": {
           "type": "string",
-          "description": "Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons."
+          "description": "Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons."
         },
         "isSetLimit": {
           "type": "boolean",
@@ -9636,7 +9761,7 @@
         "limit": {
           "type": "integer",
           "format": "int64",
-          "description": "Rate limit to set for org, if is_set_limit is set to true"
+          "description": "Rate limit to set for org, if is_set_limit is set to true."
         }
       },
       "required": ["organizationId", "isSetLimit", "limit"]

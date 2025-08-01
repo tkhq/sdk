@@ -25,9 +25,9 @@ export type TGetActivityBody =
   operations["PublicApiService_GetActivity"]["parameters"]["body"]["body"];
 
 /**
- * Get Activity
+ * Get activity
  *
- * Get details about an Activity
+ * Get details about an activity.
  *
  * `POST /public/v1/query/get_activity`
  */
@@ -45,7 +45,7 @@ export const getActivity = (input: TGetActivityInput) =>
  */
 export const signGetActivity = (
   input: TGetActivityInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetActivityBody, never, never>({
     uri: "/public/v1/query/get_activity",
@@ -73,7 +73,7 @@ export type TGetApiKeyBody =
 /**
  * Get API key
  *
- * Get details about an API key
+ * Get details about an API key.
  *
  * `POST /public/v1/query/get_api_key`
  */
@@ -91,7 +91,7 @@ export const getApiKey = (input: TGetApiKeyInput) =>
  */
 export const signGetApiKey = (
   input: TGetApiKeyInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetApiKeyBody, never, never>({
     uri: "/public/v1/query/get_api_key",
@@ -119,7 +119,7 @@ export type TGetApiKeysBody =
 /**
  * Get API keys
  *
- * Get details about API keys for a user
+ * Get details about API keys for a user.
  *
  * `POST /public/v1/query/get_api_keys`
  */
@@ -137,7 +137,7 @@ export const getApiKeys = (input: TGetApiKeysInput) =>
  */
 export const signGetApiKeys = (
   input: TGetApiKeysInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetApiKeysBody, never, never>({
     uri: "/public/v1/query/get_api_keys",
@@ -191,7 +191,7 @@ export const getAttestationDocument = (input: TGetAttestationDocumentInput) =>
  */
 export const signGetAttestationDocument = (
   input: TGetAttestationDocumentInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetAttestationDocumentBody, never, never>({
     uri: "/public/v1/query/get_attestation",
@@ -217,9 +217,9 @@ export type TGetAuthenticatorBody =
   operations["PublicApiService_GetAuthenticator"]["parameters"]["body"]["body"];
 
 /**
- * Get Authenticator
+ * Get authenticator
  *
- * Get details about an authenticator
+ * Get details about an authenticator.
  *
  * `POST /public/v1/query/get_authenticator`
  */
@@ -243,7 +243,7 @@ export const getAuthenticator = (input: TGetAuthenticatorInput) =>
  */
 export const signGetAuthenticator = (
   input: TGetAuthenticatorInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetAuthenticatorBody, never, never>({
     uri: "/public/v1/query/get_authenticator",
@@ -269,9 +269,9 @@ export type TGetAuthenticatorsBody =
   operations["PublicApiService_GetAuthenticators"]["parameters"]["body"]["body"];
 
 /**
- * Get Authenticators
+ * Get authenticators
  *
- * Get details about authenticators for a user
+ * Get details about authenticators for a user.
  *
  * `POST /public/v1/query/get_authenticators`
  */
@@ -295,7 +295,7 @@ export const getAuthenticators = (input: TGetAuthenticatorsInput) =>
  */
 export const signGetAuthenticators = (
   input: TGetAuthenticatorsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetAuthenticatorsBody, never, never>({
     uri: "/public/v1/query/get_authenticators",
@@ -323,7 +323,7 @@ export type TGetOauthProvidersBody =
 /**
  * Get Oauth providers
  *
- * Get details about Oauth providers for a user
+ * Get details about Oauth providers for a user.
  *
  * `POST /public/v1/query/get_oauth_providers`
  */
@@ -347,7 +347,7 @@ export const getOauthProviders = (input: TGetOauthProvidersInput) =>
  */
 export const signGetOauthProviders = (
   input: TGetOauthProvidersInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetOauthProvidersBody, never, never>({
     uri: "/public/v1/query/get_oauth_providers",
@@ -373,9 +373,9 @@ export type TGetOrganizationBody =
   operations["PublicApiService_GetOrganization"]["parameters"]["body"]["body"];
 
 /**
- * Get Organization
+ * Get organization
  *
- * Get details about an Organization
+ * Get details about an organization.
  *
  * `POST /public/v1/query/get_organization`
  */
@@ -393,7 +393,7 @@ export const getOrganization = (input: TGetOrganizationInput) =>
  */
 export const signGetOrganization = (
   input: TGetOrganizationInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetOrganizationBody, never, never>({
     uri: "/public/v1/query/get_organization",
@@ -421,9 +421,9 @@ export type TGetOrganizationConfigsBody =
   operations["PublicApiService_GetOrganizationConfigs"]["parameters"]["body"]["body"];
 
 /**
- * Get Configs
+ * Get configs
  *
- * Get quorum settings and features for an organization
+ * Get quorum settings and features for an organization.
  *
  * `POST /public/v1/query/get_organization_configs`
  */
@@ -447,7 +447,7 @@ export const getOrganizationConfigs = (input: TGetOrganizationConfigsInput) =>
  */
 export const signGetOrganizationConfigs = (
   input: TGetOrganizationConfigsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetOrganizationConfigsBody, never, never>({
     uri: "/public/v1/query/get_organization_configs",
@@ -473,9 +473,9 @@ export type TGetPolicyBody =
   operations["PublicApiService_GetPolicy"]["parameters"]["body"]["body"];
 
 /**
- * Get Policy
+ * Get policy
  *
- * Get details about a Policy
+ * Get details about a policy.
  *
  * `POST /public/v1/query/get_policy`
  */
@@ -493,10 +493,62 @@ export const getPolicy = (input: TGetPolicyInput) =>
  */
 export const signGetPolicy = (
   input: TGetPolicyInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetPolicyBody, never, never>({
     uri: "/public/v1/query/get_policy",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export type TGetPolicyEvaluationsResponse =
+  operations["PublicApiService_GetPolicyEvaluations"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export type TGetPolicyEvaluationsInput = { body: TGetPolicyEvaluationsBody };
+
+/**
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export type TGetPolicyEvaluationsBody =
+  operations["PublicApiService_GetPolicyEvaluations"]["parameters"]["body"]["body"];
+
+/**
+ * Get policy evaluations
+ *
+ * Get the policy evaluations for an activity.
+ *
+ * `POST /public/v1/query/get_policy_evaluations`
+ */
+export const getPolicyEvaluations = (input: TGetPolicyEvaluationsInput) =>
+  request<
+    TGetPolicyEvaluationsResponse,
+    TGetPolicyEvaluationsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_policy_evaluations",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetPolicyEvaluations` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetPolicyEvaluations}
+ */
+export const signGetPolicyEvaluations = (
+  input: TGetPolicyEvaluationsInput,
+  options?: TurnkeyCredentialRequestOptions
+) =>
+  signedRequest<TGetPolicyEvaluationsBody, never, never>({
+    uri: "/public/v1/query/get_policy_evaluations",
     body: input.body,
     options,
   });
@@ -519,9 +571,9 @@ export type TGetPrivateKeyBody =
   operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"];
 
 /**
- * Get Private Key
+ * Get private key
  *
- * Get details about a Private Key
+ * Get details about a private key.
  *
  * `POST /public/v1/query/get_private_key`
  */
@@ -539,7 +591,7 @@ export const getPrivateKey = (input: TGetPrivateKeyInput) =>
  */
 export const signGetPrivateKey = (
   input: TGetPrivateKeyInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetPrivateKeyBody, never, never>({
     uri: "/public/v1/query/get_private_key",
@@ -567,14 +619,14 @@ export type TGetSmartContractInterfaceBody =
   operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
- * Get Smart Contract Interface
+ * Get smart contract interface
  *
- * Get details about a Smart Contract Interface
+ * Get details about a smart contract interface.
  *
  * `POST /public/v1/query/get_smart_contract_interface`
  */
 export const getSmartContractInterface = (
-  input: TGetSmartContractInterfaceInput,
+  input: TGetSmartContractInterfaceInput
 ) =>
   request<
     TGetSmartContractInterfaceResponse,
@@ -595,7 +647,7 @@ export const getSmartContractInterface = (
  */
 export const signGetSmartContractInterface = (
   input: TGetSmartContractInterfaceInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetSmartContractInterfaceBody, never, never>({
     uri: "/public/v1/query/get_smart_contract_interface",
@@ -621,9 +673,9 @@ export type TGetUserBody =
   operations["PublicApiService_GetUser"]["parameters"]["body"]["body"];
 
 /**
- * Get User
+ * Get user
  *
- * Get details about a User
+ * Get details about a user.
  *
  * `POST /public/v1/query/get_user`
  */
@@ -641,7 +693,7 @@ export const getUser = (input: TGetUserInput) =>
  */
 export const signGetUser = (
   input: TGetUserInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetUserBody, never, never>({
     uri: "/public/v1/query/get_user",
@@ -667,9 +719,9 @@ export type TGetWalletBody =
   operations["PublicApiService_GetWallet"]["parameters"]["body"]["body"];
 
 /**
- * Get Wallet
+ * Get wallet
  *
- * Get details about a Wallet
+ * Get details about a wallet.
  *
  * `POST /public/v1/query/get_wallet`
  */
@@ -687,7 +739,7 @@ export const getWallet = (input: TGetWalletInput) =>
  */
 export const signGetWallet = (
   input: TGetWalletInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetWalletBody, never, never>({
     uri: "/public/v1/query/get_wallet",
@@ -713,9 +765,9 @@ export type TGetWalletAccountBody =
   operations["PublicApiService_GetWalletAccount"]["parameters"]["body"]["body"];
 
 /**
- * Get Wallet Account
+ * Get wallet account
  *
- * Get a single wallet account
+ * Get a single wallet account.
  *
  * `POST /public/v1/query/get_wallet_account`
  */
@@ -739,7 +791,7 @@ export const getWalletAccount = (input: TGetWalletAccountInput) =>
  */
 export const signGetWalletAccount = (
   input: TGetWalletAccountInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetWalletAccountBody, never, never>({
     uri: "/public/v1/query/get_wallet_account",
@@ -765,9 +817,9 @@ export type TGetActivitiesBody =
   operations["PublicApiService_GetActivities"]["parameters"]["body"]["body"];
 
 /**
- * List Activities
+ * List activities
  *
- * List all Activities within an Organization
+ * List all activities within an organization.
  *
  * `POST /public/v1/query/list_activities`
  */
@@ -785,7 +837,7 @@ export const getActivities = (input: TGetActivitiesInput) =>
  */
 export const signGetActivities = (
   input: TGetActivitiesInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetActivitiesBody, never, never>({
     uri: "/public/v1/query/list_activities",
@@ -811,9 +863,9 @@ export type TGetPoliciesBody =
   operations["PublicApiService_GetPolicies"]["parameters"]["body"]["body"];
 
 /**
- * List Policies
+ * List policies
  *
- * List all Policies within an Organization
+ * List all policies within an organization.
  *
  * `POST /public/v1/query/list_policies`
  */
@@ -831,7 +883,7 @@ export const getPolicies = (input: TGetPoliciesInput) =>
  */
 export const signGetPolicies = (
   input: TGetPoliciesInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetPoliciesBody, never, never>({
     uri: "/public/v1/query/list_policies",
@@ -857,9 +909,9 @@ export type TListPrivateKeyTagsBody =
   operations["PublicApiService_ListPrivateKeyTags"]["parameters"]["body"]["body"];
 
 /**
- * List Private Key Tags
+ * List private key tags
  *
- * List all Private Key Tags within an Organization
+ * List all private key tags within an organization.
  *
  * `POST /public/v1/query/list_private_key_tags`
  */
@@ -883,7 +935,7 @@ export const listPrivateKeyTags = (input: TListPrivateKeyTagsInput) =>
  */
 export const signListPrivateKeyTags = (
   input: TListPrivateKeyTagsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TListPrivateKeyTagsBody, never, never>({
     uri: "/public/v1/query/list_private_key_tags",
@@ -909,9 +961,9 @@ export type TGetPrivateKeysBody =
   operations["PublicApiService_GetPrivateKeys"]["parameters"]["body"]["body"];
 
 /**
- * List Private Keys
+ * List private keys
  *
- * List all Private Keys within an Organization
+ * List all private keys within an organization.
  *
  * `POST /public/v1/query/list_private_keys`
  */
@@ -929,7 +981,7 @@ export const getPrivateKeys = (input: TGetPrivateKeysInput) =>
  */
 export const signGetPrivateKeys = (
   input: TGetPrivateKeysInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetPrivateKeysBody, never, never>({
     uri: "/public/v1/query/list_private_keys",
@@ -957,14 +1009,14 @@ export type TGetSmartContractInterfacesBody =
   operations["PublicApiService_GetSmartContractInterfaces"]["parameters"]["body"]["body"];
 
 /**
- * List Smart Contract Interfaces
+ * List smart contract interfaces
  *
- * List all Smart Contract Interfaces within an Organization
+ * List all smart contract interfaces within an organization.
  *
  * `POST /public/v1/query/list_smart_contract_interfaces`
  */
 export const getSmartContractInterfaces = (
-  input: TGetSmartContractInterfacesInput,
+  input: TGetSmartContractInterfacesInput
 ) =>
   request<
     TGetSmartContractInterfacesResponse,
@@ -985,7 +1037,7 @@ export const getSmartContractInterfaces = (
  */
 export const signGetSmartContractInterfaces = (
   input: TGetSmartContractInterfacesInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetSmartContractInterfacesBody, never, never>({
     uri: "/public/v1/query/list_smart_contract_interfaces",
@@ -1011,7 +1063,7 @@ export type TGetSubOrgIdsBody =
   operations["PublicApiService_GetSubOrgIds"]["parameters"]["body"]["body"];
 
 /**
- * Get Suborgs
+ * Get sub-organizations
  *
  * Get all suborg IDs associated given a parent org ID and an optional filter.
  *
@@ -1031,7 +1083,7 @@ export const getSubOrgIds = (input: TGetSubOrgIdsInput) =>
  */
 export const signGetSubOrgIds = (
   input: TGetSubOrgIdsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetSubOrgIdsBody, never, never>({
     uri: "/public/v1/query/list_suborgs",
@@ -1057,9 +1109,9 @@ export type TListUserTagsBody =
   operations["PublicApiService_ListUserTags"]["parameters"]["body"]["body"];
 
 /**
- * List User Tags
+ * List user tags
  *
- * List all User Tags within an Organization
+ * List all user tags within an organization.
  *
  * `POST /public/v1/query/list_user_tags`
  */
@@ -1077,7 +1129,7 @@ export const listUserTags = (input: TListUserTagsInput) =>
  */
 export const signListUserTags = (
   input: TListUserTagsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TListUserTagsBody, never, never>({
     uri: "/public/v1/query/list_user_tags",
@@ -1103,9 +1155,9 @@ export type TGetUsersBody =
   operations["PublicApiService_GetUsers"]["parameters"]["body"]["body"];
 
 /**
- * List Users
+ * List users
  *
- * List all Users within an Organization
+ * List all users within an organization.
  *
  * `POST /public/v1/query/list_users`
  */
@@ -1123,7 +1175,7 @@ export const getUsers = (input: TGetUsersInput) =>
  */
 export const signGetUsers = (
   input: TGetUsersInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetUsersBody, never, never>({
     uri: "/public/v1/query/list_users",
@@ -1149,7 +1201,7 @@ export type TGetVerifiedSubOrgIdsBody =
   operations["PublicApiService_GetVerifiedSubOrgIds"]["parameters"]["body"]["body"];
 
 /**
- * Get Verified Suborgs
+ * Get verified sub-organizations
  *
  * Get all email or phone verified suborg IDs associated given a parent org ID.
  *
@@ -1175,7 +1227,7 @@ export const getVerifiedSubOrgIds = (input: TGetVerifiedSubOrgIdsInput) =>
  */
 export const signGetVerifiedSubOrgIds = (
   input: TGetVerifiedSubOrgIdsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetVerifiedSubOrgIdsBody, never, never>({
     uri: "/public/v1/query/list_verified_suborgs",
@@ -1201,9 +1253,9 @@ export type TGetWalletAccountsBody =
   operations["PublicApiService_GetWalletAccounts"]["parameters"]["body"]["body"];
 
 /**
- * List Wallets Accounts
+ * List wallets accounts
  *
- * List all Accounts within a Wallet
+ * List all accounts within a wallet.
  *
  * `POST /public/v1/query/list_wallet_accounts`
  */
@@ -1227,7 +1279,7 @@ export const getWalletAccounts = (input: TGetWalletAccountsInput) =>
  */
 export const signGetWalletAccounts = (
   input: TGetWalletAccountsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetWalletAccountsBody, never, never>({
     uri: "/public/v1/query/list_wallet_accounts",
@@ -1253,9 +1305,9 @@ export type TGetWalletsBody =
   operations["PublicApiService_GetWallets"]["parameters"]["body"]["body"];
 
 /**
- * List Wallets
+ * List wallets
  *
- * List all Wallets within an Organization
+ * List all wallets within an organization.
  *
  * `POST /public/v1/query/list_wallets`
  */
@@ -1273,7 +1325,7 @@ export const getWallets = (input: TGetWalletsInput) =>
  */
 export const signGetWallets = (
   input: TGetWalletsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetWalletsBody, never, never>({
     uri: "/public/v1/query/list_wallets",
@@ -1301,7 +1353,7 @@ export type TGetWhoamiBody =
 /**
  * Who am I?
  *
- * Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users.
+ * Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users.
  *
  * `POST /public/v1/query/whoami`
  */
@@ -1319,7 +1371,7 @@ export const getWhoami = (input: TGetWhoamiInput) =>
  */
 export const signGetWhoami = (
   input: TGetWhoamiInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TGetWhoamiBody, never, never>({
     uri: "/public/v1/query/whoami",
@@ -1345,9 +1397,9 @@ export type TApproveActivityBody =
   operations["PublicApiService_ApproveActivity"]["parameters"]["body"]["body"];
 
 /**
- * Approve Activity
+ * Approve activity
  *
- * Approve an Activity
+ * Approve an activity.
  *
  * `POST /public/v1/submit/approve_activity`
  */
@@ -1365,7 +1417,7 @@ export const approveActivity = (input: TApproveActivityInput) =>
  */
 export const signApproveActivity = (
   input: TApproveActivityInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TApproveActivityBody, never, never>({
     uri: "/public/v1/submit/approve_activity",
@@ -1391,9 +1443,9 @@ export type TCreateApiKeysBody =
   operations["PublicApiService_CreateApiKeys"]["parameters"]["body"]["body"];
 
 /**
- * Create API Keys
+ * Create API keys
  *
- * Add api keys to an existing User
+ * Add API keys to an existing user.
  *
  * `POST /public/v1/submit/create_api_keys`
  */
@@ -1411,7 +1463,7 @@ export const createApiKeys = (input: TCreateApiKeysInput) =>
  */
 export const signCreateApiKeys = (
   input: TCreateApiKeysInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateApiKeysBody, never, never>({
     uri: "/public/v1/submit/create_api_keys",
@@ -1437,9 +1489,9 @@ export type TCreateApiOnlyUsersBody =
   operations["PublicApiService_CreateApiOnlyUsers"]["parameters"]["body"]["body"];
 
 /**
- * Create API-only Users
+ * Create API-only users
  *
- * Create API-only Users in an existing Organization
+ * Create API-only users in an existing organization.
  *
  * `POST /public/v1/submit/create_api_only_users`
  */
@@ -1463,7 +1515,7 @@ export const createApiOnlyUsers = (input: TCreateApiOnlyUsersInput) =>
  */
 export const signCreateApiOnlyUsers = (
   input: TCreateApiOnlyUsersInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateApiOnlyUsersBody, never, never>({
     uri: "/public/v1/submit/create_api_only_users",
@@ -1489,9 +1541,9 @@ export type TCreateAuthenticatorsBody =
   operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"];
 
 /**
- * Create Authenticators
+ * Create authenticators
  *
- * Create Authenticators to authenticate requests to Turnkey
+ * Create authenticators to authenticate requests to Turnkey.
  *
  * `POST /public/v1/submit/create_authenticators`
  */
@@ -1515,7 +1567,7 @@ export const createAuthenticators = (input: TCreateAuthenticatorsInput) =>
  */
 export const signCreateAuthenticators = (
   input: TCreateAuthenticatorsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateAuthenticatorsBody, never, never>({
     uri: "/public/v1/submit/create_authenticators",
@@ -1541,9 +1593,9 @@ export type TCreateInvitationsBody =
   operations["PublicApiService_CreateInvitations"]["parameters"]["body"]["body"];
 
 /**
- * Create Invitations
+ * Create invitations
  *
- * Create Invitations to join an existing Organization
+ * Create invitations to join an existing organization.
  *
  * `POST /public/v1/submit/create_invitations`
  */
@@ -1567,7 +1619,7 @@ export const createInvitations = (input: TCreateInvitationsInput) =>
  */
 export const signCreateInvitations = (
   input: TCreateInvitationsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateInvitationsBody, never, never>({
     uri: "/public/v1/submit/create_invitations",
@@ -1593,9 +1645,9 @@ export type TCreateOauthProvidersBody =
   operations["PublicApiService_CreateOauthProviders"]["parameters"]["body"]["body"];
 
 /**
- * Create Oauth Providers
+ * Create Oauth providers
  *
- * Creates Oauth providers for a specified user - BETA
+ * Create Oauth providers for a specified user.
  *
  * `POST /public/v1/submit/create_oauth_providers`
  */
@@ -1619,7 +1671,7 @@ export const createOauthProviders = (input: TCreateOauthProvidersInput) =>
  */
 export const signCreateOauthProviders = (
   input: TCreateOauthProvidersInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateOauthProvidersBody, never, never>({
     uri: "/public/v1/submit/create_oauth_providers",
@@ -1645,9 +1697,9 @@ export type TCreatePoliciesBody =
   operations["PublicApiService_CreatePolicies"]["parameters"]["body"]["body"];
 
 /**
- * Create Policies
+ * Create policies
  *
- * Create new Policies
+ * Create new policies.
  *
  * `POST /public/v1/submit/create_policies`
  */
@@ -1665,7 +1717,7 @@ export const createPolicies = (input: TCreatePoliciesInput) =>
  */
 export const signCreatePolicies = (
   input: TCreatePoliciesInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreatePoliciesBody, never, never>({
     uri: "/public/v1/submit/create_policies",
@@ -1691,9 +1743,9 @@ export type TCreatePolicyBody =
   operations["PublicApiService_CreatePolicy"]["parameters"]["body"]["body"];
 
 /**
- * Create Policy
+ * Create policy
  *
- * Create a new Policy
+ * Create a new policy.
  *
  * `POST /public/v1/submit/create_policy`
  */
@@ -1711,7 +1763,7 @@ export const createPolicy = (input: TCreatePolicyInput) =>
  */
 export const signCreatePolicy = (
   input: TCreatePolicyInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreatePolicyBody, never, never>({
     uri: "/public/v1/submit/create_policy",
@@ -1737,7 +1789,7 @@ export type TCreatePrivateKeyTagBody =
   operations["PublicApiService_CreatePrivateKeyTag"]["parameters"]["body"]["body"];
 
 /**
- * Create Private Key Tag
+ * Create private key tag
  *
  * Create a private key tag and add it to private keys.
  *
@@ -1763,7 +1815,7 @@ export const createPrivateKeyTag = (input: TCreatePrivateKeyTagInput) =>
  */
 export const signCreatePrivateKeyTag = (
   input: TCreatePrivateKeyTagInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreatePrivateKeyTagBody, never, never>({
     uri: "/public/v1/submit/create_private_key_tag",
@@ -1789,9 +1841,9 @@ export type TCreatePrivateKeysBody =
   operations["PublicApiService_CreatePrivateKeys"]["parameters"]["body"]["body"];
 
 /**
- * Create Private Keys
+ * Create private keys
  *
- * Create new Private Keys
+ * Create new private keys.
  *
  * `POST /public/v1/submit/create_private_keys`
  */
@@ -1815,7 +1867,7 @@ export const createPrivateKeys = (input: TCreatePrivateKeysInput) =>
  */
 export const signCreatePrivateKeys = (
   input: TCreatePrivateKeysInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreatePrivateKeysBody, never, never>({
     uri: "/public/v1/submit/create_private_keys",
@@ -1841,9 +1893,9 @@ export type TCreateReadOnlySessionBody =
   operations["PublicApiService_CreateReadOnlySession"]["parameters"]["body"]["body"];
 
 /**
- * Create Read Only Session
+ * Create read only session
  *
- * Create a read only session for a user (valid for 1 hour)
+ * Create a read only session for a user (valid for 1 hour).
  *
  * `POST /public/v1/submit/create_read_only_session`
  */
@@ -1867,7 +1919,7 @@ export const createReadOnlySession = (input: TCreateReadOnlySessionInput) =>
  */
 export const signCreateReadOnlySession = (
   input: TCreateReadOnlySessionInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateReadOnlySessionBody, never, never>({
     uri: "/public/v1/submit/create_read_only_session",
@@ -1895,9 +1947,9 @@ export type TCreateReadWriteSessionBody =
   operations["PublicApiService_CreateReadWriteSession"]["parameters"]["body"]["body"];
 
 /**
- * Create Read Write Session
+ * Create read write session
  *
- * Create a read write session for a user
+ * Create a read write session for a user.
  *
  * `POST /public/v1/submit/create_read_write_session`
  */
@@ -1921,7 +1973,7 @@ export const createReadWriteSession = (input: TCreateReadWriteSessionInput) =>
  */
 export const signCreateReadWriteSession = (
   input: TCreateReadWriteSessionInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateReadWriteSessionBody, never, never>({
     uri: "/public/v1/submit/create_read_write_session",
@@ -1949,14 +2001,14 @@ export type TCreateSmartContractInterfaceBody =
   operations["PublicApiService_CreateSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
- * Create Smart Contract Interface
+ * Create smart contract interface
  *
- * Create an ABI/IDL in JSON
+ * Create an ABI/IDL in JSON.
  *
  * `POST /public/v1/submit/create_smart_contract_interface`
  */
 export const createSmartContractInterface = (
-  input: TCreateSmartContractInterfaceInput,
+  input: TCreateSmartContractInterfaceInput
 ) =>
   request<
     TCreateSmartContractInterfaceResponse,
@@ -1977,7 +2029,7 @@ export const createSmartContractInterface = (
  */
 export const signCreateSmartContractInterface = (
   input: TCreateSmartContractInterfaceInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateSmartContractInterfaceBody, never, never>({
     uri: "/public/v1/submit/create_smart_contract_interface",
@@ -2003,9 +2055,9 @@ export type TCreateSubOrganizationBody =
   operations["PublicApiService_CreateSubOrganization"]["parameters"]["body"]["body"];
 
 /**
- * Create Sub-Organization
+ * Create sub-organization
  *
- * Create a new Sub-Organization
+ * Create a new sub-organization.
  *
  * `POST /public/v1/submit/create_sub_organization`
  */
@@ -2029,7 +2081,7 @@ export const createSubOrganization = (input: TCreateSubOrganizationInput) =>
  */
 export const signCreateSubOrganization = (
   input: TCreateSubOrganizationInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateSubOrganizationBody, never, never>({
     uri: "/public/v1/submit/create_sub_organization",
@@ -2055,7 +2107,7 @@ export type TCreateUserTagBody =
   operations["PublicApiService_CreateUserTag"]["parameters"]["body"]["body"];
 
 /**
- * Create User Tag
+ * Create user tag
  *
  * Create a user tag and add it to users.
  *
@@ -2075,7 +2127,7 @@ export const createUserTag = (input: TCreateUserTagInput) =>
  */
 export const signCreateUserTag = (
   input: TCreateUserTagInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateUserTagBody, never, never>({
     uri: "/public/v1/submit/create_user_tag",
@@ -2101,9 +2153,9 @@ export type TCreateUsersBody =
   operations["PublicApiService_CreateUsers"]["parameters"]["body"]["body"];
 
 /**
- * Create Users
+ * Create users
  *
- * Create Users in an existing Organization
+ * Create users in an existing organization.
  *
  * `POST /public/v1/submit/create_users`
  */
@@ -2121,7 +2173,7 @@ export const createUsers = (input: TCreateUsersInput) =>
  */
 export const signCreateUsers = (
   input: TCreateUsersInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateUsersBody, never, never>({
     uri: "/public/v1/submit/create_users",
@@ -2147,9 +2199,9 @@ export type TCreateWalletBody =
   operations["PublicApiService_CreateWallet"]["parameters"]["body"]["body"];
 
 /**
- * Create Wallet
+ * Create wallet
  *
- * Create a Wallet and derive addresses
+ * Create a wallet and derive addresses.
  *
  * `POST /public/v1/submit/create_wallet`
  */
@@ -2167,7 +2219,7 @@ export const createWallet = (input: TCreateWalletInput) =>
  */
 export const signCreateWallet = (
   input: TCreateWalletInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateWalletBody, never, never>({
     uri: "/public/v1/submit/create_wallet",
@@ -2193,9 +2245,9 @@ export type TCreateWalletAccountsBody =
   operations["PublicApiService_CreateWalletAccounts"]["parameters"]["body"]["body"];
 
 /**
- * Create Wallet Accounts
+ * Create wallet accounts
  *
- * Derive additional addresses using an existing wallet
+ * Derive additional addresses using an existing wallet.
  *
  * `POST /public/v1/submit/create_wallet_accounts`
  */
@@ -2219,7 +2271,7 @@ export const createWalletAccounts = (input: TCreateWalletAccountsInput) =>
  */
 export const signCreateWalletAccounts = (
   input: TCreateWalletAccountsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TCreateWalletAccountsBody, never, never>({
     uri: "/public/v1/submit/create_wallet_accounts",
@@ -2245,9 +2297,9 @@ export type TDeleteApiKeysBody =
   operations["PublicApiService_DeleteApiKeys"]["parameters"]["body"]["body"];
 
 /**
- * Delete API Keys
+ * Delete API keys
  *
- * Remove api keys from a User
+ * Remove api keys from a user.
  *
  * `POST /public/v1/submit/delete_api_keys`
  */
@@ -2265,7 +2317,7 @@ export const deleteApiKeys = (input: TDeleteApiKeysInput) =>
  */
 export const signDeleteApiKeys = (
   input: TDeleteApiKeysInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeleteApiKeysBody, never, never>({
     uri: "/public/v1/submit/delete_api_keys",
@@ -2291,9 +2343,9 @@ export type TDeleteAuthenticatorsBody =
   operations["PublicApiService_DeleteAuthenticators"]["parameters"]["body"]["body"];
 
 /**
- * Delete Authenticators
+ * Delete authenticators
  *
- * Remove authenticators from a User
+ * Remove authenticators from a user.
  *
  * `POST /public/v1/submit/delete_authenticators`
  */
@@ -2317,7 +2369,7 @@ export const deleteAuthenticators = (input: TDeleteAuthenticatorsInput) =>
  */
 export const signDeleteAuthenticators = (
   input: TDeleteAuthenticatorsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeleteAuthenticatorsBody, never, never>({
     uri: "/public/v1/submit/delete_authenticators",
@@ -2343,9 +2395,9 @@ export type TDeleteInvitationBody =
   operations["PublicApiService_DeleteInvitation"]["parameters"]["body"]["body"];
 
 /**
- * Delete Invitation
+ * Delete invitation
  *
- * Delete an existing Invitation
+ * Delete an existing invitation.
  *
  * `POST /public/v1/submit/delete_invitation`
  */
@@ -2369,7 +2421,7 @@ export const deleteInvitation = (input: TDeleteInvitationInput) =>
  */
 export const signDeleteInvitation = (
   input: TDeleteInvitationInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeleteInvitationBody, never, never>({
     uri: "/public/v1/submit/delete_invitation",
@@ -2395,9 +2447,9 @@ export type TDeleteOauthProvidersBody =
   operations["PublicApiService_DeleteOauthProviders"]["parameters"]["body"]["body"];
 
 /**
- * Delete Oauth Providers
+ * Delete Oauth providers
  *
- * Removes Oauth providers for a specified user - BETA
+ * Remove Oauth providers for a specified user.
  *
  * `POST /public/v1/submit/delete_oauth_providers`
  */
@@ -2421,7 +2473,7 @@ export const deleteOauthProviders = (input: TDeleteOauthProvidersInput) =>
  */
 export const signDeleteOauthProviders = (
   input: TDeleteOauthProvidersInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeleteOauthProvidersBody, never, never>({
     uri: "/public/v1/submit/delete_oauth_providers",
@@ -2447,9 +2499,9 @@ export type TDeletePolicyBody =
   operations["PublicApiService_DeletePolicy"]["parameters"]["body"]["body"];
 
 /**
- * Delete Policy
+ * Delete policy
  *
- * Delete an existing Policy
+ * Delete an existing policy.
  *
  * `POST /public/v1/submit/delete_policy`
  */
@@ -2467,7 +2519,7 @@ export const deletePolicy = (input: TDeletePolicyInput) =>
  */
 export const signDeletePolicy = (
   input: TDeletePolicyInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeletePolicyBody, never, never>({
     uri: "/public/v1/submit/delete_policy",
@@ -2493,9 +2545,9 @@ export type TDeletePrivateKeyTagsBody =
   operations["PublicApiService_DeletePrivateKeyTags"]["parameters"]["body"]["body"];
 
 /**
- * Delete Private Key Tags
+ * Delete private key tags
  *
- * Delete Private Key Tags within an Organization
+ * Delete private key tags within an organization.
  *
  * `POST /public/v1/submit/delete_private_key_tags`
  */
@@ -2519,7 +2571,7 @@ export const deletePrivateKeyTags = (input: TDeletePrivateKeyTagsInput) =>
  */
 export const signDeletePrivateKeyTags = (
   input: TDeletePrivateKeyTagsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeletePrivateKeyTagsBody, never, never>({
     uri: "/public/v1/submit/delete_private_key_tags",
@@ -2545,9 +2597,9 @@ export type TDeletePrivateKeysBody =
   operations["PublicApiService_DeletePrivateKeys"]["parameters"]["body"]["body"];
 
 /**
- * Delete Private Keys
+ * Delete private keys
  *
- * Deletes private keys for an organization
+ * Delete private keys for an organization.
  *
  * `POST /public/v1/submit/delete_private_keys`
  */
@@ -2571,7 +2623,7 @@ export const deletePrivateKeys = (input: TDeletePrivateKeysInput) =>
  */
 export const signDeletePrivateKeys = (
   input: TDeletePrivateKeysInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeletePrivateKeysBody, never, never>({
     uri: "/public/v1/submit/delete_private_keys",
@@ -2599,14 +2651,14 @@ export type TDeleteSmartContractInterfaceBody =
   operations["PublicApiService_DeleteSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
- * Create Smart Contract Interface
+ * Delete smart contract interface
  *
- * Delete a Smart Contract Interface
+ * Delete a smart contract interface.
  *
  * `POST /public/v1/submit/delete_smart_contract_interface`
  */
 export const deleteSmartContractInterface = (
-  input: TDeleteSmartContractInterfaceInput,
+  input: TDeleteSmartContractInterfaceInput
 ) =>
   request<
     TDeleteSmartContractInterfaceResponse,
@@ -2627,7 +2679,7 @@ export const deleteSmartContractInterface = (
  */
 export const signDeleteSmartContractInterface = (
   input: TDeleteSmartContractInterfaceInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeleteSmartContractInterfaceBody, never, never>({
     uri: "/public/v1/submit/delete_smart_contract_interface",
@@ -2653,9 +2705,9 @@ export type TDeleteSubOrganizationBody =
   operations["PublicApiService_DeleteSubOrganization"]["parameters"]["body"]["body"];
 
 /**
- * Delete Sub Organization
+ * Delete sub-organization
  *
- * Deletes a sub organization
+ * Delete a sub-organization.
  *
  * `POST /public/v1/submit/delete_sub_organization`
  */
@@ -2679,7 +2731,7 @@ export const deleteSubOrganization = (input: TDeleteSubOrganizationInput) =>
  */
 export const signDeleteSubOrganization = (
   input: TDeleteSubOrganizationInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeleteSubOrganizationBody, never, never>({
     uri: "/public/v1/submit/delete_sub_organization",
@@ -2705,9 +2757,9 @@ export type TDeleteUserTagsBody =
   operations["PublicApiService_DeleteUserTags"]["parameters"]["body"]["body"];
 
 /**
- * Delete User Tags
+ * Delete user tags
  *
- * Delete User Tags within an Organization
+ * Delete user tags within an organization.
  *
  * `POST /public/v1/submit/delete_user_tags`
  */
@@ -2725,7 +2777,7 @@ export const deleteUserTags = (input: TDeleteUserTagsInput) =>
  */
 export const signDeleteUserTags = (
   input: TDeleteUserTagsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeleteUserTagsBody, never, never>({
     uri: "/public/v1/submit/delete_user_tags",
@@ -2751,9 +2803,9 @@ export type TDeleteUsersBody =
   operations["PublicApiService_DeleteUsers"]["parameters"]["body"]["body"];
 
 /**
- * Delete Users
+ * Delete users
  *
- * Delete Users within an Organization
+ * Delete users within an organization.
  *
  * `POST /public/v1/submit/delete_users`
  */
@@ -2771,7 +2823,7 @@ export const deleteUsers = (input: TDeleteUsersInput) =>
  */
 export const signDeleteUsers = (
   input: TDeleteUsersInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeleteUsersBody, never, never>({
     uri: "/public/v1/submit/delete_users",
@@ -2797,9 +2849,9 @@ export type TDeleteWalletsBody =
   operations["PublicApiService_DeleteWallets"]["parameters"]["body"]["body"];
 
 /**
- * Delete Wallets
+ * Delete wallets
  *
- * Deletes wallets for an organization
+ * Delete wallets for an organization.
  *
  * `POST /public/v1/submit/delete_wallets`
  */
@@ -2817,7 +2869,7 @@ export const deleteWallets = (input: TDeleteWalletsInput) =>
  */
 export const signDeleteWallets = (
   input: TDeleteWalletsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TDeleteWalletsBody, never, never>({
     uri: "/public/v1/submit/delete_wallets",
@@ -2843,9 +2895,9 @@ export type TEmailAuthBody =
   operations["PublicApiService_EmailAuth"]["parameters"]["body"]["body"];
 
 /**
- * Perform Email Auth
+ * Perform email auth
  *
- * Authenticate a user via Email
+ * Authenticate a user via email.
  *
  * `POST /public/v1/submit/email_auth`
  */
@@ -2863,7 +2915,7 @@ export const emailAuth = (input: TEmailAuthInput) =>
  */
 export const signEmailAuth = (
   input: TEmailAuthInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TEmailAuthBody, never, never>({
     uri: "/public/v1/submit/email_auth",
@@ -2889,9 +2941,9 @@ export type TExportPrivateKeyBody =
   operations["PublicApiService_ExportPrivateKey"]["parameters"]["body"]["body"];
 
 /**
- * Export Private Key
+ * Export private key
  *
- * Exports a Private Key
+ * Export a private key.
  *
  * `POST /public/v1/submit/export_private_key`
  */
@@ -2915,7 +2967,7 @@ export const exportPrivateKey = (input: TExportPrivateKeyInput) =>
  */
 export const signExportPrivateKey = (
   input: TExportPrivateKeyInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TExportPrivateKeyBody, never, never>({
     uri: "/public/v1/submit/export_private_key",
@@ -2941,9 +2993,9 @@ export type TExportWalletBody =
   operations["PublicApiService_ExportWallet"]["parameters"]["body"]["body"];
 
 /**
- * Export Wallet
+ * Export wallet
  *
- * Exports a Wallet
+ * Export a wallet.
  *
  * `POST /public/v1/submit/export_wallet`
  */
@@ -2961,7 +3013,7 @@ export const exportWallet = (input: TExportWalletInput) =>
  */
 export const signExportWallet = (
   input: TExportWalletInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TExportWalletBody, never, never>({
     uri: "/public/v1/submit/export_wallet",
@@ -2987,9 +3039,9 @@ export type TExportWalletAccountBody =
   operations["PublicApiService_ExportWalletAccount"]["parameters"]["body"]["body"];
 
 /**
- * Export Wallet Account
+ * Export wallet account
  *
- * Exports a Wallet Account
+ * Export a wallet account.
  *
  * `POST /public/v1/submit/export_wallet_account`
  */
@@ -3013,7 +3065,7 @@ export const exportWalletAccount = (input: TExportWalletAccountInput) =>
  */
 export const signExportWalletAccount = (
   input: TExportWalletAccountInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TExportWalletAccountBody, never, never>({
     uri: "/public/v1/submit/export_wallet_account",
@@ -3039,9 +3091,9 @@ export type TImportPrivateKeyBody =
   operations["PublicApiService_ImportPrivateKey"]["parameters"]["body"]["body"];
 
 /**
- * Import Private Key
+ * Import private key
  *
- * Imports a private key
+ * Import a private key.
  *
  * `POST /public/v1/submit/import_private_key`
  */
@@ -3065,7 +3117,7 @@ export const importPrivateKey = (input: TImportPrivateKeyInput) =>
  */
 export const signImportPrivateKey = (
   input: TImportPrivateKeyInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TImportPrivateKeyBody, never, never>({
     uri: "/public/v1/submit/import_private_key",
@@ -3091,9 +3143,9 @@ export type TImportWalletBody =
   operations["PublicApiService_ImportWallet"]["parameters"]["body"]["body"];
 
 /**
- * Import Wallet
+ * Import wallet
  *
- * Imports a wallet
+ * Import a wallet.
  *
  * `POST /public/v1/submit/import_wallet`
  */
@@ -3111,7 +3163,7 @@ export const importWallet = (input: TImportWalletInput) =>
  */
 export const signImportWallet = (
   input: TImportWalletInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TImportWalletBody, never, never>({
     uri: "/public/v1/submit/import_wallet",
@@ -3137,9 +3189,9 @@ export type TInitFiatOnRampBody =
   operations["PublicApiService_InitFiatOnRamp"]["parameters"]["body"]["body"];
 
 /**
- * Init Fiat On Ramp
+ * Init fiat on ramp
  *
- * Initiate a fiat on ramp flow
+ * Initiate a fiat on ramp flow.
  *
  * `POST /public/v1/submit/init_fiat_on_ramp`
  */
@@ -3157,7 +3209,7 @@ export const initFiatOnRamp = (input: TInitFiatOnRampInput) =>
  */
 export const signInitFiatOnRamp = (
   input: TInitFiatOnRampInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TInitFiatOnRampBody, never, never>({
     uri: "/public/v1/submit/init_fiat_on_ramp",
@@ -3183,9 +3235,9 @@ export type TInitImportPrivateKeyBody =
   operations["PublicApiService_InitImportPrivateKey"]["parameters"]["body"]["body"];
 
 /**
- * Init Import Private Key
+ * Init import private key
  *
- * Initializes a new private key import
+ * Initialize a new private key import.
  *
  * `POST /public/v1/submit/init_import_private_key`
  */
@@ -3209,7 +3261,7 @@ export const initImportPrivateKey = (input: TInitImportPrivateKeyInput) =>
  */
 export const signInitImportPrivateKey = (
   input: TInitImportPrivateKeyInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TInitImportPrivateKeyBody, never, never>({
     uri: "/public/v1/submit/init_import_private_key",
@@ -3235,9 +3287,9 @@ export type TInitImportWalletBody =
   operations["PublicApiService_InitImportWallet"]["parameters"]["body"]["body"];
 
 /**
- * Init Import Wallet
+ * Init import wallet
  *
- * Initializes a new wallet import
+ * Initialize a new wallet import.
  *
  * `POST /public/v1/submit/init_import_wallet`
  */
@@ -3261,7 +3313,7 @@ export const initImportWallet = (input: TInitImportWalletInput) =>
  */
 export const signInitImportWallet = (
   input: TInitImportWalletInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TInitImportWalletBody, never, never>({
     uri: "/public/v1/submit/init_import_wallet",
@@ -3287,9 +3339,9 @@ export type TInitOtpBody =
   operations["PublicApiService_InitOtp"]["parameters"]["body"]["body"];
 
 /**
- * Init Generic OTP
+ * Init generic OTP
  *
- * Initiate a Generic OTP activity
+ * Initiate a generic OTP activity.
  *
  * `POST /public/v1/submit/init_otp`
  */
@@ -3307,7 +3359,7 @@ export const initOtp = (input: TInitOtpInput) =>
  */
 export const signInitOtp = (
   input: TInitOtpInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TInitOtpBody, never, never>({
     uri: "/public/v1/submit/init_otp",
@@ -3335,7 +3387,7 @@ export type TInitOtpAuthBody =
 /**
  * Init OTP auth
  *
- * Initiate an OTP auth activity
+ * Initiate an OTP auth activity.
  *
  * `POST /public/v1/submit/init_otp_auth`
  */
@@ -3353,7 +3405,7 @@ export const initOtpAuth = (input: TInitOtpAuthInput) =>
  */
 export const signInitOtpAuth = (
   input: TInitOtpAuthInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TInitOtpAuthBody, never, never>({
     uri: "/public/v1/submit/init_otp_auth",
@@ -3379,9 +3431,9 @@ export type TInitUserEmailRecoveryBody =
   operations["PublicApiService_InitUserEmailRecovery"]["parameters"]["body"]["body"];
 
 /**
- * Init Email Recovery
+ * Init email recovery
  *
- * Initializes a new email recovery
+ * Initialize a new email recovery.
  *
  * `POST /public/v1/submit/init_user_email_recovery`
  */
@@ -3405,7 +3457,7 @@ export const initUserEmailRecovery = (input: TInitUserEmailRecoveryInput) =>
  */
 export const signInitUserEmailRecovery = (
   input: TInitUserEmailRecoveryInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TInitUserEmailRecoveryBody, never, never>({
     uri: "/public/v1/submit/init_user_email_recovery",
@@ -3433,7 +3485,7 @@ export type TOauthBody =
 /**
  * Oauth
  *
- * Authenticate a user with an Oidc token (Oauth) - BETA
+ * Authenticate a user with an OIDC token (Oauth).
  *
  * `POST /public/v1/submit/oauth`
  */
@@ -3451,7 +3503,7 @@ export const oauth = (input: TOauthInput) =>
  */
 export const signOauth = (
   input: TOauthInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TOauthBody, never, never>({
     uri: "/public/v1/submit/oauth",
@@ -3479,7 +3531,7 @@ export type TOauthLoginBody =
 /**
  * Login with Oauth
  *
- * Create an Oauth session for a user
+ * Create an Oauth session for a user.
  *
  * `POST /public/v1/submit/oauth_login`
  */
@@ -3497,7 +3549,7 @@ export const oauthLogin = (input: TOauthLoginInput) =>
  */
 export const signOauthLogin = (
   input: TOauthLoginInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TOauthLoginBody, never, never>({
     uri: "/public/v1/submit/oauth_login",
@@ -3525,7 +3577,7 @@ export type TOtpAuthBody =
 /**
  * OTP auth
  *
- * Authenticate a user with an OTP code sent via email or SMS
+ * Authenticate a user with an OTP code sent via email or SMS.
  *
  * `POST /public/v1/submit/otp_auth`
  */
@@ -3543,7 +3595,7 @@ export const otpAuth = (input: TOtpAuthInput) =>
  */
 export const signOtpAuth = (
   input: TOtpAuthInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TOtpAuthBody, never, never>({
     uri: "/public/v1/submit/otp_auth",
@@ -3571,7 +3623,7 @@ export type TOtpLoginBody =
 /**
  * Login with OTP
  *
- * Create an OTP session for a user
+ * Create an OTP session for a user.
  *
  * `POST /public/v1/submit/otp_login`
  */
@@ -3589,7 +3641,7 @@ export const otpLogin = (input: TOtpLoginInput) =>
  */
 export const signOtpLogin = (
   input: TOtpLoginInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TOtpLoginBody, never, never>({
     uri: "/public/v1/submit/otp_login",
@@ -3617,7 +3669,7 @@ export type TRecoverUserBody =
 /**
  * Recover a user
  *
- * Completes the process of recovering a user by adding an authenticator
+ * Complete the process of recovering a user by adding an authenticator.
  *
  * `POST /public/v1/submit/recover_user`
  */
@@ -3635,7 +3687,7 @@ export const recoverUser = (input: TRecoverUserInput) =>
  */
 export const signRecoverUser = (
   input: TRecoverUserInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TRecoverUserBody, never, never>({
     uri: "/public/v1/submit/recover_user",
@@ -3661,9 +3713,9 @@ export type TRejectActivityBody =
   operations["PublicApiService_RejectActivity"]["parameters"]["body"]["body"];
 
 /**
- * Reject Activity
+ * Reject activity
  *
- * Reject an Activity
+ * Reject an activity.
  *
  * `POST /public/v1/submit/reject_activity`
  */
@@ -3681,7 +3733,7 @@ export const rejectActivity = (input: TRejectActivityInput) =>
  */
 export const signRejectActivity = (
   input: TRejectActivityInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TRejectActivityBody, never, never>({
     uri: "/public/v1/submit/reject_activity",
@@ -3709,14 +3761,14 @@ export type TRemoveOrganizationFeatureBody =
   operations["PublicApiService_RemoveOrganizationFeature"]["parameters"]["body"]["body"];
 
 /**
- * Remove Organization Feature
+ * Remove organization feature
  *
- * Removes an organization feature. This activity must be approved by the current root quorum.
+ * Remove an organization feature. This activity must be approved by the current root quorum.
  *
  * `POST /public/v1/submit/remove_organization_feature`
  */
 export const removeOrganizationFeature = (
-  input: TRemoveOrganizationFeatureInput,
+  input: TRemoveOrganizationFeatureInput
 ) =>
   request<
     TRemoveOrganizationFeatureResponse,
@@ -3737,7 +3789,7 @@ export const removeOrganizationFeature = (
  */
 export const signRemoveOrganizationFeature = (
   input: TRemoveOrganizationFeatureInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TRemoveOrganizationFeatureBody, never, never>({
     uri: "/public/v1/submit/remove_organization_feature",
@@ -3765,9 +3817,9 @@ export type TSetOrganizationFeatureBody =
   operations["PublicApiService_SetOrganizationFeature"]["parameters"]["body"]["body"];
 
 /**
- * Set Organization Feature
+ * Set organization feature
  *
- * Sets an organization feature. This activity must be approved by the current root quorum.
+ * Set an organization feature. This activity must be approved by the current root quorum.
  *
  * `POST /public/v1/submit/set_organization_feature`
  */
@@ -3791,7 +3843,7 @@ export const setOrganizationFeature = (input: TSetOrganizationFeatureInput) =>
  */
 export const signSetOrganizationFeature = (
   input: TSetOrganizationFeatureInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TSetOrganizationFeatureBody, never, never>({
     uri: "/public/v1/submit/set_organization_feature",
@@ -3817,9 +3869,9 @@ export type TSignRawPayloadBody =
   operations["PublicApiService_SignRawPayload"]["parameters"]["body"]["body"];
 
 /**
- * Sign Raw Payload
+ * Sign raw payload
  *
- * Sign a raw payload
+ * Sign a raw payload.
  *
  * `POST /public/v1/submit/sign_raw_payload`
  */
@@ -3837,7 +3889,7 @@ export const signRawPayload = (input: TSignRawPayloadInput) =>
  */
 export const signSignRawPayload = (
   input: TSignRawPayloadInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TSignRawPayloadBody, never, never>({
     uri: "/public/v1/submit/sign_raw_payload",
@@ -3863,9 +3915,9 @@ export type TSignRawPayloadsBody =
   operations["PublicApiService_SignRawPayloads"]["parameters"]["body"]["body"];
 
 /**
- * Sign Raw Payloads
+ * Sign raw payloads
  *
- * Sign multiple raw payloads with the same signing parameters
+ * Sign multiple raw payloads with the same signing parameters.
  *
  * `POST /public/v1/submit/sign_raw_payloads`
  */
@@ -3883,7 +3935,7 @@ export const signRawPayloads = (input: TSignRawPayloadsInput) =>
  */
 export const signSignRawPayloads = (
   input: TSignRawPayloadsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TSignRawPayloadsBody, never, never>({
     uri: "/public/v1/submit/sign_raw_payloads",
@@ -3909,9 +3961,9 @@ export type TSignTransactionBody =
   operations["PublicApiService_SignTransaction"]["parameters"]["body"]["body"];
 
 /**
- * Sign Transaction
+ * Sign transaction
  *
- * Sign a transaction
+ * Sign a transaction.
  *
  * `POST /public/v1/submit/sign_transaction`
  */
@@ -3929,7 +3981,7 @@ export const signTransaction = (input: TSignTransactionInput) =>
  */
 export const signSignTransaction = (
   input: TSignTransactionInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TSignTransactionBody, never, never>({
     uri: "/public/v1/submit/sign_transaction",
@@ -3955,9 +4007,9 @@ export type TStampLoginBody =
   operations["PublicApiService_StampLogin"]["parameters"]["body"]["body"];
 
 /**
- * Login with a Stamp
+ * Login with a stamp
  *
- * Create a session for a user through stamping client side (api key, wallet client, or passkey client)
+ * Create a session for a user through stamping client side (API key, wallet client, or passkey client).
  *
  * `POST /public/v1/submit/stamp_login`
  */
@@ -3975,7 +4027,7 @@ export const stampLogin = (input: TStampLoginInput) =>
  */
 export const signStampLogin = (
   input: TStampLoginInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TStampLoginBody, never, never>({
     uri: "/public/v1/submit/stamp_login",
@@ -4001,9 +4053,9 @@ export type TUpdatePolicyBody =
   operations["PublicApiService_UpdatePolicy"]["parameters"]["body"]["body"];
 
 /**
- * Update Policy
+ * Update policy
  *
- * Update an existing Policy
+ * Update an existing policy.
  *
  * `POST /public/v1/submit/update_policy`
  */
@@ -4021,7 +4073,7 @@ export const updatePolicy = (input: TUpdatePolicyInput) =>
  */
 export const signUpdatePolicy = (
   input: TUpdatePolicyInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TUpdatePolicyBody, never, never>({
     uri: "/public/v1/submit/update_policy",
@@ -4047,7 +4099,7 @@ export type TUpdatePrivateKeyTagBody =
   operations["PublicApiService_UpdatePrivateKeyTag"]["parameters"]["body"]["body"];
 
 /**
- * Update Private Key Tag
+ * Update private key tag
  *
  * Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.
  *
@@ -4073,7 +4125,7 @@ export const updatePrivateKeyTag = (input: TUpdatePrivateKeyTagInput) =>
  */
 export const signUpdatePrivateKeyTag = (
   input: TUpdatePrivateKeyTagInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TUpdatePrivateKeyTagBody, never, never>({
     uri: "/public/v1/submit/update_private_key_tag",
@@ -4099,7 +4151,7 @@ export type TUpdateRootQuorumBody =
   operations["PublicApiService_UpdateRootQuorum"]["parameters"]["body"]["body"];
 
 /**
- * Update Root Quorum
+ * Update root quorum
  *
  * Set the threshold and members of the root quorum. This activity must be approved by the current root quorum.
  *
@@ -4125,7 +4177,7 @@ export const updateRootQuorum = (input: TUpdateRootQuorumInput) =>
  */
 export const signUpdateRootQuorum = (
   input: TUpdateRootQuorumInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TUpdateRootQuorumBody, never, never>({
     uri: "/public/v1/submit/update_root_quorum",
@@ -4151,9 +4203,9 @@ export type TUpdateUserBody =
   operations["PublicApiService_UpdateUser"]["parameters"]["body"]["body"];
 
 /**
- * Update User
+ * Update user
  *
- * Update a User in an existing Organization
+ * Update a user in an existing organization.
  *
  * `POST /public/v1/submit/update_user`
  */
@@ -4171,7 +4223,7 @@ export const updateUser = (input: TUpdateUserInput) =>
  */
 export const signUpdateUser = (
   input: TUpdateUserInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TUpdateUserBody, never, never>({
     uri: "/public/v1/submit/update_user",
@@ -4197,9 +4249,9 @@ export type TUpdateUserEmailBody =
   operations["PublicApiService_UpdateUserEmail"]["parameters"]["body"]["body"];
 
 /**
- * Update User's Email
+ * Update user's email
  *
- * Update a User's email in an existing Organization
+ * Update a user's email in an existing organization.
  *
  * `POST /public/v1/submit/update_user_email`
  */
@@ -4217,7 +4269,7 @@ export const updateUserEmail = (input: TUpdateUserEmailInput) =>
  */
 export const signUpdateUserEmail = (
   input: TUpdateUserEmailInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TUpdateUserEmailBody, never, never>({
     uri: "/public/v1/submit/update_user_email",
@@ -4243,9 +4295,9 @@ export type TUpdateUserNameBody =
   operations["PublicApiService_UpdateUserName"]["parameters"]["body"]["body"];
 
 /**
- * Update User's Name
+ * Update user's name
  *
- * Update a User's name in an existing Organization
+ * Update a user's name in an existing organization.
  *
  * `POST /public/v1/submit/update_user_name`
  */
@@ -4263,7 +4315,7 @@ export const updateUserName = (input: TUpdateUserNameInput) =>
  */
 export const signUpdateUserName = (
   input: TUpdateUserNameInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TUpdateUserNameBody, never, never>({
     uri: "/public/v1/submit/update_user_name",
@@ -4289,9 +4341,9 @@ export type TUpdateUserPhoneNumberBody =
   operations["PublicApiService_UpdateUserPhoneNumber"]["parameters"]["body"]["body"];
 
 /**
- * Update User's Phone Number
+ * Update user's phone number
  *
- * Update a User's phone number in an existing Organization
+ * Update a user's phone number in an existing organization.
  *
  * `POST /public/v1/submit/update_user_phone_number`
  */
@@ -4315,7 +4367,7 @@ export const updateUserPhoneNumber = (input: TUpdateUserPhoneNumberInput) =>
  */
 export const signUpdateUserPhoneNumber = (
   input: TUpdateUserPhoneNumberInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TUpdateUserPhoneNumberBody, never, never>({
     uri: "/public/v1/submit/update_user_phone_number",
@@ -4341,7 +4393,7 @@ export type TUpdateUserTagBody =
   operations["PublicApiService_UpdateUserTag"]["parameters"]["body"]["body"];
 
 /**
- * Update User Tag
+ * Update user tag
  *
  * Update human-readable name or associated users. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail.
  *
@@ -4361,7 +4413,7 @@ export const updateUserTag = (input: TUpdateUserTagInput) =>
  */
 export const signUpdateUserTag = (
   input: TUpdateUserTagInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TUpdateUserTagBody, never, never>({
     uri: "/public/v1/submit/update_user_tag",
@@ -4387,9 +4439,9 @@ export type TUpdateWalletBody =
   operations["PublicApiService_UpdateWallet"]["parameters"]["body"]["body"];
 
 /**
- * Update Wallet
+ * Update wallet
  *
- * Update a wallet for an organization
+ * Update a wallet for an organization.
  *
  * `POST /public/v1/submit/update_wallet`
  */
@@ -4407,7 +4459,7 @@ export const updateWallet = (input: TUpdateWalletInput) =>
  */
 export const signUpdateWallet = (
   input: TUpdateWalletInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TUpdateWalletBody, never, never>({
     uri: "/public/v1/submit/update_wallet",
@@ -4433,9 +4485,9 @@ export type TVerifyOtpBody =
   operations["PublicApiService_VerifyOtp"]["parameters"]["body"]["body"];
 
 /**
- * Verify Generic OTP
+ * Verify generic OTP
  *
- * Verify a Generic OTP
+ * Verify a generic OTP.
  *
  * `POST /public/v1/submit/verify_otp`
  */
@@ -4453,7 +4505,7 @@ export const verifyOtp = (input: TVerifyOtpInput) =>
  */
 export const signVerifyOtp = (
   input: TVerifyOtpInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TVerifyOtpBody, never, never>({
     uri: "/public/v1/submit/verify_otp",
@@ -4504,9 +4556,9 @@ export type TTestRateLimitsBody =
   operations["PublicApiService_TestRateLimits"]["parameters"]["body"]["body"];
 
 /**
- * Test Rate Limit
+ * Test rate limit
  *
- * Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite
+ * Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite.
  *
  * `POST /tkhq/api/v1/test_rate_limits`
  */
@@ -4524,7 +4576,7 @@ export const testRateLimits = (input: TTestRateLimitsInput) =>
  */
 export const signTestRateLimits = (
   input: TTestRateLimitsInput,
-  options?: TurnkeyCredentialRequestOptions,
+  options?: TurnkeyCredentialRequestOptions
 ) =>
   signedRequest<TTestRateLimitsBody, never, never>({
     uri: "/tkhq/api/v1/test_rate_limits",
