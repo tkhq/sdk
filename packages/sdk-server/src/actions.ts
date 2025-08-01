@@ -216,42 +216,34 @@ export async function getUsers(
 
 export async function getSuborgs(
   request: GetSuborgsRequest,
-): Promise<GetSuborgsResponse | undefined> {
-  try {
-    const response = await turnkeyClient.apiClient().getSubOrgIds({
-      organizationId: turnkeyClient.config.defaultOrganizationId,
-      filterType: request.filterType,
-      filterValue: request.filterValue,
-    });
+): Promise<GetSuborgsResponse> {
+  const response = await turnkeyClient.apiClient().getSubOrgIds({
+    organizationId: turnkeyClient.config.defaultOrganizationId,
+    filterType: request.filterType,
+    filterValue: request.filterValue,
+  });
 
-    if (!response || !response.organizationIds) {
-      throw new Error("Expected a non-null response with organizationIds.");
-    }
-    return { organizationIds: response.organizationIds };
-  } catch (error) {
-    console.error(error);
-    return undefined;
+  if (!response || !response?.organizationIds) {
+    throw new Error("Expected a non-null response.");
   }
+
+  return { organizationIds: response.organizationIds };
 }
 
 export async function getVerifiedSuborgs(
   request: GetSuborgsRequest,
-): Promise<GetSuborgsResponse | undefined> {
-  try {
-    const response = await turnkeyClient.apiClient().getVerifiedSubOrgIds({
-      organizationId: turnkeyClient.config.defaultOrganizationId,
-      filterType: request.filterType,
-      filterValue: request.filterValue,
-    });
+): Promise<GetSuborgsResponse> {
+  const response = await turnkeyClient.apiClient().getVerifiedSubOrgIds({
+    organizationId: turnkeyClient.config.defaultOrganizationId,
+    filterType: request.filterType,
+    filterValue: request.filterValue,
+  });
 
-    if (!response || !response.organizationIds) {
-      throw new Error("Expected a non-null response with organizationIds.");
-    }
-    return { organizationIds: response.organizationIds };
-  } catch (error) {
-    console.error(error);
-    return undefined;
+  if (!response || !response?.organizationIds) {
+    throw new Error("Expected a non-null response.");
   }
+
+  return { organizationIds: response.organizationIds };
 }
 
 export async function createSuborg(
@@ -305,70 +297,61 @@ export async function createSuborg(
 
 export async function getOrCreateSuborg(
   request: GetOrCreateSuborgRequest,
-): Promise<GetOrCreateSuborgResponse | undefined> {
-  try {
-    // First try to get existing suborgs
-    let suborgResponse: GetSuborgsResponse | undefined;
+): Promise<GetOrCreateSuborgResponse> {
+  // First try to get existing suborgs
+  let suborgResponse: GetSuborgsResponse;
 
-    if (
-      request.filterType === FilterType.Email ||
-      request.filterType === FilterType.PhoneNumber
-    ) {
-      suborgResponse = await getVerifiedSuborgs({
-        filterType: request.filterType,
-        filterValue: request.filterValue,
-      });
-    } else {
-      suborgResponse = await getSuborgs({
-        // For OIDC
-        filterType: request.filterType,
-        filterValue: request.filterValue,
-      });
-    }
-
-    // If we found existing suborgs, return the first one
-    if (
-      suborgResponse &&
-      suborgResponse?.organizationIds &&
-      suborgResponse?.organizationIds?.length > 0
-    ) {
-      return {
-        subOrganizationIds: suborgResponse.organizationIds!,
-      };
-    }
-    // No existing suborg found - create a new one
-    const createPayload: CreateSuborgRequest = {
-      ...(request.additionalData?.email && {
-        email: request.additionalData.email,
-      }),
-      ...(request.additionalData?.phoneNumber && {
-        phoneNumber: request.additionalData.phoneNumber,
-      }),
-      ...(request.additionalData?.passkey && {
-        passkey: request.additionalData.passkey,
-      }),
-      ...(request.additionalData?.oauthProviders && {
-        oauthProviders: request.additionalData.oauthProviders,
-      }),
-      ...(request.additionalData?.customAccounts && {
-        customAccounts: request.additionalData.customAccounts,
-      }),
-      ...(request.additionalData?.wallet && {
-        wallet: request.additionalData.wallet,
-      }),
-    };
-
-    const creationResponse = await createSuborg(createPayload);
-
-    if (!creationResponse?.subOrganizationId) {
-      throw new Error("Suborg creation failed");
-    }
-
-    return {
-      subOrganizationIds: [creationResponse.subOrganizationId],
-    };
-  } catch (error) {
-    console.error("Error in getOrCreateSuborg:", error);
-    return undefined;
+  if (
+    request.filterType === FilterType.Email ||
+    request.filterType === FilterType.PhoneNumber
+  ) {
+    suborgResponse = await getVerifiedSuborgs({
+      filterType: request.filterType,
+      filterValue: request.filterValue,
+    });
+  } else {
+    suborgResponse = await getSuborgs({
+      filterType: request.filterType,
+      filterValue: request.filterValue,
+    });
   }
+
+  // If we found existing suborgs, return the first one
+  if (suborgResponse.organizationIds.length > 0) {
+    return {
+      subOrganizationIds: suborgResponse.organizationIds,
+    };
+  }
+
+  // No existing suborg found - create a new one
+  const createPayload: CreateSuborgRequest = {
+    ...(request.additionalData?.email && {
+      email: request.additionalData.email,
+    }),
+    ...(request.additionalData?.phoneNumber && {
+      phoneNumber: request.additionalData.phoneNumber,
+    }),
+    ...(request.additionalData?.passkey && {
+      passkey: request.additionalData.passkey,
+    }),
+    ...(request.additionalData?.oauthProviders && {
+      oauthProviders: request.additionalData.oauthProviders,
+    }),
+    ...(request.additionalData?.customAccounts && {
+      customAccounts: request.additionalData.customAccounts,
+    }),
+    ...(request.additionalData?.wallet && {
+      wallet: request.additionalData.wallet,
+    }),
+  };
+
+  const creationResponse = await createSuborg(createPayload);
+
+  if (!creationResponse?.subOrganizationId) {
+    throw new Error("Suborg creation failed");
+  }
+
+  return {
+    subOrganizationIds: [creationResponse.subOrganizationId],
+  };
 }
