@@ -408,9 +408,6 @@ export enum WalletType {
   EthereumWalletConnect = "ethereum_wallet_connect",
   SolanaWalletConnect = "solana_wallet_connect",
 }
-
-export type EthereumProvider = WalletConnectEthereumProvider | EIP1193Provider;
-export type SolanaProvider = SWSWallet;
 export interface WalletConnectProvider {
   request(args: { method: string; params?: any[] }): Promise<unknown>;
 }
