@@ -662,3 +662,23 @@ export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
     );
   }
 }
+
+export function isEthereumWallet(
+  wallet: WalletProvider,
+): boolean {
+  const walletType = wallet.type;
+  return (
+    walletType === WalletType.Ethereum ||
+    walletType === WalletType.EthereumWalletConnect
+  );
+}
+
+export function isSolanaWallet(
+  wallet: WalletProvider,
+): boolean {
+  const walletType = wallet.type;
+  return (
+    walletType === WalletType.Solana ||
+    walletType === WalletType.SolanaWalletConnect
+  );
+}

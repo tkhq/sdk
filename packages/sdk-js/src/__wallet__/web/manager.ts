@@ -9,6 +9,7 @@ import {
   WalletType,
 } from "@types";
 import { WalletConnectEthereumWallet } from "./connector/wallet-connect/ethereum";
+import { WalletConnectSolanaWallet } from "./connector/wallet-connect/solana";
 
 export class WebWalletManager {
   readonly wallets: Partial<Record<WalletType, WalletInterface>> = {};
@@ -30,6 +31,13 @@ export class WebWalletManager {
 
     if (cfg.solana) {
       this.wallets[WalletType.Solana] = new SolanaWallet();
+
+      // if walletConnect is configured, add the WalletConnectSolanaWallet
+      if (cfg.walletConnect) {
+        this.wallets[WalletType.SolanaWalletConnect] =
+          new WalletConnectSolanaWallet(cfg.walletConnect);
+        this.wallets[WalletType.SolanaWalletConnect].init();
+      }
     }
 
     this.stamper = new WebWalletStamper(this.wallets);
