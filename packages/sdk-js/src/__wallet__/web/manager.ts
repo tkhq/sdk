@@ -8,6 +8,8 @@ import {
   WalletProvider,
   WalletType,
 } from "@types";
+import { WalletConnectEthereumWallet } from "./connector/wallet-connect/ethereum";
+import { WalletConnectSolanaWallet } from "./connector/wallet-connect/solana";
 
 export class WebWalletManager {
   readonly wallets: Partial<Record<WalletType, WalletInterface>> = {};
@@ -18,10 +20,24 @@ export class WebWalletManager {
   constructor(cfg: TWalletManagerConfig) {
     if (cfg.ethereum) {
       this.wallets[WalletType.Ethereum] = new EthereumWallet();
+
+      // if walletConnect is configured, add the WalletConnectEthereumWallet
+      if (cfg.walletConnect) {
+        this.wallets[WalletType.EthereumWalletConnect] =
+          new WalletConnectEthereumWallet(cfg.walletConnect);
+        this.wallets[WalletType.EthereumWalletConnect].init();
+      }
     }
 
     if (cfg.solana) {
       this.wallets[WalletType.Solana] = new SolanaWallet();
+
+      // if walletConnect is configured, add the WalletConnectSolanaWallet
+      if (cfg.walletConnect) {
+        this.wallets[WalletType.SolanaWalletConnect] =
+          new WalletConnectSolanaWallet(cfg.walletConnect);
+        this.wallets[WalletType.SolanaWalletConnect].init();
+      }
     }
 
     this.stamper = new WebWalletStamper(this.wallets);

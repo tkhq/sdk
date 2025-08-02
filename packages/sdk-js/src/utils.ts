@@ -416,6 +416,7 @@ export const getWalletAccountMethods = (
 
   switch (provider.type) {
     case WalletType.Ethereum:
+    case WalletType.EthereumWalletConnect:
       return {
         signMessage: signWithIntent(SignIntent.SignMessage),
         signAndSendTransaction: signWithIntent(
@@ -660,4 +661,20 @@ export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
       }`,
     );
   }
+}
+
+export function isEthereumWallet(wallet: WalletProvider): boolean {
+  const walletType = wallet.type;
+  return (
+    walletType === WalletType.Ethereum ||
+    walletType === WalletType.EthereumWalletConnect
+  );
+}
+
+export function isSolanaWallet(wallet: WalletProvider): boolean {
+  const walletType = wallet.type;
+  return (
+    walletType === WalletType.Solana ||
+    walletType === WalletType.SolanaWalletConnect
+  );
 }

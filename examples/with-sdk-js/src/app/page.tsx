@@ -522,7 +522,7 @@ export default function AuthPage() {
 
           const signature = await signTransaction({
             unsignedTransaction,
-            walletAccount: wallets[3].accounts[0],
+            walletAccount: wallets[0].accounts[0],
             transactionType: "TRANSACTION_TYPE_ETHEREUM",
           });
           console.log("Transaction Signature:", signature);

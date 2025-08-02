@@ -38,10 +38,18 @@ function RootLayout({ children }: RootLayoutProps) {
             ui: {
               darkMode: false,
             },
-          }}
-          callbacks={{
-            onError: (error) => {
-              console.log("Turnkey error:", error.code);
+            walletConfig: {
+              ethereum: true,
+              solana: true,
+              walletConnect: {
+                projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+                metadata: {
+                  name: "Turnkey Wallet",
+                  description: "A wallet for Turnkey",
+                  url: "http://localhost:3000",
+                  icons: ["/favicon.svg"],
+                },
+              },
             },
           }}
         >
