@@ -1,6 +1,7 @@
 import { Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import type { TurnkeyCallbacks } from "./types/base";
 import { useCallback, useRef, useState, useEffect } from "react";
+import { WalletProvider, WalletType } from "@turnkey/sdk-js";
 
 export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 export const APPLE_AUTH_URL = "https://account.apple.com/auth/authorize";
@@ -323,4 +324,12 @@ export function useScreenSize() {
     // This is fine since we only need to style for 2 screen sizes: mobile and desktop. If anyone can figure out why Tailwind's responsive design breakpoints do not work, please fix it and restyle the components accordingly, changing the `isMobile` to the Tailwind stuff when applicable.
     isMobile: width < 440,
   };
+}
+
+export function isWalletConnect(wallet: WalletProvider): boolean {
+  const walletType = wallet.type;
+  return (
+    walletType === WalletType.EthereumWalletConnect ||
+    walletType === WalletType.SolanaWalletConnect
+  );
 }
