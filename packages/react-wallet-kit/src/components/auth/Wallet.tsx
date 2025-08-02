@@ -8,6 +8,7 @@ import clsx from "clsx";
 import { type WalletProvider, WalletType } from "@turnkey/sdk-js";
 import { QRCodeSVG } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
+import { isEthereumWallet } from "@turnkey/sdk-js/dist/utils";
 
 interface WalletAuthButtonProps {
   onContinue: () => Promise<void>;
@@ -84,7 +85,7 @@ export function ExternalWalletChainSelector(
               onMouseLeave={() => setIsHovering(false)}
               className="relative overflow-hidden flex items-center justify-start gap-2 w-full text-inherit bg-button-light dark:bg-button-dark"
             >
-              {p.type === "ethereum" ? (
+              {isEthereumWallet(p) ? (
                 <div className="relative">
                   <EthereumLogo className="size-5" />
                   {canUnlink(p, shouldShowUnlink) && (
@@ -100,7 +101,7 @@ export function ExternalWalletChainSelector(
                 </div>
               )}
               <div className="flex flex-col items-start">
-                {p.type === "ethereum" ? "EVM" : "Solana"}
+                {isEthereumWallet(p) ? "EVM" : "Solana"}
                 {canUnlink(p, shouldShowUnlink) && (
                   <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
                     Connected: {p.connectedAddresses[0]?.slice(0, 4)}...

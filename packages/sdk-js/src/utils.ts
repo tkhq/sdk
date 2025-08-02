@@ -663,9 +663,7 @@ export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
   }
 }
 
-export function isEthereumWallet(
-  wallet: WalletProvider,
-): boolean {
+export function isEthereumWallet(wallet: WalletProvider): boolean {
   const walletType = wallet.type;
   return (
     walletType === WalletType.Ethereum ||
@@ -673,9 +671,7 @@ export function isEthereumWallet(
   );
 }
 
-export function isSolanaWallet(
-  wallet: WalletProvider,
-): boolean {
+export function isSolanaWallet(wallet: WalletProvider): boolean {
   const walletType = wallet.type;
   return (
     walletType === WalletType.Solana ||

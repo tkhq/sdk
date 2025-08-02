@@ -7,7 +7,8 @@ import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ActionPage } from "../auth/Action";
 import { SuccessPage } from "../design/Success";
-import { WalletType, type WalletProvider } from "@turnkey/sdk-js";
+import { type WalletProvider } from "@turnkey/sdk-js";
+import { isWalletConnect } from "@utils";
 
 interface LinkWalletModalProps {
   providers: WalletProvider[];
@@ -19,7 +20,7 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
   const { connectWalletAccount, disconnectWalletAccount } = useTurnkey();
 
   const handleLinkWallet = async (provider: WalletProvider) => {
-    if (provider.type === WalletType.EthereumWalletConnect) {
+    if (isWalletConnect(provider)) {
       // for WalletConnect we route to a dedicated screen
       // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
       pushPage({

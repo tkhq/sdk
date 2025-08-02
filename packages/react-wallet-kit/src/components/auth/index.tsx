@@ -4,7 +4,7 @@ import {
   faFacebook,
   faGoogle,
 } from "@fortawesome/free-brands-svg-icons";
-import { OtpType, WalletType, type WalletProvider } from "@turnkey/sdk-js";
+import { OtpType, type WalletProvider } from "@turnkey/sdk-js";
 import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
 import { OAuthButton } from "./OAuth";
@@ -24,6 +24,7 @@ import { DeveloperError } from "../design/Failure";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ClientState } from "../../types/base";
+import { isWalletConnect } from "@utils";
 
 export function AuthComponent() {
   const {
@@ -205,7 +206,7 @@ export function AuthComponent() {
 
   const handleSelect = async (provider: WalletProvider) => {
     // this is a wallet connect provider, so we need to show the WalletConnect screen
-    if (provider.type === WalletType.EthereumWalletConnect) {
+    if (isWalletConnect(provider)) {
       // for WalletConnect we route to a dedicated screen
       // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
       pushPage({
