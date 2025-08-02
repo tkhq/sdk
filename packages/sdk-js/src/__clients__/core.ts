@@ -623,10 +623,9 @@ export class TurnkeyClient {
             {
               apiKeyName: `wallet-auth:${publicKey}`,
               publicKey: publicKey,
-              curveType:
-                isEthereumWallet(walletProvider)
-                  ? ("API_KEY_CURVE_SECP256K1" as const)
-                  : ("API_KEY_CURVE_ED25519" as const),
+              curveType: isEthereumWallet(walletProvider)
+                ? ("API_KEY_CURVE_SECP256K1" as const)
+                : ("API_KEY_CURVE_ED25519" as const),
             },
             {
               apiKeyName: `wallet-auth-${generatedKeyPair}`,
@@ -786,10 +785,9 @@ export class TurnkeyClient {
               {
                 apiKeyName: `wallet-auth:${publicKey}`,
                 publicKey: publicKey,
-                curveType:
-                  isEthereumWallet(walletProvider)
-                    ? ("API_KEY_CURVE_SECP256K1" as const)
-                    : ("API_KEY_CURVE_ED25519" as const),
+                curveType: isEthereumWallet(walletProvider)
+                  ? ("API_KEY_CURVE_SECP256K1" as const)
+                  : ("API_KEY_CURVE_ED25519" as const),
               },
             ],
           },
@@ -1617,10 +1615,7 @@ export class TurnkeyClient {
           walletAccountId: `${wallet.walletId}-${provider.type}-${address}`,
           organizationId: session.organizationId,
           walletId: wallet.walletId,
-          curve:
-            isEthereumWallet(provider)
-              ? Curve.SECP256K1
-              : Curve.ED25519,
+          curve: isEthereumWallet(provider) ? Curve.SECP256K1 : Curve.ED25519,
           pathFormat: "PATH_FORMAT_BIP32",
           path: WalletSource.Connected,
           source: WalletSource.Connected,
@@ -1636,7 +1631,7 @@ export class TurnkeyClient {
             ),
             provider,
           ),
-          ...( isSolanaWallet(provider) && { publicKey: address }),
+          ...(isSolanaWallet(provider) && { publicKey: address }),
         };
 
         connected.push(account);
