@@ -9,24 +9,16 @@ import {
   WalletConnectProvider,
   EthereumWalletConnectInterface,
 } from "@types";
-import { CoreTypes } from "@walletconnect/types";
 import { WalletConnectClient } from "./base";
 
 export class WalletConnectEthereumWallet
   implements EthereumWalletConnectInterface
 {
   readonly type = WalletType.EthereumWalletConnect;
-  private client = new WalletConnectClient();
   private address?: string | undefined;
   private uri?: string;
 
-  constructor(
-    private cfg: {
-      projectId: string;
-      metadata: CoreTypes.Metadata;
-      relayUrl?: string;
-    },
-  ) {
+  constructor(private client: WalletConnectClient) {
     // we subscribe to the session deletions
     // notification that the client emits
     this.client.onSessionDelete(() => {
@@ -35,7 +27,6 @@ export class WalletConnectEthereumWallet
   }
 
   async init(): Promise<void> {
-    await this.client.init(this.cfg);
     const session = this.client.getSession();
 
     if (session?.namespaces.eip155?.accounts?.[0]) {
@@ -73,6 +64,7 @@ export class WalletConnectEthereumWallet
   async connectWalletAccount(_provider: WalletRpcProvider): Promise<void> {
     const session = await this.client.approve();
     if (!session) throw new Error("No active WalletConnect session");
+
     const eip155Namespace = session.namespaces.eip155;
     if (
       !eip155Namespace ||
