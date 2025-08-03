@@ -425,6 +425,7 @@ export const getWalletAccountMethods = (
       };
 
     case WalletType.Solana:
+    case WalletType.SolanaWalletConnect:
       return {
         signMessage: signWithIntent(SignIntent.SignMessage),
         signTransaction: signWithIntent(SignIntent.SignTransaction),
