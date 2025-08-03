@@ -46,7 +46,7 @@ export class WalletConnectClient {
     }
 
     const { uri, approval } = await this.client.connect({
-      optionalNamespaces: namespaces,
+      requiredNamespaces: namespaces,
     });
 
     if (!uri) {
@@ -70,16 +70,24 @@ export class WalletConnectClient {
     }
   }
 
-  async request(chainId: string, method: string, params: any[]): Promise<any> {
+  async request(
+    chainId: string,
+    method: string,
+    params: any[] | Record<string, any>,
+  ): Promise<any> {
     if (!this.session) {
       throw new Error("WalletConnect: no active session");
     }
+
+    // we need this because ethereum requests are an array
+    // but Solana requests are an object
+    const rpcParams = Array.isArray(params) ? params : params;
 
     // we track active requests
     const requestPromise = this.client.request({
       topic: this.session.topic,
       chainId,
-      request: { method, params },
+      request: { method, params: rpcParams },
     });
 
     this.activeRequests.add(requestPromise);
