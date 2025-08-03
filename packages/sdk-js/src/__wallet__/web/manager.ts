@@ -10,22 +10,29 @@ import {
 } from "@types";
 import { WalletConnectEthereumWallet } from "./connector/wallet-connect/ethereum";
 import { WalletConnectSolanaWallet } from "./connector/wallet-connect/solana";
+import { WalletConnectClient } from "./connector/wallet-connect/base";
 
 export class WebWalletManager {
-  readonly wallets: Partial<Record<WalletType, WalletInterface>> = {};
+  private initializers: Array<() => Promise<void>> = [];
+  private wcClient?: WalletConnectClient;
 
+  readonly wallets: Partial<Record<WalletType, WalletInterface>> = {};
   readonly stamper: WebWalletStamper;
   readonly connector: WebWalletConnector;
 
   constructor(cfg: TWalletManagerConfig) {
+    if (cfg.walletConnect) {
+      this.wcClient = new WalletConnectClient();
+    }
+
     if (cfg.ethereum) {
       this.wallets[WalletType.Ethereum] = new EthereumWallet();
 
       // if walletConnect is configured, add the WalletConnectEthereumWallet
-      if (cfg.walletConnect) {
-        this.wallets[WalletType.EthereumWalletConnect] =
-          new WalletConnectEthereumWallet(cfg.walletConnect);
-        this.wallets[WalletType.EthereumWalletConnect].init();
+      if (this.wcClient) {
+        const ethWC = new WalletConnectEthereumWallet(this.wcClient);
+        this.wallets[WalletType.EthereumWalletConnect] = ethWC;
+        this.initializers.push(() => ethWC.init());
       }
     }
 
@@ -33,18 +40,25 @@ export class WebWalletManager {
       this.wallets[WalletType.Solana] = new SolanaWallet();
 
       // if walletConnect is configured, add the WalletConnectSolanaWallet
-      if (cfg.walletConnect) {
-        this.wallets[WalletType.SolanaWalletConnect] =
-          new WalletConnectSolanaWallet(cfg.walletConnect);
-        this.wallets[WalletType.SolanaWalletConnect].init();
+      if (this.wcClient) {
+        const solWC = new WalletConnectSolanaWallet(this.wcClient);
+        this.wallets[WalletType.SolanaWalletConnect] = solWC;
+        this.initializers.push(() => solWC.init());
       }
     }
 
     this.stamper = new WebWalletStamper(this.wallets);
+
     this.connector = new WebWalletConnector(this.wallets);
   }
 
-  async init(): Promise<void> {
+  async init(cfg: TWalletManagerConfig): Promise<void> {
+    if (this.wcClient) {
+      await this.wcClient.init(cfg.walletConnect!);
+    }
+
+    await Promise.all(this.initializers.map((fn) => fn()));
+
     await this.stamper.init();
   }
 
