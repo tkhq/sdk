@@ -19,7 +19,7 @@ export async function createWalletManager(
     }
   } else if (isWeb()) {
     const manager = new WebWalletManager(cfg);
-    await manager.init();
+    await manager.init(cfg);
     return manager;
   } else {
     throw new Error("Unsupported environment for wallet manager.");
