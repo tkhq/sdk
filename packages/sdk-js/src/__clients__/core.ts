@@ -740,7 +740,8 @@ export class TurnkeyClient {
           break;
         }
 
-        case WalletType.Solana: {
+        case WalletType.Solana:
+        case WalletType.SolanaWalletConnect: {
           // for Solana, we can get the public key from the wallet address
           // since the wallet address is the public key
           // this doesn't require any action from the user as long as the wallet is connected
