@@ -84,15 +84,12 @@ export function ModalRoot(props: ModalRootProps) {
       setObserveResize(true);
       requestAnimationFrame(resize);
 
-      if (config?.ui?.renderModalInProvider) {
-        const originalStyle = window.getComputedStyle(document.body).overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-          document.body.style.overflow = originalStyle;
-        };
-      }
-
-      return;
+      // Disable body scroll when modal is open
+      const originalStyle = window.getComputedStyle(document.body).overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalStyle;
+      };
     } else {
       setObserveResize(false);
       setHeight(height / 1.3);
