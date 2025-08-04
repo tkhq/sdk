@@ -1,8 +1,8 @@
 import type {
   SignIntent,
   WalletProvider,
-  WalletType,
   WalletInterface,
+  WalletInterfaceType,
 } from "@types";
 
 export interface WebWalletConnectorInterface {
@@ -15,7 +15,9 @@ export interface WebWalletConnectorInterface {
 
 export class WebWalletConnector implements WebWalletConnectorInterface {
   constructor(
-    private readonly wallets: Partial<Record<WalletType, WalletInterface>>,
+    private readonly wallets: Partial<
+      Record<WalletInterfaceType, WalletInterface>
+    >,
   ) {}
 
   /**
@@ -25,13 +27,13 @@ export class WebWalletConnector implements WebWalletConnectorInterface {
    * @returns A promise that resolves once the wallet account is connected.
    */
   async connectWalletAccount(provider: WalletProvider): Promise<void> {
-    const wallet = this.wallets[provider.type];
+    const wallet = this.wallets[provider.interfaceType];
 
     if (!wallet) {
-      throw new Error(`Wallet for ${provider.type} not initialized`);
+      throw new Error(`Wallet for ${provider.interfaceType} not initialized`);
     }
 
-    await wallet.connectWalletAccount(provider.provider);
+    await wallet.connectWalletAccount(provider);
   }
 
   /**
@@ -41,13 +43,13 @@ export class WebWalletConnector implements WebWalletConnectorInterface {
    * @returns A promise that resolves once the wallet account is disconnected.
    */
   async disconnectWalletAccount(provider: WalletProvider): Promise<void> {
-    const wallet = this.wallets[provider.type];
+    const wallet = this.wallets[provider.interfaceType];
 
     if (!wallet) {
-      throw new Error(`Wallet for ${provider.type} not initialized`);
+      throw new Error(`Wallet for ${provider.interfaceType} not initialized`);
     }
 
-    await wallet.disconnectWalletAccount(provider.provider);
+    await wallet.disconnectWalletAccount(provider);
   }
 
   /**
@@ -63,12 +65,14 @@ export class WebWalletConnector implements WebWalletConnectorInterface {
     walletProvider: WalletProvider,
     intent: SignIntent,
   ): Promise<string> {
-    const wallet = this.wallets[walletProvider.type];
+    const wallet = this.wallets[walletProvider.interfaceType];
 
     if (!wallet) {
-      throw new Error(`Wallet for ${walletProvider.type} not initialized`);
+      throw new Error(
+        `Wallet for ${walletProvider.interfaceType} not initialized`,
+      );
     }
 
-    return wallet.sign(message, walletProvider.provider, intent);
+    return wallet.sign(message, walletProvider, intent);
   }
 }

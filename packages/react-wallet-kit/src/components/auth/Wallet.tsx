@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight, faClose } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { type WalletProvider, WalletType } from "@turnkey/sdk-js";
+import { type WalletProvider } from "@turnkey/sdk-js";
 import { QRCodeSVG } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
 import { isEthereumWallet } from "@turnkey/sdk-js/dist/utils";
@@ -79,7 +79,7 @@ export function ExternalWalletChainSelector(
           const [isHovering, setIsHovering] = useState(false);
           return (
             <ActionButton
-              key={p.type}
+              key={p.interfaceType}
               onClick={() => handleSelect(p)}
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
@@ -226,15 +226,13 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                 </div>
                 <div className={clsx(`flex items-center transition-all gap-1`)}>
                   {group.map((c, idx) => {
-                    const Logo =
-                      c.type === WalletType.Ethereum ||
-                      c.type === WalletType.EthereumWalletConnect
-                        ? EthereumLogo
-                        : SolanaLogo;
+                    const Logo = isEthereumWallet(c)
+                      ? EthereumLogo
+                      : SolanaLogo;
                     const delay = 50 + idx * 30; // Staggered delay: leftmost has largest
                     return (
                       <div
-                        key={c.type}
+                        key={c.interfaceType}
                         style={{ transitionDelay: `${delay}ms` }}
                         className={clsx(
                           "relative",
@@ -295,7 +293,7 @@ export function UnlinkWalletScreen(props: UnlinkWalletScreenProps) {
     setHasError(false);
     try {
       await onUnlink(provider);
-    } catch {
+    } catch (err) {
       setHasError(true);
     } finally {
       setIsLoading(false);

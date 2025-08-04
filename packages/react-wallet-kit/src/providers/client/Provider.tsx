@@ -28,7 +28,6 @@ import {
   Wallet,
   WalletAccount,
   WalletProvider,
-  WalletType,
 } from "@turnkey/sdk-js";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import {
@@ -917,8 +916,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     const cleanups: Array<() => void> = [];
 
     const [ethProviders, solProviders] = await Promise.all([
-      getWalletProviders(WalletType.Ethereum),
-      getWalletProviders(WalletType.Solana),
+      getWalletProviders(Chain.Ethereum),
+      getWalletProviders(Chain.Solana),
     ]);
 
     function attachEthereumListeners(
