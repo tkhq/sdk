@@ -56,11 +56,12 @@
     "viem": "^1.16.6 || ^2.24.2"
   },
   "dependencies": {
+    "@noble/curves": "1.8.0",
+    "@openzeppelin/contracts": "^4.9.0",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
-    "@noble/curves": "1.8.0",
     "cross-fetch": "^4.0.0"
   },
   "devDependencies": {
