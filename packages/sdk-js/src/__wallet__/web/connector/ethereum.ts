@@ -9,12 +9,13 @@ import {
 import { Transaction } from "ethers";
 import { compressRawPublicKey } from "@turnkey/crypto";
 import {
+  Chain,
   EthereumWalletInterface,
   SignIntent,
+  WalletInterfaceType,
   WalletProvider,
   WalletProviderInfo,
   WalletRpcProvider,
-  WalletType,
 } from "@types";
 
 /**
@@ -26,7 +27,7 @@ import {
  * - Recovering compressed public keys
  */
 export abstract class BaseEthereumWallet implements EthereumWalletInterface {
-  readonly type: WalletType.Ethereum = WalletType.Ethereum;
+  readonly interfaceType = WalletInterfaceType.Ethereum;
 
   /**
    * Signs a message using the specified wallet provider.
@@ -38,7 +39,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    */
   abstract sign(
     message: string | Hex,
-    provider: WalletRpcProvider,
+    provider: WalletProvider,
     intent: SignIntent,
   ): Promise<Hex>;
 
@@ -48,7 +49,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    * @param provider - The wallet provider to use.
    * @returns A promise that resolves to the compressed public key (hex-encoded).
    */
-  getPublicKey = async (provider: WalletRpcProvider): Promise<string> => {
+  getPublicKey = async (provider: WalletProvider): Promise<string> => {
     const message = "GET_PUBLIC_KEY";
     const signature = await this.sign(
       message,
@@ -89,7 +90,8 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
         }
 
         discovered.push({
-          type: WalletType.Ethereum,
+          interfaceType: WalletInterfaceType.Ethereum,
+          chain: Chain.Ethereum,
           info,
           provider,
           connectedAddresses,
@@ -119,7 +121,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    * @param provider - The wallet provider to use.
    * @returns A promise that resolves once the account is connected.
    */
-  connectWalletAccount = async (provider: WalletRpcProvider): Promise<void> => {
+  connectWalletAccount = async (provider: WalletProvider): Promise<void> => {
     const wallet = asEip1193(provider);
     await getAccount(wallet);
   };
@@ -130,9 +132,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    * @param provider - The wallet provider to disconnect.
    * @returns A promise that resolves once the permissions are revoked.
    */
-  disconnectWalletAccount = async (
-    provider: WalletRpcProvider,
-  ): Promise<void> => {
+  disconnectWalletAccount = async (provider: WalletProvider): Promise<void> => {
     const wallet = asEip1193(provider);
     await wallet.request({
       method: "wallet_revokePermissions",
@@ -157,7 +157,7 @@ export class EthereumWallet extends BaseEthereumWallet {
    */
   sign = async (
     message: string,
-    provider: WalletRpcProvider,
+    provider: WalletProvider,
     intent: SignIntent,
   ): Promise<Hex> => {
     const selectedProvider = asEip1193(provider);
@@ -237,9 +237,9 @@ const getCompressedPublicKey = async (
  * @returns A valid EIP1193 provider.
  * @throws If the provider does not implement the request() method.
  */
-const asEip1193 = (p: WalletRpcProvider): EIP1193Provider => {
-  if (p && typeof (p as any).request === "function") {
-    return p as EIP1193Provider;
+const asEip1193 = (p: WalletProvider): EIP1193Provider => {
+  if (p.provider && typeof (p.provider as any).request === "function") {
+    return p.provider as EIP1193Provider;
   }
   throw new Error("Expected an EIP-1193 provider (Ethereum wallet)");
 };

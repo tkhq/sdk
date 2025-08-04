@@ -7,11 +7,12 @@ import {
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
 import {
+  Chain,
   SignIntent,
   SolanaWalletInterface,
+  WalletInterfaceType,
   WalletProvider,
   WalletRpcProvider,
-  WalletType,
 } from "@types";
 
 /**
@@ -21,9 +22,13 @@ import {
  * @returns The casted Wallet Standard wallet.
  * @throws If the provider is not a Wallet Standard Solana wallet.
  */
-const asSolana = (p: WalletRpcProvider): SWSWallet => {
-  if (p && "features" in p && "solana:signMessage" in (p as any).features) {
-    return p as SWSWallet;
+const asSolana = (p: WalletProvider): SWSWallet => {
+  if (
+    p.provider &&
+    "features" in p.provider &&
+    "solana:signMessage" in (p.provider as any).features
+  ) {
+    return p.provider as SWSWallet;
   }
   throw new Error("Expected a Wallet-Standard provider (Solana wallet)");
 };
@@ -56,15 +61,15 @@ const connectAccount = async (w: SWSWallet): Promise<void> => {
  * Abstract class representing a base Solana wallet.
  */
 export abstract class BaseSolanaWallet implements SolanaWalletInterface {
-  readonly type: WalletType.Solana = WalletType.Solana;
+  readonly interfaceType = WalletInterfaceType.Solana;
 
   abstract sign(
     message: string | Uint8Array,
-    provider: WalletRpcProvider,
+    provider: WalletProvider,
     intent: SignIntent,
   ): Promise<string>;
 
-  getPublicKey = async (provider: WalletRpcProvider): Promise<string> => {
+  getPublicKey = async (provider: WalletProvider): Promise<string> => {
     const wallet = asSolana(provider);
     await connectAccount(wallet);
     const account = wallet.accounts[0];
@@ -93,7 +98,8 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
         }
 
         discovered.push({
-          type: WalletType.Solana,
+          interfaceType: WalletInterfaceType.Solana,
+          chain: Chain.Solana,
           info: { name: wallet.name, icon: wallet.icon },
           provider: wallet as WalletRpcProvider,
           connectedAddresses,
@@ -104,14 +110,12 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
     return discovered;
   };
 
-  connectWalletAccount = async (provider: WalletRpcProvider): Promise<void> => {
+  connectWalletAccount = async (provider: WalletProvider): Promise<void> => {
     const wallet = asSolana(provider);
     await connectAccount(wallet);
   };
 
-  disconnectWalletAccount = async (
-    provider: WalletRpcProvider,
-  ): Promise<void> => {
+  disconnectWalletAccount = async (provider: WalletProvider): Promise<void> => {
     const wallet = asSolana(provider);
     const disconnectFeature = wallet.features["standard:disconnect"] as
       | { disconnect: () => Promise<void> }
@@ -130,7 +134,7 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
 export class SolanaWallet extends BaseSolanaWallet {
   sign = async (
     message: string,
-    provider: WalletRpcProvider,
+    provider: WalletProvider,
     intent: SignIntent,
   ): Promise<string> => {
     const wallet = asSolana(provider);

@@ -1,122 +1,308 @@
-import SignClient from "@walletconnect/sign-client";
-import { CoreTypes, ProposalTypes, SessionTypes } from "@walletconnect/types";
+import {
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+  stringToBase64urlString,
+} from "@turnkey/encoding";
+import bs58 from "bs58";
+import { recoverPublicKey, hashMessage, type Hex } from "viem";
+import { compressRawPublicKey } from "@turnkey/crypto";
+import {
+  Chain,
+  WalletInterfaceType,
+  WalletProvider,
+  WalletProviderInfo,
+  SignIntent,
+  WalletConnectProvider,
+  WalletConnectInterface,
+} from "@types";
+import { WalletConnectClient } from "./client";
+import { SessionTypes } from "@walletconnect/types";
 
-export class WalletConnectClient {
-  private client!: SignClient;
-  private session: SessionTypes.Struct | null = null;
-  private pendingApproval: (() => Promise<SessionTypes.Struct>) | null = null;
-  private activeRequests: Set<Promise<any>> = new Set();
-  private sessionDeleteHandlers: Array<() => void> = [];
+const EVM_CHAIN = "eip155:1";
+const SOLANA_CHAIN = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
 
-  public onSessionDelete(fn: () => void) {
-    this.sessionDeleteHandlers.push(fn);
+export class WalletConnectWallet implements WalletConnectInterface {
+  readonly interfaceType = WalletInterfaceType.WalletConnect;
+
+  private enabledChains: { ethereum?: boolean; solana?: boolean } = {};
+  private uri?: string;
+
+  constructor(private client: WalletConnectClient) {
+    this.client.onSessionDelete(() => {});
   }
 
-  async init(opts: {
-    projectId: string;
-    metadata: CoreTypes.Metadata;
-    relayUrl?: string;
-  }): Promise<void> {
-    this.client = await SignClient.init({
-      projectId: opts.projectId,
-      metadata: opts.metadata,
-      ...(opts.relayUrl ? { relayUrl: opts.relayUrl } : {}),
-    });
+  async init(opts?: { ethereum?: boolean; solana?: boolean }): Promise<void> {
+    console.log("Initializing WalletConnect...");
+    console.log("Enabled chains:", opts);
+    this.enabledChains = {
+      ethereum: opts?.ethereum ?? false,
+      solana: opts?.solana ?? false,
+    };
 
-    // we restore the existing session if it's available
-    const sessions = this.client.session.getAll();
-    if (sessions.length) {
-      this.session = sessions[sessions.length - 1]!;
+    if (!this.enabledChains.ethereum && !this.enabledChains.solana) {
+      throw new Error("At least one chain must be enabled for WalletConnect");
     }
 
-    // setup session cleanup listener
-    this.client.on("session_delete", () => {
-      this.session = null;
-      this.pendingApproval = null;
+    const session = this.client.getSession();
+    if (hasConnectedAccounts(session)) {
+      return;
+    }
 
-      // we notify the parent that the session was deleted
-      // so it can update it's local state as well
-      this.sessionDeleteHandlers.forEach((h) => h());
-    });
+    const namespaces: Record<string, any> = {};
+
+    if (opts?.ethereum === true) {
+      console.log("Enabling Ethereum namespace for WalletConnect");
+      namespaces.eip155 = {
+        methods: ["personal_sign", "eth_sendTransaction"],
+        chains: [EVM_CHAIN],
+        events: ["accountsChanged", "chainChanged"],
+      };
+    }
+
+    if (opts?.solana === true) {
+      console.log("Enabling Solana namespace for WalletConnect");
+      namespaces.solana = {
+        methods: [
+          "solana_signMessage",
+          "solana_signTransaction",
+          "solana_sendTransaction",
+        ],
+        chains: [SOLANA_CHAIN],
+        events: ["accountsChanged", "chainChanged"],
+      };
+    }
+
+    this.uri = await this.client.pair(namespaces);
   }
 
-  async pair(namespaces: ProposalTypes.OptionalNamespaces): Promise<string> {
-    if (this.pendingApproval) {
-      throw new Error("WalletConnect: Pairing already in progress");
-    }
+  async getProviders(): Promise<WalletProvider[]> {
+    const session = this.client.getSession();
 
-    const { uri, approval } = await this.client.connect({
-      requiredNamespaces: namespaces,
-    });
+    const info: WalletProviderInfo = {
+      name: "WalletConnect",
+      icon: "https://walletconnect.com/_next/static/media/logo_mark.84dd8525.svg",
+    };
 
-    if (!uri) {
-      throw new Error("WalletConnect: no URI");
-    }
+    const chains = [
+      {
+        namespace: "eip155",
+        chainId: EVM_CHAIN,
+        chain: Chain.Ethereum,
+        interfaceType: WalletInterfaceType.WalletConnect,
+      },
+      {
+        namespace: "solana",
+        chainId: SOLANA_CHAIN,
+        chain: Chain.Solana,
+        interfaceType: WalletInterfaceType.WalletConnect,
+      },
+    ];
 
-    this.pendingApproval = approval;
-    return uri;
+    return chains
+      .map(({ namespace, chainId, chain, interfaceType }) => {
+        const account = session?.namespaces[namespace]?.accounts?.[0];
+        const address = account?.split(":")[2];
+
+        return {
+          interfaceType,
+          chain,
+          info,
+          provider: this.makeProvider(chainId),
+          connectedAddresses: address ? [address] : [],
+          uri: this.uri,
+        };
+      })
+      .filter(Boolean) as WalletProvider[];
   }
 
-  async approve(): Promise<SessionTypes.Struct> {
-    if (!this.pendingApproval) {
-      throw new Error("WalletConnect: call pair() before approve()");
-    }
-
-    try {
-      this.session = await this.pendingApproval();
-      return this.session;
-    } finally {
-      this.pendingApproval = null;
-    }
+  async connectWalletAccount(_provider: WalletProvider): Promise<void> {
+    const session = await this.client.approve();
+    const acc = getConnectedEthereum(session) || getConnectedSolana(session);
+    if (!acc) throw new Error("No account found in session");
   }
 
-  async request(
-    chainId: string,
-    method: string,
-    params: any[] | Record<string, any>,
-  ): Promise<any> {
-    if (!this.session) {
-      throw new Error("WalletConnect: no active session");
+  async sign(
+    message: string,
+    provider: WalletProvider,
+    intent: SignIntent,
+  ): Promise<string> {
+    const session = this.client.getSession();
+    if (!session) {
+      throw new Error("WalletConnectWallet.sign: no active session");
     }
 
-    // we need this because ethereum requests are an array
-    // but Solana requests are an object
-    const rpcParams = Array.isArray(params) ? params : params;
+    if (provider.chain === Chain.Ethereum) {
+      const address = getConnectedEthereum(session);
+      if (!address) {
+        throw new Error("no Ethereum account to sign with");
+      }
 
-    // we track active requests
-    const requestPromise = this.client.request({
-      topic: this.session.topic,
-      chainId,
-      request: { method, params: rpcParams },
-    });
-
-    this.activeRequests.add(requestPromise);
-
-    try {
-      return await requestPromise;
-    } finally {
-      this.activeRequests.delete(requestPromise);
+      switch (intent) {
+        case SignIntent.SignMessage:
+          return (await this.client.request(EVM_CHAIN, "personal_sign", [
+            message as Hex,
+            address,
+          ])) as string;
+        case SignIntent.SignAndSendTransaction:
+          return (await this.client.request(EVM_CHAIN, "eth_sendTransaction", [
+            JSON.parse(message),
+          ])) as string;
+        default:
+          throw new Error(`Unsupported Ethereum intent: ${intent}`);
+      }
     }
+
+    if (provider.chain === Chain.Solana) {
+      const address = getConnectedSolana(session);
+      if (!address) {
+        throw new Error("no Solana account to sign with");
+      }
+
+      switch (intent) {
+        case SignIntent.SignMessage: {
+          const msgBytes = new TextEncoder().encode(message);
+          const msgB58 = bs58.encode(msgBytes);
+          const { signature: sigB58 } = await this.client.request(
+            SOLANA_CHAIN,
+            "solana_signMessage",
+            {
+              pubkey: address,
+              message: msgB58,
+            },
+          );
+          return uint8ArrayToHexString(bs58.decode(sigB58));
+        }
+        case SignIntent.SignTransaction: {
+          const txBytes = uint8ArrayFromHexString(message);
+          const txBase64 = stringToBase64urlString(
+            String.fromCharCode(...txBytes),
+          );
+          const { signature: sigB58 } = await this.client.request(
+            SOLANA_CHAIN,
+            "solana_signTransaction",
+            {
+              feePayer: address,
+              transaction: txBase64,
+            },
+          );
+          return uint8ArrayToHexString(bs58.decode(sigB58));
+        }
+        case SignIntent.SignAndSendTransaction: {
+          const txBytes = uint8ArrayFromHexString(message);
+          const txBase64 = stringToBase64urlString(
+            String.fromCharCode(...txBytes),
+          );
+          const sigB58 = await this.client.request(
+            SOLANA_CHAIN,
+            "solana_sendTransaction",
+            {
+              feePayer: address,
+              transaction: txBase64,
+              options: { skipPreflight: false },
+            },
+          );
+          return uint8ArrayToHexString(bs58.decode(sigB58));
+        }
+        default:
+          throw new Error(`Unsupported Solana intent: ${intent}`);
+      }
+    }
+
+    throw new Error("No supported namespace available for signing");
   }
 
-  async disconnect(): Promise<void> {
-    if (!this.session) return;
+  async getPublicKey(provider: WalletProvider): Promise<string> {
+    const session = this.client.getSession();
 
-    // we wait for any pending requests to complete
-    await Promise.allSettled([...this.activeRequests]);
+    if (provider.chain === Chain.Ethereum) {
+      const address = getConnectedEthereum(session);
+      if (!address) {
+        throw new Error("No Ethereum account to retrieve public key");
+      }
 
-    try {
-      await this.client.disconnect({
-        topic: this.session.topic,
-        reason: { code: 6000, message: "User disconnected" },
+      const sig = await this.client.request(EVM_CHAIN, "personal_sign", [
+        "GET_PUBLIC_KEY",
+        address,
+      ]);
+      const raw = await recoverPublicKey({
+        hash: hashMessage("GET_PUBLIC_KEY"),
+        signature: sig as Hex,
       });
-    } finally {
-      this.session = null;
-      this.pendingApproval = null;
+      return Buffer.from(
+        compressRawPublicKey(Buffer.from(raw.slice(2), "hex")),
+      ).toString("hex");
     }
+
+    if (provider.chain === Chain.Solana) {
+      const address = getConnectedSolana(session);
+      if (!address) {
+        throw new Error("No Solana account to retrieve public key");
+      }
+
+      const publicKeyBytes = bs58.decode(address);
+      return uint8ArrayToHexString(publicKeyBytes);
+    }
+
+    throw new Error("No supported namespace for public key retrieval");
   }
 
-  getSession(): SessionTypes.Struct | null {
-    return this.session;
+  async disconnectWalletAccount(_provider: WalletProvider): Promise<void> {
+    await this.client.disconnect();
+
+    const namespaces: Record<string, any> = {};
+
+    if (this.enabledChains.ethereum) {
+      namespaces.eip155 = {
+        methods: ["personal_sign", "eth_sendTransaction"],
+        chains: [EVM_CHAIN],
+        events: ["accountsChanged", "chainChanged"],
+      };
+    }
+
+    if (this.enabledChains.solana) {
+      namespaces.solana = {
+        methods: [
+          "solana_signMessage",
+          "solana_signTransaction",
+          "solana_sendTransaction",
+        ],
+        chains: [SOLANA_CHAIN],
+        events: ["accountsChanged", "chainChanged"],
+      };
+    }
+
+    await this.client.pair(namespaces).then((newUri) => {
+      this.uri = newUri;
+    });
+    console.log("New WalletConnect URI:", this.uri);
   }
+
+  private makeProvider(chainId: string): WalletConnectProvider {
+    return {
+      request: ({ method, params }: any) => {
+        return this.client.request(chainId, method, params);
+      },
+    };
+  }
+}
+
+function hasConnectedAccounts(session: SessionTypes.Struct | null): boolean {
+  return (
+    !!session &&
+    Object.values(session.namespaces).some((ns) => ns.accounts?.length > 0)
+  );
+}
+
+function getConnectedEthereum(
+  session: SessionTypes.Struct | null,
+): string | undefined {
+  const acc = session?.namespaces.eip155?.accounts?.[0];
+  return acc ? acc.split(":")[2] : undefined;
+}
+
+function getConnectedSolana(
+  session: SessionTypes.Struct | null,
+): string | undefined {
+  const acc = session?.namespaces.solana?.accounts?.[0];
+  return acc ? acc.split(":")[2] : undefined;
 }

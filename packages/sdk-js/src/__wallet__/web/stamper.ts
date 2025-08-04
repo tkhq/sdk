@@ -1,13 +1,14 @@
 import {
   SignIntent,
-  type WalletRpcProvider,
-  WalletType,
   type WalletInterface,
   type TStamp,
   type TStamper,
+  type WalletProvider,
+  WalletInterfaceType,
 } from "@types";
 import { stringToBase64urlString } from "@turnkey/encoding";
 import type { Hex } from "viem";
+import { isEthereumWallet, isSolanaWallet } from "@utils";
 
 const SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191 =
   "SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191";
@@ -17,19 +18,19 @@ const STAMP_HEADER_NAME = "X-Stamp";
 interface WalletContext {
   wallet: WalletInterface;
   stamper: WalletStamper;
-  provider?: WalletRpcProvider;
+  provider?: WalletProvider;
 }
 
-type ContextMap = Partial<Record<WalletType, WalletContext>>;
+type ContextMap = Partial<Record<WalletInterfaceType, WalletContext>>;
 
 export class WebWalletStamper implements TStamper {
   private readonly ctx: ContextMap = {};
-  private activeChain?: WalletType;
+  private activeInterfaceType?: WalletInterfaceType;
 
-  constructor(wallets: Partial<Record<WalletType, WalletInterface>>) {
-    for (const [chain, wallet] of Object.entries(wallets)) {
-      const typedChain = chain as WalletType;
-      this.ctx[typedChain] = {
+  constructor(wallets: Partial<Record<WalletInterfaceType, WalletInterface>>) {
+    for (const [interfaceType, wallet] of Object.entries(wallets)) {
+      const typedInterface = interfaceType as WalletInterfaceType;
+      this.ctx[typedInterface] = {
         wallet,
         stamper: new WalletStamper(wallet),
       };
@@ -38,68 +39,77 @@ export class WebWalletStamper implements TStamper {
 
   async init(): Promise<void> {
     if (!Object.keys(this.ctx).length) {
-      throw new Error("No chains initialized in WalletStamper");
+      throw new Error("No interfaces initialized in WalletStamper");
     }
   }
 
   async stamp(
     payload: string,
-    chain: WalletType = this.defaultChain(),
-    provider?: WalletRpcProvider,
+    interfaceType: WalletInterfaceType = this.defaultInterface(),
+    provider?: WalletProvider,
   ): Promise<TStamp> {
-    const ctx = this.getCtx(chain);
+    const ctx = this.getCtx(interfaceType);
     const selectedProvider = provider ?? ctx.provider;
 
     if (!selectedProvider) {
-      throw new Error(`Could not find a provider for chain '${chain}'.`);
+      throw new Error(
+        `Could not find a provider for interface '${interfaceType}'.`,
+      );
     }
 
     return ctx.stamper.stamp(payload, selectedProvider);
   }
 
   async getPublicKey(
-    chain: WalletType = this.defaultChain(),
-    provider: WalletRpcProvider,
+    interfaceType: WalletInterfaceType = this.defaultInterface(),
+    provider: WalletProvider,
   ): Promise<string> {
-    return this.getCtx(chain).wallet.getPublicKey(provider);
+    return this.getCtx(interfaceType).wallet.getPublicKey(provider);
   }
 
-  setProvider(chain: WalletType, provider: WalletRpcProvider): void {
-    this.getCtx(chain).provider = provider;
-    this.activeChain = chain;
+  setProvider(
+    interfaceType: WalletInterfaceType,
+    provider: WalletProvider,
+  ): void {
+    this.getCtx(interfaceType).provider = provider;
+    this.activeInterfaceType = interfaceType;
   }
 
-  getWalletInterface(chain: WalletType = this.defaultChain()): WalletInterface {
-    return this.getCtx(chain).wallet;
+  getWalletInterface(
+    interfaceType: WalletInterfaceType = this.defaultInterface(),
+  ): WalletInterface {
+    return this.getCtx(interfaceType).wallet;
   }
 
-  private defaultChain(): WalletType {
-    if (this.activeChain) {
-      return this.activeChain;
+  private defaultInterface(): WalletInterfaceType {
+    if (this.activeInterfaceType) {
+      return this.activeInterfaceType;
     }
 
-    const initializedChains = Object.keys(this.ctx) as WalletType[];
+    const initializedInterfaces = Object.keys(
+      this.ctx,
+    ) as WalletInterfaceType[];
 
-    if (initializedChains.includes(WalletType.Ethereum)) {
-      return WalletType.Ethereum;
+    if (initializedInterfaces.includes(WalletInterfaceType.Ethereum)) {
+      return WalletInterfaceType.Ethereum;
     }
 
-    if (initializedChains.includes(WalletType.Solana)) {
-      return WalletType.Solana;
+    if (initializedInterfaces.includes(WalletInterfaceType.Solana)) {
+      return WalletInterfaceType.Solana;
     }
 
-    if (initializedChains.includes(WalletType.EthereumWalletConnect)) {
-      return WalletType.EthereumWalletConnect;
+    if (initializedInterfaces.includes(WalletInterfaceType.WalletConnect)) {
+      return WalletInterfaceType.WalletConnect;
     }
 
-    throw new Error("No chains initialized");
+    throw new Error("No interfaces initialized");
   }
 
-  private getCtx(chain: WalletType): WalletContext {
-    const ctx = this.ctx[chain];
+  private getCtx(interfaceType: WalletInterfaceType): WalletContext {
+    const ctx = this.ctx[interfaceType];
 
     if (!ctx) {
-      throw new Error(`Chain '${chain}' not initialised`);
+      throw new Error(`Interface '${interfaceType}' not initialised`);
     }
 
     return ctx;
@@ -109,7 +119,7 @@ export class WebWalletStamper implements TStamper {
 export class WalletStamper {
   constructor(private readonly wallet: WalletInterface) {}
 
-  async stamp(payload: string, provider: WalletRpcProvider): Promise<TStamp> {
+  async stamp(payload: string, provider: WalletProvider): Promise<TStamp> {
     let signature: string;
 
     try {
@@ -123,17 +133,12 @@ export class WalletStamper {
     }
 
     let publicKey: string;
-    const scheme =
-      this.wallet.type === WalletType.Solana ||
-      this.wallet.type === WalletType.SolanaWalletConnect
-        ? SIGNATURE_SCHEME_TK_API_ED25519
-        : SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191;
+    const scheme = isSolanaWallet(provider)
+      ? SIGNATURE_SCHEME_TK_API_ED25519
+      : SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191;
 
     try {
-      if (
-        this.wallet.type === WalletType.Ethereum ||
-        this.wallet.type === WalletType.EthereumWalletConnect
-      ) {
+      if (isEthereumWallet(provider)) {
         const { recoverPublicKey, hashMessage } = await import("viem");
         const { compressRawPublicKey, toDerSignature } = await import(
           "@turnkey/crypto"
