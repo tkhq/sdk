@@ -11,13 +11,13 @@ import {
   v1Attestation,
 } from "@turnkey/sdk-types";
 import {
+  Chain,
   OtpType,
   StamperType,
   useModal,
   useTurnkey,
 } from "@turnkey/react-wallet-kit";
 import { SessionKey } from "@turnkey/react-wallet-kit";
-import { WalletType } from "@turnkey/wallet-stamper";
 import { ExportType } from "@turnkey/react-wallet-kit/dist/types/base";
 import { parseEther, Transaction as EthTransaction } from "ethers";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
@@ -292,7 +292,7 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const provider = await getWalletProviders(WalletType.Solana);
+          const provider = await getWalletProviders(Chain.Solana);
           console.log("Injected Solana Provider:", provider);
           await signUpWithWallet({
             walletProvider: provider[1],
@@ -310,7 +310,7 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const provider = await getWalletProviders(WalletType.Solana);
+          const provider = await getWalletProviders(Chain.Solana);
           console.log("Injected Solana Provider:", provider);
           await loginWithWallet({
             walletProvider: provider[1],
@@ -328,8 +328,8 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const provider = await getWalletProviders(WalletType.Solana);
-          console.log("Injected Etheruem Provider:", provider);
+          const provider = await getWalletProviders(Chain.Solana);
+          console.log("Injected Solana Provider:", provider);
           await loginOrSignupWithWallet({
             walletProvider: provider[1],
           });

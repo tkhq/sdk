@@ -1454,9 +1454,6 @@ importers:
       '@turnkey/sdk-types':
         specifier: workspace:*
         version: link:../../packages/sdk-types
-      '@turnkey/wallet-stamper':
-        specifier: workspace:*
-        version: link:../../packages/wallet-stamper
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1
@@ -35200,7 +35197,6 @@ snapshots:
 =======
   /zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
-    dev: false
 
   /zustand@3.7.2(react@18.2.0):
     resolution: {integrity: sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==}
