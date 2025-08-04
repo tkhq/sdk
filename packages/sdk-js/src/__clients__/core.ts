@@ -41,7 +41,6 @@ import {
   ConnectedWalletAccount,
   WalletManagerBase,
   WalletProvider,
-  WalletType,
 } from "../__types__/base"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
@@ -548,8 +547,8 @@ export class TurnkeyClient {
       }
 
       this.walletManager.stamper.setProvider(
-        walletProvider.type,
-        walletProvider.provider,
+        walletProvider.interfaceType,
+        walletProvider,
       );
 
       const sessionResponse = await this.httpClient.stampLogin(
@@ -603,13 +602,13 @@ export class TurnkeyClient {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
 
       this.walletManager.stamper.setProvider(
-        walletProvider.type,
-        walletProvider.provider,
+        walletProvider.interfaceType,
+        walletProvider,
       );
 
       const publicKey = await this.walletManager.stamper.getPublicKey(
-        walletProvider.type,
-        walletProvider.provider,
+        walletProvider.interfaceType,
+        walletProvider,
       );
 
       if (!publicKey) {
@@ -689,6 +688,7 @@ export class TurnkeyClient {
     sessionKey?: string;
     expirationSeconds?: string;
   }): Promise<string> => {
+    console.log("loginOrSignupWithWallet called with params:", params);
     if (!this.walletManager) {
       throw new Error("Wallet manager is not initialized");
     }
@@ -704,8 +704,8 @@ export class TurnkeyClient {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
 
       this.walletManager.stamper.setProvider(
-        walletProvider.type,
-        walletProvider.provider,
+        walletProvider.interfaceType,
+        walletProvider,
       );
 
       // here we sign the request with the wallet, but we don't send it to the Turnkey yet
@@ -728,9 +728,8 @@ export class TurnkeyClient {
       }
 
       let publicKey: string | undefined;
-      switch (walletProvider.type) {
-        case WalletType.Ethereum:
-        case WalletType.EthereumWalletConnect: {
+      switch (walletProvider.chain) {
+        case Chain.Ethereum: {
           // for Ethereum, there is no way to get the public key from the wallet address
           // so we derive it from the signed request
           publicKey = getPublicKeyFromStampHeader(
@@ -740,22 +739,21 @@ export class TurnkeyClient {
           break;
         }
 
-        case WalletType.Solana:
-        case WalletType.SolanaWalletConnect: {
+        case Chain.Solana: {
           // for Solana, we can get the public key from the wallet address
           // since the wallet address is the public key
           // this doesn't require any action from the user as long as the wallet is connected
           // which it has to be since they just called stampStampLogin()
           publicKey = await this.walletManager.stamper.getPublicKey(
-            walletProvider.type,
-            walletProvider.provider,
+            walletProvider.interfaceType,
+            walletProvider,
           );
           break;
         }
 
         default:
           throw new TurnkeyError(
-            `Unsupported wallet type: ${walletProvider.type}`,
+            `Unsupported interface type: ${walletProvider.interfaceType}`,
             TurnkeyErrorCodes.INVALID_REQUEST,
           );
       }
@@ -1613,7 +1611,7 @@ export class TurnkeyClient {
 
       for (const address of provider.connectedAddresses) {
         const account: ConnectedWalletAccount = {
-          walletAccountId: `${wallet.walletId}-${provider.type}-${address}`,
+          walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
           organizationId: session.organizationId,
           walletId: wallet.walletId,
           curve: isEthereumWallet(provider) ? Curve.SECP256K1 : Curve.ED25519,
