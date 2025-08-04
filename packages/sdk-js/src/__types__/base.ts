@@ -310,8 +310,6 @@ export enum FilterType {
   PublicKey = "PUBLIC_KEY",
 }
 
-export type Chain = WalletType;
-
 export const OtpTypeToFilterTypeMap = {
   [OtpType.Email]: FilterType.Email,
   [OtpType.Sms]: FilterType.Sms,
@@ -336,7 +334,7 @@ export interface StorageBase {
 }
 
 export interface WalletManagerBase {
-  getProviders: (chain?: WalletType) => Promise<WalletProvider[]>;
+  getProviders: (chain?: Chain) => Promise<WalletProvider[]>;
   stamper: WebWalletStamper;
   connector: WebWalletConnector;
 }
@@ -402,11 +400,9 @@ export interface WalletProviderInfo {
   rdns?: string;
 }
 
-export enum WalletType {
+export enum Chain {
   Ethereum = "ethereum",
   Solana = "solana",
-  EthereumWalletConnect = "ethereum_wallet_connect",
-  SolanaWalletConnect = "solana_wallet_connect",
 }
 export interface WalletConnectProvider {
   request(args: { method: string; params?: any[] }): Promise<unknown>;
@@ -418,7 +414,8 @@ export type WalletRpcProvider =
   | WalletConnectProvider;
 
 export interface WalletProvider {
-  type: WalletType;
+  interfaceType: WalletInterfaceType;
+  chain: Chain;
   info: WalletProviderInfo;
   provider: WalletRpcProvider;
   connectedAddresses: string[];
@@ -431,6 +428,12 @@ export enum SignIntent {
   SignAndSendTransaction = "sign_and_send",
 }
 
+export enum WalletInterfaceType {
+  Solana = "solana",
+  Ethereum = "ethereum",
+  WalletConnect = "wallet_connect",
+}
+
 /**
  * Base interface for wallet functionalities common across different blockchain chains.
  * @interface BaseWalletInterface
@@ -438,16 +441,16 @@ export enum SignIntent {
  * @property {function(): Promise<string>} getPublicKey - Retrieves the public key as a string.
  */
 export interface BaseWalletInterface {
-  type: WalletType;
+  interfaceType: WalletInterfaceType;
   sign: (
     message: string,
-    provider: WalletRpcProvider,
+    provider: WalletProvider,
     intent: SignIntent,
   ) => Promise<string>;
-  getPublicKey: (provider: WalletRpcProvider) => Promise<string>;
+  getPublicKey: (provider: WalletProvider) => Promise<string>;
   getProviders: () => Promise<WalletProvider[]>;
-  connectWalletAccount: (provider: WalletRpcProvider) => Promise<void>;
-  disconnectWalletAccount: (provider: WalletRpcProvider) => Promise<void>;
+  connectWalletAccount: (provider: WalletProvider) => Promise<void>;
+  disconnectWalletAccount: (provider: WalletProvider) => Promise<void>;
 }
 
 /**
@@ -458,7 +461,7 @@ export interface BaseWalletInterface {
  * @property {'solana'} type - The type of the wallet.
  */
 export interface SolanaWalletInterface extends BaseWalletInterface {
-  type: WalletType.Solana;
+  interfaceType: WalletInterfaceType.Solana;
 }
 
 /**
@@ -473,20 +476,11 @@ export interface SolanaWalletInterface extends BaseWalletInterface {
  * @property {'ethereum'} type - The type of the wallet.
  */
 export interface EthereumWalletInterface extends BaseWalletInterface {
-  type: WalletType.Ethereum;
+  interfaceType: WalletInterfaceType.Ethereum;
 }
 
-export interface SolanaWalletInterface extends BaseWalletInterface {
-  type: WalletType.Solana;
-}
-
-export interface EthereumWalletConnectInterface extends BaseWalletInterface {
-  type: WalletType.EthereumWalletConnect;
-  init: () => Promise<void>;
-}
-
-export interface SolanaWalletConnectInterface extends BaseWalletInterface {
-  type: WalletType.SolanaWalletConnect;
+export interface WalletConnectInterface extends BaseWalletInterface {
+  interfaceType: WalletInterfaceType.WalletConnect;
   init: () => Promise<void>;
 }
 
@@ -497,5 +491,4 @@ export interface SolanaWalletConnectInterface extends BaseWalletInterface {
 export type WalletInterface =
   | SolanaWalletInterface
   | EthereumWalletInterface
-  | EthereumWalletConnectInterface
-  | SolanaWalletConnectInterface;
+  | WalletConnectInterface;
