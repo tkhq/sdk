@@ -48,7 +48,7 @@ export function SuccessPage(props: SuccessPageProps) {
             width: "100px",
             transform: `scale(${scale})`,
           }}
-          className="flex absolute items-center justify-center rounded-full bg-green-500 dark:bg-green-500 transition-all duration-300"
+          className="flex absolute items-center justify-center rounded-full bg-success-light dark:bg-success-dark transition-all duration-300"
         >
           <FontAwesomeIcon
             style={{ height: "50px", width: "50px" }}
