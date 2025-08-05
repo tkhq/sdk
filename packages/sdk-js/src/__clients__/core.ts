@@ -58,6 +58,7 @@ import {
   getPublicKeyFromStampHeader,
   isEthereumWallet,
   isSolanaWallet,
+  broadcastTransaction,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -1658,6 +1659,12 @@ export class TurnkeyClient {
    * @param params.encoding - override for the payload encoding (defaults to the encoding appropriate for the address type).
    * @param params.hashFunction - override for the hash function (defaults to the hash function appropriate for the address type).
    * @param params.stampWith - stamper to tag the signing request (e.g., Passkey, ApiKey, or Wallet).
+   * @param params.addEthereumPrefix - whether to prefix the message with Ethereum's `"\x19Ethereum Signed Message:\n"` string.
+   *   - If `true` (default for Ethereum), the message is prefixed before signing.
+   *   - If `false`:
+   *     - Connected wallets will throw an error because they always prefix automatically.
+   *     - Embedded wallets will sign the raw message without any prefix.
+   *
    * @returns A promise resolving to a `v1SignRawPayloadResult` containing the signature and metadata.
    * @throws {TurnkeyError} If signing fails, if the wallet account does not support signing, or if the response is invalid.
    */
@@ -1667,8 +1674,9 @@ export class TurnkeyClient {
     encoding?: v1PayloadEncoding;
     hashFunction?: v1HashFunction;
     stampWith?: StamperType | undefined;
+    addEthereumPrefix?: boolean;
   }): Promise<v1SignRawPayloadResult> => {
-    const { message, walletAccount, stampWith } = params;
+    const { message, walletAccount, stampWith, addEthereumPrefix } = params;
 
     const hashFunction =
       params.hashFunction || getHashFunction(walletAccount.addressFormat);
@@ -1676,17 +1684,37 @@ export class TurnkeyClient {
       params.encoding || getEncodingType(walletAccount.addressFormat);
 
     try {
+      const isEthereum =
+        walletAccount.addressFormat === "ADDRESS_FORMAT_ETHEREUM";
+
+      const shouldPrefix = addEthereumPrefix ?? isEthereum;
+
       if (walletAccount.source === WalletSource.Connected) {
-        // this is a connected wallet account
+        // this is a connected wallet
+
+        if (!shouldPrefix && isEthereum) {
+          throw new TurnkeyError(
+            "Connected Ethereum wallets automatically prefix messages. Use `addEthereumPrefix: true`.",
+            TurnkeyErrorCodes.SIGN_MESSAGE_ERROR,
+          );
+        }
+
         const payloadToSign = await hashPayload(message, hashFunction);
         const sigHex = await walletAccount.signMessage(payloadToSign);
         return splitSignature(sigHex, walletAccount.addressFormat);
       }
 
-      // this is an embedded wallet account
+      // this is an embedded wallet
+      let messageToEncode = message;
+
+      if (shouldPrefix && isEthereum) {
+        const prefix = `\x19Ethereum Signed Message:\n${message.length}`;
+        messageToEncode = prefix + message;
+      }
+
       const encodedMessage = getEncodedMessage(
         walletAccount.addressFormat,
-        message,
+        messageToEncode,
       );
 
       const response = await this.httpClient.signRawPayload(
@@ -1783,6 +1811,93 @@ export class TurnkeyClient {
       throw new TurnkeyError(
         `Failed to sign transaction`,
         TurnkeyErrorCodes.SIGN_TRANSACTION_ERROR,
+        error,
+      );
+    }
+  };
+
+  /**
+   * Signs and broadcasts a transaction using the specified wallet account.
+   *
+   * - For **connected wallets**:
+   *   - Calls the wallet’s native `signAndSendTransaction` method.
+   *   - Does **not** require an `rpcUrl`.
+   *
+   * - For **embedded wallets**:
+   *   - Signs the transaction using the Turnkey API.
+   *   - Requires an `rpcUrl` to broadcast the transaction.
+   *   - Broadcasts the transaction using a JSON-RPC client.
+   *
+   * @param params.walletAccount - wallet account to use for signing and sending.
+   * @param params.unsignedTransaction - unsigned transaction (serialized string).
+   * @param params.transactionType - transaction type (e.g., "TRANSACTION_TYPE_SOLANA").
+   * @param params.rpcUrl - required for embedded wallets to broadcast the signed transaction.
+   * @param params.stampWith - optional stamper to tag the signing request.
+   * @returns A promise that resolves to a transaction signature or hash.
+   * @throws {TurnkeyError} If signing or broadcasting fails.
+   */
+  signAndSendTransaction = async (params: {
+    unsignedTransaction: string;
+    transactionType: v1TransactionType;
+    walletAccount: WalletAccount;
+    rpcUrl?: string;
+    stampWith?: StamperType | undefined;
+  }): Promise<string> => {
+    const {
+      walletAccount,
+      unsignedTransaction,
+      transactionType,
+      rpcUrl,
+      stampWith,
+    } = params;
+
+    try {
+      if (walletAccount.source === WalletSource.Connected) {
+        // this is a connected wallet account
+        if (!walletAccount.signAndSendTransaction) {
+          throw new TurnkeyError(
+            "This connected wallet does not support signAndSendTransaction.",
+            TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+          );
+        }
+
+        return await walletAccount.signAndSendTransaction(unsignedTransaction);
+      }
+
+      // this is an embedded wallet account
+
+      // embedded wallet requires an RPC URL to broadcast
+      // since Turnkey does not broadcast transactions directly
+      if (!rpcUrl) {
+        throw new TurnkeyError(
+          "Missing rpcUrl: embedded wallets require an RPC URL to broadcast transactions.",
+          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+        );
+      }
+
+      const signTransactionResponse = await this.httpClient.signTransaction(
+        {
+          signWith: walletAccount.address,
+          unsignedTransaction,
+          type: transactionType,
+        },
+        stampWith,
+      );
+
+      const signedTx = signTransactionResponse.signedTransaction;
+
+      const txHash = await broadcastTransaction({
+        signedTransaction: signedTx,
+        rpcUrl,
+        transactionType,
+      });
+
+      return txHash;
+    } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
+      throw new TurnkeyError(
+        `Failed to sign and send transaction`,
+        TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
         error,
       );
     }
