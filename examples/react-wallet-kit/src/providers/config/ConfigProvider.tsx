@@ -18,6 +18,7 @@ import {
 import { ThreeDimensionalBackground } from "@/components/3D/Background";
 import { TurnkeySVG } from "@/components/Svg";
 import { useScreenSize } from "@/utils";
+import { Slide, ToastContainer } from "react-toastify";
 
 type ConfigContextValue = {
   config: TurnkeyProviderConfig;
@@ -83,6 +84,21 @@ export function TurnkeyConfigProvider({
             <TurnkeyConfigPanel />
           </div>
         </Transition>
+
+        <ToastContainer
+          className={"fixed z-10"}
+          position="bottom-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme={config.ui?.darkMode ? "dark" : "light"}
+          transition={Slide}
+        />
 
         {!isMobile && (
           <Button
