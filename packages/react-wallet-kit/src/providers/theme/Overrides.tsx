@@ -7,6 +7,10 @@ export type ThemeOverrides = {
   modalText?: string;
   iconBackground?: string;
   iconText?: string;
+  success?: string;
+  successText?: string;
+  danger?: string;
+  dangerText?: string;
 };
 
 export function TurnkeyThemeOverrides(props: {
