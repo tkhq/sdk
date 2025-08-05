@@ -42,3 +42,312 @@ export function TurnkeySVG(props: SVGProps) {
     </svg>
   );
 }
+
+export function GoogleSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M3.064 7.51A9.996 9.996 0 0 1 12 2c2.695 0 4.959.991 6.69 2.605l-2.867 2.868C14.786 6.482 13.468 5.977 12 5.977c-2.605 0-4.81 1.76-5.595 4.123-.2.6-.314 1.24-.314 1.9 0 .66.114 1.3.314 1.9.786 2.364 2.99 4.123 5.595 4.123 1.345 0 2.49-.355 3.386-.955a4.6 4.6 0 0 0 1.996-3.018H12v-3.868h9.418c.118.654.182 1.336.182 2.045 0 3.046-1.09 5.61-2.982 7.35C16.964 21.105 14.7 22 12 22A9.996 9.996 0 0 1 2 12c0-1.614.386-3.14 1.064-4.49Z" />
+    </svg>
+  );
+}
+
+export function AppleSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M11.673 7.222c-.876 0-2.232-.996-3.66-.96-1.884.024-3.612 1.092-4.584 2.784-1.956 3.396-.504 8.412 1.404 11.172.936 1.344 2.04 2.856 3.504 2.808 1.404-.06 1.932-.912 3.636-.912 1.692 0 2.172.912 3.66.876 1.512-.024 2.472-1.368 3.396-2.724 1.068-1.56 1.512-3.072 1.536-3.156-.036-.012-2.94-1.128-2.976-4.488-.024-2.808 2.292-4.152 2.4-4.212-1.32-1.932-3.348-2.148-4.056-2.196-1.848-.144-3.396 1.008-4.26 1.008Zm3.12-2.832c.78-.936 1.296-2.244 1.152-3.54-1.116.048-2.46.744-3.264 1.68-.72.828-1.344 2.16-1.176 3.432 1.236.096 2.508-.636 3.288-1.572Z" />
+    </svg>
+  );
+}
+
+export function FacebookSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M12.001 2c-5.523 0-10 4.477-10 10 0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12c0-5.523-4.477-10-10-10Z" />
+    </svg>
+  );
+}
+
+export function AddSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6Z" />
+    </svg>
+  );
+}
+
+export function UnlinkSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M17 17h5v2h-3v3h-2v-5ZM7 7H2V5h3V2h2v5Zm11.364 8.536L16.95 14.12l1.414-1.414a5 5 0 0 0-7.071-7.071L9.879 7.05 8.464 5.636 9.88 4.222a7 7 0 0 1 9.9 9.9l-1.415 1.414Zm-2.829 2.828-1.414 1.414a7 7 0 0 1-9.9-9.9l1.415-1.414L7.05 9.88l-1.414 1.414a5 5 0 0 0 7.071 7.071l1.414-1.414 1.415 1.414Zm-.707-10.607 1.415 1.415-7.071 7.07-1.415-1.414 7.071-7.07Z" />
+    </svg>
+  );
+}
+
+export function MinusSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M5 11v2h14v-2H5Z" />
+    </svg>
+  );
+}
+
+export function KeySVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="m10.313 11.566 7.94-7.94 2.121 2.12-1.414 1.415 2.121 2.121-3.535 3.536-2.121-2.121-2.99 2.99a5.002 5.002 0 0 1-7.97 5.848 5 5 0 0 1 5.848-7.97Zm-.899 5.848a2 2 0 1 0-2.828-2.828 2 2 0 0 0 2.828 2.828Z" />
+    </svg>
+  );
+}
+
+export function CheckboxCircleFillSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2Zm5.707 7.293-6.364 6.364a1 1 0 0 1-1.414 0l-3.536-3.536a1 1 0 0 1 1.414-1.414l2.828 2.829L16.293 8.88a1 1 0 0 1 1.414 1.414Z" />
+    </svg>
+  );
+}
+
+export function EmailSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M3 3h18a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm9.06 8.683L5.648 6.238 4.353 7.762l7.72 6.555 7.581-6.56-1.308-1.513-6.285 5.439Z" />
+    </svg>
+  );
+}
+
+export function PhoneSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M21 16.42v3.536a1 1 0 0 1-.93.998c-.437.03-.794.046-1.07.046-8.837 0-16-7.163-16-16 0-.276.015-.633.046-1.07A1 1 0 0 1 4.044 3H7.58a.5.5 0 0 1 .498.45c.023.23.044.413.064.552A13.901 13.901 0 0 0 9.35 8.003c.095.2.033.439-.147.567l-2.158 1.542a13.047 13.047 0 0 0 6.844 6.844l1.54-2.154a.462.462 0 0 1 .573-.149 13.897 13.897 0 0 0 4 1.205c.139.02.322.041.55.064a.5.5 0 0 1 .449.498Z" />
+    </svg>
+  );
+}
+
+export function EditSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M9.243 18.997H21v2H3v-4.243l9.9-9.9 4.242 4.243-7.9 7.9Zm5.07-13.557 2.122-2.121a1 1 0 0 1 1.414 0l2.829 2.828a1 1 0 0 1 0 1.415l-2.122 2.121-4.242-4.243Z" />
+    </svg>
+  );
+}
+
+export function DeleteSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3Zm1 2H6v12h12V8Zm-9 3h2v6H9v-6Zm4 0h2v6h-2v-6ZM9 4v2h6V4H9Z" />
+    </svg>
+  );
+}
+
+export function SolanaSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlSpace="preserve"
+      viewBox="0 0 397.7 311.7"
+      {...props}
+    >
+      <linearGradient
+        id="a"
+        x1={360.879}
+        x2={141.213}
+        y1={351.455}
+        y2={-69.294}
+        gradientTransform="matrix(1 0 0 -1 0 314)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop
+          offset={0}
+          style={{
+            stopColor: "#00ffa3",
+          }}
+        />
+        <stop
+          offset={1}
+          style={{
+            stopColor: "#dc1fff",
+          }}
+        />
+      </linearGradient>
+      <path
+        d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z"
+        style={{
+          fill: "url(#a)",
+        }}
+      />
+      <linearGradient
+        id="b"
+        x1={264.829}
+        x2={45.163}
+        y1={401.601}
+        y2={-19.148}
+        gradientTransform="matrix(1 0 0 -1 0 314)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop
+          offset={0}
+          style={{
+            stopColor: "#00ffa3",
+          }}
+        />
+        <stop
+          offset={1}
+          style={{
+            stopColor: "#dc1fff",
+          }}
+        />
+      </linearGradient>
+      <path
+        d="M64.6 3.8C67.1 1.4 70.4 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z"
+        style={{
+          fill: "url(#b)",
+        }}
+      />
+      <linearGradient
+        id="c"
+        x1={312.548}
+        x2={92.882}
+        y1={376.688}
+        y2={-44.061}
+        gradientTransform="matrix(1 0 0 -1 0 314)"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop
+          offset={0}
+          style={{
+            stopColor: "#00ffa3",
+          }}
+        />
+        <stop
+          offset={1}
+          style={{
+            stopColor: "#dc1fff",
+          }}
+        />
+      </linearGradient>
+      <path
+        d="M333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z"
+        style={{
+          fill: "url(#c)",
+        }}
+      />
+    </svg>
+  );
+}
+
+export function EthereumSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      xmlSpace="preserve"
+      fillRule="evenodd"
+      clipRule="evenodd"
+      imageRendering="optimizeQuality"
+      shapeRendering="geometricPrecision"
+      textRendering="geometricPrecision"
+      viewBox="0 0 784.37 1277.39"
+      {...props}
+    >
+      <g fillRule="nonzero">
+        <path
+          fill="#343434"
+          d="m392.07 0-8.57 29.11v844.63l8.57 8.55 392.06-231.75z"
+        />
+        <path fill="#8C8C8C" d="M392.07 0 0 650.54l392.07 231.75V472.33z" />
+        <path
+          fill="#3C3C3B"
+          d="m392.07 956.52-4.83 5.89v300.87l4.83 14.1 392.3-552.49z"
+        />
+        <path fill="#8C8C8C" d="M392.07 1277.38V956.52L0 724.89z" />
+        <path fill="#141414" d="m392.07 882.29 392.06-231.75-392.06-178.21z" />
+        <path fill="#393939" d="m0 650.54 392.07 231.75V472.33z" />
+      </g>
+    </svg>
+  );
+}
+
+export function ExportSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M21 3H3a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1Zm-9 13a3 3 0 0 1-3-3H4V5h16v8h-5a3 3 0 0 1-3 3Zm4-5h-3v3h-2v-3H8l4-4.5 4 4.5Z" />
+    </svg>
+  );
+}
+
+export function ImportSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M21 3H3a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1Zm-9 13a3 3 0 0 1-3-3H4V5h16v8h-5a3 3 0 0 1-3 3Zm4-7h-3V6h-2v3H8l4 4.5L16 9Z" />
+    </svg>
+  );
+}

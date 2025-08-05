@@ -68,190 +68,228 @@ type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
   hashFunction: v1HashFunction;
   defaultAccounts: v1WalletAccountParams[] | null;
+  displayName: string;
 };
 
-const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> = {
-  ADDRESS_FORMAT_UNCOMPRESSED: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: null,
-  },
-  ADDRESS_FORMAT_COMPRESSED: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: null,
-  },
-  ADDRESS_FORMAT_ETHEREUM: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_KECCAK256",
-    defaultAccounts: DEFAULT_ETHEREUM_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_SOLANA: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-    defaultAccounts: DEFAULT_SOLANA_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_COSMOS: {
-    encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_COSMOS_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_TRON: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_TRON_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_SUI: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-    defaultAccounts: DEFAULT_SUI_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_APTOS: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-    defaultAccounts: DEFAULT_APTOS_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_MAINNET_P2PKH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_MAINNET_P2SH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_MAINNET_P2WPKH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_MAINNET_P2WSH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_MAINNET_P2TR_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_TESTNET_P2PKH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_TESTNET_P2SH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_TESTNET_P2WPKH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_TESTNET_P2WSH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_TESTNET_P2TR_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_SIGNET_P2PKH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_SIGNET_P2SH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_SIGNET_P2WPKH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_SIGNET_P2WSH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_SIGNET_P2TR_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_REGTEST_P2PKH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_REGTEST_P2SH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_REGTEST_P2WPKH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_REGTEST_P2WSH_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_BITCOIN_REGTEST_P2TR_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_SEI: {
-    encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_SEI_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_XLM: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-    defaultAccounts: DEFAULT_XLM_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_DOGE_MAINNET: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_DOGE_MAINNET_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_DOGE_TESTNET: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_DOGE_TESTNET_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_TON_V3R2: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-    defaultAccounts: DEFAULT_TON_V3R2_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_TON_V4R2: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-    defaultAccounts: DEFAULT_TON_V4R2_ACCOUNTS,
-  },
-  ADDRESS_FORMAT_TON_V5R1: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-    defaultAccounts: null,
-  },
-  ADDRESS_FORMAT_XRP: {
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_SHA256",
-    defaultAccounts: DEFAULT_XRP_ACCOUNTS,
-  },
-};
+export const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> =
+  {
+    ADDRESS_FORMAT_UNCOMPRESSED: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: null,
+      displayName: "Uncompressed",
+    },
+    ADDRESS_FORMAT_COMPRESSED: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: null,
+      displayName: "Compressed",
+    },
+    ADDRESS_FORMAT_ETHEREUM: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_KECCAK256",
+      defaultAccounts: DEFAULT_ETHEREUM_ACCOUNTS,
+      displayName: "Ethereum",
+    },
+    ADDRESS_FORMAT_SOLANA: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+      defaultAccounts: DEFAULT_SOLANA_ACCOUNTS,
+      displayName: "Solana",
+    },
+    ADDRESS_FORMAT_COSMOS: {
+      encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_COSMOS_ACCOUNTS,
+      displayName: "Cosmos",
+    },
+    ADDRESS_FORMAT_TRON: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_TRON_ACCOUNTS,
+      displayName: "Tron",
+    },
+    ADDRESS_FORMAT_SUI: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+      defaultAccounts: DEFAULT_SUI_ACCOUNTS,
+      displayName: "Sui",
+    },
+    ADDRESS_FORMAT_APTOS: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+      defaultAccounts: DEFAULT_APTOS_ACCOUNTS,
+      displayName: "Aptos",
+    },
+    ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_MAINNET_P2PKH_ACCOUNTS,
+      displayName: "Bitcoin Mainnet P2PKH",
+    },
+    ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_MAINNET_P2SH_ACCOUNTS,
+      displayName: "Bitcoin Mainnet P2SH",
+    },
+    ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_MAINNET_P2WPKH_ACCOUNTS,
+      displayName: "Bitcoin Mainnet P2WPKH",
+    },
+    ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_MAINNET_P2WSH_ACCOUNTS,
+      displayName: "Bitcoin Mainnet P2WSH",
+    },
+    ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_MAINNET_P2TR_ACCOUNTS,
+      displayName: "Bitcoin Mainnet P2TR",
+    },
+    ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_TESTNET_P2PKH_ACCOUNTS,
+      displayName: "Bitcoin Testnet P2PKH",
+    },
+    ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_TESTNET_P2SH_ACCOUNTS,
+      displayName: "Bitcoin Testnet P2SH",
+    },
+    ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_TESTNET_P2WPKH_ACCOUNTS,
+      displayName: "Bitcoin Testnet P2WPKH",
+    },
+    ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_TESTNET_P2WSH_ACCOUNTS,
+      displayName: "Bitcoin Testnet P2WSH",
+    },
+    ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_TESTNET_P2TR_ACCOUNTS,
+      displayName: "Bitcoin Testnet P2TR",
+    },
+    ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_SIGNET_P2PKH_ACCOUNTS,
+      displayName: "Bitcoin Signet P2PKH",
+    },
+    ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_SIGNET_P2SH_ACCOUNTS,
+      displayName: "Bitcoin Signet P2SH",
+    },
+    ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_SIGNET_P2WPKH_ACCOUNTS,
+      displayName: "Bitcoin Signet P2WPKH",
+    },
+    ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_SIGNET_P2WSH_ACCOUNTS,
+      displayName: "Bitcoin Signet P2WSH",
+    },
+    ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_SIGNET_P2TR_ACCOUNTS,
+      displayName: "Bitcoin Signet P2TR",
+    },
+    ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_REGTEST_P2PKH_ACCOUNTS,
+      displayName: "Bitcoin Regtest P2PKH",
+    },
+    ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_REGTEST_P2SH_ACCOUNTS,
+      displayName: "Bitcoin Regtest P2SH",
+    },
+    ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_REGTEST_P2WPKH_ACCOUNTS,
+      displayName: "Bitcoin Regtest P2WPKH",
+    },
+    ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_REGTEST_P2WSH_ACCOUNTS,
+      displayName: "Bitcoin Regtest P2WSH",
+    },
+    ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_BITCOIN_REGTEST_P2TR_ACCOUNTS,
+      displayName: "Bitcoin Regtest P2TR",
+    },
+    ADDRESS_FORMAT_SEI: {
+      encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_SEI_ACCOUNTS,
+      displayName: "Sei",
+    },
+    ADDRESS_FORMAT_XLM: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+      defaultAccounts: DEFAULT_XLM_ACCOUNTS,
+      displayName: "Xlm",
+    },
+    ADDRESS_FORMAT_DOGE_MAINNET: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_DOGE_MAINNET_ACCOUNTS,
+      displayName: "Doge Mainnet",
+    },
+    ADDRESS_FORMAT_DOGE_TESTNET: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_DOGE_TESTNET_ACCOUNTS,
+      displayName: "Doge Testnet",
+    },
+    ADDRESS_FORMAT_TON_V3R2: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+      defaultAccounts: DEFAULT_TON_V3R2_ACCOUNTS,
+      displayName: "Ton V3R2",
+    },
+    ADDRESS_FORMAT_TON_V4R2: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+      defaultAccounts: DEFAULT_TON_V4R2_ACCOUNTS,
+      displayName: "Ton V4R2",
+    },
+    ADDRESS_FORMAT_TON_V5R1: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+      defaultAccounts: null,
+      displayName: "Ton V5R1",
+    },
+    ADDRESS_FORMAT_XRP: {
+      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      hashFunction: "HASH_FUNCTION_SHA256",
+      defaultAccounts: DEFAULT_XRP_ACCOUNTS,
+      displayName: "XRP",
+    },
+  };
 
 export const isReactNative = (): boolean => {
   return (
@@ -493,8 +531,10 @@ export function isWalletAccountArray(
   return (
     arr.length === 0 ||
     (typeof arr[0] === "object" &&
-      "address" in arr[0] &&
-      "addressFormat" in arr[0])
+      "addressFormat" in arr[0] &&
+      "curve" in arr[0] &&
+      "path" in arr[0] &&
+      "pathFormat" in arr[0])
   );
 }
 
@@ -612,7 +652,7 @@ export function buildSignUpBody(params: {
     ...(createSubOrgParams?.userTag && {
       userTag: createSubOrgParams?.userTag,
     }),
-    subOrgName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
+    organizationName: createSubOrgParams?.subOrgName || `sub-org-${Date.now()}`,
     ...(createSubOrgParams?.verificationToken && {
       verificationToken: createSubOrgParams?.verificationToken,
     }),
