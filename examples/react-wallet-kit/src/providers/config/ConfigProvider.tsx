@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { Button, Transition } from "@headlessui/react";
 import {
   TurnkeyProviderConfig,
@@ -45,11 +51,21 @@ export function TurnkeyConfigProvider({
   children,
 }: TurnkeyConfigProviderProps) {
   const [config, setConfigState] = useState(initialConfig);
-  const [panelOpen, setPanelOpen] = useState(true);
+  const [panelOpen, setPanelOpen] = useState(false);
   const panelWidth = 384;
   const setConfig = (newConfig: Partial<TurnkeyProviderConfig>) => {
     setConfigState((prev) => ({ ...prev, ...newConfig }));
   };
+
+  const { isMobile } = useScreenSize();
+
+  useEffect(() => {
+    if (isMobile) {
+      setPanelOpen(false);
+    } else {
+      setPanelOpen(true);
+    }
+  }, [isMobile]);
 
   return (
     <ConfigContext.Provider value={{ config, setConfig }}>
@@ -61,6 +77,7 @@ export function TurnkeyConfigProvider({
       >
         {/* Sliding Config Panel */}
         <Transition
+          appear
           show={panelOpen}
           enter="transition-transform duration-250 ease-out"
           enterFrom="-translate-x-full"
