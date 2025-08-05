@@ -94,4 +94,7 @@ export { type TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 // Export all types and values from __types__/base
 export * from "./__types__/base";
 
-export { generateWalletAccountsFromAddressFormat } from "./utils";
+export {
+  generateWalletAccountsFromAddressFormat,
+  addressFormatConfig,
+} from "./utils";
