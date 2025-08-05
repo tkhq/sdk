@@ -129,10 +129,6 @@ const generateSDKClientFromSwagger = async (
   );
 
   imports.push(
-    'import type { definitions } from "../__inputs__/public_api.types";',
-  );
-
-  imports.push(
     'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeyHttpClientConfig, StorageBase } from "../__types__/base";',
   );
 
@@ -253,7 +249,7 @@ const generateSDKClientFromSwagger = async (
 
         if (status === "ACTIVITY_STATUS_COMPLETED") {
             return {
-            ...result[\`\${resultKey}\` as keyof definitions["v1Result"]],
+            ...result[\`\${resultKey}\` as keyof SdkTypes.v1Result],
             ...activityData
             } as TResponseType;
         }
@@ -317,7 +313,7 @@ const generateSDKClientFromSwagger = async (
         const stringifiedBody = JSON.stringify(body);
         var headers: Record<string, string> = {
         "Content-Type": "application/json",
-        "X-Proxy-ID": this.config.authProxyId,
+        "X-Auth-Proxy-Config-ID": this.config.authProxyId,
         }
 
         const response = await fetch(fullUrl, {

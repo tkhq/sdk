@@ -196,6 +196,38 @@
         "tags": ["Attestation"]
       }
     },
+    "/public/v1/query/get_auth_proxy_config": {
+      "post": {
+        "summary": "Get Proxy Auth Config",
+        "description": "Get the proxy-auth configuration (allowed origins, etc.) for an Organization",
+        "operationId": "PublicApiService_GetAuthProxyConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAuthProxyConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetAuthProxyConfigRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
+      }
+    },
     "/public/v1/query/get_authenticator": {
       "post": {
         "summary": "Get authenticator",
@@ -468,6 +500,7 @@
       }
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
     "/public/v1/query/get_smart_contract_interface": {
       "post": {
         "summary": "Get smart contract interface",
@@ -519,6 +552,8 @@
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
       }
     },
+=======
+>>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
     "/public/v1/query/get_smart_contract_interface": {
       "post": {
         "summary": "Get smart contract interface",
@@ -2021,38 +2056,6 @@
         "tags": ["Wallets"]
       }
     },
-    "/public/v1/submit/disable_user_initiated_auth": {
-      "post": {
-        "summary": "Disable User Initiated Auth",
-        "description": "Disable User Initiated Auth",
-        "operationId": "PublicApiService_DisableUserInitiatedAuth",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1DisableUserInitiatedAuthRequest"
-            }
-          }
-        ],
-        "tags": ["User Initiated Auth"]
-      }
-    },
     "/public/v1/submit/email_auth": {
       "post": {
         "summary": "Perform email auth",
@@ -2083,38 +2086,6 @@
           }
         ],
         "tags": ["User Auth"]
-      }
-    },
-    "/public/v1/submit/enable_user_initiated_auth": {
-      "post": {
-        "summary": "Enable User Initiated Auth",
-        "description": "Enable User Initiated Auth",
-        "operationId": "PublicApiService_EnableUserInitiatedAuth",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1EnableUserInitiatedAuthRequest"
-            }
-          }
-        ],
-        "tags": ["User Initiated Auth"]
       }
     },
     "/public/v1/submit/export_private_key": {
@@ -2917,38 +2888,6 @@
         "tags": ["Private Key Tags"]
       }
     },
-    "/public/v1/submit/update_proxy_auth_config": {
-      "post": {
-        "summary": "Update Proxy Auth Config",
-        "description": "Update the proxy-auth configuration (allowed origins, etc.) for an Organization",
-        "operationId": "PublicApiService_UpdateProxyAuthConfig",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/externalactivityv1UpdateProxyAuthConfigRequest"
-            }
-          }
-        ],
-        "tags": ["Organizations"]
-      }
-    },
     "/public/v1/submit/update_root_quorum": {
       "post": {
         "summary": "Update root quorum",
@@ -3455,6 +3394,7 @@
     },
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
@@ -3483,6 +3423,8 @@
 >>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
 =======
 >>>>>>> 72519ac7 (fixed circular dependencies and type issues)
+=======
+>>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
     "externaldatav1Address": {
       "type": "object",
       "properties": {
@@ -3892,12 +3834,21 @@
 =======
         "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
         "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
+<<<<<<< HEAD
 >>>>>>> 57ef158e (updated auth proxy type generation)
         "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH",
         "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH",
         "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG"
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+<<<<<<< HEAD
 >>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+=======
+        "ACTIVITY_TYPE_ENABLE_AUTH_PROXY",
+        "ACTIVITY_TYPE_DISABLE_AUTH_PROXY",
+        "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG"
+>>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
+>>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
       ]
     },
     "v1AddressFormat": {
@@ -4095,6 +4046,85 @@
         "attestationObject",
         "transports"
       ]
+    },
+    "v1AuthProxyConfig": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "allowedOrigins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "allowedAuthMethods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "encryptedApiKey": {
+          "type": "string"
+        },
+        "turnkeySignerUserId": {
+          "type": "string"
+        },
+        "sendFromEmailAddress": {
+          "type": "string"
+        },
+        "replyToEmailAddress": {
+          "type": "string"
+        },
+        "emailAuthTemplateId": {
+          "type": "string"
+        },
+        "otpTemplateId": {
+          "type": "string"
+        },
+        "emailCustomizationParams": {
+          "$ref": "#/definitions/v1EmailCustomizationParams",
+          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
+        },
+        "smsCustomizationParams": {
+          "$ref": "#/definitions/v1SmsCustomizationParams",
+          "description": "Optional parameters for customizing SMS. If not provided, the default SMS will be used."
+        },
+        "otpExpirationSeconds": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "verificationTokenExpirationSeconds": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "sessionExpirationSeconds": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "otpAlphanumeric": {
+          "type": "boolean"
+        },
+        "otpLength": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "proxyId": {
+          "type": "string"
+        },
+        "walletKitSettings": {
+          "type": "string"
+        }
+      }
     },
     "v1Authenticator": {
       "type": "object",
@@ -6390,33 +6420,6 @@
       },
       "required": ["privateKeyId"]
     },
-    "v1DisableUserInitiatedAuthIntent": {
-      "type": "object"
-    },
-    "v1DisableUserInitiatedAuthRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1DisableUserInitiatedAuthIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1DisableUserInitiatedAuthResult": {
-      "type": "object"
-    },
     "v1Effect": {
       "type": "string",
       "enum": ["EFFECT_ALLOW", "EFFECT_DENY"]
@@ -6566,6 +6569,7 @@
       }
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
     "v1EnableAuthProxyIntent": {
       "type": "object"
     },
@@ -6597,6 +6601,12 @@
     },
     "v1EnableUserInitiatedAuthResult": {
 >>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+    "v1EnableAuthProxyIntent": {
+      "type": "object"
+    },
+    "v1EnableAuthProxyResult": {
+>>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
       "type": "object",
       "properties": {
         "userId": {
@@ -6818,10 +6828,14 @@
         "FEATURE_NAME_SMS_AUTH",
         "FEATURE_NAME_OTP_EMAIL_AUTH",
 <<<<<<< HEAD
+<<<<<<< HEAD
         "FEATURE_NAME_AUTH_PROXY"
 =======
         "FEATURE_NAME_AUTH_KIT"
 >>>>>>> 6d3d616b (fixed circular dependencies and type issues)
+=======
+        "FEATURE_NAME_AUTH_PROXY"
+>>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
       ]
     },
     "v1FiatOnRampBlockchainNetwork": {
@@ -7038,6 +7052,26 @@
         }
       },
       "required": ["attestationDocument"]
+    },
+    "v1GetAuthProxyConfigRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetAuthProxyConfigResponse": {
+      "type": "object",
+      "properties": {
+        "authProxyConfig": {
+          "$ref": "#/definitions/v1AuthProxyConfig",
+          "description": "Proxy authentication configuration (e.g., allowed origins)."
+        }
+      },
+      "required": ["authProxyConfig"]
     },
     "v1GetAuthenticatorRequest": {
       "type": "object",
@@ -7305,6 +7339,7 @@
       "required": ["privateKeys"]
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
     "v1GetSmartContractInterfaceRequest": {
 =======
     "v1GetProxyAuthConfigRequest": {
@@ -7372,6 +7407,8 @@
       "required": ["proxyAuthConfig"]
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
     },
+=======
+>>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
     "v1GetSmartContractInterfaceRequest": {
       "type": "object",
       "properties": {
@@ -8567,17 +8604,30 @@
 =======
 =======
         },
+<<<<<<< HEAD
 >>>>>>> 57ef158e (updated auth proxy type generation)
         "enableUserInitiatedAuthIntent": {
           "$ref": "#/definitions/v1EnableUserInitiatedAuthIntent"
+=======
+        "enableAuthProxyIntent": {
+          "$ref": "#/definitions/v1EnableAuthProxyIntent"
+>>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
         },
-        "disableUserInitiatedAuthIntent": {
-          "$ref": "#/definitions/v1DisableUserInitiatedAuthIntent"
+        "disableAuthProxyIntent": {
+          "$ref": "#/definitions/v1DisableAuthProxyIntent"
         },
+<<<<<<< HEAD
         "updateProxyAuthConfigIntent": {
           "$ref": "#/definitions/v1UpdateProxyAuthConfigIntent"
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+<<<<<<< HEAD
 >>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+=======
+        "updateAuthProxyConfigIntent": {
+          "$ref": "#/definitions/v1UpdateAuthProxyConfigIntent"
+>>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
+>>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
         }
       }
     },
@@ -9324,85 +9374,6 @@
         }
       }
     },
-    "v1ProxyAuthConfig": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string"
-        },
-        "allowedOrigins": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "allowedAuthMethods": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "encryptedApiKey": {
-          "type": "string"
-        },
-        "turnkeySignerUserId": {
-          "type": "string"
-        },
-        "sendFromEmailAddress": {
-          "type": "string"
-        },
-        "replyToEmailAddress": {
-          "type": "string"
-        },
-        "emailAuthTemplateId": {
-          "type": "string"
-        },
-        "otpTemplateId": {
-          "type": "string"
-        },
-        "emailCustomizationParams": {
-          "$ref": "#/definitions/v1EmailCustomizationParams",
-          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
-        },
-        "smsCustomizationParams": {
-          "$ref": "#/definitions/v1SmsCustomizationParams",
-          "description": "Optional parameters for customizing SMS. If not provided, the default SMS will be used."
-        },
-        "otpExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "verificationTokenExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "sessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "otpAlphanumeric": {
-          "type": "boolean"
-        },
-        "otpLength": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "proxyId": {
-          "type": "string"
-        },
-        "walletKitSettings": {
-          "type": "string"
-        }
-      }
-    },
     "v1PublicKeyCredentialWithAttestation": {
       "type": "object",
       "properties": {
@@ -9814,17 +9785,30 @@
 =======
 =======
         },
+<<<<<<< HEAD
 >>>>>>> 57ef158e (updated auth proxy type generation)
         "enableUserInitiatedAuthResult": {
           "$ref": "#/definitions/v1EnableUserInitiatedAuthResult"
+=======
+        "enableAuthProxyResult": {
+          "$ref": "#/definitions/v1EnableAuthProxyResult"
+>>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
         },
-        "disableUserInitiatedAuthResult": {
-          "$ref": "#/definitions/v1DisableUserInitiatedAuthResult"
+        "disableAuthProxyResult": {
+          "$ref": "#/definitions/v1DisableAuthProxyResult"
         },
+<<<<<<< HEAD
         "updateProxyAuthConfigResult": {
           "$ref": "#/definitions/v1UpdateProxyAuthConfigResult"
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+<<<<<<< HEAD
 >>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
+=======
+=======
+        "updateAuthProxyConfigResult": {
+          "$ref": "#/definitions/v1UpdateAuthProxyConfigResult"
+>>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
+>>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
         }
       }
     },
@@ -10716,86 +10700,6 @@
       },
       "required": ["privateKeyTagId"]
     },
-    "v1UpdateProxyAuthConfigIntent": {
-      "type": "object",
-      "properties": {
-        "allowedOrigins": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Updated list of allowed origins for CORS."
-        },
-        "allowedAuthMethods": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Updated list of allowed proxy authentication methods."
-        },
-        "sendFromEmailAddress": {
-          "type": "string",
-          "description": "Custom 'from' address for auth-related emails."
-        },
-        "replyToEmailAddress": {
-          "type": "string",
-          "description": "Custom reply-to address for auth-related emails."
-        },
-        "emailAuthTemplateId": {
-          "type": "string",
-          "description": "Template ID for email-auth messages."
-        },
-        "otpTemplateId": {
-          "type": "string",
-          "description": "Template ID for OTP SMS messages."
-        },
-        "emailCustomizationParams": {
-          "$ref": "#/definitions/v1EmailCustomizationParams",
-          "description": "Overrides for auth-related email content."
-        },
-        "smsCustomizationParams": {
-          "$ref": "#/definitions/v1SmsCustomizationParams",
-          "description": "Overrides for auth-related SMS content."
-        },
-        "walletKitSettings": {
-          "$ref": "#/definitions/v1WalletKitSettingsParams",
-          "description": "Overrides for react wallet kit related settings."
-        },
-        "otpExpirationSeconds": {
-          "type": "integer",
-          "format": "int32",
-          "description": "OTP code lifetime in seconds."
-        },
-        "verificationTokenExpirationSeconds": {
-          "type": "integer",
-          "format": "int32",
-          "description": "Verification-token lifetime in seconds."
-        },
-        "sessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32",
-          "description": "Session lifetime in seconds."
-        },
-        "otpAlphanumeric": {
-          "type": "boolean",
-          "description": "Enable alphanumeric OTP codes."
-        },
-        "otpLength": {
-          "type": "integer",
-          "format": "int32",
-          "description": "Desired OTP code length (6–9)."
-        }
-      }
-    },
-    "v1UpdateProxyAuthConfigResult": {
-      "type": "object",
-      "properties": {
-        "configId": {
-          "type": "string",
-          "description": "Unique identifier for a given User. (representing the turnkey signer user id)"
-        }
-      }
-    },
     "v1UpdateRootQuorumIntent": {
       "type": "object",
       "properties": {
@@ -11592,6 +11496,7 @@
           "description": "List of enabled social login providers (e.g., 'apple', 'google', 'facebook')",
           "title": "Enabled Social Providers"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
         "appleEnabled": {
           "type": "boolean",
@@ -11611,6 +11516,8 @@
           "type": "boolean",
           "description": "Whether to open OAuth providers in-page instead of a popup"
 >>>>>>> 6d3d616b (fixed circular dependencies and type issues)
+=======
+>>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
         }
       }
     },
