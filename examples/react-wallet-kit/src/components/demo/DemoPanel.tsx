@@ -56,36 +56,35 @@ export default function DemoPanel() {
     handleImport,
     handleLinkExternalWallet,
     getWalletProviders,
-    signTransaction,
   } = useTurnkey();
 
-  const { pushPage, closeModal } = useModal();
+  const { pushPage } = useModal();
 
   const [selectedWallet, setSelectedWallet] = useState<Wallet | undefined>(
-    wallets[0],
+    wallets[0] || null, // Initialize with null if wallets[0] is undefined
   );
   const [selectedWalletAccount, setSelectedWalletAccount] = useState<
     WalletAccount | undefined
-  >();
+  >(wallets[0]?.accounts[0] || null); // Initialize with null if no accounts exist
 
   const [connectedWallets, setConnectedWallets] = useState<
     ConnectedWallet[] | undefined
-  >();
-  const [connectedWalletIcons, setConnectedWalletIcons] = useState<
-    (string | undefined)[]
-  >([]);
+  >([]); // Initialize with an empty array
+  const [connectedWalletIcons, setConnectedWalletIcons] = useState<string[]>(
+    [],
+  ); // Initialize with an empty array
 
-  const getConnectedWalletIcons = async (): Promise<(string | undefined)[]> => {
+  const getConnectedWalletIcons = async (): Promise<string[]> => {
     const res = await getWalletProviders();
     const providersVisited = new Set<string>();
-    let icons: (string | undefined)[] = [];
+    let icons: string[] = [];
     for (const provider of res) {
       if (
         provider.connectedAddresses.length > 0 &&
         !providersVisited.has(provider.info.name)
       ) {
         providersVisited.add(provider.info.name);
-        icons.push(provider.info.icon ? provider.info.icon : undefined);
+        icons.push(provider.info.icon ? provider.info.icon : "");
       }
     }
     return icons;
@@ -147,31 +146,32 @@ export default function DemoPanel() {
               transition
               className="origin-top max-h-10 tk-scrollbar overflow-y-clip flex flex-col gap-3 transition duration-100 ease-out data-closed:scale-95 data-closed:opacity-0 relative z-50 bg-draggable-background-light dark:bg-draggable-background-dark rounded-lg shadow-lg p-2"
             >
-              {wallets.map((wallet) => {
-                if (wallet.walletId !== selectedWallet?.walletId)
-                  return (
-                    <MenuItem key={wallet.walletId}>
-                      <div className="flex items-center justify-between w-full">
-                        <Button
-                          onClick={() => {
-                            setSelectedWallet(wallet);
-                            setSelectedWalletAccount(
-                              wallet.accounts[0] || undefined,
-                            );
-                          }}
-                          className="flex items-center gap-3 w-full"
-                        >
-                          <p className="truncate">{wallet.walletName}</p>{" "}
-                          {wallet.source === WalletSource.Connected && (
-                            <span className="text-primary-text-light dark:text-primary-text-dark border text-[10px] rounded-full py-0.5 px-1 border-primary-light dark:border-primary-dark bg-primary-light/30 dark:bg-primary-dark/30">
-                              connected
-                            </span>
-                          )}
-                        </Button>
-                      </div>
-                    </MenuItem>
-                  );
-              })}
+              {wallets.length > 0 &&
+                wallets.map((wallet) => {
+                  if (wallet.walletId !== selectedWallet?.walletId)
+                    return (
+                      <MenuItem key={wallet.walletId}>
+                        <div className="flex items-center justify-between w-full">
+                          <Button
+                            onClick={() => {
+                              setSelectedWallet(wallet);
+                              setSelectedWalletAccount(
+                                wallet.accounts[0] || undefined,
+                              );
+                            }}
+                            className="flex items-center gap-3 w-full"
+                          >
+                            <p className="truncate">{wallet.walletName}</p>{" "}
+                            {wallet.source === WalletSource.Connected && (
+                              <span className="text-primary-text-light dark:text-primary-text-dark border text-[10px] rounded-full py-0.5 px-1 border-primary-light dark:border-primary-dark bg-primary-light/30 dark:bg-primary-dark/30">
+                                connected
+                              </span>
+                            )}
+                          </Button>
+                        </div>
+                      </MenuItem>
+                    );
+                })}
               <hr className="border-icon-text-light dark:border-icon-text-dark w-full" />
               <MenuItem>
                 <Button

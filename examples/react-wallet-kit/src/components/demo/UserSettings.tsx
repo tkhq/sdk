@@ -23,7 +23,6 @@ export default function UserSettings() {
     handleUpdateUserName,
     config: clientConfig,
     logout,
-    deleteSubOrganization,
   } = useTurnkey();
 
   const { pushPage } = useModal();
