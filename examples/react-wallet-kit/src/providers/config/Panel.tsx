@@ -89,7 +89,7 @@ export function TurnkeyConfigPanel() {
   }, []);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 overflow-y-auto tk-scrollbar pr-1">
       {/* Auth Methods with Reordering & Toggle */}
       <PanelDisclosure title="Auth">
         <DragDropContext onDragEnd={handleDragEnd}>
