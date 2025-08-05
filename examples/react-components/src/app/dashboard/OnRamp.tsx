@@ -35,7 +35,7 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
         window.open(
           response.onRampUrl,
           "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
+          "popup,width=500,height=700,scrollbars=yes,resizable=yes"
         );
       }
     } catch (error) {
@@ -43,33 +43,33 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
     }
   };
 
-  const generateMoonPayUrl = async () => {
-    try {
-      const session = await turnkey?.getSession();
+  // const generateMoonPayUrl = async () => {
+  //   try {
+  //     const session = await turnkey?.getSession();
 
-      const response = await indexedDbClient?.initFiatOnRamp({
-        organizationId: session?.organizationId!,
-        onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
-        walletAddress: ethAddress,
-        network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
-        cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
-        fiatCurrencyCode: "FIAT_ON_RAMP_CURRENCY_USD",
-        fiatCurrencyAmount: "10",
-        paymentMethod: "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
-        sandboxMode: true,
-      });
+  //     const response = await indexedDbClient?.initFiatOnRamp({
+  //       organizationId: session?.organizationId!,
+  //       onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
+  //       walletAddress: ethAddress,
+  //       network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
+  //       cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
+  //       fiatCurrencyCode: "FIAT_ON_RAMP_CURRENCY_USD",
+  //       fiatCurrencyAmount: "10",
+  //       paymentMethod: "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
+  //       sandboxMode: true,
+  //     });
 
-      if (response?.onRampUrl) {
-        window.open(
-          response.onRampUrl,
-          "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
-        );
-      }
-    } catch (error) {
-      console.error("Failed to init MoonPay on-ramp:", error);
-    }
-  };
+  //     if (response?.onRampUrl) {
+  //       window.open(
+  //         response.onRampUrl,
+  //         "_blank",
+  //         "popup,width=500,height=700,scrollbars=yes,resizable=yes"
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to init MoonPay on-ramp:", error);
+  //   }
+  // };
 
   return (
     <>
@@ -127,10 +127,10 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
             Your crypto will be deposited directly into your Turnkey wallet
           </Typography>
           <div className="purchaseButtons">
-            <button className="whiteButton" onClick={generateMoonPayUrl}>
+            {/* <button className="whiteButton" onClick={generateMoonPayUrl}>
               <img src="/images/moonpay.jpg" alt="MoonPay" />
               Buy with MoonPay
-            </button>
+            </button> */}
             <button className="whiteButton" onClick={generateCoinbaseUrl}>
               <img src="/images/coinbase.png" alt="Coinbase" />
               Buy with Coinbase
