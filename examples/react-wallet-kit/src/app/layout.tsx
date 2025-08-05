@@ -4,12 +4,25 @@ import "@turnkey/react-wallet-kit/dist/styles.css";
 import "./global.css";
 import { TurnkeyConfigProvider } from "@/providers/config/ConfigProvider";
 import "@fortawesome/fontawesome-svg-core/styles.css";
+import { Slide, ToastContainer, toast } from "react-toastify";
 
 interface RootLayoutProps {
   children: React.ReactNode;
 }
 
 function RootLayout({ children }: RootLayoutProps) {
+  const notify = (message: String) =>
+    toast.error("Error: " + message, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      transition: Slide,
+    });
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -164,7 +177,8 @@ function RootLayout({ children }: RootLayoutProps) {
           }}
           callbacks={{
             onError: (error) => {
-              console.error("Turnkey error:", error);
+              console.error("Turnkey Error:", error);
+              notify(error.message);
             },
           }}
         >
