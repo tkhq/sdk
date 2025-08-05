@@ -239,6 +239,32 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getAuthProxyConfig = async (
+    input: SdkApiTypes.TGetAuthProxyConfigBody,
+  ): Promise<SdkApiTypes.TGetAuthProxyConfigResponse> => {
+    return this.request("/public/v1/query/get_auth_proxy_config", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetAuthProxyConfig = async (
+    input: SdkApiTypes.TGetAuthProxyConfigBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_auth_proxy_config";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getAuthenticator = async (
     input: SdkApiTypes.TGetAuthenticatorBody,
   ): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
@@ -436,32 +462,6 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_private_key";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  getProxyAuthConfig = async (
-    input: SdkApiTypes.TGetProxyAuthConfigBody,
-  ): Promise<SdkApiTypes.TGetProxyAuthConfigResponse> => {
-    return this.request("/public/v1/query/get_proxy_auth_config", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampGetProxyAuthConfig = async (
-    input: SdkApiTypes.TGetProxyAuthConfigBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_proxy_auth_config";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1861,39 +1861,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  disableUserInitiatedAuth = async (
-    input: SdkApiTypes.TDisableUserInitiatedAuthBody,
-  ): Promise<SdkApiTypes.TDisableUserInitiatedAuthResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/disable_user_initiated_auth",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH",
-      },
-      "disableUserInitiatedAuthResult",
-    );
-  };
-
-  stampDisableUserInitiatedAuth = async (
-    input: SdkApiTypes.TDisableUserInitiatedAuthBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/disable_user_initiated_auth";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   emailAuth = async (
     input: SdkApiTypes.TEmailAuthBody,
   ): Promise<SdkApiTypes.TEmailAuthResponse> => {
@@ -1917,39 +1884,6 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/email_auth";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  enableUserInitiatedAuth = async (
-    input: SdkApiTypes.TEnableUserInitiatedAuthBody,
-  ): Promise<SdkApiTypes.TEnableUserInitiatedAuthResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/enable_user_initiated_auth",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH",
-      },
-      "enableUserInitiatedAuthResult",
-    );
-  };
-
-  stampEnableUserInitiatedAuth = async (
-    input: SdkApiTypes.TEnableUserInitiatedAuthBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/enable_user_initiated_auth";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2760,39 +2694,6 @@ export class TurnkeySDKClientBase {
     }
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_private_key_tag";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  updateProxyAuthConfig = async (
-    input: SdkApiTypes.TUpdateProxyAuthConfigBody,
-  ): Promise<SdkApiTypes.TUpdateProxyAuthConfigResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/update_proxy_auth_config",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG",
-      },
-      "updateProxyAuthConfigResult",
-    );
-  };
-
-  stampUpdateProxyAuthConfig = async (
-    input: SdkApiTypes.TUpdateProxyAuthConfigBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/update_proxy_auth_config";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

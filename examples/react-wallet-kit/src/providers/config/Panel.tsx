@@ -7,6 +7,11 @@ import { ToggleSwitch } from "@/components/Switch";
 import { SliderField } from "@/components/Slider";
 import { ColourPicker } from "@/components/Color";
 import { PanelDisclosure } from "@/components/Disclosure";
+import { useEffect } from "react";
+import { TurnkeyProviderConfig } from "@turnkey/react-wallet-kit";
+import ConfigViewer from "@/components/demo/ConfigViewer";
+import { completeTheme, primaryTextColour } from "@/utils";
+import { Button } from "@headlessui/react";
 
 interface AuthMethod {
   name: string;
@@ -53,7 +58,7 @@ export function TurnkeyConfigPanel() {
     const [moved] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, moved);
 
-    setConfig({
+    handleSetConfig({
       auth: {
         ...config.auth,
         methodOrder: reordered,
@@ -61,8 +66,30 @@ export function TurnkeyConfigPanel() {
     });
   };
 
+  const handleSetConfig = async (newConfig: Partial<TurnkeyProviderConfig>) => {
+    setConfig({ ...config, ...newConfig });
+    storeConfig({ ...config, ...newConfig });
+  };
+
+  // Store config in local storage
+  const storeConfig = (config: Partial<TurnkeyProviderConfig>) => {
+    localStorage.setItem("turnkeyConfig", JSON.stringify(config));
+  };
+
+  // Load config from local storage
+  const loadConfig = () => {
+    const storedConfig = localStorage.getItem("turnkeyConfig");
+    if (storedConfig) {
+      setConfig(JSON.parse(storedConfig));
+    }
+  };
+
+  useEffect(() => {
+    loadConfig();
+  }, []);
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-10 overflow-y-auto tk-scrollbar pr-1">
       {/* Auth Methods with Reordering & Toggle */}
       <PanelDisclosure title="Auth">
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -112,7 +139,7 @@ export function TurnkeyConfigPanel() {
                                     {} as Record<string, boolean>,
                                   );
 
-                                  setConfig({
+                                  handleSetConfig({
                                     auth: {
                                       ...config.auth,
                                       methods: {
@@ -143,7 +170,7 @@ export function TurnkeyConfigPanel() {
                                     ] ?? false
                                   }
                                   onChange={(val) =>
-                                    setConfig({
+                                    handleSetConfig({
                                       auth: {
                                         ...config.auth,
                                         methods: {
@@ -158,7 +185,7 @@ export function TurnkeyConfigPanel() {
 
                               {method.name === "Socials" && (
                                 <>
-                                  <div className="w-full h-[1px] mb-2 mt-3 bg-gray-300" />
+                                  <div className="w-full h-[1px] mb-2 mt-3 bg-icon-text-light dark:bg-icon-text-dark" />
                                   <ToggleSwitch
                                     label="Open OAuth In Page"
                                     size="sm"
@@ -167,7 +194,7 @@ export function TurnkeyConfigPanel() {
                                         ?.openOAuthInPage ?? false
                                     }
                                     onChange={(val) =>
-                                      setConfig({
+                                      handleSetConfig({
                                         auth: {
                                           ...config.auth,
                                           oAuthConfig: {
@@ -202,7 +229,7 @@ export function TurnkeyConfigPanel() {
             label="Dark Mode"
             checked={config.ui?.darkMode ?? false}
             onChange={(val) =>
-              setConfig({
+              handleSetConfig({
                 ui: {
                   ...config.ui,
                   darkMode: val,
@@ -217,8 +244,12 @@ export function TurnkeyConfigPanel() {
                 ? config.ui?.colors?.light?.primary || "#000000"
                 : config.ui?.colors?.dark?.primary || "#000000"
             }
-            onChange={(val) =>
-              setConfig({
+            onChange={(val) => {
+              const primaryText = primaryTextColour(
+                val,
+                config.ui?.darkMode ?? false,
+              );
+              handleSetConfig({
                 ui: {
                   ...config.ui,
                   colors: !config.ui?.darkMode
@@ -227,6 +258,7 @@ export function TurnkeyConfigPanel() {
                         light: {
                           ...config.ui?.colors?.light,
                           primary: val,
+                          primaryText,
                         },
                       }
                     : {
@@ -234,11 +266,51 @@ export function TurnkeyConfigPanel() {
                         dark: {
                           ...config.ui?.colors?.dark,
                           primary: val,
+                          primaryText,
                         },
                       },
                 },
-              })
+              });
+            }}
+          />
+          <ColourPicker
+            label="Primary Background"
+            value={
+              !config.ui?.darkMode
+                ? config.ui?.colors?.light?.modalBackground || "#000000"
+                : config.ui?.colors?.dark?.modalBackground || "#000000"
             }
+            onChange={(val) => {
+              const newColors = completeTheme(
+                val,
+                config.ui?.darkMode ?? false,
+              );
+
+              handleSetConfig({
+                ui: {
+                  ...config.ui,
+                  colors: !config.ui?.darkMode
+                    ? {
+                        ...config.ui?.colors,
+                        light: {
+                          ...config.ui?.colors?.light,
+                          modalBackground: val,
+                          iconBackground: newColors.iconBackground,
+                          iconText: newColors.iconText,
+                        },
+                      }
+                    : {
+                        ...config.ui?.colors,
+                        dark: {
+                          ...config.ui?.colors?.dark,
+                          modalBackground: val,
+                          iconBackground: newColors.iconBackground,
+                          iconText: newColors.iconText,
+                        },
+                      },
+                },
+              });
+            }}
           />
 
           <SliderField
@@ -249,7 +321,7 @@ export function TurnkeyConfigPanel() {
             suffix="px"
             value={config.ui?.borderRadius as number}
             onChange={(val) =>
-              setConfig({
+              handleSetConfig({
                 ui: {
                   ...config.ui,
                   borderRadius: val || 0,
@@ -266,7 +338,7 @@ export function TurnkeyConfigPanel() {
             suffix="px"
             value={config.ui?.backgroundBlur as number}
             onChange={(val) =>
-              setConfig({
+              handleSetConfig({
                 ui: {
                   ...config.ui,
                   backgroundBlur: val || 0,
@@ -279,7 +351,7 @@ export function TurnkeyConfigPanel() {
             label="Prefer Large Action Buttons"
             checked={config.ui?.preferLargeActionButtons ?? false}
             onChange={(val) =>
-              setConfig({
+              handleSetConfig({
                 ui: {
                   ...config.ui,
                   preferLargeActionButtons: val,
@@ -289,6 +361,54 @@ export function TurnkeyConfigPanel() {
           />
         </>
       </PanelDisclosure>
+      <PanelDisclosure title="Config">
+        <p className="text-xs text-icon-text-light dark:text-icon-text-dark">
+          Paste this config into your TurnkeyProvider config to use in your own
+          app.
+        </p>
+        <ConfigViewer />
+      </PanelDisclosure>
+      <Button
+        className="w-full hover:cursor-pointer p-2 text-sm rounded-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark hover:bg-primary-light/90 dark:hover:bg-primary-dark/90 transition-colors"
+        onClick={() => {
+          handleSetConfig({
+            auth: {
+              ...config.auth,
+              oAuthConfig: {
+                ...config.auth?.oAuthConfig,
+                openOAuthInPage: true,
+              },
+              methods: {
+                emailOtpAuthEnabled: true,
+                smsOtpAuthEnabled: false,
+                passkeyAuthEnabled: true,
+                walletAuthEnabled: true,
+                googleOAuthEnabled: true,
+                appleOAuthEnabled: false,
+                facebookOAuthEnabled: false,
+              },
+              methodOrder: ["socials", "email", "sms", "passkey", "wallet"],
+              oauthOrder: ["google", "apple", "facebook"],
+            },
+            ui: {
+              darkMode: config.ui?.darkMode ?? false,
+              borderRadius: 16,
+              backgroundBlur: 8,
+              renderModalInProvider: true,
+              colors: {
+                light: {
+                  primary: "#335bf9",
+                },
+                dark: {
+                  primary: "#335bf9",
+                },
+              },
+            },
+          });
+        }}
+      >
+        Reset to Defaults
+      </Button>
     </div>
   );
 }
