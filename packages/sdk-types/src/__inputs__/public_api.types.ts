@@ -20,6 +20,10 @@ export type paths = {
     /** Get the attestation document corresponding to an enclave. */
     post: operations["PublicApiService_GetAttestationDocument"];
   };
+  "/public/v1/query/get_auth_proxy_config": {
+    /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
+    post: operations["PublicApiService_GetAuthProxyConfig"];
+  };
   "/public/v1/query/get_authenticator": {
     /** Get details about an authenticator. */
     post: operations["PublicApiService_GetAuthenticator"];
@@ -51,10 +55,6 @@ export type paths = {
   "/public/v1/query/get_private_key": {
     /** Get details about a private key. */
     post: operations["PublicApiService_GetPrivateKey"];
-  };
-  "/public/v1/query/get_proxy_auth_config": {
-    /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
-    post: operations["PublicApiService_GetProxyAuthConfig"];
   };
   "/public/v1/query/get_smart_contract_interface": {
     /** Get details about a smart contract interface. */
@@ -240,17 +240,9 @@ export type paths = {
     /** Delete wallets for an organization. */
     post: operations["PublicApiService_DeleteWallets"];
   };
-  "/public/v1/submit/disable_user_initiated_auth": {
-    /** Disable User Initiated Auth */
-    post: operations["PublicApiService_DisableUserInitiatedAuth"];
-  };
   "/public/v1/submit/email_auth": {
     /** Authenticate a user via email. */
     post: operations["PublicApiService_EmailAuth"];
-  };
-  "/public/v1/submit/enable_user_initiated_auth": {
-    /** Enable User Initiated Auth */
-    post: operations["PublicApiService_EnableUserInitiatedAuth"];
   };
   "/public/v1/submit/export_private_key": {
     /** Export a private key. */
@@ -351,10 +343,6 @@ export type paths = {
   "/public/v1/submit/update_private_key_tag": {
     /** Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
     post: operations["PublicApiService_UpdatePrivateKeyTag"];
-  };
-  "/public/v1/submit/update_proxy_auth_config": {
-    /** Update the proxy-auth configuration (allowed origins, etc.) for an Organization */
-    post: operations["PublicApiService_UpdateProxyAuthConfig"];
   };
   "/public/v1/submit/update_root_quorum": {
     /** Set the threshold and members of the root quorum. This activity must be approved by the current root quorum. */
@@ -473,15 +461,6 @@ export type definitions = {
     /** @description Detailed evaluation result for each Policy that was run. */
     policyEvaluations: definitions["privateumpv1PolicyEvaluation"][];
     createdAt: definitions["externaldatav1Timestamp"];
-  };
-  externalactivityv1UpdateProxyAuthConfigRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1UpdateProxyAuthConfigIntent"];
   };
   externaldatav1Address: {
     format?: definitions["v1AddressFormat"];
@@ -696,9 +675,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
     | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
     | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
-    | "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH"
-    | "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH"
-    | "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
+    | "ACTIVITY_TYPE_ENABLE_AUTH_PROXY"
+    | "ACTIVITY_TYPE_DISABLE_AUTH_PROXY"
+    | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -799,6 +778,36 @@ export type definitions = {
     attestationObject: string;
     /** @description The type of authenticator transports. */
     transports: definitions["v1AuthenticatorTransport"][];
+  };
+  v1AuthProxyConfig: {
+    organizationId?: string;
+    allowedOrigins?: string[];
+    allowedAuthMethods?: string[];
+    encryptedApiKey?: string;
+    turnkeySignerUserId?: string;
+    sendFromEmailAddress?: string;
+    replyToEmailAddress?: string;
+    emailAuthTemplateId?: string;
+    otpTemplateId?: string;
+    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
+    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
+    /** @description Optional parameters for customizing SMS. If not provided, the default SMS will be used. */
+    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
+    /** Format: int32 */
+    otpExpirationSeconds?: number;
+    /** Format: int32 */
+    verificationTokenExpirationSeconds?: number;
+    /** Format: int32 */
+    sessionExpirationSeconds?: number;
+    /** Format: date-time */
+    createdAt?: string;
+    /** Format: date-time */
+    updatedAt?: string;
+    otpAlphanumeric?: boolean;
+    /** Format: int32 */
+    otpLength?: number;
+    proxyId?: string;
+    walletKitSettings?: string;
   };
   v1Authenticator: {
     /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
@@ -1673,6 +1682,8 @@ export type definitions = {
     /** @description A list of wallet unique identifiers that were removed */
     walletIds: string[];
   };
+  v1DisableAuthProxyIntent: { [key: string]: unknown };
+  v1DisableAuthProxyResult: { [key: string]: unknown };
   v1DisablePrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
@@ -1681,17 +1692,6 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
-  v1DisableUserInitiatedAuthIntent: { [key: string]: unknown };
-  v1DisableUserInitiatedAuthRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1DisableUserInitiatedAuthIntent"];
-  };
-  v1DisableUserInitiatedAuthResult: { [key: string]: unknown };
   /** @enum {string} */
   v1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
   v1EmailAuthIntent: {
@@ -1761,17 +1761,8 @@ export type definitions = {
     /** @description Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template. */
     templateId?: string;
   };
-  v1EnableUserInitiatedAuthIntent: { [key: string]: unknown };
-  v1EnableUserInitiatedAuthRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1EnableUserInitiatedAuthIntent"];
-  };
-  v1EnableUserInitiatedAuthResult: {
+  v1EnableAuthProxyIntent: { [key: string]: unknown };
+  v1EnableAuthProxyResult: {
     /** @description A User ID with permission to initiate authentication. */
     userId: string;
   };
@@ -1853,7 +1844,7 @@ export type definitions = {
     | "FEATURE_NAME_WEBHOOK"
     | "FEATURE_NAME_SMS_AUTH"
     | "FEATURE_NAME_OTP_EMAIL_AUTH"
-    | "FEATURE_NAME_AUTH_KIT";
+    | "FEATURE_NAME_AUTH_PROXY";
   /** @enum {string} */
   v1FiatOnRampBlockchainNetwork:
     | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
@@ -1974,6 +1965,14 @@ export type definitions = {
      */
     attestationDocument: string;
   };
+  v1GetAuthProxyConfigRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1GetAuthProxyConfigResponse: {
+    /** @description Proxy authentication configuration (e.g., allowed origins). */
+    authProxyConfig: definitions["v1AuthProxyConfig"];
+  };
   v1GetAuthenticatorRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -2064,14 +2063,6 @@ export type definitions = {
   v1GetPrivateKeysResponse: {
     /** @description A list of private keys. */
     privateKeys: definitions["v1PrivateKey"][];
-  };
-  v1GetProxyAuthConfigRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-  };
-  v1GetProxyAuthConfigResponse: {
-    /** @description Proxy authentication configuration (e.g., allowed origins). */
-    proxyAuthConfig: definitions["v1ProxyAuthConfig"];
   };
   v1GetSmartContractInterfaceRequest: {
     /** @description Unique identifier for a given organization. */
@@ -2542,9 +2533,9 @@ export type definitions = {
     initFiatOnRampIntent?: definitions["v1InitFiatOnRampIntent"];
     createSmartContractInterfaceIntent?: definitions["v1CreateSmartContractInterfaceIntent"];
     deleteSmartContractInterfaceIntent?: definitions["v1DeleteSmartContractInterfaceIntent"];
-    enableUserInitiatedAuthIntent?: definitions["v1EnableUserInitiatedAuthIntent"];
-    disableUserInitiatedAuthIntent?: definitions["v1DisableUserInitiatedAuthIntent"];
-    updateProxyAuthConfigIntent?: definitions["v1UpdateProxyAuthConfigIntent"];
+    enableAuthProxyIntent?: definitions["v1EnableAuthProxyIntent"];
+    disableAuthProxyIntent?: definitions["v1DisableAuthProxyIntent"];
+    updateAuthProxyConfigIntent?: definitions["v1UpdateAuthProxyConfigIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2836,36 +2827,6 @@ export type definitions = {
     privateKeyId?: string;
     addresses?: definitions["immutableactivityv1Address"][];
   };
-  v1ProxyAuthConfig: {
-    organizationId?: string;
-    allowedOrigins?: string[];
-    allowedAuthMethods?: string[];
-    encryptedApiKey?: string;
-    turnkeySignerUserId?: string;
-    sendFromEmailAddress?: string;
-    replyToEmailAddress?: string;
-    emailAuthTemplateId?: string;
-    otpTemplateId?: string;
-    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
-    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
-    /** @description Optional parameters for customizing SMS. If not provided, the default SMS will be used. */
-    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
-    /** Format: int32 */
-    otpExpirationSeconds?: number;
-    /** Format: int32 */
-    verificationTokenExpirationSeconds?: number;
-    /** Format: int32 */
-    sessionExpirationSeconds?: number;
-    /** Format: date-time */
-    createdAt?: string;
-    /** Format: date-time */
-    updatedAt?: string;
-    otpAlphanumeric?: boolean;
-    /** Format: int32 */
-    otpLength?: number;
-    proxyId?: string;
-    walletKitSettings?: string;
-  };
   v1PublicKeyCredentialWithAttestation: {
     id: string;
     /** @enum {string} */
@@ -3005,9 +2966,9 @@ export type definitions = {
     initFiatOnRampResult?: definitions["v1InitFiatOnRampResult"];
     createSmartContractInterfaceResult?: definitions["v1CreateSmartContractInterfaceResult"];
     deleteSmartContractInterfaceResult?: definitions["v1DeleteSmartContractInterfaceResult"];
-    enableUserInitiatedAuthResult?: definitions["v1EnableUserInitiatedAuthResult"];
-    disableUserInitiatedAuthResult?: definitions["v1DisableUserInitiatedAuthResult"];
-    updateProxyAuthConfigResult?: definitions["v1UpdateProxyAuthConfigResult"];
+    enableAuthProxyResult?: definitions["v1EnableAuthProxyResult"];
+    disableAuthProxyResult?: definitions["v1DisableAuthProxyResult"];
+    updateAuthProxyConfigResult?: definitions["v1UpdateAuthProxyConfigResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -3234,6 +3195,52 @@ export type definitions = {
     allowedOrigins: string[];
   };
   v1UpdateAllowedOriginsResult: { [key: string]: unknown };
+  v1UpdateAuthProxyConfigIntent: {
+    /** @description Updated list of allowed origins for CORS. */
+    allowedOrigins?: string[];
+    /** @description Updated list of allowed proxy authentication methods. */
+    allowedAuthMethods?: string[];
+    /** @description Custom 'from' address for auth-related emails. */
+    sendFromEmailAddress?: string;
+    /** @description Custom reply-to address for auth-related emails. */
+    replyToEmailAddress?: string;
+    /** @description Template ID for email-auth messages. */
+    emailAuthTemplateId?: string;
+    /** @description Template ID for OTP SMS messages. */
+    otpTemplateId?: string;
+    /** @description Overrides for auth-related email content. */
+    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
+    /** @description Overrides for auth-related SMS content. */
+    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
+    /** @description Overrides for react wallet kit related settings. */
+    walletKitSettings?: definitions["v1WalletKitSettingsParams"];
+    /**
+     * Format: int32
+     * @description OTP code lifetime in seconds.
+     */
+    otpExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description Verification-token lifetime in seconds.
+     */
+    verificationTokenExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description Session lifetime in seconds.
+     */
+    sessionExpirationSeconds?: number;
+    /** @description Enable alphanumeric OTP codes. */
+    otpAlphanumeric?: boolean;
+    /**
+     * Format: int32
+     * @description Desired OTP code length (6–9).
+     */
+    otpLength?: number;
+  };
+  v1UpdateAuthProxyConfigResult: {
+    /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
+    configId?: string;
+  };
   v1UpdatePolicyIntent: {
     /** @description Unique identifier for a given Policy. */
     policyId: string;
@@ -3301,52 +3308,6 @@ export type definitions = {
   v1UpdatePrivateKeyTagResult: {
     /** @description Unique identifier for a given Private Key Tag. */
     privateKeyTagId: string;
-  };
-  v1UpdateProxyAuthConfigIntent: {
-    /** @description Updated list of allowed origins for CORS. */
-    allowedOrigins?: string[];
-    /** @description Updated list of allowed proxy authentication methods. */
-    allowedAuthMethods?: string[];
-    /** @description Custom 'from' address for auth-related emails. */
-    sendFromEmailAddress?: string;
-    /** @description Custom reply-to address for auth-related emails. */
-    replyToEmailAddress?: string;
-    /** @description Template ID for email-auth messages. */
-    emailAuthTemplateId?: string;
-    /** @description Template ID for OTP SMS messages. */
-    otpTemplateId?: string;
-    /** @description Overrides for auth-related email content. */
-    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
-    /** @description Overrides for auth-related SMS content. */
-    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
-    /** @description Overrides for react wallet kit related settings. */
-    walletKitSettings?: definitions["v1WalletKitSettingsParams"];
-    /**
-     * Format: int32
-     * @description OTP code lifetime in seconds.
-     */
-    otpExpirationSeconds?: number;
-    /**
-     * Format: int32
-     * @description Verification-token lifetime in seconds.
-     */
-    verificationTokenExpirationSeconds?: number;
-    /**
-     * Format: int32
-     * @description Session lifetime in seconds.
-     */
-    sessionExpirationSeconds?: number;
-    /** @description Enable alphanumeric OTP codes. */
-    otpAlphanumeric?: boolean;
-    /**
-     * Format: int32
-     * @description Desired OTP code length (6–9).
-     */
-    otpLength?: number;
-  };
-  v1UpdateProxyAuthConfigResult: {
-    /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
-    configId?: string;
   };
   v1UpdateRootQuorumIntent: {
     /**
@@ -3649,8 +3610,6 @@ export type definitions = {
      * @description List of enabled social login providers (e.g., 'apple', 'google', 'facebook')
      */
     enabledSocialProviders?: string[];
-    /** @description Whether to open OAuth providers in-page instead of a popup */
-    openOauthInPage?: boolean;
   };
   v1WalletParams: {
     /** @description Human-readable name for a Wallet. */
@@ -3746,6 +3705,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetAttestationDocumentResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
+  PublicApiService_GetAuthProxyConfig: {
+    parameters: {
+      body: {
+        body: definitions["v1GetAuthProxyConfigRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetAuthProxyConfigResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -3890,24 +3867,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetPrivateKeyResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
-  PublicApiService_GetProxyAuthConfig: {
-    parameters: {
-      body: {
-        body: definitions["v1GetProxyAuthConfigRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetProxyAuthConfigResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -4743,47 +4702,11 @@ export type operations = {
       };
     };
   };
-  /** Disable User Initiated Auth */
-  PublicApiService_DisableUserInitiatedAuth: {
-    parameters: {
-      body: {
-        body: definitions["v1DisableUserInitiatedAuthRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
   /** Authenticate a user via email. */
   PublicApiService_EmailAuth: {
     parameters: {
       body: {
         body: definitions["v1EmailAuthRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Enable User Initiated Auth */
-  PublicApiService_EnableUserInitiatedAuth: {
-    parameters: {
-      body: {
-        body: definitions["v1EnableUserInitiatedAuthRequest"];
       };
     };
     responses: {
@@ -5234,24 +5157,6 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1UpdatePrivateKeyTagRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Update the proxy-auth configuration (allowed origins, etc.) for an Organization */
-  PublicApiService_UpdateProxyAuthConfig: {
-    parameters: {
-      body: {
-        body: definitions["externalactivityv1UpdateProxyAuthConfigRequest"];
       };
     };
     responses: {

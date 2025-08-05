@@ -5,6 +5,7 @@ import type {
   TurnkeyClientMethods,
   Wallet,
   StamperType,
+  WalletAccount,
 } from "@turnkey/sdk-js";
 import type {
   OAuthProviders,
@@ -14,7 +15,6 @@ import type {
   v1PayloadEncoding,
   v1SignRawPayloadResult,
   v1User,
-  v1WalletAccount,
   v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 import type {
@@ -47,8 +47,6 @@ export interface ClientContextType extends TurnkeyClientMethods {
   config?: TurnkeyProviderConfig | undefined;
   user: v1User | undefined;
   wallets: Wallet[];
-
-  createPasskey: TurnkeyClientMethods["createPasskey"];
 
   /**
    * Refreshes the user details.
@@ -124,7 +122,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleGoogleOauth(params: {
+  handleGoogleOauth(params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
@@ -159,7 +157,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleAppleOauth(params: {
+  handleAppleOauth(params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
@@ -195,7 +193,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleFacebookOauth(params: {
+  handleFacebookOauth(params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
@@ -249,7 +247,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    *
    * @returns A promise that resolves to the new wallet's ID.
    */
-  handleImport(params: {
+  handleImport(params?: {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;
@@ -518,7 +516,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    */
   handleSignMessage(params: {
     message: string;
-    walletAccount: v1WalletAccount;
+    walletAccount: WalletAccount;
     encoding?: v1PayloadEncoding;
     hashFunction?: v1HashFunction;
     subText?: string;
@@ -544,6 +542,36 @@ export interface ClientContextType extends TurnkeyClientMethods {
   handleLinkExternalWallet(params?: {
     successPageDuration?: number | undefined;
   }): Promise<void>;
+
+  /**
+   * Handles the removal of a user's email address from their Turnkey account.
+   *
+   * - This function opens a modal with the RemoveUserEmail component, allowing the user to confirm and remove their email address.
+   *
+   * @param params.userId - The user ID to remove the email for (defaults to current session's userId).
+   * @param params.successPageDuration - duration (in ms) for the success page after removal (default: 0, no success page).
+   * @param params.stampWith - parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   */
+  handleRemoveUserEmail(params?: {
+    userId?: string;
+    successPageDuration?: number | undefined;
+    stampWith?: StamperType | undefined;
+  }): Promise<string>;
+
+  /**
+   * Handles the removal of a user's phone number from their Turnkey account.
+   *
+   * - This function opens a modal with the RemoveUserPhoneNumber component, allowing the user to confirm and remove their phone number.
+   *
+   * @param params.userId - The user ID to remove the phone number for (defaults to current session's userId).
+   * @param params.successPageDuration - duration (in ms) for the success page after removal (default: 0, no success page).
+   * @param params.stampWith - parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   */
+  handleRemoveUserPhoneNumber(params?: {
+    userId?: string;
+    successPageDuration?: number | undefined;
+    stampWith?: StamperType | undefined;
+  }): Promise<string>;
 }
 
 export const ClientContext = createContext<ClientContextType | undefined>(

@@ -78,6 +78,8 @@ import { RemovePasskey } from "../../components/user/RemovePasskey";
 import { LinkWalletModal } from "../../components/user/LinkWallet";
 import { ClientContext } from "./Types";
 import { OtpVerification } from "../../components/auth/OTP";
+import { RemoveEmail } from "../../components/user/RemoveEmail";
+import { RemovePhoneNumber } from "../../components/user/RemovePhoneNumber";
 
 /**
  * @inline
@@ -418,9 +420,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         methods: resolvedMethods,
         oAuthConfig: {
           ...config.auth?.oAuthConfig,
-          openOAuthInPage:
-            config.auth?.oAuthConfig?.openOAuthInPage ??
-            proxyAuthConfig?.openOAuthInPage,
+          openOAuthInPage: config.auth?.oAuthConfig?.openOAuthInPage,
         },
         sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
         methodOrder,
@@ -2180,7 +2180,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   }
 
-  async function handleAppleOauth(params: {
+  async function handleAppleOauth(params?: {
     clientId?: string;
     openInPage?: boolean;
     additionalState?: Record<string, string>;
@@ -2193,7 +2193,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       clientId = masterConfig?.auth?.oAuthConfig?.appleClientId,
       openInPage = masterConfig?.auth?.oAuthConfig?.openOAuthInPage ?? false,
       additionalState: additionalParameters,
-    } = params;
+    } = params || {};
     try {
       if (!masterConfig) {
         throw new TurnkeyError(
@@ -2297,7 +2297,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   authWindow.close();
                   clearInterval(interval);
 
-                  if (params.onOAuthSuccess) {
+                  if (params?.onOAuthSuccess) {
                     params.onOAuthSuccess({
                       oidcToken: idToken,
                       providerName: "apple",
@@ -2332,7 +2332,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   }
 
-  async function handleFacebookOauth(params: {
+  async function handleFacebookOauth(params?: {
     clientId?: string;
     openInPage?: boolean;
     additionalState?: Record<string, string>;
@@ -2345,7 +2345,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       clientId = masterConfig?.auth?.oAuthConfig?.facebookClientId,
       openInPage = masterConfig?.auth?.oAuthConfig?.openOAuthInPage ?? false,
       additionalState: additionalParameters,
-    } = params;
+    } = params || {};
     try {
       if (!masterConfig) {
         throw new TurnkeyError(
@@ -2478,7 +2478,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     .then((tokenData) => {
                       sessionStorage.removeItem("facebook_verifier");
 
-                      if (params.onOAuthSuccess) {
+                      if (params?.onOAuthSuccess) {
                         params.onOAuthSuccess({
                           oidcToken: tokenData.id_token,
                           providerName: "apple",
@@ -2545,7 +2545,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     });
   };
 
-  const handleImport = async (params: {
+  const handleImport = async (params?: {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
     successPageDuration?: number | undefined;
     stampWith?: StamperType | undefined;
@@ -2554,7 +2554,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       defaultWalletAccounts,
       successPageDuration = 2000,
       stampWith,
-    } = params;
+    } = params || {};
     try {
       return withTurnkeyErrorHandling(
         () =>
@@ -3497,6 +3497,98 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     });
   };
 
+  const handleRemoveUserEmail = async (params?: {
+    userId?: string;
+    successPageDuration?: number | undefined;
+    stampWith?: StamperType | undefined;
+  }): Promise<string> => {
+    const { successPageDuration = 2000, stampWith, userId } = params || {};
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    try {
+      return new Promise((resolve, reject) => {
+        pushPage({
+          key: "Remove Email",
+          content: (
+            <RemoveEmail
+              successPageDuration={successPageDuration}
+              {...(userId && { userId })}
+              {...(stampWith && { stampWith })}
+              onSuccess={(userId: string) => {
+                resolve(userId);
+              }}
+              onError={(error: unknown) => {
+                reject(error);
+              }}
+            />
+          ),
+          showTitle: false,
+          preventBack: true,
+        });
+      });
+    } catch (error) {
+      if (error instanceof TurnkeyError) {
+        throw error;
+      }
+      throw new TurnkeyError(
+        "Failed to remove user email.",
+        TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR,
+        error,
+      );
+    }
+  };
+
+  const handleRemoveUserPhoneNumber = async (params?: {
+    userId?: string;
+    successPageDuration?: number | undefined;
+    stampWith?: StamperType | undefined;
+  }): Promise<string> => {
+    const { successPageDuration = 2000, stampWith, userId } = params || {};
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    try {
+      return new Promise((resolve, reject) => {
+        pushPage({
+          key: "Remove Phone Number",
+          content: (
+            <RemovePhoneNumber
+              successPageDuration={successPageDuration}
+              {...(userId && { userId })}
+              {...(stampWith && { stampWith })}
+              onSuccess={(userId: string) => {
+                resolve(userId);
+              }}
+              onError={(error: unknown) => {
+                reject(error);
+              }}
+            />
+          ),
+          showTitle: false,
+          preventBack: true,
+        });
+      });
+    } catch (error) {
+      if (error instanceof TurnkeyError) {
+        throw error;
+      }
+      throw new TurnkeyError(
+        "Failed to remove user phone number.",
+        TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
+        error,
+      );
+    }
+  };
+
   return (
     <ClientContext.Provider
       value={{
@@ -3575,6 +3667,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleAddPhoneNumber,
         handleSignMessage,
         handleLinkExternalWallet,
+        handleRemoveUserEmail,
+        handleRemoveUserPhoneNumber,
       }}
     >
       {children}
