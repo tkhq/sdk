@@ -5,7 +5,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronRight, faClose } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
-import { type WalletProvider, WalletType } from "@turnkey/sdk-js";
+import { type WalletProvider } from "@turnkey/sdk-js";
+import { QRCodeSVG as QRCode } from "qrcode.react";
+import { SuccessPage } from "../design/Success";
+import { isEthereumWallet } from "@turnkey/sdk-js/dist/utils";
 
 interface WalletAuthButtonProps {
   onContinue: () => Promise<void>;
@@ -76,13 +79,13 @@ export function ExternalWalletChainSelector(
           const [isHovering, setIsHovering] = useState(false);
           return (
             <ActionButton
-              key={p.type}
+              key={p.interfaceType}
               onClick={() => handleSelect(p)}
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
               className="relative overflow-hidden flex items-center justify-start gap-2 w-full text-inherit bg-button-light dark:bg-button-dark"
             >
-              {p.type === "ethereum" ? (
+              {isEthereumWallet(p) ? (
                 <div className="relative">
                   <EthereumLogo className="size-5" />
                   {canUnlink(p, shouldShowUnlink) && (
@@ -98,7 +101,7 @@ export function ExternalWalletChainSelector(
                 </div>
               )}
               <div className="flex flex-col items-start">
-                {p.type === "ethereum" ? "EVM" : "Solana"}
+                {isEthereumWallet(p) ? "EVM" : "Solana"}
                 {canUnlink(p, shouldShowUnlink) && (
                   <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
                     Connected: {p.connectedAddresses[0]?.slice(0, 4)}...
@@ -127,8 +130,8 @@ export function ExternalWalletChainSelector(
 
 interface ExternalWalletSelectorProps {
   providers: WalletProvider[];
-  onUnlink?: ((provider: WalletProvider) => void) | undefined;
-  onSelect: (provider: WalletProvider) => void;
+  onUnlink?: ((provider: WalletProvider) => Promise<void>) | undefined;
+  onSelect: (provider: WalletProvider) => Promise<void>;
 }
 export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
   const { providers, onUnlink, onSelect } = props;
@@ -146,6 +149,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     },
     {},
   );
+
   const handleSelectGroup = (group: WalletProvider[]) => {
     if (group.length === 1) {
       if (canUnlink(group[0]!, shouldShowUnlink)) {
@@ -222,14 +226,13 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                 </div>
                 <div className={clsx(`flex items-center transition-all gap-1`)}>
                   {group.map((c, idx) => {
-                    const Logo =
-                      c.type === WalletType.Ethereum
-                        ? EthereumLogo
-                        : SolanaLogo;
+                    const Logo = isEthereumWallet(c)
+                      ? EthereumLogo
+                      : SolanaLogo;
                     const delay = 50 + idx * 30; // Staggered delay: leftmost has largest
                     return (
                       <div
-                        key={c.type}
+                        key={c.interfaceType}
                         style={{ transitionDelay: `${delay}ms` }}
                         className={clsx(
                           "relative",
@@ -290,7 +293,7 @@ export function UnlinkWalletScreen(props: UnlinkWalletScreenProps) {
     setHasError(false);
     try {
       await onUnlink(provider);
-    } catch {
+    } catch (err) {
       setHasError(true);
     } finally {
       setIsLoading(false);
@@ -346,6 +349,101 @@ export function ConnectedIndicator(props: ConnectedIndicatorProps) {
         <div className="absolute animate-ping size-[6px] bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
       )}
       <div className="size-[6px] bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
+    </div>
+  );
+}
+export interface WalletConnectScreenProps {
+  provider: WalletProvider;
+  successPageDuration: number | undefined;
+  onAction: (provider: WalletProvider) => Promise<void>;
+  onDisconnect?: (provider: WalletProvider) => Promise<void>;
+}
+
+export function WalletConnectScreen(props: WalletConnectScreenProps) {
+  const { provider, successPageDuration, onAction, onDisconnect } = props;
+  const { pushPage, closeModal } = useModal();
+
+  const [isUnlinking, setIsUnlinking] = useState(false);
+  const [unlinkError, setUnlinkError] = useState(false);
+
+  // kick off authentication/pairing or signing on mount or when URI changes
+  useEffect(() => {
+    (async () => {
+      try {
+        await onAction(provider);
+        pushPage({
+          key: "Link Success",
+          content: (
+            <SuccessPage
+              text="Successfully linked wallet!"
+              onComplete={closeModal}
+              duration={successPageDuration}
+            />
+          ),
+          preventBack: true,
+          showTitle: false,
+        });
+      } catch (e) {
+        console.error("WalletConnect failed:", e);
+        // optionally show an error state here
+      }
+    })();
+  }, [provider.uri, onAction, pushPage, closeModal, successPageDuration]);
+
+  const handleUnlink = async () => {
+    setIsUnlinking(true);
+    setUnlinkError(false);
+    try {
+      await onDisconnect?.(provider);
+    } catch (err) {
+      console.error(err);
+      setUnlinkError(true);
+    } finally {
+      setIsUnlinking(false);
+    }
+  };
+
+  return (
+    <div className="p-6 flex flex-col items-center">
+      {provider.connectedAddresses.length > 0 ? (
+        <>
+          <p className="mb-4 text-center">
+            Please sign the authentication message with your connected wallet
+            address:
+          </p>
+          <ul className="mb-4 space-y-1">
+            {provider.connectedAddresses.map((addr) => (
+              <li key={addr} className="font-mono text-sm">
+                {addr}
+              </li>
+            ))}
+          </ul>
+
+          <div className="w-full max-w-md mt-4">
+            <ActionButton
+              onClick={handleUnlink}
+              loading={isUnlinking}
+              className={clsx(
+                "w-full bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark",
+                unlinkError && "animate-shake opacity-50",
+              )}
+              spinnerClassName="text-primary-danger-text-light dark:text-primary-danger-text-dark"
+            >
+              Unlink Wallet
+            </ActionButton>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="mb-4 text-center">
+            Scan the QR code with your WalletConnect-compatible wallet to link:
+          </p>
+          {provider.uri && (
+            // @ts-expect-error: qrcode.react uses a different React type version
+            <QRCode value={provider.uri} size={200} />
+          )}
+        </>
+      )}
     </div>
   );
 }

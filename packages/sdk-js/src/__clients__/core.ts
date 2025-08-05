@@ -41,7 +41,6 @@ import {
   ConnectedWalletAccount,
   WalletManagerBase,
   WalletProvider,
-  WalletType,
 } from "../__types__/base"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
@@ -57,6 +56,8 @@ import {
   hashPayload,
   getWalletAccountMethods,
   getPublicKeyFromStampHeader,
+  isEthereumWallet,
+  isSolanaWallet,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -546,8 +547,8 @@ export class TurnkeyClient {
       }
 
       this.walletManager.stamper.setProvider(
-        walletProvider.type,
-        walletProvider.provider,
+        walletProvider.interfaceType,
+        walletProvider,
       );
 
       const sessionResponse = await this.httpClient.stampLogin(
@@ -601,22 +602,18 @@ export class TurnkeyClient {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
 
       this.walletManager.stamper.setProvider(
-        walletProvider.type,
-        walletProvider.provider,
+        walletProvider.interfaceType,
+        walletProvider,
       );
 
       const publicKey = await this.walletManager.stamper.getPublicKey(
-        walletProvider.type,
-        walletProvider.provider,
+        walletProvider.interfaceType,
+        walletProvider,
       );
 
       if (!publicKey) {
         throw new Error("Failed to get publicKey from wallet");
       }
-
-      const { type } = this.walletManager.stamper.getWalletInterface(
-        walletProvider?.type,
-      );
 
       const signUpBody = buildSignUpBody({
         createSubOrgParams: {
@@ -625,10 +622,9 @@ export class TurnkeyClient {
             {
               apiKeyName: `wallet-auth:${publicKey}`,
               publicKey: publicKey,
-              curveType:
-                type === WalletType.Ethereum
-                  ? ("API_KEY_CURVE_SECP256K1" as const)
-                  : ("API_KEY_CURVE_ED25519" as const),
+              curveType: isEthereumWallet(walletProvider)
+                ? ("API_KEY_CURVE_SECP256K1" as const)
+                : ("API_KEY_CURVE_ED25519" as const),
             },
             {
               apiKeyName: `wallet-auth-${generatedKeyPair}`,
@@ -672,7 +668,6 @@ export class TurnkeyClient {
       throw new Error(`Failed to sign up with wallet: ${error}`);
     } finally {
       // Clean up the generated key pair if it wasn't successfully used
-      console.log("Cleaning up generated key pair if any");
       this.apiKeyStamper?.clearOverridePublicKey();
       if (generatedKeyPair) {
         try {
@@ -708,8 +703,8 @@ export class TurnkeyClient {
       generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
 
       this.walletManager.stamper.setProvider(
-        walletProvider.type,
-        walletProvider.provider,
+        walletProvider.interfaceType,
+        walletProvider,
       );
 
       // here we sign the request with the wallet, but we don't send it to the Turnkey yet
@@ -732,8 +727,8 @@ export class TurnkeyClient {
       }
 
       let publicKey: string | undefined;
-      switch (walletProvider.type) {
-        case WalletType.Ethereum: {
+      switch (walletProvider.chain) {
+        case Chain.Ethereum: {
           // for Ethereum, there is no way to get the public key from the wallet address
           // so we derive it from the signed request
           publicKey = getPublicKeyFromStampHeader(
@@ -743,21 +738,21 @@ export class TurnkeyClient {
           break;
         }
 
-        case WalletType.Solana: {
+        case Chain.Solana: {
           // for Solana, we can get the public key from the wallet address
           // since the wallet address is the public key
           // this doesn't require any action from the user as long as the wallet is connected
           // which it has to be since they just called stampStampLogin()
           publicKey = await this.walletManager.stamper.getPublicKey(
-            walletProvider.type,
-            walletProvider.provider,
+            walletProvider.interfaceType,
+            walletProvider,
           );
           break;
         }
 
         default:
           throw new TurnkeyError(
-            `Unsupported wallet type: ${walletProvider.type}`,
+            `Unsupported interface type: ${walletProvider.interfaceType}`,
             TurnkeyErrorCodes.INVALID_REQUEST,
           );
       }
@@ -788,10 +783,9 @@ export class TurnkeyClient {
               {
                 apiKeyName: `wallet-auth:${publicKey}`,
                 publicKey: publicKey,
-                curveType:
-                  walletProvider.type === WalletType.Ethereum
-                    ? ("API_KEY_CURVE_SECP256K1" as const)
-                    : ("API_KEY_CURVE_ED25519" as const),
+                curveType: isEthereumWallet(walletProvider)
+                  ? ("API_KEY_CURVE_SECP256K1" as const)
+                  : ("API_KEY_CURVE_ED25519" as const),
               },
             ],
           },
@@ -1616,20 +1610,16 @@ export class TurnkeyClient {
 
       for (const address of provider.connectedAddresses) {
         const account: ConnectedWalletAccount = {
-          walletAccountId: `${wallet.walletId}-${provider.type}-${address}`,
+          walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
           organizationId: session.organizationId,
           walletId: wallet.walletId,
-          curve:
-            provider.type === WalletType.Ethereum
-              ? Curve.SECP256K1
-              : Curve.ED25519,
+          curve: isEthereumWallet(provider) ? Curve.SECP256K1 : Curve.ED25519,
           pathFormat: "PATH_FORMAT_BIP32",
           path: WalletSource.Connected,
           source: WalletSource.Connected,
-          addressFormat:
-            provider.type === WalletType.Ethereum
-              ? "ADDRESS_FORMAT_ETHEREUM"
-              : "ADDRESS_FORMAT_SOLANA",
+          addressFormat: isEthereumWallet(provider)
+            ? "ADDRESS_FORMAT_ETHEREUM"
+            : "ADDRESS_FORMAT_SOLANA",
           address,
           createdAt: timestamp,
           updatedAt: timestamp,
@@ -1639,7 +1629,7 @@ export class TurnkeyClient {
             ),
             provider,
           ),
-          ...(provider.type === WalletType.Solana && { publicKey: address }),
+          ...(isSolanaWallet(provider) && { publicKey: address }),
         };
 
         connected.push(account);

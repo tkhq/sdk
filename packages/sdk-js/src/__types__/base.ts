@@ -1,8 +1,8 @@
 import type { TActivityId, TActivityStatus } from "@turnkey/http";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
-import type { EIP1193Provider } from "viem";
-import type { Wallet as SWSWallet } from "@wallet-standard/base";
+import type { EIP1193Provider as EthereumProvider } from "viem";
+import type { Wallet as SolanaProvider } from "@wallet-standard/base";
 import type {
   SessionType,
   v1ApiKeyCurve,
@@ -310,8 +310,6 @@ export enum FilterType {
   PublicKey = "PUBLIC_KEY",
 }
 
-export type Chain = WalletType;
-
 export const OtpTypeToFilterTypeMap = {
   [OtpType.Email]: FilterType.Email,
   [OtpType.Sms]: FilterType.Sms,
@@ -336,7 +334,7 @@ export interface StorageBase {
 }
 
 export interface WalletManagerBase {
-  getProviders: (chain?: WalletType) => Promise<WalletProvider[]>;
+  getProviders: (chain?: Chain) => Promise<WalletProvider[]>;
   stamper: WebWalletStamper;
   connector: WebWalletConnector;
 }
@@ -374,6 +372,15 @@ export type TPasskeyStamperConfig = {
 export type TWalletManagerConfig = {
   ethereum?: boolean;
   solana?: boolean;
+  walletConnect?: {
+    projectId: string;
+    metadata: {
+      name: string;
+      description: string;
+      url: string;
+      icons: string[];
+    };
+  };
 };
 
 export interface ApiKeyStamperBase {
@@ -393,24 +400,38 @@ export interface WalletProviderInfo {
   rdns?: string;
 }
 
-export enum WalletType {
+export enum Chain {
   Ethereum = "ethereum",
   Solana = "solana",
 }
+export interface WalletConnectProvider {
+  request(args: { method: string; params?: any[] }): Promise<unknown>;
+}
 
-export type WalletRpcProvider = EIP1193Provider | SWSWallet;
+export type WalletRpcProvider =
+  | EthereumProvider
+  | SolanaProvider
+  | WalletConnectProvider;
 
 export interface WalletProvider {
-  type: WalletType;
+  interfaceType: WalletInterfaceType;
+  chain: Chain;
   info: WalletProviderInfo;
   provider: WalletRpcProvider;
   connectedAddresses: string[];
+  uri?: string;
 }
 
 export enum SignIntent {
   SignMessage = "sign_message",
   SignTransaction = "sign_transaction",
   SignAndSendTransaction = "sign_and_send",
+}
+
+export enum WalletInterfaceType {
+  Solana = "solana",
+  Ethereum = "ethereum",
+  WalletConnect = "wallet_connect",
 }
 
 /**
@@ -420,16 +441,16 @@ export enum SignIntent {
  * @property {function(): Promise<string>} getPublicKey - Retrieves the public key as a string.
  */
 export interface BaseWalletInterface {
-  type: WalletType;
+  interfaceType: WalletInterfaceType;
   sign: (
     message: string,
-    provider: WalletRpcProvider,
+    provider: WalletProvider,
     intent: SignIntent,
   ) => Promise<string>;
-  getPublicKey: (provider: WalletRpcProvider) => Promise<string>;
+  getPublicKey: (provider: WalletProvider) => Promise<string>;
   getProviders: () => Promise<WalletProvider[]>;
-  connectWalletAccount: (provider: WalletRpcProvider) => Promise<void>;
-  disconnectWalletAccount: (provider: WalletRpcProvider) => Promise<void>;
+  connectWalletAccount: (provider: WalletProvider) => Promise<void>;
+  disconnectWalletAccount: (provider: WalletProvider) => Promise<void>;
 }
 
 /**
@@ -440,7 +461,7 @@ export interface BaseWalletInterface {
  * @property {'solana'} type - The type of the wallet.
  */
 export interface SolanaWalletInterface extends BaseWalletInterface {
-  type: WalletType.Solana;
+  interfaceType: WalletInterfaceType.Solana;
 }
 
 /**
@@ -455,15 +476,19 @@ export interface SolanaWalletInterface extends BaseWalletInterface {
  * @property {'ethereum'} type - The type of the wallet.
  */
 export interface EthereumWalletInterface extends BaseWalletInterface {
-  type: WalletType.Ethereum;
+  interfaceType: WalletInterfaceType.Ethereum;
 }
 
-export interface SolanaWalletInterface extends BaseWalletInterface {
-  type: WalletType.Solana;
+export interface WalletConnectInterface extends BaseWalletInterface {
+  interfaceType: WalletInterfaceType.WalletConnect;
+  init: () => Promise<void>;
 }
 
 /**
  * Union type for wallet interfaces, supporting both Solana and Ethereum wallets.
  * @typedef {SolanaWalletInterface | EthereumWalletInterface} WalletInterface
  */
-export type WalletInterface = SolanaWalletInterface | EthereumWalletInterface;
+export type WalletInterface =
+  | SolanaWalletInterface
+  | EthereumWalletInterface
+  | WalletConnectInterface;

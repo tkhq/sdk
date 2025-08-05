@@ -15,11 +15,16 @@ import { PhoneNumberInput } from "./Phone";
 import { ActionPage } from "./Action";
 import { PasskeyButtons } from "./Passkey";
 import { Spinner } from "../design/Spinners";
-import { ExternalWalletSelector, WalletAuthButton } from "./Wallet";
+import {
+  ExternalWalletSelector,
+  WalletAuthButton,
+  WalletConnectScreen,
+} from "./Wallet";
 import { DeveloperError } from "../design/Failure";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ClientState } from "../../types/base";
+import { isWalletConnect } from "@utils";
 
 export function AuthComponent() {
   const {
@@ -33,6 +38,7 @@ export function AuthComponent() {
     signUpWithPasskey,
     getWalletProviders,
     loginOrSignupWithWallet,
+    disconnectWalletAccount,
   } = useTurnkey();
   const { pushPage, isMobile } = useModal();
 
@@ -199,6 +205,34 @@ export function AuthComponent() {
     });
   };
 
+  const handleSelect = async (provider: WalletProvider) => {
+    // this is a wallet connect provider, so we need to show the WalletConnect screen
+    if (isWalletConnect(provider)) {
+      // for WalletConnect we route to a dedicated screen
+      // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
+      pushPage({
+        key: "WalletConnect",
+        content: (
+          <WalletConnectScreen
+            provider={provider}
+            onAction={async (provider) => {
+              await loginOrSignupWithWallet({ walletProvider: provider });
+            }}
+            onDisconnect={async (provider) => {
+              await disconnectWalletAccount(provider);
+            }}
+            successPageDuration={undefined}
+          />
+        ),
+        showTitle: false,
+      });
+      return;
+    }
+
+    // this is a regular wallet provider, so we can just select it
+    await handleWalletLoginOrSignup(provider);
+  };
+
   const handleShowWalletSelector = async () => {
     try {
       const walletProviders = await getWalletProviders();
@@ -208,7 +242,7 @@ export function AuthComponent() {
         content: (
           <ExternalWalletSelector
             providers={walletProviders}
-            onSelect={handleWalletLoginOrSignup}
+            onSelect={handleSelect}
           />
         ),
       });

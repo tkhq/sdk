@@ -15,10 +15,10 @@ import {
   v1SignRawPayloadResult,
 } from "@turnkey/sdk-types";
 import {
-  WalletType,
   type CreateSubOrgParams,
   SignIntent,
   type WalletProvider,
+  Chain,
 } from "@types";
 import { keccak256 } from "ethers";
 // Import all defaultAccountAtIndex functions for each address format
@@ -414,8 +414,8 @@ export const getWalletAccountMethods = (
     };
   };
 
-  switch (provider.type) {
-    case WalletType.Ethereum:
+  switch (provider.chain) {
+    case Chain.Ethereum:
       return {
         signMessage: signWithIntent(SignIntent.SignMessage),
         signAndSendTransaction: signWithIntent(
@@ -423,7 +423,7 @@ export const getWalletAccountMethods = (
         ),
       };
 
-    case WalletType.Solana:
+    case Chain.Solana:
       return {
         signMessage: signWithIntent(SignIntent.SignMessage),
         signTransaction: signWithIntent(SignIntent.SignTransaction),
@@ -434,7 +434,7 @@ export const getWalletAccountMethods = (
 
     default:
       throw new Error(
-        `Unsupported wallet type: ${provider.type}. Supported types are Ethereum and Solana.`,
+        `Unsupported wallet chain: ${provider.chain}. Supported chains are Ethereum and Solana.`,
       );
   }
 };
@@ -660,4 +660,14 @@ export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
       }`,
     );
   }
+}
+
+export function isEthereumWallet(wallet: WalletProvider): boolean {
+  const walletType = wallet.chain;
+  return walletType === Chain.Ethereum;
+}
+
+export function isSolanaWallet(wallet: WalletProvider): boolean {
+  const walletType = wallet.chain;
+  return walletType === Chain.Solana;
 }
