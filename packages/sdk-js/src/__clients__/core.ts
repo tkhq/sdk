@@ -688,7 +688,6 @@ export class TurnkeyClient {
     sessionKey?: string;
     expirationSeconds?: string;
   }): Promise<string> => {
-    console.log("loginOrSignupWithWallet called with params:", params);
     if (!this.walletManager) {
       throw new Error("Wallet manager is not initialized");
     }
