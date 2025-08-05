@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { Button, Transition } from "@headlessui/react";
 import {
   TurnkeyProviderConfig,
@@ -45,13 +51,22 @@ export function TurnkeyConfigProvider({
   children,
 }: TurnkeyConfigProviderProps) {
   const [config, setConfigState] = useState(initialConfig);
-  const [panelOpen, setPanelOpen] = useState(true);
   const panelWidth = 384;
   const setConfig = (newConfig: Partial<TurnkeyProviderConfig>) => {
     setConfigState((prev) => ({ ...prev, ...newConfig }));
   };
 
   const { isMobile } = useScreenSize();
+  const [panelOpen, setPanelOpen] = useState(false);
+
+  useEffect(() => {
+    if (isMobile) {
+      setPanelOpen(false);
+    } else {
+      setPanelOpen(true);
+    }
+  }, [isMobile]);
+
   return (
     <ConfigContext.Provider value={{ config, setConfig }}>
       <div
@@ -62,6 +77,8 @@ export function TurnkeyConfigProvider({
       >
         {/* Sliding Config Panel */}
         <Transition
+          appear
+          unmount={false}
           show={panelOpen}
           enter="transition-transform duration-250 ease-out"
           enterFrom="-translate-x-full"
@@ -100,21 +117,19 @@ export function TurnkeyConfigProvider({
           transition={Slide}
         />
 
-        {!isMobile && (
-          <Button
-            onClick={() => setPanelOpen(!panelOpen)}
-            className={clsx(
-              "fixed z-10 cursor-pointer top-1/2 -translate-y-1/2 w-[80px] h-[250px] rounded-r-xl bg-panel-background-light dark:bg-panel-background-dark flex flex-col items-center justify-center transition-all ease-out",
-              panelOpen ? " -translate-x-full" : "",
-            )}
-          >
-            <div className="flex flex-row items-center justify-center gap-3 transform -rotate-90 text-xl font-medium text-center w-[250px] whitespace-pre">
-              <div className="size-4" />
-              <span>Config</span>
-              <FontAwesomeIcon className="size-4" icon={faCaretDown} />
-            </div>
-          </Button>
-        )}
+        <Button
+          onClick={() => setPanelOpen(!panelOpen)}
+          className={clsx(
+            "fixed z-10 cursor-pointer top-1/2 -translate-y-1/2 w-[80px] h-[250px] rounded-r-xl bg-panel-background-light dark:bg-panel-background-dark hidden sm:flex flex-col items-center justify-center transition-all ease-out",
+            panelOpen ? " -translate-x-full" : "",
+          )}
+        >
+          <div className="flex flex-row items-center justify-center gap-3 transform -rotate-90 text-xl font-medium text-center w-[250px] whitespace-pre">
+            <div className="size-4" />
+            <span>Config</span>
+            <FontAwesomeIcon className="size-4" icon={faCaretDown} />
+          </div>
+        </Button>
 
         {/* Content (shifted when panel is open) */}
         <div
@@ -129,15 +144,13 @@ export function TurnkeyConfigProvider({
           </TurnkeyProvider>
         </div>
         <div className="w-full z-10 h-14 sm:h-16 bg-panel-background-light backdrop-blur dark:bg-panel-background-dark absolute flex items-center justify-between px-2 sm:px-6.5">
-          {isMobile && (
-            <Button
-              onClick={() => setPanelOpen(!panelOpen)}
-              className="flex items-center justify-center p-2 gap-2 cursor-pointer text-xl"
-            >
-              <FontAwesomeIcon icon={faBars} />
-              Config
-            </Button>
-          )}
+          <Button
+            onClick={() => setPanelOpen(!panelOpen)}
+            className="flex sm:hidden items-center justify-center p-2 gap-2 cursor-pointer text-xl"
+          >
+            <FontAwesomeIcon icon={faBars} />
+            Config
+          </Button>
 
           <TurnkeySVG
             className="transition-all duration-250 size-32"
@@ -146,23 +159,19 @@ export function TurnkeyConfigProvider({
             }}
           />
 
-          {!isMobile && (
-            <div className="flex font-bold text-sm w-52 justify-end">
-              <span>@turnkey/react-wallet-kit</span>
-            </div>
-          )}
+          <div className="sm:flex hidden font-bold text-sm w-52 justify-end">
+            <span>@turnkey/react-wallet-kit</span>
+          </div>
         </div>
 
-        {!isMobile && (
-          <>
-            <div className="absolute bottom-0 left-0 w-7 h-full bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center" />
-            <div className="absolute bottom-0 right-0 w-7 h-full bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center" />
-            <div className="absolute bottom-0 w-full h-7 bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center text-[8px] sm:text-xs text-icon-text-light/30 dark:text-icon-text-dark/30 font-extralight text-center">
-              This is purely a demo app for the Turnkey React Wallet Kit. You
-              will not receive any real tokens or rewards.
-            </div>
-          </>
-        )}
+        <div className="hidden sm:block">
+          <div className="absolute bottom-0 left-0 w-7 h-full bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center" />
+          <div className="absolute bottom-0 right-0 w-7 h-full bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center" />
+          <div className="absolute bottom-0 w-full h-7 bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center text-[8px] sm:text-xs text-icon-text-light/30 dark:text-icon-text-dark/30 font-extralight text-center">
+            This is purely a demo app for the Turnkey React Wallet Kit. You will
+            not receive any real tokens or rewards.
+          </div>
+        </div>
       </div>
     </ConfigContext.Provider>
   );

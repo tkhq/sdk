@@ -3,6 +3,7 @@
 import DemoPanel from "@/components/demo/DemoPanel";
 import UserSettings from "@/components/demo/UserSettings";
 import { Spinner } from "@/components/Spinners";
+import { useScreenSize } from "@/utils";
 import { faUserGear, faWallet } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -19,11 +20,12 @@ import {
   useModal,
   useTurnkey,
 } from "@turnkey/react-wallet-kit";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function AuthPage() {
   const { handleLogin, clientState, authState } = useTurnkey();
-  const { isMobile } = useModal();
+
+  const [selectedTabIndex, setSelectedTabIndex] = useState(1);
 
   useEffect(() => {
     if (
@@ -34,6 +36,8 @@ export default function AuthPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientState]);
+
+  const { isMobile } = useScreenSize();
 
   return (
     <div className="w-full h-screen flex items-center justify-center">
@@ -63,7 +67,11 @@ export default function AuthPage() {
           <DemoPanel />
         </div>
       ) : (
-        <TabGroup className="relative h-screen">
+        <TabGroup
+          onChange={(i) => setSelectedTabIndex(i)}
+          selectedIndex={selectedTabIndex}
+          className="block relative h-screen"
+        >
           <TabPanels className="flex justify-center items-center translate-y-10 h-[calc(100%-4rem)]">
             <TabPanel className="w-full">
               <UserSettings />
