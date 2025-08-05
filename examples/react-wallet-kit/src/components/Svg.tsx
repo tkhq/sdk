@@ -203,94 +203,33 @@ export function SolanaSVG(props: SVGProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      xmlSpace="preserve"
-      viewBox="0 0 397.7 311.7"
+      width="24px"
+      height="24px"
+      fill="none"
+      viewBox="0 0 110 80"
       {...props}
     >
-      <linearGradient
-        id="a"
-        x1={360.879}
-        x2={141.213}
-        y1={351.455}
-        y2={-69.294}
-        gradientTransform="matrix(1 0 0 -1 0 314)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop
-          offset={0}
-          style={{
-            stopColor: "#00ffa3",
-          }}
-        />
-        <stop
-          offset={1}
-          style={{
-            stopColor: "#dc1fff",
-          }}
-        />
-      </linearGradient>
       <path
-        d="M64.6 237.9c2.4-2.4 5.7-3.8 9.2-3.8h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1l62.7-62.7z"
-        style={{
-          fill: "url(#a)",
-        }}
+        fill="url(#a)"
+        d="m100.48 69.382-16.673 17.42c-.363.378-.801.68-1.288.886a3.959 3.959 0 0 1-1.545.312H1.936c-.378 0-.746-.107-1.062-.309a1.9 1.9 0 0 1-.714-.825 1.841 1.841 0 0 1-.132-1.072c.064-.362.235-.698.492-.966l16.686-17.42a3.872 3.872 0 0 1 1.284-.885 3.96 3.96 0 0 1 1.54-.313h79.034c.378 0 .746.107 1.062.308.315.202.563.489.714.826.15.337.196.709.132 1.071a1.87 1.87 0 0 1-.492.967ZM83.807 34.303a3.873 3.873 0 0 0-1.288-.886 3.96 3.96 0 0 0-1.545-.312H1.936c-.378 0-.746.107-1.062.309a1.9 1.9 0 0 0-.714.825c-.15.337-.196.71-.132 1.071.064.362.235.698.492.967l16.686 17.42c.362.377.799.678 1.284.884a3.96 3.96 0 0 0 1.54.314h79.034c.378 0 .746-.107 1.062-.309.315-.201.563-.488.714-.825a1.844 1.844 0 0 0-.36-2.038l-16.673-17.42ZM1.936 21.791h79.038a3.96 3.96 0 0 0 1.544-.313 3.873 3.873 0 0 0 1.289-.886l16.673-17.42a1.87 1.87 0 0 0 .492-.967 1.843 1.843 0 0 0-.132-1.07 1.906 1.906 0 0 0-.714-.826A1.974 1.974 0 0 0 99.064 0H20.03a3.96 3.96 0 0 0-1.54.314 3.873 3.873 0 0 0-1.284.884L.525 18.618a1.868 1.868 0 0 0-.492.966c-.065.362-.019.734.13 1.07.15.337.398.624.713.826.315.202.683.31 1.06.31Z"
       />
-      <linearGradient
-        id="b"
-        x1={264.829}
-        x2={45.163}
-        y1={401.601}
-        y2={-19.148}
-        gradientTransform="matrix(1 0 0 -1 0 314)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop
-          offset={0}
-          style={{
-            stopColor: "#00ffa3",
-          }}
-        />
-        <stop
-          offset={1}
-          style={{
-            stopColor: "#dc1fff",
-          }}
-        />
-      </linearGradient>
-      <path
-        d="M64.6 3.8C67.1 1.4 70.4 0 73.8 0h317.4c5.8 0 8.7 7 4.6 11.1l-62.7 62.7c-2.4 2.4-5.7 3.8-9.2 3.8H6.5c-5.8 0-8.7-7-4.6-11.1L64.6 3.8z"
-        style={{
-          fill: "url(#b)",
-        }}
-      />
-      <linearGradient
-        id="c"
-        x1={312.548}
-        x2={92.882}
-        y1={376.688}
-        y2={-44.061}
-        gradientTransform="matrix(1 0 0 -1 0 314)"
-        gradientUnits="userSpaceOnUse"
-      >
-        <stop
-          offset={0}
-          style={{
-            stopColor: "#00ffa3",
-          }}
-        />
-        <stop
-          offset={1}
-          style={{
-            stopColor: "#dc1fff",
-          }}
-        />
-      </linearGradient>
-      <path
-        d="M333.1 120.1c-2.4-2.4-5.7-3.8-9.2-3.8H6.5c-5.8 0-8.7 7-4.6 11.1l62.7 62.7c2.4 2.4 5.7 3.8 9.2 3.8h317.4c5.8 0 8.7-7 4.6-11.1l-62.7-62.7z"
-        style={{
-          fill: "url(#c)",
-        }}
-      />
+      <defs>
+        <linearGradient
+          id="a"
+          x1={8.526}
+          x2={88.993}
+          y1={90.097}
+          y2={-3.016}
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset={0.08} stopColor="#9945FF" />
+          <stop offset={0.3} stopColor="#8752F3" />
+          <stop offset={0.5} stopColor="#5497D5" />
+          <stop offset={0.6} stopColor="#43B4CA" />
+          <stop offset={0.72} stopColor="#28E0B9" />
+          <stop offset={0.97} stopColor="#19FB9B" />
+        </linearGradient>
+      </defs>
     </svg>
   );
 }
