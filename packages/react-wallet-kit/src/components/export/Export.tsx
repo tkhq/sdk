@@ -11,7 +11,14 @@ import type { StamperType } from "@turnkey/sdk-js";
 
 const TurnkeyExportIframeContainerId = "turnkey-export-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
-const TurnkeyIframeClassNames = "w-full border-none";
+const TurnkeyIframeClassNames =
+  "w-full border-none !text-base bg-icon-background-light dark:bg-icon-background-dark";
+
+// IMPORTANT: These colors need to match --icon-text-light, --icon-background-light, --icon-background-dark and --icon-text-dark in index.css
+const iconBackgroundLight = "#e5e7eb";
+const iconBackgroundDark = "#333336";
+const iconTextLight = "#828282";
+const iconTextDark = "#a3a3a5";
 
 export function ExportComponent(params: {
   walletId: string;
@@ -57,6 +64,18 @@ export function ExportComponent(params: {
           ),
         });
         await newExportIframeClient.init();
+        await newExportIframeClient.applySettings({
+          styles: {
+            fontSize: "16px",
+            backgroundColor: config?.ui?.darkMode
+              ? config?.ui?.colors?.dark?.iconBackground || iconBackgroundDark
+              : config?.ui?.colors?.light?.iconBackground ||
+                iconBackgroundLight,
+            color: config?.ui?.darkMode
+              ? config?.ui?.colors?.dark?.iconText || iconTextDark
+              : config?.ui?.colors?.light?.iconText || iconTextLight,
+          },
+        });
         setExportIframeClient(newExportIframeClient);
       } catch (error) {
         throw new TurnkeyError(
@@ -80,6 +99,23 @@ export function ExportComponent(params: {
       handleExportModalClose();
     };
   }, []);
+
+  useEffect(() => {
+    const reapplyIframeStyles = async () => {
+      await exportIframeClient?.applySettings({
+        styles: {
+          fontSize: "16px",
+          backgroundColor: config?.ui?.darkMode
+            ? config?.ui?.colors?.dark?.iconBackground || iconBackgroundDark
+            : config?.ui?.colors?.light?.iconBackground || iconBackgroundLight,
+          color: config?.ui?.darkMode
+            ? config?.ui?.colors?.dark?.iconText || iconTextDark
+            : config?.ui?.colors?.light?.iconText || iconTextLight,
+        },
+      });
+    };
+    reapplyIframeStyles();
+  }, [config.ui]);
 
   function handleExportModalClose() {
     if (exportIframeClient) {
@@ -123,14 +159,19 @@ export function ExportComponent(params: {
         <div
           id={TurnkeyExportIframeContainerId}
           style={{
-            backgroundColor: "#ffffff",
+            backgroundColor: config?.ui?.darkMode
+              ? config?.ui?.colors?.dark?.iconBackground || iconBackgroundDark
+              : config?.ui?.colors?.light?.iconBackground ||
+                iconBackgroundLight,
             boxSizing: "border-box",
             borderStyle: "solid",
             borderWidth: "1px",
             borderRadius: "8px",
             width: "100%",
             height: "100%",
-            borderColor: "rgba(216, 219, 227, 1)",
+            borderColor: config?.ui?.darkMode
+              ? config?.ui?.colors?.dark?.iconText || iconTextDark
+              : config?.ui?.colors?.light?.iconText || iconTextLight,
           }}
           className="p-2"
         />
