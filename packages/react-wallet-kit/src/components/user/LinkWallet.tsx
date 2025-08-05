@@ -28,7 +28,7 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
         content: (
           <WalletConnectScreen
             provider={provider}
-            onConnect={connectWalletAccount}
+            onAction={connectWalletAccount}
             successPageDuration={successPageDuration}
           />
         ),
