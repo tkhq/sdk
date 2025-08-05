@@ -3,6 +3,7 @@
 import DemoPanel from "@/components/demo/DemoPanel";
 import UserSettings from "@/components/demo/UserSettings";
 import { Spinner } from "@/components/Spinners";
+import { useScreenSize } from "@/utils";
 import { faUserGear, faWallet } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -23,7 +24,6 @@ import { useEffect } from "react";
 
 export default function AuthPage() {
   const { handleLogin, clientState, authState } = useTurnkey();
-  const { isMobile } = useModal();
 
   useEffect(() => {
     if (
@@ -34,6 +34,8 @@ export default function AuthPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientState]);
+
+  const { isMobile } = useScreenSize();
 
   return (
     <div className="w-full h-screen flex items-center justify-center">
@@ -57,38 +59,39 @@ export default function AuthPage() {
             <span>Press anywhere to login</span>
           </Button>
         )
-      ) : !isMobile ? (
-        <div className="flex items-center justify-center gap-10 w-fit">
-          <UserSettings />
-          <DemoPanel />
-        </div>
       ) : (
-        <TabGroup className="relative h-screen">
-          <TabPanels className="flex justify-center items-center translate-y-10 h-[calc(100%-4rem)]">
-            <TabPanel className="w-full">
-              <UserSettings />
-            </TabPanel>
-            <TabPanel className="w-full">
-              <DemoPanel />
-            </TabPanel>
-          </TabPanels>
-          <TabList className="backdrop-blur flex border-t border-t-icon-background-light dark:border-t-icon-background-dark items-center justify-evenly h-16 w-full relative z-20">
-            <Tab className="flex items-center justify-center flex-col group w-full">
-              <FontAwesomeIcon
-                className="transition-colors text-icon-text-light dark:text-icon-text-dark group-data-selected:text-primary-light dark:group-data-selected:text-primary-dark text-xl"
-                icon={faUserGear}
-              />
-              <p>Account</p>
-            </Tab>
-            <Tab className="flex items-center justify-center flex-col group w-full">
-              <FontAwesomeIcon
-                className="transition-colors text-icon-text-light dark:text-icon-text-dark group-data-selected:text-primary-light dark:group-data-selected:text-primary-dark text-xl"
-                icon={faWallet}
-              />
-              <p>Wallet</p>
-            </Tab>
-          </TabList>
-        </TabGroup>
+        <>
+          <div className="hidden sm:flex items-center justify-center gap-10 w-fit">
+            <UserSettings />
+            <DemoPanel />
+          </div>
+          <TabGroup className="block sm:hidden relative h-screen">
+            <TabPanels className="flex justify-center items-center translate-y-10 h-[calc(100%-4rem)]">
+              <TabPanel className="w-full">
+                <UserSettings />
+              </TabPanel>
+              <TabPanel className="w-full">
+                <DemoPanel />
+              </TabPanel>
+            </TabPanels>
+            <TabList className="backdrop-blur flex border-t border-t-icon-background-light dark:border-t-icon-background-dark items-center justify-evenly h-16 w-full relative z-20">
+              <Tab className="flex items-center justify-center flex-col group w-full">
+                <FontAwesomeIcon
+                  className="transition-colors text-icon-text-light dark:text-icon-text-dark group-data-selected:text-primary-light dark:group-data-selected:text-primary-dark text-xl"
+                  icon={faUserGear}
+                />
+                <p>Account</p>
+              </Tab>
+              <Tab className="flex items-center justify-center flex-col group w-full">
+                <FontAwesomeIcon
+                  className="transition-colors text-icon-text-light dark:text-icon-text-dark group-data-selected:text-primary-light dark:group-data-selected:text-primary-dark text-xl"
+                  icon={faWallet}
+                />
+                <p>Wallet</p>
+              </Tab>
+            </TabList>
+          </TabGroup>
+        </>
       )}
     </div>
   );
