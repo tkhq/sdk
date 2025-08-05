@@ -31,9 +31,15 @@ export class WalletConnectWallet implements WalletConnectInterface {
     this.client.onSessionDelete(() => {});
   }
 
+  /**
+   * Initializes WalletConnect pairing flow with the specified chains.
+   * If an active session already exists, pairing is skipped.
+   *
+   * @param opts.ethereum - Whether to enable Ethereum pairing
+   * @param opts.solana - Whether to enable Solana pairing
+   * @throws {Error} If no chains are enabled
+   */
   async init(opts?: { ethereum?: boolean; solana?: boolean }): Promise<void> {
-    console.log("Initializing WalletConnect...");
-    console.log("Enabled chains:", opts);
     this.enabledChains = {
       ethereum: opts?.ethereum ?? false,
       solana: opts?.solana ?? false,
@@ -51,7 +57,6 @@ export class WalletConnectWallet implements WalletConnectInterface {
     const namespaces: Record<string, any> = {};
 
     if (opts?.ethereum === true) {
-      console.log("Enabling Ethereum namespace for WalletConnect");
       namespaces.eip155 = {
         methods: ["personal_sign", "eth_sendTransaction"],
         chains: [EVM_CHAIN],
@@ -60,7 +65,6 @@ export class WalletConnectWallet implements WalletConnectInterface {
     }
 
     if (opts?.solana === true) {
-      console.log("Enabling Solana namespace for WalletConnect");
       namespaces.solana = {
         methods: [
           "solana_signMessage",
@@ -75,6 +79,9 @@ export class WalletConnectWallet implements WalletConnectInterface {
     this.uri = await this.client.pair(namespaces);
   }
 
+  /**
+   * Returns WalletConnect providers with associated chain/account metadata.
+   */
   async getProviders(): Promise<WalletProvider[]> {
     const session = this.client.getSession();
 
@@ -115,20 +122,31 @@ export class WalletConnectWallet implements WalletConnectInterface {
       .filter(Boolean) as WalletProvider[];
   }
 
+  /**
+   * Approves the session if needed and ensures at least one account is available.
+   */
   async connectWalletAccount(_provider: WalletProvider): Promise<void> {
     const session = await this.client.approve();
-    const acc = getConnectedEthereum(session) || getConnectedSolana(session);
-    if (!acc) throw new Error("No account found in session");
+    if (!hasConnectedAccounts(session))
+      throw new Error("No account found in session");
   }
 
+  /**
+   * Signs a message or transaction using the specified provider and intent.
+   *
+   * @param message - The message or serialized transaction to sign.
+   * @param provider - The WalletProvider to use.
+   * @param intent - The type of signing intent (message, tx, send).
+   */
   async sign(
     message: string,
     provider: WalletProvider,
     intent: SignIntent,
   ): Promise<string> {
-    const session = this.client.getSession();
-    if (!session) {
-      throw new Error("WalletConnectWallet.sign: no active session");
+    const session = await this.ensureSession();
+
+    if (!hasConnectedAccounts(session)) {
+      await this.connectWalletAccount(provider);
     }
 
     if (provider.chain === Chain.Ethereum) {
@@ -211,6 +229,12 @@ export class WalletConnectWallet implements WalletConnectInterface {
     throw new Error("No supported namespace available for signing");
   }
 
+  /**
+   * Retrieves the public key of the connected wallet.
+   *
+   * @param provider - The WalletProvider to fetch the key from.
+   * @returns Compressed public key as a hex string.
+   */
   async getPublicKey(provider: WalletProvider): Promise<string> {
     const session = this.client.getSession();
 
@@ -246,6 +270,9 @@ export class WalletConnectWallet implements WalletConnectInterface {
     throw new Error("No supported namespace for public key retrieval");
   }
 
+  /**
+   * Disconnects the current session and re-initiates a fresh pairing URI.
+   */
   async disconnectWalletAccount(_provider: WalletProvider): Promise<void> {
     await this.client.disconnect();
 
@@ -274,15 +301,36 @@ export class WalletConnectWallet implements WalletConnectInterface {
     await this.client.pair(namespaces).then((newUri) => {
       this.uri = newUri;
     });
-    console.log("New WalletConnect URI:", this.uri);
   }
 
+  /**
+   * Builds a lightweight provider interface for the given chain.
+   *
+   * @param chainId - The namespace chain ID (e.g., eip155:1)
+   * @returns A WalletConnect-compatible provider implementation
+   */
   private makeProvider(chainId: string): WalletConnectProvider {
     return {
       request: ({ method, params }: any) => {
         return this.client.request(chainId, method, params);
       },
     };
+  }
+
+  /**
+   * Ensures there is an active WalletConnect session, initiating approval if necessary.
+   *
+   * @returns The current WalletConnect session
+   * @throws {Error} If approval fails or session is not established
+   */
+  private async ensureSession(): Promise<SessionTypes.Struct> {
+    let session = this.client.getSession();
+    if (!session) {
+      await this.client.approve();
+      session = this.client.getSession();
+      if (!session) throw new Error("WalletConnect: approval failed");
+    }
+    return session;
   }
 }
 
