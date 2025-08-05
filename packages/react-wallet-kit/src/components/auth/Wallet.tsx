@@ -6,7 +6,7 @@ import { faChevronRight, faClose } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { type WalletProvider } from "@turnkey/sdk-js";
-import { QRCodeSVG } from "qrcode.react";
+import { QRCodeSVG as QRCode } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
 import { isEthereumWallet } from "@turnkey/sdk-js/dist/utils";
 
@@ -355,26 +355,22 @@ export function ConnectedIndicator(props: ConnectedIndicatorProps) {
 export interface WalletConnectScreenProps {
   provider: WalletProvider;
   successPageDuration: number | undefined;
-  onConnect: (provider: WalletProvider) => Promise<void>;
+  onAction: (provider: WalletProvider) => Promise<void>;
+  onDisconnect?: (provider: WalletProvider) => Promise<void>;
 }
 
 export function WalletConnectScreen(props: WalletConnectScreenProps) {
-  const { provider, successPageDuration, onConnect } = props;
+  const { provider, successPageDuration, onAction, onDisconnect } = props;
   const { pushPage, closeModal } = useModal();
 
-  // once we have a URI, kick off the approval flow
-  useEffect(() => {
-    // if there's no URI yet, nothing to do
-    if (!provider.uri) return;
-    let cancelled = false;
+  const [isUnlinking, setIsUnlinking] = useState(false);
+  const [unlinkError, setUnlinkError] = useState(false);
 
+  // kick off authentication/pairing or signing on mount or when URI changes
+  useEffect(() => {
     (async () => {
       try {
-        // this will await the user scanning & approving
-        await onConnect(provider);
-        if (cancelled) return;
-
-        // then show your success screen
+        await onAction(provider);
         pushPage({
           key: "Link Success",
           content: (
@@ -389,28 +385,65 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         });
       } catch (e) {
         console.error("WalletConnect failed:", e);
-        // you could push an error page here if you want
+        // optionally show an error state here
       }
     })();
+  }, [provider.uri, onAction, pushPage, closeModal, successPageDuration]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [provider.uri, onConnect, pushPage, closeModal, successPageDuration]);
+  const handleUnlink = async () => {
+    setIsUnlinking(true);
+    setUnlinkError(false);
+    try {
+      await onDisconnect?.(provider);
+    } catch (err) {
+      console.error(err);
+      setUnlinkError(true);
+    } finally {
+      setIsUnlinking(false);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center p-6">
-      {provider.uri ? (
-        <div className="bg-white p-4 rounded-md shadow-md">
-          {/* @ts-expect-error: qrcode.react uses a different React type version */}
-          <QRCodeSVG value={provider.uri} size={200} />
-        </div>
+    <div className="p-6 flex flex-col items-center">
+      {provider.connectedAddresses.length > 0 ? (
+        <>
+          <p className="mb-4 text-center">
+            Please sign the authentication message with your connected wallet
+            address:
+          </p>
+          <ul className="mb-4 space-y-1">
+            {provider.connectedAddresses.map((addr) => (
+              <li key={addr} className="font-mono text-sm">
+                {addr}
+              </li>
+            ))}
+          </ul>
+
+          <div className="w-full max-w-md mt-4">
+            <ActionButton
+              onClick={handleUnlink}
+              loading={isUnlinking}
+              className={clsx(
+                "w-full bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark",
+                unlinkError && "animate-shake opacity-50",
+              )}
+              spinnerClassName="text-primary-danger-text-light dark:text-primary-danger-text-dark"
+            >
+              Unlink Wallet
+            </ActionButton>
+          </div>
+        </>
       ) : (
-        <p className="text-center text-gray-600">Preparing WalletConnect QR…</p>
+        <>
+          <p className="mb-4 text-center">
+            Scan the QR code with your WalletConnect-compatible wallet to link:
+          </p>
+          {provider.uri && (
+            // @ts-expect-error: qrcode.react uses a different React type version
+            <QRCode value={provider.uri} size={200} />
+          )}
+        </>
       )}
-      <p className="mt-4 text-center text-sm text-gray-600">
-        Scan this QR code with your WalletConnect-compatible wallet.
-      </p>
     </div>
   );
 }
