@@ -13,6 +13,7 @@ import {
   TurnkeyError,
   TurnkeyErrorCodes,
   v1SignRawPayloadResult,
+  v1TransactionType,
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
@@ -398,6 +399,89 @@ export const hashPayload = async (
   }
 
   throw new Error(`Unsupported hash function: ${hashFn}`);
+};
+
+export const broadcastTransaction = async (params: {
+  signedTransaction: string;
+  rpcUrl: string;
+  transactionType: v1TransactionType;
+}): Promise<string> => {
+  const { signedTransaction, rpcUrl, transactionType } = params;
+
+  switch (transactionType) {
+    case "TRANSACTION_TYPE_SOLANA": {
+      const response = await fetch(rpcUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "sendTransaction",
+          params: [signedTransaction],
+        }),
+      });
+
+      const json = await response.json();
+
+      if (json.error) {
+        throw new TurnkeyError(
+          `Solana RPC Error: ${json.error.message}`,
+          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+        );
+      }
+
+      return json.result;
+    }
+
+    case "TRANSACTION_TYPE_ETHEREUM": {
+      const response = await fetch(rpcUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_sendRawTransaction",
+          params: [signedTransaction],
+        }),
+      });
+
+      const json = await response.json();
+
+      if (json.error) {
+        throw new TurnkeyError(
+          `Ethereum RPC Error: ${json.error.message}`,
+          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+        );
+      }
+
+      return json.result;
+    }
+
+    case "TRANSACTION_TYPE_TRON": {
+      const response = await fetch(`${rpcUrl}/wallet/broadcasthex`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transaction: signedTransaction }),
+      });
+
+      const json = await response.json();
+
+      if (!json.result) {
+        throw new TurnkeyError(
+          `Tron RPC Error: ${json.message}`,
+          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+        );
+      }
+
+      return json.txid;
+    }
+
+    default:
+      throw new TurnkeyError(
+        `Unsupported transaction type for broadcasting: ${transactionType}`,
+        TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+      );
+  }
 };
 
 export const getWalletAccountMethods = (
