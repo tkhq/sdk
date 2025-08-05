@@ -36,14 +36,12 @@ import {
   faWallet,
   faWifi,
 } from "@fortawesome/free-solid-svg-icons";
-import { parseEther, Transaction as EthTransaction } from "ethers";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import {
   verifyEthSignatureWithAddress,
   verifySolSignatureWithAddress,
 } from "@/utils";
-import { Sign } from "crypto";
 import SignatureVerification from "./SignatureVerification";
+import Image from "next/image";
 
 export default function DemoPanel() {
   const {
@@ -372,8 +370,10 @@ const StackedImg = ({
     <div className="mr-2 flex items-center">
       {connectedWalletIcons.map((icon, index) =>
         icon && index < 2 ? (
-          <img
+          <Image
             key={index}
+            width={24}
+            height={24}
             src={icon}
             alt={`Wallet Icon ${index}`}
             className={`w-6 h-6 bg-icon-background-light dark:bg-icon-background-dark rounded-full p-0.5 ${index > 0 ? "-ml-3" : ""}`}
