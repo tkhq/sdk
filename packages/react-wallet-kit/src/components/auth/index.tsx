@@ -38,6 +38,7 @@ export function AuthComponent() {
     signUpWithPasskey,
     getWalletProviders,
     loginOrSignupWithWallet,
+    disconnectWalletAccount,
   } = useTurnkey();
   const { pushPage, isMobile } = useModal();
 
@@ -214,8 +215,11 @@ export function AuthComponent() {
         content: (
           <WalletConnectScreen
             provider={provider}
-            onConnect={async (provider) => {
+            onAction={async (provider) => {
               await loginOrSignupWithWallet({ walletProvider: provider });
+            }}
+            onDisconnect={async (provider) => {
+              await disconnectWalletAccount(provider);
             }}
             successPageDuration={undefined}
           />
