@@ -1,10 +1,9 @@
 "use client";
-
 import "@turnkey/react-wallet-kit/dist/styles.css";
 import "./global.css";
 import { TurnkeyConfigProvider } from "@/providers/config/ConfigProvider";
 import "@fortawesome/fontawesome-svg-core/styles.css";
-import { Slide, ToastContainer, toast } from "react-toastify";
+import { Slide, toast } from "react-toastify";
 
 interface RootLayoutProps {
   children: React.ReactNode;
