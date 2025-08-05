@@ -15,7 +15,7 @@
     "/v1/account": {
       "post": {
         "summary": "Get Account",
-        "description": "Return account ID associated with a given phone number, email, public key, credential ID or OIDC token.",
+        "description": "Return organization id associated with a given phone number, email, public key, credential ID or OIDC token.",
         "operationId": "AuthProxyService_GetAccount",
         "responses": {
           "200": {
@@ -41,7 +41,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["Accounts"]
       }
     },
     "/v1/oauth_login": {
@@ -175,7 +175,7 @@
     "/v1/signup": {
       "post": {
         "summary": "Signup",
-        "description": "Onboard a a new user.",
+        "description": "Onboard a new user.",
         "operationId": "AuthProxyService_Signup",
         "responses": {
           "200": {
@@ -233,7 +233,7 @@
             }
           }
         ],
-        "tags": ["AuthKit"]
+        "tags": ["Wallet Kit"]
       }
     }
   },
@@ -436,11 +436,6 @@
           "description": "List of enabled authentication providers (e.g., 'facebook', 'google', 'apple', 'email', 'sms', 'passkey', 'wallet')",
           "title": "Enabled Providers"
         },
-        "openOAuthInPage": {
-          "type": "boolean",
-          "description": "Whether to open OAuth providers in-page instead of a popup",
-          "title": "OAuth In-Page"
-        },
         "sessionExpirationSeconds": {
           "type": "string",
           "description": "Session expiration duration in seconds",
@@ -454,7 +449,6 @@
       },
       "required": [
         "enabledProviders",
-        "openOAuthInPage",
         "sessionExpirationSeconds",
         "organizationId"
       ]
@@ -572,7 +566,7 @@
         "userName": {
           "type": "string"
         },
-        "subOrgName": {
+        "organizationName": {
           "type": "string"
         },
         "verificationToken": {

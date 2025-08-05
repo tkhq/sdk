@@ -24,6 +24,14 @@ export enum ExportType {
 
 const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
+const TurnkeyIframeClassNames =
+  "w-full h-full overflow-hidden border-none !text-base bg-icon-background-light dark:bg-icon-background-dark";
+
+// IMPORTANT: These colors need to match --icon-text-light, --icon-background-light, --icon-background-dark and --icon-text-dark in index.css
+const iconBackgroundLight = "#e5e7eb";
+const iconBackgroundDark = "#333336";
+const iconTextLight = "#828282";
+const iconTextDark = "#a3a3a5";
 
 export function ImportComponent(params: {
   defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
@@ -80,6 +88,14 @@ export function ImportComponent(params: {
         await newImportIframeClient.applySettings({
           styles: {
             fontSize: "16px",
+            // IMPORTANT: These colors need to match --icon-text-light and --icon-text-dark in index.css
+            backgroundColor: config?.ui?.darkMode
+              ? config?.ui?.colors?.dark?.iconBackground || iconBackgroundDark
+              : config?.ui?.colors?.light?.iconBackground ||
+                iconBackgroundLight,
+            color: config?.ui?.darkMode
+              ? config?.ui?.colors?.dark?.iconText || iconTextDark
+              : config?.ui?.colors?.light?.iconText || iconTextLight,
           },
         });
         setImportIframeClient(newImportIframeClient);
@@ -100,14 +116,30 @@ export function ImportComponent(params: {
     const iframeElement = document.getElementById(TurnkeyIframeElementId);
 
     if (iframeElement) {
-      iframeElement.className =
-        "w-full h-full overflow-hidden border-none !text-base";
+      iframeElement.className = TurnkeyIframeClassNames;
     }
 
     return () => {
       handleImportModalClose();
     };
   }, []);
+
+  useEffect(() => {
+    const reapplyIframeStyles = async () => {
+      await importIframeClient?.applySettings({
+        styles: {
+          fontSize: "16px",
+          backgroundColor: config?.ui?.darkMode
+            ? config?.ui?.colors?.dark?.iconBackground || iconBackgroundDark
+            : config?.ui?.colors?.light?.iconBackground || iconBackgroundLight,
+          color: config?.ui?.darkMode
+            ? config?.ui?.colors?.dark?.iconText || iconTextDark
+            : config?.ui?.colors?.light?.iconText || iconTextLight,
+        },
+      });
+    };
+    reapplyIframeStyles();
+  }, [config.ui]);
 
   function handleImportModalClose() {
     if (importIframeClient) {
@@ -251,14 +283,18 @@ export function ImportComponent(params: {
           height: "100%",
           overflow: "hidden",
           display: "block",
-          backgroundColor: "#ffffff",
+          backgroundColor: config?.ui?.darkMode
+            ? config?.ui?.colors?.dark?.iconBackground || iconBackgroundDark
+            : config?.ui?.colors?.light?.iconBackground || iconBackgroundLight,
           width: "100%",
           boxSizing: "border-box",
           padding: "5px",
           borderStyle: "solid",
           borderWidth: "1px",
           borderRadius: "8px",
-          borderColor: "rgba(216, 219, 227, 1)",
+          borderColor: config?.ui?.darkMode
+            ? config?.ui?.colors?.dark?.iconText || iconTextDark
+            : config?.ui?.colors?.light?.iconText || iconTextLight,
         }}
         className={`transition-all ${shaking ? "animate-shake" : ""}`}
       />
@@ -267,7 +303,7 @@ export function ImportComponent(params: {
         placeholder="Enter your wallet name"
         value={walletName}
         onChange={(e) => setWalletName(e.target.value)}
-        className="w-full my-2 py-3 px-3 rounded-md text-inherit bg-button-light dark:bg-button-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 box-border"
+        className="placeholder:text-icon-text-light dark:placeholder:text-icon-text-dark w-full my-2 py-3 px-3 rounded-md text-inherit bg-icon-background-light dark:bg-icon-background-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 box-border"
       />
       <ActionButton
         loading={isLoading}

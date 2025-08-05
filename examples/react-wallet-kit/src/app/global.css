@@ -16,6 +16,12 @@
   --color-danger-text-light: rgb(255, 255, 255);
   --color-danger-text-dark: rgb(255, 255, 255);
 
+  --color-success-light: oklch(0.7231 0.1834 142.46);
+  --color-success-dark: oklch(0.7679 0.1603 152.74);
+  /* This is the color of the text that goes on top of success color buttons */
+  --color-success-text-light: rgb(255, 255, 255);
+  --color-success-text-dark: rgb(255, 255, 255);
+
   --color-button-light: rgb(255, 255, 255);
   --color-button-dark: oklch(0.2532 0.0056 285.99);
 
@@ -81,4 +87,40 @@
     -apple-system,
     BlinkMacSystemFont,
     sans-serif;
+}
+
+@layer components {
+  /* A nice scrollbar that conforms to light/dark mode */
+  .tk-scrollbar {
+    /* For Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-background-light)
+      var(--color-panel-background-light); /* thumb and track (light mode) */
+  }
+  /* For WebKit browsers */
+  .tk-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .tk-scrollbar::-webkit-scrollbar-track {
+    background: var(--color-draggable-background-light);
+  }
+  .tk-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--color-draggable-background-light);
+    border-radius: 10px;
+    border: 2px solid var(--color-draggable-background-light);
+  }
+
+  /* Dark mode styles */
+  .dark .tk-scrollbar {
+    scrollbar-color: var(--color-background-dark)
+      var(--color-panel-background-dark); /* thumb and track (dark mode) */
+  }
+  .dark .tk-scrollbar::-webkit-scrollbar-track {
+    background: var(--color-background-dark);
+  }
+  .dark .tk-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--color-background-dark);
+    border: 2px solid var(--color-background-dark);
+  }
 }

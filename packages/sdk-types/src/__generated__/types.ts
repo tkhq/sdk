@@ -87,15 +87,6 @@ export type externalactivityv1PolicyEvaluation = {
   createdAt: externaldatav1Timestamp;
 };
 
-export type externalactivityv1UpdateProxyAuthConfigRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1UpdateProxyAuthConfigIntent;
-};
-
 export type externaldatav1Address = {
   format?: v1AddressFormat;
   address?: string;
@@ -322,9 +313,9 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
   | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
   | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
-  | "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH"
-  | "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH"
-  | "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
+  | "ACTIVITY_TYPE_ENABLE_AUTH_PROXY"
+  | "ACTIVITY_TYPE_DISABLE_AUTH_PROXY"
+  | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -427,6 +418,31 @@ export type v1Attestation = {
   attestationObject: string;
   /** The type of authenticator transports. */
   transports: v1AuthenticatorTransport[];
+};
+
+export type v1AuthProxyConfig = {
+  organizationId?: string;
+  allowedOrigins?: string[];
+  allowedAuthMethods?: string[];
+  encryptedApiKey?: string;
+  turnkeySignerUserId?: string;
+  sendFromEmailAddress?: string;
+  replyToEmailAddress?: string;
+  emailAuthTemplateId?: string;
+  otpTemplateId?: string;
+  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
+  emailCustomizationParams?: v1EmailCustomizationParams;
+  /** Optional parameters for customizing SMS. If not provided, the default SMS will be used. */
+  smsCustomizationParams?: v1SmsCustomizationParams;
+  otpExpirationSeconds?: number;
+  verificationTokenExpirationSeconds?: number;
+  sessionExpirationSeconds?: number;
+  createdAt?: string;
+  updatedAt?: string;
+  otpAlphanumeric?: boolean;
+  otpLength?: number;
+  proxyId?: string;
+  walletKitSettings?: string;
 };
 
 export type v1Authenticator = {
@@ -1366,6 +1382,8 @@ export type v1DeleteWalletsResult = {
   walletIds: string[];
 };
 
+export type v1DisableAuthProxyIntent = {};
+export type v1DisableAuthProxyResult = {};
 export type v1DisablePrivateKeyIntent = {
   /** Unique identifier for a given Private Key. */
   privateKeyId: string;
@@ -1376,17 +1394,6 @@ export type v1DisablePrivateKeyResult = {
   privateKeyId: string;
 };
 
-export type v1DisableUserInitiatedAuthIntent = {};
-export type v1DisableUserInitiatedAuthRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1DisableUserInitiatedAuthIntent;
-};
-
-export type v1DisableUserInitiatedAuthResult = {};
 export type v1Effect = "EFFECT_ALLOW" | "EFFECT_DENY";
 
 export type v1EmailAuthIntent = {
@@ -1460,17 +1467,8 @@ export type v1EmailCustomizationParams = {
   templateId?: string;
 };
 
-export type v1EnableUserInitiatedAuthIntent = {};
-export type v1EnableUserInitiatedAuthRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1EnableUserInitiatedAuthIntent;
-};
-
-export type v1EnableUserInitiatedAuthResult = {
+export type v1EnableAuthProxyIntent = {};
+export type v1EnableAuthProxyResult = {
   /** A User ID with permission to initiate authentication. */
   userId: string;
 };
@@ -1559,7 +1557,7 @@ export type v1FeatureName =
   | "FEATURE_NAME_WEBHOOK"
   | "FEATURE_NAME_SMS_AUTH"
   | "FEATURE_NAME_OTP_EMAIL_AUTH"
-  | "FEATURE_NAME_AUTH_KIT";
+  | "FEATURE_NAME_AUTH_PROXY";
 
 export type v1FiatOnRampBlockchainNetwork =
   | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
@@ -1687,6 +1685,16 @@ export type v1GetAttestationDocumentResponse = {
   attestationDocument: string;
 };
 
+export type v1GetAuthProxyConfigRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+};
+
+export type v1GetAuthProxyConfigResponse = {
+  /** Proxy authentication configuration (e.g., allowed origins). */
+  authProxyConfig: v1AuthProxyConfig;
+};
+
 export type v1GetAuthenticatorRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
@@ -1796,16 +1804,6 @@ export type v1GetPrivateKeysRequest = {
 export type v1GetPrivateKeysResponse = {
   /** A list of private keys. */
   privateKeys: v1PrivateKey[];
-};
-
-export type v1GetProxyAuthConfigRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-};
-
-export type v1GetProxyAuthConfigResponse = {
-  /** Proxy authentication configuration (e.g., allowed origins). */
-  proxyAuthConfig: v1ProxyAuthConfig;
 };
 
 export type v1GetSmartContractInterfaceRequest = {
@@ -2311,9 +2309,9 @@ export type v1Intent = {
   initFiatOnRampIntent?: v1InitFiatOnRampIntent;
   createSmartContractInterfaceIntent?: v1CreateSmartContractInterfaceIntent;
   deleteSmartContractInterfaceIntent?: v1DeleteSmartContractInterfaceIntent;
-  enableUserInitiatedAuthIntent?: v1EnableUserInitiatedAuthIntent;
-  disableUserInitiatedAuthIntent?: v1DisableUserInitiatedAuthIntent;
-  updateProxyAuthConfigIntent?: v1UpdateProxyAuthConfigIntent;
+  enableAuthProxyIntent?: v1EnableAuthProxyIntent;
+  disableAuthProxyIntent?: v1DisableAuthProxyIntent;
+  updateAuthProxyConfigIntent?: v1UpdateAuthProxyConfigIntent;
 };
 
 export type v1Invitation = {
@@ -2629,31 +2627,6 @@ export type v1PrivateKeyResult = {
   addresses?: immutableactivityv1Address[];
 };
 
-export type v1ProxyAuthConfig = {
-  organizationId?: string;
-  allowedOrigins?: string[];
-  allowedAuthMethods?: string[];
-  encryptedApiKey?: string;
-  turnkeySignerUserId?: string;
-  sendFromEmailAddress?: string;
-  replyToEmailAddress?: string;
-  emailAuthTemplateId?: string;
-  otpTemplateId?: string;
-  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
-  emailCustomizationParams?: v1EmailCustomizationParams;
-  /** Optional parameters for customizing SMS. If not provided, the default SMS will be used. */
-  smsCustomizationParams?: v1SmsCustomizationParams;
-  otpExpirationSeconds?: number;
-  verificationTokenExpirationSeconds?: number;
-  sessionExpirationSeconds?: number;
-  createdAt?: string;
-  updatedAt?: string;
-  otpAlphanumeric?: boolean;
-  otpLength?: number;
-  proxyId?: string;
-  walletKitSettings?: string;
-};
-
 export type v1PublicKeyCredentialWithAttestation = {
   id: string;
   type: string;
@@ -2797,9 +2770,9 @@ export type v1Result = {
   initFiatOnRampResult?: v1InitFiatOnRampResult;
   createSmartContractInterfaceResult?: v1CreateSmartContractInterfaceResult;
   deleteSmartContractInterfaceResult?: v1DeleteSmartContractInterfaceResult;
-  enableUserInitiatedAuthResult?: v1EnableUserInitiatedAuthResult;
-  disableUserInitiatedAuthResult?: v1DisableUserInitiatedAuthResult;
-  updateProxyAuthConfigResult?: v1UpdateProxyAuthConfigResult;
+  enableAuthProxyResult?: v1EnableAuthProxyResult;
+  disableAuthProxyResult?: v1DisableAuthProxyResult;
+  updateAuthProxyConfigResult?: v1UpdateAuthProxyConfigResult;
 };
 
 export type v1RootUserParams = {
@@ -3047,6 +3020,42 @@ export type v1UpdateAllowedOriginsIntent = {
 };
 
 export type v1UpdateAllowedOriginsResult = {};
+export type v1UpdateAuthProxyConfigIntent = {
+  /** Updated list of allowed origins for CORS. */
+  allowedOrigins?: string[];
+  /** Updated list of allowed proxy authentication methods. */
+  allowedAuthMethods?: string[];
+  /** Custom 'from' address for auth-related emails. */
+  sendFromEmailAddress?: string;
+  /** Custom reply-to address for auth-related emails. */
+  replyToEmailAddress?: string;
+  /** Template ID for email-auth messages. */
+  emailAuthTemplateId?: string;
+  /** Template ID for OTP SMS messages. */
+  otpTemplateId?: string;
+  /** Overrides for auth-related email content. */
+  emailCustomizationParams?: v1EmailCustomizationParams;
+  /** Overrides for auth-related SMS content. */
+  smsCustomizationParams?: v1SmsCustomizationParams;
+  /** Overrides for react wallet kit related settings. */
+  walletKitSettings?: v1WalletKitSettingsParams;
+  /** OTP code lifetime in seconds. */
+  otpExpirationSeconds?: number;
+  /** Verification-token lifetime in seconds. */
+  verificationTokenExpirationSeconds?: number;
+  /** Session lifetime in seconds. */
+  sessionExpirationSeconds?: number;
+  /** Enable alphanumeric OTP codes. */
+  otpAlphanumeric?: boolean;
+  /** Desired OTP code length (6–9). */
+  otpLength?: number;
+};
+
+export type v1UpdateAuthProxyConfigResult = {
+  /** Unique identifier for a given User. (representing the turnkey signer user id) */
+  configId?: string;
+};
+
 export type v1UpdatePolicyIntent = {
   /** Unique identifier for a given Policy. */
   policyId: string;
@@ -3119,42 +3128,6 @@ export type v1UpdatePrivateKeyTagRequest = {
 export type v1UpdatePrivateKeyTagResult = {
   /** Unique identifier for a given Private Key Tag. */
   privateKeyTagId: string;
-};
-
-export type v1UpdateProxyAuthConfigIntent = {
-  /** Updated list of allowed origins for CORS. */
-  allowedOrigins?: string[];
-  /** Updated list of allowed proxy authentication methods. */
-  allowedAuthMethods?: string[];
-  /** Custom 'from' address for auth-related emails. */
-  sendFromEmailAddress?: string;
-  /** Custom reply-to address for auth-related emails. */
-  replyToEmailAddress?: string;
-  /** Template ID for email-auth messages. */
-  emailAuthTemplateId?: string;
-  /** Template ID for OTP SMS messages. */
-  otpTemplateId?: string;
-  /** Overrides for auth-related email content. */
-  emailCustomizationParams?: v1EmailCustomizationParams;
-  /** Overrides for auth-related SMS content. */
-  smsCustomizationParams?: v1SmsCustomizationParams;
-  /** Overrides for react wallet kit related settings. */
-  walletKitSettings?: v1WalletKitSettingsParams;
-  /** OTP code lifetime in seconds. */
-  otpExpirationSeconds?: number;
-  /** Verification-token lifetime in seconds. */
-  verificationTokenExpirationSeconds?: number;
-  /** Session lifetime in seconds. */
-  sessionExpirationSeconds?: number;
-  /** Enable alphanumeric OTP codes. */
-  otpAlphanumeric?: boolean;
-  /** Desired OTP code length (6–9). */
-  otpLength?: number;
-};
-
-export type v1UpdateProxyAuthConfigResult = {
-  /** Unique identifier for a given User. (representing the turnkey signer user id) */
-  configId?: string;
 };
 
 export type v1UpdateRootQuorumIntent = {
@@ -3474,8 +3447,6 @@ export type v1WalletAccountParams = {
 export type v1WalletKitSettingsParams = {
   /** List of enabled social login providers (e.g., 'apple', 'google', 'facebook') */
   enabledSocialProviders?: string[];
-  /** Whether to open OAuth providers in-page instead of a popup */
-  openOauthInPage?: boolean;
 };
 
 export type v1WalletParams = {
@@ -3558,6 +3529,17 @@ export type TGetAttestationDocumentBody = {
 export type TGetAttestationDocumentInput = {
   body: TGetAttestationDocumentBody;
 };
+
+export type TGetAuthProxyConfigResponse = {
+  /** Proxy authentication configuration (e.g., allowed origins). */
+  authProxyConfig: v1AuthProxyConfig;
+};
+
+export type TGetAuthProxyConfigBody = {
+  organizationId?: string;
+};
+
+export type TGetAuthProxyConfigInput = { body: TGetAuthProxyConfigBody };
 
 export type TGetAuthenticatorResponse = {
   /** An authenticator. */
@@ -3659,17 +3641,6 @@ export type TGetPrivateKeyBody = {
 };
 
 export type TGetPrivateKeyInput = { body: TGetPrivateKeyBody };
-
-export type TGetProxyAuthConfigResponse = {
-  /** Proxy authentication configuration (e.g., allowed origins). */
-  proxyAuthConfig: v1ProxyAuthConfig;
-};
-
-export type TGetProxyAuthConfigBody = {
-  organizationId?: string;
-};
-
-export type TGetProxyAuthConfigInput = { body: TGetProxyAuthConfigBody };
 
 export type TGetSmartContractInterfaceResponse = {
   /** Object to be used in conjunction with policies to guard transaction signing. */
@@ -4438,19 +4409,6 @@ export type TDeleteWalletsBody = {
 
 export type TDeleteWalletsInput = { body: TDeleteWalletsBody };
 
-export type TDisableUserInitiatedAuthResponse = {
-  activity: v1Activity;
-};
-
-export type TDisableUserInitiatedAuthBody = {
-  timestampMs?: string;
-  organizationId?: string;
-};
-
-export type TDisableUserInitiatedAuthInput = {
-  body: TDisableUserInitiatedAuthBody;
-};
-
 export type TEmailAuthResponse = {
   activity: v1Activity;
   /** Unique identifier for the authenticating User. */
@@ -4483,21 +4441,6 @@ export type TEmailAuthBody = {
 };
 
 export type TEmailAuthInput = { body: TEmailAuthBody };
-
-export type TEnableUserInitiatedAuthResponse = {
-  activity: v1Activity;
-  /** A User ID with permission to initiate authentication. */
-  userId: string;
-};
-
-export type TEnableUserInitiatedAuthBody = {
-  timestampMs?: string;
-  organizationId?: string;
-};
-
-export type TEnableUserInitiatedAuthInput = {
-  body: TEnableUserInitiatedAuthBody;
-};
 
 export type TExportPrivateKeyResponse = {
   activity: v1Activity;
@@ -5051,45 +4994,6 @@ export type TUpdatePrivateKeyTagBody = {
 
 export type TUpdatePrivateKeyTagInput = { body: TUpdatePrivateKeyTagBody };
 
-export type TUpdateProxyAuthConfigResponse = {
-  activity: v1Activity;
-};
-
-export type TUpdateProxyAuthConfigBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** Updated list of allowed origins for CORS. */
-  allowedOrigins?: string[];
-  /** Updated list of allowed proxy authentication methods. */
-  allowedAuthMethods?: string[];
-  /** Custom 'from' address for auth-related emails. */
-  sendFromEmailAddress?: string;
-  /** Custom reply-to address for auth-related emails. */
-  replyToEmailAddress?: string;
-  /** Template ID for email-auth messages. */
-  emailAuthTemplateId?: string;
-  /** Template ID for OTP SMS messages. */
-  otpTemplateId?: string;
-  /** Overrides for auth-related email content. */
-  emailCustomizationParams?: v1EmailCustomizationParams;
-  /** Overrides for auth-related SMS content. */
-  smsCustomizationParams?: v1SmsCustomizationParams;
-  /** Overrides for react wallet kit related settings. */
-  walletKitSettings?: v1WalletKitSettingsParams;
-  /** OTP code lifetime in seconds. */
-  otpExpirationSeconds?: number;
-  /** Verification-token lifetime in seconds. */
-  verificationTokenExpirationSeconds?: number;
-  /** Session lifetime in seconds. */
-  sessionExpirationSeconds?: number;
-  /** Enable alphanumeric OTP codes. */
-  otpAlphanumeric?: boolean;
-  /** Desired OTP code length (6–9). */
-  otpLength?: number;
-};
-
-export type TUpdateProxyAuthConfigInput = { body: TUpdateProxyAuthConfigBody };
-
 export type TUpdateRootQuorumResponse = {
   activity: v1Activity;
 };
@@ -5338,7 +5242,7 @@ export type ProxyTSignupBody = {
   userPhoneNumber?: string;
   userTag?: string;
   userName?: string;
-  subOrgName?: string;
+  organizationName?: string;
   verificationToken?: string;
   /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
   apiKeys: v1ApiKeyParamsV2[];
@@ -5355,8 +5259,6 @@ export type ProxyTSignupInput = { body: ProxyTSignupBody };
 export type ProxyTGetWalletKitConfigResponse = {
   /** List of enabled authentication providers (e.g., 'facebook', 'google', 'apple', 'email', 'sms', 'passkey', 'wallet') */
   enabledProviders: string[];
-  /** Whether to open OAuth providers in-page instead of a popup */
-  openOAuthInPage: boolean;
   /** Session expiration duration in seconds */
   sessionExpirationSeconds: string;
   /** The organization ID this configuration applies to */
