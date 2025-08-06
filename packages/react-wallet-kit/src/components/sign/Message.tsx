@@ -24,6 +24,7 @@ interface SignMessageModalProps {
   onError: (error: any) => void;
   encoding?: v1PayloadEncoding;
   hashFunction?: v1HashFunction;
+  addEthereumPrefix?: boolean;
 }
 
 export function SignMessageModal(props: SignMessageModalProps) {
@@ -57,7 +58,10 @@ export function SignMessageModal(props: SignMessageModalProps) {
         message,
         walletAccount,
         ...(props?.encoding && { encoding: props.encoding }),
-        ...(props?.hashFunction && { hashFunction: props?.hashFunction }),
+        ...(props?.hashFunction && { hashFunction: props.hashFunction }),
+        ...(props?.addEthereumPrefix && {
+          addEthereumPrefix: props.addEthereumPrefix,
+        }),
         ...(stampWith && { stampWith }),
       });
       handleSuccess(result);
