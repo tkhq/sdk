@@ -288,6 +288,7 @@ export default function DemoPanel() {
             const res = await handleSignMessage({
               message: messageToSign,
               walletAccount: selectedWalletAccount,
+              addEthereumPrefix: true,
             });
             console.log("Signed Message:", res);
             if (!res) {

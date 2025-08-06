@@ -1403,6 +1403,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     encoding?: v1PayloadEncoding;
     hashFunction?: v1HashFunction;
     stampWith?: StamperType | undefined;
+    addEthereumPrefix?: boolean;
   }): Promise<v1SignRawPayloadResult> {
     if (!client)
       throw new TurnkeyError(
@@ -1421,6 +1422,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     walletAccount: WalletAccount;
     encoding?: v1PayloadEncoding;
     hashFunction?: v1HashFunction;
+    addEthereumPrefix?: boolean;
     subText?: string;
     successPageDuration?: number | undefined;
     stampWith?: StamperType | undefined;
@@ -1449,10 +1451,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 onError={(error) => {
                   reject(error);
                 }}
-                {...(params?.encoding ? { encoding: params.encoding } : {})}
-                {...(params?.hashFunction
-                  ? { hashFunction: params.hashFunction }
-                  : {})}
+                {...(params?.encoding && { encoding: params.encoding })}
+                {...(params?.hashFunction && {
+                  hashFunction: params.hashFunction,
+                })}
+                {...(params?.addEthereumPrefix && {
+                  addEthereumPrefix: params.addEthereumPrefix,
+                })}
               />
             ),
           });
@@ -1475,6 +1480,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     return withTurnkeyErrorHandling(
       () => client.signTransaction(params),
+      callbacks,
+      "Failed to sign transaction",
+    );
+  }
+
+  async function signAndSendTransaction(params: {
+    unsignedTransaction: string;
+    transactionType: v1TransactionType;
+    walletAccount: WalletAccount;
+    rpcUrl?: string;
+    stampWith?: StamperType | undefined;
+  }): Promise<string> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    return withTurnkeyErrorHandling(
+      () => client.signAndSendTransaction(params),
       callbacks,
       "Failed to sign transaction",
     );
@@ -3623,6 +3647,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         refreshWallets,
         signMessage,
         signTransaction,
+        signAndSendTransaction,
         fetchUser,
         refreshUser,
         updateUserEmail,
