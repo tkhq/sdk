@@ -2,13 +2,19 @@ import { ActionButton } from "../design/Buttons";
 import { useModal } from "../../providers/modal/Hook";
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronRight, faClose } from "@fortawesome/free-solid-svg-icons";
+import {
+  faChevronRight,
+  faClose,
+  faLaptop,
+  faMobileScreen,
+} from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import clsx from "clsx";
 import { type WalletProvider } from "@turnkey/sdk-js";
 import { QRCodeSVG as QRCode } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
 import { isEthereumWallet } from "@turnkey/sdk-js/dist/utils";
+import { useTurnkey } from "../../providers";
 
 interface WalletAuthButtonProps {
   onContinue: () => Promise<void>;
@@ -361,7 +367,18 @@ export interface WalletConnectScreenProps {
 
 export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const { provider, successPageDuration, onAction, onDisconnect } = props;
-  const { pushPage, closeModal } = useModal();
+  const { pushPage, closeModal, isMobile } = useModal();
+  const { getWalletProviders } = useTurnkey();
+
+  const [connectedAccount, setConnectedAccount] = useState<string>();
+
+  useEffect(() => {
+    if (provider.connectedAddresses.length > 0) {
+      setConnectedAccount(provider.connectedAddresses[0]);
+    } else {
+      setConnectedAccount(undefined);
+    }
+  }, [provider]);
 
   const [isUnlinking, setIsUnlinking] = useState(false);
   const [unlinkError, setUnlinkError] = useState(false);
@@ -375,7 +392,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
           key: "Link Success",
           content: (
             <SuccessPage
-              text="Successfully linked wallet!"
+              text="Successfully linked WalletConnect!"
               onComplete={closeModal}
               duration={successPageDuration}
             />
@@ -383,10 +400,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
           preventBack: true,
           showTitle: false,
         });
-      } catch (e) {
-        console.error("WalletConnect failed:", e);
-        // optionally show an error state here
-      }
+      } catch (e) {}
     })();
   }, [provider.uri, onAction, pushPage, closeModal, successPageDuration]);
 
@@ -395,54 +409,116 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
     setUnlinkError(false);
     try {
       await onDisconnect?.(provider);
+      const newProviders = await getWalletProviders();
+      setConnectedAccount(
+        newProviders.find((p) => p == provider)?.connectedAddresses[0],
+      );
     } catch (err) {
-      console.error(err);
       setUnlinkError(true);
     } finally {
       setIsUnlinking(false);
     }
   };
-
   return (
-    <div className="p-6 flex flex-col items-center">
-      {provider.connectedAddresses.length > 0 ? (
-        <>
-          <p className="mb-4 text-center">
-            Please sign the authentication message with your connected wallet
-            address:
-          </p>
-          <ul className="mb-4 space-y-1">
-            {provider.connectedAddresses.map((addr) => (
-              <li key={addr} className="font-mono text-sm">
-                {addr}
-              </li>
-            ))}
-          </ul>
+    <div className="p-3 flex flex-col items-center">
+      {connectedAccount ? (
+        <div
+          className={clsx(
+            "mt-8 flex flex-col items-center gap-3",
+            isMobile ? "w-full" : "w-96",
+          )}
+        >
+          <div className="w-full justify-between flex items-center flex-1">
+            <div className="flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 size-24 text-icon-text-light dark:text-icon-text-dark">
+              <FontAwesomeIcon icon={faMobileScreen} size="4x" />
+            </div>
 
-          <div className="w-full max-w-md mt-4">
-            <ActionButton
-              onClick={handleUnlink}
-              loading={isUnlinking}
-              className={clsx(
-                "w-full bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark",
-                unlinkError && "animate-shake opacity-50",
-              )}
-              spinnerClassName="text-primary-danger-text-light dark:text-primary-danger-text-dark"
-            >
-              Unlink Wallet
-            </ActionButton>
+            <div className="flex flex-row items-center justify-center space-x-2.5 font-medium text-icon-text-light dark:text-icon-text-dark">
+              <div className="flex items-center justify-center">
+                <img
+                  className="size-5"
+                  src={provider.info.icon}
+                  alt="Wallet connect logo"
+                />
+                <img
+                  className="size-5 absolute animate-ping"
+                  src={provider.info.icon}
+                  alt="Wallet connect logo"
+                />
+              </div>
+
+              <span>
+                {connectedAccount?.slice(0, 3)}...
+                {connectedAccount?.slice(-3)}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 size-24 text-icon-text-light dark:text-icon-text-dark">
+              <FontAwesomeIcon icon={faLaptop} size="4x" />
+            </div>
           </div>
-        </>
+
+          <div
+            className={clsx(
+              "flex flex-row items-center mt-5 text-2xl font-bold text-center",
+            )}
+          >
+            Already connected
+          </div>
+          <div className="text-icon-text-light dark:text-icon-text-dark text-center text-xs flex flex-col space-y-2 !p-0">
+            <span>
+              Please open the wallet app on your phone to sign the message
+            </span>
+            {isUnlinking ? (
+              <span className="text-danger-light dark:text-danger-dark opacity-50">
+                Unlinking...
+              </span>
+            ) : unlinkError ? (
+              <span className="text-danger-light dark:text-danger-dark opacity-50">
+                Error unlinking wallet.
+              </span>
+            ) : (
+              <span>
+                Need to connect a different wallet?{" "}
+                <span
+                  className="text-danger-light dark:text-danger-dark cursor-pointer underline"
+                  onClick={handleUnlink}
+                >
+                  Unlink
+                </span>{" "}
+                this wallet first.
+              </span>
+            )}
+          </div>
+        </div>
       ) : (
-        <>
-          <p className="mb-4 text-center">
-            Scan the QR code with your WalletConnect-compatible wallet to link:
-          </p>
+        <div
+          className={clsx(
+            "mt-8 flex flex-col items-center gap-3",
+            isMobile ? "w-full" : "w-96",
+          )}
+        >
           {provider.uri && (
             // @ts-expect-error: qrcode.react uses a different React type version
-            <QRCode value={provider.uri} size={200} />
+            <QRCode
+              className="border border-modal-background-dark/20 dark:border-modal-background-light/20 "
+              value={provider.uri}
+              imageSettings={{
+                src: provider.info.icon ?? "",
+                width: 24,
+                height: 24,
+                excavate: true,
+              }}
+              size={200}
+            />
           )}
-        </>
+          <div className={clsx("text-2xl font-bold text-center")}>
+            Use your phone
+          </div>
+          <div className="text-icon-text-light dark:text-icon-text-dark text-center !p-0">
+            Scan this QR code with your WalletConnect-compatible wallet to link
+          </div>
+        </div>
       )}
     </div>
   );

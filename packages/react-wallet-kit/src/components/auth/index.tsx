@@ -211,7 +211,7 @@ export function AuthComponent() {
       // for WalletConnect we route to a dedicated screen
       // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
       pushPage({
-        key: "WalletConnect",
+        key: "Link WalletConnect",
         content: (
           <WalletConnectScreen
             provider={provider}
@@ -224,7 +224,6 @@ export function AuthComponent() {
             successPageDuration={undefined}
           />
         ),
-        showTitle: false,
       });
       return;
     }
