@@ -87,7 +87,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
 
     const info: WalletProviderInfo = {
       name: "WalletConnect",
-      icon: "https://walletconnect.com/_next/static/media/logo_mark.84dd8525.svg",
+      icon: "https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/caa2c61a53f7dedbc61681311fe04ff2fd0e67f1/Icon/Blue%20(Default)/Icon.svg",
     };
 
     const chains = [

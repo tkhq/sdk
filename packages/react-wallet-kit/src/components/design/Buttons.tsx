@@ -59,6 +59,7 @@ interface ActionButtonProps {
   onMouseLeave?: () => void;
   disabled?: boolean;
   loading?: boolean;
+  loadingText?: string;
   className?: string;
   spinnerClassName?: string;
 }
@@ -71,6 +72,7 @@ export function ActionButton(props: ActionButtonProps) {
     onMouseLeave,
     disabled,
     loading,
+    loadingText,
     className,
     spinnerClassName,
   } = props;
@@ -87,8 +89,11 @@ export function ActionButton(props: ActionButtonProps) {
       )}
     >
       {loading ? (
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center space-x-2 items-center text-sm">
           <Spinner className={clsx("w-4 h-4", spinnerClassName)} />
+          {loadingText && (
+            <span className={spinnerClassName}>{loadingText}</span>
+          )}
         </div>
       ) : (
         children
