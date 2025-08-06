@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { PublicKey } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import { Buffer } from "buffer";
+import { toPrefixedMessage } from "viem";
 
 import { keccak256, recoverAddress, toUtf8Bytes } from "ethers";
 
@@ -203,7 +204,9 @@ export function verifyEthSignatureWithAddress(
   try {
     // Construct the full signature
     const signature = `0x${r}${s}${v === "00" ? "1b" : "1c"}`; // 1b/1c corresponds to v for Ethereum
-    const hashedMessage = keccak256(toUtf8Bytes(message));
+
+    const prefixedMessage = toPrefixedMessage(message);
+    const hashedMessage = keccak256(prefixedMessage);
 
     // Recover the address from the signature
     return address == recoverAddress(hashedMessage, signature);
