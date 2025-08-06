@@ -21,7 +21,6 @@ import {
   type WalletProvider,
   Chain,
 } from "@types";
-import { keccak256 } from "ethers";
 // Import all defaultAccountAtIndex functions for each address format
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
@@ -61,7 +60,6 @@ import {
 import { fromDerSignature } from "@turnkey/crypto";
 import {
   decodeBase64urlToString,
-  uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
 
@@ -410,34 +408,6 @@ export function getEncodedMessage(
   }
   return rawMessage;
 }
-
-export const hashPayload = async (
-  encodedMessage: string,
-  hashFn: v1HashFunction,
-): Promise<string> => {
-  // when no hashing is required, we just return the string untouched
-  if (
-    hashFn === "HASH_FUNCTION_NOT_APPLICABLE" ||
-    hashFn === "HASH_FUNCTION_NO_OP"
-  ) {
-    return encodedMessage;
-  }
-
-  const msgBytes = encodedMessage.startsWith("0x")
-    ? uint8ArrayFromHexString(encodedMessage.slice(2))
-    : new TextEncoder().encode(encodedMessage);
-
-  if (hashFn === "HASH_FUNCTION_SHA256") {
-    const digest = await crypto.subtle.digest("SHA-256", msgBytes);
-    return "0x" + bytesToHex(new Uint8Array(digest));
-  }
-
-  if (hashFn === "HASH_FUNCTION_KECCAK256") {
-    return keccak256(msgBytes);
-  }
-
-  throw new Error(`Unsupported hash function: ${hashFn}`);
-};
 
 export const broadcastTransaction = async (params: {
   signedTransaction: string;
