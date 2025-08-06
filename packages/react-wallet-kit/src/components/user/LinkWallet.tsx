@@ -24,7 +24,7 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
       // for WalletConnect we route to a dedicated screen
       // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
       pushPage({
-        key: `Link ${provider.info.name}`,
+        key: "Link WalletConnect",
         content: (
           <WalletConnectScreen
             provider={provider}
@@ -32,7 +32,6 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
             successPageDuration={successPageDuration}
           />
         ),
-        showTitle: false,
       });
       return;
     }
