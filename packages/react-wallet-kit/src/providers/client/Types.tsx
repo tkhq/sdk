@@ -508,6 +508,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.walletAccount - The wallet account to use for signing.
    * @param params.encoding - encoding for the payload (defaults to the proper encoding for the account type).
    * @param params.hashFunction - hash function to use (defaults to the appropriate function for the account type).
+   * @param params.addEthereumPrefix - whether to add the Ethereum prefix to the message (default: false).
    * @param params.subText - subtext to display in the modal.
    * @param params.successPageDuration - duration in seconds to display the success page after signing.
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
@@ -519,6 +520,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
     walletAccount: WalletAccount;
     encoding?: v1PayloadEncoding;
     hashFunction?: v1HashFunction;
+    addEthereumPrefix?: boolean;
     subText?: string;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;

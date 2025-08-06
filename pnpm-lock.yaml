@@ -700,6 +700,9 @@ importers:
       typescript:
         specifier: 5.1.3
         version: 5.1.3
+      viem:
+        specifier: ^2.33.2
+        version: 2.33.2(typescript@5.1.3)
     devDependencies:
       '@types/three':
         specifier: ^0.178.1
@@ -7528,7 +7531,7 @@ packages:
     resolution: {integrity: sha512-53fV1noQJDUN9JNydDohyzsFl4+QYoWNkkkAfRzmIgtv+6DR+Dksb0fKmme2WdtA8MPEw/HsRwN3Lr6YC3iF7A==}
     dependencies:
       '@noble/curves': 1.9.0
-      viem: 2.33.1(typescript@5.4.3)
+      viem: 2.33.2(typescript@5.4.3)
     transitivePeerDependencies:
       - bufferutil
       - typescript
@@ -15083,6 +15086,48 @@ packages:
       - zod
     dev: false
 
+  /ox@0.8.6(typescript@5.1.3):
+    resolution: {integrity: sha512-eiKcgiVVEGDtEpEdFi1EGoVVI48j6icXHce9nFwCNM7CKG3uoCXKdr4TPhS00Iy1TR2aWSF1ltPD0x/YgqIL9w==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.2
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.0.8(typescript@5.4.3)(zod@3.23.8)
+      eventemitter3: 5.0.1
+      typescript: 5.1.3
+    transitivePeerDependencies:
+      - zod
+    dev: false
+
+  /ox@0.8.6(typescript@5.4.3):
+    resolution: {integrity: sha512-eiKcgiVVEGDtEpEdFi1EGoVVI48j6icXHce9nFwCNM7CKG3uoCXKdr4TPhS00Iy1TR2aWSF1ltPD0x/YgqIL9w==}
+    peerDependencies:
+      typescript: '>=5.4.0'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@adraffy/ens-normalize': 1.11.0
+      '@noble/ciphers': 1.3.0
+      '@noble/curves': 1.9.2
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.0.8(typescript@5.4.3)(zod@3.23.8)
+      eventemitter3: 5.0.1
+      typescript: 5.4.3
+    transitivePeerDependencies:
+      - zod
+    dev: false
+
   /p-cancelable@2.1.1:
 >>>>>>> 8fe5113c (cleaned up wallet manager)
     resolution: {integrity: sha512-BZOr3nRQHOntUjTrH8+Lh54smKHoHyur8We1V8DSMVrl5A2malOOwuJRnKRDjSnkoeBh4at6BwEnb5I7Jl31wg==}
@@ -18431,7 +18476,57 @@ packages:
     dev: false
 >>>>>>> 1bbaf16e (added ability to sign with connected wallets in signTransaction)
 
+<<<<<<< HEAD
   viem@2.7.19:
+=======
+  /viem@2.33.2(typescript@5.1.3):
+    resolution: {integrity: sha512-/720OaM4dHWs8vXwNpyet+PRERhPaW+n/1UVSCzyb9jkmwwVfaiy/R6YfCFb4v+XXbo8s3Fapa3DM5yCRSkulA==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@noble/curves': 1.9.2
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.0.8(typescript@5.4.3)(zod@3.23.8)
+      isows: 1.0.7(ws@8.18.3)
+      ox: 0.8.6(typescript@5.1.3)
+      typescript: 5.1.3
+      ws: 8.18.3(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+    dev: false
+
+  /viem@2.33.2(typescript@5.4.3):
+    resolution: {integrity: sha512-/720OaM4dHWs8vXwNpyet+PRERhPaW+n/1UVSCzyb9jkmwwVfaiy/R6YfCFb4v+XXbo8s3Fapa3DM5yCRSkulA==}
+    peerDependencies:
+      typescript: '>=5.0.4'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      '@noble/curves': 1.9.2
+      '@noble/hashes': 1.8.0
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
+      abitype: 1.0.8(typescript@5.4.3)(zod@3.23.8)
+      isows: 1.0.7(ws@8.18.3)
+      ox: 0.8.6(typescript@5.4.3)
+      typescript: 5.4.3
+      ws: 8.18.3(bufferutil@4.0.7)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+      - zod
+    dev: false
+
+  /viem@2.7.19(typescript@5.4.3):
+>>>>>>> 0c854fe6 (fix signMessage in react-wallet-kit)
     resolution: {integrity: sha512-UOMeqy+8p2709ra2j9HEOL1NfjsXZzlJ8gwR6YO/zXH8KIZvyzW07t4iQARF5+ShVZ/7+/1ec8oPjVi1M//33A==}
     peerDependencies:
       typescript: '>=5.0.4'

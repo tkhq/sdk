@@ -53,7 +53,6 @@ import {
   isWeb,
   toExternalTimestamp,
   splitSignature,
-  hashPayload,
   getWalletAccountMethods,
   getPublicKeyFromStampHeader,
   isEthereumWallet,
@@ -69,6 +68,7 @@ import {
 } from "../turnkey-helpers";
 import { jwtDecode } from "jwt-decode";
 import { createWalletManager } from "../__wallet__/base";
+import { toUtf8Bytes } from "ethers";
 
 type PublicMethods<T> = {
   [K in keyof T as K extends string | number | symbol
@@ -1684,31 +1684,35 @@ export class TurnkeyClient {
       params.encoding || getEncodingType(walletAccount.addressFormat);
 
     try {
+      console.log("addEthereumPrefix", addEthereumPrefix);
+
       const isEthereum =
         walletAccount.addressFormat === "ADDRESS_FORMAT_ETHEREUM";
-
-      const shouldPrefix = addEthereumPrefix ?? isEthereum;
 
       if (walletAccount.source === WalletSource.Connected) {
         // this is a connected wallet
 
-        if (!shouldPrefix && isEthereum) {
+        if (!addEthereumPrefix && isEthereum) {
           throw new TurnkeyError(
             "Connected Ethereum wallets automatically prefix messages. Use `addEthereumPrefix: true`.",
             TurnkeyErrorCodes.SIGN_MESSAGE_ERROR,
           );
         }
 
-        const payloadToSign = await hashPayload(message, hashFunction);
-        const sigHex = await walletAccount.signMessage(payloadToSign);
+        const encodedMessage = getEncodedMessage(
+          walletAccount.addressFormat,
+          message,
+        );
+
+        const sigHex = await walletAccount.signMessage(encodedMessage);
         return splitSignature(sigHex, walletAccount.addressFormat);
       }
 
       // this is an embedded wallet
       let messageToEncode = message;
 
-      if (shouldPrefix && isEthereum) {
-        const prefix = `\x19Ethereum Signed Message:\n${message.length}`;
+      if (addEthereumPrefix && isEthereum) {
+        const prefix = `\x19Ethereum Signed Message:\n${toUtf8Bytes(message).length}`;
         messageToEncode = prefix + message;
       }
 
