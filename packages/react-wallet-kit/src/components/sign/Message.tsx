@@ -1,5 +1,9 @@
 import { Textarea } from "@headlessui/react";
-import type { StamperType, WalletAccount } from "@turnkey/sdk-js";
+import {
+  WalletSource,
+  type StamperType,
+  type WalletAccount,
+} from "@turnkey/sdk-js";
 import type {
   v1HashFunction,
   v1PayloadEncoding,
@@ -114,6 +118,11 @@ export function SignMessageModal(props: SignMessageModalProps) {
         {walletAccount.address?.length > 8
           ? `${walletAccount.address.slice(0, 4)}...${walletAccount.address.slice(-4)}`
           : walletAccount.address}
+        {walletAccount.source === WalletSource.Connected && (
+          <div className="rounded-full py-1 px-2 flex border border-primary-light/50 dark:border-primary-dark/50 text-primary-light dark:text-primary-dark text-xs font-medium">
+            External
+          </div>
+        )}
       </div>
 
       <div className="w-full flex flex-col mt-2 px-3 space-y-2">
@@ -128,6 +137,11 @@ export function SignMessageModal(props: SignMessageModalProps) {
         onClick={handleSign}
         spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         loading={loading}
+        loadingText={
+          walletAccount.source === WalletSource.Connected
+            ? "Check your external wallet!"
+            : "Signing..."
+        }
         className="mt-4 bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark w-full"
       >
         Sign
