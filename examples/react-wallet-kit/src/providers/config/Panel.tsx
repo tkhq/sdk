@@ -310,8 +310,10 @@ export function TurnkeyConfigPanel() {
                         light: {
                           ...config.ui?.colors?.light,
                           modalBackground: val,
+                          modalText: textColour(val, true),
                           iconBackground: newColors.iconBackground,
                           iconText: newColors.iconText,
+                          button: newColors.buttonBackground,
                         },
                       }
                     : {
@@ -319,8 +321,10 @@ export function TurnkeyConfigPanel() {
                         dark: {
                           ...config.ui?.colors?.dark,
                           modalBackground: val,
+                          modalText: textColour(val, true),
                           iconBackground: newColors.iconBackground,
                           iconText: newColors.iconText,
+                          button: newColors.buttonBackground,
                         },
                       },
                 },
