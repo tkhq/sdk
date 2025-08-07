@@ -370,14 +370,12 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const { pushPage, closeModal, isMobile } = useModal();
   const { getWalletProviders } = useTurnkey();
 
-  const [connectedAccount, setConnectedAccount] = useState<string>();
+  const [walletConnectProvider, setWalletConnectProvider] =
+    useState<WalletProvider>();
+  const connectedAccount = walletConnectProvider?.connectedAddresses[0];
 
   useEffect(() => {
-    if (provider.connectedAddresses.length > 0) {
-      setConnectedAccount(provider.connectedAddresses[0]);
-    } else {
-      setConnectedAccount(undefined);
-    }
+    setWalletConnectProvider(provider);
   }, [provider]);
 
   const [isUnlinking, setIsUnlinking] = useState(false);
@@ -387,7 +385,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   useEffect(() => {
     (async () => {
       try {
-        await onAction(provider);
+        await onAction(walletConnectProvider ?? provider);
         pushPage({
           key: "Link Success",
           content: (
@@ -402,16 +400,22 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         });
       } catch (e) {}
     })();
-  }, [provider.uri, onAction, pushPage, closeModal, successPageDuration]);
+  }, [
+    walletConnectProvider?.uri,
+    onAction,
+    pushPage,
+    closeModal,
+    successPageDuration,
+  ]);
 
   const handleUnlink = async () => {
     setIsUnlinking(true);
     setUnlinkError(false);
     try {
-      await onDisconnect?.(provider);
+      await onDisconnect?.(walletConnectProvider ?? provider);
       const newProviders = await getWalletProviders();
-      setConnectedAccount(
-        newProviders.find((p) => p == provider)?.connectedAddresses[0],
+      setWalletConnectProvider(
+        newProviders.find((p) => p.interfaceType === provider.interfaceType),
       );
     } catch (err) {
       setUnlinkError(true);
@@ -437,12 +441,12 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
               <div className="flex items-center justify-center">
                 <img
                   className="size-5"
-                  src={provider.info.icon}
+                  src={walletConnectProvider.info.icon}
                   alt="Wallet connect logo"
                 />
                 <img
                   className="size-5 absolute animate-ping"
-                  src={provider.info.icon}
+                  src={walletConnectProvider.info.icon}
                   alt="Wallet connect logo"
                 />
               </div>
@@ -498,13 +502,13 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             isMobile ? "w-full" : "w-96",
           )}
         >
-          {provider.uri && (
+          {walletConnectProvider?.uri && (
             // @ts-expect-error: qrcode.react uses a different React type version
             <QRCode
               className="border border-modal-background-dark/20 dark:border-modal-background-light/20 "
-              value={provider.uri}
+              value={walletConnectProvider.uri}
               imageSettings={{
-                src: provider.info.icon ?? "",
+                src: walletConnectProvider.info.icon ?? "",
                 width: 24,
                 height: 24,
                 excavate: true,

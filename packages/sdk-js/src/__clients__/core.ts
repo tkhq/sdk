@@ -1823,8 +1823,7 @@ export class TurnkeyClient {
           );
         }
 
-        const hash = await walletAccount?.signTransaction(unsignedTransaction);
-        return hash;
+        return await walletAccount?.signTransaction(unsignedTransaction);
       }
 
       // this is an embedded wallet account

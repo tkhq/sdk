@@ -121,7 +121,10 @@ export class WebWalletManager {
         walletsToQuery.map((wallet) => wallet.getProviders()),
       );
 
-      return providersArrays.flat();
+      // we still need to filter by chain because WalletConnect can return providers for multiple chains
+      return providersArrays
+        .flat()
+        .filter((p) => p.chainInfo.namespace === chain);
     }
 
     // collect all providers from all initialized wallets

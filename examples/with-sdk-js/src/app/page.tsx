@@ -524,7 +524,7 @@ export default function AuthPage() {
 
           const signature = await signTransaction({
             unsignedTransaction,
-            walletAccount: wallets[0].accounts[0],
+            walletAccount: wallets[0].accounts[1],
             transactionType: "TRANSACTION_TYPE_ETHEREUM",
           });
           console.log("Transaction Signature:", signature);
@@ -541,17 +541,52 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const mainNet = "0x1";
+          const tx = {
+            to: "0x0000000000000000000000000000000000000000",
+            value: parseEther("0.001"),
+            nonce: 0,
+            gasLimit: BigInt("21000"),
+            maxFeePerGas: BigInt("1000000000"),
+            maxPriorityFeePerGas: BigInt("1000000000"),
+            chainId: 1,
+          };
 
+          const unsignedTransaction =
+            EthTransaction.from(tx).unsignedSerialized;
+          console.log("Unsigned Transaction:", unsignedTransaction);
+
+          const signature = await signAndSendTransaction({
+            unsignedTransaction,
+            walletAccount: wallets[2].accounts[0],
+            transactionType: "TRANSACTION_TYPE_ETHEREUM",
+          });
+          console.log("Transaction Signature:", signature);
+        }}
+        style={{
+          backgroundColor: "purple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Sign And Send Ethereum Transaction
+      </button>
+
+      <button
+        onClick={async () => {
           const providers = await getWalletProviders(Chain.Ethereum);
+
+          const mainNet = "0x1";
+          const provider = providers[3];
+
           console.log("Injected Ethereum Providers:", providers);
 
           console.log(
             "Switching Ethereum chain to Mainnet for provider:",
-            providers[3],
+            provider,
           );
 
-          await switchWalletProviderChain(providers[3], mainNet);
+          await switchWalletProviderChain(provider, mainNet);
 
           console.log("done");
           const newProviders = await getWalletProviders(Chain.Ethereum);
@@ -569,17 +604,19 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const polygon = "0x89";
-
           const providers = await getWalletProviders(Chain.Ethereum);
+
+          const polygon = "0x89";
+          const provider = providers[3];
+
           console.log("Injected Ethereum Providers:", providers);
 
           console.log(
             "Switching Ethereum chain to Polygon for provider:",
-            providers[3],
+            provider,
           );
 
-          await switchWalletProviderChain(providers[3], polygon);
+          await switchWalletProviderChain(provider, polygon);
 
           console.log("done");
           const newProviders = await getWalletProviders(Chain.Ethereum);
