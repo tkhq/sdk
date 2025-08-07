@@ -197,31 +197,6 @@ export class SolanaWallet extends BaseSolanaWallet {
         return Buffer.from(results[0].signature).toString("hex");
       }
 
-      case SignIntent.SignAndSendTransaction: {
-        const sendFeature = wallet.features["solana:sendTransaction"] as
-          | {
-              sendTransaction: (args: {
-                account: typeof account;
-                transaction: Uint8Array;
-              }) => Promise<readonly { signature: string }[]>;
-            }
-          | undefined;
-
-        if (!sendFeature)
-          throw new Error("Provider does not support solana:sendTransaction");
-
-        const data = uint8ArrayFromHexString(message);
-        const results = await sendFeature.sendTransaction({
-          account,
-          transaction: data,
-        });
-        if (!results?.length || !results[0]?.signature) {
-          throw new Error("No signature returned from sendTransaction");
-        }
-
-        return results[0].signature;
-      }
-
       default:
         throw new Error(`Unsupported sign intent: ${intent}`);
     }
