@@ -96,5 +96,7 @@ export * from "./__types__/base";
 
 export {
   generateWalletAccountsFromAddressFormat,
+  isEthereumWallet,
+  isSolanaWallet,
   addressFormatConfig,
 } from "./utils";

@@ -4,10 +4,12 @@ import {
   type StamperType,
   type WalletAccount,
 } from "@turnkey/sdk-js";
-import type {
-  v1HashFunction,
-  v1PayloadEncoding,
-  v1SignRawPayloadResult,
+import {
+  TurnkeyError,
+  TurnkeyErrorCodes,
+  type v1HashFunction,
+  type v1PayloadEncoding,
+  type v1SignRawPayloadResult,
 } from "@turnkey/sdk-types";
 import { ActionButton } from "../design/Buttons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -70,7 +72,14 @@ export function SignMessageModal(props: SignMessageModalProps) {
       });
       handleSuccess(result);
     } catch (error) {
-      onError(error);
+      if (error instanceof TurnkeyError) onError(error);
+      else {
+        const tkError = new TurnkeyError(
+          "Failed to sign message",
+          TurnkeyErrorCodes.SIGN_MESSAGE_ERROR,
+        );
+        onError(tkError);
+      }
     } finally {
       setLoading(false);
     }
