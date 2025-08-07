@@ -164,9 +164,11 @@ function RootLayout({ children }: RootLayoutProps) {
               colors: {
                 light: {
                   primary: "#335bf9",
+                  modalBackground: "#f5f7fb",
                 },
                 dark: {
                   primary: "#335bf9",
+                  modalBackground: "#0b0b0b",
                 },
               },
             },

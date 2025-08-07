@@ -1,7 +1,9 @@
 import { useTurnkeyConfig } from "@/providers/config/ConfigProvider";
-import { faCopy } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCopy } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button } from "@headlessui/react";
+import { Button, Transition } from "@headlessui/react";
+import clsx from "clsx";
+import { useState } from "react";
 
 const envVars: Record<string, string> = {
   authProxyId: '"<ENV_VAR_AUTH_PROXY_ID>"',
@@ -51,6 +53,20 @@ function renderValue(value: any, indentLevel = 2, key?: string): string {
 
 export default function ConfigViewer() {
   const { config } = useTurnkeyConfig();
+  const [showCopied, setShowCopied] = useState(false);
+
+  const handleCopy = () => {
+    setShowCopied(true);
+    navigator.clipboard.writeText(
+      `{\n${Object.entries(config)
+        .filter(([key]) => !omitKeys.includes(key)) // Omit specified keys
+        .map(([key, value]) => `  ${key}: ${renderValue(value, 4, key)}`)
+        .join(",\n")}\n}`,
+    );
+    setTimeout(() => {
+      setShowCopied(false);
+    }, 1500);
+  };
 
   return (
     <div className="flex flex-col gap-4 relative">
@@ -60,20 +76,43 @@ export default function ConfigViewer() {
           .map(([key, value]) => `  ${key}: ${renderValue(value, 4, key)}`)
           .join(",\n")}\n}`}
       </pre>
-      <Button
-        onClick={() => {
-          navigator.clipboard.writeText(
-            `{\n${Object.entries(config)
-              .filter(([key]) => !omitKeys.includes(key)) // Omit specified keys
-              .map(([key, value]) => `  ${key}: ${renderValue(value, 4, key)}`)
-              .join(",\n")}\n}`,
-          );
-        }}
+      <Transition
+        show={showCopied}
+        enter="transition-opacity duration-300"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-opacity duration-300"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
       >
+        <div className="flex text-center items-center justify-center absolute w-full h-full p-2 bg-black/20 backdrop-blur-sm">
+          <span className="text-white text-sm">
+            Config copied to clipboard!
+          </span>
+        </div>
+      </Transition>
+
+      <Button className="cursor-pointer" onClick={handleCopy}>
         <FontAwesomeIcon
-          icon={faCopy}
-          className="text-icon-text-light active:scale-95 dark:text-icon-text-dark absolute top-2 right-4 transition-all p-2 rounded-full hover:bg-icon-background-light dark:hover:bg-icon-background-dark"
+          icon={showCopied ? faCheck : faCopy}
+          className={clsx(
+            "active:scale-95 absolute top-2 right-4 transition-all p-2 rounded-full hover:bg-icon-background-light dark:hover:bg-icon-background-dark",
+            showCopied
+              ? "text-success-light text:bg-success-dark"
+              : "text-icon-text-light dark:text-icon-text-dark",
+          )}
         />
+        {showCopied && (
+          <FontAwesomeIcon
+            icon={showCopied ? faCheck : faCopy}
+            className={clsx(
+              "active:scale-95 absolute top-2 right-4 transition-all p-2 rounded-full hover:bg-icon-background-light dark:hover:bg-icon-background-dark animate-ping",
+              showCopied
+                ? "text-success-light text:bg-success-dark"
+                : "text-icon-text-light dark:text-icon-text-dark",
+            )}
+          />
+        )}
       </Button>
     </div>
   );

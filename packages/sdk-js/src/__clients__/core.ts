@@ -2029,7 +2029,20 @@ export class TurnkeyClient {
     }
 
     const userId = params?.userId || session.userId;
+
     try {
+      const existingUser = await this.httpClient.proxyGetAccount({
+        filterType: FilterType.Email,
+        filterValue: email,
+      });
+
+      if (existingUser.organizationId) {
+        throw new TurnkeyError(
+          `Email ${email} is already associated with another user.`,
+          TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
+        );
+      }
+
       const res = await this.httpClient.updateUserEmail(
         {
           userId: userId,
