@@ -1459,38 +1459,33 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    return withTurnkeyErrorHandling(
-      () =>
-        new Promise((resolve, reject) => {
-          pushPage({
-            key: "Sign Message",
-            content: (
-              <SignMessageModal
-                message={params.message}
-                subText={params?.subText}
-                walletAccount={params.walletAccount}
-                stampWith={params.stampWith}
-                successPageDuration={successPageDuration}
-                onSuccess={(result) => {
-                  resolve(result);
-                }}
-                onError={(error) => {
-                  reject(error);
-                }}
-                {...(params?.encoding && { encoding: params.encoding })}
-                {...(params?.hashFunction && {
-                  hashFunction: params.hashFunction,
-                })}
-                {...(params?.addEthereumPrefix && {
-                  addEthereumPrefix: params.addEthereumPrefix,
-                })}
-              />
-            ),
-          });
-        }),
-      callbacks,
-      "Failed to sign message",
-    );
+    return new Promise((resolve, reject) => {
+      pushPage({
+        key: "Sign Message",
+        content: (
+          <SignMessageModal
+            message={params.message}
+            subText={params?.subText}
+            walletAccount={params.walletAccount}
+            stampWith={params.stampWith}
+            successPageDuration={successPageDuration}
+            onSuccess={(result) => {
+              resolve(result);
+            }}
+            onError={(error) => {
+              reject(error);
+            }}
+            {...(params?.encoding && { encoding: params.encoding })}
+            {...(params?.hashFunction && {
+              hashFunction: params.hashFunction,
+            })}
+            {...(params?.addEthereumPrefix && {
+              addEthereumPrefix: params.addEthereumPrefix,
+            })}
+          />
+        ),
+      });
+    });
   }
 
   async function signTransaction(params: {
@@ -3339,17 +3334,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
     const userId = params?.userId || session.userId;
     try {
-      const resPromise = withTurnkeyErrorHandling(
-        () =>
-          addPasskey({
-            ...(name && { name }),
-            ...(displayName && { displayName }),
-            userId,
-            stampWith,
-          }),
-        callbacks,
-        "Failed to create passkey",
-      );
+      const resPromise = addPasskey({
+        ...(name && { name }),
+        ...(displayName && { displayName }),
+        userId,
+        stampWith,
+      });
       resPromise.then(() => {
         pushPage({
           key: "Passkey Added",
