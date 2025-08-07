@@ -41,6 +41,7 @@ import {
   ConnectedWalletAccount,
   WalletManagerBase,
   WalletProvider,
+  SwitchableChain,
 } from "../__types__/base"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
@@ -520,6 +521,32 @@ export class TurnkeyClient {
     }
   };
 
+  switchWalletProviderChain = async (
+    walletProvider: WalletProvider,
+    chainOrId: string | SwitchableChain,
+  ) => {
+    if (!this.walletManager) {
+      throw new Error("Wallet manager is not initialized");
+    }
+
+    if (walletProvider.connectedAddresses.length === 0) {
+      throw new Error(
+        "You can not switch chains for a provider that is not connected",
+      );
+    }
+
+    // if the wallet provider is already on the desired chain, do nothing
+    if (walletProvider.chainInfo.namespace === chainOrId) {
+      return;
+    }
+
+    try {
+      await this.walletManager.connector.switchChain(walletProvider, chainOrId);
+    } catch (error) {
+      throw new Error(`Unable to switch wallet account chain: ${error}`);
+    }
+  };
+
   // MOOOOE
   loginWithWallet = async (params: {
     walletProvider: WalletProvider;
@@ -728,7 +755,7 @@ export class TurnkeyClient {
       }
 
       let publicKey: string | undefined;
-      switch (walletProvider.chain) {
+      switch (walletProvider.chainInfo.namespace) {
         case Chain.Ethereum: {
           // for Ethereum, there is no way to get the public key from the wallet address
           // so we derive it from the signed request
