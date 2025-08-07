@@ -252,3 +252,15 @@ export function verifySolSignatureWithAddress(
     return false;
   }
 }
+
+// Utility to check if hardware acceleration is enabled. Used for 3D background.
+export function isHardwareAccelerationEnabled(): boolean {
+  try {
+    const canvas = document.createElement("canvas");
+    const gl =
+      canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    return !!gl;
+  } catch (e) {
+    return false;
+  }
+}
