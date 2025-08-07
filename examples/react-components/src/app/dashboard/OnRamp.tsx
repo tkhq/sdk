@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useTurnkey } from "@turnkey/sdk-react";
 import { Box, Modal, Typography } from "@mui/material";
+import {
+  FiatOnRampBlockchainNetwork,
+  FiatOnRampCryptoCurrency,
+  FiatOnRampCurrency,
+  FiatOnRampPaymentMethod,
+  FiatOnRampProvider,
+} from "@turnkey/sdk-types";
 
 interface OnRampProps {
   ethAddress: string;
@@ -19,13 +26,13 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
 
       const response = await indexedDbClient?.initFiatOnRamp({
         organizationId: session?.organizationId!,
-        onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
+        onrampProvider: FiatOnRampProvider.COINBASE,
         walletAddress: ethAddress,
-        network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
-        cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
-        fiatCurrencyCode: "FIAT_ON_RAMP_CURRENCY_USD",
+        network: FiatOnRampBlockchainNetwork.ETHEREUM,
+        cryptoCurrencyCode: FiatOnRampCryptoCurrency.ETHEREUM,
+        fiatCurrencyCode: FiatOnRampCurrency.USD,
         fiatCurrencyAmount: "10",
-        paymentMethod: "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
+        paymentMethod: FiatOnRampPaymentMethod.CREDIT_DEBIT_CARD,
         countryCode: "US",
         countrySubdivisionCode: "ME",
         sandboxMode: true,
@@ -49,13 +56,13 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
 
       const response = await indexedDbClient?.initFiatOnRamp({
         organizationId: session?.organizationId!,
-        onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
+        onrampProvider: FiatOnRampProvider.MOONPAY,
         walletAddress: ethAddress,
-        network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
-        cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
-        fiatCurrencyCode: "FIAT_ON_RAMP_CURRENCY_USD",
+        network: FiatOnRampBlockchainNetwork.ETHEREUM,
+        cryptoCurrencyCode: FiatOnRampCryptoCurrency.ETHEREUM,
+        fiatCurrencyCode: FiatOnRampCurrency.USD,
         fiatCurrencyAmount: "10",
-        paymentMethod: "FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD",
+        paymentMethod: FiatOnRampPaymentMethod.CREDIT_DEBIT_CARD,
         sandboxMode: true,
       });
 
