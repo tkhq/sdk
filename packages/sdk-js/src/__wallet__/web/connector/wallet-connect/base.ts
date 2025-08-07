@@ -4,7 +4,7 @@ import {
   stringToBase64urlString,
 } from "@turnkey/encoding";
 import bs58 from "bs58";
-import { recoverPublicKey, hashMessage, type Hex } from "viem";
+import { recoverPublicKey, hashMessage, type Hex, toHex } from "viem";
 import { compressRawPublicKey } from "@turnkey/crypto";
 import {
   Chain,
@@ -18,6 +18,7 @@ import {
 } from "@types";
 import { WalletConnectClient } from "./client";
 import { SessionTypes } from "@walletconnect/types";
+import { Transaction } from "ethers";
 
 export class WalletConnectWallet implements WalletConnectInterface {
   readonly interfaceType = WalletInterfaceType.WalletConnect;
@@ -158,6 +159,14 @@ export class WalletConnectWallet implements WalletConnectInterface {
     const hexChainId = typeof chainOrId === "string" ? chainOrId : chainOrId.id;
     const caip = `eip155:${Number.parseInt(hexChainId, 16)}`;
 
+    if (!this.ethereumNamespaces.includes(caip)) {
+      throw new Error(
+        `Unsupported chain ${caip}. Supported chains: ${this.ethereumNamespaces.join(
+          ", ",
+        )}. If you’d like to support ${caip}, add it to the \`ethereumNamespaces\` in your WalletConnect config.`,
+      );
+    }
+
     try {
       // first we just try switching
       await this.client.request(this.ethChain, "wallet_switchEthereumChain", [
@@ -203,10 +212,24 @@ export class WalletConnectWallet implements WalletConnectInterface {
             address,
           ])) as string;
         case SignIntent.SignAndSendTransaction:
+          const account = provider.connectedAddresses[0];
+          const tx = Transaction.from(message);
+          const txParams = {
+            from: account,
+            to: tx.to?.toString() as Hex,
+            value: toHex(tx.value),
+            gas: toHex(tx.gasLimit),
+            maxFeePerGas: toHex(tx.maxFeePerGas ?? 0n),
+            maxPriorityFeePerGas: toHex(tx.maxPriorityFeePerGas ?? 0n),
+            nonce: toHex(tx.nonce),
+            chainId: toHex(tx.chainId),
+            data: (tx.data?.toString() as Hex) ?? "0x",
+          };
+
           return (await this.client.request(
             this.ethChain,
             "eth_sendTransaction",
-            [JSON.parse(message)],
+            [txParams],
           )) as string;
         default:
           throw new Error(`Unsupported Ethereum intent: ${intent}`);
@@ -392,11 +415,15 @@ export class WalletConnectWallet implements WalletConnectInterface {
     const raw = session?.namespaces.eip155?.accounts?.[0] ?? "";
     const address = raw.split(":")[2];
 
+    const chainIdString = this.ethChain.split(":")[1] ?? "1";
+    const chainIdDecimal = Number(chainIdString);
+    const chainidHex = `0x${chainIdDecimal.toString(16)}`;
+
     return {
       interfaceType: WalletInterfaceType.WalletConnect,
       chainInfo: {
         namespace: Chain.Ethereum,
-        chainId: this.ethChain,
+        chainId: chainidHex,
       },
       info,
       provider: this.makeProvider(this.ethChain),
