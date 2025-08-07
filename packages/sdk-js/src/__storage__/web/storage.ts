@@ -1,7 +1,11 @@
 import WindowWrapper from "@polyfills/window";
 import { type StorageBase, type Wallet, SessionKey } from "@types";
 import { parseSession } from "@utils";
-import type { Session } from "@turnkey/sdk-types";
+import {
+  TurnkeyError,
+  TurnkeyErrorCodes,
+  type Session,
+} from "@turnkey/sdk-types";
 
 const browserStorage = WindowWrapper.localStorage;
 
@@ -16,8 +20,14 @@ export class WebStorageManager implements StorageBase {
 
   setStorageValue = async (
     sessionKey: string,
-    storageValue: any,
+    storageValue: Session | string | string[],
   ): Promise<void> => {
+    if (storageValue === undefined) {
+      throw new TurnkeyError(
+        "Session value cannot be undefined",
+        TurnkeyErrorCodes.STORE_SESSION_ERROR,
+      );
+    }
     browserStorage.setItem(sessionKey, JSON.stringify(storageValue));
   };
 
