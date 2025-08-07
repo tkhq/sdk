@@ -380,6 +380,8 @@ export type TWalletManagerConfig = {
       url: string;
       icons: string[];
     };
+    ethereumNamespaces?: string[];
+    solanaNamespaces?: string[];
   };
 };
 
@@ -404,6 +406,31 @@ export enum Chain {
   Ethereum = "ethereum",
   Solana = "solana",
 }
+
+export type SwitchableChain = {
+  id: string;
+  name: string;
+  rpcUrls: string[];
+  blockExplorerUrls?: string[];
+  iconUrls?: string[];
+  nativeCurrency: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+};
+
+export type EvmChainInfo = {
+  namespace: Chain.Ethereum;
+  chainId: string;
+};
+
+export type SolanaChainInfo = {
+  namespace: Chain.Solana;
+};
+
+export type ChainInfo = EvmChainInfo | SolanaChainInfo;
+
 export interface WalletConnectProvider {
   request(args: { method: string; params?: any[] }): Promise<unknown>;
 }
@@ -415,7 +442,7 @@ export type WalletRpcProvider =
 
 export interface WalletProvider {
   interfaceType: WalletInterfaceType;
-  chain: Chain;
+  chainInfo: ChainInfo;
   info: WalletProviderInfo;
   provider: WalletRpcProvider;
   connectedAddresses: string[];
@@ -451,6 +478,10 @@ export interface BaseWalletInterface {
   getProviders: () => Promise<WalletProvider[]>;
   connectWalletAccount: (provider: WalletProvider) => Promise<void>;
   disconnectWalletAccount: (provider: WalletProvider) => Promise<void>;
+  switchChain?: (
+    provider: WalletProvider,
+    chainOrId: string | SwitchableChain,
+  ) => Promise<void>;
 }
 
 /**
@@ -481,7 +512,10 @@ export interface EthereumWalletInterface extends BaseWalletInterface {
 
 export interface WalletConnectInterface extends BaseWalletInterface {
   interfaceType: WalletInterfaceType.WalletConnect;
-  init: () => Promise<void>;
+  init: (opts: {
+    ethereumNamespaces: string[];
+    solanaNamespaces: string[];
+  }) => Promise<void>;
 }
 
 /**

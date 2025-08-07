@@ -24,6 +24,7 @@ import {
   ExportBundle,
   OtpType,
   StamperType,
+  SwitchableChain,
   TurnkeyClient,
   Wallet,
   WalletAccount,
@@ -911,7 +912,26 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
     await client.disconnectWalletAccount(walletProvider);
-    await refreshWallets();
+
+    // we only refresh the wallets if there is an active session
+    // this is needed because for WalletConnect you can unlink a wallet before
+    // actually being logged in
+    if (session) {
+      await refreshWallets();
+    }
+  }
+
+  async function switchWalletProviderChain(
+    walletProvider: WalletProvider,
+    chainOrId: string | SwitchableChain,
+  ): Promise<void> {
+    if (!client) {
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    await client.switchWalletProviderChain(walletProvider, chainOrId);
   }
 
   // TODO: MOE PLEASE COMMENT THESE
@@ -3638,6 +3658,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         getWalletProviders,
         connectWalletAccount,
         disconnectWalletAccount,
+        switchWalletProviderChain,
         loginWithWallet,
         signUpWithWallet,
         loginOrSignupWithWallet,
