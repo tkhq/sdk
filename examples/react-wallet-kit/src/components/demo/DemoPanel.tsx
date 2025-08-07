@@ -22,7 +22,7 @@ import {
   WalletSource,
 } from "@turnkey/react-wallet-kit";
 import { useEffect, useState } from "react";
-import { AddSVG, EthereumSVG, SolanaSVG } from "../Svg";
+import { EthereumSVG, SolanaSVG } from "../Svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faAdd,
@@ -34,7 +34,6 @@ import {
   faPlus,
   faRss,
   faWallet,
-  faWifi,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   verifyEthSignatureWithAddress,
@@ -114,12 +113,11 @@ export default function DemoPanel() {
   return (
     <div className="sm:backdrop-blur-none h-[calc(100vh-4rem)] sm:h-fit flex items-center justify-center">
       <div
-        // style={{borderRadius: config.ui?.borderRadius ?? 16 + "px",}}
         className={`flex w-screen sm:w-96 sm:h-[30rem] flex-col gap-4 sm:border sm:border-icon-background-light sm:dark:border-panel-background-dark p-4 rounded-2xl bg-panel-background-light dark:bg-panel-background-dark`}
       >
         <div className="flex items-center justify-between">
           <Menu>
-            <MenuButton className="relative text-left text-xl group p-2 gap-3 flex items-center w-fit">
+            <MenuButton className="relative text-left text-xl group p-2 gap-3 flex items-center w-fit cursor-pointer">
               <div className="flex flex-col w-full">
                 <div className="flex items-center justify-between w-full gap-4">
                   <p className="text-base max-w-[25vw] sm:max-w-24 truncate font-medium">
@@ -149,7 +147,7 @@ export default function DemoPanel() {
                   if (wallet.walletId !== selectedWallet?.walletId)
                     return (
                       <MenuItem key={wallet.walletId}>
-                        <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center justify-between w-full cursor-pointer">
                           <Button
                             onClick={() => {
                               setSelectedWallet(wallet);
@@ -157,7 +155,7 @@ export default function DemoPanel() {
                                 wallet.accounts[0] || undefined,
                               );
                             }}
-                            className="flex items-center gap-3 w-full"
+                            className="flex items-center gap-3 w-full cursor-pointer"
                           >
                             <p className="truncate">{wallet.walletName}</p>{" "}
                             {wallet.source === WalletSource.Connected && (
@@ -170,12 +168,17 @@ export default function DemoPanel() {
                       </MenuItem>
                     );
                 })}
-              <hr className="border-icon-text-light dark:border-icon-text-dark w-full" />
+              {wallets.length !== 1 && (
+                <hr className="border-icon-text-light dark:border-icon-text-dark w-full" />
+              )}
               <MenuItem>
                 <Button
                   onClick={async () => {
+                    const embeddedWallets = wallets.filter(
+                      (w) => w.source === WalletSource.Embedded,
+                    );
                     const walletId = await createWallet({
-                      walletName: `Wallet ${wallets.length + 1}`,
+                      walletName: `Wallet ${embeddedWallets.length + 1}`,
                       accounts: [
                         "ADDRESS_FORMAT_ETHEREUM",
                         "ADDRESS_FORMAT_SOLANA",
@@ -320,7 +323,7 @@ export default function DemoPanel() {
               showTitle: false,
             });
           }}
-          className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform"
+          className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
         >
           Sign Message
         </Button>
@@ -335,13 +338,13 @@ export default function DemoPanel() {
                 });
               }
             }}
-            className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80"
+            className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
           >
             <FontAwesomeIcon icon={faArrowUp} className="w-4 h-4 mr-2" /> Export
             Wallet
           </Button>
           <Button
-            className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80"
+            className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
             onClick={async () => {
               await handleImport({
                 defaultWalletAccounts: [

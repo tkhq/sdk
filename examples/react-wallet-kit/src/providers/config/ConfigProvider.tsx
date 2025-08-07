@@ -23,12 +23,19 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { ThreeDimensionalBackground } from "@/components/3D/Background";
 import { TurnkeySVG } from "@/components/Svg";
-import { useScreenSize } from "@/utils";
+import { isHardwareAccelerationEnabled, useScreenSize } from "@/utils";
 import { Slide, ToastContainer } from "react-toastify";
+import { DemoConfig } from "@/types";
 
 type ConfigContextValue = {
   config: TurnkeyProviderConfig;
-  setConfig: (newConfig: Partial<TurnkeyProviderConfig>) => void;
+  initialConfig: TurnkeyProviderConfig;
+  demoConfig: DemoConfig;
+  hardwareAccelerationEnabled: boolean;
+  setConfig: (
+    newConfig: Partial<TurnkeyProviderConfig>,
+    demoConfig?: Partial<DemoConfig>,
+  ) => void;
 };
 
 const ConfigContext = createContext<ConfigContextValue | undefined>(undefined);
@@ -51,13 +58,28 @@ export function TurnkeyConfigProvider({
   children,
 }: TurnkeyConfigProviderProps) {
   const [config, setConfigState] = useState(initialConfig);
+  const [demoConfig, setDemoConfig] = useState<DemoConfig>({
+    backgroundEnabled: true,
+  });
   const [panelOpen, setPanelOpen] = useState(false);
+
+  const [hardwareAccelerationEnabled, setHardwareAccelerationEnabled] =
+    useState(false);
+
   const panelWidth = 384;
-  const setConfig = (newConfig: Partial<TurnkeyProviderConfig>) => {
+  const setConfig = (
+    newConfig: Partial<TurnkeyProviderConfig>,
+    demoConfig?: Partial<DemoConfig>,
+  ) => {
     setConfigState((prev) => ({ ...prev, ...newConfig }));
+    setDemoConfig((prev) => ({ ...prev, ...demoConfig }));
   };
 
   const { isMobile } = useScreenSize();
+
+  useEffect(() => {
+    setHardwareAccelerationEnabled(isHardwareAccelerationEnabled());
+  }, []);
 
   useEffect(() => {
     if (isMobile) {
@@ -68,7 +90,15 @@ export function TurnkeyConfigProvider({
   }, [isMobile]);
 
   return (
-    <ConfigContext.Provider value={{ config, setConfig }}>
+    <ConfigContext.Provider
+      value={{
+        config,
+        initialConfig,
+        demoConfig,
+        hardwareAccelerationEnabled,
+        setConfig,
+      }}
+    >
       <div
         className={clsx(
           "overflow-hidden h-full absolute inset-0 flex dark:bg-panel-background-dark bg-panel-background-light text-text-light dark:text-text-dark",
@@ -166,7 +196,7 @@ export function TurnkeyConfigProvider({
         <div className="hidden sm:block">
           <div className="absolute bottom-0 left-0 w-7 h-full bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center" />
           <div className="absolute bottom-0 right-0 w-7 h-full bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center" />
-          <div className="absolute bottom-0 w-full h-7 bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center text-[8px] sm:text-xs text-icon-text-light/30 dark:text-icon-text-dark/30 font-extralight text-center">
+          <div className="absolute bottom-0 right-0 w-full h-7 bg-panel-background-light dark:bg-panel-background-dark flex items-center justify-center text-[8px] sm:text-xs text-icon-text-light/30 dark:text-icon-text-dark/30 font-extralight text-center">
             This is purely a demo app for the Turnkey React Wallet Kit. You will
             not receive any real tokens or rewards.
           </div>
