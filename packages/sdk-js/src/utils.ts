@@ -506,7 +506,7 @@ export const getWalletAccountMethods = (
     };
   };
 
-  switch (provider.chain) {
+  switch (provider.chainInfo.namespace) {
     case Chain.Ethereum:
       return {
         signMessage: signWithIntent(SignIntent.SignMessage),
@@ -526,7 +526,7 @@ export const getWalletAccountMethods = (
 
     default:
       throw new Error(
-        `Unsupported wallet chain: ${provider.chain}. Supported chains are Ethereum and Solana.`,
+        `Unsupported wallet chain: ${provider.chainInfo}. Supported chains are Ethereum and Solana.`,
       );
   }
 };
@@ -757,11 +757,11 @@ export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
 }
 
 export function isEthereumWallet(wallet: WalletProvider): boolean {
-  const walletType = wallet.chain;
+  const walletType = wallet.chainInfo.namespace;
   return walletType === Chain.Ethereum;
 }
 
 export function isSolanaWallet(wallet: WalletProvider): boolean {
-  const walletType = wallet.chain;
+  const walletType = wallet.chainInfo.namespace;
   return walletType === Chain.Solana;
 }
