@@ -1885,14 +1885,45 @@ export class TurnkeyClient {
     try {
       if (walletAccount.source === WalletSource.Connected) {
         // this is a connected wallet account
-        if (!walletAccount.signAndSendTransaction) {
-          throw new TurnkeyError(
-            "This connected wallet does not support signAndSendTransaction.",
-            TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
-          );
-        }
+        switch (transactionType) {
+          case "TRANSACTION_TYPE_ETHEREUM":
+            if (!walletAccount.signAndSendTransaction) {
+              throw new TurnkeyError(
+                "This connected wallet does not support signAndSendTransaction.",
+                TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+              );
+            }
+            return await walletAccount.signAndSendTransaction(
+              unsignedTransaction,
+            );
 
-        return await walletAccount.signAndSendTransaction(unsignedTransaction);
+          case "TRANSACTION_TYPE_SOLANA":
+            if (!rpcUrl) {
+              throw new TurnkeyError(
+                "Missing rpcUrl: connected Solana wallets require an RPC URL to broadcast transactions.",
+                TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+              );
+            }
+            if (!walletAccount.signTransaction) {
+              throw new TurnkeyError(
+                "This connected wallet does not support signAndSendTransaction.",
+                TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+              );
+            }
+            const signature =
+              await walletAccount.signTransaction(unsignedTransaction);
+            return await broadcastTransaction({
+              signedTransaction: signature,
+              rpcUrl,
+              transactionType,
+            });
+
+          default:
+            throw new TurnkeyError(
+              "Connected wallets do not support signAndSendTransaction for this transaction type.",
+              TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+            );
+        }
       }
 
       // this is an embedded wallet account
