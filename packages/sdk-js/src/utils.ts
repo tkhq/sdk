@@ -519,9 +519,6 @@ export const getWalletAccountMethods = (
       return {
         signMessage: signWithIntent(SignIntent.SignMessage),
         signTransaction: signWithIntent(SignIntent.SignTransaction),
-        signAndSendTransaction: signWithIntent(
-          SignIntent.SignAndSendTransaction,
-        ),
       };
 
     default:
