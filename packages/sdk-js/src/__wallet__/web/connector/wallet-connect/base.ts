@@ -16,8 +16,8 @@ import {
   WalletConnectInterface,
   SwitchableChain,
 } from "@types";
-import { WalletConnectClient } from "./client";
-import { SessionTypes } from "@walletconnect/types";
+import type { WalletConnectClient } from "./client";
+import type { SessionTypes } from "@walletconnect/types";
 import { Transaction } from "ethers";
 
 export class WalletConnectWallet implements WalletConnectInterface {
