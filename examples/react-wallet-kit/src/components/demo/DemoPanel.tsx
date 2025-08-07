@@ -288,7 +288,6 @@ export default function DemoPanel() {
               walletAccount: selectedWalletAccount,
               addEthereumPrefix: true,
             });
-            console.log("Signed Message:", res);
             if (!res) {
               console.error("Failed to sign message");
               return;
@@ -309,7 +308,6 @@ export default function DemoPanel() {
                     res.s,
                     selectedWalletAccount.address,
                   );
-
             pushPage({
               key: "Signature Verification",
               content: (
