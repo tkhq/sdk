@@ -20,10 +20,6 @@ export type paths = {
     /** Get the attestation document corresponding to an enclave. */
     post: operations["PublicApiService_GetAttestationDocument"];
   };
-  "/public/v1/query/get_auth_proxy_config": {
-    /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
-    post: operations["PublicApiService_GetAuthProxyConfig"];
-  };
   "/public/v1/query/get_authenticator": {
     /** Get details about an authenticator. */
     post: operations["PublicApiService_GetAuthenticator"];
@@ -49,38 +45,13 @@ export type paths = {
     post: operations["PublicApiService_GetPolicy"];
   };
   "/public/v1/query/get_policy_evaluations": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     /** Get the policy evaluations for an activity. */
-=======
-    /** Get the policy evaluations for an Activity */
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
-    /** Get the policy evaluations for an Activity */
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
-    /** Get the policy evaluations for an activity. */
->>>>>>> 2f14b8cf (updated types)
     post: operations["PublicApiService_GetPolicyEvaluations"];
   };
   "/public/v1/query/get_private_key": {
     /** Get details about a private key. */
     post: operations["PublicApiService_GetPrivateKey"];
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "/public/v1/query/get_smart_contract_interface": {
-    /** Get details about a smart contract interface. */
-    post: operations["PublicApiService_GetSmartContractInterface"];
-=======
-  "/public/v1/query/get_proxy_auth_config": {
-    /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
-    post: operations["PublicApiService_GetProxyAuthConfig"];
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-  };
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
   "/public/v1/query/get_smart_contract_interface": {
     /** Get details about a smart contract interface. */
     post: operations["PublicApiService_GetSmartContractInterface"];
@@ -114,15 +85,7 @@ export type paths = {
     post: operations["PublicApiService_GetPrivateKeys"];
   };
   "/public/v1/query/list_smart_contract_interfaces": {
-<<<<<<< HEAD
-<<<<<<< HEAD
     /** List all smart contract interfaces within an organization. */
-=======
-    /** List all Smart Contract Interfaces within an Organization */
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-    /** List all smart contract interfaces within an organization. */
->>>>>>> 2f14b8cf (updated types)
     post: operations["PublicApiService_GetSmartContractInterfaces"];
   };
   "/public/v1/query/list_suborgs": {
@@ -202,15 +165,7 @@ export type paths = {
     post: operations["PublicApiService_CreateReadWriteSession"];
   };
   "/public/v1/submit/create_smart_contract_interface": {
-<<<<<<< HEAD
-<<<<<<< HEAD
     /** Create an ABI/IDL in JSON. */
-=======
-    /** Create an ABI/IDL in JSON */
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-    /** Create an ABI/IDL in JSON. */
->>>>>>> 2f14b8cf (updated types)
     post: operations["PublicApiService_CreateSmartContractInterface"];
   };
   "/public/v1/submit/create_sub_organization": {
@@ -262,15 +217,7 @@ export type paths = {
     post: operations["PublicApiService_DeletePrivateKeys"];
   };
   "/public/v1/submit/delete_smart_contract_interface": {
-<<<<<<< HEAD
-<<<<<<< HEAD
     /** Delete a smart contract interface. */
-=======
-    /** Delete a Smart Contract Interface */
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-    /** Delete a smart contract interface. */
->>>>>>> 2f14b8cf (updated types)
     post: operations["PublicApiService_DeleteSmartContractInterface"];
   };
   "/public/v1/submit/delete_sub_organization": {
@@ -511,27 +458,6 @@ export type definitions = {
     policyEvaluations: definitions["privateumpv1PolicyEvaluation"][];
     createdAt: definitions["externaldatav1Timestamp"];
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-  externalactivityv1UpdateProxyAuthConfigRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1UpdateProxyAuthConfigIntent"];
-  };
-<<<<<<< HEAD
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
   externaldatav1Address: {
     format?: definitions["v1AddressFormat"];
     address?: string;
@@ -745,6 +671,7 @@ export type definitions = {
     | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
 <<<<<<< HEAD
     | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
@@ -772,6 +699,13 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
 >>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
 >>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
+=======
+    | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
+    | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
+    | "ACTIVITY_TYPE_ENABLE_AUTH_PROXY"
+    | "ACTIVITY_TYPE_DISABLE_AUTH_PROXY"
+    | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
+>>>>>>> a732c4c0 (Mega rebase)
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -872,36 +806,6 @@ export type definitions = {
     attestationObject: string;
     /** @description The type of authenticator transports. */
     transports: definitions["v1AuthenticatorTransport"][];
-  };
-  v1AuthProxyConfig: {
-    organizationId?: string;
-    allowedOrigins?: string[];
-    allowedAuthMethods?: string[];
-    encryptedApiKey?: string;
-    turnkeySignerUserId?: string;
-    sendFromEmailAddress?: string;
-    replyToEmailAddress?: string;
-    emailAuthTemplateId?: string;
-    otpTemplateId?: string;
-    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
-    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
-    /** @description Optional parameters for customizing SMS. If not provided, the default SMS will be used. */
-    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
-    /** Format: int32 */
-    otpExpirationSeconds?: number;
-    /** Format: int32 */
-    verificationTokenExpirationSeconds?: number;
-    /** Format: int32 */
-    sessionExpirationSeconds?: number;
-    /** Format: date-time */
-    createdAt?: string;
-    /** Format: date-time */
-    updatedAt?: string;
-    otpAlphanumeric?: boolean;
-    /** Format: int32 */
-    otpLength?: number;
-    proxyId?: string;
-    walletKitSettings?: string;
   };
   v1Authenticator: {
     /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
@@ -1282,15 +1186,7 @@ export type definitions = {
     smartContractInterface: string;
     type: definitions["v1SmartContractInterfaceType"];
     /** @description Human-readable name for a Smart Contract Interface. */
-<<<<<<< HEAD
-<<<<<<< HEAD
     label: string;
-=======
-    label?: string;
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-    label: string;
->>>>>>> ee82ffcf (started adding proto gen auth proxy methods)
     /** @description Notes for a Smart Contract Interface. */
     notes?: string;
   };
@@ -2111,14 +2007,6 @@ export type definitions = {
      */
     attestationDocument: string;
   };
-  v1GetAuthProxyConfigRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-  };
-  v1GetAuthProxyConfigResponse: {
-    /** @description Proxy authentication configuration (e.g., allowed origins). */
-    authProxyConfig: definitions["v1AuthProxyConfig"];
-  };
   v1GetAuthenticatorRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -2174,28 +2062,7 @@ export type definitions = {
     policies: definitions["v1Policy"][];
   };
   v1GetPolicyEvaluationsRequest: {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     /** @description Unique identifier for a given organization. */
-=======
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-    /** @description Unique identifier for a given Organization. */
-=======
-    /** @description Unique identifier for a given organization. */
->>>>>>> 2f14b8cf (updated types)
-    organizationId: string;
-    /** @description Unique identifier for a given activity. */
-    activityId: string;
-  };
-  v1GetPolicyEvaluationsResponse: {
-    policyEvaluations: definitions["externalactivityv1PolicyEvaluation"][];
-  };
-  v1GetPolicyRequest: {
-<<<<<<< HEAD
-    /** @description Unique identifier for a given Organization. */
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
     organizationId: string;
     /** @description Unique identifier for a given activity. */
     activityId: string;
@@ -2206,10 +2073,6 @@ export type definitions = {
   v1GetPolicyRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
-=======
-    /** @description Unique identifier for a given organization. */
-    organizationId: string;
->>>>>>> 2f14b8cf (updated types)
     /** @description Unique identifier for a given policy. */
     policyId: string;
   };
@@ -2235,21 +2098,6 @@ export type definitions = {
     /** @description A list of private keys. */
     privateKeys: definitions["v1PrivateKey"][];
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
-  v1GetSmartContractInterfaceRequest: {
-    /** @description Unique identifier for a given organization. */
-=======
-  v1GetProxyAuthConfigRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-  };
-  v1GetProxyAuthConfigResponse: {
-    /** @description Proxy authentication configuration (e.g., allowed origins). */
-    proxyAuthConfig: definitions["v1ProxyAuthConfig"];
-  };
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
   v1GetSmartContractInterfaceRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -2269,37 +2117,8 @@ export type definitions = {
     smartContractInterfaces: definitions["externaldatav1SmartContractInterface"][];
   };
   v1GetSubOrgIdsRequest: {
-<<<<<<< HEAD
-    /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
-    /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
->>>>>>> 2f14b8cf (updated types)
-    organizationId: string;
-<<<<<<< HEAD
-<<<<<<< HEAD
-    /** @description Unique identifier for a given smart contract interface. */
-    smartContractInterfaceId: string;
-  };
-  v1GetSmartContractInterfaceResponse: {
-    /** @description Object to be used in conjunction with policies to guard transaction signing. */
-    smartContractInterface: definitions["externaldatav1SmartContractInterface"];
-  };
-  v1GetSmartContractInterfacesRequest: {
-    /** @description Unique identifier for a given organization. */
-    organizationId: string;
-  };
-  v1GetSmartContractInterfacesResponse: {
-    /** @description A list of smart contract interfaces. */
-    smartContractInterfaces: definitions["externaldatav1SmartContractInterface"][];
-  };
-  v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
     organizationId: string;
-=======
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
     /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'WALLET_ACCOUNT_ADDRESS' or 'PUBLIC_KEY' */
     filterType?: string;
     /** @description The value of the filter to apply for the specified type. For example, a specific email or name string. */
@@ -2748,10 +2567,9 @@ export type definitions = {
     updateUserEmailIntent?: definitions["v1UpdateUserEmailIntent"];
     updateUserPhoneNumberIntent?: definitions["v1UpdateUserPhoneNumberIntent"];
     initFiatOnRampIntent?: definitions["v1InitFiatOnRampIntent"];
-<<<<<<< HEAD
-<<<<<<< HEAD
     createSmartContractInterfaceIntent?: definitions["v1CreateSmartContractInterfaceIntent"];
     deleteSmartContractInterfaceIntent?: definitions["v1DeleteSmartContractInterfaceIntent"];
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     enableAuthProxyIntent?: definitions["v1EnableAuthProxyIntent"];
@@ -2778,6 +2596,11 @@ export type definitions = {
     updateAuthProxyConfigIntent?: definitions["v1UpdateAuthProxyConfigIntent"];
 >>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
 >>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
+=======
+    enableAuthProxyIntent?: definitions["v1EnableAuthProxyIntent"];
+    disableAuthProxyIntent?: definitions["v1DisableAuthProxyIntent"];
+    updateAuthProxyConfigIntent?: definitions["v1UpdateAuthProxyConfigIntent"];
+>>>>>>> a732c4c0 (Mega rebase)
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -3206,10 +3029,9 @@ export type definitions = {
     updateUserEmailResult?: definitions["v1UpdateUserEmailResult"];
     updateUserPhoneNumberResult?: definitions["v1UpdateUserPhoneNumberResult"];
     initFiatOnRampResult?: definitions["v1InitFiatOnRampResult"];
-<<<<<<< HEAD
-<<<<<<< HEAD
     createSmartContractInterfaceResult?: definitions["v1CreateSmartContractInterfaceResult"];
     deleteSmartContractInterfaceResult?: definitions["v1DeleteSmartContractInterfaceResult"];
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     enableAuthProxyResult?: definitions["v1EnableAuthProxyResult"];
@@ -3236,6 +3058,11 @@ export type definitions = {
     updateAuthProxyConfigResult?: definitions["v1UpdateAuthProxyConfigResult"];
 >>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
 >>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
+=======
+    enableAuthProxyResult?: definitions["v1EnableAuthProxyResult"];
+    disableAuthProxyResult?: definitions["v1DisableAuthProxyResult"];
+    updateAuthProxyConfigResult?: definitions["v1UpdateAuthProxyConfigResult"];
+>>>>>>> a732c4c0 (Mega rebase)
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -3404,37 +3231,6 @@ export type definitions = {
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  v1SmartContractInterfaceReference: {
-    smartContractInterfaceId?: string;
-    smartContractAddress?: string;
-    digest?: string;
-=======
-  v1SmartContractInterface: {
-    /** @description The Organization the Smart Contract Interface belongs to. */
-    organizationId: string;
-    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
-    smartContractInterfaceId: string;
-    /** @description The address corresponding to the Smart Contract or Program. */
-    smartContractAddress: string;
-    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
-    smartContractInterface: string;
-    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    type: string;
-    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    label: string;
-    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    notes: string;
-    createdAt: definitions["externaldatav1Timestamp"];
-    updatedAt: definitions["externaldatav1Timestamp"];
->>>>>>> 57ef158e (updated auth proxy type generation)
-  };
-=======
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
   v1SmartContractInterfaceReference: {
     smartContractInterfaceId?: string;
     smartContractAddress?: string;
@@ -4032,24 +3828,6 @@ export type operations = {
       };
     };
   };
-  /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
-  PublicApiService_GetAuthProxyConfig: {
-    parameters: {
-      body: {
-        body: definitions["v1GetAuthProxyConfigRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetAuthProxyConfigResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
   /** Get details about an authenticator. */
   PublicApiService_GetAuthenticator: {
     parameters: {
@@ -4158,19 +3936,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   /** Get the policy evaluations for an activity. */
-=======
-  /** Get the policy evaluations for an Activity */
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
-  /** Get the policy evaluations for an Activity */
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
-  /** Get the policy evaluations for an activity. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_GetPolicyEvaluations: {
     parameters: {
       body: {
@@ -4188,18 +3954,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   /** Get details about a private key. */
-=======
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-  /** Get details about a Private Key */
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
-  /** Get details about a private key. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_GetPrivateKey: {
     parameters: {
       body: {
@@ -4217,49 +3972,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
   /** Get details about a smart contract interface. */
-  PublicApiService_GetSmartContractInterface: {
-    parameters: {
-      body: {
-        body: definitions["v1GetSmartContractInterfaceRequest"];
-=======
-  /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
-  PublicApiService_GetProxyAuthConfig: {
-    parameters: {
-      body: {
-        body: definitions["v1GetProxyAuthConfigRequest"];
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-<<<<<<< HEAD
-        schema: definitions["v1GetSmartContractInterfaceResponse"];
-=======
-        schema: definitions["v1GetProxyAuthConfigResponse"];
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  /** Get details about a user. */
-=======
-=======
-  /** Get details about a Smart Contract Interface */
-=======
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-  /** Get details about a smart contract interface. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_GetSmartContractInterface: {
     parameters: {
       body: {
@@ -4277,13 +3990,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
->>>>>>> 57ef158e (updated auth proxy type generation)
-  /** Get details about a User */
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
   /** Get details about a user. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_GetUser: {
     parameters: {
       body: {
@@ -4409,15 +4116,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
   /** List all smart contract interfaces within an organization. */
-=======
-  /** List all Smart Contract Interfaces within an Organization */
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-  /** List all smart contract interfaces within an organization. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_GetSmartContractInterfaces: {
     parameters: {
       body: {
@@ -4777,15 +4476,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
   /** Create an ABI/IDL in JSON. */
-=======
-  /** Create an ABI/IDL in JSON */
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-  /** Create an ABI/IDL in JSON. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_CreateSmartContractInterface: {
     parameters: {
       body: {
@@ -4803,15 +4494,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
   /** Create a new sub-organization. */
-=======
-  /** Create a new Sub-Organization */
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-  /** Create a new sub-organization. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_CreateSubOrganization: {
     parameters: {
       body: {
@@ -5027,15 +4710,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
   /** Delete a smart contract interface. */
-=======
-  /** Delete a Smart Contract Interface */
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-  /** Delete a smart contract interface. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_DeleteSmartContractInterface: {
     parameters: {
       body: {
@@ -5053,15 +4728,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
   /** Delete a sub-organization. */
-=======
-  /** Deletes a sub organization */
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-  /** Delete a sub-organization. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_DeleteSubOrganization: {
     parameters: {
       body: {
@@ -5133,36 +4800,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
   /** Authenticate a user via email. */
-=======
-  /** Disable User Initiated Auth */
-  PublicApiService_DisableUserInitiatedAuth: {
-    parameters: {
-      body: {
-        body: definitions["v1DisableUserInitiatedAuthRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-<<<<<<< HEAD
-  /** Authenticate a user via Email */
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-  /** Authenticate a user via email. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_EmailAuth: {
     parameters: {
       body: {
@@ -5180,36 +4818,7 @@ export type operations = {
       };
     };
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
   /** Export a private key. */
-=======
-  /** Enable User Initiated Auth */
-  PublicApiService_EnableUserInitiatedAuth: {
-    parameters: {
-      body: {
-        body: definitions["v1EnableUserInitiatedAuthRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-<<<<<<< HEAD
-  /** Exports a Private Key */
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-  /** Export a private key. */
->>>>>>> 2f14b8cf (updated types)
   PublicApiService_ExportPrivateKey: {
     parameters: {
       body: {
