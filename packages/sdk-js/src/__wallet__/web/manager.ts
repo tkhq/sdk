@@ -41,6 +41,11 @@ export class WebWalletManager {
     const enableEvm = cfg.ethereum ?? false;
     const enableSol = cfg.solana ?? false;
 
+    const ethereumNamespaces = cfg.walletConnect?.ethereumNamespaces ?? [];
+    const solanaNamespaces = cfg.walletConnect?.solanaNamespaces ?? [];
+    const hasWalletConnectNamespace =
+      ethereumNamespaces.length > 0 || solanaNamespaces.length > 0;
+
     // set up native Ethereum wallet support
     if (enableEvm) {
       this.wallets[WalletInterfaceType.Ethereum] = new EthereumWallet();
@@ -54,7 +59,7 @@ export class WebWalletManager {
     }
 
     // if WalletConnect is configured, set it up
-    if (cfg.walletConnect) {
+    if (cfg.walletConnect && hasWalletConnectNamespace) {
       this.wcClient = new WalletConnectClient();
       const wcUnified = new WalletConnectWallet(this.wcClient);
 
@@ -62,7 +67,7 @@ export class WebWalletManager {
 
       // add async init step to the initializer queue
       this.initializers.push(() =>
-        wcUnified.init({ ethereum: enableEvm, solana: enableSol }),
+        wcUnified.init({ ethereumNamespaces, solanaNamespaces }),
       );
 
       // register WalletConnect as a wallet interface for each enabled chain

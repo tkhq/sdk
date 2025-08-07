@@ -1,8 +1,10 @@
-import type {
+import {
   SignIntent,
   WalletProvider,
   WalletInterface,
   WalletInterfaceType,
+  SwitchableChain,
+  Chain,
 } from "@types";
 
 export interface WebWalletConnectorInterface {
@@ -50,6 +52,24 @@ export class WebWalletConnector implements WebWalletConnectorInterface {
     }
 
     await wallet.disconnectWalletAccount(provider);
+  }
+
+  async switchChain(
+    provider: WalletProvider,
+    chainOrId: string | SwitchableChain,
+  ): Promise<void> {
+    if (provider.chainInfo.namespace !== Chain.Ethereum) {
+      throw new Error("Only Ethereum wallets support chain switching");
+    }
+
+    const wallet = this.wallets[provider.interfaceType];
+    if (!wallet?.switchChain) {
+      throw new Error(
+        `Wallet ${provider.interfaceType} doesn’t support switching chains`,
+      );
+    }
+
+    return wallet.switchChain(provider, chainOrId);
   }
 
   /**

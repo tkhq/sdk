@@ -62,6 +62,8 @@ export default function AuthPage() {
     removeUserEmail,
     createWalletAccounts,
     signTransaction,
+    signAndSendTransaction,
+    switchWalletProviderChain,
     handleExport,
     handleImport,
     handleUpdateUserEmail,
@@ -535,6 +537,62 @@ export default function AuthPage() {
         }}
       >
         Sign Ethereum Transaction
+      </button>
+
+      <button
+        onClick={async () => {
+          const mainNet = "0x1";
+
+          const providers = await getWalletProviders(Chain.Ethereum);
+          console.log("Injected Ethereum Providers:", providers);
+
+          console.log(
+            "Switching Ethereum chain to Mainnet for provider:",
+            providers[3],
+          );
+
+          await switchWalletProviderChain(providers[3], mainNet);
+
+          console.log("done");
+          const newProviders = await getWalletProviders(Chain.Ethereum);
+          console.log("New Ethereum Providers:", newProviders);
+        }}
+        style={{
+          backgroundColor: "purple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Switch Ethereum Chain to Mainnet
+      </button>
+
+      <button
+        onClick={async () => {
+          const polygon = "0x89";
+
+          const providers = await getWalletProviders(Chain.Ethereum);
+          console.log("Injected Ethereum Providers:", providers);
+
+          console.log(
+            "Switching Ethereum chain to Polygon for provider:",
+            providers[3],
+          );
+
+          await switchWalletProviderChain(providers[3], polygon);
+
+          console.log("done");
+          const newProviders = await getWalletProviders(Chain.Ethereum);
+          console.log("New Ethereum Providers:", newProviders);
+        }}
+        style={{
+          backgroundColor: "purple",
+          borderRadius: "8px",
+          padding: "8px 16px",
+          color: "white",
+        }}
+      >
+        Switch Ethereum Chain to Polygon
       </button>
 
       <button
