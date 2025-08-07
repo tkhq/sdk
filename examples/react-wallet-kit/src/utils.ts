@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { PublicKey } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import { Buffer } from "buffer";
-import { toPrefixedMessage } from "viem";
 
-import { keccak256, recoverAddress, toUtf8Bytes } from "ethers";
+import { hashMessage, recoverAddress } from "ethers";
 
 // Custom hook to get the current screen size
 export function useScreenSize() {
@@ -25,21 +24,20 @@ export function useScreenSize() {
 }
 
 // Utility to get theme based on modal background
-export function completeTheme(
-  modalBackgroundColour: string,
-  darkMode: boolean,
-) {
+export function completeTheme(modalBackgroundColour: string) {
   const { L, C, h } = hexToOklch(modalBackgroundColour);
 
-  const iconBackgroundLMultiplier = darkMode ? 2 : 0.8;
-  const iconTextLMultiplier = darkMode ? 4 : 0.6;
+  const isLight = L > 0.5;
 
-  const iconBackgroundL = darkMode
-    ? Math.max(L * iconBackgroundLMultiplier, 0.2)
-    : Math.max(L * iconBackgroundLMultiplier, 0.95);
-  const iconTextL = darkMode
-    ? Math.max(L * iconTextLMultiplier, 0.55)
-    : Math.min(L * iconTextLMultiplier, 0.9);
+  const iconBackgroundLMultiplier = isLight ? 0.8 : 1.5;
+  const iconTextLMultiplier = isLight ? 0.3 : 6;
+
+  const iconBackgroundL = isLight
+    ? Math.max(L * iconBackgroundLMultiplier, 0.95)
+    : Math.max(L * iconBackgroundLMultiplier, 0.2);
+  const iconTextL = isLight
+    ? Math.min(L * iconTextLMultiplier, 0.9)
+    : Math.max(L * iconTextLMultiplier, 0.7);
 
   const iconBackground = oklchToHex({ L: iconBackgroundL, C, h });
   const iconText = oklchToHex({ L: iconTextL, C, h });
@@ -51,9 +49,9 @@ export function completeTheme(
 }
 
 // Utility to get primary-text color based on primary-colour
-export function primaryTextColour(primaryColour: string, darkMode: boolean) {
+export function textColour(colour: string) {
   // Use OKLCh for perceptual lightness
-  const { L, C, h } = hexToOklch(primaryColour);
+  const { L, C, h } = hexToOklch(colour);
   const isLight = L > 0.5;
 
   // Use pure black or white for maximum contrast
@@ -203,13 +201,15 @@ export function verifyEthSignatureWithAddress(
 ): boolean {
   try {
     // Construct the full signature
-    const signature = `0x${r}${s}${v === "00" ? "1b" : "1c"}`; // 1b/1c corresponds to v for Ethereum
+    const signature = `0x${r}${s}${v}`;
 
-    const prefixedMessage = toPrefixedMessage(message);
-    const hashedMessage = keccak256(prefixedMessage);
+    const hashedMessage = hashMessage(message);
 
     // Recover the address from the signature
-    return address == recoverAddress(hashedMessage, signature);
+    return (
+      address.toLowerCase() ===
+      recoverAddress(hashedMessage, signature).toLowerCase()
+    );
   } catch (error) {
     console.error("Ethereum signature verification failed:", error);
     return false;
