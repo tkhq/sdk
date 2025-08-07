@@ -13,9 +13,9 @@ import PhoneAuthButton from "./AuthButtons/PhoneAuthButton";
 import SocialButton from "./AuthButtons/SocialButton";
 import AuthenticatorButton from "./AuthButtons/AuthenticatorButton";
 import DeleteSubOrgWarning from "./DeleteSubOrgWarning";
+import { Button } from "@headlessui/react";
 
 export default function UserSettings() {
-  //   const { config } = useTurnkeyConfig();
   const {
     user,
     handleAddEmail,
@@ -39,7 +39,6 @@ export default function UserSettings() {
   return (
     <div className="sm:backdrop-blur-none h-[calc(100vh-4rem)] sm:h-fit flex items-center justify-center">
       <div
-        // style={{borderRadius: config.ui?.borderRadius ?? 16 + "px",}}
         className={`flex w-screen sm:w-96  justify-center sm:h-[30rem] flex-col gap-4 sm:border sm:border-icon-background-light sm:dark:border-panel-background-dark p-4 rounded-2xl bg-panel-background-light dark:bg-panel-background-dark`}
       >
         <h2>Manage Account</h2>
@@ -107,23 +106,23 @@ export default function UserSettings() {
         </div>
         <hr className="border-draggable-background-light dark:border-draggable-background-dark" />
         <div className="flex justify-between items-center gap-4">
-          <button
-            className="w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-2 hover:bg-background-light/80 dark:hover:bg-background-dark/80"
+          <Button
+            className="w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-2 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
             onClick={() => {
               logout();
             }}
           >
             Logout
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={async () => {
               handleDeleteSubOrganization();
             }}
-            className="w-full justify-center text-sm transition-all rounded-lg p-2 flex items-center gap-2 border-transparent hover:bg-danger-light/10 dark:hover:bg-danger-dark/10 border"
+            className="w-full justify-center text-sm transition-all rounded-lg p-2 flex items-center gap-2 border-transparent hover:bg-danger-light/10 dark:hover:bg-danger-dark/10 border cursor-pointer"
           >
             <DeleteSVG className="w-6 h-6 text-danger-light dark:text-danger-dark shrink-0" />{" "}
             <span className="shrink-0">Delete Account</span>
-          </button>
+          </Button>
         </div>
       </div>
     </div>

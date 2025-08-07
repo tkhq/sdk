@@ -12,6 +12,7 @@ import { TurnkeyProviderConfig } from "@turnkey/react-wallet-kit";
 import ConfigViewer from "@/components/demo/ConfigViewer";
 import { completeTheme, textColour } from "@/utils";
 import { Button } from "@headlessui/react";
+import { DemoConfig } from "@/types";
 
 interface AuthMethod {
   name: string;
@@ -48,7 +49,13 @@ const authMethods: AuthMethod[] = [
 ];
 
 export function TurnkeyConfigPanel() {
-  const { config, setConfig } = useTurnkeyConfig();
+  const {
+    config,
+    demoConfig,
+    initialConfig,
+    hardwareAccelerationEnabled,
+    setConfig,
+  } = useTurnkeyConfig();
 
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
@@ -66,21 +73,35 @@ export function TurnkeyConfigPanel() {
     });
   };
 
-  const handleSetConfig = async (newConfig: Partial<TurnkeyProviderConfig>) => {
-    setConfig({ ...config, ...newConfig });
-    storeConfig({ ...config, ...newConfig });
+  const handleSetConfig = async (
+    newConfig: Partial<TurnkeyProviderConfig>,
+    newDemoConfig?: Partial<DemoConfig>,
+  ) => {
+    setConfig({ ...config, ...newConfig }, { ...demoConfig, ...newDemoConfig });
+    storeConfig(
+      { ...config, ...newConfig },
+      { ...demoConfig, ...newDemoConfig },
+    );
   };
 
   // Store config in local storage
-  const storeConfig = (config: Partial<TurnkeyProviderConfig>) => {
+  const storeConfig = (
+    config: Partial<TurnkeyProviderConfig>,
+    demoConfig?: Partial<DemoConfig>,
+  ) => {
     localStorage.setItem("turnkeyConfig", JSON.stringify(config));
+    localStorage.setItem("turnkeyDemoConfig", JSON.stringify(demoConfig));
   };
 
   // Load config from local storage
   const loadConfig = () => {
     const storedConfig = localStorage.getItem("turnkeyConfig");
+    const storedDemoConfig = localStorage.getItem("turnkeyDemoConfig");
     if (storedConfig) {
       setConfig(JSON.parse(storedConfig));
+    }
+    if (storedDemoConfig) {
+      setConfig({}, JSON.parse(storedDemoConfig));
     }
   };
 
@@ -355,6 +376,27 @@ export function TurnkeyConfigPanel() {
           />
         </>
       </PanelDisclosure>
+      <PanelDisclosure title="Demo Options">
+        <p className="text-xs text-icon-text-light dark:text-icon-text-dark">
+          These settings are just for the demo, they do not affect the
+          TurnkeyProvider config.
+        </p>
+        <ToggleSwitch
+          label="3D Background Enabled"
+          checked={
+            hardwareAccelerationEnabled
+              ? (demoConfig.backgroundEnabled ?? false)
+              : false
+          }
+          disabled={!hardwareAccelerationEnabled}
+          tooltip={
+            !hardwareAccelerationEnabled
+              ? "Hardware acceleration is not enabled."
+              : ""
+          }
+          onChange={(val) => handleSetConfig({}, { backgroundEnabled: val })}
+        />
+      </PanelDisclosure>
       <PanelDisclosure title="Config">
         <p className="text-xs text-icon-text-light dark:text-icon-text-dark">
           Paste this config into your TurnkeyProvider config to use in your own
@@ -365,40 +407,7 @@ export function TurnkeyConfigPanel() {
       <Button
         className="w-full hover:cursor-pointer p-2 text-sm rounded-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark hover:bg-primary-light/90 dark:hover:bg-primary-dark/90 transition-colors"
         onClick={() => {
-          handleSetConfig({
-            auth: {
-              ...config.auth,
-              oAuthConfig: {
-                ...config.auth?.oAuthConfig,
-                openOAuthInPage: true,
-              },
-              methods: {
-                emailOtpAuthEnabled: true,
-                smsOtpAuthEnabled: false,
-                passkeyAuthEnabled: true,
-                walletAuthEnabled: true,
-                googleOAuthEnabled: true,
-                appleOAuthEnabled: false,
-                facebookOAuthEnabled: false,
-              },
-              methodOrder: ["socials", "email", "sms", "passkey", "wallet"],
-              oauthOrder: ["google", "apple", "facebook"],
-            },
-            ui: {
-              darkMode: config.ui?.darkMode ?? false,
-              borderRadius: 16,
-              backgroundBlur: 8,
-              renderModalInProvider: true,
-              colors: {
-                light: {
-                  primary: "#335bf9",
-                },
-                dark: {
-                  primary: "#335bf9",
-                },
-              },
-            },
-          });
+          handleSetConfig(initialConfig);
         }}
       >
         Reset to Defaults
