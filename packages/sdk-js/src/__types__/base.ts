@@ -201,7 +201,7 @@ export interface ConnectedWalletAccount extends v1WalletAccount {
   source: WalletSource.Connected;
   signMessage: (message: string) => Promise<string>;
   signTransaction?: (unsignedTransaction: string) => Promise<string>;
-  signAndSendTransaction: (unsignedTransaction: string) => Promise<string>;
+  signAndSendTransaction?: (unsignedTransaction: string) => Promise<string>;
 }
 
 export type WalletAccount = EmbeddedWalletAccount | ConnectedWalletAccount;

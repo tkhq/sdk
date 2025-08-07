@@ -634,7 +634,7 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const solanaAccount = wallets[4].accounts[0];
+          const solanaAccount = wallets[2].accounts[1];
           const from = new PublicKey(solanaAccount.address);
 
           const tx = new Transaction().add(
