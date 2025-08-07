@@ -12,6 +12,7 @@ import {
   Chain,
   EthereumWalletInterface,
   SignIntent,
+  SwitchableChain,
   WalletInterfaceType,
   WalletProvider,
   WalletProviderInfo,
@@ -80,18 +81,28 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
       const promise = (async () => {
         let connectedAddresses: string[] = [];
 
+        // we default to Ethereum mainnet
+        let chainId = "0x1";
+
         try {
           const accounts = await (provider as any).request?.({
             method: "eth_accounts",
           });
           if (Array.isArray(accounts)) connectedAddresses = accounts;
+
+          chainId = await (provider as any).request({
+            method: "eth_chainId",
+          });
         } catch {
           // fail silently
         }
 
         discovered.push({
           interfaceType: WalletInterfaceType.Ethereum,
-          chain: Chain.Ethereum,
+          chainInfo: {
+            namespace: Chain.Ethereum,
+            chainId,
+          },
           info,
           provider,
           connectedAddresses,
@@ -139,6 +150,66 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
       params: [{ eth_accounts: {} }],
     });
   };
+
+  async switchChain(
+    provider: WalletProvider,
+    chainOrId: string | SwitchableChain,
+  ): Promise<void> {
+    if (provider.chainInfo.namespace !== Chain.Ethereum) {
+      throw new Error("Only EVM wallets can switch chains");
+    }
+
+    const wallet = asEip1193(provider);
+    const chainId = typeof chainOrId === "string" ? chainOrId : chainOrId.id;
+
+    try {
+      // first we just try switching
+      await wallet.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId }],
+      });
+    } catch (err: any) {
+      // if the error is not “chain not found”
+      // we just re-throw it
+      if (err.code !== 4902) {
+        throw err;
+      }
+
+      // no metadata was provided so we throw an error
+      // telling them to pass it in
+      if (typeof chainOrId === "string") {
+        throw new Error(
+          `Chain ${chainId} not recognized. ` +
+            `If you want to add it, call switchChain with a SwitchableChain object.`,
+        );
+      }
+
+      // we have full metadata and can add the chain and switch
+      const { name, rpcUrls, blockExplorerUrls, iconUrls, nativeCurrency } =
+        chainOrId;
+
+      // add the chain
+      await wallet.request({
+        method: "wallet_addEthereumChain",
+        params: [
+          {
+            chainId,
+            chainName: name,
+            rpcUrls,
+            blockExplorerUrls,
+            iconUrls,
+            nativeCurrency,
+          },
+        ],
+      });
+
+      // then switch again
+      await wallet.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId }],
+      });
+    }
+  }
 }
 
 /**
