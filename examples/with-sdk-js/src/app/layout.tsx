@@ -49,7 +49,7 @@ function RootLayout({ children }: RootLayoutProps) {
                   url: "http://localhost:3000",
                   icons: ["/favicon.svg"],
                 },
-                ethereumNamespaces: ["eip155:1"],
+                ethereumNamespaces: ["eip155:1", "eip155:137"],
                 solanaNamespaces: ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
               },
             },
