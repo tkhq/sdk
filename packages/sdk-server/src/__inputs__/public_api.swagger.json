@@ -196,38 +196,6 @@
         "tags": ["Attestation"]
       }
     },
-    "/public/v1/query/get_auth_proxy_config": {
-      "post": {
-        "summary": "Get Proxy Auth Config",
-        "description": "Get the proxy-auth configuration (allowed origins, etc.) for an Organization",
-        "operationId": "PublicApiService_GetAuthProxyConfig",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetAuthProxyConfigResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetAuthProxyConfigRequest"
-            }
-          }
-        ],
-        "tags": ["Organizations"]
-      }
-    },
     "/public/v1/query/get_authenticator": {
       "post": {
         "summary": "Get authenticator",
@@ -422,23 +390,8 @@
     },
     "/public/v1/query/get_policy_evaluations": {
       "post": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         "summary": "Get policy evaluations",
         "description": "Get the policy evaluations for an activity.",
-=======
-        "summary": "Get Policy Evaluations",
-        "description": "Get the policy evaluations for an Activity",
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
-        "summary": "Get Policy Evaluations",
-        "description": "Get the policy evaluations for an Activity",
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
-        "summary": "Get policy evaluations",
-        "description": "Get the policy evaluations for an activity.",
->>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_GetPolicyEvaluations",
         "responses": {
           "200": {
@@ -499,61 +452,6 @@
         "tags": ["Private Keys"]
       }
     },
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "/public/v1/query/get_smart_contract_interface": {
-      "post": {
-        "summary": "Get smart contract interface",
-        "description": "Get details about a smart contract interface.",
-        "operationId": "PublicApiService_GetSmartContractInterface",
-=======
-    "/public/v1/query/get_proxy_auth_config": {
-      "post": {
-        "summary": "Get Proxy Auth Config",
-        "description": "Get the proxy-auth configuration (allowed origins, etc.) for an Organization",
-        "operationId": "PublicApiService_GetProxyAuthConfig",
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-<<<<<<< HEAD
-              "$ref": "#/definitions/v1GetSmartContractInterfaceResponse"
-=======
-              "$ref": "#/definitions/v1GetProxyAuthConfigResponse"
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-<<<<<<< HEAD
-              "$ref": "#/definitions/v1GetSmartContractInterfaceRequest"
-            }
-          }
-        ],
-        "tags": ["Policies"]
-=======
-              "$ref": "#/definitions/v1GetProxyAuthConfigRequest"
-            }
-          }
-        ],
-        "tags": ["Organizations"]
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-      }
-    },
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
     "/public/v1/query/get_smart_contract_interface": {
       "post": {
         "summary": "Get smart contract interface",
@@ -812,18 +710,8 @@
     },
     "/public/v1/query/list_smart_contract_interfaces": {
       "post": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "summary": "List smart contract interfaces",
         "description": "List all smart contract interfaces within an organization.",
-=======
-        "summary": "List Smart Contract Interfaces",
-        "description": "List all Smart Contract Interfaces within an Organization",
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-        "summary": "List smart contract interfaces",
-        "description": "List all smart contract interfaces within an organization.",
->>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_GetSmartContractInterfaces",
         "responses": {
           "200": {
@@ -1462,18 +1350,8 @@
     },
     "/public/v1/submit/create_smart_contract_interface": {
       "post": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "summary": "Create smart contract interface",
         "description": "Create an ABI/IDL in JSON.",
-=======
-        "summary": "Create Smart Contract Interface",
-        "description": "Create an ABI/IDL in JSON",
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-        "summary": "Create smart contract interface",
-        "description": "Create an ABI/IDL in JSON.",
->>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_CreateSmartContractInterface",
         "responses": {
           "200": {
@@ -1888,18 +1766,8 @@
     },
     "/public/v1/submit/delete_smart_contract_interface": {
       "post": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "summary": "Delete smart contract interface",
         "description": "Delete a smart contract interface.",
-=======
-        "summary": "Create Smart Contract Interface",
-        "description": "Delete a Smart Contract Interface",
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-        "summary": "Delete smart contract interface",
-        "description": "Delete a smart contract interface.",
->>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_DeleteSmartContractInterface",
         "responses": {
           "200": {
@@ -3392,39 +3260,6 @@
         "createdAt"
       ]
     },
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-    "externalactivityv1UpdateProxyAuthConfigRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1UpdateProxyAuthConfigIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-<<<<<<< HEAD
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
     "externaldatav1Address": {
       "type": "object",
       "properties": {
@@ -3822,6 +3657,7 @@
         "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
 <<<<<<< HEAD
         "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
@@ -3849,6 +3685,13 @@
         "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG"
 >>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
 >>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
+=======
+        "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
+        "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
+        "ACTIVITY_TYPE_ENABLE_AUTH_PROXY",
+        "ACTIVITY_TYPE_DISABLE_AUTH_PROXY",
+        "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG"
+>>>>>>> a732c4c0 (Mega rebase)
       ]
     },
     "v1AddressFormat": {
@@ -4046,85 +3889,6 @@
         "attestationObject",
         "transports"
       ]
-    },
-    "v1AuthProxyConfig": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string"
-        },
-        "allowedOrigins": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "allowedAuthMethods": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "encryptedApiKey": {
-          "type": "string"
-        },
-        "turnkeySignerUserId": {
-          "type": "string"
-        },
-        "sendFromEmailAddress": {
-          "type": "string"
-        },
-        "replyToEmailAddress": {
-          "type": "string"
-        },
-        "emailAuthTemplateId": {
-          "type": "string"
-        },
-        "otpTemplateId": {
-          "type": "string"
-        },
-        "emailCustomizationParams": {
-          "$ref": "#/definitions/v1EmailCustomizationParams",
-          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
-        },
-        "smsCustomizationParams": {
-          "$ref": "#/definitions/v1SmsCustomizationParams",
-          "description": "Optional parameters for customizing SMS. If not provided, the default SMS will be used."
-        },
-        "otpExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "verificationTokenExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "sessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "otpAlphanumeric": {
-          "type": "boolean"
-        },
-        "otpLength": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "proxyId": {
-          "type": "string"
-        },
-        "walletKitSettings": {
-          "type": "string"
-        }
-      }
     },
     "v1Authenticator": {
       "type": "object",
@@ -5125,22 +4889,12 @@
           "description": "Notes for a Smart Contract Interface."
         }
       },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> ee82ffcf (started adding proto gen auth proxy methods)
       "required": [
         "smartContractAddress",
         "smartContractInterface",
         "type",
         "label"
       ]
-<<<<<<< HEAD
-=======
-      "required": ["smartContractAddress", "smartContractInterface", "type"]
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
->>>>>>> ee82ffcf (started adding proto gen auth proxy methods)
     },
     "v1CreateSmartContractInterfaceRequest": {
       "type": "object",
@@ -7053,26 +6807,6 @@
       },
       "required": ["attestationDocument"]
     },
-    "v1GetAuthProxyConfigRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1GetAuthProxyConfigResponse": {
-      "type": "object",
-      "properties": {
-        "authProxyConfig": {
-          "$ref": "#/definitions/v1AuthProxyConfig",
-          "description": "Proxy authentication configuration (e.g., allowed origins)."
-        }
-      },
-      "required": ["authProxyConfig"]
-    },
     "v1GetAuthenticatorRequest": {
       "type": "object",
       "properties": {
@@ -7222,33 +6956,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
           "description": "Unique identifier for a given organization."
         },
         "activityId": {
           "type": "string",
           "description": "Unique identifier for a given activity."
-=======
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-          "description": "Unique identifier for a given Organization."
-        },
-        "activityId": {
-          "type": "string",
-          "description": "Unique identifier for a given Activity."
-<<<<<<< HEAD
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
-          "description": "Unique identifier for a given organization."
-        },
-        "activityId": {
-          "type": "string",
-          "description": "Unique identifier for a given activity."
->>>>>>> 2f14b8cf (updated types)
         }
       },
       "required": ["organizationId", "activityId"]
@@ -7338,77 +7050,6 @@
       },
       "required": ["privateKeys"]
     },
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "v1GetSmartContractInterfaceRequest": {
-=======
-    "v1GetProxyAuthConfigRequest": {
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-<<<<<<< HEAD
-          "description": "Unique identifier for a given organization."
-        },
-        "smartContractInterfaceId": {
-          "type": "string",
-          "description": "Unique identifier for a given smart contract interface."
-        }
-      },
-      "required": ["organizationId", "smartContractInterfaceId"]
-    },
-    "v1GetSmartContractInterfaceResponse": {
-      "type": "object",
-      "properties": {
-        "smartContractInterface": {
-          "$ref": "#/definitions/externaldatav1SmartContractInterface",
-          "description": "Object to be used in conjunction with policies to guard transaction signing."
-        }
-      },
-      "required": ["smartContractInterface"]
-    },
-    "v1GetSmartContractInterfacesRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given organization."
-=======
-          "description": "Unique identifier for a given Organization."
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-        }
-      },
-      "required": ["organizationId"]
-    },
-<<<<<<< HEAD
-    "v1GetSmartContractInterfacesResponse": {
-      "type": "object",
-      "properties": {
-        "smartContractInterfaces": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/externaldatav1SmartContractInterface"
-          },
-          "description": "A list of smart contract interfaces."
-        }
-      },
-      "required": ["smartContractInterfaces"]
-=======
-    "v1GetProxyAuthConfigResponse": {
-      "type": "object",
-      "properties": {
-        "proxyAuthConfig": {
-          "$ref": "#/definitions/v1ProxyAuthConfig",
-          "description": "Proxy authentication configuration (e.g., allowed origins)."
-        }
-      },
-      "required": ["proxyAuthConfig"]
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-    },
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
     "v1GetSmartContractInterfaceRequest": {
       "type": "object",
       "properties": {
@@ -8578,15 +8219,12 @@
         "initFiatOnRampIntent": {
           "$ref": "#/definitions/v1InitFiatOnRampIntent"
         },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 57ef158e (updated auth proxy type generation)
         "createSmartContractInterfaceIntent": {
           "$ref": "#/definitions/v1CreateSmartContractInterfaceIntent"
         },
         "deleteSmartContractInterfaceIntent": {
           "$ref": "#/definitions/v1DeleteSmartContractInterfaceIntent"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         },
@@ -8603,19 +8241,16 @@
 >>>>>>> 2cffcb69 (updated auth proxy type generation)
 =======
 =======
-        },
-<<<<<<< HEAD
->>>>>>> 57ef158e (updated auth proxy type generation)
-        "enableUserInitiatedAuthIntent": {
-          "$ref": "#/definitions/v1EnableUserInitiatedAuthIntent"
 =======
+>>>>>>> a732c4c0 (Mega rebase)
+        },
         "enableAuthProxyIntent": {
           "$ref": "#/definitions/v1EnableAuthProxyIntent"
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
         },
         "disableAuthProxyIntent": {
           "$ref": "#/definitions/v1DisableAuthProxyIntent"
         },
+<<<<<<< HEAD
 <<<<<<< HEAD
         "updateProxyAuthConfigIntent": {
           "$ref": "#/definitions/v1UpdateProxyAuthConfigIntent"
@@ -8628,6 +8263,10 @@
           "$ref": "#/definitions/v1UpdateAuthProxyConfigIntent"
 >>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
 >>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
+=======
+        "updateAuthProxyConfigIntent": {
+          "$ref": "#/definitions/v1UpdateAuthProxyConfigIntent"
+>>>>>>> a732c4c0 (Mega rebase)
         }
       }
     },
@@ -9759,15 +9398,12 @@
         "initFiatOnRampResult": {
           "$ref": "#/definitions/v1InitFiatOnRampResult"
         },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 57ef158e (updated auth proxy type generation)
         "createSmartContractInterfaceResult": {
           "$ref": "#/definitions/v1CreateSmartContractInterfaceResult"
         },
         "deleteSmartContractInterfaceResult": {
           "$ref": "#/definitions/v1DeleteSmartContractInterfaceResult"
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
         },
@@ -9784,19 +9420,16 @@
 >>>>>>> 2cffcb69 (updated auth proxy type generation)
 =======
 =======
-        },
-<<<<<<< HEAD
->>>>>>> 57ef158e (updated auth proxy type generation)
-        "enableUserInitiatedAuthResult": {
-          "$ref": "#/definitions/v1EnableUserInitiatedAuthResult"
 =======
+>>>>>>> a732c4c0 (Mega rebase)
+        },
         "enableAuthProxyResult": {
           "$ref": "#/definitions/v1EnableAuthProxyResult"
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
         },
         "disableAuthProxyResult": {
           "$ref": "#/definitions/v1DisableAuthProxyResult"
         },
+<<<<<<< HEAD
 <<<<<<< HEAD
         "updateProxyAuthConfigResult": {
           "$ref": "#/definitions/v1UpdateProxyAuthConfigResult"
@@ -9809,6 +9442,10 @@
           "$ref": "#/definitions/v1UpdateAuthProxyConfigResult"
 >>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
 >>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
+=======
+        "updateAuthProxyConfigResult": {
+          "$ref": "#/definitions/v1UpdateAuthProxyConfigResult"
+>>>>>>> a732c4c0 (Mega rebase)
         }
       }
     },
@@ -10259,78 +9896,6 @@
         }
       }
     },
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "v1SmartContractInterfaceReference": {
-      "type": "object",
-      "properties": {
-        "smartContractInterfaceId": {
-          "type": "string"
-        },
-        "smartContractAddress": {
-          "type": "string"
-        },
-        "digest": {
-          "type": "string"
-        }
-      }
-=======
-    "v1SmartContractInterface": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "The Organization the Smart Contract Interface belongs to."
-        },
-        "smartContractInterfaceId": {
-          "type": "string",
-          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
-        },
-        "smartContractAddress": {
-          "type": "string",
-          "description": "The address corresponding to the Smart Contract or Program."
-        },
-        "smartContractInterface": {
-          "type": "string",
-          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
-        },
-        "type": {
-          "type": "string",
-          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "label": {
-          "type": "string",
-          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "notes": {
-          "type": "string",
-          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "createdAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "updatedAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        }
-      },
-      "required": [
-        "organizationId",
-        "smartContractInterfaceId",
-        "smartContractAddress",
-        "smartContractInterface",
-        "type",
-        "label",
-        "notes",
-        "createdAt",
-        "updatedAt"
-      ]
->>>>>>> 57ef158e (updated auth proxy type generation)
-    },
-=======
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
     "v1SmartContractInterfaceReference": {
       "type": "object",
       "properties": {

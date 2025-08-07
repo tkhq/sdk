@@ -20,10 +20,6 @@ export type paths = {
     /** Get the attestation document corresponding to an enclave. */
     post: operations["PublicApiService_GetAttestationDocument"];
   };
-  "/public/v1/query/get_auth_proxy_config": {
-    /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
-    post: operations["PublicApiService_GetAuthProxyConfig"];
-  };
   "/public/v1/query/get_authenticator": {
     /** Get details about an authenticator. */
     post: operations["PublicApiService_GetAuthenticator"];
@@ -778,36 +774,6 @@ export type definitions = {
     attestationObject: string;
     /** @description The type of authenticator transports. */
     transports: definitions["v1AuthenticatorTransport"][];
-  };
-  v1AuthProxyConfig: {
-    organizationId?: string;
-    allowedOrigins?: string[];
-    allowedAuthMethods?: string[];
-    encryptedApiKey?: string;
-    turnkeySignerUserId?: string;
-    sendFromEmailAddress?: string;
-    replyToEmailAddress?: string;
-    emailAuthTemplateId?: string;
-    otpTemplateId?: string;
-    /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
-    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
-    /** @description Optional parameters for customizing SMS. If not provided, the default SMS will be used. */
-    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
-    /** Format: int32 */
-    otpExpirationSeconds?: number;
-    /** Format: int32 */
-    verificationTokenExpirationSeconds?: number;
-    /** Format: int32 */
-    sessionExpirationSeconds?: number;
-    /** Format: date-time */
-    createdAt?: string;
-    /** Format: date-time */
-    updatedAt?: string;
-    otpAlphanumeric?: boolean;
-    /** Format: int32 */
-    otpLength?: number;
-    proxyId?: string;
-    walletKitSettings?: string;
   };
   v1Authenticator: {
     /** @description Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
@@ -1964,14 +1930,6 @@ export type definitions = {
      * @description Raw (CBOR-encoded) attestation document.
      */
     attestationDocument: string;
-  };
-  v1GetAuthProxyConfigRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-  };
-  v1GetAuthProxyConfigResponse: {
-    /** @description Proxy authentication configuration (e.g., allowed origins). */
-    authProxyConfig: definitions["v1AuthProxyConfig"];
   };
   v1GetAuthenticatorRequest: {
     /** @description Unique identifier for a given organization. */
@@ -3705,24 +3663,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetAttestationDocumentResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
-  PublicApiService_GetAuthProxyConfig: {
-    parameters: {
-      body: {
-        body: definitions["v1GetAuthProxyConfigRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetAuthProxyConfigResponse"];
       };
       /** An unexpected error response. */
       default: {
