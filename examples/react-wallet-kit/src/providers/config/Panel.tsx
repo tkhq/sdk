@@ -10,7 +10,7 @@ import { PanelDisclosure } from "@/components/Disclosure";
 import { useEffect } from "react";
 import { TurnkeyProviderConfig } from "@turnkey/react-wallet-kit";
 import ConfigViewer from "@/components/demo/ConfigViewer";
-import { completeTheme, primaryTextColour } from "@/utils";
+import { completeTheme, textColour } from "@/utils";
 import { Button } from "@headlessui/react";
 
 interface AuthMethod {
@@ -245,10 +245,7 @@ export function TurnkeyConfigPanel() {
                 : config.ui?.colors?.dark?.primary || "#000000"
             }
             onChange={(val) => {
-              const primaryText = primaryTextColour(
-                val,
-                config.ui?.darkMode ?? false,
-              );
+              const primaryText = textColour(val);
               handleSetConfig({
                 ui: {
                   ...config.ui,
@@ -281,10 +278,7 @@ export function TurnkeyConfigPanel() {
                 : config.ui?.colors?.dark?.modalBackground || "#000000"
             }
             onChange={(val) => {
-              const newColors = completeTheme(
-                val,
-                config.ui?.darkMode ?? false,
-              );
+              const newColors = completeTheme(val);
 
               handleSetConfig({
                 ui: {
