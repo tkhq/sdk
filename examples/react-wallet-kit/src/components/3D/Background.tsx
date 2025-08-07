@@ -4,19 +4,27 @@ import { Stars } from "./Stars";
 import { PerspectiveCamera, useProgress } from "@react-three/drei";
 import { Suspense, useEffect, useState } from "react";
 import clsx from "clsx";
-import { useScreenSize } from "@/utils";
+import { isHardwareAccelerationEnabled, useScreenSize } from "@/utils";
+import { useTurnkeyConfig } from "@/providers/config/ConfigProvider";
 
-function FadeInWrapper(props: { children: React.ReactNode }) {
-  const { children } = props;
+function FadeInWrapper(props: {
+  startVisible: boolean;
+  children: React.ReactNode;
+}) {
+  const { startVisible, children } = props;
   const { progress } = useProgress(); // This tracks loading progress of async assets like the Turnkey glb model
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (startVisible) {
+      setVisible(true);
+      return;
+    }
     if (progress === 100) {
       const timeout = setTimeout(() => setVisible(true), 50); // Fade in after a short delay
       return () => clearTimeout(timeout);
     }
-  }, [progress]);
+  }, [progress, startVisible]);
 
   return (
     <div
@@ -32,23 +40,29 @@ function FadeInWrapper(props: { children: React.ReactNode }) {
 
 export function ThreeDimensionalBackground() {
   const { isMobile } = useScreenSize();
+  const { demoConfig, hardwareAccelerationEnabled } = useTurnkeyConfig();
+
+  const canShow3DBackground =
+    demoConfig.backgroundEnabled && hardwareAccelerationEnabled;
 
   return (
-    <FadeInWrapper>
-      <Canvas>
-        <Suspense fallback={null}>
-          <PerspectiveCamera
-            makeDefault
-            position={[isMobile ? 0.5 : 0, 0, isMobile ? 5 : 4.5]}
-            rotation={[-0.2, -0.1, -0.2]}
-            near={0.1}
-            far={1000}
-          />
-          <ambientLight intensity={0.1} />
-          <Stars position={[0, 0, 4.5]} />
-          <TurnkeyLogo position={[1, -2.5, 2]} />
-        </Suspense>
-      </Canvas>
+    <FadeInWrapper startVisible={!canShow3DBackground}>
+      {canShow3DBackground && (
+        <Canvas>
+          <Suspense fallback={null}>
+            <PerspectiveCamera
+              makeDefault
+              position={[isMobile ? 0.5 : 0, 0, isMobile ? 5 : 4.5]}
+              rotation={[-0.2, -0.1, -0.2]}
+              near={0.1}
+              far={1000}
+            />
+            <ambientLight intensity={0.1} />
+            <Stars position={[0, 0, 4.5]} />
+            <TurnkeyLogo position={[1, -2.5, 2]} />
+          </Suspense>
+        </Canvas>
+      )}
     </FadeInWrapper>
   );
 }
