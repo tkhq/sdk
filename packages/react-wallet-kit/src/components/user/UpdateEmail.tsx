@@ -31,6 +31,7 @@ export function UpdateEmail(params: {
   const handleContinue = async () => {
     if (isValidEmail(emailInput)) {
       try {
+        setIsLoading(true);
         const otpId = await initOtp({
           otpType: OtpType.Email,
           contact: emailInput,

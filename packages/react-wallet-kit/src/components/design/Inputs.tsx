@@ -198,16 +198,17 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
     <div className="w-full flex items-center gap-2 rounded-md text-inherit bg-button-light dark:bg-button-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus-within:outline-primary-light focus-within:dark:outline-primary-dark focus-within:outline-[1px] focus-within:outline-offset-0 box-border transition-all">
       <Listbox as="div" value={country.iso2} onChange={setCountry}>
         <div className="relative">
-          <ListboxButton className="cursor-pointer px-3 gap-2 bg-button-light dark:bg-button-dark border-none rounded-md text-left flex items-center justify-between">
-            <span className="flex items-center gap-2">
+          <ListboxButton className="flex flex-row min-w-20 gap-2 px-3 cursor-pointer bg-button-light dark:bg-button-dark border-none rounded-md text-left items-center">
+            <div className="flex flex-row space-x-2 items-center">
               <FlagImage iso2={country.iso2} className="w-5 h-4 rounded-sm" />
-              <span className="text-sm text-modal-text-light dark:text-modal-text-dark">
+              <div className="text-sm text-modal-text-light dark:text-modal-text-dark">
                 +{country.dialCode}
-              </span>
-            </span>
+              </div>
+            </div>
+
             <FontAwesomeIcon
               icon={faChevronDown}
-              className="w-3 h-3 text-gray-400"
+              className="size-3 text-icon-text-light dark:text-icon-text-dark"
             />
           </ListboxButton>
 
@@ -232,7 +233,7 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
                 >
                   <FlagImage iso2={iso2} className="w-5 h-4 rounded-sm" />
                   <span>{name}</span>
-                  <span className="ml-auto text-xs text-gray-500">
+                  <span className="ml-auto text-xs text-icon-text-light dark:text-icon-text-dark">
                     +{dialCode}
                   </span>
                 </ListboxOption>
