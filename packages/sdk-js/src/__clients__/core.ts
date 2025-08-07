@@ -1768,12 +1768,11 @@ export class TurnkeyClient {
 
       return response.activity.result
         .signRawPayloadResult as v1SignRawPayloadResult;
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
-        `Failed to sign message: ${error}`,
+        `Failed to sign message - ${error?.message ? error.message : "Unknown error"}`,
         TurnkeyErrorCodes.SIGN_MESSAGE_ERROR,
-        error,
       );
     }
   };
