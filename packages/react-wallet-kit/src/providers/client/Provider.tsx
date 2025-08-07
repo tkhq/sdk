@@ -317,15 +317,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }, [client, masterConfig, callbacks, pushPage]);
 
   useEffect(() => {
-    if (!client) return;
-    initializeSessions();
-
-    return () => {
-      clearSessionTimeouts();
-    };
-  }, [client]);
-
-  useEffect(() => {
     if (!client || proxyAuthConfigRef.current) return;
 
     // Only fetch the proxy auth config once. Use that to build the master config.
@@ -541,6 +532,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
     }
   };
+
+  useEffect(() => {
+    if (!client) return;
+    clearSessionTimeouts();
+    initializeSessions();
+
+    return () => {
+      clearSessionTimeouts();
+    };
+  }, [client]);
+
   /**
    * @internal
    * Schedules a session expiration and warning timeout for the given session key.
@@ -563,10 +565,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       // Clear any existing timeout for this session key
       if (expiryTimeoutsRef.current[sessionKey]) {
         clearTimeout(expiryTimeoutsRef.current[sessionKey]);
+        delete expiryTimeoutsRef.current[sessionKey];
       }
 
       if (expiryTimeoutsRef.current[`${sessionKey}-warning`]) {
         clearTimeout(expiryTimeoutsRef.current[`${sessionKey}-warning`]);
+        delete expiryTimeoutsRef.current[`${sessionKey}-warning`];
       }
 
       const timeUntilExpiry = expiry * 1000 - Date.now();
@@ -574,6 +578,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const beforeExpiry = async () => {
         const activeSession = await getSession();
         if (!activeSession && expiryTimeoutsRef.current[sessionKey]) {
+          clearTimeout(expiryTimeoutsRef.current[`${sessionKey}-warning`]);
           expiryTimeoutsRef.current[`${sessionKey}-warning`] = setTimeout(
             beforeExpiry,
             10000,
@@ -591,7 +596,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             sessionKey,
           });
         }
-        delete expiryTimeoutsRef.current[`${sessionKey}-warning`];
       };
 
       const expireSession = async () => {
@@ -604,6 +608,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
         delete expiryTimeoutsRef.current[sessionKey];
         delete expiryTimeoutsRef.current[`${sessionKey}-warning`];
+
+        await logout();
       };
 
       if (timeUntilExpiry <= SESSION_WARNING_THRESHOLD_MS) {
@@ -1861,11 +1867,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     invalidateExisitng?: boolean;
     stampWith?: StamperType | undefined;
   }): Promise<TStampLoginResponse | undefined> {
-    if (!client)
+    if (!client) {
       throw new TurnkeyError(
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
+    }
 
     const activeSessionKey = await client.getActiveSessionKey();
     if (!activeSessionKey) {
@@ -1875,10 +1882,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
 
-    let sessionKey = params?.sessionKey ?? activeSessionKey;
+    const sessionKey = params?.sessionKey ?? activeSessionKey;
 
     const res = await withTurnkeyErrorHandling(
-      () => client.refreshSession({ ...params, sessionKey }),
+      () => client.refreshSession({ ...params }),
       callbacks,
       "Failed to refresh session",
     );
