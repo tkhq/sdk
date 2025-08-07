@@ -1,9 +1,9 @@
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Player } from "@lottiefiles/react-lottie-player";
 import clsx from "clsx";
 import { useEffect, useState } from "react";
 import { useModal } from "../../providers/modal/Hook";
+import LottiePlayerWrapper from "./Lottie/Wrapper";
 
 interface SuccessPageProps {
   text?: string | undefined;
@@ -65,7 +65,7 @@ export function SuccessPage(props: SuccessPageProps) {
         </div>
 
         {/*@ts-ignore. I have no idea how to fix this error */}
-        <Player
+        <LottiePlayerWrapper
           style={{ height: "300px", width: "300px" }}
           autoplay
           loop={false}
