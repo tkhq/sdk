@@ -173,6 +173,17 @@ function RootLayout({ children }: RootLayoutProps) {
             walletConfig: {
               ethereum: true,
               solana: true,
+              walletConnect: {
+                projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+                metadata: {
+                  name: "Turnkey Wallet",
+                  description: "A wallet for Turnkey",
+                  url: "http://localhost:3000",
+                  icons: ["/favicon.svg"],
+                },
+                ethereumNamespaces: ["eip155:1"],
+                solanaNamespaces: ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
+              },
             },
           }}
           callbacks={{
