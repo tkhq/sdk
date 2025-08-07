@@ -53,17 +53,6 @@ export type TGetAttestationDocumentBody = Omit<
 > &
   queryOverrideParams;
 
-export type TGetAuthProxyConfigResponse =
-  operations["PublicApiService_GetAuthProxyConfig"]["responses"]["200"]["schema"];
-
-export type TGetAuthProxyConfigInput = { body: TGetAuthProxyConfigBody };
-
-export type TGetAuthProxyConfigBody = Omit<
-  operations["PublicApiService_GetAuthProxyConfig"]["parameters"]["body"]["body"],
-  "organizationId"
-> &
-  queryOverrideParams;
-
 export type TGetAuthenticatorResponse =
   operations["PublicApiService_GetAuthenticator"]["responses"]["200"]["schema"];
 
@@ -165,32 +154,6 @@ export type TGetPrivateKeyBody = Omit<
 > &
   queryOverrideParams;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-export type TGetSmartContractInterfaceResponse =
-  operations["PublicApiService_GetSmartContractInterface"]["responses"]["200"]["schema"];
-
-export type TGetSmartContractInterfaceInput = {
-  body: TGetSmartContractInterfaceBody;
-};
-
-export type TGetSmartContractInterfaceBody = Omit<
-  operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"],
-=======
-export type TGetProxyAuthConfigResponse =
-  operations["PublicApiService_GetProxyAuthConfig"]["responses"]["200"]["schema"];
-
-export type TGetProxyAuthConfigInput = { body: TGetProxyAuthConfigBody };
-
-export type TGetProxyAuthConfigBody = Omit<
-  operations["PublicApiService_GetProxyAuthConfig"]["parameters"]["body"]["body"],
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-  "organizationId"
-> &
-  queryOverrideParams;
-
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
 export type TGetSmartContractInterfaceResponse =
   operations["PublicApiService_GetSmartContractInterface"]["responses"]["200"]["schema"];
 

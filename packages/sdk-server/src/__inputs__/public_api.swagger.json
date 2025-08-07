@@ -196,38 +196,6 @@
         "tags": ["Attestation"]
       }
     },
-    "/public/v1/query/get_auth_proxy_config": {
-      "post": {
-        "summary": "Get Proxy Auth Config",
-        "description": "Get the proxy-auth configuration (allowed origins, etc.) for an Organization",
-        "operationId": "PublicApiService_GetAuthProxyConfig",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetAuthProxyConfigResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetAuthProxyConfigRequest"
-            }
-          }
-        ],
-        "tags": ["Organizations"]
-      }
-    },
     "/public/v1/query/get_authenticator": {
       "post": {
         "summary": "Get authenticator",
@@ -290,38 +258,6 @@
           }
         ],
         "tags": ["Authenticators"]
-      }
-    },
-    "/public/v1/query/get_oauth2_credential": {
-      "post": {
-        "summary": "Get OAuth 2.0 credential",
-        "description": "Get details about an OAuth 2.0 credential.",
-        "operationId": "PublicApiService_GetOauth2Credential",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetOauth2CredentialResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetOauth2CredentialRequest"
-            }
-          }
-        ],
-        "tags": ["PublicApiService"]
       }
     },
     "/public/v1/query/get_oauth_providers": {
@@ -454,23 +390,8 @@
     },
     "/public/v1/query/get_policy_evaluations": {
       "post": {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         "summary": "Get policy evaluations",
         "description": "Get the policy evaluations for an activity.",
-=======
-        "summary": "Get Policy Evaluations",
-        "description": "Get the policy evaluations for an Activity",
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
-        "summary": "Get Policy Evaluations",
-        "description": "Get the policy evaluations for an Activity",
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
-        "summary": "Get policy evaluations",
-        "description": "Get the policy evaluations for an activity.",
->>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_GetPolicyEvaluations",
         "responses": {
           "200": {
@@ -531,45 +452,6 @@
         "tags": ["Private Keys"]
       }
     },
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 33cb24ce (added a bunch to the demo and resynced sdk for new auth proxy changes)
-    "/public/v1/query/get_smart_contract_interface": {
-      "post": {
-        "summary": "Get smart contract interface",
-        "description": "Get details about a smart contract interface.",
-        "operationId": "PublicApiService_GetSmartContractInterface",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetSmartContractInterfaceResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetSmartContractInterfaceRequest"
-            }
-          }
-        ],
-        "tags": ["Policies"]
-      }
-    },
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
     "/public/v1/query/get_smart_contract_interface": {
       "post": {
         "summary": "Get smart contract interface",
@@ -730,38 +612,6 @@
         "tags": ["Activities"]
       }
     },
-    "/public/v1/query/list_oauth2_credentials": {
-      "post": {
-        "summary": "List OAuth 2.0 Credentials",
-        "description": "List all OAuth 2.0 credentials within an organization.",
-        "operationId": "PublicApiService_ListOauth2Credentials",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ListOauth2CredentialsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1ListOauth2CredentialsRequest"
-            }
-          }
-        ],
-        "tags": ["User Auth"]
-      }
-    },
     "/public/v1/query/list_policies": {
       "post": {
         "summary": "List policies",
@@ -860,18 +710,8 @@
     },
     "/public/v1/query/list_smart_contract_interfaces": {
       "post": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "summary": "List smart contract interfaces",
         "description": "List all smart contract interfaces within an organization.",
-=======
-        "summary": "List Smart Contract Interfaces",
-        "description": "List all Smart Contract Interfaces within an Organization",
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-        "summary": "List smart contract interfaces",
-        "description": "List all smart contract interfaces within an organization.",
->>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_GetSmartContractInterfaces",
         "responses": {
           "200": {
@@ -1284,38 +1124,6 @@
         "tags": ["Invitations"]
       }
     },
-    "/public/v1/submit/create_oauth2_credential": {
-      "post": {
-        "summary": "Create an OAuth 2.0 Credential",
-        "description": "Enable authentication for end users with an OAuth 2.0 provider",
-        "operationId": "PublicApiService_CreateOauth2Credential",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateOauth2CredentialRequest"
-            }
-          }
-        ],
-        "tags": ["User Auth"]
-      }
-    },
     "/public/v1/submit/create_oauth_providers": {
       "post": {
         "summary": "Create Oauth providers",
@@ -1542,18 +1350,8 @@
     },
     "/public/v1/submit/create_smart_contract_interface": {
       "post": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "summary": "Create smart contract interface",
         "description": "Create an ABI/IDL in JSON.",
-=======
-        "summary": "Create Smart Contract Interface",
-        "description": "Create an ABI/IDL in JSON",
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-        "summary": "Create smart contract interface",
-        "description": "Create an ABI/IDL in JSON.",
->>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_CreateSmartContractInterface",
         "responses": {
           "200": {
@@ -1838,38 +1636,6 @@
         "tags": ["Invitations"]
       }
     },
-    "/public/v1/submit/delete_oauth2_credential": {
-      "post": {
-        "summary": "Delete an OAuth 2.0 Credential",
-        "description": "Disable authentication for end users with an OAuth 2.0 provider",
-        "operationId": "PublicApiService_DeleteOauth2Credential",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1DeleteOauth2CredentialRequest"
-            }
-          }
-        ],
-        "tags": ["User Auth"]
-      }
-    },
     "/public/v1/submit/delete_oauth_providers": {
       "post": {
         "summary": "Delete Oauth providers",
@@ -2000,18 +1766,8 @@
     },
     "/public/v1/submit/delete_smart_contract_interface": {
       "post": {
-<<<<<<< HEAD
-<<<<<<< HEAD
         "summary": "Delete smart contract interface",
         "description": "Delete a smart contract interface.",
-=======
-        "summary": "Create Smart Contract Interface",
-        "description": "Delete a Smart Contract Interface",
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-        "summary": "Delete smart contract interface",
-        "description": "Delete a smart contract interface.",
->>>>>>> 2f14b8cf (updated types)
         "operationId": "PublicApiService_DeleteSmartContractInterface",
         "responses": {
           "200": {
@@ -2584,38 +2340,6 @@
         "tags": ["User Auth"]
       }
     },
-    "/public/v1/submit/oauth2_authenticate": {
-      "post": {
-        "summary": "OAuth 2.0 authentication",
-        "description": "Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities",
-        "operationId": "PublicApiService_Oauth2Authenticate",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1Oauth2AuthenticateRequest"
-            }
-          }
-        ],
-        "tags": ["User Auth"]
-      }
-    },
     "/public/v1/submit/oauth_login": {
       "post": {
         "summary": "Login with Oauth",
@@ -2966,38 +2690,6 @@
           }
         ],
         "tags": ["Sessions"]
-      }
-    },
-    "/public/v1/submit/update_oauth2_credential": {
-      "post": {
-        "summary": "Update an OAuth 2.0 Credential",
-        "description": "Update an OAuth 2.0 provider credential",
-        "operationId": "PublicApiService_UpdateOauth2Credential",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1UpdateOauth2CredentialRequest"
-            }
-          }
-        ],
-        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/update_policy": {
@@ -3568,39 +3260,6 @@
         "createdAt"
       ]
     },
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-    "externalactivityv1UpdateProxyAuthConfigRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1UpdateProxyAuthConfigIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-<<<<<<< HEAD
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
     "externaldatav1Address": {
       "type": "object",
       "properties": {
@@ -3998,18 +3657,12 @@
         "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
 <<<<<<< HEAD
         "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
         "ACTIVITY_TYPE_ENABLE_AUTH_PROXY",
         "ACTIVITY_TYPE_DISABLE_AUTH_PROXY",
-<<<<<<< HEAD
-        "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG",
-        "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL",
-        "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL",
-        "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
-        "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
-=======
         "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG"
 =======
         "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
@@ -4025,9 +3678,6 @@
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
 <<<<<<< HEAD
 >>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-<<<<<<< HEAD
->>>>>>> 42eb637c (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
 =======
 =======
         "ACTIVITY_TYPE_ENABLE_AUTH_PROXY",
@@ -4035,7 +3685,13 @@
         "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG"
 >>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
 >>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
->>>>>>> 33cb24ce (added a bunch to the demo and resynced sdk for new auth proxy changes)
+=======
+        "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
+        "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
+        "ACTIVITY_TYPE_ENABLE_AUTH_PROXY",
+        "ACTIVITY_TYPE_DISABLE_AUTH_PROXY",
+        "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG"
+>>>>>>> a732c4c0 (Mega rebase)
       ]
     },
     "v1AddressFormat": {
@@ -4233,85 +3889,6 @@
         "attestationObject",
         "transports"
       ]
-    },
-    "v1AuthProxyConfig": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string"
-        },
-        "allowedOrigins": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "allowedAuthMethods": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "encryptedApiKey": {
-          "type": "string"
-        },
-        "turnkeySignerUserId": {
-          "type": "string"
-        },
-        "sendFromEmailAddress": {
-          "type": "string"
-        },
-        "replyToEmailAddress": {
-          "type": "string"
-        },
-        "emailAuthTemplateId": {
-          "type": "string"
-        },
-        "otpTemplateId": {
-          "type": "string"
-        },
-        "emailCustomizationParams": {
-          "$ref": "#/definitions/v1EmailCustomizationParams",
-          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
-        },
-        "smsCustomizationParams": {
-          "$ref": "#/definitions/v1SmsCustomizationParams",
-          "description": "Optional parameters for customizing SMS. If not provided, the default SMS will be used."
-        },
-        "otpExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "verificationTokenExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "sessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "otpAlphanumeric": {
-          "type": "boolean"
-        },
-        "otpLength": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "proxyId": {
-          "type": "string"
-        },
-        "walletKitSettings": {
-          "type": "string"
-        }
-      }
     },
     "v1Authenticator": {
       "type": "object",
@@ -4692,55 +4269,6 @@
         }
       },
       "required": ["invitationIds"]
-    },
-    "v1CreateOauth2CredentialIntent": {
-      "type": "object",
-      "properties": {
-        "provider": {
-          "$ref": "#/definitions/v1Oauth2Provider",
-          "description": "The OAuth 2.0 provider"
-        },
-        "clientId": {
-          "type": "string",
-          "description": "The Client ID issued by the OAuth 2.0 provider"
-        },
-        "encryptedClientSecret": {
-          "type": "string",
-          "description": "The client secret issued by the OAuth 2.0 provider encrypted to the TLS Fetcher quorum key"
-        }
-      },
-      "required": ["provider", "clientId", "encryptedClientSecret"]
-    },
-    "v1CreateOauth2CredentialRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1CreateOauth2CredentialIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1CreateOauth2CredentialResult": {
-      "type": "object",
-      "properties": {
-        "oauth2CredentialId": {
-          "type": "string",
-          "description": "Unique identifier of the OAuth 2.0 credential that was created"
-        }
-      },
-      "required": ["oauth2CredentialId"]
     },
     "v1CreateOauthProvidersIntent": {
       "type": "object",
@@ -5361,22 +4889,12 @@
           "description": "Notes for a Smart Contract Interface."
         }
       },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> ee82ffcf (started adding proto gen auth proxy methods)
       "required": [
         "smartContractAddress",
         "smartContractInterface",
         "type",
         "label"
       ]
-<<<<<<< HEAD
-=======
-      "required": ["smartContractAddress", "smartContractInterface", "type"]
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
->>>>>>> ee82ffcf (started adding proto gen auth proxy methods)
     },
     "v1CreateSmartContractInterfaceRequest": {
       "type": "object",
@@ -6179,47 +5697,6 @@
         }
       },
       "required": ["invitationId"]
-    },
-    "v1DeleteOauth2CredentialIntent": {
-      "type": "object",
-      "properties": {
-        "oauth2CredentialId": {
-          "type": "string",
-          "description": "The ID of the OAuth 2.0 credential to delete"
-        }
-      },
-      "required": ["oauth2CredentialId"]
-    },
-    "v1DeleteOauth2CredentialRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1DeleteOauth2CredentialIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1DeleteOauth2CredentialResult": {
-      "type": "object",
-      "properties": {
-        "oauth2CredentialId": {
-          "type": "string",
-          "description": "Unique identifier of the OAuth 2.0 credential that was deleted"
-        }
-      },
-      "required": ["oauth2CredentialId"]
     },
     "v1DeleteOauthProvidersIntent": {
       "type": "object",
@@ -7330,26 +6807,6 @@
       },
       "required": ["attestationDocument"]
     },
-    "v1GetAuthProxyConfigRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1GetAuthProxyConfigResponse": {
-      "type": "object",
-      "properties": {
-        "authProxyConfig": {
-          "$ref": "#/definitions/v1AuthProxyConfig",
-          "description": "Proxy authentication configuration (e.g., allowed origins)."
-        }
-      },
-      "required": ["authProxyConfig"]
-    },
     "v1GetAuthenticatorRequest": {
       "type": "object",
       "properties": {
@@ -7401,29 +6858,6 @@
         }
       },
       "required": ["authenticators"]
-    },
-    "v1GetOauth2CredentialRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "oauth2CredentialId": {
-          "type": "string",
-          "description": "Unique identifier for a given OAuth 2.0 Credential."
-        }
-      },
-      "required": ["organizationId", "oauth2CredentialId"]
-    },
-    "v1GetOauth2CredentialResponse": {
-      "type": "object",
-      "properties": {
-        "oauth2Credential": {
-          "$ref": "#/definitions/v1Oauth2Credential"
-        }
-      },
-      "required": ["oauth2Credential"]
     },
     "v1GetOauthProvidersRequest": {
       "type": "object",
@@ -7522,33 +6956,11 @@
       "properties": {
         "organizationId": {
           "type": "string",
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
           "description": "Unique identifier for a given organization."
         },
         "activityId": {
           "type": "string",
           "description": "Unique identifier for a given activity."
-=======
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-          "description": "Unique identifier for a given Organization."
-        },
-        "activityId": {
-          "type": "string",
-          "description": "Unique identifier for a given Activity."
-<<<<<<< HEAD
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
-          "description": "Unique identifier for a given organization."
-        },
-        "activityId": {
-          "type": "string",
-          "description": "Unique identifier for a given activity."
->>>>>>> 2f14b8cf (updated types)
         }
       },
       "required": ["organizationId", "activityId"]
@@ -7638,77 +7050,6 @@
       },
       "required": ["privateKeys"]
     },
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "v1GetSmartContractInterfaceRequest": {
-=======
-    "v1GetProxyAuthConfigRequest": {
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-<<<<<<< HEAD
-          "description": "Unique identifier for a given organization."
-        },
-        "smartContractInterfaceId": {
-          "type": "string",
-          "description": "Unique identifier for a given smart contract interface."
-        }
-      },
-      "required": ["organizationId", "smartContractInterfaceId"]
-    },
-    "v1GetSmartContractInterfaceResponse": {
-      "type": "object",
-      "properties": {
-        "smartContractInterface": {
-          "$ref": "#/definitions/externaldatav1SmartContractInterface",
-          "description": "Object to be used in conjunction with policies to guard transaction signing."
-        }
-      },
-      "required": ["smartContractInterface"]
-    },
-    "v1GetSmartContractInterfacesRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given organization."
-=======
-          "description": "Unique identifier for a given Organization."
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-        }
-      },
-      "required": ["organizationId"]
-    },
-<<<<<<< HEAD
-    "v1GetSmartContractInterfacesResponse": {
-      "type": "object",
-      "properties": {
-        "smartContractInterfaces": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/externaldatav1SmartContractInterface"
-          },
-          "description": "A list of smart contract interfaces."
-        }
-      },
-      "required": ["smartContractInterfaces"]
-=======
-    "v1GetProxyAuthConfigResponse": {
-      "type": "object",
-      "properties": {
-        "proxyAuthConfig": {
-          "$ref": "#/definitions/v1ProxyAuthConfig",
-          "description": "Proxy authentication configuration (e.g., allowed origins)."
-        }
-      },
-      "required": ["proxyAuthConfig"]
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-    },
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
     "v1GetSmartContractInterfaceRequest": {
       "type": "object",
       "properties": {
@@ -8878,10 +8219,6 @@
         "initFiatOnRampIntent": {
           "$ref": "#/definitions/v1InitFiatOnRampIntent"
         },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 57ef158e (updated auth proxy type generation)
         "createSmartContractInterfaceIntent": {
           "$ref": "#/definitions/v1CreateSmartContractInterfaceIntent"
         },
@@ -8889,6 +8226,7 @@
           "$ref": "#/definitions/v1DeleteSmartContractInterfaceIntent"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         },
         "enableAuthProxyIntent": {
           "$ref": "#/definitions/v1EnableAuthProxyIntent"
@@ -8898,54 +8236,37 @@
         },
         "updateAuthProxyConfigIntent": {
           "$ref": "#/definitions/v1UpdateAuthProxyConfigIntent"
-<<<<<<< HEAD
-        },
-        "createOauth2CredentialIntent": {
-          "$ref": "#/definitions/v1CreateOauth2CredentialIntent"
-        },
-        "updateOauth2CredentialIntent": {
-          "$ref": "#/definitions/v1UpdateOauth2CredentialIntent"
-        },
-        "deleteOauth2CredentialIntent": {
-          "$ref": "#/definitions/v1DeleteOauth2CredentialIntent"
-        },
-        "oauth2AuthenticateIntent": {
-          "$ref": "#/definitions/v1Oauth2AuthenticateIntent"
-=======
 =======
 =======
 >>>>>>> 2cffcb69 (updated auth proxy type generation)
 =======
 =======
-        },
-<<<<<<< HEAD
->>>>>>> 57ef158e (updated auth proxy type generation)
-        "enableUserInitiatedAuthIntent": {
-          "$ref": "#/definitions/v1EnableUserInitiatedAuthIntent"
 =======
+>>>>>>> a732c4c0 (Mega rebase)
+        },
         "enableAuthProxyIntent": {
           "$ref": "#/definitions/v1EnableAuthProxyIntent"
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
         },
         "disableAuthProxyIntent": {
           "$ref": "#/definitions/v1DisableAuthProxyIntent"
         },
+<<<<<<< HEAD
 <<<<<<< HEAD
         "updateProxyAuthConfigIntent": {
           "$ref": "#/definitions/v1UpdateProxyAuthConfigIntent"
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
 <<<<<<< HEAD
 >>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-<<<<<<< HEAD
->>>>>>> 42eb637c (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
 =======
 =======
         "updateAuthProxyConfigIntent": {
           "$ref": "#/definitions/v1UpdateAuthProxyConfigIntent"
 >>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
 >>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
->>>>>>> 33cb24ce (added a bunch to the demo and resynced sdk for new auth proxy changes)
+=======
+        "updateAuthProxyConfigIntent": {
+          "$ref": "#/definitions/v1UpdateAuthProxyConfigIntent"
+>>>>>>> a732c4c0 (Mega rebase)
         }
       }
     },
@@ -9045,29 +8366,6 @@
         "INVITATION_STATUS_REVOKED"
       ]
     },
-    "v1ListOauth2CredentialsRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1ListOauth2CredentialsResponse": {
-      "type": "object",
-      "properties": {
-        "oauth2Credentials": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Oauth2Credential"
-          }
-        }
-      },
-      "required": ["oauth2Credentials"]
-    },
     "v1ListPrivateKeyTagsRequest": {
       "type": "object",
       "properties": {
@@ -9138,112 +8436,6 @@
         }
       },
       "required": ["stamp"]
-    },
-    "v1Oauth2AuthenticateIntent": {
-      "type": "object",
-      "properties": {
-        "oauth2CredentialId": {
-          "type": "string",
-          "description": "The OAuth 2.0 credential id whose client_id and client_secret will be used in the OAuth 2.0 flow"
-        },
-        "authCode": {
-          "type": "string",
-          "description": "The auth_code provided by the OAuth 2.0 provider to the end user to be exchanged for a Bearer token in the OAuth 2.0 flow"
-        },
-        "redirectUri": {
-          "type": "string",
-          "description": "The URI the user is redirected to after they have authenticated with the OAuth 2.0 provider"
-        },
-        "codeVerifier": {
-          "type": "string",
-          "description": "The code verifier used by OAuth 2.0 PKCE providers"
-        },
-        "nonce": {
-          "type": "string",
-          "description": "An optional nonce used by the client to prevent replay/substitution of an ID token"
-        }
-      },
-      "required": [
-        "oauth2CredentialId",
-        "authCode",
-        "redirectUri",
-        "codeVerifier"
-      ]
-    },
-    "v1Oauth2AuthenticateRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1Oauth2AuthenticateIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1Oauth2AuthenticateResult": {
-      "type": "object",
-      "properties": {
-        "oidcToken": {
-          "type": "string",
-          "description": "Base64 encoded OIDC token issued by Turnkey to be used with the LoginWithOAuth activity"
-        }
-      },
-      "required": ["oidcToken"]
-    },
-    "v1Oauth2Credential": {
-      "type": "object",
-      "properties": {
-        "oauth2CredentialId": {
-          "type": "string",
-          "description": "Unique identifier for a given OAuth 2.0 Credential."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for an Organization."
-        },
-        "provider": {
-          "$ref": "#/definitions/v1Oauth2Provider",
-          "description": "The provider for a given OAuth 2.0 Credential."
-        },
-        "clientId": {
-          "type": "string",
-          "description": "The client id for a given OAuth 2.0 Credential."
-        },
-        "encryptedClientSecret": {
-          "type": "string",
-          "description": "The encrypted client secret for a given OAuth 2.0 Credential encrypted to the TLS Fetcher quorum key."
-        },
-        "createdAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "updatedAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        }
-      },
-      "required": [
-        "oauth2CredentialId",
-        "organizationId",
-        "provider",
-        "clientId",
-        "encryptedClientSecret",
-        "createdAt",
-        "updatedAt"
-      ]
-    },
-    "v1Oauth2Provider": {
-      "type": "string",
-      "enum": ["OAUTH2_PROVIDER_X", "OAUTH2_PROVIDER_DISCORD"]
     },
     "v1OauthIntent": {
       "type": "object",
@@ -10206,10 +9398,6 @@
         "initFiatOnRampResult": {
           "$ref": "#/definitions/v1InitFiatOnRampResult"
         },
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 57ef158e (updated auth proxy type generation)
         "createSmartContractInterfaceResult": {
           "$ref": "#/definitions/v1CreateSmartContractInterfaceResult"
         },
@@ -10217,6 +9405,7 @@
           "$ref": "#/definitions/v1DeleteSmartContractInterfaceResult"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         },
         "enableAuthProxyResult": {
           "$ref": "#/definitions/v1EnableAuthProxyResult"
@@ -10226,54 +9415,37 @@
         },
         "updateAuthProxyConfigResult": {
           "$ref": "#/definitions/v1UpdateAuthProxyConfigResult"
-<<<<<<< HEAD
-        },
-        "createOauth2CredentialResult": {
-          "$ref": "#/definitions/v1CreateOauth2CredentialResult"
-        },
-        "updateOauth2CredentialResult": {
-          "$ref": "#/definitions/v1UpdateOauth2CredentialResult"
-        },
-        "deleteOauth2CredentialResult": {
-          "$ref": "#/definitions/v1DeleteOauth2CredentialResult"
-        },
-        "oauth2AuthenticateResult": {
-          "$ref": "#/definitions/v1Oauth2AuthenticateResult"
-=======
 =======
 =======
 >>>>>>> 2cffcb69 (updated auth proxy type generation)
 =======
 =======
-        },
-<<<<<<< HEAD
->>>>>>> 57ef158e (updated auth proxy type generation)
-        "enableUserInitiatedAuthResult": {
-          "$ref": "#/definitions/v1EnableUserInitiatedAuthResult"
 =======
+>>>>>>> a732c4c0 (Mega rebase)
+        },
         "enableAuthProxyResult": {
           "$ref": "#/definitions/v1EnableAuthProxyResult"
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
         },
         "disableAuthProxyResult": {
           "$ref": "#/definitions/v1DisableAuthProxyResult"
         },
+<<<<<<< HEAD
 <<<<<<< HEAD
         "updateProxyAuthConfigResult": {
           "$ref": "#/definitions/v1UpdateProxyAuthConfigResult"
 >>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
 <<<<<<< HEAD
 >>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-<<<<<<< HEAD
->>>>>>> 42eb637c (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
 =======
 =======
         "updateAuthProxyConfigResult": {
           "$ref": "#/definitions/v1UpdateAuthProxyConfigResult"
 >>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
 >>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
->>>>>>> 33cb24ce (added a bunch to the demo and resynced sdk for new auth proxy changes)
+=======
+        "updateAuthProxyConfigResult": {
+          "$ref": "#/definitions/v1UpdateAuthProxyConfigResult"
+>>>>>>> a732c4c0 (Mega rebase)
         }
       }
     },
@@ -10724,78 +9896,6 @@
         }
       }
     },
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "v1SmartContractInterfaceReference": {
-      "type": "object",
-      "properties": {
-        "smartContractInterfaceId": {
-          "type": "string"
-        },
-        "smartContractAddress": {
-          "type": "string"
-        },
-        "digest": {
-          "type": "string"
-        }
-      }
-=======
-    "v1SmartContractInterface": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "The Organization the Smart Contract Interface belongs to."
-        },
-        "smartContractInterfaceId": {
-          "type": "string",
-          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
-        },
-        "smartContractAddress": {
-          "type": "string",
-          "description": "The address corresponding to the Smart Contract or Program."
-        },
-        "smartContractInterface": {
-          "type": "string",
-          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
-        },
-        "type": {
-          "type": "string",
-          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "label": {
-          "type": "string",
-          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "notes": {
-          "type": "string",
-          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "createdAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "updatedAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        }
-      },
-      "required": [
-        "organizationId",
-        "smartContractInterfaceId",
-        "smartContractAddress",
-        "smartContractInterface",
-        "type",
-        "label",
-        "notes",
-        "createdAt",
-        "updatedAt"
-      ]
->>>>>>> 57ef158e (updated auth proxy type generation)
-    },
-=======
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
     "v1SmartContractInterfaceReference": {
       "type": "object",
       "properties": {
@@ -10993,13 +10093,6 @@
           "type": "integer",
           "format": "int32",
           "description": "Desired OTP code length (6–9)."
-        },
-        "oauth2ProviderCredentialIds": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "A map of OAuth 2.0 provider and their respective credential ID to use for the OAuth 2.0 authentication flow."
         }
       }
     },
@@ -11011,64 +10104,6 @@
           "description": "Unique identifier for a given User. (representing the turnkey signer user id)"
         }
       }
-    },
-    "v1UpdateOauth2CredentialIntent": {
-      "type": "object",
-      "properties": {
-        "oauth2CredentialId": {
-          "type": "string",
-          "description": "The ID of the OAuth 2.0 credential to update"
-        },
-        "provider": {
-          "$ref": "#/definitions/v1Oauth2Provider",
-          "description": "The OAuth 2.0 provider"
-        },
-        "clientId": {
-          "type": "string",
-          "description": "The Client ID issued by the OAuth 2.0 provider"
-        },
-        "encryptedClientSecret": {
-          "type": "string",
-          "description": "The client secret issued by the OAuth 2.0 provider encrypted to the TLS Fetcher quorum key"
-        }
-      },
-      "required": [
-        "oauth2CredentialId",
-        "provider",
-        "clientId",
-        "encryptedClientSecret"
-      ]
-    },
-    "v1UpdateOauth2CredentialRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1UpdateOauth2CredentialIntent"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
-    "v1UpdateOauth2CredentialResult": {
-      "type": "object",
-      "properties": {
-        "oauth2CredentialId": {
-          "type": "string",
-          "description": "Unique identifier of the OAuth 2.0 credential that was updated"
-        }
-      },
-      "required": ["oauth2CredentialId"]
     },
     "v1UpdatePolicyIntent": {
       "type": "object",

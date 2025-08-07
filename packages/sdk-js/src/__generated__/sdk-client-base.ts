@@ -425,53 +425,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  getAuthProxyConfig = async (
-    input: SdkTypes.TGetAuthProxyConfigBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TGetAuthProxyConfigResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
-    return this.request(
-      "/public/v1/query/get_auth_proxy_config",
-      {
-        ...input,
-        organizationId:
-          input.organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-      },
-      stampWith,
-    );
-  };
-
-  stampGetAuthProxyConfig = async (
-    input: SdkTypes.TGetAuthProxyConfigBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const { organizationId, ...parameters } = input;
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_auth_proxy_config";
-    const bodyWithType = {
-      parameters,
-      organizationId,
-      type: "ACTIVITY_TYPE_GET_AUTH_PROXY_CONFIG",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   getAuthenticator = async (
     input: SdkTypes.TGetAuthenticatorBody,
     stampWith?: StamperType,

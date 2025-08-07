@@ -239,32 +239,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  getAuthProxyConfig = async (
-    input: SdkApiTypes.TGetAuthProxyConfigBody,
-  ): Promise<SdkApiTypes.TGetAuthProxyConfigResponse> => {
-    return this.request("/public/v1/query/get_auth_proxy_config", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampGetAuthProxyConfig = async (
-    input: SdkApiTypes.TGetAuthProxyConfigBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_auth_proxy_config";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   getAuthenticator = async (
     input: SdkApiTypes.TGetAuthenticatorBody,
   ): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
@@ -497,51 +471,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  getSmartContractInterface = async (
-    input: SdkApiTypes.TGetSmartContractInterfaceBody,
-  ): Promise<SdkApiTypes.TGetSmartContractInterfaceResponse> => {
-    return this.request("/public/v1/query/get_smart_contract_interface", {
-=======
-  getProxyAuthConfig = async (
-    input: SdkApiTypes.TGetProxyAuthConfigBody,
-  ): Promise<SdkApiTypes.TGetProxyAuthConfigResponse> => {
-    return this.request("/public/v1/query/get_proxy_auth_config", {
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-<<<<<<< HEAD
-  stampGetSmartContractInterface = async (
-    input: SdkApiTypes.TGetSmartContractInterfaceBody,
-=======
-  stampGetProxyAuthConfig = async (
-    input: SdkApiTypes.TGetProxyAuthConfigBody,
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl =
-<<<<<<< HEAD
-      this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
-=======
-      this.config.apiBaseUrl + "/public/v1/query/get_proxy_auth_config";
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
   getSmartContractInterface = async (
     input: SdkApiTypes.TGetSmartContractInterfaceBody,
   ): Promise<SdkApiTypes.TGetSmartContractInterfaceResponse> => {

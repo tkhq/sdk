@@ -23,10 +23,6 @@ import type {
   TGetAttestationDocumentResponse,
 } from "./public_api.fetcher";
 import type {
-  TGetAuthProxyConfigBody,
-  TGetAuthProxyConfigResponse,
-} from "./public_api.fetcher";
-import type {
   TGetAuthenticatorBody,
   TGetAuthenticatorResponse,
 } from "./public_api.fetcher";
@@ -60,18 +56,6 @@ import type {
   TGetPrivateKeyResponse,
 } from "./public_api.fetcher";
 import type {
-<<<<<<< HEAD
-<<<<<<< HEAD
-  TGetSmartContractInterfaceBody,
-  TGetSmartContractInterfaceResponse,
-=======
-  TGetProxyAuthConfigBody,
-  TGetProxyAuthConfigResponse,
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-} from "./public_api.fetcher";
-import type {
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
   TGetSmartContractInterfaceBody,
   TGetSmartContractInterfaceResponse,
 } from "./public_api.fetcher";
@@ -549,38 +533,6 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get the proxy-auth configuration (allowed origins, etc.) for an Organization
-   *
-   * Sign the provided `TGetAuthProxyConfigBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_auth_proxy_config).
-   *
-   * See also {@link stampGetAuthProxyConfig}.
-   */
-  getAuthProxyConfig = async (
-    input: TGetAuthProxyConfigBody,
-  ): Promise<TGetAuthProxyConfigResponse> => {
-    return this.request("/public/v1/query/get_auth_proxy_config", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetAuthProxyConfigBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetAuthProxyConfig}.
-   */
-  stampGetAuthProxyConfig = async (
-    input: TGetAuthProxyConfigBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/query/get_auth_proxy_config";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
    * Get details about an authenticator.
    *
    * Sign the provided `TGetAuthenticatorBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_authenticator).
@@ -797,19 +749,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
    * Get the policy evaluations for an activity.
-=======
-   * Get the policy evaluations for an Activity
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
-   * Get the policy evaluations for an Activity
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
-   * Get the policy evaluations for an activity.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TGetPolicyEvaluationsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_policy_evaluations).
    *
@@ -841,18 +781,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
    * Get details about a private key.
-=======
-=======
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-   * Get details about a Private Key
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
-   * Get details about a private key.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TGetPrivateKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_private_key).
    *
@@ -883,76 +812,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
-<<<<<<< HEAD
    * Get details about a smart contract interface.
-   *
-   * Sign the provided `TGetSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_smart_contract_interface).
-   *
-   * See also {@link stampGetSmartContractInterface}.
-   */
-  getSmartContractInterface = async (
-    input: TGetSmartContractInterfaceBody,
-  ): Promise<TGetSmartContractInterfaceResponse> => {
-    return this.request("/public/v1/query/get_smart_contract_interface", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetSmartContractInterfaceBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetSmartContractInterface}.
-   */
-  stampGetSmartContractInterface = async (
-    input: TGetSmartContractInterfaceBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/query/get_smart_contract_interface";
-=======
-   * Get the proxy-auth configuration (allowed origins, etc.) for an Organization
-   *
-   * Sign the provided `TGetProxyAuthConfigBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_proxy_auth_config).
-   *
-   * See also {@link stampGetProxyAuthConfig}.
-   */
-  getProxyAuthConfig = async (
-    input: TGetProxyAuthConfigBody,
-  ): Promise<TGetProxyAuthConfigResponse> => {
-    return this.request("/public/v1/query/get_proxy_auth_config", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetProxyAuthConfigBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetProxyAuthConfig}.
-   */
-  stampGetProxyAuthConfig = async (
-    input: TGetProxyAuthConfigBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/query/get_proxy_auth_config";
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-   * Get details about a user.
-=======
-=======
-   * Get details about a Smart Contract Interface
-=======
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-   * Get details about a smart contract interface.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TGetSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_smart_contract_interface).
    *
@@ -984,13 +844,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
->>>>>>> 57ef158e (updated auth proxy type generation)
-   * Get details about a User
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
    * Get details about a user.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TGetUserBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_user).
    *
@@ -1232,15 +1086,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
-<<<<<<< HEAD
    * List all smart contract interfaces within an organization.
-=======
-   * List all Smart Contract Interfaces within an Organization
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-   * List all smart contract interfaces within an organization.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TGetSmartContractInterfacesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_smart_contract_interfaces).
    *
@@ -1894,15 +1740,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
-<<<<<<< HEAD
    * Create an ABI/IDL in JSON.
-=======
-   * Create an ABI/IDL in JSON
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-   * Create an ABI/IDL in JSON.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TCreateSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_smart_contract_interface).
    *
@@ -1937,15 +1775,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
-<<<<<<< HEAD
    * Create a new sub-organization.
-=======
-   * Create a new Sub-Organization
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-   * Create a new sub-organization.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TCreateSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_sub_organization).
    *
@@ -2355,15 +2185,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
-<<<<<<< HEAD
    * Delete a smart contract interface.
-=======
-   * Delete a Smart Contract Interface
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-   * Delete a smart contract interface.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TDeleteSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_smart_contract_interface).
    *
@@ -2398,15 +2220,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
-<<<<<<< HEAD
    * Delete a sub-organization.
-=======
-   * Deletes a sub organization
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
-   * Delete a sub-organization.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TDeleteSubOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_sub_organization).
    *
@@ -2531,50 +2345,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
-<<<<<<< HEAD
    * Authenticate a user via email.
-=======
-   * Disable User Initiated Auth
-   *
-   * Sign the provided `TDisableUserInitiatedAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/disable_user_initiated_auth).
-   *
-   * See also {@link stampDisableUserInitiatedAuth}.
-   */
-  disableUserInitiatedAuth = async (
-    input: TDisableUserInitiatedAuthBody,
-  ): Promise<TDisableUserInitiatedAuthResponse> => {
-    return this.request("/public/v1/submit/disable_user_initiated_auth", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TDisableUserInitiatedAuthBody` by using the client's `stamp` function.
-   *
-   * See also {@link DisableUserInitiatedAuth}.
-   */
-  stampDisableUserInitiatedAuth = async (
-    input: TDisableUserInitiatedAuthBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/disable_user_initiated_auth";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-<<<<<<< HEAD
-   * Authenticate a user via Email
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-   * Authenticate a user via email.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TEmailAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/email_auth).
    *
@@ -2601,50 +2372,7 @@ export class TurnkeyClient {
   };
 
   /**
-<<<<<<< HEAD
-<<<<<<< HEAD
    * Export a private key.
-=======
-   * Enable User Initiated Auth
-   *
-   * Sign the provided `TEnableUserInitiatedAuthBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/enable_user_initiated_auth).
-   *
-   * See also {@link stampEnableUserInitiatedAuth}.
-   */
-  enableUserInitiatedAuth = async (
-    input: TEnableUserInitiatedAuthBody,
-  ): Promise<TEnableUserInitiatedAuthResponse> => {
-    return this.request("/public/v1/submit/enable_user_initiated_auth", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TEnableUserInitiatedAuthBody` by using the client's `stamp` function.
-   *
-   * See also {@link EnableUserInitiatedAuth}.
-   */
-  stampEnableUserInitiatedAuth = async (
-    input: TEnableUserInitiatedAuthBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/submit/enable_user_initiated_auth";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-<<<<<<< HEAD
-   * Exports a Private Key
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-   * Export a private key.
->>>>>>> 2f14b8cf (updated types)
    *
    * Sign the provided `TExportPrivateKeyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/export_private_key).
    *

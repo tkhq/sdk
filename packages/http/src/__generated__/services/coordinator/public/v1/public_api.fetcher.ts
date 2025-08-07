@@ -200,58 +200,6 @@ export const signGetAttestationDocument = (
   });
 
 /**
- * `POST /public/v1/query/get_auth_proxy_config`
- */
-export type TGetAuthProxyConfigResponse =
-  operations["PublicApiService_GetAuthProxyConfig"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_auth_proxy_config`
- */
-export type TGetAuthProxyConfigInput = { body: TGetAuthProxyConfigBody };
-
-/**
- * `POST /public/v1/query/get_auth_proxy_config`
- */
-export type TGetAuthProxyConfigBody =
-  operations["PublicApiService_GetAuthProxyConfig"]["parameters"]["body"]["body"];
-
-/**
- * Get Proxy Auth Config
- *
- * Get the proxy-auth configuration (allowed origins, etc.) for an Organization
- *
- * `POST /public/v1/query/get_auth_proxy_config`
- */
-export const getAuthProxyConfig = (input: TGetAuthProxyConfigInput) =>
-  request<
-    TGetAuthProxyConfigResponse,
-    TGetAuthProxyConfigBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/query/get_auth_proxy_config",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetAuthProxyConfig` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetAuthProxyConfig}
- */
-export const signGetAuthProxyConfig = (
-  input: TGetAuthProxyConfigInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetAuthProxyConfigBody, never, never>({
-    uri: "/public/v1/query/get_auth_proxy_config",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/query/get_authenticator`
  */
 export type TGetAuthenticatorResponse =
@@ -623,27 +571,9 @@ export type TGetPolicyEvaluationsBody =
   operations["PublicApiService_GetPolicyEvaluations"]["parameters"]["body"]["body"];
 
 /**
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
  * Get policy evaluations
  *
  * Get the policy evaluations for an activity.
-=======
- * Get Policy Evaluations
- *
- * Get the policy evaluations for an Activity
->>>>>>> 7f3c0977 (fixed circular dependencies and type issues)
-=======
- * Get Policy Evaluations
- *
- * Get the policy evaluations for an Activity
->>>>>>> 72519ac7 (fixed circular dependencies and type issues)
-=======
- * Get policy evaluations
- *
- * Get the policy evaluations for an activity.
->>>>>>> 2f14b8cf (updated types)
  *
  * `POST /public/v1/query/get_policy_evaluations`
  */
@@ -722,112 +652,6 @@ export const signGetPrivateKey = (
   });
 
 /**
-<<<<<<< HEAD
-<<<<<<< HEAD
- * `POST /public/v1/query/get_smart_contract_interface`
- */
-export type TGetSmartContractInterfaceResponse =
-  operations["PublicApiService_GetSmartContractInterface"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_smart_contract_interface`
- */
-export type TGetSmartContractInterfaceInput = {
-  body: TGetSmartContractInterfaceBody;
-};
-
-/**
- * `POST /public/v1/query/get_smart_contract_interface`
- */
-export type TGetSmartContractInterfaceBody =
-  operations["PublicApiService_GetSmartContractInterface"]["parameters"]["body"]["body"];
-
-/**
- * Get smart contract interface
- *
- * Get details about a smart contract interface.
- *
- * `POST /public/v1/query/get_smart_contract_interface`
- */
-export const getSmartContractInterface = (
-  input: TGetSmartContractInterfaceInput,
-) =>
-  request<
-    TGetSmartContractInterfaceResponse,
-    TGetSmartContractInterfaceBody,
-=======
- * `POST /public/v1/query/get_proxy_auth_config`
- */
-export type TGetProxyAuthConfigResponse =
-  operations["PublicApiService_GetProxyAuthConfig"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_proxy_auth_config`
- */
-export type TGetProxyAuthConfigInput = { body: TGetProxyAuthConfigBody };
-
-/**
- * `POST /public/v1/query/get_proxy_auth_config`
- */
-export type TGetProxyAuthConfigBody =
-  operations["PublicApiService_GetProxyAuthConfig"]["parameters"]["body"]["body"];
-
-/**
- * Get Proxy Auth Config
- *
- * Get the proxy-auth configuration (allowed origins, etc.) for an Organization
- *
- * `POST /public/v1/query/get_proxy_auth_config`
- */
-export const getProxyAuthConfig = (input: TGetProxyAuthConfigInput) =>
-  request<
-    TGetProxyAuthConfigResponse,
-    TGetProxyAuthConfigBody,
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-    never,
-    never,
-    never
-  >({
-<<<<<<< HEAD
-    uri: "/public/v1/query/get_smart_contract_interface",
-=======
-    uri: "/public/v1/query/get_proxy_auth_config",
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-    method: "POST",
-    body: input.body,
-  });
-
-/**
-<<<<<<< HEAD
- * Request a WebAuthn assertion and return a signed `GetSmartContractInterface` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetSmartContractInterface}
- */
-export const signGetSmartContractInterface = (
-  input: TGetSmartContractInterfaceInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetSmartContractInterfaceBody, never, never>({
-    uri: "/public/v1/query/get_smart_contract_interface",
-=======
- * Request a WebAuthn assertion and return a signed `GetProxyAuthConfig` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetProxyAuthConfig}
- */
-export const signGetProxyAuthConfig = (
-  input: TGetProxyAuthConfigInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetProxyAuthConfigBody, never, never>({
-    uri: "/public/v1/query/get_proxy_auth_config",
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-    body: input.body,
-    options,
-  });
-
-/**
-=======
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
  * `POST /public/v1/query/get_smart_contract_interface`
  */
 export type TGetSmartContractInterfaceResponse =
@@ -1289,21 +1113,9 @@ export type TGetSmartContractInterfacesBody =
   operations["PublicApiService_GetSmartContractInterfaces"]["parameters"]["body"]["body"];
 
 /**
-<<<<<<< HEAD
-<<<<<<< HEAD
  * List smart contract interfaces
  *
  * List all smart contract interfaces within an organization.
-=======
- * List Smart Contract Interfaces
- *
- * List all Smart Contract Interfaces within an Organization
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
- * List smart contract interfaces
- *
- * List all smart contract interfaces within an organization.
->>>>>>> 2f14b8cf (updated types)
  *
  * `POST /public/v1/query/list_smart_contract_interfaces`
  */
@@ -2347,21 +2159,9 @@ export type TCreateSmartContractInterfaceBody =
   operations["PublicApiService_CreateSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
-<<<<<<< HEAD
-<<<<<<< HEAD
  * Create smart contract interface
  *
  * Create an ABI/IDL in JSON.
-=======
- * Create Smart Contract Interface
- *
- * Create an ABI/IDL in JSON
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
- * Create smart contract interface
- *
- * Create an ABI/IDL in JSON.
->>>>>>> 2f14b8cf (updated types)
  *
  * `POST /public/v1/submit/create_smart_contract_interface`
  */
@@ -3063,21 +2863,9 @@ export type TDeleteSmartContractInterfaceBody =
   operations["PublicApiService_DeleteSmartContractInterface"]["parameters"]["body"]["body"];
 
 /**
-<<<<<<< HEAD
-<<<<<<< HEAD
  * Delete smart contract interface
  *
  * Delete a smart contract interface.
-=======
- * Create Smart Contract Interface
- *
- * Delete a Smart Contract Interface
->>>>>>> 57ef158e (updated auth proxy type generation)
-=======
- * Delete smart contract interface
- *
- * Delete a smart contract interface.
->>>>>>> 2f14b8cf (updated types)
  *
  * `POST /public/v1/submit/delete_smart_contract_interface`
  */
