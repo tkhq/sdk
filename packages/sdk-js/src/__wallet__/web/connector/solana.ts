@@ -99,7 +99,9 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
 
         discovered.push({
           interfaceType: WalletInterfaceType.Solana,
-          chain: Chain.Solana,
+          chainInfo: {
+            namespace: Chain.Solana,
+          },
           info: { name: wallet.name, icon: wallet.icon },
           provider: wallet as WalletRpcProvider,
           connectedAddresses,
