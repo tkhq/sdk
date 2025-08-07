@@ -14,17 +14,20 @@ import {
   SignIntent,
   WalletConnectProvider,
   WalletConnectInterface,
+  SwitchableChain,
 } from "@types";
 import { WalletConnectClient } from "./client";
 import { SessionTypes } from "@walletconnect/types";
 
-const EVM_CHAIN = "eip155:1";
-const SOLANA_CHAIN = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
-
 export class WalletConnectWallet implements WalletConnectInterface {
   readonly interfaceType = WalletInterfaceType.WalletConnect;
 
-  private enabledChains: { ethereum?: boolean; solana?: boolean } = {};
+  private ethereumNamespaces: string[] = [];
+  private solanaNamespaces: string[] = [];
+
+  private ethChain!: string;
+  private solChain!: string;
+
   private uri?: string;
 
   constructor(private client: WalletConnectClient) {
@@ -39,14 +42,28 @@ export class WalletConnectWallet implements WalletConnectInterface {
    * @param opts.solana - Whether to enable Solana pairing
    * @throws {Error} If no chains are enabled
    */
-  async init(opts?: { ethereum?: boolean; solana?: boolean }): Promise<void> {
-    this.enabledChains = {
-      ethereum: opts?.ethereum ?? false,
-      solana: opts?.solana ?? false,
-    };
+  async init(opts?: {
+    ethereumNamespaces?: string[];
+    solanaNamespaces?: string[];
+  }): Promise<void> {
+    this.ethereumNamespaces = opts?.ethereumNamespaces ?? [];
 
-    if (!this.enabledChains.ethereum && !this.enabledChains.solana) {
-      throw new Error("At least one chain must be enabled for WalletConnect");
+    if (this.ethereumNamespaces.length > 0) {
+      this.ethChain = this.ethereumNamespaces[0]!;
+    }
+
+    this.solanaNamespaces = opts?.solanaNamespaces ?? [];
+    if (this.solanaNamespaces.length > 0) {
+      this.solChain = this.solanaNamespaces[0]!;
+    }
+
+    if (
+      this.ethereumNamespaces.length === 0 &&
+      this.solanaNamespaces.length === 0
+    ) {
+      throw new Error(
+        "At least one namespace must be enabled for WalletConnect",
+      );
     }
 
     const session = this.client.getSession();
@@ -56,22 +73,28 @@ export class WalletConnectWallet implements WalletConnectInterface {
 
     const namespaces: Record<string, any> = {};
 
-    if (opts?.ethereum === true) {
+    if (this.ethereumNamespaces.length > 0) {
       namespaces.eip155 = {
-        methods: ["personal_sign", "eth_sendTransaction"],
-        chains: [EVM_CHAIN],
+        methods: [
+          "personal_sign",
+          "eth_sendTransaction",
+          "eth_chainId",
+          "wallet_switchEthereumChain",
+          "wallet_addEthereumChain",
+        ],
+        chains: [this.ethereumNamespaces],
         events: ["accountsChanged", "chainChanged"],
       };
     }
 
-    if (opts?.solana === true) {
+    if (this.solanaNamespaces.length > 0) {
       namespaces.solana = {
         methods: [
           "solana_signMessage",
           "solana_signTransaction",
           "solana_sendTransaction",
         ],
-        chains: [SOLANA_CHAIN],
+        chains: [this.solanaNamespaces],
         events: ["accountsChanged", "chainChanged"],
       };
     }
@@ -90,36 +113,17 @@ export class WalletConnectWallet implements WalletConnectInterface {
       icon: "https://walletconnect.com/_next/static/media/logo_mark.84dd8525.svg",
     };
 
-    const chains = [
-      {
-        namespace: "eip155",
-        chainId: EVM_CHAIN,
-        chain: Chain.Ethereum,
-        interfaceType: WalletInterfaceType.WalletConnect,
-      },
-      {
-        namespace: "solana",
-        chainId: SOLANA_CHAIN,
-        chain: Chain.Solana,
-        interfaceType: WalletInterfaceType.WalletConnect,
-      },
-    ];
+    const providers: WalletProvider[] = [];
 
-    return chains
-      .map(({ namespace, chainId, chain, interfaceType }) => {
-        const account = session?.namespaces[namespace]?.accounts?.[0];
-        const address = account?.split(":")[2];
+    if (this.ethereumNamespaces.length > 0) {
+      providers.push(await this.buildEthProvider(session, info));
+    }
 
-        return {
-          interfaceType,
-          chain,
-          info,
-          provider: this.makeProvider(chainId),
-          connectedAddresses: address ? [address] : [],
-          uri: this.uri,
-        };
-      })
-      .filter(Boolean) as WalletProvider[];
+    if (this.solanaNamespaces.length > 0) {
+      providers.push(this.buildSolProvider(session, info));
+    }
+
+    return providers;
   }
 
   /**
@@ -129,6 +133,44 @@ export class WalletConnectWallet implements WalletConnectInterface {
     const session = await this.client.approve();
     if (!hasConnectedAccounts(session))
       throw new Error("No account found in session");
+  }
+
+  /**
+   * Switch the user’s WalletConnect session to a new EVM chain.
+   *
+   * @param provider   – the WalletProvider returned by getProviders()
+   * @param chainOrId  – either:
+   *                     • a CAIP string ("eip155:1", "eip155:137", …)
+   *                     • a SwitchableChain object carrying full metadata
+   */
+  async switchChain(
+    provider: WalletProvider,
+    chainOrId: string | SwitchableChain,
+  ): Promise<void> {
+    if (provider.chainInfo.namespace !== Chain.Ethereum) {
+      throw new Error("Only EVM wallets support chain switching");
+    }
+
+    const session = this.client.getSession();
+    if (!session) {
+      throw new Error("No active WalletConnect session");
+    }
+
+    const hexChainId = typeof chainOrId === "string" ? chainOrId : chainOrId.id;
+    const caip = `eip155:${Number.parseInt(hexChainId, 16)}`;
+
+    try {
+      // first we just try switching
+      await this.client.request(this.ethChain, "wallet_switchEthereumChain", [
+        { chainId: hexChainId },
+      ]);
+
+      this.ethChain = caip;
+    } catch (err: any) {
+      throw new Error(
+        `Failed to switch chain: ${err.message || err.toString()}`,
+      );
+    }
   }
 
   /**
@@ -149,7 +191,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
       await this.connectWalletAccount(provider);
     }
 
-    if (provider.chain === Chain.Ethereum) {
+    if (provider.chainInfo.namespace === Chain.Ethereum) {
       const address = getConnectedEthereum(session);
       if (!address) {
         throw new Error("no Ethereum account to sign with");
@@ -157,20 +199,22 @@ export class WalletConnectWallet implements WalletConnectInterface {
 
       switch (intent) {
         case SignIntent.SignMessage:
-          return (await this.client.request(EVM_CHAIN, "personal_sign", [
+          return (await this.client.request(this.ethChain, "personal_sign", [
             message as Hex,
             address,
           ])) as string;
         case SignIntent.SignAndSendTransaction:
-          return (await this.client.request(EVM_CHAIN, "eth_sendTransaction", [
-            JSON.parse(message),
-          ])) as string;
+          return (await this.client.request(
+            this.ethChain,
+            "eth_sendTransaction",
+            [JSON.parse(message)],
+          )) as string;
         default:
           throw new Error(`Unsupported Ethereum intent: ${intent}`);
       }
     }
 
-    if (provider.chain === Chain.Solana) {
+    if (provider.chainInfo.namespace === Chain.Solana) {
       const address = getConnectedSolana(session);
       if (!address) {
         throw new Error("no Solana account to sign with");
@@ -181,7 +225,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
           const msgBytes = new TextEncoder().encode(message);
           const msgB58 = bs58.encode(msgBytes);
           const { signature: sigB58 } = await this.client.request(
-            SOLANA_CHAIN,
+            this.solChain,
             "solana_signMessage",
             {
               pubkey: address,
@@ -196,7 +240,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
             String.fromCharCode(...txBytes),
           );
           const { signature: sigB58 } = await this.client.request(
-            SOLANA_CHAIN,
+            this.solChain,
             "solana_signTransaction",
             {
               feePayer: address,
@@ -211,7 +255,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
             String.fromCharCode(...txBytes),
           );
           const sigB58 = await this.client.request(
-            SOLANA_CHAIN,
+            this.solChain,
             "solana_sendTransaction",
             {
               feePayer: address,
@@ -238,13 +282,13 @@ export class WalletConnectWallet implements WalletConnectInterface {
   async getPublicKey(provider: WalletProvider): Promise<string> {
     const session = this.client.getSession();
 
-    if (provider.chain === Chain.Ethereum) {
+    if (provider.chainInfo.namespace === Chain.Ethereum) {
       const address = getConnectedEthereum(session);
       if (!address) {
         throw new Error("No Ethereum account to retrieve public key");
       }
 
-      const sig = await this.client.request(EVM_CHAIN, "personal_sign", [
+      const sig = await this.client.request(this.ethChain, "personal_sign", [
         "GET_PUBLIC_KEY",
         address,
       ]);
@@ -257,7 +301,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
       ).toString("hex");
     }
 
-    if (provider.chain === Chain.Solana) {
+    if (provider.chainInfo.namespace === Chain.Solana) {
       const address = getConnectedSolana(session);
       if (!address) {
         throw new Error("No Solana account to retrieve public key");
@@ -278,22 +322,28 @@ export class WalletConnectWallet implements WalletConnectInterface {
 
     const namespaces: Record<string, any> = {};
 
-    if (this.enabledChains.ethereum) {
+    if (this.ethereumNamespaces.length > 0) {
       namespaces.eip155 = {
-        methods: ["personal_sign", "eth_sendTransaction"],
-        chains: [EVM_CHAIN],
+        methods: [
+          "personal_sign",
+          "eth_sendTransaction",
+          "eth_chainId",
+          "wallet_switchEthereumChain",
+          "wallet_addEthereumChain",
+        ],
+        chains: [this.ethChain],
         events: ["accountsChanged", "chainChanged"],
       };
     }
 
-    if (this.enabledChains.solana) {
+    if (this.solanaNamespaces.length > 0) {
       namespaces.solana = {
         methods: [
           "solana_signMessage",
           "solana_signTransaction",
           "solana_sendTransaction",
         ],
-        chains: [SOLANA_CHAIN],
+        chains: [this.solChain],
         events: ["accountsChanged", "chainChanged"],
       };
     }
@@ -331,6 +381,49 @@ export class WalletConnectWallet implements WalletConnectInterface {
       if (!session) throw new Error("WalletConnect: approval failed");
     }
     return session;
+  }
+
+  /**
+   * Builds a WalletProvider descriptor for an EVM chain.
+   */
+  private async buildEthProvider(
+    session: SessionTypes.Struct | null,
+    info: WalletProviderInfo,
+  ): Promise<WalletProvider> {
+    const raw = session?.namespaces.eip155?.accounts?.[0] ?? "";
+    const address = raw.split(":")[2];
+
+    return {
+      interfaceType: WalletInterfaceType.WalletConnect,
+      chainInfo: {
+        namespace: Chain.Ethereum,
+        chainId: this.ethChain,
+      },
+      info,
+      provider: this.makeProvider(this.ethChain),
+      connectedAddresses: address ? [address] : [],
+      ...(this.uri && { uri: this.uri }),
+    };
+  }
+
+  /**
+   * Builds a WalletProvider descriptor for Solana.
+   */
+  private buildSolProvider(
+    session: SessionTypes.Struct | null,
+    info: WalletProviderInfo,
+  ): WalletProvider {
+    const raw = session?.namespaces.solana?.accounts?.[0] ?? "";
+    const address = raw.split(":")[2];
+
+    return {
+      interfaceType: WalletInterfaceType.WalletConnect,
+      chainInfo: { namespace: Chain.Solana },
+      info,
+      provider: this.makeProvider(this.solChain),
+      connectedAddresses: address ? [address] : [],
+      ...(this.uri && { uri: this.uri }),
+    };
   }
 }
 

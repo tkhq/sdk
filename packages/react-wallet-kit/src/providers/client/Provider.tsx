@@ -28,6 +28,7 @@ import {
   Wallet,
   WalletAccount,
   WalletProvider,
+  SwitchableChain,
 } from "@turnkey/sdk-js";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import {
@@ -906,6 +907,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
     await client.disconnectWalletAccount(walletProvider);
     await refreshWallets();
+  }
+
+  async function switchWalletProviderChain(
+    walletProvider: WalletProvider,
+    chainOrId: string | SwitchableChain,
+  ): Promise<void> {
+    if (!client) {
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    await client.switchWalletProviderChain(walletProvider, chainOrId);
   }
 
   // TODO: MOE PLEASE COMMENT THESE
@@ -3631,6 +3645,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         getWalletProviders,
         connectWalletAccount,
         disconnectWalletAccount,
+        switchWalletProviderChain,
         loginWithWallet,
         signUpWithWallet,
         loginOrSignupWithWallet,
