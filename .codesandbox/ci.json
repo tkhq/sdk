@@ -21,7 +21,8 @@
     "packages/react-native-passkey-stamper",
     "packages/telegram-cloud-storage-stamper",
     "packages/sdk-js",
-    "packages/react-wallet-kit"
+    "packages/react-wallet-kit",
+    "packages/sdk-types"
   ],
   "sandboxes": ["/examples/react-components"],
   "node": "20"
