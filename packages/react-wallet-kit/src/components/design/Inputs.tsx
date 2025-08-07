@@ -189,7 +189,7 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
         onChange(
           data.phone,
           `+${data.country.dialCode} ${data.inputValue}`,
-          isValidPhone(data.phone)
+          isValidPhone(data.phone),
         );
       },
     });

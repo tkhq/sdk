@@ -196,38 +196,6 @@
         "tags": ["Attestation"]
       }
     },
-    "/public/v1/query/get_auth_proxy_config": {
-      "post": {
-        "summary": "Get Proxy Auth Config",
-        "description": "Get the proxy-auth configuration (allowed origins, etc.) for an Organization",
-        "operationId": "PublicApiService_GetAuthProxyConfig",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetAuthProxyConfigResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetAuthProxyConfigRequest"
-            }
-          }
-        ],
-        "tags": ["Organizations"]
-      }
-    },
     "/public/v1/query/get_authenticator": {
       "post": {
         "summary": "Get authenticator",
@@ -3890,85 +3858,6 @@
         "transports"
       ]
     },
-    "v1AuthProxyConfig": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string"
-        },
-        "allowedOrigins": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "allowedAuthMethods": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "encryptedApiKey": {
-          "type": "string"
-        },
-        "turnkeySignerUserId": {
-          "type": "string"
-        },
-        "sendFromEmailAddress": {
-          "type": "string"
-        },
-        "replyToEmailAddress": {
-          "type": "string"
-        },
-        "emailAuthTemplateId": {
-          "type": "string"
-        },
-        "otpTemplateId": {
-          "type": "string"
-        },
-        "emailCustomizationParams": {
-          "$ref": "#/definitions/v1EmailCustomizationParams",
-          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
-        },
-        "smsCustomizationParams": {
-          "$ref": "#/definitions/v1SmsCustomizationParams",
-          "description": "Optional parameters for customizing SMS. If not provided, the default SMS will be used."
-        },
-        "otpExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "verificationTokenExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "sessionExpirationSeconds": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "otpAlphanumeric": {
-          "type": "boolean"
-        },
-        "otpLength": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "proxyId": {
-          "type": "string"
-        },
-        "walletKitSettings": {
-          "type": "string"
-        }
-      }
-    },
     "v1Authenticator": {
       "type": "object",
       "properties": {
@@ -6803,26 +6692,6 @@
         }
       },
       "required": ["attestationDocument"]
-    },
-    "v1GetAuthProxyConfigRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1GetAuthProxyConfigResponse": {
-      "type": "object",
-      "properties": {
-        "authProxyConfig": {
-          "$ref": "#/definitions/v1AuthProxyConfig",
-          "description": "Proxy authentication configuration (e.g., allowed origins)."
-        }
-      },
-      "required": ["authProxyConfig"]
     },
     "v1GetAuthenticatorRequest": {
       "type": "object",
