@@ -1684,8 +1684,6 @@ export class TurnkeyClient {
       params.encoding || getEncodingType(walletAccount.addressFormat);
 
     try {
-      console.log("addEthereumPrefix", addEthereumPrefix);
-
       const isEthereum =
         walletAccount.addressFormat === "ADDRESS_FORMAT_ETHEREUM";
 
@@ -1699,10 +1697,13 @@ export class TurnkeyClient {
           );
         }
 
-        const encodedMessage = getEncodedMessage(
-          walletAccount.addressFormat,
-          message,
-        );
+        let encodedMessage = message;
+        if (isEthereum) {
+          encodedMessage = getEncodedMessage(
+            walletAccount.addressFormat,
+            message,
+          );
+        }
 
         const sigHex = await walletAccount.signMessage(encodedMessage);
         return splitSignature(sigHex, walletAccount.addressFormat);
@@ -2846,13 +2847,16 @@ export class TurnkeyClient {
     sessionKey?: string;
   }): Promise<void> => {
     const { sessionToken, sessionKey = SessionKey.DefaultSessionkey } = params;
+    if (!sessionToken) return;
+
     try {
       const sessionToReplace = await this.storageManager.getSession(sessionKey);
+
+      await this.storageManager.storeSession(sessionToken, sessionKey);
+
       if (sessionToReplace) {
         await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.publicKey!);
       }
-
-      await this.storageManager.storeSession(sessionToken, sessionKey);
     } catch (error) {
       if (error instanceof TurnkeyError) throw error;
       throw new TurnkeyError(
@@ -2980,19 +2984,38 @@ export class TurnkeyClient {
       );
     }
 
+    if (!this.httpClient) {
+      throw new TurnkeyError(
+        "HTTP client is not initialized. Please initialize the client before refreshing the session.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+
+    let keyPair: string | undefined;
     try {
-      const keyPair = publicKey ?? (await this.apiKeyStamper?.createKeyPair());
+      keyPair = publicKey ?? (await this.apiKeyStamper?.createKeyPair());
       if (!keyPair) {
         throw new TurnkeyError(
           "Failed to create new key pair.",
           TurnkeyErrorCodes.INTERNAL_ERROR,
         );
       }
-      const res = await this.httpClient.stampLogin({
-        publicKey: keyPair!,
-        expirationSeconds,
-        invalidateExisting: invalidateExisitng,
-      });
+      const res = await this.httpClient.stampLogin(
+        {
+          publicKey: keyPair,
+          expirationSeconds,
+          invalidateExisting: invalidateExisitng,
+        },
+        params?.stampWith,
+      );
+
+      if (!res || !res.session) {
+        throw new TurnkeyError(
+          "No session found in the refresh response",
+          TurnkeyErrorCodes.BAD_RESPONSE,
+        );
+      }
+
       await this.storeSession({
         sessionToken: res.session,
         ...(sessionKey && { sessionKey }),

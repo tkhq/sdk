@@ -15,6 +15,7 @@ function RootLayout({ children }: RootLayoutProps) {
       position: "bottom-right",
       autoClose: 5000,
       hideProgressBar: false,
+      pauseOnFocusLoss: false,
       closeOnClick: false,
       pauseOnHover: true,
       draggable: true,
