@@ -420,31 +420,6 @@ export type v1Attestation = {
   transports: v1AuthenticatorTransport[];
 };
 
-export type v1AuthProxyConfig = {
-  organizationId?: string;
-  allowedOrigins?: string[];
-  allowedAuthMethods?: string[];
-  encryptedApiKey?: string;
-  turnkeySignerUserId?: string;
-  sendFromEmailAddress?: string;
-  replyToEmailAddress?: string;
-  emailAuthTemplateId?: string;
-  otpTemplateId?: string;
-  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
-  emailCustomizationParams?: v1EmailCustomizationParams;
-  /** Optional parameters for customizing SMS. If not provided, the default SMS will be used. */
-  smsCustomizationParams?: v1SmsCustomizationParams;
-  otpExpirationSeconds?: number;
-  verificationTokenExpirationSeconds?: number;
-  sessionExpirationSeconds?: number;
-  createdAt?: string;
-  updatedAt?: string;
-  otpAlphanumeric?: boolean;
-  otpLength?: number;
-  proxyId?: string;
-  walletKitSettings?: string;
-};
-
 export type v1Authenticator = {
   /** Types of transports that may be used by an Authenticator (e.g., USB, NFC, BLE). */
   transports: v1AuthenticatorTransport[];
@@ -1683,16 +1658,6 @@ export type v1GetAttestationDocumentRequest = {
 export type v1GetAttestationDocumentResponse = {
   /** Raw (CBOR-encoded) attestation document. */
   attestationDocument: string;
-};
-
-export type v1GetAuthProxyConfigRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-};
-
-export type v1GetAuthProxyConfigResponse = {
-  /** Proxy authentication configuration (e.g., allowed origins). */
-  authProxyConfig: v1AuthProxyConfig;
 };
 
 export type v1GetAuthenticatorRequest = {
@@ -3529,17 +3494,6 @@ export type TGetAttestationDocumentBody = {
 export type TGetAttestationDocumentInput = {
   body: TGetAttestationDocumentBody;
 };
-
-export type TGetAuthProxyConfigResponse = {
-  /** Proxy authentication configuration (e.g., allowed origins). */
-  authProxyConfig: v1AuthProxyConfig;
-};
-
-export type TGetAuthProxyConfigBody = {
-  organizationId?: string;
-};
-
-export type TGetAuthProxyConfigInput = { body: TGetAuthProxyConfigBody };
 
 export type TGetAuthenticatorResponse = {
   /** An authenticator. */
