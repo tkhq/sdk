@@ -5,7 +5,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Checkbox } from "@headlessui/react";
 import { useModal, useTurnkey, WalletSource } from "@turnkey/react-wallet-kit";
-import { use, useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function DeleteSubOrgWarning() {
   const { session, user, wallets, deleteSubOrganization, logout } =
