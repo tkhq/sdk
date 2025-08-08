@@ -19,7 +19,7 @@ export function useScreenSize() {
 
   return {
     width,
-    isMobile: width < 440,
+    isMobile: width < 640,
   };
 }
 

@@ -62,6 +62,7 @@ export function TurnkeyConfigProvider({
     backgroundEnabled: true,
   });
   const [panelOpen, setPanelOpen] = useState(false);
+  const { isMobile } = useScreenSize();
 
   const [hardwareAccelerationEnabled, setHardwareAccelerationEnabled] =
     useState(false);
@@ -74,8 +75,6 @@ export function TurnkeyConfigProvider({
     setConfigState((prev) => ({ ...prev, ...newConfig }));
     setDemoConfig((prev) => ({ ...prev, ...demoConfig }));
   };
-
-  const { isMobile } = useScreenSize();
 
   useEffect(() => {
     setHardwareAccelerationEnabled(isHardwareAccelerationEnabled());
@@ -108,6 +107,7 @@ export function TurnkeyConfigProvider({
         {/* Sliding Config Panel */}
         <Transition
           appear
+          unmount={false}
           show={panelOpen}
           enter="transition-transform duration-250 ease-out"
           enterFrom="-translate-x-full"
