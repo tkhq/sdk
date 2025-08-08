@@ -29,7 +29,6 @@
 ### Patch Changes
 
 - [#763](https://github.com/tkhq/sdk/pull/763) [`cb13c26`](https://github.com/tkhq/sdk/commit/cb13c26edb79a01ab651e3b2897334fd154b436a) Author [@andrewkmin](https://github.com/andrewkmin) - Release per mono v2025.7.1. This release contains the following API changes:
-
   - Introduction of `SmartContractInterfaces`: we've now exposed endpoints for uploading ABIs and IDLs to help secure EVM and Solana signing flows. For more information, see our docs [here](https://docs.turnkey.com/concepts/policies/smart-contract-interfaces)
 
 ## 3.5.0
@@ -124,7 +123,6 @@
 ### Minor Changes
 
 - ecdb29a: Update API as per mono v2025.3.2
-
   - This release introduces the `CREATE_USERS_V3` activity. The difference between it and `CREATE_USERS_V2` is that it can now accept `userPhoneNumber` and `oauthProviders`. In total, it accepts the following parameters:
 
   ```javascript
@@ -248,7 +246,6 @@
 ### Minor Changes
 
 - 848f8d3: Add new helpers and update types and errors
-
   - `getSignatureFromActivity` returns the signature corresponding to a completed activity
   - `getSignedTransactionFromActivity` returns the signed transaction corresponding to a completed activity
   - `assertActivityCompleted` checks the state of an activity and throws an error if the activity either requires consensus or is otherwise not yet completed
@@ -374,7 +371,6 @@
 ### Minor Changes
 
 - 464ac0e: Update protos for latest release, which includes:
-
   - Support optional expirations for API keys, configurable via the `expirationSeconds` parameter.
   - Support Email Auth. Details to follow ⚡️
 
@@ -504,7 +500,6 @@ Note:
 ### Minor Changes
 
 - The `createSubOrganization` request has been updated under the hood:
-
   - Calling `.createSubOrganization` on our HTTP client will trigger an activity of type `CREATE_SUB_ORGANIZATION_V3` instead of `CREATE_SUB_ORGANIZATION_V2` previously.
   - If there are any policies referencing `CREATE_SUB_ORGANIZATION_V2` specifically, they will no longer work out of the box if creating sub-orgs via SDK. These policies will need to be updated to allow `CREATE_SUB_ORGANIZATION_V3`. See policy examples related to access control [here](https://docs.turnkey.com/managing-policies/examples#access-control) for additional methods of constructing policies.
   - `CREATE_SUB_ORGANIZATION_V3` supports everything `CREATE_SUB_ORGANIZATION_V2` supports, with the addition of a `privateKeys` field to atomically create a sub-org with private keys. If no private keys are desired, simply provide an empty array.
@@ -552,7 +547,6 @@ Signing is now performed through Turnkey stampers. New dependencies:
 ### Major Changes
 
 - 46473ec: This breaking change updates generated code to be shorter and more intuitive to read:
-
   - generated fetchers do not include the HTTP method in their name. For example `useGetGetActivity` is now `useGetActivity`, and `usePostSignTransaction` is `useSignTransaction`.
   - input types follow the same convention (no HTTP method in the name): `TPostCreatePrivateKeysInput` is now `TCreatePrivateKeysInput`.
   - the "federated" request helpers introduced in `0.18.0` are now named "signed" requests to better reflect what they are. `FederatedRequest` is now `SignedRequest`, and generated types follow. For example: `federatedPostCreatePrivateKeys` is now `signCreatePrivateKeys`, `federatedGetGetActivity` is now `signGetActivity`, and so on.

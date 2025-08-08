@@ -8,7 +8,7 @@ import {
   faLaptop,
   faMobileScreen,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
 import type { WalletProvider } from "@turnkey/sdk-js";
 import { QRCodeSVG as QRCode } from "qrcode.react";
@@ -369,6 +369,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const { provider, successPageDuration, onAction, onDisconnect } = props;
   const { pushPage, closeModal, isMobile } = useModal();
   const { getWalletProviders } = useTurnkey();
+  const hasRan = useRef(false);
 
   const [walletConnectProvider, setWalletConnectProvider] =
     useState<WalletProvider>();
@@ -382,10 +383,12 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const [unlinkError, setUnlinkError] = useState(false);
 
   // kick off authentication/pairing or signing on mount or when URI changes
-  useEffect(() => {
+  useMemo(() => {
     (async () => {
+      if (hasRan.current) return;
       try {
         await onAction(walletConnectProvider ?? provider);
+        hasRan.current = true;
         pushPage({
           key: "Link Success",
           content: (
@@ -400,7 +403,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         });
       } catch (e) {}
     })();
-  }, [walletConnectProvider?.uri, onAction, successPageDuration]);
+  }, [walletConnectProvider?.uri]);
 
   const handleUnlink = async () => {
     setIsUnlinking(true);
