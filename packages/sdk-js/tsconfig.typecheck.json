@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "tsBuildInfoFile": "./.cache/.typecheck.tsbuildinfo",
+    "paths": {
+      "@polyfills/*": ["./src/__polyfills__/*"],
+      "@stampers": ["./src/__stampers__"],
+      "@storage": ["./src/__storage__"],
+      "@types": ["./src/__types__/base"],
+      "@utils": ["./src/utils"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
+}

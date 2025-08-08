@@ -9,7 +9,6 @@ import {
   Label,
   Radio,
   RadioGroup,
-  MenuSeparator,
   Button,
 } from "@headlessui/react";
 import {
@@ -71,23 +70,23 @@ export default function DemoPanel() {
     [],
   ); // Initialize with an empty array
 
-  const getConnectedWalletIcons = async (): Promise<string[]> => {
-    const res = await getWalletProviders();
-    const providersVisited = new Set<string>();
-    let icons: string[] = [];
-    for (const provider of res) {
-      if (
-        provider.connectedAddresses.length > 0 &&
-        !providersVisited.has(provider.info.name)
-      ) {
-        providersVisited.add(provider.info.name);
-        icons.push(provider.info.icon ? provider.info.icon : "");
-      }
-    }
-    return icons;
-  };
-
   useEffect(() => {
+    const getConnectedWalletIcons = async (): Promise<string[]> => {
+      const res = await getWalletProviders();
+      const providersVisited = new Set<string>();
+      let icons: string[] = [];
+      for (const provider of res) {
+        if (
+          provider.connectedAddresses.length > 0 &&
+          !providersVisited.has(provider.info.name)
+        ) {
+          providersVisited.add(provider.info.name);
+          icons.push(provider.info.icon ? provider.info.icon : "");
+        }
+      }
+      return icons;
+    };
+
     if (!selectedWallet) {
       setSelectedWallet(wallets[0]);
     }
@@ -95,7 +94,9 @@ export default function DemoPanel() {
       setSelectedWalletAccount(wallets[0].accounts[0]);
     }
 
-    const cw = wallets.filter((w) => w.source === WalletSource.Connected);
+    const cw = wallets.filter(
+      (w) => w.source === WalletSource.Connected,
+    ) as ConnectedWallet[];
     if (cw) {
       getConnectedWalletIcons().then((icons) => {
         if (icons && icons.length > 0) setConnectedWalletIcons(icons);
