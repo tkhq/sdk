@@ -208,7 +208,6 @@ This release significantly enhances authentication by integrating the new `index
 ### Key Changes:
 
 - **IndexedDB Authentication**:
-
   - Replaced the legacy iframe-based authentication with `indexedDbClient` for all authentication flows in the `Auth` component.
   - Secure, persistent, non-extractable P-256 keys stored in IndexedDB now provide authentication and session management.
 
@@ -304,9 +303,7 @@ This release significantly enhances authentication by integrating the new `index
 ### Patch Changes
 
 - Updated dependencies [bf87774]
-
   - @turnkey/sdk-browser@3.1.0
-
     - Expose `getEmbeddedPublicKey()` via `TurnkeyIframeClient`. This can be used to fetch the live public key of the target embedded key living within an iframe.
 
       Usage may look like the following:
@@ -351,7 +348,6 @@ This release significantly enhances authentication by integrating the new `index
 ### Minor Changes
 
 - 72890f5: ### @turnkey/sdk-browser
-
   - Move all type definitions to [`./__types__/base.ts`](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts)
   - `TurnkeyBrowserClient`
     - `refereshSession()` now consumes a [RefreshSessionParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L213) parameter
@@ -360,13 +356,11 @@ This release significantly enhances authentication by integrating the new `index
     - `loginWithWallet()` now consumes a [LoginWithWalletParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L231) parameter
 
   ### @turnkey/sdk-react
-
   - `Auth.tsx`
     - updated `passkeyClient?.loginWithPasskey()` to implement new method signature
     - updated `walletClient?.loginWithWallet()` to implement new method signature
 
   ### @turnkey/sdk-server
-
   - Move all type definitions to [`./__types__/base.ts`](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-server/src/__types__/base.ts)
 
 ### Patch Changes
@@ -396,7 +390,6 @@ This release significantly enhances authentication by integrating the new `index
 - 93540e7: ## Major Package Updates
 
   ### @turnkey/sdk-browser
-
   - create abstract `TurnkeyBaseClient` class which extends `TurnkeySDKClientBase`
     - `TurnkeyBrowserClient`, `TurnkeyIframeClient`, `TurnkeyPasskeyClient`, and `TurnkeyWalletClient` all extend `TurnkeyBaseClient`
   - TurnkeyBrowserClient
@@ -410,20 +403,17 @@ This release significantly enhances authentication by integrating the new `index
       - createPasskeySession - leverages passkey authentication to create a read-write session. Once authenticated, the user will not be prompted for additional passkey taps.
 
   ### @turnkey/sdk-react
-
   - update `TurnkeyContext` to use new `.getSession()` method to check if there is an active session
   - `OTPVerification` component no longer receives `authIframeClient` or `onValidateSuccess` props
 
   ## Minor Package Updates
 
   ### @turnkey/sdk-server
-
   - expose `sendCredential` server action
   - add `SessionType` enum
     - `READ_ONLY` & `READ_WRITE`
 
   ### @turnkey/eip-1193-provider
-
   - update dependencies in `package.json`
     - moved from `peerDependencies` to `dependencies`
       - `"@turnkey/http": "workspace:*"`
