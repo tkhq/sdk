@@ -49,8 +49,7 @@ import {
   TURNKEY_OAUTH_ORIGIN_URL,
   TURNKEY__OAUTH_REDIRECT_URL,
 } from "../constants";
-import { InAppBrowser } from "react-native-inappbrowser-reborn";
-
+import { authorize } from "react-native-app-auth";
 export interface TurnkeyContextType {
   session: Session | undefined;
   client: TurnkeyClient | undefined;
@@ -111,7 +110,7 @@ export interface TurnkeyContextType {
 }
 
 export const TurnkeyContext = createContext<TurnkeyContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export interface TurnkeyConfig {
@@ -162,7 +161,7 @@ export const TurnkeyProvider: FC<{
           }
 
           scheduleSessionExpiration(sessionKey, session!.expiry);
-        }),
+        })
       );
 
       // load the selected session if it's still valid
@@ -175,7 +174,7 @@ export const TurnkeyProvider: FC<{
           const clientInstance = createClient(
             selectedSession!.publicKey,
             selectedSession!.privateKey,
-            config.apiBaseUrl,
+            config.apiBaseUrl
           );
 
           setSession(selectedSession!);
@@ -186,7 +185,7 @@ export const TurnkeyProvider: FC<{
           await clearSession({ sessionKey: selectedSessionKey });
 
           config.onSessionExpired?.(
-            selectedSession ?? ({ key: selectedSessionKey } as Session),
+            selectedSession ?? ({ key: selectedSessionKey } as Session)
           );
         }
       } else {
@@ -209,7 +208,7 @@ export const TurnkeyProvider: FC<{
    */
   const clearTimeouts = () => {
     Object.values(expiryTimeoutsRef.current).forEach((timer) =>
-      clearTimeout(timer),
+      clearTimeout(timer)
     );
     expiryTimeoutsRef.current = {};
   };
@@ -230,7 +229,7 @@ export const TurnkeyProvider: FC<{
    */
   const scheduleSessionExpiration = async (
     sessionKey: string,
-    expiryTime: number,
+    expiryTime: number
   ) => {
     // clear existing timeout if it exists
     if (expiryTimeoutsRef.current[sessionKey]) {
@@ -276,14 +275,14 @@ export const TurnkeyProvider: FC<{
       // schedule warning
       expiryTimeoutsRef.current[`${sessionKey}-warning`] = setTimeout(
         warnBeforeExpiry,
-        timeUntilExpiry - warningThreshold,
+        timeUntilExpiry - warningThreshold
       );
     }
 
     // schedule expiration
     expiryTimeoutsRef.current[sessionKey] = setTimeout(
       expireSession,
-      timeUntilExpiry,
+      timeUntilExpiry
     );
   };
 
@@ -306,7 +305,7 @@ export const TurnkeyProvider: FC<{
         const clientInstance = createClient(
           session!.publicKey,
           session!.privateKey,
-          config.apiBaseUrl,
+          config.apiBaseUrl
         );
 
         setClient(clientInstance);
@@ -321,7 +320,7 @@ export const TurnkeyProvider: FC<{
         return undefined;
       }
     },
-    [createClient, config],
+    [createClient, config]
   );
 
   /**
@@ -382,7 +381,7 @@ export const TurnkeyProvider: FC<{
 
       return activity;
     },
-    [client, session, refreshUser],
+    [client, session, refreshUser]
   );
 
   /**
@@ -414,7 +413,7 @@ export const TurnkeyProvider: FC<{
 
       return isCompressed ? publicKey : publicKeyUncompressed;
     },
-    [],
+    []
   );
 
   /**
@@ -456,13 +455,13 @@ export const TurnkeyProvider: FC<{
 
       if (existingSessionKeys.length >= MAX_SESSIONS) {
         throw new TurnkeyReactNativeError(
-          `Maximum session limit of ${MAX_SESSIONS} reached. Please clear an existing session before creating a new one.`,
+          `Maximum session limit of ${MAX_SESSIONS} reached. Please clear an existing session before creating a new one.`
         );
       }
 
       if (existingSessionKeys.includes(sessionKey)) {
         throw new TurnkeyReactNativeError(
-          `session key "${sessionKey}" already exists. Please choose a unique session key or clear the existing session.`,
+          `session key "${sessionKey}" already exists. Please choose a unique session key or clear the existing session.`
         );
       }
 
@@ -478,7 +477,7 @@ export const TurnkeyProvider: FC<{
       const clientInstance = createClient(
         publicKey,
         privateKey,
-        config.apiBaseUrl,
+        config.apiBaseUrl
       );
       const user = await fetchUser(clientInstance, config.organizationId);
       if (!user) {
@@ -505,7 +504,7 @@ export const TurnkeyProvider: FC<{
       config.onSessionCreated?.(newSession);
       return newSession;
     },
-    [config, setSelectedSession],
+    [config, setSelectedSession]
   );
 
   /**
@@ -549,13 +548,13 @@ export const TurnkeyProvider: FC<{
 
       if (existingSessionKeys.length >= MAX_SESSIONS) {
         throw new TurnkeyReactNativeError(
-          `Maximum session limit of ${MAX_SESSIONS} reached. Please clear an existing session before creating a new one.`,
+          `Maximum session limit of ${MAX_SESSIONS} reached. Please clear an existing session before creating a new one.`
         );
       }
 
       if (existingSessionKeys.includes(sessionKey)) {
         throw new TurnkeyReactNativeError(
-          `session key "${sessionKey}" already exists. Please choose a unique session key or clear the existing session.`,
+          `session key "${sessionKey}" already exists. Please choose a unique session key or clear the existing session.`
         );
       }
 
@@ -570,7 +569,7 @@ export const TurnkeyProvider: FC<{
       const clientInstance = createClient(
         publicKey,
         privateKey,
-        config.apiBaseUrl,
+        config.apiBaseUrl
       );
       const user = await fetchUser(clientInstance, subOrganizationId);
       if (!user) {
@@ -597,7 +596,7 @@ export const TurnkeyProvider: FC<{
       config.onSessionCreated?.(newSession);
       return newSession;
     },
-    [config, setSelectedSession],
+    [config, setSelectedSession]
   );
 
   /**
@@ -629,14 +628,14 @@ export const TurnkeyProvider: FC<{
       const keyToRefresh = sessionKey ?? (await getSelectedSessionKey());
       if (!keyToRefresh) {
         throw new TurnkeyReactNativeError(
-          "Session not found when refreshing the session. Either the provided sessionKey is invalid, or no session is currently selected.",
+          "Session not found when refreshing the session. Either the provided sessionKey is invalid, or no session is currently selected."
         );
       }
 
       const sessionToRefresh = await getSession(keyToRefresh);
       if (!isValidSession(sessionToRefresh)) {
         throw new TurnkeyReactNativeError(
-          `You cannot refresh session with key "${keyToRefresh}" because it is already expired.`,
+          `You cannot refresh session with key "${keyToRefresh}" because it is already expired.`
         );
       }
 
@@ -648,7 +647,7 @@ export const TurnkeyProvider: FC<{
       const currentClient = createClient(
         sessionToRefresh!.publicKey,
         sessionToRefresh!.privateKey,
-        config.apiBaseUrl,
+        config.apiBaseUrl
       );
       const sessionResponse = await currentClient.createReadWriteSession({
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
@@ -664,7 +663,7 @@ export const TurnkeyProvider: FC<{
           ?.credentialBundle;
       if (!bundle) {
         throw new TurnkeyReactNativeError(
-          "Failed to create read/write session when refreshing the session",
+          "Failed to create read/write session when refreshing the session"
         );
       }
 
@@ -675,12 +674,12 @@ export const TurnkeyProvider: FC<{
       const newClient = createClient(
         newPublicKey,
         newPrivateKey,
-        config.apiBaseUrl,
+        config.apiBaseUrl
       );
       const user = await fetchUser(newClient, config.organizationId);
       if (!user) {
         throw new TurnkeyReactNativeError(
-          "User not found when refreshing the session",
+          "User not found when refreshing the session"
         );
       }
 
@@ -703,7 +702,7 @@ export const TurnkeyProvider: FC<{
 
       return newSession;
     },
-    [config, session],
+    [config, session]
   );
 
   /**
@@ -728,7 +727,7 @@ export const TurnkeyProvider: FC<{
 
       if (!keyToClear) {
         throw new TurnkeyReactNativeError(
-          "Session not found. Either the provided sessionKey is invalid, or no session is currently selected.",
+          "Session not found. Either the provided sessionKey is invalid, or no session is currently selected."
         );
       }
 
@@ -748,10 +747,10 @@ export const TurnkeyProvider: FC<{
       delete expiryTimeoutsRef.current[keyToClear];
 
       config.onSessionCleared?.(
-        clearedSession ?? ({ key: keyToClear } as Session),
+        clearedSession ?? ({ key: keyToClear } as Session)
       );
     },
-    [session, config],
+    [session, config]
   );
 
   /**
@@ -828,7 +827,7 @@ export const TurnkeyProvider: FC<{
 
       return activity;
     },
-    [client, session, refreshUser],
+    [client, session, refreshUser]
   );
 
   /**
@@ -896,7 +895,7 @@ export const TurnkeyProvider: FC<{
 
       return activity;
     },
-    [client, session, refreshUser],
+    [client, session, refreshUser]
   );
 
   /**
@@ -930,7 +929,7 @@ export const TurnkeyProvider: FC<{
 
       if (exportBundle == null || embeddedKey == null) {
         throw new TurnkeyReactNativeError(
-          "Export bundle or embedded key not initialized",
+          "Export bundle or embedded key not initialized"
         );
       }
 
@@ -941,7 +940,7 @@ export const TurnkeyProvider: FC<{
         returnMnemonic: true,
       });
     },
-    [client, session],
+    [client, session]
   );
 
   /**
@@ -987,7 +986,7 @@ export const TurnkeyProvider: FC<{
 
       return signRawPayloadResult;
     },
-    [client, session],
+    [client, session]
   );
 
   /**
@@ -1022,10 +1021,6 @@ export const TurnkeyProvider: FC<{
       redirectUri?: string;
       onSuccess: (oidcToken: string) => void;
     }): Promise<void> => {
-      if (!(await InAppBrowser.isAvailable())) {
-        throw new TurnkeyReactNativeError("InAppBrowser is not available");
-      }
-
       const finalRedirectUri = redirectUri
         ? redirectUri
         : `${TURNKEY__OAUTH_REDIRECT_URL}?scheme=${encodeURIComponent(scheme)}`;
@@ -1037,36 +1032,48 @@ export const TurnkeyProvider: FC<{
         `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
         `&nonce=${encodeURIComponent(nonce)}`;
 
-      const result = await InAppBrowser.openAuth(oauthUrl, scheme, {
-        dismissButtonStyle: "cancel",
-        animated: true,
-        modalPresentationStyle: "fullScreen",
-        modalTransitionStyle: "coverVertical",
-        modalEnabled: true,
-        enableBarCollapsing: false,
-        showTitle: true,
-        enableUrlBarHiding: true,
-        enableDefaultShare: true,
+      const result = await authorize({
+        issuer: originUri,
+        clientId: encodeURIComponent(clientId),
+        redirectUrl: encodeURIComponent(finalRedirectUri),
+        additionalParameters: {
+          nonce: encodeURIComponent(nonce),
+        },
+        scopes: ["openid", "profile", "email"],
       });
 
-      if (!result || result.type !== "success" || !result.url) {
-        throw new TurnkeyReactNativeError(
-          "OAuth flow did not complete successfully",
-        );
-      }
+      console.log("OAuth result:", result);
 
-      const resultUrl = new URL(result.url);
-      const oidcToken = resultUrl.searchParams.get("id_token");
+      // const result = await InAppBrowser.openAuth(oauthUrl, scheme, {
+      //   dismissButtonStyle: "cancel",
+      //   animated: true,
+      //   modalPresentationStyle: "fullScreen",
+      //   modalTransitionStyle: "coverVertical",
+      //   modalEnabled: true,
+      //   enableBarCollapsing: false,
+      //   showTitle: true,
+      //   enableUrlBarHiding: true,
+      //   enableDefaultShare: true,
+      // });
 
-      if (!oidcToken) {
-        throw new TurnkeyReactNativeError(
-          "oidcToken not found in the response",
-        );
-      }
+      // if (!result || result.type !== "success" || !result.url) {
+      //   throw new TurnkeyReactNativeError(
+      //     "OAuth flow did not complete successfully"
+      //   );
+      // }
 
-      onSuccess(oidcToken);
+      // const resultUrl = new URL(result.url);
+      // const oidcToken = resultUrl.searchParams.get("id_token");
+
+      // if (!oidcToken) {
+      //   throw new TurnkeyReactNativeError(
+      //     "oidcToken not found in the response"
+      //   );
+      // }
+
+      // onSuccess(oidcToken);
     },
-    [],
+    []
   );
 
   const providerValue = useMemo(
@@ -1107,7 +1114,7 @@ export const TurnkeyProvider: FC<{
       exportWallet,
       signRawPayload,
       handleGoogleOAuth,
-    ],
+    ]
   );
 
   return (
