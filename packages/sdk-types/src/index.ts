@@ -146,7 +146,6 @@ export enum FiatOnRampCryptoCurrency {
   USDC = "FIAT_ON_RAMP_CRYPTO_CURRENCY_USDC",
 }
 
-<<<<<<< HEAD
 export enum FiatOnRampCurrency {
   AUD = "FIAT_ON_RAMP_CURRENCY_AUD", // Australian Dollar
   BGN = "FIAT_ON_RAMP_CURRENCY_BGN", // Bulgarian Lev
@@ -209,12 +208,10 @@ export enum FiatOnRampPaymentMethod {
   FIAT_WALLET = "FIAT_ON_RAMP_PAYMENT_METHOD_FIAT_WALLET", // Coinbase: FIAT_WALLET
   ACH_BANK_ACCOUNT = "FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT", // Coinbase: ACH_BANK_ACCOUNT
 }
-=======
 export enum OAuthProviders {
   APPLE = "Apple",
   GOOGLE = "Google",
   FACEBOOK = "Facebook",
 }
 
->>>>>>> d17562ea (implemented adding oauth providers and updating email and phone number)
 export * from "./__generated__/types";

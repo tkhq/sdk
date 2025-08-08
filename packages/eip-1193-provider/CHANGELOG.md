@@ -184,7 +184,6 @@
 - 93540e7: ## Major Package Updates
 
   ### @turnkey/sdk-browser
-
   - create abstract `TurnkeyBaseClient` class which extends `TurnkeySDKClientBase`
     - `TurnkeyBrowserClient`, `TurnkeyIframeClient`, `TurnkeyPasskeyClient`, and `TurnkeyWalletClient` all extend `TurnkeyBaseClient`
   - TurnkeyBrowserClient
@@ -198,20 +197,17 @@
       - createPasskeySession - leverages passkey authentication to create a read-write session. Once authenticated, the user will not be prompted for additional passkey taps.
 
   ### @turnkey/sdk-react
-
   - update `TurnkeyContext` to use new `.getSession()` method to check if there is an active session
   - `OTPVerification` component no longer receives `authIframeClient` or `onValidateSuccess` props
 
   ## Minor Package Updates
 
   ### @turnkey/sdk-server
-
   - expose `sendCredential` server action
   - add `SessionType` enum
     - `READ_ONLY` & `READ_WRITE`
 
   ### @turnkey/eip-1193-provider
-
   - update dependencies in `package.json`
     - moved from `peerDependencies` to `dependencies`
       - `"@turnkey/http": "workspace:*"`
