@@ -322,7 +322,7 @@ export function useScreenSize() {
 
     // I have no idea why but, Tailwind's responsive design breakpoints do not work. Throughout the modal components, you will see conditional styling using this `isMobile` variable.
     // This is fine since we only need to style for 2 screen sizes: mobile and desktop. If anyone can figure out why Tailwind's responsive design breakpoints do not work, please fix it and restyle the components accordingly, changing the `isMobile` to the Tailwind stuff when applicable.
-    isMobile: width < 440,
+    isMobile: width < 640,
   };
 }
 
