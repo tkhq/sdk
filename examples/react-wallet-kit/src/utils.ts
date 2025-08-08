@@ -31,6 +31,7 @@ export function completeTheme(modalBackgroundColour: string) {
 
   const iconBackgroundLMultiplier = isLight ? 0.8 : 1.5;
   const iconTextLMultiplier = isLight ? 0.3 : 6;
+  const buttonBackgroundLMultiplier = isLight ? 1.1 : 1.3;
 
   const iconBackgroundL = isLight
     ? Math.max(L * iconBackgroundLMultiplier, 0.95)
@@ -39,23 +40,31 @@ export function completeTheme(modalBackgroundColour: string) {
     ? Math.min(L * iconTextLMultiplier, 0.9)
     : Math.max(L * iconTextLMultiplier, 0.7);
 
+  const buttonBackgroundL = isLight
+    ? Math.min(L * buttonBackgroundLMultiplier, 0.95)
+    : Math.max(L * buttonBackgroundLMultiplier, 0.2);
+
   const iconBackground = oklchToHex({ L: iconBackgroundL, C, h });
   const iconText = oklchToHex({ L: iconTextL, C, h });
+  const buttonBackground = oklchToHex({ L: buttonBackgroundL, C, h });
 
   return {
     iconBackground,
     iconText,
+    buttonBackground,
   };
 }
 
 // Utility to get primary-text color based on primary-colour
-export function textColour(colour: string) {
+export function textColour(colour: string, highContrast = false) {
   // Use OKLCh for perceptual lightness
   const { L, C, h } = hexToOklch(colour);
   const isLight = L > 0.5;
 
   // Use pure black or white for maximum contrast
-  return isLight ? oklchToHex({ L: 0.2, C, h }) : oklchToHex({ L: 0.9, C, h });
+  return isLight
+    ? oklchToHex({ L: !highContrast ? 0.2 : 0.05, C, h })
+    : oklchToHex({ L: !highContrast ? 0.9 : 1.5, C, h });
 }
 
 // parse a hex string into [r,g,b] in 0–1

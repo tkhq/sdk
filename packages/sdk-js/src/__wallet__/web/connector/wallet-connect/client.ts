@@ -1,5 +1,9 @@
 import SignClient from "@walletconnect/sign-client";
-import { CoreTypes, ProposalTypes, SessionTypes } from "@walletconnect/types";
+import type {
+  CoreTypes,
+  ProposalTypes,
+  SessionTypes,
+} from "@walletconnect/types";
 
 export class WalletConnectClient {
   private client!: SignClient;

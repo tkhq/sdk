@@ -4,6 +4,7 @@ import "./global.css";
 import { TurnkeyConfigProvider } from "@/providers/config/ConfigProvider";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { Slide, toast } from "react-toastify";
+import type { CreateSubOrgParams } from "@turnkey/sdk-js";
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -22,6 +23,26 @@ function RootLayout({ children }: RootLayoutProps) {
       progress: undefined,
       transition: Slide,
     });
+
+  const createSuborgParams: CreateSubOrgParams = {
+    customWallet: {
+      walletName: "Wallet 1",
+      walletAccounts: [
+        {
+          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+          curve: "CURVE_SECP256K1",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/60'/0'/0/0",
+        },
+        {
+          addressFormat: "ADDRESS_FORMAT_SOLANA",
+          curve: "CURVE_ED25519",
+          pathFormat: "PATH_FORMAT_BIP32",
+          path: "m/44'/501'/0'/0/0",
+        },
+      ],
+    },
+  };
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -59,101 +80,11 @@ function RootLayout({ children }: RootLayoutProps) {
               oauthOrder: ["google", "apple", "facebook"],
               autoRefreshSession: true,
               createSuborgParams: {
-                emailOtpAuth: {
-                  customWallet: {
-                    walletName: "Wallet 1",
-                    walletAccounts: [
-                      {
-                        addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-                        curve: "CURVE_SECP256K1",
-                        pathFormat: "PATH_FORMAT_BIP32",
-                        path: "m/44'/60'/0'/0/0",
-                      },
-                      {
-                        addressFormat: "ADDRESS_FORMAT_SOLANA",
-                        curve: "CURVE_ED25519",
-                        pathFormat: "PATH_FORMAT_BIP32",
-                        path: "m/44'/501'/0'/0/0",
-                      },
-                    ],
-                  },
-                },
-                smsOtpAuth: {
-                  customWallet: {
-                    walletName: "Wallet 1",
-                    walletAccounts: [
-                      {
-                        addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-                        curve: "CURVE_SECP256K1",
-                        pathFormat: "PATH_FORMAT_BIP32",
-                        path: "m/44'/60'/0'/0/0",
-                      },
-                      {
-                        addressFormat: "ADDRESS_FORMAT_SOLANA",
-                        curve: "CURVE_ED25519",
-                        pathFormat: "PATH_FORMAT_BIP32",
-                        path: "m/44'/501'/0'/0/0",
-                      },
-                    ],
-                  },
-                },
-                passkeyAuth: {
-                  customWallet: {
-                    walletName: "Wallet 1",
-                    walletAccounts: [
-                      {
-                        addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-                        curve: "CURVE_SECP256K1",
-                        pathFormat: "PATH_FORMAT_BIP32",
-                        path: "m/44'/60'/0'/0/0",
-                      },
-                      {
-                        addressFormat: "ADDRESS_FORMAT_SOLANA",
-                        curve: "CURVE_ED25519",
-                        pathFormat: "PATH_FORMAT_BIP32",
-                        path: "m/44'/501'/0'/0/0",
-                      },
-                    ],
-                  },
-                },
-                walletAuth: {
-                  customWallet: {
-                    walletName: "Wallet 1",
-                    walletAccounts: [
-                      {
-                        addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-                        curve: "CURVE_SECP256K1",
-                        pathFormat: "PATH_FORMAT_BIP32",
-                        path: "m/44'/60'/0'/0/0",
-                      },
-                      {
-                        addressFormat: "ADDRESS_FORMAT_SOLANA",
-                        curve: "CURVE_ED25519",
-                        pathFormat: "PATH_FORMAT_BIP32",
-                        path: "m/44'/501'/0'/0/0",
-                      },
-                    ],
-                  },
-                },
-                oAuth: {
-                  customWallet: {
-                    walletName: "Wallet 1",
-                    walletAccounts: [
-                      {
-                        addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-                        curve: "CURVE_SECP256K1",
-                        pathFormat: "PATH_FORMAT_BIP32",
-                        path: "m/44'/60'/0'/0/0",
-                      },
-                      {
-                        addressFormat: "ADDRESS_FORMAT_SOLANA",
-                        curve: "CURVE_ED25519",
-                        pathFormat: "PATH_FORMAT_BIP32",
-                        path: "m/44'/501'/0'/0/0",
-                      },
-                    ],
-                  },
-                },
+                emailOtpAuth: createSuborgParams,
+                smsOtpAuth: createSuborgParams,
+                passkeyAuth: createSuborgParams,
+                walletAuth: createSuborgParams,
+                oAuth: createSuborgParams,
               },
             },
             ui: {
