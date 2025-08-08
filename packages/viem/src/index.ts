@@ -38,6 +38,7 @@ import {
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient } from "@turnkey/sdk-server";
+import { jsonStringifyBigInt } from "./utils";
 
 export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
   name: "TurnkeyConsensusNeededError";
@@ -440,7 +441,7 @@ export async function signTypedData(
 ): Promise<Hex> {
   return (await signMessageWithErrorWrapping(
     client,
-    JSON.stringify(data),
+    jsonStringifyBigInt(data),
     organizationId,
     signWith,
     "hex",
