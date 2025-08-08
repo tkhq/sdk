@@ -18,7 +18,9 @@ export function TextInputField(props: TextInputFieldProps) {
       <Input
         type="text"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange(e.target.value)
+        }
         placeholder={placeholder}
         style={{ width }}
         className={`rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-light dark:ring-primary-dark text-sm text-center h-7`}

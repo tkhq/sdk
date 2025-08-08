@@ -7,9 +7,6 @@
     "lib": ["dom"],
     "paths": {
       "@polyfills/*": ["./src/__polyfills__/*"],
-      "@constants": ["./src/constants"],
-      "@models": ["./src/models"],
-      "@storage": ["./src/storage"],
       "@types": ["./src/__types__/base"],
       "@utils": ["./src/utils"]
     }
