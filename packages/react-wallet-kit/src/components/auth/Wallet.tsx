@@ -400,13 +400,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         });
       } catch (e) {}
     })();
-  }, [
-    walletConnectProvider?.uri,
-    onAction,
-    pushPage,
-    closeModal,
-    successPageDuration,
-  ]);
+  }, [walletConnectProvider?.uri, onAction, successPageDuration]);
 
   const handleUnlink = async () => {
     setIsUnlinking(true);
@@ -433,8 +427,16 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
           )}
         >
           <div className="w-full justify-between flex items-center flex-1">
-            <div className="flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 size-24 text-icon-text-light dark:text-icon-text-dark">
-              <FontAwesomeIcon icon={faMobileScreen} size="4x" />
+            <div
+              className={clsx(
+                "flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 text-icon-text-light dark:text-icon-text-dark",
+                isMobile ? "size-18" : "size-24",
+              )}
+            >
+              <FontAwesomeIcon
+                icon={faMobileScreen}
+                size={isMobile ? "3x" : "4x"}
+              />
             </div>
 
             <div className="flex flex-row items-center justify-center space-x-2.5 font-medium text-icon-text-light dark:text-icon-text-dark">
@@ -457,8 +459,13 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
               </span>
             </div>
 
-            <div className="flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 size-24 text-icon-text-light dark:text-icon-text-dark">
-              <FontAwesomeIcon icon={faLaptop} size="4x" />
+            <div
+              className={clsx(
+                "flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 text-icon-text-light dark:text-icon-text-dark",
+                isMobile ? "size-18" : "size-24",
+              )}
+            >
+              <FontAwesomeIcon icon={faLaptop} size={isMobile ? "3x" : "4x"} />
             </div>
           </div>
 
@@ -471,7 +478,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
           </div>
           <div className="text-icon-text-light dark:text-icon-text-dark text-center text-xs flex flex-col space-y-2 !p-0">
             <span>
-              Please open the wallet app on your phone to sign the message
+              Please open the wallet app on your phone to sign the message.
             </span>
             {isUnlinking ? (
               <span className="text-danger-light dark:text-danger-dark opacity-50">
@@ -505,7 +512,10 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
           {walletConnectProvider?.uri && (
             // @ts-expect-error: qrcode.react uses a different React type version
             <QRCode
-              className="border border-modal-background-dark/20 dark:border-modal-background-light/20 "
+              className="    
+              border border-modal-background-dark/20 dark:border-modal-background-light/20
+              shadow-[0_0_42px] shadow-primary-light/50
+              dark:shadow-[0_0_42px] dark:shadow-primary-dark/50"
               value={walletConnectProvider.uri}
               imageSettings={{
                 src: walletConnectProvider.info.icon ?? "",

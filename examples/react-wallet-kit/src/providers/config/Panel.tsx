@@ -1,4 +1,10 @@
-import { faGripLines } from "@fortawesome/free-solid-svg-icons";
+import {
+  faGamepad,
+  faGears,
+  faGripLines,
+  faPalette,
+  faUserLock,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { Draggable, DragDropContext, Droppable } from "@hello-pangea/dnd";
@@ -109,9 +115,12 @@ export function TurnkeyConfigPanel() {
   }, []);
 
   return (
-    <div className="space-y-10 overflow-y-auto tk-scrollbar pr-1">
+    <div className="space-y-11 overflow-y-auto tk-scrollbar pr-1">
       {/* Auth Methods with Reordering & Toggle */}
-      <PanelDisclosure title="Auth">
+      <PanelDisclosure
+        icon={<FontAwesomeIcon icon={faUserLock} />}
+        title="Auth"
+      >
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId="methodOrder">
             {(provided) => (
@@ -243,7 +252,7 @@ export function TurnkeyConfigPanel() {
       </PanelDisclosure>
 
       {/* UI Toggles */}
-      <PanelDisclosure title="UI">
+      <PanelDisclosure title="UI" icon={<FontAwesomeIcon icon={faPalette} />}>
         <>
           <ToggleSwitch
             label="Dark Mode"
@@ -379,7 +388,10 @@ export function TurnkeyConfigPanel() {
           />
         </>
       </PanelDisclosure>
-      <PanelDisclosure title="Demo Options">
+      <PanelDisclosure
+        title="Demo Options"
+        icon={<FontAwesomeIcon icon={faGamepad} />}
+      >
         <p className="text-xs text-icon-text-light dark:text-icon-text-dark">
           These settings are just for the demo, they do not affect the
           TurnkeyProvider config.
@@ -400,7 +412,7 @@ export function TurnkeyConfigPanel() {
           onChange={(val) => handleSetConfig({}, { backgroundEnabled: val })}
         />
       </PanelDisclosure>
-      <PanelDisclosure title="Config">
+      <PanelDisclosure title="Config" icon={<FontAwesomeIcon icon={faGears} />}>
         <p className="text-xs text-icon-text-light dark:text-icon-text-dark">
           Paste this config into your TurnkeyProvider config to use in your own
           app.
