@@ -208,7 +208,6 @@
 
 - ef399e1: - Eliminated a race condition in `refreshSession` that could throw:
   `TurnkeyReactNativeError: Embedded key not found when refreshing the session`
-
   - The embedded key is now generated entirely in memory using `generateP256KeyPair`
   - Removed the need to store and immediately retrieve the private key from secure storage
   - `refreshSession` now accepts a single optional parameter object
@@ -305,7 +304,6 @@ handleGoogleOAuth({
 ### Major Changes
 
 - fcf9503: This breaking change adds support for multiple sessions:
-
   - The concept of a **selected session** has been introduced:
     - Users can switch between sessions using `setSelectedSession({ sessionKey: <key> })`.
     - The selected session determines the active `client`, `user`, and `session` state.
