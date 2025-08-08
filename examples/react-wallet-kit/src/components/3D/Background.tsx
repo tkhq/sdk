@@ -4,8 +4,8 @@ import { Stars } from "./Stars";
 import { PerspectiveCamera, useProgress } from "@react-three/drei";
 import { Suspense, useEffect, useState } from "react";
 import clsx from "clsx";
-import { isHardwareAccelerationEnabled, useScreenSize } from "@/utils";
 import { useTurnkeyConfig } from "@/providers/config/ConfigProvider";
+import { useScreenSize } from "@/utils";
 
 function FadeInWrapper(props: {
   startVisible: boolean;

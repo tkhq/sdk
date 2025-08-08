@@ -36,7 +36,7 @@ export default function AuthPage() {
   const { isMobile } = useScreenSize();
 
   return (
-    <div className="w-full h-screen flex items-center justify-center">
+    <div className="w-full flex items-center justify-center h-dvh">
       {authState === AuthState.Unauthenticated &&
         (clientState === ClientState.Loading ? (
           <Spinner className="size-48" strokeWidth={1} />
@@ -63,7 +63,6 @@ export default function AuthPage() {
         leave="transition-all duration-200 ease-in absolute"
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
-        as={"div"}
       >
         {!isMobile ? (
           <div className="flex items-center justify-center gap-10 w-fit">
@@ -74,9 +73,8 @@ export default function AuthPage() {
           <TabGroup
             onChange={(index) => setSelectedTabIndex(index)}
             selectedIndex={selectedTabIndex}
-            className="relative h-screen"
           >
-            <TabPanels className="flex justify-center items-center translate-y-10 h-[calc(100%-4rem)]">
+            <TabPanels className="flex justify-center items-center">
               <TabPanel className="w-[95%]">
                 <UserSettings />
               </TabPanel>
@@ -84,7 +82,7 @@ export default function AuthPage() {
                 <DemoPanel />
               </TabPanel>
             </TabPanels>
-            <TabList className="backdrop-blur flex border-t border-t-icon-background-light dark:border-t-icon-background-dark items-center justify-evenly h-16 w-full relative z-20">
+            <TabList className="backdrop-blur flex border-t border-t-icon-background-light dark:border-t-icon-background-dark items-center justify-evenly absolute bottom-0 h-16 w-full z-20">
               <Tab className="flex items-center justify-center flex-col group w-full">
                 <FontAwesomeIcon
                   className="transition-colors text-icon-text-light dark:text-icon-text-dark group-data-selected:text-primary-light dark:group-data-selected:text-primary-dark text-xl"
