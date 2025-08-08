@@ -10,18 +10,23 @@ import { type ReactNode } from "react";
 
 interface PanelDisclosureProps {
   title: string;
+  icon?: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
 }
 
 export function PanelDisclosure(props: PanelDisclosureProps) {
-  const { title, children, defaultOpen = true } = props;
+  const { title, icon, children, defaultOpen = true } = props;
   return (
     <Disclosure defaultOpen={defaultOpen}>
       {({ open }) => (
         <div>
           <DisclosureButton className="flex justify-between w-full font-semibold cursor-pointer">
-            <span>{title}</span>
+            <div className="flex items-center gap-3">
+              {icon}
+              <span>{title}</span>
+            </div>
+
             <FontAwesomeIcon
               icon={faChevronDown}
               className={`transition-transform ${open ? "rotate-180" : "rotate-0"}`}

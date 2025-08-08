@@ -74,7 +74,7 @@ export default function DeleteSubOrgWarning() {
       <div className="flex my-2 mt-0">
         <Button
           onClick={handleContinue}
-          disabled={!deleteWithoutExport}
+          disabled={!deleteWithoutExport && unExportedWallets.length > 0}
           className="w-full transition-colors disabled:bg-black/20 disabled:text-gray-700 dark:disabled:bg-white/20 dark:disabled:text-gray-300 p-3 rounded-md border-none max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
         >
           Delete Account
