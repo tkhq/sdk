@@ -10,9 +10,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@coinbase/onchainkit": "^0.38.13",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hello-pangea/dnd": "^17.0.0",
+    "@moonpay/moonpay-js": "^0.7.0",
+    "@moonpay/moonpay-react": "^1.10.1",
     "@mui/icons-material": "^6.1.5",
     "@mui/material": "^6.1.5",
     "@noble/hashes": "1.4.0",
@@ -21,6 +24,7 @@
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-react": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
@@ -41,6 +45,7 @@
     "react-international-phone": "^4.3.0",
     "sonner": "^1.4.41",
     "tweetnacl": "^1.0.3",
-    "typescript": "5.4.3"
+    "typescript": "5.4.3",
+    "viem": "^2.30.5"
   }
 }

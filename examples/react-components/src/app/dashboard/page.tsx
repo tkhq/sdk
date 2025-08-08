@@ -45,6 +45,11 @@ import Navbar from "../components/Navbar";
 import { Toaster, toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
 import { useSessionExpiry } from "../providers/SessionExpiryProvider";
+import { MoonPayBuyWidget } from "@moonpay/moonpay-react";
+import { loadMoonPay } from "@moonpay/moonpay-js";
+import crypto from "crypto";
+
+import { OnRamp } from "./OnRamp";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -471,6 +476,9 @@ export default function Dashboard() {
         : "Verification failed.",
     );
   };
+  const ethAddress = accounts.find((account: any) =>
+    account.address.startsWith("0x"),
+  )?.address;
   if (loading) {
     return (
       <main className="main">
@@ -711,6 +719,7 @@ export default function Dashboard() {
                 Sign a message
               </button>
             </div>
+            <OnRamp ethAddress={ethAddress || ""} />
           </RadioGroup>
 
           <div className="exportImportGroup">
@@ -724,6 +733,7 @@ export default function Dashboard() {
               onHandleImportSuccess={handleImportSuccess}
             />
           </div>
+
           <div className="authFooter">
             <div className="authFooterLeft">
               <div onClick={handleLogout} className="authFooterButton">
