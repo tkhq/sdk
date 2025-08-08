@@ -93,19 +93,18 @@ export function TurnkeyConfigPanel() {
     localStorage.setItem("turnkeyDemoConfig", JSON.stringify(demoConfig));
   };
 
-  // Load config from local storage
-  const loadConfig = () => {
-    const storedConfig = localStorage.getItem("turnkeyConfig");
-    const storedDemoConfig = localStorage.getItem("turnkeyDemoConfig");
-    if (storedConfig) {
-      setConfig(JSON.parse(storedConfig));
-    }
-    if (storedDemoConfig) {
-      setConfig({}, JSON.parse(storedDemoConfig));
-    }
-  };
-
   useEffect(() => {
+    // Load config from local storage
+    const loadConfig = () => {
+      const storedConfig = localStorage.getItem("turnkeyConfig");
+      const storedDemoConfig = localStorage.getItem("turnkeyDemoConfig");
+      if (storedConfig) {
+        setConfig(JSON.parse(storedConfig));
+      }
+      if (storedDemoConfig) {
+        setConfig({}, JSON.parse(storedDemoConfig));
+      }
+    };
     loadConfig();
   }, []);
 

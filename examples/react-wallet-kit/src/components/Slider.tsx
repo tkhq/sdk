@@ -27,7 +27,9 @@ export function SliderField(props: SliderFieldProps) {
         type="range"
         className="w-full accent-primary-light dark:accent-primary-dark"
         value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          onChange(Number(e.target.value))
+        }
         min={min}
         max={max}
         step={step}

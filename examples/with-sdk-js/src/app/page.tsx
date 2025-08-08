@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import styles from "./index.module.css";
 
 import { useContext, useEffect, useState } from "react";
 import {
@@ -219,7 +218,7 @@ export default function AuthPage() {
   };
 
   return (
-    <main className={styles.main}>
+    <main>
       <a
         href="https://www.turnkey.com"
         target="_blank"
@@ -228,7 +227,6 @@ export default function AuthPage() {
         <Image
           src="/logo.svg"
           alt="Turnkey Logo"
-          className={styles.turnkeyLogo}
           width={100}
           height={24}
           priority
