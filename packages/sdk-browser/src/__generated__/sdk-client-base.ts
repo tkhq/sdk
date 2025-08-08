@@ -28,9 +28,17 @@ export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
 
   stamper?: TStamper | undefined;
+  /**
+   * Difference between overridden timestamp and local time.
+   */
+  timestampDiff: number;
 
   constructor(config: TurnkeySDKClientConfig) {
     this.config = config;
+    this.timestampDiff =
+      config.timestampOverride !== undefined
+        ? config.timestampOverride - Date.now()
+        : 0;
     if (config.stamper) {
       this.stamper = config.stamper;
     }
@@ -1053,7 +1061,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
       },
       "createApiKeysResult",
@@ -1092,7 +1100,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
       },
       "createApiOnlyUsersResult",
@@ -1131,7 +1139,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
       },
       "createAuthenticatorsResult",
@@ -1170,7 +1178,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_INVITATIONS",
       },
       "createInvitationsResult",
@@ -1209,7 +1217,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
       },
       "createOauthProvidersResult",
@@ -1248,7 +1256,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_POLICIES",
       },
       "createPoliciesResult",
@@ -1287,7 +1295,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
       },
       "createPolicyResult",
@@ -1325,7 +1333,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
       },
       "createPrivateKeyTagResult",
@@ -1364,7 +1372,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
       "createPrivateKeysResultV2",
@@ -1403,7 +1411,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
       },
       "createReadOnlySessionResult",
@@ -1442,7 +1450,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
       "createReadWriteSessionResultV2",
@@ -1521,7 +1529,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
       },
       "createSubOrganizationResultV7",
@@ -1560,7 +1568,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_USER_TAG",
       },
       "createUserTagResult",
@@ -1599,7 +1607,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_USERS_V3",
       },
       "createUsersResult",
@@ -1637,7 +1645,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_WALLET",
       },
       "createWalletResult",
@@ -1675,7 +1683,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
       },
       "createWalletAccountsResult",
@@ -1714,7 +1722,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_API_KEYS",
       },
       "deleteApiKeysResult",
@@ -1753,7 +1761,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
       },
       "deleteAuthenticatorsResult",
@@ -1792,7 +1800,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_INVITATION",
       },
       "deleteInvitationResult",
@@ -1831,7 +1839,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
       },
       "deleteOauthProvidersResult",
@@ -1870,7 +1878,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_POLICY",
       },
       "deletePolicyResult",
@@ -1908,7 +1916,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
       },
       "deletePrivateKeyTagsResult",
@@ -1947,7 +1955,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
       },
       "deletePrivateKeysResult",
@@ -2026,7 +2034,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
       },
       "deleteSubOrganizationResult",
@@ -2065,7 +2073,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_USER_TAGS",
       },
       "deleteUserTagsResult",
@@ -2104,7 +2112,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_USERS",
       },
       "deleteUsersResult",
@@ -2142,7 +2150,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_DELETE_WALLETS",
       },
       "deleteWalletsResult",
@@ -2180,7 +2188,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
       },
       "emailAuthResult",
@@ -2218,7 +2226,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY",
       },
       "exportPrivateKeyResult",
@@ -2257,7 +2265,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_EXPORT_WALLET",
       },
       "exportWalletResult",
@@ -2295,7 +2303,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
       },
       "exportWalletAccountResult",
@@ -2334,7 +2342,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
       },
       "importPrivateKeyResult",
@@ -2373,7 +2381,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_IMPORT_WALLET",
       },
       "importWalletResult",
@@ -2450,7 +2458,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
       },
       "initImportPrivateKeyResult",
@@ -2489,7 +2497,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
       },
       "initImportWalletResult",
@@ -2528,7 +2536,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_INIT_OTP",
       },
       "initOtpResult",
@@ -2566,7 +2574,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
       },
       "initOtpAuthResultV2",
@@ -2604,7 +2612,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
       },
       "initUserEmailRecoveryResult",
@@ -2643,7 +2651,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_OAUTH",
       },
       "oauthResult",
@@ -2681,7 +2689,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_OAUTH_LOGIN",
       },
       "oauthLoginResult",
@@ -2719,7 +2727,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_OTP_AUTH",
       },
       "otpAuthResult",
@@ -2757,7 +2765,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_OTP_LOGIN",
       },
       "otpLoginResult",
@@ -2795,7 +2803,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_RECOVER_USER",
       },
       "recoverUserResult",
@@ -2865,7 +2873,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
       },
       "removeOrganizationFeatureResult",
@@ -2904,7 +2912,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
       },
       "setOrganizationFeatureResult",
@@ -2943,7 +2951,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       },
       "signRawPayloadResult",
@@ -2982,7 +2990,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
       },
       "signRawPayloadsResult",
@@ -3021,7 +3029,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       },
       "signTransactionResult",
@@ -3060,7 +3068,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_STAMP_LOGIN",
       },
       "stampLoginResult",
@@ -3098,7 +3106,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
       },
       "updatePolicyResultV2",
@@ -3136,7 +3144,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG",
       },
       "updatePrivateKeyTagResult",
@@ -3175,7 +3183,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
       },
       "updateRootQuorumResult",
@@ -3214,7 +3222,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_USER",
       },
       "updateUserResult",
@@ -3369,7 +3377,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_USER_TAG",
       },
       "updateUserTagResult",
@@ -3408,7 +3416,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_WALLET",
       },
       "updateWalletResult",
@@ -3446,7 +3454,7 @@ export class TurnkeySDKClientBase {
           organizationId ??
           session?.organizationId ??
           this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
+        timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
         type: "ACTIVITY_TYPE_VERIFY_OTP",
       },
       "verifyOtpResult",
