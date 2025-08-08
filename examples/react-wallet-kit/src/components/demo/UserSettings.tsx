@@ -13,7 +13,7 @@ import PhoneAuthButton from "./AuthButtons/PhoneAuthButton";
 import SocialButton from "./AuthButtons/SocialButton";
 import AuthenticatorButton from "./AuthButtons/AuthenticatorButton";
 import DeleteSubOrgWarning from "./DeleteSubOrgWarning";
-import { Button } from "@headlessui/react";
+import { Button, Transition } from "@headlessui/react";
 
 export default function UserSettings() {
   const {
@@ -37,95 +37,104 @@ export default function UserSettings() {
   }
 
   return (
-    <div className="sm:backdrop-blur-none h-[calc(100vh-4rem)] sm:h-fit flex items-center justify-center">
-      <div
-        className={`flex w-screen sm:w-96  justify-center sm:h-[30rem] flex-col gap-4 sm:border sm:border-icon-background-light sm:dark:border-panel-background-dark p-4 rounded-2xl bg-panel-background-light dark:bg-panel-background-dark`}
-      >
-        <h2>Manage Account</h2>
-        <div className="flex flex-col gap-2 rounded-lg dark:bg-background-dark bg-background-light p-2">
-          <AccountParam
-            label="User name"
-            value={user?.userName}
-            onClick={async () => {
-              return await handleUpdateUserName();
-            }}
-          />
-          {user?.userEmail && (
+    <Transition
+      appear
+      show={true}
+      as={"div"}
+      enter="transition-all duration-300 ease-out"
+      enterFrom="-translate-x-96 opacity-0"
+      enterTo="translate-x-0 opacity-100"
+    >
+      <div className="sm:backdrop-blur-none h-[calc(100vh-4rem)] sm:h-fit flex items-center justify-center">
+        <div
+          className={`flex w-screen sm:w-96 sm:h-[30rem] flex-col gap-4 sm:border sm:border-icon-background-light sm:dark:border-panel-background-dark px-4 py-6 rounded-2xl bg-panel-background-light dark:bg-panel-background-dark`}
+        >
+          <h2>Manage Account</h2>
+          <div className="flex flex-col gap-2 rounded-lg dark:bg-background-dark bg-background-light p-2">
             <AccountParam
-              label="E-mail"
-              value={user.userEmail}
+              label="User name"
+              value={user?.userName}
               onClick={async () => {
-                return await handleAddEmail();
+                return await handleUpdateUserName();
               }}
-              verified={true}
             />
-          )}
-          {user?.userPhoneNumber && (
-            <AccountParam
-              label="Phone number"
-              value={user.userPhoneNumber}
-              onClick={async () => {
-                return await handleAddPhoneNumber();
-              }}
-              verified={true}
-            />
-          )}
-        </div>
-        <hr className="border-draggable-background-light dark:border-draggable-background-dark" />
-        <h2>Auth Methods</h2>
-        <div className="flex flex-col gap-2 h-40 overflow-y-auto tk-scrollbar">
-          <div className="flex flex-col gap-2">
-            {clientConfig?.auth?.methods?.emailOtpAuthEnabled && (
-              <EmailAuthButton />
-            )}
-            {clientConfig?.auth?.methods?.smsOtpAuthEnabled && (
-              <PhoneAuthButton />
-            )}
-            {clientConfig?.auth?.methods?.googleOAuthEnabled && (
-              <SocialButton
-                provider={OAuthProviders.GOOGLE}
-                logo={<GoogleSVG className="w-6 h-6" />}
+            {user?.userEmail && (
+              <AccountParam
+                label="E-mail"
+                value={user.userEmail}
+                onClick={async () => {
+                  return await handleAddEmail();
+                }}
+                verified={true}
               />
             )}
-            {clientConfig?.auth?.methods?.appleOAuthEnabled && (
-              <SocialButton
-                provider={OAuthProviders.APPLE}
-                logo={<AppleSVG className="w-6 h-6" />}
+            {user?.userPhoneNumber && (
+              <AccountParam
+                label="Phone number"
+                value={user.userPhoneNumber}
+                onClick={async () => {
+                  return await handleAddPhoneNumber();
+                }}
+                verified={true}
               />
-            )}
-            {clientConfig?.auth?.methods?.facebookOAuthEnabled && (
-              <SocialButton
-                provider={OAuthProviders.FACEBOOK}
-                logo={<FacebookSVG className="w-6 h-6" />}
-              />
-            )}
-            {clientConfig?.auth?.methods?.passkeyAuthEnabled && (
-              <AuthenticatorButton />
             )}
           </div>
-        </div>
-        <hr className="border-draggable-background-light dark:border-draggable-background-dark" />
-        <div className="flex justify-between items-center gap-4">
-          <Button
-            className="w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-2 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
-            onClick={() => {
-              logout();
-            }}
-          >
-            Logout
-          </Button>
-          <Button
-            onClick={async () => {
-              handleDeleteSubOrganization();
-            }}
-            className="w-full justify-center text-sm transition-all rounded-lg p-2 flex items-center gap-2 border-transparent hover:bg-danger-light/10 dark:hover:bg-danger-dark/10 border cursor-pointer"
-          >
-            <DeleteSVG className="w-6 h-6 text-danger-light dark:text-danger-dark shrink-0" />{" "}
-            <span className="shrink-0">Delete Account</span>
-          </Button>
+          <hr className="border-draggable-background-light dark:border-draggable-background-dark" />
+          <h2>Auth Methods</h2>
+          <div className="flex flex-col gap-2 flex-1 overflow-y-auto tk-scrollbar">
+            <div className="flex flex-col gap-2">
+              {clientConfig?.auth?.methods?.emailOtpAuthEnabled && (
+                <EmailAuthButton />
+              )}
+              {clientConfig?.auth?.methods?.smsOtpAuthEnabled && (
+                <PhoneAuthButton />
+              )}
+              {clientConfig?.auth?.methods?.googleOAuthEnabled && (
+                <SocialButton
+                  provider={OAuthProviders.GOOGLE}
+                  logo={<GoogleSVG className="w-6 h-6" />}
+                />
+              )}
+              {clientConfig?.auth?.methods?.appleOAuthEnabled && (
+                <SocialButton
+                  provider={OAuthProviders.APPLE}
+                  logo={<AppleSVG className="w-6 h-6" />}
+                />
+              )}
+              {clientConfig?.auth?.methods?.facebookOAuthEnabled && (
+                <SocialButton
+                  provider={OAuthProviders.FACEBOOK}
+                  logo={<FacebookSVG className="w-6 h-6" />}
+                />
+              )}
+              {clientConfig?.auth?.methods?.passkeyAuthEnabled && (
+                <AuthenticatorButton />
+              )}
+            </div>
+          </div>
+          <hr className="border-draggable-background-light dark:border-draggable-background-dark" />
+          <div className="flex justify-between items-center gap-4">
+            <Button
+              className="w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-2 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
+              onClick={() => {
+                logout();
+              }}
+            >
+              Logout
+            </Button>
+            <Button
+              onClick={async () => {
+                handleDeleteSubOrganization();
+              }}
+              className="w-full justify-center text-sm transition-all rounded-lg p-2 flex items-center gap-2 border-transparent hover:bg-danger-light/10 dark:hover:bg-danger-dark/10 border cursor-pointer"
+            >
+              <DeleteSVG className="w-6 h-6 text-danger-light dark:text-danger-dark shrink-0" />{" "}
+              <span className="shrink-0">Delete Account</span>
+            </Button>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   );
 }
 
