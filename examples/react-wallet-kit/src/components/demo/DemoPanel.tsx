@@ -10,6 +10,7 @@ import {
   Radio,
   RadioGroup,
   Button,
+  Transition,
 } from "@headlessui/react";
 import {
   ConnectedWallet,
@@ -112,255 +113,276 @@ export default function DemoPanel() {
   }
 
   return (
-    <div className="sm:backdrop-blur-none h-[calc(100vh-4rem)] sm:h-fit flex items-center justify-center">
-      <div
-        className={`flex w-screen sm:w-96 sm:h-[30rem] flex-col gap-4 sm:border sm:border-icon-background-light sm:dark:border-panel-background-dark p-4 rounded-2xl bg-panel-background-light dark:bg-panel-background-dark`}
-      >
-        <div className="flex items-center justify-between">
-          <Menu>
-            <MenuButton className="relative text-left text-xl group p-2 gap-3 flex items-center w-fit cursor-pointer">
-              <div className="flex flex-col w-full">
-                <div className="flex items-center justify-between w-full gap-4">
-                  <p className="text-base max-w-[25vw] sm:max-w-24 truncate font-medium">
-                    {selectedWallet?.walletName}
-                  </p>
-                  <div className="absolute top-1/2 -translate-y-1/2 -right-5">
-                    {selectedWallet?.source === WalletSource.Connected ? (
-                      <ConnectedWalletIcon />
-                    ) : (
-                      <EmbeddedWalletIcon />
-                    )}
+    <Transition
+      appear
+      show={true}
+      as={"div"}
+      enter="transition-all duration-300 ease-out"
+      enterFrom="translate-x-96 opacity-0"
+      enterTo="translate-x-0 opacity-100"
+    >
+      <div className="sm:backdrop-blur-none h-[calc(100vh-4rem)] sm:h-fit flex items-center justify-center">
+        <div
+          className={`flex w-screen sm:w-96 sm:h-[30rem] flex-col gap-4 sm:border sm:border-icon-background-light sm:dark:border-panel-background-dark p-4 rounded-2xl bg-panel-background-light dark:bg-panel-background-dark`}
+        >
+          <div className="flex items-center justify-between">
+            <Menu>
+              <MenuButton className="relative text-left text-xl group p-2 gap-3 flex items-center w-fit cursor-pointer">
+                <div className="flex flex-col w-full">
+                  <div className="flex items-center justify-between w-full gap-4">
+                    <p className="text-base max-w-[25vw] sm:max-w-24 truncate font-medium">
+                      {selectedWallet?.walletName}
+                    </p>
+                    <div className="absolute top-1/2 -translate-y-1/2 -right-5">
+                      {selectedWallet?.source === WalletSource.Connected ? (
+                        <ConnectedWalletIcon />
+                      ) : (
+                        <EmbeddedWalletIcon />
+                      )}
+                    </div>
+                    <FontAwesomeIcon
+                      icon={faChevronDown}
+                      className={`transition-transform text-base group-data-open:rotate-180`}
+                    />
                   </div>
-                  <FontAwesomeIcon
-                    icon={faChevronDown}
-                    className={`transition-transform text-base group-data-open:rotate-180`}
-                  />
                 </div>
-              </div>
-            </MenuButton>
-            <MenuItems
-              anchor="bottom start"
-              transition
-              className="origin-top max-h-10 tk-scrollbar overflow-y-clip flex flex-col gap-3 transition duration-100 ease-out data-closed:scale-95 data-closed:opacity-0 relative z-50 bg-draggable-background-light dark:bg-draggable-background-dark rounded-lg shadow-lg p-2"
-            >
-              {wallets.length > 0 &&
-                wallets.map((wallet) => {
-                  if (wallet.walletId !== selectedWallet?.walletId)
-                    return (
-                      <MenuItem key={wallet.walletId}>
-                        <div className="flex items-center justify-between w-full cursor-pointer">
-                          <Button
-                            onClick={() => {
-                              setSelectedWallet(wallet);
-                              setSelectedWalletAccount(
-                                wallet.accounts[0] || undefined,
-                              );
-                            }}
-                            className="flex items-center gap-3 w-full cursor-pointer"
-                          >
-                            <p className="truncate">{wallet.walletName}</p>{" "}
-                            {wallet.source === WalletSource.Connected && (
-                              <span className="text-primary-text-light dark:text-primary-text-dark border text-[10px] rounded-full py-0.5 px-1 border-primary-light dark:border-primary-dark bg-primary-light/30 dark:bg-primary-dark/30">
-                                connected
-                              </span>
-                            )}
-                          </Button>
-                        </div>
-                      </MenuItem>
-                    );
-                })}
-              {wallets.length !== 1 && (
-                <hr className="border-icon-text-light dark:border-icon-text-dark w-full" />
-              )}
-              <MenuItem>
-                <Button
-                  onClick={async () => {
-                    const embeddedWallets = wallets.filter(
-                      (w) => w.source === WalletSource.Embedded,
-                    );
-                    const walletId = await createWallet({
-                      walletName: `Wallet ${embeddedWallets.length + 1}`,
-                      accounts: [
-                        "ADDRESS_FORMAT_ETHEREUM",
-                        "ADDRESS_FORMAT_SOLANA",
-                      ],
-                    });
-                    const newWallets = await fetchWallets();
-                    const newWallet =
-                      newWallets.find((w) => w.walletId === walletId) ||
-                      newWallets[0];
-                    setSelectedWallet(newWallet);
-                    setSelectedWalletAccount(
-                      newWallet.accounts[0] || undefined,
-                    );
-                  }}
-                  className="relative hover:cursor-pointer flex items-center justify-center gap-2 w-full px-3 py-2 rounded-md text-xs bg-icon-background-light dark:bg-icon-background-dark text-icon-text-light dark:text-icon-text-dark"
-                >
-                  <div className="relative z-10 flex items-center justify-center rounded-full gap-2">
-                    <FontAwesomeIcon icon={faAdd} />
-                    Add Wallet
-                  </div>
-                </Button>
-              </MenuItem>
-            </MenuItems>
-          </Menu>
-          <Button
-            onClick={async () => {
-              await handleLinkExternalWallet();
-            }}
-            className=" active:scale-95 px-4 py-2 text-sm rounded-full border-2 border-background-light dark:border-background-dark hover:bg-panel-background-light/80 dark:hover:bg-panel-background-dark/80 hover:cursor-pointer hover:border-primary-light dark:hover:border-primary-dark transition-all"
-          >
-            {connectedWallets && connectedWallets.length > 0 ? (
-              <span className="relative flex items-center">
-                <StackedImg connectedWalletIcons={connectedWalletIcons} />
-                Connected{" "}
-                <div className="flex absolute top-0.5 -right-1.5">
-                  <div className="absolute animate-ping size-2 bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
-                  <div className="size-2 bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
-                </div>
-              </span>
-            ) : (
-              "Connect Wallet"
-            )}
-          </Button>
-        </div>
-        {selectedWallet?.accounts && selectedWallet?.accounts.length > 0 ? (
-          <RadioGroup
-            value={selectedWalletAccount}
-            onChange={setSelectedWalletAccount}
-            className="flex flex-col gap-2"
-          >
-            {selectedWallet?.accounts.map((account) => (
-              <Field
-                key={account.walletAccountId}
-                className="flex items-center justify-between bg-background-light dark:bg-background-dark rounded-lg p-2"
+              </MenuButton>
+              <MenuItems
+                anchor="bottom start"
+                transition
+                className="origin-top max-h-10 tk-scrollbar overflow-y-clip flex flex-col gap-3 transition duration-100 ease-out data-closed:scale-95 data-closed:opacity-0 relative z-50 bg-draggable-background-light dark:bg-draggable-background-dark rounded-lg shadow-lg p-2"
               >
-                <Label className="rounded-full w-full p-1 flex text-center items-center gap-3 cursor-pointer">
-                  {account.addressFormat === "ADDRESS_FORMAT_ETHEREUM" ? (
-                    <EthereumSVG className="w-5 h-5" />
-                  ) : (
-                    <SolanaSVG className="w-5 h-5" />
-                  )}
-                  {truncateAddress(account.address)}
+                {wallets.length > 0 &&
+                  wallets.map((wallet) => {
+                    if (wallet.walletId !== selectedWallet?.walletId)
+                      return (
+                        <MenuItem key={wallet.walletId}>
+                          <div className="flex items-center justify-between w-full cursor-pointer">
+                            <Button
+                              onClick={() => {
+                                setSelectedWallet(wallet);
+                                setSelectedWalletAccount(
+                                  wallet.accounts[0] || undefined,
+                                );
+                              }}
+                              className="flex items-center gap-3 w-full cursor-pointer"
+                            >
+                              <p className="truncate">{wallet.walletName}</p>{" "}
+                              {wallet.source === WalletSource.Connected && (
+                                <span className="text-primary-text-light dark:text-primary-text-dark border text-[10px] rounded-full py-0.5 px-1 border-primary-light dark:border-primary-dark bg-primary-light/30 dark:bg-primary-dark/30">
+                                  connected
+                                </span>
+                              )}
+                            </Button>
+                          </div>
+                        </MenuItem>
+                      );
+                  })}
+                {wallets.length !== 1 && (
+                  <hr className="border-icon-text-light dark:border-icon-text-dark w-full" />
+                )}
+                <MenuItem>
                   <Button
-                    className="hover:cursor-pointer"
-                    onClick={() => {
-                      window.open(
-                        account.addressFormat === "ADDRESS_FORMAT_ETHEREUM"
-                          ? `https://etherscan.io/address/${account.address}`
-                          : `https://solscan.io/account/${account.address}`,
-                        "_blank",
+                    onClick={async () => {
+                      const embeddedWallets = wallets.filter(
+                        (w) => w.source === WalletSource.Embedded,
+                      );
+                      const walletId = await createWallet({
+                        walletName: `Wallet ${embeddedWallets.length + 1}`,
+                        accounts: [
+                          "ADDRESS_FORMAT_ETHEREUM",
+                          "ADDRESS_FORMAT_SOLANA",
+                        ],
+                      });
+                      const newWallets = await fetchWallets();
+                      const newWallet =
+                        newWallets.find((w) => w.walletId === walletId) ||
+                        newWallets[0];
+                      setSelectedWallet(newWallet);
+                      setSelectedWalletAccount(
+                        newWallet.accounts[0] || undefined,
                       );
                     }}
+                    className="relative hover:cursor-pointer flex items-center justify-center gap-2 w-full px-3 py-2 rounded-md text-xs bg-icon-background-light dark:bg-icon-background-dark text-icon-text-light dark:text-icon-text-dark"
                   >
-                    <FontAwesomeIcon
-                      icon={faArrowUpRightFromSquare}
-                      className="text-icon-text-light dark:text-icon-text-dark text-sm"
-                    />
+                    <div className="relative z-10 flex items-center justify-center rounded-full gap-2">
+                      <FontAwesomeIcon icon={faAdd} />
+                      Add Wallet
+                    </div>
                   </Button>
-                </Label>
-                <Radio
-                  value={account}
-                  className="outline-none group flex size-4 items-center justify-center rounded-full border bg-white"
+                </MenuItem>
+              </MenuItems>
+            </Menu>
+            <Button
+              onClick={async () => {
+                await handleLinkExternalWallet();
+              }}
+              className=" active:scale-95 px-4 py-2 text-sm rounded-full border-2 border-background-light dark:border-background-dark hover:bg-panel-background-light/80 dark:hover:bg-panel-background-dark/80 hover:cursor-pointer hover:border-primary-light dark:hover:border-primary-dark transition-all"
+            >
+              {connectedWallets && connectedWallets.length > 0 ? (
+                <span className="relative flex items-center">
+                  <StackedImg connectedWalletIcons={connectedWalletIcons} />
+                  Connected{" "}
+                  <div className="flex absolute top-0.5 -right-1.5">
+                    <div className="absolute animate-ping size-2 bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
+                    <div className="size-2 bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
+                  </div>
+                </span>
+              ) : (
+                "Connect Wallet"
+              )}
+            </Button>
+          </div>
+          {selectedWallet?.accounts && selectedWallet?.accounts.length > 0 ? (
+            <RadioGroup
+              value={selectedWalletAccount}
+              onChange={setSelectedWalletAccount}
+              className="flex flex-col gap-2"
+            >
+              {selectedWallet?.accounts.map((account) => (
+                <Field
+                  key={account.walletAccountId}
+                  className="flex items-center justify-between bg-background-light dark:bg-background-dark rounded-lg p-2"
                 >
-                  <span className="size-2.5 transition rounded-full group-data-checked:bg-primary-light dark:group-data-checked:bg-primary-dark" />
-                </Radio>
-              </Field>
-            ))}
-          </RadioGroup>
-        ) : (
-          <Button
-            onClick={async () => {
-              await createWalletAccounts({
-                walletId: selectedWallet?.walletId || "",
-                accounts: ["ADDRESS_FORMAT_ETHEREUM", "ADDRESS_FORMAT_SOLANA"],
-              });
-            }}
-            className="flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80"
-          >
-            <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" />
-            Add Accounts
-          </Button>
-        )}
-
-        <Button
-          onClick={async () => {
-            if (!selectedWalletAccount) return;
-            const messageToSign = "Signing within Turnkey Demo.";
-            const res = await handleSignMessage({
-              message: messageToSign,
-              walletAccount: selectedWalletAccount,
-              addEthereumPrefix: true,
-            });
-            if (!res) {
-              console.error("Failed to sign message");
-              return;
-            }
-
-            const verificationPassed =
-              selectedWalletAccount.addressFormat === "ADDRESS_FORMAT_ETHEREUM"
-                ? verifyEthSignatureWithAddress(
-                    messageToSign,
-                    res.r,
-                    res.s,
-                    res.v,
-                    selectedWalletAccount.address,
-                  )
-                : verifySolSignatureWithAddress(
-                    messageToSign,
-                    res.r,
-                    res.s,
-                    selectedWalletAccount.address,
-                  );
-            pushPage({
-              key: "Signature Verification",
-              content: (
-                <SignatureVerification
-                  verificationPassed={verificationPassed}
-                  signature={`${res.r}${res.s}${res.v}`}
-                />
-              ),
-              preventBack: true,
-              showTitle: false,
-            });
-          }}
-          className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
-        >
-          Sign Message
-        </Button>
-        <hr className="border-draggable-background-light dark:border-draggable-background-dark" />
-        <div className="flex justify-between items-center gap-4">
-          <Button
-            onClick={async () => {
-              if (selectedWallet) {
-                await handleExport({
-                  walletId: selectedWallet.walletId,
-                  exportType: ExportType.Wallet,
+                  <Label className="rounded-full w-full p-1 flex text-center items-center gap-3 cursor-pointer">
+                    {account.addressFormat === "ADDRESS_FORMAT_ETHEREUM" ? (
+                      <EthereumSVG className="w-5 h-5" />
+                    ) : (
+                      <SolanaSVG className="w-5 h-5" />
+                    )}
+                    {truncateAddress(account.address)}
+                    <Button
+                      className="hover:cursor-pointer"
+                      onClick={() => {
+                        window.open(
+                          account.addressFormat === "ADDRESS_FORMAT_ETHEREUM"
+                            ? `https://etherscan.io/address/${account.address}`
+                            : `https://solscan.io/account/${account.address}`,
+                          "_blank",
+                        );
+                      }}
+                    >
+                      <FontAwesomeIcon
+                        icon={faArrowUpRightFromSquare}
+                        className="text-icon-text-light dark:text-icon-text-dark text-sm"
+                      />
+                    </Button>
+                  </Label>
+                  <Radio
+                    value={account}
+                    className="outline-none group flex size-4 items-center justify-center rounded-full border bg-white"
+                  >
+                    <span className="size-2.5 transition rounded-full group-data-checked:bg-primary-light dark:group-data-checked:bg-primary-dark" />
+                  </Radio>
+                </Field>
+              ))}
+            </RadioGroup>
+          ) : (
+            <Button
+              onClick={async () => {
+                await createWalletAccounts({
+                  walletId: selectedWallet?.walletId || "",
+                  accounts: [
+                    "ADDRESS_FORMAT_ETHEREUM",
+                    "ADDRESS_FORMAT_SOLANA",
+                  ],
                 });
-              }
-            }}
-            className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
-          >
-            <FontAwesomeIcon icon={faArrowUp} className="w-4 h-4 mr-2" /> Export
-            Wallet
-          </Button>
+              }}
+              className="flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80"
+            >
+              <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" />
+              Add Accounts
+            </Button>
+          )}
+
           <Button
-            className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
             onClick={async () => {
-              await handleImport({
-                defaultWalletAccounts: [
-                  "ADDRESS_FORMAT_SOLANA",
-                  "ADDRESS_FORMAT_ETHEREUM",
-                ],
+              if (!selectedWalletAccount) return;
+              const messageToSign = "Signing within Turnkey Demo.";
+              const res = await handleSignMessage({
+                message: messageToSign,
+                walletAccount: selectedWalletAccount,
+                addEthereumPrefix: true,
+              });
+              if (!res) {
+                console.error("Failed to sign message");
+                return;
+              }
+
+              const verificationPassed =
+                selectedWalletAccount.addressFormat ===
+                "ADDRESS_FORMAT_ETHEREUM"
+                  ? verifyEthSignatureWithAddress(
+                      messageToSign,
+                      res.r,
+                      res.s,
+                      res.v,
+                      selectedWalletAccount.address,
+                    )
+                  : verifySolSignatureWithAddress(
+                      messageToSign,
+                      res.r,
+                      res.s,
+                      selectedWalletAccount.address,
+                    );
+              pushPage({
+                key: "Signature Verification",
+                content: (
+                  <SignatureVerification
+                    verificationPassed={verificationPassed}
+                    signature={`${res.r}${res.s}${res.v}`}
+                  />
+                ),
+                preventBack: true,
+                showTitle: false,
               });
             }}
+            className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
           >
-            <FontAwesomeIcon icon={faArrowDown} className="w-4 h-4 mr-2" />{" "}
-            Import Wallet
+            Sign Message
           </Button>
+          {selectedWallet?.source === WalletSource.Embedded && (
+            <>
+              <hr className="border-draggable-background-light dark:border-draggable-background-dark" />
+
+              <div className="flex justify-between items-center gap-4">
+                <Button
+                  onClick={async () => {
+                    if (selectedWallet) {
+                      await handleExport({
+                        walletId: selectedWallet.walletId,
+                        exportType: ExportType.Wallet,
+                      });
+                    }
+                  }}
+                  className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
+                >
+                  <FontAwesomeIcon icon={faArrowUp} className="w-4 h-4 mr-2" />{" "}
+                  Export Wallet
+                </Button>
+                <Button
+                  className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
+                  onClick={async () => {
+                    await handleImport({
+                      defaultWalletAccounts: [
+                        "ADDRESS_FORMAT_SOLANA",
+                        "ADDRESS_FORMAT_ETHEREUM",
+                      ],
+                    });
+                  }}
+                >
+                  <FontAwesomeIcon
+                    icon={faArrowDown}
+                    className="w-4 h-4 mr-2"
+                  />
+                  Import Wallet
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </div>
-    </div>
+    </Transition>
   );
 }
 
