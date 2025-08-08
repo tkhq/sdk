@@ -51,7 +51,6 @@
 ### Patch Changes
 
 - [#763](https://github.com/tkhq/sdk/pull/763) [`cb13c26`](https://github.com/tkhq/sdk/commit/cb13c26edb79a01ab651e3b2897334fd154b436a) Author [@andrewkmin](https://github.com/andrewkmin) - Release per mono v2025.7.1. This release contains the following API changes:
-
   - Introduction of `SmartContractInterfaces`: we've now exposed endpoints for uploading ABIs and IDLs to help secure EVM and Solana signing flows. For more information, see our docs [here](https://docs.turnkey.com/concepts/policies/smart-contract-interfaces)
 
 - Updated dependencies [[`cb13c26`](https://github.com/tkhq/sdk/commit/cb13c26edb79a01ab651e3b2897334fd154b436a)]:
@@ -78,7 +77,6 @@
 ### Patch Changes
 
 - [#716](https://github.com/tkhq/sdk/pull/716) [`fa46701`](https://github.com/tkhq/sdk/commit/fa467019eef34b5199372248edff1e7a64934e79) Author [@moeodeh3](https://github.com/moeodeh3) - Updated dependencies
-
   - bs58check@4.0.0
 
 - Updated dependencies [[`c5cdf82`](https://github.com/tkhq/sdk/commit/c5cdf8229da5da1bd6d52db06b2fe42826e96d57), [`fa46701`](https://github.com/tkhq/sdk/commit/fa467019eef34b5199372248edff1e7a64934e79)]:
@@ -174,7 +172,6 @@ This release introduces the new `indexedDbClient`, leveraging the `indexedDbStam
 ### Key Changes:
 
 - **IndexedDB Client (`indexedDbClient`)**:
-
   - Offers persistent, tamper-resistant authentication using P-256 keys stored securely in IndexedDB.
   - Eliminates the need for credential injection via iframes, significantly improving the DevEx and UX of session management.
   - Provides human-readable sessions through `getSession()`.
@@ -247,7 +244,6 @@ These enhancements simplify integrations, improve UX, and deliver a more robust 
 ### Minor Changes
 
 - e501690: Add new utility functions:
-
   - Add `clearEmbeddedKey()` async function, which clears the embedded key within an iframe
   - Add `initEmbeddedKey()` async function, which reinitializes the embedded key within an iframe
 
@@ -336,7 +332,6 @@ These enhancements simplify integrations, improve UX, and deliver a more robust 
 ### Major Changes
 
 - 72890f5: ### @turnkey/sdk-browser
-
   - Move all type definitions to [`./__types__/base.ts`](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts)
   - `TurnkeyBrowserClient`
     - `refereshSession()` now consumes a [RefreshSessionParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L213) parameter
@@ -345,13 +340,11 @@ These enhancements simplify integrations, improve UX, and deliver a more robust 
     - `loginWithWallet()` now consumes a [LoginWithWalletParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L231) parameter
 
   ### @turnkey/sdk-react
-
   - `Auth.tsx`
     - updated `passkeyClient?.loginWithPasskey()` to implement new method signature
     - updated `walletClient?.loginWithWallet()` to implement new method signature
 
   ### @turnkey/sdk-server
-
   - Move all type definitions to [`./__types__/base.ts`](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-server/src/__types__/base.ts)
 
 ### Minor Changes
@@ -375,7 +368,6 @@ These enhancements simplify integrations, improve UX, and deliver a more robust 
 - 93540e7: ## Major Package Updates
 
   ### @turnkey/sdk-browser
-
   - create abstract `TurnkeyBaseClient` class which extends `TurnkeySDKClientBase`
     - `TurnkeyBrowserClient`, `TurnkeyIframeClient`, `TurnkeyPasskeyClient`, and `TurnkeyWalletClient` all extend `TurnkeyBaseClient`
   - TurnkeyBrowserClient
@@ -389,20 +381,17 @@ These enhancements simplify integrations, improve UX, and deliver a more robust 
       - createPasskeySession - leverages passkey authentication to create a read-write session. Once authenticated, the user will not be prompted for additional passkey taps.
 
   ### @turnkey/sdk-react
-
   - update `TurnkeyContext` to use new `.getSession()` method to check if there is an active session
   - `OTPVerification` component no longer receives `authIframeClient` or `onValidateSuccess` props
 
   ## Minor Package Updates
 
   ### @turnkey/sdk-server
-
   - expose `sendCredential` server action
   - add `SessionType` enum
     - `READ_ONLY` & `READ_WRITE`
 
   ### @turnkey/eip-1193-provider
-
   - update dependencies in `package.json`
     - moved from `peerDependencies` to `dependencies`
       - `"@turnkey/http": "workspace:*"`
@@ -655,7 +644,6 @@ These enhancements simplify integrations, improve UX, and deliver a more robust 
 ### Minor Changes
 
 - c988ed0: Support activity polling (e.g. for awaiting consensus)
-
   - [Breaking] Update the `activityPoller` parameter for configuring polling behavior
   - Polling continues until either a max number of retries is reached, or if the activity hits a terminal status
 
