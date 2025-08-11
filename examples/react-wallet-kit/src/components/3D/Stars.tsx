@@ -1,15 +1,32 @@
 import { useFrame } from "@react-three/fiber";
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState, useEffect } from "react";
 import * as THREE from "three";
-import { useTurnkey } from "@turnkey/react-wallet-kit";
+import { useTurnkeyConfig } from "@/providers/config/ConfigProvider";
+import { logoColour } from "@/utils";
 
 interface StarsProps {
   position?: [number, number, number];
 }
 
 export function Stars({ position = [0, 0, 0] }: StarsProps) {
-  const { config } = useTurnkey();
   const ref = useRef<THREE.LineSegments>(null);
+  const { demoConfig, config } = useTurnkeyConfig();
+
+  const [color, setColor] = useState<string>("gray");
+
+  useEffect(() => {
+    setColor(
+      demoConfig.ui
+        ? config.ui?.darkMode
+          ? demoConfig.ui?.dark?.background
+            ? logoColour(demoConfig.ui.dark.background)
+            : "gray"
+          : demoConfig.ui?.light?.background
+            ? logoColour(demoConfig.ui.light.background)
+            : "gray"
+        : "gray",
+    );
+  }, [demoConfig, config]);
 
   const radius = 1;
   const widthSegments = 32;
@@ -30,14 +47,10 @@ export function Stars({ position = [0, 0, 0] }: StarsProps) {
     }
   });
 
-  const color = !config?.ui?.darkMode
-    ? config?.ui?.colors?.light?.primary
-    : config?.ui?.colors?.dark?.primary;
-
   return (
     <group rotation={[0, 0, 0]} position={position}>
       <lineSegments ref={ref} geometry={geometry}>
-        <lineBasicMaterial color={"gray"} transparent opacity={0.1} />
+        <lineBasicMaterial color={color} transparent opacity={0.1} />
       </lineSegments>
     </group>
   );

@@ -309,34 +309,57 @@ export function TurnkeyConfigPanel() {
             onChange={(val) => {
               const newColors = completeTheme(val);
 
-              handleSetConfig({
-                ui: {
-                  ...config.ui,
-                  colors: !config.ui?.darkMode
+              handleSetConfig(
+                {
+                  ui: {
+                    ...config.ui,
+                    colors: !config.ui?.darkMode
+                      ? {
+                          ...config.ui?.colors,
+                          light: {
+                            ...config.ui?.colors?.light,
+                            modalBackground: val,
+                            modalText: textColour(val, true),
+                            iconBackground: newColors.iconBackground,
+                            iconText: newColors.iconText,
+                            button: newColors.buttonBackground,
+                          },
+                        }
+                      : {
+                          ...config.ui?.colors,
+                          dark: {
+                            ...config.ui?.colors?.dark,
+                            modalBackground: val,
+                            modalText: textColour(val, true),
+                            iconBackground: newColors.iconBackground,
+                            iconText: newColors.iconText,
+                            button: newColors.buttonBackground,
+                          },
+                        },
+                  },
+                },
+                {
+                  ui: !config.ui?.darkMode
                     ? {
-                        ...config.ui?.colors,
+                        ...demoConfig.ui,
                         light: {
-                          ...config.ui?.colors?.light,
-                          modalBackground: val,
-                          modalText: textColour(val, true),
-                          iconBackground: newColors.iconBackground,
-                          iconText: newColors.iconText,
-                          button: newColors.buttonBackground,
+                          background: newColors.background,
+                          text: textColour(newColors.background, true),
+                          panelBackground: newColors.panelBackground,
+                          draggableBackground: newColors.draggableBackground,
                         },
                       }
                     : {
-                        ...config.ui?.colors,
+                        ...demoConfig.ui,
                         dark: {
-                          ...config.ui?.colors?.dark,
-                          modalBackground: val,
-                          modalText: textColour(val, true),
-                          iconBackground: newColors.iconBackground,
-                          iconText: newColors.iconText,
-                          button: newColors.buttonBackground,
+                          background: newColors.background,
+                          text: textColour(newColors.background, true),
+                          panelBackground: newColors.panelBackground,
+                          draggableBackground: newColors.draggableBackground,
                         },
                       },
                 },
-              });
+              );
             }}
           />
 
@@ -409,7 +432,9 @@ export function TurnkeyConfigPanel() {
               ? "Hardware acceleration is not enabled."
               : ""
           }
-          onChange={(val) => handleSetConfig({}, { backgroundEnabled: val })}
+          onChange={(val) =>
+            handleSetConfig({}, { backgroundEnabled: val, ui: demoConfig.ui })
+          }
         />
       </PanelDisclosure>
       <PanelDisclosure title="Config" icon={<FontAwesomeIcon icon={faGears} />}>
@@ -422,7 +447,10 @@ export function TurnkeyConfigPanel() {
       <Button
         className="w-full hover:cursor-pointer p-2 text-sm rounded-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark hover:bg-primary-light/90 dark:hover:bg-primary-dark/90 transition-colors"
         onClick={() => {
-          handleSetConfig(initialConfig);
+          handleSetConfig(initialConfig, {
+            backgroundEnabled: demoConfig.backgroundEnabled,
+            ui: undefined,
+          });
         }}
       >
         Reset to Defaults

@@ -23,7 +23,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { ThreeDimensionalBackground } from "@/components/3D/Background";
 import { TurnkeySVG } from "@/components/Svg";
-import { isHardwareAccelerationEnabled, useScreenSize } from "@/utils";
+import { isHardwareAccelerationEnabled, kebab, useScreenSize } from "@/utils";
 import { Slide, ToastContainer } from "react-toastify";
 import { DemoConfig } from "@/types";
 
@@ -80,6 +80,20 @@ export function TurnkeyConfigProvider({
     setHardwareAccelerationEnabled(isHardwareAccelerationEnabled());
   }, []);
 
+  const generateCSSVars = (theme?: Partial<DemoConfig>) => {
+    if (!theme?.ui?.light) return "";
+    return Object.entries(theme.ui.light)
+      .map(([key, value]) => `--color-${kebab(key)}-light: ${value};`)
+      .join("\n");
+  };
+
+  const generateDarkCSSVars = (theme?: Partial<DemoConfig>) => {
+    if (!theme?.ui?.dark) return "";
+    return Object.entries(theme.ui.dark)
+      .map(([key, value]) => `--color-${kebab(key)}-dark: ${value};`)
+      .join("\n");
+  };
+
   useEffect(() => {
     if (isMobile) {
       setPanelOpen(false);
@@ -98,9 +112,19 @@ export function TurnkeyConfigProvider({
         setConfig,
       }}
     >
+      <style>
+        {`
+          :root {
+            ${generateCSSVars(demoConfig)}
+          }
+          .dark {
+            ${generateDarkCSSVars(demoConfig)}
+          }
+        `}
+      </style>
       <div
         className={clsx(
-          "overflow-hidden h-full absolute inset-0 flex dark:bg-panel-background-dark bg-panel-background-light text-text-light dark:text-text-dark",
+          "transition-colors overflow-hidden h-full absolute inset-0 flex dark:bg-panel-background-dark bg-panel-background-light text-text-light dark:text-text-dark",
           config.ui?.darkMode && "dark",
         )}
       >
