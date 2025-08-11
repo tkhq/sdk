@@ -59,6 +59,7 @@ import {
   isEthereumWallet,
   isSolanaWallet,
   broadcastTransaction,
+  googleISS,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -2354,30 +2355,28 @@ export class TurnkeyClient {
       }
 
       const userId = params?.userId || session.userId;
-      const { email: oidcEmail } = jwtDecode<any>(oidcToken) || {}; // Parse the oidc token so we can get the email. Pass it in to updateUser then call createOauthProviders. This will be verified by Turnkey.
+      const { email: oidcEmail, iss } = jwtDecode<any>(oidcToken) || {}; // Parse the oidc token so we can get the email. Pass it in to updateUser then call createOauthProviders. This will be verified by Turnkey.
 
-      const verifiedSuborgs = await this.httpClient.getVerifiedSubOrgIds(
-        {
+      if (iss === googleISS) {
+        const verifiedSuborg = await this.httpClient.proxyGetAccount({
           filterType: "EMAIL",
           filterValue: oidcEmail,
-        },
-        stampWith,
-      );
-      const isVerified = verifiedSuborgs.organizationIds.some(
-        (orgId) => orgId === session.organizationId,
-      );
+        });
+        const isVerified =
+          verifiedSuborg.organizationId === session.organizationId;
 
-      const user = await this.fetchUser({
-        userId,
-        stampWith,
-      });
-
-      if (!user?.userEmail && !isVerified) {
-        await this.updateUserEmail({
-          email: oidcEmail,
+        const user = await this.fetchUser({
           userId,
           stampWith,
         });
+
+        if (!user?.userEmail && !isVerified) {
+          await this.updateUserEmail({
+            email: oidcEmail,
+            userId,
+            stampWith,
+          });
+        }
       }
 
       const createProviderRes = await this.httpClient.createOauthProviders(
