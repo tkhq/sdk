@@ -1,0 +1,191 @@
+---
+title: "WalletConnectInterface"
+mode: wide
+---
+  
+# Interface: WalletConnectInterface
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:385
+
+Base interface for wallet functionalities common across different blockchain chains.
+ BaseWalletInterface
+
+## Extends
+
+- [`BaseWalletInterface`](../BaseWalletInterface/readme)
+
+## Properties
+
+### connectWalletAccount()
+
+> **connectWalletAccount**: (`provider`) => `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:357
+
+#### Parameters
+
+##### provider
+
+[`WalletProvider`](../WalletProvider/readme)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`BaseWalletInterface`](../BaseWalletInterface/readme).[`connectWalletAccount`](../BaseWalletInterface/readme#connectwalletaccount)
+
+***
+
+### disconnectWalletAccount()
+
+> **disconnectWalletAccount**: (`provider`) => `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:358
+
+#### Parameters
+
+##### provider
+
+[`WalletProvider`](../WalletProvider/readme)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`BaseWalletInterface`](../BaseWalletInterface/readme).[`disconnectWalletAccount`](../BaseWalletInterface/readme#disconnectwalletaccount)
+
+***
+
+### getProviders()
+
+> **getProviders**: () => `Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:356
+
+#### Returns
+
+`Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
+
+#### Inherited from
+
+[`BaseWalletInterface`](../BaseWalletInterface/readme).[`getProviders`](../BaseWalletInterface/readme#getproviders)
+
+***
+
+### getPublicKey()
+
+> **getPublicKey**: (`provider`) => `Promise`\<`string`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:355
+
+Retrieves the public key as a string.
+
+#### Parameters
+
+##### provider
+
+[`WalletProvider`](../WalletProvider/readme)
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Inherited from
+
+[`BaseWalletInterface`](../BaseWalletInterface/readme).[`getPublicKey`](../BaseWalletInterface/readme#getpublickey)
+
+***
+
+### init()
+
+> **init**: (`opts`) => `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:387
+
+#### Parameters
+
+##### opts
+
+###### ethereumNamespaces
+
+`string`[]
+
+###### solanaNamespaces
+
+`string`[]
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### interfaceType
+
+> **interfaceType**: [`WalletConnect`](../WalletInterfaceType/readme#walletconnect)
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:386
+
+#### Overrides
+
+[`BaseWalletInterface`](../BaseWalletInterface/readme).[`interfaceType`](../BaseWalletInterface/readme#interfacetype)
+
+***
+
+### sign()
+
+> **sign**: (`message`, `provider`, `intent`) => `Promise`\<`string`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:354
+
+#### Parameters
+
+##### message
+
+`string`
+
+##### provider
+
+[`WalletProvider`](../WalletProvider/readme)
+
+##### intent
+
+[`SignIntent`](../SignIntent/readme)
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Inherited from
+
+[`BaseWalletInterface`](../BaseWalletInterface/readme).[`sign`](../BaseWalletInterface/readme#sign)
+
+***
+
+### switchChain()?
+
+> `optional` **switchChain**: (`provider`, `chainOrId`) => `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:359
+
+#### Parameters
+
+##### provider
+
+[`WalletProvider`](../WalletProvider/readme)
+
+##### chainOrId
+
+`string` | [`SwitchableChain`](../SwitchableChain/readme)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+[`BaseWalletInterface`](../BaseWalletInterface/readme).[`switchChain`](../BaseWalletInterface/readme#switchchain)

@@ -1,0 +1,90 @@
+---
+title: "ApiKeyStamperBase"
+mode: wide
+---
+  
+# Interface: ApiKeyStamperBase
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:281
+
+## Methods
+
+### clearKeyPairs()
+
+> **clearKeyPairs**(): `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:288
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### createKeyPair()
+
+> **createKeyPair**(`externalKeyPair?`): `Promise`\<`string`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:283
+
+#### Parameters
+
+##### externalKeyPair?
+
+`CryptoKeyPair` | \{ `privateKey`: `string`; `publicKey`: `string`; \}
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### deleteKeyPair()
+
+> **deleteKeyPair**(`publicKeyHex`): `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:287
+
+#### Parameters
+
+##### publicKeyHex
+
+`string`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### listKeyPairs()
+
+> **listKeyPairs**(): `Promise`\<`string`[]\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:282
+
+#### Returns
+
+`Promise`\<`string`[]\>
+
+***
+
+### stamp()
+
+> **stamp**(`payload`, `publicKeyHex`): `Promise`\<[`TStamp`](../TStamp/readme)\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:289
+
+#### Parameters
+
+##### payload
+
+`string`
+
+##### publicKeyHex
+
+`string`
+
+#### Returns
+
+`Promise`\<[`TStamp`](../TStamp/readme)\>

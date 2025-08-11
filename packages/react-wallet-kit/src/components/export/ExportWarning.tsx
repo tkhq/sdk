@@ -5,7 +5,7 @@ import {
   faUnlock,
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
-import type { StamperType } from "@turnkey/sdk-js";
+import type { StamperType } from "@turnkey/core";
 import { ExportType } from "../../types/base";
 import { useTurnkey } from "../../providers/client/Hook";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";

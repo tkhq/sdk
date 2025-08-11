@@ -10,10 +10,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useMemo, useRef, useState } from "react";
 import clsx from "clsx";
-import type { WalletProvider } from "@turnkey/sdk-js";
+import type { WalletProvider } from "@turnkey/core";
 import { QRCodeSVG as QRCode } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
-import { isEthereumWallet } from "@turnkey/sdk-js";
+import { isEthereumWallet } from "@turnkey/core";
 import { useTurnkey } from "../../providers/client/Hook";
 
 interface WalletAuthButtonProps {

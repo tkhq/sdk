@@ -3,7 +3,7 @@ import {
   WalletSource,
   type StamperType,
   type WalletAccount,
-} from "@turnkey/sdk-js";
+} from "@turnkey/core";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
