@@ -32,6 +32,9 @@ export function completeTheme(modalBackgroundColour: string) {
   const iconBackgroundLMultiplier = isLight ? 0.8 : 1.5;
   const iconTextLMultiplier = isLight ? 0.3 : 6;
   const buttonBackgroundLMultiplier = isLight ? 1.1 : 1.3;
+  const backgroundLMultiplier = isLight ? 0.85 : 0.9;
+  const draggableBackgroundLMultiplier = isLight ? 0.9 : 0.7;
+  const panelBackgroundLMultiplier = isLight ? 0.95 : 0.7;
 
   const iconBackgroundL = isLight
     ? Math.max(L * iconBackgroundLMultiplier, 0.95)
@@ -44,14 +47,32 @@ export function completeTheme(modalBackgroundColour: string) {
     ? Math.min(L * buttonBackgroundLMultiplier, 0.95)
     : Math.max(L * buttonBackgroundLMultiplier, 0.2);
 
+  const backgroundL = isLight
+    ? L > 0.9
+      ? 0.9
+      : Math.min(L * backgroundLMultiplier, 0.9)
+    : Math.max(L * backgroundLMultiplier, 0.25);
+  const draggableBackgroundL = isLight
+    ? Math.min(L * draggableBackgroundLMultiplier, 0.9)
+    : Math.max(L * draggableBackgroundLMultiplier, 0.3);
+  const panelBackgroundL = isLight
+    ? Math.min(L * panelBackgroundLMultiplier, 1)
+    : Math.max(L * panelBackgroundLMultiplier, 0.2);
+
   const iconBackground = oklchToHex({ L: iconBackgroundL, C, h });
   const iconText = oklchToHex({ L: iconTextL, C, h });
   const buttonBackground = oklchToHex({ L: buttonBackgroundL, C, h });
+  const background = oklchToHex({ L: backgroundL, C, h });
+  const draggableBackground = oklchToHex({ L: draggableBackgroundL, C, h });
+  const panelBackground = oklchToHex({ L: panelBackgroundL, C, h });
 
   return {
     iconBackground,
     iconText,
     buttonBackground,
+    background,
+    draggableBackground,
+    panelBackground,
   };
 }
 
@@ -65,6 +86,15 @@ export function textColour(colour: string, highContrast = false) {
   return isLight
     ? oklchToHex({ L: !highContrast ? 0.2 : 0.05, C, h })
     : oklchToHex({ L: !highContrast ? 0.9 : 1.5, C, h });
+}
+
+export function logoColour(colour: string) {
+  // Use OKLCh for perceptual lightness
+  const { L, C, h } = hexToOklch(colour);
+  const isLight = L > 0.5;
+
+  // Use a slightly darker or lighter shade for logo
+  return isLight ? oklchToHex({ L: 0.5, C, h }) : oklchToHex({ L: 0.6, C, h });
 }
 
 // parse a hex string into [r,g,b] in 0–1
@@ -272,4 +302,8 @@ export function isHardwareAccelerationEnabled(): boolean {
   } catch (e) {
     return false;
   }
+}
+
+export function kebab(str: string): string {
+  return str.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
 }

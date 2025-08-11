@@ -34,7 +34,7 @@ export function SliderField(props: SliderFieldProps) {
         max={max}
         step={step}
       />
-      <span className="text-sm text-gray-500 w-20 text-right whitespace-nowrap">
+      <span className="text-sm text-text-light dark:text-text-dark w-20 text-right whitespace-nowrap">
         {value} {suffix}
       </span>
     </div>
