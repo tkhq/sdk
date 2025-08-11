@@ -6,7 +6,7 @@ import type {
   Wallet,
   StamperType,
   WalletAccount,
-} from "@turnkey/sdk-js";
+} from "@turnkey/core";
 import type {
   OAuthProviders,
   Session,

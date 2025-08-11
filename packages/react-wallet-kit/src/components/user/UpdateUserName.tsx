@@ -6,7 +6,7 @@ import { ActionButton } from "../design/Buttons";
 import { useState } from "react";
 import { Input } from "@headlessui/react";
 import clsx from "clsx";
-import type { StamperType } from "@turnkey/sdk-js";
+import type { StamperType } from "@turnkey/core";
 import { SuccessPage } from "../design/Success";
 
 export function UpdateUserName(params: {
