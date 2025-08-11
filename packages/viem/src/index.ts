@@ -440,7 +440,7 @@ export async function signTypedData(
 ): Promise<Hex> {
   return (await signMessageWithErrorWrapping(
     client,
-    JSON.stringify(data),
+    jsonStringifyWithBigInt(data),
     organizationId,
     signWith,
     "hex",
@@ -664,5 +664,11 @@ export function isTurnkeyActivityError(error: any) {
     error.walk((e: any) => {
       return e instanceof TurnkeyActivityError;
     })
+  );
+}
+
+export function jsonStringifyWithBigInt(value: unknown) {
+  return JSON.stringify(value, (_, v) =>
+    typeof v === "bigint" ? v.toString() : v,
   );
 }
