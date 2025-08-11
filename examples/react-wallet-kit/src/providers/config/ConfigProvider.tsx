@@ -205,12 +205,14 @@ export function TurnkeyConfigProvider({
             Config
           </Button>
 
-          <TurnkeySVG
-            className="transition-all duration-250 size-32"
-            style={{
-              transform: `translateX(${panelOpen ? `${panelWidth}px` : "0px"})`,
-            }}
-          />
+          <Button href="https://turnkey.com" target="_blank">
+            <TurnkeySVG
+              className="transition-all duration-250 size-32"
+              style={{
+                transform: `translateX(${panelOpen ? `${panelWidth}px` : "0px"})`,
+              }}
+            />
+          </Button>
 
           <div className="sm:flex hidden font-bold text-sm w-52 justify-end">
             <span>@turnkey/react-wallet-kit</span>

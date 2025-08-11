@@ -4,7 +4,7 @@ import "./global.css";
 import { TurnkeyConfigProvider } from "@/providers/config/ConfigProvider";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { Slide, toast } from "react-toastify";
-import type { CreateSubOrgParams } from "@turnkey/core";
+import type { CreateSubOrgParams } from "@turnkey/react-wallet-kit";
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -53,12 +53,19 @@ function RootLayout({ children }: RootLayoutProps) {
       <body className="bg-background-light dark:bg-background-dark">
         <TurnkeyConfigProvider
           initialConfig={{
-            apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
-            authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
+            apiBaseUrl:
+              process.env.NEXT_PUBLIC_BASE_URL || "https://api.turnkey.com",
+            authProxyUrl:
+              process.env.NEXT_PUBLIC_AUTH_PROXY_URL ||
+              "https://authproxy.turnkey.com",
             authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
             organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
-            importIframeUrl: process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!,
-            exportIframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
+            importIframeUrl:
+              process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL ||
+              "https://import.turnkey.com",
+            exportIframeUrl:
+              process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL ||
+              "https://export.turnkey.com",
             auth: {
               oAuthConfig: {
                 googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
@@ -111,7 +118,7 @@ function RootLayout({ children }: RootLayoutProps) {
                 metadata: {
                   name: "Turnkey Wallet",
                   description: "A wallet for Turnkey",
-                  url: "http://localhost:3000",
+                  url: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_URL!,
                   icons: ["/favicon.svg"],
                 },
                 ethereumNamespaces: ["eip155:1"],
