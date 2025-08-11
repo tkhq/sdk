@@ -290,6 +290,8 @@ export const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> =
     },
   };
 
+export const googleISS = "https://accounts.google.com";
+
 export const isReactNative = (): boolean => {
   return (
     typeof navigator !== "undefined" && navigator.product === "ReactNative"
