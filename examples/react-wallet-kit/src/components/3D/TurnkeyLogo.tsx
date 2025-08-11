@@ -1,9 +1,11 @@
 import { useGLTF } from "@react-three/drei";
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { MeshBasicMaterial, Group } from "three";
 import { useFrame } from "@react-three/fiber";
 import { useModal } from "@turnkey/react-wallet-kit";
 import { lerp } from "three/src/math/MathUtils";
+import { logoColour } from "@/utils";
+import { useTurnkeyConfig } from "@/providers/config/ConfigProvider";
 
 interface TurnkeyLogoProps {
   position?: [number, number, number];
@@ -12,12 +14,26 @@ interface TurnkeyLogoProps {
 export function TurnkeyLogo(props: TurnkeyLogoProps) {
   const { position = [0, 0, 0] } = props;
   const { modalStack } = useModal();
+  const { demoConfig, config } = useTurnkeyConfig();
 
   const url = "/3D/turnkey.glb";
   const { scene } = useGLTF(url);
   const groupRef = useRef<Group>(null);
+  const [logoColor, setLogoColor] = useState<string>("gray");
 
-  const logoColor = "gray";
+  useEffect(() => {
+    setLogoColor(
+      demoConfig.ui
+        ? config.ui?.darkMode
+          ? demoConfig.ui?.dark?.background
+            ? logoColour(demoConfig.ui.dark.background)
+            : "gray"
+          : demoConfig.ui?.light?.background
+            ? logoColour(demoConfig.ui.light.background)
+            : "gray"
+        : "gray",
+    );
+  }, [demoConfig, config]);
 
   const defaultSpeed = 0.1; // Default rotation speed
   const burstSpeed = 10; // Speed during burst
@@ -62,7 +78,7 @@ export function TurnkeyLogo(props: TurnkeyLogoProps) {
   // Make Turnkey logo wireframe.
   const wireframeMaterial = useMemo(
     () => new MeshBasicMaterial({ color: logoColor, wireframe: true }),
-    [],
+    [logoColor],
   );
 
   const model = useMemo(() => {
