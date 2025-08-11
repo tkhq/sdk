@@ -25,7 +25,7 @@
     "@react-oauth/google": "^0.12.1",
     "@solana/web3.js": "^1.95.8",
     "@turnkey/react-wallet-kit": "workspace:*",
-    "@turnkey/sdk-js": "workspace:*",
+    "@turnkey/core": "workspace:*",
     "@turnkey/sdk-react": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",

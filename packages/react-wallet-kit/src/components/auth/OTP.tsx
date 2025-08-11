@@ -4,7 +4,7 @@ import { useTurnkey } from "../../providers/client/Hook";
 import { Spinner } from "../design/Spinners";
 import { Input } from "@headlessui/react";
 import { BaseButton } from "../design/Buttons";
-import { OtpType } from "@turnkey/sdk-js";
+import { OtpType } from "@turnkey/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faPhone } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";

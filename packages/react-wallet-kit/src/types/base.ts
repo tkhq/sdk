@@ -1,7 +1,4 @@
-import type {
-  CreateSubOrgParams,
-  TurnkeySDKClientConfig,
-} from "@turnkey/sdk-js";
+import type { CreateSubOrgParams, TurnkeySDKClientConfig } from "@turnkey/core";
 import type {
   Session,
   TurnkeyError,
