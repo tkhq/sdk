@@ -18,11 +18,11 @@ export function ColourPicker /*🇨🇦*/(props: ColourPickerProps) {
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
           <div
-            className="size-5 rounded-full border border-panel-background-dark/20 dark:border-panel-background-light/20"
+            className="size-5 rounded-full border  border-panel-background-dark/20 dark:border-panel-background-light/20"
             style={{ backgroundColor: value }}
           />
         </label>
-        <span className="text-sm text-gray-500 w-16 whitespace-nowrap items-center text-center">
+        <span className="text-sm text-text-light dark:text-text-dark w-16 whitespace-nowrap items-center text-center">
           {value}
         </span>
       </div>
