@@ -1,5 +1,17 @@
 # @turnkey/sdk-server
 
+## 4.4.0
+
+### Minor Changes
+
+- [#651](https://github.com/tkhq/sdk/pull/651) [`81e355c`](https://github.com/tkhq/sdk/commit/81e355c9a8321feffcac056916b65139cf35eeed) Author [@turnekybc](https://github.com/turnekybc) - Add Coinbase & MoonPay Fiat Onramp. View the [Fiat Onramp feature docs](https://docs.turnkey.com/wallets/fiat-on-ramp).
+
+### Patch Changes
+
+- Updated dependencies [[`81e355c`](https://github.com/tkhq/sdk/commit/81e355c9a8321feffcac056916b65139cf35eeed)]:
+  - @turnkey/http@3.7.0
+  - @turnkey/wallet-stamper@1.0.8
+
 ## 4.3.0
 
 ### Minor Changes

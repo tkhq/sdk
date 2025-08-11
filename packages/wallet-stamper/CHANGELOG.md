@@ -1,5 +1,12 @@
 # @turnkey/wallet-stamper
 
+## 1.0.8
+
+### Patch Changes
+
+- Updated dependencies [[`6cde41c`](https://github.com/tkhq/sdk/commit/6cde41cfecdfb7d54abf52cc65e28ef0e2ad6ba3)]:
+  - @turnkey/crypto@2.5.0
+
 ## 1.0.7
 
 ### Patch Changes
