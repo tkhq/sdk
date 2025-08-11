@@ -1,16 +1,15 @@
-[**Documentation**](../../../README.mdx)
-
-***
-
-[Documentation](../../../modules.mdx) / [react-wallet-kit](../../README.mdx) / [index](../README.mdx) / ClientContextType
-
+---
+title: "ClientContextType"
+mode: wide
+---
+  
 # Interface: ClientContextType
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:35](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L35)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:41](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L41)
 
 ## Extends
 
-- [`TurnkeyClientMethods`](../../../sdk-js/index/TurnkeyClientMethods/README.mdx)
+- [`TurnkeyClientMethods`](../../../core/index/TurnkeyClientMethods/readme)
 
 ## Properties
 
@@ -18,7 +17,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:35](https://github.
 
 > **addOAuthProvider**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:533
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:568
 
 Adds an OAuth provider to the user.
 
@@ -37,17 +36,17 @@ Adds an OAuth provider to the user.
 
 `string`
 
-The OIDC token for the OAuth provider.
+OIDC token for the OAuth provider.
 
 ###### providerName
 
 `string`
 
-The name of the OAuth provider to add (e.g., "Google", "Apple").
+name of the OAuth provider to add (e.g., "Google", "Apple").
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -75,9 +74,9 @@ If there is no active session, if the account already exists, or if there is an 
 
 ### addPasskey()
 
-> **addPasskey**: (`params`?) => `Promise`\<`string`[]\>
+> **addPasskey**: (`params?`) => `Promise`\<`string`[]\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:576
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:610
 
 Adds a new passkey authenticator for the user.
 
@@ -86,7 +85,6 @@ Adds a new passkey authenticator for the user.
 - If a userId is provided, the passkey is added for that specific user; otherwise, it uses the current session's userId.
 - The passkey's name and display name can be customized; if not provided, defaults are generated.
 - The resulting passkey attestation and challenge are registered with Turnkey as a new authenticator.
-- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
 #### Parameters
 
@@ -96,17 +94,17 @@ Adds a new passkey authenticator for the user.
 
 `string`
 
-The display name of the passkey (defaults to the value of `name`).
+display name of the passkey (defaults to the value of `name`).
 
 ###### name?
 
 `string`
 
-The name of the passkey (defaults to "Turnkey Passkey-`timestamp`").
+name of the passkey (defaults to "Turnkey Passkey-`timestamp`").
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -134,9 +132,9 @@ If there is no active session, if passkey creation fails, or if there is an erro
 
 ### allSessions?
 
-> `optional` **allSessions**: `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/README.mdx)\>
+> `optional` **allSessions**: `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/readme)\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:38](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L38)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:44](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L44)
 
 ***
 
@@ -144,7 +142,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:38](https://github.
 
 > **authState**: `AuthState`
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:40](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L40)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:46](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L46)
 
 ***
 
@@ -152,7 +150,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:40](https://github.
 
 > **clearAllSessions**: () => `Promise`\<`void`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:761
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:795
 
 Clears all sessions and resets the active session state.
 
@@ -179,9 +177,9 @@ If no sessions exist or if there is an error clearing all sessions.
 
 ### clearSession()
 
-> **clearSession**: (`params`?) => `Promise`\<`void`\>
+> **clearSession**: (`params?`) => `Promise`\<`void`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:747
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:781
 
 Clears the session associated with the specified session key, or the active session by default.
 
@@ -220,7 +218,7 @@ If the session does not exist or if there is an error clearing the session.
 
 > **clearUnusedKeyPairs**: () => `Promise`\<`void`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:851
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:885
 
 Clears any unused API key pairs from persistent storage.
 
@@ -249,7 +247,7 @@ If there is an error listing, checking, or deleting unused key pairs.
 
 > **clientState**: `ClientState`
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:39](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L39)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:45](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L45)
 
 ***
 
@@ -257,7 +255,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:39](https://github.
 
 > **completeOauth**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:257
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:258
 
 Completes the OAuth authentication flow by either signing up or logging in the user, depending on whether a sub-organization already exists for the provided OIDC token.
 
@@ -273,7 +271,7 @@ Completes the OAuth authentication flow by either signing up or logging in the u
 
 ###### createSubOrgParams?
 
-`CreateSubOrgParams`
+[`CreateSubOrgParams`](../CreateSubOrgParams/readme)
 
 parameters for sub-organization creation (e.g., authenticators, user metadata).
 
@@ -287,7 +285,7 @@ flag to invalidate existing sessions for the user.
 
 `string`
 
-The OIDC token received after successful authentication with the OAuth provider.
+OIDC token received after successful authentication with the OAuth provider.
 
 ###### providerName?
 
@@ -299,7 +297,7 @@ name of the OAuth provider (defaults to a generated name with a timestamp).
 
 `string`
 
-The public key to use for authentication. Must be generated prior to calling this function.
+public key to use for authentication. Must be generated prior to calling this function.
 
 ###### sessionKey?
 
@@ -327,7 +325,7 @@ If there is an error during the OAuth completion process, such as account lookup
 
 > **completeOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:229
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:230
 
 Completes the OTP authentication flow by verifying the OTP code and then either signing up or logging in the user.
 
@@ -345,11 +343,11 @@ Completes the OTP authentication flow by verifying the OTP code and then either 
 
 `string`
 
-The contact information for the user (e.g., email address or phone number).
+contact information for the user (e.g., email address or phone number).
 
 ###### createSubOrgParams?
 
-`CreateSubOrgParams`
+[`CreateSubOrgParams`](../CreateSubOrgParams/readme)
 
 parameters for sub-organization creation (e.g., authenticators, user metadata).
 
@@ -363,19 +361,19 @@ flag to invalidate existing sessions for the user.
 
 `string`
 
-The OTP code entered by the user.
+OTP code entered by the user.
 
 ###### otpId
 
 `string`
 
-The ID of the OTP to complete (returned from `initOtp`).
+ID of the OTP to complete (returned from `initOtp`).
 
 ###### otpType
 
-`OtpType`
+[`OtpType`](../OtpType/readme)
 
-The type of OTP being completed (OtpType.Email or OtpType.Sms).
+type of OTP being completed (OtpType.Email or OtpType.Sms).
 
 ###### publicKey?
 
@@ -409,7 +407,7 @@ If there is an error during OTP verification, sign-up, or login.
 
 > `optional` **config**: `TurnkeyProviderConfig`
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:41](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L41)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:47](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L47)
 
 ***
 
@@ -417,13 +415,13 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:41](https://github.
 
 > **connectWalletAccount**: (`walletProvider`) => `Promise`\<`void`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:99
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:99
 
 #### Parameters
 
 ##### walletProvider
 
-`WalletProvider`
+[`WalletProvider`](../WalletProvider/readme)
 
 #### Returns
 
@@ -437,9 +435,9 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:99
 
 ### createApiKeyPair()
 
-> **createApiKeyPair**: (`params`?) => `Promise`\<`string`\>
+> **createApiKeyPair**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:866
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:900
 
 Creates a new API key pair and returns the public key.
 
@@ -482,9 +480,9 @@ If the API key stamper is not initialized or if there is an error during key pai
 
 ### createPasskey()
 
-> **createPasskey**: (`params`?) => `Promise`\<\{ `attestation`: `v1Attestation`; `encodedChallenge`: `string`; \}\>
+> **createPasskey**: (`params?`) => `Promise`\<\{ `attestation`: [`v1Attestation`](../../../_turnkey/sdk-types/v1Attestation/readme); `encodedChallenge`: `string`; \}\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:45](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L45)
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:34
 
 Creates a new passkey authenticator for the user.
 
@@ -500,33 +498,33 @@ Creates a new passkey authenticator for the user.
 
 `string`
 
-The display name for the passkey. If not provided, defaults to "A Passkey".
+display name for the passkey. If not provided, defaults to "A Passkey".
 
 ###### name?
 
 `string`
 
-The name of the passkey. If not provided, defaults to "A Passkey".
+name of the passkey. If not provided, defaults to "A Passkey".
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
 #### Returns
 
-`Promise`\<\{ `attestation`: `v1Attestation`; `encodedChallenge`: `string`; \}\>
+`Promise`\<\{ `attestation`: [`v1Attestation`](../../../_turnkey/sdk-types/v1Attestation/readme); `encodedChallenge`: `string`; \}\>
 
 A promise that resolves to an object containing:
-  - attestation: The attestation object returned from the passkey creation process.
-  - encodedChallenge: The encoded challenge string used for passkey registration.
+  - attestation: attestation object returned from the passkey creation process.
+  - encodedChallenge: encoded challenge string used for passkey registration.
 
 #### Throws
 
 If there is an error during passkey creation, or if the platform is unsupported.
 
-#### Overrides
+#### Inherited from
 
 `TurnkeyClientMethods.createPasskey`
 
@@ -536,7 +534,7 @@ If there is an error during passkey creation, or if the platform is unsupported.
 
 > **createWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:621
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:655
 
 Creates a new wallet for sub-organization.
 
@@ -554,7 +552,7 @@ Creates a new wallet for sub-organization.
 
 ###### accounts?
 
-`v1AddressFormat`[] \| `v1WalletAccountParams`[]
+[`v1AddressFormat`](../../../_turnkey/sdk-types/v1AddressFormat/readme)[] \| [`v1WalletAccountParams`](../../../_turnkey/sdk-types/v1WalletAccountParams/readme)[]
 
 array of account parameters or address formats to create in the wallet.
 
@@ -572,7 +570,7 @@ organization ID to create the wallet under a specific sub-organization (defaults
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -580,7 +578,7 @@ parameter to stamp the request with a specific stamper (StamperType.Passkey, Sta
 
 `string`
 
-The name of the wallet to create.
+name of the wallet to create.
 
 #### Returns
 
@@ -602,7 +600,7 @@ If there is no active session or if there is an error creating the wallet.
 
 > **createWalletAccounts**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:645
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:679
 
 Creates new accounts in the specified wallet.
 
@@ -619,7 +617,7 @@ Creates new accounts in the specified wallet.
 
 ###### accounts
 
-`v1AddressFormat`[] \| `v1WalletAccountParams`[]
+[`v1AddressFormat`](../../../_turnkey/sdk-types/v1AddressFormat/readme)[] \| [`v1WalletAccountParams`](../../../_turnkey/sdk-types/v1WalletAccountParams/readme)[]
 
 An array of account parameters or address formats to create in the wallet.
 
@@ -631,7 +629,7 @@ organization ID to create the accounts under a specific organization (walletId m
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -639,7 +637,7 @@ parameter to stamp the request with a specific stamper (StamperType.Passkey, Sta
 
 `string`
 
-The ID of the wallet to create accounts in.
+ID of the wallet to create accounts in.
 
 #### Returns
 
@@ -659,9 +657,9 @@ If there is no active session, if the wallet does not exist, or if there is an e
 
 ### deleteSubOrganization()
 
-> **deleteSubOrganization**: (`params`?) => `Promise`\<`TDeleteSubOrganizationResponse`\>
+> **deleteSubOrganization**: (`params?`) => `Promise`\<[`TDeleteSubOrganizationResponse`](../../../_turnkey/sdk-types/TDeleteSubOrganizationResponse/readme)\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:713
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:747
 
 Deletes the current sub-organization (sub-org) for the active session.
 
@@ -683,13 +681,13 @@ flag to delete the sub-organization without requiring all wallets to be exported
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper.
 
 #### Returns
 
-`Promise`\<`TDeleteSubOrganizationResponse`\>
+`Promise`\<[`TDeleteSubOrganizationResponse`](../../../_turnkey/sdk-types/TDeleteSubOrganizationResponse/readme)\>
 
 A promise that resolves to a `TDeleteSubOrganizationResponse` object containing the result of the deletion.
 
@@ -707,13 +705,13 @@ If there is no active session or if there is an error deleting the sub-organizat
 
 > **disconnectWalletAccount**: (`walletProvider`) => `Promise`\<`void`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:100
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:100
 
 #### Parameters
 
 ##### walletProvider
 
-`WalletProvider`
+[`WalletProvider`](../WalletProvider/readme)
 
 #### Returns
 
@@ -729,7 +727,7 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:100
 
 > **exportWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:668
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:702
 
 Exports a wallet as an encrypted bundle.
 
@@ -752,7 +750,7 @@ organization ID to export the wallet under a specific sub-organization (walletId
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -760,13 +758,13 @@ parameter to stamp the request with a specific stamper (StamperType.Passkey, Sta
 
 `string`
 
-The public key to encrypt the bundle to (required).
+public key to encrypt the bundle to (required).
 
 ###### walletId
 
 `string`
 
-The ID of the wallet to export.
+ID of the wallet to export.
 
 #### Returns
 
@@ -786,9 +784,9 @@ If there is no active session, if the targetPublicKey is missing, or if there is
 
 ### fetchUser()
 
-> **fetchUser**: (`params`?) => `Promise`\<`v1User`\>
+> **fetchUser**: (`params?`) => `Promise`\<[`v1User`](../../../_turnkey/sdk-types/v1User/readme)\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:413
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:448
 
 Fetches the user details for the current session or a specified user.
 
@@ -810,7 +808,7 @@ organization ID to specify the sub-organization (defaults to the current session
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -822,7 +820,7 @@ user ID to fetch specific user details (defaults to the current session's userId
 
 #### Returns
 
-`Promise`\<`v1User`\>
+`Promise`\<[`v1User`](../../../_turnkey/sdk-types/v1User/readme)\>
 
 A promise that resolves to a `v1User` object containing the user details.
 
@@ -838,9 +836,9 @@ If there is no active session, if there is no userId, or if there is an error fe
 
 ### fetchWalletAccounts()
 
-> **fetchWalletAccounts**: (`params`) => `Promise`\<`WalletAccount`[]\>
+> **fetchWalletAccounts**: (`params`) => `Promise`\<[`WalletAccount`](../WalletAccount/readme)[]\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:341
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:342
 
 Fetches all accounts for a specific wallet, including both embedded and connected wallet accounts.
 
@@ -856,31 +854,31 @@ Fetches all accounts for a specific wallet, including both embedded and connecte
 
 ###### paginationOptions?
 
-`v1Pagination`
+[`v1Pagination`](../../../_turnkey/sdk-types/v1Pagination/readme)
 
 pagination options for embedded wallets.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
 ###### wallet
 
-`Wallet`
+[`Wallet`](../Wallet/readme)
 
-The wallet for which to fetch accounts.
+wallet for which to fetch accounts.
 
 ###### walletProviders?
 
-`WalletProvider`[]
+[`WalletProvider`](../WalletProvider/readme)[]
 
 list of wallet providers to filter by (used for connected wallets).
 
 #### Returns
 
-`Promise`\<`WalletAccount`[]\>
+`Promise`\<[`WalletAccount`](../WalletAccount/readme)[]\>
 
 A promise that resolves to an array of `v1WalletAccount` objects.
 
@@ -896,9 +894,9 @@ If no active session is found or if there is an error fetching wallet accounts.
 
 ### fetchWallets()
 
-> **fetchWallets**: (`params`?) => `Promise`\<`Wallet`[]\>
+> **fetchWallets**: (`params?`) => `Promise`\<[`Wallet`](../Wallet/readme)[]\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:322
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:323
 
 Fetches all wallets for the current user, including both embedded and connected wallets.
 
@@ -914,13 +912,13 @@ Fetches all wallets for the current user, including both embedded and connected 
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
 #### Returns
 
-`Promise`\<`Wallet`[]\>
+`Promise`\<[`Wallet`](../Wallet/readme)[]\>
 
 A promise that resolves to an array of `Wallet` objects.
 
@@ -938,7 +936,7 @@ If no active session is found or if there is an error fetching wallets.
 
 > **getActiveSessionKey**: () => `Promise`\<`undefined` \| `string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:839
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:873
 
 Retrieves the active session key currently set in persistent storage.
 
@@ -965,9 +963,9 @@ If there is an error retrieving the active session key from storage.
 
 ### getAllSessions()
 
-> **getAllSessions**: () => `Promise`\<`undefined` \| `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/README.mdx)\>\>
+> **getAllSessions**: () => `Promise`\<`undefined` \| `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/readme)\>\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:812
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:846
 
 Retrieves all sessions stored in persistent storage.
 
@@ -978,7 +976,7 @@ Retrieves all sessions stored in persistent storage.
 
 #### Returns
 
-`Promise`\<`undefined` \| `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/README.mdx)\>\>
+`Promise`\<`undefined` \| `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/readme)\>\>
 
 A promise that resolves to a record of session keys and their corresponding `Session` objects, or `undefined` if no sessions exist.
 
@@ -994,9 +992,9 @@ If there is an error retrieving sessions from storage.
 
 ### getProxyAuthConfig()
 
-> **getProxyAuthConfig**: () => `Promise`\<`ProxyTGetWalletKitConfigResponse`\>
+> **getProxyAuthConfig**: () => `Promise`\<[`ProxyTGetWalletKitConfigResponse`](../../../_turnkey/sdk-types/ProxyTGetWalletKitConfigResponse/readme)\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:884
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:918
 
 Fetches the WalletKit proxy authentication configuration from the auth proxy.
 
@@ -1007,7 +1005,7 @@ Fetches the WalletKit proxy authentication configuration from the auth proxy.
 
 #### Returns
 
-`Promise`\<`ProxyTGetWalletKitConfigResponse`\>
+`Promise`\<[`ProxyTGetWalletKitConfigResponse`](../../../_turnkey/sdk-types/ProxyTGetWalletKitConfigResponse/readme)\>
 
 A promise that resolves to a `ProxyTGetWalletKitConfigResponse` object containing the proxy authentication configuration.
 
@@ -1023,9 +1021,9 @@ If there is an error retrieving the proxy authentication configuration from the 
 
 ### getSession()
 
-> **getSession**: (`params`?) => `Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/README.mdx)\>
+> **getSession**: (`params?`) => `Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:798
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:832
 
 Retrieves the session associated with the specified session key, or the active session by default.
 
@@ -1045,7 +1043,7 @@ session key to retrieve a specific session (defaults to the current active sessi
 
 #### Returns
 
-`Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/README.mdx)\>
+`Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
 
 A promise that resolves to a `Session` object containing the session details, or undefined if not found.
 
@@ -1061,19 +1059,19 @@ If there is an error retrieving the session from storage.
 
 ### getWalletProviders()
 
-> **getWalletProviders**: (`chain`?) => `Promise`\<`WalletProvider`[]\>
+> **getWalletProviders**: (`chain?`) => `Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:98
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:98
 
 #### Parameters
 
 ##### chain?
 
-`WalletType`
+[`Chain`](../Chain/readme)
 
 #### Returns
 
-`Promise`\<`WalletProvider`[]\>
+`Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
 
 #### Inherited from
 
@@ -1083,9 +1081,9 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:98
 
 ### handleAddEmail()
 
-> **handleAddEmail**: (`params`?) => `Promise`\<`string`\>
+> **handleAddEmail**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:352](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L352)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:356](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L356)
 
 Handles the add user email flow.
 
@@ -1139,9 +1137,9 @@ If the client is not initialized, no active session is found, or if there is an 
 
 ### handleUpdateUserName()
 
-> **handleUpdateUserName**: (`params`?) => `Promise`\<`string`\>
+> **handleUpdateUserName**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:326](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L326)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:330](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L330)
 
 Handles the update user email flow.
 
@@ -1159,7 +1157,7 @@ Handles the update user email flow.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to specify the stamper to use for the update (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -1201,7 +1199,7 @@ If the client is not initialized, no active session is found, or if there is an 
 
 > **httpClient**: `undefined` \| `TurnkeySDKClientBase`
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:36](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L36)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:42](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L42)
 
 ***
 
@@ -1209,7 +1207,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:36](https://github.
 
 > **importWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:692
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:726
 
 Imports a wallet from an encrypted bundle.
 
@@ -1226,7 +1224,7 @@ Imports a wallet from an encrypted bundle.
 
 ###### accounts?
 
-`v1WalletAccountParams`[]
+[`v1WalletAccountParams`](../../../_turnkey/sdk-types/v1WalletAccountParams/readme)[]
 
 array of account parameters to create in the imported wallet (defaults to standard Ethereum and Solana accounts).
 
@@ -1234,11 +1232,11 @@ array of account parameters to create in the imported wallet (defaults to standa
 
 `string`
 
-The encrypted bundle containing the wallet seed phrase and metadata.
+encrypted bundle containing the wallet seed phrase and metadata.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -1252,7 +1250,7 @@ user ID to import the wallet for a specific user (defaults to the current sessio
 
 `string`
 
-The name of the wallet to create upon import.
+name of the wallet to create upon import.
 
 #### Returns
 
@@ -1274,7 +1272,7 @@ If there is no active session, if the encrypted bundle is invalid, or if there i
 
 > **initOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:131
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:132
 
 Initializes the OTP process by sending an OTP code to the provided contact.
 
@@ -1290,13 +1288,13 @@ Initializes the OTP process by sending an OTP code to the provided contact.
 
 `string`
 
-The contact information for the user (e.g., email address or phone number).
+contact information for the user (e.g., email address or phone number).
 
 ###### otpType
 
-`OtpType`
+[`OtpType`](../OtpType/readme)
 
-The type of OTP to initialize (OtpType.Email or OtpType.Sms).
+type of OTP to initialize (OtpType.Email or OtpType.Sms).
 
 #### Returns
 
@@ -1318,7 +1316,7 @@ If there is an error during the OTP initialization process or if the maximum num
 
 > **loginOrSignupWithWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:113
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:114
 
 #### Parameters
 
@@ -1326,7 +1324,7 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:113
 
 ###### createSubOrgParams?
 
-`CreateSubOrgParams`
+[`CreateSubOrgParams`](../CreateSubOrgParams/readme)
 
 ###### expirationSeconds?
 
@@ -1338,7 +1336,7 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:113
 
 ###### walletProvider
 
-`WalletProvider`
+[`WalletProvider`](../WalletProvider/readme)
 
 #### Returns
 
@@ -1354,7 +1352,7 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:113
 
 > **loginWithOauth**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:280
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:281
 
 Logs in a user using OAuth authentication.
 
@@ -1377,13 +1375,13 @@ flag to invalidate existing sessions for the user.
 
 `string`
 
-The OIDC token received after successful authentication with the OAuth provider.
+OIDC token received after successful authentication with the OAuth provider.
 
 ###### publicKey
 
 `string`
 
-The public key to use for authentication. Must be generated prior to calling this function.
+public key to use for authentication. Must be generated prior to calling this function.
 
 ###### sessionKey?
 
@@ -1411,7 +1409,7 @@ If there is an error during the OAuth login process or if key pair cleanup fails
 
 > **loginWithOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:177
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:178
 
 Logs in a user using an OTP verification token.
 
@@ -1447,7 +1445,7 @@ session key to use for session creation (defaults to the default session key).
 
 `string`
 
-The verification token received after OTP verification.
+verification token received after OTP verification.
 
 #### Returns
 
@@ -1467,9 +1465,9 @@ If there is an error during the OTP login process or if key pair cleanup fails.
 
 ### loginWithPasskey()
 
-> **loginWithPasskey**: (`params`?) => `Promise`\<`string`\>
+> **loginWithPasskey**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:71
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:71
 
 Logs in a user using a passkey, optionally specifying the public key, session key, and session expiration.
 
@@ -1521,7 +1519,7 @@ If there is an error during the passkey login process or if the user cancels the
 
 > **loginWithWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:101
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:102
 
 #### Parameters
 
@@ -1541,7 +1539,7 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:101
 
 ###### walletProvider
 
-`WalletProvider`
+[`WalletProvider`](../WalletProvider/readme)
 
 #### Returns
 
@@ -1555,9 +1553,9 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:101
 
 ### logout()
 
-> **logout**: (`params`?) => `Promise`\<`void`\>
+> **logout**: (`params?`) => `Promise`\<`void`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:53
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:53
 
 Logs out the current client session.
 
@@ -1593,9 +1591,9 @@ If there is no active session or if there is an error during the logout process.
 
 ### refreshSession()
 
-> **refreshSession**: (`params`?) => `Promise`\<`undefined` \| `TStampLoginResponse`\>
+> **refreshSession**: (`params?`) => `Promise`\<`undefined` \| [`TStampLoginResponse`](../../../_turnkey/sdk-types/TStampLoginResponse/readme)\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:780
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:814
 
 Refreshes the session associated with the specified session key, or the active session by default.
 
@@ -1636,13 +1634,13 @@ session key to refresh the session under (defaults to the active session key).
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper.
 
 #### Returns
 
-`Promise`\<`undefined` \| `TStampLoginResponse`\>
+`Promise`\<`undefined` \| [`TStampLoginResponse`](../../../_turnkey/sdk-types/TStampLoginResponse/readme)\>
 
 A promise that resolves to a `TStampLoginResponse` object containing the refreshed session details.
 
@@ -1660,7 +1658,7 @@ If the session key does not exist, if there is no active session, or if there is
 
 > **removeOAuthProviders**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:554
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:589
 
 Removes a list of OAuth providers from the user.
 
@@ -1678,11 +1676,11 @@ Removes a list of OAuth providers from the user.
 
 `string`[]
 
-The IDs of the OAuth providers to remove.
+IDs of the OAuth providers to remove.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -1712,7 +1710,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **removePasskeys**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:597
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:631
 
 Removes passkeys (authenticator) from the user.
 
@@ -1730,11 +1728,11 @@ Removes passkeys (authenticator) from the user.
 
 `string`[]
 
-The IDs of the authenticators (passkeys) to remove.
+IDs of the authenticators (passkeys) to remove.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -1762,9 +1760,9 @@ If there is no active session, if the userId is missing, or if there is an error
 
 ### removeUserEmail()
 
-> **removeUserEmail**: (`params`?) => `Promise`\<`string`\>
+> **removeUserEmail**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:453
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:488
 
 Removes the user's email address.
 
@@ -1779,7 +1777,7 @@ Removes the user's email address.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -1807,9 +1805,9 @@ If there is no active session, if the userId is missing, or if there is an error
 
 ### removeUserPhoneNumber()
 
-> **removeUserPhoneNumber**: (`params`?) => `Promise`\<`string`\>
+> **removeUserPhoneNumber**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:492
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:527
 
 Removes the user's phone number.
 
@@ -1824,7 +1822,7 @@ Removes the user's phone number.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -1852,9 +1850,9 @@ If there is no active session, if the userId is missing, or if there is an error
 
 ### session
 
-> **session**: `undefined` \| [`Session`](../../../sdk-browser/index/Session/README.mdx)
+> **session**: `undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:37](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L37)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:43](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L43)
 
 ***
 
@@ -1862,7 +1860,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:37](https://github.
 
 > **setActiveSession**: (`params`) => `Promise`\<`void`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:825
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:859
 
 Sets the active session to the specified session key.
 
@@ -1879,7 +1877,7 @@ Sets the active session to the specified session key.
 
 `string`
 
-The session key to set as the active session.
+session key to set as the active session.
 
 #### Returns
 
@@ -1897,11 +1895,78 @@ If the client is not initialized or if there is an error setting the active sess
 
 ***
 
+### signAndSendTransaction()
+
+> **signAndSendTransaction**: (`params`) => `Promise`\<`string`\>
+
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:426
+
+Signs and broadcasts a transaction using the specified wallet account.
+
+- For **connected wallets**:
+  - Calls the wallet’s native `signAndSendTransaction` method.
+  - Does **not** require an `rpcUrl`.
+
+- For **embedded wallets**:
+  - Signs the transaction using the Turnkey API.
+  - Requires an `rpcUrl` to broadcast the transaction.
+  - Broadcasts the transaction using a JSON-RPC client.
+
+#### Parameters
+
+##### params
+
+###### rpcUrl?
+
+`string`
+
+required for embedded wallets to broadcast the signed transaction.
+
+###### stampWith?
+
+[`StamperType`](../StamperType/readme)
+
+optional stamper to tag the signing request.
+
+###### transactionType
+
+[`v1TransactionType`](../../../_turnkey/sdk-types/v1TransactionType/readme)
+
+transaction type (e.g., "TRANSACTION_TYPE_SOLANA").
+
+###### unsignedTransaction
+
+`string`
+
+unsigned transaction (serialized string).
+
+###### walletAccount
+
+[`WalletAccount`](../WalletAccount/readme)
+
+wallet account to use for signing and sending.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a transaction signature or hash.
+
+#### Throws
+
+If signing or broadcasting fails.
+
+#### Inherited from
+
+`TurnkeyClientMethods.signAndSendTransaction`
+
+***
+
 ### signMessage()
 
-> **signMessage**: (`params`) => `Promise`\<`v1SignRawPayloadResult`\>
+> **signMessage**: (`params`) => `Promise`\<[`v1SignRawPayloadResult`](../../../_turnkey/sdk-types/v1SignRawPayloadResult/readme)\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:369
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:376
 
 Signs a message using the specified wallet account.
 
@@ -1920,15 +1985,25 @@ Signs a message using the specified wallet account.
 
 ##### params
 
+###### addEthereumPrefix?
+
+`boolean`
+
+whether to prefix the message with Ethereum's `"\x19Ethereum Signed Message:\n"` string.
+  - If `true` (default for Ethereum), the message is prefixed before signing.
+  - If `false`:
+    - Connected wallets will throw an error because they always prefix automatically.
+    - Embedded wallets will sign the raw message without any prefix.
+
 ###### encoding?
 
-`v1PayloadEncoding`
+[`v1PayloadEncoding`](../../../_turnkey/sdk-types/v1PayloadEncoding/readme)
 
 override for the payload encoding (defaults to the encoding appropriate for the address type).
 
 ###### hashFunction?
 
-`v1HashFunction`
+[`v1HashFunction`](../../../_turnkey/sdk-types/v1HashFunction/readme)
 
 override for the hash function (defaults to the hash function appropriate for the address type).
 
@@ -1936,23 +2011,23 @@ override for the hash function (defaults to the hash function appropriate for th
 
 `string`
 
-The message to sign.
+message to sign.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 stamper to tag the signing request (e.g., Passkey, ApiKey, or Wallet).
 
 ###### walletAccount
 
-`WalletAccount`
+[`WalletAccount`](../WalletAccount/readme)
 
-The wallet account to use for signing.
+wallet account to use for signing.
 
 #### Returns
 
-`Promise`\<`v1SignRawPayloadResult`\>
+`Promise`\<[`v1SignRawPayloadResult`](../../../_turnkey/sdk-types/v1SignRawPayloadResult/readme)\>
 
 A promise resolving to a `v1SignRawPayloadResult` containing the signature and metadata.
 
@@ -1970,7 +2045,7 @@ If signing fails, if the wallet account does not support signing, or if the resp
 
 > **signTransaction**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:392
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:400
 
 Signs a transaction using the specified wallet account.
 
@@ -1986,27 +2061,27 @@ Signs a transaction using the specified wallet account.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
 ###### transactionType
 
-`v1TransactionType`
+[`v1TransactionType`](../../../_turnkey/sdk-types/v1TransactionType/readme)
 
-The type of transaction (e.g., "TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA", "TRANSACTION_TYPE_TRON").
+type of transaction (e.g., "TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA", "TRANSACTION_TYPE_TRON").
 
 ###### unsignedTransaction
 
 `string`
 
-The unsigned transaction data (serialized as a string) to be signed.
+unsigned transaction data (serialized as a string) to be signed.
 
 ###### walletAccount
 
-`WalletAccount`
+[`WalletAccount`](../WalletAccount/readme)
 
-The wallet account to use for signing the transaction.
+wallet account to use for signing the transaction.
 
 #### Returns
 
@@ -2028,7 +2103,7 @@ If there is an error signing the transaction or if the response is invalid.
 
 > **signUpWithOauth**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:302
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:303
 
 Signs up a user using OAuth authentication.
 
@@ -2043,7 +2118,7 @@ Signs up a user using OAuth authentication.
 
 ###### createSubOrgParams?
 
-`CreateSubOrgParams`
+[`CreateSubOrgParams`](../CreateSubOrgParams/readme)
 
 parameters for sub-organization creation (e.g., authenticators, user metadata).
 
@@ -2051,19 +2126,19 @@ parameters for sub-organization creation (e.g., authenticators, user metadata).
 
 `string`
 
-The OIDC token received after successful authentication with the OAuth provider.
+OIDC token received after successful authentication with the OAuth provider.
 
 ###### providerName
 
 `string`
 
-The name of the OAuth provider (e.g., "Google", "Apple").
+name of the OAuth provider (e.g., "Google", "Apple").
 
 ###### publicKey
 
 `string`
 
-The public key to associate with the new sub-organization.
+public key to associate with the new sub-organization.
 
 ###### sessionKey?
 
@@ -2091,7 +2166,7 @@ If there is an error during the OAuth sign-up or login process.
 
 > **signUpWithOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:201
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:202
 
 Signs up a user using an OTP verification token.
 
@@ -2109,11 +2184,11 @@ Signs up a user using an OTP verification token.
 
 `string`
 
-The contact information for the user (e.g., email address or phone number).
+contact information for the user (e.g., email address or phone number).
 
 ###### createSubOrgParams?
 
-`CreateSubOrgParams`
+[`CreateSubOrgParams`](../CreateSubOrgParams/readme)
 
 parameters for creating a sub-organization (e.g., authenticators, user metadata).
 
@@ -2125,9 +2200,9 @@ flag to invalidate existing session for the user.
 
 ###### otpType
 
-`OtpType`
+[`OtpType`](../OtpType/readme)
 
-The type of OTP being used (OtpType.Email or OtpType.Sms).
+type of OTP being used (OtpType.Email or OtpType.Sms).
 
 ###### sessionKey?
 
@@ -2139,7 +2214,7 @@ session key to use for session creation (defaults to the default session key).
 
 `string`
 
-The verification token received after OTP verification.
+verification token received after OTP verification.
 
 #### Returns
 
@@ -2159,9 +2234,9 @@ If there is an error during the OTP sign-up process or session storage.
 
 ### signUpWithPasskey()
 
-> **signUpWithPasskey**: (`params`?) => `Promise`\<`string`\>
+> **signUpWithPasskey**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:92
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:92
 
 Signs up a user using a passkey, creating a new sub-organization and session.
 
@@ -2177,7 +2252,7 @@ Signs up a user using a passkey, creating a new sub-organization and session.
 
 ###### createSubOrgParams?
 
-`CreateSubOrgParams`
+[`CreateSubOrgParams`](../CreateSubOrgParams/readme)
 
 parameters for creating a sub-organization (e.g., authenticators, user metadata).
 
@@ -2219,7 +2294,7 @@ If there is an error during passkey creation, sub-organization creation, or sess
 
 > **signUpWithWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:107
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:108
 
 #### Parameters
 
@@ -2227,7 +2302,7 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:107
 
 ###### createSubOrgParams?
 
-`CreateSubOrgParams`
+[`CreateSubOrgParams`](../CreateSubOrgParams/readme)
 
 ###### expirationSeconds?
 
@@ -2239,7 +2314,7 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:107
 
 ###### walletProvider
 
-`WalletProvider`
+[`WalletProvider`](../WalletProvider/readme)
 
 #### Returns
 
@@ -2255,7 +2330,7 @@ Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:107
 
 > **storeSession**: (`params`) => `Promise`\<`void`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:731
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:765
 
 Stores a session token and updates the session associated with the specified session key, or by default the active session.
 
@@ -2279,7 +2354,7 @@ session key to store the session under (defaults to the default session key).
 
 `string`
 
-The JWT session token to store.
+JWT session token to store.
 
 #### Returns
 
@@ -2297,11 +2372,37 @@ If there is an error storing the session or cleaning up key pairs.
 
 ***
 
+### switchWalletProviderChain()
+
+> **switchWalletProviderChain**: (`walletProvider`, `chainOrId`) => `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:101
+
+#### Parameters
+
+##### walletProvider
+
+[`WalletProvider`](../WalletProvider/readme)
+
+##### chainOrId
+
+`string` | [`SwitchableChain`](../SwitchableChain/readme)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+#### Inherited from
+
+`TurnkeyClientMethods.switchWalletProviderChain`
+
+***
+
 ### updateUserEmail()
 
 > **updateUserEmail**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:434
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:469
 
 Updates the user's email address.
 
@@ -2319,11 +2420,11 @@ Updates the user's email address.
 
 `string`
 
-The new email address to set for the user.
+new email address to set for the user.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -2359,7 +2460,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **updateUserName**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:511
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:546
 
 Updates the user's name.
 
@@ -2375,7 +2476,7 @@ Updates the user's name.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -2389,7 +2490,7 @@ user ID to update a specific user's name (defaults to the current session's user
 
 `string`
 
-The new name to set for the user.
+new name to set for the user.
 
 #### Returns
 
@@ -2411,7 +2512,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **updateUserPhoneNumber**: (`params`) => `Promise`\<`string`\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:473
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:508
 
 Updates the user's phone number.
 
@@ -2429,11 +2530,11 @@ Updates the user's phone number.
 
 `string`
 
-The new phone number to set for the user.
+new phone number to set for the user.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -2467,9 +2568,9 @@ If there is no active session, if the userId is missing, or if there is an error
 
 ### user
 
-> **user**: `undefined` \| `v1User`
+> **user**: `undefined` \| [`v1User`](../../../_turnkey/sdk-types/v1User/readme)
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:42](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L42)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:48](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L48)
 
 ***
 
@@ -2477,7 +2578,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:42](https://github.
 
 > **verifyOtp**: (`params`) => `Promise`\<\{ `subOrganizationId`: `string`; `verificationToken`: `string`; \}\>
 
-Defined in: sdk-js/dist/\_\_clients\_\_/core.d.ts:152
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:153
 
 Verifies the OTP code sent to the user.
 
@@ -2494,33 +2595,33 @@ Verifies the OTP code sent to the user.
 
 `string`
 
-The contact information for the user (e.g., email address or phone number).
+contact information for the user (e.g., email address or phone number).
 
 ###### otpCode
 
 `string`
 
-The OTP code entered by the user.
+OTP code entered by the user.
 
 ###### otpId
 
 `string`
 
-The ID of the OTP to verify (returned from `initOtp`).
+ID of the OTP to verify (returned from `initOtp`).
 
 ###### otpType
 
-`OtpType`
+[`OtpType`](../OtpType/readme)
 
-The type of OTP being verified (OtpType.Email or OtpType.Sms).
+type of OTP being verified (OtpType.Email or OtpType.Sms).
 
 #### Returns
 
 `Promise`\<\{ `subOrganizationId`: `string`; `verificationToken`: `string`; \}\>
 
 A promise that resolves to an object containing:
-  - subOrganizationId: The sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
-  - verificationToken: The verification token to be used for login or sign-up.
+  - subOrganizationId: sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
+  - verificationToken: verification token to be used for login or sign-up.
 
 #### Throws
 
@@ -2534,9 +2635,9 @@ If there is an error during the OTP verification process, such as an invalid cod
 
 ### wallets
 
-> **wallets**: `Wallet`[]
+> **wallets**: [`Wallet`](../Wallet/readme)[]
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:43](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L43)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:49](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L49)
 
 ## Methods
 
@@ -2544,7 +2645,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:43](https://github.
 
 > **handleAddOAuthProvider**(`params`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:404](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L404)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:408](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L408)
 
 Handles the addition of an OAuth provider for the user.
 
@@ -2562,13 +2663,13 @@ Handles the addition of an OAuth provider for the user.
 
 ###### providerName
 
-[`OAuthProviders`](../../../_turnkey/sdk-types/OAuthProviders/README.mdx)
+[`OAuthProviders`](../../../_turnkey/sdk-types/OAuthProviders/readme)
 
 The name of the OAuth provider to add (OAuthProviders.GOOGLE, OAuthProviders.APPLE, OAuthProviders.FACEBOOK).
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to specify the stamper to use for the addition (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -2586,9 +2687,9 @@ If the client is not initialized, no active session is found, or if there is an 
 
 ### handleAddPasskey()
 
-> **handleAddPasskey**(`params`?): `Promise`\<`string`[]\>
+> **handleAddPasskey**(`params?`): `Promise`\<`string`[]\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:457](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L457)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:461](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L461)
 
 Handles the addition of a passkey (authenticator) for the user.
 
@@ -2618,7 +2719,7 @@ internal name for the passkey (for backend or developer reference).
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
 
@@ -2648,9 +2749,9 @@ If the client is not initialized, no active session is found, or if there is an 
 
 ### handleAddPhoneNumber()
 
-> **handleAddPhoneNumber**(`params`?): `Promise`\<`string`\>
+> **handleAddPhoneNumber**(`params?`): `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:379](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L379)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:383](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L383)
 
 Handles the add phone number flow.
 
@@ -2710,9 +2811,9 @@ If the client is not initialized, no active session is found, or if there is an 
 
 ### handleAppleOauth()
 
-> **handleAppleOauth**(`params`): `Promise`\<`void`\>
+> **handleAppleOauth**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:156](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L156)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:160](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L160)
 
 Handles the Apple OAuth flow.
 
@@ -2728,7 +2829,7 @@ Handles the Apple OAuth flow.
 
 #### Parameters
 
-##### params
+##### params?
 
 ###### additionalState?
 
@@ -2774,7 +2875,7 @@ If the configuration is not ready, required parameters are missing, or if there 
 
 > **handleExport**(`params`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:222](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L222)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:226](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L226)
 
 Handles the export flow.
 
@@ -2800,7 +2901,7 @@ The type of export to perform (ExportType.Wallet or ExportType.PrivateKey).
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 The stamper to use for the export (Passkey, ApiKey, or Wallet).
 
@@ -2826,9 +2927,9 @@ A void promise.
 
 ### handleFacebookOauth()
 
-> **handleFacebookOauth**(`params`): `Promise`\<`void`\>
+> **handleFacebookOauth**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:192](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L192)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:196](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L196)
 
 Handles the Facebook OAuth flow.
 
@@ -2845,7 +2946,7 @@ Handles the Facebook OAuth flow.
 
 #### Parameters
 
-##### params
+##### params?
 
 ###### additionalState?
 
@@ -2889,9 +2990,9 @@ If the configuration is not ready, required parameters are missing, or if there 
 
 ### handleGoogleOauth()
 
-> **handleGoogleOauth**(`params`): `Promise`\<`void`\>
+> **handleGoogleOauth**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:121](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L121)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:125](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L125)
 
 Handles the Google OAuth flow.
 
@@ -2907,7 +3008,7 @@ Handles the Google OAuth flow.
 
 #### Parameters
 
-##### params
+##### params?
 
 ###### additionalState?
 
@@ -2951,9 +3052,9 @@ If the configuration is not ready, required parameters are missing, or if there 
 
 ### handleImport()
 
-> **handleImport**(`params`): `Promise`\<`string`\>
+> **handleImport**(`params?`): `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:246](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L246)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:250](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L250)
 
 Handles the import flow.
 
@@ -2967,17 +3068,17 @@ Handles the import flow.
 
 #### Parameters
 
-##### params
+##### params?
 
 ###### defaultWalletAccounts?
 
-`v1AddressFormat`[] \| `v1WalletAccountParams`[]
+[`v1AddressFormat`](../../../_turnkey/sdk-types/v1AddressFormat/readme)[] \| [`v1WalletAccountParams`](../../../_turnkey/sdk-types/v1WalletAccountParams/readme)[]
 
 array of default wallet accounts (v1AddressFormat[] or v1WalletAccountParams[]) to pre-fill the import form.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
 
@@ -2997,9 +3098,9 @@ A promise that resolves to the new wallet's ID.
 
 ### handleLinkExternalWallet()
 
-> **handleLinkExternalWallet**(`params`?): `Promise`\<`void`\>
+> **handleLinkExternalWallet**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:538](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L538)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:544](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L544)
 
 Handles the linking of an external wallet account to the user's Turnkey account.
 
@@ -3036,7 +3137,7 @@ If the client is not initialized or if no active session is found.
 
 > **handleLogin**(): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:94](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L94)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:98](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L98)
 
 Handles the login or sign-up flow.
 
@@ -3058,7 +3159,7 @@ A void promise.
 
 > **handleRemoveOAuthProvider**(`params`): `Promise`\<`string`[]\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:429](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L429)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:433](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L433)
 
 Handles the removal of an OAuth provider.
 
@@ -3082,7 +3183,7 @@ The ID of the OAuth provider to remove (as found in the user's provider list).
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -3120,7 +3221,7 @@ If the client is not initialized, no active session is found, or if there is an 
 
 > **handleRemovePasskey**(`params`): `Promise`\<`string`[]\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:485](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L485)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:489](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L489)
 
 Handles the removal of a passkey (authenticator) for the user.
 
@@ -3143,7 +3244,7 @@ The ID of the authenticator (passkey) to remove.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -3183,11 +3284,87 @@ If the client is not initialized, no active session is found, or if there is an 
 
 ***
 
+### handleRemoveUserEmail()
+
+> **handleRemoveUserEmail**(`params?`): `Promise`\<`string`\>
+
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:557](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L557)
+
+Handles the removal of a user's email address from their Turnkey account.
+
+- This function opens a modal with the RemoveUserEmail component, allowing the user to confirm and remove their email address.
+
+#### Parameters
+
+##### params?
+
+###### stampWith?
+
+[`StamperType`](../StamperType/readme)
+
+parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### successPageDuration?
+
+`number`
+
+duration (in ms) for the success page after removal (default: 0, no success page).
+
+###### userId?
+
+`string`
+
+The user ID to remove the email for (defaults to current session's userId).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### handleRemoveUserPhoneNumber()
+
+> **handleRemoveUserPhoneNumber**(`params?`): `Promise`\<`string`\>
+
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:572](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L572)
+
+Handles the removal of a user's phone number from their Turnkey account.
+
+- This function opens a modal with the RemoveUserPhoneNumber component, allowing the user to confirm and remove their phone number.
+
+#### Parameters
+
+##### params?
+
+###### stampWith?
+
+[`StamperType`](../StamperType/readme)
+
+parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### successPageDuration?
+
+`number`
+
+duration (in ms) for the success page after removal (default: 0, no success page).
+
+###### userId?
+
+`string`
+
+The user ID to remove the phone number for (defaults to current session's userId).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
 ### handleSignMessage()
 
-> **handleSignMessage**(`params`): `Promise`\<`v1SignRawPayloadResult`\>
+> **handleSignMessage**(`params`): `Promise`\<[`v1SignRawPayloadResult`](../../../_turnkey/sdk-types/v1SignRawPayloadResult/readme)\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:513](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L513)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:518](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L518)
 
 Handles the signing of a message by displaying a modal for user interaction.
 
@@ -3201,15 +3378,21 @@ Handles the signing of a message by displaying a modal for user interaction.
 
 ##### params
 
+###### addEthereumPrefix?
+
+`boolean`
+
+whether to add the Ethereum prefix to the message (default: false).
+
 ###### encoding?
 
-`v1PayloadEncoding`
+[`v1PayloadEncoding`](../../../_turnkey/sdk-types/v1PayloadEncoding/readme)
 
 encoding for the payload (defaults to the proper encoding for the account type).
 
 ###### hashFunction?
 
-`v1HashFunction`
+[`v1HashFunction`](../../../_turnkey/sdk-types/v1HashFunction/readme)
 
 hash function to use (defaults to the appropriate function for the account type).
 
@@ -3221,7 +3404,7 @@ The message to sign.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -3239,13 +3422,13 @@ duration in seconds to display the success page after signing.
 
 ###### walletAccount
 
-`v1WalletAccount`
+[`WalletAccount`](../WalletAccount/readme)
 
 The wallet account to use for signing.
 
 #### Returns
 
-`Promise`\<`v1SignRawPayloadResult`\>
+`Promise`\<[`v1SignRawPayloadResult`](../../../_turnkey/sdk-types/v1SignRawPayloadResult/readme)\>
 
 A promise that resolves to a `v1SignRawPayloadResult` object containing the signed message.
 
@@ -3257,9 +3440,9 @@ If the client is not initialized or if there is an error during the signing proc
 
 ### handleUpdateUserEmail()
 
-> **handleUpdateUserEmail**(`params`?): `Promise`\<`string`\>
+> **handleUpdateUserEmail**(`params?`): `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:271](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L271)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:275](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L275)
 
 Handles the update user name flow.
 
@@ -3310,9 +3493,9 @@ If the client is not initialized, no active session is found, or if there is an 
 
 ### handleUpdateUserPhoneNumber()
 
-> **handleUpdateUserPhoneNumber**(`params`?): `Promise`\<`string`\>
+> **handleUpdateUserPhoneNumber**(`params?`): `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:298](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L298)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:302](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L302)
 
 Handles the update user phone number flow.
 
@@ -3372,9 +3555,9 @@ If the client is not initialized, no active session is found, SMS OTP is not ena
 
 ### refreshUser()
 
-> **refreshUser**(`params`?): `Promise`\<`void`\>
+> **refreshUser**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:61](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L61)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:65](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L65)
 
 Refreshes the user details.
 
@@ -3391,7 +3574,7 @@ Refreshes the user details.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -3409,9 +3592,9 @@ If the client is not initialized or if there is an error refreshing the user det
 
 ### refreshWallets()
 
-> **refreshWallets**(`params`?): `Promise`\<`void`\>
+> **refreshWallets**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:79](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L79)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:83](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L83)
 
 Refreshes the wallets state for the current user session.
 
@@ -3430,7 +3613,7 @@ Refreshes the wallets state for the current user session.
 
 ###### stampWith?
 
-`StamperType`
+[`StamperType`](../StamperType/readme)
 
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 

@@ -1,0 +1,2314 @@
+---
+title: "TurnkeyClient"
+mode: wide
+---
+  
+# Class: TurnkeyClient
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:89](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L89)
+
+## Constructors
+
+### Constructor
+
+> **new TurnkeyClient**(`config`, `apiKeyStamper?`, `passkeyStamper?`, `walletManager?`): `TurnkeyClient`
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:98](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L98)
+
+#### Parameters
+
+##### config
+
+[`TurnkeySDKClientConfig`](../../../react-wallet-kit/index/TurnkeySDKClientConfig/readme)
+
+##### apiKeyStamper?
+
+`CrossPlatformApiKeyStamper`
+
+##### passkeyStamper?
+
+`CrossPlatformPasskeyStamper`
+
+##### walletManager?
+
+[`WalletManagerBase`](../../../react-wallet-kit/index/WalletManagerBase/readme)
+
+#### Returns
+
+`TurnkeyClient`
+
+## Properties
+
+### config
+
+> **config**: [`TurnkeySDKClientConfig`](../../../react-wallet-kit/index/TurnkeySDKClientConfig/readme)
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:90](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L90)
+
+***
+
+### httpClient
+
+> **httpClient**: `TurnkeySDKClientBase`
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:91](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L91)
+
+## Methods
+
+### addOAuthProvider()
+
+> **addOAuthProvider**(`params`): `Promise`\<`string`[]\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2321](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2321)
+
+Adds an OAuth provider to the user.
+
+- This function adds an OAuth provider (e.g., Google, Apple) to the user account.
+- If a userId is provided, it adds the provider for that specific user; otherwise, it uses the current session's userId.
+- Automatically checks if an account already exists for the provided OIDC token and prevents duplicate associations.
+- If the user's email is not set or not verified, attempts to update and verify the email using the email from the OIDC token.
+- Handles session management and error reporting for the add provider flow.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params
+
+###### oidcToken
+
+`string`
+
+OIDC token for the OAuth provider.
+
+###### providerName
+
+`string`
+
+name of the OAuth provider to add (e.g., "Google", "Apple").
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to add the provider for a specific user (defaults to current session's userId).
+
+#### Returns
+
+`Promise`\<`string`[]\>
+
+A promise that resolves to an array of provider IDs associated with the user.
+
+#### Throws
+
+If there is no active session, if the account already exists, or if there is an error adding the OAuth provider.
+
+***
+
+### addPasskey()
+
+> **addPasskey**(`params?`): `Promise`\<`string`[]\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2475](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2475)
+
+Adds a new passkey authenticator for the user.
+
+- This function prompts the user to create a new passkey (WebAuthn/FIDO2) and adds it as an authenticator for the user.
+- Handles both web and React Native environments, automatically selecting the appropriate passkey creation flow.
+- If a userId is provided, the passkey is added for that specific user; otherwise, it uses the current session's userId.
+- The passkey's name and display name can be customized; if not provided, defaults are generated.
+- The resulting passkey attestation and challenge are registered with Turnkey as a new authenticator.
+
+#### Parameters
+
+##### params?
+
+###### displayName?
+
+`string`
+
+display name of the passkey (defaults to the value of `name`).
+
+###### name?
+
+`string`
+
+name of the passkey (defaults to "Turnkey Passkey-`timestamp`").
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to add the passkey for a specific user (defaults to the current session's userId).
+
+#### Returns
+
+`Promise`\<`string`[]\>
+
+A promise that resolves to an array of authenticator IDs for the newly added passkey(s).
+
+#### Throws
+
+If there is no active session, if passkey creation fails, or if there is an error adding the passkey.
+
+***
+
+### clearAllSessions()
+
+> **clearAllSessions**(): `Promise`\<`void`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2987](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2987)
+
+Clears all sessions and resets the active session state.
+
+- This function removes all session data from the client and persistent storage, including all associated key pairs.
+- Iterates through all stored session keys, clearing each session and deleting its corresponding API key pair.
+- After clearing, there will be no active session, and all session-related data will be removed from local storage.
+- Throws an error if no sessions exist or if there is an error during the clearing process.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when all sessions are successfully cleared.
+
+#### Throws
+
+If no sessions exist or if there is an error clearing all sessions.
+
+***
+
+### clearSession()
+
+> **clearSession**(`params?`): `Promise`\<`void`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2953](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2953)
+
+Clears the session associated with the specified session key, or the active session by default.
+
+- This function deletes the session and its associated key pair from storage.
+- If a sessionKey is provided, it will clear the session under that key; otherwise, it will clear the default (active) session.
+- Removes the session data from local storage and deletes the corresponding API key pair from the key store.
+- Throws an error if the session does not exist or if there is an error during the clearing process.
+
+#### Parameters
+
+##### params?
+
+###### sessionKey?
+
+`string`
+
+session key to clear the session under (defaults to the default session key).
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the session is successfully cleared.
+
+#### Throws
+
+If the session does not exist or if there is an error clearing the session.
+
+***
+
+### clearUnusedKeyPairs()
+
+> **clearUnusedKeyPairs**(): `Promise`\<`void`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:3227](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3227)
+
+Clears any unused API key pairs from persistent storage.
+
+- This function scans all API key pairs stored in indexedDB and removes any key pairs that are not associated with a session in persistent storage.
+- Ensures that only key pairs referenced by existing sessions are retained, preventing orphaned or stale key pairs from accumulating.
+- Iterates through all stored session keys and builds a map of in-use public keys, then deletes any key pairs not present in this map.
+- Intended to be called after session changes (e.g., login, logout, session replacement) to keep key storage clean and secure.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when all unused key pairs are successfully cleared.
+
+#### Throws
+
+If there is an error listing, checking, or deleting unused key pairs.
+
+***
+
+### completeOauth()
+
+> **completeOauth**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1252](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1252)
+
+Completes the OAuth authentication flow by either signing up or logging in the user, depending on whether a sub-organization already exists for the provided OIDC token.
+
+- This function first checks if there is an existing sub-organization associated with the OIDC token.
+- If a sub-organization exists, it proceeds with the OAuth login flow.
+- If no sub-organization exists, it creates a new sub-organization and completes the sign-up flow.
+- Optionally accepts a custom OAuth provider name, session key, and additional sub-organization creation parameters.
+- Handles session storage and management, and supports invalidating existing sessions if specified.
+
+#### Parameters
+
+##### params
+
+###### createSubOrgParams?
+
+[`CreateSubOrgParams`](../../../react-wallet-kit/index/CreateSubOrgParams/readme)
+
+parameters for sub-organization creation (e.g., authenticators, user metadata).
+
+###### invalidateExisting?
+
+`boolean`
+
+flag to invalidate existing sessions for the user.
+
+###### oidcToken
+
+`string`
+
+OIDC token received after successful authentication with the OAuth provider.
+
+###### providerName?
+
+`string`
+
+name of the OAuth provider (defaults to a generated name with a timestamp).
+
+###### publicKey
+
+`string`
+
+public key to use for authentication. Must be generated prior to calling this function.
+
+###### sessionKey?
+
+`string`
+
+session key to use for session creation (defaults to the default session key).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token for the user.
+
+#### Throws
+
+If there is an error during the OAuth completion process, such as account lookup, sign-up, or login.
+
+***
+
+### completeOtp()
+
+> **completeOtp**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1169](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1169)
+
+Completes the OTP authentication flow by verifying the OTP code and then either signing up or logging in the user.
+
+- This function first verifies the OTP code for the provided contact and OTP type.
+- If the contact is not associated with an existing sub-organization, it will automatically create a new sub-organization and complete the sign-up flow.
+- If the contact is already associated with a sub-organization, it will complete the login flow.
+- Supports passing a custom public key for authentication, invalidating existing session, specifying a session key, and providing additional sub-organization creation parameters.
+- Handles both email and SMS OTP types.
+
+#### Parameters
+
+##### params
+
+###### contact
+
+`string`
+
+contact information for the user (e.g., email address or phone number).
+
+###### createSubOrgParams?
+
+[`CreateSubOrgParams`](../../../react-wallet-kit/index/CreateSubOrgParams/readme)
+
+parameters for sub-organization creation (e.g., authenticators, user metadata).
+
+###### invalidateExisting?
+
+`boolean`
+
+flag to invalidate existing sessions for the user.
+
+###### otpCode
+
+`string`
+
+OTP code entered by the user.
+
+###### otpId
+
+`string`
+
+ID of the OTP to complete (returned from `initOtp`).
+
+###### otpType
+
+[`OtpType`](../../../react-wallet-kit/index/OtpType/readme)
+
+type of OTP being completed (OtpType.Email or OtpType.Sms).
+
+###### publicKey?
+
+`string`
+
+public key to use for authentication. If not provided, a new key pair may be generated.
+
+###### sessionKey?
+
+`string`
+
+session key to use for session creation (defaults to the default session key).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token for the user.
+
+#### Throws
+
+If there is an error during OTP verification, sign-up, or login.
+
+***
+
+### connectWalletAccount()
+
+> **connectWalletAccount**(`walletProvider`): `Promise`\<`void`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:497](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L497)
+
+#### Parameters
+
+##### walletProvider
+
+[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### createApiKeyPair()
+
+> **createApiKeyPair**(`params?`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:3280](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3280)
+
+Creates a new API key pair and returns the public key.
+
+- This function generates a new API key pair and stores it in the underlying key store (IndexedDB).
+- If an external key pair is provided, it will use that key pair for creation instead of generating a new one.
+- If `storeOverride` is set to true, the generated or provided public key will be set as the override key in the API key stamper, making it the active key for subsequent signing operations.
+- Ensures the API key stamper is initialized before proceeding.
+- Handles both native CryptoKeyPair objects and raw key material.
+
+#### Parameters
+
+##### params?
+
+###### externalKeyPair?
+
+`CryptoKeyPair` \| \{ `privateKey`: `string`; `publicKey`: `string`; \}
+
+An externally generated key pair (either a CryptoKeyPair or an object with publicKey/privateKey strings) to use instead of generating a new one.
+
+###### storeOverride?
+
+`boolean`
+
+If true, sets the generated or provided public key as the override key in the API key stamper (defaults to false).
+@returnparams.s A promise that resolves to the public key of the created or provided API key pair as a string.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+#### Throws
+
+If the API key stamper is not initialized or if there is an error during key pair creation or storage.
+
+***
+
+### createPasskey()
+
+> **createPasskey**(`params?`): `Promise`\<\{ `attestation`: [`v1Attestation`](../../../_turnkey/sdk-types/v1Attestation/readme); `encodedChallenge`: `string`; \}\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:171](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L171)
+
+Creates a new passkey authenticator for the user.
+
+- This function generates a new passkey attestation and challenge, suitable for registration with the user's device.
+- Handles both web and React Native environments, automatically selecting the appropriate passkey creation flow.
+- The resulting attestation and challenge can be used to register the passkey with Turnkey.
+
+#### Parameters
+
+##### params?
+
+###### displayName?
+
+`string`
+
+display name for the passkey. If not provided, defaults to "A Passkey".
+
+###### name?
+
+`string`
+
+name of the passkey. If not provided, defaults to "A Passkey".
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Returns
+
+`Promise`\<\{ `attestation`: [`v1Attestation`](../../../_turnkey/sdk-types/v1Attestation/readme); `encodedChallenge`: `string`; \}\>
+
+A promise that resolves to an object containing:
+  - attestation: attestation object returned from the passkey creation process.
+  - encodedChallenge: encoded challenge string used for passkey registration.
+
+#### Throws
+
+If there is an error during passkey creation, or if the platform is unsupported.
+
+***
+
+### createWallet()
+
+> **createWallet**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2599](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2599)
+
+Creates a new wallet for sub-organization.
+
+- This function creates a new wallet for the current sub-organization.
+- If an organizationId is provided, the wallet will be created under that specific sub-organization; otherwise, it uses the current session's organizationId.
+- If a list of address formats is provided, accounts will be created in the wallet based on those formats (starting from path index 0).
+- If a list of account parameters is provided, those accounts will be created in the wallet.
+- If no accounts or address formats are provided, default Ethereum and Solana accounts will be created.
+- Optionally allows specifying the mnemonic length for the wallet seed phrase (defaults to 12).
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params
+
+###### accounts?
+
+[`v1WalletAccountParams`](../../../_turnkey/sdk-types/v1WalletAccountParams/readme)[] \| [`v1AddressFormat`](../../../_turnkey/sdk-types/v1AddressFormat/readme)[]
+
+array of account parameters or address formats to create in the wallet.
+
+###### mnemonicLength?
+
+`number`
+
+mnemonic length for the wallet seed phrase (defaults to 12).
+
+###### organizationId?
+
+`string`
+
+organization ID to create the wallet under a specific sub-organization (defaults to the current session's organizationId).
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### walletName
+
+`string`
+
+name of the wallet to create.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to the ID of the newly created wallet.
+
+#### Throws
+
+If there is no active session or if there is an error creating the wallet.
+
+***
+
+### createWalletAccounts()
+
+> **createWalletAccounts**(`params`): `Promise`\<`string`[]\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2673](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2673)
+
+Creates new accounts in the specified wallet.
+
+- This function creates new wallet accounts based on the provided account parameters or address formats.
+- If a walletId is provided, it creates the accounts in that specific wallet; otherwise, it uses the current session's wallet.
+- If a list of address formats is provided, it will create accounts in the wallet based on those formats, automatically determining the next available path indexes to avoid duplicates with existing accounts.
+- If account parameters are provided, they are used directly for account creation.
+- Automatically queries existing wallet accounts to prevent duplicate account creation for the same address format and path.
+- Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params
+
+###### accounts
+
+[`v1WalletAccountParams`](../../../_turnkey/sdk-types/v1WalletAccountParams/readme)[] \| [`v1AddressFormat`](../../../_turnkey/sdk-types/v1AddressFormat/readme)[]
+
+An array of account parameters or address formats to create in the wallet.
+
+###### organizationId?
+
+`string`
+
+organization ID to create the accounts under a specific organization (walletId must be associated with the sub-organization).
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### walletId
+
+`string`
+
+ID of the wallet to create accounts in.
+
+#### Returns
+
+`Promise`\<`string`[]\>
+
+A promise that resolves to an array of addresses for the newly created accounts.
+
+#### Throws
+
+If there is no active session, if the wallet does not exist, or if there is an error creating the wallet accounts.
+
+***
+
+### deleteSubOrganization()
+
+> **deleteSubOrganization**(`params?`): `Promise`\<[`TDeleteSubOrganizationResponse`](../../../_turnkey/sdk-types/TDeleteSubOrganizationResponse/readme)\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2872](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2872)
+
+Deletes the current sub-organization (sub-org) for the active session.
+
+- This function deletes the sub-organization associated with the current active session.
+- By default, the deletion will fail if any wallets associated with the sub-organization have not been exported.
+- If `deleteWithoutExport` is set to true, the sub-organization will be deleted even if its wallets have not been exported (potentially resulting in loss of access to those wallets).
+- Requires an active session; otherwise, an error is thrown.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params?
+
+###### deleteWithoutExport?
+
+`boolean`
+
+flag to delete the sub-organization without requiring all wallets to be exported first (defaults to false).
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper.
+
+#### Returns
+
+`Promise`\<[`TDeleteSubOrganizationResponse`](../../../_turnkey/sdk-types/TDeleteSubOrganizationResponse/readme)\>
+
+A promise that resolves to a `TDeleteSubOrganizationResponse` object containing the result of the deletion.
+
+#### Throws
+
+If there is no active session or if there is an error deleting the sub-organization.
+
+***
+
+### disconnectWalletAccount()
+
+> **disconnectWalletAccount**(`walletProvider`): `Promise`\<`void`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:510](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L510)
+
+#### Parameters
+
+##### walletProvider
+
+[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### exportWallet()
+
+> **exportWallet**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2750](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2750)
+
+Exports a wallet as an encrypted bundle.
+
+- This function exports the specified wallet and its accounts as an encrypted bundle, suitable for backup or transfer.
+- The exported bundle contains the wallet's seed phrase, encrypted to the provided target public key.
+- If a targetPublicKey is provided, the bundle will be encrypted to that public key; otherwise, an error will be thrown.
+- If an organizationId is provided, the wallet will be exported under that sub-organization; otherwise, the current session's organizationId is used.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+- The exported bundle can later be imported using the `importWallet` method.
+
+#### Parameters
+
+##### params
+
+###### organizationId?
+
+`string`
+
+organization ID to export the wallet under a specific sub-organization (walletId must be associated with the sub-organization).
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### targetPublicKey
+
+`string`
+
+public key to encrypt the bundle to (required).
+
+###### walletId
+
+`string`
+
+ID of the wallet to export.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to an `ExportBundle` object containing the encrypted wallet seed phrase and metadata.
+
+#### Throws
+
+If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the wallet.
+
+***
+
+### fetchUser()
+
+> **fetchUser**(`params?`): `Promise`\<[`v1User`](../../../_turnkey/sdk-types/v1User/readme)\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1982](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1982)
+
+Fetches the user details for the current session or a specified user.
+
+- Retrieves user details from the Turnkey API using the provided userId and organizationId, or defaults to those from the active session.
+- If no userId is provided, the userId from the current session is used.
+- If no organizationId is provided, the organizationId from the current session is used.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+- Ensures that an active session exists before making the request.
+
+#### Parameters
+
+##### params?
+
+###### organizationId?
+
+`string`
+
+organization ID to specify the sub-organization (defaults to the current session's organizationId).
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to fetch specific user details (defaults to the current session's userId).
+
+#### Returns
+
+`Promise`\<[`v1User`](../../../_turnkey/sdk-types/v1User/readme)\>
+
+A promise that resolves to a `v1User` object containing the user details.
+
+#### Throws
+
+If there is no active session, if there is no userId, or if there is an error fetching user details.
+
+***
+
+### fetchWalletAccounts()
+
+> **fetchWalletAccounts**(`params`): `Promise`\<[`WalletAccount`](../../../react-wallet-kit/index/WalletAccount/readme)[]\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1583](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1583)
+
+Fetches all accounts for a specific wallet, including both embedded and connected wallet accounts.
+
+- For embedded wallets, retrieves accounts from the Turnkey API, supporting pagination (defaults to the first page with a limit of 100 accounts).
+- For connected wallets (e.g., browser extensions or external providers), constructs account objects for each connected address from the provided or discovered wallet providers.
+- Automatically determines the account type and populates relevant fields such as address, curve, and signing capability.
+- Optionally allows filtering by a specific set of wallet providers and supports custom pagination options.
+- Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params
+
+###### paginationOptions?
+
+[`v1Pagination`](../../../_turnkey/sdk-types/v1Pagination/readme)
+
+pagination options for embedded wallets.
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### wallet
+
+[`Wallet`](../../../react-wallet-kit/index/Wallet/readme)
+
+wallet for which to fetch accounts.
+
+###### walletProviders?
+
+[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)[]
+
+list of wallet providers to filter by (used for connected wallets).
+
+#### Returns
+
+`Promise`\<[`WalletAccount`](../../../react-wallet-kit/index/WalletAccount/readme)[]\>
+
+A promise that resolves to an array of `v1WalletAccount` objects.
+
+#### Throws
+
+If no active session is found or if there is an error fetching wallet accounts.
+
+***
+
+### fetchWallets()
+
+> **fetchWallets**(`params?`): `Promise`\<[`Wallet`](../../../react-wallet-kit/index/Wallet/readme)[]\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1468](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1468)
+
+Fetches all wallets for the current user, including both embedded and connected wallets.
+
+- Retrieves all wallets associated with the organizationId from the current active session.
+- For each embedded wallet, automatically fetches and attaches all associated wallet accounts.
+- For connected wallets (e.g., browser extensions or external providers), groups providers by wallet name and attaches all connected accounts.
+- Returns both embedded and connected wallets in a single array, each with their respective accounts populated.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params?
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Returns
+
+`Promise`\<[`Wallet`](../../../react-wallet-kit/index/Wallet/readme)[]\>
+
+A promise that resolves to an array of `Wallet` objects.
+
+#### Throws
+
+If no active session is found or if there is an error fetching wallets.
+
+***
+
+### getActiveSessionKey()
+
+> **getActiveSessionKey**(): `Promise`\<`undefined` \| `string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:3203](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3203)
+
+Retrieves the active session key currently set in persistent storage.
+
+- This function fetches the session key that is currently marked as active in the client's persistent storage.
+- The active session key determines which session is used for all session-dependent operations.
+- If no active session key is set, returns `undefined`.
+- Useful for determining which session is currently in use, especially when managing multiple sessions.
+
+#### Returns
+
+`Promise`\<`undefined` \| `string`\>
+
+A promise that resolves to the active session key as a string, or `undefined` if no active session is set.
+
+#### Throws
+
+If there is an error retrieving the active session key from storage.
+
+***
+
+### getAllSessions()
+
+> **getAllSessions**(): `Promise`\<`undefined` \| `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/readme)\>\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:3142](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3142)
+
+Retrieves all sessions stored in persistent storage.
+
+- This function fetches all session objects currently stored by the client, including those that are not active.
+- Returns a record mapping each session key to its corresponding `Session` object.
+- Useful for session management, auditing, or displaying all available sessions to the user.
+- Automatically skips any session keys that do not have a valid session object.
+
+#### Returns
+
+`Promise`\<`undefined` \| `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/readme)\>\>
+
+A promise that resolves to a record of session keys and their corresponding `Session` objects, or `undefined` if no sessions exist.
+
+#### Throws
+
+If there is an error retrieving sessions from storage.
+
+***
+
+### getProxyAuthConfig()
+
+> **getProxyAuthConfig**(): `Promise`\<[`ProxyTGetWalletKitConfigResponse`](../../../_turnkey/sdk-types/ProxyTGetWalletKitConfigResponse/readme)\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:3324](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3324)
+
+Fetches the WalletKit proxy authentication configuration from the auth proxy.
+
+- This function makes a request to the Turnkey auth proxy to retrieve the current WalletKit configuration,
+  including supported authentication methods, OAuth providers, and any custom proxy settings.
+- Useful for dynamically configuring the client UI or authentication flows based on the proxy's capabilities.
+- Ensures that the client is aware of the latest proxy-side configuration, which may affect available login/signup options.
+
+#### Returns
+
+`Promise`\<[`ProxyTGetWalletKitConfigResponse`](../../../_turnkey/sdk-types/ProxyTGetWalletKitConfigResponse/readme)\>
+
+A promise that resolves to a `ProxyTGetWalletKitConfigResponse` object containing the proxy authentication configuration.
+
+#### Throws
+
+If there is an error retrieving the proxy authentication configuration from the auth proxy.
+
+***
+
+### getSession()
+
+> **getSession**(`params?`): `Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:3114](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3114)
+
+Retrieves the session associated with the specified session key, or the active session by default.
+
+- This function retrieves the session object from storage, using the provided session key or, if not specified, the current active session key.
+- If no session key is provided and there is no active session, it returns undefined.
+- Returns the session details, including public key, organization ID, user ID, and expiration.
+
+#### Parameters
+
+##### params?
+
+###### sessionKey?
+
+`string`
+
+session key to retrieve a specific session (defaults to the current active session key).
+
+#### Returns
+
+`Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
+
+A promise that resolves to a `Session` object containing the session details, or undefined if not found.
+
+#### Throws
+
+If there is an error retrieving the session from storage.
+
+***
+
+### getWalletProviders()
+
+> **getWalletProviders**(`chain?`): `Promise`\<[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)[]\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:484](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L484)
+
+#### Parameters
+
+##### chain?
+
+[`Chain`](../../../react-wallet-kit/index/Chain/readme)
+
+#### Returns
+
+`Promise`\<[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)[]\>
+
+***
+
+### importWallet()
+
+> **importWallet**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2809](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2809)
+
+Imports a wallet from an encrypted bundle.
+
+- This function imports a wallet using the provided encrypted bundle and creates accounts based on the provided parameters.
+- If a userId is provided, the wallet will be imported for that specific user; otherwise, it uses the current session's userId.
+- If an accounts array is provided, those accounts will be created in the imported wallet; otherwise, default Ethereum and Solana accounts will be created.
+- The encrypted bunlde MUST be encrypted to
+- Automatically ensures an active session exists before making the request.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params
+
+###### accounts?
+
+[`v1WalletAccountParams`](../../../_turnkey/sdk-types/v1WalletAccountParams/readme)[]
+
+array of account parameters to create in the imported wallet (defaults to standard Ethereum and Solana accounts).
+
+###### encryptedBundle
+
+`string`
+
+encrypted bundle containing the wallet seed phrase and metadata.
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to import the wallet for a specific user (defaults to the current session's userId).
+
+###### walletName
+
+`string`
+
+name of the wallet to create upon import.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to the ID of the imported wallet.
+
+#### Throws
+
+If there is no active session, if the encrypted bundle is invalid, or if there is an error importing the wallet.
+
+***
+
+### init()
+
+> **init**(): `Promise`\<`void`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:116](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L116)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### initOtp()
+
+> **initOtp**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:892](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L892)
+
+Initializes the OTP process by sending an OTP code to the provided contact.
+
+- This function initiates the OTP flow by sending a one-time password (OTP) code to the user's contact information (email address or phone number) via the auth proxy.
+- Supports both email and SMS OTP types.
+- Returns an OTP ID that is required for subsequent OTP verification.
+
+#### Parameters
+
+##### params
+
+###### contact
+
+`string`
+
+contact information for the user (e.g., email address or phone number).
+
+###### otpType
+
+[`OtpType`](../../../react-wallet-kit/index/OtpType/readme)
+
+type of OTP to initialize (OtpType.Email or OtpType.Sms).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to the OTP ID required for verification.
+
+#### Throws
+
+If there is an error during the OTP initialization process or if the maximum number of OTPs has been reached.
+
+***
+
+### loginOrSignupWithWallet()
+
+> **loginOrSignupWithWallet**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:713](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L713)
+
+#### Parameters
+
+##### params
+
+###### createSubOrgParams?
+
+[`CreateSubOrgParams`](../../../react-wallet-kit/index/CreateSubOrgParams/readme)
+
+###### expirationSeconds?
+
+`string`
+
+###### sessionKey?
+
+`string`
+
+###### walletProvider
+
+[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### loginWithOauth()
+
+> **loginWithOauth**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1325](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1325)
+
+Logs in a user using OAuth authentication.
+
+- This function logs in a user using the provided OIDC token and public key.
+- Optionally invalidates any existing sessions for the user if `invalidateExisting` is set to true.
+- Stores the resulting session token under the specified session key, or the default session key if not provided.
+- Handles cleanup of unused key pairs if login fails.
+
+#### Parameters
+
+##### params
+
+###### invalidateExisting?
+
+`boolean`
+
+flag to invalidate existing sessions for the user.
+
+###### oidcToken
+
+`string`
+
+OIDC token received after successful authentication with the OAuth provider.
+
+###### publicKey
+
+`string`
+
+public key to use for authentication. Must be generated prior to calling this function.
+
+###### sessionKey?
+
+`string`
+
+session key to use for session creation (defaults to the default session key).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token.
+
+#### Throws
+
+If there is an error during the OAuth login process or if key pair cleanup fails.
+
+***
+
+### loginWithOtp()
+
+> **loginWithOtp**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1014](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1014)
+
+Logs in a user using an OTP verification token.
+
+- This function logs in a user using the verification token received after OTP verification (from email or SMS).
+- If a public key is not provided, a new API key pair will be generated for authentication.
+- Optionally invalidates any existing sessions for the user if `invalidateExisting` is set to true.
+- Stores the resulting session token under the specified session key, or the default session key if not provided.
+- Handles cleanup of unused key pairs if login fails.
+
+#### Parameters
+
+##### params
+
+###### invalidateExisting?
+
+`boolean`
+
+flag to invalidate existing session for the user.
+
+###### publicKey?
+
+`string`
+
+public key to use for authentication. If not provided, a new key pair will be generated.
+
+###### sessionKey?
+
+`string`
+
+session key to use for session creation (defaults to the default session key).
+
+###### verificationToken
+
+`string`
+
+verification token received after OTP verification.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token.
+
+#### Throws
+
+If there is an error during the OTP login process or if key pair cleanup fails.
+
+***
+
+### loginWithPasskey()
+
+> **loginWithPasskey**(`params?`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:295](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L295)
+
+Logs in a user using a passkey, optionally specifying the public key, session key, and session expiration.
+
+- This function initiates the login process with a passkey and handles session creation and storage.
+- If a public key is not provided, a new key pair will be generated for authentication.
+- If a session key is not provided, the default session key will be used.
+- The session expiration can be customized via the expirationSeconds parameter.
+- Handles cleanup of unused key pairs if login fails.
+
+#### Parameters
+
+##### params?
+
+###### expirationSeconds?
+
+`string`
+
+session expiration time in seconds (defaults to the configured default).
+
+###### publicKey?
+
+`string`
+
+public key to use for authentication. If not provided, a new key pair will be generated.
+
+###### sessionKey?
+
+`string`
+
+session key to use for session creation (defaults to the default session key).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token.
+
+#### Throws
+
+If there is an error during the passkey login process or if the user cancels the passkey prompt.
+
+***
+
+### loginWithWallet()
+
+> **loginWithWallet**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:551](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L551)
+
+#### Parameters
+
+##### params
+
+###### expirationSeconds?
+
+`string`
+
+###### publicKey?
+
+`string`
+
+###### sessionKey?
+
+`string`
+
+###### walletProvider
+
+[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### logout()
+
+> **logout**(`params?`): `Promise`\<`void`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:251](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L251)
+
+Logs out the current client session.
+
+- This function clears the specified session and removes any associated key pairs from storage.
+- If a sessionKey is provided, it logs out from that session; otherwise, it logs out from the active session.
+- Cleans up any api keys associated with the session.
+
+#### Parameters
+
+##### params?
+
+###### sessionKey?
+
+`string`
+
+session key to specify which session to log out from (defaults to the active session).
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the logout process is complete.
+
+#### Throws
+
+If there is no active session or if there is an error during the logout process.
+
+***
+
+### refreshSession()
+
+> **refreshSession**(`params?`): `Promise`\<`undefined` \| [`TStampLoginResponse`](../../../_turnkey/sdk-types/TStampLoginResponse/readme)\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:3027](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3027)
+
+Refreshes the session associated with the specified session key, or the active session by default.
+
+- This function refreshes the session and updates the session token and key pair associated with the given session key.
+- If a sessionKey is provided, it will refresh the session under that key; otherwise, it will use the current active session key.
+- Optionally allows specifying a new expiration time for the session, a custom public key, and whether to invalidate the existing session after refreshing.
+- Makes a request to the Turnkey API to stamp a new login and stores the refreshed session token.
+- Automatically manages key pair cleanup and session storage to ensure consistency.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params?
+
+###### expirationSeconds?
+
+`string`
+
+expiration time in seconds for the refreshed session (defaults to the configured default).
+
+###### invalidateExisitng?
+
+`boolean`
+
+flag to invalidate the existing session before refreshing (defaults to false).
+
+###### publicKey?
+
+`string`
+
+public key to use for the refreshed session (if not provided, a new key pair will be generated).
+
+###### sessionKey?
+
+`string`
+
+session key to refresh the session under (defaults to the active session key).
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper.
+
+#### Returns
+
+`Promise`\<`undefined` \| [`TStampLoginResponse`](../../../_turnkey/sdk-types/TStampLoginResponse/readme)\>
+
+A promise that resolves to a `TStampLoginResponse` object containing the refreshed session details.
+
+#### Throws
+
+If the session key does not exist, if there is no active session, or if there is an error refreshing the session.
+
+***
+
+### removeOAuthProviders()
+
+> **removeOAuthProviders**(`params`): `Promise`\<`string`[]\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2429](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2429)
+
+Removes a list of OAuth providers from the user.
+
+- This function removes OAuth providers (e.g., Google, Apple) from the user's account.
+- If a userId is provided, it removes the providers for that specific user; otherwise, it uses the current session's userId.
+- Automatically ensures an active session exists before making the request.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+- Returns an array of remaining provider IDs associated with the user after removal.
+
+#### Parameters
+
+##### params
+
+###### providerIds
+
+`string`[]
+
+IDs of the OAuth providers to remove.
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to remove the provider for a specific user (defaults to the current session's userId).
+
+#### Returns
+
+`Promise`\<`string`[]\>
+
+A promise that resolves to an array of provider IDs that were removed.
+
+#### Throws
+
+If there is no active session, if the userId is missing, or if there is an error removing the OAuth provider.
+
+***
+
+### removePasskeys()
+
+> **removePasskeys**(`params`): `Promise`\<`string`[]\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2549](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2549)
+
+Removes passkeys (authenticator) from the user.
+
+- This function removes passkeys (WebAuthn/FIDO2 authenticators) from the user's account.
+- If a userId is provided, it removes the passkeys for that specific user; otherwise, it uses the current session's userId.
+- Automatically ensures an active session exists before making the request.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+- Returns an array of remaining authenticator IDs for the user after removal.
+
+#### Parameters
+
+##### params
+
+###### authenticatorIds
+
+`string`[]
+
+IDs of the authenticators (passkeys) to remove.
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to remove the passkeys for a specific user (defaults to the current session's userId).
+
+#### Returns
+
+`Promise`\<`string`[]\>
+
+A promise that resolves to an array of authenticator IDs that were removed.
+
+#### Throws
+
+If there is no active session, if the userId is missing, or if there is an error removing the passkeys.
+
+***
+
+### removeUserEmail()
+
+> **removeUserEmail**(`params?`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2116](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2116)
+
+Removes the user's email address.
+
+- This function removes the user's email address by setting it to an empty string.
+- If a userId is provided, it removes the email for that specific user; otherwise, it uses the current session's userId.
+- Automatically ensures an active session exists before making the request.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params?
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to remove a specific user's email address (defaults to the current session's userId).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to the userId of the user whose email was removed.
+
+#### Throws
+
+If there is no active session, if the userId is missing, or if there is an error removing the user email.
+
+***
+
+### removeUserPhoneNumber()
+
+> **removeUserPhoneNumber**(`params?`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2218](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2218)
+
+Removes the user's phone number.
+
+- This function removes the user's phone number by setting it to an empty string.
+- If a userId is provided, it removes the phone number for that specific user; otherwise, it uses the current session's userId.
+- Automatically ensures an active session exists before making the request.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params?
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to remove a specific user's phone number (defaults to the current session's userId).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to the userId of the user whose phone number was removed.
+
+#### Throws
+
+If there is no active session, if the userId is missing, or if there is an error removing the user phone number.
+
+***
+
+### setActiveSession()
+
+> **setActiveSession**(`params`): `Promise`\<`void`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:3178](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3178)
+
+Sets the active session to the specified session key.
+
+- This function updates the `activeSessionKey` in persistent storage to the specified session key.
+- Ensures that subsequent operations use the session associated with this key as the active session.
+- Does not validate whether the session key exists or is valid; it simply updates the pointer.
+- Useful for switching between multiple stored sessions or restoring a previous session context.
+
+#### Parameters
+
+##### params
+
+###### sessionKey
+
+`string`
+
+session key to set as the active session.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the active session key is successfully set.
+
+#### Throws
+
+If the client is not initialized or if there is an error setting the active session key.
+
+***
+
+### signAndSendTransaction()
+
+> **signAndSendTransaction**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1869](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1869)
+
+Signs and broadcasts a transaction using the specified wallet account.
+
+- For **connected wallets**:
+  - Calls the wallet’s native `signAndSendTransaction` method.
+  - Does **not** require an `rpcUrl`.
+
+- For **embedded wallets**:
+  - Signs the transaction using the Turnkey API.
+  - Requires an `rpcUrl` to broadcast the transaction.
+  - Broadcasts the transaction using a JSON-RPC client.
+
+#### Parameters
+
+##### params
+
+###### rpcUrl?
+
+`string`
+
+required for embedded wallets to broadcast the signed transaction.
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+optional stamper to tag the signing request.
+
+###### transactionType
+
+[`v1TransactionType`](../../../_turnkey/sdk-types/v1TransactionType/readme)
+
+transaction type (e.g., "TRANSACTION_TYPE_SOLANA").
+
+###### unsignedTransaction
+
+`string`
+
+unsigned transaction (serialized string).
+
+###### walletAccount
+
+[`WalletAccount`](../../../react-wallet-kit/index/WalletAccount/readme)
+
+wallet account to use for signing and sending.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a transaction signature or hash.
+
+#### Throws
+
+If signing or broadcasting fails.
+
+***
+
+### signMessage()
+
+> **signMessage**(`params`): `Promise`\<[`v1SignRawPayloadResult`](../../../_turnkey/sdk-types/v1SignRawPayloadResult/readme)\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1698](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1698)
+
+Signs a message using the specified wallet account.
+
+- Supports both embedded and connected wallets.
+- For **connected wallets**:
+  - Delegates signing to the wallet provider’s native signing method.
+  - **Important:** For Ethereum wallets (e.g., MetaMask), signatures follow [EIP-191](https://eips.ethereum.org/EIPS/eip-191).
+    The message is automatically prefixed with `"\x19Ethereum Signed Message:\n" + message length`
+    before signing. As a result, this signature **cannot be used as a raw transaction signature**
+    or broadcast on-chain.
+- For **embedded wallets**, uses the Turnkey API to sign the message directly.
+- Automatically handles message encoding and hashing based on the wallet account’s address format,
+  unless explicitly overridden.
+
+#### Parameters
+
+##### params
+
+###### addEthereumPrefix?
+
+`boolean`
+
+whether to prefix the message with Ethereum's `"\x19Ethereum Signed Message:\n"` string.
+  - If `true` (default for Ethereum), the message is prefixed before signing.
+  - If `false`:
+    - Connected wallets will throw an error because they always prefix automatically.
+    - Embedded wallets will sign the raw message without any prefix.
+
+###### encoding?
+
+[`v1PayloadEncoding`](../../../_turnkey/sdk-types/v1PayloadEncoding/readme)
+
+override for the payload encoding (defaults to the encoding appropriate for the address type).
+
+###### hashFunction?
+
+[`v1HashFunction`](../../../_turnkey/sdk-types/v1HashFunction/readme)
+
+override for the hash function (defaults to the hash function appropriate for the address type).
+
+###### message
+
+`string`
+
+message to sign.
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+stamper to tag the signing request (e.g., Passkey, ApiKey, or Wallet).
+
+###### walletAccount
+
+[`WalletAccount`](../../../react-wallet-kit/index/WalletAccount/readme)
+
+wallet account to use for signing.
+
+#### Returns
+
+`Promise`\<[`v1SignRawPayloadResult`](../../../_turnkey/sdk-types/v1SignRawPayloadResult/readme)\>
+
+A promise resolving to a `v1SignRawPayloadResult` containing the signature and metadata.
+
+#### Throws
+
+If signing fails, if the wallet account does not support signing, or if the response is invalid.
+
+***
+
+### signTransaction()
+
+> **signTransaction**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1796](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1796)
+
+Signs a transaction using the specified wallet account.
+
+- This function signs a blockchain transaction using the provided wallet address and transaction data.
+- Supports all Turnkey-supported blockchain networks (e.g., Ethereum, Solana, Tron).
+- Automatically determines the appropriate signing method based on the transaction type.
+- Delegates signing to the Turnkey API, which returns the signed transaction and related metadata.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### transactionType
+
+[`v1TransactionType`](../../../_turnkey/sdk-types/v1TransactionType/readme)
+
+type of transaction (e.g., "TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA", "TRANSACTION_TYPE_TRON").
+
+###### unsignedTransaction
+
+`string`
+
+unsigned transaction data (serialized as a string) to be signed.
+
+###### walletAccount
+
+[`WalletAccount`](../../../react-wallet-kit/index/WalletAccount/readme)
+
+wallet account to use for signing the transaction.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a `TSignTransactionResponse` object containing the signed transaction and any additional signing metadata.
+
+#### Throws
+
+If there is an error signing the transaction or if the response is invalid.
+
+***
+
+### signUpWithOauth()
+
+> **signUpWithOauth**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1410](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1410)
+
+Signs up a user using OAuth authentication.
+
+- This function creates a new sub-organization for the user using the provided OIDC token, public key, and provider name.
+- Handles the full OAuth sign-up flow, including sub-organization creation and session management.
+- Optionally accepts additional sub-organization creation parameters and a custom session key.
+- After successful sign-up, automatically logs in the user and returns a signed JWT session token.
+
+#### Parameters
+
+##### params
+
+###### createSubOrgParams?
+
+[`CreateSubOrgParams`](../../../react-wallet-kit/index/CreateSubOrgParams/readme)
+
+parameters for sub-organization creation (e.g., authenticators, user metadata).
+
+###### oidcToken
+
+`string`
+
+OIDC token received after successful authentication with the OAuth provider.
+
+###### providerName
+
+`string`
+
+name of the OAuth provider (e.g., "Google", "Apple").
+
+###### publicKey
+
+`string`
+
+public key to associate with the new sub-organization.
+
+###### sessionKey?
+
+`string`
+
+session key to use for session creation (defaults to the default session key).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token for the new sub-organization.
+
+#### Throws
+
+If there is an error during the OAuth sign-up or login process.
+
+***
+
+### signUpWithOtp()
+
+> **signUpWithOtp**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:1095](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1095)
+
+Signs up a user using an OTP verification token.
+
+- This function signs up a user using the verification token received after OTP verification (from email or SMS).
+- Creates a new sub-organization for the user with the provided parameters and associates the contact (email or phone) with the sub-organization.
+- Automatically generates a new API key pair for authentication and session management.
+- Stores the resulting session token under the specified session key, or the default session key if not provided.
+- Handles both email and SMS OTP types, and supports additional sub-organization creation parameters.
+
+#### Parameters
+
+##### params
+
+###### contact
+
+`string`
+
+contact information for the user (e.g., email address or phone number).
+
+###### createSubOrgParams?
+
+[`CreateSubOrgParams`](../../../react-wallet-kit/index/CreateSubOrgParams/readme)
+
+parameters for creating a sub-organization (e.g., authenticators, user metadata).
+
+###### invalidateExisting?
+
+`boolean`
+
+flag to invalidate existing session for the user.
+
+###### otpType
+
+[`OtpType`](../../../react-wallet-kit/index/OtpType/readme)
+
+type of OTP being used (OtpType.Email or OtpType.Sms).
+
+###### sessionKey?
+
+`string`
+
+session key to use for session creation (defaults to the default session key).
+
+###### verificationToken
+
+`string`
+
+verification token received after OTP verification.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token for the new sub-organization.
+
+#### Throws
+
+If there is an error during the OTP sign-up process or session storage.
+
+***
+
+### signUpWithPasskey()
+
+> **signUpWithPasskey**(`params?`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:377](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L377)
+
+Signs up a user using a passkey, creating a new sub-organization and session.
+
+- This function creates a new passkey authenticator and uses it to register a new sub-organization for the user.
+- Handles both passkey creation and sub-organization creation in a single flow.
+- Optionally accepts additional sub-organization parameters, a custom session key, a custom passkey display name, and a custom session expiration.
+- Automatically generates a new API key pair for authentication and session management.
+- Stores the resulting session token and manages cleanup of unused key pairs.
+
+#### Parameters
+
+##### params?
+
+###### createSubOrgParams?
+
+[`CreateSubOrgParams`](../../../react-wallet-kit/index/CreateSubOrgParams/readme)
+
+parameters for creating a sub-organization (e.g., authenticators, user metadata).
+
+###### expirationSeconds?
+
+`string`
+
+session expiration time in seconds (defaults to the configured default).
+
+###### passkeyDisplayName?
+
+`string`
+
+display name for the passkey (defaults to a generated name based on the current timestamp).
+
+###### sessionKey?
+
+`string`
+
+session key to use for storing the session (defaults to the default session key).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token for the new sub-organization.
+
+#### Throws
+
+If there is an error during passkey creation, sub-organization creation, or session storage.
+
+***
+
+### signUpWithWallet()
+
+> **signUpWithWallet**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:608](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L608)
+
+#### Parameters
+
+##### params
+
+###### createSubOrgParams?
+
+[`CreateSubOrgParams`](../../../react-wallet-kit/index/CreateSubOrgParams/readme)
+
+###### expirationSeconds?
+
+`string`
+
+###### sessionKey?
+
+`string`
+
+###### walletProvider
+
+[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
+
+#### Returns
+
+`Promise`\<`string`\>
+
+***
+
+### storeSession()
+
+> **storeSession**(`params`): `Promise`\<`void`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2914](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2914)
+
+Stores a session token and updates the session associated with the specified session key, or by default the active session.
+
+- This function parses and stores a signed JWT session token in local storage, associating it with the given session key.
+- If a sessionKey is provided, the session will be stored under that key; otherwise, it will use the default session key.
+- If a session already exists for the session key, its associated key pair will be deleted before storing the new session.
+- After storing the session, any unused key pairs are automatically cleared from storage.
+- Ensures that session management is consistent and prevents orphaned key pairs.
+
+#### Parameters
+
+##### params
+
+###### sessionKey?
+
+`string`
+
+session key to store the session under (defaults to the default session key).
+
+###### sessionToken
+
+`string`
+
+JWT session token to store.
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A promise that resolves when the session is successfully stored.
+
+#### Throws
+
+If there is an error storing the session or cleaning up key pairs.
+
+***
+
+### switchWalletProviderChain()
+
+> **switchWalletProviderChain**(`walletProvider`, `chainOrId`): `Promise`\<`void`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:524](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L524)
+
+#### Parameters
+
+##### walletProvider
+
+[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
+
+##### chainOrId
+
+`string` | [`SwitchableChain`](../../../react-wallet-kit/index/SwitchableChain/readme)
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### updateUserEmail()
+
+> **updateUserEmail**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2046](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2046)
+
+Updates the user's email address.
+
+- This function updates the user's email address and, if provided, verifies it using a verification token (typically from an OTP flow).
+- If a userId is provided, it updates the email for that specific user; otherwise, it uses the current session's userId.
+- If a verificationToken is not provided, the email will be updated but will not be marked as verified.
+- Automatically ensures an active session exists before making the request.
+- Handles session management and error reporting for both update and verification flows.
+
+#### Parameters
+
+##### params
+
+###### email
+
+`string`
+
+new email address to set for the user.
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to update a specific user's email (defaults to the current session's userId).
+
+###### verificationToken?
+
+`string`
+
+verification token from OTP email verification (required if verifying the email).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to the userId of the updated user.
+
+#### Throws
+
+If there is no active session, if the userId is missing, or if there is an error updating or verifying the user email.
+
+***
+
+### updateUserName()
+
+> **updateUserName**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2262](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2262)
+
+Updates the user's name.
+
+- This function updates the user's display name.
+- If a userId is provided, it updates the name for that specific user; otherwise, it uses the current session's userId.
+- Automatically ensures an active session exists before making the request.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+- Handles session management and error reporting for the update flow.
+
+#### Parameters
+
+##### params
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to update a specific user's name (defaults to the current session's userId).
+
+###### userName
+
+`string`
+
+new name to set for the user.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to the userId of the updated user.
+
+#### Throws
+
+If there is no active session, if the userId is missing, or if there is an error updating the user name.
+
+***
+
+### updateUserPhoneNumber()
+
+> **updateUserPhoneNumber**(`params`): `Promise`\<`string`\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:2161](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2161)
+
+Updates the user's phone number.
+
+- This function updates the user's phone number and, if provided, verifies it using a verification token (from an OTP flow).
+- If a userId is provided, it updates the phone number for that specific user; otherwise, it uses the current session's userId.
+- If a verificationToken is not provided, the phone number will be updated but will not be marked as verified.
+- Automatically ensures an active session exists before making the request.
+- Handles session management and error reporting for both update and verification flows.
+
+#### Parameters
+
+##### params
+
+###### phoneNumber
+
+`string`
+
+new phone number to set for the user.
+
+###### stampWith?
+
+[`StamperType`](../../../react-wallet-kit/index/StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to update a specific user's phone number (defaults to the current session's userId).
+
+###### verificationToken?
+
+`string`
+
+verification token from OTP phone verification (required if verifying the phone number).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to the userId of the updated user.
+
+#### Throws
+
+If there is no active session, if the userId is missing, or if there is an error updating or verifying the user phone number.
+
+***
+
+### verifyOtp()
+
+> **verifyOtp**(`params`): `Promise`\<\{ `subOrganizationId`: `string`; `verificationToken`: `string`; \}\>
+
+Defined in: [core/src/\_\_clients\_\_/core.ts:942](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L942)
+
+Verifies the OTP code sent to the user.
+
+- This function verifies the OTP code entered by the user against the OTP sent to their contact information (email or phone) using the auth proxy.
+- If verification is successful, it returns the sub-organization ID associated with the contact (if it exists) and a verification token.
+- The verification token can be used for subsequent login or sign-up flows.
+- Handles both email and SMS OTP types.
+
+#### Parameters
+
+##### params
+
+###### contact
+
+`string`
+
+contact information for the user (e.g., email address or phone number).
+
+###### otpCode
+
+`string`
+
+OTP code entered by the user.
+
+###### otpId
+
+`string`
+
+ID of the OTP to verify (returned from `initOtp`).
+
+###### otpType
+
+[`OtpType`](../../../react-wallet-kit/index/OtpType/readme)
+
+type of OTP being verified (OtpType.Email or OtpType.Sms).
+
+#### Returns
+
+`Promise`\<\{ `subOrganizationId`: `string`; `verificationToken`: `string`; \}\>
+
+A promise that resolves to an object containing:
+  - subOrganizationId: sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
+  - verificationToken: verification token to be used for login or sign-up.
+
+#### Throws
+
+If there is an error during the OTP verification process, such as an invalid code or network failure.

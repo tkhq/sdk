@@ -7,7 +7,7 @@ import { useTurnkey } from "../../providers/client/Hook";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import clsx from "clsx";
 import { SuccessPage } from "../design/Success";
-import type { StamperType } from "@turnkey/sdk-js";
+import type { StamperType } from "@turnkey/core";
 
 export function RemoveOAuthProvider(params: {
   providerId: string;

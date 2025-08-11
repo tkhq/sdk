@@ -1,0 +1,190 @@
+---
+title: "StorageBase"
+mode: wide
+---
+  
+# Interface: StorageBase
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:238
+
+## Methods
+
+### clearAllSessions()
+
+> **clearAllSessions**(): `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:249
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### clearSession()
+
+> **clearSession**(`sessionKey`): `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:248
+
+#### Parameters
+
+##### sessionKey
+
+`string`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### getActiveSession()
+
+> **getActiveSession**(): `Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:246
+
+#### Returns
+
+`Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
+
+***
+
+### getActiveSessionKey()
+
+> **getActiveSessionKey**(): `Promise`\<`undefined` \| `string`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:245
+
+#### Returns
+
+`Promise`\<`undefined` \| `string`\>
+
+***
+
+### getSession()
+
+> **getSession**(`sessionKey?`): `Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:244
+
+#### Parameters
+
+##### sessionKey?
+
+`string`
+
+#### Returns
+
+`Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
+
+***
+
+### getStorageValue()
+
+> **getStorageValue**(`sessionKey`): `Promise`\<`any`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:239
+
+#### Parameters
+
+##### sessionKey
+
+`string`
+
+#### Returns
+
+`Promise`\<`any`\>
+
+***
+
+### listSessionKeys()
+
+> **listSessionKeys**(): `Promise`\<`string`[]\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:247
+
+#### Returns
+
+`Promise`\<`string`[]\>
+
+***
+
+### removeStorageValue()
+
+> **removeStorageValue**(`sessionKey`): `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:242
+
+#### Parameters
+
+##### sessionKey
+
+`string`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### setActiveSessionKey()
+
+> **setActiveSessionKey**(`sessionKey`): `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:241
+
+#### Parameters
+
+##### sessionKey
+
+`string`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### setStorageValue()
+
+> **setStorageValue**(`sessionKey`, `storageValue`): `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:240
+
+#### Parameters
+
+##### sessionKey
+
+`string`
+
+##### storageValue
+
+`any`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+***
+
+### storeSession()
+
+> **storeSession**(`session`, `sessionKey?`): `Promise`\<`void`\>
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:243
+
+#### Parameters
+
+##### session
+
+`string`
+
+##### sessionKey?
+
+`string`
+
+#### Returns
+
+`Promise`\<`void`\>
