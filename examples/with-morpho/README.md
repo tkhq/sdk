@@ -1,4 +1,4 @@
-# Example: `delegated-access`
+# Example: `with-morpho`
 
 Morpho vaults are smart contracts that let users earn yield by depositing assets into automated, yield-optimizing pools. 
 This examples shows how to sign transactions to Morpho's Steakhouse USDC Vault on Base Mainnet using Turnkey. It provides the following scripts:
