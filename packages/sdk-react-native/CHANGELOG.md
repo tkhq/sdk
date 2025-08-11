@@ -1,5 +1,18 @@
 # @turnkey/sdk-react-native
 
+## 1.4.0
+
+### Minor Changes
+
+- [#651](https://github.com/tkhq/sdk/pull/651) [`81e355c`](https://github.com/tkhq/sdk/commit/81e355c9a8321feffcac056916b65139cf35eeed) Author [@turnekybc](https://github.com/turnekybc) - Add Coinbase & MoonPay Fiat Onramp. View the [Fiat Onramp feature docs](https://docs.turnkey.com/wallets/fiat-on-ramp).
+
+### Patch Changes
+
+- Updated dependencies [[`81e355c`](https://github.com/tkhq/sdk/commit/81e355c9a8321feffcac056916b65139cf35eeed), [`6cde41c`](https://github.com/tkhq/sdk/commit/6cde41cfecdfb7d54abf52cc65e28ef0e2ad6ba3)]:
+  - @turnkey/react-native-passkey-stamper@1.1.0
+  - @turnkey/http@3.7.0
+  - @turnkey/crypto@2.5.0
+
 ## 1.3.7
 
 ### Patch Changes

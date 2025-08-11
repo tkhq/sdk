@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/wallet-stamper",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {

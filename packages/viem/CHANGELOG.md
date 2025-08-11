@@ -1,5 +1,20 @@
 # @turnkey/viem
 
+## 0.11.0
+
+### Minor Changes
+
+- [#651](https://github.com/tkhq/sdk/pull/651) [`81e355c`](https://github.com/tkhq/sdk/commit/81e355c9a8321feffcac056916b65139cf35eeed) Author [@turnekybc](https://github.com/turnekybc) - Add Coinbase & MoonPay Fiat Onramp. View the [Fiat Onramp feature docs](https://docs.turnkey.com/wallets/fiat-on-ramp).
+
+### Patch Changes
+
+- [#808](https://github.com/tkhq/sdk/pull/808) [`517d1d8`](https://github.com/tkhq/sdk/commit/517d1d83f7d4f9e000c7b47ff93e7a23daf4f6d2) Author [@moeodeh3](https://github.com/moeodeh3) - Fix serialization with BigInt values in `signTypedData()`
+
+- Updated dependencies [[`81e355c`](https://github.com/tkhq/sdk/commit/81e355c9a8321feffcac056916b65139cf35eeed)]:
+  - @turnkey/http@3.7.0
+  - @turnkey/sdk-browser@5.5.0
+  - @turnkey/sdk-server@4.4.0
+
 ## 0.10.5
 
 ### Patch Changes
