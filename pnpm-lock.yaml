@@ -609,24 +609,12 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.10
         version: 4.1.11
-      '@turnkey/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
         version: link:../../packages/react-wallet-kit
-      '@turnkey/sdk-react':
-        specifier: workspace:*
-        version: link:../../packages/sdk-react
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../packages/sdk-server
       '@turnkey/sdk-types':
         specifier: workspace:*
         version: link:../../packages/sdk-types
-      '@turnkey/wallet-stamper':
-        specifier: workspace:*
-        version: link:../../packages/wallet-stamper
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1
