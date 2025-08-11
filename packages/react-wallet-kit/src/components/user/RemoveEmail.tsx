@@ -6,7 +6,7 @@ import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import clsx from "clsx";
 import { SuccessPage } from "../design/Success";
-import type { StamperType } from "@turnkey/sdk-js";
+import type { StamperType } from "@turnkey/core";
 
 export function RemoveEmail(params: {
   userId?: string;

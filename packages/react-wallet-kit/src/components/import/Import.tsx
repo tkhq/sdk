@@ -13,7 +13,7 @@ import { Input } from "@headlessui/react";
 import {
   type StamperType,
   generateWalletAccountsFromAddressFormat,
-} from "@turnkey/sdk-js";
+} from "@turnkey/core";
 import { SuccessPage } from "../design/Success";
 import clsx from "clsx";
 
