@@ -29,7 +29,7 @@ import {
   Wallet,
   WalletAccount,
   WalletProvider,
-} from "@turnkey/sdk-js";
+} from "@turnkey/core";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import {
   TurnkeyError,

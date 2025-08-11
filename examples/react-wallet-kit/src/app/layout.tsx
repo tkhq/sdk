@@ -4,7 +4,7 @@ import "./global.css";
 import { TurnkeyConfigProvider } from "@/providers/config/ConfigProvider";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { Slide, toast } from "react-toastify";
-import type { CreateSubOrgParams } from "@turnkey/sdk-js";
+import type { CreateSubOrgParams } from "@turnkey/core";
 
 interface RootLayoutProps {
   children: React.ReactNode;

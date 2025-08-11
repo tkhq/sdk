@@ -20,7 +20,7 @@
     "packages/crypto",
     "packages/react-native-passkey-stamper",
     "packages/telegram-cloud-storage-stamper",
-    "packages/sdk-js",
+    "packages/core",
     "packages/react-wallet-kit",
     "packages/sdk-types"
   ],

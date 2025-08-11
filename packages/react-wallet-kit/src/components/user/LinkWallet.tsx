@@ -7,7 +7,7 @@ import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ActionPage } from "../auth/Action";
 import { SuccessPage } from "../design/Success";
-import type { WalletProvider } from "@turnkey/sdk-js";
+import type { WalletProvider } from "@turnkey/core";
 import { isWalletConnect } from "@utils";
 
 interface LinkWalletModalProps {
