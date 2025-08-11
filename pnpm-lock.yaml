@@ -1882,6 +1882,9 @@ importers:
       '@noble/hashes':
         specifier: 1.8.0
         version: 1.8.0
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
       bs58:
         specifier: 6.0.0
         version: 6.0.0
@@ -1892,9 +1895,6 @@ importers:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../api-key-stamper
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../encoding
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
