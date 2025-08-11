@@ -1,0 +1,69 @@
+{
+  "name": "@turnkey/core",
+  "version": "0.1.0",
+  "description": "Work in progress masterpiece",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "version": "node -p \"'export const VERSION = ' + JSON.stringify(require('./package.json').name + '@' + require('./package.json').version) + ';'\" > src/__generated__/version.ts",
+    "build": "rollup -c",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc -p tsconfig.typecheck.json",
+    "prepublishOnly": "pnpm run clean && pnpm run build"
+  },
+  "keywords": [
+    "turnkey"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/indexed-db-stamper": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
+    "@turnkey/webauthn-stamper": "workspace:*",
+    "@wallet-standard/app": "^1.1.0",
+    "@wallet-standard/base": "^1.1.0",
+    "@walletconnect/sign-client": "^2.21.6",
+    "@walletconnect/types": "^2.21.6",
+    "bs58": "^6.0.0",
+    "bs58check": "3.0.1",
+    "cross-fetch": "^3.1.5",
+    "ethers": "^6.10.0",
+    "jwt-decode": "4.0.0",
+    "uuid": "^11.1.0",
+    "viem": "^2.33.1"
+  },
+  "devDependencies": {
+    "glob": "^8.0.3",
+    "typescript": "5.4.3"
+  },
+  "peerDependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
+    "@turnkey/react-native-passkey-stamper": "workspace:*",
+    "react-native-keychain": "^8.1.0 || ^9.2.2 || ^10.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react-native-keychain": {
+      "optional": true
+    },
+    "@react-native-async-storage/async-storage": {
+      "optional": true
+    },
+    "@turnkey/react-native-passkey-stamper": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

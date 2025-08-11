@@ -28,7 +28,7 @@
     "@lottiefiles/react-lottie-player": "^3.6.0",
     "@noble/hashes": "^1.8.0",
     "@turnkey/iframe-stamper": "workspace:^",
-    "@turnkey/sdk-js": "workspace:*",
+    "@turnkey/core": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",

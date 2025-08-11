@@ -7,7 +7,7 @@ import { ExportWarning } from "./ExportWarning";
 import { ActionButton } from "../design/Buttons";
 import type { ExportType } from "../../types/base";
 import clsx from "clsx";
-import type { StamperType } from "@turnkey/sdk-js";
+import type { StamperType } from "@turnkey/core";
 
 const TurnkeyExportIframeContainerId = "turnkey-export-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
