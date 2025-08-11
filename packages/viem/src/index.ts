@@ -38,7 +38,6 @@ import {
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient } from "@turnkey/sdk-server";
-import { jsonStringifyBigInt } from "./utils";
 
 export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
   name: "TurnkeyConsensusNeededError";
@@ -441,7 +440,7 @@ export async function signTypedData(
 ): Promise<Hex> {
   return (await signMessageWithErrorWrapping(
     client,
-    jsonStringifyBigInt(data),
+    jsonStringifyWithBigInt(data),
     organizationId,
     signWith,
     "hex",
@@ -665,5 +664,11 @@ export function isTurnkeyActivityError(error: any) {
     error.walk((e: any) => {
       return e instanceof TurnkeyActivityError;
     })
+  );
+}
+
+export function jsonStringifyWithBigInt(value: unknown) {
+  return JSON.stringify(value, (_, v) =>
+    typeof v === "bigint" ? v.toString() : v,
   );
 }
