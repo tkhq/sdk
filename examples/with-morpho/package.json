@@ -1,0 +1,21 @@
+{
+  "name": "@turnkey/with-morpho",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -w run build-all",
+    "policy": "tsx src/policy.ts",
+    "deposit": "tsx src/deposit.ts",
+    "withdraw": "tsx src/withdraw.ts",
+    "redeem": "tsx src/redeem.ts",
+    "balance": "tsx src/balance.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/viem": "workspace:*",
+    "dotenv": "^16.0.3",
+    "viem": "^2.24.2"
+  }
+}
