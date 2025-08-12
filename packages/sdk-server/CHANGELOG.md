@@ -1,5 +1,17 @@
 # @turnkey/sdk-server
 
+## 4.5.0
+
+### Minor Changes
+
+- [#826](https://github.com/tkhq/sdk/pull/826) [`f83f25b`](https://github.com/tkhq/sdk/commit/f83f25ba33ef15dbd66723531eebe2fd00f43ac0) Author [@turnekybc](https://github.com/turnekybc) - Update per mono release v2025.8.1
+
+### Patch Changes
+
+- Updated dependencies [[`f83f25b`](https://github.com/tkhq/sdk/commit/f83f25ba33ef15dbd66723531eebe2fd00f43ac0)]:
+  - @turnkey/http@3.8.0
+  - @turnkey/wallet-stamper@1.0.8
+
 ## 4.4.0
 
 ### Minor Changes
