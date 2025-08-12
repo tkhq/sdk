@@ -84,7 +84,7 @@ export function OtpVerification(props: OtpVerificationProps) {
     <div
       className={clsx(
         "flex items-center justify-center py-3",
-        isMobile ? "min-w-80 max-w-80" : "min-w-96",
+        isMobile ? "w-full" : "min-w-96",
       )}
     >
       <div
@@ -108,7 +108,9 @@ export function OtpVerification(props: OtpVerificationProps) {
           </span>
         </div>
 
-        <div className={`transition-all ${shaking ? "animate-shake" : ""}`}>
+        <div
+          className={`transition-all flex justify-center ${shaking ? "animate-shake" : ""}`}
+        >
           <OtpInput
             otpLength={otpLength}
             onContinue={handleContinue}
@@ -222,25 +224,32 @@ export function OtpInput(props: OtpInputProps) {
   };
 
   return (
-    <div className="flex items-center justify-center space-x-2">
-      {Array.from({ length: otpLength }).map((_, i) => (
-        <Input
-          key={i}
-          type={alphanumeric ? "text" : "text"}
-          inputMode={alphanumeric ? "text" : "numeric"}
-          maxLength={1}
-          value={values[i]?.toUpperCase()}
-          autoComplete="off"
-          onChange={(e) => handleChange(i, e.target.value)}
-          onKeyDown={(e) => handleKeyDown(e, i)}
-          onPaste={handlePaste}
-          ref={(el) => (inputsRef.current[i] = el as HTMLInputElement | null)}
-          className={clsx(
-            "text-center text-lg rounded-md border border-modal-background-dark/20 dark:border-modal-background-light/20 bg-button-light dark:bg-button-dark text-inherit focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-all",
-            isMobile ? "size-10" : "size-12",
-          )}
-        />
-      ))}
+    <div
+      className={clsx(
+        "flex items-center justify-center space-x-2",
+        isMobile ? "w-[95%]" : "w-full",
+      )}
+    >
+      {Array.from({ length: otpLength }).map((_, i) => {
+        return (
+          <Input
+            key={i}
+            type={alphanumeric ? "text" : "text"}
+            inputMode={alphanumeric ? "text" : "numeric"}
+            maxLength={1}
+            value={values[i]?.toUpperCase()}
+            autoComplete="off"
+            onChange={(e) => handleChange(i, e.target.value.toUpperCase())}
+            onKeyDown={(e) => handleKeyDown(e, i)}
+            onPaste={handlePaste}
+            ref={(el) => (inputsRef.current[i] = el as HTMLInputElement | null)}
+            className={clsx(
+              "text-center text-lg rounded-md border border-modal-background-dark/20 dark:border-modal-background-light/20 bg-button-light dark:bg-button-dark text-inherit focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-all",
+              isMobile ? "w-full h-10" : "h-12 w-12",
+            )}
+          />
+        );
+      })}
     </div>
   );
 }
