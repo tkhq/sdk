@@ -27,28 +27,28 @@ export const initialConfig: TurnkeyProviderConfig = {
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL || "https://api.turnkey.com",
   authProxyUrl:
     process.env.NEXT_PUBLIC_AUTH_PROXY_URL || "https://authproxy.turnkey.com",
-  authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
+  authProxyConfigId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
   organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
   importIframeUrl:
     process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL || "https://import.turnkey.com",
   exportIframeUrl:
     process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL || "https://export.turnkey.com",
   auth: {
-    oAuthConfig: {
+    oauthConfig: {
       googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-      appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
       facebookClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID,
-      oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
-      openOAuthInPage: true,
+      appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
+      oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
+      openOauthInPage: true,
     },
     methods: {
       emailOtpAuthEnabled: true,
       smsOtpAuthEnabled: false,
       passkeyAuthEnabled: true,
       walletAuthEnabled: true,
-      googleOAuthEnabled: true,
-      appleOAuthEnabled: false,
-      facebookOAuthEnabled: false,
+      googleOauthEnabled: true,
+      appleOauthEnabled: false,
+      facebookOauthEnabled: false,
     },
     methodOrder: ["socials", "email", "sms", "passkey", "wallet"],
     oauthOrder: ["google", "apple", "facebook"],
@@ -58,7 +58,7 @@ export const initialConfig: TurnkeyProviderConfig = {
       smsOtpAuth: createSuborgParams,
       passkeyAuth: createSuborgParams,
       walletAuth: createSuborgParams,
-      oAuth: createSuborgParams,
+      oauth: createSuborgParams,
     },
   },
   ui: {

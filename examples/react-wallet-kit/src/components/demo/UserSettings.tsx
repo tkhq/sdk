@@ -105,21 +105,21 @@ export default function UserSettings() {
               {clientConfig?.auth?.methods?.smsOtpAuthEnabled && (
                 <PhoneAuthButton canRemoveAuthMethod={canRemoveAuthMethod} />
               )}
-              {clientConfig?.auth?.methods?.googleOAuthEnabled && (
+              {clientConfig?.auth?.methods?.googleOauthEnabled && (
                 <SocialButton
                   canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.GOOGLE}
                   logo={<GoogleSVG className="w-6 h-6" />}
                 />
               )}
-              {clientConfig?.auth?.methods?.appleOAuthEnabled && (
+              {clientConfig?.auth?.methods?.appleOauthEnabled && (
                 <SocialButton
                   canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.APPLE}
                   logo={<AppleSVG className="w-6 h-6" />}
                 />
               )}
-              {clientConfig?.auth?.methods?.facebookOAuthEnabled && (
+              {clientConfig?.auth?.methods?.facebookOauthEnabled && (
                 <SocialButton
                   canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.FACEBOOK}
