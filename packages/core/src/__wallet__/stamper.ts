@@ -23,7 +23,7 @@ interface WalletContext {
 
 type ContextMap = Partial<Record<WalletInterfaceType, WalletContext>>;
 
-export class WebWalletStamper implements TStamper {
+export class CrossPlatformWalletStamper implements TStamper {
   private readonly ctx: ContextMap = {};
   private activeInterfaceType?: WalletInterfaceType;
 
