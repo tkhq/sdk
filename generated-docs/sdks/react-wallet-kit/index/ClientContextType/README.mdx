@@ -13,11 +13,11 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:41](https://github.
 
 ## Properties
 
-### addOAuthProvider()
+### addOauthProvider()
 
-> **addOAuthProvider**: (`params`) => `Promise`\<`string`[]\>
+> **addOauthProvider**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:568
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:657
 
 Adds an OAuth provider to the user.
 
@@ -68,7 +68,7 @@ If there is no active session, if the account already exists, or if there is an 
 
 #### Inherited from
 
-`TurnkeyClientMethods.addOAuthProvider`
+`TurnkeyClientMethods.addOauthProvider`
 
 ***
 
@@ -76,7 +76,7 @@ If there is no active session, if the account already exists, or if there is an 
 
 > **addPasskey**: (`params?`) => `Promise`\<`string`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:610
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:699
 
 Adds a new passkey authenticator for the user.
 
@@ -150,7 +150,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:46](https://github.
 
 > **clearAllSessions**: () => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:795
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:884
 
 Clears all sessions and resets the active session state.
 
@@ -179,7 +179,7 @@ If no sessions exist or if there is an error clearing all sessions.
 
 > **clearSession**: (`params?`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:781
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:870
 
 Clears the session associated with the specified session key, or the active session by default.
 
@@ -218,7 +218,7 @@ If the session does not exist or if there is an error clearing the session.
 
 > **clearUnusedKeyPairs**: () => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:885
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:974
 
 Clears any unused API key pairs from persistent storage.
 
@@ -255,7 +255,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:45](https://github.
 
 > **completeOauth**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:258
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:347
 
 Completes the OAuth authentication flow by either signing up or logging in the user, depending on whether a sub-organization already exists for the provided OIDC token.
 
@@ -325,7 +325,7 @@ If there is an error during the OAuth completion process, such as account lookup
 
 > **completeOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:230
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:319
 
 Completes the OTP authentication flow by verifying the OTP code and then either signing up or logging in the user.
 
@@ -415,7 +415,11 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:47](https://github.
 
 > **connectWalletAccount**: (`walletProvider`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:99
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:118
+
+Connects the specified wallet account.
+
+- Requires the wallet manager and its connector to be initialized.
 
 #### Parameters
 
@@ -423,9 +427,17 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:99
 
 [`WalletProvider`](../WalletProvider/readme)
 
+wallet provider to connect.
+
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves once the wallet account is connected.
+
+#### Throws
+
+If the wallet manager is uninitialized or the connection fails.
 
 #### Inherited from
 
@@ -437,7 +449,7 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:99
 
 > **createApiKeyPair**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:900
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:989
 
 Creates a new API key pair and returns the public key.
 
@@ -534,7 +546,7 @@ If there is an error during passkey creation, or if the platform is unsupported.
 
 > **createWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:655
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:744
 
 Creates a new wallet for sub-organization.
 
@@ -600,7 +612,7 @@ If there is no active session or if there is an error creating the wallet.
 
 > **createWalletAccounts**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:679
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:768
 
 Creates new accounts in the specified wallet.
 
@@ -659,7 +671,7 @@ If there is no active session, if the wallet does not exist, or if there is an e
 
 > **deleteSubOrganization**: (`params?`) => `Promise`\<[`TDeleteSubOrganizationResponse`](../../../_turnkey/sdk-types/TDeleteSubOrganizationResponse/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:747
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:836
 
 Deletes the current sub-organization (sub-org) for the active session.
 
@@ -705,7 +717,11 @@ If there is no active session or if there is an error deleting the sub-organizat
 
 > **disconnectWalletAccount**: (`walletProvider`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:100
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:128
+
+Disconnects the specified wallet account.
+
+- Requires the wallet manager and its connector to be initialized.
 
 #### Parameters
 
@@ -713,9 +729,17 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:100
 
 [`WalletProvider`](../WalletProvider/readme)
 
+wallet provider to disconnect.
+
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves once the wallet account is disconnected.
+
+#### Throws
+
+If the wallet manager is uninitialized or the disconnection fails.
 
 #### Inherited from
 
@@ -727,7 +751,7 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:100
 
 > **exportWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:702
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:791
 
 Exports a wallet as an encrypted bundle.
 
@@ -786,7 +810,7 @@ If there is no active session, if the targetPublicKey is missing, or if there is
 
 > **fetchUser**: (`params?`) => `Promise`\<[`v1User`](../../../_turnkey/sdk-types/v1User/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:448
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:537
 
 Fetches the user details for the current session or a specified user.
 
@@ -838,7 +862,7 @@ If there is no active session, if there is no userId, or if there is an error fe
 
 > **fetchWalletAccounts**: (`params`) => `Promise`\<[`WalletAccount`](../WalletAccount/readme)[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:342
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:431
 
 Fetches all accounts for a specific wallet, including both embedded and connected wallet accounts.
 
@@ -896,7 +920,7 @@ If no active session is found or if there is an error fetching wallet accounts.
 
 > **fetchWallets**: (`params?`) => `Promise`\<[`Wallet`](../Wallet/readme)[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:323
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:412
 
 Fetches all wallets for the current user, including both embedded and connected wallets.
 
@@ -936,7 +960,7 @@ If no active session is found or if there is an error fetching wallets.
 
 > **getActiveSessionKey**: () => `Promise`\<`undefined` \| `string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:873
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:962
 
 Retrieves the active session key currently set in persistent storage.
 
@@ -965,7 +989,7 @@ If there is an error retrieving the active session key from storage.
 
 > **getAllSessions**: () => `Promise`\<`undefined` \| `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/readme)\>\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:846
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:935
 
 Retrieves all sessions stored in persistent storage.
 
@@ -994,7 +1018,7 @@ If there is an error retrieving sessions from storage.
 
 > **getProxyAuthConfig**: () => `Promise`\<[`ProxyTGetWalletKitConfigResponse`](../../../_turnkey/sdk-types/ProxyTGetWalletKitConfigResponse/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:918
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:1007
 
 Fetches the WalletKit proxy authentication configuration from the auth proxy.
 
@@ -1023,7 +1047,7 @@ If there is an error retrieving the proxy authentication configuration from the 
 
 > **getSession**: (`params?`) => `Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:832
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:921
 
 Retrieves the session associated with the specified session key, or the active session by default.
 
@@ -1061,7 +1085,12 @@ If there is an error retrieving the session from storage.
 
 > **getWalletProviders**: (`chain?`) => `Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:98
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:108
+
+Retrieves wallet providers from the initialized wallet manager.
+
+- Optionally filters providers by the specified blockchain chain.
+- Throws an error if the wallet manager is not initialized.
 
 #### Parameters
 
@@ -1069,9 +1098,17 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:98
 
 [`Chain`](../Chain/readme)
 
+optional blockchain chain to filter the returned providers.
+
 #### Returns
 
 `Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
+
+A promise that resolves to an array of wallet providers.
+
+#### Throws
+
+If the wallet manager is uninitialized or provider retrieval fails.
 
 #### Inherited from
 
@@ -1207,7 +1244,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:42](https://github.
 
 > **importWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:726
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:815
 
 Imports a wallet from an encrypted bundle.
 
@@ -1272,7 +1309,7 @@ If there is no active session, if the encrypted bundle is invalid, or if there i
 
 > **initOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:132
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:221
 
 Initializes the OTP process by sending an OTP code to the provided contact.
 
@@ -1316,7 +1353,16 @@ If there is an error during the OTP initialization process or if the maximum num
 
 > **loginOrSignupWithWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:114
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:203
+
+Logs in an existing user or signs up a new user using a wallet, creating a new sub-organization if needed.
+
+- This function attempts to log in the user by stamping a login request with the provided wallet.
+- If the wallet’s public key is not associated with an existing sub-organization, a new one is created.
+- Handles both wallet authentication and sub-organization creation in a single flow.
+- For Ethereum wallets, derives the public key from the signed request header; for Solana wallets, retrieves it directly from the wallet.
+- Optionally accepts additional sub-organization parameters, a custom session key, and a custom session expiration.
+- Stores the resulting session token under the specified session key, or the default session key if not provided.
 
 #### Parameters
 
@@ -1326,21 +1372,35 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:114
 
 [`CreateSubOrgParams`](../CreateSubOrgParams/readme)
 
+optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
+
 ###### expirationSeconds?
 
 `string`
+
+session expiration time in seconds (defaults to the configured default).
 
 ###### sessionKey?
 
 `string`
 
+session key to use for storing the session (defaults to the default session key).
+
 ###### walletProvider
 
 [`WalletProvider`](../WalletProvider/readme)
 
+wallet provider to use for authentication.
+
 #### Returns
 
 `Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token for the sub-organization (new or existing).
+
+#### Throws
+
+If there is an error during wallet authentication, sub-organization creation, or session storage.
 
 #### Inherited from
 
@@ -1352,7 +1412,7 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:114
 
 > **loginWithOauth**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:281
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:370
 
 Logs in a user using OAuth authentication.
 
@@ -1409,7 +1469,7 @@ If there is an error during the OAuth login process or if key pair cleanup fails
 
 > **loginWithOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:178
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:267
 
 Logs in a user using an OTP verification token.
 
@@ -1519,7 +1579,15 @@ If there is an error during the passkey login process or if the user cancels the
 
 > **loginWithWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:102
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:158
+
+Logs in a user using the specified wallet provider.
+
+- This function logs in a user by authenticating with the provided wallet provider via a wallet-based signature.
+- If a public key is not provided, a new one will be generated for authentication.
+- Optionally accepts a custom session key and session expiration time.
+- Stores the resulting session token under the specified session key, or the default session key if not provided.
+- Throws an error if a public key cannot be found or generated, or if the login process fails.
 
 #### Parameters
 
@@ -1529,21 +1597,35 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:102
 
 `string`
 
+optional session expiration time in seconds (defaults to the configured default).
+
 ###### publicKey?
 
 `string`
+
+optional public key to associate with the session (generated if not provided).
 
 ###### sessionKey?
 
 `string`
 
+optional key to store the session under (defaults to the default session key).
+
 ###### walletProvider
 
 [`WalletProvider`](../WalletProvider/readme)
 
+wallet provider to use for authentication.
+
 #### Returns
 
 `Promise`\<`string`\>
+
+A promise that resolves to the created session token.
+
+#### Throws
+
+If the wallet stamper is uninitialized, a public key cannot be found or generated, or login fails.
 
 #### Inherited from
 
@@ -1593,7 +1675,7 @@ If there is no active session or if there is an error during the logout process.
 
 > **refreshSession**: (`params?`) => `Promise`\<`undefined` \| [`TStampLoginResponse`](../../../_turnkey/sdk-types/TStampLoginResponse/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:814
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:903
 
 Refreshes the session associated with the specified session key, or the active session by default.
 
@@ -1654,11 +1736,11 @@ If the session key does not exist, if there is no active session, or if there is
 
 ***
 
-### removeOAuthProviders()
+### removeOauthProviders()
 
-> **removeOAuthProviders**: (`params`) => `Promise`\<`string`[]\>
+> **removeOauthProviders**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:589
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:678
 
 Removes a list of OAuth providers from the user.
 
@@ -1702,7 +1784,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 #### Inherited from
 
-`TurnkeyClientMethods.removeOAuthProviders`
+`TurnkeyClientMethods.removeOauthProviders`
 
 ***
 
@@ -1710,7 +1792,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **removePasskeys**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:631
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:720
 
 Removes passkeys (authenticator) from the user.
 
@@ -1762,7 +1844,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **removeUserEmail**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:488
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:577
 
 Removes the user's email address.
 
@@ -1807,7 +1889,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **removeUserPhoneNumber**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:527
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:616
 
 Removes the user's phone number.
 
@@ -1860,7 +1942,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:43](https://github.
 
 > **setActiveSession**: (`params`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:859
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:948
 
 Sets the active session to the specified session key.
 
@@ -1899,7 +1981,7 @@ If the client is not initialized or if there is an error setting the active sess
 
 > **signAndSendTransaction**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:426
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:515
 
 Signs and broadcasts a transaction using the specified wallet account.
 
@@ -1966,7 +2048,7 @@ If signing or broadcasting fails.
 
 > **signMessage**: (`params`) => `Promise`\<[`v1SignRawPayloadResult`](../../../_turnkey/sdk-types/v1SignRawPayloadResult/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:376
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:465
 
 Signs a message using the specified wallet account.
 
@@ -2045,7 +2127,7 @@ If signing fails, if the wallet account does not support signing, or if the resp
 
 > **signTransaction**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:400
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:489
 
 Signs a transaction using the specified wallet account.
 
@@ -2103,7 +2185,7 @@ If there is an error signing the transaction or if the response is invalid.
 
 > **signUpWithOauth**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:303
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:392
 
 Signs up a user using OAuth authentication.
 
@@ -2166,7 +2248,7 @@ If there is an error during the OAuth sign-up or login process.
 
 > **signUpWithOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:202
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:291
 
 Signs up a user using an OTP verification token.
 
@@ -2294,7 +2376,15 @@ If there is an error during passkey creation, sub-organization creation, or sess
 
 > **signUpWithWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:108
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:180
+
+Signs up a user using a wallet, creating a new sub-organization and session.
+
+- This function creates a new wallet authenticator and uses it to register a new sub-organization for the user.
+- Handles both wallet authentication and sub-organization creation in a single flow.
+- Optionally accepts additional sub-organization parameters, a custom session key, and a custom session expiration.
+- Automatically generates additional API key pairs for authentication and session management.
+- Stores the resulting session token under the specified session key, or the default session key if not provided, and manages cleanup of unused key pairs.
 
 #### Parameters
 
@@ -2304,21 +2394,35 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:108
 
 [`CreateSubOrgParams`](../CreateSubOrgParams/readme)
 
+parameters for creating a sub-organization (e.g., authenticators, user metadata).
+
 ###### expirationSeconds?
 
 `string`
+
+session expiration time in seconds (defaults to the configured default).
 
 ###### sessionKey?
 
 `string`
 
+session key to use for storing the session (defaults to the default session key).
+
 ###### walletProvider
 
 [`WalletProvider`](../WalletProvider/readme)
 
+wallet provider to use for authentication.
+
 #### Returns
 
 `Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token for the new sub-organization.
+
+#### Throws
+
+If there is an error during wallet authentication, sub-organization creation, session storage, or cleanup.
 
 #### Inherited from
 
@@ -2330,7 +2434,7 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:108
 
 > **storeSession**: (`params`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:765
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:854
 
 Stores a session token and updates the session associated with the specified session key, or by default the active session.
 
@@ -2376,7 +2480,13 @@ If there is an error storing the session or cleaning up key pairs.
 
 > **switchWalletProviderChain**: (`walletProvider`, `chainOrId`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:101
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:141
+
+Switches the specified wallet provider to a different blockchain chain.
+
+- Requires the wallet manager and its connector to be initialized.
+- The wallet provider must have at least one connected address.
+- Does nothing if the wallet provider is already on the desired chain.
 
 #### Parameters
 
@@ -2384,13 +2494,23 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:101
 
 [`WalletProvider`](../WalletProvider/readme)
 
+wallet provider to switch.
+
 ##### chainOrId
+
+target chain as a chain ID string or SwitchableChain object.
 
 `string` | [`SwitchableChain`](../SwitchableChain/readme)
 
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves once the chain switch is complete.
+
+#### Throws
+
+If the wallet manager is uninitialized, the provider is not connected, or the switch fails.
 
 #### Inherited from
 
@@ -2402,7 +2522,7 @@ Defined in: core/dist/\_\_clients\_\_/core.d.ts:101
 
 > **updateUserEmail**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:469
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:558
 
 Updates the user's email address.
 
@@ -2460,7 +2580,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **updateUserName**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:546
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:635
 
 Updates the user's name.
 
@@ -2512,7 +2632,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **updateUserPhoneNumber**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:508
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:597
 
 Updates the user's phone number.
 
@@ -2578,7 +2698,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:48](https://github.
 
 > **verifyOtp**: (`params`) => `Promise`\<\{ `subOrganizationId`: `string`; `verificationToken`: `string`; \}\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:153
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:242
 
 Verifies the OTP code sent to the user.
 
@@ -2641,9 +2761,9 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:49](https://github.
 
 ## Methods
 
-### handleAddOAuthProvider()
+### handleAddOauthProvider()
 
-> **handleAddOAuthProvider**(`params`): `Promise`\<`void`\>
+> **handleAddOauthProvider**(`params`): `Promise`\<`void`\>
 
 Defined in: [react-wallet-kit/src/providers/client/Types.tsx:408](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L408)
 
@@ -2824,7 +2944,7 @@ Handles the Apple OAuth flow.
 - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
 - If `openInPage` is true, the function redirects and returns a promise that resolves on redirect or times out after 5 minutes.
 - If `openInPage` is false, a popup window is opened and the function returns a promise that resolves when the flow completes, or rejects if the window is closed or times out.
-- On successful authentication, the function either calls the provided `onOAuthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
+- On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
 - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
 
 #### Parameters
@@ -2843,13 +2963,13 @@ Additional key-value pairs to include in the OAuth state parameter for custom tr
 
 The Apple Client ID to use (defaults to the client ID from configuration).
 
-###### onOAuthSuccess?
+###### onOauthSuccess?
 
 (`params`) => `any`
 
 Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
 
-onOAuthSuccess params:
+onOauthSuccess params:
 - oidcToken: The OIDC token received from the OAuth flow.
 - providerName: The name of the OAuth provider ("apple").
 
@@ -2941,7 +3061,7 @@ Handles the Facebook OAuth flow.
 - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
 - If `openInPage` is true, the function redirects and returns a promise that resolves on redirect or times out after 5 minutes.
 - If `openInPage` is false, a popup window is opened and the function returns a promise that resolves when the flow completes, or rejects if the window is closed or times out.
-- On successful authentication, the function either calls the provided `onOAuthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
+- On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
 - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
 
 #### Parameters
@@ -2960,13 +3080,13 @@ Additional key-value pairs to include in the OAuth state parameter for custom tr
 
 The Facebook Client ID to use (defaults to the client ID from configuration).
 
-###### onOAuthSuccess?
+###### onOauthSuccess?
 
 (`params`) => `any`
 
 Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
 
-onOAuthSuccess params:
+onOauthSuccess params:
 - oidcToken: The OIDC token received from the OAuth flow.
 - providerName: The name of the OAuth provider ("facebook").
 
@@ -3003,7 +3123,7 @@ Handles the Google OAuth flow.
 - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
 - If `openInPage` is true, the current page is redirected to the Google OAuth URL and the function returns a promise that resolves on redirect or times out after 5 minutes.
 - If `openInPage` is false, a popup window is opened for the OAuth flow, and the function returns a promise that resolves when the flow completes or rejects if the window is closed or times out.
-- On successful authentication, the function either calls the provided `onOAuthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
+- On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
 - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
 
 #### Parameters
@@ -3022,13 +3142,13 @@ Additional key-value pairs to include in the OAuth state parameter for custom tr
 
 The Google Client ID to use (defaults to the client ID from configuration).
 
-###### onOAuthSuccess?
+###### onOauthSuccess?
 
 (`params`) => `any`
 
 Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
 
-onOAuthSuccess params:
+onOauthSuccess params:
 - oidcToken: The OIDC token received from the OAuth flow.
 - providerName: The name of the OAuth provider ("google").
 
@@ -3155,9 +3275,9 @@ A void promise.
 
 ***
 
-### handleRemoveOAuthProvider()
+### handleRemoveOauthProvider()
 
-> **handleRemoveOAuthProvider**(`params`): `Promise`\<`string`[]\>
+> **handleRemoveOauthProvider**(`params`): `Promise`\<`string`[]\>
 
 Defined in: [react-wallet-kit/src/providers/client/Types.tsx:433](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L433)
 

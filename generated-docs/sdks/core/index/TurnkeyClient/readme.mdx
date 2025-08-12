@@ -5,7 +5,7 @@ mode: wide
   
 # Class: TurnkeyClient
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:89](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L89)
+Defined in: [core/src/\_\_clients\_\_/core.ts:90](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L90)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:89](https://github.com/tkhq/sdk/bl
 
 > **new TurnkeyClient**(`config`, `apiKeyStamper?`, `passkeyStamper?`, `walletManager?`): `TurnkeyClient`
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:98](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L98)
+Defined in: [core/src/\_\_clients\_\_/core.ts:99](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L99)
 
 #### Parameters
 
@@ -43,7 +43,7 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:98](https://github.com/tkhq/sdk/bl
 
 > **config**: [`TurnkeySDKClientConfig`](../../../react-wallet-kit/index/TurnkeySDKClientConfig/readme)
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:90](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L90)
+Defined in: [core/src/\_\_clients\_\_/core.ts:91](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L91)
 
 ***
 
@@ -51,15 +51,15 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:90](https://github.com/tkhq/sdk/bl
 
 > **httpClient**: `TurnkeySDKClientBase`
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:91](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L91)
+Defined in: [core/src/\_\_clients\_\_/core.ts:92](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L92)
 
 ## Methods
 
-### addOAuthProvider()
+### addOauthProvider()
 
-> **addOAuthProvider**(`params`): `Promise`\<`string`[]\>
+> **addOauthProvider**(`params`): `Promise`\<`string`[]\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2321](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2321)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2458](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2458)
 
 Adds an OAuth provider to the user.
 
@@ -114,7 +114,7 @@ If there is no active session, if the account already exists, or if there is an 
 
 > **addPasskey**(`params?`): `Promise`\<`string`[]\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2475](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2475)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2610](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2610)
 
 Adds a new passkey authenticator for the user.
 
@@ -168,7 +168,7 @@ If there is no active session, if passkey creation fails, or if there is an erro
 
 > **clearAllSessions**(): `Promise`\<`void`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2987](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2987)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3122](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3122)
 
 Clears all sessions and resets the active session state.
 
@@ -193,7 +193,7 @@ If no sessions exist or if there is an error clearing all sessions.
 
 > **clearSession**(`params?`): `Promise`\<`void`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2953](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2953)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3088](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3088)
 
 Clears the session associated with the specified session key, or the active session by default.
 
@@ -228,7 +228,7 @@ If the session does not exist or if there is an error clearing the session.
 
 > **clearUnusedKeyPairs**(): `Promise`\<`void`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:3227](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3227)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3362](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3362)
 
 Clears any unused API key pairs from persistent storage.
 
@@ -253,7 +253,7 @@ If there is an error listing, checking, or deleting unused key pairs.
 
 > **completeOauth**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1252](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1252)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1380](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1380)
 
 Completes the OAuth authentication flow by either signing up or logging in the user, depending on whether a sub-organization already exists for the provided OIDC token.
 
@@ -319,7 +319,7 @@ If there is an error during the OAuth completion process, such as account lookup
 
 > **completeOtp**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1169](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1169)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1297](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1297)
 
 Completes the OTP authentication flow by verifying the OTP code and then either signing up or logging in the user.
 
@@ -397,7 +397,11 @@ If there is an error during OTP verification, sign-up, or login.
 
 > **connectWalletAccount**(`walletProvider`): `Promise`\<`void`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:497](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L497)
+Defined in: [core/src/\_\_clients\_\_/core.ts:522](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L522)
+
+Connects the specified wallet account.
+
+- Requires the wallet manager and its connector to be initialized.
 
 #### Parameters
 
@@ -405,9 +409,17 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:497](https://github.com/tkhq/sdk/b
 
 [`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
 
+wallet provider to connect.
+
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves once the wallet account is connected.
+
+#### Throws
+
+If the wallet manager is uninitialized or the connection fails.
 
 ***
 
@@ -415,7 +427,7 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:497](https://github.com/tkhq/sdk/b
 
 > **createApiKeyPair**(`params?`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:3280](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3280)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3415](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3415)
 
 Creates a new API key pair and returns the public key.
 
@@ -456,7 +468,7 @@ If the API key stamper is not initialized or if there is an error during key pai
 
 > **createPasskey**(`params?`): `Promise`\<\{ `attestation`: [`v1Attestation`](../../../_turnkey/sdk-types/v1Attestation/readme); `encodedChallenge`: `string`; \}\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:171](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L171)
+Defined in: [core/src/\_\_clients\_\_/core.ts:172](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L172)
 
 Creates a new passkey authenticator for the user.
 
@@ -504,7 +516,7 @@ If there is an error during passkey creation, or if the platform is unsupported.
 
 > **createWallet**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2599](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2599)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2734](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2734)
 
 Creates a new wallet for sub-organization.
 
@@ -566,7 +578,7 @@ If there is no active session or if there is an error creating the wallet.
 
 > **createWalletAccounts**(`params`): `Promise`\<`string`[]\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2673](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2673)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2808](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2808)
 
 Creates new accounts in the specified wallet.
 
@@ -621,7 +633,7 @@ If there is no active session, if the wallet does not exist, or if there is an e
 
 > **deleteSubOrganization**(`params?`): `Promise`\<[`TDeleteSubOrganizationResponse`](../../../_turnkey/sdk-types/TDeleteSubOrganizationResponse/readme)\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2872](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2872)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3007](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3007)
 
 Deletes the current sub-organization (sub-org) for the active session.
 
@@ -663,7 +675,11 @@ If there is no active session or if there is an error deleting the sub-organizat
 
 > **disconnectWalletAccount**(`walletProvider`): `Promise`\<`void`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:510](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L510)
+Defined in: [core/src/\_\_clients\_\_/core.ts:550](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L550)
+
+Disconnects the specified wallet account.
+
+- Requires the wallet manager and its connector to be initialized.
 
 #### Parameters
 
@@ -671,9 +687,17 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:510](https://github.com/tkhq/sdk/b
 
 [`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
 
+wallet provider to disconnect.
+
 #### Returns
 
 `Promise`\<`void`\>
+
+A promise that resolves once the wallet account is disconnected.
+
+#### Throws
+
+If the wallet manager is uninitialized or the disconnection fails.
 
 ***
 
@@ -681,7 +705,7 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:510](https://github.com/tkhq/sdk/b
 
 > **exportWallet**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2750](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2750)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2885](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2885)
 
 Exports a wallet as an encrypted bundle.
 
@@ -736,7 +760,7 @@ If there is no active session, if the targetPublicKey is missing, or if there is
 
 > **fetchUser**(`params?`): `Promise`\<[`v1User`](../../../_turnkey/sdk-types/v1User/readme)\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1982](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1982)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2119](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2119)
 
 Fetches the user details for the current session or a specified user.
 
@@ -784,7 +808,7 @@ If there is no active session, if there is no userId, or if there is an error fe
 
 > **fetchWalletAccounts**(`params`): `Promise`\<[`WalletAccount`](../../../react-wallet-kit/index/WalletAccount/readme)[]\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1583](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1583)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1712](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1712)
 
 Fetches all accounts for a specific wallet, including both embedded and connected wallet accounts.
 
@@ -838,7 +862,7 @@ If no active session is found or if there is an error fetching wallet accounts.
 
 > **fetchWallets**(`params?`): `Promise`\<[`Wallet`](../../../react-wallet-kit/index/Wallet/readme)[]\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1468](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1468)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1596](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1596)
 
 Fetches all wallets for the current user, including both embedded and connected wallets.
 
@@ -874,7 +898,7 @@ If no active session is found or if there is an error fetching wallets.
 
 > **getActiveSessionKey**(): `Promise`\<`undefined` \| `string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:3203](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3203)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3338](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3338)
 
 Retrieves the active session key currently set in persistent storage.
 
@@ -899,7 +923,7 @@ If there is an error retrieving the active session key from storage.
 
 > **getAllSessions**(): `Promise`\<`undefined` \| `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/readme)\>\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:3142](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3142)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3277](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3277)
 
 Retrieves all sessions stored in persistent storage.
 
@@ -924,7 +948,7 @@ If there is an error retrieving sessions from storage.
 
 > **getProxyAuthConfig**(): `Promise`\<[`ProxyTGetWalletKitConfigResponse`](../../../_turnkey/sdk-types/ProxyTGetWalletKitConfigResponse/readme)\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:3324](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3324)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3459](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3459)
 
 Fetches the WalletKit proxy authentication configuration from the auth proxy.
 
@@ -949,7 +973,7 @@ If there is an error retrieving the proxy authentication configuration from the 
 
 > **getSession**(`params?`): `Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:3114](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3114)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3249](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3249)
 
 Retrieves the session associated with the specified session key, or the active session by default.
 
@@ -983,7 +1007,12 @@ If there is an error retrieving the session from storage.
 
 > **getWalletProviders**(`chain?`): `Promise`\<[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)[]\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:484](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L484)
+Defined in: [core/src/\_\_clients\_\_/core.ts:494](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L494)
+
+Retrieves wallet providers from the initialized wallet manager.
+
+- Optionally filters providers by the specified blockchain chain.
+- Throws an error if the wallet manager is not initialized.
 
 #### Parameters
 
@@ -991,9 +1020,17 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:484](https://github.com/tkhq/sdk/b
 
 [`Chain`](../../../react-wallet-kit/index/Chain/readme)
 
+optional blockchain chain to filter the returned providers.
+
 #### Returns
 
 `Promise`\<[`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)[]\>
+
+A promise that resolves to an array of wallet providers.
+
+#### Throws
+
+If the wallet manager is uninitialized or provider retrieval fails.
 
 ***
 
@@ -1001,7 +1038,7 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:484](https://github.com/tkhq/sdk/b
 
 > **importWallet**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2809](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2809)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2944](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2944)
 
 Imports a wallet from an encrypted bundle.
 
@@ -1062,7 +1099,7 @@ If there is no active session, if the encrypted bundle is invalid, or if there i
 
 > **init**(): `Promise`\<`void`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:116](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L116)
+Defined in: [core/src/\_\_clients\_\_/core.ts:117](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L117)
 
 #### Returns
 
@@ -1074,7 +1111,7 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:116](https://github.com/tkhq/sdk/b
 
 > **initOtp**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:892](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L892)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1020](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1020)
 
 Initializes the OTP process by sending an OTP code to the provided contact.
 
@@ -1114,7 +1151,16 @@ If there is an error during the OTP initialization process or if the maximum num
 
 > **loginOrSignupWithWallet**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:713](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L713)
+Defined in: [core/src/\_\_clients\_\_/core.ts:838](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L838)
+
+Logs in an existing user or signs up a new user using a wallet, creating a new sub-organization if needed.
+
+- This function attempts to log in the user by stamping a login request with the provided wallet.
+- If the wallet’s public key is not associated with an existing sub-organization, a new one is created.
+- Handles both wallet authentication and sub-organization creation in a single flow.
+- For Ethereum wallets, derives the public key from the signed request header; for Solana wallets, retrieves it directly from the wallet.
+- Optionally accepts additional sub-organization parameters, a custom session key, and a custom session expiration.
+- Stores the resulting session token under the specified session key, or the default session key if not provided.
 
 #### Parameters
 
@@ -1124,21 +1170,35 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:713](https://github.com/tkhq/sdk/b
 
 [`CreateSubOrgParams`](../../../react-wallet-kit/index/CreateSubOrgParams/readme)
 
+optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
+
 ###### expirationSeconds?
 
 `string`
+
+session expiration time in seconds (defaults to the configured default).
 
 ###### sessionKey?
 
 `string`
 
+session key to use for storing the session (defaults to the default session key).
+
 ###### walletProvider
 
 [`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
 
+wallet provider to use for authentication.
+
 #### Returns
 
 `Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token for the sub-organization (new or existing).
+
+#### Throws
+
+If there is an error during wallet authentication, sub-organization creation, or session storage.
 
 ***
 
@@ -1146,7 +1206,7 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:713](https://github.com/tkhq/sdk/b
 
 > **loginWithOauth**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1325](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1325)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1453](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1453)
 
 Logs in a user using OAuth authentication.
 
@@ -1199,7 +1259,7 @@ If there is an error during the OAuth login process or if key pair cleanup fails
 
 > **loginWithOtp**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1014](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1014)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1142](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1142)
 
 Logs in a user using an OTP verification token.
 
@@ -1253,7 +1313,7 @@ If there is an error during the OTP login process or if key pair cleanup fails.
 
 > **loginWithPasskey**(`params?`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:295](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L295)
+Defined in: [core/src/\_\_clients\_\_/core.ts:296](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L296)
 
 Logs in a user using a passkey, optionally specifying the public key, session key, and session expiration.
 
@@ -1301,7 +1361,15 @@ If there is an error during the passkey login process or if the user cancels the
 
 > **loginWithWallet**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:551](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L551)
+Defined in: [core/src/\_\_clients\_\_/core.ts:633](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L633)
+
+Logs in a user using the specified wallet provider.
+
+- This function logs in a user by authenticating with the provided wallet provider via a wallet-based signature.
+- If a public key is not provided, a new one will be generated for authentication.
+- Optionally accepts a custom session key and session expiration time.
+- Stores the resulting session token under the specified session key, or the default session key if not provided.
+- Throws an error if a public key cannot be found or generated, or if the login process fails.
 
 #### Parameters
 
@@ -1311,21 +1379,35 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:551](https://github.com/tkhq/sdk/b
 
 `string`
 
+optional session expiration time in seconds (defaults to the configured default).
+
 ###### publicKey?
 
 `string`
+
+optional public key to associate with the session (generated if not provided).
 
 ###### sessionKey?
 
 `string`
 
+optional key to store the session under (defaults to the default session key).
+
 ###### walletProvider
 
 [`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
 
+wallet provider to use for authentication.
+
 #### Returns
 
 `Promise`\<`string`\>
+
+A promise that resolves to the created session token.
+
+#### Throws
+
+If the wallet stamper is uninitialized, a public key cannot be found or generated, or login fails.
 
 ***
 
@@ -1333,7 +1415,7 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:551](https://github.com/tkhq/sdk/b
 
 > **logout**(`params?`): `Promise`\<`void`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:251](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L251)
+Defined in: [core/src/\_\_clients\_\_/core.ts:252](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L252)
 
 Logs out the current client session.
 
@@ -1367,7 +1449,7 @@ If there is no active session or if there is an error during the logout process.
 
 > **refreshSession**(`params?`): `Promise`\<`undefined` \| [`TStampLoginResponse`](../../../_turnkey/sdk-types/TStampLoginResponse/readme)\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:3027](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3027)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3162](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3162)
 
 Refreshes the session associated with the specified session key, or the active session by default.
 
@@ -1424,11 +1506,11 @@ If the session key does not exist, if there is no active session, or if there is
 
 ***
 
-### removeOAuthProviders()
+### removeOauthProviders()
 
-> **removeOAuthProviders**(`params`): `Promise`\<`string`[]\>
+> **removeOauthProviders**(`params`): `Promise`\<`string`[]\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2429](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2429)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2564](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2564)
 
 Removes a list of OAuth providers from the user.
 
@@ -1476,7 +1558,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **removePasskeys**(`params`): `Promise`\<`string`[]\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2549](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2549)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2684](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2684)
 
 Removes passkeys (authenticator) from the user.
 
@@ -1524,7 +1606,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **removeUserEmail**(`params?`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2116](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2116)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2253](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2253)
 
 Removes the user's email address.
 
@@ -1565,7 +1647,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **removeUserPhoneNumber**(`params?`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2218](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2218)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2355](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2355)
 
 Removes the user's phone number.
 
@@ -1606,7 +1688,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **setActiveSession**(`params`): `Promise`\<`void`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:3178](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3178)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3313](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3313)
 
 Sets the active session to the specified session key.
 
@@ -1641,7 +1723,7 @@ If the client is not initialized or if there is an error setting the active sess
 
 > **signAndSendTransaction**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1869](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1869)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2006](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2006)
 
 Signs and broadcasts a transaction using the specified wallet account.
 
@@ -1704,7 +1786,7 @@ If signing or broadcasting fails.
 
 > **signMessage**(`params`): `Promise`\<[`v1SignRawPayloadResult`](../../../_turnkey/sdk-types/v1SignRawPayloadResult/readme)\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1698](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1698)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1835](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1835)
 
 Signs a message using the specified wallet account.
 
@@ -1779,7 +1861,7 @@ If signing fails, if the wallet account does not support signing, or if the resp
 
 > **signTransaction**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1796](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1796)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1933](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1933)
 
 Signs a transaction using the specified wallet account.
 
@@ -1833,7 +1915,7 @@ If there is an error signing the transaction or if the response is invalid.
 
 > **signUpWithOauth**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1410](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1410)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1538](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1538)
 
 Signs up a user using OAuth authentication.
 
@@ -1892,7 +1974,7 @@ If there is an error during the OAuth sign-up or login process.
 
 > **signUpWithOtp**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:1095](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1095)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1223](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1223)
 
 Signs up a user using an OTP verification token.
 
@@ -1958,7 +2040,7 @@ If there is an error during the OTP sign-up process or session storage.
 
 > **signUpWithPasskey**(`params?`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:377](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L377)
+Defined in: [core/src/\_\_clients\_\_/core.ts:378](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L378)
 
 Signs up a user using a passkey, creating a new sub-organization and session.
 
@@ -2012,7 +2094,15 @@ If there is an error during passkey creation, sub-organization creation, or sess
 
 > **signUpWithWallet**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:608](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L608)
+Defined in: [core/src/\_\_clients\_\_/core.ts:708](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L708)
+
+Signs up a user using a wallet, creating a new sub-organization and session.
+
+- This function creates a new wallet authenticator and uses it to register a new sub-organization for the user.
+- Handles both wallet authentication and sub-organization creation in a single flow.
+- Optionally accepts additional sub-organization parameters, a custom session key, and a custom session expiration.
+- Automatically generates additional API key pairs for authentication and session management.
+- Stores the resulting session token under the specified session key, or the default session key if not provided, and manages cleanup of unused key pairs.
 
 #### Parameters
 
@@ -2022,21 +2112,35 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:608](https://github.com/tkhq/sdk/b
 
 [`CreateSubOrgParams`](../../../react-wallet-kit/index/CreateSubOrgParams/readme)
 
+parameters for creating a sub-organization (e.g., authenticators, user metadata).
+
 ###### expirationSeconds?
 
 `string`
+
+session expiration time in seconds (defaults to the configured default).
 
 ###### sessionKey?
 
 `string`
 
+session key to use for storing the session (defaults to the default session key).
+
 ###### walletProvider
 
 [`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
 
+wallet provider to use for authentication.
+
 #### Returns
 
 `Promise`\<`string`\>
+
+A promise that resolves to a signed JWT session token for the new sub-organization.
+
+#### Throws
+
+If there is an error during wallet authentication, sub-organization creation, session storage, or cleanup.
 
 ***
 
@@ -2044,7 +2148,7 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:608](https://github.com/tkhq/sdk/b
 
 > **storeSession**(`params`): `Promise`\<`void`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2914](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2914)
+Defined in: [core/src/\_\_clients\_\_/core.ts:3049](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3049)
 
 Stores a session token and updates the session associated with the specified session key, or by default the active session.
 
@@ -2086,7 +2190,13 @@ If there is an error storing the session or cleaning up key pairs.
 
 > **switchWalletProviderChain**(`walletProvider`, `chainOrId`): `Promise`\<`void`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:524](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L524)
+Defined in: [core/src/\_\_clients\_\_/core.ts:583](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L583)
+
+Switches the specified wallet provider to a different blockchain chain.
+
+- Requires the wallet manager and its connector to be initialized.
+- The wallet provider must have at least one connected address.
+- Does nothing if the wallet provider is already on the desired chain.
 
 #### Parameters
 
@@ -2094,7 +2204,11 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:524](https://github.com/tkhq/sdk/b
 
 [`WalletProvider`](../../../react-wallet-kit/index/WalletProvider/readme)
 
+wallet provider to switch.
+
 ##### chainOrId
+
+target chain as a chain ID string or SwitchableChain object.
 
 `string` | [`SwitchableChain`](../../../react-wallet-kit/index/SwitchableChain/readme)
 
@@ -2102,13 +2216,19 @@ Defined in: [core/src/\_\_clients\_\_/core.ts:524](https://github.com/tkhq/sdk/b
 
 `Promise`\<`void`\>
 
+A promise that resolves once the chain switch is complete.
+
+#### Throws
+
+If the wallet manager is uninitialized, the provider is not connected, or the switch fails.
+
 ***
 
 ### updateUserEmail()
 
 > **updateUserEmail**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2046](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2046)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2183](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2183)
 
 Updates the user's email address.
 
@@ -2162,7 +2282,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **updateUserName**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2262](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2262)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2399](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2399)
 
 Updates the user's name.
 
@@ -2210,7 +2330,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **updateUserPhoneNumber**(`params`): `Promise`\<`string`\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:2161](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2161)
+Defined in: [core/src/\_\_clients\_\_/core.ts:2298](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2298)
 
 Updates the user's phone number.
 
@@ -2264,7 +2384,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **verifyOtp**(`params`): `Promise`\<\{ `subOrganizationId`: `string`; `verificationToken`: `string`; \}\>
 
-Defined in: [core/src/\_\_clients\_\_/core.ts:942](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L942)
+Defined in: [core/src/\_\_clients\_\_/core.ts:1070](https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1070)
 
 Verifies the OTP code sent to the user.
 
