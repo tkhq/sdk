@@ -1,10 +1,11 @@
 "use client";
+
 import "@turnkey/react-wallet-kit/dist/styles.css";
 import "./global.css";
 import { TurnkeyConfigProvider } from "@/providers/config/ConfigProvider";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { Slide, toast } from "react-toastify";
-import type { CreateSubOrgParams } from "@turnkey/react-wallet-kit";
+import { initialConfig } from "@/constants";
 import { TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
 interface RootLayoutProps {
@@ -24,26 +25,6 @@ function RootLayout({ children }: RootLayoutProps) {
       progress: undefined,
       transition: Slide,
     });
-
-  const createSuborgParams: CreateSubOrgParams = {
-    customWallet: {
-      walletName: "Wallet 1",
-      walletAccounts: [
-        {
-          addressFormat: "ADDRESS_FORMAT_ETHEREUM",
-          curve: "CURVE_SECP256K1",
-          pathFormat: "PATH_FORMAT_BIP32",
-          path: "m/44'/60'/0'/0/0",
-        },
-        {
-          addressFormat: "ADDRESS_FORMAT_SOLANA",
-          curve: "CURVE_ED25519",
-          pathFormat: "PATH_FORMAT_BIP32",
-          path: "m/44'/501'/0'/0/0",
-        },
-      ],
-    },
-  };
 
   return (
     <html lang="en" suppressHydrationWarning>
@@ -145,7 +126,7 @@ function RootLayout({ children }: RootLayoutProps) {
               switch (error.code) {
                 case TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS:
                   notify(
-                    "This social login is already associated with another account.",
+                    "This social login is already associated with another account."
                   );
                   break;
                 default:
