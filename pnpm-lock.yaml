@@ -2066,10 +2066,10 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0
       '@walletconnect/sign-client':
-        specifier: ^2.21.6
+        specifier: ^2.21.8
         version: 2.21.8(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.26.9)(@babel/preset-env@7.20.2(@babel/core@7.26.9))(@types/react@18.3.23)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       '@walletconnect/types':
-        specifier: ^2.21.6
+        specifier: ^2.21.8
         version: 2.21.8(@react-native-async-storage/async-storage@2.2.0(react-native@0.76.5(@babel/core@7.26.9)(@babel/preset-env@7.20.2(@babel/core@7.26.9))(@types/react@18.3.23)(bufferutil@4.0.9)(encoding@0.1.13)(react@18.3.1)(utf-8-validate@5.0.10)))
       bs58:
         specifier: ^6.0.0
@@ -27897,8 +27897,8 @@ snapshots:
       '@adraffy/ens-normalize': 1.11.0
       '@noble/curves': 1.9.0
       '@noble/hashes': 1.8.0
-      '@scure/bip32': 1.6.2
-      '@scure/bip39': 1.5.4
+      '@scure/bip32': 1.7.0
+      '@scure/bip39': 1.6.0
       abitype: 1.0.8(typescript@5.4.3)(zod@3.25.76)
       eventemitter3: 5.0.1
     optionalDependencies:
