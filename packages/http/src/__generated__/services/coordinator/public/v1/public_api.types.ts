@@ -670,7 +670,10 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
     | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
     | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
-    | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE";
+    | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
+    | "ACTIVITY_TYPE_ENABLE_AUTH_PROXY"
+    | "ACTIVITY_TYPE_DISABLE_AUTH_PROXY"
+    | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1269,6 +1272,8 @@ export type definitions = {
     disableSmsAuth?: boolean;
     /** @description Disable OTP email auth for the sub-organization */
     disableOtpEmailAuth?: boolean;
+    /** @description Signed JWT containing a unique id, expiry, verification type, contact */
+    verificationToken?: string;
   };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
@@ -1643,6 +1648,8 @@ export type definitions = {
     /** @description A list of wallet unique identifiers that were removed */
     walletIds: string[];
   };
+  v1DisableAuthProxyIntent: { [key: string]: unknown };
+  v1DisableAuthProxyResult: { [key: string]: unknown };
   v1DisablePrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
@@ -1719,6 +1726,11 @@ export type definitions = {
     templateVariables?: string;
     /** @description Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template. */
     templateId?: string;
+  };
+  v1EnableAuthProxyIntent: { [key: string]: unknown };
+  v1EnableAuthProxyResult: {
+    /** @description A User ID with permission to initiate authentication. */
+    userId: string;
   };
   v1ExportPrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -1797,7 +1809,8 @@ export type definitions = {
     | "FEATURE_NAME_EMAIL_RECOVERY"
     | "FEATURE_NAME_WEBHOOK"
     | "FEATURE_NAME_SMS_AUTH"
-    | "FEATURE_NAME_OTP_EMAIL_AUTH";
+    | "FEATURE_NAME_OTP_EMAIL_AUTH"
+    | "FEATURE_NAME_AUTH_PROXY";
   /** @enum {string} */
   v1FiatOnRampBlockchainNetwork:
     | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
@@ -2478,6 +2491,9 @@ export type definitions = {
     initFiatOnRampIntent?: definitions["v1InitFiatOnRampIntent"];
     createSmartContractInterfaceIntent?: definitions["v1CreateSmartContractInterfaceIntent"];
     deleteSmartContractInterfaceIntent?: definitions["v1DeleteSmartContractInterfaceIntent"];
+    enableAuthProxyIntent?: definitions["v1EnableAuthProxyIntent"];
+    disableAuthProxyIntent?: definitions["v1DisableAuthProxyIntent"];
+    updateAuthProxyConfigIntent?: definitions["v1UpdateAuthProxyConfigIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2908,6 +2924,9 @@ export type definitions = {
     initFiatOnRampResult?: definitions["v1InitFiatOnRampResult"];
     createSmartContractInterfaceResult?: definitions["v1CreateSmartContractInterfaceResult"];
     deleteSmartContractInterfaceResult?: definitions["v1DeleteSmartContractInterfaceResult"];
+    enableAuthProxyResult?: definitions["v1EnableAuthProxyResult"];
+    disableAuthProxyResult?: definitions["v1DisableAuthProxyResult"];
+    updateAuthProxyConfigResult?: definitions["v1UpdateAuthProxyConfigResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -3134,6 +3153,52 @@ export type definitions = {
     allowedOrigins: string[];
   };
   v1UpdateAllowedOriginsResult: { [key: string]: unknown };
+  v1UpdateAuthProxyConfigIntent: {
+    /** @description Updated list of allowed origins for CORS. */
+    allowedOrigins?: string[];
+    /** @description Updated list of allowed proxy authentication methods. */
+    allowedAuthMethods?: string[];
+    /** @description Custom 'from' address for auth-related emails. */
+    sendFromEmailAddress?: string;
+    /** @description Custom reply-to address for auth-related emails. */
+    replyToEmailAddress?: string;
+    /** @description Template ID for email-auth messages. */
+    emailAuthTemplateId?: string;
+    /** @description Template ID for OTP SMS messages. */
+    otpTemplateId?: string;
+    /** @description Overrides for auth-related email content. */
+    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
+    /** @description Overrides for auth-related SMS content. */
+    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
+    /** @description Overrides for react wallet kit related settings. */
+    walletKitSettings?: definitions["v1WalletKitSettingsParams"];
+    /**
+     * Format: int32
+     * @description OTP code lifetime in seconds.
+     */
+    otpExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description Verification-token lifetime in seconds.
+     */
+    verificationTokenExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description Session lifetime in seconds.
+     */
+    sessionExpirationSeconds?: number;
+    /** @description Enable alphanumeric OTP codes. */
+    otpAlphanumeric?: boolean;
+    /**
+     * Format: int32
+     * @description Desired OTP code length (6–9).
+     */
+    otpLength?: number;
+  };
+  v1UpdateAuthProxyConfigResult: {
+    /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
+    configId?: string;
+  };
   v1UpdatePolicyIntent: {
     /** @description Unique identifier for a given Policy. */
     policyId: string;
@@ -3496,6 +3561,13 @@ export type definitions = {
     path: string;
     /** @description Address format used to generate a wallet Acccount. */
     addressFormat: definitions["v1AddressFormat"];
+  };
+  v1WalletKitSettingsParams: {
+    /**
+     * Enabled Social Providers
+     * @description List of enabled social login providers (e.g., 'apple', 'google', 'facebook')
+     */
+    enabledSocialProviders?: string[];
   };
   v1WalletParams: {
     /** @description Human-readable name for a Wallet. */
