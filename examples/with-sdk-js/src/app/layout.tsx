@@ -39,18 +39,30 @@ function RootLayout({ children }: RootLayoutProps) {
               darkMode: false,
             },
             walletConfig: {
-              ethereum: true,
-              solana: true,
+              features: {
+                auth: true,
+                connecting: true,
+              },
+              chains: {
+                ethereum: {
+                  native: true,
+                  walletConnectNamespaces: ["eip155:1"],
+                },
+                solana: {
+                  native: true,
+                  walletConnectNamespaces: [
+                    "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+                  ],
+                },
+              },
               walletConnect: {
                 projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
-                metadata: {
+                appMetadata: {
                   name: "Turnkey Wallet",
                   description: "A wallet for Turnkey",
-                  url: "http://localhost:3000",
+                  url: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_URL!,
                   icons: ["/favicon.svg"],
                 },
-                ethereumNamespaces: ["eip155:1", "eip155:137"],
-                solanaNamespaces: ["solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"],
               },
             },
           }}
