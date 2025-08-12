@@ -38,12 +38,12 @@ export class WalletConnectClient {
    */
   async init(opts: {
     projectId: string;
-    metadata: CoreTypes.Metadata;
+    appMetadata: CoreTypes.Metadata;
     relayUrl?: string;
   }): Promise<void> {
     this.client = await SignClient.init({
       projectId: opts.projectId,
-      metadata: opts.metadata,
+      metadata: opts.appMetadata,
       ...(opts.relayUrl ? { relayUrl: opts.relayUrl } : {}),
     });
 
