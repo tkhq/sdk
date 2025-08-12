@@ -107,15 +107,15 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
    * - If `openInPage` is true, the current page is redirected to the Google OAuth URL and the function returns a promise that resolves on redirect or times out after 5 minutes.
    * - If `openInPage` is false, a popup window is opened for the OAuth flow, and the function returns a promise that resolves when the flow completes or rejects if the window is closed or times out.
-   * - On successful authentication, the function either calls the provided `onOAuthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
+   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
    * - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
    *
    * @param params.clientId - The Google Client ID to use (defaults to the client ID from configuration).
    * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
-   * @param params.onOAuthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
    *
-   * onOAuthSuccess params:
+   * onOauthSuccess params:
    * - oidcToken: The OIDC token received from the OAuth flow.
    * - providerName: The name of the OAuth provider ("google").
    *
@@ -126,7 +126,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
-    onOAuthSuccess?: (params: {
+    onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
     }) => any;
@@ -142,15 +142,15 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
    * - If `openInPage` is true, the function redirects and returns a promise that resolves on redirect or times out after 5 minutes.
    * - If `openInPage` is false, a popup window is opened and the function returns a promise that resolves when the flow completes, or rejects if the window is closed or times out.
-   * - On successful authentication, the function either calls the provided `onOAuthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
+   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
    * - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
    *
    * @param params.clientId - The Apple Client ID to use (defaults to the client ID from configuration).
    * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
-   * @param params.onOAuthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
    *
-   * onOAuthSuccess params:
+   * onOauthSuccess params:
    * - oidcToken: The OIDC token received from the OAuth flow.
    * - providerName: The name of the OAuth provider ("apple").
    *
@@ -161,7 +161,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
-    onOAuthSuccess?: (params: {
+    onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
     }) => any;
@@ -178,15 +178,15 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
    * - If `openInPage` is true, the function redirects and returns a promise that resolves on redirect or times out after 5 minutes.
    * - If `openInPage` is false, a popup window is opened and the function returns a promise that resolves when the flow completes, or rejects if the window is closed or times out.
-   * - On successful authentication, the function either calls the provided `onOAuthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
+   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
    * - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
    *
    * @param params.clientId - The Facebook Client ID to use (defaults to the client ID from configuration).
    * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
-   * @param params.onOAuthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
    *
-   * onOAuthSuccess params:
+   * onOauthSuccess params:
    * - oidcToken: The OIDC token received from the OAuth flow.
    * - providerName: The name of the OAuth provider ("facebook").
    *
@@ -197,7 +197,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
-    onOAuthSuccess?: (params: {
+    onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
     }) => any;
@@ -405,7 +405,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the provider.
    */
-  handleAddOAuthProvider(params: {
+  handleAddOauthProvider(params: {
     providerName: OAuthProviders;
     stampWith?: StamperType | undefined;
   }): Promise<void>;
@@ -430,7 +430,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves to an array of provider IDs that were removed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error removing the provider.
    */
-  handleRemoveOAuthProvider(params: {
+  handleRemoveOauthProvider(params: {
     providerId: string;
     title?: string;
     subTitle?: string;

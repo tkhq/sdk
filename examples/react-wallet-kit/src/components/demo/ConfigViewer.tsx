@@ -6,7 +6,7 @@ import clsx from "clsx";
 import { useState } from "react";
 
 const envVars: Record<string, string> = {
-  authProxyId: '"<ENV_VAR_AUTH_PROXY_ID>"',
+  authProxyConfigId: '"<ENV_VAR_AUTH_PROXY_ID>"',
   organizationId: '"<ENV_VAR_ORGANIZATION_ID>"',
 };
 
@@ -18,7 +18,7 @@ const omitKeys = [
   "googleClientId",
   "appleClientId",
   "facebookClientId",
-  "oAuthRedirectUri",
+  "oauthRedirectUri",
   "walletConfig",
   "renderModalInProvider",
 ];
