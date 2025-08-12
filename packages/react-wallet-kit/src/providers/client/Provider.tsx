@@ -3452,16 +3452,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       providerName: string;
       oidcToken: string;
     }) => {
-      await withTurnkeyErrorHandling(
-        () =>
-          addOAuthProvider({
-            providerName: params.providerName,
-            oidcToken: params.oidcToken,
-            stampWith,
-          }),
-        callbacks,
-        "Failed to add OAuth provider",
-      );
+      await addOAuthProvider({
+        providerName: params.providerName,
+        oidcToken: params.oidcToken,
+        stampWith,
+      });
       pushPage({
         key: "OAuth Provider Added",
         content: (

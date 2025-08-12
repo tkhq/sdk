@@ -17,7 +17,7 @@ export function ToggleSwitch(props: ToggleSwitchProps) {
   const knobSize = size === "sm" ? "h-3 w-3" : "h-4 w-4";
   const translate = checked
     ? size === "sm"
-      ? "translate-x-4"
+      ? "translate-x-[1.05rem]"
       : "translate-x-5"
     : "translate-x-1";
 
@@ -35,7 +35,7 @@ export function ToggleSwitch(props: ToggleSwitchProps) {
         disabled={disabled}
         onChange={onChange}
         className={clsx(
-          "relative inline-flex items-center rounded-full transition",
+          "relative flex items-center rounded-full transition",
           height,
           width,
           checked
@@ -46,7 +46,7 @@ export function ToggleSwitch(props: ToggleSwitchProps) {
       >
         <span
           className={clsx(
-            "inline-block transform rounded-full bg-primary-text-light dark:bg-primary-text-dark transition",
+            "transform rounded-full bg-primary-text-light dark:bg-primary-text-dark transition",
             knobSize,
             translate,
           )}
