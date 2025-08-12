@@ -1,6 +1,6 @@
 # Example: `with-morpho`
 
-Morpho vaults are smart contracts that let users earn yield by depositing assets into automated, yield-optimizing pools. 
+Morpho Vaults (Earn) are smart contracts that allow users to deposit assets into yield-generating vaults built on top of Morpho's lending protocol. 
 This examples shows how to sign transactions to Morpho's Steakhouse USDC Vault on Base Mainnet using Turnkey. It provides the following scripts:
 
 - `deposit.ts` shows how to approve and deposit USDC
@@ -10,7 +10,7 @@ This examples shows how to sign transactions to Morpho's Steakhouse USDC Vault o
 
 On top of it we showcase the power of the Turnkey policy engine by allowing a non-root Turnkey user to only sign transactions with the USDC and Morpho's vault addresses:
 
-- `policy.ts` uses a root (part of RootQuorum) user to create a specific policy for a non-root user that will be used to sign the transactions to Morpho
+- `policy.ts` uses an organization root user (RootQuorum) to create a specific policy for a non-root user that will be used to sign the transactions to Morpho
 
 
 ## Getting started
@@ -32,9 +32,12 @@ $ cd examples/with-morpho/
 
 The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
 
-- A public/private API key pair for Turnkey parent organization
-- A public/private API key pair for the Delegated account
+- A root user with a public/private API key pair within the Turnkey parent organization
 - An organization ID
+
+The next step is to create another user within the organization with a different API key and remove it from the root quorum. You can do this from the Turnkey [dashboard](https://app.turnkey.com/dashboard/security/updateRootQuorum) or [API](https://docs.turnkey.com/api-reference/activities/update-root-quorum). Here's a simple [script](https://github.com/tkhq/sdk/blob/main/examples/kitchen-sink/src/sdk-server/updateRootQuorum.ts) that shows how to update the root quorum using `@turnkey/sdk-server`.
+
+Finally, make sure you have a [wallet](https://app.turnkey.com/dashboard/wallets) with an Ethereum wallet account created within this organization and have it funded with some ETH and USDC on Base Mainnet.
 
 Once you've gathered these values, add them to a new `.env.local` file. Notice that your private key should be securely managed and **_never_** be committed to git.
 
@@ -48,6 +51,7 @@ Now open `.env.local` and add the missing environment variables:
 - `TURNKEY_API_PRIVATE_KEY`
 - `TURNKEY_BASE_URL`
 - `TURNKEY_ORGANIZATION_ID`
+- `SIGN_WITH`
 - `NONROOT_USER_ID`
 - `NONROOT_API_PUBLIC_KEY`
 - `NONROOT_API_PRIVATE_KEY`
