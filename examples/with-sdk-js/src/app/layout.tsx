@@ -21,14 +21,14 @@ function RootLayout({ children }: RootLayoutProps) {
             authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
             importIframeUrl: process.env.NEXT_PUBLIC_IMPORT_IFRAME_URL!,
             exportIframeUrl: process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!,
-            authProxyId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
+            authProxyConfigId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
             organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
             auth: {
-              oAuthConfig: {
+              oauthConfig: {
                 googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
                 appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
                 facebookClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID,
-                oAuthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
+                oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
               },
               methods: {
                 smsOtpAuthEnabled: true,
