@@ -1,23 +1,22 @@
 # Example: `with-morpho`
 
-Morpho Vaults (Earn) are smart contracts that allow users to deposit assets into yield-generating vaults built on top of Morpho's lending protocol. 
+[Morpho Vaults](https://docs.morpho.org/build/earn/getting-started?) are smart contracts that allow users to deposit assets into yield-generating vaults built on top of Morpho's lending protocol.
 This examples shows how to sign transactions to Morpho's Steakhouse USDC Vault on Base Mainnet using Turnkey. It provides the following scripts:
 
 - `deposit.ts` shows how to approve and deposit USDC
 - `balance.ts` is checking the user vault share balance and the vault data
-- `withdraw.ts` is withdrawing an USDC ammount from the vault
+- `withdraw.ts` is withdrawing an USDC amount from the vault
 - `redeem.ts` is getting all shares out from the vault
 
-On top of it we showcase the power of the Turnkey policy engine by allowing a non-root Turnkey user to only sign transactions with the USDC and Morpho's vault addresses:
+On top of it we showcase the power of the Turnkey policy engine by allowing a non-root Turnkey user to only sign the specific transactions with the USDC and Morpho's vault addresses:
 
-- `policy.ts` uses an organization root user (RootQuorum) to create a specific policy for a non-root user that will be used to sign the transactions to Morpho
-
+- `createPolicy.ts` uses an organization root user (RootQuorum) to create a specific policies for a non-root user that will be used to sign the transactions to Morpho.
 
 ## Getting started
 
 ### 1/ Cloning the example
 
-Make sure you have `Node.js` installed locally; we recommend using Node v18+.
+Make sure you have `Node.js` installed locally; we recommend using Node v20+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
@@ -58,11 +57,12 @@ Now open `.env.local` and add the missing environment variables:
 - `MORPHO_VAULT_ADDRESS`
 - `USDC_ADDRESS`
 - `BASE_CHAIN_ID`
+- `INFURA_API_KEY`
 
 ### 3/ Setting up the policy for the non-root user
 
 ```bash
-pnpm policy
+pnpm createPolicy
 ```
 
 ### 4/ Approve the vault to spend USDC and deposit USDC into the vault

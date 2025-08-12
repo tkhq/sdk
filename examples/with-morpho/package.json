@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "pnpm -w run build-all",
-    "policy": "tsx src/policy.ts",
+    "createPolicy": "tsx src/createPolicy.ts",
     "deposit": "tsx src/deposit.ts",
     "withdraw": "tsx src/withdraw.ts",
     "redeem": "tsx src/redeem.ts",
