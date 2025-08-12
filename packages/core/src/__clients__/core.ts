@@ -481,36 +481,61 @@ export class TurnkeyClient {
     }
   };
 
-  // MOOOOE
+  /**
+   * Retrieves wallet providers from the initialized wallet manager.
+   *
+   * - Optionally filters providers by the specified blockchain chain.
+   * - Throws an error if the wallet manager is not initialized.
+   *
+   * @param chain - optional blockchain chain to filter the returned providers.
+   * @returns A promise that resolves to an array of wallet providers.
+   * @throws {TurnkeyError} If the wallet manager is uninitialized or provider retrieval fails.
+   */
   getWalletProviders = async (chain?: Chain): Promise<WalletProvider[]> => {
     try {
       if (!this.walletManager) {
-        throw new Error("Wallet manager is not initialized");
+        throw new TurnkeyError("Wallet manager is not initialized");
       }
 
       return await this.walletManager.getProviders(chain);
     } catch (error) {
-      throw new Error(`Unable to get wallet providers: ${error}`);
+      throw new TurnkeyError(`Unable to get wallet providers: ${error}`);
     }
   };
 
-  // MOOOOE
+  /**
+   * Connects the specified wallet account.
+   *
+   * - Requires the wallet manager and its connector to be initialized.
+   *
+   * @param walletProvider - wallet provider to connect.
+   * @returns A promise that resolves once the wallet account is connected.
+   * @throws {TurnkeyError} If the wallet manager is uninitialized or the connection fails.
+   */
   connectWalletAccount = async (walletProvider: WalletProvider) => {
     if (!this.walletManager?.connector) {
-      throw new Error("Wallet manager is not initialized");
+      throw new TurnkeyError("Wallet manager is not initialized");
     }
 
     try {
       await this.walletManager.connector.connectWalletAccount(walletProvider);
     } catch (error) {
-      throw new Error(`Unable to connect wallet account: ${error}`);
+      throw new TurnkeyError(`Unable to connect wallet account: ${error}`);
     }
   };
 
-  // MOOOOE
+  /**
+   * Disconnects the specified wallet account.
+   *
+   * - Requires the wallet manager and its connector to be initialized.
+   *
+   * @param walletProvider - wallet provider to disconnect.
+   * @returns A promise that resolves once the wallet account is disconnected.
+   * @throws {TurnkeyError} If the wallet manager is uninitialized or the disconnection fails.
+   */
   disconnectWalletAccount = async (walletProvider: WalletProvider) => {
     if (!this.walletManager?.connector) {
-      throw new Error("Wallet manager is not initialized");
+      throw new TurnkeyError("Wallet manager is not initialized");
     }
 
     try {
@@ -518,20 +543,32 @@ export class TurnkeyClient {
         walletProvider,
       );
     } catch (error) {
-      throw new Error(`Unable to disconnect wallet account: ${error}`);
+      throw new TurnkeyError(`Unable to disconnect wallet account: ${error}`);
     }
   };
 
+  /**
+   * Switches the specified wallet provider to a different blockchain chain.
+   *
+   * - Requires the wallet manager and its connector to be initialized.
+   * - The wallet provider must have at least one connected address.
+   * - Does nothing if the wallet provider is already on the desired chain.
+   *
+   * @param walletProvider - wallet provider to switch.
+   * @param chainOrId - target chain as a chain ID string or SwitchableChain object.
+   * @returns A promise that resolves once the chain switch is complete.
+   * @throws {TurnkeyError} If the wallet manager is uninitialized, the provider is not connected, or the switch fails.
+   */
   switchWalletProviderChain = async (
     walletProvider: WalletProvider,
     chainOrId: string | SwitchableChain,
   ) => {
     if (!this.walletManager?.connector) {
-      throw new Error("Wallet manager is not initialized");
+      throw new TurnkeyError("Wallet manager is not initialized");
     }
 
     if (walletProvider.connectedAddresses.length === 0) {
-      throw new Error(
+      throw new TurnkeyError(
         "You can not switch chains for a provider that is not connected",
       );
     }
@@ -544,11 +581,26 @@ export class TurnkeyClient {
     try {
       await this.walletManager.connector.switchChain(walletProvider, chainOrId);
     } catch (error) {
-      throw new Error(`Unable to switch wallet account chain: ${error}`);
+      throw new TurnkeyError(`Unable to switch wallet account chain: ${error}`);
     }
   };
 
-  // MOOOOE
+  /**
+   * Logs in a user using the specified wallet provider.
+   *
+   * - This function logs in a user by authenticating with the provided wallet provider via a wallet-based signature.
+   * - If a public key is not provided, a new one will be generated for authentication.
+   * - Optionally accepts a custom session key and session expiration time.
+   * - Stores the resulting session token under the specified session key, or the default session key if not provided.
+   * - Throws an error if a public key cannot be found or generated, or if the login process fails.
+   *
+   * @param params.walletProvider - wallet provider to use for authentication.
+   * @param params.publicKey - optional public key to associate with the session (generated if not provided).
+   * @param params.sessionKey - optional key to store the session under (defaults to the default session key).
+   * @param params.expirationSeconds - optional session expiration time in seconds (defaults to the configured default).
+   * @returns A promise that resolves to the created session token.
+   * @throws {TurnkeyError} If the wallet stamper is uninitialized, a public key cannot be found or generated, or login fails.
+   */
   loginWithWallet = async (params: {
     walletProvider: WalletProvider;
     publicKey?: string;
@@ -556,7 +608,7 @@ export class TurnkeyClient {
     expirationSeconds?: string;
   }): Promise<string> => {
     if (!this.walletManager?.stamper) {
-      throw new Error("Wallet stamper is not initialized");
+      throw new TurnkeyError("Wallet stamper is not initialized");
     }
 
     try {
@@ -605,7 +657,22 @@ export class TurnkeyClient {
     }
   };
 
-  // MOOOOE
+  /**
+   * Signs up a user using a wallet, creating a new sub-organization and session.
+   *
+   * - This function creates a new wallet authenticator and uses it to register a new sub-organization for the user.
+   * - Handles both wallet authentication and sub-organization creation in a single flow.
+   * - Optionally accepts additional sub-organization parameters, a custom session key, and a custom session expiration.
+   * - Automatically generates additional API key pairs for authentication and session management.
+   * - Stores the resulting session token under the specified session key, or the default session key if not provided, and manages cleanup of unused key pairs.
+   *
+   * @param params.walletProvider - wallet provider to use for authentication.
+   * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
+   * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
+   * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
+   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, session storage, or cleanup.
+   */
   signUpWithWallet = async (params: {
     walletProvider: WalletProvider;
     createSubOrgParams?: CreateSubOrgParams;
@@ -641,7 +708,7 @@ export class TurnkeyClient {
       );
 
       if (!publicKey) {
-        throw new Error("Failed to get publicKey from wallet");
+        throw new TurnkeyError("Failed to get publicKey from wallet");
       }
 
       const signUpBody = buildSignUpBody({
@@ -694,7 +761,7 @@ export class TurnkeyClient {
 
       return sessionResponse.session;
     } catch (error) {
-      throw new Error(`Failed to sign up with wallet: ${error}`);
+      throw new TurnkeyError(`Failed to sign up with wallet: ${error}`);
     } finally {
       // Clean up the generated key pair if it wasn't successfully used
       this.apiKeyStamper?.clearPublicKeyOverride();
@@ -702,7 +769,7 @@ export class TurnkeyClient {
         try {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
         } catch (cleanupError) {
-          throw new Error(
+          throw new TurnkeyError(
             `Failed to clean up generated key pair: ${cleanupError}`,
           );
         }
@@ -710,7 +777,23 @@ export class TurnkeyClient {
     }
   };
 
-  // MOOOOE
+  /**
+   * Logs in an existing user or signs up a new user using a wallet, creating a new sub-organization if needed.
+   *
+   * - This function attempts to log in the user by stamping a login request with the provided wallet.
+   * - If the wallet’s public key is not associated with an existing sub-organization, a new one is created.
+   * - Handles both wallet authentication and sub-organization creation in a single flow.
+   * - For Ethereum wallets, derives the public key from the signed request header; for Solana wallets, retrieves it directly from the wallet.
+   * - Optionally accepts additional sub-organization parameters, a custom session key, and a custom session expiration.
+   * - Stores the resulting session token under the specified session key, or the default session key if not provided.
+   *
+   * @param params.walletProvider - wallet provider to use for authentication.
+   * @param params.createSubOrgParams - optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
+   * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
+   * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
+   * @returns A promise that resolves to a signed JWT session token for the sub-organization (new or existing).
+   * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, or session storage.
+   */
   loginOrSignupWithWallet = async (params: {
     walletProvider: WalletProvider;
     createSubOrgParams?: CreateSubOrgParams;
@@ -718,7 +801,7 @@ export class TurnkeyClient {
     expirationSeconds?: string;
   }): Promise<string> => {
     if (!this.walletManager?.stamper) {
-      throw new Error("Wallet manager is not initialized");
+      throw new TurnkeyError("Wallet manager is not initialized");
     }
 
     const createSubOrgParams = params.createSubOrgParams;
