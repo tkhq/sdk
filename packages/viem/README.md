@@ -77,6 +77,7 @@ main().catch((error) => {
    ```
 
 2. Start the Anvil node in one shell:
+
    - Install [Foundry](https://book.getfoundry.sh/getting-started/installation) & Anvil if you haven't done so already
    - Add Foundry to your `$PATH`
      ```bash
