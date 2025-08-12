@@ -111,7 +111,7 @@ export interface TurnkeyHttpClientConfig {
   apiBaseUrl: string;
   organizationId: string;
   authProxyUrl?: string | undefined;
-  authProxyId?: string | undefined;
+  authProxyConfigId?: string | undefined;
 
   activityPoller?: TActivityPollerConfig | undefined;
   apiKeyStamper?: TStamper | undefined;
@@ -124,7 +124,7 @@ export interface TurnkeyHttpClientConfig {
 export interface TurnkeySDKClientConfig {
   apiBaseUrl?: string | undefined;
   authProxyUrl?: string | undefined;
-  authProxyId?: string | undefined; // Auth proxy won't be used if not passed in
+  authProxyConfigId?: string | undefined; // Auth proxy won't be used if not passed in
   organizationId: string;
 
   passkeyConfig?: TPasskeyStamperConfig;

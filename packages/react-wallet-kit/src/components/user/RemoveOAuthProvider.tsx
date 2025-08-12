@@ -18,7 +18,7 @@ export function RemoveOAuthProvider(params: {
   onError: (error: any) => void;
   stampWith?: StamperType | undefined;
 }) {
-  const { user, removeOAuthProviders } = useTurnkey();
+  const { user, removeOauthProviders } = useTurnkey();
   const { isMobile, closeModal, pushPage } = useModal();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +27,7 @@ export function RemoveOAuthProvider(params: {
   const handleContinue = async () => {
     try {
       setIsLoading(true);
-      const res = await removeOAuthProviders({
+      const res = await removeOauthProviders({
         providerIds: [params.providerId],
         userId: user?.userId!,
         stampWith: params.stampWith,
