@@ -5,6 +5,7 @@ import { TurnkeyConfigProvider } from "@/providers/config/ConfigProvider";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { Slide, toast } from "react-toastify";
 import type { CreateSubOrgParams } from "@turnkey/react-wallet-kit";
+import { TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
 interface RootLayoutProps {
   children: React.ReactNode;
@@ -128,8 +129,16 @@ function RootLayout({ children }: RootLayoutProps) {
           }}
           callbacks={{
             onError: (error) => {
-              console.error("Turnkey Error:", error);
-              notify(error.message);
+              console.error("Turnkey Error:", error.code);
+              switch (error.code) {
+                case TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS:
+                  notify(
+                    "This social login is already associated with another account.",
+                  );
+                  break;
+                default:
+                  notify(error.message);
+              }
             },
           }}
         >

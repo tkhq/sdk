@@ -14,6 +14,7 @@ import SocialButton from "./AuthButtons/SocialButton";
 import AuthenticatorButton from "./AuthButtons/AuthenticatorButton";
 import DeleteSubOrgWarning from "./DeleteSubOrgWarning";
 import { Button, Transition } from "@headlessui/react";
+import { useEffect, useRef, useState } from "react";
 
 export default function UserSettings() {
   const {
@@ -26,6 +27,21 @@ export default function UserSettings() {
   } = useTurnkey();
 
   const { pushPage } = useModal();
+
+  const [canRemoveAuthMethod, setCanRemoveAuthMethod] = useState(false);
+
+  useEffect(() => {
+    if (!user) return setCanRemoveAuthMethod(false);
+    const userAuthMethods =
+      (user?.authenticators?.length || 0) +
+      (user?.oauthProviders?.length || 0) +
+      (user?.apiKeys?.filter((apiKey) =>
+        apiKey.apiKeyName.startsWith("wallet-auth"),
+      ).length || 0) +
+      (user?.userEmail ? 1 : 0) +
+      (user?.userPhoneNumber ? 1 : 0);
+    setCanRemoveAuthMethod(userAuthMethods > 1);
+  }, [user]);
 
   function handleDeleteSubOrganization() {
     pushPage({
@@ -84,31 +100,36 @@ export default function UserSettings() {
           <div className="flex flex-col gap-2 flex-1 overflow-y-auto tk-scrollbar">
             <div className="flex flex-col gap-2">
               {clientConfig?.auth?.methods?.emailOtpAuthEnabled && (
-                <EmailAuthButton />
+                <EmailAuthButton canRemoveAuthMethod={canRemoveAuthMethod} />
               )}
               {clientConfig?.auth?.methods?.smsOtpAuthEnabled && (
-                <PhoneAuthButton />
+                <PhoneAuthButton canRemoveAuthMethod={canRemoveAuthMethod} />
               )}
               {clientConfig?.auth?.methods?.googleOAuthEnabled && (
                 <SocialButton
+                  canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.GOOGLE}
                   logo={<GoogleSVG className="w-6 h-6" />}
                 />
               )}
               {clientConfig?.auth?.methods?.appleOAuthEnabled && (
                 <SocialButton
+                  canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.APPLE}
                   logo={<AppleSVG className="w-6 h-6" />}
                 />
               )}
               {clientConfig?.auth?.methods?.facebookOAuthEnabled && (
                 <SocialButton
+                  canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.FACEBOOK}
                   logo={<FacebookSVG className="w-6 h-6" />}
                 />
               )}
               {clientConfig?.auth?.methods?.passkeyAuthEnabled && (
-                <AuthenticatorButton />
+                <AuthenticatorButton
+                  canRemoveAuthMethod={canRemoveAuthMethod}
+                />
               )}
             </div>
           </div>
@@ -120,7 +141,7 @@ export default function UserSettings() {
                 logout();
               }}
             >
-              Logout
+              Log out
             </Button>
             <Button
               onClick={async () => {
