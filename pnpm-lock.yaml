@@ -2074,9 +2074,6 @@ importers:
       bs58:
         specifier: ^6.0.0
         version: 6.0.0
-      bs58check:
-        specifier: 3.0.1
-        version: 3.0.1
       cross-fetch:
         specifier: ^3.1.5
         version: 3.2.0(encoding@0.1.13)
