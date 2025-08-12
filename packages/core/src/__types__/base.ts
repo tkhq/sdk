@@ -14,11 +14,8 @@ import type {
   v1WalletAccountParams,
   Session,
 } from "@turnkey/sdk-types";
-import type {
-  WalletStamper,
-  WebWalletStamper,
-} from "../__wallet__/web/stamper";
-import type { WebWalletConnector } from "../__wallet__/web/signer";
+import type { WalletStamper, WebWalletStamper } from "../__wallet__/stamper";
+import type { WebWalletConnector } from "../__wallet__/connector";
 
 // TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
 
