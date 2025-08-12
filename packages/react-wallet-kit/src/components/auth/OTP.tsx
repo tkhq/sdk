@@ -52,7 +52,6 @@ export function OtpVerification(props: OtpVerificationProps) {
           otpCode,
           contact,
           otpType,
-          // TODO (Amir): We need to be able to pass createSuborgParams. And maybe the other params too.
         });
         closeModal();
       }
