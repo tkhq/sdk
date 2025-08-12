@@ -3656,7 +3656,10 @@
         "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
         "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
         "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
-        "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
+        "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
+        "ACTIVITY_TYPE_ENABLE_AUTH_PROXY",
+        "ACTIVITY_TYPE_DISABLE_AUTH_PROXY",
+        "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG"
       ]
     },
     "v1AddressFormat": {
@@ -5109,6 +5112,10 @@
         "disableOtpEmailAuth": {
           "type": "boolean",
           "description": "Disable OTP email auth for the sub-organization"
+        },
+        "verificationToken": {
+          "type": "string",
+          "description": "Signed JWT containing a unique id, expiry, verification type, contact"
         }
       },
       "required": ["subOrganizationName", "rootUsers", "rootQuorumThreshold"]
@@ -6109,6 +6116,12 @@
       },
       "required": ["walletIds"]
     },
+    "v1DisableAuthProxyIntent": {
+      "type": "object"
+    },
+    "v1DisableAuthProxyResult": {
+      "type": "object"
+    },
     "v1DisablePrivateKeyIntent": {
       "type": "object",
       "properties": {
@@ -6276,6 +6289,19 @@
           "description": "Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template."
         }
       }
+    },
+    "v1EnableAuthProxyIntent": {
+      "type": "object"
+    },
+    "v1EnableAuthProxyResult": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "A User ID with permission to initiate authentication."
+        }
+      },
+      "required": ["userId"]
     },
     "v1ExportPrivateKeyIntent": {
       "type": "object",
@@ -6448,7 +6474,8 @@
         "FEATURE_NAME_EMAIL_RECOVERY",
         "FEATURE_NAME_WEBHOOK",
         "FEATURE_NAME_SMS_AUTH",
-        "FEATURE_NAME_OTP_EMAIL_AUTH"
+        "FEATURE_NAME_OTP_EMAIL_AUTH",
+        "FEATURE_NAME_AUTH_PROXY"
       ]
     },
     "v1FiatOnRampBlockchainNetwork": {
@@ -8079,6 +8106,15 @@
         },
         "deleteSmartContractInterfaceIntent": {
           "$ref": "#/definitions/v1DeleteSmartContractInterfaceIntent"
+        },
+        "enableAuthProxyIntent": {
+          "$ref": "#/definitions/v1EnableAuthProxyIntent"
+        },
+        "disableAuthProxyIntent": {
+          "$ref": "#/definitions/v1DisableAuthProxyIntent"
+        },
+        "updateAuthProxyConfigIntent": {
+          "$ref": "#/definitions/v1UpdateAuthProxyConfigIntent"
         }
       }
     },
@@ -9214,6 +9250,15 @@
         },
         "deleteSmartContractInterfaceResult": {
           "$ref": "#/definitions/v1DeleteSmartContractInterfaceResult"
+        },
+        "enableAuthProxyResult": {
+          "$ref": "#/definitions/v1EnableAuthProxyResult"
+        },
+        "disableAuthProxyResult": {
+          "$ref": "#/definitions/v1DisableAuthProxyResult"
+        },
+        "updateAuthProxyConfigResult": {
+          "$ref": "#/definitions/v1UpdateAuthProxyConfigResult"
         }
       }
     },
@@ -9792,6 +9837,86 @@
     },
     "v1UpdateAllowedOriginsResult": {
       "type": "object"
+    },
+    "v1UpdateAuthProxyConfigIntent": {
+      "type": "object",
+      "properties": {
+        "allowedOrigins": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Updated list of allowed origins for CORS."
+        },
+        "allowedAuthMethods": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Updated list of allowed proxy authentication methods."
+        },
+        "sendFromEmailAddress": {
+          "type": "string",
+          "description": "Custom 'from' address for auth-related emails."
+        },
+        "replyToEmailAddress": {
+          "type": "string",
+          "description": "Custom reply-to address for auth-related emails."
+        },
+        "emailAuthTemplateId": {
+          "type": "string",
+          "description": "Template ID for email-auth messages."
+        },
+        "otpTemplateId": {
+          "type": "string",
+          "description": "Template ID for OTP SMS messages."
+        },
+        "emailCustomizationParams": {
+          "$ref": "#/definitions/v1EmailCustomizationParams",
+          "description": "Overrides for auth-related email content."
+        },
+        "smsCustomizationParams": {
+          "$ref": "#/definitions/v1SmsCustomizationParams",
+          "description": "Overrides for auth-related SMS content."
+        },
+        "walletKitSettings": {
+          "$ref": "#/definitions/v1WalletKitSettingsParams",
+          "description": "Overrides for react wallet kit related settings."
+        },
+        "otpExpirationSeconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "OTP code lifetime in seconds."
+        },
+        "verificationTokenExpirationSeconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Verification-token lifetime in seconds."
+        },
+        "sessionExpirationSeconds": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Session lifetime in seconds."
+        },
+        "otpAlphanumeric": {
+          "type": "boolean",
+          "description": "Enable alphanumeric OTP codes."
+        },
+        "otpLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Desired OTP code length (6–9)."
+        }
+      }
+    },
+    "v1UpdateAuthProxyConfigResult": {
+      "type": "object",
+      "properties": {
+        "configId": {
+          "type": "string",
+          "description": "Unique identifier for a given User. (representing the turnkey signer user id)"
+        }
+      }
     },
     "v1UpdatePolicyIntent": {
       "type": "object",
@@ -10729,6 +10854,19 @@
         }
       },
       "required": ["curve", "pathFormat", "path", "addressFormat"]
+    },
+    "v1WalletKitSettingsParams": {
+      "type": "object",
+      "properties": {
+        "enabledSocialProviders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of enabled social login providers (e.g., 'apple', 'google', 'facebook')",
+          "title": "Enabled Social Providers"
+        }
+      }
     },
     "v1WalletParams": {
       "type": "object",
