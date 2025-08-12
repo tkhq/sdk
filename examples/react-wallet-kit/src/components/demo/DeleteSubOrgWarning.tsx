@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Checkbox } from "@headlessui/react";
 import { useModal, useTurnkey, WalletSource } from "@turnkey/react-wallet-kit";
 import { useState } from "react";
+import { Spinner } from "../Spinners";
 
 export default function DeleteSubOrgWarning() {
   const { session, user, wallets, deleteSubOrganization, logout } =
@@ -13,9 +14,11 @@ export default function DeleteSubOrgWarning() {
   const { isMobile, closeModal } = useModal();
 
   const [deleteWithoutExport, setDeleteWithoutExport] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleContinue = async () => {
     try {
+      setIsLoading(true);
       await deleteSubOrganization({
         deleteWithoutExport: true,
       });
@@ -23,6 +26,8 @@ export default function DeleteSubOrgWarning() {
       logout();
     } catch (error) {
       console.error("Error deleting sub-organization:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -59,7 +64,7 @@ export default function DeleteSubOrgWarning() {
         <div className="flex items-center justify-center gap-2 mb-3">
           <Checkbox
             checked={deleteWithoutExport}
-            onChange={(e) => setDeleteWithoutExport(e)}
+            onChange={(checked: boolean) => setDeleteWithoutExport(checked)}
             className="group flex items-center justify-center size-4 rounded border text-icon-background-light dark:text-icon-background-dark bg-icon-background-light dark:bg-icon-background-dark data-checked:text-danger-text-light dark:data-checked:text-danger-text-dark data-checked:bg-danger-light dark:data-checked:bg-danger-dark border-icon-text-light dark:border-icon-text-dark focus:outline-none focus:ring-2 focus:ring-danger-light dark:focus:ring-danger-dark transition-all"
           >
             {/* Checkmark icon */}
@@ -74,10 +79,16 @@ export default function DeleteSubOrgWarning() {
       <div className="flex my-2 mt-0">
         <Button
           onClick={handleContinue}
-          disabled={!deleteWithoutExport && unExportedWallets.length > 0}
-          className="w-full transition-colors disabled:bg-black/20 disabled:text-gray-700 dark:disabled:bg-white/20 dark:disabled:text-gray-300 p-3 rounded-md border-none max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
+          disabled={
+            (!deleteWithoutExport && unExportedWallets.length > 0) || isLoading
+          }
+          className="w-full flex items-center justify-center transition-all active:scale-95 disabled:active:scale-100 disabled:bg-black/20 disabled:text-gray-700 dark:disabled:bg-white/20 dark:disabled:text-gray-300 p-3 rounded-md border-none max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
         >
-          Delete Account
+          {isLoading ? (
+            <Spinner className="!text-danger-light dark:!text-danger-dark" />
+          ) : (
+            "Delete Account"
+          )}
         </Button>
       </div>
     </div>

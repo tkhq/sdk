@@ -3,11 +3,16 @@ import { useTurnkey } from "@turnkey/react-wallet-kit";
 import { OAuthProviders } from "@turnkey/sdk-types";
 
 interface SocialButtonProps {
+  canRemoveAuthMethod: boolean;
   provider: OAuthProviders;
   logo: React.ReactNode;
 }
 
-export default function SocialButton({ provider, logo }: SocialButtonProps) {
+export default function SocialButton({
+  provider,
+  logo,
+  canRemoveAuthMethod,
+}: SocialButtonProps) {
   const { user, handleAddOAuthProvider, handleRemoveOAuthProvider } =
     useTurnkey();
 
@@ -21,10 +26,13 @@ export default function SocialButton({ provider, logo }: SocialButtonProps) {
       icon={logo}
       isLinked={!!existingProvider}
       onAdd={() => handleAddOAuthProvider({ providerName: provider })}
-      onRemove={() =>
+      canRemoveAuthMethod={canRemoveAuthMethod}
+      onRemove={() => {
         existingProvider &&
-        handleRemoveOAuthProvider({ providerId: existingProvider.providerId })
-      }
+          handleRemoveOAuthProvider({
+            providerId: existingProvider.providerId,
+          });
+      }}
     />
   );
 }

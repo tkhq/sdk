@@ -3,6 +3,30 @@ interface SVGProps {
   style?: React.CSSProperties;
 }
 
+export function TurnkeyLogoSVG(props: SVGProps) {
+  return (
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 12 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      {...props}
+    >
+      <g>
+        <path
+          d="M6.39906 4.34455L8.76102 9.22357H3.4917L5.85366 4.34455C5.87764 4.29535 5.91607 4.25366 5.96441 4.22444C6.01274 4.19522 6.06895 4.17969 6.12635 4.17969C6.18376 4.17969 6.23997 4.19522 6.2883 4.22444C6.33664 4.25366 6.37507 4.29535 6.39906 4.34455Z"
+          fill="currentColor"
+        />
+        <path
+          d="M6.12613 3.58868C7.04256 3.58868 7.78546 2.88785 7.78546 2.02335C7.78546 1.15883 7.04256 0.458008 6.12613 0.458008C5.2097 0.458008 4.4668 1.15883 4.4668 2.02335C4.4668 2.88785 5.2097 3.58868 6.12613 3.58868Z"
+          fill="currentColor"
+        />
+      </g>
+    </svg>
+  );
+}
+
 export function TurnkeySVG(props: SVGProps) {
   return (
     <svg

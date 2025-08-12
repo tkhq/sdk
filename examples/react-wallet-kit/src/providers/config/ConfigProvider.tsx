@@ -207,7 +207,7 @@ export function TurnkeyConfigProvider({
 
           <a href="https://turnkey.com" target="_blank">
             <TurnkeySVG
-              className="transition-all duration-250 size-32"
+              className="transition-all duration-250 h-full w-32"
               style={{
                 transform: `translateX(${panelOpen ? `${panelWidth}px` : "0px"})`,
               }}
