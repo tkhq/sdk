@@ -494,12 +494,19 @@ export class TurnkeyClient {
   getWalletProviders = async (chain?: Chain): Promise<WalletProvider[]> => {
     try {
       if (!this.walletManager) {
-        throw new TurnkeyError("Wallet manager is not initialized");
+        throw new TurnkeyError(
+          "Wallet manager is not initialized",
+          TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+        );
       }
 
       return await this.walletManager.getProviders(chain);
     } catch (error) {
-      throw new TurnkeyError(`Unable to get wallet providers: ${error}`);
+      throw new TurnkeyError(
+        `Unable to get wallet providers`,
+        TurnkeyErrorCodes.FETCH_WALLETS_ERROR,
+        error,
+      );
     }
   };
 
@@ -514,13 +521,20 @@ export class TurnkeyClient {
    */
   connectWalletAccount = async (walletProvider: WalletProvider) => {
     if (!this.walletManager?.connector) {
-      throw new TurnkeyError("Wallet manager is not initialized");
+      throw new TurnkeyError(
+        "Wallet connector is not initialized",
+        TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+      );
     }
 
     try {
       await this.walletManager.connector.connectWalletAccount(walletProvider);
     } catch (error) {
-      throw new TurnkeyError(`Unable to connect wallet account: ${error}`);
+      throw new TurnkeyError(
+        "Unable to connect wallet account",
+        TurnkeyErrorCodes.CONNECT_WALLET_ACCOUNT_ERROR,
+        error,
+      );
     }
   };
 
@@ -535,7 +549,10 @@ export class TurnkeyClient {
    */
   disconnectWalletAccount = async (walletProvider: WalletProvider) => {
     if (!this.walletManager?.connector) {
-      throw new TurnkeyError("Wallet manager is not initialized");
+      throw new TurnkeyError(
+        "Wallet connector is not initialized",
+        TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+      );
     }
 
     try {
@@ -543,7 +560,11 @@ export class TurnkeyClient {
         walletProvider,
       );
     } catch (error) {
-      throw new TurnkeyError(`Unable to disconnect wallet account: ${error}`);
+      throw new TurnkeyError(
+        "Unable to disconnect wallet account",
+        TurnkeyErrorCodes.DISCONNECT_WALLET_ACCOUNT_ERROR,
+        error,
+      );
     }
   };
 
@@ -564,12 +585,16 @@ export class TurnkeyClient {
     chainOrId: string | SwitchableChain,
   ) => {
     if (!this.walletManager?.connector) {
-      throw new TurnkeyError("Wallet manager is not initialized");
+      throw new TurnkeyError(
+        "Wallet connector is not initialized",
+        TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+      );
     }
 
     if (walletProvider.connectedAddresses.length === 0) {
       throw new TurnkeyError(
         "You can not switch chains for a provider that is not connected",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
 
@@ -581,7 +606,11 @@ export class TurnkeyClient {
     try {
       await this.walletManager.connector.switchChain(walletProvider, chainOrId);
     } catch (error) {
-      throw new TurnkeyError(`Unable to switch wallet account chain: ${error}`);
+      throw new TurnkeyError(
+        "Unable to switch wallet account chain",
+        TurnkeyErrorCodes.SWITCH_WALLET_CHAIN_ERROR,
+        error,
+      );
     }
   };
 
@@ -608,7 +637,10 @@ export class TurnkeyClient {
     expirationSeconds?: string;
   }): Promise<string> => {
     if (!this.walletManager?.stamper) {
-      throw new TurnkeyError("Wallet stamper is not initialized");
+      throw new TurnkeyError(
+        "Wallet stamper is not initialized",
+        TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+      );
     }
 
     try {
@@ -688,8 +720,8 @@ export class TurnkeyClient {
 
     if (!this.walletManager?.stamper) {
       throw new TurnkeyError(
-        "Wallet manager is not initialized",
-        TurnkeyErrorCodes.INTERNAL_ERROR,
+        "Wallet stamper is not initialized",
+        TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
       );
     }
 
@@ -708,7 +740,10 @@ export class TurnkeyClient {
       );
 
       if (!publicKey) {
-        throw new TurnkeyError("Failed to get publicKey from wallet");
+        throw new TurnkeyError(
+          "Failed to get public key from wallet",
+          TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
+        );
       }
 
       const signUpBody = buildSignUpBody({
@@ -761,7 +796,11 @@ export class TurnkeyClient {
 
       return sessionResponse.session;
     } catch (error) {
-      throw new TurnkeyError(`Failed to sign up with wallet: ${error}`);
+      throw new TurnkeyError(
+        "Failed to sign up with wallet",
+        TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
+        error,
+      );
     } finally {
       // Clean up the generated key pair if it wasn't successfully used
       this.apiKeyStamper?.clearPublicKeyOverride();
@@ -770,7 +809,9 @@ export class TurnkeyClient {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
         } catch (cleanupError) {
           throw new TurnkeyError(
-            `Failed to clean up generated key pair: ${cleanupError}`,
+            "Failed to clean up generated key pair",
+            TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+            cleanupError,
           );
         }
       }
@@ -801,7 +842,10 @@ export class TurnkeyClient {
     expirationSeconds?: string;
   }): Promise<string> => {
     if (!this.walletManager?.stamper) {
-      throw new TurnkeyError("Wallet manager is not initialized");
+      throw new TurnkeyError(
+        "Wallet stamper is not initialized",
+        TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+      );
     }
 
     const createSubOrgParams = params.createSubOrgParams;
