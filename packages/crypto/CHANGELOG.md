@@ -1,5 +1,11 @@
 # @turnkey/crypto
 
+## 2.5.0
+
+### Minor Changes
+
+- [#812](https://github.com/tkhq/sdk/pull/812) [`6cde41c`](https://github.com/tkhq/sdk/commit/6cde41cfecdfb7d54abf52cc65e28ef0e2ad6ba3) Author [@turnekybc](https://github.com/turnekybc) - Add `@turnkey/encoding` as a package dependency instead of a devDependency to `@turnkey/crypto`. This resolves an issue with transitive dependencies when devDependencies are not included in the artifact.
+
 ## 2.4.3
 
 ### Patch Changes

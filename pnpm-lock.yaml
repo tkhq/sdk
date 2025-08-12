@@ -1323,6 +1323,21 @@ importers:
         specifier: 5.1.3
         version: 5.1.3
 
+  examples/with-morpho:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../packages/viem
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.5.0
+      viem:
+        specifier: ^2.24.2
+        version: 2.30.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.33)
+
   examples/with-movement:
     dependencies:
       '@noble/hashes':
@@ -2142,6 +2157,9 @@ importers:
       '@noble/hashes':
         specifier: 1.8.0
         version: 1.8.0
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
       bs58:
         specifier: 6.0.0
         version: 6.0.0
@@ -2152,9 +2170,6 @@ importers:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
         version: link:../api-key-stamper
-      '@turnkey/encoding':
-        specifier: workspace:*
-        version: link:../encoding
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
