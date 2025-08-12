@@ -169,7 +169,7 @@ export class SolanaWallet extends BaseSolanaWallet {
           throw new Error("No signature returned from signMessage");
         }
 
-        return Buffer.from(results[0].signature).toString("hex");
+        return uint8ArrayToHexString(results[0].signature);
       }
 
       case SignIntent.SignTransaction: {
@@ -194,7 +194,7 @@ export class SolanaWallet extends BaseSolanaWallet {
           throw new Error("No signature returned from signTransaction");
         }
 
-        return Buffer.from(results[0].signature).toString("hex");
+        return uint8ArrayToHexString(results[0].signature);
       }
 
       default:

@@ -18,6 +18,10 @@ import {
   WalletProviderInfo,
   WalletRpcProvider,
 } from "@types";
+import {
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
 
 /**
  * Abstract base class for Ethereum wallet implementations.
@@ -296,9 +300,14 @@ const getCompressedPublicKey = async (
     hash: hashMessage(message),
     signature: signature as Hex,
   });
-  const publicKey = secp256k1PublicKey.replace("0x", "");
-  const publicKeyBytes = Uint8Array.from(Buffer.from(publicKey, "hex"));
-  return Buffer.from(compressRawPublicKey(publicKeyBytes)).toString("hex");
+  const publicKeyHex = secp256k1PublicKey.startsWith("0x")
+    ? secp256k1PublicKey.slice(2)
+    : secp256k1PublicKey;
+
+  const publicKeyBytes = uint8ArrayFromHexString(publicKeyHex);
+  const publicKeyBytesCompressed = compressRawPublicKey(publicKeyBytes);
+
+  return uint8ArrayToHexString(publicKeyBytesCompressed);
 };
 
 /**

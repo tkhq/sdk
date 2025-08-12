@@ -314,13 +314,19 @@ export class WalletConnectWallet implements WalletConnectInterface {
         "GET_PUBLIC_KEY",
         address,
       ]);
-      const raw = await recoverPublicKey({
+      const rawPublicKey = await recoverPublicKey({
         hash: hashMessage("GET_PUBLIC_KEY"),
         signature: sig as Hex,
       });
-      return Buffer.from(
-        compressRawPublicKey(Buffer.from(raw.slice(2), "hex")),
-      ).toString("hex");
+
+      const publicKeyHex = rawPublicKey.startsWith("0x")
+        ? rawPublicKey.slice(2)
+        : rawPublicKey;
+
+      const publicKeyBytes = uint8ArrayFromHexString(publicKeyHex);
+      const publicKeyBytesCompressed = compressRawPublicKey(publicKeyBytes);
+
+      return uint8ArrayToHexString(publicKeyBytesCompressed);
     }
 
     if (provider.chainInfo.namespace === Chain.Solana) {
