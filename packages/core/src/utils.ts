@@ -14,12 +14,15 @@ import {
   TurnkeyErrorCodes,
   v1SignRawPayloadResult,
   v1TransactionType,
+  ProxyTGetWalletKitConfigResponse,
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
   SignIntent,
   type WalletProvider,
   Chain,
+  GrpcStatus,
+  TurnkeyRequestError,
 } from "@types";
 // Import all defaultAccountAtIndex functions for each address format
 import {
@@ -763,4 +766,36 @@ export function isEthereumWallet(wallet: WalletProvider): boolean {
 export function isSolanaWallet(wallet: WalletProvider): boolean {
   const walletType = wallet.chainInfo.namespace;
   return walletType === Chain.Solana;
+}
+
+export async function getAuthProxyConfig(
+  authProxyConfigId: string,
+  authProxyUrl?: string | undefined,
+): Promise<ProxyTGetWalletKitConfigResponse> {
+  const fullUrl =
+    (authProxyUrl ?? "https://authproxy.turnkey.com") + "/v1/wallet_kit_config";
+
+  var headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "X-Auth-Proxy-Config-ID": authProxyConfigId,
+  };
+
+  const response = await fetch(fullUrl, {
+    method: "POST",
+    headers: headers,
+  });
+
+  if (!response.ok) {
+    let res: GrpcStatus;
+    try {
+      res = await response.json();
+    } catch (_) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+
+    throw new TurnkeyRequestError(res);
+  }
+
+  const data = await response.json();
+  return data as ProxyTGetWalletKitConfigResponse;
 }

@@ -22,6 +22,7 @@ import {
   CreateSubOrgParams,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   ExportBundle,
+  getAuthProxyConfig,
   OtpType,
   StamperType,
   SwitchableChain,
@@ -147,8 +148,40 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const { pushPage, closeModal } = useModal();
 
   useEffect(() => {
-    initializeClient();
+    if (proxyAuthConfigRef.current) return;
+
+    // Only fetch the proxy auth config once. Use that to build the master config.
+    const fetchProxyAuthConfig = async () => {
+      try {
+        let proxyAuthConfig: ProxyTGetWalletKitConfigResponse | undefined;
+        if (config.authProxyConfigId) {
+          // Only fetch the proxy auth config if we have an authProxyId. This is a way for devs to explicitly disable the proxy auth.
+          proxyAuthConfig = await getAuthProxyConfig(
+            config.authProxyConfigId,
+            config.authProxyUrl,
+          );
+          proxyAuthConfigRef.current = proxyAuthConfig;
+        }
+
+        setMasterConfig(buildConfig(proxyAuthConfig));
+      } catch {
+        setClientState(ClientState.Error);
+      }
+    };
+
+    fetchProxyAuthConfig();
   }, []);
+
+  useEffect(() => {
+    // If the proxyAuthConfigRef is already set, we don't need to fetch it again. Rebuild the master config with the updated config and stored proxyAuthConfig
+    if (!proxyAuthConfigRef.current && config.authProxyConfigId) return;
+    setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
+  }, [config, proxyAuthConfigRef.current]);
+
+  useEffect(() => {
+    if (!masterConfig) return;
+    initializeClient();
+  }, [masterConfig]);
 
   /**
    * @internal
@@ -205,9 +238,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
           if (provider === "facebook" && flow === "redirect" && publicKey) {
             // We have all the required parameters for a Facebook PKCE flow
-            const clientId = masterConfig?.auth?.oAuthConfig?.facebookClientId;
+            const clientId = masterConfig?.auth?.oauthConfig?.facebookClientId;
             const redirectURI =
-              masterConfig?.auth?.oAuthConfig?.oAuthRedirectUri;
+              masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
 
             if (clientId && redirectURI) {
               handleFacebookPKCEFlow({
@@ -318,35 +351,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }, [client, masterConfig, callbacks, pushPage]);
 
   useEffect(() => {
-    if (!client || proxyAuthConfigRef.current) return;
-
-    // Only fetch the proxy auth config once. Use that to build the master config.
-    const fetchProxyAuthConfig = async () => {
-      try {
-        let proxyAuthConfig: ProxyTGetWalletKitConfigResponse | undefined;
-        if (config.authProxyId) {
-          // Only fetch the proxy auth config if we have an authProxyId. This is a way for devs to explicitly disable the proxy auth.
-          proxyAuthConfig = await client.getProxyAuthConfig();
-          proxyAuthConfigRef.current = proxyAuthConfig;
-        }
-
-        setMasterConfig(buildConfig(proxyAuthConfig));
-        setClientState(ClientState.Ready); // Set the client state to ready only after we have the master config
-      } catch {
-        setClientState(ClientState.Error);
-      }
-    };
-
-    fetchProxyAuthConfig();
-  }, [client]);
-
-  useEffect(() => {
-    // If the proxyAuthConfigRef is already set, we don't need to fetch it again. Rebuild the master config with the updated config and stored proxyAuthConfig
-    if (!proxyAuthConfigRef.current && config.authProxyId) return;
-    setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
-  }, [config]);
-
-  useEffect(() => {
     // authState must be consistent with session state. We found during testing that there are cases where the session and authState can be out of sync in very rare edge cases.
     // This will ensure that they are always in sync and remove the need to setAuthState manually in other places.
     if (session) {
@@ -355,6 +359,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setAuthState(AuthState.Unauthenticated);
     }
   }, [session]);
+
   const buildConfig = (
     proxyAuthConfig?: ProxyTGetWalletKitConfigResponse | undefined,
   ) => {
@@ -372,14 +377,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       walletAuthEnabled:
         config.auth?.methods?.walletAuthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("wallet"),
-      googleOAuthEnabled:
-        config.auth?.methods?.googleOAuthEnabled ??
+      googleOauthEnabled:
+        config.auth?.methods?.googleOauthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("google"),
-      appleOAuthEnabled:
-        config.auth?.methods?.appleOAuthEnabled ??
+      appleOauthEnabled:
+        config.auth?.methods?.appleOauthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("apple"),
-      facebookOAuthEnabled:
-        config.auth?.methods?.facebookOAuthEnabled ??
+      facebookOauthEnabled:
+        config.auth?.methods?.facebookOauthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("facebook"),
     };
 
@@ -387,7 +392,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     const oauthOrder =
       config.auth?.oauthOrder ??
       (["google", "apple", "facebook"] as const).filter(
-        (provider) => resolvedMethods[`${provider}OAuthEnabled` as const],
+        (provider) => resolvedMethods[`${provider}OauthEnabled` as const],
       );
 
     // Set a default ordering for the overall auth methods
@@ -410,9 +415,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       auth: {
         ...config.auth,
         methods: resolvedMethods,
-        oAuthConfig: {
-          ...config.auth?.oAuthConfig,
-          openOAuthInPage: config.auth?.oAuthConfig?.openOAuthInPage,
+        oauthConfig: {
+          ...config.auth?.oauthConfig,
+          openOauthInPage: config.auth?.oauthConfig?.openOauthInPage,
         },
         sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
         methodOrder,
@@ -431,35 +436,46 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @internal
    */
   const initializeClient = async () => {
+    if (!masterConfig || client) return;
     try {
       setClientState(ClientState.Loading);
       const turnkeyClient = new TurnkeyClient({
-        apiBaseUrl: config.apiBaseUrl,
-        authProxyUrl: config.authProxyUrl,
-        authProxyId: config.authProxyId,
-        organizationId: config.organizationId,
+        apiBaseUrl: masterConfig.apiBaseUrl,
+        authProxyUrl: masterConfig.authProxyUrl,
+        authProxyConfigId: masterConfig.authProxyConfigId,
+        organizationId: masterConfig.organizationId,
 
         // Define passkey and wallet config here. If we don't pass it into the client, Mr. Client will assume that we don't want to use passkeys/wallets and not create the stamper!
         passkeyConfig: {
-          rpId: config.passkeyConfig?.rpId,
-          timeout: config.passkeyConfig?.timeout || 60000, // 60 seconds
+          rpId: masterConfig.passkeyConfig?.rpId,
+          timeout: masterConfig.passkeyConfig?.timeout || 60000, // 60 seconds
           userVerification:
-            config.passkeyConfig?.userVerification || "preferred",
-          allowCredentials: config.passkeyConfig?.allowCredentials || [],
+            masterConfig.passkeyConfig?.userVerification || "preferred",
+          allowCredentials: masterConfig.passkeyConfig?.allowCredentials || [],
         },
         walletConfig: {
-          features: config.walletConfig?.features ?? {},
-          chains: config.walletConfig?.chains ?? {},
-          ...(config.walletConfig?.walletConnect && {
-            walletConnect: config.walletConfig.walletConnect,
+          features: {
+            ...masterConfig.walletConfig?.features,
+            auth:
+              masterConfig.auth?.methods?.walletAuthEnabled ??
+              masterConfig.walletConfig?.features?.auth ??
+              true,
+          },
+          chains: masterConfig.walletConfig?.chains ?? {
+            ethereum: { native: true },
+            solana: { native: true },
+          },
+          ...(masterConfig.walletConfig?.walletConnect && {
+            walletConnect: masterConfig.walletConfig.walletConnect,
           }),
         },
       });
 
-      setAutoRefreshSession(config?.auth?.autoRefreshSession ?? false);
+      setAutoRefreshSession(masterConfig?.auth?.autoRefreshSession ?? false);
 
       await turnkeyClient.init();
       setClient(turnkeyClient);
+      setClientState(ClientState.Ready);
 
       // Don't set clientState to ready until we fetch the proxy auth config (See other fetchProxyAuthConfig useEffect)
     } catch (error) {
@@ -1306,7 +1322,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     // If createSubOrgParams is not provided, use the default from masterConfig
     const createSubOrgParams =
-      params.createSubOrgParams ?? masterConfig.auth?.createSuborgParams?.oAuth;
+      params.createSubOrgParams ?? masterConfig.auth?.createSuborgParams?.oauth;
 
     params =
       createSubOrgParams !== undefined
@@ -1371,7 +1387,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
     // If createSubOrgParams is not provided, use the default from masterConfig
     let createSubOrgParams =
-      params.createSubOrgParams ?? masterConfig.auth?.createSuborgParams?.oAuth;
+      params.createSubOrgParams ?? masterConfig.auth?.createSuborgParams?.oauth;
     params =
       createSubOrgParams !== undefined
         ? { ...params, createSubOrgParams }
@@ -1637,7 +1653,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return res;
   }
 
-  async function addOAuthProvider(params: {
+  async function addOauthProvider(params: {
     providerName: string;
     oidcToken: string;
     userId?: string;
@@ -1649,7 +1665,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     const res = await withTurnkeyErrorHandling(
-      () => client.addOAuthProvider(params),
+      () => client.addOauthProvider(params),
       callbacks,
       "Failed to add OAuth provider",
     );
@@ -1657,7 +1673,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return res;
   }
 
-  async function removeOAuthProviders(params: {
+  async function removeOauthProviders(params: {
     providerIds: string[];
     userId?: string;
     stampWith?: StamperType | undefined;
@@ -1668,7 +1684,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     const res = await withTurnkeyErrorHandling(
-      () => client.removeOAuthProviders(params),
+      () => client.removeOauthProviders(params),
       callbacks,
       "Failed to remove OAuth providers",
     );
@@ -2074,14 +2090,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     clientId?: string;
     openInPage?: boolean;
     additionalState?: Record<string, string>;
-    onOAuthSuccess?: (params: {
+    onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
     }) => any;
   }): Promise<void> {
     const {
-      clientId = masterConfig?.auth?.oAuthConfig?.googleClientId,
-      openInPage = masterConfig?.auth?.oAuthConfig?.openOAuthInPage ?? false,
+      clientId = masterConfig?.auth?.oauthConfig?.googleClientId,
+      openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
       additionalState: additionalParameters,
     } = params || {};
     try {
@@ -2097,7 +2113,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.INVALID_CONFIGURATION,
         );
       }
-      if (!masterConfig.auth?.oAuthConfig?.oAuthRedirectUri) {
+      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
         throw new TurnkeyError(
           "OAuth Redirect URI is not configured.",
           TurnkeyErrorCodes.INVALID_CONFIGURATION,
@@ -2106,7 +2122,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const flow = openInPage ? "redirect" : "popup";
       const redirectURI =
-        masterConfig.auth?.oAuthConfig.oAuthRedirectUri.replace(/\/$/, "");
+        masterConfig.auth?.oauthConfig.oauthRedirectUri.replace(/\/$/, "");
 
       // Create key pair and generate nonce
       const publicKey = await createApiKeyPair();
@@ -2191,8 +2207,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   authWindow.close();
                   clearInterval(interval);
 
-                  if (params?.onOAuthSuccess) {
-                    params.onOAuthSuccess({
+                  if (params?.onOauthSuccess) {
+                    params.onOauthSuccess({
                       oidcToken: idToken,
                       providerName: "google",
                     });
@@ -2230,14 +2246,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     clientId?: string;
     openInPage?: boolean;
     additionalState?: Record<string, string>;
-    onOAuthSuccess?: (params: {
+    onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
     }) => any;
   }): Promise<void> {
     const {
-      clientId = masterConfig?.auth?.oAuthConfig?.appleClientId,
-      openInPage = masterConfig?.auth?.oAuthConfig?.openOAuthInPage ?? false,
+      clientId = masterConfig?.auth?.oauthConfig?.appleClientId,
+      openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
       additionalState: additionalParameters,
     } = params || {};
     try {
@@ -2253,7 +2269,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.INVALID_CONFIGURATION,
         );
       }
-      if (!masterConfig.auth?.oAuthConfig?.oAuthRedirectUri) {
+      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
         throw new TurnkeyError(
           "OAuth Redirect URI is not configured.",
           TurnkeyErrorCodes.INVALID_CONFIGURATION,
@@ -2261,7 +2277,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
 
       const flow = openInPage ? "redirect" : "popup";
-      const redirectURI = masterConfig.auth?.oAuthConfig.oAuthRedirectUri; // TODO (Amir): Apple needs the '/' at the end. Maybe we should add it if not there?
+      const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri; // TODO (Amir): Apple needs the '/' at the end. Maybe we should add it if not there?
 
       // Create key pair and generate nonce
       const publicKey = await createApiKeyPair();
@@ -2343,8 +2359,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   authWindow.close();
                   clearInterval(interval);
 
-                  if (params?.onOAuthSuccess) {
-                    params.onOAuthSuccess({
+                  if (params?.onOauthSuccess) {
+                    params.onOauthSuccess({
                       oidcToken: idToken,
                       providerName: "apple",
                     });
@@ -2382,14 +2398,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     clientId?: string;
     openInPage?: boolean;
     additionalState?: Record<string, string>;
-    onOAuthSuccess?: (params: {
+    onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
     }) => any;
   }): Promise<void> {
     const {
-      clientId = masterConfig?.auth?.oAuthConfig?.facebookClientId,
-      openInPage = masterConfig?.auth?.oAuthConfig?.openOAuthInPage ?? false,
+      clientId = masterConfig?.auth?.oauthConfig?.facebookClientId,
+      openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
       additionalState: additionalParameters,
     } = params || {};
     try {
@@ -2405,7 +2421,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.INVALID_CONFIGURATION,
         );
       }
-      if (!masterConfig.auth?.oAuthConfig?.oAuthRedirectUri) {
+      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
         throw new TurnkeyError(
           "OAuth Redirect URI is not configured.",
           TurnkeyErrorCodes.INVALID_CONFIGURATION,
@@ -2413,7 +2429,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
 
       const flow = openInPage ? "redirect" : "popup";
-      const redirectURI = masterConfig.auth?.oAuthConfig.oAuthRedirectUri;
+      const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri;
 
       // Create key pair and generate nonce
       const publicKey = await createApiKeyPair();
@@ -2524,8 +2540,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     .then((tokenData) => {
                       sessionStorage.removeItem("facebook_verifier");
 
-                      if (params?.onOAuthSuccess) {
-                        params.onOAuthSuccess({
+                      if (params?.onOauthSuccess) {
+                        params.onOauthSuccess({
                           oidcToken: tokenData.id_token,
                           providerName: "apple",
                         });
@@ -3369,7 +3385,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
-  const handleRemoveOAuthProvider = async (params: {
+  const handleRemoveOauthProvider = async (params: {
     providerId: string;
     title?: string;
     subTitle?: string;
@@ -3430,7 +3446,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
-  const handleAddOAuthProvider = async (params: {
+  const handleAddOauthProvider = async (params: {
     providerName: OAuthProviders;
     stampWith?: StamperType | undefined;
   }): Promise<void> => {
@@ -3448,20 +3464,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     const { providerName, stampWith } = params;
 
-    const onOAuthSuccess = async (params: {
+    const onOauthSuccess = async (params: {
       providerName: string;
       oidcToken: string;
     }) => {
-      await withTurnkeyErrorHandling(
-        () =>
-          addOAuthProvider({
-            providerName: params.providerName,
-            oidcToken: params.oidcToken,
-            stampWith,
-          }),
-        callbacks,
-        "Failed to add OAuth provider",
-      );
+      await addOauthProvider({
+        providerName: params.providerName,
+        oidcToken: params.oidcToken,
+        stampWith,
+      });
       pushPage({
         key: "OAuth Provider Added",
         content: (
@@ -3482,21 +3493,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       case OAuthProviders.GOOGLE: {
         await handleGoogleOauth({
           openInPage: false,
-          onOAuthSuccess,
+          onOauthSuccess,
         });
         break;
       }
       case OAuthProviders.APPLE: {
         await handleAppleOauth({
           openInPage: false,
-          onOAuthSuccess,
+          onOauthSuccess,
         });
         break;
       }
       case OAuthProviders.FACEBOOK: {
         await handleFacebookOauth({
           openInPage: false,
-          onOAuthSuccess,
+          onOauthSuccess,
         });
         break;
       }
@@ -3679,8 +3690,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         updateUserPhoneNumber,
         removeUserPhoneNumber,
         updateUserName,
-        addOAuthProvider,
-        removeOAuthProviders,
+        addOauthProvider,
+        removeOauthProviders,
         addPasskey,
         removePasskeys,
         createWallet,
@@ -3708,8 +3719,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleUpdateUserEmail,
         handleUpdateUserPhoneNumber,
         handleUpdateUserName,
-        handleAddOAuthProvider,
-        handleRemoveOAuthProvider,
+        handleAddOauthProvider,
+        handleRemoveOauthProvider,
         handleAddPasskey,
         handleRemovePasskey,
         handleAddEmail,

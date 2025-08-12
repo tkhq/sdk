@@ -67,11 +67,11 @@ export default function AuthPage() {
     handleImport,
     handleUpdateUserEmail,
     handleUpdateUserPhoneNumber,
-    handleAddOAuthProvider,
+    handleAddOauthProvider,
     handleUpdateUserName,
     handleAddEmail,
     handleAddPhoneNumber,
-    handleRemoveOAuthProvider,
+    handleRemoveOauthProvider,
     handleAddPasskey,
     handleRemovePasskey,
     handleLinkExternalWallet,
@@ -892,7 +892,7 @@ export default function AuthPage() {
       {session && (
         <button
           onClick={async () => {
-            await handleAddOAuthProvider({
+            await handleAddOauthProvider({
               providerName: OAuthProviders.GOOGLE,
             });
           }}
@@ -909,7 +909,7 @@ export default function AuthPage() {
       {session && (
         <button
           onClick={async () => {
-            await handleAddOAuthProvider({
+            await handleAddOauthProvider({
               providerName: OAuthProviders.APPLE,
             });
           }}
@@ -926,7 +926,7 @@ export default function AuthPage() {
       {session && (
         <button
           onClick={async () => {
-            const res = await handleAddOAuthProvider({
+            const res = await handleAddOauthProvider({
               providerName: OAuthProviders.FACEBOOK,
             });
 
@@ -1007,7 +1007,7 @@ export default function AuthPage() {
               console.error("No OAuth provider found to remove");
               return;
             }
-            const res = await handleRemoveOAuthProvider({
+            const res = await handleRemoveOauthProvider({
               providerId: providerId,
             });
 
