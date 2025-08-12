@@ -9,6 +9,20 @@ const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";
 const stampHeaderName = "X-Stamp";
 
+/**
+ * `SubtleCrypto.sign(...)` outputs signature in IEEE P1363 format:
+ * - https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/sign#ecdsa
+ *
+ * Turnkey expects the signature encoding to be DER-encoded ASN.1:
+ * - https://github.com/tkhq/tkcli/blob/7f0159af5a73387ff050647180d1db4d3a3aa033/src/internal/apikey/apikey.go#L149
+ *
+ * Code modified from https://github.com/google/tink/blob/6f74b99a2bfe6677e3670799116a57268fd067fa/javascript/subtle/elliptic_curves.ts#L114
+ *
+ * Transform an ECDSA signature in IEEE 1363 encoding to DER encoding.
+ *
+ * @param ieee the ECDSA signature in IEEE encoding
+ * @return ECDSA signature in DER encoding
+ */
 function convertEcdsaIeee1363ToDer(ieee: Uint8Array): Uint8Array {
   if (ieee.length % 2 != 0 || ieee.length == 0 || ieee.length > 132) {
     throw new Error(
@@ -40,6 +54,12 @@ function convertEcdsaIeee1363ToDer(ieee: Uint8Array): Uint8Array {
   return der;
 }
 
+/**
+ * Code modified from https://github.com/google/tink/blob/6f74b99a2bfe6677e3670799116a57268fd067fa/javascript/subtle/elliptic_curves.ts#L311
+ *
+ * Transform a big integer in big endian to minimal unsigned form which has
+ * no extra zero at the beginning except when the highest bit is set.
+ */
 function toUnsignedBigNum(bytes: Uint8Array): Uint8Array {
   let start = 0;
   while (start < bytes.length && bytes[start] == 0) {
@@ -143,7 +163,7 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
     } else {
       const keyPair = await crypto.subtle.generateKey(
         { name: "ECDSA", namedCurve: "P-256" },
-        false,
+        false, // Non-extractable private key
         ["sign", "verify"],
       );
       privateKey = keyPair.privateKey;

@@ -3,14 +3,6 @@
   "version": "0.1.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "default": "./dist/index.mjs"
-    }
-  },
   "types": "./dist/index.d.ts",
   "private": true,
   "scripts": {

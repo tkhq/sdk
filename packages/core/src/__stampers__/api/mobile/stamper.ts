@@ -1,6 +1,5 @@
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { generateP256KeyPair } from "@turnkey/crypto";
-import {} from "../base";
 import type { TStamp, ApiKeyStamperBase } from "@types";
 
 let Keychain: typeof import("react-native-keychain");
@@ -24,6 +23,7 @@ export class ReactNativeKeychainStamper implements ApiKeyStamperBase {
       await this.deleteKeyPair(key);
     }
   }
+
   async createKeyPair(externalKeyPair?: {
     publicKey: string;
     privateKey: string;
