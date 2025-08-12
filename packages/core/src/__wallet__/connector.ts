@@ -7,7 +7,7 @@ import {
   Chain,
 } from "@types";
 
-export interface WebWalletConnectorInterface {
+export interface CrossPlatformWalletConnectorInterface {
   sign(
     message: string | Uint8Array,
     walletProvider: WalletProvider,
@@ -15,7 +15,9 @@ export interface WebWalletConnectorInterface {
   ): Promise<string>;
 }
 
-export class WebWalletConnector implements WebWalletConnectorInterface {
+export class CrossPlatformWalletConnector
+  implements CrossPlatformWalletConnectorInterface
+{
   constructor(
     private readonly wallets: Partial<
       Record<WalletInterfaceType, WalletInterface>
