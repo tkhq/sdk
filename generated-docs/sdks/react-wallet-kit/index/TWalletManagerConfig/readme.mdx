@@ -7,23 +7,55 @@ mode: wide
 
 > **TWalletManagerConfig** = `object`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:266
+Defined in: core/dist/\_\_types\_\_/base.d.ts:265
 
 ## Properties
 
-### ethereum?
+### chains
 
-> `optional` **ethereum**: `boolean`
+> **chains**: `object`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:267
+Defined in: core/dist/\_\_types\_\_/base.d.ts:270
+
+#### ethereum?
+
+> `optional` **ethereum**: `object`
+
+##### ethereum.native?
+
+> `optional` **native**: `boolean`
+
+##### ethereum.walletConnectNamespaces?
+
+> `optional` **walletConnectNamespaces**: `EvmNamespace`[]
+
+#### solana?
+
+> `optional` **solana**: `object`
+
+##### solana.native?
+
+> `optional` **native**: `boolean`
+
+##### solana.walletConnectNamespaces?
+
+> `optional` **walletConnectNamespaces**: `SolNamespace`[]
 
 ***
 
-### solana?
+### features?
 
-> `optional` **solana**: `boolean`
+> `optional` **features**: `object`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:268
+Defined in: core/dist/\_\_types\_\_/base.d.ts:266
+
+#### auth?
+
+> `optional` **auth**: `boolean`
+
+#### connecting?
+
+> `optional` **connecting**: `boolean`
 
 ***
 
@@ -31,36 +63,28 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:268
 
 > `optional` **walletConnect**: `object`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:269
+Defined in: core/dist/\_\_types\_\_/base.d.ts:280
 
-#### ethereumNamespaces?
+#### appMetadata
 
-> `optional` **ethereumNamespaces**: `string`[]
+> **appMetadata**: `object`
 
-#### metadata
-
-> **metadata**: `object`
-
-##### metadata.description
+##### appMetadata.description
 
 > **description**: `string`
 
-##### metadata.icons
+##### appMetadata.icons
 
 > **icons**: `string`[]
 
-##### metadata.name
+##### appMetadata.name
 
 > **name**: `string`
 
-##### metadata.url
+##### appMetadata.url
 
 > **url**: `string`
 
 #### projectId
 
 > **projectId**: `string`
-
-#### solanaNamespaces?
-
-> `optional` **solanaNamespaces**: `string`[]
