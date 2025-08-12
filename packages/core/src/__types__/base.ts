@@ -1,6 +1,4 @@
 import type { TActivityId, TActivityStatus } from "@turnkey/http";
-import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
-import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import type { EIP1193Provider as EthereumProvider } from "viem";
 import type { Wallet as SolanaProvider } from "@wallet-standard/base";
 import type {
@@ -14,13 +12,8 @@ import type {
   v1WalletAccountParams,
   Session,
 } from "@turnkey/sdk-types";
-import type {
-  WalletStamper,
-  CrossPlatformWalletStamper,
-} from "../__wallet__/stamper";
+import type { CrossPlatformWalletStamper } from "../__wallet__/stamper";
 import type { CrossPlatformWalletConnector } from "../__wallet__/connector";
-
-// TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
 
 export const DEFAULT_SESSION_EXPIRATION_IN_SECONDS = "900"; // 15 minutes
 
@@ -131,14 +124,12 @@ export interface TurnkeyHttpClientConfig {
 export interface TurnkeySDKClientConfig {
   apiBaseUrl?: string | undefined;
   authProxyUrl?: string | undefined;
-  authProxyId?: string | undefined; // Auth proxy won't be used
+  authProxyId?: string | undefined; // Auth proxy won't be used if not passed in
   organizationId: string;
 
   passkeyConfig?: TPasskeyStamperConfig;
   walletConfig?: TWalletManagerConfig;
 }
-
-export type Stamper = WebauthnStamper | WalletStamper | IndexedDbStamper;
 
 export type queryOverrideParams = {
   organizationId?: string;
@@ -305,7 +296,7 @@ export enum OtpType {
 
 export enum FilterType {
   Email = "EMAIL",
-  Sms = "SMS",
+  Sms = "PHONE_NUMBER",
   OidcToken = "OIDC_TOKEN",
   PublicKey = "PUBLIC_KEY",
 }
@@ -339,7 +330,6 @@ export interface WalletManagerBase {
   connector?: CrossPlatformWalletConnector;
 }
 
-// TODO (Amir) This would be nice in sdk-types
 export type TPasskeyStamperConfig = {
   // The RPID ("Relying Party ID") for your app. This is automatically determined in web environments based on the current hostname.
   // See https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration to set this up for react-native.
@@ -401,7 +391,7 @@ export type TWalletManagerConfig = {
 export interface ApiKeyStamperBase {
   listKeyPairs(): Promise<string[]>;
   createKeyPair(
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
+    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string }
   ): Promise<string>;
   deleteKeyPair(publicKeyHex: string): Promise<void>;
   clearKeyPairs(): Promise<void>;
@@ -485,7 +475,7 @@ export interface BaseWalletInterface {
   sign: (
     message: string,
     provider: WalletProvider,
-    intent: SignIntent,
+    intent: SignIntent
   ) => Promise<string>;
   getPublicKey: (provider: WalletProvider) => Promise<string>;
   getProviders: () => Promise<WalletProvider[]>;
@@ -493,7 +483,7 @@ export interface BaseWalletInterface {
   disconnectWalletAccount: (provider: WalletProvider) => Promise<void>;
   switchChain?: (
     provider: WalletProvider,
-    chainOrId: string | SwitchableChain,
+    chainOrId: string | SwitchableChain
   ) => Promise<void>;
 }
 

@@ -466,7 +466,7 @@ export class TurnkeyClient {
       );
     } finally {
       // Clean up the generated key pair if it wasn't successfully used
-      this.apiKeyStamper?.clearOverridePublicKey();
+      this.apiKeyStamper?.clearPublicKeyOverride();
       if (generatedKeyPair) {
         try {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
@@ -697,7 +697,7 @@ export class TurnkeyClient {
       throw new Error(`Failed to sign up with wallet: ${error}`);
     } finally {
       // Clean up the generated key pair if it wasn't successfully used
-      this.apiKeyStamper?.clearOverridePublicKey();
+      this.apiKeyStamper?.clearPublicKeyOverride();
       if (generatedKeyPair) {
         try {
           await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
