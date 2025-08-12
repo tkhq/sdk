@@ -28,7 +28,6 @@ export class CrossPlatformApiKeyStamper implements TStamper {
   }
 
   listKeyPairs(): Promise<string[]> {
-    // TODO (Amir): Wait, this doesn't show the private key, right? 0_0
     return this.stamper.listKeyPairs();
   }
 
@@ -46,7 +45,9 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     return this.stamper.clearKeyPairs();
   }
 
-  // TODO (Amir): This function needs to be explained well
+  // This allows forcing a specific public key to find the key pair for stamping. The key pair must already exist in indexedDB / Keychain.
+  // This is useful if you need to stamp with a specific key pair without having an active session.
+  // See "signUpWithPasskey" function in core.ts for usage
   setPublicKeyOverride(publicKeyHex: string | undefined): void {
     this.publicKeyOverride = publicKeyHex;
   }
@@ -55,7 +56,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     return this.publicKeyOverride;
   }
 
-  clearOverridePublicKey(): void {
+  clearPublicKeyOverride(): void {
     this.publicKeyOverride = undefined;
   }
 

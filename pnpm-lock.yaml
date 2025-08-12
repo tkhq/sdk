@@ -2066,9 +2066,6 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
-      '@turnkey/indexed-db-stamper':
-        specifier: workspace:*
-        version: link:../indexed-db-stamper
       '@turnkey/react-native-passkey-stamper':
         specifier: workspace:*
         version: link:../react-native-passkey-stamper
