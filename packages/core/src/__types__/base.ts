@@ -16,9 +16,9 @@ import type {
 } from "@turnkey/sdk-types";
 import type {
   WalletStamper,
-  WebWalletStamper,
-} from "../__wallet__/web/stamper";
-import type { WebWalletConnector } from "../__wallet__/web/signer";
+  CrossPlatformWalletStamper,
+} from "../__wallet__/stamper";
+import type { CrossPlatformWalletConnector } from "../__wallet__/connector";
 
 // TODO (Amir): Get all this outta here and move to sdk-types. Or not, we could just have everything in this package
 
@@ -335,8 +335,8 @@ export interface StorageBase {
 
 export interface WalletManagerBase {
   getProviders: (chain?: Chain) => Promise<WalletProvider[]>;
-  stamper: WebWalletStamper;
-  connector: WebWalletConnector;
+  stamper?: CrossPlatformWalletStamper;
+  connector?: CrossPlatformWalletConnector;
 }
 
 // TODO (Amir) This would be nice in sdk-types
@@ -369,19 +369,32 @@ export type TPasskeyStamperConfig = {
   extensions?: Record<string, unknown>;
 };
 
+type EvmNamespace = `eip155:${string}`; // e.g. "eip155:1", "eip155:8453"
+type SolNamespace = `solana:${string}`; // e.g. "solana:mainnet", cluster id, etc.
+
 export type TWalletManagerConfig = {
-  ethereum?: boolean;
-  solana?: boolean;
+  features?: {
+    auth?: boolean;
+    connecting?: boolean;
+  };
+  chains: {
+    ethereum?: {
+      native?: boolean;
+      walletConnectNamespaces?: EvmNamespace[];
+    };
+    solana?: {
+      native?: boolean;
+      walletConnectNamespaces?: SolNamespace[];
+    };
+  };
   walletConnect?: {
     projectId: string;
-    metadata: {
+    appMetadata: {
       name: string;
       description: string;
       url: string;
       icons: string[];
     };
-    ethereumNamespaces?: string[];
-    solanaNamespaces?: string[];
   };
 };
 
