@@ -26,18 +26,18 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       smsOtpAuthEnabled?: boolean;
       passkeyAuthEnabled?: boolean;
       walletAuthEnabled?: boolean;
-      googleOAuthEnabled?: boolean;
-      appleOAuthEnabled?: boolean;
-      facebookOAuthEnabled?: boolean;
+      googleOauthEnabled?: boolean;
+      appleOauthEnabled?: boolean;
+      facebookOauthEnabled?: boolean;
     };
     methodOrder?: Array<"socials" | "email" | "sms" | "passkey" | "wallet">;
     oauthOrder?: Array<"google" | "apple" | "facebook">;
-    oAuthConfig?: {
-      oAuthRedirectUri?: string;
+    oauthConfig?: {
+      oauthRedirectUri?: string;
       googleClientId?: string;
       appleClientId?: string;
       facebookClientId?: string;
-      openOAuthInPage?: boolean;
+      openOauthInPage?: boolean;
     };
     sessionExpirationSeconds?: string;
     createSuborgParams?: {
@@ -45,7 +45,7 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       smsOtpAuth?: CreateSubOrgParams;
       passkeyAuth?: CreateSubOrgParams & { passkeyName?: string };
       walletAuth?: CreateSubOrgParams;
-      oAuth?: CreateSubOrgParams;
+      oauth?: CreateSubOrgParams;
     };
     autoRefreshSession?: boolean;
   };
@@ -60,9 +60,6 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     backgroundBlur?: string | number; // e.g., 10, "1rem"
 
     renderModalInProvider?: boolean; // If true, the modal will be rendered as a child of the TurnkeyProvider instead of a sibling to the body. This is useful for font inheritance, and css manipulations to modals.
-  };
-  language?: {
-    // Ohayō!
   };
 }
 

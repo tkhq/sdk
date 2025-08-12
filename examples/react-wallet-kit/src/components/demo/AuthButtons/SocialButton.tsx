@@ -13,7 +13,7 @@ export default function SocialButton({
   logo,
   canRemoveAuthMethod,
 }: SocialButtonProps) {
-  const { user, handleAddOAuthProvider, handleRemoveOAuthProvider } =
+  const { user, handleAddOauthProvider, handleRemoveOauthProvider } =
     useTurnkey();
 
   const existingProvider = user?.oauthProviders.find(
@@ -25,11 +25,11 @@ export default function SocialButton({
       label={provider}
       icon={logo}
       isLinked={!!existingProvider}
-      onAdd={() => handleAddOAuthProvider({ providerName: provider })}
+      onAdd={() => handleAddOauthProvider({ providerName: provider })}
       canRemoveAuthMethod={canRemoveAuthMethod}
       onRemove={() => {
         existingProvider &&
-          handleRemoveOAuthProvider({
+          handleRemoveOauthProvider({
             providerId: existingProvider.providerId,
           });
       }}

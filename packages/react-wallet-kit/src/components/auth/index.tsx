@@ -251,7 +251,7 @@ export function AuthComponent() {
   };
 
   const oauthButtonMap: Record<string, JSX.Element | null> = {
-    google: methods.googleOAuthEnabled ? (
+    google: methods.googleOauthEnabled ? (
       <OAuthButton
         key="google"
         name="Google"
@@ -259,7 +259,7 @@ export function AuthComponent() {
         onClick={handleGoogle}
       />
     ) : null,
-    apple: methods.appleOAuthEnabled ? (
+    apple: methods.appleOauthEnabled ? (
       <OAuthButton
         key="apple"
         name="Apple"
@@ -267,7 +267,7 @@ export function AuthComponent() {
         onClick={handleApple}
       />
     ) : null,
-    facebook: methods.facebookOAuthEnabled ? (
+    facebook: methods.facebookOauthEnabled ? (
       <OAuthButton
         key="facebook"
         name="Facebook"
@@ -323,7 +323,7 @@ export function AuthComponent() {
         isMobile ? "w-full" : "w-96",
       )}
     >
-      {config.authProxyId ? (
+      {config.authProxyConfigId ? (
         rendered.length > 0 ? (
           <>
             <div className="mt-12" />
@@ -335,7 +335,6 @@ export function AuthComponent() {
             ))}
           </>
         ) : (
-          // TODO (Amir / Ethan): We will probably change the auth proxy name and authProxyId field. Make sure to update this!
           <DeveloperError
             developerTitle="No Auth Methods Enabled"
             developerMessages={[
@@ -350,9 +349,9 @@ export function AuthComponent() {
         <DeveloperError
           developerTitle="Proxy not Enabled"
           developerMessages={[
-            "You have not passed in authProxyId into the TurnkeyProvider.",
+            "You have not passed in authProxyConfigId into the TurnkeyProvider.",
             "To use this modal, you must be using Turnkey's Auth Proxy.",
-            "Please enable it in the Turnkey dashboard and pass in the authProxyId into the TurnkeyProvider.",
+            "Please enable it in the Turnkey dashboard and pass in the authProxyConfigId into the TurnkeyProvider.",
           ]}
           // Users should never see this message ever. We should give a reward for anyone who does see this.
           userMessages={["You touched fuzzy.... and got dizzy."]}
