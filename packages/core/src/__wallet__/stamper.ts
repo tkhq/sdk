@@ -6,7 +6,11 @@ import {
   type WalletProvider,
   WalletInterfaceType,
 } from "@types";
-import { stringToBase64urlString } from "@turnkey/encoding";
+import {
+  stringToBase64urlString,
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
 import type { Hex } from "viem";
 import { isEthereumWallet, isSolanaWallet } from "@utils";
 
@@ -121,6 +125,7 @@ export class WalletStamper {
 
   async stamp(payload: string, provider: WalletProvider): Promise<TStamp> {
     let signature: string;
+    let publicKey: string;
 
     try {
       signature = await this.wallet.sign(
@@ -132,7 +137,6 @@ export class WalletStamper {
       throw new Error(`Failed to sign the message: ${error}`);
     }
 
-    let publicKey: string;
     const scheme = isSolanaWallet(provider)
       ? SIGNATURE_SCHEME_TK_API_ED25519
       : SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191;
@@ -149,13 +153,14 @@ export class WalletStamper {
           signature: signature as Hex,
         });
 
-        const publicKeyBytes = Uint8Array.from(
-          Buffer.from(rawPublicKey.replace("0x", ""), "hex"),
-        );
-        publicKey = Buffer.from(compressRawPublicKey(publicKeyBytes)).toString(
-          "hex",
-        );
+        const publicKeyHex = rawPublicKey.startsWith("0x")
+          ? rawPublicKey.slice(2)
+          : rawPublicKey;
 
+        const publicKeyBytes = uint8ArrayFromHexString(publicKeyHex);
+        const publicKeyBytesCompressed = compressRawPublicKey(publicKeyBytes);
+
+        publicKey = uint8ArrayToHexString(publicKeyBytesCompressed);
         signature = toDerSignature(signature.replace("0x", ""));
       } else {
         publicKey = await this.wallet.getPublicKey(provider);
