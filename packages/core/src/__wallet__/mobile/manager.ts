@@ -1,5 +1,5 @@
-import { WebWalletStamper } from "../stamper";
-import { WebWalletConnector } from "../connector";
+import { CrossPlatformWalletStamper } from "../stamper";
+import { CrossPlatformWalletConnector } from "../connector";
 import {
   TWalletManagerConfig,
   WalletInterface,
@@ -24,10 +24,10 @@ export class MobileWalletManager {
   private chainToInterfaces: Partial<Record<Chain, WalletInterfaceType[]>> = {};
 
   // responsible for stamping messages using wallets
-  readonly stamper: WebWalletStamper;
+  readonly stamper?: CrossPlatformWalletStamper;
 
   // handles signature flows for authentication
-  readonly connector: WebWalletConnector;
+  readonly connector?: CrossPlatformWalletConnector;
 
   /**
    * Constructs a MobileWalletManager that only uses WalletConnect.
@@ -35,12 +35,17 @@ export class MobileWalletManager {
    * @param cfg - Wallet manager configuration (uses only WalletConnect fields).
    */
   constructor(cfg: TWalletManagerConfig) {
-    const ethereumNamespaces = cfg.walletConnect?.ethereumNamespaces ?? [];
-    const solanaNamespaces = cfg.walletConnect?.solanaNamespaces ?? [];
-    const hasWalletConnectNamespace =
-      ethereumNamespaces.length > 0 || solanaNamespaces.length > 0;
+    const ethereumNamespaces =
+      cfg.chains.ethereum?.walletConnectNamespaces ?? [];
+    const solanaNamespaces = cfg.chains.solana?.walletConnectNamespaces ?? [];
 
-    if (cfg.walletConnect && hasWalletConnectNamespace) {
+    const enableWalletConnectEvm = ethereumNamespaces.length > 0;
+    const enableWalletConnectSol = solanaNamespaces.length > 0;
+
+    const enableWalletConnect =
+      enableWalletConnectEvm || enableWalletConnectSol;
+
+    if (cfg.walletConnect && enableWalletConnect) {
       this.wcClient = new WalletConnectClient();
       const wcUnified = new WalletConnectWallet(this.wcClient);
 
@@ -52,19 +57,24 @@ export class MobileWalletManager {
       );
 
       // register WalletConnect as a wallet interface for each enabled chain
-      if (ethereumNamespaces.length > 0) {
+      if (enableWalletConnectEvm) {
         this.addChainInterface(
           Chain.Ethereum,
           WalletInterfaceType.WalletConnect,
         );
       }
-      if (solanaNamespaces.length > 0) {
+      if (enableWalletConnectSol) {
         this.addChainInterface(Chain.Solana, WalletInterfaceType.WalletConnect);
       }
     }
 
-    this.stamper = new WebWalletStamper(this.wallets);
-    this.connector = new WebWalletConnector(this.wallets);
+    if (cfg.features?.auth) {
+      this.stamper = new CrossPlatformWalletStamper(this.wallets);
+    }
+
+    if (cfg.features?.connecting) {
+      this.connector = new CrossPlatformWalletConnector(this.wallets);
+    }
   }
 
   /**
@@ -78,7 +88,7 @@ export class MobileWalletManager {
     }
 
     await Promise.all(this.initializers.map((fn) => fn()));
-    await this.stamper.init();
+    await this.stamper?.init();
   }
 
   /**

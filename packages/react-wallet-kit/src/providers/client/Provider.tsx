@@ -448,8 +448,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           allowCredentials: config.passkeyConfig?.allowCredentials || [],
         },
         walletConfig: {
-          ethereum: config.walletConfig?.ethereum ?? true,
-          solana: config.walletConfig?.solana ?? true,
+          features: config.walletConfig?.features ?? {},
+          chains: config.walletConfig?.chains ?? {},
           ...(config.walletConfig?.walletConnect && {
             walletConnect: config.walletConfig.walletConnect,
           }),
@@ -3522,6 +3522,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       throw new TurnkeyError(
         "No active session found.",
         TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    if (config.walletConfig?.features?.connecting) {
+      throw new TurnkeyError(
+        "Wallet connecting is not enabled.",
+        TurnkeyErrorCodes.FEATURE_NOT_ENABLED,
       );
     }
 

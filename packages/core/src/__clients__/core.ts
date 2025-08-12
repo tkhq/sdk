@@ -131,8 +131,8 @@ export class TurnkeyClient {
     }
 
     if (
-      this.config.walletConfig?.ethereum ||
-      this.config.walletConfig?.solana
+      this.config.walletConfig?.features?.auth ||
+      this.config.walletConfig?.features?.connecting
     ) {
       this.walletManager = await createWalletManager(this.config.walletConfig);
     }
@@ -496,7 +496,7 @@ export class TurnkeyClient {
 
   // MOOOOE
   connectWalletAccount = async (walletProvider: WalletProvider) => {
-    if (!this.walletManager) {
+    if (!this.walletManager?.connector) {
       throw new Error("Wallet manager is not initialized");
     }
 
@@ -509,7 +509,7 @@ export class TurnkeyClient {
 
   // MOOOOE
   disconnectWalletAccount = async (walletProvider: WalletProvider) => {
-    if (!this.walletManager) {
+    if (!this.walletManager?.connector) {
       throw new Error("Wallet manager is not initialized");
     }
 
@@ -526,7 +526,7 @@ export class TurnkeyClient {
     walletProvider: WalletProvider,
     chainOrId: string | SwitchableChain,
   ) => {
-    if (!this.walletManager) {
+    if (!this.walletManager?.connector) {
       throw new Error("Wallet manager is not initialized");
     }
 
@@ -555,7 +555,7 @@ export class TurnkeyClient {
     sessionKey?: string;
     expirationSeconds?: string;
   }): Promise<string> => {
-    if (!this.walletManager) {
+    if (!this.walletManager?.stamper) {
       throw new Error("Wallet stamper is not initialized");
     }
 
@@ -619,7 +619,7 @@ export class TurnkeyClient {
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params;
 
-    if (!this.walletManager) {
+    if (!this.walletManager?.stamper) {
       throw new TurnkeyError(
         "Wallet manager is not initialized",
         TurnkeyErrorCodes.INTERNAL_ERROR,
@@ -717,7 +717,7 @@ export class TurnkeyClient {
     sessionKey?: string;
     expirationSeconds?: string;
   }): Promise<string> => {
-    if (!this.walletManager) {
+    if (!this.walletManager?.stamper) {
       throw new Error("Wallet manager is not initialized");
     }
 
@@ -1510,7 +1510,8 @@ export class TurnkeyClient {
         }),
       );
 
-      if (!this.walletManager) return embedded;
+      // if wallet connecting is disabled we return only embedded wallets
+      if (!this.walletManager?.connector) return embedded;
 
       const providers = await this.getWalletProviders();
 
@@ -1597,10 +1598,10 @@ export class TurnkeyClient {
       );
     }
 
-    const embedded: EmbeddedWalletAccount[] = [];
-    const connected: ConnectedWalletAccount[] = [];
-
+    // this is an embedded wallet so we fetch accounts from Turnkey
     if (wallet.source === WalletSource.Embedded) {
+      const embedded: EmbeddedWalletAccount[] = [];
+
       const res = await this.httpClient.getWalletAccounts(
         {
           walletId: wallet.walletId,
@@ -1626,6 +1627,14 @@ export class TurnkeyClient {
 
       return embedded;
     }
+
+    // this is an external wallet so we fetch accounts from the connected wallet provider
+
+    // if wallet connecting is disabled we return only embedded wallets
+    // we should never reach this point if wallet connecting is disabled
+    if (!this.walletManager?.connector) return [];
+
+    const connected: ConnectedWalletAccount[] = [];
 
     const providers = walletProviders ?? (await this.getWalletProviders());
     const matching = providers.filter(
@@ -1653,7 +1662,7 @@ export class TurnkeyClient {
           createdAt: timestamp,
           updatedAt: timestamp,
           ...getWalletAccountMethods(
-            this.walletManager!.connector.sign.bind(
+            this.walletManager!.connector!.sign.bind(
               this.walletManager!.connector,
             ),
             provider,
@@ -1665,7 +1674,7 @@ export class TurnkeyClient {
       }
     }
 
-    return [...embedded, ...connected];
+    return connected;
   };
 
   /**
