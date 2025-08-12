@@ -1,7 +1,7 @@
 {
   "name": "@turnkey/react-wallet-kit",
   "version": "0.1.0",
-  "description": "The best wallet kit ever!!!",
+  "description": "The easiest and most powerful way to integrate Turnkey's Embedded Wallets into your React applications.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "dist/index.d.ts",

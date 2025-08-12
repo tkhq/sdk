@@ -1,7 +1,7 @@
 {
   "name": "@turnkey/core",
   "version": "0.1.0",
-  "description": "Work in progress masterpiece",
+  "description": "A core JavaScript web and React Native package for interfacing with Turnkey's infrastructure.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -25,7 +25,6 @@
     "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "@turnkey/indexed-db-stamper": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",
     "@wallet-standard/app": "^1.1.0",
