@@ -129,6 +129,7 @@
 ### Minor Changes
 
 - ecdb29a: Update API as per mono v2025.3.2
+
   - This release introduces the `CREATE_USERS_V3` activity. The difference between it and `CREATE_USERS_V2` is that it can now accept `userPhoneNumber` and `oauthProviders`. In total, it accepts the following parameters:
 
   ```javascript
@@ -553,6 +554,7 @@ Signing is now performed through Turnkey stampers. New dependencies:
 ### Major Changes
 
 - 46473ec: This breaking change updates generated code to be shorter and more intuitive to read:
+
   - generated fetchers do not include the HTTP method in their name. For example `useGetGetActivity` is now `useGetActivity`, and `usePostSignTransaction` is `useSignTransaction`.
   - input types follow the same convention (no HTTP method in the name): `TPostCreatePrivateKeysInput` is now `TCreatePrivateKeysInput`.
   - the "federated" request helpers introduced in `0.18.0` are now named "signed" requests to better reflect what they are. `FederatedRequest` is now `SignedRequest`, and generated types follow. For example: `federatedPostCreatePrivateKeys` is now `signCreatePrivateKeys`, `federatedGetGetActivity` is now `signGetActivity`, and so on.
