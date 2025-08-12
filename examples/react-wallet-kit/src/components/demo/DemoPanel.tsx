@@ -30,7 +30,6 @@ import {
   faArrowUp,
   faArrowUpRightFromSquare,
   faChevronDown,
-  faGear,
   faPlus,
   faRss,
   faWallet,
@@ -223,7 +222,7 @@ export default function DemoPanel() {
                 <span className="relative flex items-center">
                   <StackedImg connectedWalletIcons={connectedWalletIcons} />
                   Connected{" "}
-                  <div className="flex absolute top-0.5 -right-1.5">
+                  <div className="flex absolute top-0 -right-2">
                     <div className="absolute animate-ping size-2 bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
                     <div className="size-2 bg-green-500 rounded-full border border-modal-background-light dark:border-modal-background-dark" />
                   </div>
@@ -244,13 +243,34 @@ export default function DemoPanel() {
                   key={account.walletAccountId}
                   className="flex items-center justify-between bg-background-light dark:bg-background-dark rounded-lg p-2"
                 >
-                  <Label className="rounded-full w-full p-1 flex text-center items-center gap-3 cursor-pointer">
+                  <Label className="rounded-full w-full flex text-center items-center gap-3 cursor-pointer">
                     {account.addressFormat === "ADDRESS_FORMAT_ETHEREUM" ? (
                       <EthereumSVG className="w-5 h-5" />
                     ) : (
                       <SolanaSVG className="w-5 h-5" />
                     )}
-                    {truncateAddress(account.address)}
+                    <Button
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(account.address);
+                      }}
+                      className="hover:cursor-pointer group transition-all p-1 rounded-lg"
+                    >
+                      <div
+                        className={`relative inline-flex items-center group`}
+                      >
+                        <div className="absolute -top-4 -translate-y-full left-1/2 z-50 -translate-x-1/2 mt-2 flex flex-col items-center w-full opacity-0 delay-500 group-active:delay-25 group-active:duration-0 group-active:opacity-100 transition-opacity pointer-events-none group-active:pointer-events-auto">
+                          <div className="relative">
+                            <p className="rounded-lg text-center bg-icon-background-light dark:bg-icon-background-dark text-icon-text-light dark:text-icon-text-dark px-1 py-1 text-xs shadow-lg break-words">
+                              Copied
+                            </p>
+                            <div className="absolute left-1/2 -bottom-1  -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-icon-background-light dark:border-t-icon-background-dark z-[51]" />
+                          </div>
+                        </div>
+                        <p className="group-active:scale-95 transition-all">
+                          {truncateAddress(account.address)}
+                        </p>
+                      </div>
+                    </Button>
                     <Button
                       className="hover:cursor-pointer"
                       onClick={() => {
@@ -435,10 +455,6 @@ const EmbeddedWalletIcon = () => {
       <FontAwesomeIcon
         icon={faWallet}
         className="bg-icon-background-light dark:bg-icon-background-dark rounded-full p-1 text-xs"
-      />
-      <FontAwesomeIcon
-        icon={faGear}
-        className="text-[8px] -top-3.5 -right-1 absolute bg-icon-background-light dark:bg-icon-background-dark rounded-full p-0.5 -ml-3 mt-3"
       />
     </div>
   );

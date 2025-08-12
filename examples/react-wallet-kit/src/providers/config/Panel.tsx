@@ -133,7 +133,7 @@ export function TurnkeyConfigPanel() {
                   const method = authMethods.find(
                     (m) => m.order === methodKey,
                   )!;
-                  const allEnabled = method.toggles.every(
+                  const someEnabled = method.toggles.some(
                     (key) =>
                       config.auth?.methods?.[
                         key.toggle as keyof typeof config.auth.methods
@@ -158,7 +158,7 @@ export function TurnkeyConfigPanel() {
                             <div className="flex-1">
                               <ToggleSwitch
                                 label={method.name}
-                                checked={allEnabled}
+                                checked={someEnabled}
                                 onChange={(val) => {
                                   const newToggles = method.toggles.reduce(
                                     (acc, { toggle }) => {
