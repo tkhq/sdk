@@ -10,7 +10,7 @@ interface OAuthButtonProps {
 
 export function OAuthButton(props: OAuthButtonProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [showText, setShowText] = useState(true);
+  const [showText, setShowText] = useState(false);
   const { name, icon, onClick, className } = props;
 
   useEffect(() => {
