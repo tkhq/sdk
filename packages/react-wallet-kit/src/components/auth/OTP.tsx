@@ -229,7 +229,7 @@ export function OtpInput(props: OtpInputProps) {
           type={alphanumeric ? "text" : "text"}
           inputMode={alphanumeric ? "text" : "numeric"}
           maxLength={1}
-          value={values[i]}
+          value={values[i]?.toUpperCase()}
           autoComplete="off"
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(e, i)}

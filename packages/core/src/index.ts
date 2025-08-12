@@ -23,5 +23,6 @@ export {
   generateWalletAccountsFromAddressFormat,
   isEthereumWallet,
   isSolanaWallet,
+  getAuthProxyConfig,
   addressFormatConfig,
 } from "./utils";

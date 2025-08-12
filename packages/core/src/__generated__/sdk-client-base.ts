@@ -15,7 +15,7 @@ import {
   StorageBase,
 } from "../__types__/base";
 
-import { VERSION } from "./version";
+import { VERSION } from "../__generated__/version";
 
 import type * as SdkTypes from "@turnkey/sdk-types";
 
@@ -207,7 +207,7 @@ export class TurnkeySDKClientBase {
     url: string,
     body: TBodyType,
   ): Promise<TResponseType> {
-    if (!this.config.authProxyUrl || !this.config.authProxyId) {
+    if (!this.config.authProxyUrl || !this.config.authProxyConfigId) {
       throw new TurnkeyError(
         "Auth Proxy URL or ID is not configured.",
         TurnkeyErrorCodes.INVALID_CONFIGURATION,
@@ -217,7 +217,7 @@ export class TurnkeySDKClientBase {
     const stringifiedBody = JSON.stringify(body);
     var headers: Record<string, string> = {
       "Content-Type": "application/json",
-      "X-Auth-Proxy-Config-ID": this.config.authProxyId,
+      "X-Auth-Proxy-Config-ID": this.config.authProxyConfigId,
     };
 
     const response = await fetch(fullUrl, {

@@ -2455,7 +2455,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of provider IDs associated with the user.
    * @throws {TurnkeyError} If there is no active session, if the account already exists, or if there is an error adding the OAuth provider.
    */
-  addOAuthProvider = async (params: {
+  addOauthProvider = async (params: {
     providerName: string;
     oidcToken: string;
     userId?: string;
@@ -2561,7 +2561,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of provider IDs that were removed.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the OAuth provider.
    */
-  removeOAuthProviders = async (params: {
+  removeOauthProviders = async (params: {
     providerIds: string[];
     userId?: string;
     stampWith?: StamperType | undefined;

@@ -30,9 +30,9 @@ const authMethods: AuthMethod[] = [
   {
     name: "Socials",
     toggles: [
-      { overrideDisplayName: "Google", toggle: "googleOAuthEnabled" },
-      { overrideDisplayName: "Apple", toggle: "appleOAuthEnabled" },
-      { overrideDisplayName: "Facebook", toggle: "facebookOAuthEnabled" },
+      { overrideDisplayName: "Google", toggle: "googleOauthEnabled" },
+      { overrideDisplayName: "Apple", toggle: "appleOauthEnabled" },
+      { overrideDisplayName: "Facebook", toggle: "facebookOauthEnabled" },
     ],
     order: "socials",
   },
@@ -219,16 +219,16 @@ export function TurnkeyConfigPanel() {
                                     label="Open OAuth In Page"
                                     size="sm"
                                     checked={
-                                      config.auth?.oAuthConfig
-                                        ?.openOAuthInPage ?? false
+                                      config.auth?.oauthConfig
+                                        ?.openOauthInPage ?? false
                                     }
                                     onChange={(val) =>
                                       handleSetConfig({
                                         auth: {
                                           ...config.auth,
-                                          oAuthConfig: {
-                                            ...config.auth?.oAuthConfig,
-                                            openOAuthInPage: val,
+                                          oauthConfig: {
+                                            ...config.auth?.oauthConfig,
+                                            openOauthInPage: val,
                                           },
                                         },
                                       })
