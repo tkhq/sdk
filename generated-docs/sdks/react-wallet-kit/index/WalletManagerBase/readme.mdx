@@ -5,15 +5,15 @@ mode: wide
   
 # Interface: WalletManagerBase
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:251
+Defined in: core/dist/\_\_types\_\_/base.d.ts:248
 
 ## Properties
 
-### connector
+### connector?
 
-> **connector**: `WebWalletConnector`
+> `optional` **connector**: `CrossPlatformWalletConnector`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:254
+Defined in: core/dist/\_\_types\_\_/base.d.ts:251
 
 ***
 
@@ -21,7 +21,7 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:254
 
 > **getProviders**: (`chain?`) => `Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:252
+Defined in: core/dist/\_\_types\_\_/base.d.ts:249
 
 #### Parameters
 
@@ -35,8 +35,8 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:252
 
 ***
 
-### stamper
+### stamper?
 
-> **stamper**: `WebWalletStamper`
+> `optional` **stamper**: `CrossPlatformWalletStamper`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:253
+Defined in: core/dist/\_\_types\_\_/base.d.ts:250
