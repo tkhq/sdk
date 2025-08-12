@@ -5,7 +5,7 @@ mode: wide
   
 # Interface: SolanaWalletInterface
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:368
+Defined in: core/dist/\_\_types\_\_/base.d.ts:377
 
 Solana wallets can directly access the public key without needing a signed message.
  SolanaWalletInterface
@@ -20,7 +20,7 @@ Solana wallets can directly access the public key without needing a signed messa
 
 > **connectWalletAccount**: (`provider`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:357
+Defined in: core/dist/\_\_types\_\_/base.d.ts:366
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:357
 
 > **disconnectWalletAccount**: (`provider`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:358
+Defined in: core/dist/\_\_types\_\_/base.d.ts:367
 
 #### Parameters
 
@@ -64,7 +64,7 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:358
 
 > **getProviders**: () => `Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:356
+Defined in: core/dist/\_\_types\_\_/base.d.ts:365
 
 #### Returns
 
@@ -80,7 +80,7 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:356
 
 > **getPublicKey**: (`provider`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:355
+Defined in: core/dist/\_\_types\_\_/base.d.ts:364
 
 Returns the public key, which is the ED25519 hex encoded public key from your Solana wallet public key.
 
@@ -104,7 +104,7 @@ Returns the public key, which is the ED25519 hex encoded public key from your So
 
 > **interfaceType**: [`Solana`](../WalletInterfaceType/readme#solana)
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:369
+Defined in: core/dist/\_\_types\_\_/base.d.ts:378
 
 #### Overrides
 
@@ -116,7 +116,7 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:369
 
 > **sign**: (`message`, `provider`, `intent`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:354
+Defined in: core/dist/\_\_types\_\_/base.d.ts:363
 
 #### Parameters
 
@@ -146,7 +146,7 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:354
 
 > `optional` **switchChain**: (`provider`, `chainOrId`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:359
+Defined in: core/dist/\_\_types\_\_/base.d.ts:368
 
 #### Parameters
 
