@@ -1,7 +1,7 @@
-import { WebWalletStamper } from "../stamper";
-import { WebWalletConnector } from "../connector";
-import { EthereumWallet } from "./connector/ethereum";
-import { SolanaWallet } from "./connector/solana";
+import { CrossPlatformWalletStamper } from "../stamper";
+import { CrossPlatformWalletConnector } from "../connector";
+import { EthereumWallet } from "./native/ethereum";
+import { SolanaWallet } from "./native/solana";
 import {
   TWalletManagerConfig,
   WalletInterface,
@@ -26,10 +26,10 @@ export class WebWalletManager {
   private chainToInterfaces: Partial<Record<Chain, WalletInterfaceType[]>> = {};
 
   // responsible for stamping messages using wallets
-  readonly stamper: WebWalletStamper;
+  readonly stamper?: CrossPlatformWalletStamper;
 
   // handles signature flows for authentication
-  readonly connector: WebWalletConnector;
+  readonly connector?: CrossPlatformWalletConnector;
 
   /**
    * Constructs a WebWalletManager instance based on the provided configuration.
@@ -38,28 +38,33 @@ export class WebWalletManager {
    * @param cfg - Wallet manager configuration including enabled chains and WalletConnect setup.
    */
   constructor(cfg: TWalletManagerConfig) {
-    const enableEvm = cfg.ethereum ?? false;
-    const enableSol = cfg.solana ?? false;
+    const enableNativeEvm = cfg.chains.ethereum ?? false;
+    const enableNativeSol = cfg.chains.solana ?? false;
 
-    const ethereumNamespaces = cfg.walletConnect?.ethereumNamespaces ?? [];
-    const solanaNamespaces = cfg.walletConnect?.solanaNamespaces ?? [];
-    const hasWalletConnectNamespace =
-      ethereumNamespaces.length > 0 || solanaNamespaces.length > 0;
+    const ethereumNamespaces =
+      cfg.chains.ethereum?.walletConnectNamespaces ?? [];
+    const solanaNamespaces = cfg.chains.solana?.walletConnectNamespaces ?? [];
+
+    const enableWalletConnectEvm = ethereumNamespaces.length > 0;
+    const enableWalletConnectSol = solanaNamespaces.length > 0;
+
+    const enableWalletConnect =
+      enableWalletConnectEvm || enableWalletConnectSol;
 
     // set up native Ethereum wallet support
-    if (enableEvm) {
+    if (enableNativeEvm) {
       this.wallets[WalletInterfaceType.Ethereum] = new EthereumWallet();
       this.addChainInterface(Chain.Ethereum, WalletInterfaceType.Ethereum);
     }
 
     // set up native Solana wallet support
-    if (enableSol) {
+    if (enableNativeSol) {
       this.wallets[WalletInterfaceType.Solana] = new SolanaWallet();
       this.addChainInterface(Chain.Solana, WalletInterfaceType.Solana);
     }
 
     // if WalletConnect is configured, set it up
-    if (cfg.walletConnect && hasWalletConnectNamespace) {
+    if (cfg.walletConnect && enableWalletConnect) {
       this.wcClient = new WalletConnectClient();
       const wcUnified = new WalletConnectWallet(this.wcClient);
 
@@ -71,17 +76,22 @@ export class WebWalletManager {
       );
 
       // register WalletConnect as a wallet interface for each enabled chain
-      if (enableEvm)
+      if (enableWalletConnectEvm)
         this.addChainInterface(
           Chain.Ethereum,
           WalletInterfaceType.WalletConnect,
         );
-      if (enableSol)
+      if (enableWalletConnectSol)
         this.addChainInterface(Chain.Solana, WalletInterfaceType.WalletConnect);
     }
 
-    this.stamper = new WebWalletStamper(this.wallets);
-    this.connector = new WebWalletConnector(this.wallets);
+    if (cfg.features?.auth) {
+      this.stamper = new CrossPlatformWalletStamper(this.wallets);
+    }
+
+    if (cfg.features?.connecting) {
+      this.connector = new CrossPlatformWalletConnector(this.wallets);
+    }
   }
 
   /**
@@ -97,7 +107,7 @@ export class WebWalletManager {
 
     // Run all wallet-specific initializers
     await Promise.all(this.initializers.map((fn) => fn()));
-    await this.stamper.init();
+    await this.stamper?.init();
   }
 
   /**
