@@ -1,5 +1,16 @@
 # @turnkey/sdk-react
 
+## 5.3.2-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-types@1.0.0-beta.0
+  - @turnkey/sdk-browser@5.6.1-beta.0
+  - @turnkey/crypto@2.5.1-beta.0
+  - @turnkey/wallet-stamper@1.0.9-beta.0
+  - @turnkey/sdk-server@4.5.1-beta.0
+
 ## 5.3.1
 
 ### Patch Changes
