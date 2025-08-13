@@ -1,5 +1,14 @@
 # @turnkey/sdk-server
 
+## 4.5.1-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.4.8-beta.2
+  - @turnkey/http@3.8.1-beta.2
+  - @turnkey/wallet-stamper@1.0.9-beta.2
+
 ## 4.5.1-beta.1
 
 ### Patch Changes

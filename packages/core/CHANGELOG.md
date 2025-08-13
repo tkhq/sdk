@@ -1,5 +1,21 @@
 # @turnkey/core
 
+## 1.0.0-beta.2
+
+### Minor Changes
+
+- updating package versions
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-types@0.4.0-beta.2
+  - @turnkey/encoding@0.6.0-beta.2
+  - @turnkey/api-key-stamper@0.4.8-beta.2
+  - @turnkey/crypto@2.5.1-beta.2
+  - @turnkey/http@3.8.1-beta.2
+  - @turnkey/react-native-passkey-stamper@1.1.2-beta.2
+
 ## 1.0.0-beta.1
 
 ### Minor Changes

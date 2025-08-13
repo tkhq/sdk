@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.4.0-beta.2
+
+### Minor Changes
+
+- updating package versions
+
 ## 0.4.0-beta.1
 
 ### Minor Changes

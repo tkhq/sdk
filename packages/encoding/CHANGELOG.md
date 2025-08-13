@@ -1,5 +1,11 @@
 # @turnkey/encoding
 
+## 0.6.0-beta.2
+
+### Minor Changes
+
+- updating package versions
+
 ## 0.6.0-beta.1
 
 ### Minor Changes
