@@ -85,7 +85,7 @@ export function ExternalWalletChainSelector(
           const [isHovering, setIsHovering] = useState(false);
           return (
             <ActionButton
-              key={p.interfaceType}
+              key={p.chainInfo.namespace}
               onClick={() => handleSelect(p)}
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
@@ -238,7 +238,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                     const delay = 50 + idx * 30; // Staggered delay: leftmost has largest
                     return (
                       <div
-                        key={c.interfaceType}
+                        key={c.chainInfo.namespace}
                         style={{ transitionDelay: `${delay}ms` }}
                         className={clsx(
                           "relative",
