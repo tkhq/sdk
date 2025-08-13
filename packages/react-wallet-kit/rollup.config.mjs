@@ -22,6 +22,7 @@ const getFormatConfig = (format) => {
       dir: "dist",
       entryFileNames: `[name].${format === "esm" ? "mjs" : "js"}`,
       preserveModules: true,
+      preserveModulesRoot: "src",
       sourcemap: true,
       exports: "named",
     },
