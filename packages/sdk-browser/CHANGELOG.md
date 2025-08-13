@@ -1,5 +1,18 @@
 # @turnkey/sdk-browser
 
+## 5.6.1-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-types@0.4.0-beta.1
+  - @turnkey/encoding@0.6.0-beta.1
+  - @turnkey/api-key-stamper@0.4.8-beta.1
+  - @turnkey/crypto@2.5.1-beta.1
+  - @turnkey/http@3.8.1-beta.1
+  - @turnkey/indexed-db-stamper@1.1.2-beta.1
+  - @turnkey/wallet-stamper@1.0.9-beta.1
+
 ## 5.6.1-beta.0
 
 ### Patch Changes

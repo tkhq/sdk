@@ -67,5 +67,8 @@
     "@turnkey/wallet-stamper": "1.0.8",
     "@turnkey/webauthn-stamper": "0.5.1"
   },
-  "changesets": ["rotten-mugs-matter"]
+  "changesets": [
+    "old-pillows-float",
+    "rotten-mugs-matter"
+  ]
 }
