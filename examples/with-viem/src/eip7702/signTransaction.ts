@@ -2,7 +2,6 @@ import { resolve } from "path";
 import * as dotenv from "dotenv";
 
 import { SignedAuthorization, createWalletClient, http } from "viem";
-import { toSimple7702SmartAccount } from "viem/account-abstraction";
 import { sepolia } from "viem/chains";
 import {
   KERNEL_V3_3,
@@ -52,11 +51,6 @@ const main = async () => {
     chain,
     transport: http(),
   });
-
-  const smartAccount = await toSimple7702SmartAccount({
-    client: walletClient,
-    owner: turnkeyAccount,
-});
 
   const authorization = await walletClient.signAuthorization({
     contractAddress:
