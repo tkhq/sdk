@@ -53,7 +53,7 @@ importers:
         version: 5.1.1(rollup@4.41.1)
       '@rollup/plugin-babel':
         specifier: 5.3.0
-        version: 5.3.0(@babel/core@7.27.3)(@types/babel__core@7.20.5)(rollup@4.41.1)
+        version: 5.3.0(@babel/core@7.26.9)(@types/babel__core@7.20.5)(rollup@4.41.1)
       '@rollup/plugin-node-resolve':
         specifier: 16.0.0
         version: 16.0.0(rollup@4.41.1)
@@ -179,7 +179,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^14.2.25
-        version: 14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -239,7 +239,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^14.2.25
-        version: 14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -388,7 +388,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^14.2.25
-        version: 14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -442,7 +442,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^14.2.25
-        version: 14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -687,7 +687,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^14.2.25
-        version: 14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -898,7 +898,7 @@ importers:
         version: 0.363.0(react@18.3.1)
       next:
         specifier: ^14.2.25
-        version: 14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next-themes:
         specifier: ^0.3.0
         version: 0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1010,7 +1010,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 14.2.25
-        version: 14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -1107,7 +1107,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 14.2.25
-        version: 14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -1188,7 +1188,7 @@ importers:
         version: 0.13.0
       next:
         specifier: ^14.2.25
-        version: 14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -1395,7 +1395,7 @@ importers:
         version: 0.13.0
       next:
         specifier: 14.2.25
-        version: 14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
+        version: 14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       npm:
         specifier: ^9.7.2
         version: 9.9.4
@@ -1482,6 +1482,58 @@ importers:
       typescript:
         specifier: 5.4.3
         version: 5.4.3
+
+  examples/with-swig:
+    dependencies:
+      '@project-serum/anchor':
+        specifier: ^0.26.0
+        version: 0.26.0(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@solana/spl-token':
+        specifier: ^0.4.8
+        version: 0.4.13(@solana/web3.js@1.98.2(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.2(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@swig-wallet/classic':
+        specifier: ^1.2.0
+        version: 1.2.0(@solana/web3.js@1.98.2(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@turnkey/api-key-stamper':
+        specifier: workspace:*
+        version: link:../../packages/api-key-stamper
+      '@turnkey/http':
+        specifier: workspace:*
+        version: link:../../packages/http
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      '@turnkey/solana':
+        specifier: workspace:*
+        version: link:../../packages/solana
+      async-retry:
+        specifier: ^1.3.3
+        version: 1.3.3
+      bs58:
+        specifier: ^6.0.0
+        version: 6.0.0
+      cross-fetch:
+        specifier: ^4.0.0
+        version: 4.1.0(encoding@0.1.13)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.5.0
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+      tweetnacl:
+        specifier: ^1.0.3
+        version: 1.0.3
+    devDependencies:
+      '@types/async-retry':
+        specifier: ^1.4.8
+        version: 1.4.9
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.9
 
   examples/with-ton:
     dependencies:
@@ -1915,7 +1967,7 @@ importers:
         version: link:../http
       jest:
         specifier: 29.7.0
-        version: 29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
+        version: 29.7.0(@types/node@22.15.24)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@22.15.24)(typescript@5.4.3))
 
   packages/eip-1193-provider:
     dependencies:
@@ -2140,7 +2192,7 @@ importers:
         version: 1.12.8
       next:
         specifier: '^15.2.3 '
-        version: 15.3.2(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 15.3.2(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-apple-login:
         specifier: ^1.1.6
         version: 1.1.6(prop-types@15.8.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6141,6 +6193,17 @@ packages:
   '@swc/helpers@0.5.5':
     resolution: {integrity: sha512-KGYxvIOXcceOAbEk4bi/dVLEK9z8sZ0uBB3Il5b1rhfClSpcX0yfRO0KmTkqR2cnQDymwLB+25ZyMzICg/cm/A==}
 
+  '@swig-wallet/classic@1.2.0':
+    resolution: {integrity: sha512-eywno61d3KTDi2HIdvndo2IDbE1tdavOBgWTqzk2NSvyDchdGgnaImxf7hCd6Stf0VHiNau2fbmnH3aWo2AGYg==}
+    peerDependencies:
+      '@solana/web3.js': ^1.98.0
+
+  '@swig-wallet/coder@1.2.0':
+    resolution: {integrity: sha512-dxOt5UIqTl0vcDzMp/OLSRBJxpWXDEMP0NAnY9nswFSXpUOUMP6SYWO39zWinNHfV2fIS9NIDKkXwaYYAoa7Mg==}
+
+  '@swig-wallet/lib@1.2.0':
+    resolution: {integrity: sha512-/nDFx7DmovMhFTjn6ckMBY1jSDSyiy32oWlF+4f2GZIgLZnFn7A4wubzapfo/juvsyDRiqftMo32ItwA1iNl4g==}
+
   '@szmarczak/http-timer@4.0.6':
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
     engines: {node: '>=10'}
@@ -6243,6 +6306,7 @@ packages:
   '@toruslabs/solana-embed@2.1.0':
     resolution: {integrity: sha512-rgZniKy+yuqJp8/Z/RcqzhTL4iCH+4nP55XD5T2nEIajAClsmonsGp24AUqYwEqu+7x2hjumZEh+12rUv+Ippw==}
     engines: {node: '>=18.x', npm: '>=9.x'}
+    deprecated: This sdk is now deprecated. Please use @web3auth/ws-embed instead
     peerDependencies:
       '@babel/runtime': 7.x
 
@@ -16515,41 +16579,6 @@ snapshots:
       - supports-color
       - ts-node
 
-  '@jest/core@29.7.0(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))':
-    dependencies:
-      '@jest/console': 29.7.0
-      '@jest/reporters': 29.7.0
-      '@jest/test-result': 29.7.0
-      '@jest/transform': 29.7.0
-      '@jest/types': 29.6.3
-      '@types/node': 20.3.1
-      ansi-escapes: 4.3.2
-      chalk: 4.1.2
-      ci-info: 3.9.0
-      exit: 0.1.2
-      graceful-fs: 4.2.11
-      jest-changed-files: 29.7.0
-      jest-config: 29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
-      jest-haste-map: 29.7.0
-      jest-message-util: 29.7.0
-      jest-regex-util: 29.6.3
-      jest-resolve: 29.7.0
-      jest-resolve-dependencies: 29.7.0
-      jest-runner: 29.7.0
-      jest-runtime: 29.7.0
-      jest-snapshot: 29.7.0
-      jest-util: 29.7.0
-      jest-validate: 29.7.0
-      jest-watcher: 29.7.0
-      micromatch: 4.0.8
-      pretty-format: 29.7.0
-      slash: 3.0.0
-      strip-ansi: 6.0.1
-    transitivePeerDependencies:
-      - babel-plugin-macros
-      - supports-color
-      - ts-node
-
   '@jest/core@29.7.0(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@22.15.24)(typescript@5.4.3))':
     dependencies:
       '@jest/console': 29.7.0
@@ -18699,17 +18728,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@rollup/plugin-babel@5.3.0(@babel/core@7.27.3)(@types/babel__core@7.20.5)(rollup@4.41.1)':
-    dependencies:
-      '@babel/core': 7.27.3
-      '@babel/helper-module-imports': 7.27.1
-      '@rollup/pluginutils': 3.1.0(rollup@4.41.1)
-      rollup: 4.41.1
-    optionalDependencies:
-      '@types/babel__core': 7.20.5
-    transitivePeerDependencies:
-      - supports-color
-
   '@rollup/plugin-node-resolve@16.0.0(rollup@4.41.1)':
     dependencies:
       '@rollup/pluginutils': 5.1.4(rollup@4.41.1)
@@ -20143,6 +20161,40 @@ snapshots:
     dependencies:
       '@swc/counter': 0.1.3
       tslib: 2.8.1
+
+  '@swig-wallet/classic@1.2.0(@solana/web3.js@1.98.2(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@noble/curves': 1.9.0
+      '@solana-program/token': 0.5.1(@solana/kit@2.1.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)))
+      '@solana/kit': 2.1.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@solana/web3.js': 1.98.2(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@swig-wallet/coder': 1.2.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@swig-wallet/lib': 1.2.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      bn.js: 5.2.2
+    transitivePeerDependencies:
+      - fastestsmallesttextencoderdecoder
+      - typescript
+      - ws
+
+  '@swig-wallet/coder@1.2.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@solana/kit': 2.1.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+    transitivePeerDependencies:
+      - fastestsmallesttextencoderdecoder
+      - typescript
+      - ws
+
+  '@swig-wallet/lib@1.2.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@noble/curves': 1.9.0
+      '@solana-program/token': 0.5.1(@solana/kit@2.1.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)))
+      '@solana/kit': 2.1.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@swig-wallet/coder': 1.2.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.2(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      bn.js: 5.2.2
+    transitivePeerDependencies:
+      - fastestsmallesttextencoderdecoder
+      - typescript
+      - ws
 
   '@szmarczak/http-timer@4.0.6':
     dependencies:
@@ -23366,21 +23418,6 @@ snapshots:
       - supports-color
       - ts-node
 
-  create-jest@29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3)):
-    dependencies:
-      '@jest/types': 29.6.3
-      chalk: 4.1.2
-      exit: 0.1.2
-      graceful-fs: 4.2.11
-      jest-config: 29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
-      jest-util: 29.7.0
-      prompts: 2.4.2
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - supports-color
-      - ts-node
-
   create-jest@29.7.0(@types/node@22.15.24)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@22.15.24)(typescript@5.4.3)):
     dependencies:
       '@jest/types': 29.6.3
@@ -25393,25 +25430,6 @@ snapshots:
       - supports-color
       - ts-node
 
-  jest-cli@29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3)):
-    dependencies:
-      '@jest/core': 29.7.0(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
-      '@jest/test-result': 29.7.0
-      '@jest/types': 29.6.3
-      chalk: 4.1.2
-      create-jest: 29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
-      exit: 0.1.2
-      import-local: 3.2.0
-      jest-config: 29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
-      jest-util: 29.7.0
-      jest-validate: 29.7.0
-      yargs: 17.7.2
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - supports-color
-      - ts-node
-
   jest-cli@29.7.0(@types/node@22.15.24)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@22.15.24)(typescript@5.4.3)):
     dependencies:
       '@jest/core': 29.7.0(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@22.15.24)(typescript@5.4.3))
@@ -25489,37 +25507,6 @@ snapshots:
     optionalDependencies:
       '@types/node': 20.3.1
       ts-node: 10.9.2(@types/node@18.19.105)(typescript@5.4.3)
-    transitivePeerDependencies:
-      - babel-plugin-macros
-      - supports-color
-
-  jest-config@29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3)):
-    dependencies:
-      '@babel/core': 7.26.9
-      '@jest/test-sequencer': 29.7.0
-      '@jest/types': 29.6.3
-      babel-jest: 29.7.0(@babel/core@7.26.9)
-      chalk: 4.1.2
-      ci-info: 3.9.0
-      deepmerge: 4.3.1
-      glob: 7.2.3
-      graceful-fs: 4.2.11
-      jest-circus: 29.7.0(babel-plugin-macros@3.1.0)
-      jest-environment-node: 29.7.0
-      jest-get-type: 29.6.3
-      jest-regex-util: 29.6.3
-      jest-resolve: 29.7.0
-      jest-runner: 29.7.0
-      jest-util: 29.7.0
-      jest-validate: 29.7.0
-      micromatch: 4.0.8
-      parse-json: 5.2.0
-      pretty-format: 29.7.0
-      slash: 3.0.0
-      strip-json-comments: 3.1.1
-    optionalDependencies:
-      '@types/node': 20.3.1
-      ts-node: 10.9.2(@types/node@20.3.1)(typescript@5.4.3)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -25824,18 +25811,6 @@ snapshots:
       '@jest/types': 29.4.3
       import-local: 3.2.0
       jest-cli: 29.7.0(@types/node@18.19.105)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@18.19.105)(typescript@5.4.3))
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - supports-color
-      - ts-node
-
-  jest@29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3)):
-    dependencies:
-      '@jest/core': 29.7.0(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
-      '@jest/types': 29.6.3
-      import-local: 3.2.0
-      jest-cli: 29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -26547,6 +26522,56 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
+  next@14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
+    dependencies:
+      '@next/env': 14.2.25
+      '@swc/helpers': 0.5.5
+      busboy: 1.6.0
+      caniuse-lite: 1.0.30001718
+      graceful-fs: 4.2.11
+      postcss: 8.4.31
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      styled-jsx: 5.1.1(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@18.2.0)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 14.2.25
+      '@next/swc-darwin-x64': 14.2.25
+      '@next/swc-linux-arm64-gnu': 14.2.25
+      '@next/swc-linux-arm64-musl': 14.2.25
+      '@next/swc-linux-x64-gnu': 14.2.25
+      '@next/swc-linux-x64-musl': 14.2.25
+      '@next/swc-win32-arm64-msvc': 14.2.25
+      '@next/swc-win32-ia32-msvc': 14.2.25
+      '@next/swc-win32-x64-msvc': 14.2.25
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+
+  next@14.2.25(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      '@next/env': 14.2.25
+      '@swc/helpers': 0.5.5
+      busboy: 1.6.0
+      caniuse-lite: 1.0.30001718
+      graceful-fs: 4.2.11
+      postcss: 8.4.31
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      styled-jsx: 5.1.1(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@18.3.1)
+    optionalDependencies:
+      '@next/swc-darwin-arm64': 14.2.25
+      '@next/swc-darwin-x64': 14.2.25
+      '@next/swc-linux-arm64-gnu': 14.2.25
+      '@next/swc-linux-arm64-musl': 14.2.25
+      '@next/swc-linux-x64-gnu': 14.2.25
+      '@next/swc-linux-x64-musl': 14.2.25
+      '@next/swc-win32-arm64-msvc': 14.2.25
+      '@next/swc-win32-ia32-msvc': 14.2.25
+      '@next/swc-win32-x64-msvc': 14.2.25
+    transitivePeerDependencies:
+      - '@babel/core'
+      - babel-plugin-macros
+
   next@14.2.25(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0):
     dependencies:
       '@next/env': 14.2.25
@@ -26597,7 +26622,7 @@ snapshots:
       - '@babel/core'
       - babel-plugin-macros
 
-  next@15.3.2(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next@15.3.2(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@next/env': 15.3.2
       '@swc/counter': 0.1.3
@@ -26607,7 +26632,7 @@ snapshots:
       postcss: 8.4.31
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      styled-jsx: 5.1.6(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react@18.3.1)
+      styled-jsx: 5.1.6(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@18.3.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 15.3.2
       '@next/swc-darwin-x64': 15.3.2
@@ -28504,6 +28529,22 @@ snapshots:
 
   style-inject@0.3.0: {}
 
+  styled-jsx@5.1.1(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@18.2.0):
+    dependencies:
+      client-only: 0.0.1
+      react: 18.2.0
+    optionalDependencies:
+      '@babel/core': 7.26.9
+      babel-plugin-macros: 3.1.0
+
+  styled-jsx@5.1.1(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@18.3.1):
+    dependencies:
+      client-only: 0.0.1
+      react: 18.3.1
+    optionalDependencies:
+      '@babel/core': 7.26.9
+      babel-plugin-macros: 3.1.0
+
   styled-jsx@5.1.1(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react@18.2.0):
     dependencies:
       client-only: 0.0.1
@@ -28520,12 +28561,12 @@ snapshots:
       '@babel/core': 7.27.3
       babel-plugin-macros: 3.1.0
 
-  styled-jsx@5.1.6(@babel/core@7.27.3)(babel-plugin-macros@3.1.0)(react@18.3.1):
+  styled-jsx@5.1.6(@babel/core@7.26.9)(babel-plugin-macros@3.1.0)(react@18.3.1):
     dependencies:
       client-only: 0.0.1
       react: 18.3.1
     optionalDependencies:
-      '@babel/core': 7.27.3
+      '@babel/core': 7.26.9
       babel-plugin-macros: 3.1.0
 
   stylehacks@5.1.1(postcss@8.5.3):

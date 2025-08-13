@@ -1,0 +1,37 @@
+{
+  "name": "@turnkey/example-with-solana",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "pnpm tsx src/index.ts",
+    "advanced": "pnpm tsx src/advanced.ts",
+    "token-transfer": "pnpm tsx src/tokenTransfer.ts",
+    "token-transfer-policy": "pnpm tsx src/tokenTransferPolicy.ts",
+    "faucet": "pnpm tsx src/faucet.ts",
+    "jupiter-swap": "pnpm tsx src/jupiterSwap.ts",
+    "with-fee-payer": "pnpm tsx src/withFeePayer.ts",
+    "add-signature": "pnpm tsx src/addSignature.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@project-serum/anchor": "^0.26.0",
+    "@solana/spl-token": "^0.4.8",
+    "@solana/web3.js": "^1.95.8",
+    "@swig-wallet/classic": "^1.2.0",
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/solana": "workspace:*",
+    "async-retry": "^1.3.3",
+    "bs58": "^6.0.0",
+    "cross-fetch": "^4.0.0",
+    "dotenv": "^16.0.3",
+    "prompts": "^2.4.2",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/async-retry": "^1.4.8",
+    "@types/prompts": "^2.4.2"
+  }
+}
