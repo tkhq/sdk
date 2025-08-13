@@ -11,6 +11,7 @@ import {
   PublicKey,
   Transaction,
   sendAndConfirmTransaction,
+  type TransactionInstruction
 } from "@solana/web3.js";
 
 import {
@@ -20,7 +21,11 @@ import {
   getCreateSwigInstruction,
   fetchSwig,
   getAddAuthorityInstructions,
+  createEd25519SessionAuthorityInfo,
+  getCreateSessionInstructions,
+  getSignInstructions,
 } from "@swig-wallet/classic";
+
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -230,74 +235,206 @@ async function main() {
   process.exit(0);
 }
 
-async function createSwigAccount(connection: Connection, user: Keypair) {
-  try {
-    const id = new Uint8Array(32); // this should probably be tied to the suborg key / some identifier
-    crypto.getRandomValues(id);
-    const swigAddress = findSwigPda(id);
-    const rootAuthorityInfo = createEd25519AuthorityInfo(user.publicKey); // this is the end-user suborg wallet key (for now)
+
+/* Init
+  1. Create the swig - swig starts with giving the suborg key the root role (role 0)
+  2. Add a new role (add authority) that only provides non-managment (trading) functions to the suborg key (role 1)
+  tbd, on create the suborg key adds a global off switch call back
+*/
+
+ async function initSwig(
+  connection: Connection, 
+  suborgId: number, // suborg Id 
+  treasurer: Keypair // todo - generate and sign inside TK enclave
+  //payer: Keypair // todo - use TK enclave
+) { 
+    
+    const payer = treasurer; // todo remove this and use a real separate payer
+
+    // make the swig
+
+    const swigAddress = findSwigPda(suborgId); // this will not work
+    const rootAuthorityInfo = createEd25519AuthorityInfo(treasurer.publicKey); // this is the end-user suborg wallet key (for now)
     const rootActions = Actions.set().manageAuthority().get(); // TODO: investigate manageAuthority
 
     const createSwigIx = await getCreateSwigInstruction({
-      payer: user.publicKey,
-      id,
+      payer: payer.publicKey,
+      suborgId,
       actions: rootActions,
       authorityInfo: rootAuthorityInfo,
     });
 
+
     const transaction = new Transaction().add(createSwigIx);
     const signature = await sendAndConfirmTransaction(connection, transaction, [
-      user,
-    ]);
+      treasurer,
+    ]); // todo - send to enclave and sign there
 
-    console.log("✓ Swig account created at:", swigAddress.toBase58());
-    console.log("Transaction signature:", signature);
-    return swigAddress;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
-async function addNewAuthority(
-  connection: Connection,
-  rootUser: Keypair, // end-user suborg key
-  newAuthority: Keypair,
-  swigAddress: PublicKey,
-  actions: any,
-  description: string
-) {
-  try {
+    // make the role 
+    const allButManageActions = Actions.set().allButManageAuthority().get();
     const swig = await fetchSwig(connection, swigAddress);
-
-    const rootRole = swig.findRolesByEd25519SignerPk(rootUser.publicKey)[0];
-    if (!rootRole) {
-      throw new Error("Root role not found for authority");
-    }
-
     const addAuthorityInstructions = await getAddAuthorityInstructions(
       swig,
-      rootRole.id,
-      createEd25519AuthorityInfo(newAuthority.publicKey), // in-browser session key
-      actions
+      0, // iterate new role id 
+      createEd25519SessionAuthorityInfo(treasurer.pubkey), // giving a second role to the treasurer
+      allButManageActions // set all but maanage
     );
+    const transaction2 = new Transaction().add(addAuthorityInstructions);
+    const signature2 = await sendAndConfirmTransaction(connection, transaction2, [
+      treasurer,
+    ]); // todo in enclave
 
-    const transaction = new Transaction().add(...addAuthorityInstructions);
-    await sendAndConfirmTransaction(connection, transaction, [rootUser]);
-    console.log(
-      "done"
-      // chalk.green(`✓ New ${description} authority added:`),
-      // chalk.cyan(newAuthority.publicKey.toBase58())
-    );
-  } catch (error) {
-    console.error(
-      "error"
-      // chalk.red(`✗ Error adding ${description} authority:`),
-      // chalk.red(error)
-    );
-    throw error;
-  }
 }
+
+/* Set session - login or extend
+  1. Call create session with the non-mangement role (role 1) and broadcast 
+*/ 
+
+async function setSession(
+  connection: Connection,
+  treasurer: Keypair,
+  //payer: Keypair, // do later
+  session: Keypair,
+  timeout: number,
+  suborgId: number, 
+  roleId: number
+) {
+
+  const swigAddress = findSwigPda(suborgId); // this will not work
+  const swig = await fetchSwig(connection, swigAddress);
+
+  const createSessionIx = await getCreateSessionInstructions(
+    swig,
+    roleId,
+    session.pubkey,
+    timeout,
+  );
+
+  const transaction = new Transaction().add(createSessionIx);
+  const signature = await sendAndConfirmTransaction(connection, transaction, [
+    treasurer,
+  ]); // todo do in enclave
+
+}
+
+/* Send transaction 
+  Call normal send transaction via swig
+    Initiated by payer (can be session key)
+    Signed by by session 
+*/
+
+async function sendTransaction(
+  connection: Connection,
+  //payer: Keypair, // do later
+  session: Keypair,
+  suborgId: number, 
+  roleId: number,
+  instructions: TransactionInstruction[],
+) {
+
+  const swigAddress = findSwigPda(suborgId); // this will not work
+  const swig = await fetchSwig(connection, swigAddress);
+
+  const swigInstructions = getSignInstructions(
+    swig,
+    roleId,
+    instructions
+  );
+
+  const transaction = new Transaction().add(swigInstructions);
+  await sendAndConfirmTransaction(connection, transaction, [session]); // happens on client 
+}
+
+
+/// OLD STUFF ///
+
+// async function createSwigAccount(connection: Connection,
+//   user: Keypair,
+//   sessionKey : string 
+// ) {
+//   try {
+//     const id = new Uint8Array(32); // this should probably be tied to the suborg key / some identifier
+//     crypto.getRandomValues(id);
+//     const swigAddress = findSwigPda(id);
+//     const rootAuthorityInfo = createEd25519AuthorityInfo(user.publicKey); // this is the end-user suborg wallet key (for now)
+//     const rootActions = Actions.set().manageAuthority().get(); // TODO: investigate manageAuthority
+
+//     const createSwigIx = await getCreateSwigInstruction({
+//       payer: user.publicKey,
+//       id,
+//       actions: rootActions,
+//       authorityInfo: rootAuthorityInfo,
+//     });
+
+//     // const addAuthorityInstructions = await getAddAuthorityInstructions(
+//     //   swig,
+//     //   0,
+//     //   createEd25519SessionAuthorityInfo(user.publicKey), // in-browser session key
+//     //   actions // set all but maanage
+//     // );
+//     const transaction = new Transaction().add(createSwigIx);//.add(addAuthorityInstructions);
+//     const signature = await sendAndConfirmTransaction(connection, transaction, [
+//       user,
+//     ]);
+
+
+//     console.log("✓ Swig account created at:", swigAddress.toBase58());
+//     console.log("Transaction signature:", signature);
+//     return swigAddress;
+//   } catch (error) {
+//     console.error(error);
+//     throw error;
+//   }
+// }
+
+// async function createSession(){
+//     const createSessionIx = await getCreateSessionInstructions(
+//       swig,
+//       1, // rootRole.id,
+//       sessionKey// dappSessionKeypair.publicKey,
+//       50n,
+//     );
+// );
+
+// await sendTransaction(connection, createSessionIx, userRootKeypair);
+// }
+
+// async function addNewAuthority(
+//   connection: Connection,
+//   rootUser: Keypair, // end-user suborg key - can be pubkey
+//   newAuthority: Keypair, // session key - can be pubkey
+//   swigAddress: PublicKey,
+//   actions: any, // set the power level in the actions - all but manage 
+//   description: string
+// ) {
+//   try {
+//     const swig = await fetchSwig(connection, swigAddress);
+
+//     const rootRole = swig.findRolesByEd25519SignerPk(rootUser.publicKey)[0];
+//     if (!rootRole) {
+//       throw new Error("Root role not found for authority");
+//     }
+
+
+
+//     const transaction = new Transaction().add(...addAuthorityInstructions);
+//     await sendAndConfirmTransaction(connection, transaction, [rootUser]);
+//     console.log(
+//       "done"
+//       // chalk.green(`✓ New ${description} authority added:`),
+//       // chalk.cyan(newAuthority.publicKey.toBase58())
+//     );
+//   } catch (error) {
+//     console.error(
+//       "error"
+//       // chalk.red(`✗ Error adding ${description} authority:`),
+//       // chalk.red(error)
+//     );
+//     throw error;
+//   }
+// }
+
+
 
 main().catch((error) => {
   console.error(error);
