@@ -1,5 +1,17 @@
 # @turnkey/react-wallet-kit
 
+## 1.0.0-beta.1
+
+### Minor Changes
+
+- test build
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-types@0.4.0-beta.1
+  - @turnkey/core@1.0.0-beta.1
+
 ## 1.0.0-beta.0
 
 ### Major Changes
