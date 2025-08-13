@@ -9,6 +9,39 @@
   - @turnkey/crypto@2.5.0
   - @turnkey/react-native-passkey-stamper@1.1.3
 
+## 1.4.2-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.2
+  - @turnkey/api-key-stamper@0.4.8-beta.2
+  - @turnkey/crypto@2.5.1-beta.2
+  - @turnkey/http@3.8.1-beta.2
+  - @turnkey/react-native-passkey-stamper@1.1.2-beta.2
+
+## 1.4.2-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.1
+  - @turnkey/api-key-stamper@0.4.8-beta.1
+  - @turnkey/crypto@2.5.1-beta.1
+  - @turnkey/http@3.8.1-beta.1
+  - @turnkey/react-native-passkey-stamper@1.1.2-beta.1
+
+## 1.4.2-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@1.0.0-beta.0
+  - @turnkey/api-key-stamper@0.4.8-beta.0
+  - @turnkey/crypto@2.5.1-beta.0
+  - @turnkey/http@3.8.1-beta.0
+  - @turnkey/react-native-passkey-stamper@1.1.2-beta.0
+
 ## 1.4.2
 
 ### Patch Changes

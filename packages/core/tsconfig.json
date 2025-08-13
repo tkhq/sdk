@@ -5,15 +5,24 @@
     "rootDir": "./src",
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "lib": ["dom"],
+    "skipLibCheck": true,
+    "allowJs": false,
+    "checkJs": false,
     "paths": {
       "@polyfills/*": ["./src/__polyfills__/*"],
       "@types": ["./src/__types__/base"],
       "@utils": ["./src/utils"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"],
-  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.json"],
+  "exclude": [
+    "**/dist/**",
+    "node_modules",
+    "**/__tests__/**/*",
+    "**/__fixtures__/**/*"
+  ],
   "references": [
+    { "path": "../sdk-types" },
     { "path": "../api-key-stamper" },
     { "path": "../http" },
     { "path": "../iframe-stamper" },

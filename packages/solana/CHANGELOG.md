@@ -9,6 +9,33 @@
   - @turnkey/sdk-server@4.7.0
   - @turnkey/http@3.10.0
 
+## 1.0.41-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.6.1-beta.2
+  - @turnkey/http@3.8.1-beta.2
+  - @turnkey/sdk-server@4.5.1-beta.2
+
+## 1.0.41-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.6.1-beta.1
+  - @turnkey/http@3.8.1-beta.1
+  - @turnkey/sdk-server@4.5.1-beta.1
+
+## 1.0.41-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.6.1-beta.0
+  - @turnkey/http@3.8.1-beta.0
+  - @turnkey/sdk-server@4.5.1-beta.0
+
 ## 1.0.41
 
 ### Patch Changes
