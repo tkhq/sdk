@@ -42,7 +42,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
   httpClient: TurnkeySDKClientBase | undefined;
   session: Session | undefined;
   allSessions?: Record<string, Session> | undefined;
-  clientState: ClientState;
+  clientState: ClientState | undefined;
   authState: AuthState;
   config?: TurnkeyProviderConfig | undefined;
   user: v1User | undefined;
@@ -233,10 +233,9 @@ export interface ClientContextType extends TurnkeyClientMethods {
   /**
    * Handles the import flow.
    *
-   * - This function opens a modal with the ImportComponent for importing a wallet or private key.
+   * - This function opens a modal with the ImportComponent for importing a wallet.
    * - Supports importing wallets using an encrypted bundle, with optional default accounts or custom account parameters.
    * - Allows users to specify default wallet accounts (address formats or account params) to pre-fill the import form.
-   * - Optionally accepts a callback to handle successful import, which receives the imported wallet's ID.
    * - Supports customizing the duration of the success page shown after a successful import.
    * - Allows specifying the stamper to use for the import (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - Ensures the imported wallet is added to the user's wallet list and the provider state is refreshed.

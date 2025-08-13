@@ -131,9 +131,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   >(undefined);
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [user, setUser] = useState<v1User | undefined>(undefined);
-  const [clientState, setClientState] = useState<ClientState>(
-    ClientState.Loading,
-  );
+  const [clientState, setClientState] = useState<ClientState>();
   const [authState, setAuthState] = useState<AuthState>(
     AuthState.Unauthenticated,
   );
@@ -173,15 +171,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }, []);
 
   useEffect(() => {
-    // If the proxyAuthConfigRef is already set, we don't need to fetch it again. Rebuild the master config with the updated config and stored proxyAuthConfig
-    if (!proxyAuthConfigRef.current && config.authProxyConfigId) return;
-    setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
-  }, [config, proxyAuthConfigRef.current]);
-
-  useEffect(() => {
+    // Start the client initialization process once we have the master config.
     if (!masterConfig) return;
     initializeClient();
   }, [masterConfig]);
+
+  useEffect(() => {
+    // Handle changes to the passed in config prop -- update the master config
+    // If the proxyAuthConfigRef is already set, we don't need to fetch it again. Rebuild the master config with the updated config and stored proxyAuthConfig
+    if (!proxyAuthConfigRef.current && config.authProxyConfigId) return;
+
+    setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
+  }, [config, proxyAuthConfigRef.current]);
 
   /**
    * @internal
@@ -208,14 +209,35 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     };
   }, [client, debouncedFetchWallets]);
 
-  // Handle redirect-based auth
   useEffect(() => {
+    // authState must be consistent with session state. We found during testing that there are cases where the session and authState can be out of sync in very rare edge cases.
+    // This will ensure that they are always in sync and remove the need to setAuthState manually in other places.
+    if (session) {
+      setAuthState(AuthState.Authenticated);
+    } else {
+      setAuthState(AuthState.Unauthenticated);
+    }
+  }, [session]);
+
+  useEffect(() => {
+    // This will handle any redirect based oAuth. It then initializes the session. This is the last step before client is considered "ready"
+    if (!client || !masterConfig) return;
+    completeRedirectOauth().finally(() => {
+      clearSessionTimeouts();
+      initializeSessions().finally(() => {
+        // Set the client state to ready only after all initializations are done.
+        setClientState(ClientState.Ready);
+      });
+    });
+
+    return () => {
+      clearSessionTimeouts();
+    };
+  }, [client]);
+
+  const completeRedirectOauth = async () => {
     // Check for either hash or search parameters that could indicate an OAuth redirect
-    if (
-      (window.location.hash || window.location.search) &&
-      client &&
-      masterConfig
-    ) {
+    if (window.location.hash || window.location.search) {
       // Handle Facebook redirect (uses search params with code)
       if (
         window.location.search &&
@@ -243,7 +265,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
 
             if (clientId && redirectURI) {
-              handleFacebookPKCEFlow({
+              await handleFacebookPKCEFlow({
                 code,
                 publicKey,
                 openModal,
@@ -252,22 +274,29 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 callbacks,
                 completeOauth,
                 onPushPage: (oidcToken) => {
-                  pushPage({
-                    key: `Facebook OAuth`,
-                    content: (
-                      <ActionPage
-                        title={`Authenticating with Facebook...`}
-                        action={async () => {
-                          await completeOauth({
-                            oidcToken,
-                            publicKey,
-                            providerName: "facebook",
-                          });
-                        }}
-                        icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
-                      />
-                    ),
-                    showTitle: false,
+                  return new Promise((resolve, reject) => {
+                    pushPage({
+                      key: `Facebook OAuth`,
+                      content: (
+                        <ActionPage
+                          title={`Authenticating with Facebook...`}
+                          action={async () => {
+                            try {
+                              await completeOauth({
+                                oidcToken,
+                                publicKey,
+                                providerName: "facebook",
+                              });
+                              resolve(null);
+                            } catch (err) {
+                              reject(err);
+                            }
+                          }}
+                          icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
+                        />
+                      ),
+                      showTitle: false,
+                    });
                   });
                 },
               }).catch((error) => {
@@ -312,22 +341,29 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             // This state is set when the OAuth flow comes from the AuthComponent
-            pushPage({
-              key: `${providerName} OAuth`,
-              content: (
-                <ActionPage
-                  title={`Authenticating with ${providerName}...`}
-                  action={async () => {
-                    await completeOauth({
-                      oidcToken: idToken,
-                      publicKey,
-                      ...(provider ? { providerName: provider } : {}),
-                    });
-                  }}
-                  icon={icon}
-                />
-              ),
-              showTitle: false,
+            await new Promise((resolve, reject) => {
+              pushPage({
+                key: `${providerName} OAuth`,
+                content: (
+                  <ActionPage
+                    title={`Authenticating with ${providerName}...`}
+                    action={async () => {
+                      try {
+                        await completeOauth({
+                          oidcToken: idToken,
+                          publicKey,
+                          ...(provider ? { providerName: provider } : {}),
+                        });
+                        resolve(null);
+                      } catch (err) {
+                        reject(err);
+                      }
+                    }}
+                    icon={icon}
+                  />
+                ),
+                showTitle: false,
+              });
             });
           } else if (callbacks?.onOauthRedirect) {
             callbacks.onOauthRedirect({ idToken, publicKey });
@@ -348,17 +384,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
       }
     }
-  }, [client, masterConfig, callbacks, pushPage]);
-
-  useEffect(() => {
-    // authState must be consistent with session state. We found during testing that there are cases where the session and authState can be out of sync in very rare edge cases.
-    // This will ensure that they are always in sync and remove the need to setAuthState manually in other places.
-    if (session) {
-      setAuthState(AuthState.Authenticated);
-    } else {
-      setAuthState(AuthState.Unauthenticated);
-    }
-  }, [session]);
+  };
 
   const buildConfig = (
     proxyAuthConfig?: ProxyTGetWalletKitConfigResponse | undefined,
@@ -423,6 +449,29 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         methodOrder,
         oauthOrder,
       },
+      walletConfig: {
+        ...config.walletConfig,
+        features: {
+          ...config.walletConfig?.features,
+          auth:
+            // If walletAuthEnabled is not set, default to true. Wallet auth can be enabled/disabled in the dashboard or by explicitly changing the walletAuthEnabled / walletConfig auth feature.
+            resolvedMethods.walletAuthEnabled ??
+            config.walletConfig?.features?.auth ??
+            true,
+          connecting: config.walletConfig?.features?.connecting ?? true, // Default connecting to true if not set. We don't care about auth settings here.
+        },
+        chains: {
+          ...config.walletConfig?.chains,
+          ethereum: {
+            ...config.walletConfig?.chains?.ethereum,
+            native: true, // Always enable native Ethereum support
+          },
+          solana: {
+            ...config.walletConfig?.chains?.solana,
+            native: true, // Always enable native Solana support
+          },
+        },
+      },
       importIframeUrl: config.importIframeUrl ?? "https://import.turnkey.com",
       exportIframeUrl: config.exportIframeUrl ?? "https://export.turnkey.com",
     } as TurnkeyProviderConfig;
@@ -436,7 +485,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @internal
    */
   const initializeClient = async () => {
-    if (!masterConfig || client) return;
+    if (!masterConfig || client || clientState == ClientState.Loading) return;
+
     try {
       setClientState(ClientState.Loading);
       const turnkeyClient = new TurnkeyClient({
@@ -456,15 +506,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         walletConfig: {
           features: {
             ...masterConfig.walletConfig?.features,
-            auth:
-              masterConfig.auth?.methods?.walletAuthEnabled ??
-              masterConfig.walletConfig?.features?.auth ??
-              true,
           },
-          chains: masterConfig.walletConfig?.chains ?? {
-            ethereum: { native: true },
-            solana: { native: true },
-          },
+          chains: { ...masterConfig.walletConfig?.chains },
           ...(masterConfig.walletConfig?.walletConnect && {
             walletConnect: masterConfig.walletConfig.walletConnect,
           }),
@@ -475,7 +518,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       await turnkeyClient.init();
       setClient(turnkeyClient);
-      setClientState(ClientState.Ready);
 
       // Don't set clientState to ready until we fetch the proxy auth config (See other fetchProxyAuthConfig useEffect)
     } catch (error) {
@@ -549,16 +591,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
     }
   };
-
-  useEffect(() => {
-    if (!client) return;
-    clearSessionTimeouts();
-    initializeSessions();
-
-    return () => {
-      clearSessionTimeouts();
-    };
-  }, [client]);
 
   /**
    * @internal
@@ -3535,7 +3567,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         TurnkeyErrorCodes.NO_SESSION_FOUND,
       );
     }
-    if (config.walletConfig?.features?.connecting) {
+    if (!masterConfig?.walletConfig?.features?.connecting) {
       throw new TurnkeyError(
         "Wallet connecting is not enabled.",
         TurnkeyErrorCodes.FEATURE_NOT_ENABLED,
