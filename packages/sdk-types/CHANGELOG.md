@@ -1,11 +1,5 @@
 # @turnkey/sdk-types
 
-## 1.0.0-beta.0
-
-### Major Changes
-
-- Beta release for @turnkey/react-wallet-kit, @turnkey/core
-
 ## 0.3.0
 
 ### Minor Changes
