@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-types",
-  "version": "0.3.0",
+  "version": "1.0.0-beta.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
