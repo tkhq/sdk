@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/demo-react-wallet-kit",
+  "name": "@turnkey/example-demo-react-wallet-kit",
   "version": "0.1.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
