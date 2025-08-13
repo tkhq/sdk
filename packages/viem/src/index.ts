@@ -133,11 +133,7 @@ export function createAccountWithAddress(input: {
 
   return toAccount({
     address: ethereumAddress as Hex,
-    sign: function ({
-      hash,
-    }: {
-      hash: Hex,
-    }): Promise<Hex> {
+    sign: function ({ hash }: { hash: Hex }): Promise<Hex> {
       return signMessage(client, hash, organizationId, signWith);
     },
     signMessage: function ({
@@ -297,11 +293,7 @@ export async function createApiKeyAccount(
 
   return toAccount({
     address: ethereumAddress as Hex,
-    sign: function ({
-      hash,
-    }: {
-      hash: Hex,
-    }): Promise<Hex> {
+    sign: function ({ hash }: { hash: Hex }): Promise<Hex> {
       return signMessage(client, hash, organizationId, privateKeyId);
     },
     signMessage: function ({
@@ -367,7 +359,7 @@ export async function signAuthorization(
   }
 
   const hashedAuthorization = hashAuthorization({
-    address: address,
+    address,
     chainId,
     nonce,
   });
@@ -377,6 +369,7 @@ export async function signAuthorization(
     hashedAuthorization,
     organizationId,
     signWith,
+    "PAYLOAD_ENCODING_HEXADECIMAL",
     to,
   );
 
@@ -458,8 +451,8 @@ export async function signTypedData(
     jsonStringifyWithBigInt(data),
     organizationId,
     signWith,
-    "hex",
     "PAYLOAD_ENCODING_EIP712",
+    "hex",
   )) as Hex;
 }
 
@@ -545,8 +538,8 @@ async function signMessageWithErrorWrapping(
   message: string,
   organizationId: string,
   signWith: string,
-  to?: TSignatureFormat,
   payloadEncoding: TPayloadEncoding = "PAYLOAD_ENCODING_HEXADECIMAL",
+  to: TSignatureFormat = "hex",
 ): Promise<TSignMessageResult> {
   let signedMessage: TSignMessageResult;
 
@@ -556,8 +549,8 @@ async function signMessageWithErrorWrapping(
       message,
       organizationId,
       signWith,
-      to,
       payloadEncoding,
+      to,
     );
   } catch (error: any) {
     // Wrap Turnkey error in Viem-specific error
@@ -587,11 +580,11 @@ async function signMessageWithErrorWrapping(
 
 async function signMessageImpl(
   client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
-  message: string, // assumed to be a hashed message
+  message: string,
   organizationId: string,
   signWith: string,
-  to?: TSignatureFormat,
-  payloadEncoding: TPayloadEncoding = "PAYLOAD_ENCODING_HEXADECIMAL",
+  payloadEncoding: TPayloadEncoding,
+  to: TSignatureFormat,
 ): Promise<TSignMessageResult> {
   let result: TSignature;
 
@@ -616,7 +609,7 @@ async function signMessageImpl(
       organizationId,
       signWith,
       payload: message,
-      encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+      encoding: payloadEncoding,
       hashFunction: "HASH_FUNCTION_NO_OP",
     });
 
