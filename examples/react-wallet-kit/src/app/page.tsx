@@ -38,7 +38,7 @@ export default function AuthPage() {
   return (
     <div className="w-full flex items-center justify-center h-dvh">
       {authState === AuthState.Unauthenticated &&
-        (clientState === ClientState.Loading ? (
+        (clientState === undefined || clientState === ClientState.Loading ? (
           <Spinner className="size-48" strokeWidth={1} />
         ) : clientState === ClientState.Error ? (
           <Button

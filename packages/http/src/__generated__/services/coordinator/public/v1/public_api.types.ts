@@ -669,43 +669,11 @@ export type definitions = {
     | "ACTIVITY_TYPE_UPDATE_USER_EMAIL"
     | "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER"
     | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
-<<<<<<< HEAD
-    | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
-    | "ACTIVITY_TYPE_ENABLE_AUTH_PROXY"
-    | "ACTIVITY_TYPE_DISABLE_AUTH_PROXY"
-    | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
-=======
-    | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE";
-=======
-=======
-    | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
-    | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
-<<<<<<< HEAD
->>>>>>> 57ef158e (updated auth proxy type generation)
-    | "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH"
-    | "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH"
-    | "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-<<<<<<< HEAD
->>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
-=======
-    | "ACTIVITY_TYPE_ENABLE_AUTH_PROXY"
-    | "ACTIVITY_TYPE_DISABLE_AUTH_PROXY"
-    | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
->>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-=======
     | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
     | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
     | "ACTIVITY_TYPE_ENABLE_AUTH_PROXY"
     | "ACTIVITY_TYPE_DISABLE_AUTH_PROXY"
     | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
->>>>>>> a732c4c0 (Mega rebase)
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1759,46 +1727,10 @@ export type definitions = {
     /** @description Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template. */
     templateId?: string;
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
   v1EnableAuthProxyIntent: { [key: string]: unknown };
   v1EnableAuthProxyResult: {
     /** @description A User ID with permission to initiate authentication. */
     userId: string;
-=======
-  v1EnableUserInitiatedAuthIntent: { [key: string]: unknown };
-  v1EnableUserInitiatedAuthRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1EnableUserInitiatedAuthIntent"];
-  };
-  v1EnableUserInitiatedAuthResult: {
-=======
-  v1EnableAuthProxyIntent: { [key: string]: unknown };
-  v1EnableAuthProxyResult: {
->>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-    /** @description A User ID with permission to initiate authentication. */
-    userId: string;
-<<<<<<< HEAD
-    /** @description A Policy ID. */
-    policyId: string;
-  };
-  v1EwkSettingsParams: {
-    /** @description Enable Sign in with Apple */
-    appleEnabled?: boolean;
-    /** @description Enable Sign in with Google */
-    googleEnabled?: boolean;
-    /** @description Enable Sign in with Facebook */
-    facebookEnabled?: boolean;
-    /** @description Whether to open OAuth providers in-page instead of a popup */
-    openOauthInPage?: boolean;
->>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
->>>>>>> 6d3d616b (fixed circular dependencies and type issues)
   };
   v1ExportPrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -1878,15 +1810,7 @@ export type definitions = {
     | "FEATURE_NAME_WEBHOOK"
     | "FEATURE_NAME_SMS_AUTH"
     | "FEATURE_NAME_OTP_EMAIL_AUTH"
-<<<<<<< HEAD
-<<<<<<< HEAD
     | "FEATURE_NAME_AUTH_PROXY";
-=======
-    | "FEATURE_NAME_AUTH_KIT";
->>>>>>> 6d3d616b (fixed circular dependencies and type issues)
-=======
-    | "FEATURE_NAME_AUTH_PROXY";
->>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
   /** @enum {string} */
   v1FiatOnRampBlockchainNetwork:
     | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
@@ -2569,38 +2493,9 @@ export type definitions = {
     initFiatOnRampIntent?: definitions["v1InitFiatOnRampIntent"];
     createSmartContractInterfaceIntent?: definitions["v1CreateSmartContractInterfaceIntent"];
     deleteSmartContractInterfaceIntent?: definitions["v1DeleteSmartContractInterfaceIntent"];
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     enableAuthProxyIntent?: definitions["v1EnableAuthProxyIntent"];
     disableAuthProxyIntent?: definitions["v1DisableAuthProxyIntent"];
     updateAuthProxyConfigIntent?: definitions["v1UpdateAuthProxyConfigIntent"];
-=======
-=======
->>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-=======
-=======
-    createSmartContractInterfaceIntent?: definitions["v1CreateSmartContractInterfaceIntent"];
-    deleteSmartContractInterfaceIntent?: definitions["v1DeleteSmartContractInterfaceIntent"];
->>>>>>> 57ef158e (updated auth proxy type generation)
-    enableUserInitiatedAuthIntent?: definitions["v1EnableUserInitiatedAuthIntent"];
-    disableUserInitiatedAuthIntent?: definitions["v1DisableUserInitiatedAuthIntent"];
-    updateProxyAuthConfigIntent?: definitions["v1UpdateProxyAuthConfigIntent"];
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-<<<<<<< HEAD
->>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
-=======
-    enableAuthProxyIntent?: definitions["v1EnableAuthProxyIntent"];
-    disableAuthProxyIntent?: definitions["v1DisableAuthProxyIntent"];
-    updateAuthProxyConfigIntent?: definitions["v1UpdateAuthProxyConfigIntent"];
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
->>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-=======
-    enableAuthProxyIntent?: definitions["v1EnableAuthProxyIntent"];
-    disableAuthProxyIntent?: definitions["v1DisableAuthProxyIntent"];
-    updateAuthProxyConfigIntent?: definitions["v1UpdateAuthProxyConfigIntent"];
->>>>>>> a732c4c0 (Mega rebase)
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -3032,38 +2927,9 @@ export type definitions = {
     initFiatOnRampResult?: definitions["v1InitFiatOnRampResult"];
     createSmartContractInterfaceResult?: definitions["v1CreateSmartContractInterfaceResult"];
     deleteSmartContractInterfaceResult?: definitions["v1DeleteSmartContractInterfaceResult"];
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     enableAuthProxyResult?: definitions["v1EnableAuthProxyResult"];
     disableAuthProxyResult?: definitions["v1DisableAuthProxyResult"];
     updateAuthProxyConfigResult?: definitions["v1UpdateAuthProxyConfigResult"];
-=======
-=======
->>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-=======
-=======
-    createSmartContractInterfaceResult?: definitions["v1CreateSmartContractInterfaceResult"];
-    deleteSmartContractInterfaceResult?: definitions["v1DeleteSmartContractInterfaceResult"];
->>>>>>> 57ef158e (updated auth proxy type generation)
-    enableUserInitiatedAuthResult?: definitions["v1EnableUserInitiatedAuthResult"];
-    disableUserInitiatedAuthResult?: definitions["v1DisableUserInitiatedAuthResult"];
-    updateProxyAuthConfigResult?: definitions["v1UpdateProxyAuthConfigResult"];
->>>>>>> 9473ed72 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-<<<<<<< HEAD
->>>>>>> 56c2d036 (re-synced sdk, added user, wallets, and proxyAuthConfig to the context)
-=======
-=======
-    enableAuthProxyResult?: definitions["v1EnableAuthProxyResult"];
-    disableAuthProxyResult?: definitions["v1DisableAuthProxyResult"];
-    updateAuthProxyConfigResult?: definitions["v1UpdateAuthProxyConfigResult"];
->>>>>>> a9e15db9 (added a bunch to the demo and resynced sdk for new auth proxy changes)
->>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
-=======
-    enableAuthProxyResult?: definitions["v1EnableAuthProxyResult"];
-    disableAuthProxyResult?: definitions["v1DisableAuthProxyResult"];
-    updateAuthProxyConfigResult?: definitions["v1UpdateAuthProxyConfigResult"];
->>>>>>> a732c4c0 (Mega rebase)
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -3702,31 +3568,11 @@ export type definitions = {
     addressFormat: definitions["v1AddressFormat"];
   };
   v1WalletKitSettingsParams: {
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> eff0e238 (updated types)
     /**
      * Enabled Social Providers
      * @description List of enabled social login providers (e.g., 'apple', 'google', 'facebook')
      */
     enabledSocialProviders?: string[];
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    /** @description Enable Sign in with Apple */
-    appleEnabled?: boolean;
-    /** @description Enable Sign in with Google */
-    googleEnabled?: boolean;
-    /** @description Enable Sign in with Facebook */
-    facebookEnabled?: boolean;
-=======
->>>>>>> eff0e238 (updated types)
-    /** @description Whether to open OAuth providers in-page instead of a popup */
-    openOauthInPage?: boolean;
->>>>>>> 6d3d616b (fixed circular dependencies and type issues)
-=======
->>>>>>> 95e0b507 (added a bunch to the demo and resynced sdk for new auth proxy changes)
   };
   v1WalletParams: {
     /** @description Human-readable name for a Wallet. */
