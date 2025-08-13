@@ -407,6 +407,7 @@ const Auth: React.FC<AuthProps> = ({
             publicKey,
             type,
           },
+          ...(customAccounts && { customAccounts }),
         },
       });
 
@@ -791,6 +792,7 @@ const Auth: React.FC<AuthProps> = ({
                     onValidateSuccess={onAuthSuccess}
                     onResendCode={handleResendCode}
                     numBoxes={otpConfig?.otpLength ?? 6}
+                    {...(customAccounts && { customAccounts })}
                   />
                 )}
 
