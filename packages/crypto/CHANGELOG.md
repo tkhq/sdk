@@ -1,5 +1,12 @@
 # @turnkey/crypto
 
+## 2.5.1-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.0
+
 ## 2.5.0
 
 ### Minor Changes

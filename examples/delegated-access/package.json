@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/delegated-access",
-  "version": "0.0.14",
+  "version": "0.0.15-beta.0",
   "private": true,
   "scripts": {
     "build": "pnpm -w run build-all",

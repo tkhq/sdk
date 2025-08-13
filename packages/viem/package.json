@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/viem",
-  "version": "0.11.1",
+  "version": "0.11.2-beta.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
