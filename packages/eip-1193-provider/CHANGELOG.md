@@ -16,6 +16,33 @@
   - @turnkey/sdk-browser@5.8.0
   - @turnkey/http@3.10.0
 
+## 3.3.24-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.6.1-beta.2
+  - @turnkey/api-key-stamper@0.4.8-beta.2
+  - @turnkey/http@3.8.1-beta.2
+
+## 3.3.24-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.6.1-beta.1
+  - @turnkey/api-key-stamper@0.4.8-beta.1
+  - @turnkey/http@3.8.1-beta.1
+
+## 3.3.24-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.6.1-beta.0
+  - @turnkey/api-key-stamper@0.4.8-beta.0
+  - @turnkey/http@3.8.1-beta.0
+
 ## 3.3.24
 
 ### Patch Changes

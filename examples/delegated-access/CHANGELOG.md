@@ -14,6 +14,27 @@
 - Updated dependencies [[`5d8be2d`](https://github.com/tkhq/sdk/commit/5d8be2d0329070c7aa025dddb1b28f04257ae4e6)]:
   - @turnkey/sdk-server@4.7.0
 
+## 0.0.15-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.5.1-beta.2
+
+## 0.0.15-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.5.1-beta.1
+
+## 0.0.15-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.5.1-beta.0
+
 ## 0.0.15
 
 ### Patch Changes

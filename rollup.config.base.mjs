@@ -13,6 +13,7 @@ const getFormatConfig = (format) => {
       dir: "dist",
       entryFileNames: `[name].${format === "esm" ? "mjs" : "js"}`,
       preserveModules: true,
+      preserveModulesRoot: "src",
       sourcemap: true,
     },
     plugins: [
@@ -25,6 +26,7 @@ const getFormatConfig = (format) => {
           declaration: format === "esm",
           declarationMap: format === "esm",
           sourceMap: true,
+          skipLibCheck: true,
         },
       }),
       nodeExternals({

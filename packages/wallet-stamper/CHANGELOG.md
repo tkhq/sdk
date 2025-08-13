@@ -1,5 +1,29 @@
 # @turnkey/wallet-stamper
 
+## 1.0.9-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.2
+  - @turnkey/crypto@2.5.1-beta.2
+
+## 1.0.9-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.1
+  - @turnkey/crypto@2.5.1-beta.1
+
+## 1.0.9-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.0
+  - @turnkey/crypto@2.5.1-beta.0
+
 ## 1.0.9
 
 ### Patch Changes
