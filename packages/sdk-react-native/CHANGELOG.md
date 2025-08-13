@@ -217,6 +217,7 @@ handleGoogleOAuth({
 ### Major Changes
 
 - fcf9503: This breaking change adds support for multiple sessions:
+
   - The concept of a **selected session** has been introduced:
     - Users can switch between sessions using `setSelectedSession({ sessionKey: <key> })`.
     - The selected session determines the active `client`, `user`, and `session` state.

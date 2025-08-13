@@ -287,7 +287,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                                 publicKey,
                                 providerName: "facebook",
                               });
-                              resolve(null);
+                              resolve();
                             } catch (err) {
                               reject(err);
                             }

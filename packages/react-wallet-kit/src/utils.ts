@@ -253,7 +253,7 @@ export async function handleFacebookPKCEFlow({
     oidcToken: string;
     publicKey: string;
   }) => Promise<string>;
-  onPushPage: (idToken: string) => void;
+  onPushPage: (idToken: string) => Promise<void>;
 }): Promise<void> {
   // Retrieve the verifier stored during OAuth initiation
   const verifier = sessionStorage.getItem("facebook_verifier");
@@ -278,7 +278,7 @@ export async function handleFacebookPKCEFlow({
 
     // Handle different UI flows based on openModal parameter
     if (openModal === "true") {
-      onPushPage(tokenData.id_token);
+      await onPushPage(tokenData.id_token);
     } else if (callbacks?.onOauthRedirect) {
       callbacks.onOauthRedirect({
         idToken: tokenData.id_token,
