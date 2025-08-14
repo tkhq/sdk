@@ -1,0 +1,90 @@
+---
+title: "TWalletManagerConfig"
+mode: wide
+---
+  
+# Type Alias: TWalletManagerConfig
+
+> **TWalletManagerConfig** = `object`
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:265
+
+## Properties
+
+### chains
+
+> **chains**: `object`
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:270
+
+#### ethereum?
+
+> `optional` **ethereum**: `object`
+
+##### ethereum.native?
+
+> `optional` **native**: `boolean`
+
+##### ethereum.walletConnectNamespaces?
+
+> `optional` **walletConnectNamespaces**: `EvmNamespace`[]
+
+#### solana?
+
+> `optional` **solana**: `object`
+
+##### solana.native?
+
+> `optional` **native**: `boolean`
+
+##### solana.walletConnectNamespaces?
+
+> `optional` **walletConnectNamespaces**: `SolNamespace`[]
+
+***
+
+### features?
+
+> `optional` **features**: `object`
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:266
+
+#### auth?
+
+> `optional` **auth**: `boolean`
+
+#### connecting?
+
+> `optional` **connecting**: `boolean`
+
+***
+
+### walletConnect?
+
+> `optional` **walletConnect**: `object`
+
+Defined in: core/dist/\_\_types\_\_/base.d.ts:280
+
+#### appMetadata
+
+> **appMetadata**: `object`
+
+##### appMetadata.description
+
+> **description**: `string`
+
+##### appMetadata.icons
+
+> **icons**: `string`[]
+
+##### appMetadata.name
+
+> **name**: `string`
+
+##### appMetadata.url
+
+> **url**: `string`
+
+#### projectId
+
+> **projectId**: `string`
