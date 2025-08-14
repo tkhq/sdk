@@ -21,6 +21,7 @@
     "@swig-wallet/classic": "^1.2.0",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
+    "@turnkey/crypto": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/solana": "workspace:*",
     "async-retry": "^1.3.3",

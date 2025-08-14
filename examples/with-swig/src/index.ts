@@ -1,13 +1,10 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
-import nacl from "tweetnacl";
 import bs58 from "bs58";
-import prompts from "prompts";
 
 import {
   Connection,
   Keypair,
-  LAMPORTS_PER_SOL,
   PublicKey,
   Transaction,
   sendAndConfirmTransaction,
@@ -30,34 +27,20 @@ import {
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import {
-  getSignatureFromActivity,
-  type TActivity,
-  getSignedTransactionFromActivity,
-} from "@turnkey/http";
+import { generateP256KeyPair, decryptExportBundle } from "@turnkey/crypto";
 import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
-import {
-  createNewSolanaWallet,
-  handleActivityError,
-  solanaNetwork,
-  signMessage,
-  print,
-} from "./utils";
-import { createTransfer } from "./utils/createSolanaTransfer";
+import { solanaNetwork } from "./utils";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
 async function main() {
   const organizationId = process.env.ORGANIZATION_ID!;
-  const defaultDestination = TURNKEY_WAR_CHEST;
 
   // Create a node connection; if no env var is found, default to public devnet RPC
   const nodeEndpoint =
     process.env.SOLANA_NODE || "https://api.devnet.solana.com";
   const connection = solanaNetwork.connect(nodeEndpoint);
-  const network: "devnet" | "mainnet" = "devnet";
-
   const turnkeyClient = new Turnkey({
     apiBaseUrl: process.env.BASE_URL!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -80,21 +63,49 @@ async function main() {
 
   // 1. Create Swig: this will funded by customer (UX-wise, they can "protect" this from being abused by only funding/creating these once ....... figure this out later). Creative option: customer deposits WSOL --> we can create an ATA for this for the swig and then have swig unwrap
 
+  const exportedSessionKey = await exportWalletAccount(
+    turnkeyClient,
+    sessionKeyAddress
+  );
+  const exportedPayerKey = await exportWalletAccount(
+    turnkeyClient,
+    payerKeyAddress
+  );
+
+  const generatedKeypair = Keypair.generate();
+  console.log("generated", generatedKeypair);
+
+  console.log("session key buffer", Buffer.from(exportedSessionKey));
+  console.log(
+    "session key buffer length",
+    Buffer.from(exportedSessionKey).length
+  );
+  console.log("payer key buffer", Buffer.from(exportedPayerKey));
+  console.log("payer key buffer length", Buffer.from(exportedPayerKey).length);
+
+  const sessionKeypair = Keypair.fromSecretKey(bs58.decode(exportedSessionKey));
+  const payerKeypair = Keypair.fromSecretKey(bs58.decode(exportedPayerKey));
+
+  console.log({
+    sessionKeypair,
+    payerKeypair,
+  });
+
   // make the swig. TODO: use suborg id + wallet account pubkey (or some sort of unique combo)
   const id = new Uint8Array(32); // this should probably be tied to the suborg key / some identifier
   crypto.getRandomValues(id);
 
   const swigAddress = findSwigPda(id);
 
-  await initSwig(
-    connection,
-    turnkeySigner,
-    id,
-    authorityKeyPubkey,
-    payerKeyPubkey
-  );
+  // await initSwig(
+  //   connection,
+  //   turnkeySigner,
+  //   id,
+  //   authorityKeyPubkey,
+  //   payerKeyPubkey
+  // );
 
-  console.log("init done");
+  // console.log("init done");
 
   // now going to export the (Turnkey-hosted) sessionKey and payerKey... later...
 
@@ -112,25 +123,43 @@ async function main() {
 
   console.log("set session!");
 
-  await sendTransaction(
-    connection,
-    turnkeySigner,
-    payerKeyPubkey,
-    sessionKeyPubkey,
-    id,
-    1,
-    [
-      SystemProgram.transfer({
-        fromPubkey: swigAddress,
-        toPubkey: new PublicKey(TURNKEY_WAR_CHEST),
-        lamports: 1000, // for science
-      }),
-    ]
-  );
+  await sendTransaction(connection, payerKeypair, sessionKeypair, id, 1, [
+    SystemProgram.transfer({
+      fromPubkey: swigAddress,
+      toPubkey: new PublicKey(TURNKEY_WAR_CHEST),
+      lamports: 1000, // for science
+    }),
+  ]);
 
   console.log("sent transaction!");
 
   process.exit(0);
+}
+
+async function exportWalletAccount(turnkeyClient: Turnkey, address: string) {
+  const keyPair = generateP256KeyPair();
+  const privateKey = keyPair.privateKey;
+  const publicKey = keyPair.publicKeyUncompressed;
+
+  const exportResult = await turnkeyClient.apiClient().exportWalletAccount({
+    address,
+    targetPublicKey: publicKey,
+  });
+
+  const decryptedBundle = await decryptExportBundle({
+    exportBundle: exportResult.exportBundle,
+    embeddedKey: privateKey,
+    organizationId: turnkeyClient.config.defaultOrganizationId,
+    returnMnemonic: false,
+    keyFormat: "SOLANA",
+    dangerouslyOverrideSignerPublicKey:
+      "04f3422b8afbe425d6ece77b8d2469954715a2ff273ab7ac89f1ed70e0a9325eaa1698b4351fd1b23734e65c0b6a86b62dd49d70b37c94606aac402cbd84353212",
+  });
+
+  // WARNING: Be VERY careful how you handle this bundle, this can be use to import your private keys/mnemonics anywhere and can lead to a potential loss of funds
+  console.log("decrypted bundle: ", decryptedBundle);
+
+  return decryptedBundle;
 }
 
 /* Init
@@ -252,9 +281,8 @@ async function setSession(
 
 async function sendTransaction(
   connection: Connection,
-  turnkeySigner: TurnkeySigner,
-  payer: PublicKey, // this should be a KeyPair; do later with exported / raw private key
-  session: PublicKey, // this should be a KeyPair; do later with exported / raw private key
+  payer: Keypair,
+  session: Keypair,
   suborgId: Uint8Array,
   roleId: number,
   instructions: TransactionInstruction[]
@@ -268,23 +296,23 @@ async function sendTransaction(
     instructions,
     false,
     {
-      payer,
+      payer: payer.publicKey,
     }
   );
 
   const transaction = new Transaction().add(...swigInstructions);
   transaction.recentBlockhash = await solanaNetwork.recentBlockhash(connection);
-  transaction.feePayer = payer;
+  transaction.feePayer = payer.publicKey;
 
-  // commenting out bc we're doing it the TK way for now
-  // await sendAndConfirmTransaction(connection, transaction, [session]); // happens on client
+  const signature = await sendAndConfirmTransaction(connection, transaction, [
+    payer,
+    session,
+  ]);
+  console.log("SIGNATURE", signature);
 
-  await turnkeySigner.addSignature(transaction, payer.toBase58());
-  await turnkeySigner.addSignature(transaction, session.toBase58());
+  // let broadcastedTx = await solanaNetwork.broadcast(connection, transaction);
 
-  let broadcastedTx = await solanaNetwork.broadcast(connection, transaction);
-
-  console.log("send transaction from swig!", broadcastedTx);
+  console.log("send transaction from swig!", signature);
 }
 
 /// OLD STUFF ///
