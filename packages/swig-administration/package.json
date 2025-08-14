@@ -1,0 +1,52 @@
+{
+  "name": "@turnkey/swig-administration",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "license": "Apache-2.0",
+  "description": "SWIG administration utilities and management tools",
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkhq/sdk.git",
+    "directory": "packages/swig-administration"
+  },
+  "files": [
+    "dist/",
+    "CHANGELOG.md",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "build": "rollup -c",
+    "clean": "rimraf ./dist ./.cache",
+    "test": "jest",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@turnkey/encoding": "workspace:*"
+  },
+  "devDependencies": {
+    "jest": "29.7.0",
+    "@turnkey/http": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*"
+  }
+}
