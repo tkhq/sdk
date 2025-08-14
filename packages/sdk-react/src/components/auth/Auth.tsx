@@ -28,6 +28,7 @@ export interface PasskeyConfig {
 export interface OtpConfig {
   otpLength?: number;
   alphanumeric?: boolean;
+  includeUnverifiedSubOrgs?: boolean;
 }
 
 const passkeyIcon = (
@@ -120,9 +121,9 @@ const Auth: React.FC<AuthProps> = ({
 
   const handleResendCode = async () => {
     if (step === OtpType.Email) {
-      await handleOtpLogin(FilterType.Email, email, OtpType.Email);
+      await handleSendOtp(email, OtpType.Email);
     } else if (step === OtpType.Sms) {
-      await handleOtpLogin(FilterType.PhoneNumber, phone, OtpType.Sms);
+      await handleSendOtp(phone, OtpType.Sms);
     }
   };
 
@@ -240,22 +241,8 @@ const Auth: React.FC<AuthProps> = ({
     }
   };
 
-  const handleOtpLogin = async (
-    type: FilterType.Email | FilterType.PhoneNumber,
-    value: string,
-    otpType: string,
-  ) => {
+  const handleSendOtp = async (value: string, otpType: string) => {
     setLoading(otpType);
-    const createSuborgData: Record<string, any> = {};
-    if (type === FilterType.Email) {
-      createSuborgData.email = value;
-    } else if (type === FilterType.PhoneNumber) {
-      createSuborgData.phoneNumber = value;
-    }
-
-    if (customAccounts) {
-      createSuborgData.customAccounts = customAccounts;
-    }
 
     const publicKey = await indexedDbClient!.getPublicKey();
     const initAuthResponse = await server.sendOtp({
@@ -523,7 +510,7 @@ const Auth: React.FC<AuthProps> = ({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              handleOtpLogin(FilterType.Email, email, OtpType.Email);
+              handleSendOtp(email, OtpType.Email);
             }}
           >
             <div className={styles.inputGroup}>
@@ -579,7 +566,7 @@ const Auth: React.FC<AuthProps> = ({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              handleOtpLogin(FilterType.PhoneNumber, phone, OtpType.Sms);
+              handleSendOtp(phone, OtpType.Sms);
             }}
           >
             <div className={styles.phoneInput}>
@@ -786,7 +773,10 @@ const Auth: React.FC<AuthProps> = ({
                     type={step}
                     contact={step === OtpType.Email ? email : phone}
                     otpId={otpId!}
-                    alphanumeric={otpConfig?.alphanumeric ?? false}
+                    alphanumeric={otpConfig?.alphanumeric}
+                    includeUnverifiedSubOrgs={
+                      otpConfig?.includeUnverifiedSubOrgs
+                    }
                     sessionLengthSeconds={authConfig.sessionLengthSeconds}
                     onValidateSuccess={onAuthSuccess}
                     onResendCode={handleResendCode}

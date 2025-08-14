@@ -17,6 +17,7 @@ interface OtpVerificationProps {
   contact: string;
   otpId: string;
   alphanumeric?: boolean | undefined;
+  includeUnverifiedSubOrgs?: boolean | undefined;
   sessionLengthSeconds?: number | undefined;
   numBoxes?: number | undefined;
   onValidateSuccess: () => Promise<void>;
@@ -31,6 +32,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   contact,
   otpId,
   alphanumeric = false,
+  includeUnverifiedSubOrgs = false,
   sessionLengthSeconds,
   onValidateSuccess,
   onResendCode,
@@ -63,6 +65,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         filterType:
           type === OtpType.Email ? FilterType.Email : FilterType.PhoneNumber,
         filterValue: contact,
+        includeUnverified: true,
         additionalData: {
           ...(type === OtpType.Email
             ? { email: contact }

@@ -301,10 +301,12 @@ export async function getOrCreateSuborg(
   // First try to get existing suborgs
   let suborgResponse: GetSuborgsResponse;
 
-  if (
+  const includeUnverified = request.includeUnverified === true;
+  const isEmailOrPhone =
     request.filterType === FilterType.Email ||
-    request.filterType === FilterType.PhoneNumber
-  ) {
+    request.filterType === FilterType.PhoneNumber;
+
+  if (!includeUnverified && isEmailOrPhone) {
     suborgResponse = await getVerifiedSuborgs({
       filterType: request.filterType,
       filterValue: request.filterValue,
@@ -316,7 +318,7 @@ export async function getOrCreateSuborg(
     });
   }
 
-  // If we found existing suborgs, return the first one
+  // If we found atleast one subOrg, we return
   if (suborgResponse.organizationIds.length > 0) {
     return {
       subOrganizationIds: suborgResponse.organizationIds,
