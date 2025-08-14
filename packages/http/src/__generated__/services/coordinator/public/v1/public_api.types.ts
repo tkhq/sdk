@@ -2105,6 +2105,8 @@ export type definitions = {
     organizationId: string;
     /** @description Unique identifier for a given wallet. If not provided, all accounts for the organization will be returned. */
     walletId?: string;
+    /** @description Optional flag to specify if the wallet details should be included in the response. Default = false. */
+    includeWalletDetails?: boolean;
     /** @description Parameters used for cursor-based pagination. */
     paginationOptions?: definitions["v1Pagination"];
   };
@@ -3551,6 +3553,8 @@ export type definitions = {
     updatedAt: definitions["externaldatav1Timestamp"];
     /** @description The public component of this wallet account's underlying cryptographic key pair. */
     publicKey?: string;
+    /** @description Wallet details for this account. This is only present when include_wallet_details=true. */
+    walletDetails?: definitions["v1Wallet"];
   };
   v1WalletAccountParams: {
     /** @description Cryptographic curve used to generate a wallet Account. */
