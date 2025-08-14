@@ -42,7 +42,11 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@turnkey/encoding": "workspace:*"
+    "@swig-wallet/classic": "^0.1.0",
+    "@solana/web3.js": "^1.87.0",
+    "@turnkey/solana": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
+    "bs58": "^5.0.0"
   },
   "devDependencies": {
     "jest": "29.7.0",
