@@ -10,7 +10,7 @@ import { CircularProgress } from "@mui/material";
 import { OtpType, FilterType } from "./constants";
 import { server } from "@turnkey/sdk-server";
 import { useTurnkey } from "../../hooks/use-turnkey";
-import { WalletAccount } from "@turnkey/sdk-browser";
+import type { WalletAccount } from "@turnkey/sdk-browser";
 
 const resendTimerMs = 15000;
 interface OtpVerificationProps {
