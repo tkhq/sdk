@@ -65,7 +65,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         filterType:
           type === OtpType.Email ? FilterType.Email : FilterType.PhoneNumber,
         filterValue: contact,
-        includeUnverified: true,
+        includeUnverified: includeUnverifiedSubOrgs,
         additionalData: {
           ...(type === OtpType.Email
             ? { email: contact }
