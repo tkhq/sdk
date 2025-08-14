@@ -11,7 +11,8 @@ import {
   PublicKey,
   Transaction,
   sendAndConfirmTransaction,
-  type TransactionInstruction
+  type TransactionInstruction,
+  SystemProgram,
 } from "@solana/web3.js";
 
 import {
@@ -25,7 +26,6 @@ import {
   getCreateSessionInstructions,
   getSignInstructions,
 } from "@swig-wallet/classic";
-
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -63,16 +63,6 @@ async function main() {
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     defaultOrganizationId: organizationId,
-    // The following config is useful in contexts where an activity requires consensus.
-    // By default, if the activity is not initially successful, it will poll a maximum
-    // of 3 times with an interval of 1000 milliseconds. Otherwise, use the values below.
-    //
-    // -----
-    //
-    // activityPoller: {
-    //   intervalMs: 5_000,
-    //   numRetries: 10,
-    // },
   });
 
   const turnkeySigner = new TurnkeySigner({
@@ -80,161 +70,68 @@ async function main() {
     client: turnkeyClient.apiClient(),
   });
 
-  let solAddress = process.env.SOLANA_ADDRESS!;
-  if (!solAddress) {
-    solAddress = await createNewSolanaWallet(turnkeyClient.apiClient());
-    console.log(`\nYour new Solana address: "${solAddress}"`);
-  } else {
-    console.log(`\nUsing existing Solana address from ENV: "${solAddress}"`);
-  }
+  const authorityKeyAddress = process.env.AUTHORITY_KEY_ADDRESS!;
+  const sessionKeyAddress = process.env.SESSION_KEY_ADDRESS!; // this will exist in the client-side in the future
+  const payerKeyAddress = process.env.PAYER_KEY_ADDRESS!; // will fund gas; will figure out details later
 
-  let balance = await solanaNetwork.balance(connection, solAddress);
-  while (balance === 0) {
-    console.log(
-      [
-        `\n💸 Your onchain balance is at 0! To continue this demo you'll need funds! You can use:`,
-        `- The faucet in this example: \`pnpm run faucet\``,
-        `- The official Solana CLI: \`solana airdrop 1 ${solAddress}\``,
-        `- Any online faucet (e.g. https://faucet.solana.com/)`,
-        `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=${network}`,
-        `\n--------`,
-      ].join("\n")
-    );
-    // Await user confirmation to continue
-    await prompts([
-      {
-        type: "confirm",
-        name: "ready",
-        message: "Ready to Continue?",
-      },
-    ]);
+  const authorityKeyPubkey = new PublicKey(authorityKeyAddress);
+  const sessionKeyPubkey = new PublicKey(sessionKeyAddress); // deal with this later
+  const payerKeyPubkey = new PublicKey(payerKeyAddress);
 
-    // refresh balance...
-    balance = await solanaNetwork.balance(connection, solAddress);
-  }
+  // 1. Create Swig: this will funded by customer (UX-wise, they can "protect" this from being abused by only funding/creating these once ....... figure this out later). Creative option: customer deposits WSOL --> we can create an ATA for this for the swig and then have swig unwrap
 
-  print("SOL balance:", `${balance} Lamports`);
+  // make the swig. TODO: use suborg id + wallet account pubkey (or some sort of unique combo)
+  const id = new Uint8Array(32); // this should probably be tied to the suborg key / some identifier
+  crypto.getRandomValues(id);
 
-  // 1. Sign and verify a message
-  const { message } = await prompts([
-    {
-      type: "text",
-      name: "message",
-      message: "Message to sign",
-      initial: "Hello Turnkey",
-    },
-  ]);
-  const messageAsUint8Array = Buffer.from(message);
+  const swigAddress = findSwigPda(id);
 
-  let signature;
-  try {
-    signature = await signMessage({
-      signer: turnkeySigner,
-      fromAddress: solAddress,
-      message,
-    });
-  } catch (error: any) {
-    signature = await handleActivityError(turnkeyClient, error).then(
-      (activity?: TActivity) => {
-        if (!activity) {
-          throw error;
-        }
-
-        const { r, s } = getSignatureFromActivity(activity);
-        return Buffer.from(`${r}${s}`, "hex");
-      }
-    );
-  }
-
-  const isValidSignature = nacl.sign.detached.verify(
-    messageAsUint8Array,
-    signature,
-    bs58.decode(solAddress)
+  await initSwig(
+    connection,
+    turnkeySigner,
+    id,
+    authorityKeyPubkey,
+    payerKeyPubkey
   );
 
-  if (!isValidSignature) {
-    throw new Error("unable to verify signed message");
-  }
+  console.log("init done");
 
-  print("Turnkey-powered signature:", `${bs58.encode(signature)}`);
+  // now going to export the (Turnkey-hosted) sessionKey and payerKey... later...
 
-  // 2. Create, sign, and verify a transfer transaction
-  const { destination } = await prompts([
-    {
-      name: "destination",
-      type: "text",
-      message: `Destination address:`,
-      initial: defaultDestination,
-    },
-  ]);
-
-  // Amount defaults to 100.
-  // Any other amount is possible.
-  const { amount } = await prompts([
-    {
-      name: "amount",
-      type: "text",
-      message: `Amount (in Lamports) to send to ${TURNKEY_WAR_CHEST}:`,
-      initial: "100",
-      validate: function (str) {
-        var n = Math.floor(Number(str));
-        if (n !== Infinity && String(n) === str && n > 0) {
-          // valid int was passed in
-          if (n + 5000 > balance) {
-            return `insufficient balance: current balance (${balance}) is less than ${
-              n + 5000
-            } (amount + 5000 for fee)`;
-          }
-          return true;
-        } else {
-          return "amount must be a strictly positive integer";
-        }
-      },
-    },
-  ]);
-
-  const transaction = await createTransfer({
-    fromAddress: solAddress,
-    toAddress: destination,
-    amount: Number(amount),
-    version: "legacy",
+  // note: this may lead to a race condition if the swig isn't "ready" by the time we're trying to set the session
+  await setSession(
     connection,
-  });
+    turnkeySigner,
+    authorityKeyPubkey, // aka treasurer
+    payerKeyPubkey,
+    sessionKeyPubkey,
+    1000n,
+    id,
+    1
+  );
 
-  let signedTransaction: Transaction | undefined = undefined; // legacy
-  try {
-    signedTransaction = (await turnkeySigner.signTransaction(
-      transaction,
-      solAddress
-    )) as Transaction;
-  } catch (error: any) {
-    await handleActivityError(turnkeyClient, error).then(
-      (activity?: TActivity) => {
-        if (!activity) {
-          throw error;
-        }
+  console.log("set session!");
 
-        const decodedTransaction = Buffer.from(
-          getSignedTransactionFromActivity(activity),
-          "hex"
-        );
-        signedTransaction = Transaction.from(decodedTransaction);
-      }
-    );
-  }
+  await sendTransaction(
+    connection,
+    turnkeySigner,
+    payerKeyPubkey,
+    sessionKeyPubkey,
+    id,
+    1,
+    [
+      SystemProgram.transfer({
+        fromPubkey: swigAddress,
+        toPubkey: new PublicKey(TURNKEY_WAR_CHEST),
+        lamports: 1000, // for science
+      }),
+    ]
+  );
 
-  const verified = signedTransaction!.verifySignatures();
-
-  if (!verified) {
-    throw new Error("unable to verify transaction signatures");
-  }
-
-  // 3. Broadcast the signed payload
-  await solanaNetwork.broadcast(connection, signedTransaction!);
+  console.log("sent transaction!");
 
   process.exit(0);
 }
-
 
 /* Init
   1. Create the swig - swig starts with giving the suborg key the root role (role 0)
@@ -242,115 +139,159 @@ async function main() {
   tbd, on create the suborg key adds a global off switch call back
 */
 
- async function initSwig(
-  connection: Connection, 
-  suborgId: number, // suborg Id 
-  treasurer: Keypair // todo - generate and sign inside TK enclave
-  //payer: Keypair // todo - use TK enclave
-) { 
-    
-    const payer = treasurer; // todo remove this and use a real separate payer
+async function initSwig(
+  connection: Connection,
+  turnkeySigner: TurnkeySigner,
+  suborgId: Uint8Array, // suborg Id --> needs to be a Buffer
+  treasurer: PublicKey, // todo - generate and sign inside TK enclave
+  payer: PublicKey // todo - use TK enclave
+) {
+  const swigAddress = findSwigPda(suborgId);
+  const rootAuthorityInfo = createEd25519AuthorityInfo(treasurer); // this is the end-user suborg wallet key (for now)
+  const rootActions = Actions.set().manageAuthority().get(); // TODO: investigate manageAuthority
 
-    // make the swig
+  const createSwigIx = await getCreateSwigInstruction({
+    payer,
+    id: suborgId,
+    actions: rootActions,
+    authorityInfo: rootAuthorityInfo,
+  });
 
-    const swigAddress = findSwigPda(suborgId); // this will not work
-    const rootAuthorityInfo = createEd25519AuthorityInfo(treasurer.publicKey); // this is the end-user suborg wallet key (for now)
-    const rootActions = Actions.set().manageAuthority().get(); // TODO: investigate manageAuthority
+  const transaction = new Transaction().add(createSwigIx);
+  transaction.recentBlockhash = await solanaNetwork.recentBlockhash(connection);
+  transaction.feePayer = payer;
 
-    const createSwigIx = await getCreateSwigInstruction({
-      payer: payer.publicKey,
-      suborgId,
-      actions: rootActions,
-      authorityInfo: rootAuthorityInfo,
-    });
+  // sign transaction using @turnkey/solana
+  // await turnkeySigner.addSignature(transaction, treasurer.toBase58()); // doesn't return anything; adds signature in place
+  await turnkeySigner.addSignature(transaction, payer.toBase58()); // same here
 
+  let broadcastedTx = await solanaNetwork.broadcast(connection, transaction);
 
-    const transaction = new Transaction().add(createSwigIx);
-    const signature = await sendAndConfirmTransaction(connection, transaction, [
-      treasurer,
-    ]); // todo - send to enclave and sign there
+  console.log("swig created!", broadcastedTx);
 
-    // make the role 
-    const allButManageActions = Actions.set().allButManageAuthority().get();
-    const swig = await fetchSwig(connection, swigAddress);
-    const addAuthorityInstructions = await getAddAuthorityInstructions(
-      swig,
-      0, // iterate new role id 
-      createEd25519SessionAuthorityInfo(treasurer.pubkey), // giving a second role to the treasurer
-      allButManageActions // set all but maanage
-    );
-    const transaction2 = new Transaction().add(addAuthorityInstructions);
-    const signature2 = await sendAndConfirmTransaction(connection, transaction2, [
-      treasurer,
-    ]); // todo in enclave
+  // make the role
+  const allButManageActions = Actions.set().allButManageAuthority().get();
+  const swig = await fetchSwig(connection, swigAddress);
+  const addAuthorityInstructions = await getAddAuthorityInstructions(
+    swig,
+    0, // iterate new role id
+    createEd25519SessionAuthorityInfo(treasurer, 1000n), // giving a second role to the treasurer; can add session key here
+    allButManageActions, // set all but manage
+    {
+      payer,
+    }
+  );
 
+  const addAuthorityTx = new Transaction().add(...addAuthorityInstructions);
+  addAuthorityTx.recentBlockhash =
+    await solanaNetwork.recentBlockhash(connection);
+  addAuthorityTx.feePayer = payer;
+
+  // sign transaction using @turnkey/solana
+  await turnkeySigner.addSignature(addAuthorityTx, payer.toBase58()); // same here
+  await turnkeySigner.addSignature(addAuthorityTx, treasurer.toBase58()); // doesn't return anything; adds signature in place
+
+  broadcastedTx = await solanaNetwork.broadcast(connection, addAuthorityTx);
+
+  console.log("added authority to swigggggity!", broadcastedTx);
+
+  console.log("swig details", {
+    suborgId,
+    swigAddress,
+    swig,
+  });
 }
 
 /* Set session - login or extend
   1. Call create session with the non-mangement role (role 1) and broadcast 
-*/ 
+*/
 
 async function setSession(
   connection: Connection,
-  treasurer: Keypair,
-  //payer: Keypair, // do later
-  session: Keypair,
-  timeout: number,
-  suborgId: number, 
+  turnkeySigner: TurnkeySigner,
+  treasurer: PublicKey,
+  payer: PublicKey, // do later
+  session: PublicKey,
+  timeout: bigint,
+  suborgId: Uint8Array,
   roleId: number
 ) {
-
   const swigAddress = findSwigPda(suborgId); // this will not work
   const swig = await fetchSwig(connection, swigAddress);
 
   const createSessionIx = await getCreateSessionInstructions(
     swig,
     roleId,
-    session.pubkey,
+    session,
     timeout,
+    {
+      payer,
+    }
   );
 
-  const transaction = new Transaction().add(createSessionIx);
-  const signature = await sendAndConfirmTransaction(connection, transaction, [
-    treasurer,
-  ]); // todo do in enclave
+  const transaction = new Transaction().add(...createSessionIx);
+  transaction.recentBlockhash = await solanaNetwork.recentBlockhash(connection);
+  transaction.feePayer = payer;
 
+  // sign transaction using @turnkey/solana
+  // await turnkeySigner.addSignature(transaction, treasurer.toBase58()); // doesn't return anything; adds signature in place
+  await turnkeySigner.addSignature(transaction, payer.toBase58());
+  await turnkeySigner.addSignature(transaction, treasurer.toBase58());
+
+  let broadcastedTx = await solanaNetwork.broadcast(connection, transaction);
+
+  console.log("session set!", broadcastedTx);
+  console.log("session details", createSessionIx);
 }
 
-/* Send transaction 
+/* Send transaction
   Call normal send transaction via swig
     Initiated by payer (can be session key)
-    Signed by by session 
+    Signed by by session
 */
 
 async function sendTransaction(
   connection: Connection,
-  //payer: Keypair, // do later
-  session: Keypair,
-  suborgId: number, 
+  turnkeySigner: TurnkeySigner,
+  payer: PublicKey, // this should be a KeyPair; do later with exported / raw private key
+  session: PublicKey, // this should be a KeyPair; do later with exported / raw private key
+  suborgId: Uint8Array,
   roleId: number,
-  instructions: TransactionInstruction[],
+  instructions: TransactionInstruction[]
 ) {
-
   const swigAddress = findSwigPda(suborgId); // this will not work
   const swig = await fetchSwig(connection, swigAddress);
 
-  const swigInstructions = getSignInstructions(
+  const swigInstructions = await getSignInstructions(
     swig,
     roleId,
-    instructions
+    instructions,
+    false,
+    {
+      payer,
+    }
   );
 
-  const transaction = new Transaction().add(swigInstructions);
-  await sendAndConfirmTransaction(connection, transaction, [session]); // happens on client 
-}
+  const transaction = new Transaction().add(...swigInstructions);
+  transaction.recentBlockhash = await solanaNetwork.recentBlockhash(connection);
+  transaction.feePayer = payer;
 
+  // commenting out bc we're doing it the TK way for now
+  // await sendAndConfirmTransaction(connection, transaction, [session]); // happens on client
+
+  await turnkeySigner.addSignature(transaction, payer.toBase58());
+  await turnkeySigner.addSignature(transaction, session.toBase58());
+
+  let broadcastedTx = await solanaNetwork.broadcast(connection, transaction);
+
+  console.log("send transaction from swig!", broadcastedTx);
+}
 
 /// OLD STUFF ///
 
 // async function createSwigAccount(connection: Connection,
 //   user: Keypair,
-//   sessionKey : string 
+//   sessionKey : string
 // ) {
 //   try {
 //     const id = new Uint8Array(32); // this should probably be tied to the suborg key / some identifier
@@ -376,7 +317,6 @@ async function sendTransaction(
 //     const signature = await sendAndConfirmTransaction(connection, transaction, [
 //       user,
 //     ]);
-
 
 //     console.log("✓ Swig account created at:", swigAddress.toBase58());
 //     console.log("Transaction signature:", signature);
@@ -404,7 +344,7 @@ async function sendTransaction(
 //   rootUser: Keypair, // end-user suborg key - can be pubkey
 //   newAuthority: Keypair, // session key - can be pubkey
 //   swigAddress: PublicKey,
-//   actions: any, // set the power level in the actions - all but manage 
+//   actions: any, // set the power level in the actions - all but manage
 //   description: string
 // ) {
 //   try {
@@ -414,8 +354,6 @@ async function sendTransaction(
 //     if (!rootRole) {
 //       throw new Error("Root role not found for authority");
 //     }
-
-
 
 //     const transaction = new Transaction().add(...addAuthorityInstructions);
 //     await sendAndConfirmTransaction(connection, transaction, [rootUser]);
@@ -433,8 +371,6 @@ async function sendTransaction(
 //     throw error;
 //   }
 // }
-
-
 
 main().catch((error) => {
   console.error(error);
