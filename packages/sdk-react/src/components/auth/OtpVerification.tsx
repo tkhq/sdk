@@ -10,6 +10,7 @@ import { CircularProgress } from "@mui/material";
 import { OtpType, FilterType } from "./constants";
 import { server } from "@turnkey/sdk-server";
 import { useTurnkey } from "../../hooks/use-turnkey";
+import { WalletAccount } from "@turnkey/sdk-browser";
 
 const resendTimerMs = 15000;
 interface OtpVerificationProps {
@@ -19,6 +20,7 @@ interface OtpVerificationProps {
   alphanumeric?: boolean | undefined;
   includeUnverifiedSubOrgs?: boolean | undefined;
   sessionLengthSeconds?: number | undefined;
+  customAccounts?: WalletAccount[];
   numBoxes?: number | undefined;
   onValidateSuccess: () => Promise<void>;
   onResendCode: (
@@ -34,6 +36,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   alphanumeric = false,
   includeUnverifiedSubOrgs = false,
   sessionLengthSeconds,
+  customAccounts,
   onValidateSuccess,
   onResendCode,
   numBoxes,
@@ -70,6 +73,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
           ...(type === OtpType.Email
             ? { email: contact }
             : { phoneNumber: contact }),
+          ...(customAccounts && { customAccounts }),
         },
       });
 

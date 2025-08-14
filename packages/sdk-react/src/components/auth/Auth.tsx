@@ -395,6 +395,7 @@ const Auth: React.FC<AuthProps> = ({
             type,
           },
         },
+        ...(customAccounts && { customAccounts }),
       });
 
       const suborgIds = resp?.subOrganizationIds;
@@ -781,6 +782,7 @@ const Auth: React.FC<AuthProps> = ({
                     onValidateSuccess={onAuthSuccess}
                     onResendCode={handleResendCode}
                     numBoxes={otpConfig?.otpLength ?? 6}
+                    {...(customAccounts && { customAccounts })}
                   />
                 )}
 
