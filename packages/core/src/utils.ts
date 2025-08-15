@@ -799,3 +799,95 @@ export async function getAuthProxyConfig(
   const data = await response.json();
   return data as ProxyTGetWalletKitConfigResponse;
 }
+
+/**
+ * Executes an async function with error handling.
+ *
+ * @param fn The async function to execute with error handling
+ * @param errorOptions Options for customizing error handling
+ * @param finallyFn Optional function to execute in the finally block
+ * @returns The result of the async function or throws an error
+ */
+export async function withTurnkeyErrorHandling<T>(
+  fn: () => Promise<T>,
+  catchOptions: {
+    catchFn?: () => Promise<void>;
+    errorMessage: string;
+    errorCode: TurnkeyErrorCodes;
+    customMessageByCodes?: Partial<
+      Record<TurnkeyErrorCodes, { message: string; code: TurnkeyErrorCodes }>
+    >;
+    customMessageByMessages?: Record<
+      string,
+      { message: string; code: TurnkeyErrorCodes }
+    >;
+  },
+  finallyOptions?: {
+    finallyFn: () => Promise<void>;
+  },
+): Promise<T> {
+  const {
+    errorMessage,
+    errorCode,
+    customMessageByCodes,
+    customMessageByMessages,
+    catchFn,
+  } = catchOptions;
+  const finallyFn = finallyOptions?.finallyFn;
+  try {
+    return await fn();
+  } catch (error) {
+    await catchFn?.();
+    if (error instanceof TurnkeyError) {
+      const customCodeMessage = customMessageByCodes?.[error.code!];
+      if (customCodeMessage) {
+        throw new TurnkeyError(
+          customCodeMessage.message,
+          customCodeMessage.code,
+          error,
+        );
+      }
+      throwMatchingMessage(error.message, customMessageByMessages, error);
+
+      throw error;
+    } else if (error instanceof TurnkeyRequestError) {
+      throwMatchingMessage(error.message, customMessageByMessages, error);
+
+      throw new TurnkeyError(errorMessage, errorCode, error);
+    } else if (error instanceof Error) {
+      throwMatchingMessage(error.message, customMessageByMessages, error);
+
+      // Wrap other errors in a TurnkeyError
+      throw new TurnkeyError(errorMessage, errorCode, error);
+    } else {
+      throwMatchingMessage(String(error), customMessageByMessages, error);
+      // Handle non-Error exceptions
+      throw new TurnkeyError(String(error), errorCode, error);
+    }
+  } finally {
+    await finallyFn?.();
+  }
+}
+
+const throwMatchingMessage = (
+  errorMessage: string,
+  customMessageByMessages:
+    | Record<string, { message: string; code: TurnkeyErrorCodes }>
+    | undefined,
+  error: any,
+) => {
+  if (
+    customMessageByMessages &&
+    Object.keys(customMessageByMessages).length > 0
+  ) {
+    Object.keys(customMessageByMessages).forEach((key) => {
+      if (errorMessage.includes(key)) {
+        throw new TurnkeyError(
+          customMessageByMessages[key]!.message,
+          customMessageByMessages[key]!.code,
+          error,
+        );
+      }
+    });
+  }
+};
