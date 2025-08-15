@@ -3,13 +3,18 @@ import * as path from "path";
 import bs58 from "bs58";
 
 import {
+  ComputeBudgetProgram,
   Connection,
   Keypair,
   PublicKey,
   Transaction,
   sendAndConfirmTransaction,
-  type TransactionInstruction,
+  TransactionInstruction,
   SystemProgram,
+  LAMPORTS_PER_SOL,
+  AccountMeta,
+  TransactionMessage,
+  VersionedTransaction,
 } from "@solana/web3.js";
 
 import {
@@ -24,6 +29,14 @@ import {
   getSignInstructions,
 } from "@swig-wallet/classic";
 
+import {
+  createAssociatedTokenAccountInstruction,
+  getAccount,
+  getAssociatedTokenAddress,
+} from "@solana/spl-token";
+
+import { createJupiterApiClient } from "@jup-ag/api";
+
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
@@ -34,12 +47,28 @@ import { solanaNetwork } from "./utils";
 
 const TURNKEY_WAR_CHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
 
+function formatNumber(n: number) {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function toTransactionInstruction(instruction: any): TransactionInstruction {
+  return new TransactionInstruction({
+    programId: new PublicKey(instruction.programId),
+    keys: instruction.accounts.map((k: any) => ({
+      pubkey: new PublicKey(k.pubkey),
+      isSigner: k.isSigner,
+      isWritable: k.isWritable,
+    })),
+    data: Buffer.from(instruction.data, "base64"),
+  });
+}
+
 async function main() {
   const organizationId = process.env.ORGANIZATION_ID!;
 
   // Create a node connection; if no env var is found, default to public devnet RPC
   const nodeEndpoint =
-    process.env.SOLANA_NODE || "https://api.devnet.solana.com";
+    process.env.SOLANA_NODE || "https://api.mainnet-beta.solana.com"; // api.devnet for testnet
   const connection = solanaNetwork.connect(nodeEndpoint);
   const turnkeyClient = new Turnkey({
     apiBaseUrl: process.env.BASE_URL!,
@@ -92,10 +121,21 @@ async function main() {
   });
 
   // make the swig. TODO: use suborg id + wallet account pubkey (or some sort of unique combo)
-  const id = new Uint8Array(32); // this should probably be tied to the suborg key / some identifier
-  crypto.getRandomValues(id);
+  // const id = new Uint8Array(32); // this should probably be tied to the suborg key / some identifier
+  // crypto.getRandomValues(id);
 
-  const swigAddress = findSwigPda(id);
+  // const id = new Uint8Array([
+  //   30, 242, 23, 252, 248, 75, 167, 107, 138, 148, 215, 162, 55, 116, 18, 118,
+  //   237, 138, 224, 136, 116, 93, 117, 227, 101, 211, 220, 1, 31, 75, 213, 244,
+  // ]); // devnet
+
+  const id = new Uint8Array([
+    99, 160, 74, 1, 30, 40, 235, 121, 100, 102, 152, 156, 210, 244, 41, 91, 35,
+    174, 128, 56, 133, 252, 54, 31, 75, 4, 57, 82, 38, 71, 107, 114,
+  ]); // mainnet
+
+  // const swigAddress = findSwigPda(id); // CbC4eWVVKCsBHoHWunKk9NDrdnq9a8JKbr6bqPRoVNQR for devnet
+  const swigAddress = findSwigPda(id); // GpSVLf8XCWRfStnQBrpwZ45PdDQfLgvpq9ut7RGCKmkH for mainnet
 
   // await initSwig(
   //   connection,
@@ -106,8 +146,6 @@ async function main() {
   // );
 
   // console.log("init done");
-
-  // now going to export the (Turnkey-hosted) sessionKey and payerKey... later...
 
   // note: this may lead to a race condition if the swig isn't "ready" by the time we're trying to set the session
   await setSession(
@@ -123,15 +161,26 @@ async function main() {
 
   console.log("set session!");
 
-  await sendTransaction(connection, payerKeypair, sessionKeypair, id, 1, [
-    SystemProgram.transfer({
-      fromPubkey: swigAddress,
-      toPubkey: new PublicKey(TURNKEY_WAR_CHEST),
-      lamports: 1000, // for science
-    }),
-  ]);
+  // await sendTransaction(connection, payerKeypair, sessionKeypair, id, 1, [
+  //   SystemProgram.transfer({
+  //     fromPubkey: swigAddress,
+  //     // toPubkey: new PublicKey(TURNKEY_WAR_CHEST),
+  //     toPubkey: new PublicKey("ENfc2wGWVfbNTda1eMQ6zFFHQYQoBGedxrRpTVY7cejm"),
+  //     lamports: LAMPORTS_PER_SOL * 0.001, // for science
+  //   }),
+  // ]);
 
-  console.log("sent transaction!");
+  // console.log("sent transaction!");
+
+  await swapWithJupiter(
+    connection,
+    swigAddress,
+    // authorityKeyPubkey,
+    payerKeypair,
+    sessionKeypair
+  );
+
+  console.log("swapped with jupiter!");
 
   process.exit(0);
 }
@@ -153,7 +202,7 @@ async function exportWalletAccount(turnkeyClient: Turnkey, address: string) {
     returnMnemonic: false,
     keyFormat: "SOLANA",
     dangerouslyOverrideSignerPublicKey:
-      "04f3422b8afbe425d6ece77b8d2469954715a2ff273ab7ac89f1ed70e0a9325eaa1698b4351fd1b23734e65c0b6a86b62dd49d70b37c94606aac402cbd84353212",
+      "04f3422b8afbe425d6ece77b8d2469954715a2ff273ab7ac89f1ed70e0a9325eaa1698b4351fd1b23734e65c0b6a86b62dd49d70b37c94606aac402cbd84353212", // for preprod
   });
 
   // WARNING: Be VERY careful how you handle this bundle, this can be use to import your private keys/mnemonics anywhere and can lead to a potential loss of funds
@@ -290,6 +339,8 @@ async function sendTransaction(
   const swigAddress = findSwigPda(suborgId); // this will not work
   const swig = await fetchSwig(connection, swigAddress);
 
+  console.log("sending to swig address", swigAddress);
+
   const swigInstructions = await getSignInstructions(
     swig,
     roleId,
@@ -313,6 +364,248 @@ async function sendTransaction(
   // let broadcastedTx = await solanaNetwork.broadcast(connection, transaction);
 
   console.log("send transaction from swig!", signature);
+}
+
+// hardcoded to swap USDC <> WSOL for now
+// 1. create USDC ATA
+// 2. create WSOL ATA
+// 3.
+async function swapWithJupiter(
+  connection: Connection,
+  swigAddress: PublicKey,
+  // treasurer: PublicKey, // authority
+  payer: Keypair, // Turnkey address to get exported every time; we're comfortable exporting this one
+  session: Keypair
+) {
+  const usdcMint = new PublicKey(
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+  ); // mainnet
+  // const usdcMint = new PublicKey(
+  //   "Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr"
+  // ); // devnet, apparently
+  const wrappedSolMint = new PublicKey(
+    "So11111111111111111111111111111111111111112"
+  );
+
+  const swigUsdcAta = await getAssociatedTokenAddress(
+    usdcMint,
+    swigAddress,
+    true
+  );
+  try {
+    await getAccount(connection, swigUsdcAta);
+    console.log("✓ USDC ATA exists:", swigUsdcAta.toBase58());
+  } catch {
+    const createAtaIx = createAssociatedTokenAccountInstruction(
+      payer.publicKey,
+      swigUsdcAta,
+      swigAddress,
+      usdcMint
+    );
+
+    // need to sign and send using Turnkey client because that's where the authority lives
+    // NOT the session or payer key
+    // const transaction = new Transaction().add(createAtaIx);
+    // transaction.recentBlockhash =
+    //   await solanaNetwork.recentBlockhash(connection);
+    // transaction.feePayer = payer.publicKey;
+
+    // await turnkeySigner.addSignature(transaction, treasurer.toBase58());
+    // transaction.sign([payer]);
+    // const broadcastedTx = await solanaNetwork.broadcast(
+    //   connection,
+    //   transaction
+    // );
+
+    const transaction = new Transaction().add(createAtaIx);
+    transaction.recentBlockhash =
+      await solanaNetwork.recentBlockhash(connection);
+    transaction.feePayer = payer.publicKey;
+
+    const signature = await sendAndConfirmTransaction(connection, transaction, [
+      payer,
+      // session,
+    ]);
+
+    console.log("✓ Created USDC ATA:", swigUsdcAta.toBase58());
+    console.log("broadcasted tx:", signature);
+  }
+
+  const swigWrappedSolAta = await getAssociatedTokenAddress(
+    wrappedSolMint,
+    swigAddress,
+    true
+  );
+  try {
+    await getAccount(connection, swigWrappedSolAta);
+    console.log("✓ Wrapped SOL ATA exists:", swigWrappedSolAta.toBase58());
+  } catch {
+    const createAtaIx = createAssociatedTokenAccountInstruction(
+      // treasurer,
+      payer.publicKey,
+      swigWrappedSolAta,
+      swigAddress,
+      wrappedSolMint
+    );
+
+    // need to sign and send using Turnkey client because that's where the authority lives.
+    // alternatively, the session key can do this (maybe). need to test
+    // const transaction = new Transaction().add(createAtaIx);
+    // transaction.recentBlockhash =
+    //   await solanaNetwork.recentBlockhash(connection);
+    // transaction.feePayer = payer.publicKey;
+
+    // await turnkeySigner.addSignature(transaction, treasurer.toBase58());
+    // const broadcastedTx = await solanaNetwork.broadcast(
+    //   connection,
+    //   transaction
+    // );
+
+    const { blockhash, lastValidBlockHeight } =
+      await connection.getLatestBlockhash();
+
+    const messageV0 = new TransactionMessage({
+      payerKey: payer.publicKey,
+      recentBlockhash: blockhash,
+      instructions: [createAtaIx],
+    }).compileToV0Message();
+    const tx = new VersionedTransaction(messageV0);
+    // tx.sign([payer, session]); // fee payer and session key need to sign
+    tx.sign([payer]); // fee payer and session key need to sign
+
+    const signature = await connection.sendTransaction(tx, {
+      skipPreflight: true,
+      preflightCommitment: "confirmed",
+    });
+
+    const result = await connection.confirmTransaction({
+      signature,
+      blockhash,
+      lastValidBlockHeight,
+    });
+
+    console.log("✓ Created Wrapped SOL ATA:", swigWrappedSolAta.toBase58());
+    console.log("broadcasted tx:", result);
+  }
+
+  const transferAmount = 0.001 * LAMPORTS_PER_SOL;
+
+  // seed the swig with some funds; can come from anywhere
+  // TODO: fix all this
+  // not doing this for now because I don't think we need it
+  //
+  // const transferTx = new Transaction().add(
+  //   SystemProgram.transfer({
+  //     fromPubkey: treasurer,
+  //     toPubkey: swigAddress,
+  //     lamports: transferAmount,
+  //   })
+  // );
+  // await sendAndConfirmTransaction(connection, transferTx, [rootUser]);
+  // console.log("✓ Transferred 0.01 SOL to Swig");
+
+  const jupiter = createJupiterApiClient();
+  const quote = await jupiter.quoteGet({
+    inputMint: wrappedSolMint.toBase58(),
+    outputMint: usdcMint.toBase58(),
+    amount: Math.floor(transferAmount),
+    slippageBps: 100,
+    maxAccounts: 64,
+  });
+
+  if (!quote) {
+    console.log("❌ No quote available");
+    return;
+  }
+
+  console.log("📊 Quote received:");
+  console.log(`   Input: ${formatNumber(Number(quote.inAmount))} lamports`);
+  console.log(`   Output: ${formatNumber(Number(quote.outAmount))} USDC (raw)`);
+
+  const swapInstructionsRes = await jupiter.swapInstructionsPost({
+    swapRequest: {
+      quoteResponse: quote,
+      userPublicKey: swigAddress.toBase58(),
+      wrapAndUnwrapSol: true,
+      useSharedAccounts: true,
+      // additional flags
+      // dynamicComputeUnitLimit: true,
+      // prioritizationFeeLamports: {
+      //   jitoTipLamports: 1000
+      // }
+    },
+  });
+
+  const swig = await fetchSwig(connection, swigAddress);
+
+  const swapInstructions: TransactionInstruction[] = [
+    ...(swapInstructionsRes.setupInstructions || []).map(
+      toTransactionInstruction
+    ),
+    toTransactionInstruction(swapInstructionsRes.swapInstruction),
+  ];
+
+  swapInstructions[1]?.keys.push({
+    pubkey: new PublicKey(swig.address.toAddress()),
+    isSigner: false,
+    isWritable: false,
+  } as AccountMeta);
+
+  console.log("setup instructions", swapInstructionsRes.setupInstructions);
+  console.log("swap instructions", JSON.stringify(swapInstructions));
+
+  // const rootRole = swig.findRolesByEd25519SignerPk(rootUser.publicKey)[0];
+  const signIxs = await getSignInstructions(
+    swig,
+    // rootRole.id,
+    1, // session key role
+    swapInstructions
+  );
+
+  const lookupTables = await Promise.all(
+    swapInstructionsRes.addressLookupTableAddresses.map(async (addr) => {
+      const res = await connection.getAddressLookupTable(new PublicKey(addr));
+      return res.value!;
+    })
+  );
+
+  const { blockhash, lastValidBlockHeight } =
+    await connection.getLatestBlockhash();
+  const outerIxs = [
+    ComputeBudgetProgram.setComputeUnitLimit({ units: 250_000 }),
+    ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 150 }),
+  ];
+
+  // perform swap from WSOL to USDC
+  // this can be signed for by the session key
+  const messageV0 = new TransactionMessage({
+    payerKey: payer.publicKey,
+    recentBlockhash: blockhash,
+    instructions: [...outerIxs, ...signIxs],
+  }).compileToV0Message(lookupTables);
+
+  const tx = new VersionedTransaction(messageV0);
+  tx.sign([payer, session]); // fee payer and session key need to sign
+
+  const signature = await connection.sendTransaction(tx, {
+    skipPreflight: true,
+    preflightCommitment: "confirmed",
+  });
+
+  const result = await connection.confirmTransaction({
+    signature,
+    blockhash,
+    lastValidBlockHeight,
+  });
+
+  if (result.value.err) {
+    throw new Error(`Transaction failed: ${JSON.stringify(result.value.err)}`);
+  }
+
+  const postSwapBalance = await connection.getTokenAccountBalance(swigUsdcAta);
+  console.log("🎉 Swap successful!");
+  console.log(`   Signature: ${signature}`);
+  console.log(`💰 New USDC balance: ${postSwapBalance.value.uiAmount}`);
 }
 
 /// OLD STUFF ///
