@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient } from "@turnkey/http";
+import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 async function main() {
@@ -27,13 +27,18 @@ async function main() {
     organizationId: process.env.ORGANIZATION_ID!,
   });
 
-  await turnkeyClient.updateRootQuorum({
+  const activityPoller = createActivityPoller({
+    client: turnkeyClient,
+    requestFn: turnkeyClient.updateRootQuorum,
+  });
+
+  const completedActivity = await activityPoller({
     type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
     timestampMs: String(Date.now()),
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {
       threshold: 1,
-      userIds: [orgConfigsResponse.configs.quorum?.userIds[0]!], // retain the first root user
+      userIds: [orgConfigsResponse.configs.quorum?.userIds[0]!],
     },
   });
 
