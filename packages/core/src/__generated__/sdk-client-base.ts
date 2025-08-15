@@ -21,8 +21,6 @@ import type * as SdkTypes from "@turnkey/sdk-types";
 
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
-import { parseSession } from "../utils";
-
 import { StamperType } from "../__types__/base";
 
 export class TurnkeySDKClientBase {
@@ -114,7 +112,7 @@ export class TurnkeySDKClientBase {
     return data as TResponseType;
   }
 
-  async command<TBodyType, TResponseType>(
+  async activity<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
     resultKey: string,
@@ -245,8 +243,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetActivityBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetActivityResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_activity",
       {
@@ -291,8 +288,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetApiKeyBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetApiKeyResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_api_key",
       {
@@ -337,8 +333,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetApiKeysBody = {},
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetApiKeysResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_api_keys",
       {
@@ -383,8 +378,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetAttestationDocumentBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetAttestationDocumentResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_attestation",
       {
@@ -429,8 +423,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetAuthenticatorBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetAuthenticatorResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_authenticator",
       {
@@ -476,8 +469,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetAuthenticatorsBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetAuthenticatorsResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_authenticators",
       {
@@ -523,8 +515,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetOauthProvidersBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetOauthProvidersResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_oauth_providers",
       {
@@ -570,8 +561,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetOrganizationBody = {},
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetOrganizationResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_organization",
       {
@@ -617,8 +607,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetOrganizationConfigsBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetOrganizationConfigsResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_organization_configs",
       {
@@ -664,8 +653,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetPolicyBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetPolicyResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_policy",
       {
@@ -710,8 +698,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetPolicyEvaluationsBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetPolicyEvaluationsResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_policy_evaluations",
       {
@@ -757,8 +744,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetPrivateKeyBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetPrivateKeyResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_private_key",
       {
@@ -803,8 +789,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetSmartContractInterfaceBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetSmartContractInterfaceResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_smart_contract_interface",
       {
@@ -850,8 +835,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetUserBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetUserResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_user",
       {
@@ -896,8 +880,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetWalletBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetWalletResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_wallet",
       {
@@ -942,8 +925,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetWalletAccountBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetWalletAccountResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/get_wallet_account",
       {
@@ -989,8 +971,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetActivitiesBody = {},
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetActivitiesResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_activities",
       {
@@ -1035,8 +1016,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetPoliciesBody = {},
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetPoliciesResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_policies",
       {
@@ -1081,8 +1061,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TListPrivateKeyTagsBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TListPrivateKeyTagsResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_private_key_tags",
       {
@@ -1128,8 +1107,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetPrivateKeysBody = {},
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetPrivateKeysResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_private_keys",
       {
@@ -1175,8 +1153,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetSmartContractInterfacesBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetSmartContractInterfacesResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_smart_contract_interfaces",
       {
@@ -1223,8 +1200,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetSubOrgIdsBody = {},
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetSubOrgIdsResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_suborgs",
       {
@@ -1269,8 +1245,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TListUserTagsBody = {},
     stampWith?: StamperType,
   ): Promise<SdkTypes.TListUserTagsResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_user_tags",
       {
@@ -1315,8 +1290,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetUsersBody = {},
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetUsersResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_users",
       {
@@ -1361,8 +1335,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetVerifiedSubOrgIdsBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetVerifiedSubOrgIdsResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_verified_suborgs",
       {
@@ -1408,8 +1381,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetWalletAccountsBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetWalletAccountsResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_wallet_accounts",
       {
@@ -1455,8 +1427,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetWalletsBody = {},
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetWalletsResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/list_wallets",
       {
@@ -1501,8 +1472,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TGetWhoamiBody = {},
     stampWith?: StamperType,
   ): Promise<SdkTypes.TGetWhoamiResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/public/v1/query/whoami",
       {
@@ -1548,8 +1518,7 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TApproveActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.activityDecision(
       "/public/v1/submit/approve_activity",
       {
@@ -1599,10 +1568,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_api_keys",
       {
         parameters: rest,
@@ -1652,10 +1620,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateApiOnlyUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_api_only_users",
       {
         parameters: rest,
@@ -1705,10 +1672,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_authenticators",
       {
         parameters: rest,
@@ -1758,10 +1724,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateInvitationsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_invitations",
       {
         parameters: rest,
@@ -1811,10 +1776,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_oauth_providers",
       {
         parameters: rest,
@@ -1864,10 +1828,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePoliciesResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_policies",
       {
         parameters: rest,
@@ -1917,10 +1880,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_policy",
       {
         parameters: rest,
@@ -1969,10 +1931,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_private_key_tag",
       {
         parameters: rest,
@@ -2022,10 +1983,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_private_keys",
       {
         parameters: rest,
@@ -2075,10 +2035,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateReadOnlySessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_read_only_session",
       {
         parameters: rest,
@@ -2128,10 +2087,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateReadWriteSessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_read_write_session",
       {
         parameters: rest,
@@ -2181,10 +2139,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateSmartContractInterfaceResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_smart_contract_interface",
       {
         parameters: rest,
@@ -2235,10 +2192,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_sub_organization",
       {
         parameters: rest,
@@ -2288,10 +2244,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_user_tag",
       {
         parameters: rest,
@@ -2341,10 +2296,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_users",
       {
         parameters: rest,
@@ -2393,10 +2347,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_wallet",
       {
         parameters: rest,
@@ -2445,10 +2398,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateWalletAccountsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/create_wallet_accounts",
       {
         parameters: rest,
@@ -2498,10 +2450,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_api_keys",
       {
         parameters: rest,
@@ -2551,10 +2502,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_authenticators",
       {
         parameters: rest,
@@ -2604,10 +2554,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteInvitationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_invitation",
       {
         parameters: rest,
@@ -2657,10 +2606,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_oauth_providers",
       {
         parameters: rest,
@@ -2710,10 +2658,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeletePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_policy",
       {
         parameters: rest,
@@ -2762,10 +2709,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeletePrivateKeyTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_private_key_tags",
       {
         parameters: rest,
@@ -2815,10 +2761,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeletePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_private_keys",
       {
         parameters: rest,
@@ -2868,10 +2813,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteSmartContractInterfaceResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_smart_contract_interface",
       {
         parameters: rest,
@@ -2922,10 +2866,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_sub_organization",
       {
         parameters: rest,
@@ -2975,10 +2918,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteUserTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_user_tags",
       {
         parameters: rest,
@@ -3028,10 +2970,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_users",
       {
         parameters: rest,
@@ -3080,10 +3021,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteWalletsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/delete_wallets",
       {
         parameters: rest,
@@ -3132,10 +3072,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TEmailAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/email_auth",
       {
         parameters: rest,
@@ -3184,10 +3123,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TExportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/export_private_key",
       {
         parameters: rest,
@@ -3237,10 +3175,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TExportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/export_wallet",
       {
         parameters: rest,
@@ -3289,10 +3226,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TExportWalletAccountResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/export_wallet_account",
       {
         parameters: rest,
@@ -3342,10 +3278,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/import_private_key",
       {
         parameters: rest,
@@ -3395,10 +3330,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/import_wallet",
       {
         parameters: rest,
@@ -3447,10 +3381,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitFiatOnRampResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/init_fiat_on_ramp",
       {
         parameters: rest,
@@ -3500,10 +3433,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/init_import_private_key",
       {
         parameters: rest,
@@ -3553,10 +3485,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/init_import_wallet",
       {
         parameters: rest,
@@ -3606,10 +3537,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitOtpResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/init_otp",
       {
         parameters: rest,
@@ -3658,10 +3588,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/init_otp_auth",
       {
         parameters: rest,
@@ -3710,10 +3639,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TInitUserEmailRecoveryResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/init_user_email_recovery",
       {
         parameters: rest,
@@ -3763,10 +3691,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TOauthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/oauth",
       {
         parameters: rest,
@@ -3815,10 +3742,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TOauthLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/oauth_login",
       {
         parameters: rest,
@@ -3867,10 +3793,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/otp_auth",
       {
         parameters: rest,
@@ -3919,10 +3844,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TOtpLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/otp_login",
       {
         parameters: rest,
@@ -3971,10 +3895,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TRecoverUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/recover_user",
       {
         parameters: rest,
@@ -4023,8 +3946,7 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TRejectActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.activityDecision(
       "/public/v1/submit/reject_activity",
       {
@@ -4074,10 +3996,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TRemoveOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/remove_organization_feature",
       {
         parameters: rest,
@@ -4127,10 +4048,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TSetOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/set_organization_feature",
       {
         parameters: rest,
@@ -4180,10 +4100,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TSignRawPayloadResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/sign_raw_payload",
       {
         parameters: rest,
@@ -4233,10 +4152,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TSignRawPayloadsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/sign_raw_payloads",
       {
         parameters: rest,
@@ -4286,10 +4204,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TSignTransactionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/sign_transaction",
       {
         parameters: rest,
@@ -4339,10 +4256,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TStampLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/stamp_login",
       {
         parameters: rest,
@@ -4391,10 +4307,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/update_policy",
       {
         parameters: rest,
@@ -4443,10 +4358,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/update_private_key_tag",
       {
         parameters: rest,
@@ -4496,10 +4410,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateRootQuorumResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/update_root_quorum",
       {
         parameters: rest,
@@ -4549,10 +4462,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/update_user",
       {
         parameters: rest,
@@ -4601,10 +4513,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserEmailResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/update_user_email",
       {
         parameters: rest,
@@ -4654,10 +4565,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserNameResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/update_user_name",
       {
         parameters: rest,
@@ -4707,10 +4617,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserPhoneNumberResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/update_user_phone_number",
       {
         parameters: rest,
@@ -4760,10 +4669,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/update_user_tag",
       {
         parameters: rest,
@@ -4813,10 +4721,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/update_wallet",
       {
         parameters: rest,
@@ -4865,10 +4772,9 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<SdkTypes.TVerifyOtpResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
 
-    return this.command(
+    return this.activity(
       "/public/v1/submit/verify_otp",
       {
         parameters: rest,
@@ -4916,8 +4822,7 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.TTestRateLimitsBody,
     stampWith?: StamperType,
   ): Promise<SdkTypes.TTestRateLimitsResponse> => {
-    let session = await this.storageManager?.getActiveSession();
-    session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+    const session = await this.storageManager?.getActiveSession();
     return this.request(
       "/tkhq/api/v1/test_rate_limits",
       {

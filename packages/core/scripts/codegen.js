@@ -67,8 +67,7 @@ function methodTypeFromMethodName(methodName) {
   ) {
     return "query";
   }
-  // Rename to submit?
-  return "command";
+  return "activity";
 }
 
 // Helper that takes in swagger definitions and returns a map containing the latest version of a field.
@@ -138,8 +137,6 @@ const generateSDKClientFromSwagger = async (
   imports.push(
     'import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";',
   );
-
-  imports.push('import { parseSession } from "../utils";');
 
   imports.push('import { StamperType } from "../__types__/base";');
 
@@ -233,7 +230,7 @@ const generateSDKClientFromSwagger = async (
         return data as TResponseType;
     }
 
-    async command<TBodyType, TResponseType>(
+    async activity<TBodyType, TResponseType>(
         url: string,
         body: TBodyType,
         resultKey: string,
@@ -369,16 +366,15 @@ const generateSDKClientFromSwagger = async (
             ? " = {}"
             : ""
         }, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
-      let session = await this.storageManager?.getActiveSession();
-      session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+      const session = await this.storageManager?.getActiveSession();
       return this.request("${endpointPath}", {
         ...input,
         organizationId: input.organizationId ?? session?.organizationId ?? this.config.organizationId
       }, stampWith);
     }`,
       );
-    } else if (methodType === "command") {
-      // For command methods
+    } else if (methodType === "activity") {
+      // For activity methods
       const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
         .replace(/([a-z])([A-Z])/g, "$1_$2")
         .toUpperCase()}`;
@@ -391,10 +387,9 @@ const generateSDKClientFromSwagger = async (
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
       const { organizationId, timestampMs, ...rest } = input;
-      let session = await this.storageManager?.getActiveSession();
-      session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+      const session = await this.storageManager?.getActiveSession();
   
-      return this.command("${endpointPath}", {
+      return this.activity("${endpointPath}", {
         parameters: rest,
         organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
         timestampMs: timestampMs ?? String(Date.now()),
@@ -407,8 +402,7 @@ const generateSDKClientFromSwagger = async (
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
       const { organizationId, timestampMs, ...rest } = input;
-      let session = await this.storageManager?.getActiveSession();
-      session = parseSession(session!); // TODO (Amir): We may not need this anymore since we want to store the full session object in storage
+      const session = await this.storageManager?.getActiveSession();
       return this.activityDecision("${endpointPath}",
         {
           parameters: rest,
@@ -436,13 +430,13 @@ const generateSDKClientFromSwagger = async (
       return undefined;
     }
 
-    const { organizationId${methodType === "command" || methodType === "activityDecision" ? ", timestampMs" : ""}, ...parameters } = input;
+    const { organizationId${methodType === "activity" || methodType === "activityDecision" ? ", timestampMs" : ""}, ...parameters } = input;
 
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
     const bodyWithType = {
       parameters,
       organizationId,${
-        methodType === "command" || methodType === "activityDecision"
+        methodType === "activity" || methodType === "activityDecision"
           ? "\n      timestampMs: timestampMs ?? String(Date.now()),"
           : ""
       }
