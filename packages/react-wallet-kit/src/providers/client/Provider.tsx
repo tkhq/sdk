@@ -464,11 +464,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ...config.walletConfig?.chains,
           ethereum: {
             ...config.walletConfig?.chains?.ethereum,
-            native: true, // Always enable native Ethereum support
+            // keep user's value if provided; default only when undefined
+            native: config.walletConfig?.chains?.ethereum?.native ?? true,
           },
           solana: {
             ...config.walletConfig?.chains?.solana,
-            native: true, // Always enable native Solana support
+            // keep user's value if provided; default only when undefined
+            native: config.walletConfig?.chains?.solana?.native ?? true,
           },
         },
       },
