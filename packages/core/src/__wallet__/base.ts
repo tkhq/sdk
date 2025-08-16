@@ -11,6 +11,7 @@ export async function createWalletManager(
     await manager.init(cfg);
     return manager;
   } else if (isWeb()) {
+    console.log("config: ", cfg);
     const manager = new WebWalletManager(cfg);
     await manager.init(cfg);
     return manager;
