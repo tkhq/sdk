@@ -89,6 +89,7 @@ export class WebWalletManager {
       this.stamper = new CrossPlatformWalletStamper(this.wallets);
     }
 
+    console.log("config: ", cfg);
     if (cfg.features?.connecting) {
       this.connector = new CrossPlatformWalletConnector(this.wallets);
     }
