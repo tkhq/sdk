@@ -434,6 +434,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "socials" | "email" | "sms" | "passkey" | "wallet"
       >);
 
+    console.log(config.walletConfig?.chains);
+
     return {
       ...config,
 
