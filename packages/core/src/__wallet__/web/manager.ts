@@ -38,8 +38,8 @@ export class WebWalletManager {
    * @param cfg - Wallet manager configuration including enabled chains and WalletConnect setup.
    */
   constructor(cfg: TWalletManagerConfig) {
-    const enableNativeEvm = cfg.chains.ethereum ?? false;
-    const enableNativeSol = cfg.chains.solana ?? false;
+    const enableNativeEvm = cfg.chains.ethereum?.native ?? false;
+    const enableNativeSol = cfg.chains.solana?.native ?? false;
 
     const ethereumNamespaces =
       cfg.chains.ethereum?.walletConnectNamespaces ?? [];
