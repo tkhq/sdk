@@ -1688,12 +1688,8 @@ export class TurnkeyClient {
           }),
         );
 
-        console.log("I am here before")
-        console.log("wallet connector: ", this.walletManager?.connector)
         // if wallet connecting is disabled we return only embedded wallets
         if (!this.walletManager?.connector) return embedded;
-        console.log("I am here after")
-
 
         const providers = await this.getWalletProviders();
 
