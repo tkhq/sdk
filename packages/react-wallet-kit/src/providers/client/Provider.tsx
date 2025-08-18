@@ -125,7 +125,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 }) => {
   const [client, setClient] = useState<TurnkeyClient | undefined>(undefined);
   const [session, setSession] = useState<Session | undefined>(undefined);
-  const [autoRefreshSession, setAutoRefreshSession] = useState<boolean>(false);
   const [masterConfig, setMasterConfig] = useState<
     TurnkeyProviderConfig | undefined
   >(undefined);
@@ -212,7 +211,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   useEffect(() => {
     // authState must be consistent with session state. We found during testing that there are cases where the session and authState can be out of sync in very rare edge cases.
     // This will ensure that they are always in sync and remove the need to setAuthState manually in other places.
-    if (session) {
+    if (session && isValidSession(session)) {
       setAuthState(AuthState.Authenticated);
     } else {
       setAuthState(AuthState.Unauthenticated);
@@ -448,6 +447,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
         methodOrder,
         oauthOrder,
+        autoRefreshSession: config.auth?.autoRefreshSession ?? true,
       },
       walletConfig: {
         ...config.walletConfig,
@@ -514,8 +514,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         },
       });
 
-      setAutoRefreshSession(masterConfig?.auth?.autoRefreshSession ?? false);
-
       await turnkeyClient.init();
       setClient(turnkeyClient);
 
@@ -544,17 +542,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @internal
    */
   const initializeSessions = async () => {
+    setSession(undefined);
+    setAllSessions(undefined);
     try {
-      const allSessions = await getAllSessions();
-      if (!allSessions) {
-        return;
-      }
+      const allLocalStorageSessions = await getAllSessions();
+      if (!allLocalStorageSessions) return;
 
       await Promise.all(
-        Object.keys(allSessions).map(async (sessionKey) => {
-          const session = allSessions?.[sessionKey];
+        Object.keys(allLocalStorageSessions).map(async (sessionKey) => {
+          const session = allLocalStorageSessions?.[sessionKey];
           if (!isValidSession(session)) {
             await clearSession({ sessionKey });
+            if (sessionKey === (await getActiveSessionKey())) {
+              setSession(undefined);
+            }
+            delete allLocalStorageSessions[sessionKey];
             return;
           }
 
@@ -565,10 +567,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }),
       );
 
-      setAllSessions(allSessions);
+      setAllSessions(allLocalStorageSessions || undefined);
       const activeSessionKey = await client?.getActiveSessionKey();
       if (activeSessionKey) {
-        setSession(allSessions?.[activeSessionKey]);
+        // If we have an active session key, set
+        if (!allLocalStorageSessions[activeSessionKey]) {
+          return;
+        }
+        setSession(allLocalStorageSessions[activeSessionKey]);
         await refreshUser();
         await refreshWallets();
 
@@ -639,7 +645,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         if (!session) return;
 
         callbacks?.beforeSessionExpiry?.({ sessionKey });
-        if (autoRefreshSession) {
+        if (masterConfig?.auth?.autoRefreshSession) {
           await refreshSession({
             expirationSeconds: session.expirationSeconds!,
             sessionKey,
@@ -652,6 +658,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         if (!expiredSession) return;
 
         callbacks?.onSessionExpired?.({ sessionKey });
+        if ((await getActiveSessionKey()) === sessionKey) {
+          setSession(undefined);
+        }
+        setAllSessions((prevSessions) => {
+          if (!prevSessions) return prevSessions;
+          const newSessions = { ...prevSessions };
+          delete newSessions[sessionKey];
+          return newSessions;
+        });
 
         await clearSession({ sessionKey });
 
