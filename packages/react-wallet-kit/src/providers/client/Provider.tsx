@@ -29,6 +29,7 @@ import {
   TurnkeyClient,
   Wallet,
   WalletAccount,
+  WalletInterfaceType,
   WalletProvider,
 } from "@turnkey/core";
 import { ReactNode, useEffect, useRef, useState } from "react";
@@ -464,11 +465,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ...config.walletConfig?.chains,
           ethereum: {
             ...config.walletConfig?.chains?.ethereum,
-            native: true, // Always enable native Ethereum support
+            // keep user's value if provided; default only when undefined
+            native: config.walletConfig?.chains?.ethereum?.native ?? true,
           },
           solana: {
             ...config.walletConfig?.chains?.solana,
-            native: true, // Always enable native Solana support
+            // keep user's value if provided; default only when undefined
+            native: config.walletConfig?.chains?.solana?.native ?? true,
           },
         },
       },
@@ -989,10 +992,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   ): Promise<() => void> {
     const cleanups: Array<() => void> = [];
 
-    const [ethProviders, solProviders] = await Promise.all([
-      getWalletProviders(Chain.Ethereum),
-      getWalletProviders(Chain.Solana),
-    ]);
+    // we only want to initialize these listeners for native wallet providers
+    // and not WalletConnect
+    const nativeOnly = (p: WalletProvider) =>
+      p.interfaceType !== WalletInterfaceType.WalletConnect;
+
+    const ethProviders = masterConfig?.walletConfig?.chains.ethereum?.native
+      ? (await getWalletProviders(Chain.Ethereum)).filter(nativeOnly)
+      : [];
+
+    const solProviders = masterConfig?.walletConfig?.chains.solana?.native
+      ? (await getWalletProviders(Chain.Solana)).filter(nativeOnly)
+      : [];
 
     function attachEthereumListeners(
       provider: any,
