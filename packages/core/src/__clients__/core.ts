@@ -16,6 +16,7 @@ import {
   v1WalletAccountParams,
   v1PayloadEncoding,
   v1HashFunction,
+  v1Curve,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -3006,12 +3007,123 @@ export class TurnkeyClient {
   };
 
   /**
+   * Exports a private key as an encrypted bundle.
+   *
+   * - This function exports the specified private key as an encrypted bundle, suitable for backup or transfer.
+   * - The exported bundle contains the private key's key material, encrypted to the provided target public key.
+   * - If a targetPublicKey is provided, the bundle will be encrypted to that public key; otherwise, an error will be thrown.
+   * - If an organizationId is provided, the private key will be exported under that sub-organization; otherwise, the current session's organizationId is used.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param params.privateKeyId - ID of the private key to export.
+   * @param params.targetPublicKey - public key to encrypt the bundle to (required).
+   * @param params.organizationId - organization ID to export the private key under a specific sub
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an `ExportBundle` object containing the encrypted private key and metadata.
+   * @throws {TurnkeyError} If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the private key.
+   */
+  exportPrivateKey = async (params: {
+    privateKeyId: string;
+    targetPublicKey: string;
+    organizationId?: string;
+    stampWith?: StamperType | undefined;
+  }): Promise<ExportBundle> => {
+    const { privateKeyId, targetPublicKey, stampWith, organizationId } = params;
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    return withTurnkeyErrorHandling(
+      async () => {
+        const res = await this.httpClient.exportPrivateKey(
+          {
+            privateKeyId,
+            targetPublicKey,
+            organizationId: organizationId || session.organizationId,
+          },
+          stampWith,
+        );
+        if (!res.exportBundle) {
+          throw new TurnkeyError(
+            "No export bundle found in the response",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+        return res.exportBundle as ExportBundle;
+      },
+      {
+        errorMessage: "Failed to export private key",
+        errorCode: TurnkeyErrorCodes.EXPORT_PRIVATE_KEY_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Exports a wallet account as an encrypted bundle.
+   *
+   * - This function exports the specified wallet account as an encrypted bundle, suitable for backup or transfer.
+   * - The exported bundle contains the wallet account's key material, encrypted to the provided target public key.
+   * - If a targetPublicKey is provided, the bundle will be encrypted to that public key; otherwise, an error will be thrown.
+   * - If an organizationId is provided, the wallet account will be exported under that sub-organization; otherwise, the current session's organizationId is used.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param params.address - address of the wallet account to export.
+   * @param params.targetPublicKey - public key to encrypt the bundle to.
+   * @param params.organizationId - organization ID to export the wallet account under a specific sub-organization.
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an `ExportBundle` object containing the encrypted wallet account and metadata.
+   * @throws {TurnkeyError} If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the wallet account.
+   *
+   */
+  exportWalletAccount = async (params: {
+    address: string;
+    targetPublicKey: string;
+    organizationId?: string;
+    stampWith?: StamperType | undefined;
+  }): Promise<ExportBundle> => {
+    const { address, targetPublicKey, stampWith, organizationId } = params;
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+    return withTurnkeyErrorHandling(
+      async () => {
+        const res = await this.httpClient.exportWalletAccount(
+          {
+            address,
+            targetPublicKey,
+            organizationId: organizationId || session.organizationId,
+          },
+          stampWith,
+        );
+        if (!res.exportBundle) {
+          throw new TurnkeyError(
+            "No export bundle found in the response",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+        return res.exportBundle as ExportBundle;
+      },
+      {
+        errorMessage: "Failed to export wallet account",
+        errorCode: TurnkeyErrorCodes.EXPORT_WALLET_ACCOUNT_ERROR,
+      },
+    );
+  };
+
+  /**
    * Imports a wallet from an encrypted bundle.
    *
    * - This function imports a wallet using the provided encrypted bundle and creates accounts based on the provided parameters.
    * - If a userId is provided, the wallet will be imported for that specific user; otherwise, it uses the current session's userId.
    * - If an accounts array is provided, those accounts will be created in the imported wallet; otherwise, default Ethereum and Solana accounts will be created.
-   * - The encrypted bunlde MUST be encrypted to
+   * - The encrypted bundle MUST be encrypted to
    * - Automatically ensures an active session exists before making the request.
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
@@ -3063,6 +3175,86 @@ export class TurnkeyClient {
           );
         }
         return res.walletId;
+      },
+      {
+        errorMessage: "Failed to import wallet",
+        errorCode: TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+        customMessageByMessages: {
+          "invalid mnemonic": {
+            message: "Invalid mnemonic input",
+            code: TurnkeyErrorCodes.BAD_REQUEST,
+          },
+        },
+      },
+    );
+  };
+
+  /**
+   * Imports a private key from an encrypted bundle.
+   *
+   * - This function imports a private key using the provided encrypted bundle.
+   * - If a userId is provided, the private key will be imported for that specific user; otherwise, it uses the current session's userId.
+   * - Requires address formats to
+   * - Automatically infers the cryptographic curve used to generate the private key based on the address format (can be optionally overriden if needed).
+   * - The encrypted bundle MUST be encrypted to ensure security.
+   * - Automatically ensures an active session exists before making the request.
+   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param params.encryptedBundle - encrypted bundle containing the private key key material and metadata.
+   * @param params.privateKeyName - name of the private key to create upon import.
+   * @param params.curve - the cryptographic curve used to generate a given private key
+   * @param params.addressFormat - address format of the private key to import.
+   * @param params.userId - user ID to import the wallet for a specific user (defaults to the current session's userId).
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to the ID of the imported wallet.
+   * @throws {TurnkeyError} If there is no active session, if the encrypted bundle is invalid, or if there is an error importing the wallet.
+   */
+  importPrivateKey = async (params: {
+    encryptedBundle: string;
+    privateKeyName: string;
+    curve: v1Curve;
+    addressFormats: v1AddressFormat[];
+    userId?: string;
+    stampWith?: StamperType | undefined;
+  }): Promise<string> => {
+    const {
+      encryptedBundle,
+      privateKeyName,
+      addressFormats,
+      curve,
+      userId,
+      stampWith,
+    } = params;
+
+    const session = await this.storageManager.getActiveSession();
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const res = await this.httpClient.importPrivateKey(
+          {
+            organizationId: session.organizationId,
+            userId: userId || session.userId,
+            encryptedBundle,
+            privateKeyName,
+            curve,
+            addressFormats,
+          },
+          stampWith,
+        );
+
+        if (!res || !res.privateKeyId) {
+          throw new TurnkeyError(
+            "No wallet ID found in the import response",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+        return res.privateKeyId;
       },
       {
         errorMessage: "Failed to import wallet",

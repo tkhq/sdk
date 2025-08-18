@@ -52,6 +52,7 @@ import {
   type v1WalletAccountParams,
   type v1PayloadEncoding,
   type v1HashFunction,
+  type v1Curve,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -1850,6 +1851,45 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return res;
   }
 
+  async function exportPrivateKey(params: {
+    privateKeyId: string;
+    targetPublicKey: string;
+    organizationId?: string;
+    stampWith?: StamperType | undefined;
+  }): Promise<ExportBundle> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    const res = await withTurnkeyErrorHandling(
+      () => client.exportPrivateKey(params),
+      callbacks,
+      "Failed to export private key",
+    );
+    return res;
+  }
+
+  async function exportWalletAccount(params: {
+    address: string;
+    targetPublicKey: string;
+    organizationId?: string;
+    stampWith?: StamperType | undefined;
+  }): Promise<ExportBundle> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    const res = await withTurnkeyErrorHandling(
+      () => client.exportWalletAccount(params),
+      callbacks,
+      "Failed to export wallet accounts",
+    );
+    if (res) await refreshWallets({ stampWith: params?.stampWith });
+    return res;
+  }
+
   async function importWallet(params: {
     encryptedBundle: string;
     walletName: string;
@@ -1868,6 +1908,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       "Failed to import wallet",
     );
     if (res) await refreshWallets({ stampWith: params?.stampWith });
+    return res;
+  }
+
+  async function importPrivateKey(params: {
+    encryptedBundle: string;
+    privateKeyName: string;
+    curve: v1Curve;
+    addressFormats: v1AddressFormat[];
+    userId?: string;
+    stampWith?: StamperType | undefined;
+  }): Promise<string> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    const res = await withTurnkeyErrorHandling(
+      () => client.importPrivateKey(params),
+      callbacks,
+      "Failed to import private key",
+    );
     return res;
   }
 
@@ -2645,19 +2706,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     });
   };
 
-  const handleExport = async (params: {
+  const handleExportWallet = async (params: {
     walletId: string;
-    exportType: ExportType;
     targetPublicKey?: string;
     stampWith?: StamperType | undefined;
   }) => {
-    const { walletId, exportType, targetPublicKey, stampWith } = params;
+    const { walletId, targetPublicKey, stampWith } = params;
     pushPage({
       key: "Export Wallet",
       content: (
         <ExportComponent
-          walletId={walletId ?? wallets[0]?.walletId!}
-          exportType={exportType ?? ExportType.Wallet}
+          target={walletId}
+          exportType={ExportType.Wallet}
           {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
           {...(stampWith !== undefined ? { stampWith } : {})}
         />
@@ -2665,7 +2725,45 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     });
   };
 
-  const handleImport = async (params?: {
+  const handleExportPrivateKey = async (params: {
+    privateKeyId: string;
+    targetPublicKey?: string;
+    stampWith?: StamperType | undefined;
+  }) => {
+    const { privateKeyId, targetPublicKey, stampWith } = params;
+    pushPage({
+      key: "Export Private Key",
+      content: (
+        <ExportComponent
+          target={privateKeyId}
+          exportType={ExportType.PrivateKey}
+          {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
+          {...(stampWith !== undefined ? { stampWith } : {})}
+        />
+      ),
+    });
+  };
+
+  const handleExportWalletAccount = async (params: {
+    address: string;
+    targetPublicKey?: string;
+    stampWith?: StamperType | undefined;
+  }) => {
+    const { address, targetPublicKey, stampWith } = params;
+    pushPage({
+      key: "Export Wallet Account",
+      content: (
+        <ExportComponent
+          target={address}
+          exportType={ExportType.WalletAccount}
+          {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
+          {...(stampWith !== undefined ? { stampWith } : {})}
+        />
+      ),
+    });
+  };
+
+  const handleImportWallet = async (params?: {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
     successPageDuration?: number | undefined;
     stampWith?: StamperType | undefined;
@@ -3755,7 +3853,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         createWallet,
         createWalletAccounts,
         exportWallet,
+        exportPrivateKey,
+        exportWalletAccount,
         importWallet,
+        importPrivateKey,
         deleteSubOrganization,
         storeSession,
         clearSession,
@@ -3772,8 +3873,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleGoogleOauth,
         handleAppleOauth,
         handleFacebookOauth,
-        handleExport,
-        handleImport,
+        handleExportWallet,
+        handleExportPrivateKey,
+        handleExportWalletAccount,
+        handleImportWallet,
         handleUpdateUserEmail,
         handleUpdateUserPhoneNumber,
         handleUpdateUserName,

@@ -63,8 +63,8 @@ export default function AuthPage() {
     signTransaction,
     signAndSendTransaction,
     switchWalletProviderChain,
-    handleExport,
-    handleImport,
+    handleExportWallet,
+    handleImportWallet,
     handleUpdateUserEmail,
     handleUpdateUserPhoneNumber,
     handleAddOauthProvider,
@@ -672,9 +672,8 @@ export default function AuthPage() {
 
       <button
         onClick={() =>
-          handleExport({
+          handleExportWallet({
             walletId: wallets[0]?.walletId,
-            exportType: ExportType.Wallet,
           })
         }
         style={{
@@ -689,7 +688,7 @@ export default function AuthPage() {
 
       <button
         onClick={() =>
-          handleImport({
+          handleImportWallet({
             defaultWalletAccounts: [
               "ADDRESS_FORMAT_SOLANA",
               "ADDRESS_FORMAT_ETHEREUM",
