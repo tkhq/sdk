@@ -3371,7 +3371,7 @@ export class TurnkeyClient {
             sessions[sessionKey] = session;
           }
         }
-        return sessions;
+        return sessions || undefined;
       },
       {
         errorMessage: "Failed to get all sessions",
