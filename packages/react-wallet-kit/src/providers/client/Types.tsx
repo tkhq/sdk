@@ -19,7 +19,6 @@ import type {
 } from "@turnkey/sdk-types";
 import type {
   TurnkeyProviderConfig,
-  ExportType,
   AuthState,
   ClientState,
 } from "../../types/base";
@@ -204,28 +203,73 @@ export interface ClientContextType extends TurnkeyClientMethods {
   }): Promise<void>;
 
   /**
-   * Handles the export flow.
+   * Handles the export wallet flow.
    *
-   * - This function opens a modal with the ExportComponent for exporting a wallet or private key.
-   * - Uses Turnkey's export iframe flow to securely export wallet or private key material.
+   * - This function opens a modal with the ExportComponent for exporting a wallet.
+   * - Uses Turnkey's export iframe flow to securely export wallet material.
    * - The export process encrypts the exported bundle to a target public key, which is generated and managed inside the iframe for maximum security.
-   * - A request is made to the Turnkey API to export the wallet or private key, encrypted to the target public key.
+   * - A request is made to the Turnkey API to export the wallet, encrypted to the target public key.
    * - The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.
-   * - Supports both full wallet exports (ExportType.Wallet) and single private key exports (ExportType.PrivateKey).
    * - If a custom iframe URL is used, a target public key can be provided explicitly.
    * - Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.
    *
    * @param params.walletId - The ID of the wallet to export.
-   * @param params.exportType - The type of export to perform (ExportType.Wallet or ExportType.PrivateKey).
    * @param params.targetPublicKey - The target public key to encrypt the export bundle to (required for custom iframe flows).
    * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
    *
    * @returns A void promise.
    */
-  handleExport(params: {
+  handleExportWallet(params: {
     walletId: string;
-    exportType: ExportType;
+    targetPublicKey?: string;
+    stampWith?: StamperType | undefined;
+  }): Promise<void>;
+
+  /**
+   * handles the export private key flow.
+   *
+   * - This function opens a modal with the ExportComponent for exporting a private key.
+   * - Uses Turnkey's export iframe flow to securely export private key material.
+   * - The export process encrypts the exported bundle to a target public key, which is generated and managed inside the iframe for maximum security.
+   * - A request is made to the Turnkey API to export the private key, encrypted to the target public key.
+   * - The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.
+   * - If a custom iframe URL is used, a target public key can be provided explicitly.
+   * - Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
+   * - The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.
+   *
+   * @param params.privateKeyId - The ID of the private key to export.
+   * @param params.targetPublicKey - The target public key to encrypt the export bundle to (required for custom iframe flows).
+   * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
+   * @return A void promise.
+   */
+  handleExportPrivateKey(params: {
+    privateKeyId: string;
+    targetPublicKey?: string;
+    stampWith?: StamperType | undefined;
+  }): Promise<void>;
+
+  /**
+   * Handles the export wallet account flow.
+   *
+   * - This function opens a modal with the ExportComponent for exporting a wallet account.
+   * - Uses Turnkey's export iframe flow to securely export wallet account material.
+   * - The export process encrypts the exported bundle to a target public key, which is generated and managed inside the iframe for maximum security.
+   * - A request is made to the Turnkey API to export the wallet account, encrypted to the target public key.
+   * - The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.
+   * - If a custom iframe URL is used, a target public key can be provided explicitly.
+   * - Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
+   * - The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.
+   *
+   * @param params.address - The address of the wallet account to export.
+   * @param params.targetPublicKey - The target public key to encrypt the export bundle to (required for custom iframe flows).
+   * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
+   *
+   * @returns A void promise.
+   */
+
+  handleExportWalletAccount(params: {
+    address: string;
     targetPublicKey?: string;
     stampWith?: StamperType | undefined;
   }): Promise<void>;
@@ -246,7 +290,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    *
    * @returns A promise that resolves to the new wallet's ID.
    */
-  handleImport(params?: {
+  handleImportWallet(params?: {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;

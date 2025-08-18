@@ -48,8 +48,8 @@ export default function DemoPanel() {
     createWallet,
     fetchWallets,
     handleSignMessage,
-    handleExport,
-    handleImport,
+    handleExportWallet,
+    handleImportWallet,
     handleLinkExternalWallet,
     getWalletProviders,
   } = useTurnkey();
@@ -369,9 +369,8 @@ export default function DemoPanel() {
                 <Button
                   onClick={async () => {
                     if (selectedWallet) {
-                      await handleExport({
+                      await handleExportWallet({
                         walletId: selectedWallet.walletId,
-                        exportType: ExportType.Wallet,
                       });
                     }
                   }}
@@ -383,7 +382,7 @@ export default function DemoPanel() {
                 <Button
                   className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
                   onClick={async () => {
-                    await handleImport({
+                    await handleImportWallet({
                       defaultWalletAccounts: [
                         "ADDRESS_FORMAT_SOLANA",
                         "ADDRESS_FORMAT_ETHEREUM",

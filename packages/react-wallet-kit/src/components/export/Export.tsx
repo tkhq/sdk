@@ -5,7 +5,12 @@ import { IframeStamper } from "@turnkey/iframe-stamper";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { ExportWarning } from "./ExportWarning";
 import { ActionButton } from "../design/Buttons";
-import type { ExportType } from "../../types/base";
+import {
+  type Address,
+  type WalletId,
+  type PrivateKeyId,
+  ExportType,
+} from "../../types/base";
 import clsx from "clsx";
 import type { StamperType } from "@turnkey/core";
 
@@ -21,12 +26,12 @@ const iconTextLight = "#828282";
 const iconTextDark = "#a3a3a5";
 
 export function ExportComponent(params: {
-  walletId: string;
+  target: WalletId | PrivateKeyId | Address;
   exportType: ExportType;
   targetPublicKey?: string;
   stampWith?: StamperType | undefined;
 }) {
-  const { exportType, targetPublicKey, stampWith, walletId } = params;
+  const { exportType, targetPublicKey, stampWith, target } = params;
   const { config } = useTurnkey();
 
   const [exportIframeVisible, setExportIframeVisible] = useState(false);
@@ -137,7 +142,7 @@ export function ExportComponent(params: {
     >
       {!exportIframeVisible && (
         <ExportWarning
-          walletId={walletId}
+          target={target}
           exportIframeClient={exportIframeClient}
           targetPublicKey={targetPublicKey}
           exportType={exportType}
@@ -153,8 +158,22 @@ export function ExportComponent(params: {
         }`}
       >
         <p className="text-xs text-icon-text-light dark:text-icon-text-dark">
-          Your seed phrase is the key to your wallet. Save it in a secure
-          location.
+          {exportType === ExportType.Wallet ? (
+            <>
+              Your seed phrase is the key to your wallet. Save it in a secure
+              location.
+            </>
+          ) : exportType === ExportType.WalletAccount ? (
+            <>
+              Your private key is the key to your wallet account. Save it in a
+              secure location.
+            </>
+          ) : (
+            <>
+              Your private key is the key to your account. Save it in a secure
+              location.
+            </>
+          )}
         </p>
         <div
           id={TurnkeyExportIframeContainerId}

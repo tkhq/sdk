@@ -66,6 +66,7 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
 export enum ExportType {
   Wallet = "WALLET",
   PrivateKey = "PRIVATE_KEY",
+  WalletAccount = "WALLET_ACCOUNT",
 }
 
 export enum AuthState {
@@ -78,3 +79,7 @@ export enum ClientState {
   Ready = "ready",
   Error = "error",
 }
+
+export type WalletId = string;
+export type PrivateKeyId = string;
+export type Address = string;
