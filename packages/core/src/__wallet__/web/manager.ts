@@ -33,9 +33,12 @@ export class WebWalletManager {
 
   /**
    * Constructs a WebWalletManager instance based on the provided configuration.
-   * Sets up native wallets and WalletConnect support.
    *
-   * @param cfg - Wallet manager configuration including enabled chains and WalletConnect setup.
+   * - Enables native Ethereum and/or Solana wallet support if configured.
+   * - Enables WalletConnect support for Ethereum and/or Solana chains if namespaces are provided.
+   * - Sets up `CrossPlatformWalletStamper` and `CrossPlatformWalletConnector` if auth or connecting features are enabled.
+   *
+   * @param cfg - Wallet manager configuration.
    */
   constructor(cfg: TWalletManagerConfig) {
     const enableNativeEvm = cfg.chains.ethereum?.native ?? false;
@@ -95,35 +98,40 @@ export class WebWalletManager {
   }
 
   /**
-   * Initializes the wallet manager and all wallet connectors.
+   * Initializes WalletConnect components and any registered wallet interfaces.
    *
-   * @param cfg - Wallet manager configuration.
-   * @returns A promise that resolves once all wallet initializers have completed.
+   * - Initializes the low-level WalletConnect client with the provided config.
+   * - Runs any registered async wallet initializers (currently only `WalletConnectWallet`).
+   *
+   * @param cfg - Wallet manager configuration used for initializing the WalletConnect client.
    */
   async init(cfg: TWalletManagerConfig): Promise<void> {
     if (this.wcClient) {
       await this.wcClient.init(cfg.walletConnect!);
     }
 
-    // Run all wallet-specific initializers
+    // we initialize the high-level WalletConnectWallet
+    // we do this because we can't init this inside the constructor since it's async
     await Promise.all(this.initializers.map((fn) => fn()));
-    await this.stamper?.init();
   }
 
   /**
-   * Retrieves available wallet providers based on the configured chains.
+   * Retrieves available wallet providers, optionally filtered by chain.
    *
-   * @param chain - Optional chain to filter providers by.
-   * @returns A promise that resolves to an array of wallet providers.
-   * @throws If no wallet interface is registered for the given chain.
+   * - If a chain is specified, filters wallet interfaces that support that chain.
+   * - Aggregates providers across all wallet interfaces and filters WalletConnect results accordingly.
+   *
+   * @param chain - Optional chain to filter providers by (e.g., Ethereum, Solana).
+   * @returns A promise that resolves to an array of `WalletProvider` objects.
+   * @throws {Error} If no wallet interface is registered for the given chain.
    */
   async getProviders(chain?: Chain): Promise<WalletProvider[]> {
     if (chain) {
-      const ifaceTypes = this.chainToInterfaces[chain];
-      if (!ifaceTypes || ifaceTypes.length === 0)
+      const interfaceTypes = this.chainToInterfaces[chain];
+      if (!interfaceTypes || interfaceTypes.length === 0)
         throw new Error(`No wallet supports chain: ${chain}`);
 
-      const walletsToQuery = ifaceTypes
+      const walletsToQuery = interfaceTypes
         .map((iface) => this.wallets[iface])
         .filter(Boolean) as WalletInterface[];
 
@@ -146,13 +154,16 @@ export class WebWalletManager {
   }
 
   /**
-   * Registers a wallet interface as supporting a specific blockchain chain.
+   * Registers a wallet interface type as supporting a specific blockchain chain.
    *
-   * @param chain - The blockchain chain (e.g., Ethereum, Solana).
-   * @param iface - The wallet interface type (e.g., native, WalletConnect).
+   * @param chain - Chain (e.g., Ethereum, Solana).
+   * @param interfaceType - Wallet interface type to associate with the chain.
    */
-  private addChainInterface = (chain: Chain, iface: WalletInterfaceType) => {
+  private addChainInterface = (
+    chain: Chain,
+    interfaceType: WalletInterfaceType,
+  ) => {
     if (!this.chainToInterfaces[chain]) this.chainToInterfaces[chain] = [];
-    this.chainToInterfaces[chain]!.push(iface);
+    this.chainToInterfaces[chain]!.push(interfaceType);
   };
 }
