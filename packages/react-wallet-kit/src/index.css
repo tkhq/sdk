@@ -82,35 +82,43 @@
   .tk-modal *,
   .tk-modal *::before,
   .tk-modal *::after {
-    /* Reset box-sizing which preflight sets to border-box */
-    box-sizing: revert;
-    /* Reset margins */
-    margin: revert;
-    /* Reset borders */
-    border-width: revert;
-    border-style: revert;
+    box-sizing: revert-layer;
+    border-width: revert-layer;
+    border-style: revert-layer;
+    border-color: revert-layer;
   }
 
   /* Reset button styles */
-  .tk-modal button {
-    background-color: transparent;
-    background-image: none;
-    padding: revert;
-    font-size: revert;
+  .tk-modal button,
+  .tk-modal input,
+  .tk-modal textarea,
+  .tk-modal select {
+    font-family: inherit;
+    /* 1 */
+    font-feature-settings: inherit;
+    /* 1 */
+    font-variation-settings: inherit;
+    /* 1 */
+    font-size: revert-layer;
+    /* 1 */
+    font-weight: revert-layer;
+    /* 1 */
+    line-height: inherit;
+    /* 1 */
+    letter-spacing: inherit;
+    /* 1 */
+    color: revert-layer;
+    /* 1 */
+    margin: revert-layer;
+    /* 2 */
+    padding: revert-layer;
+    /* 3 */
   }
 
   @media (max-width: 440px) {
     .tk-modal button {
       font-size: medium;
     }
-  }
-
-  /* Reset input styles */
-  .tk-modal input {
-    background-color: transparent;
-    border: none;
-    padding: revert;
-    font-size: revert;
   }
 
   /* Text size on mobile is important for inputs. The screen will zoom in if the font size is less than 16px */
@@ -155,4 +163,86 @@
     background-color: var(--color-icon-text-dark);
     border: 2px solid var(--color-icon-background-dark);
   }
+}
+
+.tk-modal * {
+  box-sizing: revert-layer;
+  padding: revert-layer;
+  margin: revert-layer;
+}
+
+.tk-modal *,
+.tk-modal *::before,
+.tk-modal *::after {
+  box-sizing: revert-layer;
+  border-width: revert-layer;
+  border-style: revert-layer;
+  border-color: revert-layer;
+}
+
+.tk-modal blockquote,
+.tk-modal dl,
+.tk-modal dd,
+.tk-modal h1,
+.tk-modal h2,
+.tk-modal h3,
+.tk-modal h4,
+.tk-modal h5,
+.tk-modal h6,
+.tk-modal hr,
+.tk-modal figure,
+.tk-modal p,
+.tk-modal pre {
+  margin: revert !important;
+}
+
+.tk-modal button {
+  -webkit-appearance: button;
+  background-color: revert-layer !important;
+  background-image: revert-layer !important;
+}
+
+.tk-modal input:where([type="button"]) {
+  -webkit-appearance: button;
+  background-color: revert-layer !important;
+  background-image: revert-layer !important;
+}
+
+.tk-modal input:where([type="reset"]) {
+  -webkit-appearance: button;
+  background-color: revert-layer !important;
+  background-image: revert-layer !important;
+}
+
+.tk-modal input:where([type="submit"]) {
+  -webkit-appearance: button;
+  background-color: revert-layer !important;
+  background-image: revert-layer !important;
+}
+
+/* Reset button styles */
+.tk-modal button,
+.tk-modal input,
+.tk-modal textarea,
+.tk-modal select {
+  font-family: inherit;
+  /* 1 */
+  font-feature-settings: inherit;
+  /* 1 */
+  font-variation-settings: inherit;
+  /* 1 */
+  font-size: revert-layer;
+  /* 1 */
+  font-weight: revert-layer;
+  /* 1 */
+  line-height: inherit;
+  /* 1 */
+  letter-spacing: inherit;
+  /* 1 */
+  color: revert-layer !important;
+  /* 1 */
+  margin: revert-layer !important;
+  /* 2 */
+  padding: revert-layer !important;
+  /* 3 */
 }
