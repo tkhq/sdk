@@ -17,11 +17,6 @@ import {
 import { SuccessPage } from "../design/Success";
 import clsx from "clsx";
 
-export enum ExportType {
-  Wallet = "WALLET",
-  PrivateKey = "PRIVATE_KEY",
-}
-
 const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
 const TurnkeyIframeClassNames =

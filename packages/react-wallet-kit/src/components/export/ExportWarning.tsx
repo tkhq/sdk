@@ -6,7 +6,12 @@ import {
   faEye,
 } from "@fortawesome/free-solid-svg-icons";
 import type { StamperType } from "@turnkey/core";
-import { ExportType } from "../../types/base";
+import {
+  type Address,
+  type WalletId,
+  type PrivateKeyId,
+  ExportType,
+} from "../../types/base";
 import { useTurnkey } from "../../providers/client/Hook";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { ActionButton } from "../design/Buttons";
@@ -14,39 +19,48 @@ import type { IframeStamper } from "@turnkey/iframe-stamper";
 import { useState } from "react";
 
 export function ExportWarning(props: {
-  walletId: string;
+  target: WalletId | PrivateKeyId | Address;
   exportIframeClient?: IframeStamper | null; // Replace with actual type if available
   targetPublicKey?: string | undefined;
   exportType: ExportType;
   setExportIframeVisible?: (visible: boolean) => void;
   stampWith?: StamperType | undefined;
 }) {
-  const {
-    walletId,
-    exportIframeClient,
-    targetPublicKey,
-    exportType,
-    stampWith,
-  } = props;
+  const { target, exportIframeClient, targetPublicKey, exportType, stampWith } =
+    props;
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const { exportWallet, session } = useTurnkey();
+  const { exportWallet, exportPrivateKey, exportWalletAccount, session } =
+    useTurnkey();
+
+  const warnings: Record<ExportType, string[]> = {
+    [ExportType.Wallet]: [
+      "Keep your seed phrase private.",
+      "Anyone who has your seed phrase can access your wallet.",
+      "Make sure nobody can see your screen when viewing your seed phrase.",
+    ],
+    [ExportType.PrivateKey]: [
+      "Keep your private key private.",
+      "Anyone who has your private key can access your wallet.",
+      "Make sure nobody can see your screen when viewing your private key.",
+    ],
+    [ExportType.WalletAccount]: [
+      "Keep your account details private.",
+      "Anyone who has your account details can access your wallet.",
+      "Make sure nobody can see your screen when viewing your account details.",
+    ],
+  };
+
   return (
     <div className="flex flex-col w-full px-10">
       <div className="flex flex-col gap-4 py-6 text-icon-text-light dark:text-icon-text-dark">
         <IconText
           icon={faTriangleExclamation}
-          text="Keep your seed phrase private."
+          text={warnings[exportType][0]!}
         />
-        <IconText
-          icon={faUnlock}
-          text="Anyone who has your seed phrase can access your wallet."
-        />
-        <IconText
-          icon={faEye}
-          text="Make sure nobody can see your screen when viewing your seed phrase."
-        />
+        <IconText icon={faUnlock} text={warnings[exportType][1]!} />
+        <IconText icon={faEye} text={warnings[exportType][2]!} />
       </div>
       <ActionButton
         loading={isLoading}
@@ -55,22 +69,68 @@ export function ExportWarning(props: {
         onClick={async () => {
           setIsLoading(true);
           try {
-            const exportBundle = await exportWallet({
-              walletId: walletId,
-              targetPublicKey:
-                targetPublicKey || exportIframeClient?.iframePublicKey!,
-              ...(stampWith && { stampWith: stampWith }),
-            });
-            if (!exportBundle) {
-              throw new TurnkeyError(
-                "Failed to retrieve export bundle",
-                TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
-              );
+            let exportBundle;
+            switch (exportType) {
+              case ExportType.Wallet:
+                exportBundle = await exportWallet({
+                  walletId: target,
+                  targetPublicKey:
+                    targetPublicKey || exportIframeClient?.iframePublicKey!,
+                  ...(stampWith && { stampWith: stampWith }),
+                });
+                if (!exportBundle) {
+                  throw new TurnkeyError(
+                    "Failed to retrieve export bundle",
+                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                  );
+                }
+                await exportIframeClient?.injectWalletExportBundle(
+                  exportBundle,
+                  session?.organizationId!,
+                );
+                break;
+              case ExportType.PrivateKey:
+                exportBundle = await exportPrivateKey({
+                  privateKeyId: target,
+                  targetPublicKey:
+                    targetPublicKey || exportIframeClient?.iframePublicKey!,
+                  ...(stampWith && { stampWith: stampWith }),
+                });
+                if (!exportBundle) {
+                  throw new TurnkeyError(
+                    "Failed to retrieve export bundle",
+                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                  );
+                }
+                await exportIframeClient?.injectKeyExportBundle(
+                  exportBundle,
+                  session?.organizationId!,
+                );
+                break;
+              case ExportType.WalletAccount:
+                exportBundle = await exportWalletAccount({
+                  address: target,
+                  targetPublicKey:
+                    targetPublicKey || exportIframeClient?.iframePublicKey!,
+                  ...(stampWith && { stampWith: stampWith }),
+                });
+                if (!exportBundle) {
+                  throw new TurnkeyError(
+                    "Failed to retrieve export bundle",
+                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                  );
+                }
+                await exportIframeClient?.injectKeyExportBundle(
+                  exportBundle,
+                  session?.organizationId!,
+                );
+                break;
+              default:
+                throw new TurnkeyError(
+                  "Invalid export type",
+                  TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                );
             }
-            await exportIframeClient?.injectWalletExportBundle(
-              exportBundle,
-              session?.organizationId!,
-            );
             if (props.setExportIframeVisible) {
               props.setExportIframeVisible(true);
             }
