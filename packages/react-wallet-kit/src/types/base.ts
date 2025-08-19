@@ -60,6 +60,8 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     backgroundBlur?: string | number; // e.g., 10, "1rem"
 
     renderModalInProvider?: boolean; // If true, the modal will be rendered as a child of the TurnkeyProvider instead of a sibling to the body. This is useful for font inheritance, and css manipulations to modals.
+
+    supressMissingStylesError?: boolean; // If true, the Turnkey styles missing error will no longer show. It's possible that styles can be imported but not detected properly. This will suppress the error in that case.
   };
 }
 
