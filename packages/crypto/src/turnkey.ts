@@ -12,10 +12,6 @@ import {
   PRODUCTION_NOTARIZER_SIGN_PUBLIC_KEY,
   PRODUCTION_SIGNER_SIGN_PUBLIC_KEY,
   PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
-  PRODUCTION_SIGNER_ENCRYPT_PUBLIC_KEY,
-  PRODUCTION_UMP_ENCRYPT_PUBLIC_KEY,
-  PRODUCTION_EVM_PARSER_ENCRYPT_PUBLIC_KEY,
-  PRODUCTION_NOTARIZER_ENCRYPT_PUBLIC_KEY,
 } from "./constants";
 import {
   formatHpkeBuf,
@@ -480,30 +476,43 @@ export const verifySessionJwtSignature = async (
   return p256.verify(signature, msgDigest, publicKey);
 };
 
+/**
+ * Encrypts a message to an uncompressed P256 public key
+ * The function takes in standard strings and converts them
+ * to Uint8Arrays to be used by the lower level quorumKeyEncrypt
+ * function. More details about how the encryption works is described
+ * in that functions documentation.
+ *
+ * @param targetPublicKeyUncompressed A hex string uncompressed public key to encrypt a message to
+ * @param message A standard string message to encrypt, does not have to be hex encoded
+ * @returns {Promise<Uint8Array>} A borsh serialized envelope with the encrypted message (more details found in quorumKeyEncrypt)
+ */
 export const encryptToEnclave = async (
-  enclave: Enclave,
+  targetPublicKeyUncompressed: string,
   message: string,
 ): Promise<Uint8Array> => {
-  const enclaveEncryptPublicKeys = {
-    [Enclave.NOTARIZER]: PRODUCTION_NOTARIZER_ENCRYPT_PUBLIC_KEY,
-    [Enclave.SIGNER]: PRODUCTION_SIGNER_ENCRYPT_PUBLIC_KEY,
-    [Enclave.EVM_PARSER]: PRODUCTION_EVM_PARSER_ENCRYPT_PUBLIC_KEY,
-    [Enclave.TLS_FETCHER]: PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
-    [Enclave.UMP]: PRODUCTION_UMP_ENCRYPT_PUBLIC_KEY,
-  } satisfies Record<Enclave, string>;
-
-  const targetEnclavePublicKey = enclaveEncryptPublicKeys[enclave];
-
   return await quorumKeyEncrypt(
-    uint8ArrayFromHexString(targetEnclavePublicKey),
+    uint8ArrayFromHexString(targetPublicKeyUncompressed),
     new TextEncoder().encode(message),
   );
 };
 
+/**
+ * Helper function used specifically to encrypt a client secret to
+ * TLS Fetchers quorum key. This is used for client_secret upload
+ * when enabling authentication with an OAuth 2.0 provider
+ *
+ * @param client_secret The client secret issued by the OAuth 2.0 provider
+ * @returns {Promise<string>} A hex encoded borsh serialized envelope with the encrypted client
+ *                            secret meant to be passed to the CreateOauth2Credential Activity
+ */
 export const encryptOauth2ClientSecret = async (
   client_secret: string,
 ): Promise<string> => {
   return uint8ArrayToHexString(
-    await encryptToEnclave(Enclave.TLS_FETCHER, client_secret),
+    await encryptToEnclave(
+      PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
+      client_secret,
+    ),
   );
 };
