@@ -473,7 +473,7 @@ export enum WalletInterfaceType {
 export interface BaseWalletInterface {
   interfaceType: WalletInterfaceType;
   sign: (
-    message: string,
+    payload: string,
     provider: WalletProvider,
     intent: SignIntent,
   ) => Promise<string>;
