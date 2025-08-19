@@ -4,6 +4,7 @@ import * as hkdf from "@noble/hashes/hkdf";
 import { sha256 } from "@noble/hashes/sha256";
 import { gcm } from "@noble/ciphers/aes";
 import { randomBytes } from "@noble/hashes/utils";
+import * as borsh from "borsh";
 
 import {
   uint8ArrayToHexString,
@@ -21,6 +22,7 @@ import {
   LABEL_SHARED_SECRET,
   SUITE_ID_1,
   SUITE_ID_2,
+  QOS_ENCRYPTION_HMAC_MESSAGE,
 } from "./constants";
 
 interface HpkeDecryptParams {
@@ -44,6 +46,16 @@ interface KeyPair {
   publicKey: string;
   publicKeyUncompressed: string;
 }
+
+// Envelope for serializing an encrypted message with it's context.
+type Envelope = {
+  nonce: Uint8Array,
+  ephemeralSenderPublic: Uint8Array,
+  encryptedMessage: Uint8Array
+}
+
+// schema for borsh serialization
+const EnvelopeSchema = { struct: { 'nonce': { array: { type: 'u8', len: 12 } }, 'ephemeralSenderPublic': { array: { type: 'u8', len: 65 } }, 'encryptedMessage': { array: { type: 'u8' } } } };
 
 /**
  * Get PublicKey function
@@ -190,6 +202,39 @@ export const hpkeAuthEncrypt = ({
     throw new Error(`Unable to perform hpkeEncrypt: ${error}`);
   }
 };
+
+export const quorumKeyEncrypt = async (targetPublicKeyUncompressed: Uint8Array, message: Uint8Array): Promise<Uint8Array<ArrayBufferLike>> => {
+  const ephemeralKeyPair = generateP256KeyPair();
+  const ephemeralSenderPublic = ephemeralKeyPair.publicKeyUncompressed;
+
+  let cipher = await createCipher(
+    uint8ArrayFromHexString(ephemeralSenderPublic),
+    uint8ArrayFromHexString(ephemeralKeyPair.privateKey),
+    targetPublicKeyUncompressed
+  );
+
+  const nonce = new Uint8Array(12);
+  crypto.getRandomValues(nonce);
+
+  const aad = createAdditionalAssociatedData(uint8ArrayFromHexString(ephemeralSenderPublic), targetPublicKeyUncompressed);
+
+  const alg: AesGcmParams = {
+    name: "AES-GCM",
+    iv: nonce,
+    tagLength: 128,
+    additionalData: aad
+  };
+
+  const encryptedMessageBuf = await crypto.subtle.encrypt(alg, cipher, message);
+
+  let envelope: Envelope = {
+    nonce: nonce,
+    ephemeralSenderPublic: uint8ArrayFromHexString(ephemeralSenderPublic),
+    encryptedMessage: new Uint8Array(encryptedMessageBuf)
+  };
+
+  return borsh.serialize(EnvelopeSchema, envelope);
+}
 
 /**
  * Format HPKE Buffer Function
@@ -690,3 +735,69 @@ export const toDerSignature = (rawSignature: string) => {
 
   return uint8ArrayToHexString(derSignature);
 };
+
+async function createCipher(ephemeralSenderPublic: Uint8Array, ephemeralSenderPrivate: Uint8Array, targetKeyUncompressed: Uint8Array): Promise<CryptoKey> {
+  const sharedSecretUncompressed = p256.getSharedSecret(ephemeralSenderPrivate, targetKeyUncompressed, false);
+  const sharedSecret = sharedSecretUncompressed.slice(1, 33);
+
+  let preImage = new Uint8Array(ephemeralSenderPublic.length + targetKeyUncompressed.length + sharedSecret.length);
+
+  preImage.set(ephemeralSenderPublic, 0);
+  preImage.set(targetKeyUncompressed, ephemeralSenderPublic.length);
+  preImage.set(sharedSecret, ephemeralSenderPublic.length + targetKeyUncompressed.length);
+
+  const hmacKey = await crypto.subtle.importKey(
+    "raw",
+    preImage,
+    {
+      name: "HMAC",
+      hash: "SHA-512"
+    },
+    false,
+    ["sign"]
+  );
+  const mac = new Uint8Array(await crypto.subtle.sign("HMAC", hmacKey, QOS_ENCRYPTION_HMAC_MESSAGE));
+  const aesKeyRaw = mac.slice(0, 32);
+
+  return crypto.subtle.importKey(
+    "raw",
+    aesKeyRaw,
+    {
+      name: "AES-GCM"
+    },
+    false,
+    ["encrypt"]
+  );
+}
+
+/// Helper function to create the additional associated data (AAD). The data is
+/// of the form
+/// `sender_public||sender_public_len||receiver_public||receiver_public_len`.
+///
+/// Note that we append the length to each field as per NIST specs here: <https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf/>. See section 5.8.2.
+function createAdditionalAssociatedData(ephemeralSenderPublic: Uint8Array, receiverPublic: Uint8Array): Uint8Array {
+  // get the length of the sending and receiver public keys
+  const ephemeralSenderLength = ephemeralSenderPublic.length;
+  const receiverPublicLength = receiverPublic.length;
+
+  // ensure the lengths are under 1 byte
+  if (ephemeralSenderLength > 255 || receiverPublicLength > 255) throw new Error("AAD len fields are 1 byte");
+
+  // allocate an array the size of both keys + 1 byte for their length
+  const aad = new Uint8Array(ephemeralSenderLength + 1 + receiverPublicLength + 1);
+
+  // keep track of the offset within the array
+  let offset = 0;
+
+  // set the bytes that represent the sender public key + its length
+  aad.set(ephemeralSenderPublic, offset);
+  offset += ephemeralSenderLength;
+  aad[offset++] = ephemeralSenderLength;
+
+  // set the bytes that represent the receiver public key + its length
+  aad.set(receiverPublic, offset);
+  offset += receiverPublicLength;
+  aad[offset++] = receiverPublicLength;
+
+  return aad;
+}
