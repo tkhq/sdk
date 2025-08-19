@@ -5,6 +5,13 @@ import type {
   SessionTypes,
 } from "@walletconnect/types";
 
+/**
+ * WalletConnectClient is a low-level wrapper around the WalletConnect SignClient.
+ *
+ * - Used internally by `WalletConnectWallet` to manage connections and sessions.
+ * - Handles pairing, approval, session tracking, RPC requests, and disconnects.
+ * - Exposes a minimal API for lifecycle control; higher-level logic lives in `WalletConnectWallet`.
+ */
 export class WalletConnectClient {
   private client!: SignClient;
 
@@ -28,12 +35,12 @@ export class WalletConnectClient {
   /**
    * Initializes the WalletConnect SignClient with your project credentials.
    *
-   * - Must be called before calling `pair()` or `request()`.
-   * - Configures metadata and optionally a custom relay server.
+   * - Must be called before `pair()`, `approve()`, or `request()`.
+   * - Configures app metadata and an optional custom relay server.
    *
    * @param opts.projectId - WalletConnect project ID.
-   * @param opts.metadata - Metadata about your app (name, URL, icons).
-   * @param opts.relayUrl - (Optional) Custom relay server URL.
+   * @param opts.appMetadata - Metadata about your app (name, URL, icons).
+   * @param opts.relayUrl - (Optional) custom relay server URL.
    * @returns A promise that resolves once the client is initialized.
    */
   async init(opts: {
@@ -56,12 +63,13 @@ export class WalletConnectClient {
   /**
    * Initiates a pairing request and returns a URI to be scanned or deep-linked.
    *
-   * - Must be followed by a call to `approve()` to complete the pairing.
+   * - Requires `init()` to have been called.
+   * - Must be followed by `approve()` after the wallet approves.
    * - Throws if a pairing is already in progress.
    *
-   * @param namespaces - Namespaces to request for optional capabilities.
+   * @param namespaces - Optional namespaces requesting capabilities.
    * @returns A WalletConnect URI for the wallet to connect with.
-   * @throws {Error} If a pairing is already in progress or URI is not returned.
+   * @throws {Error} If a pairing is already in progress or no URI is returned.
    */
   async pair(namespaces: ProposalTypes.OptionalNamespaces): Promise<string> {
     if (this.pendingApproval) {
@@ -83,11 +91,12 @@ export class WalletConnectClient {
   /**
    * Completes the pairing approval process after the wallet approves the request.
    *
-   * - Must be called after `pair()` and after the wallet has scanned and approved the URI.
+   * - Requires `init()` and a pending pairing started via `pair()`.
    *
    * @returns A promise that resolves to the established session.
-   * @throws {Error} If called before `pair()` or approval fails.
+   * @throws {Error} If called before `pair()` or if approval fails.
    */
+
   async approve(): Promise<SessionTypes.Struct> {
     if (!this.pendingApproval) {
       throw new Error("WalletConnect: call pair() before approve()");
@@ -115,13 +124,13 @@ export class WalletConnectClient {
   /**
    * Sends a JSON-RPC request over the active WalletConnect session.
    *
-   * - The session must already be connected.
+   * - Requires `init()` and an active session.
    *
-   * @param chainId - Chain ID of the target blockchain (e.g. `eip155:1`).
-   * @param method - The RPC method name to call.
-   * @param params - The parameters to pass into the RPC method.
+   * @param chainId - Target chain ID (e.g. `eip155:1`).
+   * @param method - RPC method name.
+   * @param params - Parameters for the RPC method.
    * @returns A promise that resolves with the RPC response.
-   * @throws {Error} If no active session is found.
+   * @throws {Error} If no active session exists.
    */
   async request(
     chainId: string,

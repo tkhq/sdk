@@ -27,9 +27,9 @@ import {
  * Abstract base class for Ethereum wallet implementations.
  *
  * Provides shared logic for:
- * - Provider discovery via EIP-6963
- * - Connecting and disconnecting wallets
- * - Recovering compressed public keys
+ * - Provider discovery via EIP-6963 (request/announce events)
+ * - Connecting/disconnecting via EIP-1193
+ * - Recovering compressed secp256k1 public keys from EIP-191 signatures
  */
 export abstract class BaseEthereumWallet implements EthereumWalletInterface {
   readonly interfaceType = WalletInterfaceType.Ethereum;
@@ -43,13 +43,16 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    * @returns A promise resolving to a hex-encoded signature string.
    */
   abstract sign(
-    message: string | Hex,
+    payload: string | Hex,
     provider: WalletProvider,
     intent: SignIntent,
   ): Promise<Hex>;
 
   /**
-   * Retrieves the compressed public key by signing a known message.
+   * Retrieves the compressed secp256k1 public key by signing a known message.
+   *
+   * - Signs the fixed string "GET_PUBLIC_KEY" (EIP-191) and recovers the key.
+   * - Returns the compressed public key as a hex string (no 0x prefix).
    *
    * @param provider - The wallet provider to use.
    * @returns A promise that resolves to the compressed public key (hex-encoded).
@@ -66,6 +69,11 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
 
   /**
    * Discovers EIP-1193 providers using the EIP-6963 standard.
+   *
+   * - Dispatches "eip6963:requestProvider" and listens for "eip6963:announceProvider".
+   * - For each discovered provider, attempts to read `eth_accounts` and `eth_chainId`
+   *   (silently ignored if unavailable), defaulting to chainId "0x1".
+   * - Returns providers discovered during this discovery cycle; may be empty.
    *
    * @returns A promise that resolves to a list of available wallet providers.
    */
@@ -131,10 +139,14 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
   };
 
   /**
-   * Ensures the wallet account is connected.
+   * Requests or verifies account connection via `eth_requestAccounts`.
+   *
+   * - If the wallet is already connected, resolves immediately (no prompt).
+   * - If not connected, the wallet will typically prompt the user to authorize.
    *
    * @param provider - The wallet provider to use.
-   * @returns A promise that resolves once the account is connected.
+   * @returns A promise that resolves once at least one account is connected.
+   * @throws {Error} If the wallet returns no accounts after the request.
    */
   connectWalletAccount = async (provider: WalletProvider): Promise<void> => {
     const wallet = asEip1193(provider);
@@ -142,10 +154,14 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
   };
 
   /**
-   * Disconnects the wallet account by revoking permissions.
+   * Attempts to disconnect the wallet by revoking `eth_accounts` permission.
+   *
+   * - Calls `wallet_revokePermissions` with `{ eth_accounts: {} }`.
+   * - Provider behavior is wallet-specific: some implement it, some ignore it,
+   *   and others (e.g., Phantom) throw “method not supported”.
    *
    * @param provider - The wallet provider to disconnect.
-   * @returns A promise that resolves once the permissions are revoked.
+   * @returns A promise that resolves once the request completes (or rejects if the provider errors).
    */
   disconnectWalletAccount = async (provider: WalletProvider): Promise<void> => {
     const wallet = asEip1193(provider);
@@ -155,6 +171,18 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
     });
   };
 
+  /**
+   * Switches to a new EVM chain, with add-then-switch fallback.
+   *
+   * - Tries `wallet_switchEthereumChain` first.
+   * - If the wallet returns error code 4902 (unknown chain):
+   *   - If `chainOrId` is a string (hex chainId), throws and asks the caller to pass metadata.
+   *   - If `chainOrId` is a `SwitchableChain`, calls `wallet_addEthereumChain` and then retries the switch.
+   *
+   * @param provider - The wallet provider to use.
+   * @param chainOrId - Hex chain ID string or full `SwitchableChain` metadata.
+   * @throws {Error} If provider is non-EVM, adding/switching fails, or metadata is missing.
+   */
   async switchChain(
     provider: WalletProvider,
     chainOrId: string | SwitchableChain,
@@ -225,13 +253,19 @@ export class EthereumWallet extends BaseEthereumWallet {
   /**
    * Signs a message or sends a transaction depending on intent.
    *
-   * @param message - The message or raw transaction to be signed.
+   * - `SignMessage` → `personal_sign` (hex signature).
+   * - `SignAndSendTransaction` → `eth_sendTransaction` (tx hash).
+   * - For transactions, `message` must be a raw tx that `Transaction.from(...)` can parse.
+   * - May prompt the user (account access, signing, or send).
+   *
+   * @param payload - The payload or raw transaction to be signed/sent.
    * @param provider - The wallet provider to use.
    * @param intent - Signing intent (SignMessage or SignAndSendTransaction).
    * @returns A promise that resolves to a hex string (signature or tx hash).
+   * @throws {Error} If the intent is unsupported or the wallet rejects the request.
    */
   sign = async (
-    message: string,
+    payload: string,
     provider: WalletProvider,
     intent: SignIntent,
   ): Promise<Hex> => {
@@ -242,11 +276,11 @@ export class EthereumWallet extends BaseEthereumWallet {
       case SignIntent.SignMessage:
         return await selectedProvider.request({
           method: "personal_sign",
-          params: [message as Hex, account],
+          params: [payload as Hex, account],
         });
 
       case SignIntent.SignAndSendTransaction:
-        const tx = Transaction.from(message);
+        const tx = Transaction.from(payload);
         const txParams = {
           from: account,
           to: tx.to?.toString() as Hex,
@@ -273,9 +307,11 @@ export class EthereumWallet extends BaseEthereumWallet {
 /**
  * Retrieves the active Ethereum account from a provider.
  *
+ * - Calls `eth_requestAccounts` (usually no prompt).
+ *
  * @param provider - EIP-1193 compliant provider.
  * @returns A promise resolving to the connected Ethereum address.
- * @throws If no connected account is found.
+ * @throws {Error} If no connected account is found.
  */
 const getAccount = async (provider: EIP1193Provider): Promise<Address> => {
   const [connectedAccount] = await provider.request({
@@ -287,6 +323,9 @@ const getAccount = async (provider: EIP1193Provider): Promise<Address> => {
 
 /**
  * Recovers and compresses the public key from a signed message.
+ *
+ * - Recovers the secp256k1 public key from an EIP-191 signature and compresses it.
+ * - Returns a hex string with no 0x prefix.
  *
  * @param signature - The signature as a hex string.
  * @param message - The original signed message.
@@ -311,11 +350,13 @@ const getCompressedPublicKey = async (
 };
 
 /**
- * Validates and casts a WalletRpcProvider to an EIP-1193 provider.
+ * Validates and casts a `WalletProvider` to an EIP-1193 provider.
  *
- * @param p - The wallet RPC provider.
- * @returns A valid EIP1193 provider.
- * @throws If the provider does not implement the request() method.
+ * - Expects `provider.request` to be a function.
+ *
+ * @param p - The wallet provider to validate.
+ * @returns An EIP-1193 provider.
+ * @throws {Error} If the provider does not implement `request()`.
  */
 const asEip1193 = (p: WalletProvider): EIP1193Provider => {
   if (p.provider && typeof (p.provider as any).request === "function") {
