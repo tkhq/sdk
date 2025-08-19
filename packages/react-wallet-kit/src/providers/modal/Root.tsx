@@ -256,15 +256,18 @@ function useCssLoaded(modalStack: ModalPage[]) {
   useEffect(() => {
     if (process.env.NODE_ENV !== "development") return; // Only check in development mode
 
-    const el = document.createElement("div");
-    el.className = "tk-style-sentinel"; // See index.css for this class
-    document.body.appendChild(el);
+    const testElement = document.createElement("div");
+    testElement.className = "tk-modal"; // Use a class that should definitely be styled
+    testElement.style.position = "absolute";
+    testElement.style.visibility = "hidden";
+    document.body.appendChild(testElement);
 
-    const width = window.getComputedStyle(el).width;
-    const cssLoaded = width === "1234px"; // We check for a specific width to ensure the styles are loaded. If this width is not set, it means the styles are not loaded!
-    document.body.removeChild(el);
+    // Check if the styles have been applied by inspecting a computed style
+    const computedStyle = window.getComputedStyle(testElement);
+    const hasStyles = computedStyle.lineHeight === "normal";
 
-    if (!cssLoaded && modalStack.length > 0) renderMissingStylesOverlay();
+    document.body.removeChild(testElement);
+    if (!hasStyles && modalStack.length === 1) renderMissingStylesOverlay();
   }, [modalStack]);
 }
 
@@ -297,13 +300,23 @@ function renderMissingStylesOverlay() {
     <div style="font-size: 1rem; max-width: 600px;">
       You must import the Turnkey React Wallet Kit styles in your app:
       <pre style="background-color: #f3f4f6; color: #111827; padding: 0.5rem 1rem; margin-top: 1rem; border-radius: 6px; font-size: 0.875rem;">
-        import "@turnkey/react-wallet-kit/dist/styles.css";
+        import "@turnkey/react-wallet-kit/styles.css";
       </pre>
       <p style="margin-top: 1rem; font-size: 0.875rem; color: #6b7280;">
         This warning only shows in development mode.
       </p>
+      <button id="turnkey-missing-css-close" style="margin-top: 2rem; padding: 0.5rem 1.5rem; font-size: 1rem; background: #b91c1c; color: white; border: none; border-radius: 6px; cursor: pointer;">
+        Close
+      </button>
     </div>
   `;
 
   document.body.appendChild(div);
+
+  const closeBtn = div.querySelector("#turnkey-missing-css-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      div.remove();
+    });
+  }
 }
