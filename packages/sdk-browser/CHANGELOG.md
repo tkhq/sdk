@@ -1,5 +1,31 @@
 # @turnkey/sdk-browser
 
+## 5.7.1-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-types@0.4.0-beta.4
+  - @turnkey/encoding@0.6.0-beta.4
+  - @turnkey/http@3.10.0-beta.1
+  - @turnkey/api-key-stamper@0.4.8-beta.4
+  - @turnkey/crypto@2.5.1-beta.4
+  - @turnkey/indexed-db-stamper@1.1.2-beta.4
+  - @turnkey/wallet-stamper@1.0.9-beta.4
+
+## 5.7.1-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-types@0.4.0-beta.3
+  - @turnkey/encoding@0.6.0-beta.3
+  - @turnkey/http@3.10.0-beta.0
+  - @turnkey/api-key-stamper@0.4.8-beta.3
+  - @turnkey/crypto@2.5.1-beta.3
+  - @turnkey/indexed-db-stamper@1.1.2-beta.3
+  - @turnkey/wallet-stamper@1.0.9-beta.3
+
 ## 5.7.0
 
 ### Minor Changes

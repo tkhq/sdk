@@ -1,5 +1,25 @@
 # @turnkey/cosmjs
 
+## 0.7.25-beta.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.7.0-beta.1
+  - @turnkey/http@3.10.0-beta.1
+  - @turnkey/sdk-browser@5.7.1-beta.1
+  - @turnkey/api-key-stamper@0.4.8-beta.4
+
+## 0.7.25-beta.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.7.0-beta.0
+  - @turnkey/http@3.10.0-beta.0
+  - @turnkey/sdk-browser@5.7.1-beta.0
+  - @turnkey/api-key-stamper@0.4.8-beta.3
+
 ## 0.7.25-beta.2
 
 ### Patch Changes

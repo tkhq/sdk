@@ -1,5 +1,35 @@
 # @turnkey/sdk-react
 
+## 5.4.0-beta.4
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.7.0-beta.1
+  - @turnkey/sdk-types@0.4.0-beta.4
+  - @turnkey/sdk-browser@5.7.1-beta.1
+  - @turnkey/crypto@2.5.1-beta.4
+  - @turnkey/wallet-stamper@1.0.9-beta.4
+
+## 5.4.0-beta.3
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.7.0-beta.0
+  - @turnkey/sdk-types@0.4.0-beta.3
+  - @turnkey/sdk-browser@5.7.1-beta.0
+  - @turnkey/crypto@2.5.1-beta.3
+  - @turnkey/wallet-stamper@1.0.9-beta.3
+
 ## 5.3.2-beta.2
 
 ### Patch Changes

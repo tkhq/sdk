@@ -1,5 +1,19 @@
 # @turnkey/api-key-stamper
 
+## 0.4.8-beta.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.4
+
+## 0.4.8-beta.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.3
+
 ## 0.4.8-beta.2
 
 ### Patch Changes

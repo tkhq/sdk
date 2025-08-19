@@ -1,5 +1,29 @@
 # @turnkey/http
 
+## 3.10.0-beta.1
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.4
+  - @turnkey/api-key-stamper@0.4.8-beta.4
+
+## 3.10.0-beta.0
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.3
+  - @turnkey/api-key-stamper@0.4.8-beta.3
+
 ## 3.9.0
 
 ### Minor Changes
