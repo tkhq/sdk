@@ -13,7 +13,6 @@
   - @turnkey/crypto@2.5.0
   - @turnkey/wallet-stamper@1.0.8
 
-
 ## 5.6.1-beta.2
 
 ### Patch Changes
@@ -26,7 +25,6 @@
   - @turnkey/http@3.8.1-beta.2
   - @turnkey/indexed-db-stamper@1.1.2-beta.2
   - @turnkey/wallet-stamper@1.0.9-beta.2
-
 
 ## 5.6.1-beta.0
 
