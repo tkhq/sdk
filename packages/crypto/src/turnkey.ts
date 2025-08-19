@@ -9,14 +9,20 @@ import {
 } from "@turnkey/encoding";
 
 import {
-  PRODUCTION_NOTARIZER_PUBLIC_KEY,
-  PRODUCTION_SIGNER_PUBLIC_KEY,
+  PRODUCTION_NOTARIZER_SIGN_PUBLIC_KEY,
+  PRODUCTION_SIGNER_SIGN_PUBLIC_KEY,
+  PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
+  PRODUCTION_SIGNER_ENCRYPT_PUBLIC_KEY,
+  PRODUCTION_UMP_ENCRYPT_PUBLIC_KEY,
+  PRODUCTION_EVM_PARSER_ENCRYPT_PUBLIC_KEY,
+  PRODUCTION_NOTARIZER_ENCRYPT_PUBLIC_KEY,
 } from "./constants";
 import {
   formatHpkeBuf,
   fromDerSignature,
   hpkeDecrypt,
   hpkeEncrypt,
+  quorumKeyEncrypt,
   uncompressRawPublicKey,
 } from "./crypto";
 
@@ -48,6 +54,14 @@ interface EncryptWalletToBundleParams {
   userId: string;
   organizationId: string;
   dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
+}
+
+export enum Enclave {
+  NOTARIZER = "notarizer",
+  SIGNER = "signer",
+  EVM_PARSER = "evm-parser",
+  TLS_FETCHER = "tls-fetcher",
+  UMP = "ump",
 }
 
 /**
@@ -227,11 +241,11 @@ const verifyEnclaveSignature = async (
   dangerouslyOverrideSignerPublicKey?: string,
 ): Promise<boolean> => {
   const expectedSignerPublicKey =
-    dangerouslyOverrideSignerPublicKey || PRODUCTION_SIGNER_PUBLIC_KEY;
+    dangerouslyOverrideSignerPublicKey || PRODUCTION_SIGNER_SIGN_PUBLIC_KEY;
   if (enclaveQuorumPublic != expectedSignerPublicKey) {
     throw new Error(
       `expected signer key ${
-        dangerouslyOverrideSignerPublicKey ?? PRODUCTION_SIGNER_PUBLIC_KEY
+        dangerouslyOverrideSignerPublicKey ?? PRODUCTION_SIGNER_SIGN_PUBLIC_KEY
       } does not match signer key from bundle: ${enclaveQuorumPublic}`,
     );
   }
@@ -435,7 +449,8 @@ export const verifySessionJwtSignature = async (
   dangerouslyOverrideNotarizerPublicKey?: string,
 ): Promise<boolean> => {
   const notarizerKeyHex =
-    dangerouslyOverrideNotarizerPublicKey ?? PRODUCTION_NOTARIZER_PUBLIC_KEY;
+    dangerouslyOverrideNotarizerPublicKey ??
+    PRODUCTION_NOTARIZER_SIGN_PUBLIC_KEY;
 
   /* 1. split JWT -------------------------------------------------------- */
   const [headerB64, payloadB64, signatureB64] = jwt.split(".");
@@ -463,4 +478,32 @@ export const verifySessionJwtSignature = async (
 
   /* 5. verify ----------------------------------------------------------- */
   return p256.verify(signature, msgDigest, publicKey);
+};
+
+export const encryptToEnclave = async (
+  enclave: Enclave,
+  message: string,
+): Promise<Uint8Array> => {
+  const enclaveEncryptPublicKeys = {
+    [Enclave.NOTARIZER]: PRODUCTION_NOTARIZER_ENCRYPT_PUBLIC_KEY,
+    [Enclave.SIGNER]: PRODUCTION_SIGNER_ENCRYPT_PUBLIC_KEY,
+    [Enclave.EVM_PARSER]: PRODUCTION_EVM_PARSER_ENCRYPT_PUBLIC_KEY,
+    [Enclave.TLS_FETCHER]: PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
+    [Enclave.UMP]: PRODUCTION_UMP_ENCRYPT_PUBLIC_KEY,
+  } satisfies Record<Enclave, string>;
+
+  const targetEnclavePublicKey = enclaveEncryptPublicKeys[enclave];
+
+  return await quorumKeyEncrypt(
+    uint8ArrayFromHexString(targetEnclavePublicKey),
+    new TextEncoder().encode(message),
+  );
+};
+
+export const encryptOauth2ClientSecret = async (
+  client_secret: string,
+): Promise<string> => {
+  return uint8ArrayToHexString(
+    await encryptToEnclave(Enclave.TLS_FETCHER, client_secret),
+  );
 };

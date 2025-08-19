@@ -49,13 +49,19 @@ interface KeyPair {
 
 // Envelope for serializing an encrypted message with it's context.
 type Envelope = {
-  nonce: Uint8Array,
-  ephemeralSenderPublic: Uint8Array,
-  encryptedMessage: Uint8Array
-}
+  nonce: Uint8Array;
+  ephemeralSenderPublic: Uint8Array;
+  encryptedMessage: Uint8Array;
+};
 
 // schema for borsh serialization
-const EnvelopeSchema = { struct: { 'nonce': { array: { type: 'u8', len: 12 } }, 'ephemeralSenderPublic': { array: { type: 'u8', len: 65 } }, 'encryptedMessage': { array: { type: 'u8' } } } };
+const EnvelopeSchema = {
+  struct: {
+    nonce: { array: { type: "u8", len: 12 } },
+    ephemeralSenderPublic: { array: { type: "u8", len: 65 } },
+    encryptedMessage: { array: { type: "u8" } },
+  },
+};
 
 /**
  * Get PublicKey function
@@ -203,38 +209,65 @@ export const hpkeAuthEncrypt = ({
   }
 };
 
-export const quorumKeyEncrypt = async (targetPublicKeyUncompressed: Uint8Array, message: Uint8Array): Promise<Uint8Array<ArrayBufferLike>> => {
+/**
+ * Encrypt a message to a quorum key. Algorithm originally implemented in qos here: https://github.com/tkhq/qos/blob/ae01904c756107f850aea42000137ef124df3fe4/src/qos_p256/src/encrypt.rs#L123
+ * Returns a borsh serialized encrypted Envelope which is the nonce + ephemeralSenderPublicKey + encryptedMessage
+ * This function creates an ephemeral key, creates a shared secret with the recipient targetPublicKeyUncompressed
+ * creates additional associated data which follows the form: sender_public||sender_public_len||receiver_public||receiver_public_len
+ * encrypts using aes-gcm-256 with a SHA-512 HMAC over the QOS_ENCRYPTION_HMAC_MESSAGE literally: "qos_encryption_hmac_message"
+ * inserts and returns the necessary information in a borsh serialized envelope as described above
+ * This encryption function is meant to be used with this decryption function in QOS: https://github.com/tkhq/qos/blob/ae01904c756107f850aea42000137ef124df3fe4/src/qos_p256/src/encrypt.rs#L52
+ *
+ * @param {Uint8Array} targetPublicKeyUncompressed - The P256 uncompressed public key to encrypt the message to
+ * @param {Uint8Array} message - The message to encrypt to targetPublicKeyUncompressed
+ * @returns {Uint8Array} - A borsh serialized envelope containing the nonce + ephemeralSenderPublicKey + encrypted message
+ */
+export const quorumKeyEncrypt = async (
+  targetPublicKeyUncompressed: Uint8Array,
+  message: Uint8Array,
+): Promise<Uint8Array> => {
+  // generate an ephemeral keypair for this encryption operation
   const ephemeralKeyPair = generateP256KeyPair();
   const ephemeralSenderPublic = ephemeralKeyPair.publicKeyUncompressed;
 
-  let cipher = await createCipher(
+  // create a shared secret AES-GCM key with the SHA-512 HMAC
+  let cipher = await createQuorumKeyEncryptCipher(
     uint8ArrayFromHexString(ephemeralSenderPublic),
     uint8ArrayFromHexString(ephemeralKeyPair.privateKey),
-    targetPublicKeyUncompressed
+    targetPublicKeyUncompressed,
   );
 
+  // generate a nonce
   const nonce = new Uint8Array(12);
   crypto.getRandomValues(nonce);
 
-  const aad = createAdditionalAssociatedData(uint8ArrayFromHexString(ephemeralSenderPublic), targetPublicKeyUncompressed);
+  // create the additional data in the form of sender_public||sender_public_len||receiver_public||receiver_public_len taken from QOS here: https://github.com/tkhq/qos/blob/ae01904c756107f850aea42000137ef124df3fe4/src/qos_p256/src/encrypt.rs#L298
+  const aad = createAdditionalAssociatedData(
+    uint8ArrayFromHexString(ephemeralSenderPublic),
+    targetPublicKeyUncompressed,
+  );
 
+  // algorithm specifications for AEX-GCM
   const alg: AesGcmParams = {
     name: "AES-GCM",
     iv: nonce,
     tagLength: 128,
-    additionalData: aad
+    additionalData: aad,
   };
 
+  // encrypt the message with the shared secret
   const encryptedMessageBuf = await crypto.subtle.encrypt(alg, cipher, message);
 
+  // create the envelope
   let envelope: Envelope = {
     nonce: nonce,
     ephemeralSenderPublic: uint8ArrayFromHexString(ephemeralSenderPublic),
-    encryptedMessage: new Uint8Array(encryptedMessageBuf)
+    encryptedMessage: new Uint8Array(encryptedMessageBuf),
   };
 
+  // borsh serialize the envelope
   return borsh.serialize(EnvelopeSchema, envelope);
-}
+};
 
 /**
  * Format HPKE Buffer Function
@@ -736,55 +769,94 @@ export const toDerSignature = (rawSignature: string) => {
   return uint8ArrayToHexString(derSignature);
 };
 
-async function createCipher(ephemeralSenderPublic: Uint8Array, ephemeralSenderPrivate: Uint8Array, targetKeyUncompressed: Uint8Array): Promise<CryptoKey> {
-  const sharedSecretUncompressed = p256.getSharedSecret(ephemeralSenderPrivate, targetKeyUncompressed, false);
+/**
+ * Create a shared AES-GCM secret with the quorum key encryption SHA-512 HMAC
+ *
+ * This function takes an ephemeral Sender public key generated for each encryption operation
+ * the corresponding ephemeral private key, and the target public key uncompressed
+ * for data structures described by ASN.1.
+ *
+ * @param {Uint8Array} ephemeralSenderPublic - The ephemeral public key used to create the preImage
+ * @param {Uint8Array} ephemeralSenderPrivate - The ephemeral private key to create the shared secret with
+ * @param {Uint8Array} targetPublicKeyUncompressed - The public key to create the shared secret with and encrypt the message to
+ * @returns {Promise<CryptoKey>} - A shared secret AES-GCM key between ephemeralSenderPrivate and the targetPublicKeyUncompressed
+ */
+async function createQuorumKeyEncryptCipher(
+  ephemeralSenderPublic: Uint8Array,
+  ephemeralSenderPrivate: Uint8Array,
+  targetPublicKeyUncompressed: Uint8Array,
+): Promise<CryptoKey> {
+  // create the shared secret between ephemeralSenderPrivate and targetPublicKeyUncompressed
+  const sharedSecretUncompressed = p256.getSharedSecret(
+    ephemeralSenderPrivate,
+    targetPublicKeyUncompressed,
+    false,
+  );
   const sharedSecret = sharedSecretUncompressed.slice(1, 33);
 
-  let preImage = new Uint8Array(ephemeralSenderPublic.length + targetKeyUncompressed.length + sharedSecret.length);
-
+  // create the preImage as defined in qos here: https://github.com/tkhq/qos/blob/ae01904c756107f850aea42000137ef124df3fe4/src/qos_p256/src/encrypt.rs#L273-L282
+  let preImage = new Uint8Array(
+    ephemeralSenderPublic.length +
+      targetPublicKeyUncompressed.length +
+      sharedSecret.length,
+  );
   preImage.set(ephemeralSenderPublic, 0);
-  preImage.set(targetKeyUncompressed, ephemeralSenderPublic.length);
-  preImage.set(sharedSecret, ephemeralSenderPublic.length + targetKeyUncompressed.length);
+  preImage.set(targetPublicKeyUncompressed, ephemeralSenderPublic.length);
+  preImage.set(
+    sharedSecret,
+    ephemeralSenderPublic.length + targetPublicKeyUncompressed.length,
+  );
 
+  // create the HMAC key and create an HMAC using QOS_ENCRYPTION_HMAC_MESSAGE
   const hmacKey = await crypto.subtle.importKey(
     "raw",
     preImage,
     {
       name: "HMAC",
-      hash: "SHA-512"
+      hash: "SHA-512",
     },
     false,
-    ["sign"]
+    ["sign"],
   );
-  const mac = new Uint8Array(await crypto.subtle.sign("HMAC", hmacKey, QOS_ENCRYPTION_HMAC_MESSAGE));
+  const mac = new Uint8Array(
+    await crypto.subtle.sign("HMAC", hmacKey, QOS_ENCRYPTION_HMAC_MESSAGE),
+  );
+
+  // Use the first 32 bytes as the AES-GCM key
   const aesKeyRaw = mac.slice(0, 32);
 
   return crypto.subtle.importKey(
     "raw",
     aesKeyRaw,
     {
-      name: "AES-GCM"
+      name: "AES-GCM",
     },
     false,
-    ["encrypt"]
+    ["encrypt"],
   );
 }
 
 /// Helper function to create the additional associated data (AAD). The data is
-/// of the form
-/// `sender_public||sender_public_len||receiver_public||receiver_public_len`.
+/// of the form `sender_public||sender_public_len||receiver_public||receiver_public_len`.
+/// This is taken from QOS here: https://github.com/tkhq/qos/blob/ae01904c756107f850aea42000137ef124df3fe4/src/qos_p256/src/encrypt.rs#L298
 ///
 /// Note that we append the length to each field as per NIST specs here: <https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-56Ar3.pdf/>. See section 5.8.2.
-function createAdditionalAssociatedData(ephemeralSenderPublic: Uint8Array, receiverPublic: Uint8Array): Uint8Array {
+function createAdditionalAssociatedData(
+  ephemeralSenderPublic: Uint8Array,
+  receiverPublic: Uint8Array,
+): Uint8Array {
   // get the length of the sending and receiver public keys
   const ephemeralSenderLength = ephemeralSenderPublic.length;
   const receiverPublicLength = receiverPublic.length;
 
   // ensure the lengths are under 1 byte
-  if (ephemeralSenderLength > 255 || receiverPublicLength > 255) throw new Error("AAD len fields are 1 byte");
+  if (ephemeralSenderLength > 255 || receiverPublicLength > 255)
+    throw new Error("AAD len fields are 1 byte");
 
   // allocate an array the size of both keys + 1 byte for their length
-  const aad = new Uint8Array(ephemeralSenderLength + 1 + receiverPublicLength + 1);
+  const aad = new Uint8Array(
+    ephemeralSenderLength + 1 + receiverPublicLength + 1,
+  );
 
   // keep track of the offset within the array
   let offset = 0;
