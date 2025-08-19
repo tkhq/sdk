@@ -32,7 +32,7 @@ export function ModalRoot(props: ModalRootProps) {
   const [width, setWidth] = useState<number>(300);
   const [observeResize, setObserveResize] = useState(true);
 
-  useCssLoaded(modalStack); // triggers warning overlay if CSS missing
+  useCssLoaded(modalStack, config); // triggers warning overlay if CSS missing
 
   const maxMobileScreenWidth = screenWidth * 0.9; // Only take up 90% of the screen width on mobile
 
@@ -252,7 +252,7 @@ export function ModalRoot(props: ModalRootProps) {
   );
 }
 
-function useCssLoaded(modalStack: ModalPage[]) {
+function useCssLoaded(modalStack: ModalPage[], config: TurnkeyProviderConfig) {
   useEffect(() => {
     if (process.env.NODE_ENV !== "development") return; // Only check in development mode
 
@@ -267,7 +267,12 @@ function useCssLoaded(modalStack: ModalPage[]) {
     const hasStyles = computedStyle.lineHeight === "normal";
 
     document.body.removeChild(testElement);
-    if (!hasStyles && modalStack.length === 1) renderMissingStylesOverlay();
+    if (
+      !hasStyles &&
+      modalStack.length === 1 &&
+      !config.ui?.supressMissingStylesError
+    )
+      renderMissingStylesOverlay();
   }, [modalStack]);
 }
 
