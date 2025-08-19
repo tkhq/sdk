@@ -67,5 +67,11 @@
     "@turnkey/wallet-stamper": "1.0.9-beta.2",
     "@turnkey/webauthn-stamper": "0.5.1"
   },
-  "changesets": ["loose-ravens-walk", "old-pillows-float", "rotten-mugs-matter"]
+  "changesets": [
+    "cute-squids-type",
+    "fair-bushes-retire",
+    "loose-ravens-walk",
+    "old-pillows-float",
+    "rotten-mugs-matter"
+  ]
 }

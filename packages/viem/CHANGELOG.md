@@ -19,6 +19,26 @@
 
 - [#848](https://github.com/tkhq/sdk/pull/848) [`8305dd2`](https://github.com/tkhq/sdk/commit/8305dd2cbfbb3cfc55ed37c9626198627c752fd9) Author [@andrewkmin](https://github.com/andrewkmin) - Fix: update serialization of typed data to conform to Viem's implementation
 
+## 0.12.1-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.7.0-beta.1
+  - @turnkey/http@3.10.0-beta.1
+  - @turnkey/sdk-browser@5.7.1-beta.1
+  - @turnkey/api-key-stamper@0.4.8-beta.4
+
+## 0.12.1-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.7.0-beta.0
+  - @turnkey/http@3.10.0-beta.0
+  - @turnkey/sdk-browser@5.7.1-beta.0
+  - @turnkey/api-key-stamper@0.4.8-beta.3
+
 ## 0.12.0
 
 ### Minor Changes
