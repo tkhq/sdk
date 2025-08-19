@@ -24,6 +24,13 @@
   - @turnkey/encoding@0.6.0-beta.0
   - @turnkey/http@3.8.1-beta.0
 
+## 1.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`8b39dba`](https://github.com/tkhq/sdk/commit/8b39dbabf68d3e376b5b07f26960d5b61ae87fa9)]:
+  - @turnkey/http@3.9.0
+
 ## 1.1.1
 
 ### Patch Changes

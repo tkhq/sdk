@@ -30,6 +30,21 @@
   - @turnkey/http@3.8.1-beta.0
   - @turnkey/sdk-server@4.5.1-beta.0
 
+## 0.12.0
+
+### Minor Changes
+
+- [#642](https://github.com/tkhq/sdk/pull/642) [`7898dce`](https://github.com/tkhq/sdk/commit/7898dce1b71c1f956a588636a29c56e47b013426) Author [@andrewkmin](https://github.com/andrewkmin) - - Add implementation for `sign`. This is primarily applicable for account abstraction use cases.
+  - Enforce message hashing at an abstracted level.
+  - Minor bugfixes: pass through payload encoding; enforce default value for `to` parameter (abstracted away from user -- non-breaking)
+
+### Patch Changes
+
+- Updated dependencies [[`8b39dba`](https://github.com/tkhq/sdk/commit/8b39dbabf68d3e376b5b07f26960d5b61ae87fa9), [`1a549b7`](https://github.com/tkhq/sdk/commit/1a549b71f9a6e7ab59d52aaae7e58e34c8f2e8b5)]:
+  - @turnkey/sdk-browser@5.7.0
+  - @turnkey/sdk-server@4.6.0
+  - @turnkey/http@3.9.0
+
 ## 0.11.1
 
 ### Patch Changes

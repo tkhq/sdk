@@ -39,6 +39,19 @@
   - @turnkey/indexed-db-stamper@1.1.2-beta.0
   - @turnkey/wallet-stamper@1.0.9-beta.0
 
+## 5.7.0
+
+### Minor Changes
+
+- [#834](https://github.com/tkhq/sdk/pull/834) [`8b39dba`](https://github.com/tkhq/sdk/commit/8b39dbabf68d3e376b5b07f26960d5b61ae87fa9) Author [@moeodeh3](https://github.com/moeodeh3) - Update per mono release v2025.8.3-hotfix.0
+
+### Patch Changes
+
+- Updated dependencies [[`8b39dba`](https://github.com/tkhq/sdk/commit/8b39dbabf68d3e376b5b07f26960d5b61ae87fa9)]:
+  - @turnkey/http@3.9.0
+  - @turnkey/crypto@2.5.0
+  - @turnkey/wallet-stamper@1.0.8
+
 ## 5.6.0
 
 ### Minor Changes

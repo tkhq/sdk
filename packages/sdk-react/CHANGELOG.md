@@ -33,6 +33,18 @@
   - @turnkey/wallet-stamper@1.0.9-beta.0
   - @turnkey/sdk-server@4.5.1-beta.0
 
+## 5.3.2
+
+### Patch Changes
+
+- [#833](https://github.com/tkhq/sdk/pull/833) [`1a549b7`](https://github.com/tkhq/sdk/commit/1a549b71f9a6e7ab59d52aaae7e58e34c8f2e8b5) Author [@moeodeh3](https://github.com/moeodeh3) - - Add optional `includeUnverifiedSubOrgs` to `otpConfig` in the Auth component to allow inclusion of unverified subOrgs
+  - Fix `customAccounts` being ignored for subOrgs created through OTP and external wallets
+- Updated dependencies [[`8b39dba`](https://github.com/tkhq/sdk/commit/8b39dbabf68d3e376b5b07f26960d5b61ae87fa9), [`1a549b7`](https://github.com/tkhq/sdk/commit/1a549b71f9a6e7ab59d52aaae7e58e34c8f2e8b5)]:
+  - @turnkey/sdk-browser@5.7.0
+  - @turnkey/sdk-server@4.6.0
+  - @turnkey/crypto@2.5.0
+  - @turnkey/wallet-stamper@1.0.8
+
 ## 5.3.1
 
 ### Patch Changes

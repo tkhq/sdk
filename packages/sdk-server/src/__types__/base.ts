@@ -123,6 +123,7 @@ export interface ApiCredentials {
 export type GetOrCreateSuborgRequest = {
   filterType: FilterType;
   filterValue: string;
+  includeUnverified?: boolean;
   additionalData?: {
     email?: string;
     phoneNumber?: string;
