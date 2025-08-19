@@ -1,5 +1,31 @@
 # @turnkey/eip-1193-provider
 
+## 3.4.0-beta.4
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/http@3.10.0-beta.1
+  - @turnkey/sdk-browser@5.7.1-beta.1
+  - @turnkey/api-key-stamper@0.4.8-beta.4
+
+## 3.4.0-beta.3
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/http@3.10.0-beta.0
+  - @turnkey/sdk-browser@5.7.1-beta.0
+  - @turnkey/api-key-stamper@0.4.8-beta.3
+
 ## 3.3.26
 
 ### Patch Changes

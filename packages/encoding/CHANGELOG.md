@@ -1,5 +1,17 @@
 # @turnkey/encoding
 
+## 0.6.0-beta.4
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+## 0.6.0-beta.3
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
 ## 0.6.0-beta.2
 
 ### Minor Changes
