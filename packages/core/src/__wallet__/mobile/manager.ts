@@ -32,7 +32,12 @@ export class MobileWalletManager {
   /**
    * Constructs a MobileWalletManager that only uses WalletConnect.
    *
-   * @param cfg - Wallet manager configuration (uses only WalletConnect fields).
+   * - Determines enabled chains based on provided namespaces for Ethereum and Solana.
+   * - Initializes WalletConnect wallet interface and maps it to supported chains.
+   * - Optionally enables stamping and connecting flows based on feature flags that live in the cfg.
+   * - Sets up `CrossPlatformWalletStamper` and `CrossPlatformWalletConnector` if auth or connecting features are enabled.
+   *
+   * @param cfg - Wallet manager configuration (we only use WalletConnect fields).
    */
   constructor(cfg: TWalletManagerConfig) {
     const ethereumNamespaces =
@@ -78,33 +83,42 @@ export class MobileWalletManager {
   }
 
   /**
-   * Initializes the wallet manager and WalletConnect client.
+   * Initializes WalletConnect components and any registered wallet interfaces.
    *
-   * @param cfg - Wallet manager configuration.
+   * - First initializes the low-level WalletConnect client with the provided config.
+   * - Then initializes higher-level wallet interface `WalletConnectWallet` using registered async initializers.
+   *
+   * @param cfg - Wallet manager configuration used for initializing the WalletConnect client.
    */
   async init(cfg: TWalletManagerConfig): Promise<void> {
     if (this.wcClient) {
       await this.wcClient.init(cfg.walletConnect!);
     }
 
+    // we initialize the high-level WalletConnectWallet
+    // we do this because we can't init this inside the constructor since it's async
     await Promise.all(this.initializers.map((fn) => fn()));
-    await this.stamper?.init();
   }
 
   /**
    * Retrieves available wallet providers, optionally filtered by chain.
    *
+   * - If a chain is specified, filters wallet interfaces that support that chain.
+   * - Aggregates providers across all registered wallet interfaces.
+   * - Filters WalletConnect results to match the specified chain.
+   *
    * @param chain - Optional chain to filter providers by.
-   * @throws If no wallet interface is registered for the given chain.
+   * @returns A promise that resolves to an array of `WalletProvider` objects.
+   * @throws {Error} If no wallet interface is registered for the given chain.
    */
   async getProviders(chain?: Chain): Promise<WalletProvider[]> {
     if (chain) {
-      const ifaceTypes = this.chainToInterfaces[chain];
-      if (!ifaceTypes || ifaceTypes.length === 0) {
+      const interfaceType = this.chainToInterfaces[chain];
+      if (!interfaceType || interfaceType.length === 0) {
         throw new Error(`No wallet supports chain: ${chain}`);
       }
 
-      const walletsToQuery = ifaceTypes
+      const walletsToQuery = interfaceType
         .map((iface) => this.wallets[iface])
         .filter(Boolean) as WalletInterface[];
 
@@ -126,10 +140,16 @@ export class MobileWalletManager {
   }
 
   /**
-   * Registers a wallet interface as supporting a specific blockchain chain.
+   * Registers a wallet interface type as supporting a specific blockchain chain.
+   *
+   * @param chain - Chain (e.g., Ethereum, Solana).
+   * @param interfaceType - Wallet interface type to associate with the chain.
    */
-  private addChainInterface = (chain: Chain, iface: WalletInterfaceType) => {
+  private addChainInterface = (
+    chain: Chain,
+    interfaceType: WalletInterfaceType,
+  ) => {
     if (!this.chainToInterfaces[chain]) this.chainToInterfaces[chain] = [];
-    this.chainToInterfaces[chain]!.push(iface);
+    this.chainToInterfaces[chain]!.push(interfaceType);
   };
 }
