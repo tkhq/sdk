@@ -1,7 +1,8 @@
 "use client";
-import { TurnkeyProvider } from "@turnkey/react-wallet-kit";
-import "@turnkey/react-wallet-kit/dist/styles.css";
+
+import "@turnkey/react-wallet-kit/styles.css";
 import "./global.css";
+import { TurnkeyProvider } from "@turnkey/react-wallet-kit";
 
 interface RootLayoutProps {
   children: React.ReactNode;

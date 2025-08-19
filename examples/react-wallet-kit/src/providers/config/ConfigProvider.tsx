@@ -8,11 +8,6 @@ import {
   useEffect,
 } from "react";
 import { Button, Transition } from "@headlessui/react";
-import {
-  TurnkeyProviderConfig,
-  TurnkeyProvider,
-  TurnkeyCallbacks,
-} from "@turnkey/react-wallet-kit";
 import { TurnkeyConfigPanel } from "./Panel";
 import clsx from "clsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -26,6 +21,11 @@ import { TurnkeySVG } from "@/components/Svg";
 import { isHardwareAccelerationEnabled, kebab, useScreenSize } from "@/utils";
 import { Slide, ToastContainer } from "react-toastify";
 import { DemoConfig } from "@/types";
+import {
+  TurnkeyProviderConfig,
+  TurnkeyCallbacks,
+  TurnkeyProvider,
+} from "@turnkey/react-wallet-kit";
 
 type ConfigContextValue = {
   config: TurnkeyProviderConfig;
