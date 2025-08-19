@@ -33,7 +33,7 @@ yarn add @turnkey/react-wallet-kit
 
 ## Provider
 
-Wrap your app with the `TurnkeyProvider` component, and import `"@turnkey/react-wallet-kit/dist/styles.css"` to include styles for the UI components.
+Wrap your app with the `TurnkeyProvider` component, and import `"@turnkey/react-wallet-kit/styles.css"` to include styles for the UI components.
 
 With Next.js App Router, keep `app/layout.tsx` as a server component and create a separate `app/providers.tsx` client wrapper. This is necessary if you want to pass callbacks (e.g., onError), which must be defined in a client component.
 
@@ -69,6 +69,7 @@ In case anything goes wrong, let's add an `onError` callback to the `TurnkeyProv
 Then, use the `Providers` component to wrap your app in `app/layout.tsx`.
 
 ```tsx app/layout.tsx
+import "@turnkey/react-wallet-kit/styles.css";
 import "./globals.css";
 import Providers from "./providers";
 
