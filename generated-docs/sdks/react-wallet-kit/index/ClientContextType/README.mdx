@@ -5,11 +5,11 @@ mode: wide
   
 # Interface: ClientContextType
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:41](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L41)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:40](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L40)
 
 ## Extends
 
-- [`TurnkeyClientMethods`](../../../core/index/TurnkeyClientMethods/readme)
+- `TurnkeyClientMethods`
 
 ## Properties
 
@@ -17,7 +17,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:41](https://github.
 
 > **addOauthProvider**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:657
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:658
 
 Adds an OAuth provider to the user.
 
@@ -76,7 +76,7 @@ If there is no active session, if the account already exists, or if there is an 
 
 > **addPasskey**: (`params?`) => `Promise`\<`string`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:699
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:700
 
 Adds a new passkey authenticator for the user.
 
@@ -134,7 +134,7 @@ If there is no active session, if passkey creation fails, or if there is an erro
 
 > `optional` **allSessions**: `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/readme)\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:44](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L44)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:43](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L43)
 
 ***
 
@@ -142,7 +142,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:44](https://github.
 
 > **authState**: `AuthState`
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:46](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L46)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:45](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L45)
 
 ***
 
@@ -150,7 +150,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:46](https://github.
 
 > **clearAllSessions**: () => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:884
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:958
 
 Clears all sessions and resets the active session state.
 
@@ -179,7 +179,7 @@ If no sessions exist or if there is an error clearing all sessions.
 
 > **clearSession**: (`params?`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:870
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:944
 
 Clears the session associated with the specified session key, or the active session by default.
 
@@ -218,7 +218,7 @@ If the session does not exist or if there is an error clearing the session.
 
 > **clearUnusedKeyPairs**: () => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:974
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:1048
 
 Clears any unused API key pairs from persistent storage.
 
@@ -245,9 +245,9 @@ If there is an error listing, checking, or deleting unused key pairs.
 
 ### clientState
 
-> **clientState**: `ClientState`
+> **clientState**: `undefined` \| `ClientState`
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:45](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L45)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:44](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L44)
 
 ***
 
@@ -255,7 +255,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:45](https://github.
 
 > **completeOauth**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:347
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:348
 
 Completes the OAuth authentication flow by either signing up or logging in the user, depending on whether a sub-organization already exists for the provided OIDC token.
 
@@ -325,7 +325,7 @@ If there is an error during the OAuth completion process, such as account lookup
 
 > **completeOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:319
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:320
 
 Completes the OTP authentication flow by verifying the OTP code and then either signing up or logging in the user.
 
@@ -407,7 +407,7 @@ If there is an error during OTP verification, sign-up, or login.
 
 > `optional` **config**: `TurnkeyProviderConfig`
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:47](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L47)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:46](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L46)
 
 ***
 
@@ -415,7 +415,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:47](https://github.
 
 > **connectWalletAccount**: (`walletProvider`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:118
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:119
 
 Connects the specified wallet account.
 
@@ -425,7 +425,7 @@ Connects the specified wallet account.
 
 ##### walletProvider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 wallet provider to connect.
 
@@ -449,7 +449,7 @@ If the wallet manager is uninitialized or the connection fails.
 
 > **createApiKeyPair**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:989
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:1063
 
 Creates a new API key pair and returns the public key.
 
@@ -494,7 +494,7 @@ If the API key stamper is not initialized or if there is an error during key pai
 
 > **createPasskey**: (`params?`) => `Promise`\<\{ `attestation`: [`v1Attestation`](../../../_turnkey/sdk-types/v1Attestation/readme); `encodedChallenge`: `string`; \}\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:34
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:35
 
 Creates a new passkey authenticator for the user.
 
@@ -546,7 +546,7 @@ If there is an error during passkey creation, or if the platform is unsupported.
 
 > **createWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:744
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:745
 
 Creates a new wallet for sub-organization.
 
@@ -612,7 +612,7 @@ If there is no active session or if there is an error creating the wallet.
 
 > **createWalletAccounts**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:768
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:769
 
 Creates new accounts in the specified wallet.
 
@@ -671,7 +671,7 @@ If there is no active session, if the wallet does not exist, or if there is an e
 
 > **deleteSubOrganization**: (`params?`) => `Promise`\<[`TDeleteSubOrganizationResponse`](../../../_turnkey/sdk-types/TDeleteSubOrganizationResponse/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:836
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:910
 
 Deletes the current sub-organization (sub-org) for the active session.
 
@@ -717,7 +717,7 @@ If there is no active session or if there is an error deleting the sub-organizat
 
 > **disconnectWalletAccount**: (`walletProvider`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:128
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:129
 
 Disconnects the specified wallet account.
 
@@ -727,7 +727,7 @@ Disconnects the specified wallet account.
 
 ##### walletProvider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 wallet provider to disconnect.
 
@@ -747,11 +747,69 @@ If the wallet manager is uninitialized or the disconnection fails.
 
 ***
 
+### exportPrivateKey()
+
+> **exportPrivateKey**: (`params`) => `Promise`\<`string`\>
+
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:814
+
+Exports a private key as an encrypted bundle.
+
+- This function exports the specified private key as an encrypted bundle, suitable for backup or transfer.
+- The exported bundle contains the private key's key material, encrypted to the provided target public key.
+- If a targetPublicKey is provided, the bundle will be encrypted to that public key; otherwise, an error will be thrown.
+- If an organizationId is provided, the private key will be exported under that sub-organization; otherwise, the current session's organizationId is used.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params
+
+###### organizationId?
+
+`string`
+
+organization ID to export the private key under a specific sub
+
+###### privateKeyId
+
+`string`
+
+ID of the private key to export.
+
+###### stampWith?
+
+[`StamperType`](../StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### targetPublicKey
+
+`string`
+
+public key to encrypt the bundle to (required).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to an `ExportBundle` object containing the encrypted private key and metadata.
+
+#### Throws
+
+If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the private key.
+
+#### Inherited from
+
+`TurnkeyClientMethods.exportPrivateKey`
+
+***
+
 ### exportWallet()
 
 > **exportWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:791
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:792
 
 Exports a wallet as an encrypted bundle.
 
@@ -806,11 +864,69 @@ If there is no active session, if the targetPublicKey is missing, or if there is
 
 ***
 
+### exportWalletAccount()
+
+> **exportWalletAccount**: (`params`) => `Promise`\<`string`\>
+
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:837
+
+Exports a wallet account as an encrypted bundle.
+
+- This function exports the specified wallet account as an encrypted bundle, suitable for backup or transfer.
+- The exported bundle contains the wallet account's key material, encrypted to the provided target public key.
+- If a targetPublicKey is provided, the bundle will be encrypted to that public key; otherwise, an error will be thrown.
+- If an organizationId is provided, the wallet account will be exported under that sub-organization; otherwise, the current session's organizationId is used.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params
+
+###### address
+
+`string`
+
+address of the wallet account to export.
+
+###### organizationId?
+
+`string`
+
+organization ID to export the wallet account under a specific sub-organization.
+
+###### stampWith?
+
+[`StamperType`](../StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### targetPublicKey
+
+`string`
+
+public key to encrypt the bundle to.
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to an `ExportBundle` object containing the encrypted wallet account and metadata.
+
+#### Throws
+
+If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the wallet account.
+
+#### Inherited from
+
+`TurnkeyClientMethods.exportWalletAccount`
+
+***
+
 ### fetchUser()
 
 > **fetchUser**: (`params?`) => `Promise`\<[`v1User`](../../../_turnkey/sdk-types/v1User/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:537
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:538
 
 Fetches the user details for the current session or a specified user.
 
@@ -860,9 +976,9 @@ If there is no active session, if there is no userId, or if there is an error fe
 
 ### fetchWalletAccounts()
 
-> **fetchWalletAccounts**: (`params`) => `Promise`\<[`WalletAccount`](../WalletAccount/readme)[]\>
+> **fetchWalletAccounts**: (`params`) => `Promise`\<`WalletAccount`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:431
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:432
 
 Fetches all accounts for a specific wallet, including both embedded and connected wallet accounts.
 
@@ -890,19 +1006,19 @@ parameter to stamp the request with a specific stamper (StamperType.Passkey, Sta
 
 ###### wallet
 
-[`Wallet`](../Wallet/readme)
+`Wallet`
 
 wallet for which to fetch accounts.
 
 ###### walletProviders?
 
-[`WalletProvider`](../WalletProvider/readme)[]
+`WalletProvider`[]
 
 list of wallet providers to filter by (used for connected wallets).
 
 #### Returns
 
-`Promise`\<[`WalletAccount`](../WalletAccount/readme)[]\>
+`Promise`\<`WalletAccount`[]\>
 
 A promise that resolves to an array of `v1WalletAccount` objects.
 
@@ -918,9 +1034,9 @@ If no active session is found or if there is an error fetching wallet accounts.
 
 ### fetchWallets()
 
-> **fetchWallets**: (`params?`) => `Promise`\<[`Wallet`](../Wallet/readme)[]\>
+> **fetchWallets**: (`params?`) => `Promise`\<`Wallet`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:412
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:413
 
 Fetches all wallets for the current user, including both embedded and connected wallets.
 
@@ -942,7 +1058,7 @@ parameter to stamp the request with a specific stamper (StamperType.Passkey, Sta
 
 #### Returns
 
-`Promise`\<[`Wallet`](../Wallet/readme)[]\>
+`Promise`\<`Wallet`[]\>
 
 A promise that resolves to an array of `Wallet` objects.
 
@@ -960,7 +1076,7 @@ If no active session is found or if there is an error fetching wallets.
 
 > **getActiveSessionKey**: () => `Promise`\<`undefined` \| `string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:962
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:1036
 
 Retrieves the active session key currently set in persistent storage.
 
@@ -989,7 +1105,7 @@ If there is an error retrieving the active session key from storage.
 
 > **getAllSessions**: () => `Promise`\<`undefined` \| `Record`\<`string`, [`Session`](../../../sdk-browser/index/Session/readme)\>\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:935
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:1009
 
 Retrieves all sessions stored in persistent storage.
 
@@ -1018,7 +1134,7 @@ If there is an error retrieving sessions from storage.
 
 > **getProxyAuthConfig**: () => `Promise`\<[`ProxyTGetWalletKitConfigResponse`](../../../_turnkey/sdk-types/ProxyTGetWalletKitConfigResponse/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:1007
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:1081
 
 Fetches the WalletKit proxy authentication configuration from the auth proxy.
 
@@ -1047,7 +1163,7 @@ If there is an error retrieving the proxy authentication configuration from the 
 
 > **getSession**: (`params?`) => `Promise`\<`undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:921
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:995
 
 Retrieves the session associated with the specified session key, or the active session by default.
 
@@ -1083,9 +1199,9 @@ If there is an error retrieving the session from storage.
 
 ### getWalletProviders()
 
-> **getWalletProviders**: (`chain?`) => `Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
+> **getWalletProviders**: (`chain?`) => `Promise`\<`WalletProvider`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:108
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:109
 
 Retrieves wallet providers from the initialized wallet manager.
 
@@ -1096,13 +1212,13 @@ Retrieves wallet providers from the initialized wallet manager.
 
 ##### chain?
 
-[`Chain`](../Chain/readme)
+`Chain`
 
 optional blockchain chain to filter the returned providers.
 
 #### Returns
 
-`Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
+`Promise`\<`WalletProvider`[]\>
 
 A promise that resolves to an array of wallet providers.
 
@@ -1120,7 +1236,7 @@ If the wallet manager is uninitialized or provider retrieval fails.
 
 > **handleAddEmail**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:356](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L356)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:399](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L399)
 
 Handles the add user email flow.
 
@@ -1176,7 +1292,7 @@ If the client is not initialized, no active session is found, or if there is an 
 
 > **handleUpdateUserName**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:330](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L330)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:373](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L373)
 
 Handles the update user email flow.
 
@@ -1236,7 +1352,77 @@ If the client is not initialized, no active session is found, or if there is an 
 
 > **httpClient**: `undefined` \| `TurnkeySDKClientBase`
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:42](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L42)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:41](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L41)
+
+***
+
+### importPrivateKey()
+
+> **importPrivateKey**: (`params`) => `Promise`\<`string`\>
+
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:888
+
+Imports a private key from an encrypted bundle.
+
+- This function imports a private key using the provided encrypted bundle.
+- If a userId is provided, the private key will be imported for that specific user; otherwise, it uses the current session's userId.
+- Requires address formats to
+- Automatically infers the cryptographic curve used to generate the private key based on the address format (can be optionally overriden if needed).
+- The encrypted bundle MUST be encrypted to ensure security.
+- Automatically ensures an active session exists before making the request.
+- Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+#### Parameters
+
+##### params
+
+###### addressFormats
+
+[`v1AddressFormat`](../../../_turnkey/sdk-types/v1AddressFormat/readme)[]
+
+###### curve
+
+[`v1Curve`](../../../_turnkey/sdk-types/v1Curve/readme)
+
+the cryptographic curve used to generate a given private key
+
+###### encryptedBundle
+
+`string`
+
+encrypted bundle containing the private key key material and metadata.
+
+###### privateKeyName
+
+`string`
+
+name of the private key to create upon import.
+
+###### stampWith?
+
+[`StamperType`](../StamperType/readme)
+
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+
+###### userId?
+
+`string`
+
+user ID to import the wallet for a specific user (defaults to the current session's userId).
+
+#### Returns
+
+`Promise`\<`string`\>
+
+A promise that resolves to the ID of the imported wallet.
+
+#### Throws
+
+If there is no active session, if the encrypted bundle is invalid, or if there is an error importing the wallet.
+
+#### Inherited from
+
+`TurnkeyClientMethods.importPrivateKey`
 
 ***
 
@@ -1244,14 +1430,14 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:42](https://github.
 
 > **importWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:815
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:861
 
 Imports a wallet from an encrypted bundle.
 
 - This function imports a wallet using the provided encrypted bundle and creates accounts based on the provided parameters.
 - If a userId is provided, the wallet will be imported for that specific user; otherwise, it uses the current session's userId.
 - If an accounts array is provided, those accounts will be created in the imported wallet; otherwise, default Ethereum and Solana accounts will be created.
-- The encrypted bunlde MUST be encrypted to
+- The encrypted bundle MUST be encrypted to
 - Automatically ensures an active session exists before making the request.
 - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 
@@ -1309,7 +1495,7 @@ If there is no active session, if the encrypted bundle is invalid, or if there i
 
 > **initOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:221
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:222
 
 Initializes the OTP process by sending an OTP code to the provided contact.
 
@@ -1353,7 +1539,7 @@ If there is an error during the OTP initialization process or if the maximum num
 
 > **loginOrSignupWithWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:203
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:204
 
 Logs in an existing user or signs up a new user using a wallet, creating a new sub-organization if needed.
 
@@ -1388,7 +1574,7 @@ session key to use for storing the session (defaults to the default session key)
 
 ###### walletProvider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 wallet provider to use for authentication.
 
@@ -1412,7 +1598,7 @@ If there is an error during wallet authentication, sub-organization creation, or
 
 > **loginWithOauth**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:370
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:371
 
 Logs in a user using OAuth authentication.
 
@@ -1469,7 +1655,7 @@ If there is an error during the OAuth login process or if key pair cleanup fails
 
 > **loginWithOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:267
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:268
 
 Logs in a user using an OTP verification token.
 
@@ -1527,7 +1713,7 @@ If there is an error during the OTP login process or if key pair cleanup fails.
 
 > **loginWithPasskey**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:71
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:72
 
 Logs in a user using a passkey, optionally specifying the public key, session key, and session expiration.
 
@@ -1579,7 +1765,7 @@ If there is an error during the passkey login process or if the user cancels the
 
 > **loginWithWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:158
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:159
 
 Logs in a user using the specified wallet provider.
 
@@ -1613,7 +1799,7 @@ optional key to store the session under (defaults to the default session key).
 
 ###### walletProvider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 wallet provider to use for authentication.
 
@@ -1637,7 +1823,7 @@ If the wallet stamper is uninitialized, a public key cannot be found or generate
 
 > **logout**: (`params?`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:53
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:54
 
 Logs out the current client session.
 
@@ -1675,7 +1861,7 @@ If there is no active session or if there is an error during the logout process.
 
 > **refreshSession**: (`params?`) => `Promise`\<`undefined` \| [`TStampLoginResponse`](../../../_turnkey/sdk-types/TStampLoginResponse/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:903
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:977
 
 Refreshes the session associated with the specified session key, or the active session by default.
 
@@ -1740,7 +1926,7 @@ If the session key does not exist, if there is no active session, or if there is
 
 > **removeOauthProviders**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:678
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:679
 
 Removes a list of OAuth providers from the user.
 
@@ -1792,7 +1978,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **removePasskeys**: (`params`) => `Promise`\<`string`[]\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:720
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:721
 
 Removes passkeys (authenticator) from the user.
 
@@ -1844,7 +2030,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **removeUserEmail**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:577
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:578
 
 Removes the user's email address.
 
@@ -1889,7 +2075,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **removeUserPhoneNumber**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:616
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:617
 
 Removes the user's phone number.
 
@@ -1934,7 +2120,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **session**: `undefined` \| [`Session`](../../../sdk-browser/index/Session/readme)
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:43](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L43)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:42](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L42)
 
 ***
 
@@ -1942,7 +2128,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:43](https://github.
 
 > **setActiveSession**: (`params`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:948
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:1022
 
 Sets the active session to the specified session key.
 
@@ -1981,7 +2167,7 @@ If the client is not initialized or if there is an error setting the active sess
 
 > **signAndSendTransaction**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:515
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:516
 
 Signs and broadcasts a transaction using the specified wallet account.
 
@@ -2024,7 +2210,7 @@ unsigned transaction (serialized string).
 
 ###### walletAccount
 
-[`WalletAccount`](../WalletAccount/readme)
+`WalletAccount`
 
 wallet account to use for signing and sending.
 
@@ -2048,7 +2234,7 @@ If signing or broadcasting fails.
 
 > **signMessage**: (`params`) => `Promise`\<[`v1SignRawPayloadResult`](../../../_turnkey/sdk-types/v1SignRawPayloadResult/readme)\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:465
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:466
 
 Signs a message using the specified wallet account.
 
@@ -2103,7 +2289,7 @@ stamper to tag the signing request (e.g., Passkey, ApiKey, or Wallet).
 
 ###### walletAccount
 
-[`WalletAccount`](../WalletAccount/readme)
+`WalletAccount`
 
 wallet account to use for signing.
 
@@ -2127,7 +2313,7 @@ If signing fails, if the wallet account does not support signing, or if the resp
 
 > **signTransaction**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:489
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:490
 
 Signs a transaction using the specified wallet account.
 
@@ -2161,7 +2347,7 @@ unsigned transaction data (serialized as a string) to be signed.
 
 ###### walletAccount
 
-[`WalletAccount`](../WalletAccount/readme)
+`WalletAccount`
 
 wallet account to use for signing the transaction.
 
@@ -2185,7 +2371,7 @@ If there is an error signing the transaction or if the response is invalid.
 
 > **signUpWithOauth**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:392
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:393
 
 Signs up a user using OAuth authentication.
 
@@ -2248,7 +2434,7 @@ If there is an error during the OAuth sign-up or login process.
 
 > **signUpWithOtp**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:291
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:292
 
 Signs up a user using an OTP verification token.
 
@@ -2318,7 +2504,7 @@ If there is an error during the OTP sign-up process or session storage.
 
 > **signUpWithPasskey**: (`params?`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:92
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:93
 
 Signs up a user using a passkey, creating a new sub-organization and session.
 
@@ -2376,7 +2562,7 @@ If there is an error during passkey creation, sub-organization creation, or sess
 
 > **signUpWithWallet**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:180
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:181
 
 Signs up a user using a wallet, creating a new sub-organization and session.
 
@@ -2410,7 +2596,7 @@ session key to use for storing the session (defaults to the default session key)
 
 ###### walletProvider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 wallet provider to use for authentication.
 
@@ -2434,7 +2620,7 @@ If there is an error during wallet authentication, sub-organization creation, se
 
 > **storeSession**: (`params`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:854
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:928
 
 Stores a session token and updates the session associated with the specified session key, or by default the active session.
 
@@ -2480,7 +2666,7 @@ If there is an error storing the session or cleaning up key pairs.
 
 > **switchWalletProviderChain**: (`walletProvider`, `chainOrId`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:141
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:142
 
 Switches the specified wallet provider to a different blockchain chain.
 
@@ -2492,7 +2678,7 @@ Switches the specified wallet provider to a different blockchain chain.
 
 ##### walletProvider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 wallet provider to switch.
 
@@ -2500,7 +2686,7 @@ wallet provider to switch.
 
 target chain as a chain ID string or SwitchableChain object.
 
-`string` | [`SwitchableChain`](../SwitchableChain/readme)
+`string` | `SwitchableChain`
 
 #### Returns
 
@@ -2522,7 +2708,7 @@ If the wallet manager is uninitialized, the provider is not connected, or the sw
 
 > **updateUserEmail**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:558
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:559
 
 Updates the user's email address.
 
@@ -2580,7 +2766,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **updateUserName**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:635
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:636
 
 Updates the user's name.
 
@@ -2632,7 +2818,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **updateUserPhoneNumber**: (`params`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:597
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:598
 
 Updates the user's phone number.
 
@@ -2690,7 +2876,7 @@ If there is no active session, if the userId is missing, or if there is an error
 
 > **user**: `undefined` \| [`v1User`](../../../_turnkey/sdk-types/v1User/readme)
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:48](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L48)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:47](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L47)
 
 ***
 
@@ -2698,7 +2884,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:48](https://github.
 
 > **verifyOtp**: (`params`) => `Promise`\<\{ `subOrganizationId`: `string`; `verificationToken`: `string`; \}\>
 
-Defined in: core/dist/\_\_clients\_\_/core.d.ts:242
+Defined in: core/dist/\_\_clients\_\_/core.d.ts:243
 
 Verifies the OTP code sent to the user.
 
@@ -2755,9 +2941,9 @@ If there is an error during the OTP verification process, such as an invalid cod
 
 ### wallets
 
-> **wallets**: [`Wallet`](../Wallet/readme)[]
+> **wallets**: `Wallet`[]
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:49](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L49)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:48](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L48)
 
 ## Methods
 
@@ -2765,7 +2951,7 @@ Defined in: [react-wallet-kit/src/providers/client/Types.tsx:49](https://github.
 
 > **handleAddOauthProvider**(`params`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:408](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L408)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:451](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L451)
 
 Handles the addition of an OAuth provider for the user.
 
@@ -2809,7 +2995,7 @@ If the client is not initialized, no active session is found, or if there is an 
 
 > **handleAddPasskey**(`params?`): `Promise`\<`string`[]\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:461](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L461)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:504](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L504)
 
 Handles the addition of a passkey (authenticator) for the user.
 
@@ -2871,7 +3057,7 @@ If the client is not initialized, no active session is found, or if there is an 
 
 > **handleAddPhoneNumber**(`params?`): `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:383](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L383)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:426](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L426)
 
 Handles the add phone number flow.
 
@@ -2933,7 +3119,7 @@ If the client is not initialized, no active session is found, or if there is an 
 
 > **handleAppleOauth**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:160](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L160)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:159](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L159)
 
 Handles the Apple OAuth flow.
 
@@ -2991,20 +3177,19 @@ If the configuration is not ready, required parameters are missing, or if there 
 
 ***
 
-### handleExport()
+### handleExportPrivateKey()
 
-> **handleExport**(`params`): `Promise`\<`void`\>
+> **handleExportPrivateKey**(`params`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:226](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L226)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:246](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L246)
 
-Handles the export flow.
+handles the export private key flow.
 
-- This function opens a modal with the ExportComponent for exporting a wallet or private key.
-- Uses Turnkey's export iframe flow to securely export wallet or private key material.
+- This function opens a modal with the ExportComponent for exporting a private key.
+- Uses Turnkey's export iframe flow to securely export private key material.
 - The export process encrypts the exported bundle to a target public key, which is generated and managed inside the iframe for maximum security.
-- A request is made to the Turnkey API to export the wallet or private key, encrypted to the target public key.
+- A request is made to the Turnkey API to export the private key, encrypted to the target public key.
 - The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.
-- Supports both full wallet exports (ExportType.Wallet) and single private key exports (ExportType.PrivateKey).
 - If a custom iframe URL is used, a target public key can be provided explicitly.
 - Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
 - The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.
@@ -3013,11 +3198,52 @@ Handles the export flow.
 
 ##### params
 
-###### exportType
+###### privateKeyId
 
-`ExportType`
+`string`
 
-The type of export to perform (ExportType.Wallet or ExportType.PrivateKey).
+The ID of the private key to export.
+
+###### stampWith?
+
+[`StamperType`](../StamperType/readme)
+
+The stamper to use for the export (Passkey, ApiKey, or Wallet).
+
+###### targetPublicKey?
+
+`string`
+
+The target public key to encrypt the export bundle to (required for custom iframe flows).
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A void promise.
+
+***
+
+### handleExportWallet()
+
+> **handleExportWallet**(`params`): `Promise`\<`void`\>
+
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:223](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L223)
+
+Handles the export wallet flow.
+
+- This function opens a modal with the ExportComponent for exporting a wallet.
+- Uses Turnkey's export iframe flow to securely export wallet material.
+- The export process encrypts the exported bundle to a target public key, which is generated and managed inside the iframe for maximum security.
+- A request is made to the Turnkey API to export the wallet, encrypted to the target public key.
+- The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.
+- If a custom iframe URL is used, a target public key can be provided explicitly.
+- Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
+- The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.
+
+#### Parameters
+
+##### params
 
 ###### stampWith?
 
@@ -3045,11 +3271,58 @@ A void promise.
 
 ***
 
+### handleExportWalletAccount()
+
+> **handleExportWalletAccount**(`params`): `Promise`\<`void`\>
+
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:271](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L271)
+
+Handles the export wallet account flow.
+
+- This function opens a modal with the ExportComponent for exporting a wallet account.
+- Uses Turnkey's export iframe flow to securely export wallet account material.
+- The export process encrypts the exported bundle to a target public key, which is generated and managed inside the iframe for maximum security.
+- A request is made to the Turnkey API to export the wallet account, encrypted to the target public key.
+- The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.
+- If a custom iframe URL is used, a target public key can be provided explicitly.
+- Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
+- The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.
+
+#### Parameters
+
+##### params
+
+###### address
+
+`string`
+
+The address of the wallet account to export.
+
+###### stampWith?
+
+[`StamperType`](../StamperType/readme)
+
+The stamper to use for the export (Passkey, ApiKey, or Wallet).
+
+###### targetPublicKey?
+
+`string`
+
+The target public key to encrypt the export bundle to (required for custom iframe flows).
+
+#### Returns
+
+`Promise`\<`void`\>
+
+A void promise.
+
+***
+
 ### handleFacebookOauth()
 
 > **handleFacebookOauth**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:196](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L196)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:195](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L195)
 
 Handles the Facebook OAuth flow.
 
@@ -3112,7 +3385,7 @@ If the configuration is not ready, required parameters are missing, or if there 
 
 > **handleGoogleOauth**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:125](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L125)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:124](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L124)
 
 Handles the Google OAuth flow.
 
@@ -3170,18 +3443,17 @@ If the configuration is not ready, required parameters are missing, or if there 
 
 ***
 
-### handleImport()
+### handleImportWallet()
 
-> **handleImport**(`params?`): `Promise`\<`string`\>
+> **handleImportWallet**(`params?`): `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:250](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L250)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:293](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L293)
 
 Handles the import flow.
 
-- This function opens a modal with the ImportComponent for importing a wallet or private key.
+- This function opens a modal with the ImportComponent for importing a wallet.
 - Supports importing wallets using an encrypted bundle, with optional default accounts or custom account parameters.
 - Allows users to specify default wallet accounts (address formats or account params) to pre-fill the import form.
-- Optionally accepts a callback to handle successful import, which receives the imported wallet's ID.
 - Supports customizing the duration of the success page shown after a successful import.
 - Allows specifying the stamper to use for the import (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
 - Ensures the imported wallet is added to the user's wallet list and the provider state is refreshed.
@@ -3220,7 +3492,7 @@ A promise that resolves to the new wallet's ID.
 
 > **handleLinkExternalWallet**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:544](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L544)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:587](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L587)
 
 Handles the linking of an external wallet account to the user's Turnkey account.
 
@@ -3257,7 +3529,7 @@ If the client is not initialized or if no active session is found.
 
 > **handleLogin**(): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:98](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L98)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:97](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L97)
 
 Handles the login or sign-up flow.
 
@@ -3279,7 +3551,7 @@ A void promise.
 
 > **handleRemoveOauthProvider**(`params`): `Promise`\<`string`[]\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:433](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L433)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:476](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L476)
 
 Handles the removal of an OAuth provider.
 
@@ -3341,7 +3613,7 @@ If the client is not initialized, no active session is found, or if there is an 
 
 > **handleRemovePasskey**(`params`): `Promise`\<`string`[]\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:489](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L489)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:532](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L532)
 
 Handles the removal of a passkey (authenticator) for the user.
 
@@ -3408,7 +3680,7 @@ If the client is not initialized, no active session is found, or if there is an 
 
 > **handleRemoveUserEmail**(`params?`): `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:557](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L557)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:600](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L600)
 
 Handles the removal of a user's email address from their Turnkey account.
 
@@ -3446,7 +3718,7 @@ The user ID to remove the email for (defaults to current session's userId).
 
 > **handleRemoveUserPhoneNumber**(`params?`): `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:572](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L572)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:615](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L615)
 
 Handles the removal of a user's phone number from their Turnkey account.
 
@@ -3484,7 +3756,7 @@ The user ID to remove the phone number for (defaults to current session's userId
 
 > **handleSignMessage**(`params`): `Promise`\<[`v1SignRawPayloadResult`](../../../_turnkey/sdk-types/v1SignRawPayloadResult/readme)\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:518](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L518)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:561](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L561)
 
 Handles the signing of a message by displaying a modal for user interaction.
 
@@ -3542,7 +3814,7 @@ duration in seconds to display the success page after signing.
 
 ###### walletAccount
 
-[`WalletAccount`](../WalletAccount/readme)
+`WalletAccount`
 
 The wallet account to use for signing.
 
@@ -3562,7 +3834,7 @@ If the client is not initialized or if there is an error during the signing proc
 
 > **handleUpdateUserEmail**(`params?`): `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:275](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L275)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:318](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L318)
 
 Handles the update user name flow.
 
@@ -3615,7 +3887,7 @@ If the client is not initialized, no active session is found, or if there is an 
 
 > **handleUpdateUserPhoneNumber**(`params?`): `Promise`\<`string`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:302](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L302)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:345](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L345)
 
 Handles the update user phone number flow.
 
@@ -3677,7 +3949,7 @@ If the client is not initialized, no active session is found, SMS OTP is not ena
 
 > **refreshUser**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:65](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L65)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:64](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L64)
 
 Refreshes the user details.
 
@@ -3714,7 +3986,7 @@ If the client is not initialized or if there is an error refreshing the user det
 
 > **refreshWallets**(`params?`): `Promise`\<`void`\>
 
-Defined in: [react-wallet-kit/src/providers/client/Types.tsx:83](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L83)
+Defined in: [react-wallet-kit/src/providers/client/Types.tsx:82](https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L82)
 
 Refreshes the wallets state for the current user session.
 

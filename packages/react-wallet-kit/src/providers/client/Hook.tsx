@@ -3,6 +3,7 @@
 import { useContext } from "react";
 import { ClientContext, ClientContextType } from "./Types";
 
+/** @internal */
 export const useTurnkey = (): ClientContextType => {
   const context = useContext(ClientContext);
   if (!context)

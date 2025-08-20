@@ -5,15 +5,27 @@ mode: wide
   
 # Interface: TurnkeyHttpClientConfig
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:67
+Defined in: core/dist/\_\_types\_\_/base.d.ts:62
+
+TurnkeyHttpClientConfig defines the configuration for the Turnkey HTTP client.
+ TurnkeyHttpClientConfig
+
+## Remarks
+
+This interface is used to configure the Turnkey HTTP client, which is responsible for making API
+requests to Turnkey. It includes options for custom API key stamping, passkey stamping, wallet stamping,
+and session management through a storage manager.
+The `activityPoller` configuration allows for setting up a polling mechanism for activities, with options for the polling interval and number of retries.
 
 ## Properties
 
 ### activityPoller?
 
-> `optional` **activityPoller**: [`TActivityPollerConfig`](../TActivityPollerConfig/readme)
+> `optional` **activityPoller**: `TActivityPollerConfig`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:72
+Defined in: core/dist/\_\_types\_\_/base.d.ts:67
+
+configuration for the activity poller.
 
 ***
 
@@ -21,15 +33,19 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:72
 
 > **apiBaseUrl**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:68
+Defined in: core/dist/\_\_types\_\_/base.d.ts:63
+
+base URL for the Turnkey API.
 
 ***
 
 ### apiKeyStamper?
 
-> `optional` **apiKeyStamper**: [`TStamper`](../TStamper/readme)
+> `optional` **apiKeyStamper**: `TStamper`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:73
+Defined in: core/dist/\_\_types\_\_/base.d.ts:68
+
+stamper for API keys.
 
 ***
 
@@ -37,7 +53,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:73
 
 > `optional` **authProxyConfigId**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:71
+Defined in: core/dist/\_\_types\_\_/base.d.ts:66
+
+ID for the auth proxy configuration.
 
 ***
 
@@ -45,7 +63,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:71
 
 > `optional` **authProxyUrl**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:70
+Defined in: core/dist/\_\_types\_\_/base.d.ts:65
+
+URL for the auth proxy.
 
 ***
 
@@ -53,36 +73,36 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:70
 
 > **organizationId**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:69
+Defined in: core/dist/\_\_types\_\_/base.d.ts:64
+
+ID of the organization.
 
 ***
 
 ### passkeyStamper?
 
-> `optional` **passkeyStamper**: [`TStamper`](../TStamper/readme)
+> `optional` **passkeyStamper**: `TStamper`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:74
+Defined in: core/dist/\_\_types\_\_/base.d.ts:69
 
-***
-
-### readOnlySession?
-
-> `optional` **readOnlySession**: `string`
-
-Defined in: core/dist/\_\_types\_\_/base.d.ts:77
+stamper for passkeys.
 
 ***
 
 ### storageManager?
 
-> `optional` **storageManager**: [`StorageBase`](../StorageBase/readme)
+> `optional` **storageManager**: `StorageBase`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:76
+Defined in: core/dist/\_\_types\_\_/base.d.ts:71
+
+storage manager for session management.
 
 ***
 
 ### walletStamper?
 
-> `optional` **walletStamper**: [`TStamper`](../TStamper/readme)
+> `optional` **walletStamper**: `TStamper`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:75
+Defined in: core/dist/\_\_types\_\_/base.d.ts:70
+
+stamper for wallets.

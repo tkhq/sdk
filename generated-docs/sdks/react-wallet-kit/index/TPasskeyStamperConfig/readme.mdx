@@ -3,11 +3,12 @@ title: "TPasskeyStamperConfig"
 mode: wide
 ---
   
-# Type Alias: TPasskeyStamperConfig
+# Interface: TPasskeyStamperConfig
 
-> **TPasskeyStamperConfig** = `object`
+Defined in: core/dist/\_\_types\_\_/base.d.ts:308
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:253
+TPasskeyStamperConfig defines the configuration for the passkey stamper.
+ TPasskeyStamperConfig
 
 ## Properties
 
@@ -15,7 +16,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:253
 
 > `optional` **allowCredentials**: `PublicKeyCredentialDescriptor`[]
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:257
+Defined in: core/dist/\_\_types\_\_/base.d.ts:312
+
+list of credentials to pass. Defaults to empty.
 
 ***
 
@@ -23,7 +26,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:257
 
 > `optional` **extensions**: `Record`\<`string`, `unknown`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:261
+Defined in: core/dist/\_\_types\_\_/base.d.ts:316
+
+optional extensions. Defaults to empty.
 
 ***
 
@@ -31,7 +36,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:261
 
 > `optional` **rpId**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:254
+Defined in: core/dist/\_\_types\_\_/base.d.ts:309
+
+The RPID ("Relying Party ID") for your app. This is automatically determined in web environments based on the current hostname. See https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration to set this up for react-native.
 
 ***
 
@@ -39,7 +46,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:254
 
 > `optional` **rpName**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:258
+Defined in: core/dist/\_\_types\_\_/base.d.ts:313
+
+name for the Relying Party (RP). This is used in the passkey creation flow on mobile.
 
 ***
 
@@ -47,7 +56,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:258
 
 > `optional` **timeout**: `number`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:255
+Defined in: core/dist/\_\_types\_\_/base.d.ts:310
+
+timeout value in milliseconds. Defaults to 5 minutes.
 
 ***
 
@@ -55,7 +66,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:255
 
 > `optional` **userVerification**: `UserVerificationRequirement`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:256
+Defined in: core/dist/\_\_types\_\_/base.d.ts:311
+
+override for UV flag. Defaults to "preferred".
 
 ***
 
@@ -63,7 +76,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:256
 
 > `optional` **withPlatformKey**: `boolean`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:260
+Defined in: core/dist/\_\_types\_\_/base.d.ts:315
+
+option to force platform passkeys on native platforms.
 
 ***
 
@@ -71,4 +86,6 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:260
 
 > `optional` **withSecurityKey**: `boolean`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:259
+Defined in: core/dist/\_\_types\_\_/base.d.ts:314
+
+option to force security passkeys on native platforms.

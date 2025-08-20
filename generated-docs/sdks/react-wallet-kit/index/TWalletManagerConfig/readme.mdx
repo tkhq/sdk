@@ -3,11 +3,12 @@ title: "TWalletManagerConfig"
 mode: wide
 ---
   
-# Type Alias: TWalletManagerConfig
+# Interface: TWalletManagerConfig
 
-> **TWalletManagerConfig** = `object`
+Defined in: core/dist/\_\_types\_\_/base.d.ts:329
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:265
+TWalletManagerConfig defines the configuration for the wallet manager.
+ TWalletManagerConfig
 
 ## Properties
 
@@ -15,7 +16,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:265
 
 > **chains**: `object`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:270
+Defined in: core/dist/\_\_types\_\_/base.d.ts:334
+
+chains to support in the wallet manager.
 
 #### ethereum?
 
@@ -23,11 +26,11 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:270
 
 ##### ethereum.native?
 
-> `optional` **native**: `boolean`
+> `optional` **ethereum.native**: `boolean`
 
 ##### ethereum.walletConnectNamespaces?
 
-> `optional` **walletConnectNamespaces**: `EvmNamespace`[]
+> `optional` **ethereum.walletConnectNamespaces**: `` `eip155:${string}` ``[]
 
 #### solana?
 
@@ -35,11 +38,11 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:270
 
 ##### solana.native?
 
-> `optional` **native**: `boolean`
+> `optional` **solana.native**: `boolean`
 
 ##### solana.walletConnectNamespaces?
 
-> `optional` **walletConnectNamespaces**: `SolNamespace`[]
+> `optional` **solana.walletConnectNamespaces**: `` `solana:${string}` ``[]
 
 ***
 
@@ -47,7 +50,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:270
 
 > `optional` **features**: `object`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:266
+Defined in: core/dist/\_\_types\_\_/base.d.ts:330
+
+features to enable in the wallet manager.
 
 #### auth?
 
@@ -63,7 +68,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:266
 
 > `optional` **walletConnect**: `object`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:280
+Defined in: core/dist/\_\_types\_\_/base.d.ts:344
+
+configuration for WalletConnect.
 
 #### appMetadata
 
@@ -71,19 +78,19 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:280
 
 ##### appMetadata.description
 
-> **description**: `string`
+> **appMetadata.description**: `string`
 
 ##### appMetadata.icons
 
-> **icons**: `string`[]
+> **appMetadata.icons**: `string`[]
 
 ##### appMetadata.name
 
-> **name**: `string`
+> **appMetadata.name**: `string`
 
 ##### appMetadata.url
 
-> **url**: `string`
+> **appMetadata.url**: `string`
 
 #### projectId
 

@@ -86,10 +86,6 @@ export class TurnkeySDKClientBase {
       headers[stamp.stampHeaderName] = stamp.stampHeaderValue;
     }
 
-    if (this.config.readOnlySession) {
-      headers["X-Session"] = this.config.readOnlySession;
-    }
-
     const response = await fetch(fullUrl, {
       method: "POST",
       headers: headers,

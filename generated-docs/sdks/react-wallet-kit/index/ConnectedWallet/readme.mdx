@@ -5,7 +5,10 @@ mode: wide
   
 # Interface: ConnectedWallet
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:144
+Defined in: core/dist/\_\_types\_\_/base.d.ts:167
+
+ConnectedWallet represents a connected wallet (Ex: MetaMask, Rabby, Phantom external wallets).
+ ConnectedWallet
 
 ## Extends
 
@@ -15,9 +18,11 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:144
 
 ### accounts
 
-> **accounts**: [`WalletAccount`](../WalletAccount/readme)[]
+> **accounts**: `WalletAccount`[]
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:146
+Defined in: core/dist/\_\_types\_\_/base.d.ts:169
+
+array of wallet accounts.
 
 ***
 
@@ -63,9 +68,11 @@ True when a given Wallet is imported, false otherwise.
 
 ### source
 
-> **source**: [`Connected`](../WalletSource/readme#connected)
+> **source**: `Connected`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:145
+Defined in: core/dist/\_\_types\_\_/base.d.ts:168
+
+source of the wallet, which is always "connected".
 
 ***
 

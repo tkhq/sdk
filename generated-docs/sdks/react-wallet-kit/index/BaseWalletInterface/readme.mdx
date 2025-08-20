@@ -5,16 +5,10 @@ mode: wide
   
 # Interface: BaseWalletInterface
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:361
+Defined in: core/dist/\_\_types\_\_/base.d.ts:437
 
 Base interface for wallet functionalities common across different blockchain chains.
  BaseWalletInterface
-
-## Extended by
-
-- [`SolanaWalletInterface`](../SolanaWalletInterface/readme)
-- [`EthereumWalletInterface`](../EthereumWalletInterface/readme)
-- [`WalletConnectInterface`](../WalletConnectInterface/readme)
 
 ## Properties
 
@@ -22,13 +16,13 @@ Base interface for wallet functionalities common across different blockchain cha
 
 > **connectWalletAccount**: (`provider`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:366
+Defined in: core/dist/\_\_types\_\_/base.d.ts:442
 
 #### Parameters
 
 ##### provider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 #### Returns
 
@@ -40,13 +34,13 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:366
 
 > **disconnectWalletAccount**: (`provider`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:367
+Defined in: core/dist/\_\_types\_\_/base.d.ts:443
 
 #### Parameters
 
 ##### provider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 #### Returns
 
@@ -56,13 +50,13 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:367
 
 ### getProviders()
 
-> **getProviders**: () => `Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
+> **getProviders**: () => `Promise`\<`WalletProvider`[]\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:365
+Defined in: core/dist/\_\_types\_\_/base.d.ts:441
 
 #### Returns
 
-`Promise`\<[`WalletProvider`](../WalletProvider/readme)[]\>
+`Promise`\<`WalletProvider`[]\>
 
 ***
 
@@ -70,7 +64,7 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:365
 
 > **getPublicKey**: (`provider`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:364
+Defined in: core/dist/\_\_types\_\_/base.d.ts:440
 
 Retrieves the public key as a string.
 
@@ -78,7 +72,7 @@ Retrieves the public key as a string.
 
 ##### provider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 #### Returns
 
@@ -88,31 +82,31 @@ Retrieves the public key as a string.
 
 ### interfaceType
 
-> **interfaceType**: [`WalletInterfaceType`](../WalletInterfaceType/readme)
+> **interfaceType**: `WalletInterfaceType`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:362
+Defined in: core/dist/\_\_types\_\_/base.d.ts:438
 
 ***
 
 ### sign()
 
-> **sign**: (`message`, `provider`, `intent`) => `Promise`\<`string`\>
+> **sign**: (`payload`, `provider`, `intent`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:363
+Defined in: core/dist/\_\_types\_\_/base.d.ts:439
 
 #### Parameters
 
-##### message
+##### payload
 
 `string`
 
 ##### provider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 ##### intent
 
-[`SignIntent`](../SignIntent/readme)
+`SignIntent`
 
 #### Returns
 
@@ -124,17 +118,17 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:363
 
 > `optional` **switchChain**: (`provider`, `chainOrId`) => `Promise`\<`void`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:368
+Defined in: core/dist/\_\_types\_\_/base.d.ts:444
 
 #### Parameters
 
 ##### provider
 
-[`WalletProvider`](../WalletProvider/readme)
+`WalletProvider`
 
 ##### chainOrId
 
-`string` | [`SwitchableChain`](../SwitchableChain/readme)
+`string` | `SwitchableChain`
 
 #### Returns
 

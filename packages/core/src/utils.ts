@@ -73,6 +73,22 @@ type AddressFormatConfig = {
   displayName: string;
 };
 
+/**
+ * Configuration for all supported address formats.
+ *
+ * Includes:
+ * - encoding type
+ * - hash function
+ * - default accounts for the address format
+ * - display name for the address format
+ *
+ * ```ts
+ * // Example usage:
+ * import { addressFormatConfig } from "@turnkey/sdk-core";
+ *
+ * const config = addressFormatConfig["ADDRESS_FORMAT_ETHEREUM"];
+ * ```
+ */
 export const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> =
   {
     ADDRESS_FORMAT_UNCOMPRESSED: {
@@ -611,6 +627,7 @@ export function createWalletAccountFromAddressFormat(
   );
 }
 
+/**@internal */
 export function generateWalletAccountsFromAddressFormat(params: {
   addresses: v1AddressFormat[];
   existingWalletAccounts?: v1WalletAccount[];
@@ -758,16 +775,19 @@ export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
   }
 }
 
+/**@internal */
 export function isEthereumWallet(wallet: WalletProvider): boolean {
   const walletType = wallet.chainInfo.namespace;
   return walletType === Chain.Ethereum;
 }
 
+/**@internal */
 export function isSolanaWallet(wallet: WalletProvider): boolean {
   const walletType = wallet.chainInfo.namespace;
   return walletType === Chain.Solana;
 }
 
+/**@internal */
 export async function getAuthProxyConfig(
   authProxyConfigId: string,
   authProxyUrl?: string | undefined,
@@ -801,10 +821,16 @@ export async function getAuthProxyConfig(
 }
 
 /**
+ * @internal
  * Executes an async function with error handling.
  *
  * @param fn The async function to execute with error handling
  * @param errorOptions Options for customizing error handling
+ * @param errorOptions.catchFn Optional function to execute in the catch block
+ * @param errorOptions.errorMessage The default error message to use if no custom message is found
+ * @param errorOptions.errorCode The default error code to use if no custom message is found
+ * @param errorOptions.customMessageByCodes Optional mapping of error codes to custom messages, if you're trying to target a specific error code and surface a custom message, use this
+ * @param errorOptions.customMessageByMessages Optional mapping of error messages to custom messages, if you're trying to target a specific error message and surface a custom message, use this
  * @param finallyFn Optional function to execute in the finally block
  * @returns The result of the async function or throws an error
  */
@@ -869,6 +895,14 @@ export async function withTurnkeyErrorHandling<T>(
   }
 }
 
+/**
+ * Throws a TurnkeyError with a custom message if the error message matches any key in customMessageByMessages.
+ * If no match is found, it does nothing.
+ *
+ * @param errorMessage The error message to check against the custom messages.
+ * @param customMessageByMessages An object mapping error messages to custom messages and codes.
+ * @param error The original error that triggered this function.
+ */
 const throwMatchingMessage = (
   errorMessage: string,
   customMessageByMessages:
