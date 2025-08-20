@@ -6,6 +6,7 @@ import {
   hexToBigInt,
   hexToBytes,
   parseTransaction,
+  serializeTypedData,
 } from "viem";
 import {
   SignAuthorizationReturnType,
@@ -16,6 +17,7 @@ import type {
   Hex,
   LocalAccount,
   SerializeTransactionFn,
+  SignTypedDataParameters,
   SignableMessage,
   TransactionSerializable,
   TypedData,
@@ -448,7 +450,7 @@ export async function signTypedData(
 ): Promise<Hex> {
   return (await signMessageWithErrorWrapping(
     client,
-    jsonStringifyWithBigInt(data),
+    serializeTypedData(data as SignTypedDataParameters),
     organizationId,
     signWith,
     "PAYLOAD_ENCODING_EIP712",
@@ -672,11 +674,5 @@ export function isTurnkeyActivityError(error: any) {
     error.walk((e: any) => {
       return e instanceof TurnkeyActivityError;
     })
-  );
-}
-
-export function jsonStringifyWithBigInt(value: unknown) {
-  return JSON.stringify(value, (_, v) =>
-    typeof v === "bigint" ? v.toString() : v,
   );
 }
