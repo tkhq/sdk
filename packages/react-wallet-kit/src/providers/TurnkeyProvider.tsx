@@ -6,6 +6,7 @@ import { ModalRoot } from "./modal/Root";
 import { TurnkeyThemeOverrides } from "./theme/Overrides";
 import type { TurnkeyCallbacks, TurnkeyProviderConfig } from "../types/base";
 
+/** @internal */
 export function TurnkeyProvider({
   children,
   config,

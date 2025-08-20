@@ -3,11 +3,12 @@ title: "CreateSubOrgParams"
 mode: wide
 ---
   
-# Type Alias: CreateSubOrgParams
+# Interface: CreateSubOrgParams
 
-> **CreateSubOrgParams** = `object`
+Defined in: core/dist/\_\_types\_\_/base.d.ts:196
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:157
+CreateSubOrgParams defines the parameters to pass on sub-organization creation.
+ CreateSubOrgParams
 
 ## Properties
 
@@ -15,7 +16,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:157
 
 > `optional` **apiKeys**: `object`[]
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:169
+Defined in: core/dist/\_\_types\_\_/base.d.ts:208
+
+array of API keys to create.
 
 #### apiKeyName?
 
@@ -39,7 +42,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:169
 
 > `optional` **authenticators**: `object`[]
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:162
+Defined in: core/dist/\_\_types\_\_/base.d.ts:201
+
+array of authenticators to create.
 
 #### attestation
 
@@ -59,7 +64,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:162
 
 > `optional` **customWallet**: `object`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:175
+Defined in: core/dist/\_\_types\_\_/base.d.ts:214
+
+custom wallet to create.
 
 #### walletAccounts
 
@@ -73,9 +80,11 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:175
 
 ### oauthProviders?
 
-> `optional` **oauthProviders**: [`Provider`](../Provider/readme)[]
+> `optional` **oauthProviders**: `Provider`[]
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:179
+Defined in: core/dist/\_\_types\_\_/base.d.ts:218
+
+array of OAuth providers to create.
 
 ***
 
@@ -83,7 +92,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:179
 
 > `optional` **subOrgName**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:159
+Defined in: core/dist/\_\_types\_\_/base.d.ts:198
+
+name of the sub-organization.
 
 ***
 
@@ -91,7 +102,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:159
 
 > `optional` **userEmail**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:160
+Defined in: core/dist/\_\_types\_\_/base.d.ts:199
+
+email of the user.
 
 ***
 
@@ -99,7 +112,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:160
 
 > `optional` **userName**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:158
+Defined in: core/dist/\_\_types\_\_/base.d.ts:197
+
+name of the user.
 
 ***
 
@@ -107,7 +122,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:158
 
 > `optional` **userPhoneNumber**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:167
+Defined in: core/dist/\_\_types\_\_/base.d.ts:206
+
+phone number of the user.
 
 ***
 
@@ -115,7 +132,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:167
 
 > `optional` **userTag**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:161
+Defined in: core/dist/\_\_types\_\_/base.d.ts:200
+
+tag for the user.
 
 ***
 
@@ -123,4 +142,6 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:161
 
 > `optional` **verificationToken**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:168
+Defined in: core/dist/\_\_types\_\_/base.d.ts:207
+
+verification token for the user.
