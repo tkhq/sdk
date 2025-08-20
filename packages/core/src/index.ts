@@ -19,6 +19,7 @@ export { type TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 // Export all types and values from __types__/base
 export * from "./__types__/base";
 
+/**@internal */
 export {
   generateWalletAccountsFromAddressFormat,
   isEthereumWallet,

@@ -14,6 +14,25 @@ export interface TurnkeyCallbacks {
   onError?: (error: TurnkeyError | TurnkeyNetworkError) => void;
 }
 
+/**
+ * Configuration for the TurnkeyProvider.
+ * This interface extends the TurnkeySDKClientConfig to include additional UI and auth configurations.
+ * It is used to initialize the TurnkeyProvider with various options such as colors, dark mode, auth methods, and more.
+ *
+ * @interface TurnkeyProviderConfig
+ * @extends {TurnkeySDKClientConfig}
+ * @property exportIframeUrl - URL for the export iframe.
+ * @property importIframeUrl - URL for the import iframe.
+ * @property auth - configuration for authentication methods.
+ * @property ui - configuration for the user interface.
+ * @property ui.darkMode - whether to use dark mode.
+ * @property ui.colors - custom colors for light and dark modes.
+ * @property ui.preferLargeActionButtons - if true, uses full-width buttons for actions like "Continue". Otherwise, small icon buttons are used.
+ * @property ui.borderRadius - border radius for UI elements, e.g., 8 or "1rem".
+ * @property ui.backgroundBlur - background blur effect, e.g., 10 or "1rem".
+ * @property ui.renderModalInProvider - if true, the modal is rendered as a child of the TurnkeyProvider instead of a sibling to the body. This is useful for font inheritance and CSS manipulations to modals.
+ * @property ui.supressMissingStylesError - if true, suppresses the error for missing styles.
+ */
 export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   // All other optional urls are part of the TurnkeySDKClientConfig interface.
   // We add them here directly since the core js package does not use iframes at all!
@@ -65,23 +84,38 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   };
 }
 
+/**@internal */
 export enum ExportType {
   Wallet = "WALLET",
   PrivateKey = "PRIVATE_KEY",
   WalletAccount = "WALLET_ACCOUNT",
 }
 
+/**
+ * Enum representing the authentication states of the user.
+ * - Unauthenticated: The user is not authenticated.
+ * - Authenticated: The user is authenticated.
+ */
 export enum AuthState {
   Unauthenticated = "unauthenticated",
   Authenticated = "authenticated",
 }
 
+/**
+ * Enum representing the states of the client.
+ * - Loading: The client is currently loading.
+ * - Ready: The client is ready for use.
+ * - Error: An error occurred while initializing the client.
+ */
 export enum ClientState {
   Loading = "loading",
   Ready = "ready",
   Error = "error",
 }
 
+/** @internal */
 export type WalletId = string;
+/** @internal */
 export type PrivateKeyId = string;
+/** @internal */
 export type Address = string;

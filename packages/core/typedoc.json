@@ -24,6 +24,10 @@
   "plugin": ["typedoc-plugin-markdown"],
   "projectDocuments": ["documents/*.md", "CHANGELOG.md"],
   "expandParameters": true,
+  "validation": {
+    "notExported": false,
+    "notDocumented": false
+  },
   "outputs": [
     {
       // requires typedoc-plugin-markdown

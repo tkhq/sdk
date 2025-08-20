@@ -1,12 +1,9 @@
-import type { TActivityId, TActivityStatus } from "@turnkey/http";
 import type { EIP1193Provider as EthereumProvider } from "viem";
 import type { Wallet as SolanaProvider } from "@wallet-standard/base";
 import type {
-  SessionType,
   v1ApiKeyCurve,
   v1Attestation,
   v1OauthProviderParams,
-  v1User,
   v1Wallet,
   v1WalletAccount,
   v1WalletAccountParams,
@@ -15,33 +12,45 @@ import type {
 import type { CrossPlatformWalletStamper } from "../__wallet__/stamper";
 import type { CrossPlatformWalletConnector } from "../__wallet__/connector";
 
+/**@internal */
 export const DEFAULT_SESSION_EXPIRATION_IN_SECONDS = "900"; // 15 minutes
 
+/**@internal */
 export type GrpcStatus = {
   message: string;
   code: number;
   details: unknown[] | null;
 };
 
-export enum MethodType {
-  Get,
-  List,
-  Command,
-}
+/**@internal */
+export type Passkey = {
+  encodedChallenge: string;
+  attestation: {
+    credentialId: string;
+    clientDataJson: string;
+    attestationObject: string;
+    transports: (
+      | "AUTHENTICATOR_TRANSPORT_BLE"
+      | "AUTHENTICATOR_TRANSPORT_INTERNAL"
+      | "AUTHENTICATOR_TRANSPORT_NFC"
+      | "AUTHENTICATOR_TRANSPORT_USB"
+      | "AUTHENTICATOR_TRANSPORT_HYBRID"
+    )[];
+  };
+};
 
+/**@internal */
 export type TStamp = {
   stampHeaderName: string;
   stampHeaderValue: string;
 };
 
+/**@internal */
 export interface TStamper {
   stamp: (input: string) => Promise<TStamp>;
 }
 
-export type THttpConfig = {
-  baseUrl: string;
-};
-
+/**@internal */
 export class TurnkeyRequestError extends Error {
   details: any[] | null;
   code: number;
@@ -61,52 +70,30 @@ export class TurnkeyRequestError extends Error {
   }
 }
 
-export interface ActivityResponse {
-  activity: {
-    id: TActivityId;
-    status: TActivityStatus;
-    result: Record<string, any>;
-  };
-}
-
-export interface ActivityMetadata {
-  activity: {
-    id: TActivityId;
-    status: TActivityStatus;
-  };
-}
-
+/**@internal */
 export type TActivityPollerConfig = {
   intervalMs: number;
   numRetries: number;
 };
 
-export interface SubOrganization {
-  organizationId: string;
-  organizationName: string;
-}
-
-export type EmbeddedAPIKey = {
-  authBundle: string;
-  publicKey: string;
-};
-
-export type Passkey = {
-  encodedChallenge: string;
-  attestation: {
-    credentialId: string;
-    clientDataJson: string;
-    attestationObject: string;
-    transports: (
-      | "AUTHENTICATOR_TRANSPORT_BLE"
-      | "AUTHENTICATOR_TRANSPORT_INTERNAL"
-      | "AUTHENTICATOR_TRANSPORT_NFC"
-      | "AUTHENTICATOR_TRANSPORT_USB"
-      | "AUTHENTICATOR_TRANSPORT_HYBRID"
-    )[];
-  };
-};
-
+/**
+ * TurnkeyHttpClientConfig defines the configuration for the Turnkey HTTP client.
+ * @interface TurnkeyHttpClientConfig
+ * @property apiBaseUrl - base URL for the Turnkey API.
+ * @property organizationId - ID of the organization.
+ * @property authProxyUrl - URL for the auth proxy.
+ * @property authProxyConfigId - ID for the auth proxy configuration.
+ * @property activityPoller - configuration for the activity poller.
+ * @property apiKeyStamper - stamper for API keys.
+ * @property passkeyStamper - stamper for passkeys.
+ * @property walletStamper - stamper for wallets.
+ * @property storageManager - storage manager for session management.
+ * @remarks
+ * This interface is used to configure the Turnkey HTTP client, which is responsible for making API
+ * requests to Turnkey. It includes options for custom API key stamping, passkey stamping, wallet stamping,
+ * and session management through a storage manager.
+ * The `activityPoller` configuration allows for setting up a polling mechanism for activities, with options for the polling interval and number of retries.
+ */
 export interface TurnkeyHttpClientConfig {
   apiBaseUrl: string;
   organizationId: string;
@@ -118,9 +105,24 @@ export interface TurnkeyHttpClientConfig {
   passkeyStamper?: TStamper | undefined;
   walletStamper?: TStamper | undefined;
   storageManager?: StorageBase | undefined;
-  readOnlySession?: string | undefined; // TODO (Amir): Shouldn't this be getten from the storage manager?. TODO (Amir) from the future: I thought we were getting rid of readOnlySessions all together. So..... delete this????
 }
 
+/**
+ * TurnkeySDKClientConfig defines the configuration for the Turnkey SDK client.
+ * @interface TurnkeySDKClientConfig
+ * @property apiBaseUrl - base URL for the Turnkey API.
+ * @property authProxyUrl - URL for the auth proxy.
+ * @property authProxyConfigId - ID for the auth proxy configuration.
+ * @property organizationId - ID of the organization.
+ * @property passkeyConfig - configuration for the passkey stamper.
+ * @property walletConfig - configuration for the wallet manager.
+ * @remarks
+ * This interface is used to configure the Turnkey SDK client, which is responsible for managing
+ * interactions with the Turnkey API and handling user authentication and wallet management.
+ * The `apiBaseUrl` is the endpoint for the Turnkey API, while `authProxyUrl` and `authProxyConfigId` are used for authentication proxy configurations.
+ * The `organizationId` is required to identify the parent organization.
+ * The `passkeyConfig` allows for configuring the passkey stamper, which is used for user authentication via passkeys.
+ */
 export interface TurnkeySDKClientConfig {
   apiBaseUrl?: string | undefined;
   authProxyUrl?: string | undefined;
@@ -131,15 +133,7 @@ export interface TurnkeySDKClientConfig {
   walletConfig?: TWalletManagerConfig;
 }
 
-export type queryOverrideParams = {
-  organizationId?: string;
-};
-
-export type commandOverrideParams = {
-  organizationId?: string;
-  timestampMs?: string;
-};
-
+/**@internal */
 export interface IframeClientParams {
   iframeContainer: HTMLElement | null | undefined;
   iframeUrl: string;
@@ -147,47 +141,48 @@ export interface IframeClientParams {
   dangerouslyOverrideIframeKeyTtl?: number;
 }
 
+/**@internal */
 export interface PasskeyClientParams {
   rpId?: string;
   timeout?: number;
   userVerification?: UserVerificationRequirement;
   allowCredentials?: PublicKeyCredentialDescriptor[];
 }
-export interface RefreshSessionParams {
-  sessionType: SessionType;
-  expirationSeconds?: string | undefined;
-  publicKey?: string;
-}
 
-export interface LoginWithBundleParams {
-  bundle: string;
-  expirationSeconds?: string;
-}
-
-export interface LoginWithWalletParams {
-  sessionType: SessionType;
-  expirationSeconds?: string | undefined;
-  publicKey?: string;
-}
-
-export type User = v1User; // TODO (Amir): I dunno if we need this. We may want to add more stuff to the user type in the future, so let's keep it for now since
-
+/**@internal */
 export type ExportBundle = string;
 
+/**@internal */
 export enum Curve {
   SECP256K1 = "CURVE_SECP256K1",
   ED25519 = "CURVE_ED25519",
 }
 
+/**@internal */
 export enum WalletSource {
   Embedded = "embedded",
   Connected = "connected",
 }
 
+/**
+ * EmbeddedWalletAccount represents a Turnkey embedded wallet account.
+ * @interface EmbeddedWalletAccount
+ * @extends v1WalletAccount
+ * @property source - source of the wallet account, which is always "embedded".
+ */
 export interface EmbeddedWalletAccount extends v1WalletAccount {
   source: WalletSource.Embedded;
 }
 
+/**
+ * ConnectedWalletAccount represents a connected wallet account (Ex: MetaMask, Rabby, Phantom external wallets).
+ * @interface ConnectedWalletAccount
+ * @extends v1WalletAccount
+ * @property source - source of the wallet account, which is always "connected".
+ * @property signMessage - function to sign a message, returning the hex signature as a string.
+ * @property signTransaction - function to sign a transaction, returning the signed transaction as a string.
+ * @property signAndSendTransaction - function to sign and send a transaction, returning the signed transaction as a string.
+ */
 export interface ConnectedWalletAccount extends v1WalletAccount {
   source: WalletSource.Connected;
   signMessage: (message: string) => Promise<string>;
@@ -195,31 +190,61 @@ export interface ConnectedWalletAccount extends v1WalletAccount {
   signAndSendTransaction?: (unsignedTransaction: string) => Promise<string>;
 }
 
+/**@internal */
 export type WalletAccount = EmbeddedWalletAccount | ConnectedWalletAccount;
 
+/**
+ * EmbeddedWallet represents a Turnkey embedded wallet.
+ * @interface EmbeddedWallet
+ * @extends v1Wallet
+ * @property source - source of the wallet, which is always "embedded".
+ * @property accounts - array of wallet accounts.
+ */
 export interface EmbeddedWallet extends v1Wallet {
   source: WalletSource.Embedded;
   accounts: WalletAccount[];
 }
 
+/**
+ * ConnectedWallet represents a connected wallet (Ex: MetaMask, Rabby, Phantom external wallets).
+ * @interface ConnectedWallet
+ * @extends v1Wallet
+ * @property source - source of the wallet, which is always "connected".
+ * @property accounts - array of wallet accounts.
+ */
 export interface ConnectedWallet extends v1Wallet {
   source: WalletSource.Connected;
   accounts: WalletAccount[];
 }
 
+/**@internal */
 export type Wallet = EmbeddedWallet | ConnectedWallet;
 
-export type WalletAccountParams = v1WalletAccountParams;
-
+/**@internal */
 export type Provider = {
   providerName: string;
   oidcToken: string;
 };
 
+/**@internal */
 export type CreateSuborgResponse = {
   subOrganizationId: string;
 };
 
+/**
+ * CreateSubOrgParams defines the parameters to pass on sub-organization creation.
+ * @interface CreateSubOrgParams
+ * @property userName - name of the user.
+ * @property subOrgName - name of the sub-organization.
+ * @property userEmail - email of the user.
+ * @property userTag - tag for the user.
+ * @property authenticators - array of authenticators to create.
+ * @property userPhoneNumber - phone number of the user.
+ * @property verificationToken - verification token for the user.
+ * @property apiKeys - array of API keys to create.
+ * @property customWallet - custom wallet to create.
+ * @property oauthProviders - array of OAuth providers to create.
+ */
 export type CreateSubOrgParams = {
   userName?: string | undefined;
   subOrgName?: string | undefined;
@@ -247,6 +272,7 @@ export type CreateSubOrgParams = {
   oauthProviders?: Provider[] | undefined;
 };
 
+/**@internal */
 export type SignUpBody = {
   userName: string;
   subOrgName: string;
@@ -268,32 +294,30 @@ export type SignUpBody = {
   customWallet?:
     | {
         walletName: string;
-        walletAccounts: WalletAccountParams[];
+        walletAccounts: v1WalletAccountParams[];
       }
     | undefined;
   oauthProviders?: v1OauthProviderParams[] | undefined;
 };
 
 /**
- * The Client used to authenticate the user.
+ * StamperType defines the type of stamper to use when stamping a request.
  */
-export enum AuthClient {
-  Passkey = "passkey",
-  Wallet = "wallet",
-  IndexedDb = "indexed-db",
-}
-
 export enum StamperType {
   ApiKey = "api-key",
   Passkey = "passkey",
   Wallet = "wallet",
 }
 
+/**
+ * OtpType defines the type of OTP to use.
+ */
 export enum OtpType {
   Email = "OTP_TYPE_EMAIL",
   Sms = "OTP_TYPE_SMS",
 }
 
+/**@internal */
 export enum FilterType {
   Email = "EMAIL",
   Sms = "PHONE_NUMBER",
@@ -301,15 +325,18 @@ export enum FilterType {
   PublicKey = "PUBLIC_KEY",
 }
 
+/**@internal */
 export const OtpTypeToFilterTypeMap = {
   [OtpType.Email]: FilterType.Email,
   [OtpType.Sms]: FilterType.Sms,
 };
 
+/**@internal */
 export enum SessionKey {
   DefaultSessionkey = "@turnkey/session/v3",
 }
 
+/**@internal */
 export interface StorageBase {
   getStorageValue(sessionKey: string): Promise<any>;
   setStorageValue(sessionKey: string, storageValue: any): Promise<void>;
@@ -324,44 +351,50 @@ export interface StorageBase {
   clearAllSessions(): Promise<void>;
 }
 
+/**@internal */
 export interface WalletManagerBase {
   getProviders: (chain?: Chain) => Promise<WalletProvider[]>;
   stamper?: CrossPlatformWalletStamper;
   connector?: CrossPlatformWalletConnector;
 }
 
+/**
+ * TPasskeyStamperConfig defines the configuration for the passkey stamper.
+ * @interface TPasskeyStamperConfig
+ * @property rpId - The RPID ("Relying Party ID") for your app. This is automatically determined in web environments based on the current hostname. See https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration to set this up for react-native.
+ * @property timeout - timeout value in milliseconds. Defaults to 5 minutes.
+ * @property userVerification - override for UV flag. Defaults to "preferred".
+ * @property allowCredentials - list of credentials to pass. Defaults to empty.
+ * @property rpName - name for the Relying Party (RP). This is used in the passkey creation flow on mobile.
+ * @property withSecurityKey - option to force security passkeys on native platforms.
+ * @property withPlatformKey - option to force platform passkeys on native platforms.
+ * @property extensions - optional extensions. Defaults to empty.
+ */
 export type TPasskeyStamperConfig = {
-  // The RPID ("Relying Party ID") for your app. This is automatically determined in web environments based on the current hostname.
-  // See https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration to set this up for react-native.
   rpId?: string | undefined;
-
-  // Optional timeout value in milliseconds. Defaults to 5 minutes.
   timeout?: number;
-
-  // Optional override for UV flag. Defaults to "preferred".
   userVerification?: UserVerificationRequirement;
-
-  // Optional list of credentials to pass. Defaults to empty.
   allowCredentials?: PublicKeyCredentialDescriptor[];
-
   // The below options do not exist in the WebauthnStamper:
-
-  // Optional name for the Relying Party (RP). This is used in the passkey creation flow on mobile.
   rpName?: string;
-
-  // Option to force security passkeys on native platforms
   withSecurityKey?: boolean;
-
-  // Option to force platform passkeys on native platforms
   withPlatformKey?: boolean;
-
-  // Optional extensions. Defaults to empty.
   extensions?: Record<string, unknown>;
 };
 
+/**@internal */
 type EvmNamespace = `eip155:${string}`; // e.g. "eip155:1", "eip155:8453"
+
+/**@internal */
 type SolNamespace = `solana:${string}`; // e.g. "solana:mainnet", cluster id, etc.
 
+/**
+ * TWalletManagerConfig defines the configuration for the wallet manager.
+ * @interface TWalletManagerConfig
+ * @property features - features to enable in the wallet manager.
+ * @property chains - chains to support in the wallet manager.
+ * @property walletConnect - configuration for WalletConnect.
+ */
 export type TWalletManagerConfig = {
   features?: {
     auth?: boolean;
@@ -388,6 +421,7 @@ export type TWalletManagerConfig = {
   };
 };
 
+/**@internal */
 export interface ApiKeyStamperBase {
   listKeyPairs(): Promise<string[]>;
   createKeyPair(
@@ -398,6 +432,7 @@ export interface ApiKeyStamperBase {
   stamp(payload: string, publicKeyHex: string): Promise<TStamp>;
 }
 
+/**@internal */
 export interface WalletProviderInfo {
   name: string;
   uuid?: string;
@@ -405,11 +440,13 @@ export interface WalletProviderInfo {
   rdns?: string;
 }
 
+/**@internal */
 export enum Chain {
   Ethereum = "ethereum",
   Solana = "solana",
 }
 
+/**@internal */
 export type SwitchableChain = {
   id: string;
   name: string;
@@ -423,26 +460,32 @@ export type SwitchableChain = {
   };
 };
 
+/**@internal */
 export type EvmChainInfo = {
   namespace: Chain.Ethereum;
   chainId: string;
 };
 
+/**@internal */
 export type SolanaChainInfo = {
   namespace: Chain.Solana;
 };
 
+/**@internal */
 export type ChainInfo = EvmChainInfo | SolanaChainInfo;
 
+/**@internal */
 export interface WalletConnectProvider {
   request(args: { method: string; params?: any[] }): Promise<unknown>;
 }
 
+/**@internal */
 export type WalletRpcProvider =
   | EthereumProvider
   | SolanaProvider
   | WalletConnectProvider;
 
+/**@internal */
 export interface WalletProvider {
   interfaceType: WalletInterfaceType;
   chainInfo: ChainInfo;
@@ -452,12 +495,14 @@ export interface WalletProvider {
   uri?: string;
 }
 
+/**@internal */
 export enum SignIntent {
   SignMessage = "sign_message",
   SignTransaction = "sign_transaction",
   SignAndSendTransaction = "sign_and_send",
 }
 
+/**@internal */
 export enum WalletInterfaceType {
   Solana = "solana",
   Ethereum = "ethereum",
@@ -488,6 +533,8 @@ export interface BaseWalletInterface {
 }
 
 /**
+ * @internal
+ *
  * Solana wallets can directly access the public key without needing a signed message.
  * @interface SolanaWalletInterface
  * @extends BaseWalletInterface
@@ -499,6 +546,8 @@ export interface SolanaWalletInterface extends BaseWalletInterface {
 }
 
 /**
+ * @internal
+ *
  * Ethereum wallets require a signed message to derive the public key.
  *
  * @remarks This is the SECP256K1 public key of the Ethereum wallet, not the address.
@@ -513,6 +562,7 @@ export interface EthereumWalletInterface extends BaseWalletInterface {
   interfaceType: WalletInterfaceType.Ethereum;
 }
 
+/**@internal */
 export interface WalletConnectInterface extends BaseWalletInterface {
   interfaceType: WalletInterfaceType.WalletConnect;
   init: (opts: {
@@ -522,8 +572,10 @@ export interface WalletConnectInterface extends BaseWalletInterface {
 }
 
 /**
+ *
  * Union type for wallet interfaces, supporting both Solana and Ethereum wallets.
  * @typedef {SolanaWalletInterface | EthereumWalletInterface} WalletInterface
+ * @internal
  */
 export type WalletInterface =
   | SolanaWalletInterface

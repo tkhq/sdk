@@ -22,7 +22,6 @@ import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   ExportBundle,
   StamperType,
-  User,
   TurnkeySDKClientConfig,
   WalletAccount,
   Wallet,
@@ -91,6 +90,8 @@ type PublicMethods<T> = {
       : K
     : never]: T[K] extends (...args: any[]) => any ? T[K] : never;
 };
+
+/**@internal */
 export type TurnkeyClientMethods = PublicMethods<TurnkeyClient>;
 
 export class TurnkeyClient {
@@ -2212,7 +2213,7 @@ export class TurnkeyClient {
           );
         }
 
-        return userResponse.user as User;
+        return userResponse.user as v1User;
       },
       {
         errorMessage: "Failed to fetch user",
@@ -3333,14 +3334,7 @@ export class TurnkeyClient {
 
     withTurnkeyErrorHandling(
       async () => {
-        const sessionToReplace =
-          await this.storageManager.getSession(sessionKey);
-
         await this.storageManager.storeSession(sessionToken, sessionKey);
-
-        if (sessionToReplace) {
-          await this.apiKeyStamper?.deleteKeyPair(sessionToReplace.publicKey!);
-        }
       },
       {
         errorMessage: "Failed to store session",
