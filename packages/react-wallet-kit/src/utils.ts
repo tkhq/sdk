@@ -54,17 +54,19 @@ export const useDebouncedCallback = <T extends (...args: any[]) => void>(
   wait = 100,
 ): T => {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fnRef = useRef(fn);
+  fnRef.current = fn;
 
   return useCallback(
-    ((...args: any[]) => {
+    (...args: any[]) => {
       if (timer.current) clearTimeout(timer.current);
       timer.current = setTimeout(() => {
-        fn(...args);
+        fnRef.current(...(args as Parameters<T>));
         timer.current = null;
       }, wait);
-    }) as T,
-    [fn, wait],
-  );
+    },
+    [wait],
+  ) as T;
 };
 
 export const isValidSession = (session?: Session | undefined): boolean => {
@@ -328,4 +330,43 @@ export function useScreenSize() {
 
 export function isWalletConnect(wallet: WalletProvider): boolean {
   return wallet.interfaceType == WalletInterfaceType.WalletConnect;
+}
+
+export function useWalletProviderState(initialState: WalletProvider[] = []) {
+  const [walletProviders, setWalletProviders] =
+    useState<WalletProvider[]>(initialState);
+  const prevProvidersRef = useRef<WalletProvider[]>(initialState);
+
+  function isSameWalletProvider(a: WalletProvider[], b: WalletProvider[]) {
+    if (a.length !== b.length) return false;
+
+    const key = (provider: WalletProvider) => {
+      const name = provider.info.name;
+      const namespace = provider.chainInfo.namespace;
+      const interfaceType = provider.interfaceType;
+      const connectedAddresses = [...provider.connectedAddresses]
+        .map((x) => x.toLowerCase())
+        .sort()
+        .join(",");
+      return `${namespace}|${interfaceType}|${name}|${connectedAddresses}`;
+    };
+
+    const A = a.map(key).sort();
+    const B = b.map(key).sort();
+    for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return false;
+    return true;
+  }
+
+  const updateWalletProviders = useCallback(
+    (newProviders: WalletProvider[]) => {
+      if (!isSameWalletProvider(prevProvidersRef.current, newProviders)) {
+        prevProvidersRef.current = newProviders;
+        setWalletProviders(newProviders);
+      }
+      // we do nothing if the wallet providers are the same
+    },
+    [],
+  );
+
+  return [walletProviders, updateWalletProviders] as const;
 }

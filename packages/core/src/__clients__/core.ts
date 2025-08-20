@@ -1645,9 +1645,10 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallets.
    */
   fetchWallets = async (params?: {
+    walletProviders?: WalletProvider[] | undefined;
     stampWith?: StamperType | undefined;
   }): Promise<Wallet[]> => {
-    const { stampWith } = params || {};
+    const { stampWith, walletProviders } = params || {};
     const session = await this.storageManager.getActiveSession();
 
     if (!session) {
@@ -1692,7 +1693,7 @@ export class TurnkeyClient {
         // if wallet connecting is disabled we return only embedded wallets
         if (!this.walletManager?.connector) return embedded;
 
-        const providers = await this.getWalletProviders();
+        const providers = walletProviders ?? (await this.getWalletProviders());
 
         const groupedProviders = new Map<string, WalletProvider[]>();
         for (const provider of providers) {
