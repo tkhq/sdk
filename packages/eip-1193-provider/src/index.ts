@@ -116,9 +116,19 @@ export const createEIP1193Provider = async (
             organizationId,
             walletId,
           });
-          walletAccounts.accounts.map(({ address }: { address: string }) => {
-            accounts.add(address as Address);
-          });
+          walletAccounts.accounts.map(
+            ({
+              address,
+              addressFormat,
+            }: {
+              address: string;
+              addressFormat: string;
+            }) => {
+              if (addressFormat === "ADDRESS_FORMAT_ETHEREUM") {
+                accounts.add(address as Address);
+              }
+            },
+          );
           setConnected(true, { chainId: activeChain.chainId });
           return [...accounts];
         }
