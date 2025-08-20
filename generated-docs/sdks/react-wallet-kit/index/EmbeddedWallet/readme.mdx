@@ -5,7 +5,10 @@ mode: wide
   
 # Interface: EmbeddedWallet
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:140
+Defined in: core/dist/\_\_types\_\_/base.d.ts:156
+
+EmbeddedWallet represents a Turnkey embedded wallet.
+ EmbeddedWallet
 
 ## Extends
 
@@ -15,9 +18,11 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:140
 
 ### accounts
 
-> **accounts**: [`WalletAccount`](../WalletAccount/readme)[]
+> **accounts**: `WalletAccount`[]
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:142
+Defined in: core/dist/\_\_types\_\_/base.d.ts:158
+
+array of wallet accounts.
 
 ***
 
@@ -63,9 +68,11 @@ True when a given Wallet is imported, false otherwise.
 
 ### source
 
-> **source**: [`Embedded`](../WalletSource/readme#embedded)
+> **source**: `Embedded`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:141
+Defined in: core/dist/\_\_types\_\_/base.d.ts:157
+
+source of the wallet, which is always "embedded".
 
 ***
 

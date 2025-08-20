@@ -5,7 +5,10 @@ mode: wide
   
 # Interface: ConnectedWalletAccount
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:133
+Defined in: core/dist/\_\_types\_\_/base.d.ts:141
+
+ConnectedWalletAccount represents a connected wallet account (Ex: MetaMask, Rabby, Phantom external wallets).
+ ConnectedWalletAccount
 
 ## Extends
 
@@ -127,7 +130,9 @@ The public component of this wallet account's underlying cryptographic key pair.
 
 > `optional` **signAndSendTransaction**: (`unsignedTransaction`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:137
+Defined in: core/dist/\_\_types\_\_/base.d.ts:145
+
+function to sign and send a transaction, returning the signed transaction as a string.
 
 #### Parameters
 
@@ -145,7 +150,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:137
 
 > **signMessage**: (`message`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:135
+Defined in: core/dist/\_\_types\_\_/base.d.ts:143
+
+function to sign a message, returning the hex signature as a string.
 
 #### Parameters
 
@@ -163,7 +170,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:135
 
 > `optional` **signTransaction**: (`unsignedTransaction`) => `Promise`\<`string`\>
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:136
+Defined in: core/dist/\_\_types\_\_/base.d.ts:144
+
+function to sign a transaction, returning the signed transaction as a string.
 
 #### Parameters
 
@@ -179,9 +188,11 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:136
 
 ### source
 
-> **source**: [`Connected`](../WalletSource/readme#connected)
+> **source**: `Connected`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:134
+Defined in: core/dist/\_\_types\_\_/base.d.ts:142
+
+source of the wallet account, which is always "connected".
 
 ***
 

@@ -5,7 +5,18 @@ mode: wide
   
 # Interface: TurnkeySDKClientConfig
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:79
+Defined in: core/dist/\_\_types\_\_/base.d.ts:89
+
+TurnkeySDKClientConfig defines the configuration for the Turnkey SDK client.
+ TurnkeySDKClientConfig
+
+## Remarks
+
+This interface is used to configure the Turnkey SDK client, which is responsible for managing
+interactions with the Turnkey API and handling user authentication and wallet management.
+The `apiBaseUrl` is the endpoint for the Turnkey API, while `authProxyUrl` and `authProxyConfigId` are used for authentication proxy configurations.
+The `organizationId` is required to identify the parent organization.
+The `passkeyConfig` allows for configuring the passkey stamper, which is used for user authentication via passkeys.
 
 ## Properties
 
@@ -13,7 +24,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:79
 
 > `optional` **apiBaseUrl**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:80
+Defined in: core/dist/\_\_types\_\_/base.d.ts:90
+
+base URL for the Turnkey API.
 
 ***
 
@@ -21,7 +34,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:80
 
 > `optional` **authProxyConfigId**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:82
+Defined in: core/dist/\_\_types\_\_/base.d.ts:92
+
+ID for the auth proxy configuration.
 
 ***
 
@@ -29,7 +44,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:82
 
 > `optional` **authProxyUrl**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:81
+Defined in: core/dist/\_\_types\_\_/base.d.ts:91
+
+URL for the auth proxy.
 
 ***
 
@@ -37,7 +54,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:81
 
 > **organizationId**: `string`
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:83
+Defined in: core/dist/\_\_types\_\_/base.d.ts:93
+
+ID of the organization.
 
 ***
 
@@ -45,7 +64,9 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:83
 
 > `optional` **passkeyConfig**: [`TPasskeyStamperConfig`](../TPasskeyStamperConfig/readme)
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:84
+Defined in: core/dist/\_\_types\_\_/base.d.ts:94
+
+configuration for the passkey stamper.
 
 ***
 
@@ -53,4 +74,6 @@ Defined in: core/dist/\_\_types\_\_/base.d.ts:84
 
 > `optional` **walletConfig**: [`TWalletManagerConfig`](../TWalletManagerConfig/readme)
 
-Defined in: core/dist/\_\_types\_\_/base.d.ts:85
+Defined in: core/dist/\_\_types\_\_/base.d.ts:95
+
+configuration for the wallet manager.
