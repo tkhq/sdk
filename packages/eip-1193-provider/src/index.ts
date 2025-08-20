@@ -116,9 +116,19 @@ export const createEIP1193Provider = async (
             organizationId,
             walletId,
           });
-          walletAccounts.accounts.map(({ address }: { address: string }) => {
-            accounts.add(address as Address);
-          });
+          walletAccounts.accounts.map(
+            ({
+              address,
+              addressFormat,
+            }: {
+              address: string;
+              addressFormat: string;
+            }) => {
+              if (addressFormat === "ADDRESS_FORMAT_ETHEREUM") {
+                accounts.add(address as Address);
+              }
+            },
+          );
           setConnected(true, { chainId: activeChain.chainId });
           return [...accounts];
         }
@@ -186,6 +196,8 @@ export const createEIP1193Provider = async (
           return `0x${signedTransaction}`;
         }
         case "wallet_addEthereumChain": {
+          console.log("wallet_addEthereumChain: all added chains", addedChains);
+
           const [chain] = params as [AddEthereumChainParameter];
 
           // Validate the to be added
@@ -208,6 +220,9 @@ export const createEIP1193Provider = async (
 
           addedChains.push({ ...chain, connected: true });
 
+          console.log("wallet_addEthereumChain: new chain id", rpcChainId);
+          console.log("wallet_addEthereumChain: new added chains", addedChains);
+
           return null;
         }
 
@@ -215,6 +230,15 @@ export const createEIP1193Provider = async (
           const [targetChainId] = params as [string];
           const targetChain = addedChains.find(
             (chain) => chain.chainId === targetChainId,
+          );
+
+          console.log(
+            "wallet_switchEthereumChain: target chain id",
+            targetChainId,
+          );
+          console.log(
+            "wallet_switchEthereumChain: all added chains",
+            addedChains,
           );
 
           if (!targetChain) {
