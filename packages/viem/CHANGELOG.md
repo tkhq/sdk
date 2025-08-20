@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.12.1
+
+### Patch Changes
+
+- [#848](https://github.com/tkhq/sdk/pull/848) [`8305dd2`](https://github.com/tkhq/sdk/commit/8305dd2cbfbb3cfc55ed37c9626198627c752fd9) Author [@andrewkmin](https://github.com/andrewkmin) - Fix: update serialization of typed data to conform to Viem's implementation
+
 ## 0.12.0
 
 ### Minor Changes
