@@ -52,7 +52,8 @@
     "@solana/web3.js": "^1.95.8",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
-    "@turnkey/sdk-server": "workspace:*"
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/core": "workspace:*"
   },
   "devDependencies": {
     "@turnkey/api-key-stamper": "workspace:*",

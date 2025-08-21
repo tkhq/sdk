@@ -18,13 +18,18 @@ import {
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient } from "@turnkey/sdk-server";
+import type { TurnkeySDKClientBase } from "@turnkey/core";
 import type { SignDoc } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 
 type TConfig = {
   /**
    * Turnkey client
    */
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase;
   /**
    * Turnkey organization ID
    */
@@ -94,7 +99,8 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
   private readonly client:
     | TurnkeyClient
     | TurnkeyBrowserClient
-    | TurnkeyServerClient;
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase;
 
   private readonly compressedPublicKey: Uint8Array;
 
@@ -209,7 +215,11 @@ export class TurnkeyDirectWallet implements OfflineDirectSigner {
 }
 
 export async function fetchCompressedPublicKey(input: {
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase;
   privateKeyId: string;
   organizationId: string;
 }): Promise<{ compressedPublicKey: Uint8Array }> {
