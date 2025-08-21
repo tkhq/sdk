@@ -488,6 +488,11 @@ export type ChainInfo = EvmChainInfo | SolanaChainInfo;
 /**@internal */
 export interface WalletConnectProvider {
   request(args: { method: string; params?: any[] }): Promise<unknown>;
+  features: {
+    "standard:events": {
+      on: (event: string, callback: (evt: any) => void) => () => void;
+    };
+  };
 }
 
 /**@internal */
