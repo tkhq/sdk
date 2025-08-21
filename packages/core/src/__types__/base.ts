@@ -124,12 +124,17 @@ export interface TurnkeyHttpClientConfig {
  * The `passkeyConfig` allows for configuring the passkey stamper, which is used for user authentication via passkeys.
  */
 export interface TurnkeySDKClientConfig {
+  /** base URL for the Turnkey API. */
   apiBaseUrl?: string | undefined;
+  /** URL for the auth proxy. */
   authProxyUrl?: string | undefined;
+  /** ID for the auth proxy configuration. */
   authProxyConfigId?: string | undefined; // Auth proxy won't be used if not passed in
+  /** ID of the organization. */
   organizationId: string;
-
+  /** configuration for the passkey stamper. */
   passkeyConfig?: TPasskeyStamperConfig;
+  /** configuration for the wallet manager. */
   walletConfig?: TWalletManagerConfig;
 }
 
@@ -257,29 +262,52 @@ export type CreateSuborgResponse = {
  * @property oauthProviders - array of OAuth providers to create.
  */
 export type CreateSubOrgParams = {
+  /** name of the user. */
   userName?: string | undefined;
+
+  /** name of the sub-organization. */
   subOrgName?: string | undefined;
+
+  /** email of the user. */
   userEmail?: string | undefined;
+
+  /** tag for the user. */
   userTag?: string | undefined;
+
+  /** array of authenticators to create. */
   authenticators?: {
+    /** name of the authenticator. */
     authenticatorName: string;
+    /** challenge for the authenticator. */
     challenge: string;
+    /** attestation for the authenticator. */
     attestation: v1Attestation;
   }[];
+  /** phone number of the user. */
   userPhoneNumber?: string | undefined;
+
+  /** verification token for the user. */
   verificationToken?: string | undefined;
+
+  /** array of API keys to create. */
   apiKeys?: {
+    /** name of the API key. */
     apiKeyName?: string | undefined;
+    /** public key of the API key. */
     publicKey: string;
+    /** expiration time of the API key in seconds. */
     expirationSeconds?: string | undefined;
+    /** curve type of the API key. */
     curveType?: v1ApiKeyCurve | undefined;
   }[];
+  /** custom wallet to create. */
   customWallet?:
     | {
         walletName: string;
         walletAccounts: v1WalletAccountParams[];
       }
     | undefined;
+  /** array of OAuth providers to create. */
   oauthProviders?: Provider[] | undefined;
 };
 

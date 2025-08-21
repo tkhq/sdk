@@ -3,17 +3,14 @@
   "entryPointStrategy": "packages",
   "includeVersion": true,
   "excludeExternals": true,
-  "fileExtension": ".mdx",
-  "plugin": ["typedoc-plugin-markdown"],
   "alwaysCreateEntryPointModule": true,
   "gitRevision": "main",
   "router": "structure-dir",
   "outputs": [
     {
-      // requires typedoc-plugin-markdown
-      "name": "markdown",
-      "path": "./generated-docs/sdks",
-      "fileExtension": ".mdx"
+      "name": "json",
+      "path": "./generated-docs/sdks.json",
+      "fileExtension": ".json"
     }
   ],
   "hideGenerator": true,

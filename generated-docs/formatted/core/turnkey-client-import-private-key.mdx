@@ -1,0 +1,54 @@
+---
+title: "importPrivateKey()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Imports a private key from an encrypted bundle.
+
+<ul>
+  <li>This function imports a private key using the provided encrypted bundle.</li>
+  <li>If a userId is provided, the private key will be imported for that specific user; otherwise, it uses the current session's userId.</li>
+  <li>Requires address formats to</li>
+  <li>Automatically infers the cryptographic curve used to generate the private key based on the address format (can be optionally overriden if needed).</li>
+  <li>The encrypted bundle MUST be encrypted to ensure security.</li>
+  <li>Automatically ensures an active session exists before making the request.</li>
+  <li>Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3265">core.ts:3265</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="addressFormats" type='v1AddressFormat[]' required={true}></NestedParam>
+    <NestedParam parentKey="params" childKey="curve" type='v1Curve' required={true}>
+the cryptographic curve used to generate a given private key
+</NestedParam>
+    <NestedParam parentKey="params" childKey="encryptedBundle" type='string' required={true}>
+encrypted bundle containing the private key key material and metadata.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="privateKeyName" type='string' required={true}>
+name of the private key to create upon import.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="userId" type='string' required={false}>
+user ID to import the wallet for a specific user (defaults to the current session's userId).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true} >
+  A promise that resolves to the ID of the imported wallet.
+</ResponseField>

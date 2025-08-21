@@ -21,25 +21,18 @@ export interface TurnkeyCallbacks {
  *
  * @interface TurnkeyProviderConfig
  * @extends {TurnkeySDKClientConfig}
- * @property exportIframeUrl - URL for the export iframe.
- * @property importIframeUrl - URL for the import iframe.
- * @property auth - configuration for authentication methods.
- * @property ui - configuration for the user interface.
- * @property ui.darkMode - whether to use dark mode.
- * @property ui.colors - custom colors for light and dark modes.
- * @property ui.preferLargeActionButtons - if true, uses full-width buttons for actions like "Continue". Otherwise, small icon buttons are used.
- * @property ui.borderRadius - border radius for UI elements, e.g., 8 or "1rem".
- * @property ui.backgroundBlur - background blur effect, e.g., 10 or "1rem".
- * @property ui.renderModalInProvider - if true, the modal is rendered as a child of the TurnkeyProvider instead of a sibling to the body. This is useful for font inheritance and CSS manipulations to modals.
- * @property ui.supressMissingStylesError - if true, suppresses the error for missing styles.
  */
 export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   // All other optional urls are part of the TurnkeySDKClientConfig interface.
   // We add them here directly since the core js package does not use iframes at all!
+  /** URL for the export iframe. */
   exportIframeUrl?: string | undefined;
+  /** URL for the import iframe. */
   importIframeUrl?: string | undefined;
 
+  /** configuration for authentication methods. */
   auth?: {
+    /** enables or disables specific authentication methods. */
     methods?: {
       emailOtpAuthEnabled?: boolean;
       smsOtpAuthEnabled?: boolean;
@@ -49,37 +42,61 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       appleOauthEnabled?: boolean;
       facebookOauthEnabled?: boolean;
     };
+    /** order of authentication methods. */
     methodOrder?: Array<"socials" | "email" | "sms" | "passkey" | "wallet">;
+    /** order of OAuth authentication methods. */
     oauthOrder?: Array<"google" | "apple" | "facebook">;
+    /** configuration for OAuth authentication. */
     oauthConfig?: {
+      /** redirect URI for OAuth. */
       oauthRedirectUri?: string;
+      /** client ID for Google OAuth. */
       googleClientId?: string;
+      /** client ID for Apple OAuth. */
       appleClientId?: string;
+      /** client ID for Facebook OAuth. */
       facebookClientId?: string;
+      /** whether to open OAuth in the same page. */
       openOauthInPage?: boolean;
     };
+    /** session expiration time in seconds. */
     sessionExpirationSeconds?: string;
+    /** parameters for creating a sub-organization for each authentication method. */
     createSuborgParams?: {
+      /** parameters for email OTP authentication. */
       emailOtpAuth?: CreateSubOrgParams;
+      /** parameters for SMS OTP authentication. */
       smsOtpAuth?: CreateSubOrgParams;
+      /** parameters for passkey authentication. */
       passkeyAuth?: CreateSubOrgParams & { passkeyName?: string };
+      /** parameters for wallet authentication. */
       walletAuth?: CreateSubOrgParams;
+      /** parameters for OAuth authentication. */
       oauth?: CreateSubOrgParams;
     };
+    /** whether to automatically refresh the session. */
     autoRefreshSession?: boolean;
   };
+  /** UI configuration. */
   ui?: {
+    /** enables or disables dark mode. */
     darkMode?: boolean;
+    /** color scheme configuration. */
     colors?: {
+      /** light color scheme overrides. */
       light?: Partial<ThemeOverrides>;
+      /** dark color scheme overrides. */
       dark?: Partial<ThemeOverrides>;
     };
+    /** whether to use large action buttons. */
     preferLargeActionButtons?: boolean; // If true, this will use full width buttons for actions like "Continue". Otherwise, small icon buttons will be used instead.
+    /** border radius for UI elements. */
     borderRadius?: string | number; // e.g., 8, "1rem"
+    /** background blur for UI elements. */
     backgroundBlur?: string | number; // e.g., 10, "1rem"
-
+    /** whether to render the modal in the provider. */
     renderModalInProvider?: boolean; // If true, the modal will be rendered as a child of the TurnkeyProvider instead of a sibling to the body. This is useful for font inheritance, and css manipulations to modals.
-
+    /** whether to suppress missing styles error. */
     supressMissingStylesError?: boolean; // If true, the Turnkey styles missing error will no longer show. It's possible that styles can be imported but not detected properly. This will suppress the error in that case.
   };
 }
