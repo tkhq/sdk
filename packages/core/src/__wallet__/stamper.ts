@@ -12,7 +12,7 @@ import {
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
 import type { Hex } from "viem";
-import { isEthereumWallet, isSolanaWallet } from "@utils";
+import { isEthereumProvider, isSolanaProvider } from "@utils";
 
 const SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191 =
   "SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191";
@@ -205,12 +205,12 @@ export class WalletStamper {
       throw new Error(`Failed to sign the message: ${error}`);
     }
 
-    const scheme = isSolanaWallet(provider)
+    const scheme = isSolanaProvider(provider)
       ? SIGNATURE_SCHEME_TK_API_ED25519
       : SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191;
 
     try {
-      if (isEthereumWallet(provider)) {
+      if (isEthereumProvider(provider)) {
         const { recoverPublicKey, hashMessage } = await import("viem");
         const { compressRawPublicKey, toDerSignature } = await import(
           "@turnkey/crypto"
