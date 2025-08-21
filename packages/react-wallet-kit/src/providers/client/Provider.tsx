@@ -520,14 +520,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   /**
    * @internal
-   * Attaches listeners for connected native wallet providers.
+   * Attach listeners for connected wallet providers so we can refresh state on changes.
    *
    * - Ethereum: listens for disconnect and chain switches to trigger a refresh.
    * - Solana: listens for disconnect via Wallet Standard `change` events to trigger a refresh.
+   * - WalletConnect: listens for disconnect via our custom wrapper’s `change` event to trigger a refresh.
    *
-   * @param walletProviders - The list of discovered providers; only connected native ones are bound.
-   * @param onWalletsChanged - Callback invoked when a relevant wallet event occurs.
-   * @returns A cleanup function that removes all listeners registered by this call.
+   * Notes:
+   * - Only providers that are connected are bound.
+   * - WalletConnect is excluded from the “native” paths and handled via its unified `change` event.
+   *
+   * @param walletProviders - Discovered providers; only connected ones are bound.
+   * @param onWalletsChanged - Invoked when a relevant provider event occurs.
+   * @returns Cleanup function that removes all listeners registered by this call.
    */
   async function initializeWalletProviderListeners(
     walletProviders: WalletProvider[],
@@ -537,12 +542,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     const cleanups: Array<() => void> = [];
 
-    // we only want to initialize these listeners for native wallet providers
-    // and not WalletConnect
+    // we only want to initialize these listeners for connected walletProviders
     const nativeOnly = (provider: WalletProvider) =>
       provider.interfaceType !== WalletInterfaceType.WalletConnect;
 
-    // we only want add listeners for connected walletProviders
     const ethProviders = masterConfig?.walletConfig?.chains.ethereum?.native
       ? walletProviders.filter(
           (provider) =>
@@ -560,6 +563,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             provider.connectedAddresses.length > 0,
         )
       : [];
+
+    // we exclude WalletConnect from the native event wiring
+    // this is because WC is handled separately with a custom wrapper’s
+    //  `change` event
+    const wcProviders = walletProviders.filter(
+      (p) =>
+        p.interfaceType === WalletInterfaceType.WalletConnect &&
+        p.connectedAddresses.length > 0,
+    );
 
     function attachEthereumListeners(
       provider: any,
@@ -615,6 +627,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         onWalletsChanged,
       );
       if (cleanup) cleanups.push(cleanup);
+    });
+
+    wcProviders.forEach((p) => {
+      const standardEvents = (p as any).provider?.features?.["standard:events"];
+      if (standardEvents?.on) {
+        const unsubscribe = standardEvents.on("change", onWalletsChanged);
+        cleanups.push(unsubscribe);
+      }
     });
 
     return () => {

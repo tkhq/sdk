@@ -18,18 +18,67 @@ export class WalletConnectClient {
   // tracks the pending approval callback returned from `connect()`
   private pendingApproval: (() => Promise<SessionTypes.Struct>) | null = null;
 
-  // callbacks to run when the session is deleted
+  // these are subscribers we forward from the underlying WalletConnect SignClient:
+  //
+  // - sessionUpdateHandlers: fired on 'session_update' when session namespaces
+  //   (accounts/chains/permissions) change
+  //
+  // - sessionEventHandlers: fired on 'session_event' for ephemeral wallet events
+  //   like { event: { name: 'chainChanged' | 'accountsChanged', data }, chainId, topic }
+  //
+  // - sessionDeleteHandlers: fired on 'session_delete' when the session is terminated
+  private sessionUpdateHandlers: Array<() => void> = [];
+  private sessionEventHandlers: Array<(args: any) => void> = [];
   private sessionDeleteHandlers: Array<() => void> = [];
 
   /**
-   * Registers a callback that runs when the WalletConnect session is deleted.
+   * Registers a callback for WalletConnect `session_delete`.
    *
-   * - Useful for clearing UI state or internal session data.
+   * - Fired from the underlying SignClient when a session is terminated.
+   * - Useful for clearing UI state or internal session data after a disconnect.
    *
-   * @param fn - A callback function to invoke when the session is deleted.
+   * @param fn - Callback to invoke when the session is deleted.
    */
   public onSessionDelete(fn: () => void) {
     this.sessionDeleteHandlers.push(fn);
+  }
+
+  /**
+   * Registers a callback for WalletConnect `session_update`.
+   *
+   * - Triggered when the wallet updates the session namespaces
+   *   (e.g., accounts/chains/permissions). Use this to refresh providers.
+   * - Returns an unsubscribe function to remove the listener.
+   *
+   * @param fn - Callback invoked when a `session_update` occurs.
+   * @returns A function that unsubscribes this listener.
+   */
+  public onSessionUpdate(fn: () => void) {
+    this.sessionUpdateHandlers.push(fn);
+    return () => {
+      this.sessionUpdateHandlers = this.sessionUpdateHandlers.filter(
+        (h) => h !== fn,
+      );
+    };
+  }
+
+  /**
+   * Registers a callback for WalletConnect `session_event`.
+   *
+   * - Emits ephemeral wallet events such as `chainChanged` or `accountsChanged`.
+   * - The raw event payload is forwarded so callers can inspect `{ event, chainId, topic }`.
+   * - Returns an unsubscribe function to remove the listener.
+   *
+   * @param fn - Callback receiving the raw session event args.
+   * @returns A function that unsubscribes this listener.
+   */
+  public onSessionEvent(fn: (args: any) => void) {
+    this.sessionEventHandlers.push(fn);
+    return () => {
+      this.sessionEventHandlers = this.sessionEventHandlers.filter(
+        (h) => h !== fn,
+      );
+    };
   }
 
   /**
@@ -54,9 +103,15 @@ export class WalletConnectClient {
       ...(opts.relayUrl ? { relayUrl: opts.relayUrl } : {}),
     });
 
-    // we listen for session deletion events and notify subscribers
+    // fan out WalletConnect SignClient events to our subscribers
     this.client.on("session_delete", () => {
       this.sessionDeleteHandlers.forEach((h) => h());
+    });
+    this.client.on("session_update", () => {
+      this.sessionUpdateHandlers.forEach((h) => h());
+    });
+    this.client.on("session_event", (args) => {
+      this.sessionEventHandlers.forEach((h) => h(args));
     });
   }
 
