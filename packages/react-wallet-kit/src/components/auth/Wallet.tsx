@@ -13,7 +13,7 @@ import clsx from "clsx";
 import type { WalletProvider } from "@turnkey/core";
 import { QRCodeSVG as QRCode } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
-import { isEthereumWallet } from "@turnkey/core";
+import { isEthereumProvider } from "@turnkey/core";
 import { useTurnkey } from "../../providers/client/Hook";
 
 interface WalletAuthButtonProps {
@@ -91,7 +91,7 @@ export function ExternalWalletChainSelector(
               onMouseLeave={() => setIsHovering(false)}
               className="relative overflow-hidden flex items-center justify-start gap-2 w-full text-inherit bg-button-light dark:bg-button-dark"
             >
-              {isEthereumWallet(p) ? (
+              {isEthereumProvider(p) ? (
                 <div className="relative">
                   <EthereumLogo className="size-5" />
                   {canUnlink(p, shouldShowUnlink) && (
@@ -107,7 +107,7 @@ export function ExternalWalletChainSelector(
                 </div>
               )}
               <div className="flex flex-col items-start">
-                {isEthereumWallet(p) ? "EVM" : "Solana"}
+                {isEthereumProvider(p) ? "EVM" : "Solana"}
                 {canUnlink(p, shouldShowUnlink) && (
                   <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
                     Connected: {p.connectedAddresses[0]?.slice(0, 4)}...
@@ -232,7 +232,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                 </div>
                 <div className={clsx(`flex items-center transition-all gap-1`)}>
                   {group.map((c, idx) => {
-                    const Logo = isEthereumWallet(c)
+                    const Logo = isEthereumProvider(c)
                       ? EthereumLogo
                       : SolanaLogo;
                     const delay = 50 + idx * 30; // Staggered delay: leftmost has largest
