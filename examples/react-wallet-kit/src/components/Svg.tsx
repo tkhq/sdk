@@ -314,3 +314,45 @@ export function ImportSVG(props: SVGProps) {
     </svg>
   );
 }
+
+export function MoonPaySVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+    >
+      <circle cx="8" cy="8" r="9" fill="#ffffff" />
+      <rect x="0" y="0" width="16" height="16" fill="none" />
+      <rect x="12" y="0" width="3" height="1" fill="#7d00ff" />
+      <rect x="11" y="1" width="5" height="1" fill="#7d00ff" />
+      <rect x="10" y="2" width="6" height="1" fill="#7d00ff" />
+      <rect x="11" y="3" width="5" height="1" fill="#7d00ff" />
+      <rect x="3" y="4" width="6" height="1" fill="#7d00ff" />
+      <rect x="11" y="4" width="4" height="1" fill="#7d00ff" />
+      <rect x="2" y="5" width="8" height="1" fill="#7d00ff" />
+      <rect x="1" y="6" width="10" height="1" fill="#7d00ff" />
+      <rect x="0" y="7" width="12" height="5" fill="#7d00ff" />
+      <rect x="1" y="12" width="10" height="2" fill="#7d00ff" />
+      <rect x="2" y="14" width="8" height="1" fill="#7d00ff" />
+      <rect x="4" y="15" width="4" height="1" fill="#7d00ff" />
+    </svg>
+  );
+}
+
+export function CoinbaseSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 32 32"
+      {...props}
+    >
+      <path
+        fill="#0052FF"
+        d="M16 23c-3.867 0-7-3.133-7-7s3.133-7 7-7c3.465 0 6.34 2.526 6.895 5.833h7.053C29.352 7.647 23.338 2 16 2 8.27 2 2 8.27 2 16s6.27 14 14 14 13.352-5.647 13.948-12.833h-7.053A6.993 6.993 0 0 1 16 23Z"
+      />
+    </svg>
+  );
+}

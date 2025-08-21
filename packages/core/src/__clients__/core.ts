@@ -17,6 +17,7 @@ import {
   v1PayloadEncoding,
   v1HashFunction,
   v1Curve,
+  TInitFiatOnRampBody,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -1078,6 +1079,44 @@ export class TurnkeyClient {
           }
         },
       }
+    );
+  };
+
+  /**
+   * Initializes the Fiat Onramp Flow.
+   *
+   * - This function initiates the OTP flow by sending a one-time password (OTP) code to the user's contact information (email address or phone number) via the auth proxy.
+   * - Supports both email and SMS OTP types.
+   * - Returns an OTP ID that is required for subsequent OTP verification.
+   *
+   * @param params.otpType - type of OTP to initialize (OtpType.Email or OtpType.Sms).
+   * @param params.contact - contact information for the user (e.g., email address or phone number).
+   * @returns A promise that resolves with the onRampUrl and onRampTransactionId.
+   * @throws {TurnkeyError} If there is an error during the fiat onramp initialization process.
+   */
+  initFiatOnramp = async (
+    params: TInitFiatOnRampBody,
+  ): Promise<{ onRampUrl: string; onRampTransactionId: string }> => {
+    return withTurnkeyErrorHandling(
+      async () => {
+        const initFiatOnRampRes = await this.httpClient.initFiatOnRamp(params);
+
+        if (!initFiatOnRampRes || !initFiatOnRampRes.onRampUrl) {
+          throw new TurnkeyError(
+            "Failed to initialize fiat onramp: onRampUrl is missing",
+            TurnkeyErrorCodes.INIT_FIAT_ONRAMP_ERROR,
+          );
+        }
+
+        return {
+          onRampUrl: initFiatOnRampRes.onRampUrl,
+          onRampTransactionId: initFiatOnRampRes.onRampTransactionId,
+        };
+      },
+      {
+        errorMessage: "Failed to initialize fiat onramp",
+        errorCode: TurnkeyErrorCodes.INIT_FIAT_ONRAMP_ERROR,
+      },
     );
   };
 
