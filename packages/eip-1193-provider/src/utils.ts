@@ -10,7 +10,6 @@ import type { WalletAddEthereumChain, TransactionType } from "./types";
 import {
   BlockExplorerUrlError,
   RpcUrlsRequiredError,
-  ChainIdAlreadyAddedError,
   InvalidChainIdFormatError,
   ChainIdValueExceedsError,
   InvalidRpcUrlError,
@@ -123,7 +122,8 @@ export const validateChain = (
   const { rpcUrls, blockExplorerUrls, chainId, nativeCurrency } = chain;
 
   if (addedChains.some((c) => c.chainId === chainId)) {
-    throw new ChainIdAlreadyAddedError();
+    // Chain already added; return early
+    return;
   }
 
   let decimalChainId: Chain["id"];
