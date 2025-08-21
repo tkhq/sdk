@@ -38,13 +38,21 @@ import { createContext } from "react";
  */
 
 export interface ClientContextType extends TurnkeyClientMethods {
+  /** @internal */
   httpClient: TurnkeySDKClientBase | undefined;
+  /** @internal */
   session: Session | undefined;
+  /** @internal */
   allSessions?: Record<string, Session> | undefined;
+  /** @internal */
   clientState: ClientState | undefined;
+  /** @internal */
   authState: AuthState;
+  /** @internal */
   config?: TurnkeyProviderConfig | undefined;
+  /** @internal */
   user: v1User | undefined;
+  /** @internal */
   wallets: Wallet[];
 
   /**
@@ -61,7 +69,9 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the user details are successfully refreshed and state is updated.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error refreshing the user details.
    */
-  refreshUser(params?: { stampWith?: StamperType | undefined }): Promise<void>;
+  refreshUser: (params?: {
+    stampWith?: StamperType | undefined;
+  }) => Promise<void>;
 
   /**
    * Refreshes the wallets state for the current user session.
@@ -79,9 +89,9 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the wallets are successfully refreshed and state is updated.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error refreshing the wallets.
    */
-  refreshWallets(params?: {
+  refreshWallets: (params?: {
     stampWith?: StamperType | undefined;
-  }): Promise<void>;
+  }) => Promise<void>;
 
   /**
    * Handles the login or sign-up flow.
@@ -94,7 +104,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    *
    * @returns A void promise.
    */
-  handleLogin(): Promise<void>;
+  handleLogin: () => Promise<void>;
 
   /**
    * Handles the Google OAuth flow.
@@ -121,7 +131,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleGoogleOauth(params?: {
+  handleGoogleOauth: (params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
@@ -129,7 +139,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
       oidcToken: string;
       providerName: string;
     }) => any;
-  }): Promise<void>;
+  }) => Promise<void>;
 
   /**
    * Handles the Apple OAuth flow.
@@ -156,7 +166,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleAppleOauth(params?: {
+  handleAppleOauth: (params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
@@ -164,7 +174,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
       oidcToken: string;
       providerName: string;
     }) => any;
-  }): Promise<void>;
+  }) => Promise<void>;
 
   /**
    * Handles the Facebook OAuth flow.
@@ -192,7 +202,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleFacebookOauth(params?: {
+  handleFacebookOauth: (params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
     openInPage?: boolean;
@@ -200,7 +210,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
       oidcToken: string;
       providerName: string;
     }) => any;
-  }): Promise<void>;
+  }) => Promise<void>;
 
   /**
    * Handles the export wallet flow.
@@ -220,11 +230,11 @@ export interface ClientContextType extends TurnkeyClientMethods {
    *
    * @returns A void promise.
    */
-  handleExportWallet(params: {
+  handleExportWallet: (params: {
     walletId: string;
     targetPublicKey?: string;
     stampWith?: StamperType | undefined;
-  }): Promise<void>;
+  }) => Promise<void>;
 
   /**
    * handles the export private key flow.
@@ -243,11 +253,11 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
    * @return A void promise.
    */
-  handleExportPrivateKey(params: {
+  handleExportPrivateKey: (params: {
     privateKeyId: string;
     targetPublicKey?: string;
     stampWith?: StamperType | undefined;
-  }): Promise<void>;
+  }) => Promise<void>;
 
   /**
    * Handles the export wallet account flow.
@@ -268,11 +278,11 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A void promise.
    */
 
-  handleExportWalletAccount(params: {
+  handleExportWalletAccount: (params: {
     address: string;
     targetPublicKey?: string;
     stampWith?: StamperType | undefined;
-  }): Promise<void>;
+  }) => Promise<void>;
 
   /**
    * Handles the import flow.
@@ -290,11 +300,11 @@ export interface ClientContextType extends TurnkeyClientMethods {
    *
    * @returns A promise that resolves to the new wallet's ID.
    */
-  handleImportWallet(params?: {
+  handleImportWallet: (params?: {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;
-  }): Promise<string>;
+  }) => Promise<string>;
 
   /**
    * Handles the update user name flow.
@@ -315,12 +325,12 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error updating the user name.
    */
-  handleUpdateUserEmail(params?: {
+  handleUpdateUserEmail: (params?: {
     email?: string;
     title?: string;
     subTitle?: string;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }): Promise<string>;
+  }) => Promise<string>;
 
   /**
    * Handles the update user phone number flow.
@@ -342,14 +352,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, SMS OTP is not enabled, or if there is an error updating the phone number.
    */
-  handleUpdateUserPhoneNumber(params?: {
+  handleUpdateUserPhoneNumber: (params?: {
     phoneNumber?: string;
     formattedPhone?: string;
     title?: string;
     subTitle?: string;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }): Promise<string>;
-
+  }) => Promise<string>;
   /**
    * Handles the update user email flow.
    *
@@ -423,13 +432,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the phone number.
    */
-  handleAddPhoneNumber(params?: {
+  handleAddPhoneNumber: (params?: {
     phoneNumber?: string;
     formattedPhone?: string;
     title?: string;
     subTitle?: string;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }): Promise<string>;
+  }) => Promise<string>;
 
   /**
    * Handles the addition of an OAuth provider for the user.
@@ -448,10 +457,10 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the provider.
    */
-  handleAddOauthProvider(params: {
+  handleAddOauthProvider: (params: {
     providerName: OAuthProviders;
     stampWith?: StamperType | undefined;
-  }): Promise<void>;
+  }) => Promise<void>;
 
   /**
    * Handles the removal of an OAuth provider.
@@ -473,13 +482,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves to an array of provider IDs that were removed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error removing the provider.
    */
-  handleRemoveOauthProvider(params: {
+  handleRemoveOauthProvider: (params: {
     providerId: string;
     title?: string;
     subTitle?: string;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;
-  }): Promise<string[]>;
+  }) => Promise<string[]>;
 
   /**
    * Handles the addition of a passkey (authenticator) for the user.
@@ -501,13 +510,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves to the user's updated passkeys.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the passkey.
    */
-  handleAddPasskey(params?: {
+  handleAddPasskey: (params?: {
     name?: string;
     displayName?: string;
     userId?: string;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;
-  }): Promise<string[]>;
+  }) => Promise<string[]>;
 
   /**
    * Handles the removal of a passkey (authenticator) for the user.
@@ -529,14 +538,14 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves to an array of authenticator IDs that were removed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error removing the passkey.
    */
-  handleRemovePasskey(params: {
+  handleRemovePasskey: (params: {
     authenticatorId: string;
     userId?: string;
     title?: string;
     subTitle?: string;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;
-  }): Promise<string[]>;
+  }) => Promise<string[]>;
 
   /**
    * Handles the signing of a message by displaying a modal for user interaction.
@@ -558,7 +567,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves to a `v1SignRawPayloadResult` object containing the signed message.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error during the signing process.
    */
-  handleSignMessage(params: {
+  handleSignMessage: (params: {
     message: string;
     walletAccount: WalletAccount;
     encoding?: v1PayloadEncoding;
@@ -567,7 +576,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
     subText?: string;
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;
-  }): Promise<v1SignRawPayloadResult>;
+  }) => Promise<v1SignRawPayloadResult>;
 
   /**
    * Handles the linking of an external wallet account to the user's Turnkey account.
@@ -584,9 +593,9 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized or if no active session is found.
    */
-  handleLinkExternalWallet(params?: {
+  handleLinkExternalWallet: (params?: {
     successPageDuration?: number | undefined;
-  }): Promise<void>;
+  }) => Promise<void>;
 
   /**
    * Handles the removal of a user's email address from their Turnkey account.
@@ -597,11 +606,11 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.successPageDuration - duration (in ms) for the success page after removal (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    */
-  handleRemoveUserEmail(params?: {
+  handleRemoveUserEmail: (params?: {
     userId?: string;
     successPageDuration?: number | undefined;
     stampWith?: StamperType | undefined;
-  }): Promise<string>;
+  }) => Promise<string>;
 
   /**
    * Handles the removal of a user's phone number from their Turnkey account.
@@ -612,13 +621,14 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.successPageDuration - duration (in ms) for the success page after removal (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    */
-  handleRemoveUserPhoneNumber(params?: {
+  handleRemoveUserPhoneNumber: (params?: {
     userId?: string;
     successPageDuration?: number | undefined;
     stampWith?: StamperType | undefined;
-  }): Promise<string>;
+  }) => Promise<string>;
 }
 
+/** @internal */
 export const ClientContext = createContext<ClientContextType | undefined>(
   undefined,
 );

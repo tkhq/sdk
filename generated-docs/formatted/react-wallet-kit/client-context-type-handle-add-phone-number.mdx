@@ -1,0 +1,53 @@
+---
+title: "handleAddPhoneNumber()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L435">react-wallet-kit/src/providers/client/Types.tsx:435</a></p>
+
+<H3Bordered text="Overview" />
+
+Handles the add phone number flow.
+
+<ul>
+  <li>This function opens a modal with the UpdatePhoneNumber component for adding and verifying the user's phone number.</li>
+  <li>If a phone number is provided, it will immediately send an OTP request to the user and display the OTP verification modal.</li>
+  <li>Supports both manual entry and pre-filled phone numbers, as well as custom modal titles and subtitles.</li>
+  <li>Uses the addPhoneNumberContinue helper to manage the OTP flow, verification, and update logic.</li>
+  <li>After successful verification and update, the user details state is refreshed and an optional success page can be shown.</li>
+  <li>Supports customizing the duration of the success page after update.</li>
+  <li>Handles all error cases and throws a TurnkeyError with appropriate error codes.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="formattedPhone" type='string' required={false}>
+parameter to specify the formatted phone number.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="phoneNumber" type='string' required={false}>
+parameter to specify the new phone number.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="subTitle" type='string' required={false}>
+subtitle for the modal.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="successPageDuration" type='number' required={false}>
+duration (in ms) for the success page after update (default: 0, no success page).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="title" type='string' required={false}>
+title for the modal.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true}>
+  A promise that resolves to the userId of the user that was changed.
+</ResponseField>

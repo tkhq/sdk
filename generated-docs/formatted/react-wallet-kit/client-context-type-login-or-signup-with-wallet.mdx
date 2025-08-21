@@ -1,0 +1,47 @@
+---
+title: "loginOrSignupWithWallet()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Logs in an existing user or signs up a new user using a wallet, creating a new sub-organization if needed.
+
+<ul>
+  <li>This function attempts to log in the user by stamping a login request with the provided wallet.</li>
+  <li>If the wallet’s public key is not associated with an existing sub-organization, a new one is created.</li>
+  <li>Handles both wallet authentication and sub-organization creation in a single flow.</li>
+  <li>For Ethereum wallets, derives the public key from the signed request header; for Solana wallets, retrieves it directly from the wallet.</li>
+  <li>Optionally accepts additional sub-organization parameters, a custom session key, and a custom session expiration.</li>
+  <li>Stores the resulting session token under the specified session key, or the default session key if not provided.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="createSubOrgParams" type='CreateSubOrgParams' required={false}>
+optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="expirationSeconds" type='string' required={false}>
+session expiration time in seconds (defaults to the configured default).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
+session key to use for storing the session (defaults to the default session key).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="walletProvider" type='WalletProvider' required={true}>
+wallet provider to use for authentication.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true}>
+  A promise that resolves to a signed JWT session token for the sub-organization (new or existing).
+</ResponseField>
