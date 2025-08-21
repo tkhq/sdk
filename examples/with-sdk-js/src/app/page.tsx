@@ -62,7 +62,7 @@ export default function AuthPage() {
     createWalletAccounts,
     signTransaction,
     signAndSendTransaction,
-    switchWalletProviderChain,
+    switchWalletAccountChain,
     handleExportWallet,
     handleImportWallet,
     handleUpdateUserEmail,
@@ -572,23 +572,16 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const providers = await getWalletProviders(Chain.Ethereum);
-
           const mainNet = "0x1";
-          const provider = providers[3];
-
-          console.log("Injected Ethereum Providers:", providers);
 
           console.log(
-            "Switching Ethereum chain to Mainnet for provider:",
-            provider,
+            "Switching Ethereum chain to mainnet for account:",
+            wallets[0].accounts[0],
           );
-
-          await switchWalletProviderChain(provider, mainNet);
-
-          console.log("done");
-          const newProviders = await getWalletProviders(Chain.Ethereum);
-          console.log("New Ethereum Providers:", newProviders);
+          await switchWalletAccountChain({
+            walletAccount: wallets[0].accounts[0],
+            chainOrId: mainNet,
+          });
         }}
         style={{
           backgroundColor: "purple",
@@ -602,23 +595,16 @@ export default function AuthPage() {
 
       <button
         onClick={async () => {
-          const providers = await getWalletProviders(Chain.Ethereum);
-
           const polygon = "0x89";
-          const provider = providers[3];
-
-          console.log("Injected Ethereum Providers:", providers);
 
           console.log(
-            "Switching Ethereum chain to Polygon for provider:",
-            provider,
+            "Switching Ethereum chain to Polygon for account:",
+            wallets[0].accounts[0],
           );
-
-          await switchWalletProviderChain(provider, polygon);
-
-          console.log("done");
-          const newProviders = await getWalletProviders(Chain.Ethereum);
-          console.log("New Ethereum Providers:", newProviders);
+          await switchWalletAccountChain({
+            walletAccount: wallets[0].accounts[0],
+            chainOrId: polygon,
+          });
         }}
         style={{
           backgroundColor: "purple",
