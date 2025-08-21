@@ -1,4 +1,5 @@
 import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
+import type { TurnkeySDKClientBase } from "@turnkey/core";
 import {
   assertNonNull,
   assertActivityCompleted,
@@ -9,7 +10,11 @@ import {
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
 
-type TClient = TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
+type TClient =
+  | TurnkeyClient
+  | TurnkeyBrowserClient
+  | TurnkeyServerClient
+  | TurnkeySDKClientBase;
 
 export class TurnkeySigner {
   public readonly organizationId: string;
@@ -166,7 +171,9 @@ export class TurnkeySigner {
         },
       );
 
-      assertActivityCompleted(activity);
+      assertActivityCompleted(
+        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+      );
 
       return assertNonNull(signedTransaction);
     }
@@ -208,7 +215,9 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      assertActivityCompleted(activity);
+      assertActivityCompleted(
+        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+      );
 
       return assertNonNull({
         r,
@@ -254,7 +263,9 @@ export class TurnkeySigner {
         hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
       });
 
-      assertActivityCompleted(activity);
+      assertActivityCompleted(
+        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+      );
 
       return assertNonNull({
         signatures: signatures as TurnkeyApiTypes["v1SignRawPayloadResult"][],
