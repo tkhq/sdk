@@ -1026,17 +1026,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   }
 
-  async function switchWalletProviderChain(
-    walletProvider: WalletProvider,
-    chainOrId: string | SwitchableChain,
-  ): Promise<void> {
+  async function switchWalletAccountChain(params: {
+    walletAccount: WalletAccount;
+    chainOrId: string | SwitchableChain;
+  }): Promise<void> {
     if (!client) {
       throw new TurnkeyError(
         "Client is not initialized.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
-    await client.switchWalletProviderChain(walletProvider, chainOrId);
+    await client.switchWalletAccountChain({ ...params, walletProviders });
   }
 
   async function loginWithWallet(params: {
@@ -3883,7 +3883,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         getWalletProviders,
         connectWalletAccount,
         disconnectWalletAccount,
-        switchWalletProviderChain,
+        switchWalletAccountChain,
         loginWithWallet,
         signUpWithWallet,
         loginOrSignupWithWallet,
