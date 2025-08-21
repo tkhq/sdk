@@ -788,6 +788,21 @@ export function isSolanaWallet(wallet: WalletProvider): boolean {
 }
 
 /**@internal */
+export function findWalletProviderFromAddress(
+  address: string,
+  providers: WalletProvider[],
+): WalletProvider | undefined {
+  for (const provider of providers) {
+    if (provider.connectedAddresses.includes(address)) {
+      return provider;
+    }
+  }
+
+  // no provider found for that address
+  return undefined;
+}
+
+/**@internal */
 export async function getAuthProxyConfig(
   authProxyConfigId: string,
   authProxyUrl?: string | undefined,

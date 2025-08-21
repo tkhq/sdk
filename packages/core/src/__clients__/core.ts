@@ -60,6 +60,7 @@ import {
   broadcastTransaction,
   googleISS,
   withTurnkeyErrorHandling,
+  findWalletProviderFromAddress,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -575,21 +576,28 @@ export class TurnkeyClient {
   };
 
   /**
-   * Switches the specified wallet provider to a different blockchain chain.
+   * Switches the wallet provider associated with a given wallet account
+   * to a different chain.
    *
-   * - Requires the wallet manager and its connector to be initialized.
-   * - The wallet provider must have at least one connected address.
-   * - Does nothing if the wallet provider is already on the desired chain.
+   * - Requires the wallet manager and its connector to be initialized
+   * - Only works for connected wallet accounts
+   * - Looks up the provider for the given account address
+   * - Does nothing if the provider is already on the desired chain.
    *
-   * @param walletProvider - wallet provider to switch.
-   * @param chainOrId - target chain as a chain ID string or SwitchableChain object.
+   * @param params.walletAccount - The wallet account whose provider should be switched.
+   * @param params.chainOrId - The target chain, specified as a chain ID string or a SwitchableChain object.
+   * @param params.walletProviders - Optional list of wallet providers to search; falls back to `getWalletProviders()` if omitted.
    * @returns A promise that resolves once the chain switch is complete.
+   *
    * @throws {TurnkeyError} If the wallet manager is uninitialized, the provider is not connected, or the switch fails.
    */
-  switchWalletProviderChain = async (
-    walletProvider: WalletProvider,
-    chainOrId: string | SwitchableChain,
-  ): Promise<void> => {
+  switchWalletAccountChain = async (params: {
+    walletAccount: WalletAccount;
+    chainOrId: string | SwitchableChain;
+    walletProviders?: WalletProvider[] | undefined;
+  }): Promise<void> => {
+    const { walletAccount, chainOrId, walletProviders } = params;
+
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.walletManager?.connector) {
@@ -599,10 +607,23 @@ export class TurnkeyClient {
           );
         }
 
-        if (walletProvider.connectedAddresses.length === 0) {
+        if (walletAccount.source === WalletSource.Embedded) {
           throw new TurnkeyError(
-            "You can not switch chains for a provider that is not connected",
-            TurnkeyErrorCodes.INVALID_REQUEST,
+            "You can only switch chains for connected wallet accounts",
+            TurnkeyErrorCodes.NOT_FOUND,
+          );
+        }
+
+        const providers = walletProviders ?? (await this.getWalletProviders());
+        const walletProvider = findWalletProviderFromAddress(
+          walletAccount.address,
+          providers,
+        );
+
+        if (!walletProvider) {
+          throw new TurnkeyError(
+            "Wallet provider not found",
+            TurnkeyErrorCodes.SWITCH_WALLET_CHAIN_ERROR,
           );
         }
 
