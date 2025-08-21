@@ -518,7 +518,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
-  // TODO: MOE PLEASE COMMENT THESE
+  /**
+   * @internal
+   * Attaches listeners for connected native wallet providers.
+   *
+   * - Ethereum: listens for disconnect and chain switches to trigger a refresh.
+   * - Solana: listens for disconnect via Wallet Standard `change` events to trigger a refresh.
+   *
+   * @param walletProviders - The list of discovered providers; only connected native ones are bound.
+   * @param onWalletsChanged - Callback invoked when a relevant wallet event occurs.
+   * @returns A cleanup function that removes all listeners registered by this call.
+   */
   async function initializeWalletProviderListeners(
     walletProviders: WalletProvider[],
     onWalletsChanged: () => void,
@@ -557,15 +567,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     ) {
       if (typeof provider.on !== "function") return;
 
+      const handleChainChanged = (_chainId: string) => onWalletsChanged();
       const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) onWalletsChanged();
       };
       const handleDisconnect = () => onWalletsChanged();
 
+      provider.on("chainChanged", handleChainChanged);
       provider.on("accountsChanged", handleAccountsChanged);
       provider.on("disconnect", handleDisconnect);
 
       return () => {
+        provider.removeListener("chainChanged", handleChainChanged);
         provider.removeListener("accountsChanged", handleAccountsChanged);
         provider.removeListener("disconnect", handleDisconnect);
       };
@@ -577,28 +590,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     ) {
       const cleanups: Array<() => void> = [];
 
-      const walletEvents = provider.features?.["standard:events"];
+      const walletEvents = provider?.features?.["standard:events"];
       if (walletEvents?.on) {
-        const handleChange = (event: { type: string }) => {
-          if (event.type === "change" || event.type === "accountsChanged") {
-            onWalletsChanged();
-          }
-        };
-
-        walletEvents.on("change", handleChange);
-        walletEvents.on("accountsChanged", handleChange);
-
-        cleanups.push(() => {
-          walletEvents.off?.("change", handleChange);
-          walletEvents.off?.("accountsChanged", handleChange);
+        const offChange = walletEvents.on("change", (_evt: any) => {
+          onWalletsChanged();
         });
+        cleanups.push(offChange);
       }
 
-      return cleanups.length > 0
-        ? () => {
-            cleanups.forEach((fn) => fn());
-          }
-        : () => {};
+      return () => cleanups.forEach((fn) => fn());
     }
 
     ethProviders.forEach((p) => {
@@ -3803,10 +3803,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   /**
    * @internal
-   * we use debouncedRefreshWallets() to prevent multiple rapid wallet events
-   * like accountsChanged and disconnect from triggering refreshWallets repeatedly
-   * it must be defined outside the useEffect so all event listeners share the same
-   * debounced function instance - otherwise, a new one would be created on every render
+   * We create `debouncedRefreshWallets()` so that multiple rapid wallet events
+   * (for example, on Solana a single disconnect can emit several events we listen for)
+   * only trigger `refreshWallets()` once.
+   *
+   * Defining the debounced function outside of the `useEffect` ensures all event
+   * listeners in `initializeProviders` share the same instance, instead of creating
+   * a new one on every render.
    */
   const debouncedRefreshWallets = useDebouncedCallback(refreshWallets, 100);
   useEffect(() => {
