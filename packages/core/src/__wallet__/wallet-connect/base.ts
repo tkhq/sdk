@@ -20,6 +20,11 @@ import type { WalletConnectClient } from "./client";
 import type { SessionTypes } from "@walletconnect/types";
 import { Transaction } from "ethers";
 
+type WalletConnectChangeEvent =
+  | { type: "disconnect" }
+  | { type: "chainChanged"; chainId?: string }
+  | { type: "update" };
+
 export class WalletConnectWallet implements WalletConnectInterface {
   readonly interfaceType = WalletInterfaceType.WalletConnect;
 
@@ -31,6 +36,21 @@ export class WalletConnectWallet implements WalletConnectInterface {
 
   private uri?: string;
 
+  private changeListeners = new Set<
+    (event?: WalletConnectChangeEvent) => void
+  >();
+
+  private addChangeListener(
+    listener: (event?: WalletConnectChangeEvent) => void,
+  ) {
+    this.changeListeners.add(listener);
+    return () => this.changeListeners.delete(listener);
+  }
+
+  private notifyChange(event?: WalletConnectChangeEvent) {
+    this.changeListeners.forEach((listener) => listener(event));
+  }
+
   /**
    * Constructs a WalletConnectWallet bound to a WalletConnect client.
    *
@@ -40,14 +60,24 @@ export class WalletConnectWallet implements WalletConnectInterface {
    * @param client - The low-level WalletConnect client used for session/RPC.
    */
   constructor(private client: WalletConnectClient) {
-    this.client.onSessionDelete(async () => {
-      try {
-        this.uri = await this.client.pair(this.buildNamespaces());
-      } catch (err) {
-        console.warn(
-          "WalletConnect: failed to re-pair after session delete",
-          err,
-        );
+    // session disconnected
+    this.client.onSessionDelete(() => {
+      this.notifyChange({ type: "disconnect" });
+    });
+
+    // session updated (actual update to the session for example adding a chain to namespaces)
+    this.client.onSessionUpdate(() => {
+      this.notifyChange({ type: "update" });
+    });
+
+    // chain switched
+    this.client.onSessionEvent(({ event }: any) => {
+      if (event?.name === "chainChanged" || event?.name === "accountsChanged") {
+        const chainId =
+          typeof event.data?.chainId === "string"
+            ? event.data.chainId
+            : undefined;
+        this.notifyChange({ type: "chainChanged", chainId });
       }
     });
   }
@@ -400,8 +430,15 @@ export class WalletConnectWallet implements WalletConnectInterface {
    */
   private makeProvider(chainId: string): WalletConnectProvider {
     return {
-      request: ({ method, params }: any) => {
-        return this.client.request(chainId, method, params);
+      request: ({ method, params }: any) =>
+        this.client.request(chainId, method, params),
+      features: {
+        "standard:events": {
+          on: (event: string, callback: (evt: any) => void) => {
+            if (event !== "change") return () => {};
+            return this.addChangeListener(callback);
+          },
+        },
       },
     };
   }
