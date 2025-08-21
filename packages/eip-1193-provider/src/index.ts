@@ -196,6 +196,8 @@ export const createEIP1193Provider = async (
           return `0x${signedTransaction}`;
         }
         case "wallet_addEthereumChain": {
+          console.log("wallet_addEthereumChain: all added chains", addedChains);
+
           const [chain] = params as [AddEthereumChainParameter];
 
           // Validate the to be added
@@ -219,7 +221,7 @@ export const createEIP1193Provider = async (
           addedChains.push({ ...chain, connected: true });
 
           console.log("wallet_addEthereumChain: new chain id", rpcChainId);
-          console.log("wallet_addEthereumChain: all added chains", addedChains);
+          console.log("wallet_addEthereumChain: new added chains", addedChains);
 
           return null;
         }
