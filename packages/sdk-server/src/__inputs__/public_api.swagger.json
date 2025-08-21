@@ -8706,7 +8706,8 @@
       "enum": [
         "PAYLOAD_ENCODING_HEXADECIMAL",
         "PAYLOAD_ENCODING_TEXT_UTF8",
-        "PAYLOAD_ENCODING_EIP712"
+        "PAYLOAD_ENCODING_EIP712",
+        "PAYLOAD_ENCODING_EIP7702_AUTHORIZATION"
       ]
     },
     "v1Policy": {
@@ -10825,8 +10826,7 @@
         },
         "walletDetails": {
           "$ref": "#/definitions/v1Wallet",
-          "description": "Wallet details for this account. This is only present when include_wallet_details=true.",
-          "readOnly": true
+          "description": "Wallet details for this account. This is only present when include_wallet_details=true."
         }
       },
       "required": [

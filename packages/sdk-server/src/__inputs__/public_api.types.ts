@@ -2736,7 +2736,8 @@ export type definitions = {
   v1PayloadEncoding:
     | "PAYLOAD_ENCODING_HEXADECIMAL"
     | "PAYLOAD_ENCODING_TEXT_UTF8"
-    | "PAYLOAD_ENCODING_EIP712";
+    | "PAYLOAD_ENCODING_EIP712"
+    | "PAYLOAD_ENCODING_EIP7702_AUTHORIZATION";
   v1Policy: {
     /** @description Unique identifier for a given Policy. */
     policyId: string;
