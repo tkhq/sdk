@@ -18,11 +18,12 @@ import {
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
-  SignIntent,
   type WalletProvider,
   Chain,
   GrpcStatus,
   TurnkeyRequestError,
+  EvmChainInfo,
+  SolanaChainInfo,
 } from "@types";
 // Import all defaultAccountAtIndex functions for each address format
 import {
@@ -513,42 +514,6 @@ export const broadcastTransaction = async (params: {
   }
 };
 
-export const getWalletAccountMethods = (
-  sign: (
-    message: string,
-    provider: WalletProvider,
-    intent: SignIntent,
-  ) => Promise<string>,
-  provider: WalletProvider,
-) => {
-  const signWithIntent = (intent: SignIntent) => {
-    return async (input: string) => {
-      return sign(input, provider, intent);
-    };
-  };
-
-  switch (provider.chainInfo.namespace) {
-    case Chain.Ethereum:
-      return {
-        signMessage: signWithIntent(SignIntent.SignMessage),
-        signAndSendTransaction: signWithIntent(
-          SignIntent.SignAndSendTransaction,
-        ),
-      };
-
-    case Chain.Solana:
-      return {
-        signMessage: signWithIntent(SignIntent.SignMessage),
-        signTransaction: signWithIntent(SignIntent.SignTransaction),
-      };
-
-    default:
-      throw new Error(
-        `Unsupported wallet chain: ${provider.chainInfo}. Supported chains are Ethereum and Solana.`,
-      );
-  }
-};
-
 export function splitSignature(
   signature: string,
   addressFormat: v1AddressFormat,
@@ -774,20 +739,21 @@ export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
     );
   }
 }
-
 /**@internal */
-export function isEthereumWallet(wallet: WalletProvider): boolean {
-  const walletType = wallet.chainInfo.namespace;
-  return walletType === Chain.Ethereum;
+export function isEthereumProvider(
+  provider: WalletProvider,
+): provider is WalletProvider & { chainInfo: EvmChainInfo } {
+  return provider.chainInfo.namespace === Chain.Ethereum;
 }
 
 /**@internal */
-export function isSolanaWallet(wallet: WalletProvider): boolean {
-  const walletType = wallet.chainInfo.namespace;
-  return walletType === Chain.Solana;
+export function isSolanaProvider(
+  provider: WalletProvider,
+): provider is WalletProvider & { chainInfo: SolanaChainInfo } {
+  return provider.chainInfo.namespace === Chain.Solana;
 }
 
-/**@internal */
+/** @internal */
 export function findWalletProviderFromAddress(
   address: string,
   providers: WalletProvider[],

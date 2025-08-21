@@ -22,8 +22,8 @@ export * from "./__types__/base";
 /**@internal */
 export {
   generateWalletAccountsFromAddressFormat,
-  isEthereumWallet,
-  isSolanaWallet,
+  isEthereumProvider,
+  isSolanaProvider,
   getAuthProxyConfig,
   addressFormatConfig,
 } from "./utils";

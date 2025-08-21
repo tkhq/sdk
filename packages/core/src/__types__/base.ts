@@ -183,11 +183,22 @@ export interface EmbeddedWalletAccount extends v1WalletAccount {
  * @property signTransaction - function to sign a transaction, returning the signed transaction as a string.
  * @property signAndSendTransaction - function to sign and send a transaction, returning the signed transaction as a string.
  */
-export interface ConnectedWalletAccount extends v1WalletAccount {
+export type ConnectedWalletAccount =
+  | ConnectedEthereumWalletAccount
+  | ConnectedSolanaWalletAccount;
+
+export interface ConnectedEthereumWalletAccount extends v1WalletAccount {
   source: WalletSource.Connected;
+  chainInfo: EvmChainInfo;
   signMessage: (message: string) => Promise<string>;
-  signTransaction?: (unsignedTransaction: string) => Promise<string>;
-  signAndSendTransaction?: (unsignedTransaction: string) => Promise<string>;
+  signAndSendTransaction: (unsignedTransaction: string) => Promise<string>;
+}
+
+export interface ConnectedSolanaWalletAccount extends v1WalletAccount {
+  source: WalletSource.Connected;
+  chainInfo: SolanaChainInfo;
+  signMessage: (message: string) => Promise<string>;
+  signTransaction: (unsignedTransaction: string) => Promise<string>;
 }
 
 /**@internal */
