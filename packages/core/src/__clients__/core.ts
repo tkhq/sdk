@@ -41,6 +41,9 @@ import {
   WalletManagerBase,
   WalletProvider,
   SwitchableChain,
+  ConnectedEthereumWalletAccount,
+  ConnectedSolanaWalletAccount,
+  SignIntent,
 } from "../__types__/base"; // TODO (Amir): How many of these should we keep in sdk-types
 import {
   buildSignUpBody,
@@ -53,14 +56,13 @@ import {
   isWeb,
   toExternalTimestamp,
   splitSignature,
-  getWalletAccountMethods,
   getPublicKeyFromStampHeader,
-  isEthereumWallet,
-  isSolanaWallet,
   broadcastTransaction,
   googleISS,
   withTurnkeyErrorHandling,
   findWalletProviderFromAddress,
+  isEthereumProvider,
+  isSolanaProvider,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -799,7 +801,7 @@ export class TurnkeyClient {
               {
                 apiKeyName: `wallet-auth:${publicKey}`,
                 publicKey: publicKey,
-                curveType: isEthereumWallet(walletProvider)
+                curveType: isEthereumProvider(walletProvider)
                   ? ("API_KEY_CURVE_SECP256K1" as const)
                   : ("API_KEY_CURVE_ED25519" as const),
               },
@@ -1001,7 +1003,7 @@ export class TurnkeyClient {
                 {
                   apiKeyName: `wallet-auth:${publicKey}`,
                   publicKey: publicKey,
-                  curveType: isEthereumWallet(walletProvider)
+                  curveType: isEthereumProvider(walletProvider)
                     ? ("API_KEY_CURVE_SECP256K1" as const)
                     : ("API_KEY_CURVE_ED25519" as const),
                 },
@@ -1845,36 +1847,72 @@ export class TurnkeyClient {
               wallet.walletId && p.connectedAddresses.length > 0,
         );
 
+        const sign = this.walletManager!.connector!.sign.bind(
+          this.walletManager!.connector,
+        );
+
         for (const provider of matching) {
           const timestamp = toExternalTimestamp();
 
           for (const address of provider.connectedAddresses) {
-            const account: ConnectedWalletAccount = {
-              walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
-              organizationId: session.organizationId,
-              walletId: wallet.walletId,
-              curve: isEthereumWallet(provider)
-                ? Curve.SECP256K1
-                : Curve.ED25519,
-              pathFormat: "PATH_FORMAT_BIP32",
-              path: WalletSource.Connected,
-              source: WalletSource.Connected,
-              addressFormat: isEthereumWallet(provider)
-                ? "ADDRESS_FORMAT_ETHEREUM"
-                : "ADDRESS_FORMAT_SOLANA",
-              address,
-              createdAt: timestamp,
-              updatedAt: timestamp,
-              ...getWalletAccountMethods(
-                this.walletManager!.connector!.sign.bind(
-                  this.walletManager!.connector,
-                ),
-                provider,
-              ),
-              ...(isSolanaWallet(provider) && { publicKey: address }),
-            };
+            if (isEthereumProvider(provider)) {
+              const evmAccount: ConnectedEthereumWalletAccount = {
+                walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
+                organizationId: session.organizationId,
+                walletId: wallet.walletId,
+                curve: Curve.SECP256K1,
+                pathFormat: "PATH_FORMAT_BIP32",
+                path: WalletSource.Connected,
+                source: WalletSource.Connected,
+                addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+                address,
+                createdAt: timestamp,
+                updatedAt: timestamp,
 
-            connected.push(account);
+                // EVM-specific
+                chainInfo: provider.chainInfo,
+                signMessage: (msg: string) =>
+                  sign(msg, provider, SignIntent.SignMessage),
+                signAndSendTransaction: (tx: string) =>
+                  sign(tx, provider, SignIntent.SignAndSendTransaction),
+              };
+
+              connected.push(evmAccount);
+              continue;
+            }
+
+            if (isSolanaProvider(provider)) {
+              const solAccount: ConnectedSolanaWalletAccount = {
+                walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
+                organizationId: session.organizationId,
+                walletId: wallet.walletId,
+                curve: Curve.ED25519,
+                pathFormat: "PATH_FORMAT_BIP32",
+                path: WalletSource.Connected,
+                source: WalletSource.Connected,
+                addressFormat: "ADDRESS_FORMAT_SOLANA",
+                address,
+                createdAt: timestamp,
+                updatedAt: timestamp,
+
+                // Solana-specific
+                publicKey: address,
+                chainInfo: provider.chainInfo,
+
+                // methods
+                signMessage: (msg: string) =>
+                  sign(msg, provider, SignIntent.SignMessage),
+                signTransaction: (tx: string) =>
+                  sign(tx, provider, SignIntent.SignTransaction),
+              };
+
+              connected.push(solAccount);
+              continue;
+            }
+
+            throw new Error(
+              `Unsupported wallet chain: ${provider.chainInfo}. Supported chains are Ethereum and Solana.`,
+            );
           }
         }
 
@@ -2025,25 +2063,26 @@ export class TurnkeyClient {
     return withTurnkeyErrorHandling(
       async () => {
         if (walletAccount.source === WalletSource.Connected) {
-          // this is a connected wallet account
+          switch (walletAccount.chainInfo.namespace) {
+            case Chain.Ethereum:
+              throw new TurnkeyError(
+                "Ethereum connected wallets do not support raw transaction signing. Use signAndSendTransaction instead.",
+                TurnkeyErrorCodes.INVALID_REQUEST,
+              );
 
-          if (!walletAccount.signTransaction) {
-            const isEthereum =
-              walletAccount.addressFormat === "ADDRESS_FORMAT_ETHEREUM";
+            case Chain.Solana:
+              // not sure why typescript isn't inferring the type here
+              // if namespace is Chain.Solana, then it must be a ConnectedSolanaWalletAccount
+              return (
+                walletAccount as ConnectedSolanaWalletAccount
+              ).signTransaction(unsignedTransaction);
 
-            const reason = isEthereum
-              ? "Ethereum connected wallets do not support raw transaction signing due to EIP-1193 limitations."
-              : "This connected wallet does not support raw transaction signing.";
-
-            throw new TurnkeyError(
-              `Failed to sign transaction: ${reason} ${
-                isEthereum ? "Use signAndSendTransaction instead." : ""
-              }`,
-              TurnkeyErrorCodes.SIGN_TRANSACTION_ERROR,
-            );
+            default:
+              throw new TurnkeyError(
+                "Unsupported connected wallet type.",
+                TurnkeyErrorCodes.INVALID_REQUEST,
+              );
           }
-
-          return await walletAccount?.signTransaction(unsignedTransaction);
         }
 
         // this is an embedded wallet account
@@ -2104,33 +2143,26 @@ export class TurnkeyClient {
       async () => {
         if (walletAccount.source === WalletSource.Connected) {
           // this is a connected wallet account
-          switch (transactionType) {
-            case "TRANSACTION_TYPE_ETHEREUM":
-              if (!walletAccount.signAndSendTransaction) {
-                throw new TurnkeyError(
-                  "This connected wallet does not support signAndSendTransaction.",
-                  TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
-                );
-              }
-              return await walletAccount.signAndSendTransaction(
-                unsignedTransaction,
-              );
+          switch (walletAccount.chainInfo.namespace) {
+            case Chain.Ethereum:
+              // not sure why typescript isn't inferring the type here
+              // if namespace is Chain.Ethereum, then it must be a ConnectedEthereumWalletAccount
+              return await (
+                walletAccount as ConnectedEthereumWalletAccount
+              ).signAndSendTransaction(unsignedTransaction);
 
-            case "TRANSACTION_TYPE_SOLANA":
+            case Chain.Solana:
               if (!rpcUrl) {
                 throw new TurnkeyError(
                   "Missing rpcUrl: connected Solana wallets require an RPC URL to broadcast transactions.",
                   TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
                 );
               }
-              if (!walletAccount.signTransaction) {
-                throw new TurnkeyError(
-                  "This connected wallet does not support signAndSendTransaction.",
-                  TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
-                );
-              }
-              const signature =
-                await walletAccount.signTransaction(unsignedTransaction);
+              // not sure why typescript isn't inferring the type here
+              // if namespace is Chain.Solana, then it must be a ConnectedSolanaWalletAccount
+              const signature = await (
+                walletAccount as ConnectedSolanaWalletAccount
+              ).signTransaction(unsignedTransaction);
               return await broadcastTransaction({
                 signedTransaction: signature,
                 rpcUrl,
