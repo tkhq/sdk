@@ -11,13 +11,24 @@ import {
 } from "@turnkey/sdk-types";
 import {
   Chain,
+  ClientState,
   OtpType,
   StamperType,
   useModal,
   useTurnkey,
 } from "@turnkey/react-wallet-kit";
+import {
+  createAccount,
+  isTurnkeyActivityConsensusNeededError,
+  serializeSignature,
+} from "@turnkey/viem";
+import {
+  createWalletClient,
+  http,
+  recoverMessageAddress,
+  type Account,
+} from "viem";
 import { SessionKey } from "@turnkey/react-wallet-kit";
-import { ExportType } from "@turnkey/react-wallet-kit/dist/types/base";
 import { parseEther, Transaction as EthTransaction } from "ethers";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 
@@ -162,6 +173,62 @@ export default function AuthPage() {
     }
   };
 
+  const signWithViem = async () => {
+    const turnkeyAccount = await createAccount({
+      client: httpClient!,
+      organizationId: session?.organizationId!,
+      signWith: wallets[0].accounts[0].address,
+    });
+
+    const viemClient = createWalletClient({
+      account: turnkeyAccount as Account,
+      chain: {
+        id: 11_155_111,
+        name: "Sepolia",
+        nativeCurrency: {
+          name: "Sepolia Ether",
+          symbol: "ETH",
+          decimals: 18,
+        },
+        rpcUrls: {
+          default: {
+            http: ["https://sepolia.drpc.org"],
+          },
+        },
+        blockExplorers: {
+          default: {
+            name: "Etherscan",
+            url: "https://sepolia.etherscan.io",
+            apiUrl: "https://api-sepolia.etherscan.io/api",
+          },
+        },
+        contracts: {
+          multicall3: {
+            address: "0xca11bde05977b3631167028862be2a173976ca11",
+            blockCreated: 751532,
+          },
+          ensRegistry: {
+            address: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
+          },
+          ensUniversalResolver: {
+            address: "0xc8Af999e38273D658BE1b921b88A9Ddf005769cC",
+            blockCreated: 5_317_080,
+          },
+        },
+        testnet: true,
+      },
+      transport: http(
+        `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`,
+      ),
+    });
+
+    const signature = await viemClient.signMessage({
+      message: "Hello, Turnkey!",
+    });
+
+    console.log("Viem Signature:", signature);
+  };
+
   const handleRefreshSession = async () => {
     return await refreshSession({});
   };
@@ -169,11 +236,11 @@ export default function AuthPage() {
   const doCreateWallet = async (walletName: string) => {
     // List of all v1AddressFormat values
     const allAddressFormats: v1AddressFormat[] = [
+      "ADDRESS_FORMAT_ETHEREUM",
+      "ADDRESS_FORMAT_SOLANA",
       "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH",
       "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH",
       "ADDRESS_FORMAT_APTOS",
-      "ADDRESS_FORMAT_ETHEREUM",
-      "ADDRESS_FORMAT_SOLANA",
     ];
 
     const res = await createWallet({
@@ -781,6 +848,19 @@ export default function AuthPage() {
           }}
         >
           Sign Message
+        </button>
+      )}
+      {wallets.length > 0 && (
+        <button
+          onClick={signWithViem}
+          style={{
+            backgroundColor: "pink",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Sign With Viem
         </button>
       )}
       {session && (

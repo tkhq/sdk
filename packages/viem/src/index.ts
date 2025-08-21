@@ -37,6 +37,7 @@ import {
 } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
+import type { TurnkeySDKClientBase } from "@turnkey/core";
 import type { TurnkeyServerClient } from "@turnkey/sdk-server";
 
 export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
@@ -105,7 +106,11 @@ export class TurnkeyActivityError extends BaseError {
 }
 
 export function createAccountWithAddress(input: {
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase;
   organizationId: string;
   // This can be a wallet account address, private key address, or private key ID.
   signWith: string;
@@ -179,7 +184,11 @@ export function createAccountWithAddress(input: {
 }
 
 export async function createAccount(input: {
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase;
   organizationId: string;
   // This can be a wallet account address, private key address, or private key ID.
   signWith: string;
@@ -344,7 +353,11 @@ export async function createApiKeyAccount(
 }
 
 export async function signAuthorization(
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase,
   parameters: TSignAuthorizationParameters,
   organizationId: string,
   signWith: string,
@@ -386,7 +399,11 @@ export async function signAuthorization(
 }
 
 export async function signMessage(
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase,
   message: SignableMessage,
   organizationId: string,
   signWith: string,
@@ -403,7 +420,11 @@ export async function signMessage(
 export async function signTransaction<
   TTransactionSerializable extends TransactionSerializable,
 >(
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase,
   transaction: TTransactionSerializable,
   serializer: SerializeTransactionFn<TTransactionSerializable>,
   organizationId: string,
@@ -441,7 +462,11 @@ export async function signTransaction<
 }
 
 export async function signTypedData(
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase,
   data: TypedData | { [key: string]: unknown },
   organizationId: string,
   signWith: string,
@@ -457,7 +482,11 @@ export async function signTypedData(
 }
 
 async function signTransactionWithErrorWrapping(
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase,
   unsignedTransaction: string,
   organizationId: string,
   signWith: string,
@@ -497,7 +526,11 @@ async function signTransactionWithErrorWrapping(
 }
 
 async function signTransactionImpl(
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase,
   unsignedTransaction: string,
   organizationId: string,
   signWith: string,
@@ -527,14 +560,20 @@ async function signTransactionImpl(
       unsignedTransaction: unsignedTransaction,
     });
 
-    assertActivityCompleted(activity);
+    assertActivityCompleted(
+      activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+    );
 
     return assertNonNull(signedTransaction);
   }
 }
 
 async function signMessageWithErrorWrapping(
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase,
   message: string,
   organizationId: string,
   signWith: string,
@@ -579,7 +618,11 @@ async function signMessageWithErrorWrapping(
 }
 
 async function signMessageImpl(
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient,
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase,
   message: string,
   organizationId: string,
   signWith: string,
@@ -613,7 +656,9 @@ async function signMessageImpl(
       hashFunction: "HASH_FUNCTION_NO_OP",
     });
 
-    assertActivityCompleted(activity);
+    assertActivityCompleted(
+      activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+    );
 
     result = {
       r,
