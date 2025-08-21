@@ -1,5 +1,5 @@
 {
-  "entryPoints": ["src/index.ts"],
+  "entryPoints": ["src/__clients__/core.ts"],
   "name": "core",
   "exclude": [
     "src/turnkey-helpers.ts",
@@ -16,24 +16,24 @@
     "src/__types__/base.ts"
   ],
   "excludeInternal": true,
+  "externalPattern": ["**/node_modules/**"],
   "includeVersion": true,
-  "fileExtension": ".mdx",
-  "alwaysCreateEntryPointModule": true,
+  "alwaysCreateEntryPointModule": false,
   "gitRevision": "main",
   "router": "structure-dir",
-  "plugin": ["typedoc-plugin-markdown"],
   "projectDocuments": ["documents/*.md", "CHANGELOG.md"],
-  "expandParameters": true,
   "validation": {
     "notExported": false,
     "notDocumented": false
   },
+  "visibilityFilters": {
+    "external": false
+  },
   "outputs": [
     {
-      // requires typedoc-plugin-markdown
-      "name": "markdown",
+      "name": "json",
       "path": "./generated-docs/sdks",
-      "fileExtension": ".mdx"
+      "fileExtension": "json"
     }
   ]
 }
