@@ -20,36 +20,6 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
   const handleModalOpen = () => setSignModalOpen(true);
   const handleModalClose = () => setSignModalOpen(false);
 
-  const generateCoinbaseUrl = async () => {
-    try {
-      const session = await turnkey?.getSession();
-
-      const response = await indexedDbClient?.initFiatOnRamp({
-        organizationId: session?.organizationId!,
-        onrampProvider: FiatOnRampProvider.COINBASE,
-        walletAddress: ethAddress,
-        network: FiatOnRampBlockchainNetwork.ETHEREUM,
-        cryptoCurrencyCode: FiatOnRampCryptoCurrency.ETHEREUM,
-        fiatCurrencyCode: FiatOnRampCurrency.USD,
-        fiatCurrencyAmount: "10",
-        paymentMethod: FiatOnRampPaymentMethod.CREDIT_DEBIT_CARD,
-        countryCode: "US",
-        countrySubdivisionCode: "ME",
-        sandboxMode: true,
-      });
-
-      if (response?.onRampUrl) {
-        window.open(
-          response.onRampUrl,
-          "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
-        );
-      }
-    } catch (error) {
-      console.error("Failed to init Coinbase on-ramp:", error);
-    }
-  };
-
   const generateMoonPayUrl = async () => {
     try {
       const session = await turnkey?.getSession();
@@ -70,7 +40,7 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
         window.open(
           response.onRampUrl,
           "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
+          "popup,width=500,height=700,scrollbars=yes,resizable=yes"
         );
       }
     } catch (error) {
@@ -137,10 +107,6 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
             <button className="whiteButton" onClick={generateMoonPayUrl}>
               <img src="/images/moonpay.jpg" alt="MoonPay" />
               Buy with MoonPay
-            </button>
-            <button className="whiteButton" onClick={generateCoinbaseUrl}>
-              <img src="/images/coinbase.png" alt="Coinbase" />
-              Buy with Coinbase
             </button>
           </div>
         </Box>
