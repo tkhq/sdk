@@ -1860,16 +1860,16 @@ export class TurnkeyClient {
                 walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
                 organizationId: session.organizationId,
                 walletId: wallet.walletId,
-                curve: Curve.SECP256K1,
                 pathFormat: "PATH_FORMAT_BIP32",
                 path: WalletSource.Connected,
                 source: WalletSource.Connected,
-                addressFormat: "ADDRESS_FORMAT_ETHEREUM",
                 address,
                 createdAt: timestamp,
                 updatedAt: timestamp,
 
-                // EVM-specific
+                // ethereum specific
+                curve: Curve.SECP256K1,
+                addressFormat: "ADDRESS_FORMAT_ETHEREUM",
                 chainInfo: provider.chainInfo,
                 signMessage: (msg: string) =>
                   sign(msg, provider, SignIntent.SignMessage),
@@ -1886,20 +1886,18 @@ export class TurnkeyClient {
                 walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
                 organizationId: session.organizationId,
                 walletId: wallet.walletId,
-                curve: Curve.ED25519,
                 pathFormat: "PATH_FORMAT_BIP32",
                 path: WalletSource.Connected,
                 source: WalletSource.Connected,
-                addressFormat: "ADDRESS_FORMAT_SOLANA",
                 address,
                 createdAt: timestamp,
                 updatedAt: timestamp,
 
-                // Solana-specific
+                // solana specific
                 publicKey: address,
+                curve: Curve.ED25519,
+                addressFormat: "ADDRESS_FORMAT_SOLANA",
                 chainInfo: provider.chainInfo,
-
-                // methods
                 signMessage: (msg: string) =>
                   sign(msg, provider, SignIntent.SignMessage),
                 signTransaction: (tx: string) =>
