@@ -7439,6 +7439,10 @@
         "sandboxMode": {
           "type": "boolean",
           "description": "Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false."
+        },
+        "urlForSignature": {
+          "type": "string",
+          "description": "Optional MoonPay URL to sign for use with the SDKs"
         }
       },
       "required": [
@@ -7479,6 +7483,14 @@
         "onRampTransactionId": {
           "type": "string",
           "description": "Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow."
+        },
+        "onRampUrlUnsigned": {
+          "type": "string",
+          "description": "Optional MoonPay URL to sign for use with the SDKs"
+        },
+        "onRampSignatureRaw": {
+          "type": "string",
+          "description": "Optional MoonPay signature to use with the SDKs"
         }
       },
       "required": ["onRampUrl", "onRampTransactionId"]

@@ -2225,6 +2225,8 @@ export type definitions = {
     countrySubdivisionCode?: string;
     /** @description Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false. */
     sandboxMode?: boolean;
+    /** @description Optional MoonPay URL to sign for use with the SDKs */
+    urlForSignature?: string;
   };
   v1InitFiatOnRampRequest: {
     /** @enum {string} */
@@ -2240,6 +2242,10 @@ export type definitions = {
     onRampUrl: string;
     /** @description Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
     onRampTransactionId: string;
+    /** @description Optional MoonPay URL to sign for use with the SDKs */
+    onRampUrlUnsigned?: string;
+    /** @description Optional MoonPay signature to use with the SDKs */
+    onRampSignatureRaw?: string;
   };
   v1InitImportPrivateKeyIntent: {
     /** @description The ID of the User importing a Private Key. */

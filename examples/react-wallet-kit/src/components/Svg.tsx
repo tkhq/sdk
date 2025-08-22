@@ -322,8 +322,9 @@ export function MoonPaySVG(props: SVGProps) {
       width="16"
       height="16"
       viewBox="0 0 16 16"
+      fill="currentColor"
+      {...props}
     >
-      <circle cx="8" cy="8" r="9" fill="#ffffff" />
       <rect x="0" y="0" width="16" height="16" fill="none" />
       <rect x="12" y="0" width="3" height="1" fill="#7d00ff" />
       <rect x="11" y="1" width="5" height="1" fill="#7d00ff" />

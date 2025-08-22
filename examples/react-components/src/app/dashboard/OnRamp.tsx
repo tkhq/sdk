@@ -13,12 +13,21 @@ interface OnRampProps {
   ethAddress: string;
 }
 
+type DisplayOption = "iframe" | "popup" | "newTab";
+
+const displayOptions = ["iframe", "popup", "newTab"] as const;
+
 export const OnRamp = ({ ethAddress }: OnRampProps) => {
   const { turnkey, indexedDbClient } = useTurnkey();
-  const [isSignModalOpen, setSignModalOpen] = useState(false);
+  const [isOnrampModalOpen, setIsOnrampModalOpen] = useState(false);
+  const [onrampDisplayOption, setOnrampDisplayOption] =
+    useState<DisplayOption>("popup");
 
-  const handleModalOpen = () => setSignModalOpen(true);
-  const handleModalClose = () => setSignModalOpen(false);
+  const [moonpayUrl, setMoonpayUrl] = useState<string | null>(null);
+  const [coinbaseUrl, setCoinbaseUrl] = useState<string | null>(null);
+
+  const handleModalOpen = () => setIsOnrampModalOpen(true);
+  const handleModalClose = () => setIsOnrampModalOpen(false);
 
   const generateCoinbaseUrl = async () => {
     try {
@@ -39,11 +48,20 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
       });
 
       if (response?.onRampUrl) {
-        window.open(
-          response.onRampUrl,
-          "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
-        );
+        if (onrampDisplayOption === "iframe") {
+          setCoinbaseUrl(response.onRampUrl);
+          return;
+        } else if (onrampDisplayOption === "popup") {
+          window.open(
+            response.onRampUrl,
+            "_blank",
+            "popup,width=500,height=700,scrollbars=yes,resizable=yes"
+          );
+          return;
+        } else if (onrampDisplayOption === "newTab") {
+          window.open(response.onRampUrl, "_blank", "noopener,noreferrer");
+          return;
+        }
       }
     } catch (error) {
       console.error("Failed to init Coinbase on-ramp:", error);
@@ -67,11 +85,20 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
       });
 
       if (response?.onRampUrl) {
-        window.open(
-          response.onRampUrl,
-          "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
-        );
+        if (onrampDisplayOption === "iframe") {
+          setMoonpayUrl(response.onRampUrl);
+          return;
+        } else if (onrampDisplayOption === "popup") {
+          window.open(
+            response.onRampUrl,
+            "_blank",
+            "popup,width=500,height=700,scrollbars=yes,resizable=yes"
+          );
+          return;
+        } else if (onrampDisplayOption === "newTab") {
+          window.open(response.onRampUrl, "_blank", "noopener,noreferrer");
+          return;
+        }
       }
     } catch (error) {
       console.error("Failed to init MoonPay on-ramp:", error);
@@ -96,7 +123,7 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
         Add Funds
       </button>
 
-      <Modal open={isSignModalOpen} onClose={handleModalClose}>
+      <Modal open={isOnrampModalOpen} onClose={handleModalClose}>
         <Box
           sx={{
             outline: "none",
@@ -133,6 +160,28 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
           <Typography variant="subtitle2" sx={{ color: "#6C727E", mb: 2 }}>
             Your crypto will be deposited directly into your Turnkey wallet
           </Typography>
+          {displayOptions.map((displayOption) => {
+            const id = `plan-${displayOption}`;
+            return (
+              <label
+                key={displayOption}
+                htmlFor={id}
+                style={{ display: "block" }}
+              >
+                <input
+                  id={id}
+                  type="radio"
+                  name="plan"
+                  value={displayOption}
+                  checked={onrampDisplayOption === displayOption}
+                  onChange={(e) =>
+                    setOnrampDisplayOption(e.target.value as DisplayOption)
+                  }
+                />
+                {displayOption}
+              </label>
+            );
+          })}
           <div className="purchaseButtons">
             <button className="whiteButton" onClick={generateMoonPayUrl}>
               <img src="/images/moonpay.jpg" alt="MoonPay" />
@@ -143,6 +192,18 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
               Buy with Coinbase
             </button>
           </div>
+          {moonpayUrl && (
+            <iframe
+              src={moonpayUrl}
+              title="MoonPay OnRamp"
+              style={{
+                width: "100%",
+                height: "500px",
+                border: "none",
+                marginTop: "20px",
+              }}
+            ></iframe>
+          )}
         </Box>
       </Modal>
     </>

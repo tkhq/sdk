@@ -19,6 +19,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@headlessui/react": "^2.2.4",
     "@hello-pangea/dnd": "^17.0.0",
+    "@moonpay/moonpay-js": "^0.7.0",
     "@noble/hashes": "1.4.0",
     "@react-three/drei": "^10.6.1",
     "@react-three/fiber": "^8.18.0",

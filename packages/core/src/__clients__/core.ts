@@ -1096,7 +1096,12 @@ export class TurnkeyClient {
    */
   initFiatOnramp = async (
     params: TInitFiatOnRampBody,
-  ): Promise<{ onRampUrl: string; onRampTransactionId: string }> => {
+  ): Promise<{
+    onRampUrl: string;
+    onRampTransactionId: string;
+    onRampUrlUnsigned?: string;
+    onRampSignatureRaw?: string;
+  }> => {
     return withTurnkeyErrorHandling(
       async () => {
         const initFiatOnRampRes = await this.httpClient.initFiatOnRamp(params);
@@ -1111,6 +1116,8 @@ export class TurnkeyClient {
         return {
           onRampUrl: initFiatOnRampRes.onRampUrl,
           onRampTransactionId: initFiatOnRampRes.onRampTransactionId,
+          onRampUrlUnsigned: initFiatOnRampRes.onRampUrlUnsigned ?? "",
+          onRampSignatureRaw: initFiatOnRampRes.onRampSignatureRaw ?? "",
         };
       },
       {
