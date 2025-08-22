@@ -8,6 +8,8 @@ import {
   Session,
   v1AddressFormat,
   v1Attestation,
+  v1CreatePoliciesIntent,
+  v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import {
   Chain,
@@ -75,6 +77,7 @@ export default function AuthPage() {
     handleAddPasskey,
     handleRemovePasskey,
     handleLinkExternalWallet,
+    getOrCreateDelegatedAccessUser,
   } = useTurnkey();
 
   useEffect(() => {
@@ -1077,6 +1080,34 @@ export default function AuthPage() {
           }}
         >
           Create Wallet Accounts
+        </button>
+      )}
+
+      {session && (
+        <button
+          onClick={async () => {
+            const policies: v1CreatePolicyIntentV3[] = [
+              {
+                policyName: "Delegated Access",
+                effect: "EFFECT_ALLOW",
+                consensus: "approvers.count() >= 2",
+                condition: "true",
+                notes: "swag",
+              },
+            ];
+
+            const res = await getOrCreateDelegatedAccessUser({
+              userTag: "Delegated Access",
+              publicKey: process.env.NEXT_PUBLIC_DA_PUBLIC_KEY!,
+              policies: policies,
+            });
+            console.log(
+              "Delegated access user retrieved or created successfully:",
+              res,
+            );
+          }}
+        >
+          Get Or Create Delegated Access User
         </button>
       )}
     </main>

@@ -54,7 +54,7 @@ import {
   type v1PayloadEncoding,
   type v1HashFunction,
   type v1Curve,
-  v1CreatePoliciesIntent,
+  v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -1803,23 +1803,26 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return res;
   }
 
-  async function getOrCreateDelegatedAccessUser(params: {
-    userTag: string;
-    publicKey: string;
-    policies: v1CreatePoliciesIntent;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const getOrCreateDelegatedAccessUser = useCallback(
+    async (params: {
+      userTag: string;
+      publicKey: string;
+      policies: v1CreatePolicyIntentV3[];
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.getOrCreateDelegatedAccessUser(params),
+        callbacks,
+        "Failed to create delegated access user",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.getOrCreateDelegatedAccessUser(params),
-      callbacks,
-      "Failed to create delegated access user",
-    );
-    return res;
-  }
+      return res;
+    },
+    [client, callbacks],
+  );
 
   async function exportPrivateKey(params: {
     privateKeyId: string;

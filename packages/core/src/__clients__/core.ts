@@ -18,6 +18,7 @@ import {
   v1HashFunction,
   v1Curve,
   v1CreatePoliciesIntent,
+  v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -539,7 +540,7 @@ export class TurnkeyClient {
   getOrCreateDelegatedAccessUser = async (params: {
     userTag: string;
     publicKey: string;
-    policies: v1CreatePoliciesIntent;
+    policies: v1CreatePolicyIntentV3[];
   }): Promise<string> => {
     const { userTag, publicKey, policies } = params;
 
@@ -603,6 +604,11 @@ export class TurnkeyClient {
 
         let userId: string;
 
+        const createTagRes = await this.httpClient.createUserTag({
+          userTagName: userTag,
+          userIds: [],
+        });
+
         if (!matchedUser) {
           // 2) Create user
           const created = await this.httpClient.createUsers({
@@ -610,7 +616,7 @@ export class TurnkeyClient {
             users: [
               {
                 userName: "Delegated Access User",
-                userTags: [userTag],
+                userTags: [createTagRes.userTagId],
                 apiKeys: [
                   {
                     apiKeyName: `delegated-access-key-${userTag}`,
