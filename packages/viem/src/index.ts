@@ -22,7 +22,6 @@ import type {
   TransactionSerializable,
   TypedData,
 } from "viem";
-import { hashAuthorization } from "viem/utils";
 import { secp256k1 } from "@noble/curves/secp256k1";
 
 import {
@@ -360,18 +359,16 @@ export async function signAuthorization(
     });
   }
 
-  const hashedAuthorization = hashAuthorization({
-    address,
-    chainId,
-    nonce,
-  });
-
   const signature = await signMessageWithErrorWrapping(
     client,
-    hashedAuthorization,
+    JSON.stringify({
+      address,
+      chainId,
+      nonce,
+    }),
     organizationId,
     signWith,
-    "PAYLOAD_ENCODING_HEXADECIMAL",
+    "PAYLOAD_ENCODING_EIP7702_AUTHORIZATION",
     to,
   );
 
