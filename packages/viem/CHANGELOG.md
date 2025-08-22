@@ -1,5 +1,18 @@
 # @turnkey/viem
 
+## 0.13.0
+
+### Minor Changes
+
+- [#847](https://github.com/tkhq/sdk/pull/847) [`bc88e60`](https://github.com/tkhq/sdk/commit/bc88e60955883b13d93c04d5681f9b081cdaee92) Author [@andrewkmin](https://github.com/andrewkmin) - Support `signAuthorization` with bespoke, policy-engine compatible payload encoding type. This means you can now target an `address`, `nonce`, or `chainId` within policies. For more information, see an example in our docs [here](https://docs.turnkey.com/policies/examples/ethereum#allow-signing-of-eip-7702-authorizations).
+
+### Patch Changes
+
+- Updated dependencies [[`5d8be2d`](https://github.com/tkhq/sdk/commit/5d8be2d0329070c7aa025dddb1b28f04257ae4e6)]:
+  - @turnkey/sdk-browser@5.8.0
+  - @turnkey/sdk-server@4.7.0
+  - @turnkey/http@3.10.0
+
 ## 0.12.1
 
 ### Patch Changes
