@@ -218,7 +218,10 @@ export const createEIP1193Provider = async (
             throw new ChainIdMismatchError(chain.chainId as Hex, rpcChainId);
           }
 
-          addedChains.push({ ...chain, connected: true });
+          // Only add if it hasn't been added already
+          if (!addedChains.some((c) => c.chainId === rpcChainId)) {
+            addedChains.push({ ...chain, connected: true });
+          }
 
           console.log("wallet_addEthereumChain: new chain id", rpcChainId);
           console.log("wallet_addEthereumChain: new added chains", addedChains);
@@ -228,13 +231,18 @@ export const createEIP1193Provider = async (
 
         case "wallet_switchEthereumChain": {
           const [targetChainId] = params as [string];
-          const targetChain = addedChains.find(
-            (chain) => chain.chainId === targetChainId,
-          );
+          const targetChain = addedChains.find((chain) => {
+            console.log("iterating through added chains:", chain);
+            return chain.chainId === targetChainId;
+          });
 
           console.log(
             "wallet_switchEthereumChain: target chain id",
             targetChainId,
+          );
+          console.log(
+            "wallet_switchEthereumChain: target chain id type",
+            typeof targetChainId,
           );
           console.log(
             "wallet_switchEthereumChain: all added chains",
