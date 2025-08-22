@@ -54,6 +54,7 @@ import {
   type v1PayloadEncoding,
   type v1HashFunction,
   type v1Curve,
+  v1CreatePoliciesIntent,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -1799,6 +1800,24 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       "Failed to export wallet",
     );
     if (res) await refreshWallets({ stampWith: params?.stampWith });
+    return res;
+  }
+
+  async function getOrCreateDelegatedAccessUser(params: {
+    userTag: string;
+    publicKey: string;
+    policies: v1CreatePoliciesIntent;
+  }): Promise<string> {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    const res = await withTurnkeyErrorHandling(
+      () => client.getOrCreateDelegatedAccessUser(params),
+      callbacks,
+      "Failed to create delegated access user",
+    );
     return res;
   }
 
@@ -3924,6 +3943,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         clearSession,
         clearAllSessions,
         refreshSession,
+        getOrCreateDelegatedAccessUser,
         getSession,
         getAllSessions,
         setActiveSession,

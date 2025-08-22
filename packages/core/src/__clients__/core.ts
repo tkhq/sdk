@@ -17,6 +17,7 @@ import {
   v1PayloadEncoding,
   v1HashFunction,
   v1Curve,
+  v1CreatePoliciesIntent,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -489,43 +490,48 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get or create a "Delegated Access" user and attach a policy.
+   * Get or create a "Delegated Access" user and ensure required policies exist.
    *
    * Behavior:
    * 1) Looks up an existing user whose `userTags` contains the provided `userTag`.
-   * 2) If not found, creates a new user named "Delegated Access User" with:
-   *    - `userTags: [userTag]`
-   *    - An API key using the provided `publicKey` (the delegated-access server signing key).
-   * 3) Creates a policy in the organization with the supplied fields (`effect`, `consensus`, `condition`, `notes`).
+   * 2) If not found:
+   *    - Creates a new user named "Delegated Access User" with:
+   *      - `userTags: [userTag]`
+   *      - An API key using the provided `publicKey` (the delegated-access server signing key).
+   *    - Creates all policies provided in `policies`.
+   * 3) If a user *is* found:
+   *    - Lists existing organization policies.
+   *    - Compares against the supplied `policies` by `policyName`.
+   *    - If all desired `policyName`s already exist → returns the user immediately.
+   *    - If some are missing → creates only the missing policies, then returns the user.
    *
    * ⚠️ Important:
-   * - The policy you create here should be written to *apply to the same user tag* you pass in.
-   *   In other words, ensure your policy’s subject/binding/condition targets the user(s) labeled with `userTag`.
-   * - The `publicKey` must be the public key corresponding to the **delegated access server signing key** that
-   *   will stamp/authorize requests for this delegated user.
+   * - Policies must be written to *apply to the same user tag* you pass in.
+   *   Example: `condition: user.tag == "${userTag}"` (adjust to your policy engine syntax).
+   * - The `publicKey` must be the public key corresponding to the delegated-access server signing key
+   *   that will stamp/authorize requests for this delegated user.
    *
-   * Example: policy fields that scope to the tag
+   * Example policy intent:
    * ```ts
-   * effect: "EFFECT_ALLOW",
-   * consensus: "CONSENSUS_UNANIMOUS", // example; use what your org requires
-   * condition: `user.tag == "${userTag}"`, // example; use your engine’s condition syntax
-   * notes: "Delegated access policy bound to a specific user tag"
+   * {
+   *   policyName: `delegated-access-${userTag}`,
+   *   effect: "EFFECT_ALLOW",
+   *   consensus: "CONSENSUS_UNANIMOUS", // adjust per your org’s engine
+   *   condition: `user.tag == "${userTag}"`,
+   *   notes: "Delegated access policy bound to a specific user tag"
+   * }
    * ```
-   * (Adjust `consensus` and `condition` to match your policy engine and organization conventions.)
    *
    * Side effects:
-   * - May create a new user and API key if no user is found with the matching tag.
-   * - Always attempts to create or update policy configuration after ensuring the user exists.
+   * - May create a new user and API key if none exist with the tag.
+   * - Always ensures the provided set of policies are present; missing ones are created.
    *
    * Errors:
-   * - Throws `TurnkeyError` if inputs are missing/invalid, user creation fails, or policy creation fails.
+   * - Throws `TurnkeyError` if inputs are invalid, user creation fails, or policy creation fails.
    *
-   * @param params.userTag     A label to find (or create) the delegated access user; also used to scope the policy.
-   * @param params.publicKey   Public key for the delegated-access server signing key (format your API expects).
-   * @param params.effect      Policy effect, e.g. "EFFECT_ALLOW" | "EFFECT_DENY".
-   * @param params.consensus   Optional policy consensus string (engine-specific).
-   * @param params.condition   Optional policy condition string (engine-specific). Should reference the same `userTag`.
-   * @param params.notes       Optional policy notes for auditability.
+   * @param params.userTag   A label to find (or create) the delegated access user; also used to scope policies.
+   * @param params.publicKey Public key for the delegated-access server signing key.
+   * @param params.policies  Array of `v1CreatePolicyIntentV3` describing policies to enforce for this userTag.
    *
    * @returns Promise<string>  The `userId` of the matched or newly created delegated access user.
    */
@@ -533,19 +539,9 @@ export class TurnkeyClient {
   getOrCreateDelegatedAccessUser = async (params: {
     userTag: string;
     publicKey: string;
-    effect: "EFFECT_ALLOW" | "EFFECT_DENY";
-    consensus?: string;
-    condition?: string;
-    notes?: string;
+    policies: v1CreatePoliciesIntent;
   }): Promise<string> => {
-    const {
-      userTag,
-      publicKey,
-      effect,
-      consensus = "",
-      condition = "",
-      notes = "",
-    } = params;
+    const { userTag, publicKey, policies } = params;
 
     return await withTurnkeyErrorHandling(
       async () => {
@@ -568,35 +564,49 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.INVALID_REQUEST,
           );
         }
-        if (!effect) {
+        if (!Array.isArray(policies) || policies.length === 0) {
           throw new TurnkeyError(
-            "Missing policy effect",
+            "Missing policies",
             TurnkeyErrorCodes.INVALID_REQUEST,
           );
         }
-        if (!this.config.organizationId) {
-          throw new TurnkeyError(
-            "Missing organizationId",
-            TurnkeyErrorCodes.INVALID_REQUEST,
-          );
-        }
-        const oraganizationId = session?.organizationId!;
-        // 1) Fetch all users once and try to find one with the matching tag
+
+        const organizationId = session.organizationId!;
+
+        // 1) Find user by tag
         const usersResponse: { users: v1User[] } =
-          await this.httpClient.getUsers({
-            organizationId: oraganizationId,
-          });
+          await this.httpClient.getUsers({ organizationId });
 
         const matchedUser = (usersResponse.users || []).find(
           (u: v1User) =>
             Array.isArray(u.userTags) && u.userTags.includes(userTag),
         );
 
-        // 2) If not found, create the user with the provided public key and tag
+        // Helper: list all existing policies (handle pagination if present)
+        const listAllPolicyNames = async (): Promise<Set<string>> => {
+          const names = new Set<string>();
+          let nextPageToken: string | undefined = undefined;
+          do {
+            const res: {
+              policies: { policyName: string }[];
+              nextPageToken?: string;
+            } = await this.httpClient.getPolicies({
+              organizationId,
+            });
+            (res.policies || []).forEach(
+              (p) => p?.policyName && names.add(p.policyName),
+            );
+            nextPageToken = res.nextPageToken;
+          } while (nextPageToken);
+          return names;
+        };
+
         let userId: string;
+
         if (!matchedUser) {
+          // 2) Create user
           const created = await this.httpClient.createUsers({
-            organizationId: oraganizationId,
+            organizationId,
             users: [
               {
                 userName: "Delegated Access User",
@@ -622,24 +632,43 @@ export class TurnkeyClient {
           }
 
           userId = created.userIds[0];
-        } else {
-          userId = matchedUser.userId!;
+
+          // 3) Create ALL policies on first creation
+          const policiesRes = await this.httpClient.createPolicies({
+            organizationId,
+            policies,
+          });
+          if (!policiesRes) {
+            throw new TurnkeyError(
+              "Failed to create delegated access policies",
+              TurnkeyErrorCodes.POLICY_CREATION_ERROR,
+            );
+          }
+
+          return userId;
         }
 
-        // 3) Create a policy tied to this user
-        const policyName = `delegated-access-${userTag}`;
-        const policyRes = await this.httpClient.createPolicy({
-          organizationId: oraganizationId,
-          policyName,
-          effect,
-          consensus,
-          condition,
-          notes,
-        });
+        // User exists: ensure policies exist
+        userId = matchedUser.userId!;
 
-        if (!policyRes) {
+        const existingNames = await listAllPolicyNames();
+        const missing = policies.filter(
+          (p) => !existingNames.has(p.policyName),
+        );
+
+        if (missing.length === 0) {
+          // All desired policies already exist → return the existing userId
+          return userId;
+        }
+
+        // Create only missing policies, then return userId
+        const createMissingRes = await this.httpClient.createPolicies({
+          organizationId,
+          policies: missing,
+        });
+        if (!createMissingRes) {
           throw new TurnkeyError(
-            "Failed to create delegated access policy",
+            "Failed to create missing delegated access policies",
             TurnkeyErrorCodes.POLICY_CREATION_ERROR,
           );
         }
@@ -647,7 +676,8 @@ export class TurnkeyClient {
         return userId;
       },
       {
-        errorMessage: "Failed to get or create delegated access user",
+        errorMessage:
+          "Failed to get or create delegated access user and policies",
         errorCode: TurnkeyErrorCodes.CREATE_USERS_ERROR,
       },
     );
