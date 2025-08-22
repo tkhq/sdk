@@ -5,6 +5,19 @@
 ### Minor Changes
 
 - [#879](https://github.com/tkhq/sdk/pull/879) [`026264c`](https://github.com/tkhq/sdk/commit/026264c55aa16342c8925af0bdcdf72dc00e5158) Author [@zkharit](https://github.com/zkharit) - Update packages to include new activities as of the newest release (mono v2025.8.10)
+## 3.10.0-beta.2
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/webauthn-stamper@0.6.0-beta.0
+  - @turnkey/api-key-stamper@0.5.0-beta.5
+  - @turnkey/encoding@0.6.0-beta.5
+
 ## 3.10.0-beta.1
 
 ### Minor Changes

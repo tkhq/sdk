@@ -1,5 +1,17 @@
 # @turnkey/wallet-stamper
 
+## 1.1.0-beta.5
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.5
+  - @turnkey/crypto@2.6.0-beta.5
+
 ## 1.0.9-beta.4
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @turnkey/sdk-react
 
+## 5.4.0-beta.5
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/wallet-stamper@1.1.0-beta.5
+  - @turnkey/sdk-browser@5.9.0-beta.0
+  - @turnkey/sdk-server@4.7.0-beta.2
+  - @turnkey/sdk-types@0.4.0-beta.5
+  - @turnkey/crypto@2.6.0-beta.5
+
 ## 5.4.0-beta.4
 
 ### Minor Changes

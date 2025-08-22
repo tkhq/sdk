@@ -1,10 +1,22 @@
 # @turnkey/crypto
 
+## 2.6.0-beta.5
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.5
+
 ## 2.6.0
 
 ### Minor Changes
 
 - [#840](https://github.com/tkhq/sdk/pull/840) [`d7420e6`](https://github.com/tkhq/sdk/commit/d7420e6c3559efc1024b58749b31d253150cb189) Author [@zkharit](https://github.com/zkharit) - This change adds a new encryption mechanism to allow for messages to be encrypted to an enclaves quorum public key. A helper function specifically for OAith 2.0 client secret encryption is also included
+
 ## 2.5.1-beta.4
 
 ### Patch Changes
