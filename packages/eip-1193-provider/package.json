@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/eip-1193-provider",
-  "version": "3.3.24",
+  "version": "3.3.25",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {

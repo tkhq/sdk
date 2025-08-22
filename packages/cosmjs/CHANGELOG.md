@@ -1,5 +1,14 @@
 # @turnkey/cosmjs
 
+## 0.7.26
+
+### Patch Changes
+
+- Updated dependencies [[`5d8be2d`](https://github.com/tkhq/sdk/commit/5d8be2d0329070c7aa025dddb1b28f04257ae4e6)]:
+  - @turnkey/sdk-browser@5.8.0
+  - @turnkey/sdk-server@4.7.0
+  - @turnkey/http@3.10.0
+
 ## 0.7.25
 
 ### Patch Changes

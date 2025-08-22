@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/solana",
-  "version": "1.0.41",
+  "version": "1.0.42",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
