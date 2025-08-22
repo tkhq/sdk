@@ -865,570 +865,628 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }
   };
 
-  async function createPasskey(params?: {
-    name?: string;
-    displayName?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const createPasskey = useCallback(
+    async (params?: {
+      name?: string;
+      displayName?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        () => client.createPasskey({ ...params }),
+        callbacks,
+        "Failed to create passkey",
       );
-    }
-    return withTurnkeyErrorHandling(
-      () => client.createPasskey({ ...params }),
-      callbacks,
-      "Failed to create passkey",
+    },
+    [client, callbacks],
+  );
+
+  const logout: (params?: { sessionKey?: string }) => Promise<void> =
+    useCallback(
+      async (params?: { sessionKey?: string }): Promise<void> => {
+        if (!client) {
+          throw new TurnkeyError(
+            "Client is not initialized.",
+            TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+          );
+        }
+
+        await withTurnkeyErrorHandling(
+          () => client.logout(params),
+          callbacks,
+          "Failed to logout",
+        );
+        handlePostLogout();
+
+        return;
+      },
+      [client, callbacks],
     );
-  }
 
-  async function logout(params?: { sessionKey?: string }): Promise<void> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const loginWithPasskey = useCallback(
+    async (params?: {
+      publicKey?: string;
+      sessionKey?: string;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      const expirationSeconds =
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      const res = await withTurnkeyErrorHandling(
+        () => client.loginWithPasskey({ ...params, expirationSeconds }),
+        callbacks,
+        "Failed to login with passkey",
       );
-    }
+      if (res) {
+        await handlePostAuth();
+      }
+      return res;
+    },
+    [client, callbacks],
+  );
 
-    withTurnkeyErrorHandling(
-      () => client.logout(params),
-      callbacks,
-      "Failed to logout",
-    );
-    handlePostLogout();
+  const signUpWithPasskey = useCallback(
+    async (params?: {
+      createSubOrgParams?: CreateSubOrgParams;
+      sessionKey?: string;
+      passkeyDisplayName?: string;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      // If createSubOrgParams is not provided, use the default from masterConfig
+      let createSubOrgParams =
+        params?.createSubOrgParams ??
+        masterConfig.auth?.createSuborgParams?.passkeyAuth;
+      params =
+        createSubOrgParams !== undefined
+          ? { ...params, createSubOrgParams }
+          : { ...params };
 
-    return;
-  }
+      const expirationSeconds =
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
-  async function loginWithPasskey(params?: {
-    publicKey?: string;
-    sessionKey?: string;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      const websiteName = window.location.hostname;
+      const timestamp =
+        new Date().toLocaleDateString() +
+        "-" +
+        new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+      // We allow passkeyName to be passed in thru the provider or thru the params of this function directly.
+      // This is because signUpWithPasskey will create a new passkey using that name.
+      // Any extra authenticators will be created after the first one. (see core implementation)
+      const passkeyName =
+        params?.passkeyDisplayName ??
+        masterConfig.auth?.createSuborgParams?.passkeyAuth?.passkeyName ??
+        `${websiteName}-${timestamp}`;
+
+      const res = await withTurnkeyErrorHandling(
+        () =>
+          client.signUpWithPasskey({
+            ...params,
+            passkeyDisplayName: passkeyName,
+            expirationSeconds,
+          }),
+        callbacks,
+        "Failed to sign up with passkey",
       );
-    }
+      if (res) {
+        await handlePostAuth();
+      }
+      return res;
+    },
+    [client, callbacks],
+  );
 
-    const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds ??
-      DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
-    const res = await withTurnkeyErrorHandling(
-      () => client.loginWithPasskey({ ...params, expirationSeconds }),
-      callbacks,
-      "Failed to login with passkey",
-    );
-    if (res) {
-      await handlePostAuth();
-    }
-    return res;
-  }
+  const getWalletProviders = useCallback(
+    async (chain?: Chain): Promise<WalletProvider[]> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      const newProviders = await client.getWalletProviders(chain);
 
-  async function signUpWithPasskey(params?: {
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-    passkeyDisplayName?: string;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-    // If createSubOrgParams is not provided, use the default from masterConfig
-    let createSubOrgParams =
-      params?.createSubOrgParams ??
-      masterConfig.auth?.createSuborgParams?.passkeyAuth;
-    params =
-      createSubOrgParams !== undefined
-        ? { ...params, createSubOrgParams }
-        : { ...params };
+      // we update state with the latest providers
+      // we keep this state so that initializeWalletProviderListeners() re-runs
+      // whenever the list of connected providers changes
+      // this ensures we attach disconnect listeners for each connected provider
+      setWalletProviders(newProviders);
 
-    const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds ??
-      DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      return newProviders;
+    },
+    [client, callbacks],
+  );
 
-    const websiteName = window.location.hostname;
-    const timestamp =
-      new Date().toLocaleDateString() +
-      "-" +
-      new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  const connectWalletAccount = useCallback(
+    async (walletProvider: WalletProvider): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      await client.connectWalletAccount(walletProvider);
 
-    // We allow passkeyName to be passed in thru the provider or thru the params of this function directly.
-    // This is because signUpWithPasskey will create a new passkey using that name.
-    // Any extra authenticators will be created after the first one. (see core implementation)
-    const passkeyName =
-      params?.passkeyDisplayName ??
-      masterConfig.auth?.createSuborgParams?.passkeyAuth?.passkeyName ??
-      `${websiteName}-${timestamp}`;
-
-    const res = await withTurnkeyErrorHandling(
-      () =>
-        client.signUpWithPasskey({
-          ...params,
-          passkeyDisplayName: passkeyName,
-          expirationSeconds,
-        }),
-      callbacks,
-      "Failed to sign up with passkey",
-    );
-    if (res) {
-      await handlePostAuth();
-    }
-    return res;
-  }
-
-  async function getWalletProviders(chain?: Chain): Promise<WalletProvider[]> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    const newProviders = await client.getWalletProviders(chain);
-
-    // we update state with the latest providers
-    // we keep this state so that initializeWalletProviderListeners() re-runs
-    // whenever the list of connected providers changes
-    // this ensures we attach disconnect listeners for each connected provider
-    setWalletProviders(newProviders);
-
-    return newProviders;
-  }
-
-  async function connectWalletAccount(
-    walletProvider: WalletProvider,
-  ): Promise<void> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    await client.connectWalletAccount(walletProvider);
-
-    // this will update our walletProvider state
-    await refreshWallets();
-  }
-
-  async function disconnectWalletAccount(
-    walletProvider: WalletProvider,
-  ): Promise<void> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    await client.disconnectWalletAccount(walletProvider);
-
-    // we only refresh the wallets if:
-    // 1. there is an active session. This is needed because for WalletConnect
-    //    you can unlink a wallet before actually being logged in
-    //
-    // 2. it was a WalletConnect provider that we just disconnected. Since
-    //    native providers emit a disconnect event which will already refresh
-    //    the wallets. This event is triggered in `initializeWalletProviderListeners()`
-    if (
-      session &&
-      walletProvider.interfaceType === WalletInterfaceType.WalletConnect
-    ) {
       // this will update our walletProvider state
       await refreshWallets();
-    }
-  }
+    },
+    [client, callbacks],
+  );
 
-  async function switchWalletAccountChain(params: {
-    walletAccount: WalletAccount;
-    chainOrId: string | SwitchableChain;
-  }): Promise<void> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    await client.switchWalletAccountChain({ ...params, walletProviders });
-  }
-
-  async function loginWithWallet(params: {
-    walletProvider: WalletProvider;
-    sessionType?: SessionType;
-    publicKey?: string;
-    sessionKey?: string;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-
-    const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds ??
-      DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
-    const res = await withTurnkeyErrorHandling(
-      () => client.loginWithWallet({ ...params, expirationSeconds }),
-      callbacks,
-      "Failed to login with wallet",
-    );
-    if (res) {
-      await handlePostAuth();
-    }
-    return res;
-  }
-
-  async function signUpWithWallet(params: {
-    walletProvider: WalletProvider;
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionType?: SessionType;
-    sessionKey?: string;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-    // If createSubOrgParams is not provided, use the default from masterConfig
-    let createSubOrgParams =
-      params.createSubOrgParams ??
-      masterConfig.auth?.createSuborgParams?.walletAuth;
-    params =
-      createSubOrgParams !== undefined
-        ? { ...params, createSubOrgParams }
-        : { ...params };
-
-    const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds ??
-      DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
-    const res = await withTurnkeyErrorHandling(
-      () => client.signUpWithWallet({ ...params, expirationSeconds }),
-      callbacks,
-      "Failed to sign up with wallet",
-    );
-    if (res) {
-      await handlePostAuth();
-    } else {
-    }
-    return res;
-  }
-
-  async function loginOrSignupWithWallet(params: {
-    walletProvider: WalletProvider;
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-    expirationSeconds?: string;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-    // If createSubOrgParams is not provided, use the default from masterConfig
-    let createSubOrgParams =
-      params.createSubOrgParams ??
-      masterConfig.auth?.createSuborgParams?.walletAuth;
-    params =
-      createSubOrgParams !== undefined
-        ? { ...params, createSubOrgParams }
-        : { ...params };
-
-    const expirationSeconds =
-      masterConfig?.auth?.sessionExpirationSeconds ??
-      DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
-    const res = await withTurnkeyErrorHandling(
-      () => client.loginOrSignupWithWallet({ ...params, expirationSeconds }),
-      callbacks,
-      "Failed to login or sign up with wallet",
-    );
-    if (res) {
-      await handlePostAuth();
-    } else {
-    }
-    return res;
-  }
-
-  async function initOtp(params: {
-    otpType: OtpType;
-    contact: string;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    return withTurnkeyErrorHandling(
-      () => client.initOtp(params),
-      callbacks,
-      "Failed to initialize OTP",
-    );
-  }
-
-  async function verifyOtp(params: {
-    otpId: string;
-    otpCode: string;
-    contact: string;
-    otpType: OtpType;
-  }): Promise<{ subOrganizationId: string; verificationToken: string }> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    return withTurnkeyErrorHandling(
-      () => client.verifyOtp(params),
-      callbacks,
-      "Failed to verify OTP",
-    );
-  }
-
-  async function loginWithOtp(params: {
-    verificationToken: string;
-    publicKey?: string;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-
-    const res = await withTurnkeyErrorHandling(
-      () => client.loginWithOtp(params),
-      callbacks,
-      "Failed to login with OTP",
-    );
-    if (res) {
-      await handlePostAuth();
-    } else {
-    }
-    return res;
-  }
-
-  async function signUpWithOtp(params: {
-    verificationToken: string;
-    contact: string;
-    otpType: OtpType;
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-    // If createSubOrgParams is not provided, use the default from masterConfig
-    let createSubOrgParams = params.createSubOrgParams;
-    if (!createSubOrgParams && masterConfig?.auth?.createSuborgParams) {
-      if (params.otpType === OtpType.Email) {
-        createSubOrgParams = masterConfig.auth.createSuborgParams.emailOtpAuth;
-      } else if (params.otpType === OtpType.Sms) {
-        createSubOrgParams = masterConfig.auth.createSuborgParams.smsOtpAuth;
+  const disconnectWalletAccount = useCallback(
+    async (walletProvider: WalletProvider): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
       }
-    }
-    params =
-      createSubOrgParams !== undefined
-        ? { ...params, createSubOrgParams }
-        : { ...params };
+      await client.disconnectWalletAccount(walletProvider);
 
-    const res = await withTurnkeyErrorHandling(
-      () => client.signUpWithOtp(params),
-      callbacks,
-      "Failed to sign up with OTP",
-    );
-    if (res) {
-      await handlePostAuth();
-    } else {
-    }
-    return res;
-  }
-
-  async function completeOtp(params: {
-    otpId: string;
-    otpCode: string;
-    contact: string;
-    otpType: OtpType;
-    publicKey?: string;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-    createSubOrgParams?: CreateSubOrgParams;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-
-    // If createSubOrgParams is not provided, use the default from masterConfig
-    let createSubOrgParams = params.createSubOrgParams;
-    if (!createSubOrgParams && masterConfig?.auth?.createSuborgParams) {
-      if (params.otpType === OtpType.Email) {
-        createSubOrgParams = masterConfig.auth.createSuborgParams.emailOtpAuth;
-      } else if (params.otpType === OtpType.Sms) {
-        createSubOrgParams = masterConfig.auth.createSuborgParams.smsOtpAuth;
+      // we only refresh the wallets if:
+      // 1. there is an active session. This is needed because for WalletConnect
+      //    you can unlink a wallet before actually being logged in
+      //
+      // 2. it was a WalletConnect provider that we just disconnected. Since
+      //    native providers emit a disconnect event which will already refresh
+      //    the wallets. This event is triggered in `initializeWalletProviderListeners()`
+      if (
+        session &&
+        walletProvider.interfaceType === WalletInterfaceType.WalletConnect
+      ) {
+        // this will update our walletProvider state
+        await refreshWallets();
       }
-    }
-    params =
-      createSubOrgParams !== undefined
-        ? { ...params, createSubOrgParams }
-        : { ...params };
+    },
+    [client, callbacks],
+  );
 
-    const res = await withTurnkeyErrorHandling(
-      () => client.completeOtp(params),
-      callbacks,
-      "Failed to complete OTP",
-    );
-    if (res) {
-      await handlePostAuth();
-    } else {
-    }
-    return res;
-  }
+  const switchWalletAccountChain = useCallback(
+    async (params: {
+      walletAccount: WalletAccount;
+      chainOrId: string | SwitchableChain;
+    }): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      await client.switchWalletAccountChain({ ...params, walletProviders });
+    },
+    [client, callbacks],
+  );
 
-  async function completeOauth(params: {
-    oidcToken: string;
-    publicKey: string;
-    providerName?: string;
-    sessionKey?: string;
-    invalidateExisting?: boolean;
-    createSubOrgParams?: CreateSubOrgParams;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const loginWithWallet = useCallback(
+    async (params: {
+      walletProvider: WalletProvider;
+      sessionType?: SessionType;
+      publicKey?: string;
+      sessionKey?: string;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      const expirationSeconds =
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      const res = await withTurnkeyErrorHandling(
+        () => client.loginWithWallet({ ...params, expirationSeconds }),
+        callbacks,
+        "Failed to login with wallet",
       );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
+      if (res) {
+        await handlePostAuth();
+      }
+      return res;
+    },
+    [client, callbacks],
+  );
+
+  const signUpWithWallet = useCallback(
+    async (params: {
+      walletProvider: WalletProvider;
+      createSubOrgParams?: CreateSubOrgParams;
+      sessionType?: SessionType;
+      sessionKey?: string;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      // If createSubOrgParams is not provided, use the default from masterConfig
+      let createSubOrgParams =
+        params.createSubOrgParams ??
+        masterConfig.auth?.createSuborgParams?.walletAuth;
+      params =
+        createSubOrgParams !== undefined
+          ? { ...params, createSubOrgParams }
+          : { ...params };
+
+      const expirationSeconds =
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      const res = await withTurnkeyErrorHandling(
+        () => client.signUpWithWallet({ ...params, expirationSeconds }),
+        callbacks,
+        "Failed to sign up with wallet",
       );
-    }
+      if (res) {
+        await handlePostAuth();
+      } else {
+      }
+      return res;
+    },
+    [client, callbacks, masterConfig],
+  );
 
-    // If createSubOrgParams is not provided, use the default from masterConfig
-    const createSubOrgParams =
-      params.createSubOrgParams ?? masterConfig.auth?.createSuborgParams?.oauth;
+  const loginOrSignupWithWallet = useCallback(
+    async (params: {
+      walletProvider: WalletProvider;
+      createSubOrgParams?: CreateSubOrgParams;
+      sessionKey?: string;
+      expirationSeconds?: string;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      // If createSubOrgParams is not provided, use the default from masterConfig
+      let createSubOrgParams =
+        params.createSubOrgParams ??
+        masterConfig.auth?.createSuborgParams?.walletAuth;
+      params =
+        createSubOrgParams !== undefined
+          ? { ...params, createSubOrgParams }
+          : { ...params };
 
-    params =
-      createSubOrgParams !== undefined
-        ? { ...params, createSubOrgParams }
-        : { ...params };
-
-    const res = await withTurnkeyErrorHandling(
-      () => client.completeOauth(params),
-      callbacks,
-      "Failed to complete OAuth",
-    );
-    if (res) {
-      await handlePostAuth();
-    } else {
-    }
-    return res;
-  }
-
-  async function loginWithOauth(params: {
-    oidcToken: string;
-    publicKey: string;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      const expirationSeconds =
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      const res = await withTurnkeyErrorHandling(
+        () => client.loginOrSignupWithWallet({ ...params, expirationSeconds }),
+        callbacks,
+        "Failed to login or sign up with wallet",
       );
-    }
+      if (res) {
+        await handlePostAuth();
+      } else {
+      }
+      return res;
+    },
+    [client, callbacks, masterConfig],
+  );
 
-    const res = await withTurnkeyErrorHandling(
-      () => client.loginWithOauth(params),
-      callbacks,
-      "Failed to login with OAuth",
-    );
-    if (res) {
-      await handlePostAuth();
-    } else {
-    }
-    return res;
-  }
-
-  async function signUpWithOauth(params: {
-    oidcToken: string;
-    publicKey: string;
-    providerName: string;
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-  }): Promise<string> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const initOtp = useCallback(
+    async (params: { otpType: OtpType; contact: string }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        () => client.initOtp(params),
+        callbacks,
+        "Failed to initialize OTP",
       );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION,
-      );
-    }
-    // If createSubOrgParams is not provided, use the default from masterConfig
-    let createSubOrgParams =
-      params.createSubOrgParams ?? masterConfig.auth?.createSuborgParams?.oauth;
-    params =
-      createSubOrgParams !== undefined
-        ? { ...params, createSubOrgParams }
-        : { ...params };
+    },
+    [client, callbacks],
+  );
 
-    const res = await withTurnkeyErrorHandling(
-      () => client.signUpWithOauth(params),
-      callbacks,
-      "Failed to sign up with OAuth",
-    );
-    if (res) {
-      await handlePostAuth();
-    }
-    return res;
-  }
+  const verifyOtp = useCallback(
+    async (params: {
+      otpId: string;
+      otpCode: string;
+      contact: string;
+      otpType: OtpType;
+    }): Promise<{ subOrganizationId: string; verificationToken: string }> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        () => client.verifyOtp(params),
+        callbacks,
+        "Failed to verify OTP",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const loginWithOtp = useCallback(
+    async (params: {
+      verificationToken: string;
+      publicKey?: string;
+      invalidateExisting?: boolean;
+      sessionKey?: string;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      const res = await withTurnkeyErrorHandling(
+        () => client.loginWithOtp(params),
+        callbacks,
+        "Failed to login with OTP",
+      );
+      if (res) {
+        await handlePostAuth();
+      } else {
+      }
+      return res;
+    },
+    [client, callbacks],
+  );
+
+  const signUpWithOtp = useCallback(
+    async (params: {
+      verificationToken: string;
+      contact: string;
+      otpType: OtpType;
+      createSubOrgParams?: CreateSubOrgParams;
+      sessionKey?: string;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      // If createSubOrgParams is not provided, use the default from masterConfig
+      let createSubOrgParams = params.createSubOrgParams;
+      if (!createSubOrgParams && masterConfig?.auth?.createSuborgParams) {
+        if (params.otpType === OtpType.Email) {
+          createSubOrgParams =
+            masterConfig.auth.createSuborgParams.emailOtpAuth;
+        } else if (params.otpType === OtpType.Sms) {
+          createSubOrgParams = masterConfig.auth.createSuborgParams.smsOtpAuth;
+        }
+      }
+      params =
+        createSubOrgParams !== undefined
+          ? { ...params, createSubOrgParams }
+          : { ...params };
+
+      const res = await withTurnkeyErrorHandling(
+        () => client.signUpWithOtp(params),
+        callbacks,
+        "Failed to sign up with OTP",
+      );
+      if (res) {
+        await handlePostAuth();
+      } else {
+      }
+      return res;
+    },
+    [client, callbacks, masterConfig],
+  );
+
+  const completeOtp = useCallback(
+    async (params: {
+      otpId: string;
+      otpCode: string;
+      contact: string;
+      otpType: OtpType;
+      publicKey?: string;
+      invalidateExisting?: boolean;
+      sessionKey?: string;
+      createSubOrgParams?: CreateSubOrgParams;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+
+      // If createSubOrgParams is not provided, use the default from masterConfig
+      let createSubOrgParams = params.createSubOrgParams;
+      if (!createSubOrgParams && masterConfig?.auth?.createSuborgParams) {
+        if (params.otpType === OtpType.Email) {
+          createSubOrgParams =
+            masterConfig.auth.createSuborgParams.emailOtpAuth;
+        } else if (params.otpType === OtpType.Sms) {
+          createSubOrgParams = masterConfig.auth.createSuborgParams.smsOtpAuth;
+        }
+      }
+      params =
+        createSubOrgParams !== undefined
+          ? { ...params, createSubOrgParams }
+          : { ...params };
+
+      const res = await withTurnkeyErrorHandling(
+        () => client.completeOtp(params),
+        callbacks,
+        "Failed to complete OTP",
+      );
+      if (res) {
+        await handlePostAuth();
+      } else {
+      }
+      return res;
+    },
+    [client, callbacks, masterConfig],
+  );
+
+  const completeOauth = useCallback(
+    async (params: {
+      oidcToken: string;
+      publicKey: string;
+      providerName?: string;
+      sessionKey?: string;
+      invalidateExisting?: boolean;
+      createSubOrgParams?: CreateSubOrgParams;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+
+      // If createSubOrgParams is not provided, use the default from masterConfig
+      const createSubOrgParams =
+        params.createSubOrgParams ??
+        masterConfig.auth?.createSuborgParams?.oauth;
+
+      params =
+        createSubOrgParams !== undefined
+          ? { ...params, createSubOrgParams }
+          : { ...params };
+
+      const res = await withTurnkeyErrorHandling(
+        () => client.completeOauth(params),
+        callbacks,
+        "Failed to complete OAuth",
+      );
+      if (res) {
+        await handlePostAuth();
+      } else {
+      }
+      return res;
+    },
+    [client, callbacks, masterConfig],
+  );
+
+  const loginWithOauth = useCallback(
+    async (params: {
+      oidcToken: string;
+      publicKey: string;
+      invalidateExisting?: boolean;
+      sessionKey?: string;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      const res = await withTurnkeyErrorHandling(
+        () => client.loginWithOauth(params),
+        callbacks,
+        "Failed to login with OAuth",
+      );
+      if (res) {
+        await handlePostAuth();
+      } else {
+      }
+      return res;
+    },
+    [client, callbacks],
+  );
+
+  const signUpWithOauth = useCallback(
+    async (params: {
+      oidcToken: string;
+      publicKey: string;
+      providerName: string;
+      createSubOrgParams?: CreateSubOrgParams;
+      sessionKey?: string;
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      // If createSubOrgParams is not provided, use the default from masterConfig
+      let createSubOrgParams =
+        params.createSubOrgParams ??
+        masterConfig.auth?.createSuborgParams?.oauth;
+      params =
+        createSubOrgParams !== undefined
+          ? { ...params, createSubOrgParams }
+          : { ...params };
+
+      const res = await withTurnkeyErrorHandling(
+        () => client.signUpWithOauth(params),
+        callbacks,
+        "Failed to sign up with OAuth",
+      );
+      if (res) {
+        await handlePostAuth();
+      }
+      return res;
+    },
+    [client, callbacks, masterConfig],
+  );
 
   const fetchWallets = useCallback(
     async (params?: {
@@ -1450,523 +1508,598 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks],
   );
 
-  async function fetchWalletAccounts(params: {
-    wallet: Wallet;
-    walletProviders?: WalletProvider[];
-    paginationOptions?: v1Pagination;
-    stampWith?: StamperType | undefined;
-  }): Promise<WalletAccount[]> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const fetchWalletAccounts = useCallback(
+    async (params: {
+      wallet: Wallet;
+      walletProviders?: WalletProvider[];
+      paginationOptions?: v1Pagination;
+      stampWith?: StamperType | undefined;
+    }): Promise<WalletAccount[]> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        () => client.fetchWalletAccounts(params),
+        callbacks,
+        "Failed to fetch wallet accounts",
       );
-    }
-    return withTurnkeyErrorHandling(
-      () => client.fetchWalletAccounts(params),
-      callbacks,
-      "Failed to fetch wallet accounts",
-    );
-  }
+    },
+    [client, callbacks],
+  );
 
-  async function signMessage(params: {
-    message: string;
-    walletAccount: WalletAccount;
-    encoding?: v1PayloadEncoding;
-    hashFunction?: v1HashFunction;
-    stampWith?: StamperType | undefined;
-    addEthereumPrefix?: boolean;
-  }): Promise<v1SignRawPayloadResult> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const signMessage = useCallback(
+    async (params: {
+      message: string;
+      walletAccount: WalletAccount;
+      encoding?: v1PayloadEncoding;
+      hashFunction?: v1HashFunction;
+      stampWith?: StamperType | undefined;
+      addEthereumPrefix?: boolean;
+    }): Promise<v1SignRawPayloadResult> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.signMessage(params),
+        callbacks,
+        "Failed to sign message",
       );
-    return withTurnkeyErrorHandling(
-      () => client.signMessage(params),
-      callbacks,
-      "Failed to sign message",
-    );
-  }
+    },
+    [client, callbacks],
+  );
 
-  async function handleSignMessage(params: {
-    message: string;
-    walletAccount: WalletAccount;
-    encoding?: v1PayloadEncoding;
-    hashFunction?: v1HashFunction;
-    addEthereumPrefix?: boolean;
-    subText?: string;
-    successPageDuration?: number | undefined;
-    stampWith?: StamperType | undefined;
-  }): Promise<v1SignRawPayloadResult> {
-    const { successPageDuration = 2000 } = params;
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    return new Promise((resolve, reject) => {
-      pushPage({
-        key: "Sign Message",
-        content: (
-          <SignMessageModal
-            message={params.message}
-            subText={params?.subText}
-            walletAccount={params.walletAccount}
-            stampWith={params.stampWith}
-            successPageDuration={successPageDuration}
-            onSuccess={(result) => {
-              resolve(result);
-            }}
-            onError={(error) => {
-              reject(error);
-            }}
-            {...(params?.encoding && { encoding: params.encoding })}
-            {...(params?.hashFunction && {
-              hashFunction: params.hashFunction,
-            })}
-            {...(params?.addEthereumPrefix && {
-              addEthereumPrefix: params.addEthereumPrefix,
-            })}
-          />
-        ),
+  const handleSignMessage = useCallback(
+    async (params: {
+      message: string;
+      walletAccount: WalletAccount;
+      encoding?: v1PayloadEncoding;
+      hashFunction?: v1HashFunction;
+      addEthereumPrefix?: boolean;
+      subText?: string;
+      successPageDuration?: number | undefined;
+      stampWith?: StamperType | undefined;
+    }): Promise<v1SignRawPayloadResult> => {
+      const { successPageDuration = 2000 } = params;
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return new Promise((resolve, reject) => {
+        pushPage({
+          key: "Sign Message",
+          content: (
+            <SignMessageModal
+              message={params.message}
+              subText={params?.subText}
+              walletAccount={params.walletAccount}
+              stampWith={params.stampWith}
+              successPageDuration={successPageDuration}
+              onSuccess={(result) => {
+                resolve(result);
+              }}
+              onError={(error) => {
+                reject(error);
+              }}
+              {...(params?.encoding && { encoding: params.encoding })}
+              {...(params?.hashFunction && {
+                hashFunction: params.hashFunction,
+              })}
+              {...(params?.addEthereumPrefix && {
+                addEthereumPrefix: params.addEthereumPrefix,
+              })}
+            />
+          ),
+        });
       });
-    });
-  }
+    },
+    [client, callbacks],
+  );
 
-  async function signTransaction(params: {
-    unsignedTransaction: string;
-    transactionType: v1TransactionType;
-    walletAccount: WalletAccount;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const signTransaction = useCallback(
+    async (params: {
+      unsignedTransaction: string;
+      transactionType: v1TransactionType;
+      walletAccount: WalletAccount;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.signTransaction(params),
+        callbacks,
+        "Failed to sign transaction",
       );
-    return withTurnkeyErrorHandling(
-      () => client.signTransaction(params),
-      callbacks,
-      "Failed to sign transaction",
-    );
-  }
+    },
+    [client, callbacks],
+  );
 
-  async function signAndSendTransaction(params: {
-    unsignedTransaction: string;
-    transactionType: v1TransactionType;
-    walletAccount: WalletAccount;
-    rpcUrl?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const signAndSendTransaction = useCallback(
+    async (params: {
+      unsignedTransaction: string;
+      transactionType: v1TransactionType;
+      walletAccount: WalletAccount;
+      rpcUrl?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.signAndSendTransaction(params),
+        callbacks,
+        "Failed to sign transaction",
       );
-    return withTurnkeyErrorHandling(
-      () => client.signAndSendTransaction(params),
-      callbacks,
-      "Failed to sign transaction",
-    );
-  }
+    },
+    [client, callbacks],
+  );
 
-  async function fetchUser(params?: {
-    organizationId?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<v1User> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const fetchUser = useCallback(
+    async (params?: {
+      organizationId?: string;
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<v1User> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.fetchUser(params),
+        callbacks,
+        "Failed to fetch user",
       );
-    return withTurnkeyErrorHandling(
-      () => client.fetchUser(params),
-      callbacks,
-      "Failed to fetch user",
-    );
-  }
+    },
+    [client, callbacks],
+  );
 
-  async function updateUserEmail(params: {
-    email: string;
-    verificationToken?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const updateUserEmail = useCallback(
+    async (params: {
+      email: string;
+      verificationToken?: string;
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.updateUserEmail(params),
+        callbacks,
+        "Failed to update user email",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.updateUserEmail(params),
-      callbacks,
-      "Failed to update user email",
-    );
-    if (res) await refreshUser({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshUser({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function removeUserEmail(params?: {
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const removeUserEmail = useCallback(
+    async (params?: {
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.removeUserEmail(params),
+        callbacks,
+        "Failed to remove user email",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.removeUserEmail(params),
-      callbacks,
-      "Failed to remove user email",
-    );
-    if (res) await refreshUser({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshUser({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function updateUserPhoneNumber(params: {
-    phoneNumber: string;
-    verificationToken?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const updateUserPhoneNumber = useCallback(
+    async (params: {
+      phoneNumber: string;
+      verificationToken?: string;
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.updateUserPhoneNumber(params),
+        callbacks,
+        "Failed to update user phone number",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.updateUserPhoneNumber(params),
-      callbacks,
-      "Failed to update user phone number",
-    );
-    if (res) await refreshUser({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshUser({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function removeUserPhoneNumber(params?: {
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const removeUserPhoneNumber = useCallback(
+    async (params?: {
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.removeUserPhoneNumber(params),
+        callbacks,
+        "Failed to remove user phone number",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.removeUserPhoneNumber(params),
-      callbacks,
-      "Failed to remove user phone number",
-    );
-    if (res) await refreshUser({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshUser({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function updateUserName(params: {
-    userName: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const updateUserName = useCallback(
+    async (params: {
+      userName: string;
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.updateUserName(params),
+        callbacks,
+        "Failed to update user name",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.updateUserName(params),
-      callbacks,
-      "Failed to update user name",
-    );
-    if (res) await refreshUser({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshUser({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function addOauthProvider(params: {
-    providerName: string;
-    oidcToken: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const addOauthProvider = useCallback(
+    async (params: {
+      providerName: string;
+      oidcToken: string;
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string[]> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.addOauthProvider(params),
+        callbacks,
+        "Failed to add OAuth provider",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.addOauthProvider(params),
-      callbacks,
-      "Failed to add OAuth provider",
-    );
-    if (res) await refreshUser({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshUser({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function removeOauthProviders(params: {
-    providerIds: string[];
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const removeOauthProviders = useCallback(
+    async (params: {
+      providerIds: string[];
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string[]> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.removeOauthProviders(params),
+        callbacks,
+        "Failed to remove OAuth providers",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.removeOauthProviders(params),
-      callbacks,
-      "Failed to remove OAuth providers",
-    );
-    if (res) await refreshUser({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshUser({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function addPasskey(params?: {
-    name?: string;
-    displayName?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const addPasskey = useCallback(
+    async (params?: {
+      name?: string;
+      displayName?: string;
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string[]> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.addPasskey(params),
+        callbacks,
+        "Failed to add passkey",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.addPasskey(params),
-      callbacks,
-      "Failed to add passkey",
-    );
-    if (res) await refreshUser({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshUser({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function removePasskeys(params: {
-    authenticatorIds: string[];
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const removePasskeys = useCallback(
+    async (params: {
+      authenticatorIds: string[];
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string[]> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.removePasskeys(params),
+        callbacks,
+        "Failed to remove passkeys",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.removePasskeys(params),
-      callbacks,
-      "Failed to remove passkeys",
-    );
-    if (res) await refreshUser({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshUser({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function createWallet(params: {
-    walletName: string;
-    accounts?: v1WalletAccountParams[] | v1AddressFormat[];
-    organizationId?: string;
-    mnemonicLength?: number;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const createWallet = useCallback(
+    async (params: {
+      walletName: string;
+      accounts?: v1WalletAccountParams[] | v1AddressFormat[];
+      organizationId?: string;
+      mnemonicLength?: number;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.createWallet(params),
+        callbacks,
+        "Failed to create wallet",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.createWallet(params),
-      callbacks,
-      "Failed to create wallet",
-    );
-    if (res) await refreshWallets({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshWallets({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function createWalletAccounts(params: {
-    accounts: v1WalletAccountParams[] | v1AddressFormat[];
-    walletId: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const createWalletAccounts = useCallback(
+    async (params: {
+      accounts: v1WalletAccountParams[] | v1AddressFormat[];
+      walletId: string;
+      organizationId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string[]> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.createWalletAccounts(params),
+        callbacks,
+        "Failed to create wallet accounts",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.createWalletAccounts(params),
-      callbacks,
-      "Failed to create wallet accounts",
-    );
-    if (res) await refreshWallets({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshWallets({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function exportWallet(params: {
-    walletId: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<ExportBundle> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const exportWallet = useCallback(
+    async (params: {
+      walletId: string;
+      targetPublicKey: string;
+      organizationId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<ExportBundle> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.exportWallet(params),
+        callbacks,
+        "Failed to export wallet",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.exportWallet(params),
-      callbacks,
-      "Failed to export wallet",
-    );
-    if (res) await refreshWallets({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshWallets({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function exportPrivateKey(params: {
-    privateKeyId: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<ExportBundle> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const exportPrivateKey = useCallback(
+    async (params: {
+      privateKeyId: string;
+      targetPublicKey: string;
+      organizationId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<ExportBundle> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.exportPrivateKey(params),
+        callbacks,
+        "Failed to export private key",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.exportPrivateKey(params),
-      callbacks,
-      "Failed to export private key",
-    );
-    return res;
-  }
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function exportWalletAccount(params: {
-    address: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<ExportBundle> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const exportWalletAccount = useCallback(
+    async (params: {
+      address: string;
+      targetPublicKey: string;
+      organizationId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<ExportBundle> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.exportWalletAccount(params),
+        callbacks,
+        "Failed to export wallet accounts",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.exportWalletAccount(params),
-      callbacks,
-      "Failed to export wallet accounts",
-    );
-    if (res) await refreshWallets({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshWallets({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function importWallet(params: {
-    encryptedBundle: string;
-    walletName: string;
-    accounts?: v1WalletAccountParams[];
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const importWallet = useCallback(
+    async (params: {
+      encryptedBundle: string;
+      walletName: string;
+      accounts?: v1WalletAccountParams[];
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.importWallet(params),
+        callbacks,
+        "Failed to import wallet",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.importWallet(params),
-      callbacks,
-      "Failed to import wallet",
-    );
-    if (res) await refreshWallets({ stampWith: params?.stampWith });
-    return res;
-  }
+      if (res) await refreshWallets({ stampWith: params?.stampWith });
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function importPrivateKey(params: {
-    encryptedBundle: string;
-    privateKeyName: string;
-    curve: v1Curve;
-    addressFormats: v1AddressFormat[];
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const importPrivateKey = useCallback(
+    async (params: {
+      encryptedBundle: string;
+      privateKeyName: string;
+      curve: v1Curve;
+      addressFormats: v1AddressFormat[];
+      userId?: string;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const res = await withTurnkeyErrorHandling(
+        () => client.importPrivateKey(params),
+        callbacks,
+        "Failed to import private key",
       );
-    const res = await withTurnkeyErrorHandling(
-      () => client.importPrivateKey(params),
-      callbacks,
-      "Failed to import private key",
-    );
-    return res;
-  }
+      return res;
+    },
+    [client, callbacks],
+  );
 
-  async function deleteSubOrganization(params?: {
-    deleteWithoutExport?: boolean;
-    stampWith?: StamperType | undefined;
-  }): Promise<TDeleteSubOrganizationResponse> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const deleteSubOrganization = useCallback(
+    async (params?: {
+      deleteWithoutExport?: boolean;
+      stampWith?: StamperType | undefined;
+    }): Promise<TDeleteSubOrganizationResponse> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.deleteSubOrganization(params),
+        callbacks,
+        "Failed to delete sub-organization",
       );
-    return withTurnkeyErrorHandling(
-      () => client.deleteSubOrganization(params),
-      callbacks,
-      "Failed to delete sub-organization",
-    );
-  }
+    },
+    [client, callbacks],
+  );
 
-  async function storeSession(params: {
-    sessionToken: string;
-    sessionKey?: string;
-  }): Promise<void> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const storeSession = useCallback(
+    async (params: {
+      sessionToken: string;
+      sessionKey?: string;
+    }): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      await withTurnkeyErrorHandling(
+        () => client.storeSession(params),
+        callbacks,
+        "Failed to store session",
       );
-    await withTurnkeyErrorHandling(
-      () => client.storeSession(params),
-      callbacks,
-      "Failed to store session",
-    );
-    const sessionKey = await getActiveSessionKey();
-    const session = await getSession({
-      ...(sessionKey && { sessionKey }),
-    });
+      const sessionKey = await getActiveSessionKey();
+      const session = await getSession({
+        ...(sessionKey && { sessionKey }),
+      });
 
-    if (session && sessionKey)
-      await scheduleSessionExpiration({ sessionKey, expiry: session.expiry });
+      if (session && sessionKey)
+        await scheduleSessionExpiration({ sessionKey, expiry: session.expiry });
 
-    const allSessions = await getAllSessions();
+      const allSessions = await getAllSessions();
 
-    setSession(session);
-    setAllSessions(allSessions);
-    return;
-  }
+      setSession(session);
+      setAllSessions(allSessions);
+      return;
+    },
+    [client, callbacks],
+  );
 
-  async function clearSession(params?: { sessionKey?: string }): Promise<void> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const clearSession = useCallback(
+    async (params?: { sessionKey?: string }): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      await withTurnkeyErrorHandling(
+        () => client.clearSession(params),
+        callbacks,
+        "Failed to clear session",
       );
-    await withTurnkeyErrorHandling(
-      () => client.clearSession(params),
-      callbacks,
-      "Failed to clear session",
-    );
-    const session = await getSession();
-    const allSessions = await getAllSessions();
-    setSession(session);
-    setAllSessions(allSessions);
-    return;
-  }
+      const session = await getSession();
+      const allSessions = await getAllSessions();
+      setSession(session);
+      setAllSessions(allSessions);
+      return;
+    },
+    [client, callbacks],
+  );
 
-  async function clearAllSessions(): Promise<void> {
+  const clearAllSessions = useCallback(async (): Promise<void> => {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -1979,73 +2112,77 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to clear all sessions",
     );
-  }
+  }, [client, callbacks]);
 
-  async function refreshSession(params?: {
-    expirationSeconds?: string;
-    publicKey?: string;
-    sessionKey?: string;
-    invalidateExisitng?: boolean;
-    stampWith?: StamperType | undefined;
-  }): Promise<TStampLoginResponse | undefined> {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const refreshSession = useCallback(
+    async (params?: {
+      expirationSeconds?: string;
+      publicKey?: string;
+      sessionKey?: string;
+      invalidateExisitng?: boolean;
+      stampWith?: StamperType | undefined;
+    }): Promise<TStampLoginResponse | undefined> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      const activeSessionKey = await client.getActiveSessionKey();
+      if (!activeSessionKey) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+
+      const sessionKey = params?.sessionKey ?? activeSessionKey;
+
+      const res = await withTurnkeyErrorHandling(
+        () => client.refreshSession({ ...params }),
+        callbacks,
+        "Failed to refresh session",
       );
-    }
+      const session = await getSession({ sessionKey });
 
-    const activeSessionKey = await client.getActiveSessionKey();
-    if (!activeSessionKey) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      if (session && sessionKey) {
+        await scheduleSessionExpiration({
+          sessionKey,
+          expiry: session.expiry,
+          ...(params?.expirationSeconds && {
+            expirationSeconds: params?.expirationSeconds,
+          }),
+        });
+      }
+
+      const allSessions = await getAllSessions();
+      setSession(session);
+      setAllSessions(allSessions);
+      return res;
+    },
+    [client, callbacks],
+  );
+
+  const getSession = useCallback(
+    async (params?: { sessionKey?: string }): Promise<Session | undefined> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.getSession(params),
+        callbacks,
+        "Failed to get session",
       );
-    }
+    },
+    [client, callbacks],
+  );
 
-    const sessionKey = params?.sessionKey ?? activeSessionKey;
-
-    const res = await withTurnkeyErrorHandling(
-      () => client.refreshSession({ ...params }),
-      callbacks,
-      "Failed to refresh session",
-    );
-    const session = await getSession({ sessionKey });
-
-    if (session && sessionKey) {
-      await scheduleSessionExpiration({
-        sessionKey,
-        expiry: session.expiry,
-        ...(params?.expirationSeconds && {
-          expirationSeconds: params?.expirationSeconds,
-        }),
-      });
-    }
-
-    const allSessions = await getAllSessions();
-    setSession(session);
-    setAllSessions(allSessions);
-    return res;
-  }
-
-  async function getSession(params?: {
-    sessionKey?: string;
-  }): Promise<Session | undefined> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    return withTurnkeyErrorHandling(
-      () => client.getSession(params),
-      callbacks,
-      "Failed to get session",
-    );
-  }
-
-  async function getAllSessions(): Promise<
+  const getAllSessions = useCallback(async (): Promise<
     Record<string, Session> | undefined
-  > {
+  > => {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -2056,34 +2193,40 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to get all sessions",
     );
-  }
+  }, [client, callbacks]);
 
-  async function setActiveSession(params: {
-    sessionKey: string;
-  }): Promise<void> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const setActiveSession = useCallback(
+    async (params: { sessionKey: string }): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const session = await withTurnkeyErrorHandling(
+        () => client.getSession({ sessionKey: params.sessionKey }),
+        callbacks,
+        "Failed to get session",
       );
-    const session = await withTurnkeyErrorHandling(
-      () => client.getSession({ sessionKey: params.sessionKey }),
-      callbacks,
-      "Failed to get session",
-    );
-    if (!session) {
-      throw new TurnkeyError("Session not found.", TurnkeyErrorCodes.NOT_FOUND);
-    }
-    await withTurnkeyErrorHandling(
-      () => client.setActiveSession(params),
-      callbacks,
-      "Failed to set active session",
-    );
-    setSession(session);
-    return;
-  }
+      if (!session) {
+        throw new TurnkeyError(
+          "Session not found.",
+          TurnkeyErrorCodes.NOT_FOUND,
+        );
+      }
+      await withTurnkeyErrorHandling(
+        () => client.setActiveSession(params),
+        callbacks,
+        "Failed to set active session",
+      );
+      setSession(session);
+      return;
+    },
+    [client, callbacks],
+  );
 
-  async function getActiveSessionKey(): Promise<string | undefined> {
+  const getActiveSessionKey = useCallback(async (): Promise<
+    string | undefined
+  > => {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -2094,9 +2237,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to get active session key",
     );
-  }
+  }, [client, callbacks]);
 
-  async function clearUnusedKeyPairs(): Promise<void> {
+  const clearUnusedKeyPairs = useCallback(async (): Promise<void> => {
     if (!client)
       throw new TurnkeyError(
         "Client is not initialized.",
@@ -2107,55 +2250,62 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to clear unused key pairs",
     );
-  }
+  }, [client, callbacks]);
 
-  async function createApiKeyPair(params?: {
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string };
-    storeOverride?: boolean;
-  }): Promise<string> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const createApiKeyPair = useCallback(
+    async (params?: {
+      externalKeyPair?:
+        | CryptoKeyPair
+        | { publicKey: string; privateKey: string };
+      storeOverride?: boolean;
+    }): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.createApiKeyPair(params),
+        callbacks,
+        "Failed to create API key pair",
       );
-    return withTurnkeyErrorHandling(
-      () => client.createApiKeyPair(params),
-      callbacks,
-      "Failed to create API key pair",
-    );
-  }
+    },
+    [client, callbacks],
+  );
 
-  async function getProxyAuthConfig(): Promise<ProxyTGetWalletKitConfigResponse> {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const getProxyAuthConfig =
+    useCallback(async (): Promise<ProxyTGetWalletKitConfigResponse> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.getProxyAuthConfig(),
+        callbacks,
+        "Failed to get proxy auth config",
       );
-    return withTurnkeyErrorHandling(
-      () => client.getProxyAuthConfig(),
-      callbacks,
-      "Failed to get proxy auth config",
-    );
-  }
+    }, [client, callbacks]);
 
-  async function refreshUser(params?: {
-    stampWith?: StamperType | undefined;
-  }): Promise<void> {
-    const { stampWith } = params || {};
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+  const refreshUser = useCallback(
+    async (params?: { stampWith?: StamperType | undefined }): Promise<void> => {
+      const { stampWith } = params || {};
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const user = await withTurnkeyErrorHandling(
+        () => fetchUser({ stampWith }),
+        callbacks,
+        "Failed to refresh user",
       );
-    const user = await withTurnkeyErrorHandling(
-      () => fetchUser({ stampWith }),
-      callbacks,
-      "Failed to refresh user",
-    );
-    if (user) {
-      setUser(user);
-    }
-  }
+      if (user) {
+        setUser(user);
+      }
+    },
+    [client, callbacks],
+  );
 
   const refreshWallets = useCallback(
     async (params?: { stampWith?: StamperType | undefined }): Promise<void> => {
@@ -2184,1319 +2334,673 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks, getWalletProviders, fetchWallets],
   );
 
-  async function handleGoogleOauth(params?: {
-    clientId?: string;
-    openInPage?: boolean;
-    additionalState?: Record<string, string>;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }): Promise<void> {
-    const {
-      clientId = masterConfig?.auth?.oauthConfig?.googleClientId,
-      openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
-      additionalState: additionalParameters,
-    } = params || {};
-    try {
-      if (!masterConfig) {
-        throw new TurnkeyError(
-          "Config is not ready yet!",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-      if (!clientId) {
-        throw new TurnkeyError(
-          "Google Client ID is not configured.",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
-        throw new TurnkeyError(
-          "OAuth Redirect URI is not configured.",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-
-      const flow = openInPage ? "redirect" : "popup";
-      const redirectURI =
-        masterConfig.auth?.oauthConfig.oauthRedirectUri.replace(/\/$/, "");
-
-      // Create key pair and generate nonce
-      const publicKey = await createApiKeyPair();
-      if (!publicKey) {
-        throw new Error("Failed to create public key for OAuth.");
-      }
-      const nonce = bytesToHex(sha256(publicKey));
-
-      // Construct Google Auth URL
-      const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
-      googleAuthUrl.searchParams.set("client_id", clientId);
-      googleAuthUrl.searchParams.set("redirect_uri", redirectURI);
-      googleAuthUrl.searchParams.set("response_type", "id_token");
-      googleAuthUrl.searchParams.set("scope", "openid email profile");
-      googleAuthUrl.searchParams.set("nonce", nonce);
-      googleAuthUrl.searchParams.set("prompt", "select_account");
-
-      // Create state parameter
-      let state = `provider=google&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
-      if (additionalParameters) {
-        const additionalState = Object.entries(additionalParameters)
-          .map(
-            ([key, value]) =>
-              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-          )
-          .join("&");
-        if (additionalState) {
-          state += `&${additionalState}`;
+  const handleGoogleOauth = useCallback(
+    async (params?: {
+      clientId?: string;
+      openInPage?: boolean;
+      additionalState?: Record<string, string>;
+      onOauthSuccess?: (params: {
+        oidcToken: string;
+        providerName: string;
+      }) => any;
+    }): Promise<void> => {
+      const {
+        clientId = masterConfig?.auth?.oauthConfig?.googleClientId,
+        openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
+        additionalState: additionalParameters,
+      } = params || {};
+      try {
+        if (!masterConfig) {
+          throw new TurnkeyError(
+            "Config is not ready yet!",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
         }
-      }
-      googleAuthUrl.searchParams.set("state", state);
-      if (openInPage) {
-        // Redirect current page to Google Auth
-        window.location.href = googleAuthUrl.toString();
-        return new Promise((_, reject) => {
-          // By here, the page should have already redirected. We wait here since the function is async.
-          // We want any function that runs this to simply wait until the page redirects.
-          // A 5 min timeout is set just in case, idk
-          const timeout = setTimeout(() => {
-            reject(new Error("Authentication timed out."));
-          }, 300000); // 5 minutes
-
-          // If the page is unloaded (user navigates away), clear the timeout
-          window.addEventListener("beforeunload", () => clearTimeout(timeout));
-        });
-      } else {
-        // Open popup window
-        const width = popupWidth;
-        const height = popupHeight;
-        const left = window.screenX + (window.innerWidth - width) / 2;
-        const top = window.screenY + (window.innerHeight - height) / 2;
-
-        const authWindow = window.open(
-          "about:blank",
-          "_blank",
-          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-        );
-
-        if (!authWindow) {
-          throw new Error("Failed to open Google login window.");
+        if (!clientId) {
+          throw new TurnkeyError(
+            "Google Client ID is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+        if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
+          throw new TurnkeyError(
+            "OAuth Redirect URI is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
         }
 
-        authWindow.location.href = googleAuthUrl.toString();
+        const flow = openInPage ? "redirect" : "popup";
+        const redirectURI =
+          masterConfig.auth?.oauthConfig.oauthRedirectUri.replace(/\/$/, "");
 
-        // Return a promise that resolves when the OAuth flow completes
-        // This following code will only run for the popup flow
-        return new Promise<void>((resolve, reject) => {
-          const interval = setInterval(() => {
-            try {
-              // Check if window was closed without completing auth
-              if (authWindow.closed) {
-                clearInterval(interval);
-                reject(new Error("Authentication window was closed."));
-                return;
-              }
+        // Create key pair and generate nonce
+        const publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new Error("Failed to create public key for OAuth.");
+        }
+        const nonce = bytesToHex(sha256(publicKey));
 
-              const url = authWindow.location.href || "";
-              if (url.startsWith(window.location.origin)) {
-                const hashParams = new URLSearchParams(url.split("#")[1]);
-                const idToken = hashParams.get("id_token");
-                if (idToken) {
-                  authWindow.close();
+        // Construct Google Auth URL
+        const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
+        googleAuthUrl.searchParams.set("client_id", clientId);
+        googleAuthUrl.searchParams.set("redirect_uri", redirectURI);
+        googleAuthUrl.searchParams.set("response_type", "id_token");
+        googleAuthUrl.searchParams.set("scope", "openid email profile");
+        googleAuthUrl.searchParams.set("nonce", nonce);
+        googleAuthUrl.searchParams.set("prompt", "select_account");
+
+        // Create state parameter
+        let state = `provider=google&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
+        if (additionalParameters) {
+          const additionalState = Object.entries(additionalParameters)
+            .map(
+              ([key, value]) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+            )
+            .join("&");
+          if (additionalState) {
+            state += `&${additionalState}`;
+          }
+        }
+        googleAuthUrl.searchParams.set("state", state);
+        if (openInPage) {
+          // Redirect current page to Google Auth
+          window.location.href = googleAuthUrl.toString();
+          return new Promise((_, reject) => {
+            // By here, the page should have already redirected. We wait here since the function is async.
+            // We want any function that runs this to simply wait until the page redirects.
+            // A 5 min timeout is set just in case, idk
+            const timeout = setTimeout(() => {
+              reject(new Error("Authentication timed out."));
+            }, 300000); // 5 minutes
+
+            // If the page is unloaded (user navigates away), clear the timeout
+            window.addEventListener("beforeunload", () =>
+              clearTimeout(timeout),
+            );
+          });
+        } else {
+          // Open popup window
+          const width = popupWidth;
+          const height = popupHeight;
+          const left = window.screenX + (window.innerWidth - width) / 2;
+          const top = window.screenY + (window.innerHeight - height) / 2;
+
+          const authWindow = window.open(
+            "about:blank",
+            "_blank",
+            `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+          );
+
+          if (!authWindow) {
+            throw new Error("Failed to open Google login window.");
+          }
+
+          authWindow.location.href = googleAuthUrl.toString();
+
+          // Return a promise that resolves when the OAuth flow completes
+          // This following code will only run for the popup flow
+          return new Promise<void>((resolve, reject) => {
+            const interval = setInterval(() => {
+              try {
+                // Check if window was closed without completing auth
+                if (authWindow.closed) {
                   clearInterval(interval);
+                  reject(new Error("Authentication window was closed."));
+                  return;
+                }
 
-                  if (params?.onOauthSuccess) {
-                    params.onOauthSuccess({
-                      oidcToken: idToken,
-                      providerName: "google",
-                    });
-                  } else if (callbacks?.onOauthRedirect) {
-                    callbacks.onOauthRedirect({ idToken, publicKey });
-                  } else {
-                    completeOauth({
-                      oidcToken: idToken,
-                      publicKey,
-                      providerName: "google",
-                    })
-                      .then(() => resolve())
+                const url = authWindow.location.href || "";
+                if (url.startsWith(window.location.origin)) {
+                  const hashParams = new URLSearchParams(url.split("#")[1]);
+                  const idToken = hashParams.get("id_token");
+                  if (idToken) {
+                    authWindow.close();
+                    clearInterval(interval);
+
+                    if (params?.onOauthSuccess) {
+                      params.onOauthSuccess({
+                        oidcToken: idToken,
+                        providerName: "google",
+                      });
+                    } else if (callbacks?.onOauthRedirect) {
+                      callbacks.onOauthRedirect({ idToken, publicKey });
+                    } else {
+                      completeOauth({
+                        oidcToken: idToken,
+                        publicKey,
+                        providerName: "google",
+                      })
+                        .then(() => resolve())
+                        .catch(reject);
+                      return;
+                    }
+                    resolve();
+                  }
+                }
+              } catch (error) {
+                // Ignore cross-origin errors
+              }
+            }, 500);
+
+            if (authWindow.closed) {
+              clearInterval(interval);
+            }
+          });
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
+    [client, callbacks],
+  );
+
+  const handleAppleOauth = useCallback(
+    async (params?: {
+      clientId?: string;
+      openInPage?: boolean;
+      additionalState?: Record<string, string>;
+      onOauthSuccess?: (params: {
+        oidcToken: string;
+        providerName: string;
+      }) => any;
+    }): Promise<void> => {
+      const {
+        clientId = masterConfig?.auth?.oauthConfig?.appleClientId,
+        openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
+        additionalState: additionalParameters,
+      } = params || {};
+      try {
+        if (!masterConfig) {
+          throw new TurnkeyError(
+            "Config is not ready yet!",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+        if (!clientId) {
+          throw new TurnkeyError(
+            "Apple Client ID is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+        if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
+          throw new TurnkeyError(
+            "OAuth Redirect URI is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const flow = openInPage ? "redirect" : "popup";
+        const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri; // TODO (Amir): Apple needs the '/' at the end. Maybe we should add it if not there?
+
+        // Create key pair and generate nonce
+        const publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new Error("Failed to create public key for OAuth.");
+        }
+        const nonce = bytesToHex(sha256(publicKey));
+
+        // Construct Apple Auth URL
+        const appleAuthUrl = new URL(APPLE_AUTH_URL);
+        appleAuthUrl.searchParams.set("client_id", clientId);
+        appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
+        appleAuthUrl.searchParams.set("response_type", "code id_token");
+        appleAuthUrl.searchParams.set("response_mode", "fragment");
+        appleAuthUrl.searchParams.set("nonce", nonce);
+
+        // Create state parameter
+        let state = `provider=apple&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
+        if (additionalParameters) {
+          const additionalState = Object.entries(additionalParameters)
+            .map(
+              ([key, value]) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+            )
+            .join("&");
+          if (additionalState) {
+            state += `&${additionalState}`;
+          }
+        }
+        appleAuthUrl.searchParams.set("state", state);
+
+        if (openInPage) {
+          // Redirect current page to Apple Auth
+          window.location.href = appleAuthUrl.toString();
+          return new Promise((_, reject) => {
+            // Set a timeout just in case the redirect doesn't happen
+            const timeout = setTimeout(() => {
+              reject(new Error("Authentication timed out."));
+            }, 300000); // 5 minutes
+
+            // If the page is unloaded (user navigates away), clear the timeout
+            window.addEventListener("beforeunload", () =>
+              clearTimeout(timeout),
+            );
+          });
+        } else {
+          // Open popup window
+          const width = popupWidth;
+          const height = popupHeight;
+          const left = window.screenX + (window.innerWidth - width) / 2;
+          const top = window.screenY + (window.innerHeight - height) / 2;
+
+          const authWindow = window.open(
+            "about:blank",
+            "_blank",
+            `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+          );
+
+          if (!authWindow) {
+            throw new Error("Failed to open Apple login window.");
+          }
+
+          authWindow.location.href = appleAuthUrl.toString();
+
+          // Return a promise that resolves when the OAuth flow completes
+          return new Promise<void>((resolve, reject) => {
+            const interval = setInterval(() => {
+              try {
+                // Check if window was closed without completing auth
+                if (authWindow.closed) {
+                  clearInterval(interval);
+                  reject(new Error("Authentication window was closed."));
+                  return;
+                }
+
+                const url = authWindow.location.href || "";
+                if (url.startsWith(window.location.origin)) {
+                  const hashParams = new URLSearchParams(url.split("#")[1]);
+                  const idToken = hashParams.get("id_token");
+                  if (idToken) {
+                    authWindow.close();
+                    clearInterval(interval);
+
+                    if (params?.onOauthSuccess) {
+                      params.onOauthSuccess({
+                        oidcToken: idToken,
+                        providerName: "apple",
+                      });
+                    } else if (callbacks?.onOauthRedirect) {
+                      callbacks.onOauthRedirect({ idToken, publicKey });
+                    } else {
+                      completeOauth({
+                        oidcToken: idToken,
+                        publicKey,
+                        providerName: "apple",
+                      })
+                        .then(() => resolve())
+                        .catch(reject);
+                      return;
+                    }
+                    resolve();
+                  }
+                }
+              } catch (error) {
+                // Ignore cross-origin errors
+              }
+            }, 500);
+
+            if (authWindow.closed) {
+              clearInterval(interval);
+            }
+          });
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
+    [client, callbacks],
+  );
+
+  const handleFacebookOauth = useCallback(
+    async (params?: {
+      clientId?: string;
+      openInPage?: boolean;
+      additionalState?: Record<string, string>;
+      onOauthSuccess?: (params: {
+        oidcToken: string;
+        providerName: string;
+      }) => any;
+    }): Promise<void> => {
+      const {
+        clientId = masterConfig?.auth?.oauthConfig?.facebookClientId,
+        openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
+        additionalState: additionalParameters,
+      } = params || {};
+      try {
+        if (!masterConfig) {
+          throw new TurnkeyError(
+            "Config is not ready yet!",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+        if (!clientId) {
+          throw new TurnkeyError(
+            "Facebook Client ID is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+        if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
+          throw new TurnkeyError(
+            "OAuth Redirect URI is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const flow = openInPage ? "redirect" : "popup";
+        const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri;
+
+        // Create key pair and generate nonce
+        const publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new Error("Failed to create public key for OAuth.");
+        }
+        const nonce = bytesToHex(sha256(publicKey));
+
+        // Generate PKCE challenge pair
+        const { verifier, codeChallenge } = await generateChallengePair();
+        // Store verifier for later token exchange
+        sessionStorage.setItem("facebook_verifier", verifier);
+
+        // Construct Facebook Auth URL
+        const facebookAuthUrl = new URL(FACEBOOK_AUTH_URL);
+        facebookAuthUrl.searchParams.set("client_id", clientId);
+        facebookAuthUrl.searchParams.set("redirect_uri", redirectURI);
+        facebookAuthUrl.searchParams.set("response_type", "code");
+        facebookAuthUrl.searchParams.set("code_challenge", codeChallenge);
+        facebookAuthUrl.searchParams.set("code_challenge_method", "S256");
+        facebookAuthUrl.searchParams.set("nonce", nonce);
+        facebookAuthUrl.searchParams.set("scope", "openid");
+
+        // Create state parameter
+        let state = `provider=facebook&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
+        if (additionalParameters) {
+          const additionalState = Object.entries(additionalParameters)
+            .map(
+              ([key, value]) =>
+                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+            )
+            .join("&");
+          if (additionalState) {
+            state += `&${additionalState}`;
+          }
+        }
+        facebookAuthUrl.searchParams.set("state", state);
+
+        if (openInPage) {
+          // Redirect current page to Facebook Auth
+          window.location.href = facebookAuthUrl.toString();
+          return new Promise((_, reject) => {
+            // Set a timeout just in case the redirect doesn't happen
+            const timeout = setTimeout(() => {
+              reject(new Error("Authentication timed out."));
+            }, 300000); // 5 minutes
+
+            // If the page is unloaded (user navigates away), clear the timeout
+            window.addEventListener("beforeunload", () =>
+              clearTimeout(timeout),
+            );
+          });
+        } else {
+          // Open popup window
+          const width = popupWidth;
+          const height = popupHeight;
+          const left = window.screenX + (window.innerWidth - width) / 2;
+          const top = window.screenY + (window.innerHeight - height) / 2;
+
+          const authWindow = window.open(
+            "about:blank",
+            "_blank",
+            `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+          );
+
+          if (!authWindow) {
+            throw new Error("Failed to open Facebook login window.");
+          }
+
+          authWindow.location.href = facebookAuthUrl.toString();
+
+          // Return a promise that resolves when the OAuth flow completes
+          return new Promise<void>((resolve, reject) => {
+            const interval = setInterval(() => {
+              try {
+                // Check if window was closed without completing auth
+                if (authWindow.closed) {
+                  clearInterval(interval);
+                  reject(new Error("Authentication window was closed."));
+                  return;
+                }
+
+                const url = authWindow.location.href || "";
+                if (url.startsWith(window.location.origin)) {
+                  const urlParams = new URLSearchParams(new URL(url).search);
+                  const authCode = urlParams.get("code");
+                  const stateParam = urlParams.get("state");
+
+                  if (
+                    authCode &&
+                    stateParam &&
+                    stateParam.includes("provider=facebook")
+                  ) {
+                    authWindow.close();
+                    clearInterval(interval);
+
+                    // Exchange code for token
+                    const verifier =
+                      sessionStorage.getItem("facebook_verifier");
+                    if (!verifier) {
+                      reject(new Error("Missing PKCE verifier"));
+                      return;
+                    }
+
+                    exchangeCodeForToken(
+                      clientId,
+                      redirectURI,
+                      authCode,
+                      verifier,
+                    )
+                      .then((tokenData) => {
+                        sessionStorage.removeItem("facebook_verifier");
+
+                        if (params?.onOauthSuccess) {
+                          params.onOauthSuccess({
+                            oidcToken: tokenData.id_token,
+                            providerName: "apple",
+                          });
+                        } else if (callbacks?.onOauthRedirect) {
+                          callbacks.onOauthRedirect({
+                            idToken: tokenData.id_token,
+                            publicKey,
+                          });
+                        } else {
+                          completeOauth({
+                            oidcToken: tokenData.id_token,
+                            publicKey,
+                            providerName: "facebook",
+                          })
+                            .then(() => resolve())
+                            .catch(reject);
+                          return;
+                        }
+                        resolve();
+                      })
                       .catch(reject);
-                    return;
                   }
-                  resolve();
                 }
+              } catch (error) {
+                // Ignore cross-origin errors
               }
-            } catch (error) {
-              // Ignore cross-origin errors
+            }, 500);
+
+            if (authWindow.closed) {
+              clearInterval(interval);
             }
-          }, 500);
-
-          if (authWindow.closed) {
-            clearInterval(interval);
-          }
-        });
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async function handleAppleOauth(params?: {
-    clientId?: string;
-    openInPage?: boolean;
-    additionalState?: Record<string, string>;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }): Promise<void> {
-    const {
-      clientId = masterConfig?.auth?.oauthConfig?.appleClientId,
-      openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
-      additionalState: additionalParameters,
-    } = params || {};
-    try {
-      if (!masterConfig) {
-        throw new TurnkeyError(
-          "Config is not ready yet!",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-      if (!clientId) {
-        throw new TurnkeyError(
-          "Apple Client ID is not configured.",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
-        throw new TurnkeyError(
-          "OAuth Redirect URI is not configured.",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-
-      const flow = openInPage ? "redirect" : "popup";
-      const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri; // TODO (Amir): Apple needs the '/' at the end. Maybe we should add it if not there?
-
-      // Create key pair and generate nonce
-      const publicKey = await createApiKeyPair();
-      if (!publicKey) {
-        throw new Error("Failed to create public key for OAuth.");
-      }
-      const nonce = bytesToHex(sha256(publicKey));
-
-      // Construct Apple Auth URL
-      const appleAuthUrl = new URL(APPLE_AUTH_URL);
-      appleAuthUrl.searchParams.set("client_id", clientId);
-      appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
-      appleAuthUrl.searchParams.set("response_type", "code id_token");
-      appleAuthUrl.searchParams.set("response_mode", "fragment");
-      appleAuthUrl.searchParams.set("nonce", nonce);
-
-      // Create state parameter
-      let state = `provider=apple&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
-      if (additionalParameters) {
-        const additionalState = Object.entries(additionalParameters)
-          .map(
-            ([key, value]) =>
-              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-          )
-          .join("&");
-        if (additionalState) {
-          state += `&${additionalState}`;
+          });
         }
+      } catch (error) {
+        throw error;
       }
-      appleAuthUrl.searchParams.set("state", state);
+    },
+    [client, callbacks],
+  );
 
-      if (openInPage) {
-        // Redirect current page to Apple Auth
-        window.location.href = appleAuthUrl.toString();
-        return new Promise((_, reject) => {
-          // Set a timeout just in case the redirect doesn't happen
-          const timeout = setTimeout(() => {
-            reject(new Error("Authentication timed out."));
-          }, 300000); // 5 minutes
-
-          // If the page is unloaded (user navigates away), clear the timeout
-          window.addEventListener("beforeunload", () => clearTimeout(timeout));
-        });
-      } else {
-        // Open popup window
-        const width = popupWidth;
-        const height = popupHeight;
-        const left = window.screenX + (window.innerWidth - width) / 2;
-        const top = window.screenY + (window.innerHeight - height) / 2;
-
-        const authWindow = window.open(
-          "about:blank",
-          "_blank",
-          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-        );
-
-        if (!authWindow) {
-          throw new Error("Failed to open Apple login window.");
-        }
-
-        authWindow.location.href = appleAuthUrl.toString();
-
-        // Return a promise that resolves when the OAuth flow completes
-        return new Promise<void>((resolve, reject) => {
-          const interval = setInterval(() => {
-            try {
-              // Check if window was closed without completing auth
-              if (authWindow.closed) {
-                clearInterval(interval);
-                reject(new Error("Authentication window was closed."));
-                return;
-              }
-
-              const url = authWindow.location.href || "";
-              if (url.startsWith(window.location.origin)) {
-                const hashParams = new URLSearchParams(url.split("#")[1]);
-                const idToken = hashParams.get("id_token");
-                if (idToken) {
-                  authWindow.close();
-                  clearInterval(interval);
-
-                  if (params?.onOauthSuccess) {
-                    params.onOauthSuccess({
-                      oidcToken: idToken,
-                      providerName: "apple",
-                    });
-                  } else if (callbacks?.onOauthRedirect) {
-                    callbacks.onOauthRedirect({ idToken, publicKey });
-                  } else {
-                    completeOauth({
-                      oidcToken: idToken,
-                      publicKey,
-                      providerName: "apple",
-                    })
-                      .then(() => resolve())
-                      .catch(reject);
-                    return;
-                  }
-                  resolve();
-                }
-              }
-            } catch (error) {
-              // Ignore cross-origin errors
-            }
-          }, 500);
-
-          if (authWindow.closed) {
-            clearInterval(interval);
-          }
-        });
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async function handleFacebookOauth(params?: {
-    clientId?: string;
-    openInPage?: boolean;
-    additionalState?: Record<string, string>;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }): Promise<void> {
-    const {
-      clientId = masterConfig?.auth?.oauthConfig?.facebookClientId,
-      openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
-      additionalState: additionalParameters,
-    } = params || {};
-    try {
-      if (!masterConfig) {
-        throw new TurnkeyError(
-          "Config is not ready yet!",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-      if (!clientId) {
-        throw new TurnkeyError(
-          "Facebook Client ID is not configured.",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
-        throw new TurnkeyError(
-          "OAuth Redirect URI is not configured.",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-
-      const flow = openInPage ? "redirect" : "popup";
-      const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri;
-
-      // Create key pair and generate nonce
-      const publicKey = await createApiKeyPair();
-      if (!publicKey) {
-        throw new Error("Failed to create public key for OAuth.");
-      }
-      const nonce = bytesToHex(sha256(publicKey));
-
-      // Generate PKCE challenge pair
-      const { verifier, codeChallenge } = await generateChallengePair();
-      // Store verifier for later token exchange
-      sessionStorage.setItem("facebook_verifier", verifier);
-
-      // Construct Facebook Auth URL
-      const facebookAuthUrl = new URL(FACEBOOK_AUTH_URL);
-      facebookAuthUrl.searchParams.set("client_id", clientId);
-      facebookAuthUrl.searchParams.set("redirect_uri", redirectURI);
-      facebookAuthUrl.searchParams.set("response_type", "code");
-      facebookAuthUrl.searchParams.set("code_challenge", codeChallenge);
-      facebookAuthUrl.searchParams.set("code_challenge_method", "S256");
-      facebookAuthUrl.searchParams.set("nonce", nonce);
-      facebookAuthUrl.searchParams.set("scope", "openid");
-
-      // Create state parameter
-      let state = `provider=facebook&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
-      if (additionalParameters) {
-        const additionalState = Object.entries(additionalParameters)
-          .map(
-            ([key, value]) =>
-              `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-          )
-          .join("&");
-        if (additionalState) {
-          state += `&${additionalState}`;
-        }
-      }
-      facebookAuthUrl.searchParams.set("state", state);
-
-      if (openInPage) {
-        // Redirect current page to Facebook Auth
-        window.location.href = facebookAuthUrl.toString();
-        return new Promise((_, reject) => {
-          // Set a timeout just in case the redirect doesn't happen
-          const timeout = setTimeout(() => {
-            reject(new Error("Authentication timed out."));
-          }, 300000); // 5 minutes
-
-          // If the page is unloaded (user navigates away), clear the timeout
-          window.addEventListener("beforeunload", () => clearTimeout(timeout));
-        });
-      } else {
-        // Open popup window
-        const width = popupWidth;
-        const height = popupHeight;
-        const left = window.screenX + (window.innerWidth - width) / 2;
-        const top = window.screenY + (window.innerHeight - height) / 2;
-
-        const authWindow = window.open(
-          "about:blank",
-          "_blank",
-          `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-        );
-
-        if (!authWindow) {
-          throw new Error("Failed to open Facebook login window.");
-        }
-
-        authWindow.location.href = facebookAuthUrl.toString();
-
-        // Return a promise that resolves when the OAuth flow completes
-        return new Promise<void>((resolve, reject) => {
-          const interval = setInterval(() => {
-            try {
-              // Check if window was closed without completing auth
-              if (authWindow.closed) {
-                clearInterval(interval);
-                reject(new Error("Authentication window was closed."));
-                return;
-              }
-
-              const url = authWindow.location.href || "";
-              if (url.startsWith(window.location.origin)) {
-                const urlParams = new URLSearchParams(new URL(url).search);
-                const authCode = urlParams.get("code");
-                const stateParam = urlParams.get("state");
-
-                if (
-                  authCode &&
-                  stateParam &&
-                  stateParam.includes("provider=facebook")
-                ) {
-                  authWindow.close();
-                  clearInterval(interval);
-
-                  // Exchange code for token
-                  const verifier = sessionStorage.getItem("facebook_verifier");
-                  if (!verifier) {
-                    reject(new Error("Missing PKCE verifier"));
-                    return;
-                  }
-
-                  exchangeCodeForToken(
-                    clientId,
-                    redirectURI,
-                    authCode,
-                    verifier,
-                  )
-                    .then((tokenData) => {
-                      sessionStorage.removeItem("facebook_verifier");
-
-                      if (params?.onOauthSuccess) {
-                        params.onOauthSuccess({
-                          oidcToken: tokenData.id_token,
-                          providerName: "apple",
-                        });
-                      } else if (callbacks?.onOauthRedirect) {
-                        callbacks.onOauthRedirect({
-                          idToken: tokenData.id_token,
-                          publicKey,
-                        });
-                      } else {
-                        completeOauth({
-                          oidcToken: tokenData.id_token,
-                          publicKey,
-                          providerName: "facebook",
-                        })
-                          .then(() => resolve())
-                          .catch(reject);
-                        return;
-                      }
-                      resolve();
-                    })
-                    .catch(reject);
-                }
-              }
-            } catch (error) {
-              // Ignore cross-origin errors
-            }
-          }, 500);
-
-          if (authWindow.closed) {
-            clearInterval(interval);
-          }
-        });
-      }
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  const handleLogin = async () => {
+  const handleLogin = useCallback(async () => {
     pushPage({
       key: "Log in or sign up",
       content: <AuthComponent />,
     });
-  };
+  }, [pushPage]);
 
-  const handleExportWallet = async (params: {
-    walletId: string;
-    targetPublicKey?: string;
-    stampWith?: StamperType | undefined;
-  }) => {
-    const { walletId, targetPublicKey, stampWith } = params;
-    pushPage({
-      key: "Export Wallet",
-      content: (
-        <ExportComponent
-          target={walletId}
-          exportType={ExportType.Wallet}
-          {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
-          {...(stampWith !== undefined ? { stampWith } : {})}
-        />
-      ),
-    });
-  };
-
-  const handleExportPrivateKey = async (params: {
-    privateKeyId: string;
-    targetPublicKey?: string;
-    stampWith?: StamperType | undefined;
-  }) => {
-    const { privateKeyId, targetPublicKey, stampWith } = params;
-    pushPage({
-      key: "Export Private Key",
-      content: (
-        <ExportComponent
-          target={privateKeyId}
-          exportType={ExportType.PrivateKey}
-          {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
-          {...(stampWith !== undefined ? { stampWith } : {})}
-        />
-      ),
-    });
-  };
-
-  const handleExportWalletAccount = async (params: {
-    address: string;
-    targetPublicKey?: string;
-    stampWith?: StamperType | undefined;
-  }) => {
-    const { address, targetPublicKey, stampWith } = params;
-    pushPage({
-      key: "Export Wallet Account",
-      content: (
-        <ExportComponent
-          target={address}
-          exportType={ExportType.WalletAccount}
-          {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
-          {...(stampWith !== undefined ? { stampWith } : {})}
-        />
-      ),
-    });
-  };
-
-  const handleImportWallet = async (params?: {
-    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-    successPageDuration?: number | undefined;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const {
-      defaultWalletAccounts,
-      successPageDuration = 2000,
-      stampWith,
-    } = params || {};
-    try {
-      return withTurnkeyErrorHandling(
-        () =>
-          new Promise<string>((resolve, reject) =>
-            pushPage({
-              key: "Import Wallet",
-              content: (
-                <ImportComponent
-                  onError={(error: unknown) => {
-                    reject(error);
-                  }}
-                  onSuccess={(walletId: string) => resolve(walletId)}
-                  {...(defaultWalletAccounts !== undefined && {
-                    defaultWalletAccounts,
-                  })}
-                  {...(successPageDuration !== undefined && {
-                    successPageDuration,
-                  })}
-                  {...(stampWith !== undefined && { stampWith })}
-                />
-              ),
-            }),
-          ),
-      );
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
-      }
-      throw new TurnkeyError(
-        "Failed to import wallet.",
-        TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-        error,
-      );
-    }
-  };
-
-  const handleUpdateUserName = async (params?: {
-    userName?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const {
-      successPageDuration = 2000,
-      subTitle,
-      title,
-      stampWith,
-    } = params || {};
-
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-
-    const onSuccess = () => {
-      if (!successPageDuration) return;
+  const handleExportWallet = useCallback(
+    async (params: {
+      walletId: string;
+      targetPublicKey?: string;
+      stampWith?: StamperType | undefined;
+    }) => {
+      const { walletId, targetPublicKey, stampWith } = params;
       pushPage({
-        key: "success",
+        key: "Export Wallet",
         content: (
-          <SuccessPage
-            text="User name changed successfully!"
-            duration={successPageDuration}
-            onComplete={() => {
-              closeModal();
-            }}
+          <ExportComponent
+            target={walletId}
+            exportType={ExportType.Wallet}
+            {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
+            {...(stampWith !== undefined ? { stampWith } : {})}
           />
         ),
-        preventBack: true,
-        showTitle: false,
       });
-    };
+    },
+    [pushPage],
+  );
 
-    try {
-      if (!params?.userName && params?.userName !== "") {
+  const handleExportPrivateKey = useCallback(
+    async (params: {
+      privateKeyId: string;
+      targetPublicKey?: string;
+      stampWith?: StamperType | undefined;
+    }) => {
+      const { privateKeyId, targetPublicKey, stampWith } = params;
+      pushPage({
+        key: "Export Private Key",
+        content: (
+          <ExportComponent
+            target={privateKeyId}
+            exportType={ExportType.PrivateKey}
+            {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
+            {...(stampWith !== undefined ? { stampWith } : {})}
+          />
+        ),
+      });
+    },
+    [pushPage],
+  );
+
+  const handleExportWalletAccount = useCallback(
+    async (params: {
+      address: string;
+      targetPublicKey?: string;
+      stampWith?: StamperType | undefined;
+    }) => {
+      const { address, targetPublicKey, stampWith } = params;
+      pushPage({
+        key: "Export Wallet Account",
+        content: (
+          <ExportComponent
+            target={address}
+            exportType={ExportType.WalletAccount}
+            {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
+            {...(stampWith !== undefined ? { stampWith } : {})}
+          />
+        ),
+      });
+    },
+    [pushPage],
+  );
+
+  const handleImportWallet = useCallback(
+    async (params?: {
+      defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
+      successPageDuration?: number | undefined;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      const {
+        defaultWalletAccounts,
+        successPageDuration = 2000,
+        stampWith,
+      } = params || {};
+      try {
         return withTurnkeyErrorHandling(
           () =>
-            new Promise((resolve, reject) => {
+            new Promise<string>((resolve, reject) =>
               pushPage({
-                key: "Update User Name",
+                key: "Import Wallet",
                 content: (
-                  <UpdateUserName
-                    onSuccess={(userId: string) => {
-                      resolve(userId);
-                    }}
+                  <ImportComponent
                     onError={(error: unknown) => {
                       reject(error);
                     }}
-                    successPageDuration={successPageDuration}
-                    stampWith={stampWith}
-                    {...(title !== undefined ? { title } : {})}
-                    {...(subTitle !== undefined ? { subTitle } : {})}
-                  />
-                ),
-                showTitle: false,
-              });
-            }),
-        );
-      } else {
-        const res = await updateUserName({
-          userName: params.userName!,
-          userId: user!.userId,
-          stampWith,
-        });
-        onSuccess();
-        return res;
-      }
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
-      }
-      throw new TurnkeyError(
-        "Failed to update user name.",
-        TurnkeyErrorCodes.UPDATE_USER_NAME_ERROR,
-        error,
-      );
-    }
-  };
-
-  const handleUpdateUserPhoneNumber = async (params?: {
-    phoneNumber?: string;
-    formattedPhone?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined;
-  }): Promise<string> => {
-    const { successPageDuration = 2000, subTitle, title } = params || {};
-
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
-      );
-    }
-
-    if (!masterConfig.auth?.methods?.smsOtpAuthEnabled) {
-      throw new TurnkeyError(
-        "SMS OTP authentication is not enabled in the configuration.",
-        TurnkeyErrorCodes.AUTH_METHOD_NOT_ENABLED,
-      );
-    }
-
-    const onSuccess = () => {
-      if (!successPageDuration) return;
-      pushPage({
-        key: "success",
-        content: (
-          <SuccessPage
-            text="Phone number changed successfully!"
-            duration={successPageDuration}
-            onComplete={() => {
-              closeModal();
-            }}
-          />
-        ),
-        preventBack: true,
-        showTitle: false,
-      });
-    };
-
-    try {
-      if (!params?.phoneNumber && params?.phoneNumber !== "") {
-        return withTurnkeyErrorHandling(
-          () =>
-            new Promise((resolve, reject) => {
-              pushPage({
-                key: "Update Phone Number",
-                content: (
-                  <UpdatePhoneNumber
-                    successPageDuration={successPageDuration}
-                    onSuccess={(userId: string) => resolve(userId)}
-                    onError={(error) => reject(error)}
-                    {...(title !== undefined ? { title } : {})}
-                    {...(subTitle !== undefined ? { subTitle } : {})}
-                  />
-                ),
-                showTitle: false,
-              });
-            }),
-        );
-      } else {
-        const otpId = await initOtp({
-          otpType: OtpType.Sms,
-          contact: params.phoneNumber,
-        });
-        return withTurnkeyErrorHandling(
-          () =>
-            new Promise((resolve, reject) => {
-              pushPage({
-                key: "Update Phone Number",
-                content: (
-                  <OtpVerification
-                    otpType={OtpType.Sms}
-                    contact={params.phoneNumber!}
-                    otpId={otpId}
-                    onContinue={async (otpCode: string) => {
-                      try {
-                        const { verificationToken } = await verifyOtp({
-                          otpId,
-                          otpCode,
-                          contact: params.phoneNumber!,
-                          otpType: OtpType.Sms,
-                        });
-                        const res = await updateUserPhoneNumber({
-                          phoneNumber: params.phoneNumber!,
-                          verificationToken,
-                          userId: user!.userId,
-                        });
-                        onSuccess();
-                        resolve(res);
-                      } catch (error) {
-                        reject(error);
-                      }
-                    }}
-                    {...(!user?.userPhoneNumber && {
-                      title: title ?? "Connect a phone number",
+                    onSuccess={(walletId: string) => resolve(walletId)}
+                    {...(defaultWalletAccounts !== undefined && {
+                      defaultWalletAccounts,
                     })}
-                    {...(subTitle !== undefined && { subTitle })}
-                    {...(params!.formattedPhone && {
-                      formattedPhone: params.formattedPhone,
+                    {...(successPageDuration !== undefined && {
+                      successPageDuration,
                     })}
+                    {...(stampWith !== undefined && { stampWith })}
                   />
                 ),
-                showTitle: false,
-              });
-            }),
-          callbacks,
-          "Failed to update phone number",
-        );
-      }
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
-      }
-      throw new TurnkeyError(
-        "Failed to initialize OTP for sms verification.",
-        TurnkeyErrorCodes.INIT_OTP_ERROR,
-        error,
-      );
-    }
-  };
-
-  const handleUpdateUserEmail = async (params?: {
-    email?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined;
-  }): Promise<string> => {
-    const { successPageDuration = 2000, subTitle, title } = params || {};
-
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-
-    const onSuccess = () => {
-      if (!successPageDuration) return;
-      pushPage({
-        key: "success",
-        content: (
-          <SuccessPage
-            text="Email changed successfully!"
-            duration={successPageDuration}
-            onComplete={() => {
-              closeModal();
-            }}
-          />
-        ),
-        preventBack: true,
-        showTitle: false,
-      });
-    };
-
-    try {
-      if (!params?.email && params?.email !== "") {
-        return withTurnkeyErrorHandling(
-          () =>
-            new Promise((resolve, reject) => {
-              pushPage({
-                key: "Update Email",
-                content: (
-                  <UpdateEmail
-                    successPageDuration={successPageDuration}
-                    onSuccess={(userId: string) => {
-                      resolve(userId);
-                    }}
-                    onError={(error) => reject(error)}
-                    {...(title !== undefined ? { title } : {})}
-                    {...(subTitle !== undefined ? { subTitle } : {})}
-                  />
-                ),
-                showTitle: false,
-              });
-            }),
-        );
-      } else {
-        const otpId = await initOtp({
-          otpType: OtpType.Email,
-          contact: params.email,
-        });
-        return withTurnkeyErrorHandling(
-          () =>
-            new Promise((resolve, reject) => {
-              pushPage({
-                key: "Update Email",
-                content: (
-                  <OtpVerification
-                    otpType={OtpType.Email}
-                    contact={params.email!}
-                    otpId={otpId}
-                    onContinue={async (otpCode: string) => {
-                      try {
-                        const { verificationToken } = await verifyOtp({
-                          otpId,
-                          otpCode,
-                          contact: params.email!,
-                          otpType: OtpType.Email,
-                        });
-                        const res = await updateUserEmail({
-                          email: params.email!,
-                          verificationToken,
-                          userId: user!.userId,
-                        });
-                        onSuccess();
-                        resolve(res);
-                      } catch (error) {
-                        reject(error);
-                      }
-                    }}
-                    {...(!user?.userEmail && {
-                      title: title ?? "Connect an email",
-                    })}
-                    {...(subTitle !== undefined && { subTitle })}
-                  />
-                ),
-                showTitle: false,
-              });
-            }),
-          callbacks,
-          "Failed to update email",
-        );
-      }
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
-      }
-      throw new TurnkeyError(
-        "Failed to initialize OTP for email verification.",
-        TurnkeyErrorCodes.INIT_OTP_ERROR,
-        error,
-      );
-    }
-  };
-
-  const handleAddEmail = async (params?: {
-    email?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined;
-  }): Promise<string> => {
-    const { successPageDuration = 2000, subTitle, title } = params || {};
-
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-
-    const onSuccess = () => {
-      if (!successPageDuration) return;
-      pushPage({
-        key: "success",
-        content: (
-          <SuccessPage
-            text="Email added successfully!"
-            duration={successPageDuration}
-            onComplete={() => {
-              closeModal();
-            }}
-          />
-        ),
-        preventBack: true,
-        showTitle: false,
-      });
-    };
-
-    try {
-      if (!params?.email && params?.email !== "") {
-        return withTurnkeyErrorHandling(
-          () =>
-            new Promise((resolve, reject) => {
-              pushPage({
-                key: "Add Email",
-                content: (
-                  <UpdateEmail
-                    successPageDuration={successPageDuration}
-                    onSuccess={(userId: string) => {
-                      resolve(userId);
-                    }}
-                    onError={(error) => reject(error)}
-                    {...(!user?.userEmail
-                      ? { title: title ?? "Connect an email" }
-                      : {})}
-                    {...(subTitle !== undefined ? { subTitle } : {})}
-                  />
-                ),
-                showTitle: false,
-              });
-            }),
-        );
-      } else {
-        const otpId = await initOtp({
-          otpType: OtpType.Email,
-          contact: params.email,
-        });
-        return withTurnkeyErrorHandling(
-          () =>
-            new Promise((resolve, reject) => {
-              pushPage({
-                key: "Add Email",
-                content: (
-                  <OtpVerification
-                    otpType={OtpType.Email}
-                    contact={params.email!}
-                    otpId={otpId}
-                    onContinue={async (otpCode: string) => {
-                      try {
-                        const { verificationToken } = await verifyOtp({
-                          otpId,
-                          otpCode,
-                          contact: params.email!,
-                          otpType: OtpType.Email,
-                        });
-                        const res = await updateUserEmail({
-                          email: params.email!,
-                          verificationToken,
-                          userId: user!.userId,
-                        });
-                        onSuccess();
-                        resolve(res);
-                      } catch (error) {
-                        reject(error);
-                      }
-                    }}
-                    {...(!user?.userEmail && {
-                      title: title ?? "Connect an email",
-                    })}
-                    {...(subTitle !== undefined && { subTitle })}
-                  />
-                ),
-                showTitle: false,
-              });
-            }),
-          callbacks,
-          "Failed to add email",
-        );
-      }
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
-      }
-      throw new TurnkeyError(
-        "Failed to initialize OTP for email verification.",
-        TurnkeyErrorCodes.INIT_OTP_ERROR,
-        error,
-      );
-    }
-  };
-
-  const handleAddPhoneNumber = async (params?: {
-    phoneNumber?: string;
-    formattedPhone?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined;
-  }): Promise<string> => {
-    const { successPageDuration = 2000, subTitle, title } = params || {};
-
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-    if (!masterConfig) {
-      throw new TurnkeyError(
-        "Config is not ready yet!",
-        TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
-      );
-    }
-
-    if (!masterConfig.auth?.methods?.smsOtpAuthEnabled) {
-      throw new TurnkeyError(
-        "SMS OTP authentication is not enabled in the configuration.",
-        TurnkeyErrorCodes.AUTH_METHOD_NOT_ENABLED,
-      );
-    }
-
-    const onSuccess = () => {
-      if (!successPageDuration) return;
-      pushPage({
-        key: "success",
-        content: (
-          <SuccessPage
-            text="Phone number updated successfully!"
-            duration={successPageDuration}
-            onComplete={() => {
-              closeModal();
-            }}
-          />
-        ),
-        preventBack: true,
-        showTitle: false,
-      });
-    };
-
-    try {
-      if (!params?.phoneNumber && params?.phoneNumber !== "") {
-        return withTurnkeyErrorHandling(
-          () =>
-            new Promise((resolve, reject) => {
-              pushPage({
-                key: "Add Phone Number",
-                content: (
-                  <UpdatePhoneNumber
-                    successPageDuration={successPageDuration}
-                    onSuccess={(userId: string) => {
-                      resolve(userId);
-                    }}
-                    onError={(error) => {
-                      reject(error);
-                    }}
-                    {...(!user?.userPhoneNumber && {
-                      title: title ?? "Connect a phone number",
-                    })}
-                    {...(subTitle !== undefined && { subTitle })}
-                  />
-                ),
-                showTitle: false,
-              });
-            }),
-          callbacks,
-          "Failed to add phone number",
-        );
-      } else {
-        const otpId = await initOtp({
-          otpType: OtpType.Sms,
-          contact: params.phoneNumber,
-        });
-        return withTurnkeyErrorHandling(
-          () =>
-            new Promise((resolve, reject) => {
-              pushPage({
-                key: "Add Phone Number",
-                content: (
-                  <OtpVerification
-                    otpType={OtpType.Sms}
-                    contact={params.phoneNumber!}
-                    otpId={otpId}
-                    onContinue={async (otpCode: string) => {
-                      try {
-                        const { verificationToken } = await verifyOtp({
-                          otpId,
-                          otpCode,
-                          contact: params.phoneNumber!,
-                          otpType: OtpType.Sms,
-                        });
-                        const res = await updateUserPhoneNumber({
-                          phoneNumber: params.phoneNumber!,
-                          verificationToken,
-                          userId: user!.userId,
-                        });
-                        onSuccess();
-                        resolve(res);
-                      } catch (error) {
-                        reject(error);
-                      }
-                    }}
-                    {...(!user?.userPhoneNumber && {
-                      title: title ?? "Connect a phone number",
-                    })}
-                    {...(subTitle !== undefined && { subTitle })}
-                    {...(params!.formattedPhone && {
-                      formattedPhone: params.formattedPhone,
-                    })}
-                  />
-                ),
-                showTitle: false,
-              });
-            }),
-          callbacks,
-          "Failed to add phone number",
-        );
-      }
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
-      }
-      throw new TurnkeyError(
-        "Failed to initialize OTP for sms verification.",
-        TurnkeyErrorCodes.INIT_OTP_ERROR,
-        error,
-      );
-    }
-  };
-
-  const handleRemovePasskey = async (params: {
-    authenticatorId: string;
-    userId?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
-    const {
-      authenticatorId,
-      successPageDuration = 2000,
-      subTitle,
-      title,
-      stampWith,
-      userId,
-    } = params;
-
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-    return withTurnkeyErrorHandling(
-      () =>
-        new Promise((resolve, reject) => {
-          pushPage({
-            key: "Remove Passkey",
-            content: (
-              <RemovePasskey
-                authenticatorId={authenticatorId}
-                successPageDuration={successPageDuration}
-                onSuccess={(authenticatorIds: string[]) => {
-                  resolve(authenticatorIds);
-                }}
-                onError={(error) => {
-                  reject(error);
-                }}
-                stampWith={stampWith}
-                {...(userId && { userId })}
-                {...(title !== undefined && { title })}
-                {...(subTitle !== undefined && { subTitle })}
-              />
+              }),
             ),
-            showTitle: false,
-            preventBack: true,
-          });
-        }),
-      callbacks,
-      "Failed to remove passkey",
-    );
-  };
+        );
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to import wallet.",
+          TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+          error,
+        );
+      }
+    },
+    [pushPage],
+  );
 
-  const handleAddPasskey = async (params?: {
-    name?: string;
-    displayName?: string;
-    userId?: string;
-    successPageDuration?: number | undefined;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
-    const {
-      name,
-      displayName,
-      successPageDuration = 2000,
-      stampWith,
-    } = params || {};
-
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-    const userId = params?.userId || session.userId;
-    try {
-      const resPromise = addPasskey({
-        ...(name && { name }),
-        ...(displayName && { displayName }),
-        userId,
+  const handleUpdateUserName = useCallback(
+    async (params?: {
+      userName?: string;
+      title?: string;
+      subTitle?: string;
+      successPageDuration?: number | undefined;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      const {
+        successPageDuration = 2000,
+        subTitle,
+        title,
         stampWith,
-      });
-      resPromise.then(() => {
+      } = params || {};
+
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+
+      const onSuccess = () => {
+        if (!successPageDuration) return;
         pushPage({
-          key: "Passkey Added",
+          key: "success",
           content: (
             <SuccessPage
-              text="Successfully added passkey!"
+              text="User name changed successfully!"
               duration={successPageDuration}
               onComplete={() => {
                 closeModal();
@@ -3506,281 +3010,991 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           preventBack: true,
           showTitle: false,
         });
-      });
-      return await resPromise;
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
-      }
-      throw new TurnkeyError(
-        "Failed to add passkey in handler.",
-        TurnkeyErrorCodes.ADD_PASSKEY_ERROR,
-        error,
-      );
-    }
-  };
+      };
 
-  const handleRemoveOauthProvider = async (params: {
-    providerId: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
-    const {
-      providerId,
-      successPageDuration = 2000,
-      subTitle,
-      title,
-      stampWith,
-    } = params;
-
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-    try {
-      return new Promise((resolve, reject) => {
-        pushPage({
-          key: "Remove OAuth Provider",
-          content: (
-            <RemoveOAuthProvider
-              providerId={providerId}
-              stampWith={stampWith}
-              successPageDuration={successPageDuration}
-              onSuccess={(providerIds: string[]) => {
-                resolve(providerIds);
-              }}
-              onError={(error: unknown) => {
-                reject(error);
-              }}
-              {...(title !== undefined && { title })}
-              {...(subTitle !== undefined && { subTitle })}
-            />
-          ),
-          showTitle: false,
-          preventBack: true,
-        });
-      });
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
-      }
-      throw new TurnkeyError(
-        "Failed to remove OAuth provider in handler.",
-        TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR,
-        error,
-      );
-    }
-  };
-
-  const handleAddOauthProvider = async (params: {
-    providerName: OAuthProviders;
-    stampWith?: StamperType | undefined;
-  }): Promise<void> => {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-
-    const { providerName, stampWith } = params;
-
-    const onOauthSuccess = async (params: {
-      providerName: string;
-      oidcToken: string;
-    }) => {
-      await addOauthProvider({
-        providerName: params.providerName,
-        oidcToken: params.oidcToken,
-        stampWith,
-      });
-      pushPage({
-        key: "OAuth Provider Added",
-        content: (
-          <SuccessPage
-            text={`Successfully added ${params.providerName} OAuth provider!`}
-            duration={3000}
-            onComplete={() => {
-              closeModal();
-            }}
-          />
-        ),
-        preventBack: true,
-        showTitle: false,
-      });
-    };
-
-    switch (providerName) {
-      case OAuthProviders.GOOGLE: {
-        await handleGoogleOauth({
-          openInPage: false,
-          onOauthSuccess,
-        });
-        break;
-      }
-      case OAuthProviders.APPLE: {
-        await handleAppleOauth({
-          openInPage: false,
-          onOauthSuccess,
-        });
-        break;
-      }
-      case OAuthProviders.FACEBOOK: {
-        await handleFacebookOauth({
-          openInPage: false,
-          onOauthSuccess,
-        });
-        break;
-      }
-      default: {
+      try {
+        if (!params?.userName && params?.userName !== "") {
+          return withTurnkeyErrorHandling(
+            () =>
+              new Promise((resolve, reject) => {
+                pushPage({
+                  key: "Update User Name",
+                  content: (
+                    <UpdateUserName
+                      onSuccess={(userId: string) => {
+                        resolve(userId);
+                      }}
+                      onError={(error: unknown) => {
+                        reject(error);
+                      }}
+                      successPageDuration={successPageDuration}
+                      stampWith={stampWith}
+                      {...(title !== undefined ? { title } : {})}
+                      {...(subTitle !== undefined ? { subTitle } : {})}
+                    />
+                  ),
+                  showTitle: false,
+                });
+              }),
+          );
+        } else {
+          const res = await updateUserName({
+            userName: params.userName!,
+            userId: user!.userId,
+            stampWith,
+          });
+          onSuccess();
+          return res;
+        }
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
         throw new TurnkeyError(
-          `Unsupported OAuth provider: ${providerName}`,
-          TurnkeyErrorCodes.NOT_FOUND,
+          "Failed to update user name.",
+          TurnkeyErrorCodes.UPDATE_USER_NAME_ERROR,
+          error,
         );
       }
-    }
-  };
+    },
+    [pushPage],
+  );
 
-  const handleLinkExternalWallet = async (params?: {
-    successPageDuration?: number | undefined;
-  }): Promise<void> => {
-    const { successPageDuration = 2000 } = params || {};
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
-    if (!masterConfig?.walletConfig?.features?.connecting) {
-      throw new TurnkeyError(
-        "Wallet connecting is not enabled.",
-        TurnkeyErrorCodes.FEATURE_NOT_ENABLED,
-      );
-    }
+  const handleUpdateUserPhoneNumber = useCallback(
+    async (params?: {
+      phoneNumber?: string;
+      formattedPhone?: string;
+      title?: string;
+      subTitle?: string;
+      successPageDuration?: number | undefined;
+    }): Promise<string> => {
+      const { successPageDuration = 2000, subTitle, title } = params || {};
 
-    const providers = await getWalletProviders();
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
 
-    pushPage({
-      key: "Link Wallet",
-      content: (
-        <LinkWalletModal
-          providers={providers}
-          successPageDuration={successPageDuration}
-        />
-      ),
-    });
-  };
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
 
-  const handleRemoveUserEmail = async (params?: {
-    userId?: string;
-    successPageDuration?: number | undefined;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const { successPageDuration = 2000, stampWith, userId } = params || {};
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
+        );
+      }
 
-    try {
-      return new Promise((resolve, reject) => {
+      if (!masterConfig.auth?.methods?.smsOtpAuthEnabled) {
+        throw new TurnkeyError(
+          "SMS OTP authentication is not enabled in the configuration.",
+          TurnkeyErrorCodes.AUTH_METHOD_NOT_ENABLED,
+        );
+      }
+
+      const onSuccess = () => {
+        if (!successPageDuration) return;
         pushPage({
-          key: "Remove Email",
+          key: "success",
           content: (
-            <RemoveEmail
-              successPageDuration={successPageDuration}
-              {...(userId && { userId })}
-              {...(stampWith && { stampWith })}
-              onSuccess={(userId: string) => {
-                resolve(userId);
-              }}
-              onError={(error: unknown) => {
-                reject(error);
+            <SuccessPage
+              text="Phone number changed successfully!"
+              duration={successPageDuration}
+              onComplete={() => {
+                closeModal();
               }}
             />
           ),
-          showTitle: false,
           preventBack: true,
+          showTitle: false,
         });
-      });
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
+      };
+
+      try {
+        if (!params?.phoneNumber && params?.phoneNumber !== "") {
+          return withTurnkeyErrorHandling(
+            () =>
+              new Promise((resolve, reject) => {
+                pushPage({
+                  key: "Update Phone Number",
+                  content: (
+                    <UpdatePhoneNumber
+                      successPageDuration={successPageDuration}
+                      onSuccess={(userId: string) => resolve(userId)}
+                      onError={(error) => reject(error)}
+                      {...(title !== undefined ? { title } : {})}
+                      {...(subTitle !== undefined ? { subTitle } : {})}
+                    />
+                  ),
+                  showTitle: false,
+                });
+              }),
+          );
+        } else {
+          const otpId = await initOtp({
+            otpType: OtpType.Sms,
+            contact: params.phoneNumber,
+          });
+          return withTurnkeyErrorHandling(
+            () =>
+              new Promise((resolve, reject) => {
+                pushPage({
+                  key: "Update Phone Number",
+                  content: (
+                    <OtpVerification
+                      otpType={OtpType.Sms}
+                      contact={params.phoneNumber!}
+                      otpId={otpId}
+                      onContinue={async (otpCode: string) => {
+                        try {
+                          const { verificationToken } = await verifyOtp({
+                            otpId,
+                            otpCode,
+                            contact: params.phoneNumber!,
+                            otpType: OtpType.Sms,
+                          });
+                          const res = await updateUserPhoneNumber({
+                            phoneNumber: params.phoneNumber!,
+                            verificationToken,
+                            userId: user!.userId,
+                          });
+                          onSuccess();
+                          resolve(res);
+                        } catch (error) {
+                          reject(error);
+                        }
+                      }}
+                      {...(!user?.userPhoneNumber && {
+                        title: title ?? "Connect a phone number",
+                      })}
+                      {...(subTitle !== undefined && { subTitle })}
+                      {...(params!.formattedPhone && {
+                        formattedPhone: params.formattedPhone,
+                      })}
+                    />
+                  ),
+                  showTitle: false,
+                });
+              }),
+            callbacks,
+            "Failed to update phone number",
+          );
+        }
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to initialize OTP for sms verification.",
+          TurnkeyErrorCodes.INIT_OTP_ERROR,
+          error,
+        );
       }
-      throw new TurnkeyError(
-        "Failed to remove user email.",
-        TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR,
-        error,
-      );
-    }
-  };
+    },
+    [pushPage],
+  );
 
-  const handleRemoveUserPhoneNumber = async (params?: {
-    userId?: string;
-    successPageDuration?: number | undefined;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const { successPageDuration = 2000, stampWith, userId } = params || {};
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
+  const handleUpdateUserEmail = useCallback(
+    async (params?: {
+      email?: string;
+      title?: string;
+      subTitle?: string;
+      successPageDuration?: number | undefined;
+    }): Promise<string> => {
+      const { successPageDuration = 2000, subTitle, title } = params || {};
 
-    try {
-      return new Promise((resolve, reject) => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+
+      const onSuccess = () => {
+        if (!successPageDuration) return;
         pushPage({
-          key: "Remove Phone Number",
+          key: "success",
           content: (
-            <RemovePhoneNumber
-              successPageDuration={successPageDuration}
-              {...(userId && { userId })}
-              {...(stampWith && { stampWith })}
-              onSuccess={(userId: string) => {
-                resolve(userId);
-              }}
-              onError={(error: unknown) => {
-                reject(error);
+            <SuccessPage
+              text="Email changed successfully!"
+              duration={successPageDuration}
+              onComplete={() => {
+                closeModal();
               }}
             />
           ),
-          showTitle: false,
           preventBack: true,
+          showTitle: false,
         });
-      });
-    } catch (error) {
-      if (error instanceof TurnkeyError) {
-        throw error;
+      };
+
+      try {
+        if (!params?.email && params?.email !== "") {
+          return withTurnkeyErrorHandling(
+            () =>
+              new Promise((resolve, reject) => {
+                pushPage({
+                  key: "Update Email",
+                  content: (
+                    <UpdateEmail
+                      successPageDuration={successPageDuration}
+                      onSuccess={(userId: string) => {
+                        resolve(userId);
+                      }}
+                      onError={(error) => reject(error)}
+                      {...(title !== undefined ? { title } : {})}
+                      {...(subTitle !== undefined ? { subTitle } : {})}
+                    />
+                  ),
+                  showTitle: false,
+                });
+              }),
+          );
+        } else {
+          const otpId = await initOtp({
+            otpType: OtpType.Email,
+            contact: params.email,
+          });
+          return withTurnkeyErrorHandling(
+            () =>
+              new Promise((resolve, reject) => {
+                pushPage({
+                  key: "Update Email",
+                  content: (
+                    <OtpVerification
+                      otpType={OtpType.Email}
+                      contact={params.email!}
+                      otpId={otpId}
+                      onContinue={async (otpCode: string) => {
+                        try {
+                          const { verificationToken } = await verifyOtp({
+                            otpId,
+                            otpCode,
+                            contact: params.email!,
+                            otpType: OtpType.Email,
+                          });
+                          const res = await updateUserEmail({
+                            email: params.email!,
+                            verificationToken,
+                            userId: user!.userId,
+                          });
+                          onSuccess();
+                          resolve(res);
+                        } catch (error) {
+                          reject(error);
+                        }
+                      }}
+                      {...(!user?.userEmail && {
+                        title: title ?? "Connect an email",
+                      })}
+                      {...(subTitle !== undefined && { subTitle })}
+                    />
+                  ),
+                  showTitle: false,
+                });
+              }),
+            callbacks,
+            "Failed to update email",
+          );
+        }
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to initialize OTP for email verification.",
+          TurnkeyErrorCodes.INIT_OTP_ERROR,
+          error,
+        );
       }
-      throw new TurnkeyError(
-        "Failed to remove user phone number.",
-        TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
-        error,
+    },
+    [pushPage],
+  );
+
+  const handleAddEmail = useCallback(
+    async (params?: {
+      email?: string;
+      title?: string;
+      subTitle?: string;
+      successPageDuration?: number | undefined;
+    }): Promise<string> => {
+      const { successPageDuration = 2000, subTitle, title } = params || {};
+
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+
+      const onSuccess = () => {
+        if (!successPageDuration) return;
+        pushPage({
+          key: "success",
+          content: (
+            <SuccessPage
+              text="Email added successfully!"
+              duration={successPageDuration}
+              onComplete={() => {
+                closeModal();
+              }}
+            />
+          ),
+          preventBack: true,
+          showTitle: false,
+        });
+      };
+
+      try {
+        if (!params?.email && params?.email !== "") {
+          return withTurnkeyErrorHandling(
+            () =>
+              new Promise((resolve, reject) => {
+                pushPage({
+                  key: "Add Email",
+                  content: (
+                    <UpdateEmail
+                      successPageDuration={successPageDuration}
+                      onSuccess={(userId: string) => {
+                        resolve(userId);
+                      }}
+                      onError={(error) => reject(error)}
+                      {...(!user?.userEmail
+                        ? { title: title ?? "Connect an email" }
+                        : {})}
+                      {...(subTitle !== undefined ? { subTitle } : {})}
+                    />
+                  ),
+                  showTitle: false,
+                });
+              }),
+          );
+        } else {
+          const otpId = await initOtp({
+            otpType: OtpType.Email,
+            contact: params.email,
+          });
+          return withTurnkeyErrorHandling(
+            () =>
+              new Promise((resolve, reject) => {
+                pushPage({
+                  key: "Add Email",
+                  content: (
+                    <OtpVerification
+                      otpType={OtpType.Email}
+                      contact={params.email!}
+                      otpId={otpId}
+                      onContinue={async (otpCode: string) => {
+                        try {
+                          const { verificationToken } = await verifyOtp({
+                            otpId,
+                            otpCode,
+                            contact: params.email!,
+                            otpType: OtpType.Email,
+                          });
+                          const res = await updateUserEmail({
+                            email: params.email!,
+                            verificationToken,
+                            userId: user!.userId,
+                          });
+                          onSuccess();
+                          resolve(res);
+                        } catch (error) {
+                          reject(error);
+                        }
+                      }}
+                      {...(!user?.userEmail && {
+                        title: title ?? "Connect an email",
+                      })}
+                      {...(subTitle !== undefined && { subTitle })}
+                    />
+                  ),
+                  showTitle: false,
+                });
+              }),
+            callbacks,
+            "Failed to add email",
+          );
+        }
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to initialize OTP for email verification.",
+          TurnkeyErrorCodes.INIT_OTP_ERROR,
+          error,
+        );
+      }
+    },
+    [pushPage],
+  );
+
+  const handleAddPhoneNumber = useCallback(
+    async (params?: {
+      phoneNumber?: string;
+      formattedPhone?: string;
+      title?: string;
+      subTitle?: string;
+      successPageDuration?: number | undefined;
+    }): Promise<string> => {
+      const { successPageDuration = 2000, subTitle, title } = params || {};
+
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
+        );
+      }
+
+      if (!masterConfig.auth?.methods?.smsOtpAuthEnabled) {
+        throw new TurnkeyError(
+          "SMS OTP authentication is not enabled in the configuration.",
+          TurnkeyErrorCodes.AUTH_METHOD_NOT_ENABLED,
+        );
+      }
+
+      const onSuccess = () => {
+        if (!successPageDuration) return;
+        pushPage({
+          key: "success",
+          content: (
+            <SuccessPage
+              text="Phone number updated successfully!"
+              duration={successPageDuration}
+              onComplete={() => {
+                closeModal();
+              }}
+            />
+          ),
+          preventBack: true,
+          showTitle: false,
+        });
+      };
+
+      try {
+        if (!params?.phoneNumber && params?.phoneNumber !== "") {
+          return withTurnkeyErrorHandling(
+            () =>
+              new Promise((resolve, reject) => {
+                pushPage({
+                  key: "Add Phone Number",
+                  content: (
+                    <UpdatePhoneNumber
+                      successPageDuration={successPageDuration}
+                      onSuccess={(userId: string) => {
+                        resolve(userId);
+                      }}
+                      onError={(error) => {
+                        reject(error);
+                      }}
+                      {...(!user?.userPhoneNumber && {
+                        title: title ?? "Connect a phone number",
+                      })}
+                      {...(subTitle !== undefined && { subTitle })}
+                    />
+                  ),
+                  showTitle: false,
+                });
+              }),
+            callbacks,
+            "Failed to add phone number",
+          );
+        } else {
+          const otpId = await initOtp({
+            otpType: OtpType.Sms,
+            contact: params.phoneNumber,
+          });
+          return withTurnkeyErrorHandling(
+            () =>
+              new Promise((resolve, reject) => {
+                pushPage({
+                  key: "Add Phone Number",
+                  content: (
+                    <OtpVerification
+                      otpType={OtpType.Sms}
+                      contact={params.phoneNumber!}
+                      otpId={otpId}
+                      onContinue={async (otpCode: string) => {
+                        try {
+                          const { verificationToken } = await verifyOtp({
+                            otpId,
+                            otpCode,
+                            contact: params.phoneNumber!,
+                            otpType: OtpType.Sms,
+                          });
+                          const res = await updateUserPhoneNumber({
+                            phoneNumber: params.phoneNumber!,
+                            verificationToken,
+                            userId: user!.userId,
+                          });
+                          onSuccess();
+                          resolve(res);
+                        } catch (error) {
+                          reject(error);
+                        }
+                      }}
+                      {...(!user?.userPhoneNumber && {
+                        title: title ?? "Connect a phone number",
+                      })}
+                      {...(subTitle !== undefined && { subTitle })}
+                      {...(params!.formattedPhone && {
+                        formattedPhone: params.formattedPhone,
+                      })}
+                    />
+                  ),
+                  showTitle: false,
+                });
+              }),
+            callbacks,
+            "Failed to add phone number",
+          );
+        }
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to initialize OTP for sms verification.",
+          TurnkeyErrorCodes.INIT_OTP_ERROR,
+          error,
+        );
+      }
+    },
+    [pushPage],
+  );
+
+  const handleRemovePasskey = useCallback(
+    async (params: {
+      authenticatorId: string;
+      userId?: string;
+      title?: string;
+      subTitle?: string;
+      successPageDuration?: number | undefined;
+      stampWith?: StamperType | undefined;
+    }): Promise<string[]> => {
+      const {
+        authenticatorId,
+        successPageDuration = 2000,
+        subTitle,
+        title,
+        stampWith,
+        userId,
+      } = params;
+
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        () =>
+          new Promise((resolve, reject) => {
+            pushPage({
+              key: "Remove Passkey",
+              content: (
+                <RemovePasskey
+                  authenticatorId={authenticatorId}
+                  successPageDuration={successPageDuration}
+                  onSuccess={(authenticatorIds: string[]) => {
+                    resolve(authenticatorIds);
+                  }}
+                  onError={(error) => {
+                    reject(error);
+                  }}
+                  stampWith={stampWith}
+                  {...(userId && { userId })}
+                  {...(title !== undefined && { title })}
+                  {...(subTitle !== undefined && { subTitle })}
+                />
+              ),
+              showTitle: false,
+              preventBack: true,
+            });
+          }),
+        callbacks,
+        "Failed to remove passkey",
       );
-    }
-  };
+    },
+    [pushPage],
+  );
+
+  const handleAddPasskey = useCallback(
+    async (params?: {
+      name?: string;
+      displayName?: string;
+      userId?: string;
+      successPageDuration?: number | undefined;
+      stampWith?: StamperType | undefined;
+    }): Promise<string[]> => {
+      const {
+        name,
+        displayName,
+        successPageDuration = 2000,
+        stampWith,
+      } = params || {};
+
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+      const userId = params?.userId || session.userId;
+      try {
+        const resPromise = addPasskey({
+          ...(name && { name }),
+          ...(displayName && { displayName }),
+          userId,
+          stampWith,
+        });
+        resPromise.then(() => {
+          pushPage({
+            key: "Passkey Added",
+            content: (
+              <SuccessPage
+                text="Successfully added passkey!"
+                duration={successPageDuration}
+                onComplete={() => {
+                  closeModal();
+                }}
+              />
+            ),
+            preventBack: true,
+            showTitle: false,
+          });
+        });
+        return await resPromise;
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to add passkey in handler.",
+          TurnkeyErrorCodes.ADD_PASSKEY_ERROR,
+          error,
+        );
+      }
+    },
+    [pushPage],
+  );
+
+  const handleRemoveOauthProvider = useCallback(
+    async (params: {
+      providerId: string;
+      title?: string;
+      subTitle?: string;
+      successPageDuration?: number | undefined;
+      stampWith?: StamperType | undefined;
+    }): Promise<string[]> => {
+      const {
+        providerId,
+        successPageDuration = 2000,
+        subTitle,
+        title,
+        stampWith,
+      } = params;
+
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+      try {
+        return new Promise((resolve, reject) => {
+          pushPage({
+            key: "Remove OAuth Provider",
+            content: (
+              <RemoveOAuthProvider
+                providerId={providerId}
+                stampWith={stampWith}
+                successPageDuration={successPageDuration}
+                onSuccess={(providerIds: string[]) => {
+                  resolve(providerIds);
+                }}
+                onError={(error: unknown) => {
+                  reject(error);
+                }}
+                {...(title !== undefined && { title })}
+                {...(subTitle !== undefined && { subTitle })}
+              />
+            ),
+            showTitle: false,
+            preventBack: true,
+          });
+        });
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to remove OAuth provider in handler.",
+          TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR,
+          error,
+        );
+      }
+    },
+    [pushPage],
+  );
+
+  const handleAddOauthProvider = useCallback(
+    async (params: {
+      providerName: OAuthProviders;
+      stampWith?: StamperType | undefined;
+    }): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+
+      const { providerName, stampWith } = params;
+
+      const onOauthSuccess = async (params: {
+        providerName: string;
+        oidcToken: string;
+      }) => {
+        await addOauthProvider({
+          providerName: params.providerName,
+          oidcToken: params.oidcToken,
+          stampWith,
+        });
+        pushPage({
+          key: "OAuth Provider Added",
+          content: (
+            <SuccessPage
+              text={`Successfully added ${params.providerName} OAuth provider!`}
+              duration={3000}
+              onComplete={() => {
+                closeModal();
+              }}
+            />
+          ),
+          preventBack: true,
+          showTitle: false,
+        });
+      };
+
+      switch (providerName) {
+        case OAuthProviders.GOOGLE: {
+          await handleGoogleOauth({
+            openInPage: false,
+            onOauthSuccess,
+          });
+          break;
+        }
+        case OAuthProviders.APPLE: {
+          await handleAppleOauth({
+            openInPage: false,
+            onOauthSuccess,
+          });
+          break;
+        }
+        case OAuthProviders.FACEBOOK: {
+          await handleFacebookOauth({
+            openInPage: false,
+            onOauthSuccess,
+          });
+          break;
+        }
+        default: {
+          throw new TurnkeyError(
+            `Unsupported OAuth provider: ${providerName}`,
+            TurnkeyErrorCodes.NOT_FOUND,
+          );
+        }
+      }
+    },
+    [pushPage],
+  );
+
+  const handleLinkExternalWallet = useCallback(
+    async (params?: {
+      successPageDuration?: number | undefined;
+    }): Promise<void> => {
+      const { successPageDuration = 2000 } = params || {};
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+      if (!masterConfig?.walletConfig?.features?.connecting) {
+        throw new TurnkeyError(
+          "Wallet connecting is not enabled.",
+          TurnkeyErrorCodes.FEATURE_NOT_ENABLED,
+        );
+      }
+
+      const providers = await getWalletProviders();
+
+      pushPage({
+        key: "Link Wallet",
+        content: (
+          <LinkWalletModal
+            providers={providers}
+            successPageDuration={successPageDuration}
+          />
+        ),
+      });
+    },
+    [pushPage],
+  );
+
+  const handleRemoveUserEmail = useCallback(
+    async (params?: {
+      userId?: string;
+      successPageDuration?: number | undefined;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      const { successPageDuration = 2000, stampWith, userId } = params || {};
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+
+      try {
+        return new Promise((resolve, reject) => {
+          pushPage({
+            key: "Remove Email",
+            content: (
+              <RemoveEmail
+                successPageDuration={successPageDuration}
+                {...(userId && { userId })}
+                {...(stampWith && { stampWith })}
+                onSuccess={(userId: string) => {
+                  resolve(userId);
+                }}
+                onError={(error: unknown) => {
+                  reject(error);
+                }}
+              />
+            ),
+            showTitle: false,
+            preventBack: true,
+          });
+        });
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to remove user email.",
+          TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR,
+          error,
+        );
+      }
+    },
+    [pushPage],
+  );
+
+  const handleRemoveUserPhoneNumber = useCallback(
+    async (params?: {
+      userId?: string;
+      successPageDuration?: number | undefined;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      const { successPageDuration = 2000, stampWith, userId } = params || {};
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+
+      try {
+        return new Promise((resolve, reject) => {
+          pushPage({
+            key: "Remove Phone Number",
+            content: (
+              <RemovePhoneNumber
+                successPageDuration={successPageDuration}
+                {...(userId && { userId })}
+                {...(stampWith && { stampWith })}
+                onSuccess={(userId: string) => {
+                  resolve(userId);
+                }}
+                onError={(error: unknown) => {
+                  reject(error);
+                }}
+              />
+            ),
+            showTitle: false,
+            preventBack: true,
+          });
+        });
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to remove user phone number.",
+          TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
+          error,
+        );
+      }
+    },
+    [pushPage],
+  );
 
   useEffect(() => {
     if (proxyAuthConfigRef.current) return;
