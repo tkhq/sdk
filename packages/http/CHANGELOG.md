@@ -1,5 +1,18 @@
 # @turnkey/http
 
+## 3.10.0-beta.2
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/webauthn-stamper@0.6.0-beta.0
+  - @turnkey/api-key-stamper@0.5.0-beta.5
+  - @turnkey/encoding@0.6.0-beta.5
+
 ## 3.10.0-beta.1
 
 ### Minor Changes

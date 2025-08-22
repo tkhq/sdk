@@ -1,5 +1,17 @@
 # @turnkey/indexed-db-stamper
 
+## 1.2.0-beta.5
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.5.0-beta.5
+  - @turnkey/encoding@0.6.0-beta.5
+
 ## 1.1.2-beta.4
 
 ### Patch Changes
