@@ -5,15 +5,15 @@
 
 export type paths = {
   "/public/v1/query/get_activity": {
-    /** Get details about an Activity */
+    /** Get details about an activity. */
     post: operations["PublicApiService_GetActivity"];
   };
   "/public/v1/query/get_api_key": {
-    /** Get details about an API key */
+    /** Get details about an API key. */
     post: operations["PublicApiService_GetApiKey"];
   };
   "/public/v1/query/get_api_keys": {
-    /** Get details about API keys for a user */
+    /** Get details about API keys for a user. */
     post: operations["PublicApiService_GetApiKeys"];
   };
   "/public/v1/query/get_attestation": {
@@ -21,71 +21,71 @@ export type paths = {
     post: operations["PublicApiService_GetAttestationDocument"];
   };
   "/public/v1/query/get_authenticator": {
-    /** Get details about an authenticator */
+    /** Get details about an authenticator. */
     post: operations["PublicApiService_GetAuthenticator"];
   };
   "/public/v1/query/get_authenticators": {
-    /** Get details about authenticators for a user */
+    /** Get details about authenticators for a user. */
     post: operations["PublicApiService_GetAuthenticators"];
   };
   "/public/v1/query/get_oauth_providers": {
-    /** Get details about Oauth providers for a user */
+    /** Get details about Oauth providers for a user. */
     post: operations["PublicApiService_GetOauthProviders"];
   };
   "/public/v1/query/get_organization": {
-    /** Get details about an Organization */
+    /** Get details about an organization. */
     post: operations["PublicApiService_GetOrganization"];
   };
   "/public/v1/query/get_organization_configs": {
-    /** Get quorum settings and features for an organization */
+    /** Get quorum settings and features for an organization. */
     post: operations["PublicApiService_GetOrganizationConfigs"];
   };
   "/public/v1/query/get_policy": {
-    /** Get details about a Policy */
+    /** Get details about a policy. */
     post: operations["PublicApiService_GetPolicy"];
   };
+  "/public/v1/query/get_policy_evaluations": {
+    /** Get the policy evaluations for an activity. */
+    post: operations["PublicApiService_GetPolicyEvaluations"];
+  };
   "/public/v1/query/get_private_key": {
-    /** Get details about a Private Key */
+    /** Get details about a private key. */
     post: operations["PublicApiService_GetPrivateKey"];
   };
-  "/public/v1/query/get_proxy_auth_config": {
-    /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
-    post: operations["PublicApiService_GetProxyAuthConfig"];
-  };
   "/public/v1/query/get_smart_contract_interface": {
-    /** Get details about a Smart Contract Interface */
+    /** Get details about a smart contract interface. */
     post: operations["PublicApiService_GetSmartContractInterface"];
   };
   "/public/v1/query/get_user": {
-    /** Get details about a User */
+    /** Get details about a user. */
     post: operations["PublicApiService_GetUser"];
   };
   "/public/v1/query/get_wallet": {
-    /** Get details about a Wallet */
+    /** Get details about a wallet. */
     post: operations["PublicApiService_GetWallet"];
   };
   "/public/v1/query/get_wallet_account": {
-    /** Get a single wallet account */
+    /** Get a single wallet account. */
     post: operations["PublicApiService_GetWalletAccount"];
   };
   "/public/v1/query/list_activities": {
-    /** List all Activities within an Organization */
+    /** List all activities within an organization. */
     post: operations["PublicApiService_GetActivities"];
   };
   "/public/v1/query/list_policies": {
-    /** List all Policies within an Organization */
+    /** List all policies within an organization. */
     post: operations["PublicApiService_GetPolicies"];
   };
   "/public/v1/query/list_private_key_tags": {
-    /** List all Private Key Tags within an Organization */
+    /** List all private key tags within an organization. */
     post: operations["PublicApiService_ListPrivateKeyTags"];
   };
   "/public/v1/query/list_private_keys": {
-    /** List all Private Keys within an Organization */
+    /** List all private keys within an organization. */
     post: operations["PublicApiService_GetPrivateKeys"];
   };
   "/public/v1/query/list_smart_contract_interfaces": {
-    /** List all Smart Contract Interfaces within an Organization */
+    /** List all smart contract interfaces within an organization. */
     post: operations["PublicApiService_GetSmartContractInterfaces"];
   };
   "/public/v1/query/list_suborgs": {
@@ -93,11 +93,11 @@ export type paths = {
     post: operations["PublicApiService_GetSubOrgIds"];
   };
   "/public/v1/query/list_user_tags": {
-    /** List all User Tags within an Organization */
+    /** List all user tags within an organization. */
     post: operations["PublicApiService_ListUserTags"];
   };
   "/public/v1/query/list_users": {
-    /** List all Users within an Organization */
+    /** List all users within an organization. */
     post: operations["PublicApiService_GetUsers"];
   };
   "/public/v1/query/list_verified_suborgs": {
@@ -105,47 +105,47 @@ export type paths = {
     post: operations["PublicApiService_GetVerifiedSubOrgIds"];
   };
   "/public/v1/query/list_wallet_accounts": {
-    /** List all Accounts within a Wallet */
+    /** List all accounts within a wallet. */
     post: operations["PublicApiService_GetWalletAccounts"];
   };
   "/public/v1/query/list_wallets": {
-    /** List all Wallets within an Organization */
+    /** List all wallets within an organization. */
     post: operations["PublicApiService_GetWallets"];
   };
   "/public/v1/query/whoami": {
-    /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users. */
+    /** Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users. */
     post: operations["PublicApiService_GetWhoami"];
   };
   "/public/v1/submit/approve_activity": {
-    /** Approve an Activity */
+    /** Approve an activity. */
     post: operations["PublicApiService_ApproveActivity"];
   };
   "/public/v1/submit/create_api_keys": {
-    /** Add api keys to an existing User */
+    /** Add API keys to an existing user. */
     post: operations["PublicApiService_CreateApiKeys"];
   };
   "/public/v1/submit/create_api_only_users": {
-    /** Create API-only Users in an existing Organization */
+    /** Create API-only users in an existing organization. */
     post: operations["PublicApiService_CreateApiOnlyUsers"];
   };
   "/public/v1/submit/create_authenticators": {
-    /** Create Authenticators to authenticate requests to Turnkey */
+    /** Create authenticators to authenticate requests to Turnkey. */
     post: operations["PublicApiService_CreateAuthenticators"];
   };
   "/public/v1/submit/create_invitations": {
-    /** Create Invitations to join an existing Organization */
+    /** Create invitations to join an existing organization. */
     post: operations["PublicApiService_CreateInvitations"];
   };
   "/public/v1/submit/create_oauth_providers": {
-    /** Creates Oauth providers for a specified user - BETA */
+    /** Create Oauth providers for a specified user. */
     post: operations["PublicApiService_CreateOauthProviders"];
   };
   "/public/v1/submit/create_policies": {
-    /** Create new Policies */
+    /** Create new policies. */
     post: operations["PublicApiService_CreatePolicies"];
   };
   "/public/v1/submit/create_policy": {
-    /** Create a new Policy */
+    /** Create a new policy. */
     post: operations["PublicApiService_CreatePolicy"];
   };
   "/public/v1/submit/create_private_key_tag": {
@@ -153,23 +153,23 @@ export type paths = {
     post: operations["PublicApiService_CreatePrivateKeyTag"];
   };
   "/public/v1/submit/create_private_keys": {
-    /** Create new Private Keys */
+    /** Create new private keys. */
     post: operations["PublicApiService_CreatePrivateKeys"];
   };
   "/public/v1/submit/create_read_only_session": {
-    /** Create a read only session for a user (valid for 1 hour) */
+    /** Create a read only session for a user (valid for 1 hour). */
     post: operations["PublicApiService_CreateReadOnlySession"];
   };
   "/public/v1/submit/create_read_write_session": {
-    /** Create a read write session for a user */
+    /** Create a read write session for a user. */
     post: operations["PublicApiService_CreateReadWriteSession"];
   };
   "/public/v1/submit/create_smart_contract_interface": {
-    /** Create an ABI/IDL in JSON */
+    /** Create an ABI/IDL in JSON. */
     post: operations["PublicApiService_CreateSmartContractInterface"];
   };
   "/public/v1/submit/create_sub_organization": {
-    /** Create a new Sub-Organization */
+    /** Create a new sub-organization. */
     post: operations["PublicApiService_CreateSubOrganization"];
   };
   "/public/v1/submit/create_user_tag": {
@@ -177,199 +177,187 @@ export type paths = {
     post: operations["PublicApiService_CreateUserTag"];
   };
   "/public/v1/submit/create_users": {
-    /** Create Users in an existing Organization */
+    /** Create users in an existing organization. */
     post: operations["PublicApiService_CreateUsers"];
   };
   "/public/v1/submit/create_wallet": {
-    /** Create a Wallet and derive addresses */
+    /** Create a wallet and derive addresses. */
     post: operations["PublicApiService_CreateWallet"];
   };
   "/public/v1/submit/create_wallet_accounts": {
-    /** Derive additional addresses using an existing wallet */
+    /** Derive additional addresses using an existing wallet. */
     post: operations["PublicApiService_CreateWalletAccounts"];
   };
   "/public/v1/submit/delete_api_keys": {
-    /** Remove api keys from a User */
+    /** Remove api keys from a user. */
     post: operations["PublicApiService_DeleteApiKeys"];
   };
   "/public/v1/submit/delete_authenticators": {
-    /** Remove authenticators from a User */
+    /** Remove authenticators from a user. */
     post: operations["PublicApiService_DeleteAuthenticators"];
   };
   "/public/v1/submit/delete_invitation": {
-    /** Delete an existing Invitation */
+    /** Delete an existing invitation. */
     post: operations["PublicApiService_DeleteInvitation"];
   };
   "/public/v1/submit/delete_oauth_providers": {
-    /** Removes Oauth providers for a specified user - BETA */
+    /** Remove Oauth providers for a specified user. */
     post: operations["PublicApiService_DeleteOauthProviders"];
   };
   "/public/v1/submit/delete_policy": {
-    /** Delete an existing Policy */
+    /** Delete an existing policy. */
     post: operations["PublicApiService_DeletePolicy"];
   };
   "/public/v1/submit/delete_private_key_tags": {
-    /** Delete Private Key Tags within an Organization */
+    /** Delete private key tags within an organization. */
     post: operations["PublicApiService_DeletePrivateKeyTags"];
   };
   "/public/v1/submit/delete_private_keys": {
-    /** Deletes private keys for an organization */
+    /** Delete private keys for an organization. */
     post: operations["PublicApiService_DeletePrivateKeys"];
   };
   "/public/v1/submit/delete_smart_contract_interface": {
-    /** Delete a Smart Contract Interface */
+    /** Delete a smart contract interface. */
     post: operations["PublicApiService_DeleteSmartContractInterface"];
   };
   "/public/v1/submit/delete_sub_organization": {
-    /** Deletes a sub organization */
+    /** Delete a sub-organization. */
     post: operations["PublicApiService_DeleteSubOrganization"];
   };
   "/public/v1/submit/delete_user_tags": {
-    /** Delete User Tags within an Organization */
+    /** Delete user tags within an organization. */
     post: operations["PublicApiService_DeleteUserTags"];
   };
   "/public/v1/submit/delete_users": {
-    /** Delete Users within an Organization */
+    /** Delete users within an organization. */
     post: operations["PublicApiService_DeleteUsers"];
   };
   "/public/v1/submit/delete_wallets": {
-    /** Deletes wallets for an organization */
+    /** Delete wallets for an organization. */
     post: operations["PublicApiService_DeleteWallets"];
   };
-  "/public/v1/submit/disable_user_initiated_auth": {
-    /** Disable User Initiated Auth */
-    post: operations["PublicApiService_DisableUserInitiatedAuth"];
-  };
   "/public/v1/submit/email_auth": {
-    /** Authenticate a user via Email */
+    /** Authenticate a user via email. */
     post: operations["PublicApiService_EmailAuth"];
   };
-  "/public/v1/submit/enable_user_initiated_auth": {
-    /** Enable User Initiated Auth */
-    post: operations["PublicApiService_EnableUserInitiatedAuth"];
-  };
   "/public/v1/submit/export_private_key": {
-    /** Exports a Private Key */
+    /** Export a private key. */
     post: operations["PublicApiService_ExportPrivateKey"];
   };
   "/public/v1/submit/export_wallet": {
-    /** Exports a Wallet */
+    /** Export a wallet. */
     post: operations["PublicApiService_ExportWallet"];
   };
   "/public/v1/submit/export_wallet_account": {
-    /** Exports a Wallet Account */
+    /** Export a wallet account. */
     post: operations["PublicApiService_ExportWalletAccount"];
   };
   "/public/v1/submit/import_private_key": {
-    /** Imports a private key */
+    /** Import a private key. */
     post: operations["PublicApiService_ImportPrivateKey"];
   };
   "/public/v1/submit/import_wallet": {
-    /** Imports a wallet */
+    /** Import a wallet. */
     post: operations["PublicApiService_ImportWallet"];
   };
   "/public/v1/submit/init_fiat_on_ramp": {
-    /** Initiate a fiat on ramp flow */
+    /** Initiate a fiat on ramp flow. */
     post: operations["PublicApiService_InitFiatOnRamp"];
   };
   "/public/v1/submit/init_import_private_key": {
-    /** Initializes a new private key import */
+    /** Initialize a new private key import. */
     post: operations["PublicApiService_InitImportPrivateKey"];
   };
   "/public/v1/submit/init_import_wallet": {
-    /** Initializes a new wallet import */
+    /** Initialize a new wallet import. */
     post: operations["PublicApiService_InitImportWallet"];
   };
   "/public/v1/submit/init_otp": {
-    /** Initiate a Generic OTP activity */
+    /** Initiate a generic OTP activity. */
     post: operations["PublicApiService_InitOtp"];
   };
   "/public/v1/submit/init_otp_auth": {
-    /** Initiate an OTP auth activity */
+    /** Initiate an OTP auth activity. */
     post: operations["PublicApiService_InitOtpAuth"];
   };
   "/public/v1/submit/init_user_email_recovery": {
-    /** Initializes a new email recovery */
+    /** Initialize a new email recovery. */
     post: operations["PublicApiService_InitUserEmailRecovery"];
   };
   "/public/v1/submit/oauth": {
-    /** Authenticate a user with an Oidc token (Oauth) - BETA */
+    /** Authenticate a user with an OIDC token (Oauth). */
     post: operations["PublicApiService_Oauth"];
   };
   "/public/v1/submit/oauth_login": {
-    /** Create an Oauth session for a user */
+    /** Create an Oauth session for a user. */
     post: operations["PublicApiService_OauthLogin"];
   };
   "/public/v1/submit/otp_auth": {
-    /** Authenticate a user with an OTP code sent via email or SMS */
+    /** Authenticate a user with an OTP code sent via email or SMS. */
     post: operations["PublicApiService_OtpAuth"];
   };
   "/public/v1/submit/otp_login": {
-    /** Create an OTP session for a user */
+    /** Create an OTP session for a user. */
     post: operations["PublicApiService_OtpLogin"];
   };
   "/public/v1/submit/recover_user": {
-    /** Completes the process of recovering a user by adding an authenticator */
+    /** Complete the process of recovering a user by adding an authenticator. */
     post: operations["PublicApiService_RecoverUser"];
   };
   "/public/v1/submit/reject_activity": {
-    /** Reject an Activity */
+    /** Reject an activity. */
     post: operations["PublicApiService_RejectActivity"];
   };
   "/public/v1/submit/remove_organization_feature": {
-    /** Removes an organization feature. This activity must be approved by the current root quorum. */
+    /** Remove an organization feature. This activity must be approved by the current root quorum. */
     post: operations["PublicApiService_RemoveOrganizationFeature"];
   };
   "/public/v1/submit/set_organization_feature": {
-    /** Sets an organization feature. This activity must be approved by the current root quorum. */
+    /** Set an organization feature. This activity must be approved by the current root quorum. */
     post: operations["PublicApiService_SetOrganizationFeature"];
   };
   "/public/v1/submit/sign_raw_payload": {
-    /** Sign a raw payload */
+    /** Sign a raw payload. */
     post: operations["PublicApiService_SignRawPayload"];
   };
   "/public/v1/submit/sign_raw_payloads": {
-    /** Sign multiple raw payloads with the same signing parameters */
+    /** Sign multiple raw payloads with the same signing parameters. */
     post: operations["PublicApiService_SignRawPayloads"];
   };
   "/public/v1/submit/sign_transaction": {
-    /** Sign a transaction */
+    /** Sign a transaction. */
     post: operations["PublicApiService_SignTransaction"];
   };
   "/public/v1/submit/stamp_login": {
-    /** Create a session for a user through stamping client side (api key, wallet client, or passkey client) */
+    /** Create a session for a user through stamping client side (API key, wallet client, or passkey client). */
     post: operations["PublicApiService_StampLogin"];
   };
   "/public/v1/submit/update_policy": {
-    /** Update an existing Policy */
+    /** Update an existing policy. */
     post: operations["PublicApiService_UpdatePolicy"];
   };
   "/public/v1/submit/update_private_key_tag": {
     /** Update human-readable name or associated private keys. Note that this activity is atomic: all of the updates will succeed at once, or all of them will fail. */
     post: operations["PublicApiService_UpdatePrivateKeyTag"];
   };
-  "/public/v1/submit/update_proxy_auth_config": {
-    /** Update the proxy-auth configuration (allowed origins, etc.) for an Organization */
-    post: operations["PublicApiService_UpdateProxyAuthConfig"];
-  };
   "/public/v1/submit/update_root_quorum": {
     /** Set the threshold and members of the root quorum. This activity must be approved by the current root quorum. */
     post: operations["PublicApiService_UpdateRootQuorum"];
   };
   "/public/v1/submit/update_user": {
-    /** Update a User in an existing Organization */
+    /** Update a user in an existing organization. */
     post: operations["PublicApiService_UpdateUser"];
   };
   "/public/v1/submit/update_user_email": {
-    /** Update a User's email in an existing Organization */
+    /** Update a user's email in an existing organization. */
     post: operations["PublicApiService_UpdateUserEmail"];
   };
   "/public/v1/submit/update_user_name": {
-    /** Update a User's name in an existing Organization */
+    /** Update a user's name in an existing organization. */
     post: operations["PublicApiService_UpdateUserName"];
   };
   "/public/v1/submit/update_user_phone_number": {
-    /** Update a User's phone number in an existing Organization */
+    /** Update a user's phone number in an existing organization. */
     post: operations["PublicApiService_UpdateUserPhoneNumber"];
   };
   "/public/v1/submit/update_user_tag": {
@@ -377,18 +365,18 @@ export type paths = {
     post: operations["PublicApiService_UpdateUserTag"];
   };
   "/public/v1/submit/update_wallet": {
-    /** Update a wallet for an organization */
+    /** Update a wallet for an organization. */
     post: operations["PublicApiService_UpdateWallet"];
   };
   "/public/v1/submit/verify_otp": {
-    /** Verify a Generic OTP */
+    /** Verify a generic OTP. */
     post: operations["PublicApiService_VerifyOtp"];
   };
   "/tkhq/api/v1/noop-codegen-anchor": {
     post: operations["PublicApiService_NOOPCodegenAnchor"];
   };
   "/tkhq/api/v1/test_rate_limits": {
-    /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite */
+    /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite. */
     post: operations["PublicApiService_TestRateLimits"];
   };
 };
@@ -457,6 +445,19 @@ export type definitions = {
     createdAt: definitions["externaldatav1Timestamp"];
     updatedAt: definitions["externaldatav1Timestamp"];
   };
+  externalactivityv1PolicyEvaluation: {
+    /** @description Unique identifier for a given policy evaluation. */
+    id: string;
+    /** @description Unique identifier for a given Activity. */
+    activityId: string;
+    /** @description Unique identifier for the Organization the Activity belongs to. */
+    organizationId: string;
+    /** @description Unique identifier for the Vote associated with this policy evaluation. */
+    voteId: string;
+    /** @description Detailed evaluation result for each Policy that was run. */
+    policyEvaluations: definitions["privateumpv1PolicyEvaluation"][];
+    createdAt: definitions["externaldatav1Timestamp"];
+  };
   externaldatav1Address: {
     format?: definitions["v1AddressFormat"];
     address?: string;
@@ -475,6 +476,24 @@ export type definitions = {
     /** @description Unique identifiers of quorum set members. */
     userIds: string[];
   };
+  externaldatav1SmartContractInterface: {
+    /** @description The Organization the Smart Contract Interface belongs to. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+    smartContractInterfaceId: string;
+    /** @description The address corresponding to the Smart Contract or Program. */
+    smartContractAddress: string;
+    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+    smartContractInterface: string;
+    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    type: string;
+    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    label: string;
+    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    notes: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
   externaldatav1Timestamp: {
     seconds: string;
     nanos: string;
@@ -482,6 +501,10 @@ export type definitions = {
   immutableactivityv1Address: {
     format?: definitions["v1AddressFormat"];
     address?: string;
+  };
+  privateumpv1PolicyEvaluation: {
+    policyId?: string;
+    outcome?: definitions["v1Outcome"];
   };
   protobufAny: {
     "@type"?: string;
@@ -541,7 +564,7 @@ export type definitions = {
     failure?: definitions["rpcStatus"];
   };
   v1ActivityResponse: {
-    /** @description An action that can that can be taken within the Turnkey infrastructure. */
+    /** @description An action that can be taken within the Turnkey infrastructure. */
     activity: definitions["v1Activity"];
   };
   /** @enum {string} */
@@ -648,9 +671,9 @@ export type definitions = {
     | "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP"
     | "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE"
     | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
-    | "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH"
-    | "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH"
-    | "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
+    | "ACTIVITY_TYPE_ENABLE_AUTH_PROXY"
+    | "ACTIVITY_TYPE_DISABLE_AUTH_PROXY"
+    | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1131,7 +1154,7 @@ export type definitions = {
     smartContractInterface: string;
     type: definitions["v1SmartContractInterfaceType"];
     /** @description Human-readable name for a Smart Contract Interface. */
-    label?: string;
+    label: string;
     /** @description Notes for a Smart Contract Interface. */
     notes?: string;
   };
@@ -1625,6 +1648,8 @@ export type definitions = {
     /** @description A list of wallet unique identifiers that were removed */
     walletIds: string[];
   };
+  v1DisableAuthProxyIntent: { [key: string]: unknown };
+  v1DisableAuthProxyResult: { [key: string]: unknown };
   v1DisablePrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
@@ -1633,22 +1658,6 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
-  v1DisableUserInitiatedAuthIntent: {
-    /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
-    userId?: string;
-    /** @description Unique identifier for a given Policy. (representing the turnkey signer associated policy) */
-    policyId?: string;
-  };
-  v1DisableUserInitiatedAuthRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_DISABLE_USER_INITIATED_AUTH";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1DisableUserInitiatedAuthIntent"];
-  };
-  v1DisableUserInitiatedAuthResult: { [key: string]: unknown };
   /** @enum {string} */
   v1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
   v1EmailAuthIntent: {
@@ -1718,31 +1727,10 @@ export type definitions = {
     /** @description Unique identifier for a given Email Template. If not specified, the default is the most recent Email Template. */
     templateId?: string;
   };
-  v1EnableUserInitiatedAuthIntent: { [key: string]: unknown };
-  v1EnableUserInitiatedAuthRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_ENABLE_USER_INITIATED_AUTH";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1EnableUserInitiatedAuthIntent"];
-  };
-  v1EnableUserInitiatedAuthResult: {
-    /** @description A User ID. */
+  v1EnableAuthProxyIntent: { [key: string]: unknown };
+  v1EnableAuthProxyResult: {
+    /** @description A User ID with permission to initiate authentication. */
     userId: string;
-    /** @description A Policy ID. */
-    policyId: string;
-  };
-  v1EwkSettingsParams: {
-    /** @description Enable Sign in with Apple */
-    appleEnabled?: boolean;
-    /** @description Enable Sign in with Google */
-    googleEnabled?: boolean;
-    /** @description Enable Sign in with Facebook */
-    facebookEnabled?: boolean;
-    /** @description Whether to open OAuth providers in-page instead of a popup */
-    openOauthInPage?: boolean;
   };
   v1ExportPrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -1821,7 +1809,8 @@ export type definitions = {
     | "FEATURE_NAME_EMAIL_RECOVERY"
     | "FEATURE_NAME_WEBHOOK"
     | "FEATURE_NAME_SMS_AUTH"
-    | "FEATURE_NAME_OTP_EMAIL_AUTH";
+    | "FEATURE_NAME_OTP_EMAIL_AUTH"
+    | "FEATURE_NAME_AUTH_PROXY";
   /** @enum {string} */
   v1FiatOnRampBlockchainNetwork:
     | "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BITCOIN"
@@ -1890,27 +1879,27 @@ export type definitions = {
     | "FIAT_ON_RAMP_PROVIDER_COINBASE"
     | "FIAT_ON_RAMP_PROVIDER_MOONPAY";
   v1GetActivitiesRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Array of Activity Statuses filtering which Activities will be listed in the response. */
+    /** @description Array of activity statuses filtering which activities will be listed in the response. */
     filterByStatus?: definitions["v1ActivityStatus"][];
     /** @description Parameters used for cursor-based pagination. */
     paginationOptions?: definitions["v1Pagination"];
-    /** @description Array of Activity Types filtering which Activities will be listed in the response. */
+    /** @description Array of activity types filtering which activities will be listed in the response. */
     filterByType?: definitions["v1ActivityType"][];
   };
   v1GetActivitiesResponse: {
-    /** @description A list of Activities. */
+    /** @description A list of activities. */
     activities: definitions["v1Activity"][];
   };
   v1GetActivityRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given Activity object. */
+    /** @description Unique identifier for a given activity object. */
     activityId: string;
   };
   v1GetApiKeyRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
     /** @description Unique identifier for a given API key. */
     apiKeyId: string;
@@ -1920,9 +1909,9 @@ export type definitions = {
     apiKey: definitions["v1ApiKey"];
   };
   v1GetApiKeysRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given User. */
+    /** @description Unique identifier for a given user. */
     userId?: string;
   };
   v1GetApiKeysResponse: {
@@ -1930,22 +1919,22 @@ export type definitions = {
     apiKeys: definitions["v1ApiKey"][];
   };
   v1GetAttestationDocumentRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description The enclave type, one of: ump, notarizer, signer, evm-parser */
+    /** @description The enclave type, one of: ump, notarizer, signer, evm-parser. */
     enclaveType: string;
   };
   v1GetAttestationDocumentResponse: {
     /**
      * Format: byte
-     * @description Raw (CBOR-encoded) attestation document
+     * @description Raw (CBOR-encoded) attestation document.
      */
     attestationDocument: string;
   };
   v1GetAuthenticatorRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given Authenticator. */
+    /** @description Unique identifier for a given authenticator. */
     authenticatorId: string;
   };
   v1GetAuthenticatorResponse: {
@@ -1953,9 +1942,9 @@ export type definitions = {
     authenticator: definitions["v1Authenticator"];
   };
   v1GetAuthenticatorsRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given User. */
+    /** @description Unique identifier for a given user. */
     userId: string;
   };
   v1GetAuthenticatorsResponse: {
@@ -1963,53 +1952,62 @@ export type definitions = {
     authenticators: definitions["v1Authenticator"][];
   };
   v1GetOauthProvidersRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given User. */
+    /** @description Unique identifier for a given user. */
     userId?: string;
   };
   v1GetOauthProvidersResponse: {
-    /** @description A list of Oauth Providers */
+    /** @description A list of Oauth providers. */
     oauthProviders: definitions["v1OauthProvider"][];
   };
   v1GetOrganizationConfigsRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
   };
   v1GetOrganizationConfigsResponse: {
-    /** @description Organization configs including quorum settings and organization features */
+    /** @description Organization configs including quorum settings and organization features. */
     configs: definitions["v1Config"];
   };
   v1GetOrganizationRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
   };
   v1GetOrganizationResponse: {
-    /** @description Object representing the full current and deleted / disabled collection of Users, Policies, Private Keys, and Invitations attributable to a particular Organization. */
+    /** @description Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization. */
     organizationData: definitions["v1OrganizationData"];
   };
   v1GetPoliciesRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
   };
   v1GetPoliciesResponse: {
-    /** @description A list of Policies. */
+    /** @description A list of policies. */
     policies: definitions["v1Policy"][];
   };
-  v1GetPolicyRequest: {
-    /** @description Unique identifier for a given Organization. */
+  v1GetPolicyEvaluationsRequest: {
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given Policy. */
+    /** @description Unique identifier for a given activity. */
+    activityId: string;
+  };
+  v1GetPolicyEvaluationsResponse: {
+    policyEvaluations: definitions["externalactivityv1PolicyEvaluation"][];
+  };
+  v1GetPolicyRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given policy. */
     policyId: string;
   };
   v1GetPolicyResponse: {
-    /** @description Object that codifies rules defining the actions that are permissible within an Organization. */
+    /** @description Object that codifies rules defining the actions that are permissible within an organization. */
     policy: definitions["v1Policy"];
   };
   v1GetPrivateKeyRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given Private Key. */
+    /** @description Unique identifier for a given private key. */
     privateKeyId: string;
   };
   v1GetPrivateKeyResponse: {
@@ -2017,43 +2015,35 @@ export type definitions = {
     privateKey: definitions["v1PrivateKey"];
   };
   v1GetPrivateKeysRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
   };
   v1GetPrivateKeysResponse: {
-    /** @description A list of Private Keys. */
+    /** @description A list of private keys. */
     privateKeys: definitions["v1PrivateKey"][];
   };
-  v1GetProxyAuthConfigRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-  };
-  v1GetProxyAuthConfigResponse: {
-    /** @description Proxy authentication configuration (e.g., allowed origins). */
-    proxyAuthConfig: definitions["v1ProxyAuthConfig"];
-  };
   v1GetSmartContractInterfaceRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given Smart Contract Interface. */
+    /** @description Unique identifier for a given smart contract interface. */
     smartContractInterfaceId: string;
   };
   v1GetSmartContractInterfaceResponse: {
-    /** @description Object to be used in conjunction with Policies to guard transaction signing. */
-    smartContractInterface: definitions["v1SmartContractInterface"];
+    /** @description Object to be used in conjunction with policies to guard transaction signing. */
+    smartContractInterface: definitions["externaldatav1SmartContractInterface"];
   };
   v1GetSmartContractInterfacesRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
   };
   v1GetSmartContractInterfacesResponse: {
-    /** @description A list of Smart Contract Interfaces. */
-    smartContractInterfaces: definitions["v1SmartContractInterface"][];
+    /** @description A list of smart contract interfaces. */
+    smartContractInterfaces: definitions["externaldatav1SmartContractInterface"][];
   };
   v1GetSubOrgIdsRequest: {
-    /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
+    /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
     organizationId: string;
-    /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN' or 'PUBLIC_KEY' */
+    /** @description Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN', 'WALLET_ACCOUNT_ADDRESS' or 'PUBLIC_KEY' */
     filterType?: string;
     /** @description The value of the filter to apply for the specified type. For example, a specific email or name string. */
     filterValue?: string;
@@ -2065,27 +2055,27 @@ export type definitions = {
     organizationIds: string[];
   };
   v1GetUserRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given User. */
+    /** @description Unique identifier for a given user. */
     userId: string;
   };
   v1GetUserResponse: {
-    /** @description Web and/or API user within your Organization. */
+    /** @description Web and/or API user within your organization. */
     user: definitions["v1User"];
   };
   v1GetUsersRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
   };
   v1GetUsersResponse: {
-    /** @description A list of Users. */
+    /** @description A list of users. */
     users: definitions["v1User"][];
   };
   v1GetVerifiedSubOrgIdsRequest: {
-    /** @description Unique identifier for the parent Organization. This is used to find sub-organizations within it. */
+    /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
     organizationId: string;
-    /** @description Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER' */
+    /** @description Specifies the type of filter to apply, i.e 'EMAIL', 'PHONE_NUMBER'. */
     filterType?: string;
     /** @description The value of the filter to apply for the specified type. For example, a specific email or phone number string. */
     filterValue?: string;
@@ -2097,61 +2087,63 @@ export type definitions = {
     organizationIds: string[];
   };
   v1GetWalletAccountRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given Wallet. */
+    /** @description Unique identifier for a given wallet. */
     walletId: string;
-    /** @description Address corresponding to a Wallet Account. */
+    /** @description Address corresponding to a wallet account. */
     address?: string;
-    /** @description Path corresponding to a Wallet Account. */
+    /** @description Path corresponding to a wallet account. */
     path?: string;
   };
   v1GetWalletAccountResponse: {
-    /** @description The resulting Wallet Account. */
+    /** @description The resulting wallet account. */
     account: definitions["v1WalletAccount"];
   };
   v1GetWalletAccountsRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given Wallet. */
-    walletId: string;
+    /** @description Unique identifier for a given wallet. If not provided, all accounts for the organization will be returned. */
+    walletId?: string;
+    /** @description Optional flag to specify if the wallet details should be included in the response. Default = false. */
+    includeWalletDetails?: boolean;
     /** @description Parameters used for cursor-based pagination. */
     paginationOptions?: definitions["v1Pagination"];
   };
   v1GetWalletAccountsResponse: {
-    /** @description A list of Accounts generated from a Wallet that share a common seed. */
+    /** @description A list of accounts generated from a wallet that share a common seed. */
     accounts: definitions["v1WalletAccount"][];
   };
   v1GetWalletRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Unique identifier for a given Wallet. */
+    /** @description Unique identifier for a given wallet. */
     walletId: string;
   };
   v1GetWalletResponse: {
-    /** @description A collection of deterministically generated cryptographic public / private key pairs that share a common seed */
+    /** @description A collection of deterministically generated cryptographic public / private key pairs that share a common seed. */
     wallet: definitions["v1Wallet"];
   };
   v1GetWalletsRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
   };
   v1GetWalletsResponse: {
-    /** @description A list of Wallets. */
+    /** @description A list of wallets. */
     wallets: definitions["v1Wallet"][];
   };
   v1GetWhoamiRequest: {
-    /** @description Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
+    /** @description Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons. */
     organizationId: string;
   };
   v1GetWhoamiResponse: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
-    /** @description Human-readable name for an Organization. */
+    /** @description Human-readable name for an organization. */
     organizationName: string;
-    /** @description Unique identifier for a given User. */
+    /** @description Unique identifier for a given user. */
     userId: string;
-    /** @description Human-readable name for a User. */
+    /** @description Human-readable name for a user. */
     username: string;
   };
   /** @enum {string} */
@@ -2231,6 +2223,8 @@ export type definitions = {
     countryCode?: string;
     /** @description ISO 3166-2 two-digit country subdivision code for Coinbase representing the purchasing user’s subdivision of residence within their country, e.g. NY. Required if country_code=US. */
     countrySubdivisionCode?: string;
+    /** @description Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false. */
+    sandboxMode?: boolean;
   };
   v1InitFiatOnRampRequest: {
     /** @enum {string} */
@@ -2499,9 +2493,9 @@ export type definitions = {
     initFiatOnRampIntent?: definitions["v1InitFiatOnRampIntent"];
     createSmartContractInterfaceIntent?: definitions["v1CreateSmartContractInterfaceIntent"];
     deleteSmartContractInterfaceIntent?: definitions["v1DeleteSmartContractInterfaceIntent"];
-    enableUserInitiatedAuthIntent?: definitions["v1EnableUserInitiatedAuthIntent"];
-    disableUserInitiatedAuthIntent?: definitions["v1DisableUserInitiatedAuthIntent"];
-    updateProxyAuthConfigIntent?: definitions["v1UpdateProxyAuthConfigIntent"];
+    enableAuthProxyIntent?: definitions["v1EnableAuthProxyIntent"];
+    disableAuthProxyIntent?: definitions["v1DisableAuthProxyIntent"];
+    updateAuthProxyConfigIntent?: definitions["v1UpdateAuthProxyConfigIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2539,19 +2533,19 @@ export type definitions = {
     | "INVITATION_STATUS_ACCEPTED"
     | "INVITATION_STATUS_REVOKED";
   v1ListPrivateKeyTagsRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
   };
   v1ListPrivateKeyTagsResponse: {
-    /** @description A list of Private Key Tags */
+    /** @description A list of private key tags. */
     privateKeyTags: definitions["datav1Tag"][];
   };
   v1ListUserTagsRequest: {
-    /** @description Unique identifier for a given Organization. */
+    /** @description Unique identifier for a given organization. */
     organizationId: string;
   };
   v1ListUserTagsResponse: {
-    /** @description A list of User Tags */
+    /** @description A list of user tags. */
     userTags: definitions["datav1Tag"][];
   };
   /** @enum {string} */
@@ -2720,6 +2714,14 @@ export type definitions = {
     /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
     session: string;
   };
+  /** @enum {string} */
+  v1Outcome:
+    | "OUTCOME_ALLOW"
+    | "OUTCOME_DENY_EXPLICIT"
+    | "OUTCOME_DENY_IMPLICIT"
+    | "OUTCOME_REQUIRES_CONSENSUS"
+    | "OUTCOME_REJECTED"
+    | "OUTCOME_ERROR";
   v1Pagination: {
     /** @description A limit of the number of object to be returned, between 1 and 100. Defaults to 10. */
     limit?: string;
@@ -2734,7 +2736,8 @@ export type definitions = {
   v1PayloadEncoding:
     | "PAYLOAD_ENCODING_HEXADECIMAL"
     | "PAYLOAD_ENCODING_TEXT_UTF8"
-    | "PAYLOAD_ENCODING_EIP712";
+    | "PAYLOAD_ENCODING_EIP712"
+    | "PAYLOAD_ENCODING_EIP7702_AUTHORIZATION";
   v1Policy: {
     /** @description Unique identifier for a given Policy. */
     policyId: string;
@@ -2784,42 +2787,6 @@ export type definitions = {
   v1PrivateKeyResult: {
     privateKeyId?: string;
     addresses?: definitions["immutableactivityv1Address"][];
-  };
-  v1ProxyAuthConfig: {
-    organizationId?: string;
-    allowedOrigins?: string[];
-    allowedAuthMethods?: string[];
-    encryptedApiKey?: string;
-    turnkeySignerUserId?: string;
-    sendFromEmailAddress?: string;
-    replyToEmailAddress?: string;
-    emailAuthTemplateId?: string;
-    otpTemplateId?: string;
-    emailCustomizationParams?: string;
-    smsCustomizationParams?: string;
-    /** Format: int32 */
-    otpExpirationSeconds?: number;
-    /** Format: int32 */
-    verificationTokenExpirationSeconds?: number;
-    /** Format: int32 */
-    otpSessionExpirationSeconds?: number;
-    /** Format: int32 */
-    oauthSessionExpirationSeconds?: number;
-    /** Format: int32 */
-    passkeySessionExpirationSeconds?: number;
-    /** Format: int32 */
-    walletSessionExpirationSeconds?: number;
-    /** Format: date-time */
-    createdAt?: string;
-    /** Format: date-time */
-    updatedAt?: string;
-    otpAlphanumeric?: boolean;
-    /** Format: int32 */
-    otpLength?: number;
-    socialLinking?: boolean;
-    policyId?: string;
-    proxyId?: string;
-    ewkSettings?: string;
   };
   v1PublicKeyCredentialWithAttestation: {
     id: string;
@@ -2960,9 +2927,9 @@ export type definitions = {
     initFiatOnRampResult?: definitions["v1InitFiatOnRampResult"];
     createSmartContractInterfaceResult?: definitions["v1CreateSmartContractInterfaceResult"];
     deleteSmartContractInterfaceResult?: definitions["v1DeleteSmartContractInterfaceResult"];
-    enableUserInitiatedAuthResult?: definitions["v1EnableUserInitiatedAuthResult"];
-    disableUserInitiatedAuthResult?: definitions["v1DisableUserInitiatedAuthResult"];
-    updateProxyAuthConfigResult?: definitions["v1UpdateProxyAuthConfigResult"];
+    enableAuthProxyResult?: definitions["v1EnableAuthProxyResult"];
+    disableAuthProxyResult?: definitions["v1DisableAuthProxyResult"];
+    updateAuthProxyConfigResult?: definitions["v1UpdateAuthProxyConfigResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -3131,24 +3098,6 @@ export type definitions = {
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
   };
-  v1SmartContractInterface: {
-    /** @description The Organization the Smart Contract Interface belongs to. */
-    organizationId: string;
-    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
-    smartContractInterfaceId: string;
-    /** @description The address corresponding to the Smart Contract or Program. */
-    smartContractAddress: string;
-    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
-    smartContractInterface: string;
-    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    type: string;
-    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    label: string;
-    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    notes: string;
-    createdAt: definitions["externaldatav1Timestamp"];
-    updatedAt: definitions["externaldatav1Timestamp"];
-  };
   v1SmartContractInterfaceReference: {
     smartContractInterfaceId?: string;
     smartContractAddress?: string;
@@ -3186,13 +3135,13 @@ export type definitions = {
   /** @enum {string} */
   v1TagType: "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
   v1TestRateLimitsRequest: {
-    /** @description Unique identifier for a given Organization. If the request is being made by a WebAuthN user and their Sub-Organization ID is unknown, this can be the Parent Organization ID; using the Sub-Organization ID when possible is preferred due to performance reasons. */
+    /** @description Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons. */
     organizationId: string;
     /** @description Whether or not to set a limit on this request. */
     isSetLimit: boolean;
     /**
      * Format: int64
-     * @description Rate limit to set for org, if is_set_limit is set to true
+     * @description Rate limit to set for org, if is_set_limit is set to true.
      */
     limit: number;
   };
@@ -3207,6 +3156,52 @@ export type definitions = {
     allowedOrigins: string[];
   };
   v1UpdateAllowedOriginsResult: { [key: string]: unknown };
+  v1UpdateAuthProxyConfigIntent: {
+    /** @description Updated list of allowed origins for CORS. */
+    allowedOrigins?: string[];
+    /** @description Updated list of allowed proxy authentication methods. */
+    allowedAuthMethods?: string[];
+    /** @description Custom 'from' address for auth-related emails. */
+    sendFromEmailAddress?: string;
+    /** @description Custom reply-to address for auth-related emails. */
+    replyToEmailAddress?: string;
+    /** @description Template ID for email-auth messages. */
+    emailAuthTemplateId?: string;
+    /** @description Template ID for OTP SMS messages. */
+    otpTemplateId?: string;
+    /** @description Overrides for auth-related email content. */
+    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
+    /** @description Overrides for auth-related SMS content. */
+    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
+    /** @description Overrides for react wallet kit related settings. */
+    walletKitSettings?: definitions["v1WalletKitSettingsParams"];
+    /**
+     * Format: int32
+     * @description OTP code lifetime in seconds.
+     */
+    otpExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description Verification-token lifetime in seconds.
+     */
+    verificationTokenExpirationSeconds?: number;
+    /**
+     * Format: int32
+     * @description Session lifetime in seconds.
+     */
+    sessionExpirationSeconds?: number;
+    /** @description Enable alphanumeric OTP codes. */
+    otpAlphanumeric?: boolean;
+    /**
+     * Format: int32
+     * @description Desired OTP code length (6–9).
+     */
+    otpLength?: number;
+  };
+  v1UpdateAuthProxyConfigResult: {
+    /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
+    configId?: string;
+  };
   v1UpdatePolicyIntent: {
     /** @description Unique identifier for a given Policy. */
     policyId: string;
@@ -3275,75 +3270,6 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key Tag. */
     privateKeyTagId: string;
   };
-  v1UpdateProxyAuthConfigIntent: {
-    /** @description Updated list of allowed origins for CORS. */
-    allowedOrigins?: string[];
-    /** @description Updated list of allowed origins for CORS. */
-    allowedAuthMethods?: string[];
-    /** @description Custom 'from' address for auth-related emails. */
-    sendFromEmailAddress?: string;
-    /** @description Custom reply-to address for auth-related emails. */
-    replyToEmailAddress?: string;
-    /** @description Template ID for email-auth messages. */
-    emailAuthTemplateId?: string;
-    /** @description Template ID for OTP SMS messages. */
-    otpTemplateId?: string;
-    /** @description Overrides for auth-related email content. */
-    emailCustomizationParams?: definitions["v1EmailCustomizationParams"];
-    /** @description Overrides for auth-related SMS content. */
-    smsCustomizationParams?: definitions["v1SmsCustomizationParams"];
-    /** @description Overrides for EWK related settings. */
-    ewkSettings?: definitions["v1EwkSettingsParams"];
-    /**
-     * Format: int32
-     * @description OTP code lifetime in seconds.
-     */
-    otpExpirationSeconds?: number;
-    /**
-     * Format: int32
-     * @description Verification-token lifetime in seconds.
-     */
-    verificationTokenExpirationSeconds?: number;
-    /**
-     * Format: int32
-     * @description OTP session lifetime in seconds.
-     */
-    otpSessionExpirationSeconds?: number;
-    /**
-     * Format: int32
-     * @description Passkey session lifetime in seconds.
-     */
-    passkeySessionExpirationSeconds?: number;
-    /**
-     * Format: int32
-     * @description Wallet session lifetime in seconds.
-     */
-    walletSessionExpirationSeconds?: number;
-    /**
-     * Format: int32
-     * @description OAuth session lifetime in seconds.
-     */
-    oauthSessionExpirationSeconds?: number;
-    /** @description Enable alphanumeric OTP codes. */
-    otpAlphanumeric?: boolean;
-    /**
-     * Format: int32
-     * @description Desired OTP code length (6–9).
-     */
-    otpLength?: number;
-    /** @description Enable social linking (userEmail <-> gmail) */
-    socialLinking?: boolean;
-  };
-  v1UpdateProxyAuthConfigRequest: {
-    /** @enum {string} */
-    type: "ACTIVITY_TYPE_UPDATE_PROXY_AUTH_CONFIG";
-    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-    timestampMs: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    parameters: definitions["v1UpdateProxyAuthConfigIntent"];
-  };
-  v1UpdateProxyAuthConfigResult: { [key: string]: unknown };
   v1UpdateRootQuorumIntent: {
     /**
      * Format: int32
@@ -3628,6 +3554,8 @@ export type definitions = {
     updatedAt: definitions["externaldatav1Timestamp"];
     /** @description The public component of this wallet account's underlying cryptographic key pair. */
     publicKey?: string;
+    /** @description Wallet details for this account. This is only present when include_wallet_details=true. */
+    walletDetails?: definitions["v1Wallet"];
   };
   v1WalletAccountParams: {
     /** @description Cryptographic curve used to generate a wallet Account. */
@@ -3638,6 +3566,13 @@ export type definitions = {
     path: string;
     /** @description Address format used to generate a wallet Acccount. */
     addressFormat: definitions["v1AddressFormat"];
+  };
+  v1WalletKitSettingsParams: {
+    /**
+     * Enabled Social Providers
+     * @description List of enabled social login providers (e.g., 'apple', 'google', 'facebook')
+     */
+    enabledSocialProviders?: string[];
   };
   v1WalletParams: {
     /** @description Human-readable name for a Wallet. */
@@ -3668,7 +3603,7 @@ export type definitions = {
 };
 
 export type operations = {
-  /** Get details about an Activity */
+  /** Get details about an activity. */
   PublicApiService_GetActivity: {
     parameters: {
       body: {
@@ -3686,7 +3621,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about an API key */
+  /** Get details about an API key. */
   PublicApiService_GetApiKey: {
     parameters: {
       body: {
@@ -3704,7 +3639,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about API keys for a user */
+  /** Get details about API keys for a user. */
   PublicApiService_GetApiKeys: {
     parameters: {
       body: {
@@ -3740,7 +3675,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about an authenticator */
+  /** Get details about an authenticator. */
   PublicApiService_GetAuthenticator: {
     parameters: {
       body: {
@@ -3758,7 +3693,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about authenticators for a user */
+  /** Get details about authenticators for a user. */
   PublicApiService_GetAuthenticators: {
     parameters: {
       body: {
@@ -3776,7 +3711,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about Oauth providers for a user */
+  /** Get details about Oauth providers for a user. */
   PublicApiService_GetOauthProviders: {
     parameters: {
       body: {
@@ -3794,7 +3729,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about an Organization */
+  /** Get details about an organization. */
   PublicApiService_GetOrganization: {
     parameters: {
       body: {
@@ -3812,7 +3747,7 @@ export type operations = {
       };
     };
   };
-  /** Get quorum settings and features for an organization */
+  /** Get quorum settings and features for an organization. */
   PublicApiService_GetOrganizationConfigs: {
     parameters: {
       body: {
@@ -3830,7 +3765,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about a Policy */
+  /** Get details about a policy. */
   PublicApiService_GetPolicy: {
     parameters: {
       body: {
@@ -3848,7 +3783,25 @@ export type operations = {
       };
     };
   };
-  /** Get details about a Private Key */
+  /** Get the policy evaluations for an activity. */
+  PublicApiService_GetPolicyEvaluations: {
+    parameters: {
+      body: {
+        body: definitions["v1GetPolicyEvaluationsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetPolicyEvaluationsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about a private key. */
   PublicApiService_GetPrivateKey: {
     parameters: {
       body: {
@@ -3866,25 +3819,7 @@ export type operations = {
       };
     };
   };
-  /** Get the proxy-auth configuration (allowed origins, etc.) for an Organization */
-  PublicApiService_GetProxyAuthConfig: {
-    parameters: {
-      body: {
-        body: definitions["v1GetProxyAuthConfigRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetProxyAuthConfigResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get details about a Smart Contract Interface */
+  /** Get details about a smart contract interface. */
   PublicApiService_GetSmartContractInterface: {
     parameters: {
       body: {
@@ -3902,7 +3837,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about a User */
+  /** Get details about a user. */
   PublicApiService_GetUser: {
     parameters: {
       body: {
@@ -3920,7 +3855,7 @@ export type operations = {
       };
     };
   };
-  /** Get details about a Wallet */
+  /** Get details about a wallet. */
   PublicApiService_GetWallet: {
     parameters: {
       body: {
@@ -3938,7 +3873,7 @@ export type operations = {
       };
     };
   };
-  /** Get a single wallet account */
+  /** Get a single wallet account. */
   PublicApiService_GetWalletAccount: {
     parameters: {
       body: {
@@ -3956,7 +3891,7 @@ export type operations = {
       };
     };
   };
-  /** List all Activities within an Organization */
+  /** List all activities within an organization. */
   PublicApiService_GetActivities: {
     parameters: {
       body: {
@@ -3974,7 +3909,7 @@ export type operations = {
       };
     };
   };
-  /** List all Policies within an Organization */
+  /** List all policies within an organization. */
   PublicApiService_GetPolicies: {
     parameters: {
       body: {
@@ -3992,7 +3927,7 @@ export type operations = {
       };
     };
   };
-  /** List all Private Key Tags within an Organization */
+  /** List all private key tags within an organization. */
   PublicApiService_ListPrivateKeyTags: {
     parameters: {
       body: {
@@ -4010,7 +3945,7 @@ export type operations = {
       };
     };
   };
-  /** List all Private Keys within an Organization */
+  /** List all private keys within an organization. */
   PublicApiService_GetPrivateKeys: {
     parameters: {
       body: {
@@ -4028,7 +3963,7 @@ export type operations = {
       };
     };
   };
-  /** List all Smart Contract Interfaces within an Organization */
+  /** List all smart contract interfaces within an organization. */
   PublicApiService_GetSmartContractInterfaces: {
     parameters: {
       body: {
@@ -4064,7 +3999,7 @@ export type operations = {
       };
     };
   };
-  /** List all User Tags within an Organization */
+  /** List all user tags within an organization. */
   PublicApiService_ListUserTags: {
     parameters: {
       body: {
@@ -4082,7 +4017,7 @@ export type operations = {
       };
     };
   };
-  /** List all Users within an Organization */
+  /** List all users within an organization. */
   PublicApiService_GetUsers: {
     parameters: {
       body: {
@@ -4118,7 +4053,7 @@ export type operations = {
       };
     };
   };
-  /** List all Accounts within a Wallet */
+  /** List all accounts within a wallet. */
   PublicApiService_GetWalletAccounts: {
     parameters: {
       body: {
@@ -4136,7 +4071,7 @@ export type operations = {
       };
     };
   };
-  /** List all Wallets within an Organization */
+  /** List all wallets within an organization. */
   PublicApiService_GetWallets: {
     parameters: {
       body: {
@@ -4154,7 +4089,7 @@ export type operations = {
       };
     };
   };
-  /** Get basic information about your current API or WebAuthN user and their organization. Affords Sub-Organization look ups via Parent Organization for WebAuthN or API key users. */
+  /** Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users. */
   PublicApiService_GetWhoami: {
     parameters: {
       body: {
@@ -4172,7 +4107,7 @@ export type operations = {
       };
     };
   };
-  /** Approve an Activity */
+  /** Approve an activity. */
   PublicApiService_ApproveActivity: {
     parameters: {
       body: {
@@ -4190,7 +4125,7 @@ export type operations = {
       };
     };
   };
-  /** Add api keys to an existing User */
+  /** Add API keys to an existing user. */
   PublicApiService_CreateApiKeys: {
     parameters: {
       body: {
@@ -4208,7 +4143,7 @@ export type operations = {
       };
     };
   };
-  /** Create API-only Users in an existing Organization */
+  /** Create API-only users in an existing organization. */
   PublicApiService_CreateApiOnlyUsers: {
     parameters: {
       body: {
@@ -4226,7 +4161,7 @@ export type operations = {
       };
     };
   };
-  /** Create Authenticators to authenticate requests to Turnkey */
+  /** Create authenticators to authenticate requests to Turnkey. */
   PublicApiService_CreateAuthenticators: {
     parameters: {
       body: {
@@ -4244,7 +4179,7 @@ export type operations = {
       };
     };
   };
-  /** Create Invitations to join an existing Organization */
+  /** Create invitations to join an existing organization. */
   PublicApiService_CreateInvitations: {
     parameters: {
       body: {
@@ -4262,7 +4197,7 @@ export type operations = {
       };
     };
   };
-  /** Creates Oauth providers for a specified user - BETA */
+  /** Create Oauth providers for a specified user. */
   PublicApiService_CreateOauthProviders: {
     parameters: {
       body: {
@@ -4280,7 +4215,7 @@ export type operations = {
       };
     };
   };
-  /** Create new Policies */
+  /** Create new policies. */
   PublicApiService_CreatePolicies: {
     parameters: {
       body: {
@@ -4298,7 +4233,7 @@ export type operations = {
       };
     };
   };
-  /** Create a new Policy */
+  /** Create a new policy. */
   PublicApiService_CreatePolicy: {
     parameters: {
       body: {
@@ -4334,7 +4269,7 @@ export type operations = {
       };
     };
   };
-  /** Create new Private Keys */
+  /** Create new private keys. */
   PublicApiService_CreatePrivateKeys: {
     parameters: {
       body: {
@@ -4352,7 +4287,7 @@ export type operations = {
       };
     };
   };
-  /** Create a read only session for a user (valid for 1 hour) */
+  /** Create a read only session for a user (valid for 1 hour). */
   PublicApiService_CreateReadOnlySession: {
     parameters: {
       body: {
@@ -4370,7 +4305,7 @@ export type operations = {
       };
     };
   };
-  /** Create a read write session for a user */
+  /** Create a read write session for a user. */
   PublicApiService_CreateReadWriteSession: {
     parameters: {
       body: {
@@ -4388,7 +4323,7 @@ export type operations = {
       };
     };
   };
-  /** Create an ABI/IDL in JSON */
+  /** Create an ABI/IDL in JSON. */
   PublicApiService_CreateSmartContractInterface: {
     parameters: {
       body: {
@@ -4406,7 +4341,7 @@ export type operations = {
       };
     };
   };
-  /** Create a new Sub-Organization */
+  /** Create a new sub-organization. */
   PublicApiService_CreateSubOrganization: {
     parameters: {
       body: {
@@ -4442,7 +4377,7 @@ export type operations = {
       };
     };
   };
-  /** Create Users in an existing Organization */
+  /** Create users in an existing organization. */
   PublicApiService_CreateUsers: {
     parameters: {
       body: {
@@ -4460,7 +4395,7 @@ export type operations = {
       };
     };
   };
-  /** Create a Wallet and derive addresses */
+  /** Create a wallet and derive addresses. */
   PublicApiService_CreateWallet: {
     parameters: {
       body: {
@@ -4478,7 +4413,7 @@ export type operations = {
       };
     };
   };
-  /** Derive additional addresses using an existing wallet */
+  /** Derive additional addresses using an existing wallet. */
   PublicApiService_CreateWalletAccounts: {
     parameters: {
       body: {
@@ -4496,7 +4431,7 @@ export type operations = {
       };
     };
   };
-  /** Remove api keys from a User */
+  /** Remove api keys from a user. */
   PublicApiService_DeleteApiKeys: {
     parameters: {
       body: {
@@ -4514,7 +4449,7 @@ export type operations = {
       };
     };
   };
-  /** Remove authenticators from a User */
+  /** Remove authenticators from a user. */
   PublicApiService_DeleteAuthenticators: {
     parameters: {
       body: {
@@ -4532,7 +4467,7 @@ export type operations = {
       };
     };
   };
-  /** Delete an existing Invitation */
+  /** Delete an existing invitation. */
   PublicApiService_DeleteInvitation: {
     parameters: {
       body: {
@@ -4550,7 +4485,7 @@ export type operations = {
       };
     };
   };
-  /** Removes Oauth providers for a specified user - BETA */
+  /** Remove Oauth providers for a specified user. */
   PublicApiService_DeleteOauthProviders: {
     parameters: {
       body: {
@@ -4568,7 +4503,7 @@ export type operations = {
       };
     };
   };
-  /** Delete an existing Policy */
+  /** Delete an existing policy. */
   PublicApiService_DeletePolicy: {
     parameters: {
       body: {
@@ -4586,7 +4521,7 @@ export type operations = {
       };
     };
   };
-  /** Delete Private Key Tags within an Organization */
+  /** Delete private key tags within an organization. */
   PublicApiService_DeletePrivateKeyTags: {
     parameters: {
       body: {
@@ -4604,7 +4539,7 @@ export type operations = {
       };
     };
   };
-  /** Deletes private keys for an organization */
+  /** Delete private keys for an organization. */
   PublicApiService_DeletePrivateKeys: {
     parameters: {
       body: {
@@ -4622,7 +4557,7 @@ export type operations = {
       };
     };
   };
-  /** Delete a Smart Contract Interface */
+  /** Delete a smart contract interface. */
   PublicApiService_DeleteSmartContractInterface: {
     parameters: {
       body: {
@@ -4640,7 +4575,7 @@ export type operations = {
       };
     };
   };
-  /** Deletes a sub organization */
+  /** Delete a sub-organization. */
   PublicApiService_DeleteSubOrganization: {
     parameters: {
       body: {
@@ -4658,7 +4593,7 @@ export type operations = {
       };
     };
   };
-  /** Delete User Tags within an Organization */
+  /** Delete user tags within an organization. */
   PublicApiService_DeleteUserTags: {
     parameters: {
       body: {
@@ -4676,7 +4611,7 @@ export type operations = {
       };
     };
   };
-  /** Delete Users within an Organization */
+  /** Delete users within an organization. */
   PublicApiService_DeleteUsers: {
     parameters: {
       body: {
@@ -4694,7 +4629,7 @@ export type operations = {
       };
     };
   };
-  /** Deletes wallets for an organization */
+  /** Delete wallets for an organization. */
   PublicApiService_DeleteWallets: {
     parameters: {
       body: {
@@ -4712,25 +4647,7 @@ export type operations = {
       };
     };
   };
-  /** Disable User Initiated Auth */
-  PublicApiService_DisableUserInitiatedAuth: {
-    parameters: {
-      body: {
-        body: definitions["v1DisableUserInitiatedAuthRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Authenticate a user via Email */
+  /** Authenticate a user via email. */
   PublicApiService_EmailAuth: {
     parameters: {
       body: {
@@ -4748,25 +4665,7 @@ export type operations = {
       };
     };
   };
-  /** Enable User Initiated Auth */
-  PublicApiService_EnableUserInitiatedAuth: {
-    parameters: {
-      body: {
-        body: definitions["v1EnableUserInitiatedAuthRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Exports a Private Key */
+  /** Export a private key. */
   PublicApiService_ExportPrivateKey: {
     parameters: {
       body: {
@@ -4784,7 +4683,7 @@ export type operations = {
       };
     };
   };
-  /** Exports a Wallet */
+  /** Export a wallet. */
   PublicApiService_ExportWallet: {
     parameters: {
       body: {
@@ -4802,7 +4701,7 @@ export type operations = {
       };
     };
   };
-  /** Exports a Wallet Account */
+  /** Export a wallet account. */
   PublicApiService_ExportWalletAccount: {
     parameters: {
       body: {
@@ -4820,7 +4719,7 @@ export type operations = {
       };
     };
   };
-  /** Imports a private key */
+  /** Import a private key. */
   PublicApiService_ImportPrivateKey: {
     parameters: {
       body: {
@@ -4838,7 +4737,7 @@ export type operations = {
       };
     };
   };
-  /** Imports a wallet */
+  /** Import a wallet. */
   PublicApiService_ImportWallet: {
     parameters: {
       body: {
@@ -4856,7 +4755,7 @@ export type operations = {
       };
     };
   };
-  /** Initiate a fiat on ramp flow */
+  /** Initiate a fiat on ramp flow. */
   PublicApiService_InitFiatOnRamp: {
     parameters: {
       body: {
@@ -4874,7 +4773,7 @@ export type operations = {
       };
     };
   };
-  /** Initializes a new private key import */
+  /** Initialize a new private key import. */
   PublicApiService_InitImportPrivateKey: {
     parameters: {
       body: {
@@ -4892,7 +4791,7 @@ export type operations = {
       };
     };
   };
-  /** Initializes a new wallet import */
+  /** Initialize a new wallet import. */
   PublicApiService_InitImportWallet: {
     parameters: {
       body: {
@@ -4910,7 +4809,7 @@ export type operations = {
       };
     };
   };
-  /** Initiate a Generic OTP activity */
+  /** Initiate a generic OTP activity. */
   PublicApiService_InitOtp: {
     parameters: {
       body: {
@@ -4928,7 +4827,7 @@ export type operations = {
       };
     };
   };
-  /** Initiate an OTP auth activity */
+  /** Initiate an OTP auth activity. */
   PublicApiService_InitOtpAuth: {
     parameters: {
       body: {
@@ -4946,7 +4845,7 @@ export type operations = {
       };
     };
   };
-  /** Initializes a new email recovery */
+  /** Initialize a new email recovery. */
   PublicApiService_InitUserEmailRecovery: {
     parameters: {
       body: {
@@ -4964,7 +4863,7 @@ export type operations = {
       };
     };
   };
-  /** Authenticate a user with an Oidc token (Oauth) - BETA */
+  /** Authenticate a user with an OIDC token (Oauth). */
   PublicApiService_Oauth: {
     parameters: {
       body: {
@@ -4982,7 +4881,7 @@ export type operations = {
       };
     };
   };
-  /** Create an Oauth session for a user */
+  /** Create an Oauth session for a user. */
   PublicApiService_OauthLogin: {
     parameters: {
       body: {
@@ -5000,7 +4899,7 @@ export type operations = {
       };
     };
   };
-  /** Authenticate a user with an OTP code sent via email or SMS */
+  /** Authenticate a user with an OTP code sent via email or SMS. */
   PublicApiService_OtpAuth: {
     parameters: {
       body: {
@@ -5018,7 +4917,7 @@ export type operations = {
       };
     };
   };
-  /** Create an OTP session for a user */
+  /** Create an OTP session for a user. */
   PublicApiService_OtpLogin: {
     parameters: {
       body: {
@@ -5036,7 +4935,7 @@ export type operations = {
       };
     };
   };
-  /** Completes the process of recovering a user by adding an authenticator */
+  /** Complete the process of recovering a user by adding an authenticator. */
   PublicApiService_RecoverUser: {
     parameters: {
       body: {
@@ -5054,7 +4953,7 @@ export type operations = {
       };
     };
   };
-  /** Reject an Activity */
+  /** Reject an activity. */
   PublicApiService_RejectActivity: {
     parameters: {
       body: {
@@ -5072,7 +4971,7 @@ export type operations = {
       };
     };
   };
-  /** Removes an organization feature. This activity must be approved by the current root quorum. */
+  /** Remove an organization feature. This activity must be approved by the current root quorum. */
   PublicApiService_RemoveOrganizationFeature: {
     parameters: {
       body: {
@@ -5090,7 +4989,7 @@ export type operations = {
       };
     };
   };
-  /** Sets an organization feature. This activity must be approved by the current root quorum. */
+  /** Set an organization feature. This activity must be approved by the current root quorum. */
   PublicApiService_SetOrganizationFeature: {
     parameters: {
       body: {
@@ -5108,7 +5007,7 @@ export type operations = {
       };
     };
   };
-  /** Sign a raw payload */
+  /** Sign a raw payload. */
   PublicApiService_SignRawPayload: {
     parameters: {
       body: {
@@ -5126,7 +5025,7 @@ export type operations = {
       };
     };
   };
-  /** Sign multiple raw payloads with the same signing parameters */
+  /** Sign multiple raw payloads with the same signing parameters. */
   PublicApiService_SignRawPayloads: {
     parameters: {
       body: {
@@ -5144,7 +5043,7 @@ export type operations = {
       };
     };
   };
-  /** Sign a transaction */
+  /** Sign a transaction. */
   PublicApiService_SignTransaction: {
     parameters: {
       body: {
@@ -5162,7 +5061,7 @@ export type operations = {
       };
     };
   };
-  /** Create a session for a user through stamping client side (api key, wallet client, or passkey client) */
+  /** Create a session for a user through stamping client side (API key, wallet client, or passkey client). */
   PublicApiService_StampLogin: {
     parameters: {
       body: {
@@ -5180,7 +5079,7 @@ export type operations = {
       };
     };
   };
-  /** Update an existing Policy */
+  /** Update an existing policy. */
   PublicApiService_UpdatePolicy: {
     parameters: {
       body: {
@@ -5216,24 +5115,6 @@ export type operations = {
       };
     };
   };
-  /** Update the proxy-auth configuration (allowed origins, etc.) for an Organization */
-  PublicApiService_UpdateProxyAuthConfig: {
-    parameters: {
-      body: {
-        body: definitions["v1UpdateProxyAuthConfigRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ActivityResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
   /** Set the threshold and members of the root quorum. This activity must be approved by the current root quorum. */
   PublicApiService_UpdateRootQuorum: {
     parameters: {
@@ -5252,7 +5133,7 @@ export type operations = {
       };
     };
   };
-  /** Update a User in an existing Organization */
+  /** Update a user in an existing organization. */
   PublicApiService_UpdateUser: {
     parameters: {
       body: {
@@ -5270,7 +5151,7 @@ export type operations = {
       };
     };
   };
-  /** Update a User's email in an existing Organization */
+  /** Update a user's email in an existing organization. */
   PublicApiService_UpdateUserEmail: {
     parameters: {
       body: {
@@ -5288,7 +5169,7 @@ export type operations = {
       };
     };
   };
-  /** Update a User's name in an existing Organization */
+  /** Update a user's name in an existing organization. */
   PublicApiService_UpdateUserName: {
     parameters: {
       body: {
@@ -5306,7 +5187,7 @@ export type operations = {
       };
     };
   };
-  /** Update a User's phone number in an existing Organization */
+  /** Update a user's phone number in an existing organization. */
   PublicApiService_UpdateUserPhoneNumber: {
     parameters: {
       body: {
@@ -5342,7 +5223,7 @@ export type operations = {
       };
     };
   };
-  /** Update a wallet for an organization */
+  /** Update a wallet for an organization. */
   PublicApiService_UpdateWallet: {
     parameters: {
       body: {
@@ -5360,7 +5241,7 @@ export type operations = {
       };
     };
   };
-  /** Verify a Generic OTP */
+  /** Verify a generic OTP. */
   PublicApiService_VerifyOtp: {
     parameters: {
       body: {
@@ -5390,7 +5271,7 @@ export type operations = {
       };
     };
   };
-  /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite */
+  /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite. */
   PublicApiService_TestRateLimits: {
     parameters: {
       body: {
