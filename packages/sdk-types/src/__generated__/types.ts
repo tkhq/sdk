@@ -1868,6 +1868,8 @@ export type v1GetWalletAccountsRequest = {
   organizationId: string;
   /** Unique identifier for a given wallet. If not provided, all accounts for the organization will be returned. */
   walletId?: string;
+  /** Optional flag to specify if the wallet details should be included in the response. Default = false. */
+  includeWalletDetails?: boolean;
   /** Parameters used for cursor-based pagination. */
   paginationOptions?: v1Pagination;
 };
@@ -2536,7 +2538,8 @@ export type v1PathFormat = "PATH_FORMAT_BIP32";
 export type v1PayloadEncoding =
   | "PAYLOAD_ENCODING_HEXADECIMAL"
   | "PAYLOAD_ENCODING_TEXT_UTF8"
-  | "PAYLOAD_ENCODING_EIP712";
+  | "PAYLOAD_ENCODING_EIP712"
+  | "PAYLOAD_ENCODING_EIP7702_AUTHORIZATION";
 
 export type v1Policy = {
   /** Unique identifier for a given Policy. */
@@ -3396,6 +3399,8 @@ export type v1WalletAccount = {
   updatedAt: externaldatav1Timestamp;
   /** The public component of this wallet account's underlying cryptographic key pair. */
   publicKey?: string;
+  /** Wallet details for this account. This is only present when include_wallet_details=true. */
+  walletDetails?: v1Wallet;
 };
 
 export type v1WalletAccountParams = {
@@ -3782,6 +3787,8 @@ export type TGetWalletAccountsBody = {
   organizationId?: string;
   /** Unique identifier for a given wallet. If not provided, all accounts for the organization will be returned. */
   walletId?: string;
+  /** Optional flag to specify if the wallet details should be included in the response. Default = false. */
+  includeWalletDetails?: boolean;
   /** Parameters used for cursor-based pagination. */
   paginationOptions?: v1Pagination;
 };

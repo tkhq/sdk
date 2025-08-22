@@ -15,7 +15,7 @@
     "/v1/account": {
       "post": {
         "summary": "Get Account",
-        "description": "Return sub-organization ID associated with a given contact or public identifier.",
+        "description": "Return organization id associated with a given phone number, email, public key, credential ID or OIDC token.",
         "operationId": "AuthProxyService_GetAccount",
         "responses": {
           "200": {
@@ -41,7 +41,7 @@
             }
           }
         ],
-        "tags": ["Users"]
+        "tags": ["Accounts"]
       }
     },
     "/v1/oauth_login": {
@@ -111,7 +111,7 @@
     "/v1/otp_login": {
       "post": {
         "summary": "OTP Login",
-        "description": "Login using a verified OTP token and public key.",
+        "description": "Login using a verification token and public key.",
         "operationId": "AuthProxyService_OtpLogin",
         "responses": {
           "200": {
@@ -143,7 +143,7 @@
     "/v1/otp_verify": {
       "post": {
         "summary": "Verify OTP",
-        "description": "Verify the OTP code previously sent to the user's contact.",
+        "description": "Verify the OTP code previously sent to the user's contact and return a verification token.",
         "operationId": "AuthProxyService_VerifyOtp",
         "responses": {
           "200": {
@@ -175,7 +175,7 @@
     "/v1/signup": {
       "post": {
         "summary": "Signup",
-        "description": "Create a new sub-organization and user via the proxy API.",
+        "description": "Onboard a new user.",
         "operationId": "AuthProxyService_Signup",
         "responses": {
           "200": {
@@ -233,7 +233,7 @@
             }
           }
         ],
-        "tags": ["Organizations"]
+        "tags": ["Wallet Kit"]
       }
     }
   },
@@ -428,51 +428,28 @@
     "v1GetWalletKitConfigResponse": {
       "type": "object",
       "properties": {
-        "facebookEnabled": {
-          "type": "boolean"
+        "enabledProviders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of enabled authentication providers (e.g., 'facebook', 'google', 'apple', 'email', 'sms', 'passkey', 'wallet')",
+          "title": "Enabled Providers"
         },
-        "googleEnabled": {
-          "type": "boolean"
-        },
-        "appleEnabled": {
-          "type": "boolean"
-        },
-        "emailEnabled": {
-          "type": "boolean"
-        },
-        "smsEnabled": {
-          "type": "boolean"
-        },
-        "passkeyEnabled": {
-          "type": "boolean"
-        },
-        "walletEnabled": {
-          "type": "boolean"
-        },
-        "openOAuthInPage": {
-          "type": "boolean"
-        },
-        "passkeySessionExpirationSeconds": {
-          "type": "string"
-        },
-        "walletSessionExpirationSeconds": {
-          "type": "string"
+        "sessionExpirationSeconds": {
+          "type": "string",
+          "description": "Session expiration duration in seconds",
+          "title": "Session Expiration"
         },
         "organizationId": {
-          "type": "string"
+          "type": "string",
+          "description": "The organization ID this configuration applies to",
+          "title": "Organization ID"
         }
       },
       "required": [
-        "facebookEnabled",
-        "googleEnabled",
-        "appleEnabled",
-        "emailEnabled",
-        "smsEnabled",
-        "passkeyEnabled",
-        "walletEnabled",
-        "openOAuthInPage",
-        "passkeySessionExpirationSeconds",
-        "walletSessionExpirationSeconds",
+        "enabledProviders",
+        "sessionExpirationSeconds",
         "organizationId"
       ]
     },
@@ -589,7 +566,7 @@
         "userName": {
           "type": "string"
         },
-        "subOrgName": {
+        "organizationName": {
           "type": "string"
         },
         "verificationToken": {

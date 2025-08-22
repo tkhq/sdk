@@ -7145,6 +7145,10 @@
           "type": "string",
           "description": "Unique identifier for a given wallet. If not provided, all accounts for the organization will be returned."
         },
+        "includeWalletDetails": {
+          "type": "boolean",
+          "description": "Optional flag to specify if the wallet details should be included in the response. Default = false."
+        },
         "paginationOptions": {
           "$ref": "#/definitions/v1Pagination",
           "description": "Parameters used for cursor-based pagination."
@@ -8702,7 +8706,8 @@
       "enum": [
         "PAYLOAD_ENCODING_HEXADECIMAL",
         "PAYLOAD_ENCODING_TEXT_UTF8",
-        "PAYLOAD_ENCODING_EIP712"
+        "PAYLOAD_ENCODING_EIP712",
+        "PAYLOAD_ENCODING_EIP7702_AUTHORIZATION"
       ]
     },
     "v1Policy": {
@@ -10818,6 +10823,10 @@
         "publicKey": {
           "type": "string",
           "description": "The public component of this wallet account's underlying cryptographic key pair."
+        },
+        "walletDetails": {
+          "$ref": "#/definitions/v1Wallet",
+          "description": "Wallet details for this account. This is only present when include_wallet_details=true."
         }
       },
       "required": [
