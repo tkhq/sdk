@@ -230,10 +230,10 @@ export const createEIP1193Provider = async (
         }
 
         case "wallet_switchEthereumChain": {
-          const [targetChainId] = params as [string];
+          const [targetChainId] = params as [{ chainId: string }];
           const targetChain = addedChains.find((chain) => {
             console.log("iterating through added chains:", chain);
-            return chain.chainId === targetChainId;
+            return chain.chainId === targetChainId.chainId;
           });
 
           console.log(
