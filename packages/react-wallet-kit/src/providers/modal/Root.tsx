@@ -54,40 +54,42 @@ export function ModalRoot(props: ModalRootProps) {
     const node = containerRef.current;
     if (!node || !observeResize) return;
 
+    let cancelled = false; // To prevent setting state on unmounted component
     const observer = new ResizeObserver(([entry]) => {
-      if (!entry) return;
+      if (!entry || cancelled) return;
       setContentBlur(10);
-
       const { width: newWidth, height: newHeight } = entry.contentRect;
-
       setHeight(newHeight);
       setWidth(newWidth);
-      setTimeout(() => setContentBlur(0), 100); // Remove blur after short delay
+      setTimeout(() => !cancelled && setContentBlur(0), 100);
     });
 
     observer.observe(node);
-    return () => observer.disconnect();
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
   }, [containerRef.current, observeResize]);
 
   useEffect(() => {
+    let cancelled = false; // To prevent setting state on unmounted component
+
     const resize = () => {
-      if (containerRef.current) {
-        setContentBlur(10);
-        const rect = containerRef.current.getBoundingClientRect();
-        setHeight(rect.height);
-        setWidth(rect.width);
-        setTimeout(() => setContentBlur(0), 100); // Remove blur after short delay
-      }
+      if (cancelled || !containerRef.current) return;
+      setContentBlur(10);
+      const rect = containerRef.current.getBoundingClientRect();
+      setHeight(rect.height);
+      setWidth(rect.width);
+      setTimeout(() => !cancelled && setContentBlur(0), 100);
     };
 
     if (current) {
       setObserveResize(true);
       requestAnimationFrame(resize);
-
-      // Disable body scroll when modal is open
-      const originalStyle = window.getComputedStyle(document.body).overflow;
+      const originalStyle = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
+        cancelled = true;
         document.body.style.overflow = originalStyle;
       };
     } else {
@@ -96,7 +98,7 @@ export function ModalRoot(props: ModalRootProps) {
       setWidth(isMobile ? width : width / 1.3);
       return;
     }
-  }, [current]);
+  }, [current, isMobile]);
 
   return (
     <Transition appear show={!!current} as={Fragment}>
@@ -129,7 +131,7 @@ export function ModalRoot(props: ModalRootProps) {
           {/* TODO (Amir): Does adding transition-colors here mess with the children? Probably. If you see some weird slow colour transitions, this is most likely the culprit! */}
           <div
             className={clsx(
-              "tk-modal fixed inset-0 flex justify-center transition-colors duration-300",
+              "tk-modal fixed inset-0 flex justify-center transition-colors",
               { dark: config?.ui?.darkMode },
               { "items-end": isMobile },
               { "items-center": !isMobile },
