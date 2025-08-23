@@ -57,7 +57,7 @@ export default function OnrampSelector({
           window.open(
             response.onRampUrl,
             "_blank",
-            "popup,width=500,height=700,scrollbars=yes,resizable=yes"
+            "popup,width=500,height=700,scrollbars=yes,resizable=yes",
           );
           return;
         } else if (onrampDisplayOption === "new tab") {
@@ -96,7 +96,7 @@ export default function OnrampSelector({
           window.open(
             response.onRampUrl,
             "_blank",
-            "popup,width=500,height=700,scrollbars=yes,resizable=yes"
+            "popup,width=500,height=700,scrollbars=yes,resizable=yes",
           );
           return;
         } else if (onrampDisplayOption === "new tab") {
@@ -184,7 +184,7 @@ export default function OnrampSelector({
         window.open(
           response.onRampUrl,
           "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes"
+          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
         );
       } else if (onrampDisplayOption === "new tab") {
         window.open(response.onRampUrl, "_blank", "noopener,noreferrer");

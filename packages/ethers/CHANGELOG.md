@@ -830,7 +830,7 @@ const turnkeyClient = new TurnkeyClient(
   new ApiKeyStamper({
     apiPublicKey: "...",
     apiPrivateKey: "...",
-  })
+  }),
 );
 
 // Initialize a Turnkey Signer

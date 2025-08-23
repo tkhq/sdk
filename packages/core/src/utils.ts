@@ -329,7 +329,7 @@ export const generateRandomBuffer = (): ArrayBuffer => {
 };
 
 const hexByByte = Array.from({ length: 256 }, (_, i) =>
-  i.toString(16).padStart(2, "0")
+  i.toString(16).padStart(2, "0"),
 );
 
 export const bytesToHex = (bytes: Uint8Array): string => {
@@ -342,7 +342,7 @@ export const bytesToHex = (bytes: Uint8Array): string => {
 };
 
 export const toExternalTimestamp = (
-  date: Date = new Date()
+  date: Date = new Date(),
 ): externaldatav1Timestamp => {
   const millis = date.getTime();
   const seconds = Math.floor(millis / 1000);
@@ -394,7 +394,7 @@ export function getHashFunction(addressFormat: v1AddressFormat) {
   if (!config) {
     throw new TurnkeyError(
       `Unsupported address format: ${addressFormat}`,
-      TurnkeyErrorCodes.INVALID_REQUEST
+      TurnkeyErrorCodes.INVALID_REQUEST,
     );
   }
   return config.hashFunction;
@@ -405,7 +405,7 @@ export function getEncodingType(addressFormat: v1AddressFormat) {
   if (!config) {
     throw new TurnkeyError(
       `Unsupported address format: ${addressFormat}`,
-      TurnkeyErrorCodes.INVALID_REQUEST
+      TurnkeyErrorCodes.INVALID_REQUEST,
     );
   }
   return config.encoding;
@@ -413,13 +413,13 @@ export function getEncodingType(addressFormat: v1AddressFormat) {
 
 export function getEncodedMessage(
   addressFormat: v1AddressFormat,
-  rawMessage: string
+  rawMessage: string,
 ): string {
   const config = addressFormatConfig[addressFormat];
   if (!config) {
     throw new TurnkeyError(
       `Unsupported address format: ${addressFormat}`,
-      TurnkeyErrorCodes.INVALID_REQUEST
+      TurnkeyErrorCodes.INVALID_REQUEST,
     );
   }
   if (config.encoding === "PAYLOAD_ENCODING_HEXADECIMAL") {
@@ -456,7 +456,7 @@ export const broadcastTransaction = async (params: {
       if (json.error) {
         throw new TurnkeyError(
           `Solana RPC Error: ${json.error.message}`,
-          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
+          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
         );
       }
 
@@ -480,7 +480,7 @@ export const broadcastTransaction = async (params: {
       if (json.error) {
         throw new TurnkeyError(
           `Ethereum RPC Error: ${json.error.message}`,
-          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
+          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
         );
       }
 
@@ -499,7 +499,7 @@ export const broadcastTransaction = async (params: {
       if (!json.result) {
         throw new TurnkeyError(
           `Tron RPC Error: ${json.message}`,
-          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
+          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
         );
       }
 
@@ -509,14 +509,14 @@ export const broadcastTransaction = async (params: {
     default:
       throw new TurnkeyError(
         `Unsupported transaction type for broadcasting: ${transactionType}`,
-        TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
+        TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
       );
   }
 };
 
 export function splitSignature(
   signature: string,
-  addressFormat: v1AddressFormat
+  addressFormat: v1AddressFormat,
 ): v1SignRawPayloadResult {
   const hex = signature.replace(/^0x/, "");
 
@@ -543,7 +543,7 @@ export function splitSignature(
   if (addressFormat === "ADDRESS_FORMAT_SOLANA") {
     if (hex.length !== 128) {
       throw new Error(
-        `Invalid Solana signature length: expected 64 bytes (128 hex), got ${hex.length}`
+        `Invalid Solana signature length: expected 64 bytes (128 hex), got ${hex.length}`,
       );
     }
 
@@ -557,13 +557,13 @@ export function splitSignature(
   }
 
   throw new Error(
-    `Unsupported address format or invalid signature length: ${hex.length}`
+    `Unsupported address format or invalid signature length: ${hex.length}`,
   );
 }
 
 // Type guard to check if accounts is WalletAccount[]
 export function isWalletAccountArray(
-  arr: any[]
+  arr: any[],
 ): arr is v1WalletAccountParams[] {
   return (
     arr.length === 0 ||
@@ -576,7 +576,7 @@ export function isWalletAccountArray(
 }
 
 export function createWalletAccountFromAddressFormat(
-  addressFormat: v1AddressFormat
+  addressFormat: v1AddressFormat,
 ): v1WalletAccountParams {
   const walletAccount = addressFormatConfig[addressFormat].defaultAccounts;
   if (!walletAccount) {
@@ -588,7 +588,7 @@ export function createWalletAccountFromAddressFormat(
   }
 
   throw new Error(
-    `No default accounts defined for address format: ${addressFormat}`
+    `No default accounts defined for address format: ${addressFormat}`,
   );
 }
 
@@ -629,7 +629,7 @@ export function generateWalletAccountsFromAddressFormat(params: {
 
     const pathWithIndex = account.path.replace(
       /^((?:[^\/]*\/){3})(\d+)/,
-      (_, prefix) => `${prefix}${nextIndex}`
+      (_, prefix) => `${prefix}${nextIndex}`,
     );
     pathMap.set(account.path, nextIndex + 1);
 
@@ -735,20 +735,20 @@ export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
     throw new Error(
       `Failed to extract public key from stamp header: ${
         error instanceof Error ? error.message : String(error)
-      }`
+      }`,
     );
   }
 }
 /**@internal */
 export function isEthereumProvider(
-  provider: WalletProvider
+  provider: WalletProvider,
 ): provider is WalletProvider & { chainInfo: EvmChainInfo } {
   return provider.chainInfo.namespace === Chain.Ethereum;
 }
 
 /**@internal */
 export function isSolanaProvider(
-  provider: WalletProvider
+  provider: WalletProvider,
 ): provider is WalletProvider & { chainInfo: SolanaChainInfo } {
   return provider.chainInfo.namespace === Chain.Solana;
 }
@@ -756,7 +756,7 @@ export function isSolanaProvider(
 /** @internal */
 export function findWalletProviderFromAddress(
   address: string,
-  providers: WalletProvider[]
+  providers: WalletProvider[],
 ): WalletProvider | undefined {
   for (const provider of providers) {
     if (provider.connectedAddresses.includes(address)) {
@@ -771,7 +771,7 @@ export function findWalletProviderFromAddress(
 /**@internal */
 export async function getAuthProxyConfig(
   authProxyConfigId: string,
-  authProxyUrl?: string | undefined
+  authProxyUrl?: string | undefined,
 ): Promise<ProxyTGetWalletKitConfigResponse> {
   const fullUrl =
     (authProxyUrl ?? "https://authproxy.turnkey.com") + "/v1/wallet_kit_config";
@@ -831,7 +831,7 @@ export async function withTurnkeyErrorHandling<T>(
   },
   finallyOptions?: {
     finallyFn: () => Promise<void>;
-  }
+  },
 ): Promise<T> {
   const {
     errorMessage,
@@ -851,7 +851,7 @@ export async function withTurnkeyErrorHandling<T>(
         throw new TurnkeyError(
           customCodeMessage.message,
           customCodeMessage.code,
-          error
+          error,
         );
       }
       throwMatchingMessage(error.message, customMessageByMessages, error);
@@ -889,7 +889,7 @@ const throwMatchingMessage = (
   customMessageByMessages:
     | Record<string, { message: string; code: TurnkeyErrorCodes }>
     | undefined,
-  error: any
+  error: any,
 ) => {
   if (
     customMessageByMessages &&
@@ -900,7 +900,7 @@ const throwMatchingMessage = (
         throw new TurnkeyError(
           customMessageByMessages[key]!.message,
           customMessageByMessages[key]!.code,
-          error
+          error,
         );
       }
     });
