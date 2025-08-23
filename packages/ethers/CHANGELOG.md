@@ -469,7 +469,6 @@
 ### Minor Changes
 
 - bdded80: Support awaiting consensus
-
   - Add a few new helper functions:
     - `serializeSignature` serializes a raw signature
 
