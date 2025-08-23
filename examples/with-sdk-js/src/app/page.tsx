@@ -8,6 +8,7 @@ import {
   Session,
   v1AddressFormat,
   v1Attestation,
+  v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import {
   Chain,
@@ -53,6 +54,7 @@ export default function AuthPage() {
     createPasskey,
     loginWithPasskey,
     signUpWithPasskey,
+    getOrCreateDelegatedAccessUser,
     getWalletProviders,
     connectWalletAccount,
     loginWithWallet,
@@ -1143,6 +1145,48 @@ export default function AuthPage() {
           }}
         >
           Create Wallet Accounts
+        </button>
+      )}
+      {session && (
+        <button
+          onClick={async () => {
+            const usersResponse = await httpClient?.getUsers({});
+            console.log("users before calling: ", usersResponse?.users);
+
+            const policiesResponse = await httpClient?.getPolicies({});
+            console.log(
+              "policies before calling: ",
+              policiesResponse?.policies,
+            );
+
+            const policies: v1CreatePolicyIntentV3[] = [
+              {
+                policyName: "Delegated Access",
+                effect: "EFFECT_ALLOW",
+                consensus: "approvers.count() >= 2",
+                condition: "true",
+                notes: "swag",
+              },
+            ];
+
+            const res = await getOrCreateDelegatedAccessUser({
+              userTagName: "Delegated Access",
+              publicKey: process.env.NEXT_PUBLIC_DA_PUBLIC_KEY!,
+              policies: policies,
+            });
+            console.log(
+              "Delegated access user retrieved or created successfully:",
+              res,
+            );
+          }}
+          style={{
+            backgroundColor: "rebeccapurple",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "white",
+          }}
+        >
+          Get Or Create Delegated Access User
         </button>
       )}
     </main>

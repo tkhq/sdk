@@ -551,49 +551,26 @@ export class TurnkeyClient {
 
         const organizationId = session.organizationId!;
 
-        // we try to find the existing user by tag
-        const usersResponse = await this.httpClient.getUsers({
+        // first we check if the tag exists
+        const tagsResponse = await this.httpClient.listUserTags({
           organizationId,
         });
-        if (!usersResponse || !usersResponse.users) {
-          throw new TurnkeyError(
-            "No users found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
-          );
-        }
-        const userWithTag = usersResponse.users?.find(
-          (user) =>
-            Array.isArray(user.userTags) && user.userTags.includes(userTagName),
-        );
+        const tags = tagsResponse.userTags || [];
+        const existingTag = tags.find((t) => t.tagName === userTagName);
 
-        // if the user doesn't exist so we must create one
-        if (!userWithTag) {
-          // first we see if the tag exists, and if it doesn't we create the tag
-          const tagsResponse = await this.httpClient.listUserTags({
-            organizationId,
+        // if the tag doesn't exist then we know the user and policies don't exist either
+        if (!existingTag) {
+          const createdTag = await this.httpClient.createUserTag({
+            userTagName,
+            userIds: [],
           });
-          const tags = tagsResponse.userTags || [];
 
-          let tagId: string | undefined;
-          const existingTag = tags.find((t) => t.tagName === userTagName);
-          if (existingTag) {
-            tagId = existingTag.tagId;
-          } else {
-            const createdTag = await this.httpClient.createUserTag({
-              userTagName: userTagName,
-              userIds: [],
-            });
-            tagId = createdTag.userTagId;
-          }
-
-          // now that we have a tagId, we can create the user
-          // who will have this tag
           const user = await this.httpClient.createUsers({
             organizationId,
             users: [
               {
                 userName: "Delegated Access User",
-                userTags: [tagId],
+                userTags: [createdTag.userTagId],
                 apiKeys: [
                   {
                     apiKeyName: `delegated-access-key-${userTagName}`,
@@ -614,9 +591,6 @@ export class TurnkeyClient {
             );
           }
 
-          // now because of the order of creating tags, user, and then policies
-          // if the user didn't exist its safe to assume the policies don't exist either
-          // so we can just create them here and return
           const createPoliciesResponse = await this.httpClient.createPolicies({
             organizationId,
             policies,
@@ -631,26 +605,88 @@ export class TurnkeyClient {
           return user.userIds[0];
         }
 
-        // at this point we know the user exists and so does the tag
+        // at this point we know the tag exists, so the user may or may not exist
+        const usersResponse = await this.httpClient.getUsers({
+          organizationId,
+        });
+        if (!usersResponse || !usersResponse.users) {
+          throw new TurnkeyError(
+            "No users found in the response",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+
+        const userWithTag = usersResponse.users?.find(
+          (user) =>
+            Array.isArray(user.userTags) &&
+            user.userTags.includes(existingTag.tagId),
+        );
+
+        // if the user doesn't exist, we must create one
+        // it's also safe to assume that if the user doesn't exist
+        // then the policies don't exist either, so we create them as well
+        if (!userWithTag) {
+          const user = await this.httpClient.createUsers({
+            organizationId,
+            users: [
+              {
+                userName: "Delegated Access User",
+                userTags: [existingTag.tagId],
+                apiKeys: [
+                  {
+                    apiKeyName: `delegated-access-key-${userTagName}`,
+                    curveType: "API_KEY_CURVE_P256",
+                    publicKey,
+                  },
+                ],
+                authenticators: [],
+                oauthProviders: [],
+              },
+            ],
+          });
+
+          if (!user?.userIds || user.userIds.length === 0 || !user.userIds[0]) {
+            throw new TurnkeyError(
+              "Failed to create delegated access user",
+              TurnkeyErrorCodes.CREATE_USERS_ERROR,
+            );
+          }
+
+          const createPoliciesResponse = await this.httpClient.createPolicies({
+            organizationId,
+            policies,
+          });
+          if (!createPoliciesResponse) {
+            throw new TurnkeyError(
+              "Failed to create delegated access policies",
+              TurnkeyErrorCodes.CREATE_POLICY_ERROR,
+            );
+          }
+
+          return user.userIds[0];
+        }
+
+        // at this point we know both the tag and user exist
         // so all we have to do now is check if the policies exist
         // and create them if they don't
-
         const existingPoliciesResponse = await this.httpClient.getPolicies({
           organizationId,
         });
         const existingPolicies = existingPoliciesResponse.policies || [];
         const existingPolicyNames = getPolicyNamesMap(existingPolicies);
 
+        // technically, if one policy exists then all policies should exist,
+        // since they are always created in a single batch. We still perform
+        // this check because it allows users to add new policies later, and
+        // the overhead of doing so is negligible
         const policiesToCreate = policies.filter(
           (policy) => !existingPolicyNames[policy.policyName],
         );
 
-        // if no policies need to be created, we are done
         if (policiesToCreate.length === 0) {
           return userWithTag.userId;
         }
 
-        // we create the missing policies
         const createPoliciesResponse = await this.httpClient.createPolicies({
           organizationId,
           policies: policiesToCreate,
