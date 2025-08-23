@@ -54,6 +54,7 @@ import {
   type v1PayloadEncoding,
   type v1HashFunction,
   type v1Curve,
+  v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -1000,6 +1001,24 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       return res;
     },
     [client, callbacks],
+  );
+
+  const getOrCreateDelegatedAccessUser = useCallback(
+    async (params: {
+      userTagName: string;
+      publicKey: string;
+      policies: v1CreatePolicyIntentV3[];
+    }): Promise<string> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      return await client.getOrCreateDelegatedAccessUser(params);
+    },
+    [client],
   );
 
   const getWalletProviders = useCallback(
@@ -4114,6 +4133,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         logout,
         loginWithPasskey,
         signUpWithPasskey,
+        getOrCreateDelegatedAccessUser,
         getWalletProviders,
         connectWalletAccount,
         disconnectWalletAccount,
