@@ -1,0 +1,50 @@
+---
+title: "importWallet()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Imports a wallet from an encrypted bundle.
+
+<ul>
+  <li>This function imports a wallet using the provided encrypted bundle and creates accounts based on the provided parameters.</li>
+  <li>If a userId is provided, the wallet will be imported for that specific user; otherwise, it uses the current session's userId.</li>
+  <li>If an accounts array is provided, those accounts will be created in the imported wallet; otherwise, default Ethereum and Solana accounts will be created.</li>
+  <li>The encrypted bundle MUST be encrypted to</li>
+  <li>Automatically ensures an active session exists before making the request.</li>
+  <li>Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="accounts" type='v1WalletAccountParams[]' required={false}>
+array of account parameters to create in the imported wallet (defaults to standard Ethereum and Solana accounts).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="encryptedBundle" type='string' required={true}>
+encrypted bundle containing the wallet seed phrase and metadata.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="userId" type='string' required={false}>
+user ID to import the wallet for a specific user (defaults to the current session's userId).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="walletName" type='string' required={true}>
+name of the wallet to create upon import.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true}>
+  A promise that resolves to the ID of the imported wallet.
+</ResponseField>

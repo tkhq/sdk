@@ -23,6 +23,7 @@ const getFormatConfig = (format) => {
       // Use .mjs for ESM builds and .js for CJS builds:
       entryFileNames: `[name].${format === "esm" ? "mjs" : "js"}`,
       preserveModules: true,
+      preserveModulesRoot: "src",
       sourcemap: true,
       exports: "named",
     },

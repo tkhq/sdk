@@ -1,5 +1,41 @@
 # @turnkey/encoding
 
+## 0.6.0-beta.5
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+## 0.6.0-beta.4
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+## 0.6.0-beta.3
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+## 0.6.0-beta.2
+
+### Minor Changes
+
+- updating package versions
+
+## 0.6.0-beta.1
+
+### Minor Changes
+
+- test build
+
+## 0.6.0-beta.0
+
+### Minor Changes
+
+- beta for @turnkey/react-wallet-kit and @turnkey/core
+
 ## 0.5.0
 
 ### Minor Changes

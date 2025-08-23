@@ -2,15 +2,12 @@
   "entryPoints": ["src/index.ts"],
   "excludeInternal": true,
   "includeVersion": true,
-  "fileExtension": ".mdx",
-  "plugin": ["typedoc-plugin-markdown"],
   "projectDocuments": ["documents/*.md"],
   "outputs": [
     {
-      // requires typedoc-plugin-markdown
-      "name": "markdown",
-      "path": "./docs/markdown",
-      "fileExtension": ".mdx"
+      "name": "json",
+      "path": "./docs/json",
+      "fileExtension": "json"
     }
   ]
 }

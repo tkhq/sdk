@@ -29,6 +29,17 @@ export function stringToBase64urlString(input: string): string {
   return base64StringToBase64UrlEncodedString(base64String);
 }
 
+export function base64UrlToBase64(input: string): string {
+  let b64 = input.replace(/-/g, "+").replace(/_/g, "/");
+  const padLen = (4 - (b64.length % 4)) % 4;
+  return b64 + "=".repeat(padLen);
+}
+
+export function decodeBase64urlToString(input: string): string {
+  const b64 = base64UrlToBase64(input);
+  return atob(b64);
+}
+
 export function hexStringToBase64url(input: string, length?: number): string {
   // Add an extra 0 to the start of the string to get a valid hex string (even length)
   // (e.g. 0x0123 instead of 0x123)
@@ -199,4 +210,58 @@ function btoaLookup(index: number) {
 
   // Throw INVALID_CHARACTER_ERR exception here -- won't be hit in the tests.
   return undefined;
+}
+
+// Pure JS implementation of atob.
+export function atob(input: string): string {
+  if (arguments.length === 0) {
+    throw new TypeError("1 argument required, but only 0 present.");
+  }
+
+  // convert to string and remove invalid characters upfront
+  const str = String(input).replace(/[^A-Za-z0-9+/=]/g, "");
+
+  // "The btoa() method must throw an "InvalidCharacterError" if
+  // the length of the string is not a multiple of 4
+  if (str.length % 4 === 1) {
+    throw new Error(
+      "InvalidCharacterError: The string to be decoded is not correctly encoded.",
+    );
+  }
+
+  const keyStr =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+  let output = "";
+  let buffer = 0;
+  let bits = 0;
+  let i = 0;
+
+  // process each character
+  while (i < str.length) {
+    const ch = str.charAt(i);
+    const index = keyStr.indexOf(ch);
+
+    if (index < 0 || index > 64) {
+      i++;
+      continue;
+    }
+
+    if (ch === "=") {
+      // we skip padding characters
+      bits = 0;
+    } else {
+      buffer = (buffer << 6) | index;
+      bits += 6;
+    }
+
+    // output complete bytes
+    while (bits >= 8) {
+      bits -= 8;
+      output += String.fromCharCode((buffer >> bits) & 0xff);
+    }
+
+    i++;
+  }
+
+  return output;
 }

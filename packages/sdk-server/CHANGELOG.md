@@ -1,5 +1,44 @@
 # @turnkey/sdk-server
 
+## 4.7.0-beta.2
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.5.0-beta.5
+  - @turnkey/wallet-stamper@1.1.0-beta.5
+  - @turnkey/http@3.10.0-beta.2
+
+## 4.7.0-beta.1
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/http@3.10.0-beta.1
+  - @turnkey/api-key-stamper@0.4.8-beta.4
+  - @turnkey/wallet-stamper@1.0.9-beta.4
+
+## 4.7.0-beta.0
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/http@3.10.0-beta.0
+  - @turnkey/api-key-stamper@0.4.8-beta.3
+  - @turnkey/wallet-stamper@1.0.9-beta.3
+
 ## 4.7.0
 
 ### Minor Changes
@@ -25,6 +64,24 @@
 - Updated dependencies [[`8b39dba`](https://github.com/tkhq/sdk/commit/8b39dbabf68d3e376b5b07f26960d5b61ae87fa9)]:
   - @turnkey/http@3.9.0
   - @turnkey/wallet-stamper@1.0.8
+
+## 4.5.1-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.4.8-beta.2
+  - @turnkey/http@3.8.1-beta.2
+  - @turnkey/wallet-stamper@1.0.9-beta.2
+
+## 4.5.1-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.4.8-beta.0
+  - @turnkey/http@3.8.1-beta.0
+  - @turnkey/wallet-stamper@1.0.9-beta.0
 
 ## 4.5.0
 

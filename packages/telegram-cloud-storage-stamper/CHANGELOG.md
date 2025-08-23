@@ -1,5 +1,51 @@
 # @turnkey/telegram-cloud-storage-stamper
 
+## 2.1.0-beta.5
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.5.0-beta.5
+
+## 2.0.4-beta.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.4.8-beta.4
+
+## 2.0.4-beta.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.4.8-beta.3
+
+## 2.0.4-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.4.8-beta.2
+
+## 2.0.4-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.4.8-beta.1
+
+## 2.0.4-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.4.8-beta.0
+
 ## 2.0.3
 
 ### Patch Changes

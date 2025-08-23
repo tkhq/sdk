@@ -1,0 +1,57 @@
+---
+title: "handleFacebookOauth()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L205">react-wallet-kit/src/providers/client/Types.tsx:205</a></p>
+
+<H3Bordered text="Overview" />
+
+Handles the Facebook OAuth flow.
+
+<ul>
+  <li>This function initiates the Facebook OAuth flow by either redirecting the user to the Facebook authorization page or opening it in a popup window.</li>
+  <li>The flow type is determined by the ``openInPage`` parameter: if true, the current page is redirected; if false (default), a popup window is used.</li>
+  <li>Generates a new ephemeral API key pair and uses its public key as the nonce for the OAuth request, ensuring cryptographic binding of the session.</li>
+  <li>Uses PKCE (Proof Key for Code Exchange) for enhanced security, generating a code verifier and challenge for the Facebook OAuth flow.</li>
+  <li>Constructs the Facebook OAuth URL with all required parameters, including client ID, redirect URI, response type, code challenge, nonce, and state.</li>
+  <li>The ``state`` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.</li>
+  <li>If ``openInPage`` is true, the function redirects and returns a promise that resolves on redirect or times out after 5 minutes.</li>
+  <li>If ``openInPage`` is false, a popup window is opened and the function returns a promise that resolves when the flow completes, or rejects if the window is closed or times out.</li>
+  <li>On successful authentication, the function either calls the provided ``onOauthSuccess`` callback, triggers the ``onOauthRedirect`` callback from provider callbacks, or completes the OAuth flow internally by calling ``completeOauth``.</li>
+  <li>Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a ``TurnkeyError`` with appropriate error codes.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="additionalState" type='Record&lt;string, string&gt;' required={false}>
+Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="clientId" type='string' required={false}>
+The Facebook Client ID to use (defaults to the client ID from configuration).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="onOauthSuccess" type='object' required={false}>
+Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+
+onOauthSuccess params:
+- oidcToken: The OIDC token received from the OAuth flow.
+- providerName: The name of the OAuth provider ("facebook").
+</NestedParam>
+    <NestedParam parentKey="params" childKey="openInPage" type='boolean' required={false}>
+Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="void" required={true}>
+  A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
+</ResponseField>

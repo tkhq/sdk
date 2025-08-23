@@ -1,5 +1,51 @@
 # @turnkey/api-key-stamper
 
+## 0.5.0-beta.5
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.5
+
+## 0.4.8-beta.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.4
+
+## 0.4.8-beta.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.3
+
+## 0.4.8-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.2
+
+## 0.4.8-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.1
+
+## 0.4.8-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.0
+
 ## 0.4.7
 
 ### Patch Changes
