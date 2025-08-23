@@ -15,6 +15,7 @@ import {
   v1SignRawPayloadResult,
   v1TransactionType,
   ProxyTGetWalletKitConfigResponse,
+  v1Policy,
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
@@ -766,6 +767,14 @@ export function findWalletProviderFromAddress(
 
   // no provider found for that address
   return undefined;
+}
+
+/**@internal */
+export function getPolicyNamesMap(policies: v1Policy[]): Record<string, true> {
+  return policies.reduce<Record<string, true>>((acc, policy) => {
+    acc[policy.policyName] = true;
+    return acc;
+  }, {});
 }
 
 /**@internal */

@@ -17,6 +17,7 @@ import {
   v1PayloadEncoding,
   v1HashFunction,
   v1Curve,
+  v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -63,6 +64,7 @@ import {
   findWalletProviderFromAddress,
   isEthereumProvider,
   isSolanaProvider,
+  getPolicyNamesMap,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -487,6 +489,221 @@ export class TurnkeyClient {
             }
           }
         },
+      },
+    );
+  };
+
+  /**
+   * Ensures that a delegated access user is fully provisioned with the given tag,
+   * public key, and policies.
+   *
+   * - Ensures the tag exists; creates it if it does not
+   * - Ensures a delegated access user with that tag exists; creates the user if missing
+   * - Ensures the user has all of the specified policies; creates any missing policies
+   *
+   * This function is idempotent — calling it multiple times with the same inputs will
+   * always return the same delegated access user ID without creating duplicates.
+   *
+   * @param params.userTagName - The unique tag name to identify the delegated access user.
+   * @param params.publicKey - The public key to associate with the delegated access user.
+   * @param params.policies - A list of policies that should be associated with the user.
+   * @returns A promise that resolves to the user ID of the delegated access user.
+   *
+   * @throws {TurnkeyError} If there is no active session, inputs are invalid, or if tag,
+   *                        user, or policy creation fails.
+   */
+  getOrCreateDelegatedAccessUser = async (params: {
+    userTagName: string;
+    publicKey: string;
+    policies: v1CreatePolicyIntentV3[];
+  }): Promise<string> => {
+    const { userTagName, publicKey, policies } = params;
+
+    return await withTurnkeyErrorHandling(
+      async () => {
+        const session = await this.storageManager.getActiveSession();
+        if (!session) {
+          throw new TurnkeyError(
+            "No active session found. Please log in first.",
+            TurnkeyErrorCodes.NO_SESSION_FOUND,
+          );
+        }
+
+        // we validate their inputs
+        if (!userTagName?.trim()) {
+          throw new TurnkeyError(
+            "'userTagName' is required and cannot be empty.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+        if (!publicKey?.trim()) {
+          throw new TurnkeyError(
+            "'publicKey' is required and cannot be empty.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+        if (!Array.isArray(policies) || policies.length === 0) {
+          throw new TurnkeyError(
+            "'policies' must be a non-empty array of policy definitions.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        const organizationId = session.organizationId!;
+
+        // first we check if the tag exists
+        const tagsResponse = await this.httpClient.listUserTags({
+          organizationId,
+        });
+        const tags = tagsResponse.userTags || [];
+        const existingTag = tags.find((t) => t.tagName === userTagName);
+
+        // if the tag doesn't exist then we know the user and policies don't exist either
+        if (!existingTag) {
+          const createdTag = await this.httpClient.createUserTag({
+            userTagName,
+            userIds: [],
+          });
+
+          const user = await this.httpClient.createUsers({
+            organizationId,
+            users: [
+              {
+                userName: "Delegated Access User",
+                userTags: [createdTag.userTagId],
+                apiKeys: [
+                  {
+                    apiKeyName: `delegated-access-key-${userTagName}`,
+                    curveType: "API_KEY_CURVE_P256",
+                    publicKey,
+                  },
+                ],
+                authenticators: [],
+                oauthProviders: [],
+              },
+            ],
+          });
+
+          if (!user?.userIds || user.userIds.length === 0 || !user.userIds[0]) {
+            throw new TurnkeyError(
+              "Failed to create delegated access user",
+              TurnkeyErrorCodes.CREATE_USERS_ERROR,
+            );
+          }
+
+          const createPoliciesResponse = await this.httpClient.createPolicies({
+            organizationId,
+            policies,
+          });
+          if (!createPoliciesResponse) {
+            throw new TurnkeyError(
+              "Failed to create delegated access policies",
+              TurnkeyErrorCodes.CREATE_POLICY_ERROR,
+            );
+          }
+
+          return user.userIds[0];
+        }
+
+        // at this point we know the tag exists, so the user may or may not exist
+        const usersResponse = await this.httpClient.getUsers({
+          organizationId,
+        });
+        if (!usersResponse || !usersResponse.users) {
+          throw new TurnkeyError(
+            "No users found in the response",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+
+        const userWithTag = usersResponse.users?.find(
+          (user) =>
+            Array.isArray(user.userTags) &&
+            user.userTags.includes(existingTag.tagId),
+        );
+
+        // if the user doesn't exist, we must create one
+        // it's also safe to assume that if the user doesn't exist
+        // then the policies don't exist either, so we create them as well
+        if (!userWithTag) {
+          const user = await this.httpClient.createUsers({
+            organizationId,
+            users: [
+              {
+                userName: "Delegated Access User",
+                userTags: [existingTag.tagId],
+                apiKeys: [
+                  {
+                    apiKeyName: `delegated-access-key-${userTagName}`,
+                    curveType: "API_KEY_CURVE_P256",
+                    publicKey,
+                  },
+                ],
+                authenticators: [],
+                oauthProviders: [],
+              },
+            ],
+          });
+
+          if (!user?.userIds || user.userIds.length === 0 || !user.userIds[0]) {
+            throw new TurnkeyError(
+              "Failed to create delegated access user",
+              TurnkeyErrorCodes.CREATE_USERS_ERROR,
+            );
+          }
+
+          const createPoliciesResponse = await this.httpClient.createPolicies({
+            organizationId,
+            policies,
+          });
+          if (!createPoliciesResponse) {
+            throw new TurnkeyError(
+              "Failed to create delegated access policies",
+              TurnkeyErrorCodes.CREATE_POLICY_ERROR,
+            );
+          }
+
+          return user.userIds[0];
+        }
+
+        // at this point we know both the tag and user exist
+        // so all we have to do now is check if the policies exist
+        // and create them if they don't
+        const existingPoliciesResponse = await this.httpClient.getPolicies({
+          organizationId,
+        });
+        const existingPolicies = existingPoliciesResponse.policies || [];
+        const existingPolicyNames = getPolicyNamesMap(existingPolicies);
+
+        // technically, if one policy exists then all policies should exist,
+        // since they are always created in a single batch. We still perform
+        // this check because it allows users to add new policies later, and
+        // the overhead of doing so is negligible
+        const policiesToCreate = policies.filter(
+          (policy) => !existingPolicyNames[policy.policyName],
+        );
+
+        if (policiesToCreate.length === 0) {
+          return userWithTag.userId;
+        }
+
+        const createPoliciesResponse = await this.httpClient.createPolicies({
+          organizationId,
+          policies: policiesToCreate,
+        });
+        if (!createPoliciesResponse) {
+          throw new TurnkeyError(
+            "Failed to create missing delegated access policies",
+            TurnkeyErrorCodes.CREATE_POLICY_ERROR,
+          );
+        }
+
+        return userWithTag.userId;
+      },
+      {
+        errorMessage:
+          "Failed to get or create delegated access user and policies",
+        errorCode: TurnkeyErrorCodes.CREATE_USERS_ERROR,
       },
     );
   };
