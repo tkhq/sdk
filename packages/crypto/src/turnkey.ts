@@ -481,7 +481,7 @@ export const verifySessionJwtSignature = async (
  * The function takes in standard strings and converts them
  * to Uint8Arrays to be used by the lower level quorumKeyEncrypt
  * function. More details about how the encryption works is described
- * in that functions documentation.
+ * in that function's documentation.
  *
  * @param targetPublicKeyUncompressed A hex string uncompressed public key to encrypt a message to
  * @param message A standard string message to encrypt, does not have to be hex encoded

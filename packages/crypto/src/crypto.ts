@@ -23,6 +23,8 @@ import {
   SUITE_ID_1,
   SUITE_ID_2,
   QOS_ENCRYPTION_HMAC_MESSAGE,
+  QUORUM_ENCRYPT_NONCE_LENGTH_BYTES,
+  UNCOMPRESSED_PUB_KEY_LENGTH_BYTES,
 } from "./constants";
 
 interface HpkeDecryptParams {
@@ -47,7 +49,7 @@ interface KeyPair {
   publicKeyUncompressed: string;
 }
 
-// Envelope for serializing an encrypted message with it's context.
+// Envelope for serializing an encrypted message with its context.
 type Envelope = {
   nonce: Uint8Array;
   ephemeralSenderPublic: Uint8Array;
@@ -57,8 +59,10 @@ type Envelope = {
 // schema for borsh serialization
 const EnvelopeSchema = {
   struct: {
-    nonce: { array: { type: "u8", len: 12 } },
-    ephemeralSenderPublic: { array: { type: "u8", len: 65 } },
+    nonce: { array: { type: "u8", len: QUORUM_ENCRYPT_NONCE_LENGTH_BYTES } },
+    ephemeralSenderPublic: {
+      array: { type: "u8", len: UNCOMPRESSED_PUB_KEY_LENGTH_BYTES },
+    },
     encryptedMessage: { array: { type: "u8" } },
   },
 };
@@ -238,7 +242,7 @@ export const quorumKeyEncrypt = async (
   );
 
   // generate a nonce
-  const nonce = new Uint8Array(12);
+  const nonce = new Uint8Array(QUORUM_ENCRYPT_NONCE_LENGTH_BYTES);
   crypto.getRandomValues(nonce);
 
   // create the additional data in the form of sender_public||sender_public_len||receiver_public||receiver_public_len taken from QOS here: https://github.com/tkhq/qos/blob/ae01904c756107f850aea42000137ef124df3fe4/src/qos_p256/src/encrypt.rs#L298
@@ -247,7 +251,7 @@ export const quorumKeyEncrypt = async (
     targetPublicKeyUncompressed,
   );
 
-  // algorithm specifications for AEX-GCM
+  // algorithm specifications for AES-GCM
   const alg: AesGcmParams = {
     name: "AES-GCM",
     iv: nonce,

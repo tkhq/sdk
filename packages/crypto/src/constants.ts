@@ -21,6 +21,8 @@ export const IV_INFO = new Uint8Array([
   41, 180, 122, 198, 166, 48, 185, 46, 196, 207, 125, 35, 69, 8, 208, 175, 151,
   113, 201, 158, 80,
 ]); //base_nonce
+export const QUORUM_ENCRYPT_NONCE_LENGTH_BYTES = 12;
+export const UNCOMPRESSED_PUB_KEY_LENGTH_BYTES = 65;
 export const QOS_ENCRYPTION_HMAC_MESSAGE = new TextEncoder().encode(
   "qos_encryption_hmac_message",
 ); // used for encrypting messages to quorum keys matched whats found here: https://github.com/tkhq/qos/blob/ae01904c756107f850aea42000137ef124df3fe4/src/qos_p256/src/encrypt.rs#L22
