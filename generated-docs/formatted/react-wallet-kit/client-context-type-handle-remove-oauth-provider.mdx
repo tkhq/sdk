@@ -1,0 +1,53 @@
+---
+title: "handleRemoveOauthProvider()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L485">react-wallet-kit/src/providers/client/Types.tsx:485</a></p>
+
+<H3Bordered text="Overview" />
+
+Handles the removal of an OAuth provider.
+
+<ul>
+  <li>This function opens a modal with the RemoveOAuthProvider component, allowing the user to confirm and remove an OAuth provider (such as Google, Apple, or Facebook) from their account.</li>
+  <li>It supports specifying the provider ID to remove, as well as optional modal title and subtitle for custom UI messaging.</li>
+  <li>After successful removal, the user details state is refreshed to reflect the updated list of linked OAuth providers.</li>
+  <li>Optionally, a callback can be provided to handle successful removal, receiving the updated list of provider IDs.</li>
+  <li>Supports customizing the duration of the success page shown after removal.</li>
+  <li>Allows specifying the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.</li>
+  <li>Handles all error cases and throws a TurnkeyError with appropriate error codes.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="providerId" type='string' required={true}>
+The ID of the OAuth provider to remove (as found in the user's provider list).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="subTitle" type='string' required={false}>
+subtitle for the modal.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="successPageDuration" type='number' required={false}>
+duration (in ms) for the success page after removal (default: 0, no success page).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="title" type='string' required={false}>
+title for the modal.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string[]" required={true}>
+  A promise that resolves to an array of provider IDs that were removed.
+</ResponseField>

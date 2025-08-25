@@ -1,0 +1,35 @@
+---
+title: "switchWalletProviderChain()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Switches the specified wallet provider to a different blockchain chain.
+
+<ul>
+  <li>Requires the wallet manager and its connector to be initialized.</li>
+  <li>The wallet provider must have at least one connected address.</li>
+  <li>Does nothing if the wallet provider is already on the desired chain.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="walletProvider" type='WalletProvider' required={true} >
+  wallet provider to switch.
+</ParamField>
+
+<ParamField body="chainOrId" type='string | SwitchableChain' required={true} >
+  target chain as a chain ID string or SwitchableChain object.
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="void" required={true}>
+  A promise that resolves once the chain switch is complete.
+</ResponseField>

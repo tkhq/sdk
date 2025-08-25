@@ -1,0 +1,30 @@
+---
+title: "clearUnusedKeyPairs()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Clears any unused API key pairs from persistent storage.
+
+<ul>
+  <li>This function scans all API key pairs stored in indexedDB and removes any key pairs that are not associated with a session in persistent storage.</li>
+  <li>Ensures that only key pairs referenced by existing sessions are retained, preventing orphaned or stale key pairs from accumulating.</li>
+  <li>Iterates through all stored session keys and builds a map of in-use public keys, then deletes any key pairs not present in this map.</li>
+  <li>Intended to be called after session changes (e.g., login, logout, session replacement) to keep key storage clean and secure.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<p>No parameters.</p>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="void" required={true}>
+  A promise that resolves when all unused key pairs are successfully cleared.
+</ResponseField>

@@ -1,0 +1,53 @@
+---
+title: "verifyOtp()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Verifies the OTP code sent to the user.
+
+<ul>
+  <li>This function verifies the OTP code entered by the user against the OTP sent to their contact information (email or phone) using the auth proxy.</li>
+  <li>If verification is successful, it returns the sub-organization ID associated with the contact (if it exists) and a verification token.</li>
+  <li>The verification token can be used for subsequent login or sign-up flows.</li>
+  <li>Handles both email and SMS OTP types.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1144">core.ts:1144</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="contact" type='string' required={true}>
+contact information for the user (e.g., email address or phone number).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="otpCode" type='string' required={true}>
+OTP code entered by the user.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="otpId" type='string' required={true}>
+ID of the OTP to verify (returned from `initOtp`).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="otpType" type='OtpType' required={true}>
+type of OTP being verified (OtpType.Email or OtpType.Sms).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="object" required={true} >
+  A promise that resolves to an object containing:
+  - subOrganizationId: sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
+  - verificationToken: verification token to be used for login or sign-up.
+  <Expandable title="return details">
+    <NestedParam parentKey="returns" childKey="subOrganizationId" type='string' required={true}></NestedParam>
+    <NestedParam parentKey="returns" childKey="verificationToken" type='string' required={true}></NestedParam>
+  </Expandable>
+</ResponseField>

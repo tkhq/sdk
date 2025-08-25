@@ -1,0 +1,53 @@
+---
+title: "handleAddPasskey()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L513">react-wallet-kit/src/providers/client/Types.tsx:513</a></p>
+
+<H3Bordered text="Overview" />
+
+Handles the addition of a passkey (authenticator) for the user.
+
+<ul>
+  <li>This function opens a modal-driven flow for adding a new passkey authenticator (WebAuthn/FIDO2) to the user's account.</li>
+  <li>If a ``name`` or ``displayName`` is provided, those will be used for the passkey metadata; otherwise, defaults are generated based on the website and timestamp.</li>
+  <li>The passkey is created and linked to the specified user (by ``userId``) or the current session's user if not provided.</li>
+  <li>After successful addition, a success page is shown for the specified duration (or skipped if ``successPageDuration`` is 0).</li>
+  <li>Supports stamping the request with a specific stamper (``StamperType.Passkey``, ``StamperType.ApiKey``, or ``StamperType.Wallet``) for granular authentication control.</li>
+  <li>Automatically refreshes the user details state after successful addition to ensure the latest authenticators list is available in the provider.</li>
+  <li>Handles all error cases and throws a ``TurnkeyError`` with appropriate error codes.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="displayName" type='string' required={false}>
+display name for the passkey (shown to the user in the UI).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="name" type='string' required={false}>
+internal name for the passkey (for backend or developer reference).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="successPageDuration" type='number' required={false}>
+duration (in ms) for the success page after addition (default: 0, no success page).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="userId" type='string' required={false}>
+user ID to add the passkey for a specific user (defaults to current session's userId).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string[]" required={true}>
+  A promise that resolves to the user's updated passkeys.
+</ResponseField>

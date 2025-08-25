@@ -1,0 +1,66 @@
+---
+title: "signMessage()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Signs a message using the specified wallet account.
+
+<ul>
+  <li>Supports both embedded and connected wallets.</li>
+  <li>For **connected wallets**:</li>
+  <li>Delegates signing to the wallet provider’s native signing method.</li>
+  <li>**Important:** For Ethereum wallets (e.g., MetaMask), signatures follow [EIP-191](https://eips.ethereum.org/EIPS/eip-191).</li>
+</ul>
+
+The message is automatically prefixed with ``"\x19Ethereum Signed Message:\n" + message length`` before signing. As a result, this signature **cannot be used as a raw transaction signature** or broadcast on-chain.
+
+<ul>
+  <li>For **embedded wallets**, uses the Turnkey API to sign the message directly.</li>
+  <li>Automatically handles message encoding and hashing based on the wallet account’s address format,</li>
+</ul>
+
+unless explicitly overridden.
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1954">core.ts:1954</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="addEthereumPrefix" type='boolean' required={false}>
+whether to prefix the message with Ethereum's `"\x19Ethereum Signed Message:\n"` string.
+  - If `true` (default for Ethereum), the message is prefixed before signing.
+  - If `false`:
+    - Connected wallets will throw an error because they always prefix automatically.
+    - Embedded wallets will sign the raw message without any prefix.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="encoding" type='v1PayloadEncoding' required={false}>
+override for the payload encoding (defaults to the encoding appropriate for the address type).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="hashFunction" type='v1HashFunction' required={false}>
+override for the hash function (defaults to the hash function appropriate for the address type).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="message" type='string' required={true}>
+message to sign.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+stamper to tag the signing request (e.g., Passkey, ApiKey, or Wallet).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="walletAccount" type='WalletAccount' required={true}>
+wallet account to use for signing.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="v1SignRawPayloadResult" required={true} >
+  A promise resolving to a `v1SignRawPayloadResult` containing the signature and metadata.
+</ResponseField>

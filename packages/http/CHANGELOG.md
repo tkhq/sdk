@@ -1,5 +1,42 @@
 # @turnkey/http
 
+## 3.10.0-beta.2
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/webauthn-stamper@0.6.0-beta.0
+  - @turnkey/api-key-stamper@0.5.0-beta.5
+  - @turnkey/encoding@0.6.0-beta.5
+
+## 3.10.0-beta.1
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.4
+  - @turnkey/api-key-stamper@0.4.8-beta.4
+
+## 3.10.0-beta.0
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta-3 release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.3
+  - @turnkey/api-key-stamper@0.4.8-beta.3
+
 ## 3.10.0
 
 ### Minor Changes
@@ -11,6 +48,30 @@
 ### Minor Changes
 
 - [#834](https://github.com/tkhq/sdk/pull/834) [`8b39dba`](https://github.com/tkhq/sdk/commit/8b39dbabf68d3e376b5b07f26960d5b61ae87fa9) Author [@moeodeh3](https://github.com/moeodeh3) - Update per mono release v2025.8.3-hotfix.0
+
+## 3.8.1-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.2
+  - @turnkey/api-key-stamper@0.4.8-beta.2
+
+## 3.8.1-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.1
+  - @turnkey/api-key-stamper@0.4.8-beta.1
+
+## 3.8.1-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@1.0.0-beta.0
+  - @turnkey/api-key-stamper@0.4.8-beta.0
 
 ## 3.8.0
 
