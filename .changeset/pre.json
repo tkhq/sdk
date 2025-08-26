@@ -55,6 +55,7 @@
     "@turnkey/iframe-stamper": "2.5.0",
     "@turnkey/indexed-db-stamper": "1.1.2-beta.2",
     "@turnkey/react-native-passkey-stamper": "1.1.2-beta.2",
+    "@turnkey/react-native-wallet-kit": "1.0.0-beta.2",
     "@turnkey/react-wallet-kit": "1.0.0-beta.2",
     "@turnkey/sdk-browser": "5.6.1-beta.2",
     "@turnkey/sdk-react": "5.3.2-beta.2",
