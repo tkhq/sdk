@@ -2318,6 +2318,94 @@ importers:
         specifier: 5.3.0
         version: 5.3.0(@babel/core@7.26.9)(@types/babel__core@7.20.5)(rollup@4.41.1)
 
+  packages/react-native-wallet-kit:
+    dependencies:
+      '@fortawesome/fontawesome-svg-core':
+        specifier: ^6.7.2
+        version: 6.7.2
+      '@fortawesome/free-brands-svg-icons':
+        specifier: ^6.7.2
+        version: 6.7.2
+      '@fortawesome/free-solid-svg-icons':
+        specifier: ^6.7.2
+        version: 6.7.2
+      '@fortawesome/react-fontawesome':
+        specifier: ^0.2.2
+        version: 0.2.6(@fortawesome/fontawesome-svg-core@6.7.2)(react@18.3.1)
+      '@headlessui/react':
+        specifier: ^2.2.6
+        version: 2.2.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@lottiefiles/react-lottie-player':
+        specifier: ^3.6.0
+        version: 3.6.0(react@18.3.1)
+      '@noble/hashes':
+        specifier: ^1.8.0
+        version: 1.8.0
+      '@turnkey/core':
+        specifier: workspace:*
+        version: link:../core
+      '@turnkey/iframe-stamper':
+        specifier: workspace:^
+        version: link:../iframe-stamper
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
+      buffer:
+        specifier: ^6.0.3
+        version: 6.0.3
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      libphonenumber-js:
+        specifier: ^1.11.14
+        version: 1.12.8
+      qrcode.react:
+        specifier: ^4.2.0
+        version: 4.2.0(react@18.3.1)
+      react-international-phone:
+        specifier: ^4.3.0
+        version: 4.5.0(react@18.3.1)
+    devDependencies:
+      '@rollup/plugin-babel':
+        specifier: 5.3.0
+        version: 5.3.0(@babel/core@7.27.3)(@types/babel__core@7.20.5)(rollup@4.41.1)
+      '@rollup/plugin-node-resolve':
+        specifier: 16.0.0
+        version: 16.0.0(rollup@4.41.1)
+      '@rollup/plugin-strip':
+        specifier: ^3.0.4
+        version: 3.0.4(rollup@4.41.1)
+      '@tailwindcss/postcss':
+        specifier: ^4.1.10
+        version: 4.1.12
+      '@types/react':
+        specifier: ^18.2.75
+        version: 18.3.23
+      '@types/react-dom':
+        specifier: ^18.2.7
+        version: 18.3.7(@types/react@18.3.23)
+      autoprefixer:
+        specifier: ^10.0.1
+        version: 10.4.21(postcss@8.5.6)
+      glob:
+        specifier: ^8.0.3
+        version: 8.1.0
+      postcss:
+        specifier: ^8.4.38
+        version: 8.5.6
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      tailwindcss:
+        specifier: ^4.1.10
+        version: 4.1.12
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   packages/react-wallet-kit:
     dependencies:
       '@fortawesome/fontawesome-svg-core':
