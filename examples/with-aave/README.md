@@ -4,7 +4,7 @@ This example shows how to use a Turnkey wallet to interact with Aave v3 on Base 
 
 - `deposit.ts` approves the Aave Pool contract to spend USDC and deposits USDC into Aave
 - `balance.ts` reads the aUSDC balance (eg. the deposit receipt)
-- `withdraw.ts` is withdrawing an USDC amount from the pool
+- `withdraw.ts` withdraws an USDC amount from the pool
 
 On top of it, we showcase the power of the Turnkey policy engine by allowing a non-root Turnkey user to only sign the specific transactions to the USDC and Aave Pool contract addresses:
 
