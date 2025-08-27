@@ -29,7 +29,7 @@ export default function RootLayout({
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
       <body className="font-sans">
         <div className="bg-yellow-100 border-b border-yellow-200 px-4 py-2 text-center">
-          <p className="text-sm text-yellow-800 font-medium">🚧 Demo Mode - This is a demo application</p>
+          <p className="text-sm text-yellow-800 font-medium">🚧 - This is a demo application</p>
         </div>
         {children}
       </body>

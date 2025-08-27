@@ -11,6 +11,8 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Missing state" }, { status: 400 });
     }
 
+    // construct a TurnkeyClient with the parent organization api key saved in .env.local
+    // this is a server component and is never exposed to the client
     const turnkeyClient = new TurnkeySDKClient({
         apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
         apiPublicKey: process.env.API_PUBLIC_KEY!,
@@ -18,7 +20,7 @@ export async function POST(req: Request) {
         defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     });
 
-    const oauth2AuthenticateResponse = turnkeyClient.apiClient()
+    // const oauth2AuthenticateResponse = turnkeyClient.apiClient().oauth2Authenticate
 
     // in production your should check the state parameter to ensure that it matches what was generated
     // if state != generated stated {

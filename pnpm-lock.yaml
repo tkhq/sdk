@@ -1800,6 +1800,12 @@ importers:
       '@radix-ui/react-slot':
         specifier: ^1.2.3
         version: 1.2.3(@types/react@19.1.11)(react@19.1.0)
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../packages/crypto
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../packages/encoding
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
@@ -1809,6 +1815,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.5.0
       lucide-react:
         specifier: ^0.542.0
         version: 0.542.0(react@19.1.0)
