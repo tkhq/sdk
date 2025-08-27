@@ -415,7 +415,7 @@ export class TurnkeySDKClientBase {
       );
     } else if (methodType === "command") {
       const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-        .replace(/([a-z])([A-Z])/g, "$1_$2")
+        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
         .toUpperCase()}`;
       const versionedActivityType =
         VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
