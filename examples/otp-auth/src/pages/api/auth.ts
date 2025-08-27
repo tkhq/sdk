@@ -44,7 +44,7 @@ export default async function auth(
     // Creates a session using a previously obtained `verificationToken`.
     // Returns a session JWT.
     const otpLoginResponse = await turnkeyClient.apiClient().otpLogin({
-      organizationId: request.suborgID,
+      organizationId: request.suborgID?.trim() || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       verificationToken: verificationToken,
       publicKey: request.publicKey,
     });

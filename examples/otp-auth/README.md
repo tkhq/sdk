@@ -28,6 +28,7 @@ The first step is to set up your Turnkey organization and account. By following 
 
 - A public/private API key pair for Turnkey
 - An organization ID
+- A user with an email and permissions to create a wallet (your root user will have full permissions by default)
 
 Once you've gathered these values, add them to a new `.env.local` file. Notice that your API private key should be securely managed and **_never_** be committed to git.
 
