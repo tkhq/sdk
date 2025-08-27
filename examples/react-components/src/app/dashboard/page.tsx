@@ -45,9 +45,6 @@ import Navbar from "../components/Navbar";
 import { Toaster, toast } from "sonner";
 import { jwtDecode } from "jwt-decode";
 import { useSessionExpiry } from "../providers/SessionExpiryProvider";
-import { MoonPayBuyWidget } from "@moonpay/moonpay-react";
-import { loadMoonPay } from "@moonpay/moonpay-js";
-import crypto from "crypto";
 
 import { OnRamp } from "./OnRamp";
 

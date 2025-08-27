@@ -28,6 +28,7 @@ import {
   recoverMessageAddress,
   type Account,
 } from "viem";
+const { pushPage } = useModal();
 import { SessionKey } from "@turnkey/react-wallet-kit";
 import { parseEther, Transaction as EthTransaction } from "ethers";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
@@ -282,6 +283,34 @@ export default function AuthPage() {
       subTitle: "Edit your user name",
     });
     console.log("User name updated successfully: ", res);
+  };
+
+  const showModal = () => {
+    pushPage({
+      key: "example-modal",
+      content: (
+        <div>
+          <h2>Example Modal</h2>
+          <p>This is an example modal content.</p>
+          <button
+            onClick={() =>
+              pushPage({
+                key: "nested-modal",
+                content: <p>Nested Modal Content</p>,
+              })
+            }
+            style={{
+              backgroundColor: "lightcoral",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Open Nested Modal
+          </button>
+        </div>
+      ),
+    });
   };
 
   return (

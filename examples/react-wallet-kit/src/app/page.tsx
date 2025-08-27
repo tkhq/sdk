@@ -71,7 +71,7 @@ export default function AuthPage() {
           </div>
         ) : (
           <TabGroup
-            onChange={(index) => setSelectedTabIndex(index)}
+            onChange={(index: number) => setSelectedTabIndex(index)}
             selectedIndex={selectedTabIndex}
           >
             <TabPanels className="flex justify-center items-center">

@@ -54,6 +54,7 @@ import {
   type v1PayloadEncoding,
   type v1HashFunction,
   type v1Curve,
+  TInitFiatOnRampBody,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -1082,6 +1083,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     },
     [client, callbacks],
   );
+
+  async function initFiatOnramp(
+    params: TInitFiatOnRampBody,
+  ): Promise<{ onRampUrl: string; onRampTransactionId: string }> {
+    if (!client) {
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    return withTurnkeyErrorHandling(
+      () => client.initFiatOnramp(params),
+      callbacks,
+      "Failed to initialize OTP",
+    );
+  }
 
   const loginWithWallet = useCallback(
     async (params: {
@@ -4121,6 +4138,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         loginWithWallet,
         signUpWithWallet,
         loginOrSignupWithWallet,
+        initFiatOnramp,
         initOtp,
         verifyOtp,
         loginWithOtp,
