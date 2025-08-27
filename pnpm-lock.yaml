@@ -715,6 +715,24 @@ importers:
         specifier: 18.2.6
         version: 18.2.6
 
+  examples/with-aave:
+    dependencies:
+      '@bgd-labs/aave-address-book':
+        specifier: ^4.28.2
+        version: 4.28.2(viem@2.30.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.33))
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      '@turnkey/viem':
+        specifier: workspace:*
+        version: link:../../packages/viem
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.5.0
+      viem:
+        specifier: ^2.24.2
+        version: 2.30.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.33)
+
   examples/with-aptos:
     dependencies:
       '@noble/hashes':
@@ -3102,6 +3120,11 @@ packages:
 
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
+
+  '@bgd-labs/aave-address-book@4.28.2':
+    resolution: {integrity: sha512-6KTyDvmz045THhIBCuiiG6gbvK9c6DaGDF1ErwqV8kkVseagxN50h1J4abe7bv7xCysrHdzCDHEx5zj/20FI7A==}
+    peerDependencies:
+      viem: ^2.23.5
 
   '@biconomy/account@4.5.7':
     resolution: {integrity: sha512-hJjbCJNanwDzXprKCCrHB1iV+MdQagt79Zuyv3+j1EojseWmFPXAvZagS2rcYJu1XPFlt65nckQLtW8I/eutnw==}
@@ -15124,6 +15147,10 @@ snapshots:
       '@babel/helper-validator-identifier': 7.27.1
 
   '@bcoe/v8-coverage@0.2.3': {}
+
+  '@bgd-labs/aave-address-book@4.28.2(viem@2.30.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.33))':
+    dependencies:
+      viem: 2.30.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.33)
 
   '@biconomy/account@4.5.7(typescript@5.4.3)(viem@2.23.13(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.33))':
     dependencies:
