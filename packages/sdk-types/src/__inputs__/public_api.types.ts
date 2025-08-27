@@ -2225,7 +2225,7 @@ export type definitions = {
     countrySubdivisionCode?: string;
     /** @description Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false. */
     sandboxMode?: boolean;
-    /** @description Optional MoonPay URL to sign for use with the SDKs */
+    /** @description Optional MoonPay Widget URL to sign when using MoonPay client SDKs with URL Signing enabled. */
     urlForSignature?: string;
   };
   v1InitFiatOnRampRequest: {
@@ -2242,10 +2242,8 @@ export type definitions = {
     onRampUrl: string;
     /** @description Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
     onRampTransactionId: string;
-    /** @description Optional MoonPay URL to sign for use with the SDKs */
-    onRampUrlUnsigned?: string;
-    /** @description Optional MoonPay signature to use with the SDKs */
-    onRampSignatureRaw?: string;
+    /** @description Optional signature of the MoonPay Widget URL. The signature is generated if the Init Fiat On Ramp intent includes the urlForSignature field. The signature can be used to initialize the MoonPay SDKs when URL signing is enabled for your project. */
+    onRampUrlSignature?: string;
   };
   v1InitImportPrivateKeyIntent: {
     /** @description The ID of the User importing a Private Key. */

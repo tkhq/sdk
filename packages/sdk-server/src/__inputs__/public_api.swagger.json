@@ -7442,7 +7442,7 @@
         },
         "urlForSignature": {
           "type": "string",
-          "description": "Optional MoonPay URL to sign for use with the SDKs"
+          "description": "Optional MoonPay Widget URL to sign when using MoonPay client SDKs with URL Signing enabled."
         }
       },
       "required": [
@@ -7484,13 +7484,9 @@
           "type": "string",
           "description": "Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow."
         },
-        "onRampUrlUnsigned": {
+        "onRampUrlSignature": {
           "type": "string",
-          "description": "Optional MoonPay URL to sign for use with the SDKs"
-        },
-        "onRampSignatureRaw": {
-          "type": "string",
-          "description": "Optional MoonPay signature to use with the SDKs"
+          "description": "Optional signature of the MoonPay Widget URL. The signature is generated if the Init Fiat On Ramp intent includes the urlForSignature field. The signature can be used to initialize the MoonPay SDKs when URL signing is enabled for your project."
         }
       },
       "required": ["onRampUrl", "onRampTransactionId"]

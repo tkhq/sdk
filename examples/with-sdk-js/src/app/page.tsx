@@ -219,7 +219,7 @@ export default function AuthPage() {
         testnet: true,
       },
       transport: http(
-        `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`
+        `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`,
       ),
     });
 
@@ -672,7 +672,7 @@ export default function AuthPage() {
 
           console.log(
             "Switching Ethereum chain to mainnet for account:",
-            wallets[0].accounts[0]
+            wallets[0].accounts[0],
           );
           await switchWalletAccountChain({
             walletAccount: wallets[0].accounts[0],
@@ -695,7 +695,7 @@ export default function AuthPage() {
 
           console.log(
             "Switching Ethereum chain to Polygon for account:",
-            wallets[0].accounts[0]
+            wallets[0].accounts[0],
           );
           await switchWalletAccountChain({
             walletAccount: wallets[0].accounts[0],
@@ -722,7 +722,7 @@ export default function AuthPage() {
               fromPubkey: from,
               toPubkey: from,
               lamports: 1_000,
-            })
+            }),
           );
 
           tx.recentBlockhash = "11111111111111111111111111111111";

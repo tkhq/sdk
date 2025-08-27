@@ -1099,8 +1099,7 @@ export class TurnkeyClient {
   ): Promise<{
     onRampUrl: string;
     onRampTransactionId: string;
-    onRampUrlUnsigned?: string;
-    onRampSignatureRaw?: string;
+    onRampUrlSignature?: string;
   }> => {
     return withTurnkeyErrorHandling(
       async () => {
@@ -1116,8 +1115,7 @@ export class TurnkeyClient {
         return {
           onRampUrl: initFiatOnRampRes.onRampUrl,
           onRampTransactionId: initFiatOnRampRes.onRampTransactionId,
-          onRampUrlUnsigned: initFiatOnRampRes.onRampUrlUnsigned ?? "",
-          onRampSignatureRaw: initFiatOnRampRes.onRampSignatureRaw ?? "",
+          onRampUrlSignature: initFiatOnRampRes.onRampUrlSignature ?? "",
         };
       },
       {

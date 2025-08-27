@@ -2000,7 +2000,7 @@ export type v1InitFiatOnRampIntent = {
   countrySubdivisionCode?: string;
   /** Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false. */
   sandboxMode?: boolean;
-  /** Optional MoonPay URL to sign for use with the SDKs */
+  /** Optional MoonPay Widget URL to sign when using MoonPay client SDKs with URL Signing enabled. */
   urlForSignature?: string;
 };
 
@@ -2018,10 +2018,8 @@ export type v1InitFiatOnRampResult = {
   onRampUrl: string;
   /** Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
   onRampTransactionId: string;
-  /** Optional MoonPay URL to sign for use with the SDKs */
-  onRampUrlUnsigned?: string;
-  /** Optional MoonPay signature to use with the SDKs */
-  onRampSignatureRaw?: string;
+  /** Optional signature of the MoonPay Widget URL. The signature is generated if the Init Fiat On Ramp intent includes the urlForSignature field. The signature can be used to initialize the MoonPay SDKs when URL signing is enabled for your project. */
+  onRampUrlSignature?: string;
 };
 
 export type v1InitImportPrivateKeyIntent = {
@@ -4522,10 +4520,8 @@ export type TInitFiatOnRampResponse = {
   onRampUrl: string;
   /** Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
   onRampTransactionId: string;
-  /** Optional MoonPay URL to sign for use with the SDKs */
-  onRampUrlUnsigned?: string;
-  /** Optional MoonPay signature to use with the SDKs */
-  onRampSignatureRaw?: string;
+  /** Optional signature of the MoonPay Widget URL. The signature is generated if the Init Fiat On Ramp intent includes the urlForSignature field. The signature can be used to initialize the MoonPay SDKs when URL signing is enabled for your project. */
+  onRampUrlSignature?: string;
 };
 
 export type TInitFiatOnRampBody = {
@@ -4551,7 +4547,7 @@ export type TInitFiatOnRampBody = {
   countrySubdivisionCode?: string;
   /** Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false. */
   sandboxMode?: boolean;
-  /** Optional MoonPay URL to sign for use with the SDKs */
+  /** Optional MoonPay Widget URL to sign when using MoonPay client SDKs with URL Signing enabled. */
   urlForSignature?: string;
 };
 
