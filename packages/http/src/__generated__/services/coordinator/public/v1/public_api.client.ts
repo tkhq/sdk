@@ -31,6 +31,10 @@ import type {
   TGetAuthenticatorsResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetOauth2CredentialBody,
+  TGetOauth2CredentialResponse,
+} from "./public_api.fetcher";
+import type {
   TGetOauthProvidersBody,
   TGetOauthProvidersResponse,
 } from "./public_api.fetcher";
@@ -64,6 +68,10 @@ import type {
 import type {
   TGetActivitiesBody,
   TGetActivitiesResponse,
+} from "./public_api.fetcher";
+import type {
+  TListOauth2CredentialsBody,
+  TListOauth2CredentialsResponse,
 } from "./public_api.fetcher";
 import type {
   TGetPoliciesBody,
@@ -122,6 +130,10 @@ import type {
 import type {
   TCreateInvitationsBody,
   TCreateInvitationsResponse,
+} from "./public_api.fetcher";
+import type {
+  TCreateOauth2CredentialBody,
+  TCreateOauth2CredentialResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateOauthProvidersBody,
@@ -186,6 +198,10 @@ import type {
 import type {
   TDeleteInvitationBody,
   TDeleteInvitationResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteOauth2CredentialBody,
+  TDeleteOauth2CredentialResponse,
 } from "./public_api.fetcher";
 import type {
   TDeleteOauthProvidersBody,
@@ -267,6 +283,10 @@ import type {
 } from "./public_api.fetcher";
 import type { TOauthBody, TOauthResponse } from "./public_api.fetcher";
 import type {
+  TOauth2AuthenticateBody,
+  TOauth2AuthenticateResponse,
+} from "./public_api.fetcher";
+import type {
   TOauthLoginBody,
   TOauthLoginResponse,
 } from "./public_api.fetcher";
@@ -303,6 +323,10 @@ import type {
 import type {
   TStampLoginBody,
   TStampLoginResponse,
+} from "./public_api.fetcher";
+import type {
+  TUpdateOauth2CredentialBody,
+  TUpdateOauth2CredentialResponse,
 } from "./public_api.fetcher";
 import type {
   TUpdatePolicyBody,
@@ -561,6 +585,38 @@ export class TurnkeyClient {
     input: TGetAuthenticatorsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_authenticators";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get details about an OAuth 2.0 credential.
+   *
+   * Sign the provided `TGetOauth2CredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_oauth2_credential).
+   *
+   * See also {@link stampGetOauth2Credential}.
+   */
+  getOauth2Credential = async (
+    input: TGetOauth2CredentialBody,
+  ): Promise<TGetOauth2CredentialResponse> => {
+    return this.request("/public/v1/query/get_oauth2_credential", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetOauth2CredentialBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetOauth2Credential}.
+   */
+  stampGetOauth2Credential = async (
+    input: TGetOauth2CredentialBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_oauth2_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -894,6 +950,38 @@ export class TurnkeyClient {
     input: TGetActivitiesBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_activities";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List all OAuth 2.0 credentials within an organization.
+   *
+   * Sign the provided `TListOauth2CredentialsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_oauth2_credentials).
+   *
+   * See also {@link stampListOauth2Credentials}.
+   */
+  listOauth2Credentials = async (
+    input: TListOauth2CredentialsBody,
+  ): Promise<TListOauth2CredentialsResponse> => {
+    return this.request("/public/v1/query/list_oauth2_credentials", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListOauth2CredentialsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListOauth2Credentials}.
+   */
+  stampListOauth2Credentials = async (
+    input: TListOauth2CredentialsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_oauth2_credentials";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1388,6 +1476,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_invitations";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Enable authentication for end users with an OAuth 2.0 provider
+   *
+   * Sign the provided `TCreateOauth2CredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_oauth2_credential).
+   *
+   * See also {@link stampCreateOauth2Credential}.
+   */
+  createOauth2Credential = async (
+    input: TCreateOauth2CredentialBody,
+  ): Promise<TCreateOauth2CredentialResponse> => {
+    return this.request("/public/v1/submit/create_oauth2_credential", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateOauth2CredentialBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateOauth2Credential}.
+   */
+  stampCreateOauth2Credential = async (
+    input: TCreateOauth2CredentialBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_oauth2_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1896,6 +2016,38 @@ export class TurnkeyClient {
     input: TDeleteInvitationBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_invitation";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Disable authentication for end users with an OAuth 2.0 provider
+   *
+   * Sign the provided `TDeleteOauth2CredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_oauth2_credential).
+   *
+   * See also {@link stampDeleteOauth2Credential}.
+   */
+  deleteOauth2Credential = async (
+    input: TDeleteOauth2CredentialBody,
+  ): Promise<TDeleteOauth2CredentialResponse> => {
+    return this.request("/public/v1/submit/delete_oauth2_credential", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteOauth2CredentialBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteOauth2Credential}.
+   */
+  stampDeleteOauth2Credential = async (
+    input: TDeleteOauth2CredentialBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_oauth2_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2590,6 +2742,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities
+   *
+   * Sign the provided `TOauth2AuthenticateBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/oauth2_authenticate).
+   *
+   * See also {@link stampOauth2Authenticate}.
+   */
+  oauth2Authenticate = async (
+    input: TOauth2AuthenticateBody,
+  ): Promise<TOauth2AuthenticateResponse> => {
+    return this.request("/public/v1/submit/oauth2_authenticate", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TOauth2AuthenticateBody` by using the client's `stamp` function.
+   *
+   * See also {@link Oauth2Authenticate}.
+   */
+  stampOauth2Authenticate = async (
+    input: TOauth2AuthenticateBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/oauth2_authenticate";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Create an Oauth session for a user.
    *
    * Sign the provided `TOauthLoginBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/oauth_login).
@@ -2907,6 +3091,38 @@ export class TurnkeyClient {
    */
   stampStampLogin = async (input: TStampLoginBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/stamp_login";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update an OAuth 2.0 provider credential
+   *
+   * Sign the provided `TUpdateOauth2CredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_oauth2_credential).
+   *
+   * See also {@link stampUpdateOauth2Credential}.
+   */
+  updateOauth2Credential = async (
+    input: TUpdateOauth2CredentialBody,
+  ): Promise<TUpdateOauth2CredentialResponse> => {
+    return this.request("/public/v1/submit/update_oauth2_credential", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateOauth2CredentialBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateOauth2Credential}.
+   */
+  stampUpdateOauth2Credential = async (
+    input: TUpdateOauth2CredentialBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/update_oauth2_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

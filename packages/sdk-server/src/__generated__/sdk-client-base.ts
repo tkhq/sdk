@@ -291,6 +291,32 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getOauth2Credential = async (
+    input: SdkApiTypes.TGetOauth2CredentialBody,
+  ): Promise<SdkApiTypes.TGetOauth2CredentialResponse> => {
+    return this.request("/public/v1/query/get_oauth2_credential", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetOauth2Credential = async (
+    input: SdkApiTypes.TGetOauth2CredentialBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_oauth2_credential";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getOauthProviders = async (
     input: SdkApiTypes.TGetOauthProvidersBody,
   ): Promise<SdkApiTypes.TGetOauthProvidersResponse> => {
@@ -563,6 +589,32 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_activities";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listOauth2Credentials = async (
+    input: SdkApiTypes.TListOauth2CredentialsBody,
+  ): Promise<SdkApiTypes.TListOauth2CredentialsResponse> => {
+    return this.request("/public/v1/query/list_oauth2_credentials", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampListOauth2Credentials = async (
+    input: SdkApiTypes.TListOauth2CredentialsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_oauth2_credentials";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1005,6 +1057,39 @@ export class TurnkeySDKClientBase {
     }
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_invitations";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createOauth2Credential = async (
+    input: SdkApiTypes.TCreateOauth2CredentialBody,
+  ): Promise<SdkApiTypes.TCreateOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_oauth2_credential",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL",
+      },
+      "createOauth2CredentialResult",
+    );
+  };
+
+  stampCreateOauth2Credential = async (
+    input: SdkApiTypes.TCreateOauth2CredentialBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_oauth2_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1531,6 +1616,39 @@ export class TurnkeySDKClientBase {
     }
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_invitation";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteOauth2Credential = async (
+    input: SdkApiTypes.TDeleteOauth2CredentialBody,
+  ): Promise<SdkApiTypes.TDeleteOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_oauth2_credential",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
+      },
+      "deleteOauth2CredentialResult",
+    );
+  };
+
+  stampDeleteOauth2Credential = async (
+    input: SdkApiTypes.TDeleteOauth2CredentialBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_oauth2_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2258,6 +2376,39 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  oauth2Authenticate = async (
+    input: SdkApiTypes.TOauth2AuthenticateBody,
+  ): Promise<SdkApiTypes.TOauth2AuthenticateResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/oauth2_authenticate",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
+      },
+      "oauth2AuthenticateResult",
+    );
+  };
+
+  stampOauth2Authenticate = async (
+    input: SdkApiTypes.TOauth2AuthenticateBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/oauth2_authenticate";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   oauthLogin = async (
     input: SdkApiTypes.TOauthLoginBody,
   ): Promise<SdkApiTypes.TOauthLoginResponse> => {
@@ -2603,6 +2754,39 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/stamp_login";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  updateOauth2Credential = async (
+    input: SdkApiTypes.TUpdateOauth2CredentialBody,
+  ): Promise<SdkApiTypes.TUpdateOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/update_oauth2_credential",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL",
+      },
+      "updateOauth2CredentialResult",
+    );
+  };
+
+  stampUpdateOauth2Credential = async (
+    input: SdkApiTypes.TUpdateOauth2CredentialBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_oauth2_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
