@@ -9,6 +9,7 @@ import { server } from "@turnkey/sdk-server";
 import { SessionType } from "@turnkey/sdk-types";
 
 export default function AuthPage() {
+  // add a test comment
   const { indexedDbClient, passkeyClient, turnkey } = useTurnkey();
   const [whoamI, setWhoAmI] = useState<any | null>(null);
   const [session, setSession] = useState<any | null>(null);
