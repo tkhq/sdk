@@ -1,38 +1,30 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import "./globals.css"
+"use client";
 
-const geistSans = Geist({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-geist-sans",
-})
+import { TurnkeyProvider } from "@turnkey/sdk-react";
+import "./globals.css";
 
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-geist-mono",
-})
+const turnkeyConfig = {
+  apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+  defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
+};
 
-export const metadata: Metadata = {
-  title: "Login with X",
-  description: "Simple Turnkey login with X app",
+interface RootLayoutProps {
+  children: React.ReactNode;
 }
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" className={`antialiased`}>
       <body className="font-sans">
         <div className="bg-yellow-100 border-b border-yellow-200 px-4 py-2 text-center">
-          <p className="text-sm text-yellow-800 font-medium">🚧 - This is a demo application</p>
+          <p className="text-sm text-yellow-800 font-medium">
+            🚧 - This is a demo application
+          </p>
         </div>
-        {children}
+        <TurnkeyProvider config={turnkeyConfig}>{children}</TurnkeyProvider>
       </body>
     </html>
-  )
+  );
 }
+
+export default RootLayout;

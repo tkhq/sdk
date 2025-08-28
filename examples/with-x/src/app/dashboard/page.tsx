@@ -1,71 +1,103 @@
-"use client"
+"use client";
 
-import { useState } from "react";
-import  Image  from "next/Image";
-import { useRouter } from "next/navigation"
+import { useState, useEffect, useRef } from "react";
+import Image from "next/Image";
+import { useRouter } from "next/navigation";
+import { useTurnkey } from "@turnkey/sdk-react";
 
 export default function Dashboard() {
-  const [copiedField, setCopiedField] = useState<string | null>(null)
-  const router = useRouter()
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const router = useRouter();
+  const indexedDbInitialized = useRef(false);
+  const [userId, setUserId] = useState<string>(
+    "00000000-0000-0000-0000-000000000000",
+  );
+  const [walletAddress, setWalletAddress] = useState<string>("0x");
+  const { indexedDbClient } = useTurnkey();
 
-  // Mock user data
-  const userData = {
-    userId: "usr_7x9k2m4n8p1q",
-    walletId: "wallet_5a3b7c9d2e4f",
-    walletName: "My Solana Wallet",
-    assetType: "Solana",
-  }
+  const walletName = "My Solana Wallet";
+
+  useEffect(() => {
+    const getAccountInfo = async () => {
+      if (indexedDbClient !== undefined && !indexedDbInitialized.current) {
+        indexedDbInitialized.current = true;
+
+        try {
+          const whoamIResponse = await indexedDbClient.getWhoami();
+          setUserId(whoamIResponse.userId);
+
+          const getWalletsResponse = await indexedDbClient.getWallets({
+            organizationId: whoamIResponse.organizationId,
+          });
+
+          const getWalletAccountsResponse =
+            await indexedDbClient.getWalletAccounts({
+              organizationId: whoamIResponse.organizationId,
+              walletId: getWalletsResponse.wallets[0].walletId,
+            });
+
+          setWalletAddress(getWalletAccountsResponse.accounts[0].address);
+        } catch (e) {
+          console.error("Failed obtaining account information");
+        }
+      }
+    };
+
+    getAccountInfo();
+  }, [indexedDbClient]);
 
   const copyToClipboard = async (text: string, fieldName: string) => {
     try {
-      await navigator.clipboard.writeText(text)
-      setCopiedField(fieldName)
-      setTimeout(() => setCopiedField(null), 2000)
+      await navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      setTimeout(() => setCopiedField(null), 2000);
     } catch (err) {
-      console.error("Failed to copy text: ", err)
+      console.error("Failed to copy text: ", err);
     }
-  }
-
-  const abbreviateWalletId = (walletId: string) => {
-    if (walletId.length <= 10) return walletId
-    return `${walletId.slice(0, 3)}...${walletId.slice(-3)}`
-  }
+  };
 
   const handleLogout = () => {
-    router.push("/")
-  }
+    router.push("/");
+  };
 
   return (
     <main className="min-h-screen bg-background p-6">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8 flex items-center gap-4">
-          <Image
-            src="/turnkey.png"
-            alt="Turnkey Logo"
-            width={64}
-            height={64}
-          />
+          <Image src="/turnkey.png" alt="Turnkey Logo" width={64} height={64} />
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome to your wallet dashboard</p>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Dashboard
+            </h1>
+            <p className="text-muted-foreground">
+              Welcome to your wallet dashboard
+            </p>
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="bg-card border rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4">User Information</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
+              User Information
+            </h2>
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
               <div>
-                <label className="text-sm font-medium text-muted-foreground">User ID</label>
-                <p className="text-foreground font-mono">{userData.userId}</p>
+                <label className="text-sm font-medium text-muted-foreground">
+                  User ID
+                </label>
+                <p className="text-foreground font-mono">{userId}</p>
               </div>
               <button
-                onClick={() => copyToClipboard(userData.userId, "userId")}
+                onClick={() => copyToClipboard(userId, "userId")}
                 className="p-2 hover:bg-muted rounded transition-colors"
                 title="Copy User ID"
               >
                 {copiedField === "userId" ? (
-                  <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    className="w-4 h-4 text-green-600"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -73,7 +105,12 @@ export default function Dashboard() {
                     />
                   </svg>
                 ) : (
-                  <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-4 h-4 text-muted-foreground"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -87,7 +124,9 @@ export default function Dashboard() {
           </div>
 
           <div className="bg-card border rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-4">Wallet Information</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-4">
+              Wallet Information
+            </h2>
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-3">
                 <svg className="w-6 h-6" viewBox="0 0 397.7 311.7" fill="none">
@@ -116,19 +155,25 @@ export default function Dashboard() {
                   />
                 </svg>
                 <div>
-                  <p className="text-foreground font-medium">{userData.walletName}</p>
+                  <p className="text-foreground font-medium">{walletName}</p>
                   <p className="text-sm text-muted-foreground">Solana Wallet</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-foreground font-mono text-sm">{abbreviateWalletId(userData.walletId)}</span>
+                <span className="text-foreground font-mono text-sm">
+                  {walletAddress}
+                </span>
                 <button
-                  onClick={() => copyToClipboard(userData.walletId, "walletId")}
+                  onClick={() => copyToClipboard(walletAddress, "walletId")}
                   className="p-2 hover:bg-muted rounded transition-colors"
                   title="Copy Wallet ID"
                 >
                   {copiedField === "walletId" ? (
-                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg
+                      className="w-4 h-4 text-green-600"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
                       <path
                         fillRule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -165,5 +210,5 @@ export default function Dashboard() {
         </div>
       </div>
     </main>
-  )
+  );
 }

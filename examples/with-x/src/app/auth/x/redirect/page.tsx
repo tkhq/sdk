@@ -1,26 +1,56 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import axios from "axios";
+import { useTurnkey } from "@turnkey/sdk-react";
 
 export default function LoadingPage() {
+  const { indexedDbClient } = useTurnkey();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const auth_code = searchParams.get("code"); 
+  const [pubKey, setPubKey] = useState<string | null>(null);
+  const indexedDbInitialized = useRef(false);
+
+  const auth_code = searchParams.get("code");
   const state = searchParams.get("state");
 
-  console.log(auth_code)
-  console.log(state)
+  useEffect(() => {
+    const refreshKey = async () => {
+      if (indexedDbClient !== undefined && !indexedDbInitialized.current) {
+        indexedDbInitialized.current = true;
 
-  const router = useRouter()
+        await indexedDbClient.resetKeyPair();
+        const newKey = await indexedDbClient.getPublicKey();
+
+        if (newKey) {
+          setPubKey(newKey);
+        }
+      }
+    };
+
+    refreshKey();
+  }, [indexedDbClient]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      router.push("/dashboard")
-    }, 1000)
+    const turnkeyAuth = async () => {
+      if (pubKey == undefined) return;
 
-    return () => clearTimeout(timer)
-  }, [router])
+      try {
+        const { data } = await axios.post("/auth/turnkey/x", {
+          auth_code: auth_code,
+          state: state,
+          public_key: pubKey,
+        });
 
+        router.push("/dashboard");
+      } catch (e) {
+        console.error(`Failed logging in: ${e}`);
+        router.push("/");
+      }
+    };
+    turnkeyAuth();
+  }, [pubKey]);
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -29,8 +59,10 @@ export default function LoadingPage() {
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 border-t-black"></div>
         </div>
         <h1 className="text-2xl font-semibold text-foreground">Logging In</h1>
-        <p className="text-muted-foreground">Please wait while we sign you in...</p>
+        <p className="text-muted-foreground">
+          Please wait while we sign you in...
+        </p>
       </div>
     </main>
-  )
+  );
 }
