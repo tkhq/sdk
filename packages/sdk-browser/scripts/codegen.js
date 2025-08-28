@@ -88,7 +88,7 @@ function extractLatestVersions(definitions) {
 
   // Regex to separate the version prefix, base activity details, and (optional) activity version
   // prettier-ignore
-  const keyVersionRegex = /^(?<prefix>v\d+)(?<name>[A-Z][a-z0-9]*(?:[A-Z][a-z0-9]*)*)(?<suffix>V\d+)?$/;
+  const keyVersionRegex = /^(v\d+)([A-Za-z0-9]+?)(V\d+)?$/
 
   Object.keys(definitions).forEach((key) => {
     const match = key.match(keyVersionRegex);
