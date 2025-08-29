@@ -1,0 +1,46 @@
+---
+title: "signUpWithWallet()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Signs up a user using a wallet, creating a new sub-organization and session.
+
+<ul>
+  <li>This function creates a new wallet authenticator and uses it to register a new sub-organization for the user.</li>
+  <li>Handles both wallet authentication and sub-organization creation in a single flow.</li>
+  <li>Optionally accepts additional sub-organization parameters, a custom session key, and a custom session expiration.</li>
+  <li>Automatically generates additional API key pairs for authentication and session management.</li>
+  <li>Stores the resulting session token under the specified session key, or the default session key if not provided, and manages cleanup of unused key pairs.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="createSubOrgParams" type='CreateSubOrgParams' required={false}>
+parameters for creating a sub-organization (e.g., authenticators, user metadata).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="expirationSeconds" type='string' required={false}>
+session expiration time in seconds (defaults to the configured default).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
+session key to use for storing the session (defaults to the default session key).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="walletProvider" type='WalletProvider' required={true}>
+wallet provider to use for authentication.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true}>
+  A promise that resolves to a signed JWT session token for the new sub-organization.
+</ResponseField>

@@ -1,0 +1,46 @@
+---
+title: "updateUserPhoneNumber()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Updates the user's phone number.
+
+<ul>
+  <li>This function updates the user's phone number and, if provided, verifies it using a verification token (from an OTP flow).</li>
+  <li>If a userId is provided, it updates the phone number for that specific user; otherwise, it uses the current session's userId.</li>
+  <li>If a verificationToken is not provided, the phone number will be updated but will not be marked as verified.</li>
+  <li>Automatically ensures an active session exists before making the request.</li>
+  <li>Handles session management and error reporting for both update and verification flows.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="phoneNumber" type='string' required={true}>
+new phone number to set for the user.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="userId" type='string' required={false}>
+user ID to update a specific user's phone number (defaults to the current session's userId).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="verificationToken" type='string' required={false}>
+verification token from OTP phone verification (required if verifying the phone number).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true}>
+  A promise that resolves to the userId of the updated user.
+</ResponseField>

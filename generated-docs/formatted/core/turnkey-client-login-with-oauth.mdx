@@ -1,0 +1,47 @@
+---
+title: "loginWithOauth()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Logs in a user using OAuth authentication.
+
+<ul>
+  <li>This function logs in a user using the provided OIDC token and public key.</li>
+  <li>Optionally invalidates any existing sessions for the user if ``invalidateExisting`` is set to true.</li>
+  <li>Stores the resulting session token under the specified session key, or the default session key if not provided.</li>
+  <li>Handles cleanup of unused key pairs if login fails.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1521">core.ts:1521</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="invalidateExisting" type='boolean' required={false}>
+flag to invalidate existing sessions for the user.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="oidcToken" type='string' required={true}>
+OIDC token received after successful authentication with the OAuth provider.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="publicKey" type='string' required={true}>
+public key to use for authentication. Must be generated prior to calling this function.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
+session key to use for session creation (defaults to the default session key).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true} >
+  A promise that resolves to a signed JWT session token.
+</ResponseField>

@@ -1,0 +1,685 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "services/auth_proxy/v1/proxy_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "AuthProxyService"
+    }
+  ],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/v1/account": {
+      "post": {
+        "summary": "Get Account",
+        "description": "Return organization id associated with a given phone number, email, public key, credential ID or OIDC token.",
+        "operationId": "AuthProxyService_GetAccount",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAccountResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetAccountRequest"
+            }
+          }
+        ],
+        "tags": ["Accounts"]
+      }
+    },
+    "/v1/oauth_login": {
+      "post": {
+        "summary": "OAuth Login",
+        "description": "Login using an OIDC token and public key.",
+        "operationId": "AuthProxyService_OAuthLogin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OAuthLoginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1OAuthLoginRequest"
+            }
+          }
+        ],
+        "tags": ["Sessions"]
+      }
+    },
+    "/v1/otp_init": {
+      "post": {
+        "summary": "Init OTP",
+        "description": "Initialize an OTP (email or SMS) for a user.",
+        "operationId": "AuthProxyService_InitOtp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1InitOtpResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1InitOtpRequest"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
+    "/v1/otp_login": {
+      "post": {
+        "summary": "OTP Login",
+        "description": "Login using a verification token and public key.",
+        "operationId": "AuthProxyService_OtpLogin",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OtpLoginResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1OtpLoginRequest"
+            }
+          }
+        ],
+        "tags": ["Sessions"]
+      }
+    },
+    "/v1/otp_verify": {
+      "post": {
+        "summary": "Verify OTP",
+        "description": "Verify the OTP code previously sent to the user's contact and return a verification token.",
+        "operationId": "AuthProxyService_VerifyOtp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1VerifyOtpResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1VerifyOtpRequest"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
+    "/v1/signup": {
+      "post": {
+        "summary": "Signup",
+        "description": "Onboard a new user.",
+        "operationId": "AuthProxyService_Signup",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SignupResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SignupRequest"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
+    "/v1/wallet_kit_config": {
+      "post": {
+        "summary": "Get WalletKit Config",
+        "description": "Get wallet kit settings and feature toggles for the calling organization.",
+        "operationId": "AuthProxyService_GetWalletKitConfig",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletKitConfigResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletKitConfigRequest"
+            }
+          }
+        ],
+        "tags": ["Wallet Kit"]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1AddressFormat": {
+      "type": "string",
+      "enum": [
+        "ADDRESS_FORMAT_UNCOMPRESSED",
+        "ADDRESS_FORMAT_COMPRESSED",
+        "ADDRESS_FORMAT_ETHEREUM",
+        "ADDRESS_FORMAT_SOLANA",
+        "ADDRESS_FORMAT_COSMOS",
+        "ADDRESS_FORMAT_TRON",
+        "ADDRESS_FORMAT_SUI",
+        "ADDRESS_FORMAT_APTOS",
+        "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH",
+        "ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH",
+        "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH",
+        "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH",
+        "ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR",
+        "ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH",
+        "ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH",
+        "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH",
+        "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH",
+        "ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR",
+        "ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH",
+        "ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH",
+        "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH",
+        "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH",
+        "ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR",
+        "ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH",
+        "ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH",
+        "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH",
+        "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH",
+        "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR",
+        "ADDRESS_FORMAT_SEI",
+        "ADDRESS_FORMAT_XLM",
+        "ADDRESS_FORMAT_DOGE_MAINNET",
+        "ADDRESS_FORMAT_DOGE_TESTNET",
+        "ADDRESS_FORMAT_TON_V3R2",
+        "ADDRESS_FORMAT_TON_V4R2",
+        "ADDRESS_FORMAT_TON_V5R1",
+        "ADDRESS_FORMAT_XRP"
+      ]
+    },
+    "v1ApiKeyCurve": {
+      "type": "string",
+      "enum": [
+        "API_KEY_CURVE_P256",
+        "API_KEY_CURVE_SECP256K1",
+        "API_KEY_CURVE_ED25519"
+      ]
+    },
+    "v1ApiKeyParamsV2": {
+      "type": "object",
+      "properties": {
+        "apiKeyName": {
+          "type": "string",
+          "description": "Human-readable name for an API Key."
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "The public component of a cryptographic key pair used to sign messages and transactions."
+        },
+        "curveType": {
+          "$ref": "#/definitions/v1ApiKeyCurve",
+          "description": "The curve type to be used for processing API key signatures."
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "Optional window (in seconds) indicating how long the API Key should last."
+        }
+      },
+      "required": ["apiKeyName", "publicKey", "curveType"]
+    },
+    "v1Attestation": {
+      "type": "object",
+      "properties": {
+        "credentialId": {
+          "type": "string",
+          "description": "The cbor encoded then base64 url encoded id of the credential."
+        },
+        "clientDataJson": {
+          "type": "string",
+          "description": "A base64 url encoded payload containing metadata about the signing context and the challenge."
+        },
+        "attestationObject": {
+          "type": "string",
+          "description": "A base64 url encoded payload containing authenticator data and any attestation the webauthn provider chooses."
+        },
+        "transports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1AuthenticatorTransport"
+          },
+          "description": "The type of authenticator transports."
+        }
+      },
+      "required": [
+        "credentialId",
+        "clientDataJson",
+        "attestationObject",
+        "transports"
+      ]
+    },
+    "v1AuthenticatorParamsV2": {
+      "type": "object",
+      "properties": {
+        "authenticatorName": {
+          "type": "string",
+          "description": "Human-readable name for an Authenticator."
+        },
+        "challenge": {
+          "type": "string",
+          "description": "Challenge presented for authentication purposes."
+        },
+        "attestation": {
+          "$ref": "#/definitions/v1Attestation",
+          "description": "The attestation that proves custody of the authenticator and provides metadata about it."
+        }
+      },
+      "required": ["authenticatorName", "challenge", "attestation"]
+    },
+    "v1AuthenticatorTransport": {
+      "type": "string",
+      "enum": [
+        "AUTHENTICATOR_TRANSPORT_BLE",
+        "AUTHENTICATOR_TRANSPORT_INTERNAL",
+        "AUTHENTICATOR_TRANSPORT_NFC",
+        "AUTHENTICATOR_TRANSPORT_USB",
+        "AUTHENTICATOR_TRANSPORT_HYBRID"
+      ]
+    },
+    "v1Curve": {
+      "type": "string",
+      "enum": ["CURVE_SECP256K1", "CURVE_ED25519"]
+    },
+    "v1GetAccountRequest": {
+      "type": "object",
+      "properties": {
+        "filterType": {
+          "type": "string",
+          "description": "Specifies the type of filter to apply, i.e 'CREDENTIAL_ID', 'NAME', 'USERNAME', 'EMAIL', 'PHONE_NUMBER', 'OIDC_TOKEN' or 'PUBLIC_KEY'"
+        },
+        "filterValue": {
+          "type": "string",
+          "description": "The value of the filter to apply for the specified type. For example, a specific email or name string."
+        }
+      },
+      "required": ["filterType", "filterValue"]
+    },
+    "v1GetAccountResponse": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetWalletKitConfigRequest": {
+      "type": "object"
+    },
+    "v1GetWalletKitConfigResponse": {
+      "type": "object",
+      "properties": {
+        "enabledProviders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of enabled authentication providers (e.g., 'facebook', 'google', 'apple', 'email', 'sms', 'passkey', 'wallet')",
+          "title": "Enabled Providers"
+        },
+        "sessionExpirationSeconds": {
+          "type": "string",
+          "description": "Session expiration duration in seconds",
+          "title": "Session Expiration"
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "The organization ID this configuration applies to",
+          "title": "Organization ID"
+        }
+      },
+      "required": [
+        "enabledProviders",
+        "sessionExpirationSeconds",
+        "organizationId"
+      ]
+    },
+    "v1InitOtpRequest": {
+      "type": "object",
+      "properties": {
+        "otpType": {
+          "type": "string",
+          "description": "Enum to specifiy whether to send OTP via SMS or email"
+        },
+        "contact": {
+          "type": "string",
+          "description": "Email or phone number to send the OTP code to"
+        }
+      },
+      "required": ["otpType", "contact"]
+    },
+    "v1InitOtpResponse": {
+      "type": "object",
+      "properties": {
+        "otpId": {
+          "type": "string",
+          "description": "Unique identifier for an OTP authentication"
+        }
+      },
+      "required": ["otpId"]
+    },
+    "v1OAuthLoginRequest": {
+      "type": "object",
+      "properties": {
+        "oidcToken": {
+          "type": "string",
+          "description": "Base64 encoded OIDC token"
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the oidc token associated with this request"
+        },
+        "invalidateExisting": {
+          "type": "boolean",
+          "description": "Invalidate all other previously generated Login API keys"
+        }
+      },
+      "required": ["oidcToken", "publicKey"]
+    },
+    "v1OAuthLoginResponse": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "string",
+          "description": "Signed JWT containing an expiry, public key, session type, user id, and organization id"
+        }
+      },
+      "required": ["session"]
+    },
+    "v1OauthProviderParams": {
+      "type": "object",
+      "properties": {
+        "providerName": {
+          "type": "string",
+          "description": "Human-readable name to identify a Provider."
+        },
+        "oidcToken": {
+          "type": "string",
+          "description": "Base64 encoded OIDC token"
+        }
+      },
+      "required": ["providerName", "oidcToken"]
+    },
+    "v1OtpLoginRequest": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string",
+          "description": "Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)"
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the verification token"
+        },
+        "invalidateExisting": {
+          "type": "boolean",
+          "description": "Invalidate all other previously generated Login API keys"
+        }
+      },
+      "required": ["verificationToken", "publicKey"]
+    },
+    "v1OtpLoginResponse": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "string",
+          "description": "Signed JWT containing an expiry, public key, session type, user id, and organization id"
+        }
+      },
+      "required": ["session"]
+    },
+    "v1PathFormat": {
+      "type": "string",
+      "enum": ["PATH_FORMAT_BIP32"]
+    },
+    "v1SignupRequest": {
+      "type": "object",
+      "properties": {
+        "userEmail": {
+          "type": "string"
+        },
+        "userPhoneNumber": {
+          "type": "string"
+        },
+        "userTag": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "organizationName": {
+          "type": "string"
+        },
+        "verificationToken": {
+          "type": "string"
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParamsV2"
+          },
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          },
+          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParams"
+          },
+          "description": "A list of Oauth providers. This field, if not needed, should be an empty array in your request body."
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletParams",
+          "description": "The wallet to create for the sub-organization"
+        }
+      },
+      "required": ["apiKeys", "authenticators", "oauthProviders"]
+    },
+    "v1SignupResponse": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1VerifyOtpRequest": {
+      "type": "object",
+      "properties": {
+        "otpId": {
+          "type": "string",
+          "description": "ID representing the result of an init OTP activity."
+        },
+        "otpCode": {
+          "type": "string",
+          "description": "OTP sent out to a user's contact (email or SMS)"
+        }
+      },
+      "required": ["otpId", "otpCode"]
+    },
+    "v1VerifyOtpResponse": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string",
+          "description": "Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)"
+        }
+      },
+      "required": ["verificationToken"]
+    },
+    "v1WalletAccountParams": {
+      "type": "object",
+      "properties": {
+        "curve": {
+          "$ref": "#/definitions/v1Curve",
+          "description": "Cryptographic curve used to generate a wallet Account."
+        },
+        "pathFormat": {
+          "$ref": "#/definitions/v1PathFormat",
+          "description": "Path format used to generate a wallet Account."
+        },
+        "path": {
+          "type": "string",
+          "description": "Path used to generate a wallet Account."
+        },
+        "addressFormat": {
+          "$ref": "#/definitions/v1AddressFormat",
+          "description": "Address format used to generate a wallet Acccount."
+        }
+      },
+      "required": ["curve", "pathFormat", "path", "addressFormat"]
+    },
+    "v1WalletParams": {
+      "type": "object",
+      "properties": {
+        "walletName": {
+          "type": "string",
+          "description": "Human-readable name for a Wallet."
+        },
+        "accounts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WalletAccountParams"
+          },
+          "description": "A list of wallet Accounts. This field, if not needed, should be an empty array in your request body."
+        },
+        "mnemonicLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Length of mnemonic to generate the Wallet seed. Defaults to 12. Accepted values: 12, 15, 18, 21, 24."
+        }
+      },
+      "required": ["walletName", "accounts"]
+    }
+  }
+}

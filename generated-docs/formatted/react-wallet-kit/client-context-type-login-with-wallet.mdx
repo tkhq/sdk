@@ -1,0 +1,46 @@
+---
+title: "loginWithWallet()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Logs in a user using the specified wallet provider.
+
+<ul>
+  <li>This function logs in a user by authenticating with the provided wallet provider via a wallet-based signature.</li>
+  <li>If a public key is not provided, a new one will be generated for authentication.</li>
+  <li>Optionally accepts a custom session key and session expiration time.</li>
+  <li>Stores the resulting session token under the specified session key, or the default session key if not provided.</li>
+  <li>Throws an error if a public key cannot be found or generated, or if the login process fails.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="expirationSeconds" type='string' required={false}>
+optional session expiration time in seconds (defaults to the configured default).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="publicKey" type='string' required={false}>
+optional public key to associate with the session (generated if not provided).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
+optional key to store the session under (defaults to the default session key).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="walletProvider" type='WalletProvider' required={true}>
+wallet provider to use for authentication.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true}>
+  A promise that resolves to the created session token.
+</ResponseField>

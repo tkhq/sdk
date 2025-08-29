@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/solana",
-  "version": "1.0.42",
+  "version": "1.1.0-beta.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -52,7 +52,8 @@
     "@solana/web3.js": "^1.95.8",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
-    "@turnkey/sdk-server": "workspace:*"
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/core": "workspace:*"
   },
   "devDependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
