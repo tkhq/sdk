@@ -59,6 +59,7 @@ import { useModal } from "../modal/Hook";
 import {
   type TurnkeyCallbacks,
   type TurnkeyProviderConfig,
+  AuthMethod,
   AuthState,
   ClientState,
   ExportType,
@@ -796,7 +797,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error during the process.
    */
-  const handlePostAuth = async () => {
+  const handlePostAuth = async (params: {
+    method: AuthMethod;
+  }) => {
+    const { method } = params;
     try {
       const sessionKey = await getActiveSessionKey();
       const session = await getSession({
@@ -816,6 +820,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       await refreshWallets();
       await refreshUser();
+
+      callbacks?.onAuthenticationSuccess?.({ session, method });
     } catch (error) {
       if (
         error instanceof TurnkeyError ||
@@ -929,7 +935,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to login with passkey",
       );
       if (res) {
-        await handlePostAuth();
+        await handlePostAuth({ method: AuthMethod.Passkey });
       }
       return res;
     },
@@ -995,7 +1001,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign up with passkey",
       );
       if (res) {
-        await handlePostAuth();
+        await handlePostAuth({ method: AuthMethod.Passkey });
       }
       return res;
     },
@@ -1106,7 +1112,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to login with wallet",
       );
       if (res) {
-        await handlePostAuth();
+        await handlePostAuth({ method: AuthMethod.Wallet });
       }
       return res;
     },
@@ -1150,8 +1156,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign up with wallet",
       );
       if (res) {
-        await handlePostAuth();
-      } else {
+        await handlePostAuth({ method: AuthMethod.Wallet });
       }
       return res;
     },
@@ -1195,8 +1200,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to login or sign up with wallet",
       );
       if (res) {
-        await handlePostAuth();
-      } else {
+        await handlePostAuth({ method: AuthMethod.Wallet });
       }
       return res;
     },
@@ -1262,8 +1266,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to login with OTP",
       );
       if (res) {
-        await handlePostAuth();
-      } else {
+        await handlePostAuth({ method: AuthMethod.Otp });
       }
       return res;
     },
@@ -1311,8 +1314,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign up with OTP",
       );
       if (res) {
-        await handlePostAuth();
-      } else {
+        await handlePostAuth({ method: AuthMethod.Otp });
       }
       return res;
     },
@@ -1364,8 +1366,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to complete OTP",
       );
       if (res) {
-        await handlePostAuth();
-      } else {
+        await handlePostAuth({ method: AuthMethod.Otp });
       }
       return res;
     },
@@ -1410,8 +1411,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to complete OAuth",
       );
       if (res) {
-        await handlePostAuth();
-      } else {
+        await handlePostAuth({ method: AuthMethod.Oauth });
       }
       return res;
     },
@@ -1438,8 +1438,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to login with OAuth",
       );
       if (res) {
-        await handlePostAuth();
-      } else {
+        await handlePostAuth({ method: AuthMethod.Oauth });
       }
       return res;
     },
@@ -1481,7 +1480,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign up with OAuth",
       );
       if (res) {
-        await handlePostAuth();
+        await handlePostAuth({ method: AuthMethod.Oauth });
       }
       return res;
     },
