@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "tsBuildInfoFile": "./.cache/.typecheck.tsbuildinfo",
+    "paths": {
+      "@polyfills/*": ["./src/__polyfills__/*"],
+      "@constants": ["./src/constants"],
+      "@models": ["./src/models"],
+      "@storage": ["./src/storage"],
+      "@types": ["./src/__types__/base"],
+      "@utils": ["./src/utils"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.json"
+  ]
+}
