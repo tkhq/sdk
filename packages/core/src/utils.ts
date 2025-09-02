@@ -15,6 +15,7 @@ import {
   v1SignRawPayloadResult,
   v1TransactionType,
   ProxyTGetWalletKitConfigResponse,
+  v1User,
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
@@ -24,7 +25,10 @@ import {
   TurnkeyRequestError,
   EvmChainInfo,
   SolanaChainInfo,
+  Curve,
 } from "@types";
+import bs58 from "bs58";
+
 // Import all defaultAccountAtIndex functions for each address format
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
@@ -61,11 +65,13 @@ import {
   DEFAULT_TON_V3R2_ACCOUNTS,
   DEFAULT_TON_V4R2_ACCOUNTS,
 } from "./turnkey-helpers";
-import { fromDerSignature } from "@turnkey/crypto";
+import { fromDerSignature, uncompressRawPublicKey } from "@turnkey/crypto";
 import {
   decodeBase64urlToString,
+  uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
+import { keccak256 } from "ethers";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -766,6 +772,44 @@ export function findWalletProviderFromAddress(
 
   // no provider found for that address
   return undefined;
+}
+
+/**@internal */
+export function ethereumAddressFromCompressedPublicKey(publicKey: string) {
+  const compressedBytes = uint8ArrayFromHexString(publicKey);
+
+  const publicKeyUncompressed = uint8ArrayToHexString(
+    uncompressRawPublicKey(compressedBytes, Curve.SECP256K1),
+  );
+
+  // drop 04 prefix
+  const key = publicKeyUncompressed.startsWith("04")
+    ? publicKeyUncompressed.slice(2)
+    : publicKeyUncompressed;
+
+  // hash with Keccak256 and take last 20 bytes
+  const hash = keccak256(uint8ArrayFromHexString(key));
+  return "0x" + hash.slice(-40);
+}
+
+/**@internal */
+export function getAuthenticatorAddresses(user: v1User) {
+  const ethereum: string[] = [];
+  const solana: string[] = [];
+
+  for (const key of user.apiKeys) {
+    const { type, publicKey } = key.credential;
+    switch (type) {
+      case "CREDENTIAL_TYPE_API_KEY_SECP256K1":
+        ethereum.push(ethereumAddressFromCompressedPublicKey(publicKey));
+        break;
+      case "CREDENTIAL_TYPE_API_KEY_ED25519":
+        solana.push(bs58.encode(uint8ArrayFromHexString(publicKey)));
+        break;
+    }
+  }
+
+  return { ethereum, solana };
 }
 
 /**@internal */

@@ -63,6 +63,7 @@ import {
   findWalletProviderFromAddress,
   isEthereumProvider,
   isSolanaProvider,
+  getAuthenticatorAddresses,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -1851,6 +1852,13 @@ export class TurnkeyClient {
           this.walletManager!.connector,
         );
 
+        const user = await this.fetchUser({
+          stampWith,
+        });
+
+        const { ethereum: ethereumAddresses, solana: solanaAddresses } =
+          getAuthenticatorAddresses(user);
+
         for (const provider of matching) {
           const timestamp = toExternalTimestamp();
 
@@ -1871,6 +1879,9 @@ export class TurnkeyClient {
                 curve: Curve.SECP256K1,
                 addressFormat: "ADDRESS_FORMAT_ETHEREUM",
                 chainInfo: provider.chainInfo,
+                isAuthenticator: ethereumAddresses.includes(
+                  address.toLowerCase(),
+                ),
                 signMessage: (msg: string) =>
                   sign(msg, provider, SignIntent.SignMessage),
                 signAndSendTransaction: (tx: string) =>
@@ -1898,6 +1909,7 @@ export class TurnkeyClient {
                 curve: Curve.ED25519,
                 addressFormat: "ADDRESS_FORMAT_SOLANA",
                 chainInfo: provider.chainInfo,
+                isAuthenticator: solanaAddresses.includes(address),
                 signMessage: (msg: string) =>
                   sign(msg, provider, SignIntent.SignMessage),
                 signTransaction: (tx: string) =>
