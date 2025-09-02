@@ -760,6 +760,42 @@ export function isSolanaProvider(
 }
 
 /** @internal */
+export function getCurveTypeFromProvider(
+  provider: WalletProvider,
+): "API_KEY_CURVE_SECP256K1" | "API_KEY_CURVE_ED25519" {
+  if (isEthereumProvider(provider)) {
+    return "API_KEY_CURVE_SECP256K1";
+  }
+
+  if (isSolanaProvider(provider)) {
+    return "API_KEY_CURVE_ED25519";
+  }
+
+  // we should never hit this case
+  // if we do then it means we added support for a new chain but missed updating this function
+  throw new Error(
+    `Unsupported provider namespace: ${provider.chainInfo.namespace}. Expected Ethereum or Solana.`,
+  );
+}
+
+/** @internal */
+export function getSignatureSchemeFromProvider(provider: WalletProvider) {
+  if (isEthereumProvider(provider)) {
+    return "SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191";
+  }
+
+  if (isSolanaProvider(provider)) {
+    return "SIGNATURE_SCHEME_TK_API_ED25519";
+  }
+
+  // we should never hit this case
+  // if we do then it means we added support for a new chain but missed updating this function
+  throw new Error(
+    `Unsupported provider namespace: ${provider.chainInfo.namespace}. Expected Ethereum or Solana.`,
+  );
+}
+
+/** @internal */
 export function findWalletProviderFromAddress(
   address: string,
   providers: WalletProvider[],
