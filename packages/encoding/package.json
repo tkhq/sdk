@@ -40,5 +40,9 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "bs58check": "4.0.0",
+    "bs58": "6.0.0"
   }
 }

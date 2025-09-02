@@ -1922,12 +1922,6 @@ importers:
       borsh:
         specifier: 2.0.0
         version: 2.0.0
-      bs58:
-        specifier: 6.0.0
-        version: 6.0.0
-      bs58check:
-        specifier: 4.0.0
-        version: 4.0.0
     devDependencies:
       '@turnkey/api-key-stamper':
         specifier: workspace:*
@@ -1961,7 +1955,14 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  packages/encoding: {}
+  packages/encoding:
+    dependencies:
+      bs58:
+        specifier: 6.0.0
+        version: 6.0.0
+      bs58check:
+        specifier: 4.0.0
+        version: 4.0.0
 
   packages/ethers:
     dependencies:
@@ -6446,6 +6447,7 @@ packages:
   '@toruslabs/solana-embed@2.1.0':
     resolution: {integrity: sha512-rgZniKy+yuqJp8/Z/RcqzhTL4iCH+4nP55XD5T2nEIajAClsmonsGp24AUqYwEqu+7x2hjumZEh+12rUv+Ippw==}
     engines: {node: '>=18.x', npm: '>=9.x'}
+    deprecated: This sdk is now deprecated. Please use @web3auth/ws-embed instead
     peerDependencies:
       '@babel/runtime': 7.x
 
@@ -23338,12 +23340,12 @@ snapshots:
 
   bs58check@3.0.1:
     dependencies:
-      '@noble/hashes': 1.4.0
+      '@noble/hashes': 1.8.0
       bs58: 5.0.0
 
   bs58check@4.0.0:
     dependencies:
-      '@noble/hashes': 1.4.0
+      '@noble/hashes': 1.8.0
       bs58: 6.0.0
 
   bser@2.1.1:
