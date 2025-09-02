@@ -11,6 +11,7 @@ import type {
   OAuthProviders,
   Session,
   v1AddressFormat,
+  v1Curve,
   v1HashFunction,
   v1PayloadEncoding,
   v1SignRawPayloadResult,
@@ -21,6 +22,7 @@ import type {
   TurnkeyProviderConfig,
   AuthState,
   ClientState,
+  KeyFormat,
 } from "../../types/base";
 import { createContext } from "react";
 
@@ -245,17 +247,20 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - A request is made to the Turnkey API to export the private key, encrypted to the target public key.
    * - The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.
    * - If a custom iframe URL is used, a target public key can be provided explicitly.
+   * - Hexadecimal and Solana address formats are supported for wallet account exports - defaulting to Hexadecimal if not specified.
    * - Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.
    *
    * @param params.privateKeyId - The ID of the private key to export.
    * @param params.targetPublicKey - The target public key to encrypt the export bundle to (required for custom iframe flows).
+   * @param params.keyFormat - The format of the private key to export (KeyFormat.Hexadecimal or KeyFormat.Solana).
    * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
    * @return A void promise.
    */
   handleExportPrivateKey: (params: {
     privateKeyId: string;
     targetPublicKey?: string;
+    keyFormat?: KeyFormat;
     stampWith?: StamperType | undefined;
   }) => Promise<void>;
 
@@ -268,11 +273,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - A request is made to the Turnkey API to export the wallet account, encrypted to the target public key.
    * - The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.
    * - If a custom iframe URL is used, a target public key can be provided explicitly.
+   * - Hexadecimal and Solana address formats are supported for wallet account exports - defaulting to Hexadecimal if not specified.
    * - Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.
    *
    * @param params.address - The address of the wallet account to export.
    * @param params.targetPublicKey - The target public key to encrypt the export bundle to (required for custom iframe flows).
+   * @param params.keyFormat - The format of the address to export (KeyFormat.Hexadecimal or KeyFormat.Solana).
    * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
    *
    * @returns A void promise.
@@ -281,11 +288,12 @@ export interface ClientContextType extends TurnkeyClientMethods {
   handleExportWalletAccount: (params: {
     address: string;
     targetPublicKey?: string;
+    keyFormat?: KeyFormat;
     stampWith?: StamperType | undefined;
   }) => Promise<void>;
 
   /**
-   * Handles the import flow.
+   * Handles the import wallet flow.
    *
    * - This function opens a modal with the ImportComponent for importing a wallet.
    * - Supports importing wallets using an encrypted bundle, with optional default accounts or custom account parameters.
@@ -302,6 +310,30 @@ export interface ClientContextType extends TurnkeyClientMethods {
    */
   handleImportWallet: (params?: {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+    stampWith?: StamperType | undefined;
+  }) => Promise<string>;
+
+  /**
+   * Handles the import private key flow.
+   *
+   * - This function opens a modal with the ImportComponent for importing a private key.
+   * - Supports importing private keys using an encrypted bundle.
+   * - Address formats (v1AddressFormat[]) and curve (v1Curve) must be specified based on the type of private key the user will import.
+   * - Supports customizing the duration of the success page shown after a successful import.
+   * - Allows specifying the stamper to use for the import (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
+   * - Ensures the imported private key is added to the user's wallet list and the provider state is refreshed.
+   *
+   * @param params.curve - curve type (v1Curve) for the private key (Eg: "CURVE_SECP256K1" for Ethereum, "CURVE_ED25519" for Solana).
+   * @param params.addressFormats - array of address formats (v1AddressFormat[]) that the private key supports (Eg: "ADDRESS_FORMAT_ETHEREUM" for Ethereum, "ADDRESS_FORMAT_SOLANA" for Solana).
+   * @param params.successPageDuration - duration (in ms) for the success page after import (default: 0, no success page).
+   * @param params.stampWith - parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
+   *
+   * @returns A promise that resolves to the new private key's ID.
+   */
+  handleImportPrivateKey: (params?: {
+    curve: v1Curve;
+    addressFormats: v1AddressFormat[];
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;
   }) => Promise<string>;
