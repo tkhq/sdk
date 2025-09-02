@@ -2,7 +2,7 @@ import { Transaction, VersionedTransaction } from "@solana/web3.js";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import bs58 from "bs58";
+import { bs58 } from "@turnkey/encoding";
 import { useState, useEffect } from "react";
 
 import styles from "./index.module.css";
