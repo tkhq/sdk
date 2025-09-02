@@ -10,6 +10,7 @@ import {
   type WalletId,
   type PrivateKeyId,
   ExportType,
+  KeyFormat,
 } from "../../types/base";
 import clsx from "clsx";
 import type { StamperType } from "@turnkey/core";
@@ -29,9 +30,10 @@ export function ExportComponent(params: {
   target: WalletId | PrivateKeyId | Address;
   exportType: ExportType;
   targetPublicKey?: string;
+  keyFormat?: KeyFormat | undefined;
   stampWith?: StamperType | undefined;
 }) {
-  const { exportType, targetPublicKey, stampWith, target } = params;
+  const { exportType, targetPublicKey, keyFormat, stampWith, target } = params;
   const { config } = useTurnkey();
 
   const [exportIframeVisible, setExportIframeVisible] = useState(false);
@@ -146,6 +148,7 @@ export function ExportComponent(params: {
           exportIframeClient={exportIframeClient}
           targetPublicKey={targetPublicKey}
           exportType={exportType}
+          keyFormat={keyFormat}
           stampWith={stampWith}
           setExportIframeVisible={setExportIframeVisible}
         />

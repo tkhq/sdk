@@ -17,6 +17,7 @@ import {
   v1PayloadEncoding,
   v1HashFunction,
   v1Curve,
+  v1PrivateKey,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -1937,6 +1938,52 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to fetch wallet accounts",
         errorCode: TurnkeyErrorCodes.FETCH_WALLET_ACCOUNTS_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Fetches all private keys for the current user.
+   *
+   * - Retrieves private keys from the Turnkey API.
+   * - Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an array of `v1PrivateKey` objects.
+   * @throws {TurnkeyError} If no active session is found or if there is an error fetching private keys.
+   */
+  fetchPrivateKeys = async (params?: {
+    stampWith?: StamperType | undefined;
+  }): Promise<v1PrivateKey[]> => {
+    const { stampWith } = params || {};
+    const session = await this.storageManager.getActiveSession();
+
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const res = await this.httpClient.getPrivateKeys(
+          { organizationId: session.organizationId },
+          stampWith,
+        );
+
+        if (!res) {
+          throw new TurnkeyError(
+            "Failed to fetch private keys",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+
+        return res.privateKeys;
+      },
+      {
+        errorMessage: "Failed to fetch private keys",
+        errorCode: TurnkeyErrorCodes.FETCH_PRIVATE_KEYS_ERROR,
       },
     );
   };

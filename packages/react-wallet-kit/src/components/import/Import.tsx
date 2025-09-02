@@ -6,6 +6,7 @@ import {
   TurnkeyError,
   TurnkeyErrorCodes,
   v1AddressFormat,
+  v1Curve,
   v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 import { ActionButton } from "../design/Buttons";
@@ -16,6 +17,7 @@ import {
 } from "@turnkey/core";
 import { SuccessPage } from "../design/Success";
 import clsx from "clsx";
+import { ImportType } from "../../types/base";
 
 const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
@@ -28,22 +30,29 @@ const iconBackgroundDark = "#333336";
 const iconTextLight = "#828282";
 const iconTextDark = "#a3a3a5";
 
-export function ImportComponent(params: {
+export function ImportComponent(props: {
+  importType: ImportType;
   defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-  onSuccess: (walletId: string) => void;
+  addressFormats?: v1AddressFormat[] | undefined; // Only used if importType is ImportType.PrivateKey
+  curve?: v1Curve | undefined; // Only used if importType is ImportType.PrivateKey
+  onSuccess: (id: string) => void;
   onError: (error: TurnkeyError) => void;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
 }) {
   const {
+    importType,
+    curve = "CURVE_SECP256K1",
+    addressFormats = ["ADDRESS_FORMAT_ETHEREUM"],
     onSuccess,
     onError,
     defaultWalletAccounts,
     successPageDuration,
     stampWith,
-  } = params;
+  } = props;
 
-  const { config, session, importWallet, httpClient } = useTurnkey();
+  const { config, session, importWallet, importPrivateKey, httpClient } =
+    useTurnkey();
   const [walletName, setWalletName] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<TurnkeyError | null>(null);
@@ -62,6 +71,20 @@ export function ImportComponent(params: {
 
   const [importIframeClient, setImportIframeClient] =
     useState<IframeStamper | null>(null);
+
+  const subtitle =
+    importType === ImportType.Wallet
+      ? "Enter your seed phrase. Seed phrases are typically 12-24 words."
+      : importType === ImportType.PrivateKey
+        ? "Enter your private key."
+        : "";
+
+  const placeholder =
+    importType === ImportType.Wallet
+      ? "Enter your wallet name"
+      : importType === ImportType.PrivateKey
+        ? "Enter your private key name"
+        : "";
 
   if (!apiBaseUrl) {
     throw new TurnkeyError(
@@ -156,58 +179,112 @@ export function ImportComponent(params: {
           TurnkeyErrorCodes.INTERNAL_ERROR,
         );
       }
-      const initResult = await httpClient?.initImportWallet({
-        organizationId: session?.organizationId!,
-        userId: session?.userId!,
-      });
+      let response;
+      switch (importType) {
+        case ImportType.Wallet:
+          const initWalletResult = await httpClient?.initImportWallet({
+            organizationId: session?.organizationId!,
+            userId: session?.userId!,
+          });
 
-      if (!initResult || !initResult.importBundle) {
-        throw new TurnkeyError(
-          "Failed to retrieve import bundle",
-          TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-        );
+          if (!initWalletResult || !initWalletResult.importBundle) {
+            throw new TurnkeyError(
+              "Failed to retrieve import bundle",
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+            );
+          }
+
+          const injectedWallet = await importIframeClient.injectImportBundle(
+            initWalletResult.importBundle,
+            session?.organizationId!,
+            session?.userId!,
+          );
+
+          if (!injectedWallet) {
+            throw new TurnkeyError(
+              "Failed to inject import bundle",
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+            );
+          }
+          const encryptedWalletBundle =
+            await importIframeClient.extractWalletEncryptedBundle();
+          if (!encryptedWalletBundle || encryptedWalletBundle.trim() === "") {
+            throw new TurnkeyError(
+              "Encrypted bundle is empty",
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+            );
+          }
+
+          let accounts: v1WalletAccountParams[] = [];
+          if (
+            Array.isArray(defaultWalletAccounts) &&
+            defaultWalletAccounts.length > 0 &&
+            (defaultWalletAccounts as any[])[0]?.addressFormat === undefined
+          ) {
+            accounts = generateWalletAccountsFromAddressFormat({
+              addresses: defaultWalletAccounts as v1AddressFormat[],
+            });
+          } else if (Array.isArray(defaultWalletAccounts)) {
+            accounts = defaultWalletAccounts as v1WalletAccountParams[];
+          }
+
+          response = await importWallet({
+            walletName: walletName,
+            accounts,
+            encryptedBundle: encryptedWalletBundle,
+            stampWith,
+          });
+
+          break;
+        case ImportType.PrivateKey:
+          const initPrivateKeyResult = await httpClient?.initImportPrivateKey({
+            organizationId: session?.organizationId!,
+            userId: session?.userId!,
+          });
+
+          if (!initPrivateKeyResult || !initPrivateKeyResult.importBundle) {
+            throw new TurnkeyError(
+              "Failed to retrieve import bundle",
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+            );
+          }
+          const injectedKey = await importIframeClient.injectImportBundle(
+            initPrivateKeyResult.importBundle,
+            session?.organizationId!,
+            session?.userId!,
+          );
+          if (!injectedKey) {
+            throw new TurnkeyError(
+              "Failed to inject import bundle",
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+            );
+          }
+
+          const encryptedKeyBundle =
+            await importIframeClient.extractKeyEncryptedBundle();
+          if (!encryptedKeyBundle || encryptedKeyBundle.trim() === "") {
+            throw new TurnkeyError(
+              "Encrypted bundle is empty",
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+            );
+          }
+
+          response = await importPrivateKey({
+            addressFormats,
+            curve,
+            privateKeyName: walletName,
+            encryptedBundle: encryptedKeyBundle,
+            stampWith,
+          });
+
+          break;
+
+        default:
+          throw new TurnkeyError(
+            "Invalid import type",
+            TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+          );
       }
-
-      const injected = await importIframeClient.injectImportBundle(
-        initResult.importBundle,
-        session?.organizationId!,
-        session?.userId!,
-      );
-
-      if (!injected) {
-        throw new TurnkeyError(
-          "Failed to inject import bundle",
-          TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-        );
-      }
-      const encryptedBundle =
-        await importIframeClient.extractWalletEncryptedBundle();
-      if (!encryptedBundle || encryptedBundle.trim() === "") {
-        throw new TurnkeyError(
-          "Encrypted bundle is empty",
-          TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-        );
-      }
-
-      let accounts: v1WalletAccountParams[] = [];
-      if (
-        Array.isArray(defaultWalletAccounts) &&
-        defaultWalletAccounts.length > 0 &&
-        (defaultWalletAccounts as any[])[0]?.addressFormat === undefined
-      ) {
-        accounts = generateWalletAccountsFromAddressFormat({
-          addresses: defaultWalletAccounts as v1AddressFormat[],
-        });
-      } else if (Array.isArray(defaultWalletAccounts)) {
-        accounts = defaultWalletAccounts as v1WalletAccountParams[];
-      }
-
-      const response = await importWallet({
-        walletName: walletName,
-        accounts,
-        encryptedBundle,
-        stampWith,
-      });
 
       if (response) {
         onSuccess(response);
@@ -216,7 +293,13 @@ export function ImportComponent(params: {
             key: "success",
             content: (
               <SuccessPage
-                text="Wallet imported successfully!"
+                text={
+                  importType === ImportType.Wallet
+                    ? "Wallet imported successfully!"
+                    : importType === ImportType.PrivateKey
+                      ? "Private key imported successfully!"
+                      : "Success!"
+                }
                 duration={successPageDuration}
                 onComplete={() => {
                   handleImportModalClose();
@@ -270,7 +353,7 @@ export function ImportComponent(params: {
       )}
     >
       <p className="text-sm text-icon-text-light dark:text-icon-text-dark">
-        Enter your seed phrase. Seed phrases are typically 12-24 words.
+        {subtitle}
       </p>
       <div
         id={TurnkeyImportIframeContainerId}
@@ -295,7 +378,7 @@ export function ImportComponent(params: {
       />
       <Input
         type="text"
-        placeholder="Enter your wallet name"
+        placeholder={placeholder}
         value={walletName}
         onChange={(e) => setWalletName(e.target.value)}
         className="placeholder:text-icon-text-light dark:placeholder:text-icon-text-dark w-full my-2 py-3 px-3 rounded-md text-inherit bg-icon-background-light dark:bg-icon-background-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 box-border"
