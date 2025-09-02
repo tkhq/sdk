@@ -4,6 +4,7 @@ import {
   pointEncode,
 } from "@turnkey/encoding";
 import type { TStamp, ApiKeyStamperBase } from "@types";
+import { assertValidP256ECDSAKeyPair } from "@utils";
 
 const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";
@@ -154,10 +155,7 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
     let privateKey: CryptoKey;
     let publicKey: CryptoKey;
     if (externalKeyPair) {
-      const extractable = (externalKeyPair.privateKey as any).extractable;
-      if (extractable !== false) {
-        throw new Error("Provided privateKey must be non-extractable.");
-      }
+      await assertValidP256ECDSAKeyPair(externalKeyPair);
       privateKey = externalKeyPair.privateKey;
       publicKey = externalKeyPair.publicKey;
     } else {

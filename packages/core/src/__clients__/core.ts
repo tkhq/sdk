@@ -174,6 +174,7 @@ export class TurnkeyClient {
    * @param params.name - name of the passkey. If not provided, defaults to "A Passkey".
    * @param params.displayName - display name for the passkey. If not provided, defaults to "A Passkey".
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
    * @returns A promise that resolves to an object containing:
    *   - attestation: attestation object returned from the passkey creation process.
    *   - encodedChallenge: encoded challenge string used for passkey registration.
@@ -183,6 +184,7 @@ export class TurnkeyClient {
     name?: string;
     displayName?: string;
     stampWith?: StamperType | undefined;
+    challenge?: string;
   }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> => {
     return withTurnkeyErrorHandling(
       async () => {
@@ -196,6 +198,7 @@ export class TurnkeyClient {
                 name,
                 displayName,
               },
+              ...(params?.challenge && { challenge: params.challenge }),
             },
           });
           if (!res) {
@@ -381,6 +384,7 @@ export class TurnkeyClient {
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.passkeyDisplayName - display name for the passkey (defaults to a generated name based on the current timestamp).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
+   * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
    * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
    * @throws {TurnkeyError} If there is an error during passkey creation, sub-organization creation, or session storage.
    */
@@ -389,6 +393,7 @@ export class TurnkeyClient {
     sessionKey?: string;
     passkeyDisplayName?: string;
     expirationSeconds?: string;
+    challenge?: string;
   }): Promise<string> => {
     const {
       createSubOrgParams,
@@ -407,6 +412,7 @@ export class TurnkeyClient {
         const passkey = await this.createPasskey({
           name: passkeyName,
           displayName: passkeyName,
+          ...(params?.challenge && { challenge: params.challenge }),
         });
 
         if (!passkey) {
@@ -449,7 +455,7 @@ export class TurnkeyClient {
         }
 
         const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
-        this.apiKeyStamper?.setPublicKeyOverride(generatedKeyPair!);
+        this.apiKeyStamper?.setTemporaryPublicKey(generatedKeyPair!);
 
         const sessionResponse = await this.httpClient.stampLogin({
           publicKey: newGeneratedKeyPair!,
@@ -474,7 +480,7 @@ export class TurnkeyClient {
       },
       {
         finallyFn: async () => {
-          this.apiKeyStamper?.clearPublicKeyOverride();
+          this.apiKeyStamper?.clearTemporaryPublicKey();
           if (generatedKeyPair) {
             try {
               await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
@@ -719,7 +725,7 @@ export class TurnkeyClient {
       {
         finallyFn: async () => {
           // Clean up the generated key pair if it wasn't successfully used
-          this.apiKeyStamper?.clearPublicKeyOverride();
+          this.apiKeyStamper?.clearTemporaryPublicKey();
           if (publicKey) {
             try {
               await this.apiKeyStamper?.deleteKeyPair(publicKey);
@@ -825,7 +831,7 @@ export class TurnkeyClient {
         }
 
         const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
-        this.apiKeyStamper?.setPublicKeyOverride(generatedKeyPair!);
+        this.apiKeyStamper?.setTemporaryPublicKey(generatedKeyPair!);
 
         const sessionResponse = await this.httpClient.stampLogin({
           publicKey: newGeneratedKeyPair!,
@@ -851,7 +857,7 @@ export class TurnkeyClient {
       {
         finallyFn: async () => {
           // Clean up the generated key pair if it wasn't successfully used
-          this.apiKeyStamper?.clearPublicKeyOverride();
+          this.apiKeyStamper?.clearTemporaryPublicKey();
           if (generatedKeyPair) {
             try {
               await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
@@ -3749,7 +3755,7 @@ export class TurnkeyClient {
         );
 
         if (storeOverride && publicKey) {
-          await this.apiKeyStamper.setPublicKeyOverride(publicKey);
+          await this.apiKeyStamper.setTemporaryPublicKey(publicKey);
         }
 
         return publicKey;
