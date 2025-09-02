@@ -45,7 +45,7 @@ export default function UserSettings() {
 
   function handleDeleteSubOrganization() {
     pushPage({
-      key: "Delete Sub-Organization",
+      key: "Delete sub-organization",
       content: <DeleteSubOrgWarning />,
       preventBack: true,
       showTitle: false,

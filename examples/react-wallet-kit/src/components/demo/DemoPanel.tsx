@@ -346,7 +346,7 @@ export default function DemoPanel() {
                       selectedWalletAccount.address,
                     );
               pushPage({
-                key: "Signature Verification",
+                key: "Signature verification",
                 content: (
                   <SignatureVerification
                     verificationPassed={verificationPassed}

@@ -1593,7 +1593,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return new Promise((resolve, reject) => {
         pushPage({
-          key: "Sign Message",
+          key: "Sign message",
           content: (
             <SignMessageModal
               message={params.message}
@@ -2880,7 +2880,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }) => {
       const { walletId, targetPublicKey, stampWith } = params;
       pushPage({
-        key: "Export Wallet",
+        key: "Export wallet",
         content: (
           <ExportComponent
             target={walletId}
@@ -2903,7 +2903,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }) => {
       const { privateKeyId, targetPublicKey, keyFormat, stampWith } = params;
       pushPage({
-        key: "Export Private Key",
+        key: "Export private key",
         content: (
           <ExportComponent
             target={privateKeyId}
@@ -2927,7 +2927,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }) => {
       const { address, targetPublicKey, keyFormat, stampWith } = params;
       pushPage({
-        key: "Export Wallet Account",
+        key: "Export wallet account",
         content: (
           <ExportComponent
             target={address}
@@ -2958,7 +2958,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           () =>
             new Promise<string>((resolve, reject) =>
               pushPage({
-                key: "Import Wallet",
+                key: "Import wallet",
                 content: (
                   <ImportComponent
                     importType={ImportType.Wallet}
@@ -3010,7 +3010,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           () =>
             new Promise<string>((resolve, reject) =>
               pushPage({
-                key: "Import Private Key",
+                key: "Import private key",
                 content: (
                   <ImportComponent
                     importType={ImportType.PrivateKey}
@@ -3963,7 +3963,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const providers = await getWalletProviders();
 
       pushPage({
-        key: "Link Wallet",
+        key: "Link wallet",
         content: (
           <LinkWalletModal
             providers={providers}
