@@ -195,6 +195,7 @@ export type ConnectedWalletAccount =
 export interface ConnectedEthereumWalletAccount extends v1WalletAccount {
   source: WalletSource.Connected;
   chainInfo: EvmChainInfo;
+  isAuthenticator: boolean;
   signMessage: (message: string) => Promise<string>;
   signAndSendTransaction: (unsignedTransaction: string) => Promise<string>;
 }
@@ -202,6 +203,7 @@ export interface ConnectedEthereumWalletAccount extends v1WalletAccount {
 export interface ConnectedSolanaWalletAccount extends v1WalletAccount {
   source: WalletSource.Connected;
   chainInfo: SolanaChainInfo;
+  isAuthenticator: boolean;
   signMessage: (message: string) => Promise<string>;
   signTransaction: (unsignedTransaction: string) => Promise<string>;
 }
