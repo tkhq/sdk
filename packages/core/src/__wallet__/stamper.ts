@@ -12,11 +12,12 @@ import {
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
 import type { Hex } from "viem";
-import { isEthereumProvider, isSolanaProvider } from "@utils";
+import {
+  getSignatureSchemeFromProvider,
+  isEthereumProvider,
+  isSolanaProvider,
+} from "@utils";
 
-const SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191 =
-  "SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191";
-const SIGNATURE_SCHEME_TK_API_ED25519 = "SIGNATURE_SCHEME_TK_API_ED25519";
 const STAMP_HEADER_NAME = "X-Stamp";
 
 interface WalletContext {
@@ -205,9 +206,7 @@ export class WalletStamper {
       throw new Error(`Failed to sign the message: ${error}`);
     }
 
-    const scheme = isSolanaProvider(provider)
-      ? SIGNATURE_SCHEME_TK_API_ED25519
-      : SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191;
+    const scheme = getSignatureSchemeFromProvider(provider);
 
     try {
       if (isEthereumProvider(provider)) {
@@ -230,8 +229,14 @@ export class WalletStamper {
 
         publicKey = uint8ArrayToHexString(publicKeyBytesCompressed);
         signature = toDerSignature(signature.replace("0x", ""));
-      } else {
+      } else if (isSolanaProvider(provider)) {
         publicKey = await this.wallet.getPublicKey(provider);
+      } else {
+        // we should never hit this case
+        // if we do then it means we added support for a new chain but missed updating the stamper
+        throw new Error(
+          `Unsupported provider namespace: ${provider.chainInfo.namespace}. Expected Ethereum or Solana.`,
+        );
       }
     } catch (error) {
       throw new Error(`Failed to recover public key: ${error}`);
