@@ -66,6 +66,7 @@ import {
   isSolanaProvider,
   getAuthenticatorAddresses,
   getCurveTypeFromProvider,
+  isValidPasskeyName,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -174,8 +175,7 @@ export class TurnkeyClient {
    * - Handles both web and React Native environments, automatically selecting the appropriate passkey creation flow.
    * - The resulting attestation and challenge can be used to register the passkey with Turnkey.
    *
-   * @param params.name - name of the passkey. If not provided, defaults to "A Passkey".
-   * @param params.displayName - display name for the passkey. If not provided, defaults to "A Passkey".
+   * @param params.name - display name for the passkey (defaults to a generated name based on the current timestamp).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
    * @returns A promise that resolves to an object containing:
@@ -185,21 +185,21 @@ export class TurnkeyClient {
    */
   createPasskey = async (params?: {
     name?: string;
-    displayName?: string;
     stampWith?: StamperType | undefined;
     challenge?: string;
   }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> => {
     return withTurnkeyErrorHandling(
       async () => {
-        const name = params?.name || "A Passkey";
-        const displayName = params?.displayName || "A Passkey";
+        const name = isValidPasskeyName(
+          params?.name || `passkey-${Date.now()}`,
+        );
         let passkey: { encodedChallenge: string; attestation: v1Attestation };
         if (isWeb()) {
           const res = await this.passkeyStamper?.createWebPasskey({
             publicKey: {
               user: {
                 name,
-                displayName,
+                displayName: name,
               },
               ...(params?.challenge && { challenge: params.challenge }),
             },
@@ -217,7 +217,7 @@ export class TurnkeyClient {
         } else if (isReactNative()) {
           const res = await this.passkeyStamper?.createReactNativePasskey({
             name,
-            displayName,
+            displayName: name,
           });
           if (!res) {
             throw new TurnkeyError(
@@ -312,17 +312,17 @@ export class TurnkeyClient {
     sessionKey?: string;
     expirationSeconds?: string;
   }): Promise<string> => {
-    let generatedKeyPair: string | undefined = undefined;
+    let generatedPublicKey: string | undefined = undefined;
     return await withTurnkeyErrorHandling(
       async () => {
-        generatedKeyPair =
+        generatedPublicKey =
           params?.publicKey || (await this.apiKeyStamper?.createKeyPair());
         const sessionKey = params?.sessionKey || SessionKey.DefaultSessionkey;
 
         const expirationSeconds =
           params?.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
-        if (!generatedKeyPair) {
+        if (!generatedPublicKey) {
           throw new TurnkeyError(
             "A publickey could not be found or generated.",
             TurnkeyErrorCodes.INTERNAL_ERROR,
@@ -330,7 +330,7 @@ export class TurnkeyClient {
         }
         const sessionResponse = await this.httpClient.stampLogin(
           {
-            publicKey: generatedKeyPair,
+            publicKey: generatedPublicKey,
             organizationId: this.config.organizationId,
             expirationSeconds,
           },
@@ -342,7 +342,7 @@ export class TurnkeyClient {
           sessionKey,
         });
 
-        generatedKeyPair = undefined; // Key pair was successfully used, set to null to prevent cleanup
+        generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
         return sessionResponse.session;
       },
@@ -358,9 +358,9 @@ export class TurnkeyClient {
       },
       {
         finallyFn: async () => {
-          if (generatedKeyPair) {
+          if (generatedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
             } catch (cleanupError) {
               throw new TurnkeyError(
                 `Failed to clean up generated key pair`,
@@ -383,9 +383,9 @@ export class TurnkeyClient {
    * - Automatically generates a new API key pair for authentication and session management.
    * - Stores the resulting session token and manages cleanup of unused key pairs.
    *
+   * @param params.passkeyDisplayName - display name for the passkey (defaults to a generated name based on the current timestamp).
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
-   * @param params.passkeyDisplayName - display name for the passkey (defaults to a generated name based on the current timestamp).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
    * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
@@ -405,16 +405,15 @@ export class TurnkeyClient {
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params || {};
 
-    let generatedKeyPair: string | undefined = undefined;
+    let generatedPublicKey: string | undefined = undefined;
     return withTurnkeyErrorHandling(
       async () => {
-        generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+        generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
         const passkeyName = passkeyDisplayName || `passkey-${Date.now()}`;
 
         // A passkey will be created automatically when you call this function. The name is passed in
         const passkey = await this.createPasskey({
           name: passkeyName,
-          displayName: passkeyName,
           ...(params?.challenge && { challenge: params.challenge }),
         });
 
@@ -439,8 +438,8 @@ export class TurnkeyClient {
             ],
             apiKeys: [
               {
-                apiKeyName: `passkey-auth-${generatedKeyPair}`,
-                publicKey: generatedKeyPair!,
+                apiKeyName: `passkey-auth-${generatedPublicKey}`,
+                publicKey: generatedPublicKey!,
                 curveType: "API_KEY_CURVE_P256",
                 expirationSeconds: "60",
               },
@@ -458,7 +457,7 @@ export class TurnkeyClient {
         }
 
         const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
-        this.apiKeyStamper?.setTemporaryPublicKey(generatedKeyPair!);
+        this.apiKeyStamper?.setTemporaryPublicKey(generatedPublicKey!);
 
         const sessionResponse = await this.httpClient.stampLogin({
           publicKey: newGeneratedKeyPair!,
@@ -466,14 +465,14 @@ export class TurnkeyClient {
           expirationSeconds,
         });
 
-        await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair!);
+        await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey!);
 
         await this.storeSession({
           sessionToken: sessionResponse.session,
           sessionKey,
         });
 
-        generatedKeyPair = undefined; // Key pair was successfully used, set to null to prevent cleanup
+        generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
         return sessionResponse.session;
       },
@@ -484,9 +483,9 @@ export class TurnkeyClient {
       {
         finallyFn: async () => {
           this.apiKeyStamper?.clearTemporaryPublicKey();
-          if (generatedKeyPair) {
+          if (generatedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
             } catch (cleanupError) {
               throw new TurnkeyError(
                 `Failed to clean up generated key pair`,
@@ -774,7 +773,7 @@ export class TurnkeyClient {
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params;
 
-    let generatedKeyPair: string | undefined = undefined;
+    let generatedPublicKey: string | undefined = undefined;
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.walletManager?.stamper) {
@@ -784,7 +783,7 @@ export class TurnkeyClient {
           );
         }
 
-        generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+        generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
 
         this.walletManager.stamper.setProvider(
           walletProvider.interfaceType,
@@ -813,8 +812,8 @@ export class TurnkeyClient {
                 curveType: getCurveTypeFromProvider(walletProvider),
               },
               {
-                apiKeyName: `wallet-auth-${generatedKeyPair}`,
-                publicKey: generatedKeyPair!,
+                apiKeyName: `wallet-auth-${generatedPublicKey}`,
+                publicKey: generatedPublicKey!,
                 curveType: "API_KEY_CURVE_P256",
                 expirationSeconds: "60",
               },
@@ -832,7 +831,7 @@ export class TurnkeyClient {
         }
 
         const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
-        this.apiKeyStamper?.setTemporaryPublicKey(generatedKeyPair!);
+        this.apiKeyStamper?.setTemporaryPublicKey(generatedPublicKey!);
 
         const sessionResponse = await this.httpClient.stampLogin({
           publicKey: newGeneratedKeyPair!,
@@ -840,14 +839,14 @@ export class TurnkeyClient {
           expirationSeconds,
         });
 
-        await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair!);
+        await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey!);
 
         await this.storeSession({
           sessionToken: sessionResponse.session,
           sessionKey,
         });
 
-        generatedKeyPair = undefined; // Key pair was successfully used, set to null to prevent cleanup
+        generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
         return sessionResponse.session;
       },
@@ -859,9 +858,9 @@ export class TurnkeyClient {
         finallyFn: async () => {
           // Clean up the generated key pair if it wasn't successfully used
           this.apiKeyStamper?.clearTemporaryPublicKey();
-          if (generatedKeyPair) {
+          if (generatedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
             } catch (cleanupError) {
               throw new TurnkeyError(
                 "Failed to clean up generated key pair",
@@ -904,7 +903,7 @@ export class TurnkeyClient {
     const expirationSeconds =
       params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
-    let generatedKeyPair: string | undefined = undefined;
+    let generatedPublicKey: string | undefined = undefined;
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.walletManager?.stamper) {
@@ -913,21 +912,21 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
           );
         }
-        generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+        generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
 
         this.walletManager.stamper.setProvider(
           walletProvider.interfaceType,
           walletProvider,
         );
 
-        // here we sign the request with the wallet, but we don't send it to the Turnkey yet
+        // here we sign the request with the wallet, but we don't send it to Turnkey yet
         // this is because we need to check if the subOrg exists first, and create one if it doesn't
-        // once we have the subOrg for the publicKey, we then can send the request to the Turnkey
+        // once we have the subOrg for the publicKey, we then can send the request to Turnkey
         const signedRequest = await withTurnkeyErrorHandling(
           async () => {
             return this.httpClient.stampStampLogin(
               {
-                publicKey: generatedKeyPair!,
+                publicKey: generatedPublicKey!,
                 organizationId: this.config.organizationId,
                 expirationSeconds,
               },
@@ -985,7 +984,7 @@ export class TurnkeyClient {
         }
 
         // here we check if the subOrg exists and create one
-        // then we send off the stamped request to the Turnkey
+        // then we send off the stamped request to Turnkey
 
         const accountRes = await this.httpClient.proxyGetAccount({
           filterType: FilterType.PublicKey,
@@ -1026,7 +1025,7 @@ export class TurnkeyClient {
           }
         }
 
-        // now we can send the stamped request to the Turnkey
+        // now we can send the stamped request to Turnkey
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
           [signedRequest.stamp.stampHeaderName]:
@@ -1070,9 +1069,9 @@ export class TurnkeyClient {
         errorCode: TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
         errorMessage: "Failed to log in or sign up with wallet",
         catchFn: async () => {
-          if (generatedKeyPair) {
+          if (generatedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
             } catch (cleanupError) {
               throw new TurnkeyError(
                 `Failed to clean up generated key pair`,
@@ -1325,7 +1324,7 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+        const generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
         const res = await this.httpClient.proxySignup(signUpBody);
 
         if (!res) {
@@ -1337,7 +1336,7 @@ export class TurnkeyClient {
 
         return await this.loginWithOtp({
           verificationToken,
-          publicKey: generatedKeyPair!,
+          publicKey: generatedPublicKey!,
           ...(invalidateExisting && { invalidateExisting }),
           ...(sessionKey && { sessionKey }),
         });
@@ -1443,7 +1442,7 @@ export class TurnkeyClient {
    * - Handles session storage and management, and supports invalidating existing sessions if specified.
    *
    * @param params.oidcToken - OIDC token received after successful authentication with the OAuth provider.
-   * @param params.publicKey - public key to use for authentication. Must be generated prior to calling this function.
+   * @param params.publicKey - public key to use for authentication. Must be generated prior to calling this function, this is because the OIDC nonce has to be set to `sha256(publicKey)`.
    * @param params.providerName - name of the OAuth provider (defaults to a generated name with a timestamp).
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
@@ -1670,6 +1669,7 @@ export class TurnkeyClient {
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.walletProviders - array of wallet providers to use for fetching wallets.
    * @returns A promise that resolves to an array of `Wallet` objects.
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallets.
    */
@@ -2818,7 +2818,6 @@ export class TurnkeyClient {
   }): Promise<string[]> => {
     const { stampWith } = params || {};
     const name = params?.name || `Turnkey Passkey-${Date.now()}`;
-    const displayName = params?.displayName || name;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -2834,7 +2833,6 @@ export class TurnkeyClient {
 
         const { encodedChallenge, attestation } = await this.createPasskey({
           name,
-          displayName,
           ...(stampWith && { stampWith }),
         });
 
@@ -3519,12 +3517,7 @@ export class TurnkeyClient {
     withTurnkeyErrorHandling(
       async () => {
         const sessionKeys = await this.storageManager.listSessionKeys();
-        if (sessionKeys.length === 0) {
-          throw new TurnkeyError(
-            "No sessions found to clear.",
-            TurnkeyErrorCodes.NO_SESSION_FOUND,
-          );
-        }
+        if (sessionKeys.length === 0) return;
         for (const sessionKey of sessionKeys) {
           this.clearSession({ sessionKey });
         }
