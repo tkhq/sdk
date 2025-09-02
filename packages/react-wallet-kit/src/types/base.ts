@@ -5,6 +5,7 @@ import type {
   TurnkeyNetworkError,
 } from "@turnkey/sdk-types";
 import type { ThemeOverrides } from "../providers/theme/Overrides";
+import { KeyFormat as IframeKeyFormat } from "@turnkey/iframe-stamper";
 
 export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: { idToken: string; publicKey: string }) => void;
@@ -107,6 +108,14 @@ export enum ExportType {
   PrivateKey = "PRIVATE_KEY",
   WalletAccount = "WALLET_ACCOUNT",
 }
+
+/**@internal */
+export enum ImportType {
+  Wallet = "WALLET",
+  PrivateKey = "PRIVATE_KEY",
+}
+
+export { IframeKeyFormat as KeyFormat };
 
 /**
  * Enum representing the authentication states of the user.

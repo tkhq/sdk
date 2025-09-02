@@ -54,6 +54,7 @@ import {
   type v1PayloadEncoding,
   type v1HashFunction,
   type v1Curve,
+  type v1PrivateKey,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -62,6 +63,8 @@ import {
   AuthState,
   ClientState,
   ExportType,
+  ImportType,
+  KeyFormat,
 } from "../../types/base";
 import { AuthComponent } from "../../components/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -1530,6 +1533,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks],
   );
 
+  const fetchPrivateKeys = useCallback(
+    async (params?: {
+      stampWith?: StamperType | undefined;
+    }): Promise<v1PrivateKey[]> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        () => client.fetchPrivateKeys(params),
+        callbacks,
+        "Failed to fetch private keys",
+      );
+    },
+    [client, callbacks],
+  );
+
   const signMessage = useCallback(
     async (params: {
       message: string;
@@ -2877,15 +2899,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     async (params: {
       privateKeyId: string;
       targetPublicKey?: string;
+      keyFormat?: KeyFormat;
       stampWith?: StamperType | undefined;
     }) => {
-      const { privateKeyId, targetPublicKey, stampWith } = params;
+      const { privateKeyId, targetPublicKey, keyFormat, stampWith } = params;
       pushPage({
         key: "Export Private Key",
         content: (
           <ExportComponent
             target={privateKeyId}
             exportType={ExportType.PrivateKey}
+            {...(keyFormat !== undefined ? { keyFormat } : {})}
             {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
             {...(stampWith !== undefined ? { stampWith } : {})}
           />
@@ -2899,15 +2923,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     async (params: {
       address: string;
       targetPublicKey?: string;
+      keyFormat?: KeyFormat;
       stampWith?: StamperType | undefined;
     }) => {
-      const { address, targetPublicKey, stampWith } = params;
+      const { address, targetPublicKey, keyFormat, stampWith } = params;
       pushPage({
         key: "Export Wallet Account",
         content: (
           <ExportComponent
             target={address}
             exportType={ExportType.WalletAccount}
+            {...(keyFormat !== undefined ? { keyFormat } : {})}
             {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
             {...(stampWith !== undefined ? { stampWith } : {})}
           />
@@ -2936,6 +2962,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 key: "Import Wallet",
                 content: (
                   <ImportComponent
+                    importType={ImportType.Wallet}
                     onError={(error: unknown) => {
                       reject(error);
                     }}
@@ -2958,6 +2985,57 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
         throw new TurnkeyError(
           "Failed to import wallet.",
+          TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+          error,
+        );
+      }
+    },
+    [pushPage],
+  );
+
+  const handleImportPrivateKey = useCallback(
+    async (params?: {
+      curve: v1Curve;
+      addressFormats: v1AddressFormat[];
+      successPageDuration?: number | undefined;
+      stampWith?: StamperType | undefined;
+    }): Promise<string> => {
+      const {
+        curve,
+        addressFormats,
+        successPageDuration = 2000,
+        stampWith,
+      } = params || {};
+      try {
+        return withTurnkeyErrorHandling(
+          () =>
+            new Promise<string>((resolve, reject) =>
+              pushPage({
+                key: "Import Private Key",
+                content: (
+                  <ImportComponent
+                    importType={ImportType.PrivateKey}
+                    curve={curve}
+                    addressFormats={addressFormats}
+                    onError={(error: unknown) => {
+                      reject(error);
+                    }}
+                    onSuccess={(privateKeyId: string) => resolve(privateKeyId)}
+                    {...(successPageDuration !== undefined && {
+                      successPageDuration,
+                    })}
+                    {...(stampWith !== undefined && { stampWith })}
+                  />
+                ),
+              }),
+            ),
+        );
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to import private key.",
           TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
           error,
         );
@@ -4131,6 +4209,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         completeOauth,
         fetchWallets,
         fetchWalletAccounts,
+        fetchPrivateKeys,
         refreshWallets,
         signMessage,
         signTransaction,
@@ -4173,6 +4252,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleExportPrivateKey,
         handleExportWalletAccount,
         handleImportWallet,
+        handleImportPrivateKey,
         handleUpdateUserEmail,
         handleUpdateUserPhoneNumber,
         handleUpdateUserName,
