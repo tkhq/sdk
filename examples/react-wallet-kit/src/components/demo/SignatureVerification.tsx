@@ -53,8 +53,8 @@ export default function SignatureVerification({
       <div>
         <p className="text-lg font-medium mt-2 text-center">
           {verificationPassed
-            ? "Signature Verified"
-            : "Signature Verification Failed"}
+            ? "Signature verified"
+            : "Signature verification failed"}
         </p>
         {verificationPassed && (
           <p className="text-xs text-icon-text-light dark:text-icon-text-dark text-center">

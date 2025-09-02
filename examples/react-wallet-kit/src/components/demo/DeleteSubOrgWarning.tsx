@@ -65,7 +65,7 @@ export default function DeleteSubOrgWarning() {
           <Checkbox
             checked={deleteWithoutExport}
             onChange={(checked: boolean) => setDeleteWithoutExport(checked)}
-            className="group flex items-center justify-center size-4 rounded border text-icon-background-light dark:text-icon-background-dark bg-icon-background-light dark:bg-icon-background-dark data-checked:text-danger-text-light dark:data-checked:text-danger-text-dark data-checked:bg-danger-light dark:data-checked:bg-danger-dark border-icon-text-light dark:border-icon-text-dark focus:outline-none focus:ring-2 focus:ring-danger-light dark:focus:ring-danger-dark transition-all"
+            className="group cursor-pointer flex items-center justify-center size-4 rounded border text-icon-background-light dark:text-icon-background-dark bg-icon-background-light dark:bg-icon-background-dark data-checked:text-danger-text-light dark:data-checked:text-danger-text-dark data-checked:bg-danger-light dark:data-checked:bg-danger-dark border-icon-text-light dark:border-icon-text-dark focus:outline-none focus:ring-2 focus:ring-danger-light dark:focus:ring-danger-dark transition-all"
           >
             {/* Checkmark icon */}
             <FontAwesomeIcon icon={faCheck} />
@@ -82,7 +82,7 @@ export default function DeleteSubOrgWarning() {
           disabled={
             (!deleteWithoutExport && unExportedWallets.length > 0) || isLoading
           }
-          className="w-full flex items-center justify-center transition-all active:scale-95 disabled:active:scale-100 disabled:bg-black/20 disabled:text-gray-700 dark:disabled:bg-white/20 dark:disabled:text-gray-300 p-3 rounded-md border-none max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
+          className="w-full flex items-center justify-center cursor-pointer transition-all active:scale-95 disabled:active:scale-100 disabled:bg-black/20 disabled:text-gray-700 dark:disabled:bg-white/20 dark:disabled:text-gray-300 p-3 rounded-md border-none max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
         >
           {isLoading ? (
             <Spinner className="!text-danger-light dark:!text-danger-dark" />
