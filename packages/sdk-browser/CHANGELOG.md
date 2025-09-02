@@ -1,5 +1,18 @@
 # @turnkey/sdk-browser
 
+## 5.9.0
+
+### Minor Changes
+
+- [#879](https://github.com/tkhq/sdk/pull/879) [`026264c`](https://github.com/tkhq/sdk/commit/026264c55aa16342c8925af0bdcdf72dc00e5158) Author [@zkharit](https://github.com/zkharit) - Update packages to include new activities as of the newest release (mono v2025.8.10)
+
+### Patch Changes
+
+- Updated dependencies [[`026264c`](https://github.com/tkhq/sdk/commit/026264c55aa16342c8925af0bdcdf72dc00e5158), [`d7420e6`](https://github.com/tkhq/sdk/commit/d7420e6c3559efc1024b58749b31d253150cb189)]:
+  - @turnkey/http@3.11.0
+  - @turnkey/crypto@2.6.0
+  - @turnkey/wallet-stamper@1.0.9
+
 ## 5.8.0
 
 ### Minor Changes
