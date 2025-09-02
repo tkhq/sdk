@@ -10,7 +10,7 @@ export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: { idToken: string; publicKey: string }) => void;
   beforeSessionExpiry?: (params: { sessionKey: string }) => void;
   onSessionExpired?: (params: { sessionKey: string }) => void;
-  onAuthenticationSuccess?: (params: { session: Session | undefined }) => void;
+  onAuthenticationSuccess?: (params: { session: Session | undefined, method: AuthMethod }) => void;
   onError?: (error: TurnkeyError | TurnkeyNetworkError) => void;
 }
 
@@ -136,3 +136,13 @@ export type WalletId = string;
 export type PrivateKeyId = string;
 /** @internal */
 export type Address = string;
+
+/**
+ * Enum representing the authentication methods.
+ */
+export enum AuthMethod {
+  Otp = "otp",
+  Passkey = "passkey",
+  Wallet = "wallet",
+  Oauth = "oauth",
+}
