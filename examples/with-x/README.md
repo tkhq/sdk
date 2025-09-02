@@ -44,7 +44,7 @@ Now open `.env.local` and add the missing environment variables:
 
 ### 3/ Setting up X
 
-Navigate to the [X developer portal](https://developer.twitter.com/en/portal/dashboard) and create a app. In the keys and tokens section you'll need to save your:
+Navigate to the [X developer portal](https://developer.twitter.com/en/portal/dashboard) and create an app. In the keys and tokens section you'll need to save your:
 
 - Client ID
 - Client Secret
@@ -58,36 +58,36 @@ You will also need to set a Redirect URI found in the `User authentication setti
 For this demo application set your Callback URI / Redirect URL to the following:
 `http://127.0.0.1:3456/auth/x/redirect`.
 
-Ensure to use `127.0.0.1` and NOT `localhost`. The port used in your `X_REDIRECT_URI` should match the `PORT` value in your .env.local file.
+Ensure to use `127.0.0.1` and NOT `localhost`. The port used in your `X_REDIRECT_URI` should match the `PORT` value in your `.env.local` file.
 
 ![alt text](./doc/redirect2.png)
 
-After you have obtained these values save them in your .env.local
+After you have obtained these values save them in your `.env.local`
 
-- X_CLIENT_ID
-- X_REDIRECT_URI
+- `X_CLIENT_ID`
+- `X_REDIRECT_URI`
 
 ### 4/ Upload your client secret
 
-To enable Turnkey to perform OAuth 2.0 authentication for your end users, our secure enclave will need access to your X client secret. This step will outline the process of passing it encrypted to our TLS Fetcher enclave, our enclave responsible for making external requests, in this case to X.
+To enable Turnkey to perform OAuth 2.0 authentication for your end users, our secure enclave will need access to your X client secret. This step will outline the process of encrypting this secret and passing the encrypted payload to our TLS Fetcher enclave, our enclave responsible for making external requests (in this case to X).
 
 This client secret is never decrypted outside of our secure enclave and no individual has access to this secret.
 
-To encrypt your client secret and upload it to Turnkey ensure you have the following environment variables setup in your .env.local file .
+To encrypt your client secret and upload it to Turnkey ensure you have the following environment variables setup in your `.env.local` file:
 
-- API_PUBLIC_KEY
-- API_PRIVATE_KEY
-- NEXT_PUBLIC_ORGANIZATION_ID
-- NEXT_PUBLIC_BASE_URL
-- X_CLIENT_ID
+- `API_PUBLIC_KEY`
+- `API_PRIVATE_KEY`
+- `NEXT_PUBLIC_ORGANIZATION_ID`
+- `NEXT_PUBLIC_BASE_URL`
+- `X_CLIENT_ID`
 
-Run `pnpm run credential-upload -- <client_secret>` and do NOT include the `<>` with your X client secret. You can view the script that performs this encryption at [credential-upload.tsx](./credential-upload.tsx). If your client secret is `123` you'll run `pnpm run credential-upload -- 123`.
+Run `pnpm run credential-upload -- <client_secret>` with your X client secret (note: do NOT include the `<` and `>` characters). You can view the script that performs this encryption at [credential-upload.tsx](./credential-upload.tsx). For example, if your client secret is `123` you'll run `pnpm run credential-upload -- 123`.
 
-This script will output an OAuth 2.0 Credential ID. Paste this value in your .env.local file for the OAUTH2_CREDENTIAL_ID environment variable.
+This script will output an OAuth 2.0 Credential ID. Paste this value in your `.env.local` file as the `OAUTH2_CREDENTIAL_ID` environment variable.
 
 ### 4/ Running the app
 
-You should now have all of the environment variables in .env.local populated. You're now ready to run the application!
+You should now have all of the environment variables in `.env.local` populated. You're now ready to run the application!
 
 ```bash
 pnpm run dev
