@@ -65,6 +65,7 @@ import {
   isEthereumProvider,
   isSolanaProvider,
   getAuthenticatorAddresses,
+  getCurveTypeFromProvider,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -809,9 +810,7 @@ export class TurnkeyClient {
               {
                 apiKeyName: `wallet-auth:${publicKey}`,
                 publicKey: publicKey,
-                curveType: isEthereumProvider(walletProvider)
-                  ? ("API_KEY_CURVE_SECP256K1" as const)
-                  : ("API_KEY_CURVE_ED25519" as const),
+                curveType: getCurveTypeFromProvider(walletProvider),
               },
               {
                 apiKeyName: `wallet-auth-${generatedKeyPair}`,
@@ -1011,9 +1010,7 @@ export class TurnkeyClient {
                 {
                   apiKeyName: `wallet-auth:${publicKey}`,
                   publicKey: publicKey,
-                  curveType: isEthereumProvider(walletProvider)
-                    ? ("API_KEY_CURVE_SECP256K1" as const)
-                    : ("API_KEY_CURVE_ED25519" as const),
+                  curveType: getCurveTypeFromProvider(walletProvider),
                 },
               ],
             },
@@ -1729,6 +1726,8 @@ export class TurnkeyClient {
 
         const groupedProviders = new Map<string, WalletProvider[]>();
         for (const provider of providers) {
+          // connected wallets don't all have some uuid we can use for the walletId
+          // so what we do is we use a normalized version of the name for the wallet, like "metamask" or "phantom-wallet"
           const walletId =
             provider.info?.name?.toLowerCase().replace(/\s+/g, "-") ||
             "unknown";
@@ -1849,6 +1848,14 @@ export class TurnkeyClient {
         const connected: ConnectedWalletAccount[] = [];
 
         const providers = walletProviders ?? (await this.getWalletProviders());
+
+        // Context: connected wallets don't all have some uuid we can use for the walletId so what
+        //          we do is we use a normalized version of the name for the wallet, like "metamask"
+        //          or "phantom-wallet"
+        //
+        // when fetching accounts, we select all providers with this normalized walletId.
+        // A single wallet can map to multiple providers if it supports multiple chains
+        // (e.g. MetaMask for Ethereum and MetaMask for Solana)
         const matching = providers.filter(
           (p) =>
             p.info?.name?.toLowerCase().replace(/\s+/g, "-") ===

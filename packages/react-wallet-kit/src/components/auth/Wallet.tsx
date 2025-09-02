@@ -13,7 +13,7 @@ import clsx from "clsx";
 import type { WalletProvider } from "@turnkey/core";
 import { QRCodeSVG as QRCode } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
-import { isEthereumProvider } from "@turnkey/core";
+import { isEthereumProvider, isSolanaProvider } from "@turnkey/core";
 import { useTurnkey } from "../../providers/client/Hook";
 
 interface WalletAuthButtonProps {
@@ -98,16 +98,31 @@ export function ExternalWalletChainSelector(
                     <ConnectedIndicator isPinging />
                   )}
                 </div>
-              ) : (
+              ) : isSolanaProvider(p) ? (
                 <div className="relative">
                   <SolanaLogo className="size-5" />
                   {canUnlink(p, shouldShowUnlink) && (
                     <ConnectedIndicator isPinging />
                   )}
                 </div>
+              ) : (
+                // we should never reach here
+                // if we do then it means we forgot to update the auth component after adding a new chain
+                <div className="relative">
+                  <span className="size-5 flex items-center justify-center rounded bg-gray-300 dark:bg-gray-700">
+                    ?
+                  </span>
+                </div>
               )}
+
               <div className="flex flex-col items-start">
-                {isEthereumProvider(p) ? "EVM" : "Solana"}
+                {isEthereumProvider(p)
+                  ? "EVM"
+                  : isSolanaProvider(p)
+                    ? "Solana"
+                    : // we should never reach here
+                      // if we do then it means we forgot to update the auth component after adding a new chain
+                      `?`}
                 {canUnlink(p, shouldShowUnlink) && (
                   <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
                     Connected: {p.connectedAddresses[0]?.slice(0, 4)}...
@@ -115,6 +130,7 @@ export function ExternalWalletChainSelector(
                   </span>
                 )}
               </div>
+
               <FontAwesomeIcon
                 className={clsx(
                   `absolute transition-all duration-200`,
@@ -232,9 +248,19 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                 </div>
                 <div className={clsx(`flex items-center transition-all gap-1`)}>
                   {group.map((c, idx) => {
-                    const Logo = isEthereumProvider(c)
-                      ? EthereumLogo
-                      : SolanaLogo;
+                    let Logo;
+                    if (isEthereumProvider(c)) {
+                      Logo = EthereumLogo;
+                    } else if (isSolanaProvider(c)) {
+                      Logo = SolanaLogo;
+                    } else {
+                      // we should never reach here
+                      // if we do then it means we forgot to update the auth component after adding a new chain
+                      throw new Error(
+                        `Unsupported provider namespace. Expected Ethereum or Solana.`,
+                      );
+                    }
+
                     const delay = 50 + idx * 30; // Staggered delay: leftmost has largest
                     return (
                       <div
