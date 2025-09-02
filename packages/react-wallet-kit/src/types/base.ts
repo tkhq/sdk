@@ -10,7 +10,10 @@ export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: { idToken: string; publicKey: string }) => void;
   beforeSessionExpiry?: (params: { sessionKey: string }) => void;
   onSessionExpired?: (params: { sessionKey: string }) => void;
-  onAuthenticationSuccess?: (params: { session: Session | undefined, method: AuthMethod }) => void;
+  onAuthenticationSuccess?: (params: {
+    session: Session | undefined;
+    method: AuthMethod;
+  }) => void;
   onError?: (error: TurnkeyError | TurnkeyNetworkError) => void;
 }
 

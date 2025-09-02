@@ -906,3 +906,100 @@ const throwMatchingMessage = (
     });
   }
 };
+
+/**
+ * @internal
+ *
+ * Asserts that the provided key pair is a valid P-256 ECDSA key pair.
+ * @param pair The key pair to validate.
+ */
+export async function assertValidP256ECDSAKeyPair(
+  pair: CryptoKeyPair,
+): Promise<void> {
+  const { privateKey, publicKey } = pair;
+
+  // Check basic shape
+  if (!(privateKey instanceof CryptoKey) || !(publicKey instanceof CryptoKey)) {
+    throw new TurnkeyError(
+      "Both keys must be CryptoKey instances.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+  if (privateKey.type !== "private")
+    throw new TurnkeyError(
+      "privateKey.type must be 'private'.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  if (publicKey.type !== "public")
+    throw new TurnkeyError(
+      "publicKey.type must be 'public'.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+
+  // Verify extractability and usages
+  if (privateKey.extractable !== false) {
+    throw new TurnkeyError(
+      "Provided privateKey must be non-extractable.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+  if (!privateKey.usages.includes("sign")) {
+    throw new TurnkeyError(
+      "privateKey must have 'sign' in keyUsages.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+  if (!publicKey.usages.includes("verify")) {
+    throw new TurnkeyError(
+      "publicKey must have 'verify' in keyUsages.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+
+  // Algorithm checks (must be ECDSA on P-256)
+  const pAlg = privateKey.algorithm as EcKeyAlgorithm;
+  const pubAlg = publicKey.algorithm as EcKeyAlgorithm;
+  if (pAlg.name !== "ECDSA" || pubAlg.name !== "ECDSA") {
+    throw new TurnkeyError(
+      "Keys must be ECDSA keys.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+  if (pAlg.namedCurve !== "P-256" || pubAlg.namedCurve !== "P-256") {
+    throw new TurnkeyError(
+      "Keys must be on the P-256 curve.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+
+  // Public key export sanity (should be uncompressed 65 bytes starting with 0x04)
+  const rawPub = new Uint8Array(
+    await crypto.subtle.exportKey("raw", publicKey),
+  );
+  if (rawPub.length !== 65 || rawPub[0] !== 0x04) {
+    throw new TurnkeyError(
+      "Public key must be an uncompressed P-256 point (65 bytes, leading 0x04).",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+
+  // Prove the pair matches: sign→verify a test message
+  const msg = crypto.getRandomValues(new Uint8Array(32));
+  const sig = await crypto.subtle.sign(
+    { name: "ECDSA", hash: "SHA-256" },
+    privateKey,
+    msg,
+  );
+  const ok = await crypto.subtle.verify(
+    { name: "ECDSA", hash: "SHA-256" },
+    publicKey,
+    sig,
+    msg,
+  );
+  if (!ok) {
+    throw new TurnkeyError(
+      "publicKey does not match privateKey (verify failed).",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+}

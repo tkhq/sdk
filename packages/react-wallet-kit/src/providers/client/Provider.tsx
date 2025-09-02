@@ -797,9 +797,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error during the process.
    */
-  const handlePostAuth = async (params: {
-    method: AuthMethod;
-  }) => {
+  const handlePostAuth = async (params: { method: AuthMethod }) => {
     const { method } = params;
     try {
       const sessionKey = await getActiveSessionKey();
@@ -876,6 +874,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       name?: string;
       displayName?: string;
       stampWith?: StamperType | undefined;
+      challenge?: string;
     }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> => {
       if (!client) {
         throw new TurnkeyError(
@@ -947,6 +946,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       createSubOrgParams?: CreateSubOrgParams;
       sessionKey?: string;
       passkeyDisplayName?: string;
+      challenge?: string;
     }): Promise<string> => {
       if (!client) {
         throw new TurnkeyError(
