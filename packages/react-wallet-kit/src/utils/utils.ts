@@ -1,5 +1,5 @@
 import { Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
-import type { TurnkeyCallbacks } from "./types/base";
+import type { TurnkeyCallbacks } from "../types/base";
 import { useCallback, useRef, useState, useEffect } from "react";
 import { WalletInterfaceType, WalletProvider } from "@turnkey/core";
 

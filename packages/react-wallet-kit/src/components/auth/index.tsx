@@ -24,7 +24,7 @@ import { DeveloperError } from "../design/Failure";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ClientState } from "../../types/base";
-import { isWalletConnect } from "@utils";
+import { isWalletConnect } from "../../utils/utils";
 
 export function AuthComponent() {
   const {

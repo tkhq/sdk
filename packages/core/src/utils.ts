@@ -1083,3 +1083,14 @@ export async function assertValidP256ECDSAKeyPair(
     );
   }
 }
+
+export function isValidPasskeyName(name: string): string {
+  const nameRegex = /^[a-zA-Z0-9 _\-:\/]{1,64}$/;
+  if (!nameRegex.test(name)) {
+    throw new TurnkeyError(
+      "Passkey name must be 1-64 characters and only contain letters, numbers, spaces, dashes, underscores, colons, or slashes.",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+  return name;
+}
