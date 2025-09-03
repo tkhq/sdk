@@ -17,7 +17,14 @@ import {
   useDebouncedCallback,
   useWalletProviderState,
   withTurnkeyErrorHandling,
-} from "../../utils";
+} from "../../utils/utils";
+import {
+  type TimerMap,
+  clearKey,
+  clearAll,
+  setCappedTimeoutInMap,
+  setTimeoutInMap,
+} from "../../utils/timers";
 import {
   Chain,
   CreateSubOrgParams,
@@ -146,7 +153,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   // this is so our useEffect that calls `initializeWalletProviderListeners()` only runs when it needs to
   const [walletProviders, setWalletProviders] = useWalletProviderState();
 
-  const expiryTimeoutsRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const expiryTimeoutsRef = useRef<TimerMap>({});
   const proxyAuthConfigRef = useRef<ProxyTGetWalletKitConfigResponse | null>(
     null,
   );
@@ -648,43 +655,42 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   /**
    * @internal
-   * Schedules a session expiration and warning timeout for the given session key.
+   * Schedules a session expiration and warning timer for the given session key.
    *
-   * - This function sets up two timeouts: one for warning before the session expires and another to expire the session.
-   * - The warning timeout is set to trigger before the session expires, allowing for actions like refreshing the session.
-   * - The expiration timeout clears the session and triggers any necessary callbacks.
+   * - Sets up two timers: one for warning before expiry and one for actual expiry.
+   * - Uses capped timeouts under the hood so delays > 24.8 days are safe (see utils/timers.ts).
    *
    * @param params.sessionKey - The key of the session to schedule expiration for.
-   * @param params.expiry - The expiration time in seconds for the session.
+   * @param params.expiry - The expiration time in seconds since epoch.
    * @throws {TurnkeyError} If an error occurs while scheduling the session expiration.
    */
   async function scheduleSessionExpiration(params: {
     sessionKey: string;
-    expiry: number;
+    expiry: number; // seconds since epoch
   }) {
     const { sessionKey, expiry } = params;
 
     try {
-      // Clear any existing timeout for this session key
-      if (expiryTimeoutsRef.current[sessionKey]) {
-        clearTimeout(expiryTimeoutsRef.current[sessionKey]);
-        delete expiryTimeoutsRef.current[sessionKey];
-      }
+      const warnKey = `${sessionKey}-warning`;
 
-      if (expiryTimeoutsRef.current[`${sessionKey}-warning`]) {
-        clearTimeout(expiryTimeoutsRef.current[`${sessionKey}-warning`]);
-        delete expiryTimeoutsRef.current[`${sessionKey}-warning`];
-      }
+      // Replace any prior timers for this session
+      clearKey(expiryTimeoutsRef.current, sessionKey);
+      clearKey(expiryTimeoutsRef.current, warnKey);
 
-      const timeUntilExpiry = expiry * 1000 - Date.now();
+      const now = Date.now();
+      const expiryMs = expiry * 1000;
+      const timeUntilExpiry = expiryMs - now;
 
       const beforeExpiry = async () => {
         const activeSession = await getSession();
-        if (!activeSession && expiryTimeoutsRef.current[sessionKey]) {
-          clearTimeout(expiryTimeoutsRef.current[`${sessionKey}-warning`]);
-          expiryTimeoutsRef.current[`${sessionKey}-warning`] = setTimeout(
+
+        if (!activeSession && expiryTimeoutsRef.current[warnKey]) {
+          // Keep nudging until session materializes (short 10s timer is fine)
+          setTimeoutInMap(
+            expiryTimeoutsRef.current,
+            warnKey,
             beforeExpiry,
-            10000,
+            10_000,
           );
           return;
         }
@@ -693,6 +699,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         if (!session) return;
 
         callbacks?.beforeSessionExpiry?.({ sessionKey });
+
         if (masterConfig?.auth?.autoRefreshSession) {
           await refreshSession({
             expirationSeconds: session.expirationSeconds!,
@@ -706,34 +713,50 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         if (!expiredSession) return;
 
         callbacks?.onSessionExpired?.({ sessionKey });
+
         if ((await getActiveSessionKey()) === sessionKey) {
           setSession(undefined);
         }
-        setAllSessions((prevSessions) => {
-          if (!prevSessions) return prevSessions;
-          const newSessions = { ...prevSessions };
-          delete newSessions[sessionKey];
-          return newSessions;
+
+        setAllSessions((prev) => {
+          if (!prev) return prev;
+          const next = { ...prev };
+          delete next[sessionKey];
+          return next;
         });
 
         await clearSession({ sessionKey });
 
-        delete expiryTimeoutsRef.current[sessionKey];
-        delete expiryTimeoutsRef.current[`${sessionKey}-warning`];
+        // Remove timers for this session
+        clearKey(expiryTimeoutsRef.current, sessionKey);
+        clearKey(expiryTimeoutsRef.current, warnKey);
 
         await logout();
       };
 
-      if (timeUntilExpiry <= SESSION_WARNING_THRESHOLD_MS) {
-        beforeExpiry();
+      // Already expired → expire immediately
+      if (timeUntilExpiry <= 0) {
+        await expireSession();
+        return;
+      }
+
+      // Warning timer (if threshold is in the future)
+      const warnAt = expiryMs - SESSION_WARNING_THRESHOLD_MS;
+      if (warnAt <= now) {
+        void beforeExpiry(); // fire-and-forget is fine
       } else {
-        expiryTimeoutsRef.current[`${sessionKey}-warning`] = setTimeout(
+        setCappedTimeoutInMap(
+          expiryTimeoutsRef.current,
+          warnKey,
           beforeExpiry,
-          timeUntilExpiry - SESSION_WARNING_THRESHOLD_MS,
+          warnAt - now,
         );
       }
 
-      expiryTimeoutsRef.current[sessionKey] = setTimeout(
+      // Actual expiry timer (safe for long delays)
+      setCappedTimeoutInMap(
+        expiryTimeoutsRef.current,
+        sessionKey,
         expireSession,
         timeUntilExpiry,
       );
@@ -756,20 +779,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }
 
   /**
-   * Clears all scheduled session expiration and warning timeouts for the client.
+   * Clears all scheduled session timers (warning + expiry).
    *
-   * - This function removes all active session expiration and warning timeouts managed by the provider.
-   * - It is called automatically when sessions are re-initialized or on logout to prevent memory leaks and ensure no stale timeouts remain.
-   * - All timeouts stored in `expiryTimeoutsRef` are cleared and the reference is reset.
+   * - Removes all active timers managed by this client.
+   * - Useful on re-init or logout to avoid stale timers.
    *
-   * @throws {TurnkeyError} If an error occurs while clearing the timeouts.
+   * @throws {TurnkeyError} If an error occurs while clearing the timers.
    */
   function clearSessionTimeouts() {
     try {
-      Object.values(expiryTimeoutsRef.current).forEach((timeout) => {
-        clearTimeout(timeout);
-      });
-      expiryTimeoutsRef.current = {};
+      clearAll(expiryTimeoutsRef.current); // clears & deletes everything
     } catch (error) {
       if (
         error instanceof TurnkeyError ||
@@ -779,7 +798,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       } else {
         callbacks?.onError?.(
           new TurnkeyError(
-            `Failed to clear session timeouts`,
+            "Failed to clear session timeouts",
             TurnkeyErrorCodes.CLEAR_SESSION_TIMEOUTS_ERROR,
             error,
           ),
