@@ -4069,6 +4069,8 @@ export type TCreateInvitationsInput = { body: TCreateInvitationsBody };
 
 export type TCreateOauth2CredentialResponse = {
   activity: v1Activity;
+  /** Unique identifier of the OAuth 2.0 credential that was created */
+  oauth2CredentialId: string;
 };
 
 export type TCreateOauth2CredentialBody = {
@@ -4411,6 +4413,8 @@ export type TDeleteInvitationInput = { body: TDeleteInvitationBody };
 
 export type TDeleteOauth2CredentialResponse = {
   activity: v1Activity;
+  /** Unique identifier of the OAuth 2.0 credential that was deleted */
+  oauth2CredentialId: string;
 };
 
 export type TDeleteOauth2CredentialBody = {
@@ -4894,6 +4898,8 @@ export type TOauthInput = { body: TOauthBody };
 
 export type TOauth2AuthenticateResponse = {
   activity: v1Activity;
+  /** Base64 encoded OIDC token issued by Turnkey to be used with the LoginWithOAuth activity */
+  oidcToken: string;
 };
 
 export type TOauth2AuthenticateBody = {
@@ -5133,6 +5139,8 @@ export type TStampLoginInput = { body: TStampLoginBody };
 
 export type TUpdateOauth2CredentialResponse = {
   activity: v1Activity;
+  /** Unique identifier of the OAuth 2.0 credential that was updated */
+  oauth2CredentialId: string;
 };
 
 export type TUpdateOauth2CredentialBody = {
