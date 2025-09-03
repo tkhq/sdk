@@ -24,6 +24,20 @@ export type SessionResponse = {
   };
 };
 
+export interface BaseAuthResult {
+  sessionToken: string;
+}
+
+export interface OtpAuthResult extends BaseAuthResult {
+  verificationToken: string;
+}
+export interface WalletAuthResult extends BaseAuthResult {
+  address: string;
+}
+export interface OAuthAuthResult extends BaseAuthResult {
+  oidcToken: string;
+}
+
 export enum TurnkeyErrorCodes {
   UNKNOWN = "UNKNOWN",
   NETWORK_ERROR = "NETWORK_ERROR",

@@ -810,22 +810,36 @@ export function findWalletProviderFromAddress(
   return undefined;
 }
 
-/**@internal */
-export function ethereumAddressFromCompressedPublicKey(publicKey: string) {
-  const compressedBytes = uint8ArrayFromHexString(publicKey);
+/**
+ * Derives a wallet address from a given public key and chain.
+ *
+ * @param chain - "ethereum" or "solana"
+ * @param publicKey - The raw public key string
+ * @returns The derived wallet address
+ */
+export function addressFromPublicKey(chain: Chain, publicKey: string): string {
+  if (chain === Chain.Ethereum) {
+    const compressedBytes = uint8ArrayFromHexString(publicKey);
 
-  const publicKeyUncompressed = uint8ArrayToHexString(
-    uncompressRawPublicKey(compressedBytes, Curve.SECP256K1),
-  );
+    const publicKeyUncompressed = uint8ArrayToHexString(
+      uncompressRawPublicKey(compressedBytes, Curve.SECP256K1),
+    );
 
-  // drop 04 prefix
-  const key = publicKeyUncompressed.startsWith("04")
-    ? publicKeyUncompressed.slice(2)
-    : publicKeyUncompressed;
+    // drop 04 prefix
+    const key = publicKeyUncompressed.startsWith("04")
+      ? publicKeyUncompressed.slice(2)
+      : publicKeyUncompressed;
 
-  // hash with Keccak256 and take last 20 bytes
-  const hash = keccak256(uint8ArrayFromHexString(key));
-  return "0x" + hash.slice(-40);
+    // hash with Keccak256 and take last 20 bytes
+    const hash = keccak256(uint8ArrayFromHexString(key));
+    return "0x" + hash.slice(-40);
+  }
+
+  if (chain === Chain.Solana) {
+    return bs58.encode(uint8ArrayFromHexString(publicKey));
+  }
+
+  throw new Error(`Unsupported chain: ${chain}`);
 }
 
 /**@internal */
@@ -837,10 +851,10 @@ export function getAuthenticatorAddresses(user: v1User) {
     const { type, publicKey } = key.credential;
     switch (type) {
       case "CREDENTIAL_TYPE_API_KEY_SECP256K1":
-        ethereum.push(ethereumAddressFromCompressedPublicKey(publicKey));
+        ethereum.push(addressFromPublicKey(Chain.Ethereum, publicKey));
         break;
       case "CREDENTIAL_TYPE_API_KEY_ED25519":
-        solana.push(bs58.encode(uint8ArrayFromHexString(publicKey)));
+        solana.push(addressFromPublicKey(Chain.Solana, publicKey));
         break;
     }
   }
