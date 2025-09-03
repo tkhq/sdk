@@ -11,7 +11,7 @@
 - Updated dependencies [[`026264c`](https://github.com/tkhq/sdk/commit/026264c55aa16342c8925af0bdcdf72dc00e5158)]:
   - @turnkey/http@3.11.0
   - @turnkey/wallet-stamper@1.0.9
-  
+
 ## 4.7.0-beta.2
 
 ### Minor Changes

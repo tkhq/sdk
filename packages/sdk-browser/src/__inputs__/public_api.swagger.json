@@ -260,6 +260,38 @@
         "tags": ["Authenticators"]
       }
     },
+    "/public/v1/query/get_oauth2_credential": {
+      "post": {
+        "summary": "Get OAuth 2.0 credential",
+        "description": "Get details about an OAuth 2.0 credential.",
+        "operationId": "PublicApiService_GetOauth2Credential",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetOauth2CredentialResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetOauth2CredentialRequest"
+            }
+          }
+        ],
+        "tags": ["PublicApiService"]
+      }
+    },
     "/public/v1/query/get_oauth_providers": {
       "post": {
         "summary": "Get Oauth providers",
@@ -610,6 +642,38 @@
           }
         ],
         "tags": ["Activities"]
+      }
+    },
+    "/public/v1/query/list_oauth2_credentials": {
+      "post": {
+        "summary": "List OAuth 2.0 Credentials",
+        "description": "List all OAuth 2.0 credentials within an organization.",
+        "operationId": "PublicApiService_ListOauth2Credentials",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListOauth2CredentialsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListOauth2CredentialsRequest"
+            }
+          }
+        ],
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/query/list_policies": {
@@ -1124,6 +1188,38 @@
         "tags": ["Invitations"]
       }
     },
+    "/public/v1/submit/create_oauth2_credential": {
+      "post": {
+        "summary": "Create an OAuth 2.0 Credential",
+        "description": "Enable authentication for end users with an OAuth 2.0 provider",
+        "operationId": "PublicApiService_CreateOauth2Credential",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateOauth2CredentialRequest"
+            }
+          }
+        ],
+        "tags": ["User Auth"]
+      }
+    },
     "/public/v1/submit/create_oauth_providers": {
       "post": {
         "summary": "Create Oauth providers",
@@ -1634,6 +1730,38 @@
           }
         ],
         "tags": ["Invitations"]
+      }
+    },
+    "/public/v1/submit/delete_oauth2_credential": {
+      "post": {
+        "summary": "Delete an OAuth 2.0 Credential",
+        "description": "Disable authentication for end users with an OAuth 2.0 provider",
+        "operationId": "PublicApiService_DeleteOauth2Credential",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteOauth2CredentialRequest"
+            }
+          }
+        ],
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/delete_oauth_providers": {
@@ -2340,6 +2468,38 @@
         "tags": ["User Auth"]
       }
     },
+    "/public/v1/submit/oauth2_authenticate": {
+      "post": {
+        "summary": "OAuth 2.0 authentication",
+        "description": "Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities",
+        "operationId": "PublicApiService_Oauth2Authenticate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1Oauth2AuthenticateRequest"
+            }
+          }
+        ],
+        "tags": ["User Auth"]
+      }
+    },
     "/public/v1/submit/oauth_login": {
       "post": {
         "summary": "Login with Oauth",
@@ -2690,6 +2850,38 @@
           }
         ],
         "tags": ["Sessions"]
+      }
+    },
+    "/public/v1/submit/update_oauth2_credential": {
+      "post": {
+        "summary": "Update an OAuth 2.0 Credential",
+        "description": "Update an OAuth 2.0 provider credential",
+        "operationId": "PublicApiService_UpdateOauth2Credential",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateOauth2CredentialRequest"
+            }
+          }
+        ],
+        "tags": ["User Auth"]
       }
     },
     "/public/v1/submit/update_policy": {
@@ -3659,7 +3851,11 @@
         "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
         "ACTIVITY_TYPE_ENABLE_AUTH_PROXY",
         "ACTIVITY_TYPE_DISABLE_AUTH_PROXY",
-        "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG"
+        "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG",
+        "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL",
+        "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL",
+        "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
+        "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
       ]
     },
     "v1AddressFormat": {
@@ -4237,6 +4433,55 @@
         }
       },
       "required": ["invitationIds"]
+    },
+    "v1CreateOauth2CredentialIntent": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "$ref": "#/definitions/v1Oauth2Provider",
+          "description": "The OAuth 2.0 provider"
+        },
+        "clientId": {
+          "type": "string",
+          "description": "The Client ID issued by the OAuth 2.0 provider"
+        },
+        "encryptedClientSecret": {
+          "type": "string",
+          "description": "The client secret issued by the OAuth 2.0 provider encrypted to the TLS Fetcher quorum key"
+        }
+      },
+      "required": ["provider", "clientId", "encryptedClientSecret"]
+    },
+    "v1CreateOauth2CredentialRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateOauth2CredentialIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateOauth2CredentialResult": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "Unique identifier of the OAuth 2.0 credential that was created"
+        }
+      },
+      "required": ["oauth2CredentialId"]
     },
     "v1CreateOauthProvidersIntent": {
       "type": "object",
@@ -5666,6 +5911,47 @@
       },
       "required": ["invitationId"]
     },
+    "v1DeleteOauth2CredentialIntent": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "The ID of the OAuth 2.0 credential to delete"
+        }
+      },
+      "required": ["oauth2CredentialId"]
+    },
+    "v1DeleteOauth2CredentialRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteOauth2CredentialIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteOauth2CredentialResult": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "Unique identifier of the OAuth 2.0 credential that was deleted"
+        }
+      },
+      "required": ["oauth2CredentialId"]
+    },
     "v1DeleteOauthProvidersIntent": {
       "type": "object",
       "properties": {
@@ -6744,6 +7030,29 @@
         }
       },
       "required": ["authenticators"]
+    },
+    "v1GetOauth2CredentialRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "Unique identifier for a given OAuth 2.0 Credential."
+        }
+      },
+      "required": ["organizationId", "oauth2CredentialId"]
+    },
+    "v1GetOauth2CredentialResponse": {
+      "type": "object",
+      "properties": {
+        "oauth2Credential": {
+          "$ref": "#/definitions/v1Oauth2Credential"
+        }
+      },
+      "required": ["oauth2Credential"]
     },
     "v1GetOauthProvidersRequest": {
       "type": "object",
@@ -8119,6 +8428,18 @@
         },
         "updateAuthProxyConfigIntent": {
           "$ref": "#/definitions/v1UpdateAuthProxyConfigIntent"
+        },
+        "createOauth2CredentialIntent": {
+          "$ref": "#/definitions/v1CreateOauth2CredentialIntent"
+        },
+        "updateOauth2CredentialIntent": {
+          "$ref": "#/definitions/v1UpdateOauth2CredentialIntent"
+        },
+        "deleteOauth2CredentialIntent": {
+          "$ref": "#/definitions/v1DeleteOauth2CredentialIntent"
+        },
+        "oauth2AuthenticateIntent": {
+          "$ref": "#/definitions/v1Oauth2AuthenticateIntent"
         }
       }
     },
@@ -8218,6 +8539,29 @@
         "INVITATION_STATUS_REVOKED"
       ]
     },
+    "v1ListOauth2CredentialsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1ListOauth2CredentialsResponse": {
+      "type": "object",
+      "properties": {
+        "oauth2Credentials": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Oauth2Credential"
+          }
+        }
+      },
+      "required": ["oauth2Credentials"]
+    },
     "v1ListPrivateKeyTagsRequest": {
       "type": "object",
       "properties": {
@@ -8288,6 +8632,112 @@
         }
       },
       "required": ["stamp"]
+    },
+    "v1Oauth2AuthenticateIntent": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "The OAuth 2.0 credential id whose client_id and client_secret will be used in the OAuth 2.0 flow"
+        },
+        "authCode": {
+          "type": "string",
+          "description": "The auth_code provided by the OAuth 2.0 provider to the end user to be exchanged for a Bearer token in the OAuth 2.0 flow"
+        },
+        "redirectUri": {
+          "type": "string",
+          "description": "The URI the user is redirected to after they have authenticated with the OAuth 2.0 provider"
+        },
+        "codeVerifier": {
+          "type": "string",
+          "description": "The code verifier used by OAuth 2.0 PKCE providers"
+        },
+        "nonce": {
+          "type": "string",
+          "description": "An optional nonce used by the client to prevent replay/substitution of an ID token"
+        }
+      },
+      "required": [
+        "oauth2CredentialId",
+        "authCode",
+        "redirectUri",
+        "codeVerifier"
+      ]
+    },
+    "v1Oauth2AuthenticateRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1Oauth2AuthenticateIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1Oauth2AuthenticateResult": {
+      "type": "object",
+      "properties": {
+        "oidcToken": {
+          "type": "string",
+          "description": "Base64 encoded OIDC token issued by Turnkey to be used with the LoginWithOAuth activity"
+        }
+      },
+      "required": ["oidcToken"]
+    },
+    "v1Oauth2Credential": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "Unique identifier for a given OAuth 2.0 Credential."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for an Organization."
+        },
+        "provider": {
+          "$ref": "#/definitions/v1Oauth2Provider",
+          "description": "The provider for a given OAuth 2.0 Credential."
+        },
+        "clientId": {
+          "type": "string",
+          "description": "The client id for a given OAuth 2.0 Credential."
+        },
+        "encryptedClientSecret": {
+          "type": "string",
+          "description": "The encrypted client secret for a given OAuth 2.0 Credential encrypted to the TLS Fetcher quorum key."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "oauth2CredentialId",
+        "organizationId",
+        "provider",
+        "clientId",
+        "encryptedClientSecret",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1Oauth2Provider": {
+      "type": "string",
+      "enum": ["OAUTH2_PROVIDER_X", "OAUTH2_PROVIDER_DISCORD"]
     },
     "v1OauthIntent": {
       "type": "object",
@@ -9264,6 +9714,18 @@
         },
         "updateAuthProxyConfigResult": {
           "$ref": "#/definitions/v1UpdateAuthProxyConfigResult"
+        },
+        "createOauth2CredentialResult": {
+          "$ref": "#/definitions/v1CreateOauth2CredentialResult"
+        },
+        "updateOauth2CredentialResult": {
+          "$ref": "#/definitions/v1UpdateOauth2CredentialResult"
+        },
+        "deleteOauth2CredentialResult": {
+          "$ref": "#/definitions/v1DeleteOauth2CredentialResult"
+        },
+        "oauth2AuthenticateResult": {
+          "$ref": "#/definitions/v1Oauth2AuthenticateResult"
         }
       }
     },
@@ -9911,6 +10373,13 @@
           "type": "integer",
           "format": "int32",
           "description": "Desired OTP code length (6–9)."
+        },
+        "oauth2ProviderCredentialIds": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "A map of OAuth 2.0 provider and their respective credential ID to use for the OAuth 2.0 authentication flow."
         }
       }
     },
@@ -9922,6 +10391,64 @@
           "description": "Unique identifier for a given User. (representing the turnkey signer user id)"
         }
       }
+    },
+    "v1UpdateOauth2CredentialIntent": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "The ID of the OAuth 2.0 credential to update"
+        },
+        "provider": {
+          "$ref": "#/definitions/v1Oauth2Provider",
+          "description": "The OAuth 2.0 provider"
+        },
+        "clientId": {
+          "type": "string",
+          "description": "The Client ID issued by the OAuth 2.0 provider"
+        },
+        "encryptedClientSecret": {
+          "type": "string",
+          "description": "The client secret issued by the OAuth 2.0 provider encrypted to the TLS Fetcher quorum key"
+        }
+      },
+      "required": [
+        "oauth2CredentialId",
+        "provider",
+        "clientId",
+        "encryptedClientSecret"
+      ]
+    },
+    "v1UpdateOauth2CredentialRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateOauth2CredentialIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateOauth2CredentialResult": {
+      "type": "object",
+      "properties": {
+        "oauth2CredentialId": {
+          "type": "string",
+          "description": "Unique identifier of the OAuth 2.0 credential that was updated"
+        }
+      },
+      "required": ["oauth2CredentialId"]
     },
     "v1UpdatePolicyIntent": {
       "type": "object",

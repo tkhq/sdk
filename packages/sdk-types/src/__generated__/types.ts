@@ -315,7 +315,11 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
   | "ACTIVITY_TYPE_ENABLE_AUTH_PROXY"
   | "ACTIVITY_TYPE_DISABLE_AUTH_PROXY"
-  | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
+  | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG"
+  | "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL"
+  | "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL"
+  | "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"
+  | "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -570,6 +574,29 @@ export type v1CreateInvitationsRequest = {
 export type v1CreateInvitationsResult = {
   /** A list of Invitation IDs */
   invitationIds: string[];
+};
+
+export type v1CreateOauth2CredentialIntent = {
+  /** The OAuth 2.0 provider */
+  provider: v1Oauth2Provider;
+  /** The Client ID issued by the OAuth 2.0 provider */
+  clientId: string;
+  /** The client secret issued by the OAuth 2.0 provider encrypted to the TLS Fetcher quorum key */
+  encryptedClientSecret: string;
+};
+
+export type v1CreateOauth2CredentialRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateOauth2CredentialIntent;
+};
+
+export type v1CreateOauth2CredentialResult = {
+  /** Unique identifier of the OAuth 2.0 credential that was created */
+  oauth2CredentialId: string;
 };
 
 export type v1CreateOauthProvidersIntent = {
@@ -1166,6 +1193,25 @@ export type v1DeleteInvitationResult = {
   invitationId: string;
 };
 
+export type v1DeleteOauth2CredentialIntent = {
+  /** The ID of the OAuth 2.0 credential to delete */
+  oauth2CredentialId: string;
+};
+
+export type v1DeleteOauth2CredentialRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1DeleteOauth2CredentialIntent;
+};
+
+export type v1DeleteOauth2CredentialResult = {
+  /** Unique identifier of the OAuth 2.0 credential that was deleted */
+  oauth2CredentialId: string;
+};
+
 export type v1DeleteOauthProvidersIntent = {
   /** The ID of the User to remove an Oauth provider from */
   userId: string;
@@ -1682,6 +1728,17 @@ export type v1GetAuthenticatorsRequest = {
 export type v1GetAuthenticatorsResponse = {
   /** A list of authenticators. */
   authenticators: v1Authenticator[];
+};
+
+export type v1GetOauth2CredentialRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** Unique identifier for a given OAuth 2.0 Credential. */
+  oauth2CredentialId: string;
+};
+
+export type v1GetOauth2CredentialResponse = {
+  oauth2Credential: v1Oauth2Credential;
 };
 
 export type v1GetOauthProvidersRequest = {
@@ -2279,6 +2336,10 @@ export type v1Intent = {
   enableAuthProxyIntent?: v1EnableAuthProxyIntent;
   disableAuthProxyIntent?: v1DisableAuthProxyIntent;
   updateAuthProxyConfigIntent?: v1UpdateAuthProxyConfigIntent;
+  createOauth2CredentialIntent?: v1CreateOauth2CredentialIntent;
+  updateOauth2CredentialIntent?: v1UpdateOauth2CredentialIntent;
+  deleteOauth2CredentialIntent?: v1DeleteOauth2CredentialIntent;
+  oauth2AuthenticateIntent?: v1Oauth2AuthenticateIntent;
 };
 
 export type v1Invitation = {
@@ -2318,6 +2379,15 @@ export type v1InvitationStatus =
   | "INVITATION_STATUS_ACCEPTED"
   | "INVITATION_STATUS_REVOKED";
 
+export type v1ListOauth2CredentialsRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+};
+
+export type v1ListOauth2CredentialsResponse = {
+  oauth2Credentials: v1Oauth2Credential[];
+};
+
 export type v1ListPrivateKeyTagsRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
@@ -2352,6 +2422,50 @@ export type v1MnemonicLanguage =
 export type v1NOOPCodegenAnchorResponse = {
   stamp: v1WebAuthnStamp;
 };
+
+export type v1Oauth2AuthenticateIntent = {
+  /** The OAuth 2.0 credential id whose client_id and client_secret will be used in the OAuth 2.0 flow */
+  oauth2CredentialId: string;
+  /** The auth_code provided by the OAuth 2.0 provider to the end user to be exchanged for a Bearer token in the OAuth 2.0 flow */
+  authCode: string;
+  /** The URI the user is redirected to after they have authenticated with the OAuth 2.0 provider */
+  redirectUri: string;
+  /** The code verifier used by OAuth 2.0 PKCE providers */
+  codeVerifier: string;
+  /** An optional nonce used by the client to prevent replay/substitution of an ID token */
+  nonce?: string;
+};
+
+export type v1Oauth2AuthenticateRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1Oauth2AuthenticateIntent;
+};
+
+export type v1Oauth2AuthenticateResult = {
+  /** Base64 encoded OIDC token issued by Turnkey to be used with the LoginWithOAuth activity */
+  oidcToken: string;
+};
+
+export type v1Oauth2Credential = {
+  /** Unique identifier for a given OAuth 2.0 Credential. */
+  oauth2CredentialId: string;
+  /** Unique identifier for an Organization. */
+  organizationId: string;
+  /** The provider for a given OAuth 2.0 Credential. */
+  provider: v1Oauth2Provider;
+  /** The client id for a given OAuth 2.0 Credential. */
+  clientId: string;
+  /** The encrypted client secret for a given OAuth 2.0 Credential encrypted to the TLS Fetcher quorum key. */
+  encryptedClientSecret: string;
+  createdAt: externaldatav1Timestamp;
+  updatedAt: externaldatav1Timestamp;
+};
+
+export type v1Oauth2Provider = "OAUTH2_PROVIDER_X" | "OAUTH2_PROVIDER_DISCORD";
 
 export type v1OauthIntent = {
   /** Base64 encoded OIDC token */
@@ -2741,6 +2855,10 @@ export type v1Result = {
   enableAuthProxyResult?: v1EnableAuthProxyResult;
   disableAuthProxyResult?: v1DisableAuthProxyResult;
   updateAuthProxyConfigResult?: v1UpdateAuthProxyConfigResult;
+  createOauth2CredentialResult?: v1CreateOauth2CredentialResult;
+  updateOauth2CredentialResult?: v1UpdateOauth2CredentialResult;
+  deleteOauth2CredentialResult?: v1DeleteOauth2CredentialResult;
+  oauth2AuthenticateResult?: v1Oauth2AuthenticateResult;
 };
 
 export type v1RootUserParams = {
@@ -3017,11 +3135,38 @@ export type v1UpdateAuthProxyConfigIntent = {
   otpAlphanumeric?: boolean;
   /** Desired OTP code length (6–9). */
   otpLength?: number;
+  /** A map of OAuth 2.0 provider and their respective credential ID to use for the OAuth 2.0 authentication flow. */
+  oauth2ProviderCredentialIds?: Record<string, any>;
 };
 
 export type v1UpdateAuthProxyConfigResult = {
   /** Unique identifier for a given User. (representing the turnkey signer user id) */
   configId?: string;
+};
+
+export type v1UpdateOauth2CredentialIntent = {
+  /** The ID of the OAuth 2.0 credential to update */
+  oauth2CredentialId: string;
+  /** The OAuth 2.0 provider */
+  provider: v1Oauth2Provider;
+  /** The Client ID issued by the OAuth 2.0 provider */
+  clientId: string;
+  /** The client secret issued by the OAuth 2.0 provider encrypted to the TLS Fetcher quorum key */
+  encryptedClientSecret: string;
+};
+
+export type v1UpdateOauth2CredentialRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpdateOauth2CredentialIntent;
+};
+
+export type v1UpdateOauth2CredentialResult = {
+  /** Unique identifier of the OAuth 2.0 credential that was updated */
+  oauth2CredentialId: string;
 };
 
 export type v1UpdatePolicyIntent = {
@@ -3526,6 +3671,18 @@ export type TGetAuthenticatorsBody = {
 
 export type TGetAuthenticatorsInput = { body: TGetAuthenticatorsBody };
 
+export type TGetOauth2CredentialResponse = {
+  oauth2Credential: v1Oauth2Credential;
+};
+
+export type TGetOauth2CredentialBody = {
+  organizationId?: string;
+  /** Unique identifier for a given OAuth 2.0 Credential. */
+  oauth2CredentialId: string;
+};
+
+export type TGetOauth2CredentialInput = { body: TGetOauth2CredentialBody };
+
 export type TGetOauthProvidersResponse = {
   /** A list of Oauth providers. */
   oauthProviders: v1OauthProvider[];
@@ -3675,6 +3832,16 @@ export type TGetActivitiesBody = {
 };
 
 export type TGetActivitiesInput = { body: TGetActivitiesBody };
+
+export type TListOauth2CredentialsResponse = {
+  oauth2Credentials: v1Oauth2Credential[];
+};
+
+export type TListOauth2CredentialsBody = {
+  organizationId?: string;
+};
+
+export type TListOauth2CredentialsInput = { body: TListOauth2CredentialsBody };
 
 export type TGetPoliciesResponse = {
   /** A list of policies. */
@@ -3899,6 +4066,25 @@ export type TCreateInvitationsBody = {
 };
 
 export type TCreateInvitationsInput = { body: TCreateInvitationsBody };
+
+export type TCreateOauth2CredentialResponse = {
+  activity: v1Activity;
+};
+
+export type TCreateOauth2CredentialBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The OAuth 2.0 provider */
+  provider: v1Oauth2Provider;
+  /** The Client ID issued by the OAuth 2.0 provider */
+  clientId: string;
+  /** The client secret issued by the OAuth 2.0 provider encrypted to the TLS Fetcher quorum key */
+  encryptedClientSecret: string;
+};
+
+export type TCreateOauth2CredentialInput = {
+  body: TCreateOauth2CredentialBody;
+};
 
 export type TCreateOauthProvidersResponse = {
   activity: v1Activity;
@@ -4222,6 +4408,21 @@ export type TDeleteInvitationBody = {
 };
 
 export type TDeleteInvitationInput = { body: TDeleteInvitationBody };
+
+export type TDeleteOauth2CredentialResponse = {
+  activity: v1Activity;
+};
+
+export type TDeleteOauth2CredentialBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The ID of the OAuth 2.0 credential to delete */
+  oauth2CredentialId: string;
+};
+
+export type TDeleteOauth2CredentialInput = {
+  body: TDeleteOauth2CredentialBody;
+};
 
 export type TDeleteOauthProvidersResponse = {
   activity: v1Activity;
@@ -4691,6 +4892,27 @@ export type TOauthBody = {
 
 export type TOauthInput = { body: TOauthBody };
 
+export type TOauth2AuthenticateResponse = {
+  activity: v1Activity;
+};
+
+export type TOauth2AuthenticateBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The OAuth 2.0 credential id whose client_id and client_secret will be used in the OAuth 2.0 flow */
+  oauth2CredentialId: string;
+  /** The auth_code provided by the OAuth 2.0 provider to the end user to be exchanged for a Bearer token in the OAuth 2.0 flow */
+  authCode: string;
+  /** The URI the user is redirected to after they have authenticated with the OAuth 2.0 provider */
+  redirectUri: string;
+  /** The code verifier used by OAuth 2.0 PKCE providers */
+  codeVerifier: string;
+  /** An optional nonce used by the client to prevent replay/substitution of an ID token */
+  nonce?: string;
+};
+
+export type TOauth2AuthenticateInput = { body: TOauth2AuthenticateBody };
+
 export type TOauthLoginResponse = {
   activity: v1Activity;
   /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
@@ -4908,6 +5130,27 @@ export type TStampLoginBody = {
 };
 
 export type TStampLoginInput = { body: TStampLoginBody };
+
+export type TUpdateOauth2CredentialResponse = {
+  activity: v1Activity;
+};
+
+export type TUpdateOauth2CredentialBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The ID of the OAuth 2.0 credential to update */
+  oauth2CredentialId: string;
+  /** The OAuth 2.0 provider */
+  provider: v1Oauth2Provider;
+  /** The Client ID issued by the OAuth 2.0 provider */
+  clientId: string;
+  /** The client secret issued by the OAuth 2.0 provider encrypted to the TLS Fetcher quorum key */
+  encryptedClientSecret: string;
+};
+
+export type TUpdateOauth2CredentialInput = {
+  body: TUpdateOauth2CredentialBody;
+};
 
 export type TUpdatePolicyResponse = {
   activity: v1Activity;
@@ -5133,6 +5376,28 @@ export type ProxyTGetAccountBody = {
 };
 
 export type ProxyTGetAccountInput = { body: ProxyTGetAccountBody };
+
+export type ProxyTOAuth2AuthenticateResponse = {
+  /** A Turnkey issued OIDC token to be used with the LoginWithOAuth activity */
+  oidcToken: string;
+};
+
+export type ProxyTOAuth2AuthenticateBody = {
+  /** The OAuth 2.0 provider to authenticate with */
+  provider: v1Oauth2Provider;
+  /** The auth_code provided by the OAuth 2.0 to the end user to be exchanged for a Bearer token in the OAuth 2.0 flow */
+  authCode: string;
+  /** The URI the user is redirected to after they have authenticated with the OAuth 2.0 provider */
+  redirectUri: string;
+  /** The code verifier used by OAuth 2.0 PKCE providers */
+  codeVerifier: string;
+  /** An optional nonce used by the client to prevent replay/substitution of an ID token */
+  nonce?: string;
+};
+
+export type ProxyTOAuth2AuthenticateInput = {
+  body: ProxyTOAuth2AuthenticateBody;
+};
 
 export type ProxyTOAuthLoginResponse = {
   /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
