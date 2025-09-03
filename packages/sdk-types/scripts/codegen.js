@@ -99,10 +99,11 @@ function extractLatestVersions(definitions) {
   const latestVersions = {};
 
   // Regex to separate the version prefix, base activity details, and (optional) activity version
-  const keyVersionRegex = /^(v\d+)([A-Z][a-z]+(?:[A-Z][a-z]+)*)(V\d+)?$/;
+  const keyVersionRegex = /^(v\d+)([A-Z][A-Za-z0-9]*?)(V\d+)?$/;
 
   Object.keys(definitions).forEach((key) => {
     const match = key.match(keyVersionRegex);
+
     if (match) {
       const fullName = match[0];
       const baseName = match[2]; // Field without any version-related prefixes or suffixes
