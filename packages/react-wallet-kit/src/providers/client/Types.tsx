@@ -109,6 +109,43 @@ export interface ClientContextType extends TurnkeyClientMethods {
   handleLogin: () => Promise<void>;
 
   /**
+   * Handles the Twitter (X) OAuth 2.0 flow.
+   *
+   * - This function initiates the OAuth 2.0 PKCE flow with Twitter (X) by redirecting the user to the X authorization page or opening it in a popup window.
+   * - It supports both "popup" and "redirect" flows, determined by the `openInPage` parameter.
+   * - Generates a new ephemeral API key pair and uses its public key as part of the state and a cryptographic nonce to bind the OAuth session.
+   * - Creates a PKCE verifier/challenge pair, storing the verifier in `sessionStorage` for later use in the token exchange.
+   * - Constructs the Twitter (X) OAuth URL with all required parameters, including client ID, redirect URI, response type, scope, PKCE code challenge, nonce, and state.
+   * - The `state` parameter encodes the provider name, flow type, ephemeral public key, and any additional key-value pairs provided in `additionalState`.
+   * - If `openInPage` is true, the current page is redirected to the OAuth URL and the function returns a promise that resolves on redirect or rejects after 5 minutes if no redirect occurs.
+   * - If `openInPage` is false, a popup window is opened for the OAuth flow, and the function returns a promise that resolves when the OAuth code is captured or rejects if the popup is closed or times out.
+   * - On receiving an authorization code, the function exchanges it for an OIDC token via the Turnkey proxy (`proxyOAuth2Authenticate`) using the PKCE verifier, redirect URI, and nonce.
+   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
+   * - Handles error cases such as missing configuration, popup failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
+   *
+   * @param params.clientId - The Twitter (X) Client ID to use (defaults to the client ID from configuration).
+   * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
+   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   *
+   * onOauthSuccess params:
+   * - oidcToken: The OIDC token issued by Turnkey after exchanging the auth code.
+   * - providerName: The name of the OAuth provider ("twitter").
+   *
+   * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
+   * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
+   */
+  handleXOauth: (params?: {
+    clientId?: string;
+    additionalState?: Record<string, string>;
+    openInPage?: boolean;
+    onOauthSuccess?: (params: {
+      oidcToken: string;
+      providerName: string;
+    }) => any;
+  }) => Promise<void>;
+
+  /**
    * Handles the Google OAuth flow.
    *
    * - This function initiates the Google OAuth flow by redirecting the user to the Google authorization page or opening it in a popup window.

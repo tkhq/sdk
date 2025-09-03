@@ -8,6 +8,7 @@ import type { TurnkeyCallbacks } from "../types/base";
 import { useCallback, useRef, useState, useEffect } from "react";
 import { WalletInterfaceType, WalletProvider } from "@turnkey/core";
 
+export const X_AUTH_URL = "https://x.com/i/oauth2/authorize";
 export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 export const APPLE_AUTH_URL = "https://account.apple.com/auth/authorize";
 export const APPLE_AUTH_SCRIPT_URL =

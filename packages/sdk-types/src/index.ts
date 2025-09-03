@@ -238,6 +238,7 @@ export enum OAuthProviders {
   APPLE = "Apple",
   GOOGLE = "Google",
   FACEBOOK = "Facebook",
+  X = "X",
 }
 
 export * from "./__generated__/types";

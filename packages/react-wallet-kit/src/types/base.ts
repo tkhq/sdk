@@ -61,6 +61,8 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       appleClientId?: string;
       /** client ID for Facebook OAuth. */
       facebookClientId?: string;
+      /** client ID for X (formerly Twitter) OAuth. */
+      xClientId?: string;
       /** whether to open OAuth in the same page. */
       openOauthInPage?: boolean;
     };
