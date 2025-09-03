@@ -26,7 +26,7 @@ import {
   EvmChainInfo,
   SolanaChainInfo,
   Curve,
-} from "@types";
+} from "./__types__/base";
 import bs58 from "bs58";
 
 // Import all defaultAccountAtIndex functions for each address format
