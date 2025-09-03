@@ -1,4 +1,4 @@
-import { Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
+import { OAuthAuthResult, Session, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import type { TurnkeyCallbacks } from "../types/base";
 import { useCallback, useRef, useState, useEffect } from "react";
 import { WalletInterfaceType, WalletProvider } from "@turnkey/core";
@@ -254,7 +254,7 @@ export async function handleFacebookPKCEFlow({
   completeOauth: (params: {
     oidcToken: string;
     publicKey: string;
-  }) => Promise<string>;
+  }) => Promise<OAuthAuthResult>;
   onPushPage: (idToken: string) => Promise<void>;
 }): Promise<void> {
   // Retrieve the verifier stored during OAuth initiation

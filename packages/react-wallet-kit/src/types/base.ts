@@ -14,6 +14,7 @@ export interface TurnkeyCallbacks {
   onAuthenticationSuccess?: (params: {
     session: Session | undefined;
     method: AuthMethod;
+    identifier?: string;
   }) => void;
   onError?: (error: TurnkeyError | TurnkeyNetworkError) => void;
 }

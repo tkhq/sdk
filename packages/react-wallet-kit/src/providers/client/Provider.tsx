@@ -62,6 +62,10 @@ import {
   type v1HashFunction,
   type v1Curve,
   type v1PrivateKey,
+  BaseAuthResult,
+  WalletAuthResult,
+  OtpAuthResult,
+  OAuthAuthResult,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -939,7 +943,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     async (params?: {
       publicKey?: string;
       sessionKey?: string;
-    }): Promise<string> => {
+    }): Promise<BaseAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -969,7 +973,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       sessionKey?: string;
       passkeyDisplayName?: string;
       challenge?: string;
-    }): Promise<string> => {
+    }): Promise<BaseAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1117,7 +1121,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       sessionType?: SessionType;
       publicKey?: string;
       sessionKey?: string;
-    }): Promise<string> => {
+    }): Promise<WalletAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1147,7 +1151,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       createSubOrgParams?: CreateSubOrgParams;
       sessionType?: SessionType;
       sessionKey?: string;
-    }): Promise<string> => {
+    }): Promise<WalletAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1191,7 +1195,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       createSubOrgParams?: CreateSubOrgParams;
       sessionKey?: string;
       expirationSeconds?: string;
-    }): Promise<string> => {
+    }): Promise<WalletAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1274,7 +1278,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       publicKey?: string;
       invalidateExisting?: boolean;
       sessionKey?: string;
-    }): Promise<string> => {
+    }): Promise<OtpAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1302,7 +1306,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       otpType: OtpType;
       createSubOrgParams?: CreateSubOrgParams;
       sessionKey?: string;
-    }): Promise<string> => {
+    }): Promise<OtpAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1353,7 +1357,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       invalidateExisting?: boolean;
       sessionKey?: string;
       createSubOrgParams?: CreateSubOrgParams;
-    }): Promise<string> => {
+    }): Promise<OtpAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1395,58 +1399,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks, masterConfig],
   );
 
-  const completeOauth = useCallback(
-    async (params: {
-      oidcToken: string;
-      publicKey: string;
-      providerName?: string;
-      sessionKey?: string;
-      invalidateExisting?: boolean;
-      createSubOrgParams?: CreateSubOrgParams;
-    }): Promise<string> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      if (!masterConfig) {
-        throw new TurnkeyError(
-          "Config is not ready yet!",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-
-      // If createSubOrgParams is not provided, use the default from masterConfig
-      const createSubOrgParams =
-        params.createSubOrgParams ??
-        masterConfig.auth?.createSuborgParams?.oauth;
-
-      params =
-        createSubOrgParams !== undefined
-          ? { ...params, createSubOrgParams }
-          : { ...params };
-
-      const res = await withTurnkeyErrorHandling(
-        () => client.completeOauth(params),
-        callbacks,
-        "Failed to complete OAuth",
-      );
-      if (res) {
-        await handlePostAuth({ method: AuthMethod.Oauth });
-      }
-      return res;
-    },
-    [client, callbacks, masterConfig],
-  );
-
   const loginWithOauth = useCallback(
     async (params: {
       oidcToken: string;
       publicKey: string;
       invalidateExisting?: boolean;
       sessionKey?: string;
-    }): Promise<string> => {
+    }): Promise<OAuthAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1474,7 +1433,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       providerName: string;
       createSubOrgParams?: CreateSubOrgParams;
       sessionKey?: string;
-    }): Promise<string> => {
+    }): Promise<OAuthAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1500,6 +1459,51 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         () => client.signUpWithOauth(params),
         callbacks,
         "Failed to sign up with OAuth",
+      );
+      if (res) {
+        await handlePostAuth({ method: AuthMethod.Oauth });
+      }
+      return res;
+    },
+    [client, callbacks, masterConfig],
+  );
+
+  const completeOauth = useCallback(
+    async (params: {
+      oidcToken: string;
+      publicKey: string;
+      providerName?: string;
+      sessionKey?: string;
+      invalidateExisting?: boolean;
+      createSubOrgParams?: CreateSubOrgParams;
+    }): Promise<OAuthAuthResult> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+
+      // If createSubOrgParams is not provided, use the default from masterConfig
+      const createSubOrgParams =
+        params.createSubOrgParams ??
+        masterConfig.auth?.createSuborgParams?.oauth;
+
+      params =
+        createSubOrgParams !== undefined
+          ? { ...params, createSubOrgParams }
+          : { ...params };
+
+      const res = await withTurnkeyErrorHandling(
+        () => client.completeOauth(params),
+        callbacks,
+        "Failed to complete OAuth",
       );
       if (res) {
         await handlePostAuth({ method: AuthMethod.Oauth });

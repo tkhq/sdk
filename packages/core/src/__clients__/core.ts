@@ -18,6 +18,10 @@ import {
   v1HashFunction,
   v1Curve,
   v1PrivateKey,
+  OtpAuthResult,
+  OAuthAuthResult,
+  WalletAuthResult,
+  BaseAuthResult,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -66,7 +70,11 @@ import {
   isSolanaProvider,
   getAuthenticatorAddresses,
   getCurveTypeFromProvider,
+<<<<<<< HEAD
   isValidPasskeyName,
+=======
+  addressFromPublicKey,
+>>>>>>> d12cdedf (start on improving auth callback)
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -311,7 +319,7 @@ export class TurnkeyClient {
     publicKey?: string;
     sessionKey?: string;
     expirationSeconds?: string;
-  }): Promise<string> => {
+  }): Promise<BaseAuthResult> => {
     let generatedPublicKey: string | undefined = undefined;
     return await withTurnkeyErrorHandling(
       async () => {
@@ -344,7 +352,7 @@ export class TurnkeyClient {
 
         generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
-        return sessionResponse.session;
+        return { sessionToken: sessionResponse.session };
       },
       {
         errorMessage: "Unable to log in with the provided passkey",
@@ -397,7 +405,7 @@ export class TurnkeyClient {
     passkeyDisplayName?: string;
     expirationSeconds?: string;
     challenge?: string;
-  }): Promise<string> => {
+  }): Promise<BaseAuthResult> => {
     const {
       createSubOrgParams,
       passkeyDisplayName,
@@ -474,7 +482,7 @@ export class TurnkeyClient {
 
         generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
-        return sessionResponse.session;
+        return { sessionToken: sessionResponse.session };
       },
       {
         errorCode: TurnkeyErrorCodes.PASSKEY_SIGNUP_AUTH_ERROR,
@@ -675,7 +683,7 @@ export class TurnkeyClient {
     publicKey?: string;
     sessionKey?: string;
     expirationSeconds?: string;
-  }): Promise<string> => {
+  }): Promise<WalletAuthResult> => {
     let publicKey =
       params.publicKey || (await this.apiKeyStamper?.createKeyPair());
     return withTurnkeyErrorHandling(
@@ -718,7 +726,15 @@ export class TurnkeyClient {
           sessionKey,
         });
 
-        return sessionResponse.session;
+        // TODO (Moe): What happens if a user connects to MetaMask on Ethereum,
+        // then switches to a Solana account within MetaMask? Will this flow break?
+        return {
+          sessionToken: sessionResponse.session,
+          address: addressFromPublicKey(
+            walletProvider.chainInfo.namespace,
+            publicKey,
+          ),
+        };
       },
       {
         errorMessage: "Unable to log in with the provided wallet",
@@ -765,7 +781,7 @@ export class TurnkeyClient {
     createSubOrgParams?: CreateSubOrgParams;
     sessionKey?: string;
     expirationSeconds?: string;
-  }): Promise<string> => {
+  }): Promise<WalletAuthResult> => {
     const {
       walletProvider,
       createSubOrgParams,
@@ -848,7 +864,15 @@ export class TurnkeyClient {
 
         generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
-        return sessionResponse.session;
+        // TODO (Moe): What happens if a user connects to MetaMask on Ethereum,
+        // then switches to a Solana account within MetaMask? Will this flow break?
+        return {
+          sessionToken: sessionResponse.session,
+          address: addressFromPublicKey(
+            walletProvider.chainInfo.namespace,
+            publicKey,
+          ),
+        };
       },
       {
         errorMessage: "Failed to sign up with wallet",
@@ -896,7 +920,7 @@ export class TurnkeyClient {
     createSubOrgParams?: CreateSubOrgParams;
     sessionKey?: string;
     expirationSeconds?: string;
-  }): Promise<string> => {
+  }): Promise<WalletAuthResult> => {
     const createSubOrgParams = params.createSubOrgParams;
     const sessionKey = params.sessionKey || SessionKey.DefaultSessionkey;
     const walletProvider = params.walletProvider;
@@ -1063,7 +1087,13 @@ export class TurnkeyClient {
           sessionKey,
         });
 
-        return sessionToken;
+        return {
+          sessionToken: sessionToken,
+          address: addressFromPublicKey(
+            walletProvider.chainInfo.namespace,
+            publicKey,
+          ),
+        };
       },
       {
         errorCode: TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
@@ -1218,7 +1248,7 @@ export class TurnkeyClient {
     publicKey?: string;
     invalidateExisting?: boolean;
     sessionKey?: string;
-  }): Promise<string> => {
+  }): Promise<OtpAuthResult> => {
     const {
       verificationToken,
       invalidateExisting = false,
@@ -1254,7 +1284,10 @@ export class TurnkeyClient {
           sessionKey,
         });
 
-        return loginRes.session;
+        return {
+          sessionToken: loginRes.session,
+          verificationToken,
+        };
       },
       {
         errorMessage: "Failed to log in with OTP",
@@ -1302,7 +1335,7 @@ export class TurnkeyClient {
     createSubOrgParams?: CreateSubOrgParams;
     invalidateExisting?: boolean;
     sessionKey?: string;
-  }): Promise<string> => {
+  }): Promise<OtpAuthResult> => {
     const {
       verificationToken,
       contact,
@@ -1377,7 +1410,7 @@ export class TurnkeyClient {
     invalidateExisting?: boolean;
     sessionKey?: string;
     createSubOrgParams?: CreateSubOrgParams;
-  }): Promise<string> => {
+  }): Promise<OtpAuthResult> => {
     const {
       otpId,
       otpCode,
@@ -1457,7 +1490,7 @@ export class TurnkeyClient {
     sessionKey?: string;
     invalidateExisting?: boolean;
     createSubOrgParams?: CreateSubOrgParams;
-  }): Promise<string> => {
+  }): Promise<OAuthAuthResult> => {
     const {
       oidcToken,
       publicKey,
@@ -1527,7 +1560,7 @@ export class TurnkeyClient {
     publicKey: string;
     invalidateExisting?: boolean;
     sessionKey?: string;
-  }): Promise<string> => {
+  }): Promise<OAuthAuthResult> => {
     const {
       oidcToken,
       invalidateExisting = false,
@@ -1569,7 +1602,7 @@ export class TurnkeyClient {
           sessionKey,
         });
 
-        return loginRes.session;
+        return { sessionToken: loginRes.session, oidcToken };
       },
       {
         errorMessage: "Failed to complete OAuth login",
@@ -1621,7 +1654,7 @@ export class TurnkeyClient {
     providerName: string;
     createSubOrgParams?: CreateSubOrgParams;
     sessionKey?: string;
-  }): Promise<string> => {
+  }): Promise<OAuthAuthResult> => {
     const { oidcToken, publicKey, providerName, createSubOrgParams } = params;
 
     return withTurnkeyErrorHandling(
