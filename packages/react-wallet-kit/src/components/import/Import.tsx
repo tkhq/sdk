@@ -53,6 +53,14 @@ export function ImportComponent(props: {
 
   const { config, session, importWallet, importPrivateKey, httpClient } =
     useTurnkey();
+
+  if (!config) {
+    throw new TurnkeyError(
+      "Turnkey SDK is not properly configured. Please check your configuration.",
+      TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
+    );
+  }
+
   const [walletName, setWalletName] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<TurnkeyError | null>(null);
@@ -64,7 +72,6 @@ export function ImportComponent(props: {
     setTimeout(() => setShaking(false), 250);
   };
 
-  const apiBaseUrl = config?.apiBaseUrl;
   const importIframeUrl = config?.importIframeUrl!;
 
   const { closeModal, pushPage, isMobile } = useModal();
@@ -85,12 +92,6 @@ export function ImportComponent(props: {
       : importType === ImportType.PrivateKey
         ? "Enter your private key name"
         : "";
-
-  if (!apiBaseUrl) {
-    throw new TurnkeyError(
-      "API base URL is not configured. Please set it in the Turnkey configuration.",
-    );
-  }
 
   useEffect(() => {
     const initIframe = async () => {
