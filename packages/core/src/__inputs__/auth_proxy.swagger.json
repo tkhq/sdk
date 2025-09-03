@@ -44,6 +44,38 @@
         "tags": ["Accounts"]
       }
     },
+    "/v1/oauth2_authenticate": {
+      "post": {
+        "summary": "OAuth 2.0 Authenticate",
+        "description": "Authenticate with an OAuth 2.0 provider and receive an OIDC token issued by Turnkey in response.",
+        "operationId": "AuthProxyService_OAuth2Authenticate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OAuth2AuthenticateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1OAuth2AuthenticateRequest"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
     "/v1/oauth_login": {
       "post": {
         "summary": "OAuth Login",
@@ -477,6 +509,42 @@
       },
       "required": ["otpId"]
     },
+    "v1OAuth2AuthenticateRequest": {
+      "type": "object",
+      "properties": {
+        "provider": {
+          "$ref": "#/definitions/v1Oauth2Provider",
+          "description": "The OAuth 2.0 provider to authenticate with"
+        },
+        "authCode": {
+          "type": "string",
+          "description": "The auth_code provided by the OAuth 2.0 to the end user to be exchanged for a Bearer token in the OAuth 2.0 flow"
+        },
+        "redirectUri": {
+          "type": "string",
+          "description": "The URI the user is redirected to after they have authenticated with the OAuth 2.0 provider"
+        },
+        "codeVerifier": {
+          "type": "string",
+          "description": "The code verifier used by OAuth 2.0 PKCE providers"
+        },
+        "nonce": {
+          "type": "string",
+          "description": "An optional nonce used by the client to prevent replay/substitution of an ID token"
+        }
+      },
+      "required": ["provider", "authCode", "redirectUri", "codeVerifier"]
+    },
+    "v1OAuth2AuthenticateResponse": {
+      "type": "object",
+      "properties": {
+        "oidcToken": {
+          "type": "string",
+          "description": "A Turnkey issued OIDC token to be used with the LoginWithOAuth activity"
+        }
+      },
+      "required": ["oidcToken"]
+    },
     "v1OAuthLoginRequest": {
       "type": "object",
       "properties": {
@@ -504,6 +572,10 @@
         }
       },
       "required": ["session"]
+    },
+    "v1Oauth2Provider": {
+      "type": "string",
+      "enum": ["OAUTH2_PROVIDER_X", "OAUTH2_PROVIDER_DISCORD"]
     },
     "v1OauthProviderParams": {
       "type": "object",

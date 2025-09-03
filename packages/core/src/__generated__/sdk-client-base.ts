@@ -507,6 +507,52 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getOauth2Credential = async (
+    input: SdkTypes.TGetOauth2CredentialBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetOauth2CredentialResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_oauth2_credential",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetOauth2Credential = async (
+    input: SdkTypes.TGetOauth2CredentialBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_oauth2_credential";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_OAUTH2CREDENTIAL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getOauthProviders = async (
     input: SdkTypes.TGetOauthProvidersBody,
     stampWith?: StamperType,
@@ -997,6 +1043,52 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId,
       type: "ACTIVITY_TYPE_GET_ACTIVITIES",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listOauth2Credentials = async (
+    input: SdkTypes.TListOauth2CredentialsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TListOauth2CredentialsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_oauth2_credentials",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampListOauth2Credentials = async (
+    input: SdkTypes.TListOauth2CredentialsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_oauth2_credentials";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_LIST_OAUTH2CREDENTIALS",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -1767,6 +1859,58 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  createOauth2Credential = async (
+    input: SdkTypes.TCreateOauth2CredentialBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TCreateOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/create_oauth2_credential",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_OAUTH2CREDENTIAL",
+      },
+      "createOauth2CredentialResult",
+      stampWith,
+    );
+  };
+
+  stampCreateOauth2Credential = async (
+    input: SdkTypes.TCreateOauth2CredentialBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_oauth2_credential";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_OAUTH2CREDENTIAL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   createOauthProviders = async (
     input: SdkTypes.TCreateOauthProvidersBody,
     stampWith?: StamperType,
@@ -1992,7 +2136,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
-      "createPrivateKeysResultV2",
+      "createPrivateKeysResult",
       stampWith,
     );
   };
@@ -2096,7 +2240,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
-      "createReadWriteSessionResultV2",
+      "createReadWriteSessionResult",
       stampWith,
     );
   };
@@ -2201,7 +2345,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
       },
-      "createSubOrganizationResultV7",
+      "createSubOrganizationResult",
       stampWith,
     );
   };
@@ -2586,6 +2730,58 @@ export class TurnkeySDKClientBase {
       organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_INVITATION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteOauth2Credential = async (
+    input: SdkTypes.TDeleteOauth2CredentialBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TDeleteOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/delete_oauth2_credential",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_OAUTH2CREDENTIAL",
+      },
+      "deleteOauth2CredentialResult",
+      stampWith,
+    );
+  };
+
+  stampDeleteOauth2Credential = async (
+    input: SdkTypes.TDeleteOauth2CredentialBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_oauth2_credential";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_OAUTH2CREDENTIAL",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3597,7 +3793,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
       },
-      "initOtpAuthResultV2",
+      "initOtpAuthResult",
       stampWith,
     );
   };
@@ -3722,6 +3918,58 @@ export class TurnkeySDKClientBase {
       organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_OAUTH",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  oauth2Authenticate = async (
+    input: SdkTypes.TOauth2AuthenticateBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TOauth2AuthenticateResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/oauth2_authenticate",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_OAUTH2AUTHENTICATE",
+      },
+      "oauth2AuthenticateResult",
+      stampWith,
+    );
+  };
+
+  stampOauth2Authenticate = async (
+    input: SdkTypes.TOauth2AuthenticateBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/oauth2_authenticate";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_OAUTH2AUTHENTICATE",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4298,6 +4546,58 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  updateOauth2Credential = async (
+    input: SdkTypes.TUpdateOauth2CredentialBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TUpdateOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/update_oauth2_credential",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_OAUTH2CREDENTIAL",
+      },
+      "updateOauth2CredentialResult",
+      stampWith,
+    );
+  };
+
+  stampUpdateOauth2Credential = async (
+    input: SdkTypes.TUpdateOauth2CredentialBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_oauth2_credential";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_OAUTH2CREDENTIAL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   updatePolicy = async (
     input: SdkTypes.TUpdatePolicyBody,
     stampWith?: StamperType,
@@ -4316,7 +4616,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
       },
-      "updatePolicyResultV2",
+      "updatePolicyResult",
       stampWith,
     );
   };
@@ -4863,6 +5163,12 @@ export class TurnkeySDKClientBase {
     input: SdkTypes.ProxyTGetAccountBody,
   ): Promise<SdkTypes.ProxyTGetAccountResponse> => {
     return this.authProxyRequest("/v1/account", input);
+  };
+
+  proxyOAuth2Authenticate = async (
+    input: SdkTypes.ProxyTOAuth2AuthenticateBody,
+  ): Promise<SdkTypes.ProxyTOAuth2AuthenticateResponse> => {
+    return this.authProxyRequest("/v1/oauth2_authenticate", input);
   };
 
   proxyOAuthLogin = async (
