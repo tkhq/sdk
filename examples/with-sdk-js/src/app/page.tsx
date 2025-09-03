@@ -49,6 +49,7 @@ export default function AuthPage() {
     wallets,
     user,
     handleLogin,
+    handleXOauth,
     handleGoogleOauth,
     createPasskey,
     loginWithPasskey,
@@ -308,6 +309,14 @@ export default function AuthPage() {
         }}
       >
         GOOOGEL
+      </button>
+
+      <button
+        onClick={() => {
+          handleXOauth({});
+        }}
+      >
+        XBOX SERIES X
       </button>
 
       <button

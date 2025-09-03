@@ -30,6 +30,8 @@ function RootLayout({ children }: RootLayoutProps) {
                 appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
                 facebookClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID,
                 oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
+                xClientId: process.env.NEXT_PUBLIC_X_CLIENT_ID,
+                openOauthInPage: true,
               },
               methods: {
                 smsOtpAuthEnabled: true,
@@ -54,15 +56,6 @@ function RootLayout({ children }: RootLayoutProps) {
                   walletConnectNamespaces: [
                     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
                   ],
-                },
-              },
-              walletConnect: {
-                projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
-                appMetadata: {
-                  name: "Turnkey Wallet",
-                  description: "A wallet for Turnkey",
-                  url: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_URL!,
-                  icons: ["/favicon.svg"],
                 },
               },
             },
