@@ -1,6 +1,6 @@
 "use client";
 
-import { useScreenSize } from "@utils";
+import { useScreenSize } from "../../utils/utils";
 import { createContext, useState, ReactNode } from "react";
 
 export type ModalPage = {
