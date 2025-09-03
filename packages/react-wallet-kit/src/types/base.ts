@@ -1,5 +1,6 @@
 import type { CreateSubOrgParams, TurnkeySDKClientConfig } from "@turnkey/core";
 import type {
+  AuthAction,
   Session,
   TurnkeyError,
   TurnkeyNetworkError,
@@ -13,8 +14,9 @@ export interface TurnkeyCallbacks {
   onSessionExpired?: (params: { sessionKey: string }) => void;
   onAuthenticationSuccess?: (params: {
     session: Session | undefined;
+    action: AuthAction;
     method: AuthMethod;
-    identifier?: string;
+    identifier: string;
   }) => void;
   onError?: (error: TurnkeyError | TurnkeyNetworkError) => void;
 }

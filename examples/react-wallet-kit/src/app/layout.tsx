@@ -48,6 +48,10 @@ function RootLayout({ children }: RootLayoutProps) {
                   notify(error.message);
               }
             },
+            onAuthenticationSuccess: (result) => {
+              console.log("Authentication successful:", result);
+              // Handle successful authentication here
+            },
           }}
         >
           {children}
