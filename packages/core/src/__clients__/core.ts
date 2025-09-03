@@ -70,11 +70,8 @@ import {
   isSolanaProvider,
   getAuthenticatorAddresses,
   getCurveTypeFromProvider,
-<<<<<<< HEAD
   isValidPasskeyName,
-=======
   addressFromPublicKey,
->>>>>>> d12cdedf (start on improving auth callback)
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
