@@ -154,7 +154,6 @@ export class IframeStamper {
   messageChannel: MessageChannel;
 
   private pendingRequests: Map<string, PendingRequest>;
-  private isUsingEmbeddedKey: boolean = false;
 
   /**
    * Creates a new iframe stamper. This function _does not_ insert the iframe in the DOM.
@@ -322,19 +321,11 @@ export class IframeStamper {
   }
 
   /**
-   * Returns whether the iframe is currently using an embedded key.
-   */
-  isEmbeddedKeyActive(): boolean {
-    return this.isUsingEmbeddedKey;
-  }
-
-  /**
    * Clears the embedded key within an iframe.
    */
   async clearEmbeddedKey(): Promise<null> {
     await this.createRequest<null>(IframeEventType.ClearEmbeddedKey);
     this.iframePublicKey = "";
-    this.isUsingEmbeddedKey = false;
 
     return null;
   }
@@ -350,7 +341,6 @@ export class IframeStamper {
       IframeEventType.InitEmbeddedKey
     );
     this.iframePublicKey = publicKey;
-    this.isUsingEmbeddedKey = true;
 
     return publicKey;
   }
@@ -455,10 +445,6 @@ export class IframeStamper {
    * This is used during the wallet import flow.
    */
   async extractWalletEncryptedBundle(): Promise<string> {
-    if (this.isUsingEmbeddedKey) {
-      throw new Error("Cannot extract wallet encrypted bundle when using embedded key");
-    }
-    
     return this.createRequest<string>(
       IframeEventType.ExtractWalletEncryptedBundle
     );
@@ -472,10 +458,6 @@ export class IframeStamper {
    * This is used during the private key import flow.
    */
   async extractKeyEncryptedBundle(keyFormat?: KeyFormat): Promise<string> {
-    if (this.isUsingEmbeddedKey) {
-      throw new Error("Cannot extract key encrypted bundle when using embedded key");
-    }
-    
     return this.createRequest<string>(
       IframeEventType.ExtractKeyEncryptedBundle,
       { keyFormat }
