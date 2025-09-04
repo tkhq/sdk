@@ -279,7 +279,7 @@ export type CreateSubOrgParams = {
   /** array of authenticators to create. */
   authenticators?: {
     /** name of the authenticator. */
-    authenticatorName: string;
+    authenticatorName?: string;
     /** challenge for the authenticator. */
     challenge: string;
     /** attestation for the authenticator. */

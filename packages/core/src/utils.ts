@@ -584,7 +584,7 @@ export function isWalletAccountArray(
 export function createWalletAccountFromAddressFormat(
   addressFormat: v1AddressFormat,
 ): v1WalletAccountParams {
-  const walletAccount = addressFormatConfig[addressFormat].defaultAccounts;
+  const walletAccount = addressFormatConfig[addressFormat]?.defaultAccounts;
   if (!walletAccount) {
     throw new Error(`Unsupported address format: ${addressFormat}`);
   }
@@ -629,6 +629,7 @@ export function generateWalletAccountsFromAddressFormat(params: {
 
     if (maxIndexMap.has(key)) {
       nextIndex = maxIndexMap.get(key)! + 1;
+      maxIndexMap.set(key, nextIndex);
     } else if (pathMap.has(account.path)) {
       nextIndex = pathMap.get(account.path)!;
     }
@@ -657,7 +658,7 @@ export function buildSignUpBody(params: {
     authenticators =
       createSubOrgParams?.authenticators?.map((authenticator) => ({
         authenticatorName:
-          authenticator.authenticatorName || `${websiteName}-${Date.now()}`,
+          authenticator?.authenticatorName || `${websiteName}-${Date.now()}`,
         challenge: authenticator.challenge,
         attestation: authenticator.attestation,
       })) || [];
