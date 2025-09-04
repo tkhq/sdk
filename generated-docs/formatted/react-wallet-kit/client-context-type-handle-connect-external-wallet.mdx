@@ -1,5 +1,5 @@
 ---
-title: "handleLinkExternalWallet()"
+title: "handleConnectExternalWallet()"
 ---
 
 import { H3Bordered } from "/snippets/h3-bordered.mdx";
@@ -11,13 +11,13 @@ import { NestedParam } from "/snippets/nested-param.mdx";
 
 <H3Bordered text="Overview" />
 
-Handles the linking of an external wallet account to the user's Turnkey account.
+Handles the connecting of an external wallet account to the user's Turnkey account.
 
 <ul>
-  <li>This function opens a modal with the LinkWalletModal component, allowing the user to select and connect an external wallet provider (such as MetaMask, Phantom, etc.).</li>
+  <li>This function opens a modal with the ConnectWalletModal component, allowing the user to select and connect an external wallet provider (such as MetaMask, Phantom, etc.).</li>
   <li>It fetches the list of available wallet providers (for all supported chains) and passes them to the modal for user selection.</li>
-  <li>After a successful wallet connection, the provider state is refreshed to include the newly linked wallet account.</li>
-  <li>Optionally, a success page is shown for the specified duration after linking (default: 2000ms).</li>
+  <li>After a successful wallet connection, the provider state is refreshed to include the newly connected wallet account.</li>
+  <li>Optionally, a success page is shown for the specified duration after connecting (default: 2000ms).</li>
   <li>Supports both Ethereum and Solana wallet providers, and can be extended to additional chains as supported by Turnkey.</li>
   <li>Handles all error cases and throws a TurnkeyError with appropriate error codes if the client is not initialized or no active session is found.</li>
 </ul>
@@ -27,7 +27,7 @@ Handles the linking of an external wallet account to the user's Turnkey account.
 <ParamField body="params" type='object' required={false} path="params" >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="successPageDuration" type='number' required={false}>
-duration (in ms) for the success page after linking (default: 2000ms).
+duration (in ms) for the success page after connecting (default: 2000ms).
 </NestedParam>
   </Expandable>
 </ParamField>

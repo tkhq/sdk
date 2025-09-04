@@ -95,7 +95,7 @@ import { UpdatePhoneNumber } from "../../components/user/UpdatePhoneNumber";
 import { UpdateUserName } from "../../components/user/UpdateUserName";
 import { RemoveOAuthProvider } from "../../components/user/RemoveOAuthProvider";
 import { RemovePasskey } from "../../components/user/RemovePasskey";
-import { LinkWalletModal } from "../../components/user/LinkWallet";
+import { ConnectWalletModal } from "../../components/user/ConnectWallet";
 import { ClientContext } from "./Types";
 import { OtpVerification } from "../../components/auth/OTP";
 import { RemoveEmail } from "../../components/user/RemoveEmail";
@@ -113,7 +113,7 @@ interface ClientProviderProps {
 /**
  * Provides Turnkey client authentication, session management, wallet operations, and user profile management
  * for the React Wallet Kit SDK. This context provider encapsulates all core authentication flows (Passkey, Wallet, OTP, OAuth),
- * session lifecycle (creation, expiration, refresh), wallet linking/import/export, and user profile updates (email, phone, name).
+ * session lifecycle (creation, expiration, refresh), wallet connecting/import/export, and user profile updates (email, phone, name).
  *
  * The provider automatically initializes the Turnkey client, fetches configuration (including proxy auth config if needed),
  * and synchronizes session and authentication state. It exposes a comprehensive set of methods for authentication flows,
@@ -122,9 +122,9 @@ interface ClientProviderProps {
  * Features:
  * - Passkey, Wallet, OTP (Email/SMS), and OAuth (Google, Apple, Facebook) authentication and sign-up flows.
  * - Session management: creation, expiration scheduling, refresh, and clearing.
- * - Wallet management: fetch, link, import, export, account management.
+ * - Wallet management: fetch, connect, import, export, account management.
  * - User profile management: email, phone, name, OAuth provider, and passkey linking/removal.
- * - Modal-driven UI flows for authentication, wallet linking, and profile updates.
+ * - Modal-driven UI flows for authentication, wallet connecting, and profile updates.
  * - Error handling and callback integration for custom error and event responses.
  *
  * Usage:
@@ -1100,7 +1100,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       // we only refresh the wallets if:
       // 1. there is an active session. This is needed because for WalletConnect
-      //    you can unlink a wallet before actually being logged in
+      //    you can disconnect a wallet before actually being logged in
       //
       // 2. it was a WalletConnect provider that we just disconnected. Since
       //    native providers emit a disconnect event which will already refresh
@@ -4015,7 +4015,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [pushPage],
   );
 
-  const handleLinkExternalWallet = useCallback(
+  const handleConnectExternalWallet = useCallback(
     async (params?: {
       successPageDuration?: number | undefined;
     }): Promise<void> => {
@@ -4041,9 +4041,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const providers = await getWalletProviders();
 
       pushPage({
-        key: "Link wallet",
+        key: "Connect wallet",
         content: (
-          <LinkWalletModal
+          <ConnectWalletModal
             providers={providers}
             successPageDuration={successPageDuration}
           />
@@ -4340,7 +4340,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleAddEmail,
         handleAddPhoneNumber,
         handleSignMessage,
-        handleLinkExternalWallet,
+        handleConnectExternalWallet,
         handleRemoveUserEmail,
         handleRemoveUserPhoneNumber,
       }}

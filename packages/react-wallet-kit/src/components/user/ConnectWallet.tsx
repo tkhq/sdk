@@ -1,6 +1,6 @@
 import {
   ExternalWalletSelector,
-  UnlinkWalletScreen,
+  DisconnectWalletScreen,
   WalletConnectScreen,
 } from "../auth/Wallet";
 import { useModal } from "../../providers/modal/Hook";
@@ -10,21 +10,21 @@ import { SuccessPage } from "../design/Success";
 import type { WalletProvider } from "@turnkey/core";
 import { isWalletConnect } from "../../utils/utils";
 
-interface LinkWalletModalProps {
+interface ConnectWalletModalProps {
   providers: WalletProvider[];
   successPageDuration?: number | undefined;
 }
-export function LinkWalletModal(props: LinkWalletModalProps) {
+export function ConnectWalletModal(props: ConnectWalletModalProps) {
   const { providers, successPageDuration } = props;
   const { pushPage, closeModal } = useModal();
   const { connectWalletAccount, disconnectWalletAccount } = useTurnkey();
 
-  const handleLinkWallet = async (provider: WalletProvider) => {
+  const handleConnectWallet = async (provider: WalletProvider) => {
     if (isWalletConnect(provider)) {
       // for WalletConnect we route to a dedicated screen
       // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
       pushPage({
-        key: "Link WalletConnect",
+        key: "Connect WalletConnect",
         content: (
           <WalletConnectScreen
             provider={provider}
@@ -37,10 +37,10 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
     }
 
     pushPage({
-      key: `Link ${provider.info.name}`,
+      key: `Connect ${provider.info.name}`,
       content: (
         <ActionPage
-          title={`Linking ${provider.info.name}`}
+          title={`Connecting ${provider.info.name}`}
           icon={
             <img
               className="size-11 rounded-full"
@@ -52,10 +52,10 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
             await connectWalletAccount(provider);
             if (successPageDuration && successPageDuration > 0) {
               pushPage({
-                key: "Link Success",
+                key: "Connecting Success",
                 content: (
                   <SuccessPage
-                    text="Successfully linked wallet!"
+                    text="Successfully connected wallet!"
                     onComplete={() => closeModal()}
                     duration={successPageDuration}
                   />
@@ -73,20 +73,20 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
     });
   };
 
-  const handleUnlinkWallet = async (provider: WalletProvider) => {
+  const handleDisconnectWallet = async (provider: WalletProvider) => {
     pushPage({
-      key: `Unlink ${provider.info.name}`,
+      key: `Disconnect ${provider.info.name}`,
       content: (
-        <UnlinkWalletScreen
+        <DisconnectWalletScreen
           provider={provider}
-          onUnlink={async () => {
+          onDisconnect={async () => {
             await disconnectWalletAccount(provider);
             if (successPageDuration) {
               pushPage({
-                key: "Unlink Success",
+                key: "Disconnect Success",
                 content: (
                   <SuccessPage
-                    text="Successfully unlinked wallet!"
+                    text="Successfully disconnected wallet!"
                     onComplete={() => closeModal()}
                     duration={successPageDuration}
                   />
@@ -106,8 +106,8 @@ export function LinkWalletModal(props: LinkWalletModalProps) {
   return (
     <ExternalWalletSelector
       providers={providers}
-      onSelect={handleLinkWallet}
-      onUnlink={handleUnlinkWallet}
+      onSelect={handleConnectWallet}
+      onDisconnect={handleDisconnectWallet}
     />
   );
 }

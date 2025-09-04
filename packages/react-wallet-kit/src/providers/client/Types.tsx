@@ -583,7 +583,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * Handles the signing of a message by displaying a modal for user interaction.
    *
    * - This function opens a modal with the SignMessageModal component, prompting the user to review and approve the message signing request.
-   * - Supports signing with any wallet account managed by Turnkey, including externally linked wallets.
+   * - Supports signing with any wallet account managed by Turnkey, including externally connected wallets.
    * - Allows for optional overrides of the encoding and hash function used for the payload, enabling advanced use cases or compatibility with specific blockchains.
    * - Optionally displays a subtext in the modal for additional context or instructions to the user.
    * - Returns a promise that resolves to a `v1SignRawPayloadResult` object containing the signed message, signature, and metadata.
@@ -611,21 +611,21 @@ export interface ClientContextType extends TurnkeyClientMethods {
   }) => Promise<v1SignRawPayloadResult>;
 
   /**
-   * Handles the linking of an external wallet account to the user's Turnkey account.
+   * Handles the connecting of an external wallet account to the user's Turnkey account.
    *
-   * - This function opens a modal with the LinkWalletModal component, allowing the user to select and connect an external wallet provider (such as MetaMask, Phantom, etc.).
+   * - This function opens a modal with the ConnectWalletModal component, allowing the user to select and connect an external wallet provider (such as MetaMask, Phantom, etc.).
    * - It fetches the list of available wallet providers (for all supported chains) and passes them to the modal for user selection.
-   * - After a successful wallet connection, the provider state is refreshed to include the newly linked wallet account.
-   * - Optionally, a success page is shown for the specified duration after linking (default: 2000ms).
+   * - After a successful wallet connection, the provider state is refreshed to include the newly connected wallet account.
+   * - Optionally, a success page is shown for the specified duration after connecting (default: 2000ms).
    * - Supports both Ethereum and Solana wallet providers, and can be extended to additional chains as supported by Turnkey.
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes if the client is not initialized or no active session is found.
    *
-   * @param params.successPageDuration - duration (in ms) for the success page after linking (default: 2000ms).
+   * @param params.successPageDuration - duration (in ms) for the success page after connecting (default: 2000ms).
    *
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized or if no active session is found.
    */
-  handleLinkExternalWallet: (params?: {
+  handleConnectExternalWallet: (params?: {
     successPageDuration?: number | undefined;
   }) => Promise<void>;
 
