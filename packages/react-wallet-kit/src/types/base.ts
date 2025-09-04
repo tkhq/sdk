@@ -63,6 +63,8 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       facebookClientId?: string;
       /** client ID for X (formerly Twitter) OAuth. */
       xClientId?: string;
+      /** client ID for Discord OAuth. */
+      discordClientId?: string;
       /** whether to open OAuth in the same page. */
       openOauthInPage?: boolean;
     };

@@ -235,6 +235,7 @@ export enum FiatOnRampPaymentMethod {
   ACH_BANK_ACCOUNT = "FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT", // Coinbase: ACH_BANK_ACCOUNT
 }
 export enum OAuthProviders {
+  DISCORD = "DISCORD",
   APPLE = "Apple",
   GOOGLE = "Google",
   FACEBOOK = "Facebook",

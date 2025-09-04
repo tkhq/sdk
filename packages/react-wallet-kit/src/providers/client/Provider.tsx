@@ -4,6 +4,7 @@ import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import {
   APPLE_AUTH_URL,
+  DISCORD_AUTH_URL,
   exchangeCodeForToken,
   FACEBOOK_AUTH_URL,
   generateChallengePair,
@@ -83,6 +84,7 @@ import { AuthComponent } from "../../components/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faApple,
+  faDiscord,
   faFacebook,
   faGoogle,
   faTwitter,
@@ -256,6 +258,75 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
           }
 
+          if (provider === "discord" && flow === "redirect" && publicKey) {
+            const clientId = masterConfig?.auth?.oauthConfig?.discordClientId;
+            const redirectURI =
+              masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
+            const verifier = sessionStorage.getItem("discord_verifier");
+            const nonce = stateParams.get("nonce");
+
+            if (clientId && redirectURI && verifier && nonce) {
+              await new Promise((resolve, reject) => {
+                pushPage({
+                  key: `Discord OAuth`,
+                  content: (
+                    <ActionPage
+                      title={`Authenticating with Discord...`}
+                      action={async () => {
+                        try {
+                          const resp =
+                            await client?.httpClient.proxyOAuth2Authenticate({
+                              provider: "OAUTH2_PROVIDER_DISCORD",
+                              authCode: code,
+                              redirectUri: redirectURI,
+                              codeVerifier: verifier,
+                              nonce: nonce,
+                            });
+
+                          sessionStorage.removeItem("discord_verifier");
+
+                          const oidcToken = resp?.oidcToken;
+                          if (!oidcToken) {
+                            throw new TurnkeyError(
+                              "Missing OIDC token",
+                              TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                            );
+                          }
+                          await completeOauth({
+                            oidcToken,
+                            publicKey,
+                            providerName: "discord",
+                          });
+                          // Clean up the URL after processing
+                          window.history.replaceState(
+                            null,
+                            document.title,
+                            window.location.pathname,
+                          );
+                          resolve(null);
+                        } catch (err) {
+                          reject(err);
+                          if (callbacks?.onError) {
+                            callbacks.onError(
+                              err instanceof TurnkeyError
+                                ? err
+                                : new TurnkeyError(
+                                    "Discord authentication failed",
+                                    TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+                                    err,
+                                  ),
+                            );
+                          }
+                        }
+                      }}
+                      icon={<FontAwesomeIcon size="3x" icon={faDiscord} />}
+                    />
+                  ),
+                  showTitle: false,
+                });
+              });
+            }
+          }
           if (provider === "twitter" && flow === "redirect" && publicKey) {
             const clientId = masterConfig?.auth?.oauthConfig?.xClientId;
             const redirectURI =
@@ -2455,6 +2526,193 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks, getWalletProviders, fetchWallets],
   );
 
+  const handleDiscordOauth = useCallback(
+    async (params?: {
+      clientId?: string;
+      openInPage?: boolean;
+      additionalState?: Record<string, string>;
+      onOauthSuccess?: (params: {
+        oidcToken: string;
+        providerName: string;
+      }) => any;
+    }): Promise<void> => {
+      const {
+        clientId = masterConfig?.auth?.oauthConfig?.discordClientId,
+        openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
+        additionalState: additionalParameters,
+      } = params || {};
+      try {
+        if (!masterConfig) {
+          throw new TurnkeyError(
+            "Config is not ready yet!",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+        if (!clientId) {
+          throw new TurnkeyError(
+            "Discord Client ID is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+        if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
+          throw new TurnkeyError(
+            "OAuth Redirect URI is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const flow = openInPage ? "redirect" : "popup";
+        const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri;
+
+        // Create key pair and generate nonce
+        const publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new Error("Failed to create public key for OAuth.");
+        }
+        const nonce = bytesToHex(sha256(publicKey));
+
+        // Generate PKCE challenge pair
+        const { verifier, codeChallenge } = await generateChallengePair();
+        sessionStorage.setItem("discord_verifier", verifier);
+
+        // Construct Discord Auth URL
+        const discordAuthUrl = new URL(DISCORD_AUTH_URL);
+        discordAuthUrl.searchParams.set("client_id", clientId);
+        discordAuthUrl.searchParams.set("redirect_uri", redirectURI);
+        discordAuthUrl.searchParams.set("response_type", "code");
+        discordAuthUrl.searchParams.set("code_challenge", codeChallenge);
+        discordAuthUrl.searchParams.set("code_challenge_method", "S256");
+        discordAuthUrl.searchParams.set("scope", "identify email");
+        discordAuthUrl.searchParams.set(
+          "state",
+          `provider=discord&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}`,
+        );
+
+        if (additionalParameters) {
+          const extra = Object.entries(additionalParameters)
+            .map(
+              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+            )
+            .join("&");
+          if (extra) {
+            discordAuthUrl.searchParams.set(
+              "state",
+              discordAuthUrl.searchParams.get("state")! + `&${extra}`,
+            );
+          }
+        }
+
+        if (openInPage) {
+          window.location.href = discordAuthUrl.toString();
+          return new Promise((_, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error("Authentication timed out."));
+            }, 300000);
+            window.addEventListener("beforeunload", () =>
+              clearTimeout(timeout),
+            );
+          });
+        } else {
+          const width = popupWidth;
+          const height = popupHeight;
+          const left = window.screenX + (window.innerWidth - width) / 2;
+          const top = window.screenY + (window.innerHeight - height) / 2;
+
+          const authWindow = window.open(
+            "about:blank",
+            "_blank",
+            `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+          );
+
+          if (!authWindow) {
+            throw new Error("Failed to open Discord login window.");
+          }
+
+          authWindow.location.href = discordAuthUrl.toString();
+
+          return new Promise<void>((resolve, reject) => {
+            const interval = setInterval(() => {
+              try {
+                if (authWindow.closed) {
+                  clearInterval(interval);
+                  reject(new Error("Authentication window was closed."));
+                  return;
+                }
+
+                const url = authWindow.location.href || "";
+                if (url.startsWith(window.location.origin)) {
+                  const urlParams = new URLSearchParams(new URL(url).search);
+                  const authCode = urlParams.get("code");
+                  const stateParam = urlParams.get("state");
+
+                  if (
+                    authCode &&
+                    stateParam &&
+                    stateParam.includes("provider=discord")
+                  ) {
+                    authWindow.close();
+                    clearInterval(interval);
+
+                    const verifier = sessionStorage.getItem("discord_verifier");
+                    if (!verifier) {
+                      reject(new Error("Missing PKCE verifier"));
+                      return;
+                    }
+
+                    client?.httpClient
+                      .proxyOAuth2Authenticate({
+                        provider: "OAUTH2_PROVIDER_DISCORD",
+                        authCode,
+                        redirectUri: redirectURI,
+                        codeVerifier: verifier,
+                        nonce: nonce,
+                      })
+                      .then((resp) => {
+                        sessionStorage.removeItem("discord_verifier");
+
+                        const oidcToken = resp.oidcToken;
+                        if (params?.onOauthSuccess) {
+                          params.onOauthSuccess({
+                            oidcToken,
+                            providerName: "discord",
+                          });
+                        } else if (callbacks?.onOauthRedirect) {
+                          callbacks.onOauthRedirect({
+                            idToken: oidcToken,
+                            publicKey,
+                          });
+                        } else {
+                          completeOauth({
+                            oidcToken,
+                            publicKey,
+                            providerName: "discord",
+                          })
+                            .then(() => resolve())
+                            .catch(reject);
+                          return;
+                        }
+                        resolve();
+                      })
+                      .catch(reject);
+                  }
+                }
+              } catch {
+                // ignore cross-origin
+              }
+            }, 500);
+
+            if (authWindow.closed) {
+              clearInterval(interval);
+            }
+          });
+        }
+      } catch (error) {
+        throw error;
+      }
+    },
+    [client, callbacks],
+  );
+
   const handleXOauth = useCallback(
     async (params?: {
       clientId?: string;
@@ -4192,6 +4450,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       };
 
       switch (providerName) {
+        case OAuthProviders.DISCORD: {
+          await handleDiscordOauth({
+            openInPage: false,
+            onOauthSuccess,
+          });
+          break;
+        }
         case OAuthProviders.X: {
           await handleXOauth({
             openInPage: false,
@@ -4540,6 +4805,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleLogin,
         handleGoogleOauth,
         handleXOauth,
+        handleDiscordOauth,
         handleAppleOauth,
         handleFacebookOauth,
         handleExportWallet,

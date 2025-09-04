@@ -31,7 +31,8 @@ function RootLayout({ children }: RootLayoutProps) {
                 facebookClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID,
                 oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
                 xClientId: process.env.NEXT_PUBLIC_X_CLIENT_ID,
-                openOauthInPage: true,
+                discordClientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
+                openOauthInPage: false,
               },
               methods: {
                 smsOtpAuthEnabled: true,
