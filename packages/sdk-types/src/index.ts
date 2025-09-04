@@ -28,14 +28,17 @@ export interface BaseAuthResult {
   sessionToken: string;
 }
 
-export interface OtpAuthResult extends BaseAuthResult {
-  verificationToken: string;
+export interface PasskeyAuthResult extends BaseAuthResult {
+  credentialId: string;
 }
+
 export interface WalletAuthResult extends BaseAuthResult {
   address: string;
 }
-export interface OAuthAuthResult extends BaseAuthResult {
-  oidcToken: string;
+
+export enum AuthAction {
+  LOGIN = "LOGIN",
+  SIGNUP = "SIGNUP",
 }
 
 export enum TurnkeyErrorCodes {

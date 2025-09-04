@@ -64,8 +64,8 @@ import {
   type v1PrivateKey,
   BaseAuthResult,
   WalletAuthResult,
-  OtpAuthResult,
-  OAuthAuthResult,
+  AuthAction,
+  PasskeyAuthResult,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -823,8 +823,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error during the process.
    */
-  const handlePostAuth = async (params: { method: AuthMethod }) => {
-    const { method } = params;
+  const handlePostAuth = async (params: {
+    method: AuthMethod;
+    action: AuthAction;
+    identifier: string;
+  }) => {
+    const { method, action, identifier } = params;
     try {
       const sessionKey = await getActiveSessionKey();
       const session = await getSession({
@@ -845,7 +849,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       await refreshWallets();
       await refreshUser();
 
-      callbacks?.onAuthenticationSuccess?.({ session, method });
+      callbacks?.onAuthenticationSuccess?.({
+        session,
+        method,
+        action,
+        identifier,
+      });
     } catch (error) {
       if (
         error instanceof TurnkeyError ||
@@ -943,7 +952,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     async (params?: {
       publicKey?: string;
       sessionKey?: string;
-    }): Promise<BaseAuthResult> => {
+    }): Promise<PasskeyAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -960,7 +969,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to login with passkey",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Passkey });
+        await handlePostAuth({
+          method: AuthMethod.Passkey,
+          action: AuthAction.LOGIN,
+          identifier: res.credentialId,
+        });
       }
       return res;
     },
@@ -973,7 +986,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       sessionKey?: string;
       passkeyDisplayName?: string;
       challenge?: string;
-    }): Promise<BaseAuthResult> => {
+    }): Promise<PasskeyAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1027,7 +1040,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign up with passkey",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Passkey });
+        await handlePostAuth({
+          method: AuthMethod.Passkey,
+          action: AuthAction.SIGNUP,
+          identifier: res.credentialId,
+        });
       }
       return res;
     },
@@ -1138,7 +1155,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to login with wallet",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Wallet });
+        await handlePostAuth({
+          method: AuthMethod.Wallet,
+          action: AuthAction.LOGIN,
+          identifier: res.address,
+        });
       }
       return res;
     },
@@ -1182,7 +1203,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign up with wallet",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Wallet });
+        await handlePostAuth({
+          method: AuthMethod.Wallet,
+          action: AuthAction.SIGNUP,
+          identifier: res.address,
+        });
       }
       return res;
     },
@@ -1195,7 +1220,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       createSubOrgParams?: CreateSubOrgParams;
       sessionKey?: string;
       expirationSeconds?: string;
-    }): Promise<WalletAuthResult> => {
+    }): Promise<WalletAuthResult & { action: AuthAction }> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1226,7 +1251,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to login or sign up with wallet",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Wallet });
+        await handlePostAuth({
+          method: AuthMethod.Wallet,
+          action: res.action,
+          identifier: res.address,
+        });
       }
       return res;
     },
@@ -1278,7 +1307,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       publicKey?: string;
       invalidateExisting?: boolean;
       sessionKey?: string;
-    }): Promise<OtpAuthResult> => {
+    }): Promise<BaseAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1292,7 +1321,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to login with OTP",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Otp });
+        await handlePostAuth({
+          method: AuthMethod.Otp,
+          action: AuthAction.LOGIN,
+          identifier: params.verificationToken,
+        });
       }
       return res;
     },
@@ -1306,7 +1339,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       otpType: OtpType;
       createSubOrgParams?: CreateSubOrgParams;
       sessionKey?: string;
-    }): Promise<OtpAuthResult> => {
+    }): Promise<BaseAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1340,7 +1373,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign up with OTP",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Otp });
+        await handlePostAuth({
+          method: AuthMethod.Otp,
+          action: AuthAction.SIGNUP,
+          identifier: params.verificationToken,
+        });
       }
       return res;
     },
@@ -1357,7 +1394,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       invalidateExisting?: boolean;
       sessionKey?: string;
       createSubOrgParams?: CreateSubOrgParams;
-    }): Promise<OtpAuthResult> => {
+    }): Promise<
+      BaseAuthResult & { verificationToken: string; action: AuthAction }
+    > => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1392,7 +1431,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to complete OTP",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Otp });
+        await handlePostAuth({
+          method: AuthMethod.Otp,
+          action: res.action,
+          identifier: res.verificationToken,
+        });
       }
       return res;
     },
@@ -1405,7 +1448,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       publicKey: string;
       invalidateExisting?: boolean;
       sessionKey?: string;
-    }): Promise<OAuthAuthResult> => {
+    }): Promise<BaseAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1419,7 +1462,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to login with OAuth",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Oauth });
+        await handlePostAuth({
+          method: AuthMethod.Oauth,
+          action: AuthAction.LOGIN,
+          identifier: params.oidcToken,
+        });
       }
       return res;
     },
@@ -1433,7 +1480,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       providerName: string;
       createSubOrgParams?: CreateSubOrgParams;
       sessionKey?: string;
-    }): Promise<OAuthAuthResult> => {
+    }): Promise<BaseAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1461,7 +1508,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign up with OAuth",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Oauth });
+        await handlePostAuth({
+          method: AuthMethod.Oauth,
+          action: AuthAction.SIGNUP,
+          identifier: params.oidcToken,
+        });
       }
       return res;
     },
@@ -1476,7 +1527,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       sessionKey?: string;
       invalidateExisting?: boolean;
       createSubOrgParams?: CreateSubOrgParams;
-    }): Promise<OAuthAuthResult> => {
+    }): Promise<BaseAuthResult & { action: AuthAction }> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1506,7 +1557,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to complete OAuth",
       );
       if (res) {
-        await handlePostAuth({ method: AuthMethod.Oauth });
+        await handlePostAuth({
+          method: AuthMethod.Oauth,
+          action: res.action,
+          identifier: params.oidcToken,
+        });
       }
       return res;
     },

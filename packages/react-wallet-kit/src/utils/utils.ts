@@ -1,5 +1,6 @@
 import {
-  OAuthAuthResult,
+  AuthAction,
+  BaseAuthResult,
   Session,
   TurnkeyError,
   TurnkeyErrorCodes,
@@ -259,7 +260,7 @@ export async function handleFacebookPKCEFlow({
   completeOauth: (params: {
     oidcToken: string;
     publicKey: string;
-  }) => Promise<OAuthAuthResult>;
+  }) => Promise<BaseAuthResult & { action: AuthAction }>;
   onPushPage: (idToken: string) => Promise<void>;
 }): Promise<void> {
   // Retrieve the verifier stored during OAuth initiation
