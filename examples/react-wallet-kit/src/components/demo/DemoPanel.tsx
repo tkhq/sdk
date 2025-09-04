@@ -50,7 +50,7 @@ export default function DemoPanel() {
     handleSignMessage,
     handleExportWallet,
     handleImportWallet,
-    handleLinkExternalWallet,
+    handleConnectExternalWallet,
     getWalletProviders,
   } = useTurnkey();
 
@@ -214,7 +214,7 @@ export default function DemoPanel() {
             </Menu>
             <Button
               onClick={async () => {
-                await handleLinkExternalWallet();
+                await handleConnectExternalWallet();
               }}
               className=" active:scale-95 px-4 py-2 text-sm rounded-full border-2 border-background-light dark:border-background-dark hover:bg-panel-background-light/80 dark:hover:bg-panel-background-dark/80 hover:cursor-pointer hover:border-primary-light dark:hover:border-primary-dark transition-all"
             >

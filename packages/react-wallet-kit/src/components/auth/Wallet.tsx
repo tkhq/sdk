@@ -45,9 +45,12 @@ export function WalletAuthButton(props: WalletAuthButtonProps) {
   );
 }
 
-const canUnlink = (provider: WalletProvider, shouldShowUnlink?: boolean) => {
+const canDisconnect = (
+  provider: WalletProvider,
+  shouldShowDisconnect?: boolean,
+) => {
   return (
-    shouldShowUnlink &&
+    shouldShowDisconnect &&
     provider.connectedAddresses &&
     provider.connectedAddresses.length > 0
   );
@@ -56,13 +59,13 @@ const canUnlink = (provider: WalletProvider, shouldShowUnlink?: boolean) => {
 export function ExternalWalletChainSelector(
   props: ExternalWalletSelectorProps,
 ) {
-  const { providers, onSelect, onUnlink } = props;
+  const { providers, onSelect, onDisconnect } = props;
   const { isMobile } = useModal();
-  const shouldShowUnlink = onUnlink !== undefined;
+  const shouldShowDisconnect = onDisconnect !== undefined;
 
   const handleSelect = (provider: WalletProvider) => {
-    if (canUnlink(provider, shouldShowUnlink)) {
-      onUnlink!(provider);
+    if (canDisconnect(provider, shouldShowDisconnect)) {
+      onDisconnect!(provider);
     } else {
       onSelect(provider);
     }
@@ -94,14 +97,14 @@ export function ExternalWalletChainSelector(
               {isEthereumProvider(p) ? (
                 <div className="relative">
                   <EthereumLogo className="size-5" />
-                  {canUnlink(p, shouldShowUnlink) && (
+                  {canDisconnect(p, shouldShowDisconnect) && (
                     <ConnectedIndicator isPinging />
                   )}
                 </div>
               ) : isSolanaProvider(p) ? (
                 <div className="relative">
                   <SolanaLogo className="size-5" />
-                  {canUnlink(p, shouldShowUnlink) && (
+                  {canDisconnect(p, shouldShowDisconnect) && (
                     <ConnectedIndicator isPinging />
                   )}
                 </div>
@@ -123,7 +126,7 @@ export function ExternalWalletChainSelector(
                     : // we should never reach here
                       // if we do then it means we forgot to update the auth component after adding a new chain
                       `?`}
-                {canUnlink(p, shouldShowUnlink) && (
+                {canDisconnect(p, shouldShowDisconnect) && (
                   <span className="text-xs text-icon-text-light dark:text-icon-text-dark">
                     Connected: {p.connectedAddresses[0]?.slice(0, 4)}...
                     {p.connectedAddresses[0]?.slice(-3)}
@@ -135,12 +138,16 @@ export function ExternalWalletChainSelector(
                 className={clsx(
                   `absolute transition-all duration-200`,
                   isHovering ? "right-4" : "-right-4",
-                  canUnlink(p, shouldShowUnlink)
+                  canDisconnect(p, shouldShowDisconnect)
                     ? "text-danger-light dark:text-danger-dark"
                     : "text-icon-text-light dark:text-icon-text-dark",
                 )}
-                size={canUnlink(p, shouldShowUnlink) ? "lg" : "1x"}
-                icon={canUnlink(p, shouldShowUnlink) ? faClose : faChevronRight}
+                size={canDisconnect(p, shouldShowDisconnect) ? "lg" : "1x"}
+                icon={
+                  canDisconnect(p, shouldShowDisconnect)
+                    ? faClose
+                    : faChevronRight
+                }
               />
             </ActionButton>
           );
@@ -152,14 +159,14 @@ export function ExternalWalletChainSelector(
 
 interface ExternalWalletSelectorProps {
   providers: WalletProvider[];
-  onUnlink?: ((provider: WalletProvider) => Promise<void>) | undefined;
+  onDisconnect?: ((provider: WalletProvider) => Promise<void>) | undefined;
   onSelect: (provider: WalletProvider) => Promise<void>;
 }
 export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
-  const { providers, onUnlink, onSelect } = props;
+  const { providers, onDisconnect, onSelect } = props;
   const { pushPage, popPage, isMobile } = useModal();
 
-  const shouldShowUnlink = onUnlink !== undefined;
+  const shouldShowDisconnect = onDisconnect !== undefined;
 
   // Group providers by name
   const grouped = providers.reduce<Record<string, WalletProvider[]>>(
@@ -174,8 +181,8 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
 
   const handleSelectGroup = (group: WalletProvider[]) => {
     if (group.length === 1) {
-      if (canUnlink(group[0]!, shouldShowUnlink)) {
-        onUnlink!(group[0]!);
+      if (canDisconnect(group[0]!, shouldShowDisconnect)) {
+        onDisconnect!(group[0]!);
       } else {
         onSelect(group[0]!);
       }
@@ -185,7 +192,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
         content: (
           <ExternalWalletChainSelector
             providers={group}
-            onUnlink={onUnlink}
+            onDisconnect={onDisconnect}
             onSelect={onSelect}
           />
         ),
@@ -274,7 +281,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                         )}
                       >
                         <Logo className="size-4" />
-                        {canUnlink(c, shouldShowUnlink) && (
+                        {canDisconnect(c, shouldShowDisconnect) && (
                           <ConnectedIndicator isPinging={isHovering} />
                         )}
                       </div>
@@ -285,17 +292,20 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                   className={clsx(
                     `absolute transition-all duration-200`,
                     isHovering ? "right-4" : "-right-4",
-                    group.length === 1 && canUnlink(group[0]!, shouldShowUnlink)
+                    group.length === 1 &&
+                      canDisconnect(group[0]!, shouldShowDisconnect)
                       ? "text-danger-light dark:text-danger-dark"
                       : "text-icon-text-light dark:text-icon-text-dark",
                   )}
                   size={
-                    group.length === 1 && canUnlink(group[0]!, shouldShowUnlink)
+                    group.length === 1 &&
+                    canDisconnect(group[0]!, shouldShowDisconnect)
                       ? "lg"
                       : "1x"
                   }
                   icon={
-                    group.length === 1 && canUnlink(group[0]!, shouldShowUnlink)
+                    group.length === 1 &&
+                    canDisconnect(group[0]!, shouldShowDisconnect)
                       ? faClose
                       : faChevronRight
                   }
@@ -309,22 +319,22 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
   );
 }
 
-interface UnlinkWalletScreenProps {
+interface DisconnectWalletScreenProps {
   provider: WalletProvider;
-  onUnlink: (provider: WalletProvider) => Promise<void>;
+  onDisconnect: (provider: WalletProvider) => Promise<void>;
 }
 
-export function UnlinkWalletScreen(props: UnlinkWalletScreenProps) {
-  const { provider, onUnlink } = props;
+export function DisconnectWalletScreen(props: DisconnectWalletScreenProps) {
+  const { provider, onDisconnect } = props;
   const { isMobile } = useModal();
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
 
-  const handleUnlink = async () => {
+  const handleDisconnect = async () => {
     setIsLoading(true);
     setHasError(false);
     try {
-      await onUnlink(provider);
+      await onDisconnect(provider);
     } catch (err) {
       setHasError(true);
     } finally {
@@ -343,19 +353,19 @@ export function UnlinkWalletScreen(props: UnlinkWalletScreenProps) {
           )}
         >
           {hasError
-            ? "You can't unlink this wallet!"
-            : `Unlink ${provider.info.name}`}
+            ? "You can't disconnect this wallet!"
+            : `Disconnect ${provider.info.name}`}
         </div>
         <div className="text-icon-text-light dark:text-icon-text-dark text-center !p-0">
           {hasError
-            ? `Try unlinking directly from the ${provider.info.name} app`
-            : "You can always link this wallet again later."}
+            ? `Try disconnecting directly from the ${provider.info.name} app`
+            : "You can always connect this wallet again later."}
         </div>
       </div>
 
       <div className="flex my-2 mt-0">
         <ActionButton
-          onClick={handleUnlink}
+          onClick={handleDisconnect}
           loading={isLoading}
           className={clsx(
             "w-full max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark",
@@ -363,7 +373,7 @@ export function UnlinkWalletScreen(props: UnlinkWalletScreenProps) {
           )}
           spinnerClassName="text-primary-danger-text-light dark:text-primary-danger-text-dark"
         >
-          Unlink Wallet
+          Disconnect Wallet
         </ActionButton>
       </div>
     </div>
@@ -405,8 +415,8 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
     setWalletConnectProvider(provider);
   }, [provider]);
 
-  const [isUnlinking, setIsUnlinking] = useState(false);
-  const [unlinkError, setUnlinkError] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [disconnectError, setDisconnectError] = useState(false);
 
   // kick off authentication/pairing or signing on mount or when URI changes
   useMemo(() => {
@@ -416,10 +426,10 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         await onAction(walletConnectProvider ?? provider);
         hasRan.current = true;
         pushPage({
-          key: "Link Success",
+          key: "Connect Success",
           content: (
             <SuccessPage
-              text="Successfully linked WalletConnect!"
+              text="Successfully connected to WalletConnect!"
               onComplete={closeModal}
               duration={successPageDuration}
             />
@@ -431,9 +441,9 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
     })();
   }, [walletConnectProvider?.uri]);
 
-  const handleUnlink = async () => {
-    setIsUnlinking(true);
-    setUnlinkError(false);
+  const handleDisconnect = async () => {
+    setIsDisconnecting(true);
+    setDisconnectError(false);
     try {
       await onDisconnect?.(walletConnectProvider ?? provider);
       const newProviders = await getWalletProviders();
@@ -441,9 +451,9 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         newProviders.find((p) => p.interfaceType === provider.interfaceType),
       );
     } catch (err) {
-      setUnlinkError(true);
+      setDisconnectError(true);
     } finally {
-      setIsUnlinking(false);
+      setIsDisconnecting(false);
     }
   };
   return (
@@ -509,22 +519,22 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             <span>
               Please open the wallet app on your phone to sign the message.
             </span>
-            {isUnlinking ? (
+            {isDisconnecting ? (
               <span className="text-danger-light dark:text-danger-dark opacity-50">
-                Unlinking...
+                Disconnecting...
               </span>
-            ) : unlinkError ? (
+            ) : disconnectError ? (
               <span className="text-danger-light dark:text-danger-dark opacity-50">
-                Error unlinking wallet.
+                Error disconnecting wallet.
               </span>
             ) : (
               <span>
                 Need to connect a different wallet?{" "}
                 <span
                   className="text-danger-light dark:text-danger-dark cursor-pointer underline"
-                  onClick={handleUnlink}
+                  onClick={handleDisconnect}
                 >
-                  Unlink
+                  Disconnect
                 </span>{" "}
                 this wallet first.
               </span>
@@ -559,7 +569,8 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             Use your phone
           </div>
           <div className="text-icon-text-light dark:text-icon-text-dark text-center !p-0">
-            Scan this QR code with your WalletConnect-compatible wallet to link
+            Scan this QR code with your WalletConnect-compatible wallet to
+            connect
           </div>
         </div>
       )}

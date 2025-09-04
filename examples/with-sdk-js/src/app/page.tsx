@@ -83,7 +83,7 @@ export default function AuthPage() {
     handleRemoveOauthProvider,
     handleAddPasskey,
     handleRemovePasskey,
-    handleLinkExternalWallet,
+    handleConnectExternalWallet,
   } = useTurnkey();
 
   useEffect(() => {
@@ -1112,7 +1112,7 @@ export default function AuthPage() {
       )}
       {session && (
         <button
-          onClick={() => handleLinkExternalWallet()}
+          onClick={() => handleConnectExternalWallet()}
           style={{
             backgroundColor: "rebeccapurple",
             borderRadius: "8px",
@@ -1120,7 +1120,7 @@ export default function AuthPage() {
             color: "white",
           }}
         >
-          Link Wallet
+          Connect Wallet
         </button>
       )}
       {session && (
