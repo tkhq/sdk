@@ -45,12 +45,14 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       walletAuthEnabled?: boolean;
       googleOauthEnabled?: boolean;
       appleOauthEnabled?: boolean;
+      xOauthEnabled?: boolean;
+      discordOauthEnabled?: boolean;
       facebookOauthEnabled?: boolean;
     };
     /** order of authentication methods. */
     methodOrder?: Array<"socials" | "email" | "sms" | "passkey" | "wallet">;
     /** order of OAuth authentication methods. */
-    oauthOrder?: Array<"google" | "apple" | "facebook">;
+    oauthOrder?: Array<"google" | "apple" | "facebook" | "x" | "discord">;
     /** configuration for OAuth authentication. */
     oauthConfig?: {
       /** redirect URI for OAuth. */

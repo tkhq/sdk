@@ -108,8 +108,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    */
   handleLogin: () => Promise<void>;
 
-
-    /**
+  /**
    * Handles the Discord OAuth 2.0 flow.
    *
    * - This function initiates the OAuth 2.0 PKCE flow with Discord by redirecting the user to the Discord authorization page or opening it in a popup window.
@@ -146,7 +145,6 @@ export interface ClientContextType extends TurnkeyClientMethods {
     }) => any;
   }) => Promise<void>;
 
-  
   /**
    * Handles the Twitter (X) OAuth 2.0 flow.
    *

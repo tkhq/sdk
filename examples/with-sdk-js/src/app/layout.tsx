@@ -25,6 +25,7 @@ function RootLayout({ children }: RootLayoutProps) {
             authProxyConfigId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
             organizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
             auth: {
+              oauthOrder: ["google", "apple", "facebook", "x", "discord"],
               oauthConfig: {
                 googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
                 appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
@@ -32,10 +33,13 @@ function RootLayout({ children }: RootLayoutProps) {
                 oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
                 xClientId: process.env.NEXT_PUBLIC_X_CLIENT_ID,
                 discordClientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
-                openOauthInPage: false,
+                openOauthInPage: true,
               },
               methods: {
                 smsOtpAuthEnabled: true,
+                googleOauthEnabled: true,
+                xOauthEnabled: true,
+                discordOauthEnabled: true,
               },
               autoRefreshSession: true,
             },

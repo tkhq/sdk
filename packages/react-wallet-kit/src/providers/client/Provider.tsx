@@ -87,7 +87,7 @@ import {
   faDiscord,
   faFacebook,
   faGoogle,
-  faTwitter,
+  faXTwitter,
 } from "@fortawesome/free-brands-svg-icons";
 import { ActionPage } from "../../components/auth/Action";
 import { SignMessageModal } from "../../components/sign/Message";
@@ -388,7 +388,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                           }
                         }
                       }}
-                      icon={<FontAwesomeIcon size="3x" icon={faTwitter} />}
+                      icon={<FontAwesomeIcon size="3x" icon={faXTwitter} />}
                     />
                   ),
                   showTitle: false,
@@ -486,6 +486,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       googleOauthEnabled:
         config.auth?.methods?.googleOauthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("google"),
+      xOauthEnabled:
+        config.auth?.methods?.xOauthEnabled ??
+        proxyAuthConfig?.enabledProviders.includes("x"),
+      discordOauthEnabled:
+        config.auth?.methods?.discordOauthEnabled ??
+        proxyAuthConfig?.enabledProviders.includes("discord"),
       appleOauthEnabled:
         config.auth?.methods?.appleOauthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("apple"),
@@ -497,7 +503,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     // Set a default ordering for the oAuth methods
     const oauthOrder =
       config.auth?.oauthOrder ??
-      (["google", "apple", "facebook"] as const).filter(
+      (["google", "apple", "x", "discord", "facebook"] as const).filter(
         (provider) => resolvedMethods[`${provider}OauthEnabled` as const],
       );
 

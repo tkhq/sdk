@@ -1,8 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faApple,
+  faDiscord,
   faFacebook,
   faGoogle,
+  faXTwitter,
 } from "@fortawesome/free-brands-svg-icons";
 import { OtpType, type WalletProvider } from "@turnkey/core";
 import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
@@ -33,6 +35,8 @@ export function AuthComponent() {
     handleGoogleOauth,
     handleAppleOauth,
     handleFacebookOauth,
+    handleXOauth,
+    handleDiscordOauth,
     initOtp,
     loginWithPasskey,
     signUpWithPasskey,
@@ -182,6 +186,42 @@ export function AuthComponent() {
     });
   };
 
+  const handleX = async () => {
+    pushPage({
+      key: "X OAuth",
+      content: (
+        <ActionPage
+          title="Authenticating with X..."
+          action={() =>
+            handleXOauth({
+              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+            })
+          }
+          icon={<FontAwesomeIcon size="3x" icon={faXTwitter} />}
+        />
+      ),
+      showTitle: false,
+    });
+  };
+
+  const handleDiscord = async () => {
+    pushPage({
+      key: "Discord OAuth",
+      content: (
+        <ActionPage
+          title="Authenticating with Discord..."
+          action={() =>
+            handleDiscordOauth({
+              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+            })
+          }
+          icon={<FontAwesomeIcon size="3x" icon={faDiscord} />}
+        />
+      ),
+      showTitle: false,
+    });
+  };
+
   const handleWalletLoginOrSignup = async (provider: WalletProvider) => {
     pushPage({
       key: "Wallet Login/Signup",
@@ -273,6 +313,22 @@ export function AuthComponent() {
         name="Facebook"
         icon={<FontAwesomeIcon icon={faFacebook} />}
         onClick={handleFacebook}
+      />
+    ) : null,
+    x: methods.xOauthEnabled ? (
+      <OAuthButton
+        key="x"
+        name="X"
+        icon={<FontAwesomeIcon icon={faXTwitter} />}
+        onClick={handleX}
+      />
+    ) : null,
+    discord: methods.discordOauthEnabled ? (
+      <OAuthButton
+        key="discord"
+        name="Discord"
+        icon={<FontAwesomeIcon icon={faDiscord} />}
+        onClick={handleDiscord}
       />
     ) : null,
   };
