@@ -47,12 +47,14 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       walletAuthEnabled?: boolean;
       googleOauthEnabled?: boolean;
       appleOauthEnabled?: boolean;
+      xOauthEnabled?: boolean;
+      discordOauthEnabled?: boolean;
       facebookOauthEnabled?: boolean;
     };
     /** order of authentication methods. */
     methodOrder?: Array<"socials" | "email" | "sms" | "passkey" | "wallet">;
     /** order of OAuth authentication methods. */
-    oauthOrder?: Array<"google" | "apple" | "facebook">;
+    oauthOrder?: Array<"google" | "apple" | "facebook" | "x" | "discord">;
     /** configuration for OAuth authentication. */
     oauthConfig?: {
       /** redirect URI for OAuth. */
@@ -63,6 +65,10 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       appleClientId?: string;
       /** client ID for Facebook OAuth. */
       facebookClientId?: string;
+      /** client ID for X (formerly Twitter) OAuth. */
+      xClientId?: string;
+      /** client ID for Discord OAuth. */
+      discordClientId?: string;
       /** whether to open OAuth in the same page. */
       openOauthInPage?: boolean;
     };
