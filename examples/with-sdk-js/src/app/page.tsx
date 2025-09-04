@@ -68,8 +68,6 @@ export default function AuthPage() {
     createWallet,
     logout,
     setActiveSession,
-    addPasskey,
-    removeUserEmail,
     createWalletAccounts,
     signTransaction,
     signAndSendTransaction,
@@ -1129,7 +1127,13 @@ export default function AuthPage() {
         <button
           onClick={async () => {
             await createWalletAccounts({
-              accounts: ["ADDRESS_FORMAT_SOLANA", "ADDRESS_FORMAT_ETHEREUM"],
+              accounts: [
+                "ADDRESS_FORMAT_SOLANA",
+                "ADDRESS_FORMAT_ETHEREUM",
+                "ADDRESS_FORMAT_ETHEREUM",
+                "ADDRESS_FORMAT_ETHEREUM",
+                "ADDRESS_FORMAT_ETHEREUM",
+              ],
               walletId: wallets[0]?.walletId!,
               organizationId: session?.organizationId!,
             });
