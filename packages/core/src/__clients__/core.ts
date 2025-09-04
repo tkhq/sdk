@@ -309,7 +309,9 @@ export class TurnkeyClient {
    * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
-   * @returns A promise that resolves to a signed JWT session token.
+   * @returns A promise that resolves to a {@link PasskeyAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `credentialId`: an empty string.
    * @throws {TurnkeyError} If there is an error during the passkey login process or if the user cancels the passkey prompt.
    */
   loginWithPasskey = async (params?: {
@@ -400,7 +402,9 @@ export class TurnkeyClient {
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
-   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @returns A promise that resolves to a {@link PasskeyAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `credentialId`: the credential ID associated with the passkey created.
    * @throws {TurnkeyError} If there is an error during passkey creation, sub-organization creation, or session storage.
    */
   signUpWithPasskey = async (params?: {
@@ -682,7 +686,9 @@ export class TurnkeyClient {
    * @param params.publicKey - optional public key to associate with the session (generated if not provided).
    * @param params.sessionKey - optional key to store the session under (defaults to the default session key).
    * @param params.expirationSeconds - optional session expiration time in seconds (defaults to the configured default).
-   * @returns A promise that resolves to the created session token.
+   * @returns A promise that resolves to a {@link WalletAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `address`: the authenticated wallet address.
    * @throws {TurnkeyError} If the wallet stamper is uninitialized, a public key cannot be found or generated, or login fails.
    */
   loginWithWallet = async (params: {
@@ -780,7 +786,9 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
-   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @returns A promise that resolves to a {@link WalletAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `address`: the authenticated wallet address.
    * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, session storage, or cleanup.
    */
   signUpWithWallet = async (params: {
@@ -919,7 +927,10 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
-   * @returns A promise that resolves to a signed JWT session token for the sub-organization (new or existing).
+   * @returns A promise that resolves to an object containing:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `address`: the authenticated wallet address.
+   *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, or session storage.
    */
   loginOrSignupWithWallet = async (params: {
@@ -1250,7 +1261,8 @@ export class TurnkeyClient {
    * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
-   * @returns A promise that resolves to a signed JWT session token.
+   * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OTP login process or if key pair cleanup fails.
    */
   loginWithOtp = async (params: {
@@ -1334,7 +1346,8 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
-   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OTP sign-up process or session storage.
    */
   signUpWithOtp = async (params: {
@@ -1407,7 +1420,10 @@ export class TurnkeyClient {
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
-   * @returns A promise that resolves to a signed JWT session token for the user.
+   * @returns A promise that resolves to an object containing:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `verificationToken`: the OTP verification token.
+   *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during OTP verification, sign-up, or login.
    */
   completeOtp = async (params: {
@@ -1501,7 +1517,9 @@ export class TurnkeyClient {
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
-   * @returns A promise that resolves to a signed JWT session token for the user.
+   * @returns A promise that resolves to an object containing:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during the OAuth completion process, such as account lookup, sign-up, or login.
    */
   completeOauth = async (params: {
@@ -1583,7 +1601,8 @@ export class TurnkeyClient {
    * @param params.publicKey - public key to use for authentication. Must be generated prior to calling this function.
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
-   * @returns A promise that resolves to a signed JWT session token.
+   * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OAuth login process or if key pair cleanup fails.
    */
   loginWithOauth = async (params: {
@@ -1676,7 +1695,8 @@ export class TurnkeyClient {
    * @param params.providerName - name of the OAuth provider (e.g., "Google", "Apple").
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
-   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OAuth sign-up or login process.
    */
   signUpWithOauth = async (params: {
