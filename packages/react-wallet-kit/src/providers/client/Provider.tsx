@@ -26,6 +26,7 @@ import {
   clearAll,
   setCappedTimeoutInMap,
   setTimeoutInMap,
+  clearKeys,
 } from "../../utils/timers";
 import {
   Chain,
@@ -193,6 +194,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           const flow = stateParams.get("flow");
           const publicKey = stateParams.get("publicKey");
           const openModal = stateParams.get("openModal");
+          const sessionKey = stateParams.get("sessionKey");
 
           if (provider === "facebook" && flow === "redirect" && publicKey) {
             // We have all the required parameters for a Facebook PKCE flow
@@ -222,6 +224,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                                 oidcToken,
                                 publicKey,
                                 providerName: "facebook",
+                                ...(sessionKey && { sessionKey }),
                               });
                               // Clean up the URL after processing
                               window.history.replaceState(
@@ -264,6 +267,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
             const verifier = sessionStorage.getItem("discord_verifier");
             const nonce = stateParams.get("nonce");
+            const sessionKey = stateParams.get("sessionKey");
 
             if (clientId && redirectURI && verifier && nonce) {
               await new Promise((resolve, reject) => {
@@ -296,6 +300,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                             oidcToken,
                             publicKey,
                             providerName: "discord",
+                            ...(sessionKey && { sessionKey }),
                           });
                           // Clean up the URL after processing
                           window.history.replaceState(
@@ -333,6 +338,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
             const verifier = sessionStorage.getItem("twitter_verifier");
             const nonce = stateParams.get("nonce");
+            const sessionKey = stateParams.get("sessionKey");
 
             if (clientId && redirectURI && verifier && nonce) {
               await new Promise((resolve, reject) => {
@@ -365,6 +371,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                             oidcToken,
                             publicKey,
                             providerName: "twitter",
+                            ...(sessionKey && { sessionKey }),
                           });
                           // Clean up the URL after processing
                           window.history.replaceState(
@@ -403,7 +410,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         const hash = window.location.hash.substring(1);
 
         // Parse the hash using our helper functions
-        const { idToken, provider, flow, publicKey, openModal } =
+        const { idToken, provider, flow, publicKey, openModal, sessionKey } =
           parseOAuthRedirect(hash);
 
         if (idToken && flow === "redirect" && publicKey) {
@@ -434,6 +441,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                           oidcToken: idToken,
                           publicKey,
                           ...(provider ? { providerName: provider } : {}),
+                          ...(sessionKey && { sessionKey }),
                         });
                         resolve(null);
                       } catch (err) {
@@ -944,9 +952,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    *
    * @throws {TurnkeyError} If an error occurs while clearing the timers.
    */
-  function clearSessionTimeouts() {
+  function clearSessionTimeouts(sessionKeys?: string[]) {
     try {
-      clearAll(expiryTimeoutsRef.current); // clears & deletes everything
+      if (sessionKeys) {
+        clearKeys(expiryTimeoutsRef.current, sessionKeys);
+      } else {
+        clearAll(expiryTimeoutsRef.current); // clears & deletes everything
+      }
     } catch (error) {
       if (
         error instanceof TurnkeyError ||
@@ -1032,19 +1044,29 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * Handles the post-logout flow.
    *
    * - This function is called after a successful logout or session clear.
-   * - It clears all scheduled session expiration and warning timeouts to prevent memory leaks.
-   * - It resets the session state, removes all session and user data from memory, and clears the wallets list.
+   * - It clears all scheduled session expiration and warning timeouts associated to the session key to prevent memory leaks.
+   * - It resets the session state, removes user data from memory, the logged out session from all sessions state, and clears the wallets list.
    * - This ensures that all sensitive information is removed from the provider state after logout.
    * - Called internally after logout or when all sessions are cleared.
    *
    * @returns void
    * @throws {TurnkeyError} If there is an error during the post-logout process.
    */
-  const handlePostLogout = () => {
+  const handlePostLogout = (sessionKey?: string) => {
     try {
-      clearSessionTimeouts();
+      clearSessionTimeouts(
+        sessionKey ? [sessionKey, `${sessionKey}-warning`] : undefined,
+      );
+      setAllSessions((prev) => {
+        if (!prev) return prev;
+        if (sessionKey) {
+          const next = { ...prev };
+          delete next[sessionKey];
+          return next;
+        }
+        return {};
+      });
       setSession(undefined);
-      setAllSessions(undefined);
       setUser(undefined);
       setWallets([]);
     } catch (error) {
@@ -1089,13 +1111,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
           );
         }
-
         await withTurnkeyErrorHandling(
-          () => client.logout(params),
+          async () => {
+            // If no sessionKey is provided, we try to get the active one.
+            let sessionKey = params?.sessionKey;
+            if (!sessionKey) sessionKey = await getActiveSessionKey();
+            await client.logout(params);
+            // We only handle post logout if the sessionKey is defined since that means we actually logged out of a session.
+            if (sessionKey) handlePostLogout(sessionKey);
+          },
           callbacks,
           "Failed to logout",
         );
-        handlePostLogout();
 
         return;
       },
@@ -2472,6 +2499,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to set active session",
       );
       setSession(session);
+      await withTurnkeyErrorHandling(
+        async () => {
+          await refreshWallets();
+          await refreshUser();
+        },
+        callbacks,
+        "Failed to refresh data after setting active session",
+      );
       return;
     },
     [client, callbacks],
@@ -2595,6 +2630,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       onOauthSuccess?: (params: {
         oidcToken: string;
         providerName: string;
+        sessionKey?: string;
       }) => any;
     }): Promise<void> => {
       const {
@@ -2705,7 +2741,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   const urlParams = new URLSearchParams(new URL(url).search);
                   const authCode = urlParams.get("code");
                   const stateParam = urlParams.get("state");
-
+                  const sessionKey = stateParam
+                    ?.split("&")
+                    .find((param) => param.startsWith("sessionKey="))
+                    ?.split("=")[1];
                   if (
                     authCode &&
                     stateParam &&
@@ -2736,17 +2775,20 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                           params.onOauthSuccess({
                             oidcToken,
                             providerName: "discord",
+                            ...(sessionKey && { sessionKey }),
                           });
                         } else if (callbacks?.onOauthRedirect) {
                           callbacks.onOauthRedirect({
                             idToken: oidcToken,
                             publicKey,
+                            ...(sessionKey && { sessionKey }),
                           });
                         } else {
                           completeOauth({
                             oidcToken,
                             publicKey,
                             providerName: "discord",
+                            ...(sessionKey && { sessionKey }),
                           })
                             .then(() => resolve())
                             .catch(reject);
@@ -2782,6 +2824,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       onOauthSuccess?: (params: {
         oidcToken: string;
         providerName: string;
+        sessionKey?: string;
       }) => any;
     }): Promise<void> => {
       const {
@@ -2892,7 +2935,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   const urlParams = new URLSearchParams(new URL(url).search);
                   const authCode = urlParams.get("code");
                   const stateParam = urlParams.get("state");
-
+                  const sessionKey = stateParam
+                    ?.split("&")
+                    .find((param) => param.startsWith("sessionKey="))
+                    ?.split("=")[1];
                   if (
                     authCode &&
                     stateParam &&
@@ -2923,17 +2969,20 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                           params.onOauthSuccess({
                             oidcToken,
                             providerName: "twitter",
+                            ...(sessionKey && { sessionKey }),
                           });
                         } else if (callbacks?.onOauthRedirect) {
                           callbacks.onOauthRedirect({
                             idToken: oidcToken,
                             publicKey,
+                            ...(sessionKey && { sessionKey }),
                           });
                         } else {
                           completeOauth({
                             oidcToken,
                             publicKey,
                             providerName: "twitter",
+                            ...(sessionKey && { sessionKey }),
                           })
                             .then(() => resolve())
                             .catch(reject);
@@ -2969,6 +3018,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       onOauthSuccess?: (params: {
         oidcToken: string;
         providerName: string;
+        sessionKey?: string;
       }) => any;
     }): Promise<void> => {
       const {
@@ -3081,6 +3131,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 if (url.startsWith(window.location.origin)) {
                   const hashParams = new URLSearchParams(url.split("#")[1]);
                   const idToken = hashParams.get("id_token");
+                  const stateParams = hashParams.get("state");
+                  const sessionKey = stateParams
+                    ?.split("&")
+                    .find((param) => param.startsWith("sessionKey="))
+                    ?.split("=")[1];
                   if (idToken) {
                     authWindow.close();
                     clearInterval(interval);
@@ -3089,14 +3144,20 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       params.onOauthSuccess({
                         oidcToken: idToken,
                         providerName: "google",
+                        ...(sessionKey && { sessionKey }),
                       });
                     } else if (callbacks?.onOauthRedirect) {
-                      callbacks.onOauthRedirect({ idToken, publicKey });
+                      callbacks.onOauthRedirect({
+                        idToken,
+                        publicKey,
+                        ...(sessionKey && { sessionKey }),
+                      });
                     } else {
                       completeOauth({
                         oidcToken: idToken,
                         publicKey,
                         providerName: "google",
+                        ...(sessionKey && { sessionKey }),
                       })
                         .then(() => resolve())
                         .catch(reject);
@@ -3130,6 +3191,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       onOauthSuccess?: (params: {
         oidcToken: string;
         providerName: string;
+        sessionKey?: string;
       }) => any;
     }): Promise<void> => {
       const {
@@ -3238,6 +3300,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 if (url.startsWith(window.location.origin)) {
                   const hashParams = new URLSearchParams(url.split("#")[1]);
                   const idToken = hashParams.get("id_token");
+                  const stateParams = hashParams.get("state");
+                  const sessionKey = stateParams
+                    ?.split("&")
+                    .find((param) => param.startsWith("sessionKey="))
+                    ?.split("=")[1];
                   if (idToken) {
                     authWindow.close();
                     clearInterval(interval);
@@ -3246,14 +3313,20 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       params.onOauthSuccess({
                         oidcToken: idToken,
                         providerName: "apple",
+                        ...(sessionKey && { sessionKey }),
                       });
                     } else if (callbacks?.onOauthRedirect) {
-                      callbacks.onOauthRedirect({ idToken, publicKey });
+                      callbacks.onOauthRedirect({
+                        idToken,
+                        publicKey,
+                        ...(sessionKey && { sessionKey }),
+                      });
                     } else {
                       completeOauth({
                         oidcToken: idToken,
                         publicKey,
                         providerName: "apple",
+                        ...(sessionKey && { sessionKey }),
                       })
                         .then(() => resolve())
                         .catch(reject);
@@ -3287,6 +3360,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       onOauthSuccess?: (params: {
         oidcToken: string;
         providerName: string;
+        sessionKey?: string;
       }) => any;
     }): Promise<void> => {
       const {
@@ -3403,12 +3477,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   const urlParams = new URLSearchParams(new URL(url).search);
                   const authCode = urlParams.get("code");
                   const stateParam = urlParams.get("state");
-
                   if (
                     authCode &&
                     stateParam &&
                     stateParam.includes("provider=facebook")
                   ) {
+                    const sessionKey = stateParam
+                      ?.split("&")
+                      .find((param) => param.startsWith("sessionKey="))
+                      ?.split("=")[1];
                     authWindow.close();
                     clearInterval(interval);
 
@@ -3432,18 +3509,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         if (params?.onOauthSuccess) {
                           params.onOauthSuccess({
                             oidcToken: tokenData.id_token,
-                            providerName: "apple",
+                            providerName: "facebook",
+                            ...(sessionKey && { sessionKey }),
                           });
                         } else if (callbacks?.onOauthRedirect) {
                           callbacks.onOauthRedirect({
                             idToken: tokenData.id_token,
                             publicKey,
+                            ...(sessionKey && { sessionKey }),
                           });
                         } else {
                           completeOauth({
                             oidcToken: tokenData.id_token,
                             publicKey,
                             providerName: "facebook",
+                            ...(sessionKey && { sessionKey }),
                           })
                             .then(() => resolve())
                             .catch(reject);
@@ -3471,12 +3551,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks],
   );
 
-  const handleLogin = useCallback(async () => {
-    pushPage({
-      key: "Log in or sign up",
-      content: <AuthComponent />,
-    });
-  }, [pushPage]);
+  const handleLogin = useCallback(
+    async (params?: { sessionKey?: string }) => {
+      pushPage({
+        key: "Log in or sign up",
+        content: <AuthComponent sessionKey={params?.sessionKey} />,
+      });
+    },
+    [pushPage],
+  );
 
   const handleExportWallet = useCallback(
     async (params: {

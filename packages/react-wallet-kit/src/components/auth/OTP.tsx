@@ -16,6 +16,7 @@ interface OtpVerificationProps {
   otpLength?: number;
   alphanumeric?: boolean;
   formattedContact?: string; // Optional formatted contact for display purposes
+  sessionKey?: string; // Optional sessionKey for multisession
   onContinue?: (optCode: string) => Promise<void>; // Optional callback for continue action
 }
 export function OtpVerification(props: OtpVerificationProps) {
@@ -25,6 +26,7 @@ export function OtpVerification(props: OtpVerificationProps) {
     otpLength = 6,
     alphanumeric = true,
     formattedContact,
+    sessionKey,
     onContinue = null, // Default to null if not provided
   } = props;
   const { initOtp, completeOtp } = useTurnkey();
@@ -52,6 +54,7 @@ export function OtpVerification(props: OtpVerificationProps) {
           otpCode,
           contact,
           otpType,
+          ...(sessionKey && { sessionKey }),
         });
         closeModal();
       }

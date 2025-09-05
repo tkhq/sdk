@@ -1571,6 +1571,7 @@ export class TurnkeyClient {
             oidcToken,
             publicKey,
             providerName,
+            sessionKey,
             ...(createSubOrgParams && {
               createSubOrgParams,
             }),
@@ -1706,7 +1707,13 @@ export class TurnkeyClient {
     createSubOrgParams?: CreateSubOrgParams;
     sessionKey?: string;
   }): Promise<BaseAuthResult> => {
-    const { oidcToken, publicKey, providerName, createSubOrgParams } = params;
+    const {
+      oidcToken,
+      publicKey,
+      providerName,
+      createSubOrgParams,
+      sessionKey,
+    } = params;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -1734,6 +1741,7 @@ export class TurnkeyClient {
         return await this.loginWithOauth({
           oidcToken,
           publicKey: publicKey!,
+          ...(sessionKey && { sessionKey }),
         });
       },
       {

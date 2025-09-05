@@ -104,9 +104,11 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - After successful authentication, the provider state is updated and all relevant session, user, and wallet data are refreshed.
    * - This function is typically used to trigger authentication from a UI button or navigation event.
    *
+   * @param params.sessionKey - Optional session key to resume an existing session or pre-fill session details in the login modal.
+   *
    * @returns A void promise.
    */
-  handleLogin: () => Promise<void>;
+  handleLogin: (params?: { sessionKey?: string }) => Promise<void>;
 
   /**
    * Handles the Discord OAuth 2.0 flow.
