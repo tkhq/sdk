@@ -738,5 +738,5 @@ export interface ClientContextType extends TurnkeyClientMethods {
 
 /** @internal */
 export const ClientContext = createContext<ClientContextType | undefined>(
-  undefined
+  undefined,
 );

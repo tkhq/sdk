@@ -47,7 +47,7 @@ export function WalletAuthButton(props: WalletAuthButtonProps) {
 
 const canDisconnect = (
   provider: WalletProvider,
-  shouldShowDisconnect?: boolean
+  shouldShowDisconnect?: boolean,
 ) => {
   return (
     shouldShowDisconnect &&
@@ -57,7 +57,7 @@ const canDisconnect = (
 };
 
 export function ExternalWalletChainSelector(
-  props: ExternalWalletSelectorProps
+  props: ExternalWalletSelectorProps,
 ) {
   const { providers, onSelect, onDisconnect } = props;
   const { isMobile } = useModal();
@@ -75,7 +75,7 @@ export function ExternalWalletChainSelector(
     <div
       className={clsx(
         "flex flex-col w-72 gap-4 mt-11 items-center justify-center",
-        isMobile ? "w-full" : "w-72"
+        isMobile ? "w-full" : "w-72",
       )}
     >
       <img src={providers[0]?.info.icon} className="size-14 rounded-full" />
@@ -139,7 +139,7 @@ export function ExternalWalletChainSelector(
                   isHovering ? "right-4" : "-right-4",
                   canDisconnect(p, shouldShowDisconnect)
                     ? "text-danger-light dark:text-danger-dark"
-                    : "text-icon-text-light dark:text-icon-text-dark"
+                    : "text-icon-text-light dark:text-icon-text-dark",
                 )}
                 size={canDisconnect(p, shouldShowDisconnect) ? "lg" : "1x"}
                 icon={
@@ -175,7 +175,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
       acc[name]!.push(provider);
       return acc;
     },
-    {}
+    {},
   );
 
   const handleSelectGroup = (group: WalletProvider[]) => {
@@ -212,7 +212,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     <div
       className={clsx(
         "flex flex-col h-40 mt-4 gap-2 justify-center items-center text-xs text-center text-icon-text-light dark:text-icon-text-dark",
-        isMobile ? "w-full" : "w-72"
+        isMobile ? "w-full" : "w-72",
       )}
     >
       <span className="text-sm font-medium">
@@ -227,7 +227,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     <div
       className={clsx(
         "w-72 min-h-42 max-h-64 mt-12 overflow-y-auto tk-scrollbar p-0.5",
-        isMobile ? "w-full" : "w-72"
+        isMobile ? "w-full" : "w-72",
       )}
     >
       <div className="flex flex-col gap-2">
@@ -263,7 +263,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                       // we should never reach here
                       // if we do then it means we forgot to update the auth component after adding a new chain
                       throw new Error(
-                        `Unsupported provider namespace. Expected Ethereum or Solana.`
+                        `Unsupported provider namespace. Expected Ethereum or Solana.`,
                       );
                     }
 
@@ -276,7 +276,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                           "relative",
                           "size-4",
                           "transition-all duration-200",
-                          isHovering ? "-translate-x-8" : "translate-x-0"
+                          isHovering ? "-translate-x-8" : "translate-x-0",
                         )}
                       >
                         <Logo className="size-4" />
@@ -294,7 +294,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                     group.length === 1 &&
                       canDisconnect(group[0]!, shouldShowDisconnect)
                       ? "text-danger-light dark:text-danger-dark"
-                      : "text-icon-text-light dark:text-icon-text-dark"
+                      : "text-icon-text-light dark:text-icon-text-dark",
                   )}
                   size={
                     group.length === 1 &&
@@ -311,7 +311,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                 />
               </ActionButton>
             );
-          }
+          },
         )}
       </div>
     </div>
@@ -348,7 +348,7 @@ export function DisconnectWalletScreen(props: DisconnectWalletScreenProps) {
         <div
           className={clsx(
             "text-2xl font-bold text-center",
-            hasError && "text-danger-light dark:text-danger-dark"
+            hasError && "text-danger-light dark:text-danger-dark",
           )}
         >
           {hasError
@@ -368,7 +368,7 @@ export function DisconnectWalletScreen(props: DisconnectWalletScreenProps) {
           loading={isLoading}
           className={clsx(
             "w-full max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark",
-            hasError && "animate-shake opacity-50"
+            hasError && "animate-shake opacity-50",
           )}
           spinnerClassName="text-primary-danger-text-light dark:text-primary-danger-text-dark"
         >
@@ -447,7 +447,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
       await onDisconnect?.(walletConnectProvider ?? provider);
       const newProviders = await getWalletProviders();
       setWalletConnectProvider(
-        newProviders.find((p) => p.interfaceType === provider.interfaceType)
+        newProviders.find((p) => p.interfaceType === provider.interfaceType),
       );
     } catch (err) {
       setDisconnectError(true);
@@ -461,14 +461,14 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         <div
           className={clsx(
             "mt-8 flex flex-col items-center gap-3",
-            isMobile ? "w-full" : "w-96"
+            isMobile ? "w-full" : "w-96",
           )}
         >
           <div className="w-full justify-between flex items-center flex-1">
             <div
               className={clsx(
                 "flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 text-icon-text-light dark:text-icon-text-dark",
-                isMobile ? "size-18" : "size-24"
+                isMobile ? "size-18" : "size-24",
               )}
             >
               <FontAwesomeIcon
@@ -500,7 +500,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             <div
               className={clsx(
                 "flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 text-icon-text-light dark:text-icon-text-dark",
-                isMobile ? "size-18" : "size-24"
+                isMobile ? "size-18" : "size-24",
               )}
             >
               <FontAwesomeIcon icon={faLaptop} size={isMobile ? "3x" : "4x"} />
@@ -509,7 +509,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
 
           <div
             className={clsx(
-              "flex flex-row items-center mt-5 text-2xl font-bold text-center"
+              "flex flex-row items-center mt-5 text-2xl font-bold text-center",
             )}
           >
             Already connected
@@ -544,7 +544,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         <div
           className={clsx(
             "mt-8 flex flex-col items-center gap-3",
-            isMobile ? "w-full" : "w-96"
+            isMobile ? "w-full" : "w-96",
           )}
         >
           {walletConnectProvider?.uri && (

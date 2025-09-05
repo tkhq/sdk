@@ -404,7 +404,7 @@ export function AuthComponent({ sessionKey }: AuthComponentProps) {
     <div
       className={clsx(
         "flex flex-col items-center ",
-        isMobile ? "w-full" : "w-96"
+        isMobile ? "w-full" : "w-96",
       )}
     >
       {config.authProxyConfigId ? (

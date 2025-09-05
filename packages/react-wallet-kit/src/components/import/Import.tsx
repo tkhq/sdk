@@ -57,7 +57,7 @@ export function ImportComponent(props: {
   if (!config) {
     throw new TurnkeyError(
       "Turnkey SDK is not properly configured. Please check your configuration.",
-      TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED
+      TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
     );
   }
 
@@ -100,7 +100,7 @@ export function ImportComponent(props: {
           iframeUrl: importIframeUrl,
           iframeElementId: TurnkeyIframeElementId,
           iframeContainer: document.getElementById(
-            TurnkeyImportIframeContainerId
+            TurnkeyImportIframeContainerId,
           ),
         });
         await newImportIframeClient.init();
@@ -122,7 +122,7 @@ export function ImportComponent(props: {
         throw new TurnkeyError(
           `Error initializing IframeStamper`,
           TurnkeyErrorCodes.INTERNAL_ERROR,
-          error
+          error,
         );
       }
     };
@@ -177,7 +177,7 @@ export function ImportComponent(props: {
       if (!importIframeClient) {
         throw new TurnkeyError(
           "Import iframe client not initialized",
-          TurnkeyErrorCodes.INTERNAL_ERROR
+          TurnkeyErrorCodes.INTERNAL_ERROR,
         );
       }
       let response;
@@ -191,20 +191,20 @@ export function ImportComponent(props: {
           if (!initWalletResult || !initWalletResult.importBundle) {
             throw new TurnkeyError(
               "Failed to retrieve import bundle",
-              TurnkeyErrorCodes.IMPORT_WALLET_ERROR
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
             );
           }
 
           const injectedWallet = await importIframeClient.injectImportBundle(
             initWalletResult.importBundle,
             session?.organizationId!,
-            session?.userId!
+            session?.userId!,
           );
 
           if (!injectedWallet) {
             throw new TurnkeyError(
               "Failed to inject import bundle",
-              TurnkeyErrorCodes.IMPORT_WALLET_ERROR
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
             );
           }
           const encryptedWalletBundle =
@@ -212,7 +212,7 @@ export function ImportComponent(props: {
           if (!encryptedWalletBundle || encryptedWalletBundle.trim() === "") {
             throw new TurnkeyError(
               "Encrypted bundle is empty",
-              TurnkeyErrorCodes.IMPORT_WALLET_ERROR
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
             );
           }
 
@@ -246,18 +246,18 @@ export function ImportComponent(props: {
           if (!initPrivateKeyResult || !initPrivateKeyResult.importBundle) {
             throw new TurnkeyError(
               "Failed to retrieve import bundle",
-              TurnkeyErrorCodes.IMPORT_WALLET_ERROR
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
             );
           }
           const injectedKey = await importIframeClient.injectImportBundle(
             initPrivateKeyResult.importBundle,
             session?.organizationId!,
-            session?.userId!
+            session?.userId!,
           );
           if (!injectedKey) {
             throw new TurnkeyError(
               "Failed to inject import bundle",
-              TurnkeyErrorCodes.IMPORT_WALLET_ERROR
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
             );
           }
 
@@ -266,7 +266,7 @@ export function ImportComponent(props: {
           if (!encryptedKeyBundle || encryptedKeyBundle.trim() === "") {
             throw new TurnkeyError(
               "Encrypted bundle is empty",
-              TurnkeyErrorCodes.IMPORT_WALLET_ERROR
+              TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
             );
           }
 
@@ -283,7 +283,7 @@ export function ImportComponent(props: {
         default:
           throw new TurnkeyError(
             "Invalid import type",
-            TurnkeyErrorCodes.IMPORT_WALLET_ERROR
+            TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
           );
       }
 
@@ -320,7 +320,7 @@ export function ImportComponent(props: {
         await importIframeClient.clear();
         throw new TurnkeyError(
           "Failed to import wallet",
-          TurnkeyErrorCodes.IMPORT_WALLET_ERROR
+          TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
         );
       }
     } catch (error) {
@@ -331,15 +331,15 @@ export function ImportComponent(props: {
           : new TurnkeyError(
               `Error importing wallet`,
               TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-              error
-            )
+              error,
+            ),
       );
 
       if (error instanceof TurnkeyError) onError(error);
       throw new TurnkeyError(
         `Error importing wallet`,
         TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-        error
+        error,
       );
     } finally {
       setIsLoading(false);
@@ -350,7 +350,7 @@ export function ImportComponent(props: {
     <div
       className={clsx(
         "flex flex-col items-center pt-4",
-        isMobile ? "w-full" : "w-[21rem]"
+        isMobile ? "w-full" : "w-[21rem]",
       )}
     >
       <p className="text-sm text-icon-text-light dark:text-icon-text-dark">
@@ -397,7 +397,7 @@ export function ImportComponent(props: {
           "text-sm text-red-500 transition-opacity delay-75 line-clamp-2 w-full",
           error
             ? "opacity-100 pointer-events-auto mt-2"
-            : "opacity-0 pointer-events-none absolute"
+            : "opacity-0 pointer-events-none absolute",
         )}
       >
         {error?.message}:{" "}

@@ -28,13 +28,13 @@ export class CrossPlatformApiKeyStamper implements TStamper {
         throw new TurnkeyError(
           `Failed to load keychain stamper for react-native`,
           TurnkeyErrorCodes.INITIALIZE_CLIENT_ERROR,
-          error
+          error,
         );
       }
     } else {
       throw new TurnkeyError(
         "Unsupported platform for API key stamper",
-        TurnkeyErrorCodes.UNSUPPORTED_PLATFORM
+        TurnkeyErrorCodes.UNSUPPORTED_PLATFORM,
       );
     }
   }
@@ -43,19 +43,19 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     if (!this.stamper) {
       throw new TurnkeyError(
         "Stamper is not initialized. Please call .init() before calling this method.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
     return this.stamper.listKeyPairs();
   }
 
   createKeyPair(
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string }
+    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
   ): Promise<string> {
     if (!this.stamper) {
       throw new TurnkeyError(
         "Stamper is not initialized. Please call .init() before calling this method.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
     return this.stamper.createKeyPair(externalKeyPair);
@@ -65,7 +65,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     if (!this.stamper) {
       throw new TurnkeyError(
         "Stamper is not initialized. Please call .init() before calling this method.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
     return this.stamper.deleteKeyPair(publicKeyHex);
@@ -75,7 +75,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     if (!this.stamper) {
       throw new TurnkeyError(
         "Stamper is not initialized. Please call .init() before calling this method.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
     return this.stamper.clearKeyPairs();
@@ -100,7 +100,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     if (!this.stamper) {
       throw new TurnkeyError(
         "Stamper is not initialized. Please call .init() before calling this method.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
     }
     let publicKeyHex = this.temporaryPublicKey;
@@ -109,7 +109,7 @@ export class CrossPlatformApiKeyStamper implements TStamper {
       if (!session) {
         throw new TurnkeyError(
           "No active session or token available.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
         );
       }
       publicKeyHex = session.publicKey!;

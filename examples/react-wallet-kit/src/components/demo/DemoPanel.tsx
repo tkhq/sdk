@@ -58,7 +58,7 @@ export default function DemoPanel() {
   const { pushPage } = useModal();
 
   const [selectedWallet, setSelectedWallet] = useState<Wallet | undefined>(
-    wallets[0] || null // Initialize with null if wallets[0] is undefined
+    wallets[0] || null, // Initialize with null if wallets[0] is undefined
   );
   const [selectedWalletAccount, setSelectedWalletAccount] = useState<
     WalletAccount | undefined
@@ -68,7 +68,7 @@ export default function DemoPanel() {
     ConnectedWallet[] | undefined
   >([]); // Initialize with an empty array
   const [connectedWalletIcons, setConnectedWalletIcons] = useState<string[]>(
-    []
+    [],
   ); // Initialize with an empty array
 
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function DemoPanel() {
     }
 
     const cw = wallets.filter(
-      (w) => w.source === WalletSource.Connected
+      (w) => w.source === WalletSource.Connected,
     ) as ConnectedWallet[];
     if (cw) {
       getConnectedWalletIcons().then((icons) => {
@@ -162,7 +162,7 @@ export default function DemoPanel() {
                               onClick={() => {
                                 setSelectedWallet(wallet);
                                 setSelectedWalletAccount(
-                                  wallet.accounts[0] || undefined
+                                  wallet.accounts[0] || undefined,
                                 );
                               }}
                               className="flex items-center gap-3 w-full cursor-pointer"
@@ -185,7 +185,7 @@ export default function DemoPanel() {
                   <Button
                     onClick={async () => {
                       const embeddedWallets = wallets.filter(
-                        (w) => w.source === WalletSource.Embedded
+                        (w) => w.source === WalletSource.Embedded,
                       );
                       const walletId = await createWallet({
                         walletName: `Wallet ${embeddedWallets.length + 1}`,
@@ -200,7 +200,7 @@ export default function DemoPanel() {
                         newWallets[0];
                       setSelectedWallet(newWallet);
                       setSelectedWalletAccount(
-                        newWallet.accounts[0] || undefined
+                        newWallet.accounts[0] || undefined,
                       );
                     }}
                     className="relative hover:cursor-pointer flex items-center justify-center gap-2 w-full px-3 py-2 rounded-md text-xs bg-icon-background-light dark:bg-icon-background-dark text-icon-text-light dark:text-icon-text-dark"
@@ -279,7 +279,7 @@ export default function DemoPanel() {
                           account.addressFormat === "ADDRESS_FORMAT_ETHEREUM"
                             ? `https://etherscan.io/address/${account.address}`
                             : `https://solscan.io/account/${account.address}`,
-                          "_blank"
+                          "_blank",
                         );
                       }}
                     >
@@ -338,13 +338,13 @@ export default function DemoPanel() {
                       res.r,
                       res.s,
                       res.v,
-                      selectedWalletAccount.address
+                      selectedWalletAccount.address,
                     )
                   : verifySolSignatureWithAddress(
                       messageToSign,
                       res.r,
                       res.s,
-                      selectedWalletAccount.address
+                      selectedWalletAccount.address,
                     );
               pushPage({
                 key: "Signature verification",
@@ -443,7 +443,7 @@ const StackedImg = ({
             alt={`Wallet Icon ${index}`}
             className={`w-6 h-6 bg-icon-background-light dark:bg-icon-background-dark rounded-full p-0.5 ${index > 0 ? "-ml-3" : ""}`}
           />
-        ) : null
+        ) : null,
       )}
       {connectedWalletIcons.length > 2 && (
         <span className="text-xs text-text-light dark:text-text-dark">

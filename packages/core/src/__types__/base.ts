@@ -466,7 +466,7 @@ export type TWalletManagerConfig = {
 export interface ApiKeyStamperBase {
   listKeyPairs(): Promise<string[]>;
   createKeyPair(
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string }
+    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
   ): Promise<string>;
   deleteKeyPair(publicKeyHex: string): Promise<void>;
   clearKeyPairs(): Promise<void>;
@@ -566,7 +566,7 @@ export interface BaseWalletInterface {
   sign: (
     payload: string,
     provider: WalletProvider,
-    intent: SignIntent
+    intent: SignIntent,
   ) => Promise<string>;
   getPublicKey: (provider: WalletProvider) => Promise<string>;
   getProviders: () => Promise<WalletProvider[]>;
@@ -574,7 +574,7 @@ export interface BaseWalletInterface {
   disconnectWalletAccount: (provider: WalletProvider) => Promise<void>;
   switchChain?: (
     provider: WalletProvider,
-    chainOrId: string | SwitchableChain
+    chainOrId: string | SwitchableChain,
   ) => Promise<void>;
 }
 

@@ -27,7 +27,7 @@ const stampHeaderName = "X-Stamp";
 function convertEcdsaIeee1363ToDer(ieee: Uint8Array): Uint8Array {
   if (ieee.length % 2 != 0 || ieee.length == 0 || ieee.length > 132) {
     throw new Error(
-      "Invalid IEEE P1363 signature encoding. Length: " + ieee.length
+      "Invalid IEEE P1363 signature encoding. Length: " + ieee.length,
     );
   }
   const r = toUnsignedBigNum(ieee.subarray(0, ieee.length / 2));
@@ -101,7 +101,7 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
 
   private async storeKeyPair(
     publicKeyHex: string,
-    privateKey: CryptoKey
+    privateKey: CryptoKey,
   ): Promise<void> {
     const db = await this.openDb();
     return new Promise((resolve, reject) => {
@@ -162,13 +162,13 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
       const keyPair = await crypto.subtle.generateKey(
         { name: "ECDSA", namedCurve: "P-256" },
         false, // Non-extractable private key
-        ["sign", "verify"]
+        ["sign", "verify"],
       );
       privateKey = keyPair.privateKey;
       publicKey = keyPair.publicKey;
     }
     const rawPubKey = new Uint8Array(
-      await crypto.subtle.exportKey("raw", publicKey)
+      await crypto.subtle.exportKey("raw", publicKey),
     );
     const compressedPubKey = pointEncode(rawPubKey);
     const compressedHex = uint8ArrayToHexString(compressedPubKey);
@@ -213,10 +213,10 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
     const signatureIeee1363 = await crypto.subtle.sign(
       { name: "ECDSA", hash: { name: "SHA-256" } },
       privateKey,
-      encodedPayload
+      encodedPayload,
     );
     const signatureDer = convertEcdsaIeee1363ToDer(
-      new Uint8Array(signatureIeee1363)
+      new Uint8Array(signatureIeee1363),
     );
     return uint8ArrayToHexString(signatureDer);
   }

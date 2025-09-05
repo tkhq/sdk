@@ -4,15 +4,15 @@ const path = require("path");
 // Paths
 const swaggerPath = path.resolve(
   __dirname,
-  "../src/__inputs__/public_api.swagger.json"
+  "../src/__inputs__/public_api.swagger.json",
 );
 const typesPath = path.resolve(
   __dirname,
-  "../src/__inputs__/public_api.types.ts"
+  "../src/__inputs__/public_api.types.ts",
 );
 const authProxySwaggerPath = path.resolve(
   __dirname,
-  "../src/__inputs__/auth_proxy.swagger.json"
+  "../src/__inputs__/auth_proxy.swagger.json",
 );
 const outputPath = path.resolve(__dirname, "../src/__generated__/types.ts");
 
@@ -243,7 +243,7 @@ function generateApiTypes(swagger, prefix = "") {
 
     const operationNameWithoutNamespace = operationId.replace(
       new RegExp(`${namespace}_`),
-      `${prefix}T`
+      `${prefix}T`,
     );
     const methodName =
       operationNameWithoutNamespace.charAt(0).toLowerCase() +
@@ -316,7 +316,7 @@ function generateApiTypes(swagger, prefix = "") {
                 const candidate = Object.keys(definitions).find(
                   (k) =>
                     k.startsWith("v1" + baseActivity + "Result") &&
-                    k.endsWith(versionSuffix)
+                    k.endsWith(versionSuffix),
                 );
                 if (candidate) {
                   resultKey = candidate;
@@ -395,7 +395,7 @@ function generateApiTypes(swagger, prefix = "") {
         const isAllOptional =
           METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName);
         const intentTypeName = refToTs(
-          requestTypeDef.properties.parameters.$ref
+          requestTypeDef.properties.parameters.$ref,
         );
         const intentDef = definitions[intentTypeName];
         output += generateInlineProperties(intentDef, isAllOptional);
@@ -409,7 +409,7 @@ function generateApiTypes(swagger, prefix = "") {
           ? requestTypeDef.required
           : [];
         for (const [prop, schema] of Object.entries(
-          requestTypeDef.properties
+          requestTypeDef.properties,
         )) {
           if (prop === "organizationId") continue;
           let type = "any";
@@ -438,7 +438,7 @@ function generateApiTypes(swagger, prefix = "") {
           ? requestTypeDef.required
           : [];
         for (const [prop, schema] of Object.entries(
-          requestTypeDef.properties
+          requestTypeDef.properties,
         )) {
           if (prop === "organizationId") continue;
           let type = "any";
@@ -470,7 +470,7 @@ function generateApiTypes(swagger, prefix = "") {
 function main() {
   const swaggerMain = JSON.parse(fs.readFileSync(swaggerPath, "utf8"));
   const swaggerAuthProxy = JSON.parse(
-    fs.readFileSync(authProxySwaggerPath, "utf8")
+    fs.readFileSync(authProxySwaggerPath, "utf8"),
   );
 
   const typesSrc = fs.readFileSync(typesPath, "utf8");

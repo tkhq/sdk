@@ -82,7 +82,7 @@ export default function AuthPage() {
   const handleVerifyOtp = async (
     otpCode: string,
     contact: string,
-    otpType: OtpType
+    otpType: OtpType,
   ) => {
     const res = await turnkey.completeOtp({
       otpId,
@@ -158,7 +158,7 @@ export default function AuthPage() {
         testnet: true,
       },
       transport: http(
-        `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`
+        `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`,
       ),
     });
 
@@ -292,7 +292,7 @@ export default function AuthPage() {
                   await turnkey.createWallet({
                     walletName: `My Wallet ${new Date().toISOString()}`,
                     accounts: allAddressFormats,
-                  })
+                  }),
                 );
               }}
               style={{
@@ -358,7 +358,7 @@ export default function AuthPage() {
                                 await turnkey.createWalletAccounts({
                                   accounts: ["ADDRESS_FORMAT_ETHEREUM"],
                                   walletId: wallet.walletId,
-                                })
+                                }),
                               );
                             }}
                           >
@@ -377,7 +377,7 @@ export default function AuthPage() {
                                 await turnkey.createWalletAccounts({
                                   accounts: ["ADDRESS_FORMAT_SOLANA"],
                                   walletId: wallet.walletId,
-                                })
+                                }),
                               );
                             }}
                           >
@@ -398,7 +398,7 @@ export default function AuthPage() {
                                     "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH",
                                   ],
                                   walletId: wallet.walletId,
-                                })
+                                }),
                               );
                             }}
                           >
@@ -457,7 +457,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleExportWallet({
                       walletId: activeWallet?.walletId,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -478,7 +478,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleExportWalletAccount({
                       address: activeWalletAccount.address,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -500,7 +500,7 @@ export default function AuthPage() {
                         "ADDRESS_FORMAT_ETHEREUM",
                       ],
                       successPageDuration: 5000,
-                    })
+                    }),
                   )
                 }
                 style={{
@@ -518,7 +518,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleUpdateUserEmail({
                       successPageDuration: 5000,
-                    })
+                    }),
                   )
                 }
                 style={{
@@ -536,7 +536,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleUpdateUserPhoneNumber({
                       successPageDuration: 5000,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -558,7 +558,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleAddEmail({
                       successPageDuration: 5000,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -580,7 +580,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleAddPhoneNumber({
                       successPageDuration: 5000,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -598,7 +598,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleAddPasskey({
                       successPageDuration: 5000,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -621,7 +621,7 @@ export default function AuthPage() {
                     await turnkey.handleRemovePasskey({
                       authenticatorId: user?.authenticators[0]?.authenticatorId,
                       successPageDuration: 5000,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -643,7 +643,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleRemoveUserEmail({
                       successPageDuration: 5000,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -665,7 +665,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleRemoveUserPhoneNumber({
                       successPageDuration: 5000,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -687,7 +687,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleConnectExternalWallet({
                       successPageDuration: 5000,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -775,7 +775,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleAddOauthProvider({
                       providerName: OAuthProviders.GOOGLE,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -793,7 +793,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleAddOauthProvider({
                       providerName: OAuthProviders.APPLE,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -810,7 +810,7 @@ export default function AuthPage() {
                   console.log(
                     await turnkey.handleAddOauthProvider({
                       providerName: OAuthProviders.FACEBOOK,
-                    })
+                    }),
                   );
                 }}
                 style={{
@@ -934,7 +934,7 @@ export default function AuthPage() {
                 console.log(
                   await turnkey.fetchWalletAccounts({
                     wallet: activeWallet,
-                  })
+                  }),
                 );
               }}
               style={{
@@ -1301,7 +1301,7 @@ export default function AuthPage() {
 
                 console.log(
                   "Switching Ethereum chain to mainnet for account:",
-                  activeWalletAccount
+                  activeWalletAccount,
                 );
                 await turnkey.switchWalletAccountChain({
                   walletAccount: activeWalletAccount,
@@ -1327,7 +1327,7 @@ export default function AuthPage() {
                 const polygon = "0x89";
                 console.log(
                   "Switching Ethereum chain to Polygon for account:",
-                  activeWalletAccount
+                  activeWalletAccount,
                 );
                 await turnkey.switchWalletAccountChain({
                   walletAccount: activeWalletAccount,
@@ -1367,7 +1367,7 @@ export default function AuthPage() {
                     fromPubkey: from,
                     toPubkey: from,
                     lamports: 1_000,
-                  })
+                  }),
                 );
 
                 tx.recentBlockhash = "11111111111111111111111111111111";

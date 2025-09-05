@@ -145,7 +145,7 @@ export class TurnkeyError extends Error {
   constructor(
     message: string,
     public code?: TurnkeyErrorCodes,
-    public cause?: unknown
+    public cause?: unknown,
   ) {
     super(message);
     this.name = "TurnkeyError";
@@ -157,7 +157,7 @@ export class TurnkeyNetworkError extends TurnkeyError {
     message: string,
     public statusCode?: number,
     code?: TurnkeyErrorCodes,
-    cause?: unknown
+    cause?: unknown,
   ) {
     super(message, code, cause);
     this.name = "TurnkeyNetworkError";

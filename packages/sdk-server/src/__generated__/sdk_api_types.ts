@@ -75,6 +75,28 @@ export type TGetAuthenticatorsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetBootProofResponse =
+  operations["PublicApiService_GetBootProof"]["responses"]["200"]["schema"];
+
+export type TGetBootProofInput = { body: TGetBootProofBody };
+
+export type TGetBootProofBody = Omit<
+  operations["PublicApiService_GetBootProof"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetLatestBootProofResponse =
+  operations["PublicApiService_GetLatestBootProof"]["responses"]["200"]["schema"];
+
+export type TGetLatestBootProofInput = { body: TGetLatestBootProofBody };
+
+export type TGetLatestBootProofBody = Omit<
+  operations["PublicApiService_GetLatestBootProof"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetOauth2CredentialResponse =
   operations["PublicApiService_GetOauth2Credential"]["responses"]["200"]["schema"];
 
@@ -448,7 +470,7 @@ export type TCreatePrivateKeyTagBody =
     commandOverrideParams;
 
 export type TCreatePrivateKeysResponse =
-  operations["PublicApiService_CreatePrivateKeys"]["responses"]["200"]["schema"]["activity"]["result"]["createPrivateKeysResult"] &
+  operations["PublicApiService_CreatePrivateKeys"]["responses"]["200"]["schema"]["activity"]["result"]["createPrivateKeysResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TCreatePrivateKeysInput = { body: TCreatePrivateKeysBody };
@@ -468,7 +490,7 @@ export type TCreateReadOnlySessionBody =
     commandOverrideParams;
 
 export type TCreateReadWriteSessionResponse =
-  operations["PublicApiService_CreateReadWriteSession"]["responses"]["200"]["schema"]["activity"]["result"]["createReadWriteSessionResult"] &
+  operations["PublicApiService_CreateReadWriteSession"]["responses"]["200"]["schema"]["activity"]["result"]["createReadWriteSessionResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateReadWriteSessionInput = {
@@ -492,7 +514,7 @@ export type TCreateSmartContractInterfaceBody =
     commandOverrideParams;
 
 export type TCreateSubOrganizationResponse =
-  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResult"] &
+  operations["PublicApiService_CreateSubOrganization"]["responses"]["200"]["schema"]["activity"]["result"]["createSubOrganizationResultV7"] &
     definitions["v1ActivityResponse"];
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
@@ -776,7 +798,7 @@ export type TInitOtpBody =
     commandOverrideParams;
 
 export type TInitOtpAuthResponse =
-  operations["PublicApiService_InitOtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpAuthResult"] &
+  operations["PublicApiService_InitOtpAuth"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpAuthResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TInitOtpAuthInput = { body: TInitOtpAuthBody };
@@ -942,7 +964,7 @@ export type TUpdateOauth2CredentialBody =
     commandOverrideParams;
 
 export type TUpdatePolicyResponse =
-  operations["PublicApiService_UpdatePolicy"]["responses"]["200"]["schema"]["activity"]["result"]["updatePolicyResult"] &
+  operations["PublicApiService_UpdatePolicy"]["responses"]["200"]["schema"]["activity"]["result"]["updatePolicyResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TUpdatePolicyInput = { body: TUpdatePolicyBody };

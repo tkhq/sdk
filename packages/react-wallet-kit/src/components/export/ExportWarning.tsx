@@ -89,12 +89,12 @@ export function ExportWarning(props: {
                 if (!exportBundle) {
                   throw new TurnkeyError(
                     "Failed to retrieve export bundle",
-                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR
+                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
                   );
                 }
                 await exportIframeClient?.injectWalletExportBundle(
                   exportBundle,
-                  session?.organizationId!
+                  session?.organizationId!,
                 );
                 break;
               case ExportType.PrivateKey:
@@ -107,13 +107,13 @@ export function ExportWarning(props: {
                 if (!exportBundle) {
                   throw new TurnkeyError(
                     "Failed to retrieve export bundle",
-                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR
+                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
                   );
                 }
                 await exportIframeClient?.injectKeyExportBundle(
                   exportBundle,
                   session?.organizationId!,
-                  keyFormat
+                  keyFormat,
                 );
                 break;
               case ExportType.WalletAccount:
@@ -126,19 +126,19 @@ export function ExportWarning(props: {
                 if (!exportBundle) {
                   throw new TurnkeyError(
                     "Failed to retrieve export bundle",
-                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR
+                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
                   );
                 }
                 await exportIframeClient?.injectKeyExportBundle(
                   exportBundle,
                   session?.organizationId!,
-                  keyFormat
+                  keyFormat,
                 );
                 break;
               default:
                 throw new TurnkeyError(
                   "Invalid export type",
-                  TurnkeyErrorCodes.EXPORT_WALLET_ERROR
+                  TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
                 );
             }
             if (props.setExportIframeVisible) {
@@ -148,7 +148,7 @@ export function ExportWarning(props: {
             throw new TurnkeyError(
               `Error exporting wallet`,
               TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
-              error
+              error,
             );
           } finally {
             setIsLoading(false);

@@ -39,7 +39,7 @@ export function ExportComponent(params: {
   if (!config) {
     throw new TurnkeyError(
       "Turnkey SDK is not properly configured. Please check your configuration.",
-      TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED
+      TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
     );
   }
 
@@ -52,7 +52,7 @@ export function ExportComponent(params: {
   if (!exportIframeUrl) {
     throw new TurnkeyError(
       "Export iframe URL is not configured. Please set it in the Turnkey configuration.",
-      TurnkeyErrorCodes.NOT_FOUND
+      TurnkeyErrorCodes.NOT_FOUND,
     );
   }
 
@@ -66,7 +66,7 @@ export function ExportComponent(params: {
           iframeUrl: exportIframeUrl,
           iframeElementId: TurnkeyIframeElementId,
           iframeContainer: document.getElementById(
-            TurnkeyExportIframeContainerId
+            TurnkeyExportIframeContainerId,
           ),
         });
         await newExportIframeClient.init();
@@ -87,7 +87,7 @@ export function ExportComponent(params: {
         throw new TurnkeyError(
           `Error initializing IframeStamper`,
           TurnkeyErrorCodes.INITIALIZE_IFRAME_ERROR,
-          error
+          error,
         );
       }
     };
@@ -138,7 +138,7 @@ export function ExportComponent(params: {
     <div
       className={clsx(
         "flex flex-col items-center pt-8",
-        isMobile ? "w-full" : "w-72"
+        isMobile ? "w-full" : "w-72",
       )}
     >
       {!exportIframeVisible && (

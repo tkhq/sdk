@@ -32,7 +32,7 @@ export default function DeleteSubOrgWarning() {
   };
 
   const unExportedWallets = wallets.filter(
-    (wallet) => !wallet.exported && wallet.source !== WalletSource.Connected
+    (wallet) => !wallet.exported && wallet.source !== WalletSource.Connected,
   );
 
   return (

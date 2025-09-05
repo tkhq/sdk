@@ -70,7 +70,7 @@ export class TurnkeySDKClientBase {
   async request<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TResponseType> {
     const fullUrl = this.config.apiBaseUrl + url;
     const stringifiedBody = JSON.stringify(body);
@@ -112,7 +112,7 @@ export class TurnkeySDKClientBase {
     url: string,
     body: TBodyType,
     resultKey: string,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TResponseType> {
     const pollingDuration = this.config.activityPoller?.intervalMs ?? 1000;
     const maxRetries = this.config.activityPoller?.numRetries ?? 3;
@@ -140,7 +140,7 @@ export class TurnkeySDKClientBase {
       // Pass the stampWith parameter to getActivity
       const pollData = (await this.getActivity(
         pollBody,
-        stampWith
+        stampWith,
       )) as TActivityResponse;
 
       if (attempts > maxRetries) {
@@ -151,7 +151,7 @@ export class TurnkeySDKClientBase {
 
       if (
         !TERMINAL_ACTIVITY_STATUSES.includes(
-          pollData.activity.status as TActivityStatus
+          pollData.activity.status as TActivityStatus,
         )
       ) {
         await sleep(pollingDuration);
@@ -165,12 +165,12 @@ export class TurnkeySDKClientBase {
     const responseData = (await this.request<TBodyType, TResponseType>(
       url,
       body,
-      stampWith
+      stampWith,
     )) as TActivityResponse;
 
     if (
       !TERMINAL_ACTIVITY_STATUSES.includes(
-        responseData.activity.status as TActivityStatus
+        responseData.activity.status as TActivityStatus,
       )
     ) {
       return pollStatus(responseData.activity.id);
@@ -182,13 +182,13 @@ export class TurnkeySDKClientBase {
   async activityDecision<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TResponseType> {
     // Use the specified stamper for this request
     const activityData = (await this.request(
       url,
       body,
-      stampWith
+      stampWith,
     )) as TActivityResponse;
 
     return {
@@ -199,12 +199,12 @@ export class TurnkeySDKClientBase {
 
   async authProxyRequest<TBodyType, TResponseType>(
     url: string,
-    body: TBodyType
+    body: TBodyType,
   ): Promise<TResponseType> {
     if (!this.config.authProxyUrl || !this.config.authProxyConfigId) {
       throw new TurnkeyError(
         "Auth Proxy URL or ID is not configured.",
-        TurnkeyErrorCodes.INVALID_CONFIGURATION
+        TurnkeyErrorCodes.INVALID_CONFIGURATION,
       );
     }
     const fullUrl = this.config.authProxyUrl + url;
@@ -237,7 +237,7 @@ export class TurnkeySDKClientBase {
 
   getActivity = async (
     input: SdkTypes.TGetActivityBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetActivityResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -249,13 +249,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetActivity = async (
     input: SdkTypes.TGetActivityBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -282,7 +282,7 @@ export class TurnkeySDKClientBase {
 
   getApiKey = async (
     input: SdkTypes.TGetApiKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetApiKeyResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -294,13 +294,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetApiKey = async (
     input: SdkTypes.TGetApiKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -327,7 +327,7 @@ export class TurnkeySDKClientBase {
 
   getApiKeys = async (
     input: SdkTypes.TGetApiKeysBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetApiKeysResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -339,13 +339,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetApiKeys = async (
     input: SdkTypes.TGetApiKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -372,7 +372,7 @@ export class TurnkeySDKClientBase {
 
   getAttestationDocument = async (
     input: SdkTypes.TGetAttestationDocumentBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetAttestationDocumentResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -384,13 +384,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetAttestationDocument = async (
     input: SdkTypes.TGetAttestationDocumentBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -417,7 +417,7 @@ export class TurnkeySDKClientBase {
 
   getAuthenticator = async (
     input: SdkTypes.TGetAuthenticatorBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetAuthenticatorResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -429,13 +429,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetAuthenticator = async (
     input: SdkTypes.TGetAuthenticatorBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -463,7 +463,7 @@ export class TurnkeySDKClientBase {
 
   getAuthenticators = async (
     input: SdkTypes.TGetAuthenticatorsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetAuthenticatorsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -475,13 +475,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetAuthenticators = async (
     input: SdkTypes.TGetAuthenticatorsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -507,9 +507,100 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getBootProof = async (
+    input: SdkTypes.TGetBootProofBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetBootProofResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_boot_proof",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetBootProof = async (
+    input: SdkTypes.TGetBootProofBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_boot_proof";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_BOOT_PROOF",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getLatestBootProof = async (
+    input: SdkTypes.TGetLatestBootProofBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetLatestBootProofResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_latest_boot_proof",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetLatestBootProof = async (
+    input: SdkTypes.TGetLatestBootProofBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_LATEST_BOOT_PROOF",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getOauth2Credential = async (
     input: SdkTypes.TGetOauth2CredentialBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetOauth2CredentialResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -521,13 +612,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetOauth2Credential = async (
     input: SdkTypes.TGetOauth2CredentialBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -555,7 +646,7 @@ export class TurnkeySDKClientBase {
 
   getOauthProviders = async (
     input: SdkTypes.TGetOauthProvidersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetOauthProvidersResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -567,13 +658,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetOauthProviders = async (
     input: SdkTypes.TGetOauthProvidersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -601,7 +692,7 @@ export class TurnkeySDKClientBase {
 
   getOrganization = async (
     input: SdkTypes.TGetOrganizationBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetOrganizationResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -613,13 +704,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetOrganization = async (
     input: SdkTypes.TGetOrganizationBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -647,7 +738,7 @@ export class TurnkeySDKClientBase {
 
   getOrganizationConfigs = async (
     input: SdkTypes.TGetOrganizationConfigsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetOrganizationConfigsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -659,13 +750,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetOrganizationConfigs = async (
     input: SdkTypes.TGetOrganizationConfigsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -693,7 +784,7 @@ export class TurnkeySDKClientBase {
 
   getPolicy = async (
     input: SdkTypes.TGetPolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetPolicyResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -705,13 +796,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetPolicy = async (
     input: SdkTypes.TGetPolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -738,7 +829,7 @@ export class TurnkeySDKClientBase {
 
   getPolicyEvaluations = async (
     input: SdkTypes.TGetPolicyEvaluationsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetPolicyEvaluationsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -750,13 +841,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetPolicyEvaluations = async (
     input: SdkTypes.TGetPolicyEvaluationsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -784,7 +875,7 @@ export class TurnkeySDKClientBase {
 
   getPrivateKey = async (
     input: SdkTypes.TGetPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetPrivateKeyResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -796,13 +887,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetPrivateKey = async (
     input: SdkTypes.TGetPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -829,7 +920,7 @@ export class TurnkeySDKClientBase {
 
   getSmartContractInterface = async (
     input: SdkTypes.TGetSmartContractInterfaceBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetSmartContractInterfaceResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -841,13 +932,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetSmartContractInterface = async (
     input: SdkTypes.TGetSmartContractInterfaceBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -875,7 +966,7 @@ export class TurnkeySDKClientBase {
 
   getUser = async (
     input: SdkTypes.TGetUserBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetUserResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -887,13 +978,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetUser = async (
     input: SdkTypes.TGetUserBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -920,7 +1011,7 @@ export class TurnkeySDKClientBase {
 
   getWallet = async (
     input: SdkTypes.TGetWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetWalletResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -932,13 +1023,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetWallet = async (
     input: SdkTypes.TGetWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -965,7 +1056,7 @@ export class TurnkeySDKClientBase {
 
   getWalletAccount = async (
     input: SdkTypes.TGetWalletAccountBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetWalletAccountResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -977,13 +1068,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetWalletAccount = async (
     input: SdkTypes.TGetWalletAccountBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1011,7 +1102,7 @@ export class TurnkeySDKClientBase {
 
   getActivities = async (
     input: SdkTypes.TGetActivitiesBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetActivitiesResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1023,13 +1114,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetActivities = async (
     input: SdkTypes.TGetActivitiesBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1056,7 +1147,7 @@ export class TurnkeySDKClientBase {
 
   listOauth2Credentials = async (
     input: SdkTypes.TListOauth2CredentialsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TListOauth2CredentialsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1068,13 +1159,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampListOauth2Credentials = async (
     input: SdkTypes.TListOauth2CredentialsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1102,7 +1193,7 @@ export class TurnkeySDKClientBase {
 
   getPolicies = async (
     input: SdkTypes.TGetPoliciesBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetPoliciesResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1114,13 +1205,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetPolicies = async (
     input: SdkTypes.TGetPoliciesBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1147,7 +1238,7 @@ export class TurnkeySDKClientBase {
 
   listPrivateKeyTags = async (
     input: SdkTypes.TListPrivateKeyTagsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TListPrivateKeyTagsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1159,13 +1250,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampListPrivateKeyTags = async (
     input: SdkTypes.TListPrivateKeyTagsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1193,7 +1284,7 @@ export class TurnkeySDKClientBase {
 
   getPrivateKeys = async (
     input: SdkTypes.TGetPrivateKeysBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetPrivateKeysResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1205,13 +1296,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetPrivateKeys = async (
     input: SdkTypes.TGetPrivateKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1239,7 +1330,7 @@ export class TurnkeySDKClientBase {
 
   getSmartContractInterfaces = async (
     input: SdkTypes.TGetSmartContractInterfacesBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetSmartContractInterfacesResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1251,13 +1342,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetSmartContractInterfaces = async (
     input: SdkTypes.TGetSmartContractInterfacesBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1286,7 +1377,7 @@ export class TurnkeySDKClientBase {
 
   getSubOrgIds = async (
     input: SdkTypes.TGetSubOrgIdsBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetSubOrgIdsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1298,13 +1389,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetSubOrgIds = async (
     input: SdkTypes.TGetSubOrgIdsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1331,7 +1422,7 @@ export class TurnkeySDKClientBase {
 
   listUserTags = async (
     input: SdkTypes.TListUserTagsBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TListUserTagsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1343,13 +1434,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampListUserTags = async (
     input: SdkTypes.TListUserTagsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1376,7 +1467,7 @@ export class TurnkeySDKClientBase {
 
   getUsers = async (
     input: SdkTypes.TGetUsersBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetUsersResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1388,13 +1479,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetUsers = async (
     input: SdkTypes.TGetUsersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1421,7 +1512,7 @@ export class TurnkeySDKClientBase {
 
   getVerifiedSubOrgIds = async (
     input: SdkTypes.TGetVerifiedSubOrgIdsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetVerifiedSubOrgIdsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1433,13 +1524,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetVerifiedSubOrgIds = async (
     input: SdkTypes.TGetVerifiedSubOrgIdsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1467,7 +1558,7 @@ export class TurnkeySDKClientBase {
 
   getWalletAccounts = async (
     input: SdkTypes.TGetWalletAccountsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetWalletAccountsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1479,13 +1570,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetWalletAccounts = async (
     input: SdkTypes.TGetWalletAccountsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1513,7 +1604,7 @@ export class TurnkeySDKClientBase {
 
   getWallets = async (
     input: SdkTypes.TGetWalletsBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetWalletsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1525,13 +1616,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetWallets = async (
     input: SdkTypes.TGetWalletsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1558,7 +1649,7 @@ export class TurnkeySDKClientBase {
 
   getWhoami = async (
     input: SdkTypes.TGetWhoamiBody = {},
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TGetWhoamiResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -1570,13 +1661,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampGetWhoami = async (
     input: SdkTypes.TGetWhoamiBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1603,7 +1694,7 @@ export class TurnkeySDKClientBase {
 
   approveActivity = async (
     input: SdkTypes.TApproveActivityBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TApproveActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -1618,13 +1709,13 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_APPROVE_ACTIVITY",
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampApproveActivity = async (
     input: SdkTypes.TApproveActivityBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1653,7 +1744,7 @@ export class TurnkeySDKClientBase {
 
   createApiKeys = async (
     input: SdkTypes.TCreateApiKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -1670,13 +1761,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
       },
       "createApiKeysResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateApiKeys = async (
     input: SdkTypes.TCreateApiKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1705,7 +1796,7 @@ export class TurnkeySDKClientBase {
 
   createApiOnlyUsers = async (
     input: SdkTypes.TCreateApiOnlyUsersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateApiOnlyUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -1722,13 +1813,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
       },
       "createApiOnlyUsersResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateApiOnlyUsers = async (
     input: SdkTypes.TCreateApiOnlyUsersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1757,7 +1848,7 @@ export class TurnkeySDKClientBase {
 
   createAuthenticators = async (
     input: SdkTypes.TCreateAuthenticatorsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -1774,13 +1865,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
       },
       "createAuthenticatorsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateAuthenticators = async (
     input: SdkTypes.TCreateAuthenticatorsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1809,7 +1900,7 @@ export class TurnkeySDKClientBase {
 
   createInvitations = async (
     input: SdkTypes.TCreateInvitationsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateInvitationsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -1826,13 +1917,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_INVITATIONS",
       },
       "createInvitationsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateInvitations = async (
     input: SdkTypes.TCreateInvitationsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1861,7 +1952,7 @@ export class TurnkeySDKClientBase {
 
   createOauth2Credential = async (
     input: SdkTypes.TCreateOauth2CredentialBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateOauth2CredentialResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -1878,13 +1969,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_OAUTH2CREDENTIAL",
       },
       "createOauth2CredentialResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateOauth2Credential = async (
     input: SdkTypes.TCreateOauth2CredentialBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1913,7 +2004,7 @@ export class TurnkeySDKClientBase {
 
   createOauthProviders = async (
     input: SdkTypes.TCreateOauthProvidersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -1930,13 +2021,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
       },
       "createOauthProvidersResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateOauthProviders = async (
     input: SdkTypes.TCreateOauthProvidersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -1965,7 +2056,7 @@ export class TurnkeySDKClientBase {
 
   createPolicies = async (
     input: SdkTypes.TCreatePoliciesBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePoliciesResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -1982,13 +2073,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_POLICIES",
       },
       "createPoliciesResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreatePolicies = async (
     input: SdkTypes.TCreatePoliciesBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2017,7 +2108,7 @@ export class TurnkeySDKClientBase {
 
   createPolicy = async (
     input: SdkTypes.TCreatePolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2034,13 +2125,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
       },
       "createPolicyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreatePolicy = async (
     input: SdkTypes.TCreatePolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2068,7 +2159,7 @@ export class TurnkeySDKClientBase {
 
   createPrivateKeyTag = async (
     input: SdkTypes.TCreatePrivateKeyTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2085,13 +2176,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
       },
       "createPrivateKeyTagResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreatePrivateKeyTag = async (
     input: SdkTypes.TCreatePrivateKeyTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2120,7 +2211,7 @@ export class TurnkeySDKClientBase {
 
   createPrivateKeys = async (
     input: SdkTypes.TCreatePrivateKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreatePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2137,13 +2228,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
       "createPrivateKeysResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreatePrivateKeys = async (
     input: SdkTypes.TCreatePrivateKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2172,7 +2263,7 @@ export class TurnkeySDKClientBase {
 
   createReadOnlySession = async (
     input: SdkTypes.TCreateReadOnlySessionBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateReadOnlySessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2189,13 +2280,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
       },
       "createReadOnlySessionResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateReadOnlySession = async (
     input: SdkTypes.TCreateReadOnlySessionBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2224,7 +2315,7 @@ export class TurnkeySDKClientBase {
 
   createReadWriteSession = async (
     input: SdkTypes.TCreateReadWriteSessionBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateReadWriteSessionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2241,13 +2332,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
       "createReadWriteSessionResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateReadWriteSession = async (
     input: SdkTypes.TCreateReadWriteSessionBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2276,7 +2367,7 @@ export class TurnkeySDKClientBase {
 
   createSmartContractInterface = async (
     input: SdkTypes.TCreateSmartContractInterfaceBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateSmartContractInterfaceResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2293,13 +2384,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
       },
       "createSmartContractInterfaceResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateSmartContractInterface = async (
     input: SdkTypes.TCreateSmartContractInterfaceBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2329,7 +2420,7 @@ export class TurnkeySDKClientBase {
 
   createSubOrganization = async (
     input: SdkTypes.TCreateSubOrganizationBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2346,13 +2437,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
       },
       "createSubOrganizationResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateSubOrganization = async (
     input: SdkTypes.TCreateSubOrganizationBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2381,7 +2472,7 @@ export class TurnkeySDKClientBase {
 
   createUserTag = async (
     input: SdkTypes.TCreateUserTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2398,13 +2489,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_USER_TAG",
       },
       "createUserTagResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateUserTag = async (
     input: SdkTypes.TCreateUserTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2433,7 +2524,7 @@ export class TurnkeySDKClientBase {
 
   createUsers = async (
     input: SdkTypes.TCreateUsersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2450,13 +2541,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_USERS_V3",
       },
       "createUsersResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateUsers = async (
     input: SdkTypes.TCreateUsersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2484,7 +2575,7 @@ export class TurnkeySDKClientBase {
 
   createWallet = async (
     input: SdkTypes.TCreateWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2501,13 +2592,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_WALLET",
       },
       "createWalletResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateWallet = async (
     input: SdkTypes.TCreateWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2535,7 +2626,7 @@ export class TurnkeySDKClientBase {
 
   createWalletAccounts = async (
     input: SdkTypes.TCreateWalletAccountsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TCreateWalletAccountsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2552,13 +2643,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
       },
       "createWalletAccountsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampCreateWalletAccounts = async (
     input: SdkTypes.TCreateWalletAccountsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2587,7 +2678,7 @@ export class TurnkeySDKClientBase {
 
   deleteApiKeys = async (
     input: SdkTypes.TDeleteApiKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteApiKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2604,13 +2695,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_API_KEYS",
       },
       "deleteApiKeysResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteApiKeys = async (
     input: SdkTypes.TDeleteApiKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2639,7 +2730,7 @@ export class TurnkeySDKClientBase {
 
   deleteAuthenticators = async (
     input: SdkTypes.TDeleteAuthenticatorsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteAuthenticatorsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2656,13 +2747,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
       },
       "deleteAuthenticatorsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteAuthenticators = async (
     input: SdkTypes.TDeleteAuthenticatorsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2691,7 +2782,7 @@ export class TurnkeySDKClientBase {
 
   deleteInvitation = async (
     input: SdkTypes.TDeleteInvitationBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteInvitationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2708,13 +2799,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_INVITATION",
       },
       "deleteInvitationResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteInvitation = async (
     input: SdkTypes.TDeleteInvitationBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2743,7 +2834,7 @@ export class TurnkeySDKClientBase {
 
   deleteOauth2Credential = async (
     input: SdkTypes.TDeleteOauth2CredentialBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteOauth2CredentialResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2760,13 +2851,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_OAUTH2CREDENTIAL",
       },
       "deleteOauth2CredentialResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteOauth2Credential = async (
     input: SdkTypes.TDeleteOauth2CredentialBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2795,7 +2886,7 @@ export class TurnkeySDKClientBase {
 
   deleteOauthProviders = async (
     input: SdkTypes.TDeleteOauthProvidersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteOauthProvidersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2812,13 +2903,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
       },
       "deleteOauthProvidersResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteOauthProviders = async (
     input: SdkTypes.TDeleteOauthProvidersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2847,7 +2938,7 @@ export class TurnkeySDKClientBase {
 
   deletePolicy = async (
     input: SdkTypes.TDeletePolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeletePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2864,13 +2955,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_POLICY",
       },
       "deletePolicyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeletePolicy = async (
     input: SdkTypes.TDeletePolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2898,7 +2989,7 @@ export class TurnkeySDKClientBase {
 
   deletePrivateKeyTags = async (
     input: SdkTypes.TDeletePrivateKeyTagsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeletePrivateKeyTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2915,13 +3006,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
       },
       "deletePrivateKeyTagsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeletePrivateKeyTags = async (
     input: SdkTypes.TDeletePrivateKeyTagsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -2950,7 +3041,7 @@ export class TurnkeySDKClientBase {
 
   deletePrivateKeys = async (
     input: SdkTypes.TDeletePrivateKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeletePrivateKeysResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -2967,13 +3058,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
       },
       "deletePrivateKeysResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeletePrivateKeys = async (
     input: SdkTypes.TDeletePrivateKeysBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3002,7 +3093,7 @@ export class TurnkeySDKClientBase {
 
   deleteSmartContractInterface = async (
     input: SdkTypes.TDeleteSmartContractInterfaceBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteSmartContractInterfaceResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3019,13 +3110,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
       },
       "deleteSmartContractInterfaceResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteSmartContractInterface = async (
     input: SdkTypes.TDeleteSmartContractInterfaceBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3055,7 +3146,7 @@ export class TurnkeySDKClientBase {
 
   deleteSubOrganization = async (
     input: SdkTypes.TDeleteSubOrganizationBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteSubOrganizationResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3072,13 +3163,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
       },
       "deleteSubOrganizationResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteSubOrganization = async (
     input: SdkTypes.TDeleteSubOrganizationBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3107,7 +3198,7 @@ export class TurnkeySDKClientBase {
 
   deleteUserTags = async (
     input: SdkTypes.TDeleteUserTagsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteUserTagsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3124,13 +3215,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_USER_TAGS",
       },
       "deleteUserTagsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteUserTags = async (
     input: SdkTypes.TDeleteUserTagsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3159,7 +3250,7 @@ export class TurnkeySDKClientBase {
 
   deleteUsers = async (
     input: SdkTypes.TDeleteUsersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteUsersResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3176,13 +3267,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_USERS",
       },
       "deleteUsersResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteUsers = async (
     input: SdkTypes.TDeleteUsersBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3210,7 +3301,7 @@ export class TurnkeySDKClientBase {
 
   deleteWallets = async (
     input: SdkTypes.TDeleteWalletsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TDeleteWalletsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3227,13 +3318,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_DELETE_WALLETS",
       },
       "deleteWalletsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampDeleteWallets = async (
     input: SdkTypes.TDeleteWalletsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3261,7 +3352,7 @@ export class TurnkeySDKClientBase {
 
   emailAuth = async (
     input: SdkTypes.TEmailAuthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TEmailAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3278,13 +3369,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
       },
       "emailAuthResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampEmailAuth = async (
     input: SdkTypes.TEmailAuthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3312,7 +3403,7 @@ export class TurnkeySDKClientBase {
 
   exportPrivateKey = async (
     input: SdkTypes.TExportPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TExportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3329,13 +3420,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY",
       },
       "exportPrivateKeyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampExportPrivateKey = async (
     input: SdkTypes.TExportPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3364,7 +3455,7 @@ export class TurnkeySDKClientBase {
 
   exportWallet = async (
     input: SdkTypes.TExportWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TExportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3381,13 +3472,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_EXPORT_WALLET",
       },
       "exportWalletResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampExportWallet = async (
     input: SdkTypes.TExportWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3415,7 +3506,7 @@ export class TurnkeySDKClientBase {
 
   exportWalletAccount = async (
     input: SdkTypes.TExportWalletAccountBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TExportWalletAccountResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3432,13 +3523,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
       },
       "exportWalletAccountResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampExportWalletAccount = async (
     input: SdkTypes.TExportWalletAccountBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3467,7 +3558,7 @@ export class TurnkeySDKClientBase {
 
   importPrivateKey = async (
     input: SdkTypes.TImportPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3484,13 +3575,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
       },
       "importPrivateKeyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampImportPrivateKey = async (
     input: SdkTypes.TImportPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3519,7 +3610,7 @@ export class TurnkeySDKClientBase {
 
   importWallet = async (
     input: SdkTypes.TImportWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3536,13 +3627,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_IMPORT_WALLET",
       },
       "importWalletResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampImportWallet = async (
     input: SdkTypes.TImportWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3570,7 +3661,7 @@ export class TurnkeySDKClientBase {
 
   initFiatOnRamp = async (
     input: SdkTypes.TInitFiatOnRampBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TInitFiatOnRampResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3587,13 +3678,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
       },
       "initFiatOnRampResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitFiatOnRamp = async (
     input: SdkTypes.TInitFiatOnRampBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3622,7 +3713,7 @@ export class TurnkeySDKClientBase {
 
   initImportPrivateKey = async (
     input: SdkTypes.TInitImportPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TInitImportPrivateKeyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3639,13 +3730,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
       },
       "initImportPrivateKeyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitImportPrivateKey = async (
     input: SdkTypes.TInitImportPrivateKeyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3674,7 +3765,7 @@ export class TurnkeySDKClientBase {
 
   initImportWallet = async (
     input: SdkTypes.TInitImportWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TInitImportWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3691,13 +3782,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
       },
       "initImportWalletResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitImportWallet = async (
     input: SdkTypes.TInitImportWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3726,7 +3817,7 @@ export class TurnkeySDKClientBase {
 
   initOtp = async (
     input: SdkTypes.TInitOtpBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TInitOtpResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3743,13 +3834,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_OTP",
       },
       "initOtpResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitOtp = async (
     input: SdkTypes.TInitOtpBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3777,7 +3868,7 @@ export class TurnkeySDKClientBase {
 
   initOtpAuth = async (
     input: SdkTypes.TInitOtpAuthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TInitOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3794,13 +3885,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
       },
       "initOtpAuthResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitOtpAuth = async (
     input: SdkTypes.TInitOtpAuthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3828,7 +3919,7 @@ export class TurnkeySDKClientBase {
 
   initUserEmailRecovery = async (
     input: SdkTypes.TInitUserEmailRecoveryBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TInitUserEmailRecoveryResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3845,13 +3936,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
       },
       "initUserEmailRecoveryResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampInitUserEmailRecovery = async (
     input: SdkTypes.TInitUserEmailRecoveryBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3880,7 +3971,7 @@ export class TurnkeySDKClientBase {
 
   oauth = async (
     input: SdkTypes.TOauthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TOauthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3897,13 +3988,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OAUTH",
       },
       "oauthResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampOauth = async (
     input: SdkTypes.TOauthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3931,7 +4022,7 @@ export class TurnkeySDKClientBase {
 
   oauth2Authenticate = async (
     input: SdkTypes.TOauth2AuthenticateBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TOauth2AuthenticateResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -3948,13 +4039,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OAUTH2AUTHENTICATE",
       },
       "oauth2AuthenticateResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampOauth2Authenticate = async (
     input: SdkTypes.TOauth2AuthenticateBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -3983,7 +4074,7 @@ export class TurnkeySDKClientBase {
 
   oauthLogin = async (
     input: SdkTypes.TOauthLoginBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TOauthLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4000,13 +4091,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OAUTH_LOGIN",
       },
       "oauthLoginResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampOauthLogin = async (
     input: SdkTypes.TOauthLoginBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4034,7 +4125,7 @@ export class TurnkeySDKClientBase {
 
   otpAuth = async (
     input: SdkTypes.TOtpAuthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TOtpAuthResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4051,13 +4142,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OTP_AUTH",
       },
       "otpAuthResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampOtpAuth = async (
     input: SdkTypes.TOtpAuthBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4085,7 +4176,7 @@ export class TurnkeySDKClientBase {
 
   otpLogin = async (
     input: SdkTypes.TOtpLoginBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TOtpLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4102,13 +4193,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_OTP_LOGIN",
       },
       "otpLoginResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampOtpLogin = async (
     input: SdkTypes.TOtpLoginBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4136,7 +4227,7 @@ export class TurnkeySDKClientBase {
 
   recoverUser = async (
     input: SdkTypes.TRecoverUserBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TRecoverUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4153,13 +4244,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_RECOVER_USER",
       },
       "recoverUserResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampRecoverUser = async (
     input: SdkTypes.TRecoverUserBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4187,7 +4278,7 @@ export class TurnkeySDKClientBase {
 
   rejectActivity = async (
     input: SdkTypes.TRejectActivityBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TRejectActivityResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4202,13 +4293,13 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_REJECT_ACTIVITY",
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampRejectActivity = async (
     input: SdkTypes.TRejectActivityBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4237,7 +4328,7 @@ export class TurnkeySDKClientBase {
 
   removeOrganizationFeature = async (
     input: SdkTypes.TRemoveOrganizationFeatureBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TRemoveOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4254,13 +4345,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
       },
       "removeOrganizationFeatureResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampRemoveOrganizationFeature = async (
     input: SdkTypes.TRemoveOrganizationFeatureBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4289,7 +4380,7 @@ export class TurnkeySDKClientBase {
 
   setOrganizationFeature = async (
     input: SdkTypes.TSetOrganizationFeatureBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TSetOrganizationFeatureResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4306,13 +4397,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
       },
       "setOrganizationFeatureResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampSetOrganizationFeature = async (
     input: SdkTypes.TSetOrganizationFeatureBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4341,7 +4432,7 @@ export class TurnkeySDKClientBase {
 
   signRawPayload = async (
     input: SdkTypes.TSignRawPayloadBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TSignRawPayloadResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4358,13 +4449,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
       },
       "signRawPayloadResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampSignRawPayload = async (
     input: SdkTypes.TSignRawPayloadBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4393,7 +4484,7 @@ export class TurnkeySDKClientBase {
 
   signRawPayloads = async (
     input: SdkTypes.TSignRawPayloadsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TSignRawPayloadsResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4410,13 +4501,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
       },
       "signRawPayloadsResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampSignRawPayloads = async (
     input: SdkTypes.TSignRawPayloadsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4445,7 +4536,7 @@ export class TurnkeySDKClientBase {
 
   signTransaction = async (
     input: SdkTypes.TSignTransactionBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TSignTransactionResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4462,13 +4553,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
       },
       "signTransactionResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampSignTransaction = async (
     input: SdkTypes.TSignTransactionBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4497,7 +4588,7 @@ export class TurnkeySDKClientBase {
 
   stampLogin = async (
     input: SdkTypes.TStampLoginBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TStampLoginResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4514,13 +4605,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_STAMP_LOGIN",
       },
       "stampLoginResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampStampLogin = async (
     input: SdkTypes.TStampLoginBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4548,7 +4639,7 @@ export class TurnkeySDKClientBase {
 
   updateOauth2Credential = async (
     input: SdkTypes.TUpdateOauth2CredentialBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateOauth2CredentialResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4565,13 +4656,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_OAUTH2CREDENTIAL",
       },
       "updateOauth2CredentialResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateOauth2Credential = async (
     input: SdkTypes.TUpdateOauth2CredentialBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4600,7 +4691,7 @@ export class TurnkeySDKClientBase {
 
   updatePolicy = async (
     input: SdkTypes.TUpdatePolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdatePolicyResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4617,13 +4708,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
       },
       "updatePolicyResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdatePolicy = async (
     input: SdkTypes.TUpdatePolicyBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4651,7 +4742,7 @@ export class TurnkeySDKClientBase {
 
   updatePrivateKeyTag = async (
     input: SdkTypes.TUpdatePrivateKeyTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdatePrivateKeyTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4668,13 +4759,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG",
       },
       "updatePrivateKeyTagResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdatePrivateKeyTag = async (
     input: SdkTypes.TUpdatePrivateKeyTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4703,7 +4794,7 @@ export class TurnkeySDKClientBase {
 
   updateRootQuorum = async (
     input: SdkTypes.TUpdateRootQuorumBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateRootQuorumResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4720,13 +4811,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
       },
       "updateRootQuorumResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateRootQuorum = async (
     input: SdkTypes.TUpdateRootQuorumBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4755,7 +4846,7 @@ export class TurnkeySDKClientBase {
 
   updateUser = async (
     input: SdkTypes.TUpdateUserBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4772,13 +4863,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_USER",
       },
       "updateUserResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateUser = async (
     input: SdkTypes.TUpdateUserBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4806,7 +4897,7 @@ export class TurnkeySDKClientBase {
 
   updateUserEmail = async (
     input: SdkTypes.TUpdateUserEmailBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserEmailResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4823,13 +4914,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL",
       },
       "updateUserEmailResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateUserEmail = async (
     input: SdkTypes.TUpdateUserEmailBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4858,7 +4949,7 @@ export class TurnkeySDKClientBase {
 
   updateUserName = async (
     input: SdkTypes.TUpdateUserNameBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserNameResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4875,13 +4966,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_USER_NAME",
       },
       "updateUserNameResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateUserName = async (
     input: SdkTypes.TUpdateUserNameBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4910,7 +5001,7 @@ export class TurnkeySDKClientBase {
 
   updateUserPhoneNumber = async (
     input: SdkTypes.TUpdateUserPhoneNumberBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserPhoneNumberResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4927,13 +5018,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
       },
       "updateUserPhoneNumberResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateUserPhoneNumber = async (
     input: SdkTypes.TUpdateUserPhoneNumberBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -4962,7 +5053,7 @@ export class TurnkeySDKClientBase {
 
   updateUserTag = async (
     input: SdkTypes.TUpdateUserTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateUserTagResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -4979,13 +5070,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_USER_TAG",
       },
       "updateUserTagResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateUserTag = async (
     input: SdkTypes.TUpdateUserTagBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -5014,7 +5105,7 @@ export class TurnkeySDKClientBase {
 
   updateWallet = async (
     input: SdkTypes.TUpdateWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TUpdateWalletResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -5031,13 +5122,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_UPDATE_WALLET",
       },
       "updateWalletResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampUpdateWallet = async (
     input: SdkTypes.TUpdateWalletBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -5065,7 +5156,7 @@ export class TurnkeySDKClientBase {
 
   verifyOtp = async (
     input: SdkTypes.TVerifyOtpBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TVerifyOtpResponse> => {
     const { organizationId, timestampMs, ...rest } = input;
     const session = await this.storageManager?.getActiveSession();
@@ -5082,13 +5173,13 @@ export class TurnkeySDKClientBase {
         type: "ACTIVITY_TYPE_VERIFY_OTP",
       },
       "verifyOtpResult",
-      stampWith
+      stampWith,
     );
   };
 
   stampVerifyOtp = async (
     input: SdkTypes.TVerifyOtpBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -5116,7 +5207,7 @@ export class TurnkeySDKClientBase {
 
   testRateLimits = async (
     input: SdkTypes.TTestRateLimitsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<SdkTypes.TTestRateLimitsResponse> => {
     const session = await this.storageManager?.getActiveSession();
     return this.request(
@@ -5128,13 +5219,13 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
       },
-      stampWith
+      stampWith,
     );
   };
 
   stampTestRateLimits = async (
     input: SdkTypes.TTestRateLimitsBody,
-    stampWith?: StamperType
+    stampWith?: StamperType,
   ): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
@@ -5160,49 +5251,49 @@ export class TurnkeySDKClientBase {
   };
 
   proxyGetAccount = async (
-    input: SdkTypes.ProxyTGetAccountBody
+    input: SdkTypes.ProxyTGetAccountBody,
   ): Promise<SdkTypes.ProxyTGetAccountResponse> => {
     return this.authProxyRequest("/v1/account", input);
   };
 
   proxyOAuth2Authenticate = async (
-    input: SdkTypes.ProxyTOAuth2AuthenticateBody
+    input: SdkTypes.ProxyTOAuth2AuthenticateBody,
   ): Promise<SdkTypes.ProxyTOAuth2AuthenticateResponse> => {
     return this.authProxyRequest("/v1/oauth2_authenticate", input);
   };
 
   proxyOAuthLogin = async (
-    input: SdkTypes.ProxyTOAuthLoginBody
+    input: SdkTypes.ProxyTOAuthLoginBody,
   ): Promise<SdkTypes.ProxyTOAuthLoginResponse> => {
     return this.authProxyRequest("/v1/oauth_login", input);
   };
 
   proxyInitOtp = async (
-    input: SdkTypes.ProxyTInitOtpBody
+    input: SdkTypes.ProxyTInitOtpBody,
   ): Promise<SdkTypes.ProxyTInitOtpResponse> => {
     return this.authProxyRequest("/v1/otp_init", input);
   };
 
   proxyOtpLogin = async (
-    input: SdkTypes.ProxyTOtpLoginBody
+    input: SdkTypes.ProxyTOtpLoginBody,
   ): Promise<SdkTypes.ProxyTOtpLoginResponse> => {
     return this.authProxyRequest("/v1/otp_login", input);
   };
 
   proxyVerifyOtp = async (
-    input: SdkTypes.ProxyTVerifyOtpBody
+    input: SdkTypes.ProxyTVerifyOtpBody,
   ): Promise<SdkTypes.ProxyTVerifyOtpResponse> => {
     return this.authProxyRequest("/v1/otp_verify", input);
   };
 
   proxySignup = async (
-    input: SdkTypes.ProxyTSignupBody
+    input: SdkTypes.ProxyTSignupBody,
   ): Promise<SdkTypes.ProxyTSignupResponse> => {
     return this.authProxyRequest("/v1/signup", input);
   };
 
   proxyGetWalletKitConfig = async (
-    input: SdkTypes.ProxyTGetWalletKitConfigBody
+    input: SdkTypes.ProxyTGetWalletKitConfigBody,
   ): Promise<SdkTypes.ProxyTGetWalletKitConfigResponse> => {
     return this.authProxyRequest("/v1/wallet_kit_config", input);
   };

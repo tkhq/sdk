@@ -28,6 +28,14 @@ export type paths = {
     /** Get details about authenticators for a user. */
     post: operations["PublicApiService_GetAuthenticators"];
   };
+  "/public/v1/query/get_boot_proof": {
+    /** Get the boot proof for a given ephemeral key. */
+    post: operations["PublicApiService_GetBootProof"];
+  };
+  "/public/v1/query/get_latest_boot_proof": {
+    /** Get the latest boot proof for a given enclave app name. */
+    post: operations["PublicApiService_GetLatestBootProof"];
+  };
   "/public/v1/query/get_oauth2_credential": {
     /** Get details about an OAuth 2.0 credential. */
     post: operations["PublicApiService_GetOauth2Credential"];
@@ -2019,6 +2027,18 @@ export type definitions = {
     /** @description A list of authenticators. */
     authenticators: definitions["v1Authenticator"][];
   };
+  v1GetBootProofRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Hex encoded ephemeral public key. */
+    ephemeralKey: string;
+  };
+  v1GetLatestBootProofRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Name of enclave app. */
+    appName: string;
+  };
   v1GetOauth2CredentialRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -3884,6 +3904,42 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetAuthenticatorsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the boot proof for a given ephemeral key. */
+  PublicApiService_GetBootProof: {
+    parameters: {
+      body: {
+        body: definitions["v1GetBootProofRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1BootProofResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the latest boot proof for a given enclave app name. */
+  PublicApiService_GetLatestBootProof: {
+    parameters: {
+      body: {
+        body: definitions["v1GetLatestBootProofRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1BootProofResponse"];
       };
       /** An unexpected error response. */
       default: {
