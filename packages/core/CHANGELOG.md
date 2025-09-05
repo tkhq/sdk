@@ -1,5 +1,21 @@
 # @turnkey/core
 
+## 1.0.0-beta.6
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-types@0.4.0-beta.6
+  - @turnkey/encoding@0.6.0-beta.6
+  - @turnkey/crypto@2.6.0-beta.6
+  - @turnkey/api-key-stamper@0.5.0-beta.6
+  - @turnkey/http@3.11.1-beta.0
+  - @turnkey/react-native-passkey-stamper@1.2.0-beta.1
+
 ## 1.0.0-beta.5
 
 ### Minor Changes

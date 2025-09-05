@@ -1,5 +1,13 @@
 # @turnkey/http
 
+## 3.11.1-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.6
+  - @turnkey/api-key-stamper@0.5.0-beta.6
+
 ## 3.11.0
 
 ### Minor Changes

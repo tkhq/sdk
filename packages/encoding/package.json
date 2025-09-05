@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/encoding",
-  "version": "0.6.0-beta.5",
+  "version": "0.6.0-beta.6",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {

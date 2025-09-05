@@ -1,5 +1,15 @@
 # @turnkey/eip-1193-provider
 
+## 3.4.0-beta.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/core@1.0.0-beta.6
+  - @turnkey/sdk-browser@5.9.0-beta.1
+  - @turnkey/api-key-stamper@0.5.0-beta.6
+  - @turnkey/http@3.11.1-beta.0
+
 ## 3.4.0-beta.5
 
 ### Minor Changes

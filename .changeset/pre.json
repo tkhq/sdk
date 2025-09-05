@@ -65,11 +65,14 @@
     "@turnkey/telegram-cloud-storage-stamper": "2.0.4-beta.2",
     "@turnkey/viem": "0.11.2-beta.2",
     "@turnkey/wallet-stamper": "1.0.9-beta.2",
-    "@turnkey/webauthn-stamper": "0.5.1"
+    "@turnkey/webauthn-stamper": "0.5.1",
+    "@turnkey/with-aave": "0.0.1",
+    "with-x": "0.1.0"
   },
   "changesets": [
     "cute-squids-type",
     "fair-bushes-retire",
+    "few-radios-behave",
     "loose-ravens-walk",
     "old-pillows-float",
     "rotten-mugs-matter",

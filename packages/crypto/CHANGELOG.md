@@ -1,5 +1,16 @@
 # @turnkey/crypto
 
+## 2.6.0-beta.6
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.6
+
 ## 2.6.0-beta.5
 
 ### Minor Changes
