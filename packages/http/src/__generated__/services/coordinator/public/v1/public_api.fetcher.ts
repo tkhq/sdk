@@ -304,6 +304,104 @@ export const signGetAuthenticators = (
   });
 
 /**
+ * `POST /public/v1/query/get_boot_proof`
+ */
+export type TGetBootProofResponse =
+  operations["PublicApiService_GetBootProof"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_boot_proof`
+ */
+export type TGetBootProofInput = { body: TGetBootProofBody };
+
+/**
+ * `POST /public/v1/query/get_boot_proof`
+ */
+export type TGetBootProofBody =
+  operations["PublicApiService_GetBootProof"]["parameters"]["body"]["body"];
+
+/**
+ * Get a specific boot proof
+ *
+ * Get the boot proof for a given ephemeral key.
+ *
+ * `POST /public/v1/query/get_boot_proof`
+ */
+export const getBootProof = (input: TGetBootProofInput) =>
+  request<TGetBootProofResponse, TGetBootProofBody, never, never, never>({
+    uri: "/public/v1/query/get_boot_proof",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetBootProof` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetBootProof}
+ */
+export const signGetBootProof = (
+  input: TGetBootProofInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetBootProofBody, never, never>({
+    uri: "/public/v1/query/get_boot_proof",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_latest_boot_proof`
+ */
+export type TGetLatestBootProofResponse =
+  operations["PublicApiService_GetLatestBootProof"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_latest_boot_proof`
+ */
+export type TGetLatestBootProofInput = { body: TGetLatestBootProofBody };
+
+/**
+ * `POST /public/v1/query/get_latest_boot_proof`
+ */
+export type TGetLatestBootProofBody =
+  operations["PublicApiService_GetLatestBootProof"]["parameters"]["body"]["body"];
+
+/**
+ * Get the latest boot proof for an app
+ *
+ * Get the latest boot proof for a given enclave app name.
+ *
+ * `POST /public/v1/query/get_latest_boot_proof`
+ */
+export const getLatestBootProof = (input: TGetLatestBootProofInput) =>
+  request<
+    TGetLatestBootProofResponse,
+    TGetLatestBootProofBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_latest_boot_proof",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetLatestBootProof` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetLatestBootProof}
+ */
+export const signGetLatestBootProof = (
+  input: TGetLatestBootProofInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetLatestBootProofBody, never, never>({
+    uri: "/public/v1/query/get_latest_boot_proof",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_oauth2_credential`
  */
 export type TGetOauth2CredentialResponse =

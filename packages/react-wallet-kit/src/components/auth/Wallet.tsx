@@ -133,7 +133,6 @@ export function ExternalWalletChainSelector(
                   </span>
                 )}
               </div>
-
               <FontAwesomeIcon
                 className={clsx(
                   `absolute transition-all duration-200`,

@@ -31,6 +31,14 @@ import type {
   TGetAuthenticatorsResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetBootProofBody,
+  TGetBootProofResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetLatestBootProofBody,
+  TGetLatestBootProofResponse,
+} from "./public_api.fetcher";
+import type {
   TGetOauth2CredentialBody,
   TGetOauth2CredentialResponse,
 } from "./public_api.fetcher";
@@ -585,6 +593,69 @@ export class TurnkeyClient {
     input: TGetAuthenticatorsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_authenticators";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get the boot proof for a given ephemeral key.
+   *
+   * Sign the provided `TGetBootProofBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_boot_proof).
+   *
+   * See also {@link stampGetBootProof}.
+   */
+  getBootProof = async (
+    input: TGetBootProofBody,
+  ): Promise<TGetBootProofResponse> => {
+    return this.request("/public/v1/query/get_boot_proof", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetBootProofBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetBootProof}.
+   */
+  stampGetBootProof = async (
+    input: TGetBootProofBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_boot_proof";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get the latest boot proof for a given enclave app name.
+   *
+   * Sign the provided `TGetLatestBootProofBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_latest_boot_proof).
+   *
+   * See also {@link stampGetLatestBootProof}.
+   */
+  getLatestBootProof = async (
+    input: TGetLatestBootProofBody,
+  ): Promise<TGetLatestBootProofResponse> => {
+    return this.request("/public/v1/query/get_latest_boot_proof", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetLatestBootProofBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetLatestBootProof}.
+   */
+  stampGetLatestBootProof = async (
+    input: TGetLatestBootProofBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_latest_boot_proof";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
