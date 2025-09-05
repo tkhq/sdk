@@ -16,7 +16,7 @@ import {
   Transition,
 } from "@headlessui/react";
 import { AuthState, ClientState, useTurnkey } from "@turnkey/react-wallet-kit";
-import { useEffect, useState } from "react";
+import { SetStateAction, useEffect, useState } from "react";
 
 export default function AuthPage() {
   const { handleLogin, clientState, authState } = useTurnkey();
@@ -51,7 +51,7 @@ export default function AuthPage() {
           </Button>
         ) : (
           <Button
-            onClick={handleLogin}
+            onClick={() => handleLogin()}
             className="w-full h-full flex justify-center items-center animate-pulse"
           >
             <span>Press anywhere to login</span>
@@ -71,7 +71,9 @@ export default function AuthPage() {
           </div>
         ) : (
           <TabGroup
-            onChange={(index) => setSelectedTabIndex(index)}
+            onChange={(index: SetStateAction<number>) =>
+              setSelectedTabIndex(index)
+            }
             selectedIndex={selectedTabIndex}
           >
             <TabPanels className="flex justify-center items-center">
