@@ -54,7 +54,7 @@ You should see output similar to the following:
 ```
 ? Recipient address: (<recipient_iota_address>)
 
-Sending 1000 MIST (0.000001 IOTA) to <recipient_iota_address>
+Sending 1000 MIOTA (0.000001 IOTA) to <recipient_iota_address>
 
 Transaction Hash: <iota_transaction_hash>
 ```

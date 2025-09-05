@@ -1,100 +1,77 @@
-import * as dotenv from "dotenv";
-import * as path from "path";
-import { Transaction } from "@iota/iota-sdk/transactions";
-import { IotaClient, getFullnodeUrl } from "@iota/iota-sdk/client";
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+import { IotaClient, getFullnodeUrl } from '@iota/iota-sdk/client';
+import { Transaction } from '@iota/iota-sdk/transactions';
 import { Ed25519PublicKey } from '@iota/iota-sdk/keypairs/ed25519';
-import prompts from "prompts";
-import { Turnkey } from "@turnkey/sdk-server";
-import { blake2b } from "@noble/hashes/blake2b";
-import { bytesToHex } from "@noble/hashes/utils";
+import { messageWithIntent } from '@iota/iota-sdk/cryptography';
+import { Turnkey } from '@turnkey/sdk-server';
+import { blake2b } from '@noble/hashes/blake2b';
+import { bytesToHex } from '@noble/hashes/utils';
 
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
+
+function toSerializedSignature({
+  signature,
+  pubKey,
+}: {
+  signature: Uint8Array;
+  pubKey: Ed25519PublicKey;
+}): string {
+  const scheme = new Uint8Array([0x00]); // ED25519 flag
+  const pubKeyBytes = pubKey.toRawBytes();
+  const serialized = new Uint8Array(
+    scheme.length + signature.length + pubKeyBytes.length
+  );
+  serialized.set(scheme, 0);
+  serialized.set(signature, scheme.length);
+  serialized.set(pubKeyBytes, scheme.length + signature.length);
+  return Buffer.from(serialized).toString('base64');
+}
 
 async function main() {
-  const organizationId = process.env.ORGANIZATION_ID!;
+  // load the variables from .env
+  // IOTA_ADDRESS and IOTA_PUBLIC_KEY of the Turnkey signer
+  const {
+    ORGANIZATION_ID,
+    API_PRIVATE_KEY,
+    API_PUBLIC_KEY,
+    IOTA_ADDRESS,
+    IOTA_PUBLIC_KEY,
+  } = process.env;
+
+  if (IOTA_ADDRESS === undefined || IOTA_PUBLIC_KEY === undefined) {
+    throw new Error('IOTA_ADDRESS or IOTA_PUBLIC_KEY not set in .env.local');
+  }
+
+  // sending to the same address
+  const recipient = IOTA_ADDRESS;
+  const amount = 1_000_000n; // 0.001 IOTA
+
   const turnkeyClient = new Turnkey({
-    apiBaseUrl: process.env.BASE_URL!,
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    defaultOrganizationId: organizationId,
+    apiBaseUrl: 'https://api.turnkey.com',
+    apiPrivateKey: API_PRIVATE_KEY!,
+    apiPublicKey: API_PUBLIC_KEY!,
+    defaultOrganizationId: ORGANIZATION_ID!,
   });
 
-  const provider = new IotaClient({ url: getFullnodeUrl('devnet')});
+  const provider = new IotaClient({ url: getFullnodeUrl('testnet') });
+  const publicKey = new Ed25519PublicKey(Buffer.from(IOTA_PUBLIC_KEY!, 'hex'));
 
-  // Use your Iota address and public key from environment variables
-  const iotaAddress = process.env.IOTA_ADDRESS!;
-  const iotaPublicKeyHex = process.env.IOTA_PUBLIC_KEY!;
-
-  if (!iotaAddress || !iotaPublicKeyHex) {
-    throw new Error(
-      "Please set your IOTA_ADDRESS and IOTA_PUBLIC_KEY in the .env.local file.",
-    );
+  if (publicKey.toIotaAddress() !== IOTA_ADDRESS) {
+    throw new Error('IOTA_PUBLIC_KEY does not match IOTA_ADDRESS');
   }
 
-  console.log(`Using Iota address: ${iotaAddress}`);
-  const publicKeyBytes = Buffer.from(iotaPublicKeyHex, "hex");
-
-  // Verify that the public key corresponds to the Iota address
-  const publicKey = new Ed25519PublicKey(publicKeyBytes);
-  const computedAddress = publicKey.toIotaAddress();
-
-  console.log(`Computed Iota address from public key: ${computedAddress}`);
-  if (computedAddress !== iotaAddress) {
-    throw new Error(
-      "The IOTA_PUBLIC_KEY does not correspond to the IOTA_ADDRESS.",
-    );
-  }
-
-  // Check balance
-  const balanceData = await provider.getBalance({
-    owner: iotaAddress,
-    coinType: "0x2::iota::IOTA",
-  });
-  const balance = BigInt(balanceData.totalBalance);
-  if (balance === 0n) {
-    console.log(
-      `Your balance is zero. Please fund your address ${iotaAddress} to proceed.`,
-    );
-    process.exit(1);
-  }
-
-  // Fetch the user's Iota coin objects
+  // fetch the user's IOTA coin objects
   const coins = await provider.getCoins({
-    owner: iotaAddress,
-    coinType: "0x2::iota::IOTA",
+    owner: IOTA_ADDRESS!,
+    coinType: '0x2::iota::IOTA',
   });
-
-  if (coins.data.length === 0) {
-    throw new Error("No IOTA coins found in the account.");
-  }
-
-  // Create and sign a transaction
-  const { recipientAddress } = await prompts([
-    {
-      type: "text",
-      name: "recipientAddress",
-      message: "Recipient address:",
-      initial: "<recipient_iota_address>",
-    },
-  ]);
-
-  const amount = 1000n; // 1,000 MIST (minimum practical amount)
-
-  console.log(
-    `\nSending ${amount} MIST (${
-      Number(amount) / 1e9
-    } IOTA) to ${recipientAddress}`,
-  );
+  if (!coins.data.length) throw new Error('No IOTA coins');
 
   const tx = new Transaction();
-
-  // Use the first coin for transfer
-
-  const referenceGasPrice = await provider.getReferenceGasPrice();
-  tx.setGasPrice(referenceGasPrice);
-  tx.setGasBudget(5000000n);
-
-  // Set gas payment
+  tx.setSender(IOTA_ADDRESS!);
+  tx.setGasPrice(await provider.getReferenceGasPrice());
+  tx.setGasBudget(5_000_000n);
   tx.setGasPayment([
     {
       objectId: coins.data[0]!.coinObjectId,
@@ -102,63 +79,35 @@ async function main() {
       digest: coins.data[0]!.digest,
     },
   ]);
+  const coin = tx.splitCoins(tx.gas, [tx.pure('u64', amount)]);
+  tx.transferObjects([coin], tx.pure.address(recipient));
 
-  // Set sender
-  tx.setSender(iotaAddress);
+  const txBytes = await tx.build();
 
-  // Split coins and transfer
-  const coin = tx.splitCoins(tx.gas, [tx.pure(amount)]);
-  tx.transferObjects([coin], tx.pure(recipientAddress));
+  const intentMsg = messageWithIntent('TransactionData', txBytes);
+  const digest = blake2b(intentMsg, { dkLen: 32 });
 
-  // Build the transaction block
-  const txBytes = await tx.build({
-    provider,
+  const { r, s } = await turnkeyClient.apiClient().signRawPayload({
+    signWith: IOTA_ADDRESS!,
+    payload: bytesToHex(digest),
+    encoding: 'PAYLOAD_ENCODING_HEXADECIMAL',
+    hashFunction: 'HASH_FUNCTION_NOT_APPLICABLE',
   });
 
-  // Create the intent message
-  const intentMessage = messageWithIntent(IntentScope.TransactionData, txBytes);
+  const signature = Buffer.from(r + s, 'hex');
+  const serialized = toSerializedSignature({ signature, pubKey: publicKey });
 
-  // Hash the intent message
-  const txDigest = blake2b(intentMessage, { dkLen: 32 });
-
-  // Sign the payload using Turnkey with HASH_FUNCTION_NOT_APPLICABLE
-  // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
-  // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
-  const txSignResult = await turnkeyClient.apiClient().signRawPayload({
-    signWith: iotaAddress,
-    payload: bytesToHex(txDigest),
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
-  });
-
-  // Extract r and s from the result
-  const { r, s } = txSignResult;
-
-  // Concatenate r and s to form the signature
-  const signatureBytes = Buffer.from(r + s, "hex");
-
-  // Create the serialized signature
-  const serializedSignature = toSerializedSignature({
-    signature: signatureBytes,
-    signatureScheme: "ED25519",
-    pubKey: publicKey,
-  });
-
-  // Base64 encode the transaction bytes
-  const txBytesBase64 = Buffer.from(txBytes).toString("base64");
-
-  // Execute the transaction
-  const response = await provider.executeTransactionBlock({
-    transactionBlock: txBytesBase64,
-    signature: serializedSignature,
+  const result = await provider.executeTransactionBlock({
+    transactionBlock: Buffer.from(txBytes).toString('base64'),
+    signature: serialized,
+    requestType: 'WaitForEffectsCert',
     options: { showEffects: true },
-    requestType: "WaitForEffectsCert",
   });
 
-  console.log("\nTransaction Hash:", response.digest);
+  console.log('Transaction digest:', result.digest);
 }
 
-main().catch((error) => {
-  console.error(error);
+main().catch((err) => {
+  console.error('Error:', err);
   process.exit(1);
 });
