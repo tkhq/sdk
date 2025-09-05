@@ -19,7 +19,7 @@ Logs in a user using an OTP verification token.
 
 <p><strong>Package:</strong> <code>core</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1212">core.ts:1212</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1268">core.ts:1268</a></p>
 
 <H3Bordered text="Parameters" />
 
@@ -43,6 +43,7 @@ verification token received after OTP verification.
 <H3Bordered text="Response" />
 A successful response returns the following fields:
 
-<ResponseField name="returns" type="string" required={true} >
-  A promise that resolves to a signed JWT session token.
+<ResponseField name="returns" type="BaseAuthResult" required={true} >
+  A promise that resolves to a BaseAuthResult, which includes:
+         - `sessionToken`: the signed JWT session token.
 </ResponseField>

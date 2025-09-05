@@ -47,6 +47,7 @@ verification token received after OTP verification.
 <H3Bordered text="Response" />
 A successful response returns the following fields:
 
-<ResponseField name="returns" type="string" required={true}>
-  A promise that resolves to a signed JWT session token for the new sub-organization.
+<ResponseField name="returns" type="BaseAuthResult" required={true}>
+  A promise that resolves to a BaseAuthResult, which includes:
+         - `sessionToken`: the signed JWT session token.
 </ResponseField>

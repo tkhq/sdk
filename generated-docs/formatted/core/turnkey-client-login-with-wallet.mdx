@@ -19,7 +19,7 @@ Logs in a user using the specified wallet provider.
 
 <p><strong>Package:</strong> <code>core</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L665">core.ts:665</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L694">core.ts:694</a></p>
 
 <H3Bordered text="Parameters" />
 
@@ -43,6 +43,8 @@ wallet provider to use for authentication.
 <H3Bordered text="Response" />
 A successful response returns the following fields:
 
-<ResponseField name="returns" type="string" required={true} >
-  A promise that resolves to the created session token.
+<ResponseField name="returns" type="WalletAuthResult" required={true} >
+  A promise that resolves to a WalletAuthResult, which includes:
+         - `sessionToken`: the signed JWT session token.
+         - `address`: the authenticated wallet address.
 </ResponseField>

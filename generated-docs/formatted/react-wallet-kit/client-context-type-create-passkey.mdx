@@ -21,11 +21,11 @@ Creates a new passkey authenticator for the user.
 
 <ParamField body="params" type='object' required={false} path="params" >
   <Expandable title="params details">
-    <NestedParam parentKey="params" childKey="displayName" type='string' required={false}>
-display name for the passkey. If not provided, defaults to "A Passkey".
+    <NestedParam parentKey="params" childKey="challenge" type='string' required={false}>
+challenge string to use for passkey registration. If not provided, a new challenge will be generated.
 </NestedParam>
     <NestedParam parentKey="params" childKey="name" type='string' required={false}>
-name of the passkey. If not provided, defaults to "A Passkey".
+display name for the passkey (defaults to a generated name based on the current timestamp).
 </NestedParam>
     <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).

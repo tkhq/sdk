@@ -7,7 +7,7 @@ import { NestedParam } from "/snippets/nested-param.mdx";
 
 <p><strong>Package:</strong> <code>react-wallet-kit</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L107">react-wallet-kit/src/providers/client/Types.tsx:107</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L111">react-wallet-kit/src/providers/client/Types.tsx:111</a></p>
 
 <H3Bordered text="Overview" />
 
@@ -23,7 +23,13 @@ Handles the login or sign-up flow.
 
 <H3Bordered text="Parameters" />
 
-<p>No parameters.</p>
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
+Optional session key to resume an existing session or pre-fill session details in the login modal.
+</NestedParam>
+  </Expandable>
+</ParamField>
 
 <H3Bordered text="Response" />
 A successful response returns the following fields:

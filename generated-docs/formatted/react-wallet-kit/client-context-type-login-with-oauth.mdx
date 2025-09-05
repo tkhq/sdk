@@ -40,6 +40,7 @@ session key to use for session creation (defaults to the default session key).
 <H3Bordered text="Response" />
 A successful response returns the following fields:
 
-<ResponseField name="returns" type="string" required={true}>
-  A promise that resolves to a signed JWT session token.
+<ResponseField name="returns" type="BaseAuthResult" required={true}>
+  A promise that resolves to a BaseAuthResult, which includes:
+         - `sessionToken`: the signed JWT session token.
 </ResponseField>

@@ -483,14 +483,14 @@ const pkgToPages = new Map(
 );
 const docs = JSON.parse(readFileSync(DOCS_INDEX_PATH, "utf8"));
 
-// ---------- locate SDK Reference bucket ----------
-const sdkTab = findTab(docs.navigation, "SDK Reference");
+// ---------- locate SDK reference bucket ----------
+const sdkTab = findTab(docs.navigation, "SDK reference");
 if (!sdkTab) {
-  console.error('Could not find tab "SDK Reference" in docs.json');
+  console.error('Could not find tab "SDK reference" in docs.json');
   process.exit(1);
 }
 if (!Array.isArray(sdkTab.groups)) sdkTab.groups = [];
-const topSdkRefGroup = ensureGroupIn(sdkTab.groups, "SDK Reference"); // the big group inside the tab
+const topSdkRefGroup = ensureGroupIn(sdkTab.groups, "SDK reference"); // the big group inside the tab
 
 // ---------- merge per package ----------
 const summary = [];
@@ -504,11 +504,11 @@ for (let i = 0; i < PACKAGES_TO_SYNC.length; i++) {
     continue;
   }
 
-  // Find the top-level group (e.g., "React", "TypeScript | Frontend") inside the big SDK Reference group
+  // Find the top-level group (e.g., "React", "TypeScript | Frontend") inside the big SDK reference group
   const productGroup = ensureGroupIn(topSdkRefGroup.pages, displayGroup);
 
-  // Inside that, find or create the nested "SDK Reference" group
-  const nestedSdkRef = ensureGroupIn(productGroup.pages, "SDK Reference");
+  // Inside that, find or create the nested "SDK reference" group
+  const nestedSdkRef = ensureGroupIn(productGroup.pages, "SDK reference");
 
   addPagesDedup(nestedSdkRef.pages, pages);
   summary.push({ pkg, group: displayGroup, added: pages.length });

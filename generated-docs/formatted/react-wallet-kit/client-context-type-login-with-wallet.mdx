@@ -41,6 +41,8 @@ wallet provider to use for authentication.
 <H3Bordered text="Response" />
 A successful response returns the following fields:
 
-<ResponseField name="returns" type="string" required={true}>
-  A promise that resolves to the created session token.
+<ResponseField name="returns" type="WalletAuthResult" required={true}>
+  A promise that resolves to a WalletAuthResult, which includes:
+         - `sessionToken`: the signed JWT session token.
+         - `address`: the authenticated wallet address.
 </ResponseField>
