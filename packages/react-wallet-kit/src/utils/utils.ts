@@ -107,6 +107,7 @@ function parseAppleOAuthRedirect(hash: string): {
   flow: string | null;
   publicKey: string | null;
   openModal: string | null;
+  sessionKey: string | null;
 } {
   // Apple's format has unencoded parameters in the state portion
   const idTokenMatch = hash.match(/id_token=([^&]+)$/);
@@ -122,6 +123,7 @@ function parseAppleOAuthRedirect(hash: string): {
       flow: null,
       publicKey: null,
       openModal: null,
+      sessionKey: null,
     };
 
   const stateContent = hash.substring(6, stateEndIndex); // Remove "state=" prefix
@@ -133,6 +135,7 @@ function parseAppleOAuthRedirect(hash: string): {
     flow: stateParams.get("flow"),
     publicKey: stateParams.get("publicKey"),
     openModal: stateParams.get("openModal"),
+    sessionKey: stateParams.get("sessionKey"),
   };
 }
 
@@ -143,6 +146,7 @@ function parseGoogleOAuthRedirect(hash: string): {
   flow: string | null;
   publicKey: string | null;
   openModal: string | null;
+  sessionKey: string | null;
 } {
   const hashParams = new URLSearchParams(hash);
   const idToken = hashParams.get("id_token");
@@ -152,6 +156,7 @@ function parseGoogleOAuthRedirect(hash: string): {
   let flow = null;
   let publicKey = null;
   let openModal = null;
+  let sessionKey = null;
 
   if (state) {
     const stateParams = new URLSearchParams(state);
@@ -159,6 +164,7 @@ function parseGoogleOAuthRedirect(hash: string): {
     flow = stateParams.get("flow");
     publicKey = stateParams.get("publicKey");
     openModal = stateParams.get("openModal");
+    sessionKey = stateParams.get("sessionKey");
   }
 
   return {
@@ -167,6 +173,7 @@ function parseGoogleOAuthRedirect(hash: string): {
     flow,
     publicKey,
     openModal,
+    sessionKey,
   };
 }
 
@@ -177,6 +184,7 @@ export function parseOAuthRedirect(hash: string): {
   flow: string | null;
   publicKey: string | null;
   openModal: string | null;
+  sessionKey: string | null;
 } {
   // Check if this is an Apple redirect
   if (hash.startsWith("state=provider=apple")) {

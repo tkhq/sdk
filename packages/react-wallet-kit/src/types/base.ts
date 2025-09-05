@@ -9,7 +9,11 @@ import type { ThemeOverrides } from "../providers/theme/Overrides";
 import { KeyFormat as IframeKeyFormat } from "@turnkey/iframe-stamper";
 
 export interface TurnkeyCallbacks {
-  onOauthRedirect?: (response: { idToken: string; publicKey: string }) => void;
+  onOauthRedirect?: (response: {
+    idToken: string;
+    publicKey: string;
+    sessionKey?: string;
+  }) => void;
   beforeSessionExpiry?: (params: { sessionKey: string }) => void;
   onSessionExpired?: (params: { sessionKey: string }) => void;
   onAuthenticationSuccess?: (params: {

@@ -33,7 +33,6 @@ function RootLayout({ children }: RootLayoutProps) {
                 oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
                 xClientId: process.env.NEXT_PUBLIC_X_CLIENT_ID,
                 discordClientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
-                openOauthInPage: true,
               },
               methods: {
                 smsOtpAuthEnabled: true,

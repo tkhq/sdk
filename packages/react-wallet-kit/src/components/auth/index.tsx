@@ -28,7 +28,11 @@ import { useTurnkey } from "../../providers/client/Hook";
 import { ClientState } from "../../types/base";
 import { isWalletConnect } from "../../utils/utils";
 
-export function AuthComponent() {
+type AuthComponentProps = {
+  sessionKey?: string | undefined;
+};
+
+export function AuthComponent({ sessionKey }: AuthComponentProps) {
   const {
     config,
     clientState,
@@ -67,6 +71,7 @@ export function AuthComponent() {
             contact={email}
             otpId={otpId}
             otpType={OtpType.Email}
+            {...(sessionKey && { sessionKey })}
           />
         ),
         showTitle: false,
@@ -107,7 +112,9 @@ export function AuthComponent() {
         <ActionPage
           title="Authenticating with passkey..."
           action={async () => {
-            await loginWithPasskey({});
+            await loginWithPasskey({
+              ...(sessionKey && { sessionKey: sessionKey }),
+            });
           }}
           icon={<FontAwesomeIcon size="3x" icon={faFingerprint} />}
         />
@@ -123,7 +130,9 @@ export function AuthComponent() {
         <ActionPage
           title="Creating account with passkey..."
           action={async () => {
-            await signUpWithPasskey({});
+            await signUpWithPasskey({
+              ...(sessionKey && { sessionKey: sessionKey }),
+            });
           }}
           icon={<FontAwesomeIcon size="3x" icon={faFingerprint} />}
         />
@@ -140,7 +149,10 @@ export function AuthComponent() {
           title="Authenticating with Google..."
           action={() =>
             handleGoogleOauth({
-              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+              additionalState: {
+                openModal: "true",
+                ...(sessionKey && { sessionKey }),
+              }, // Tell the provider to reopen the auth modal and show the loading state
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
@@ -158,7 +170,10 @@ export function AuthComponent() {
           title="Authenticating with Apple..."
           action={() =>
             handleAppleOauth({
-              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+              additionalState: {
+                openModal: "true",
+                ...(sessionKey && { sessionKey }),
+              }, // Tell the provider to reopen the auth modal and show the loading state
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faApple} />}
@@ -176,7 +191,10 @@ export function AuthComponent() {
           title="Authenticating with Facebook..."
           action={() =>
             handleFacebookOauth({
-              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+              additionalState: {
+                openModal: "true",
+                ...(sessionKey && { sessionKey }),
+              }, // Tell the provider to reopen the auth modal and show the loading state
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
@@ -194,7 +212,10 @@ export function AuthComponent() {
           title="Authenticating with X..."
           action={() =>
             handleXOauth({
-              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+              additionalState: {
+                openModal: "true",
+                ...(sessionKey && { sessionKey }),
+              }, // Tell the provider to reopen the auth modal and show the loading state
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faXTwitter} />}
@@ -212,7 +233,10 @@ export function AuthComponent() {
           title="Authenticating with Discord..."
           action={() =>
             handleDiscordOauth({
-              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+              additionalState: {
+                openModal: "true",
+                ...(sessionKey && { sessionKey }),
+              }, // Tell the provider to reopen the auth modal and show the loading state
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faDiscord} />}
@@ -231,6 +255,7 @@ export function AuthComponent() {
           action={async () => {
             await loginOrSignupWithWallet({
               walletProvider: provider,
+              ...(sessionKey && { sessionKey: sessionKey }),
             });
           }}
           icon={
@@ -256,7 +281,10 @@ export function AuthComponent() {
           <WalletConnectScreen
             provider={provider}
             onAction={async (provider) => {
-              await loginOrSignupWithWallet({ walletProvider: provider });
+              await loginOrSignupWithWallet({
+                walletProvider: provider,
+                ...(sessionKey && { sessionKey: sessionKey }),
+              });
             }}
             onDisconnect={async (provider) => {
               await disconnectWalletAccount(provider);
