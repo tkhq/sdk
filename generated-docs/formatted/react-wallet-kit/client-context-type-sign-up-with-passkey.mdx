@@ -23,6 +23,9 @@ Signs up a user using a passkey, creating a new sub-organization and session.
 
 <ParamField body="params" type='object' required={false} path="params" >
   <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="challenge" type='string' required={false}>
+challenge string to use for passkey registration. If not provided, a new challenge will be generated.
+</NestedParam>
     <NestedParam parentKey="params" childKey="createSubOrgParams" type='CreateSubOrgParams' required={false}>
 parameters for creating a sub-organization (e.g., authenticators, user metadata).
 </NestedParam>
@@ -41,6 +44,8 @@ session key to use for storing the session (defaults to the default session key)
 <H3Bordered text="Response" />
 A successful response returns the following fields:
 
-<ResponseField name="returns" type="string" required={true}>
-  A promise that resolves to a signed JWT session token for the new sub-organization.
+<ResponseField name="returns" type="PasskeyAuthResult" required={true}>
+  A promise that resolves to a PasskeyAuthResult, which includes:
+         - `sessionToken`: the signed JWT session token.
+         - `credentialId`: the credential ID associated with the passkey created.
 </ResponseField>

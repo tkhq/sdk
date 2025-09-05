@@ -7,7 +7,7 @@ import { NestedParam } from "/snippets/nested-param.mdx";
 
 <p><strong>Package:</strong> <code>react-wallet-kit</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L256">react-wallet-kit/src/providers/client/Types.tsx:256</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L336">react-wallet-kit/src/providers/client/Types.tsx:336</a></p>
 
 <H3Bordered text="Overview" />
 
@@ -20,6 +20,7 @@ handles the export private key flow.
   <li>A request is made to the Turnkey API to export the private key, encrypted to the target public key.</li>
   <li>The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.</li>
   <li>If a custom iframe URL is used, a target public key can be provided explicitly.</li>
+  <li>Hexadecimal and Solana address formats are supported for wallet account exports - defaulting to Hexadecimal if not specified.</li>
   <li>Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.</li>
   <li>The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.</li>
 </ul>
@@ -28,6 +29,9 @@ handles the export private key flow.
 
 <ParamField body="params" type='object' required={true} path="params" >
   <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="keyFormat" type='KeyFormat' required={false}>
+The format of the private key to export (KeyFormat.Hexadecimal or KeyFormat.Solana).
+</NestedParam>
     <NestedParam parentKey="params" childKey="privateKeyId" type='string' required={true}>
 The ID of the private key to export.
 </NestedParam>

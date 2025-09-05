@@ -19,7 +19,7 @@ Fetches all wallets for the current user, including both embedded and connected 
 
 <p><strong>Package:</strong> <code>core</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1671">core.ts:1671</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L1768">core.ts:1768</a></p>
 
 <H3Bordered text="Parameters" />
 
@@ -28,7 +28,9 @@ Fetches all wallets for the current user, including both embedded and connected 
     <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 </NestedParam>
-    <NestedParam parentKey="params" childKey="walletProviders" type='WalletProvider[]' required={false}></NestedParam>
+    <NestedParam parentKey="params" childKey="walletProviders" type='WalletProvider[]' required={false}>
+array of wallet providers to use for fetching wallets.
+</NestedParam>
   </Expandable>
 </ParamField>
 

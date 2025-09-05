@@ -20,7 +20,7 @@ Logs in an existing user or signs up a new user using a wallet, creating a new s
 
 <p><strong>Package:</strong> <code>core</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L888">core.ts:888</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L936">core.ts:936</a></p>
 
 <H3Bordered text="Parameters" />
 
@@ -44,6 +44,9 @@ wallet provider to use for authentication.
 <H3Bordered text="Response" />
 A successful response returns the following fields:
 
-<ResponseField name="returns" type="string" required={true} >
-  A promise that resolves to a signed JWT session token for the sub-organization (new or existing).
+<ResponseField name="returns" type="WalletAuthResult & object" required={true} >
+  A promise that resolves to an object containing:
+         - `sessionToken`: the signed JWT session token.
+         - `address`: the authenticated wallet address.
+         - `action`: whether the flow resulted in a login or signup (AuthAction).
 </ResponseField>

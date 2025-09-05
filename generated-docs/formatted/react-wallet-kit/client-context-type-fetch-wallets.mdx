@@ -26,7 +26,9 @@ Fetches all wallets for the current user, including both embedded and connected 
     <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 </NestedParam>
-    <NestedParam parentKey="params" childKey="walletProviders" type='WalletProvider[]' required={false}></NestedParam>
+    <NestedParam parentKey="params" childKey="walletProviders" type='WalletProvider[]' required={false}>
+array of wallet providers to use for fetching wallets.
+</NestedParam>
   </Expandable>
 </ParamField>
 
