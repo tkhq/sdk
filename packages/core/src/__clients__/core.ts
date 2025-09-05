@@ -18,6 +18,11 @@ import {
   v1HashFunction,
   v1Curve,
   TInitFiatOnRampBody,
+  v1PrivateKey,
+  WalletAuthResult,
+  BaseAuthResult,
+  AuthAction,
+  PasskeyAuthResult,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -64,6 +69,10 @@ import {
   findWalletProviderFromAddress,
   isEthereumProvider,
   isSolanaProvider,
+  getAuthenticatorAddresses,
+  getCurveTypeFromProvider,
+  isValidPasskeyName,
+  addressFromPublicKey,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -113,7 +122,7 @@ export class TurnkeyClient {
     // Users can pass in their own stampers, or we will create them. Should we remove this?
     apiKeyStamper?: CrossPlatformApiKeyStamper,
     passkeyStamper?: CrossPlatformPasskeyStamper,
-    walletManager?: WalletManagerBase,
+    walletManager?: WalletManagerBase
   ) {
     this.config = config;
 
@@ -136,7 +145,7 @@ export class TurnkeyClient {
 
     if (this.config.passkeyConfig) {
       this.passkeyStamper = new CrossPlatformPasskeyStamper(
-        this.config.passkeyConfig,
+        this.config.passkeyConfig
       );
       await this.passkeyStamper.init();
     }
@@ -172,9 +181,9 @@ export class TurnkeyClient {
    * - Handles both web and React Native environments, automatically selecting the appropriate passkey creation flow.
    * - The resulting attestation and challenge can be used to register the passkey with Turnkey.
    *
-   * @param params.name - name of the passkey. If not provided, defaults to "A Passkey".
-   * @param params.displayName - display name for the passkey. If not provided, defaults to "A Passkey".
+   * @param params.name - display name for the passkey (defaults to a generated name based on the current timestamp).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
    * @returns A promise that resolves to an object containing:
    *   - attestation: attestation object returned from the passkey creation process.
    *   - encodedChallenge: encoded challenge string used for passkey registration.
@@ -182,27 +191,29 @@ export class TurnkeyClient {
    */
   createPasskey = async (params?: {
     name?: string;
-    displayName?: string;
     stampWith?: StamperType | undefined;
+    challenge?: string;
   }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> => {
     return withTurnkeyErrorHandling(
       async () => {
-        const name = params?.name || "A Passkey";
-        const displayName = params?.displayName || "A Passkey";
+        const name = isValidPasskeyName(
+          params?.name || `passkey-${Date.now()}`
+        );
         let passkey: { encodedChallenge: string; attestation: v1Attestation };
         if (isWeb()) {
           const res = await this.passkeyStamper?.createWebPasskey({
             publicKey: {
               user: {
                 name,
-                displayName,
+                displayName: name,
               },
+              ...(params?.challenge && { challenge: params.challenge }),
             },
           });
           if (!res) {
             throw new TurnkeyError(
               "Failed to create React Native passkey",
-              TurnkeyErrorCodes.INTERNAL_ERROR,
+              TurnkeyErrorCodes.INTERNAL_ERROR
             );
           }
           passkey = {
@@ -212,12 +223,12 @@ export class TurnkeyClient {
         } else if (isReactNative()) {
           const res = await this.passkeyStamper?.createReactNativePasskey({
             name,
-            displayName,
+            displayName: name,
           });
           if (!res) {
             throw new TurnkeyError(
               "Failed to create React Native passkey",
-              TurnkeyErrorCodes.INTERNAL_ERROR,
+              TurnkeyErrorCodes.INTERNAL_ERROR
             );
           }
           passkey = {
@@ -227,7 +238,7 @@ export class TurnkeyClient {
         } else {
           throw new TurnkeyError(
             "Unsupported platform for passkey creation",
-            TurnkeyErrorCodes.INVALID_REQUEST,
+            TurnkeyErrorCodes.INVALID_REQUEST
           );
         }
 
@@ -242,7 +253,7 @@ export class TurnkeyClient {
             code: TurnkeyErrorCodes.SELECT_PASSKEY_CANCELLED,
           },
         },
-      },
+      }
     );
   };
 
@@ -262,7 +273,7 @@ export class TurnkeyClient {
       async () => {
         if (params?.sessionKey) {
           const session = await this.storageManager.getSession(
-            params.sessionKey,
+            params.sessionKey
           );
           this.storageManager.clearSession(params.sessionKey);
           this.apiKeyStamper?.deleteKeyPair(session?.publicKey!);
@@ -275,7 +286,7 @@ export class TurnkeyClient {
           } else {
             throw new TurnkeyError(
               "No active session found to log out from.",
-              TurnkeyErrorCodes.NO_SESSION_FOUND,
+              TurnkeyErrorCodes.NO_SESSION_FOUND
             );
           }
         }
@@ -283,7 +294,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to log out",
         errorCode: TurnkeyErrorCodes.LOGOUT_ERROR,
-      },
+      }
     );
   };
 
@@ -299,37 +310,39 @@ export class TurnkeyClient {
    * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
-   * @returns A promise that resolves to a signed JWT session token.
+   * @returns A promise that resolves to a {@link PasskeyAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `credentialId`: an empty string.
    * @throws {TurnkeyError} If there is an error during the passkey login process or if the user cancels the passkey prompt.
    */
   loginWithPasskey = async (params?: {
     publicKey?: string;
     sessionKey?: string;
     expirationSeconds?: string;
-  }): Promise<string> => {
-    let generatedKeyPair: string | undefined = undefined;
+  }): Promise<PasskeyAuthResult> => {
+    let generatedPublicKey: string | undefined = undefined;
     return await withTurnkeyErrorHandling(
       async () => {
-        generatedKeyPair =
+        generatedPublicKey =
           params?.publicKey || (await this.apiKeyStamper?.createKeyPair());
         const sessionKey = params?.sessionKey || SessionKey.DefaultSessionkey;
 
         const expirationSeconds =
           params?.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
-        if (!generatedKeyPair) {
+        if (!generatedPublicKey) {
           throw new TurnkeyError(
             "A publickey could not be found or generated.",
-            TurnkeyErrorCodes.INTERNAL_ERROR,
+            TurnkeyErrorCodes.INTERNAL_ERROR
           );
         }
         const sessionResponse = await this.httpClient.stampLogin(
           {
-            publicKey: generatedKeyPair,
+            publicKey: generatedPublicKey,
             organizationId: this.config.organizationId,
             expirationSeconds,
           },
-          StamperType.Passkey,
+          StamperType.Passkey
         );
 
         await this.storeSession({
@@ -337,9 +350,16 @@ export class TurnkeyClient {
           sessionKey,
         });
 
-        generatedKeyPair = undefined; // Key pair was successfully used, set to null to prevent cleanup
+        generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
-        return sessionResponse.session;
+        return {
+          sessionToken: sessionResponse.session,
+
+          // TODO: can we return the credentialId here?
+          // from a quick glance this is going to be difficult
+          // for now we return an empty string
+          credentialId: "",
+        };
       },
       {
         errorMessage: "Unable to log in with the provided passkey",
@@ -353,19 +373,19 @@ export class TurnkeyClient {
       },
       {
         finallyFn: async () => {
-          if (generatedKeyPair) {
+          if (generatedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
             } catch (cleanupError) {
               throw new TurnkeyError(
                 `Failed to clean up generated key pair`,
                 TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
+                cleanupError
               );
             }
           }
         },
-      },
+      }
     );
   };
 
@@ -378,11 +398,14 @@ export class TurnkeyClient {
    * - Automatically generates a new API key pair for authentication and session management.
    * - Stores the resulting session token and manages cleanup of unused key pairs.
    *
+   * @param params.passkeyDisplayName - display name for the passkey (defaults to a generated name based on the current timestamp).
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
-   * @param params.passkeyDisplayName - display name for the passkey (defaults to a generated name based on the current timestamp).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
-   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
+   * @returns A promise that resolves to a {@link PasskeyAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `credentialId`: the credential ID associated with the passkey created.
    * @throws {TurnkeyError} If there is an error during passkey creation, sub-organization creation, or session storage.
    */
   signUpWithPasskey = async (params?: {
@@ -390,7 +413,8 @@ export class TurnkeyClient {
     sessionKey?: string;
     passkeyDisplayName?: string;
     expirationSeconds?: string;
-  }): Promise<string> => {
+    challenge?: string;
+  }): Promise<PasskeyAuthResult> => {
     const {
       createSubOrgParams,
       passkeyDisplayName,
@@ -398,22 +422,22 @@ export class TurnkeyClient {
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params || {};
 
-    let generatedKeyPair: string | undefined = undefined;
+    let generatedPublicKey: string | undefined = undefined;
     return withTurnkeyErrorHandling(
       async () => {
-        generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+        generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
         const passkeyName = passkeyDisplayName || `passkey-${Date.now()}`;
 
         // A passkey will be created automatically when you call this function. The name is passed in
         const passkey = await this.createPasskey({
           name: passkeyName,
-          displayName: passkeyName,
+          ...(params?.challenge && { challenge: params.challenge }),
         });
 
         if (!passkey) {
           throw new TurnkeyError(
             "Failed to create passkey: encoded challenge or attestation is missing",
-            TurnkeyErrorCodes.INTERNAL_ERROR,
+            TurnkeyErrorCodes.INTERNAL_ERROR
           );
         }
 
@@ -431,8 +455,8 @@ export class TurnkeyClient {
             ],
             apiKeys: [
               {
-                apiKeyName: `passkey-auth-${generatedKeyPair}`,
-                publicKey: generatedKeyPair!,
+                apiKeyName: `passkey-auth-${generatedPublicKey}`,
+                publicKey: generatedPublicKey!,
                 curveType: "API_KEY_CURVE_P256",
                 expirationSeconds: "60",
               },
@@ -445,12 +469,12 @@ export class TurnkeyClient {
         if (!res) {
           throw new TurnkeyError(
             `Sign up failed`,
-            TurnkeyErrorCodes.PASSKEY_SIGNUP_AUTH_ERROR,
+            TurnkeyErrorCodes.PASSKEY_SIGNUP_AUTH_ERROR
           );
         }
 
         const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
-        this.apiKeyStamper?.setPublicKeyOverride(generatedKeyPair!);
+        this.apiKeyStamper?.setTemporaryPublicKey(generatedPublicKey!);
 
         const sessionResponse = await this.httpClient.stampLogin({
           publicKey: newGeneratedKeyPair!,
@@ -458,16 +482,19 @@ export class TurnkeyClient {
           expirationSeconds,
         });
 
-        await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair!);
+        await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey!);
 
         await this.storeSession({
           sessionToken: sessionResponse.session,
           sessionKey,
         });
 
-        generatedKeyPair = undefined; // Key pair was successfully used, set to null to prevent cleanup
+        generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
-        return sessionResponse.session;
+        return {
+          sessionToken: sessionResponse.session,
+          credentialId: passkey.attestation.credentialId,
+        };
       },
       {
         errorCode: TurnkeyErrorCodes.PASSKEY_SIGNUP_AUTH_ERROR,
@@ -475,20 +502,20 @@ export class TurnkeyClient {
       },
       {
         finallyFn: async () => {
-          this.apiKeyStamper?.clearPublicKeyOverride();
-          if (generatedKeyPair) {
+          this.apiKeyStamper?.clearTemporaryPublicKey();
+          if (generatedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
             } catch (cleanupError) {
               throw new TurnkeyError(
                 `Failed to clean up generated key pair`,
                 TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
+                cleanupError
               );
             }
           }
         },
-      },
+      }
     );
   };
 
@@ -508,7 +535,7 @@ export class TurnkeyClient {
         if (!this.walletManager) {
           throw new TurnkeyError(
             "Wallet manager is not initialized",
-            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED
           );
         }
 
@@ -517,7 +544,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Unable to get wallet providers",
         errorCode: TurnkeyErrorCodes.FETCH_WALLETS_ERROR,
-      },
+      }
     );
   };
 
@@ -536,7 +563,7 @@ export class TurnkeyClient {
         if (!this.walletManager?.connector) {
           throw new TurnkeyError(
             "Wallet connector is not initialized",
-            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED
           );
         }
         await this.walletManager.connector.connectWalletAccount(walletProvider);
@@ -544,7 +571,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Unable to connect wallet account",
         errorCode: TurnkeyErrorCodes.CONNECT_WALLET_ACCOUNT_ERROR,
-      },
+      }
     );
   };
 
@@ -563,18 +590,18 @@ export class TurnkeyClient {
         if (!this.walletManager?.connector) {
           throw new TurnkeyError(
             "Wallet connector is not initialized",
-            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED
           );
         }
 
         await this.walletManager.connector.disconnectWalletAccount(
-          walletProvider,
+          walletProvider
         );
       },
       {
         errorMessage: "Unable to disconnect wallet account",
         errorCode: TurnkeyErrorCodes.DISCONNECT_WALLET_ACCOUNT_ERROR,
-      },
+      }
     );
   };
 
@@ -606,27 +633,27 @@ export class TurnkeyClient {
         if (!this.walletManager?.connector) {
           throw new TurnkeyError(
             "Wallet connector is not initialized",
-            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED
           );
         }
 
         if (walletAccount.source === WalletSource.Embedded) {
           throw new TurnkeyError(
             "You can only switch chains for connected wallet accounts",
-            TurnkeyErrorCodes.NOT_FOUND,
+            TurnkeyErrorCodes.NOT_FOUND
           );
         }
 
         const providers = walletProviders ?? (await this.getWalletProviders());
         const walletProvider = findWalletProviderFromAddress(
           walletAccount.address,
-          providers,
+          providers
         );
 
         if (!walletProvider) {
           throw new TurnkeyError(
             "Wallet provider not found",
-            TurnkeyErrorCodes.SWITCH_WALLET_CHAIN_ERROR,
+            TurnkeyErrorCodes.SWITCH_WALLET_CHAIN_ERROR
           );
         }
 
@@ -637,13 +664,13 @@ export class TurnkeyClient {
 
         await this.walletManager.connector.switchChain(
           walletProvider,
-          chainOrId,
+          chainOrId
         );
       },
       {
         errorMessage: "Unable to switch wallet account chain",
         errorCode: TurnkeyErrorCodes.SWITCH_WALLET_CHAIN_ERROR,
-      },
+      }
     );
   };
 
@@ -660,7 +687,9 @@ export class TurnkeyClient {
    * @param params.publicKey - optional public key to associate with the session (generated if not provided).
    * @param params.sessionKey - optional key to store the session under (defaults to the default session key).
    * @param params.expirationSeconds - optional session expiration time in seconds (defaults to the configured default).
-   * @returns A promise that resolves to the created session token.
+   * @returns A promise that resolves to a {@link WalletAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `address`: the authenticated wallet address.
    * @throws {TurnkeyError} If the wallet stamper is uninitialized, a public key cannot be found or generated, or login fails.
    */
   loginWithWallet = async (params: {
@@ -668,7 +697,7 @@ export class TurnkeyClient {
     publicKey?: string;
     sessionKey?: string;
     expirationSeconds?: string;
-  }): Promise<string> => {
+  }): Promise<WalletAuthResult> => {
     let publicKey =
       params.publicKey || (await this.apiKeyStamper?.createKeyPair());
     return withTurnkeyErrorHandling(
@@ -676,7 +705,7 @@ export class TurnkeyClient {
         if (!this.walletManager?.stamper) {
           throw new TurnkeyError(
             "Wallet stamper is not initialized",
-            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED
           );
         }
         const sessionKey = params.sessionKey || SessionKey.DefaultSessionkey;
@@ -688,13 +717,13 @@ export class TurnkeyClient {
         if (!publicKey) {
           throw new TurnkeyError(
             "A publickey could not be found or generated.",
-            TurnkeyErrorCodes.INTERNAL_ERROR,
+            TurnkeyErrorCodes.INTERNAL_ERROR
           );
         }
 
         this.walletManager.stamper.setProvider(
           walletProvider.interfaceType,
-          walletProvider,
+          walletProvider
         );
 
         const sessionResponse = await this.httpClient.stampLogin(
@@ -703,7 +732,7 @@ export class TurnkeyClient {
             organizationId: this.config.organizationId,
             expirationSeconds,
           },
-          StamperType.Wallet,
+          StamperType.Wallet
         );
 
         await this.storeSession({
@@ -711,7 +740,15 @@ export class TurnkeyClient {
           sessionKey,
         });
 
-        return sessionResponse.session;
+        // TODO (Moe): What happens if a user connects to MetaMask on Ethereum,
+        // then switches to a Solana account within MetaMask? Will this flow break?
+        return {
+          sessionToken: sessionResponse.session,
+          address: addressFromPublicKey(
+            walletProvider.chainInfo.namespace,
+            publicKey
+          ),
+        };
       },
       {
         errorMessage: "Unable to log in with the provided wallet",
@@ -720,7 +757,7 @@ export class TurnkeyClient {
       {
         finallyFn: async () => {
           // Clean up the generated key pair if it wasn't successfully used
-          this.apiKeyStamper?.clearPublicKeyOverride();
+          this.apiKeyStamper?.clearTemporaryPublicKey();
           if (publicKey) {
             try {
               await this.apiKeyStamper?.deleteKeyPair(publicKey);
@@ -728,12 +765,12 @@ export class TurnkeyClient {
               throw new TurnkeyError(
                 "Failed to clean up generated key pair",
                 TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
+                cleanupError
               );
             }
           }
         },
-      },
+      }
     );
   };
 
@@ -750,7 +787,9 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
-   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @returns A promise that resolves to a {@link WalletAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `address`: the authenticated wallet address.
    * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, session storage, or cleanup.
    */
   signUpWithWallet = async (params: {
@@ -758,7 +797,7 @@ export class TurnkeyClient {
     createSubOrgParams?: CreateSubOrgParams;
     sessionKey?: string;
     expirationSeconds?: string;
-  }): Promise<string> => {
+  }): Promise<WalletAuthResult> => {
     const {
       walletProvider,
       createSubOrgParams,
@@ -766,32 +805,32 @@ export class TurnkeyClient {
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params;
 
-    let generatedKeyPair: string | undefined = undefined;
+    let generatedPublicKey: string | undefined = undefined;
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.walletManager?.stamper) {
           throw new TurnkeyError(
             "Wallet stamper is not initialized",
-            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED
           );
         }
 
-        generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+        generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
 
         this.walletManager.stamper.setProvider(
           walletProvider.interfaceType,
-          walletProvider,
+          walletProvider
         );
 
         const publicKey = await this.walletManager.stamper.getPublicKey(
           walletProvider.interfaceType,
-          walletProvider,
+          walletProvider
         );
 
         if (!publicKey) {
           throw new TurnkeyError(
             "Failed to get public key from wallet",
-            TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
+            TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR
           );
         }
 
@@ -802,13 +841,11 @@ export class TurnkeyClient {
               {
                 apiKeyName: `wallet-auth:${publicKey}`,
                 publicKey: publicKey,
-                curveType: isEthereumProvider(walletProvider)
-                  ? ("API_KEY_CURVE_SECP256K1" as const)
-                  : ("API_KEY_CURVE_ED25519" as const),
+                curveType: getCurveTypeFromProvider(walletProvider),
               },
               {
-                apiKeyName: `wallet-auth-${generatedKeyPair}`,
-                publicKey: generatedKeyPair!,
+                apiKeyName: `wallet-auth-${generatedPublicKey}`,
+                publicKey: generatedPublicKey!,
                 curveType: "API_KEY_CURVE_P256",
                 expirationSeconds: "60",
               },
@@ -821,12 +858,12 @@ export class TurnkeyClient {
         if (!res) {
           throw new TurnkeyError(
             `Sign up failed`,
-            TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
+            TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR
           );
         }
 
         const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
-        this.apiKeyStamper?.setPublicKeyOverride(generatedKeyPair!);
+        this.apiKeyStamper?.setTemporaryPublicKey(generatedPublicKey!);
 
         const sessionResponse = await this.httpClient.stampLogin({
           publicKey: newGeneratedKeyPair!,
@@ -834,16 +871,24 @@ export class TurnkeyClient {
           expirationSeconds,
         });
 
-        await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair!);
+        await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey!);
 
         await this.storeSession({
           sessionToken: sessionResponse.session,
           sessionKey,
         });
 
-        generatedKeyPair = undefined; // Key pair was successfully used, set to null to prevent cleanup
+        generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
-        return sessionResponse.session;
+        // TODO (Moe): What happens if a user connects to MetaMask on Ethereum,
+        // then switches to a Solana account within MetaMask? Will this flow break?
+        return {
+          sessionToken: sessionResponse.session,
+          address: addressFromPublicKey(
+            walletProvider.chainInfo.namespace,
+            publicKey
+          ),
+        };
       },
       {
         errorMessage: "Failed to sign up with wallet",
@@ -852,20 +897,20 @@ export class TurnkeyClient {
       {
         finallyFn: async () => {
           // Clean up the generated key pair if it wasn't successfully used
-          this.apiKeyStamper?.clearPublicKeyOverride();
-          if (generatedKeyPair) {
+          this.apiKeyStamper?.clearTemporaryPublicKey();
+          if (generatedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
             } catch (cleanupError) {
               throw new TurnkeyError(
                 "Failed to clean up generated key pair",
                 TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
+                cleanupError
               );
             }
           }
         },
-      },
+      }
     );
   };
 
@@ -883,7 +928,10 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
-   * @returns A promise that resolves to a signed JWT session token for the sub-organization (new or existing).
+   * @returns A promise that resolves to an object containing:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `address`: the authenticated wallet address.
+   *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, or session storage.
    */
   loginOrSignupWithWallet = async (params: {
@@ -891,41 +939,41 @@ export class TurnkeyClient {
     createSubOrgParams?: CreateSubOrgParams;
     sessionKey?: string;
     expirationSeconds?: string;
-  }): Promise<string> => {
+  }): Promise<WalletAuthResult & { action: AuthAction }> => {
     const createSubOrgParams = params.createSubOrgParams;
     const sessionKey = params.sessionKey || SessionKey.DefaultSessionkey;
     const walletProvider = params.walletProvider;
     const expirationSeconds =
       params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
-    let generatedKeyPair: string | undefined = undefined;
+    let generatedPublicKey: string | undefined = undefined;
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.walletManager?.stamper) {
           throw new TurnkeyError(
             "Wallet stamper is not initialized",
-            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED
           );
         }
-        generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+        generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
 
         this.walletManager.stamper.setProvider(
           walletProvider.interfaceType,
-          walletProvider,
+          walletProvider
         );
 
-        // here we sign the request with the wallet, but we don't send it to the Turnkey yet
+        // here we sign the request with the wallet, but we don't send it to Turnkey yet
         // this is because we need to check if the subOrg exists first, and create one if it doesn't
-        // once we have the subOrg for the publicKey, we then can send the request to the Turnkey
+        // once we have the subOrg for the publicKey, we then can send the request to Turnkey
         const signedRequest = await withTurnkeyErrorHandling(
           async () => {
             return this.httpClient.stampStampLogin(
               {
-                publicKey: generatedKeyPair!,
+                publicKey: generatedPublicKey!,
                 organizationId: this.config.organizationId,
                 expirationSeconds,
               },
-              StamperType.Wallet,
+              StamperType.Wallet
             );
           },
           {
@@ -937,13 +985,13 @@ export class TurnkeyClient {
                 code: TurnkeyErrorCodes.CONNECT_WALLET_CANCELLED,
               },
             },
-          },
+          }
         );
 
         if (!signedRequest) {
           throw new TurnkeyError(
             "Failed to create stamped request for wallet login",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
 
@@ -953,7 +1001,7 @@ export class TurnkeyClient {
             // for Ethereum, there is no way to get the public key from the wallet address
             // so we derive it from the signed request
             publicKey = getPublicKeyFromStampHeader(
-              signedRequest.stamp.stampHeaderValue,
+              signedRequest.stamp.stampHeaderValue
             );
 
             break;
@@ -966,7 +1014,7 @@ export class TurnkeyClient {
             // which it has to be since they just called stampStampLogin()
             publicKey = await this.walletManager.stamper.getPublicKey(
               walletProvider.interfaceType,
-              walletProvider,
+              walletProvider
             );
             break;
           }
@@ -974,12 +1022,12 @@ export class TurnkeyClient {
           default:
             throw new TurnkeyError(
               `Unsupported interface type: ${walletProvider.interfaceType}`,
-              TurnkeyErrorCodes.INVALID_REQUEST,
+              TurnkeyErrorCodes.INVALID_REQUEST
             );
         }
 
         // here we check if the subOrg exists and create one
-        // then we send off the stamped request to the Turnkey
+        // then we send off the stamped request to Turnkey
 
         const accountRes = await this.httpClient.proxyGetAccount({
           filterType: FilterType.PublicKey,
@@ -989,7 +1037,7 @@ export class TurnkeyClient {
         if (!accountRes) {
           throw new TurnkeyError(
             `Account fetch failed`,
-            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR
           );
         }
 
@@ -1004,9 +1052,7 @@ export class TurnkeyClient {
                 {
                   apiKeyName: `wallet-auth:${publicKey}`,
                   publicKey: publicKey,
-                  curveType: isEthereumProvider(walletProvider)
-                    ? ("API_KEY_CURVE_SECP256K1" as const)
-                    : ("API_KEY_CURVE_ED25519" as const),
+                  curveType: getCurveTypeFromProvider(walletProvider),
                 },
               ],
             },
@@ -1017,12 +1063,12 @@ export class TurnkeyClient {
           if (!res) {
             throw new TurnkeyError(
               `Sign up failed`,
-              TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
+              TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR
             );
           }
         }
 
-        // now we can send the stamped request to the Turnkey
+        // now we can send the stamped request to Turnkey
         const headers: Record<string, string> = {
           "Content-Type": "application/json",
           [signedRequest.stamp.stampHeaderName]:
@@ -1041,7 +1087,7 @@ export class TurnkeyClient {
             `Stamped request failed`,
             res.status,
             TurnkeyErrorCodes.WALLET_LOGIN_AUTH_ERROR,
-            errorText,
+            errorText
           );
         }
 
@@ -1051,7 +1097,7 @@ export class TurnkeyClient {
         if (!sessionToken) {
           throw new TurnkeyError(
             "Session token not found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
 
@@ -1060,25 +1106,34 @@ export class TurnkeyClient {
           sessionKey,
         });
 
-        return sessionToken;
+        return {
+          sessionToken: sessionToken,
+          address: addressFromPublicKey(
+            walletProvider.chainInfo.namespace,
+            publicKey
+          ),
+
+          // if the subOrganizationId exists, it means the user is logging in
+          action: subOrganizationId ? AuthAction.LOGIN : AuthAction.SIGNUP,
+        };
       },
       {
         errorCode: TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
         errorMessage: "Failed to log in or sign up with wallet",
         catchFn: async () => {
-          if (generatedKeyPair) {
+          if (generatedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedKeyPair);
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
             } catch (cleanupError) {
               throw new TurnkeyError(
                 `Failed to clean up generated key pair`,
                 TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
+                cleanupError
               );
             }
           }
         },
-      },
+      }
     );
   };
 
@@ -1095,7 +1150,7 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is an error during the fiat onramp initialization process.
    */
   initFiatOnramp = async (
-    params: TInitFiatOnRampBody,
+    params: TInitFiatOnRampBody
   ): Promise<{
     onRampUrl: string;
     onRampTransactionId: string;
@@ -1108,7 +1163,7 @@ export class TurnkeyClient {
         if (!initFiatOnRampRes || !initFiatOnRampRes.onRampUrl) {
           throw new TurnkeyError(
             "Failed to initialize fiat onramp: onRampUrl is missing",
-            TurnkeyErrorCodes.INIT_FIAT_ONRAMP_ERROR,
+            TurnkeyErrorCodes.INIT_FIAT_ONRAMP_ERROR
           );
         }
 
@@ -1121,7 +1176,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to initialize fiat onramp",
         errorCode: TurnkeyErrorCodes.INIT_FIAT_ONRAMP_ERROR,
-      },
+      }
     );
   };
 
@@ -1148,7 +1203,7 @@ export class TurnkeyClient {
         if (!initOtpRes || !initOtpRes.otpId) {
           throw new TurnkeyError(
             "Failed to initialize OTP: otpId is missing",
-            TurnkeyErrorCodes.INIT_OTP_ERROR,
+            TurnkeyErrorCodes.INIT_OTP_ERROR
           );
         }
 
@@ -1164,7 +1219,7 @@ export class TurnkeyClient {
             code: TurnkeyErrorCodes.MAX_OTP_INITIATED_ERROR,
           },
         },
-      },
+      }
     );
   };
 
@@ -1203,7 +1258,7 @@ export class TurnkeyClient {
         if (!verifyOtpRes) {
           throw new TurnkeyError(
             `OTP verification failed`,
-            TurnkeyErrorCodes.INTERNAL_ERROR,
+            TurnkeyErrorCodes.INTERNAL_ERROR
           );
         }
         const accountRes = await this.httpClient.proxyGetAccount({
@@ -1214,7 +1269,7 @@ export class TurnkeyClient {
         if (!accountRes) {
           throw new TurnkeyError(
             `Account fetch failed`,
-            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR
           );
         }
 
@@ -1233,7 +1288,7 @@ export class TurnkeyClient {
             code: TurnkeyErrorCodes.INVALID_OTP_CODE,
           },
         },
-      },
+      }
     );
   };
 
@@ -1250,7 +1305,8 @@ export class TurnkeyClient {
    * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
-   * @returns A promise that resolves to a signed JWT session token.
+   * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OTP login process or if key pair cleanup fails.
    */
   loginWithOtp = async (params: {
@@ -1258,7 +1314,7 @@ export class TurnkeyClient {
     publicKey?: string;
     invalidateExisting?: boolean;
     sessionKey?: string;
-  }): Promise<string> => {
+  }): Promise<BaseAuthResult> => {
     const {
       verificationToken,
       invalidateExisting = false,
@@ -1277,7 +1333,7 @@ export class TurnkeyClient {
         if (!res) {
           throw new TurnkeyError(
             `Auth proxy OTP login failed`,
-            TurnkeyErrorCodes.OTP_LOGIN_ERROR,
+            TurnkeyErrorCodes.OTP_LOGIN_ERROR
           );
         }
 
@@ -1285,7 +1341,7 @@ export class TurnkeyClient {
         if (!loginRes.session) {
           throw new TurnkeyError(
             "No session returned from OTP login",
-            TurnkeyErrorCodes.OTP_LOGIN_ERROR,
+            TurnkeyErrorCodes.OTP_LOGIN_ERROR
           );
         }
 
@@ -1294,7 +1350,9 @@ export class TurnkeyClient {
           sessionKey,
         });
 
-        return loginRes.session;
+        return {
+          sessionToken: loginRes.session,
+        };
       },
       {
         errorMessage: "Failed to log in with OTP",
@@ -1308,12 +1366,12 @@ export class TurnkeyClient {
               throw new TurnkeyError(
                 `Failed to clean up generated key pair`,
                 TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
+                cleanupError
               );
             }
           }
         },
-      },
+      }
     );
   };
 
@@ -1332,7 +1390,8 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
-   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OTP sign-up process or session storage.
    */
   signUpWithOtp = async (params: {
@@ -1342,7 +1401,7 @@ export class TurnkeyClient {
     createSubOrgParams?: CreateSubOrgParams;
     invalidateExisting?: boolean;
     sessionKey?: string;
-  }): Promise<string> => {
+  }): Promise<BaseAuthResult> => {
     const {
       verificationToken,
       contact,
@@ -1364,19 +1423,19 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const generatedKeyPair = await this.apiKeyStamper?.createKeyPair();
+        const generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
         const res = await this.httpClient.proxySignup(signUpBody);
 
         if (!res) {
           throw new TurnkeyError(
             `Auth proxy OTP sign up failed`,
-            TurnkeyErrorCodes.OTP_SIGNUP_ERROR,
+            TurnkeyErrorCodes.OTP_SIGNUP_ERROR
           );
         }
 
         return await this.loginWithOtp({
           verificationToken,
-          publicKey: generatedKeyPair!,
+          publicKey: generatedPublicKey!,
           ...(invalidateExisting && { invalidateExisting }),
           ...(sessionKey && { sessionKey }),
         });
@@ -1384,7 +1443,7 @@ export class TurnkeyClient {
       {
         errorCode: TurnkeyErrorCodes.OTP_SIGNUP_ERROR,
         errorMessage: "Failed to sign up with OTP",
-      },
+      }
     );
   };
 
@@ -1405,7 +1464,10 @@ export class TurnkeyClient {
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
-   * @returns A promise that resolves to a signed JWT session token for the user.
+   * @returns A promise that resolves to an object containing:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `verificationToken`: the OTP verification token.
+   *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during OTP verification, sign-up, or login.
    */
   completeOtp = async (params: {
@@ -1417,7 +1479,9 @@ export class TurnkeyClient {
     invalidateExisting?: boolean;
     sessionKey?: string;
     createSubOrgParams?: CreateSubOrgParams;
-  }): Promise<string> => {
+  }): Promise<
+    BaseAuthResult & { verificationToken: string; action: AuthAction }
+  > => {
     const {
       otpId,
       otpCode,
@@ -1441,34 +1505,44 @@ export class TurnkeyClient {
         if (!verificationToken) {
           throw new TurnkeyError(
             "No verification token returned from OTP verification",
-            TurnkeyErrorCodes.VERIFY_OTP_ERROR,
+            TurnkeyErrorCodes.VERIFY_OTP_ERROR
           );
         }
 
         if (!subOrganizationId) {
-          return await this.signUpWithOtp({
+          const signUpRes = await this.signUpWithOtp({
             verificationToken,
-            contact: contact,
-            otpType: otpType,
-            ...(createSubOrgParams && {
-              createSubOrgParams,
-            }),
+            contact,
+            otpType,
+            ...(createSubOrgParams && { createSubOrgParams }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
           });
+
+          return {
+            ...signUpRes,
+            verificationToken,
+            action: AuthAction.SIGNUP,
+          };
         } else {
-          return await this.loginWithOtp({
+          const loginRes = await this.loginWithOtp({
             verificationToken,
             ...(publicKey && { publicKey }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
           });
+
+          return {
+            ...loginRes,
+            verificationToken,
+            action: AuthAction.LOGIN,
+          };
         }
       },
       {
         errorMessage: "Failed to complete OTP process",
         errorCode: TurnkeyErrorCodes.OTP_COMPLETION_ERROR,
-      },
+      }
     );
   };
 
@@ -1482,12 +1556,14 @@ export class TurnkeyClient {
    * - Handles session storage and management, and supports invalidating existing sessions if specified.
    *
    * @param params.oidcToken - OIDC token received after successful authentication with the OAuth provider.
-   * @param params.publicKey - public key to use for authentication. Must be generated prior to calling this function.
+   * @param params.publicKey - public key to use for authentication. Must be generated prior to calling this function, this is because the OIDC nonce has to be set to `sha256(publicKey)`.
    * @param params.providerName - name of the OAuth provider (defaults to a generated name with a timestamp).
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
-   * @returns A promise that resolves to a signed JWT session token for the user.
+   * @returns A promise that resolves to an object containing:
+   *          - `sessionToken`: the signed JWT session token.
+   *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during the OAuth completion process, such as account lookup, sign-up, or login.
    */
   completeOauth = async (params: {
@@ -1497,7 +1573,7 @@ export class TurnkeyClient {
     sessionKey?: string;
     invalidateExisting?: boolean;
     createSubOrgParams?: CreateSubOrgParams;
-  }): Promise<string> => {
+  }): Promise<BaseAuthResult & { action: AuthAction }> => {
     const {
       oidcToken,
       publicKey,
@@ -1517,33 +1593,44 @@ export class TurnkeyClient {
         if (!accountRes) {
           throw new TurnkeyError(
             `Account fetch failed`,
-            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR
           );
         }
         const subOrganizationId = accountRes.organizationId;
 
         if (subOrganizationId) {
-          return this.loginWithOauth({
+          const loginRes = await this.loginWithOauth({
             oidcToken,
             publicKey,
             invalidateExisting,
             sessionKey,
           });
+
+          return {
+            ...loginRes,
+            action: AuthAction.LOGIN,
+          };
         } else {
-          return this.signUpWithOauth({
+          const signUpRes = await this.signUpWithOauth({
             oidcToken,
             publicKey,
             providerName,
+            sessionKey,
             ...(createSubOrgParams && {
               createSubOrgParams,
             }),
           });
+
+          return {
+            ...signUpRes,
+            action: AuthAction.SIGNUP,
+          };
         }
       },
       {
         errorMessage: "Failed to complete OAuth process",
         errorCode: TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-      },
+      }
     );
   };
 
@@ -1559,7 +1646,8 @@ export class TurnkeyClient {
    * @param params.publicKey - public key to use for authentication. Must be generated prior to calling this function.
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
-   * @returns A promise that resolves to a signed JWT session token.
+   * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OAuth login process or if key pair cleanup fails.
    */
   loginWithOauth = async (params: {
@@ -1567,7 +1655,7 @@ export class TurnkeyClient {
     publicKey: string;
     invalidateExisting?: boolean;
     sessionKey?: string;
-  }): Promise<string> => {
+  }): Promise<BaseAuthResult> => {
     const {
       oidcToken,
       invalidateExisting = false,
@@ -1580,7 +1668,7 @@ export class TurnkeyClient {
         if (!publicKey) {
           throw new TurnkeyError(
             "Public key must be provided to log in with OAuth. Please create a key pair first.",
-            TurnkeyErrorCodes.MISSING_PARAMS,
+            TurnkeyErrorCodes.MISSING_PARAMS
           );
         }
 
@@ -1593,14 +1681,14 @@ export class TurnkeyClient {
         if (!loginRes) {
           throw new TurnkeyError(
             `Auth proxy OAuth login failed`,
-            TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+            TurnkeyErrorCodes.OAUTH_LOGIN_ERROR
           );
         }
 
         if (!loginRes.session) {
           throw new TurnkeyError(
             "No session returned from oauth login",
-            TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+            TurnkeyErrorCodes.OAUTH_LOGIN_ERROR
           );
         }
 
@@ -1609,7 +1697,7 @@ export class TurnkeyClient {
           sessionKey,
         });
 
-        return loginRes.session;
+        return { sessionToken: loginRes.session };
       },
       {
         errorMessage: "Failed to complete OAuth login",
@@ -1630,12 +1718,12 @@ export class TurnkeyClient {
               throw new TurnkeyError(
                 `Failed to clean up generated key pair`,
                 TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
+                cleanupError
               );
             }
           }
         },
-      },
+      }
     );
   };
 
@@ -1652,7 +1740,8 @@ export class TurnkeyClient {
    * @param params.providerName - name of the OAuth provider (e.g., "Google", "Apple").
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
-   * @returns A promise that resolves to a signed JWT session token for the new sub-organization.
+   * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
+   *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OAuth sign-up or login process.
    */
   signUpWithOauth = async (params: {
@@ -1661,8 +1750,14 @@ export class TurnkeyClient {
     providerName: string;
     createSubOrgParams?: CreateSubOrgParams;
     sessionKey?: string;
-  }): Promise<string> => {
-    const { oidcToken, publicKey, providerName, createSubOrgParams } = params;
+  }): Promise<BaseAuthResult> => {
+    const {
+      oidcToken,
+      publicKey,
+      providerName,
+      createSubOrgParams,
+      sessionKey,
+    } = params;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -1683,19 +1778,20 @@ export class TurnkeyClient {
         if (!res) {
           throw new TurnkeyError(
             `Auth proxy OAuth signup failed`,
-            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR
           );
         }
 
         return await this.loginWithOauth({
           oidcToken,
           publicKey: publicKey!,
+          ...(sessionKey && { sessionKey }),
         });
       },
       {
         errorMessage: "Failed to sign up with OAuth",
         errorCode: TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-      },
+      }
     );
   };
 
@@ -1709,6 +1805,7 @@ export class TurnkeyClient {
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.walletProviders - array of wallet providers to use for fetching wallets.
    * @returns A promise that resolves to an array of `Wallet` objects.
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallets.
    */
@@ -1722,7 +1819,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
@@ -1730,13 +1827,13 @@ export class TurnkeyClient {
       async () => {
         const res = await this.httpClient.getWallets(
           { organizationId: session.organizationId },
-          stampWith,
+          stampWith
         );
 
         if (!res || !res.wallets) {
           throw new TurnkeyError(
             "No wallets found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
 
@@ -1755,7 +1852,7 @@ export class TurnkeyClient {
 
             embeddedWallet.accounts = accounts;
             return embeddedWallet;
-          }),
+          })
         );
 
         // if wallet connecting is disabled we return only embedded wallets
@@ -1765,6 +1862,8 @@ export class TurnkeyClient {
 
         const groupedProviders = new Map<string, WalletProvider[]>();
         for (const provider of providers) {
+          // connected wallets don't all have some uuid we can use for the walletId
+          // so what we do is we use a normalized version of the name for the wallet, like "metamask" or "phantom-wallet"
           const walletId =
             provider.info?.name?.toLowerCase().replace(/\s+/g, "-") ||
             "unknown";
@@ -1798,8 +1897,8 @@ export class TurnkeyClient {
 
                 wallet.accounts = accounts;
                 return wallet;
-              },
-            ),
+              }
+            )
           )
         ).filter((wallet) => wallet.accounts.length > 0);
 
@@ -1808,7 +1907,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to fetch wallets",
         errorCode: TurnkeyErrorCodes.FETCH_WALLETS_ERROR,
-      },
+      }
     );
   };
 
@@ -1840,7 +1939,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
@@ -1856,13 +1955,13 @@ export class TurnkeyClient {
               organizationId: session.organizationId,
               paginationOptions: paginationOptions || { limit: "100" },
             },
-            stampWith,
+            stampWith
           );
 
           if (!res || !res.accounts) {
             throw new TurnkeyError(
               "No wallet accounts found in the response",
-              TurnkeyErrorCodes.BAD_RESPONSE,
+              TurnkeyErrorCodes.BAD_RESPONSE
             );
           }
 
@@ -1885,15 +1984,30 @@ export class TurnkeyClient {
         const connected: ConnectedWalletAccount[] = [];
 
         const providers = walletProviders ?? (await this.getWalletProviders());
+
+        // Context: connected wallets don't all have some uuid we can use for the walletId so what
+        //          we do is we use a normalized version of the name for the wallet, like "metamask"
+        //          or "phantom-wallet"
+        //
+        // when fetching accounts, we select all providers with this normalized walletId.
+        // A single wallet can map to multiple providers if it supports multiple chains
+        // (e.g. MetaMask for Ethereum and MetaMask for Solana)
         const matching = providers.filter(
           (p) =>
             p.info?.name?.toLowerCase().replace(/\s+/g, "-") ===
-              wallet.walletId && p.connectedAddresses.length > 0,
+              wallet.walletId && p.connectedAddresses.length > 0
         );
 
         const sign = this.walletManager!.connector!.sign.bind(
-          this.walletManager!.connector,
+          this.walletManager!.connector
         );
+
+        const user = await this.fetchUser({
+          stampWith,
+        });
+
+        const { ethereum: ethereumAddresses, solana: solanaAddresses } =
+          getAuthenticatorAddresses(user);
 
         for (const provider of matching) {
           const timestamp = toExternalTimestamp();
@@ -1915,6 +2029,9 @@ export class TurnkeyClient {
                 curve: Curve.SECP256K1,
                 addressFormat: "ADDRESS_FORMAT_ETHEREUM",
                 chainInfo: provider.chainInfo,
+                isAuthenticator: ethereumAddresses.includes(
+                  address.toLowerCase()
+                ),
                 signMessage: (msg: string) =>
                   sign(msg, provider, SignIntent.SignMessage),
                 signAndSendTransaction: (tx: string) =>
@@ -1942,6 +2059,7 @@ export class TurnkeyClient {
                 curve: Curve.ED25519,
                 addressFormat: "ADDRESS_FORMAT_SOLANA",
                 chainInfo: provider.chainInfo,
+                isAuthenticator: solanaAddresses.includes(address),
                 signMessage: (msg: string) =>
                   sign(msg, provider, SignIntent.SignMessage),
                 signTransaction: (tx: string) =>
@@ -1953,7 +2071,7 @@ export class TurnkeyClient {
             }
 
             throw new Error(
-              `Unsupported wallet chain: ${provider.chainInfo}. Supported chains are Ethereum and Solana.`,
+              `Unsupported wallet chain: ${provider.chainInfo}. Supported chains are Ethereum and Solana.`
             );
           }
         }
@@ -1963,7 +2081,53 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to fetch wallet accounts",
         errorCode: TurnkeyErrorCodes.FETCH_WALLET_ACCOUNTS_ERROR,
+      }
+    );
+  };
+
+  /**
+   * Fetches all private keys for the current user.
+   *
+   * - Retrieves private keys from the Turnkey API.
+   * - Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   *
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an array of `v1PrivateKey` objects.
+   * @throws {TurnkeyError} If no active session is found or if there is an error fetching private keys.
+   */
+  fetchPrivateKeys = async (params?: {
+    stampWith?: StamperType | undefined;
+  }): Promise<v1PrivateKey[]> => {
+    const { stampWith } = params || {};
+    const session = await this.storageManager.getActiveSession();
+
+    if (!session) {
+      throw new TurnkeyError(
+        "No active session found. Please log in first.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND
+      );
+    }
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const res = await this.httpClient.getPrivateKeys(
+          { organizationId: session.organizationId },
+          stampWith
+        );
+
+        if (!res) {
+          throw new TurnkeyError(
+            "Failed to fetch private keys",
+            TurnkeyErrorCodes.BAD_RESPONSE
+          );
+        }
+
+        return res.privateKeys;
       },
+      {
+        errorMessage: "Failed to fetch private keys",
+        errorCode: TurnkeyErrorCodes.FETCH_PRIVATE_KEYS_ERROR,
+      }
     );
   };
 
@@ -2021,7 +2185,7 @@ export class TurnkeyClient {
           if (!addEthereumPrefix && isEthereum) {
             throw new TurnkeyError(
               "Connected Ethereum wallets automatically prefix messages. Use `addEthereumPrefix: true`.",
-              TurnkeyErrorCodes.SIGN_MESSAGE_ERROR,
+              TurnkeyErrorCodes.SIGN_MESSAGE_ERROR
             );
           }
 
@@ -2029,7 +2193,7 @@ export class TurnkeyClient {
           if (isEthereum) {
             encodedMessage = getEncodedMessage(
               walletAccount.addressFormat,
-              message,
+              message
             );
           }
 
@@ -2047,7 +2211,7 @@ export class TurnkeyClient {
 
         const encodedMessage = getEncodedMessage(
           walletAccount.addressFormat,
-          messageToEncode,
+          messageToEncode
         );
 
         const response = await this.httpClient.signRawPayload(
@@ -2057,13 +2221,13 @@ export class TurnkeyClient {
             encoding: payloadEncoding,
             hashFunction,
           },
-          stampWith,
+          stampWith
         );
 
         if (response.activity.failure) {
           throw new TurnkeyError(
             "Failed to sign message, no signed payload returned",
-            TurnkeyErrorCodes.SIGN_MESSAGE_ERROR,
+            TurnkeyErrorCodes.SIGN_MESSAGE_ERROR
           );
         }
 
@@ -2073,7 +2237,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to sign message",
         errorCode: TurnkeyErrorCodes.SIGN_MESSAGE_ERROR,
-      },
+      }
     );
   };
 
@@ -2109,7 +2273,7 @@ export class TurnkeyClient {
             case Chain.Ethereum:
               throw new TurnkeyError(
                 "Ethereum connected wallets do not support raw transaction signing. Use signAndSendTransaction instead.",
-                TurnkeyErrorCodes.INVALID_REQUEST,
+                TurnkeyErrorCodes.INVALID_REQUEST
               );
 
             case Chain.Solana:
@@ -2122,7 +2286,7 @@ export class TurnkeyClient {
             default:
               throw new TurnkeyError(
                 "Unsupported connected wallet type.",
-                TurnkeyErrorCodes.INVALID_REQUEST,
+                TurnkeyErrorCodes.INVALID_REQUEST
               );
           }
         }
@@ -2134,7 +2298,7 @@ export class TurnkeyClient {
             unsignedTransaction,
             type: transactionType,
           },
-          stampWith,
+          stampWith
         );
 
         return signTransaction.signedTransaction;
@@ -2142,7 +2306,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to sign transaction",
         errorCode: TurnkeyErrorCodes.SIGN_TRANSACTION_ERROR,
-      },
+      }
     );
   };
 
@@ -2197,7 +2361,7 @@ export class TurnkeyClient {
               if (!rpcUrl) {
                 throw new TurnkeyError(
                   "Missing rpcUrl: connected Solana wallets require an RPC URL to broadcast transactions.",
-                  TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+                  TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
                 );
               }
               // not sure why typescript isn't inferring the type here
@@ -2214,7 +2378,7 @@ export class TurnkeyClient {
             default:
               throw new TurnkeyError(
                 "Connected wallets do not support signAndSendTransaction for this transaction type.",
-                TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+                TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
               );
           }
         }
@@ -2226,7 +2390,7 @@ export class TurnkeyClient {
         if (!rpcUrl) {
           throw new TurnkeyError(
             "Missing rpcUrl: embedded wallets require an RPC URL to broadcast transactions.",
-            TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+            TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
           );
         }
 
@@ -2236,7 +2400,7 @@ export class TurnkeyClient {
             unsignedTransaction,
             type: transactionType,
           },
-          stampWith,
+          stampWith
         );
 
         const signedTx = signTransactionResponse.signedTransaction;
@@ -2252,7 +2416,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to sign and send transaction",
         errorCode: TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
-      },
+      }
     );
   };
 
@@ -2281,7 +2445,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
@@ -2289,7 +2453,7 @@ export class TurnkeyClient {
     if (!userId) {
       throw new TurnkeyError(
         "User ID must be provided to fetch user",
-        TurnkeyErrorCodes.INVALID_REQUEST,
+        TurnkeyErrorCodes.INVALID_REQUEST
       );
     }
 
@@ -2299,13 +2463,13 @@ export class TurnkeyClient {
       async () => {
         const userResponse = await this.httpClient.getUser(
           { organizationId, userId },
-          stampWith,
+          stampWith
         );
 
         if (!userResponse || !userResponse.user) {
           throw new TurnkeyError(
             "No user found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
 
@@ -2314,7 +2478,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to fetch user",
         errorCode: TurnkeyErrorCodes.FETCH_USER_ERROR,
-      },
+      }
     );
   };
 
@@ -2345,7 +2509,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
@@ -2361,7 +2525,7 @@ export class TurnkeyClient {
         if (existingUser.organizationId) {
           throw new TurnkeyError(
             `Email ${email} is already associated with another user.`,
-            TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
+            TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS
           );
         }
 
@@ -2371,13 +2535,13 @@ export class TurnkeyClient {
             userEmail: email,
             ...(verificationToken && { verificationToken }),
           },
-          stampWith,
+          stampWith
         );
 
         if (!res || !res.userId) {
           throw new TurnkeyError(
             "No user ID found in the update user email response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
 
@@ -2386,7 +2550,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to update user email",
         errorCode: TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR,
-      },
+      }
     );
   };
 
@@ -2412,7 +2576,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
     return withTurnkeyErrorHandling(
@@ -2423,12 +2587,12 @@ export class TurnkeyClient {
             userId: userId,
             userEmail: "",
           },
-          stampWith,
+          stampWith
         );
         if (!res || !res.userId) {
           throw new TurnkeyError(
             "No user ID found in the remove user email response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
         return res.userId;
@@ -2436,7 +2600,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to remove user email",
         errorCode: TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR,
-      },
+      }
     );
   };
 
@@ -2467,7 +2631,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
@@ -2480,13 +2644,13 @@ export class TurnkeyClient {
             userPhoneNumber: phoneNumber,
             ...(verificationToken && { verificationToken }),
           },
-          stampWith,
+          stampWith
         );
 
         if (!res || !res.userId) {
           throw new TurnkeyError(
             "Failed to update user phone number",
-            TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
+            TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR
           );
         }
 
@@ -2495,7 +2659,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to update user phone number",
         errorCode: TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
-      },
+      }
     );
   };
 
@@ -2521,7 +2685,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
     const userId = params?.userId || session.userId;
@@ -2533,12 +2697,12 @@ export class TurnkeyClient {
             userId,
             userPhoneNumber: "",
           },
-          stampWith,
+          stampWith
         );
         if (!res || !res.userId) {
           throw new TurnkeyError(
             "Failed to remove user phone number",
-            TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
+            TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR
           );
         }
         return res.userId;
@@ -2546,7 +2710,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to remove user phone number",
         errorCode: TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
-      },
+      }
     );
   };
 
@@ -2575,7 +2739,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
     const userId = params?.userId || session.userId;
@@ -2587,13 +2751,13 @@ export class TurnkeyClient {
             userId,
             userName,
           },
-          stampWith,
+          stampWith
         );
 
         if (!res || !res.userId) {
           throw new TurnkeyError(
             "No user ID found in the update user name response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
 
@@ -2602,7 +2766,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to update user name",
         errorCode: TurnkeyErrorCodes.UPDATE_USER_NAME_ERROR,
-      },
+      }
     );
   };
 
@@ -2634,7 +2798,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
@@ -2648,14 +2812,14 @@ export class TurnkeyClient {
         if (!accountRes) {
           throw new TurnkeyError(
             `Account fetch failed}`,
-            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR
           );
         }
 
         if (accountRes.organizationId) {
           throw new TurnkeyError(
             "Account already exists with this OIDC token",
-            TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
+            TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS
           );
         }
 
@@ -2694,13 +2858,13 @@ export class TurnkeyClient {
               },
             ],
           },
-          stampWith,
+          stampWith
         );
 
         if (!createProviderRes) {
           throw new TurnkeyError(
             "Failed to create OAuth provider",
-            TurnkeyErrorCodes.ADD_OAUTH_PROVIDER_ERROR,
+            TurnkeyErrorCodes.ADD_OAUTH_PROVIDER_ERROR
           );
         }
 
@@ -2709,7 +2873,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to add OAuth provider",
         errorCode: TurnkeyErrorCodes.ADD_OAUTH_PROVIDER_ERROR,
-      },
+      }
     );
   };
 
@@ -2738,7 +2902,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
     const userId = params?.userId || session.userId;
@@ -2749,12 +2913,12 @@ export class TurnkeyClient {
             userId,
             providerIds,
           },
-          stampWith,
+          stampWith
         );
         if (!res) {
           throw new TurnkeyError(
             "Failed to remove OAuth provider",
-            TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR,
+            TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR
           );
         }
         return res.providerIds;
@@ -2762,7 +2926,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to remove OAuth provider",
         errorCode: TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR,
-      },
+      }
     );
   };
 
@@ -2790,7 +2954,6 @@ export class TurnkeyClient {
   }): Promise<string[]> => {
     const { stampWith } = params || {};
     const name = params?.name || `Turnkey Passkey-${Date.now()}`;
-    const displayName = params?.displayName || name;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -2798,7 +2961,7 @@ export class TurnkeyClient {
         if (!session) {
           throw new TurnkeyError(
             "No active session found. Please log in first.",
-            TurnkeyErrorCodes.NO_SESSION_FOUND,
+            TurnkeyErrorCodes.NO_SESSION_FOUND
           );
         }
 
@@ -2806,14 +2969,13 @@ export class TurnkeyClient {
 
         const { encodedChallenge, attestation } = await this.createPasskey({
           name,
-          displayName,
           ...(stampWith && { stampWith }),
         });
 
         if (!attestation || !encodedChallenge) {
           throw new TurnkeyError(
             "Failed to create passkey challenge and attestation",
-            TurnkeyErrorCodes.CREATE_PASSKEY_ERROR,
+            TurnkeyErrorCodes.CREATE_PASSKEY_ERROR
           );
         }
 
@@ -2828,7 +2990,7 @@ export class TurnkeyClient {
               },
             ],
           },
-          stampWith,
+          stampWith
         );
 
         return res?.authenticatorIds || [];
@@ -2836,7 +2998,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to add passkey",
         errorCode: TurnkeyErrorCodes.ADD_PASSKEY_ERROR,
-      },
+      }
     );
   };
 
@@ -2865,7 +3027,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
     const userId = params?.userId || session.userId;
@@ -2877,12 +3039,12 @@ export class TurnkeyClient {
             userId,
             authenticatorIds,
           },
-          stampWith,
+          stampWith
         );
         if (!res) {
           throw new TurnkeyError(
             "No response found in the remove passkey response",
-            TurnkeyErrorCodes.REMOVE_PASSKEY_ERROR,
+            TurnkeyErrorCodes.REMOVE_PASSKEY_ERROR
           );
         }
         return res.authenticatorIds;
@@ -2890,7 +3052,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to remove passkey",
         errorCode: TurnkeyErrorCodes.REMOVE_PASSKEY_ERROR,
-      },
+      }
     );
   };
 
@@ -2926,7 +3088,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
@@ -2951,13 +3113,13 @@ export class TurnkeyClient {
             accounts: walletAccounts,
             mnemonicLength: mnemonicLength || 12,
           },
-          stampWith,
+          stampWith
         );
 
         if (!res || !res.walletId) {
           throw new TurnkeyError(
             "No wallet found in the create wallet response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
         return res.walletId;
@@ -2965,7 +3127,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to create wallet",
         errorCode: TurnkeyErrorCodes.CREATE_WALLET_ERROR,
-      },
+      }
     );
   };
 
@@ -2997,7 +3159,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
     return withTurnkeyErrorHandling(
@@ -3012,7 +3174,7 @@ export class TurnkeyClient {
                 organizationId: organizationId || session.organizationId,
                 paginationOptions: { limit: "100" },
               },
-              stampWith,
+              stampWith
             );
           walletAccounts = generateWalletAccountsFromAddressFormat({
             addresses: accounts,
@@ -3028,13 +3190,13 @@ export class TurnkeyClient {
             walletId,
             accounts: walletAccounts,
           },
-          stampWith,
+          stampWith
         );
 
         if (!res || !res.addresses) {
           throw new TurnkeyError(
             "No account found in the create wallet account response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
         return res.addresses;
@@ -3042,7 +3204,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to create wallet account",
         errorCode: TurnkeyErrorCodes.CREATE_WALLET_ACCOUNT_ERROR,
-      },
+      }
     );
   };
 
@@ -3074,7 +3236,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
     return withTurnkeyErrorHandling(
@@ -3085,13 +3247,13 @@ export class TurnkeyClient {
             targetPublicKey,
             organizationId: organizationId || session.organizationId,
           },
-          stampWith,
+          stampWith
         );
 
         if (!res.exportBundle) {
           throw new TurnkeyError(
             "No export bundle found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
         return res.exportBundle as ExportBundle;
@@ -3099,7 +3261,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to export wallet",
         errorCode: TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
-      },
+      }
     );
   };
 
@@ -3130,7 +3292,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
     return withTurnkeyErrorHandling(
@@ -3141,12 +3303,12 @@ export class TurnkeyClient {
             targetPublicKey,
             organizationId: organizationId || session.organizationId,
           },
-          stampWith,
+          stampWith
         );
         if (!res.exportBundle) {
           throw new TurnkeyError(
             "No export bundle found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
         return res.exportBundle as ExportBundle;
@@ -3154,7 +3316,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to export private key",
         errorCode: TurnkeyErrorCodes.EXPORT_PRIVATE_KEY_ERROR,
-      },
+      }
     );
   };
 
@@ -3186,7 +3348,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
     return withTurnkeyErrorHandling(
@@ -3197,12 +3359,12 @@ export class TurnkeyClient {
             targetPublicKey,
             organizationId: organizationId || session.organizationId,
           },
-          stampWith,
+          stampWith
         );
         if (!res.exportBundle) {
           throw new TurnkeyError(
             "No export bundle found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
         return res.exportBundle as ExportBundle;
@@ -3210,7 +3372,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to export wallet account",
         errorCode: TurnkeyErrorCodes.EXPORT_WALLET_ACCOUNT_ERROR,
-      },
+      }
     );
   };
 
@@ -3245,7 +3407,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
@@ -3262,13 +3424,13 @@ export class TurnkeyClient {
               ...DEFAULT_SOLANA_ACCOUNTS,
             ],
           },
-          stampWith,
+          stampWith
         );
 
         if (!res || !res.walletId) {
           throw new TurnkeyError(
             "No wallet ID found in the import response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
         return res.walletId;
@@ -3282,7 +3444,7 @@ export class TurnkeyClient {
             code: TurnkeyErrorCodes.BAD_REQUEST,
           },
         },
-      },
+      }
     );
   };
 
@@ -3327,7 +3489,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
@@ -3342,13 +3504,13 @@ export class TurnkeyClient {
             curve,
             addressFormats,
           },
-          stampWith,
+          stampWith
         );
 
         if (!res || !res.privateKeyId) {
           throw new TurnkeyError(
             "No wallet ID found in the import response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
         return res.privateKeyId;
@@ -3362,7 +3524,7 @@ export class TurnkeyClient {
             code: TurnkeyErrorCodes.BAD_REQUEST,
           },
         },
-      },
+      }
     );
   };
 
@@ -3389,7 +3551,7 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
@@ -3397,13 +3559,13 @@ export class TurnkeyClient {
       async () => {
         return await this.httpClient.deleteSubOrganization(
           { deleteWithoutExport },
-          stampWith,
+          stampWith
         );
       },
       {
         errorMessage: "Failed to delete sub-organization",
         errorCode: TurnkeyErrorCodes.DELETE_SUB_ORGANIZATION_ERROR,
-      },
+      }
     );
   };
 
@@ -3438,7 +3600,7 @@ export class TurnkeyClient {
       },
       {
         finallyFn: async () => await this.clearUnusedKeyPairs(),
-      },
+      }
     );
   };
 
@@ -3465,14 +3627,14 @@ export class TurnkeyClient {
         } else {
           throw new TurnkeyError(
             `No session found with key: ${sessionKey}`,
-            TurnkeyErrorCodes.NOT_FOUND,
+            TurnkeyErrorCodes.NOT_FOUND
           );
         }
       },
       {
         errorMessage: "Failed to delete session",
         errorCode: TurnkeyErrorCodes.CLEAR_SESSION_ERROR,
-      },
+      }
     );
   };
 
@@ -3491,12 +3653,7 @@ export class TurnkeyClient {
     withTurnkeyErrorHandling(
       async () => {
         const sessionKeys = await this.storageManager.listSessionKeys();
-        if (sessionKeys.length === 0) {
-          throw new TurnkeyError(
-            "No sessions found to clear.",
-            TurnkeyErrorCodes.NO_SESSION_FOUND,
-          );
-        }
+        if (sessionKeys.length === 0) return;
         for (const sessionKey of sessionKeys) {
           this.clearSession({ sessionKey });
         }
@@ -3504,7 +3661,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to clear all sessions",
         errorCode: TurnkeyErrorCodes.CLEAR_ALL_SESSIONS_ERROR,
-      },
+      }
     );
   };
 
@@ -3542,7 +3699,7 @@ export class TurnkeyClient {
     if (!sessionKey) {
       throw new TurnkeyError(
         "No session key provided or active session to refresh session",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
     const session = await this.getSession({
@@ -3551,14 +3708,14 @@ export class TurnkeyClient {
     if (!session) {
       throw new TurnkeyError(
         `No active session found: ${sessionKey}`,
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        TurnkeyErrorCodes.NO_SESSION_FOUND
       );
     }
 
     if (!this.httpClient) {
       throw new TurnkeyError(
         "HTTP client is not initialized. Please initialize the client before refreshing the session.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED
       );
     }
 
@@ -3569,7 +3726,7 @@ export class TurnkeyClient {
         if (!keyPair) {
           throw new TurnkeyError(
             "Failed to create new key pair.",
-            TurnkeyErrorCodes.INTERNAL_ERROR,
+            TurnkeyErrorCodes.INTERNAL_ERROR
           );
         }
         const res = await this.httpClient.stampLogin(
@@ -3578,13 +3735,13 @@ export class TurnkeyClient {
             expirationSeconds,
             invalidateExisting: invalidateExisitng,
           },
-          params?.stampWith,
+          params?.stampWith
         );
 
         if (!res || !res.session) {
           throw new TurnkeyError(
             "No session found in the refresh response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+            TurnkeyErrorCodes.BAD_RESPONSE
           );
         }
 
@@ -3597,7 +3754,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to refresh session",
         errorCode: TurnkeyErrorCodes.REFRESH_SESSION_ERROR,
-      },
+      }
     );
   };
 
@@ -3624,7 +3781,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to get session with key " + params?.sessionKey,
         errorCode: TurnkeyErrorCodes.GET_SESSION_ERROR,
-      },
+      }
     );
   };
 
@@ -3658,7 +3815,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to get all sessions",
         errorCode: TurnkeyErrorCodes.GET_ALL_SESSIONS_ERROR,
-      },
+      }
     );
   };
 
@@ -3683,7 +3840,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to set active session",
         errorCode: TurnkeyErrorCodes.SET_ACTIVE_SESSION_ERROR,
-      },
+      }
     );
   };
 
@@ -3706,7 +3863,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to get active session key",
         errorCode: TurnkeyErrorCodes.GET_ACTIVE_SESSION_KEY_ERROR,
-      },
+      }
     );
   };
 
@@ -3746,7 +3903,7 @@ export class TurnkeyClient {
               throw new TurnkeyError(
                 `Failed to delete unused key pair ${publicKey}`,
                 TurnkeyErrorCodes.INTERNAL_ERROR,
-                error,
+                error
               );
             }
           }
@@ -3755,7 +3912,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to clear unused key pairs",
         errorCode: TurnkeyErrorCodes.CLEAR_UNUSED_KEY_PAIRS_ERROR,
-      },
+      }
     );
   };
 
@@ -3785,15 +3942,15 @@ export class TurnkeyClient {
         if (!this.apiKeyStamper) {
           throw new TurnkeyError(
             "API Key Stamper is not initialized.",
-            TurnkeyErrorCodes.INTERNAL_ERROR,
+            TurnkeyErrorCodes.INTERNAL_ERROR
           );
         }
         const publicKey = await this.apiKeyStamper.createKeyPair(
-          externalKeyPair ? externalKeyPair : undefined,
+          externalKeyPair ? externalKeyPair : undefined
         );
 
         if (storeOverride && publicKey) {
-          await this.apiKeyStamper.setPublicKeyOverride(publicKey);
+          await this.apiKeyStamper.setTemporaryPublicKey(publicKey);
         }
 
         return publicKey;
@@ -3801,7 +3958,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to create API key pair",
         errorCode: TurnkeyErrorCodes.CREATE_API_KEY_PAIR_ERROR,
-      },
+      }
     );
   };
 
@@ -3824,7 +3981,7 @@ export class TurnkeyClient {
         if (!res) {
           throw new TurnkeyError(
             `Failed to fetch auth proxy config`,
-            TurnkeyErrorCodes.GET_PROXY_AUTH_CONFIG_ERROR,
+            TurnkeyErrorCodes.GET_PROXY_AUTH_CONFIG_ERROR
           );
         }
 
@@ -3833,7 +3990,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to get auth proxy config",
         errorCode: TurnkeyErrorCodes.GET_PROXY_AUTH_CONFIG_ERROR,
-      },
+      }
     );
   };
 }

@@ -1,5 +1,65 @@
 # @turnkey/delegated-access
 
+## 0.1.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.8.1-beta.0
+
+## 0.1.0-beta.0
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.7.0-beta.2
+
+## 0.0.17
+
+### Patch Changes
+
+- Updated dependencies [[`026264c`](https://github.com/tkhq/sdk/commit/026264c55aa16342c8925af0bdcdf72dc00e5158)]:
+  - @turnkey/sdk-server@4.8.0
+
+## 0.0.16
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.7.0-beta.1
+
+## 0.0.15-beta.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.7.0-beta.0
+
+## 0.0.15-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.5.1-beta.2
+
+## 0.0.15-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.5.1-beta.1
+
+## 0.0.15-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.5.1-beta.0
+
 ## 0.0.15-beta.4
 
 ### Patch Changes

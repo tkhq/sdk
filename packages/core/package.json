@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/core",
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0-beta.6",
   "description": "A core JavaScript web and React Native package for interfacing with Turnkey's infrastructure.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -14,7 +14,8 @@
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc -p tsconfig.typecheck.json",
-    "prepublishOnly": "pnpm run clean && pnpm run build"
+    "prepublishOnly": "pnpm run clean && pnpm run build",
+    "test": "jest"
   },
   "keywords": [
     "turnkey"

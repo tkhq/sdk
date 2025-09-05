@@ -10,28 +10,47 @@ import { NestedParam } from "/snippets/nested-param.mdx";
 Logs out the current client session.
 
 <ul>
-  <li>This function clears the specified session and removes any associated key pairs from storage.</li>
-  <li>If a sessionKey is provided, it logs out from that session; otherwise, it logs out from the active session.</li>
+  <li>
+    This function clears the specified session and removes any associated key
+    pairs from storage.
+  </li>
+  <li>
+    If a sessionKey is provided, it logs out from that session; otherwise, it
+    logs out from the active session.
+  </li>
   <li>Cleans up any api keys associated with the session.</li>
 </ul>
 
-<p><strong>Package:</strong> <code>core</code></p>
+<p>
+  <strong>Package:</strong> <code>core</code>
+</p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L259">core.ts:259</a></p>
+<p>
+  <strong>Defined in:</strong>{" "}
+  <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L270">
+    core.ts:270
+  </a>
+</p>
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type="object" required={false} path="params">
   <Expandable title="params details">
-    <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
-session key to specify which session to log out from (defaults to the active session).
-</NestedParam>
+    <NestedParam
+      parentKey="params"
+      childKey="sessionKey"
+      type="string"
+      required={false}
+    >
+      session key to specify which session to log out from (defaults to the
+      active session).
+    </NestedParam>
   </Expandable>
 </ParamField>
 
-<H3Bordered text="Response" />
-A successful response returns the following fields:
+<H3Bordered text="Response" />A successful response returns the following
+fields:
 
-<ResponseField name="returns" type="void" required={true} >
+<ResponseField name="returns" type="void" required={true}>
   A promise that resolves when the logout process is complete.
 </ResponseField>

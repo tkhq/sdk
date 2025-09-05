@@ -1,16 +1,27 @@
 import type { CreateSubOrgParams, TurnkeySDKClientConfig } from "@turnkey/core";
 import type {
+  AuthAction,
   Session,
   TurnkeyError,
   TurnkeyNetworkError,
 } from "@turnkey/sdk-types";
 import type { ThemeOverrides } from "../providers/theme/Overrides";
+import { KeyFormat as IframeKeyFormat } from "@turnkey/iframe-stamper";
 
 export interface TurnkeyCallbacks {
-  onOauthRedirect?: (response: { idToken: string; publicKey: string }) => void;
+  onOauthRedirect?: (response: {
+    idToken: string;
+    publicKey: string;
+    sessionKey?: string;
+  }) => void;
   beforeSessionExpiry?: (params: { sessionKey: string }) => void;
   onSessionExpired?: (params: { sessionKey: string }) => void;
-  onAuthenticationSuccess?: (params: { session: Session | undefined }) => void;
+  onAuthenticationSuccess?: (params: {
+    session: Session | undefined;
+    action: AuthAction;
+    method: AuthMethod;
+    identifier: string;
+  }) => void;
   onError?: (error: TurnkeyError | TurnkeyNetworkError) => void;
 }
 
@@ -40,12 +51,14 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       walletAuthEnabled?: boolean;
       googleOauthEnabled?: boolean;
       appleOauthEnabled?: boolean;
+      xOauthEnabled?: boolean;
+      discordOauthEnabled?: boolean;
       facebookOauthEnabled?: boolean;
     };
     /** order of authentication methods. */
     methodOrder?: Array<"socials" | "email" | "sms" | "passkey" | "wallet">;
     /** order of OAuth authentication methods. */
-    oauthOrder?: Array<"google" | "apple" | "facebook">;
+    oauthOrder?: Array<"google" | "apple" | "facebook" | "x" | "discord">;
     /** configuration for OAuth authentication. */
     oauthConfig?: {
       /** redirect URI for OAuth. */
@@ -56,6 +69,10 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       appleClientId?: string;
       /** client ID for Facebook OAuth. */
       facebookClientId?: string;
+      /** client ID for X (formerly Twitter) OAuth. */
+      xClientId?: string;
+      /** client ID for Discord OAuth. */
+      discordClientId?: string;
       /** whether to open OAuth in the same page. */
       openOauthInPage?: boolean;
     };
@@ -108,6 +125,14 @@ export enum ExportType {
   WalletAccount = "WALLET_ACCOUNT",
 }
 
+/**@internal */
+export enum ImportType {
+  Wallet = "WALLET",
+  PrivateKey = "PRIVATE_KEY",
+}
+
+export { IframeKeyFormat as KeyFormat };
+
 /**
  * Enum representing the authentication states of the user.
  * - Unauthenticated: The user is not authenticated.
@@ -136,3 +161,13 @@ export type WalletId = string;
 export type PrivateKeyId = string;
 /** @internal */
 export type Address = string;
+
+/**
+ * Enum representing the authentication methods.
+ */
+export enum AuthMethod {
+  Otp = "otp",
+  Passkey = "passkey",
+  Wallet = "wallet",
+  Oauth = "oauth",
+}

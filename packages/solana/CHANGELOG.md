@@ -1,5 +1,15 @@
 # @turnkey/solana
 
+## 1.1.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/core@1.0.0-beta.6
+  - @turnkey/sdk-browser@5.9.0-beta.1
+  - @turnkey/http@3.11.1-beta.0
+  - @turnkey/sdk-server@4.8.1-beta.0
+
 ## 1.1.0-beta.0
 
 ### Minor Changes
@@ -13,6 +23,15 @@
   - @turnkey/sdk-server@4.7.0-beta.2
   - @turnkey/core@1.0.0-beta.5
   - @turnkey/http@3.10.0-beta.2
+
+## 1.0.43
+
+### Patch Changes
+
+- Updated dependencies [[`026264c`](https://github.com/tkhq/sdk/commit/026264c55aa16342c8925af0bdcdf72dc00e5158)]:
+  - @turnkey/sdk-browser@5.9.0
+  - @turnkey/sdk-server@4.8.0
+  - @turnkey/http@3.11.0
 
 ## 1.0.42
 

@@ -10,6 +10,7 @@ import {
   type WalletId,
   type PrivateKeyId,
   ExportType,
+  KeyFormat,
 } from "../../types/base";
 import clsx from "clsx";
 import type { StamperType } from "@turnkey/core";
@@ -29,34 +30,34 @@ export function ExportComponent(params: {
   target: WalletId | PrivateKeyId | Address;
   exportType: ExportType;
   targetPublicKey?: string;
+  keyFormat?: KeyFormat | undefined;
   stampWith?: StamperType | undefined;
 }) {
-  const { exportType, targetPublicKey, stampWith, target } = params;
+  const { exportType, targetPublicKey, keyFormat, stampWith, target } = params;
   const { config } = useTurnkey();
+
+  if (!config) {
+    throw new TurnkeyError(
+      "Turnkey SDK is not properly configured. Please check your configuration.",
+      TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED
+    );
+  }
 
   const [exportIframeVisible, setExportIframeVisible] = useState(false);
 
   const { closeModal, isMobile } = useModal();
 
-  const apiBaseUrl = config?.apiBaseUrl;
   const exportIframeUrl = config?.exportIframeUrl;
 
-  if (!exportIframeUrl || !apiBaseUrl) {
+  if (!exportIframeUrl) {
     throw new TurnkeyError(
-      "Export iframe URL or API base URL is not configured. Please set them in the Turnkey configuration.",
-      TurnkeyErrorCodes.NOT_FOUND,
+      "Export iframe URL is not configured. Please set it in the Turnkey configuration.",
+      TurnkeyErrorCodes.NOT_FOUND
     );
   }
 
   const [exportIframeClient, setExportIframeClient] =
     useState<IframeStamper | null>(null);
-
-  if (!apiBaseUrl) {
-    throw new TurnkeyError(
-      "API base URL is not configured. Please set it in the Turnkey configuration.",
-      TurnkeyErrorCodes.INVALID_CONFIGURATION,
-    );
-  }
 
   useEffect(() => {
     const initIframe = async () => {
@@ -65,7 +66,7 @@ export function ExportComponent(params: {
           iframeUrl: exportIframeUrl,
           iframeElementId: TurnkeyIframeElementId,
           iframeContainer: document.getElementById(
-            TurnkeyExportIframeContainerId,
+            TurnkeyExportIframeContainerId
           ),
         });
         await newExportIframeClient.init();
@@ -86,7 +87,7 @@ export function ExportComponent(params: {
         throw new TurnkeyError(
           `Error initializing IframeStamper`,
           TurnkeyErrorCodes.INITIALIZE_IFRAME_ERROR,
-          error,
+          error
         );
       }
     };
@@ -137,7 +138,7 @@ export function ExportComponent(params: {
     <div
       className={clsx(
         "flex flex-col items-center pt-8",
-        isMobile ? "w-full" : "w-72",
+        isMobile ? "w-full" : "w-72"
       )}
     >
       {!exportIframeVisible && (
@@ -146,6 +147,7 @@ export function ExportComponent(params: {
           exportIframeClient={exportIframeClient}
           targetPublicKey={targetPublicKey}
           exportType={exportType}
+          keyFormat={keyFormat}
           stampWith={stampWith}
           setExportIframeVisible={setExportIframeVisible}
         />

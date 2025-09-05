@@ -10,6 +10,7 @@ import {
   type Address,
   type WalletId,
   type PrivateKeyId,
+  KeyFormat,
   ExportType,
 } from "../../types/base";
 import { useTurnkey } from "../../providers/client/Hook";
@@ -23,11 +24,18 @@ export function ExportWarning(props: {
   exportIframeClient?: IframeStamper | null; // Replace with actual type if available
   targetPublicKey?: string | undefined;
   exportType: ExportType;
+  keyFormat?: KeyFormat | undefined;
   setExportIframeVisible?: (visible: boolean) => void;
   stampWith?: StamperType | undefined;
 }) {
-  const { target, exportIframeClient, targetPublicKey, exportType, stampWith } =
-    props;
+  const {
+    target,
+    exportIframeClient,
+    targetPublicKey,
+    exportType,
+    keyFormat,
+    stampWith,
+  } = props;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -81,12 +89,12 @@ export function ExportWarning(props: {
                 if (!exportBundle) {
                   throw new TurnkeyError(
                     "Failed to retrieve export bundle",
-                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR
                   );
                 }
                 await exportIframeClient?.injectWalletExportBundle(
                   exportBundle,
-                  session?.organizationId!,
+                  session?.organizationId!
                 );
                 break;
               case ExportType.PrivateKey:
@@ -99,12 +107,13 @@ export function ExportWarning(props: {
                 if (!exportBundle) {
                   throw new TurnkeyError(
                     "Failed to retrieve export bundle",
-                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR
                   );
                 }
                 await exportIframeClient?.injectKeyExportBundle(
                   exportBundle,
                   session?.organizationId!,
+                  keyFormat
                 );
                 break;
               case ExportType.WalletAccount:
@@ -117,18 +126,19 @@ export function ExportWarning(props: {
                 if (!exportBundle) {
                   throw new TurnkeyError(
                     "Failed to retrieve export bundle",
-                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR
                   );
                 }
                 await exportIframeClient?.injectKeyExportBundle(
                   exportBundle,
                   session?.organizationId!,
+                  keyFormat
                 );
                 break;
               default:
                 throw new TurnkeyError(
                   "Invalid export type",
-                  TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                  TurnkeyErrorCodes.EXPORT_WALLET_ERROR
                 );
             }
             if (props.setExportIframeVisible) {
@@ -138,7 +148,7 @@ export function ExportWarning(props: {
             throw new TurnkeyError(
               `Error exporting wallet`,
               TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
-              error,
+              error
             );
           } finally {
             setIsLoading(false);

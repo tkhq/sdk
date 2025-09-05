@@ -1,5 +1,16 @@
 # @turnkey/viem
 
+## 0.14.0-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/core@1.0.0-beta.6
+  - @turnkey/sdk-browser@5.9.0-beta.1
+  - @turnkey/api-key-stamper@0.5.0-beta.6
+  - @turnkey/http@3.11.1-beta.0
+  - @turnkey/sdk-server@4.8.1-beta.0
+
 ## 0.14.0-beta.0
 
 ### Minor Changes
@@ -14,6 +25,15 @@
   - @turnkey/sdk-server@4.7.0-beta.2
   - @turnkey/core@1.0.0-beta.5
   - @turnkey/http@3.10.0-beta.2
+
+## 0.13.1
+
+### Patch Changes
+
+- Updated dependencies [[`026264c`](https://github.com/tkhq/sdk/commit/026264c55aa16342c8925af0bdcdf72dc00e5158)]:
+  - @turnkey/sdk-browser@5.9.0
+  - @turnkey/sdk-server@4.8.0
+  - @turnkey/http@3.11.0
 
 ## 0.13.0
 
@@ -834,7 +854,7 @@ const httpClient = new TurnkeyClient(
   new ApiKeyStamper({
     apiPublicKey: "...",
     apiPrivateKey: "...",
-  }),
+  })
 );
 
 // Create the Viem custom account

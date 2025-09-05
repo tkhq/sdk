@@ -9,14 +9,16 @@ import {
 } from "@turnkey/encoding";
 
 import {
-  PRODUCTION_NOTARIZER_PUBLIC_KEY,
-  PRODUCTION_SIGNER_PUBLIC_KEY,
+  PRODUCTION_NOTARIZER_SIGN_PUBLIC_KEY,
+  PRODUCTION_SIGNER_SIGN_PUBLIC_KEY,
+  PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
 } from "./constants";
 import {
   formatHpkeBuf,
   fromDerSignature,
   hpkeDecrypt,
   hpkeEncrypt,
+  quorumKeyEncrypt,
   uncompressRawPublicKey,
 } from "./crypto";
 
@@ -48,6 +50,14 @@ interface EncryptWalletToBundleParams {
   userId: string;
   organizationId: string;
   dangerouslyOverrideSignerPublicKey?: string; // Optional override for signer key
+}
+
+export enum Enclave {
+  NOTARIZER = "notarizer",
+  SIGNER = "signer",
+  EVM_PARSER = "evm-parser",
+  TLS_FETCHER = "tls-fetcher",
+  UMP = "ump",
 }
 
 /**
@@ -227,11 +237,11 @@ const verifyEnclaveSignature = async (
   dangerouslyOverrideSignerPublicKey?: string,
 ): Promise<boolean> => {
   const expectedSignerPublicKey =
-    dangerouslyOverrideSignerPublicKey || PRODUCTION_SIGNER_PUBLIC_KEY;
+    dangerouslyOverrideSignerPublicKey || PRODUCTION_SIGNER_SIGN_PUBLIC_KEY;
   if (enclaveQuorumPublic != expectedSignerPublicKey) {
     throw new Error(
       `expected signer key ${
-        dangerouslyOverrideSignerPublicKey ?? PRODUCTION_SIGNER_PUBLIC_KEY
+        dangerouslyOverrideSignerPublicKey ?? PRODUCTION_SIGNER_SIGN_PUBLIC_KEY
       } does not match signer key from bundle: ${enclaveQuorumPublic}`,
     );
   }
@@ -435,7 +445,8 @@ export const verifySessionJwtSignature = async (
   dangerouslyOverrideNotarizerPublicKey?: string,
 ): Promise<boolean> => {
   const notarizerKeyHex =
-    dangerouslyOverrideNotarizerPublicKey ?? PRODUCTION_NOTARIZER_PUBLIC_KEY;
+    dangerouslyOverrideNotarizerPublicKey ??
+    PRODUCTION_NOTARIZER_SIGN_PUBLIC_KEY;
 
   /* 1. split JWT -------------------------------------------------------- */
   const [headerB64, payloadB64, signatureB64] = jwt.split(".");
@@ -463,4 +474,45 @@ export const verifySessionJwtSignature = async (
 
   /* 5. verify ----------------------------------------------------------- */
   return p256.verify(signature, msgDigest, publicKey);
+};
+
+/**
+ * Encrypts a message to an uncompressed P256 public key
+ * The function takes in standard strings and converts them
+ * to Uint8Arrays to be used by the lower level quorumKeyEncrypt
+ * function. More details about how the encryption works is described
+ * in that function's documentation.
+ *
+ * @param targetPublicKeyUncompressed A hex string uncompressed public key to encrypt a message to
+ * @param message A standard string message to encrypt, does not have to be hex encoded
+ * @returns {Promise<Uint8Array>} A borsh serialized envelope with the encrypted message (more details found in quorumKeyEncrypt)
+ */
+export const encryptToEnclave = async (
+  targetPublicKeyUncompressed: string,
+  message: string,
+): Promise<Uint8Array> => {
+  return await quorumKeyEncrypt(
+    uint8ArrayFromHexString(targetPublicKeyUncompressed),
+    new TextEncoder().encode(message),
+  );
+};
+
+/**
+ * Helper function used specifically to encrypt a client secret to
+ * TLS Fetchers quorum key. This is used for client_secret upload
+ * when enabling authentication with an OAuth 2.0 provider
+ *
+ * @param client_secret The client secret issued by the OAuth 2.0 provider
+ * @returns {Promise<string>} A hex encoded borsh serialized envelope with the encrypted client
+ *                            secret meant to be passed to the CreateOauth2Credential Activity
+ */
+export const encryptOauth2ClientSecret = async (
+  client_secret: string,
+): Promise<string> => {
+  return uint8ArrayToHexString(
+    await encryptToEnclave(
+      PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
+      client_secret,
+    ),
+  );
 };

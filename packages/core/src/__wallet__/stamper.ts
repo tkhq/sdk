@@ -12,11 +12,12 @@ import {
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
 import type { Hex } from "viem";
-import { isEthereumProvider, isSolanaProvider } from "@utils";
+import {
+  getSignatureSchemeFromProvider,
+  isEthereumProvider,
+  isSolanaProvider,
+} from "@utils";
 
-const SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191 =
-  "SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191";
-const SIGNATURE_SCHEME_TK_API_ED25519 = "SIGNATURE_SCHEME_TK_API_ED25519";
 const STAMP_HEADER_NAME = "X-Stamp";
 
 interface WalletContext {
@@ -43,12 +44,12 @@ export class CrossPlatformWalletStamper implements TStamper {
    */
   constructor(wallets: Partial<Record<WalletInterfaceType, WalletInterface>>) {
     const walletEntries = Object.entries(wallets).filter(([, w]) =>
-      Boolean(w),
+      Boolean(w)
     ) as Array<[string, WalletInterface]>;
 
     if (walletEntries.length === 0) {
       throw new Error(
-        "Cannot create WalletStamper: no wallet interfaces provided",
+        "Cannot create WalletStamper: no wallet interfaces provided"
       );
     }
 
@@ -73,14 +74,14 @@ export class CrossPlatformWalletStamper implements TStamper {
   async stamp(
     payload: string,
     interfaceType: WalletInterfaceType = this.defaultInterface(),
-    provider?: WalletProvider,
+    provider?: WalletProvider
   ): Promise<TStamp> {
     const ctx = this.getCtx(interfaceType);
     const selectedProvider = provider ?? ctx.provider;
 
     if (!selectedProvider) {
       throw new Error(
-        `Could not find a provider for interface '${interfaceType}'.`,
+        `Could not find a provider for interface '${interfaceType}'.`
       );
     }
 
@@ -96,7 +97,7 @@ export class CrossPlatformWalletStamper implements TStamper {
    */
   async getPublicKey(
     interfaceType: WalletInterfaceType = this.defaultInterface(),
-    provider: WalletProvider,
+    provider: WalletProvider
   ): Promise<string> {
     return this.getCtx(interfaceType).wallet.getPublicKey(provider);
   }
@@ -111,7 +112,7 @@ export class CrossPlatformWalletStamper implements TStamper {
    */
   setProvider(
     interfaceType: WalletInterfaceType,
-    provider: WalletProvider,
+    provider: WalletProvider
   ): void {
     this.getCtx(interfaceType).provider = provider;
     this.activeInterfaceType = interfaceType;
@@ -131,7 +132,7 @@ export class CrossPlatformWalletStamper implements TStamper {
     }
 
     const initializedInterfaces = Object.keys(
-      this.ctx,
+      this.ctx
     ) as WalletInterfaceType[];
 
     if (initializedInterfaces.includes(WalletInterfaceType.Ethereum)) {
@@ -199,15 +200,13 @@ export class WalletStamper {
       signature = await this.wallet.sign(
         payload,
         provider,
-        SignIntent.SignMessage,
+        SignIntent.SignMessage
       );
     } catch (error) {
       throw new Error(`Failed to sign the message: ${error}`);
     }
 
-    const scheme = isSolanaProvider(provider)
-      ? SIGNATURE_SCHEME_TK_API_ED25519
-      : SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191;
+    const scheme = getSignatureSchemeFromProvider(provider);
 
     try {
       if (isEthereumProvider(provider)) {
@@ -230,8 +229,14 @@ export class WalletStamper {
 
         publicKey = uint8ArrayToHexString(publicKeyBytesCompressed);
         signature = toDerSignature(signature.replace("0x", ""));
-      } else {
+      } else if (isSolanaProvider(provider)) {
         publicKey = await this.wallet.getPublicKey(provider);
+      } else {
+        // we should never hit this case
+        // if we do then it means we added support for a new chain but missed updating the stamper
+        throw new Error(
+          `Unsupported provider namespace: ${provider.chainInfo.namespace}. Expected Ethereum or Solana.`
+        );
       }
     } catch (error) {
       throw new Error(`Failed to recover public key: ${error}`);
@@ -240,7 +245,7 @@ export class WalletStamper {
     return {
       stampHeaderName: STAMP_HEADER_NAME,
       stampHeaderValue: stringToBase64urlString(
-        JSON.stringify({ publicKey, scheme, signature }),
+        JSON.stringify({ publicKey, scheme, signature })
       ),
     };
   }

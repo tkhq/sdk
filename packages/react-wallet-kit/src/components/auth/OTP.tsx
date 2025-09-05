@@ -16,6 +16,7 @@ interface OtpVerificationProps {
   otpLength?: number;
   alphanumeric?: boolean;
   formattedContact?: string; // Optional formatted contact for display purposes
+  sessionKey?: string; // Optional sessionKey for multisession
   onContinue?: (optCode: string) => Promise<void>; // Optional callback for continue action
 }
 export function OtpVerification(props: OtpVerificationProps) {
@@ -25,6 +26,7 @@ export function OtpVerification(props: OtpVerificationProps) {
     otpLength = 6,
     alphanumeric = true,
     formattedContact,
+    sessionKey,
     onContinue = null, // Default to null if not provided
   } = props;
   const { initOtp, completeOtp } = useTurnkey();
@@ -52,6 +54,7 @@ export function OtpVerification(props: OtpVerificationProps) {
           otpCode,
           contact,
           otpType,
+          ...(sessionKey && { sessionKey }),
         });
         closeModal();
       }
@@ -84,7 +87,7 @@ export function OtpVerification(props: OtpVerificationProps) {
     <div
       className={clsx(
         "flex items-center justify-center py-3",
-        isMobile ? "w-full" : "min-w-96",
+        isMobile ? "w-full" : "min-w-96"
       )}
     >
       <div
@@ -177,7 +180,7 @@ export function OtpInput(props: OtpInputProps) {
 
   const handleKeyDown = (
     e: React.KeyboardEvent<HTMLInputElement>,
-    index: number,
+    index: number
   ) => {
     if (e.key === "Backspace" && !values[index] && index > 0) {
       inputsRef.current[index - 1]?.focus();
@@ -227,7 +230,7 @@ export function OtpInput(props: OtpInputProps) {
     <div
       className={clsx(
         "flex items-center justify-center space-x-2",
-        isMobile ? "w-[95%]" : "w-full",
+        isMobile ? "w-[95%]" : "w-full"
       )}
     >
       {Array.from({ length: otpLength }).map((_, i) => {
@@ -245,7 +248,7 @@ export function OtpInput(props: OtpInputProps) {
             ref={(el) => (inputsRef.current[i] = el as HTMLInputElement | null)}
             className={clsx(
               "text-center text-lg rounded-md border border-modal-background-dark/20 dark:border-modal-background-light/20 bg-button-light dark:bg-button-dark text-inherit focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-all",
-              isMobile ? "w-full h-10" : "h-12 w-12",
+              isMobile ? "w-full h-10" : "h-12 w-12"
             )}
           />
         );

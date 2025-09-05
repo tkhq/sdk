@@ -15,6 +15,7 @@ import {
   v1SignRawPayloadResult,
   v1TransactionType,
   ProxyTGetWalletKitConfigResponse,
+  v1User,
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
@@ -24,7 +25,10 @@ import {
   TurnkeyRequestError,
   EvmChainInfo,
   SolanaChainInfo,
-} from "@types";
+  Curve,
+} from "./__types__/base";
+import bs58 from "bs58";
+
 // Import all defaultAccountAtIndex functions for each address format
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
@@ -61,11 +65,13 @@ import {
   DEFAULT_TON_V3R2_ACCOUNTS,
   DEFAULT_TON_V4R2_ACCOUNTS,
 } from "./turnkey-helpers";
-import { fromDerSignature } from "@turnkey/crypto";
+import { fromDerSignature, uncompressRawPublicKey } from "@turnkey/crypto";
 import {
   decodeBase64urlToString,
+  uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
+import { keccak256 } from "ethers";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -329,7 +335,7 @@ export const generateRandomBuffer = (): ArrayBuffer => {
 };
 
 const hexByByte = Array.from({ length: 256 }, (_, i) =>
-  i.toString(16).padStart(2, "0"),
+  i.toString(16).padStart(2, "0")
 );
 
 export const bytesToHex = (bytes: Uint8Array): string => {
@@ -342,7 +348,7 @@ export const bytesToHex = (bytes: Uint8Array): string => {
 };
 
 export const toExternalTimestamp = (
-  date: Date = new Date(),
+  date: Date = new Date()
 ): externaldatav1Timestamp => {
   const millis = date.getTime();
   const seconds = Math.floor(millis / 1000);
@@ -394,7 +400,7 @@ export function getHashFunction(addressFormat: v1AddressFormat) {
   if (!config) {
     throw new TurnkeyError(
       `Unsupported address format: ${addressFormat}`,
-      TurnkeyErrorCodes.INVALID_REQUEST,
+      TurnkeyErrorCodes.INVALID_REQUEST
     );
   }
   return config.hashFunction;
@@ -405,7 +411,7 @@ export function getEncodingType(addressFormat: v1AddressFormat) {
   if (!config) {
     throw new TurnkeyError(
       `Unsupported address format: ${addressFormat}`,
-      TurnkeyErrorCodes.INVALID_REQUEST,
+      TurnkeyErrorCodes.INVALID_REQUEST
     );
   }
   return config.encoding;
@@ -413,13 +419,13 @@ export function getEncodingType(addressFormat: v1AddressFormat) {
 
 export function getEncodedMessage(
   addressFormat: v1AddressFormat,
-  rawMessage: string,
+  rawMessage: string
 ): string {
   const config = addressFormatConfig[addressFormat];
   if (!config) {
     throw new TurnkeyError(
       `Unsupported address format: ${addressFormat}`,
-      TurnkeyErrorCodes.INVALID_REQUEST,
+      TurnkeyErrorCodes.INVALID_REQUEST
     );
   }
   if (config.encoding === "PAYLOAD_ENCODING_HEXADECIMAL") {
@@ -456,7 +462,7 @@ export const broadcastTransaction = async (params: {
       if (json.error) {
         throw new TurnkeyError(
           `Solana RPC Error: ${json.error.message}`,
-          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
         );
       }
 
@@ -480,7 +486,7 @@ export const broadcastTransaction = async (params: {
       if (json.error) {
         throw new TurnkeyError(
           `Ethereum RPC Error: ${json.error.message}`,
-          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
         );
       }
 
@@ -499,7 +505,7 @@ export const broadcastTransaction = async (params: {
       if (!json.result) {
         throw new TurnkeyError(
           `Tron RPC Error: ${json.message}`,
-          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+          TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
         );
       }
 
@@ -509,14 +515,14 @@ export const broadcastTransaction = async (params: {
     default:
       throw new TurnkeyError(
         `Unsupported transaction type for broadcasting: ${transactionType}`,
-        TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+        TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR
       );
   }
 };
 
 export function splitSignature(
   signature: string,
-  addressFormat: v1AddressFormat,
+  addressFormat: v1AddressFormat
 ): v1SignRawPayloadResult {
   const hex = signature.replace(/^0x/, "");
 
@@ -543,7 +549,7 @@ export function splitSignature(
   if (addressFormat === "ADDRESS_FORMAT_SOLANA") {
     if (hex.length !== 128) {
       throw new Error(
-        `Invalid Solana signature length: expected 64 bytes (128 hex), got ${hex.length}`,
+        `Invalid Solana signature length: expected 64 bytes (128 hex), got ${hex.length}`
       );
     }
 
@@ -557,13 +563,13 @@ export function splitSignature(
   }
 
   throw new Error(
-    `Unsupported address format or invalid signature length: ${hex.length}`,
+    `Unsupported address format or invalid signature length: ${hex.length}`
   );
 }
 
 // Type guard to check if accounts is WalletAccount[]
 export function isWalletAccountArray(
-  arr: any[],
+  arr: any[]
 ): arr is v1WalletAccountParams[] {
   return (
     arr.length === 0 ||
@@ -576,9 +582,9 @@ export function isWalletAccountArray(
 }
 
 export function createWalletAccountFromAddressFormat(
-  addressFormat: v1AddressFormat,
+  addressFormat: v1AddressFormat
 ): v1WalletAccountParams {
-  const walletAccount = addressFormatConfig[addressFormat].defaultAccounts;
+  const walletAccount = addressFormatConfig[addressFormat]?.defaultAccounts;
   if (!walletAccount) {
     throw new Error(`Unsupported address format: ${addressFormat}`);
   }
@@ -588,7 +594,7 @@ export function createWalletAccountFromAddressFormat(
   }
 
   throw new Error(
-    `No default accounts defined for address format: ${addressFormat}`,
+    `No default accounts defined for address format: ${addressFormat}`
   );
 }
 
@@ -623,13 +629,14 @@ export function generateWalletAccountsFromAddressFormat(params: {
 
     if (maxIndexMap.has(key)) {
       nextIndex = maxIndexMap.get(key)! + 1;
+      maxIndexMap.set(key, nextIndex);
     } else if (pathMap.has(account.path)) {
       nextIndex = pathMap.get(account.path)!;
     }
 
     const pathWithIndex = account.path.replace(
       /^((?:[^\/]*\/){3})(\d+)/,
-      (_, prefix) => `${prefix}${nextIndex}`,
+      (_, prefix) => `${prefix}${nextIndex}`
     );
     pathMap.set(account.path, nextIndex + 1);
 
@@ -651,7 +658,7 @@ export function buildSignUpBody(params: {
     authenticators =
       createSubOrgParams?.authenticators?.map((authenticator) => ({
         authenticatorName:
-          authenticator.authenticatorName || `${websiteName}-${Date.now()}`,
+          authenticator?.authenticatorName || `${websiteName}-${Date.now()}`,
         challenge: authenticator.challenge,
         attestation: authenticator.attestation,
       })) || [];
@@ -735,28 +742,64 @@ export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
     throw new Error(
       `Failed to extract public key from stamp header: ${
         error instanceof Error ? error.message : String(error)
-      }`,
+      }`
     );
   }
 }
 /**@internal */
 export function isEthereumProvider(
-  provider: WalletProvider,
+  provider: WalletProvider
 ): provider is WalletProvider & { chainInfo: EvmChainInfo } {
   return provider.chainInfo.namespace === Chain.Ethereum;
 }
 
 /**@internal */
 export function isSolanaProvider(
-  provider: WalletProvider,
+  provider: WalletProvider
 ): provider is WalletProvider & { chainInfo: SolanaChainInfo } {
   return provider.chainInfo.namespace === Chain.Solana;
 }
 
 /** @internal */
+export function getCurveTypeFromProvider(
+  provider: WalletProvider
+): "API_KEY_CURVE_SECP256K1" | "API_KEY_CURVE_ED25519" {
+  if (isEthereumProvider(provider)) {
+    return "API_KEY_CURVE_SECP256K1";
+  }
+
+  if (isSolanaProvider(provider)) {
+    return "API_KEY_CURVE_ED25519";
+  }
+
+  // we should never hit this case
+  // if we do then it means we added support for a new chain but missed updating this function
+  throw new Error(
+    `Unsupported provider namespace: ${provider.chainInfo.namespace}. Expected Ethereum or Solana.`
+  );
+}
+
+/** @internal */
+export function getSignatureSchemeFromProvider(provider: WalletProvider) {
+  if (isEthereumProvider(provider)) {
+    return "SIGNATURE_SCHEME_TK_API_SECP256K1_EIP191";
+  }
+
+  if (isSolanaProvider(provider)) {
+    return "SIGNATURE_SCHEME_TK_API_ED25519";
+  }
+
+  // we should never hit this case
+  // if we do then it means we added support for a new chain but missed updating this function
+  throw new Error(
+    `Unsupported provider namespace: ${provider.chainInfo.namespace}. Expected Ethereum or Solana.`
+  );
+}
+
+/** @internal */
 export function findWalletProviderFromAddress(
   address: string,
-  providers: WalletProvider[],
+  providers: WalletProvider[]
 ): WalletProvider | undefined {
   for (const provider of providers) {
     if (provider.connectedAddresses.includes(address)) {
@@ -768,10 +811,62 @@ export function findWalletProviderFromAddress(
   return undefined;
 }
 
+/**
+ * Derives a wallet address from a given public key and chain.
+ *
+ * @param chain - "ethereum" or "solana"
+ * @param publicKey - The raw public key string
+ * @returns The derived wallet address
+ */
+export function addressFromPublicKey(chain: Chain, publicKey: string): string {
+  if (chain === Chain.Ethereum) {
+    const compressedBytes = uint8ArrayFromHexString(publicKey);
+
+    const publicKeyUncompressed = uint8ArrayToHexString(
+      uncompressRawPublicKey(compressedBytes, Curve.SECP256K1)
+    );
+
+    // drop 04 prefix
+    const key = publicKeyUncompressed.startsWith("04")
+      ? publicKeyUncompressed.slice(2)
+      : publicKeyUncompressed;
+
+    // hash with Keccak256 and take last 20 bytes
+    const hash = keccak256(uint8ArrayFromHexString(key));
+    return "0x" + hash.slice(-40);
+  }
+
+  if (chain === Chain.Solana) {
+    return bs58.encode(uint8ArrayFromHexString(publicKey));
+  }
+
+  throw new Error(`Unsupported chain: ${chain}`);
+}
+
+/**@internal */
+export function getAuthenticatorAddresses(user: v1User) {
+  const ethereum: string[] = [];
+  const solana: string[] = [];
+
+  for (const key of user.apiKeys) {
+    const { type, publicKey } = key.credential;
+    switch (type) {
+      case "CREDENTIAL_TYPE_API_KEY_SECP256K1":
+        ethereum.push(addressFromPublicKey(Chain.Ethereum, publicKey));
+        break;
+      case "CREDENTIAL_TYPE_API_KEY_ED25519":
+        solana.push(addressFromPublicKey(Chain.Solana, publicKey));
+        break;
+    }
+  }
+
+  return { ethereum, solana };
+}
+
 /**@internal */
 export async function getAuthProxyConfig(
   authProxyConfigId: string,
-  authProxyUrl?: string | undefined,
+  authProxyUrl?: string | undefined
 ): Promise<ProxyTGetWalletKitConfigResponse> {
   const fullUrl =
     (authProxyUrl ?? "https://authproxy.turnkey.com") + "/v1/wallet_kit_config";
@@ -831,7 +926,7 @@ export async function withTurnkeyErrorHandling<T>(
   },
   finallyOptions?: {
     finallyFn: () => Promise<void>;
-  },
+  }
 ): Promise<T> {
   const {
     errorMessage,
@@ -851,7 +946,7 @@ export async function withTurnkeyErrorHandling<T>(
         throw new TurnkeyError(
           customCodeMessage.message,
           customCodeMessage.code,
-          error,
+          error
         );
       }
       throwMatchingMessage(error.message, customMessageByMessages, error);
@@ -889,7 +984,7 @@ const throwMatchingMessage = (
   customMessageByMessages:
     | Record<string, { message: string; code: TurnkeyErrorCodes }>
     | undefined,
-  error: any,
+  error: any
 ) => {
   if (
     customMessageByMessages &&
@@ -900,9 +995,119 @@ const throwMatchingMessage = (
         throw new TurnkeyError(
           customMessageByMessages[key]!.message,
           customMessageByMessages[key]!.code,
-          error,
+          error
         );
       }
     });
   }
 };
+
+/**
+ * @internal
+ *
+ * Asserts that the provided key pair is a valid P-256 ECDSA key pair.
+ * @param pair The key pair to validate.
+ */
+export async function assertValidP256ECDSAKeyPair(
+  pair: CryptoKeyPair
+): Promise<void> {
+  const { privateKey, publicKey } = pair;
+
+  // Check basic shape
+  if (!(privateKey instanceof CryptoKey) || !(publicKey instanceof CryptoKey)) {
+    throw new TurnkeyError(
+      "Both keys must be CryptoKey instances.",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+  }
+  if (privateKey.type !== "private")
+    throw new TurnkeyError(
+      "privateKey.type must be 'private'.",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+  if (publicKey.type !== "public")
+    throw new TurnkeyError(
+      "publicKey.type must be 'public'.",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+
+  // Verify extractability and usages
+  if (privateKey.extractable !== false) {
+    throw new TurnkeyError(
+      "Provided privateKey must be non-extractable.",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+  }
+  if (!privateKey.usages.includes("sign")) {
+    throw new TurnkeyError(
+      "privateKey must have 'sign' in keyUsages.",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+  }
+  if (!publicKey.usages.includes("verify")) {
+    throw new TurnkeyError(
+      "publicKey must have 'verify' in keyUsages.",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+  }
+
+  // Algorithm checks (must be ECDSA on P-256)
+  const pAlg = privateKey.algorithm as EcKeyAlgorithm;
+  const pubAlg = publicKey.algorithm as EcKeyAlgorithm;
+  if (pAlg.name !== "ECDSA" || pubAlg.name !== "ECDSA") {
+    throw new TurnkeyError(
+      "Keys must be ECDSA keys.",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+  }
+  if (pAlg.namedCurve !== "P-256" || pubAlg.namedCurve !== "P-256") {
+    throw new TurnkeyError(
+      "Keys must be on the P-256 curve.",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+  }
+
+  // Public key export sanity (should be uncompressed 65 bytes starting with 0x04)
+  const rawPub = new Uint8Array(
+    await crypto.subtle.exportKey("raw", publicKey)
+  );
+  if (rawPub.length !== 65 || rawPub[0] !== 0x04) {
+    throw new TurnkeyError(
+      "Public key must be an uncompressed P-256 point (65 bytes, leading 0x04).",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+  }
+
+  // Prove the pair matches: sign→verify a test message
+  const msg = crypto.getRandomValues(new Uint8Array(32));
+  const sig = await crypto.subtle.sign(
+    { name: "ECDSA", hash: "SHA-256" },
+    privateKey,
+    msg
+  );
+  const ok = await crypto.subtle.verify(
+    { name: "ECDSA", hash: "SHA-256" },
+    publicKey,
+    sig,
+    msg
+  );
+  if (!ok) {
+    throw new TurnkeyError(
+      "publicKey does not match privateKey (verify failed).",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+  }
+}
+
+export function isValidPasskeyName(name: string): string {
+  const nameRegex = isReactNative()
+    ? /^[a-zA-Z0-9 _\-:\/\.]{1,64}$/
+    : /^[a-zA-Z0-9 _\-:\/\.]+$/;
+  if (!nameRegex.test(name)) {
+    throw new TurnkeyError(
+      "Passkey name must be 1-64 characters and only contain letters, numbers, spaces, dashes, underscores, colons, or slashes.",
+      TurnkeyErrorCodes.INVALID_REQUEST
+    );
+  }
+  return name;
+}

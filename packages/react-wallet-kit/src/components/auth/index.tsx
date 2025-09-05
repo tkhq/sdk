@@ -1,8 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faApple,
+  faDiscord,
   faFacebook,
   faGoogle,
+  faXTwitter,
 } from "@fortawesome/free-brands-svg-icons";
 import { OtpType, type WalletProvider } from "@turnkey/core";
 import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
@@ -24,15 +26,21 @@ import { DeveloperError } from "../design/Failure";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ClientState } from "../../types/base";
-import { isWalletConnect } from "@utils";
+import { isWalletConnect } from "../../utils/utils";
 
-export function AuthComponent() {
+type AuthComponentProps = {
+  sessionKey?: string | undefined;
+};
+
+export function AuthComponent({ sessionKey }: AuthComponentProps) {
   const {
     config,
     clientState,
     handleGoogleOauth,
     handleAppleOauth,
     handleFacebookOauth,
+    handleXOauth,
+    handleDiscordOauth,
     initOtp,
     loginWithPasskey,
     signUpWithPasskey,
@@ -63,6 +71,7 @@ export function AuthComponent() {
             contact={email}
             otpId={otpId}
             otpType={OtpType.Email}
+            {...(sessionKey && { sessionKey })}
           />
         ),
         showTitle: false,
@@ -103,7 +112,9 @@ export function AuthComponent() {
         <ActionPage
           title="Authenticating with passkey..."
           action={async () => {
-            await loginWithPasskey({});
+            await loginWithPasskey({
+              ...(sessionKey && { sessionKey: sessionKey }),
+            });
           }}
           icon={<FontAwesomeIcon size="3x" icon={faFingerprint} />}
         />
@@ -119,7 +130,9 @@ export function AuthComponent() {
         <ActionPage
           title="Creating account with passkey..."
           action={async () => {
-            await signUpWithPasskey({});
+            await signUpWithPasskey({
+              ...(sessionKey && { sessionKey: sessionKey }),
+            });
           }}
           icon={<FontAwesomeIcon size="3x" icon={faFingerprint} />}
         />
@@ -136,7 +149,10 @@ export function AuthComponent() {
           title="Authenticating with Google..."
           action={() =>
             handleGoogleOauth({
-              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+              additionalState: {
+                openModal: "true",
+                ...(sessionKey && { sessionKey }),
+              }, // Tell the provider to reopen the auth modal and show the loading state
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
@@ -154,7 +170,10 @@ export function AuthComponent() {
           title="Authenticating with Apple..."
           action={() =>
             handleAppleOauth({
-              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+              additionalState: {
+                openModal: "true",
+                ...(sessionKey && { sessionKey }),
+              }, // Tell the provider to reopen the auth modal and show the loading state
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faApple} />}
@@ -172,10 +191,55 @@ export function AuthComponent() {
           title="Authenticating with Facebook..."
           action={() =>
             handleFacebookOauth({
-              additionalState: { openModal: "true" }, // Tell the provider to reopen the auth modal and show the loading state
+              additionalState: {
+                openModal: "true",
+                ...(sessionKey && { sessionKey }),
+              }, // Tell the provider to reopen the auth modal and show the loading state
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
+        />
+      ),
+      showTitle: false,
+    });
+  };
+
+  const handleX = async () => {
+    pushPage({
+      key: "X OAuth",
+      content: (
+        <ActionPage
+          title="Authenticating with X..."
+          action={() =>
+            handleXOauth({
+              additionalState: {
+                openModal: "true",
+                ...(sessionKey && { sessionKey }),
+              }, // Tell the provider to reopen the auth modal and show the loading state
+            })
+          }
+          icon={<FontAwesomeIcon size="3x" icon={faXTwitter} />}
+        />
+      ),
+      showTitle: false,
+    });
+  };
+
+  const handleDiscord = async () => {
+    pushPage({
+      key: "Discord OAuth",
+      content: (
+        <ActionPage
+          title="Authenticating with Discord..."
+          action={() =>
+            handleDiscordOauth({
+              additionalState: {
+                openModal: "true",
+                ...(sessionKey && { sessionKey }),
+              }, // Tell the provider to reopen the auth modal and show the loading state
+            })
+          }
+          icon={<FontAwesomeIcon size="3x" icon={faDiscord} />}
         />
       ),
       showTitle: false,
@@ -191,6 +255,7 @@ export function AuthComponent() {
           action={async () => {
             await loginOrSignupWithWallet({
               walletProvider: provider,
+              ...(sessionKey && { sessionKey: sessionKey }),
             });
           }}
           icon={
@@ -211,12 +276,15 @@ export function AuthComponent() {
       // for WalletConnect we route to a dedicated screen
       // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
       pushPage({
-        key: "Link WalletConnect",
+        key: "Connect WalletConnect",
         content: (
           <WalletConnectScreen
             provider={provider}
             onAction={async (provider) => {
-              await loginOrSignupWithWallet({ walletProvider: provider });
+              await loginOrSignupWithWallet({
+                walletProvider: provider,
+                ...(sessionKey && { sessionKey: sessionKey }),
+              });
             }}
             onDisconnect={async (provider) => {
               await disconnectWalletAccount(provider);
@@ -275,6 +343,22 @@ export function AuthComponent() {
         onClick={handleFacebook}
       />
     ) : null,
+    x: methods.xOauthEnabled ? (
+      <OAuthButton
+        key="x"
+        name="X"
+        icon={<FontAwesomeIcon icon={faXTwitter} />}
+        onClick={handleX}
+      />
+    ) : null,
+    discord: methods.discordOauthEnabled ? (
+      <OAuthButton
+        key="discord"
+        name="Discord"
+        icon={<FontAwesomeIcon icon={faDiscord} />}
+        onClick={handleDiscord}
+      />
+    ) : null,
   };
 
   const oauthButtons = oauthOrder
@@ -320,7 +404,7 @@ export function AuthComponent() {
     <div
       className={clsx(
         "flex flex-col items-center ",
-        isMobile ? "w-full" : "w-96",
+        isMobile ? "w-full" : "w-96"
       )}
     >
       {config.authProxyConfigId ? (

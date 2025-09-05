@@ -1,5 +1,19 @@
 # @turnkey/http
 
+## 3.11.1-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.6
+  - @turnkey/api-key-stamper@0.5.0-beta.6
+
+## 3.11.0
+
+### Minor Changes
+
+- [#879](https://github.com/tkhq/sdk/pull/879) [`026264c`](https://github.com/tkhq/sdk/commit/026264c55aa16342c8925af0bdcdf72dc00e5158) Author [@zkharit](https://github.com/zkharit) - Update packages to include new activities as of the newest release (mono v2025.8.10)
+
 ## 3.10.0-beta.2
 
 ### Minor Changes

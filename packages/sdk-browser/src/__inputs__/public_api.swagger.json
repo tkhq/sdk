@@ -260,70 +260,6 @@
         "tags": ["Authenticators"]
       }
     },
-    "/public/v1/query/get_boot_proof": {
-      "post": {
-        "summary": "Get a specific boot proof",
-        "description": "Get the boot proof for a given ephemeral key.",
-        "operationId": "PublicApiService_GetBootProof",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1BootProofResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetBootProofRequest"
-            }
-          }
-        ],
-        "tags": ["Boot Proof"]
-      }
-    },
-    "/public/v1/query/get_latest_boot_proof": {
-      "post": {
-        "summary": "Get the latest boot proof for an app",
-        "description": "Get the latest boot proof for a given enclave app name.",
-        "operationId": "PublicApiService_GetLatestBootProof",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1BootProofResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetLatestBootProofRequest"
-            }
-          }
-        ],
-        "tags": ["Boot Proof"]
-      }
-    },
     "/public/v1/query/get_oauth2_credential": {
       "post": {
         "summary": "Get OAuth 2.0 credential",
@@ -7099,34 +7035,6 @@
         }
       },
       "required": ["authenticators"]
-    },
-    "v1GetBootProofRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "ephemeralKey": {
-          "type": "string",
-          "description": "Hex encoded ephemeral public key."
-        }
-      },
-      "required": ["organizationId", "ephemeralKey"]
-    },
-    "v1GetLatestBootProofRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "appName": {
-          "type": "string",
-          "description": "Name of enclave app."
-        }
-      },
-      "required": ["organizationId", "appName"]
     },
     "v1GetOauth2CredentialRequest": {
       "type": "object",

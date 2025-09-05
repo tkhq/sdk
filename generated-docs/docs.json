@@ -17,7 +17,7 @@
         "tab": "Documentation",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Get started",
             "pages": [
               "home",
               {
@@ -50,7 +50,7 @@
                 ]
               },
               {
-                "group": "Production Checklist",
+                "group": "Production checklist",
                 "pages": [
                   "production-checklist/production-checklist",
                   "production-checklist/embedded-wallet",
@@ -62,8 +62,9 @@
           {
             "group": "Products",
             "pages": [
+              "sdks/introduction",
               {
-                "group": "Embedded Wallets",
+                "group": "Embedded wallets",
                 "pages": [
                   "embedded-wallets/overview",
                   {
@@ -71,6 +72,7 @@
                     "pages": [
                       "embedded-wallets/features/overview",
                       "reference/embedded-wallet-kit",
+                      "reference/auth-proxy",
                       {
                         "group": "Authentication",
                         "pages": [
@@ -94,6 +96,7 @@
                         ]
                       },
                       "products/embedded-wallets/features/multi-chain-support",
+                      "products/embedded-wallets/features/fiat-on-ramp",
                       "authentication/sessions",
                       "reference/solana-gasless-transactions",
                       "reference/tron-gasless-transactions",
@@ -105,7 +108,8 @@
                           "reference/aa-wallets",
                           "wallets/import-wallets",
                           "wallets/export-wallets",
-                          "wallets/wagmi"
+                          "wallets/wagmi",
+                          "wallets/fiat-on-ramp"
                         ]
                       }
                     ]
@@ -141,7 +145,7 @@
                 ]
               },
               {
-                "group": "Transaction Automation",
+                "group": "Transaction automation",
                 "pages": [
                   "signing-automation/overview",
                   {
@@ -176,11 +180,11 @@
             ]
           },
           {
-            "group": "Crypto Ecosystems",
+            "group": "Crypto ecosystems",
             "pages": [
               "networks/overview",
               {
-                "group": "Supported Networks",
+                "group": "Supported networks",
                 "pages": [
                   "networks/ethereum",
                   "networks/solana",
@@ -194,6 +198,10 @@
                   "networks/movement",
                   "networks/others"
                 ]
+              },
+              {
+                "group": "Cookbook",
+                "pages": ["cookbook/morpho", "cookbook/aave"]
               }
             ]
           },
@@ -203,7 +211,7 @@
               "getting-started/examples",
               "developer-reference/using-llms",
               {
-                "group": "API Overview",
+                "group": "API overview",
                 "pages": [
                   "developer-reference/api-overview/intro",
                   "developer-reference/api-overview/stamps",
@@ -217,7 +225,16 @@
                 "pages": [
                   "concepts/policies/quickstart",
                   "concepts/policies/language",
-                  "concepts/policies/examples",
+                  {
+                    "group": "Examples",
+                    "pages": [
+                      "concepts/policies/examples/access-control",
+                      "concepts/policies/examples/signing-control",
+                      "concepts/policies/examples/ethereum",
+                      "concepts/policies/examples/solana",
+                      "concepts/policies/examples/tron"
+                    ]
+                  },
                   "concepts/policies/delegated-access",
                   "concepts/policies/smart-contract-interfaces"
                 ]
@@ -228,10 +245,10 @@
         ]
       },
       {
-        "tab": "SDK Reference",
+        "tab": "SDK reference",
         "groups": [
           {
-            "group": "SDK Reference",
+            "group": "SDK reference",
             "pages": [
               "sdks/introduction",
               {
@@ -241,17 +258,23 @@
                   "sdks/react/getting-started",
                   "sdks/react/auth",
                   "sdks/react/using-embedded-wallets",
-                  "sdks/react/using-external-wallets",
+                  {
+                    "group": "Using External Wallets",
+                    "pages": [
+                      "sdks/react/using-external-wallets/overview",
+                      "sdks/react/using-external-wallets/authentication",
+                      "sdks/react/using-external-wallets/connecting"
+                    ]
+                  },
                   "sdks/react/signing",
                   "sdks/react/ui-customization",
                   "sdks/react/sub-organization-customization",
                   "sdks/react/advanced-api-requests",
                   "sdks/react/advanced-backend-authentication",
                   "sdks/react/troubleshooting",
-                  "sdks/react/migrating-sdk-react",
                   "sdks/react/legacy",
                   {
-                    "group": "SDK Reference",
+                    "group": "SDK reference",
                     "pages": [
                       "generated-docs/formatted/react-wallet-kit/client-context-type-add-oauth-provider",
                       "generated-docs/formatted/react-wallet-kit/client-context-type-add-passkey",
@@ -289,7 +312,7 @@
                       "generated-docs/formatted/react-wallet-kit/client-context-type-handle-facebook-oauth",
                       "generated-docs/formatted/react-wallet-kit/client-context-type-handle-google-oauth",
                       "generated-docs/formatted/react-wallet-kit/client-context-type-handle-import-wallet",
-                      "generated-docs/formatted/react-wallet-kit/client-context-type-handle-link-external-wallet",
+                      "generated-docs/formatted/react-wallet-kit/client-context-type-handle-connect-external-wallet",
                       "generated-docs/formatted/react-wallet-kit/client-context-type-handle-login",
                       "generated-docs/formatted/react-wallet-kit/client-context-type-handle-remove-oauth-provider",
                       "generated-docs/formatted/react-wallet-kit/client-context-type-handle-remove-passkey",
@@ -329,7 +352,11 @@
                       "generated-docs/formatted/react-wallet-kit/client-context-type-update-user-name",
                       "generated-docs/formatted/react-wallet-kit/client-context-type-update-user-phone-number",
                       "generated-docs/formatted/react-wallet-kit/client-context-type-verify-otp",
-                      "generated-docs/formatted/react-wallet-kit/client-context-type-switch-wallet-account-chain"
+                      "generated-docs/formatted/react-wallet-kit/client-context-type-switch-wallet-account-chain",
+                      "generated-docs/formatted/react-wallet-kit/client-context-type-fetch-private-keys",
+                      "generated-docs/formatted/react-wallet-kit/client-context-type-handle-discord-oauth",
+                      "generated-docs/formatted/react-wallet-kit/client-context-type-handle-import-private-key",
+                      "generated-docs/formatted/react-wallet-kit/client-context-type-handle-xoauth"
                     ]
                   }
                 ]
@@ -354,7 +381,7 @@
                   "sdks/typescript-frontend/advanced-api-requests",
                   "sdks/typescript-frontend/legacy",
                   {
-                    "group": "SDK Reference",
+                    "group": "SDK reference",
                     "pages": [
                       "generated-docs/formatted/core/turnkey-client-add-oauth-provider",
                       "generated-docs/formatted/core/turnkey-client-add-passkey",
@@ -411,7 +438,8 @@
                       "generated-docs/formatted/core/turnkey-client-update-user-name",
                       "generated-docs/formatted/core/turnkey-client-update-user-phone-number",
                       "generated-docs/formatted/core/turnkey-client-verify-otp",
-                      "generated-docs/formatted/core/turnkey-client-switch-wallet-account-chain"
+                      "generated-docs/formatted/core/turnkey-client-switch-wallet-account-chain",
+                      "generated-docs/formatted/core/turnkey-client-fetch-private-keys"
                     ]
                   }
                 ]
@@ -423,7 +451,7 @@
               "sdks/cli",
               "sdks/python",
               {
-                "group": "Web3 Libraries",
+                "group": "Web3 libraries",
                 "pages": [
                   "category/web3-libraries",
                   "sdks/web3/ethers",
@@ -450,7 +478,7 @@
         ]
       },
       {
-        "tab": "API Reference",
+        "tab": "API reference",
         "pages": [
           "api-reference/overview",
           {
@@ -468,6 +496,7 @@
               "api-reference/activities/create-private-keys",
               "api-reference/activities/create-read-only-session",
               "api-reference/activities/create-read-write-session",
+              "api-reference/activities/create-smart-contract-interface",
               "api-reference/activities/create-sub-organization",
               "api-reference/activities/create-user-tag",
               "api-reference/activities/create-users",
@@ -480,6 +509,7 @@
               "api-reference/activities/delete-policy",
               "api-reference/activities/delete-private-key-tags",
               "api-reference/activities/delete-private-keys",
+              "api-reference/activities/delete-smart-contract-interface",
               "api-reference/activities/delete-sub-organization",
               "api-reference/activities/delete-user-tags",
               "api-reference/activities/delete-users",
@@ -490,6 +520,7 @@
               "api-reference/activities/import-private-key",
               "api-reference/activities/import-wallet",
               "api-reference/activities/init-email-recovery",
+              "api-reference/activities/init-fiat-on-ramp",
               "api-reference/activities/init-generic-otp",
               "api-reference/activities/init-import-private-key",
               "api-reference/activities/init-import-wallet",
@@ -512,6 +543,9 @@
               "api-reference/activities/update-root-quorum",
               "api-reference/activities/update-user",
               "api-reference/activities/update-user-tag",
+              "api-reference/activities/update-users-email",
+              "api-reference/activities/update-users-name",
+              "api-reference/activities/update-users-phone-number",
               "api-reference/activities/update-wallet",
               "api-reference/activities/verify-generic-otp"
             ]
@@ -528,16 +562,19 @@
               "api-reference/queries/get-configs",
               "api-reference/queries/get-oauth-providers",
               "api-reference/queries/get-policy",
+              "api-reference/queries/get-policy-evaluations",
               "api-reference/queries/get-private-key",
-              "api-reference/queries/get-suborgs",
+              "api-reference/queries/get-smart-contract-interface",
+              "api-reference/queries/get-sub-organizations",
               "api-reference/queries/get-user",
-              "api-reference/queries/get-verified-suborgs",
+              "api-reference/queries/get-verified-sub-organizations",
               "api-reference/queries/get-wallet",
               "api-reference/queries/get-wallet-account",
               "api-reference/queries/list-activities",
               "api-reference/queries/list-policies",
               "api-reference/queries/list-private-key-tags",
               "api-reference/queries/list-private-keys",
+              "api-reference/queries/list-smart-contract-interfaces",
               "api-reference/queries/list-user-tags",
               "api-reference/queries/list-users",
               "api-reference/queries/list-wallets",
@@ -562,6 +599,7 @@
               "security/disaster-recovery",
               "security/enclave-secure-channels",
               "security/whitepaper",
+              "security/shared-responsibility-model",
               "security/reporting-a-vulnerability"
             ]
           }
@@ -609,7 +647,7 @@
       "anchors": [
         {
           "anchor": "Support",
-          "href": "https://join.slack.com/t/clubturnkey/shared_invite/zt-31v4yhgw6-PwBzyNsWCCBTk2xft3EoHQ",
+          "href": "https://join.slack.com/t/clubturnkey/shared_invite/zt-3aemp2g38-zIh4V~3vNpbX5PsSmkKxcQ",
           "icon": "slack"
         },
         {
@@ -618,7 +656,7 @@
           "icon": "newspaper"
         },
         {
-          "anchor": "Contact Us",
+          "anchor": "Contact us",
           "href": "https://www.turnkey.com/contact-us",
           "icon": "headset"
         }
@@ -646,7 +684,7 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Get Started",
+      "label": "Get started",
       "href": "https://app.turnkey.com/dashboard/auth/initial"
     }
   },
@@ -654,7 +692,7 @@
     "socials": {
       "x": "https://x.com/turnkeyhq",
       "github": "https://github.com/tkhq",
-      "slack": "https://join.slack.com/t/clubturnkey/shared_invite/zt-31v4yhgw6-PwBzyNsWCCBTk2xft3EoHQ",
+      "slack": "https://join.slack.com/t/clubturnkey/shared_invite/zt-3aemp2g38-zIh4V~3vNpbX5PsSmkKxcQ",
       "linkedin": "https://www.linkedin.com/company/turnkeyhq/"
     }
   },

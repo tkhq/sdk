@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 @font-face {
   font-family: "Inter";
   font-style: normal;
@@ -28,4 +30,10 @@
     -apple-system,
     BlinkMacSystemFont,
     sans-serif;
+}
+
+button {
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
 }

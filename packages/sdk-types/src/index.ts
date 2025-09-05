@@ -24,6 +24,23 @@ export type SessionResponse = {
   };
 };
 
+export interface BaseAuthResult {
+  sessionToken: string;
+}
+
+export interface PasskeyAuthResult extends BaseAuthResult {
+  credentialId: string;
+}
+
+export interface WalletAuthResult extends BaseAuthResult {
+  address: string;
+}
+
+export enum AuthAction {
+  LOGIN = "LOGIN",
+  SIGNUP = "SIGNUP",
+}
+
 export enum TurnkeyErrorCodes {
   UNKNOWN = "UNKNOWN",
   NETWORK_ERROR = "NETWORK_ERROR",
@@ -49,6 +66,7 @@ export enum TurnkeyErrorCodes {
   INVALID_OTP_CODE = "INVALID_OTP_CODE",
   FETCH_WALLETS_ERROR = "FETCH_WALLETS_ERROR",
   FETCH_WALLET_ACCOUNTS_ERROR = "FETCH_WALLET_ACCOUNTS_ERROR",
+  FETCH_PRIVATE_KEYS_ERROR = "FETCH_PRIVATE_KEYS_ERROR",
   SIGN_MESSAGE_ERROR = "SIGN_MESSAGE_ERROR",
   SIGN_TRANSACTION_ERROR = "SIGN_TRANSACTION_ERROR",
   SIGN_AND_SEND_TRANSACTION_ERROR = "SIGN_AND_SEND_TRANSACTION_ERROR",
@@ -100,6 +118,8 @@ export enum TurnkeyErrorCodes {
   UPDATE_USER_ERROR = "UPDATE_USER_ERROR",
   ACCOUNT_ALREADY_EXISTS = "ACCOUNT_ALREADY_EXISTS",
   INITIALIZE_IFRAME_ERROR = "INITIALIZE_IFRAME_ERROR",
+  PLATFORM_MISMATCH = "PLATFORM_MISMATCH",
+  UNSUPPORTED_PLATFORM = "UNSUPPORTED_PLATFORM",
 
   BAD_RESPONSE = "BAD_RESPONSE",
   OIDC_TOKEN_ERROR = "OIDC_TOKEN_ERROR",
@@ -125,7 +145,7 @@ export class TurnkeyError extends Error {
   constructor(
     message: string,
     public code?: TurnkeyErrorCodes,
-    public cause?: unknown,
+    public cause?: unknown
   ) {
     super(message);
     this.name = "TurnkeyError";
@@ -137,7 +157,7 @@ export class TurnkeyNetworkError extends TurnkeyError {
     message: string,
     public statusCode?: number,
     code?: TurnkeyErrorCodes,
-    cause?: unknown,
+    cause?: unknown
   ) {
     super(message, code, cause);
     this.name = "TurnkeyNetworkError";
@@ -219,9 +239,11 @@ export enum FiatOnRampPaymentMethod {
   ACH_BANK_ACCOUNT = "FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT", // Coinbase: ACH_BANK_ACCOUNT
 }
 export enum OAuthProviders {
+  DISCORD = "DISCORD",
   APPLE = "Apple",
   GOOGLE = "Google",
   FACEBOOK = "Facebook",
+  X = "X",
 }
 
 export * from "./__generated__/types";

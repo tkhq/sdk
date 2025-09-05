@@ -11,6 +11,7 @@ import type {
   OAuthProviders,
   Session,
   v1AddressFormat,
+  v1Curve,
   v1HashFunction,
   v1PayloadEncoding,
   v1SignRawPayloadResult,
@@ -21,6 +22,7 @@ import type {
   TurnkeyProviderConfig,
   AuthState,
   ClientState,
+  KeyFormat,
 } from "../../types/base";
 import { createContext } from "react";
 
@@ -102,9 +104,85 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - After successful authentication, the provider state is updated and all relevant session, user, and wallet data are refreshed.
    * - This function is typically used to trigger authentication from a UI button or navigation event.
    *
+   * @param params.sessionKey - Optional session key to resume an existing session or pre-fill session details in the login modal.
+   *
    * @returns A void promise.
    */
-  handleLogin: () => Promise<void>;
+  handleLogin: (params?: { sessionKey?: string }) => Promise<void>;
+
+  /**
+   * Handles the Discord OAuth 2.0 flow.
+   *
+   * - This function initiates the OAuth 2.0 PKCE flow with Discord by redirecting the user to the Discord authorization page or opening it in a popup window.
+   * - It supports both "popup" and "redirect" flows, determined by the `openInPage` parameter.
+   * - Generates a new ephemeral API key pair and uses its public key as part of the state and a cryptographic nonce to bind the OAuth session.
+   * - Creates a PKCE verifier/challenge pair, storing the verifier in `sessionStorage` for later use in the token exchange.
+   * - Constructs the Discord OAuth URL with all required parameters, including client ID, redirect URI, response type, scope, PKCE code challenge, nonce, and state.
+   * - The `state` parameter encodes the provider name, flow type, ephemeral public key, and any additional key-value pairs provided in `additionalState`.
+   * - If `openInPage` is true, the current page is redirected to the OAuth URL and the function returns a promise that resolves on redirect or rejects after 5 minutes if no redirect occurs.
+   * - If `openInPage` is false, a popup window is opened for the OAuth flow, and the function returns a promise that resolves when the OAuth code is captured or rejects if the popup is closed or times out.
+   * - On receiving an authorization code, the function exchanges it for an OIDC token via the Turnkey proxy (`proxyOAuth2Authenticate`) using the PKCE verifier, redirect URI, and nonce.
+   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
+   * - Handles error cases such as missing configuration, popup failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
+   *
+   * @param params.clientId - The Discord Client ID to use (defaults to the client ID from configuration).
+   * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
+   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   *
+   * onOauthSuccess params:
+   * - oidcToken: The OIDC token issued by Turnkey after exchanging the auth code.
+   * - providerName: The name of the OAuth provider ("discord").
+   *
+   * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
+   * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
+   */
+  handleDiscordOauth: (params?: {
+    clientId?: string;
+    additionalState?: Record<string, string>;
+    openInPage?: boolean;
+    onOauthSuccess?: (params: {
+      oidcToken: string;
+      providerName: string;
+    }) => any;
+  }) => Promise<void>;
+
+  /**
+   * Handles the Twitter (X) OAuth 2.0 flow.
+   *
+   * - This function initiates the OAuth 2.0 PKCE flow with Twitter (X) by redirecting the user to the X authorization page or opening it in a popup window.
+   * - It supports both "popup" and "redirect" flows, determined by the `openInPage` parameter.
+   * - Generates a new ephemeral API key pair and uses its public key as part of the state and a cryptographic nonce to bind the OAuth session.
+   * - Creates a PKCE verifier/challenge pair, storing the verifier in `sessionStorage` for later use in the token exchange.
+   * - Constructs the Twitter (X) OAuth URL with all required parameters, including client ID, redirect URI, response type, scope, PKCE code challenge, nonce, and state.
+   * - The `state` parameter encodes the provider name, flow type, ephemeral public key, and any additional key-value pairs provided in `additionalState`.
+   * - If `openInPage` is true, the current page is redirected to the OAuth URL and the function returns a promise that resolves on redirect or rejects after 5 minutes if no redirect occurs.
+   * - If `openInPage` is false, a popup window is opened for the OAuth flow, and the function returns a promise that resolves when the OAuth code is captured or rejects if the popup is closed or times out.
+   * - On receiving an authorization code, the function exchanges it for an OIDC token via the Turnkey proxy (`proxyOAuth2Authenticate`) using the PKCE verifier, redirect URI, and nonce.
+   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
+   * - Handles error cases such as missing configuration, popup failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
+   *
+   * @param params.clientId - The Twitter (X) Client ID to use (defaults to the client ID from configuration).
+   * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
+   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   *
+   * onOauthSuccess params:
+   * - oidcToken: The OIDC token issued by Turnkey after exchanging the auth code.
+   * - providerName: The name of the OAuth provider ("twitter").
+   *
+   * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
+   * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
+   */
+  handleXOauth: (params?: {
+    clientId?: string;
+    additionalState?: Record<string, string>;
+    openInPage?: boolean;
+    onOauthSuccess?: (params: {
+      oidcToken: string;
+      providerName: string;
+    }) => any;
+  }) => Promise<void>;
 
   /**
    * Handles the Google OAuth flow.
@@ -245,17 +323,20 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - A request is made to the Turnkey API to export the private key, encrypted to the target public key.
    * - The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.
    * - If a custom iframe URL is used, a target public key can be provided explicitly.
+   * - Hexadecimal and Solana address formats are supported for wallet account exports - defaulting to Hexadecimal if not specified.
    * - Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.
    *
    * @param params.privateKeyId - The ID of the private key to export.
    * @param params.targetPublicKey - The target public key to encrypt the export bundle to (required for custom iframe flows).
+   * @param params.keyFormat - The format of the private key to export (KeyFormat.Hexadecimal or KeyFormat.Solana).
    * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
    * @return A void promise.
    */
   handleExportPrivateKey: (params: {
     privateKeyId: string;
     targetPublicKey?: string;
+    keyFormat?: KeyFormat;
     stampWith?: StamperType | undefined;
   }) => Promise<void>;
 
@@ -268,11 +349,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - A request is made to the Turnkey API to export the wallet account, encrypted to the target public key.
    * - The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.
    * - If a custom iframe URL is used, a target public key can be provided explicitly.
+   * - Hexadecimal and Solana address formats are supported for wallet account exports - defaulting to Hexadecimal if not specified.
    * - Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.
    *
    * @param params.address - The address of the wallet account to export.
    * @param params.targetPublicKey - The target public key to encrypt the export bundle to (required for custom iframe flows).
+   * @param params.keyFormat - The format of the address to export (KeyFormat.Hexadecimal or KeyFormat.Solana).
    * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
    *
    * @returns A void promise.
@@ -281,11 +364,12 @@ export interface ClientContextType extends TurnkeyClientMethods {
   handleExportWalletAccount: (params: {
     address: string;
     targetPublicKey?: string;
+    keyFormat?: KeyFormat;
     stampWith?: StamperType | undefined;
   }) => Promise<void>;
 
   /**
-   * Handles the import flow.
+   * Handles the import wallet flow.
    *
    * - This function opens a modal with the ImportComponent for importing a wallet.
    * - Supports importing wallets using an encrypted bundle, with optional default accounts or custom account parameters.
@@ -302,6 +386,30 @@ export interface ClientContextType extends TurnkeyClientMethods {
    */
   handleImportWallet: (params?: {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
+    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+    stampWith?: StamperType | undefined;
+  }) => Promise<string>;
+
+  /**
+   * Handles the import private key flow.
+   *
+   * - This function opens a modal with the ImportComponent for importing a private key.
+   * - Supports importing private keys using an encrypted bundle.
+   * - Address formats (v1AddressFormat[]) and curve (v1Curve) must be specified based on the type of private key the user will import.
+   * - Supports customizing the duration of the success page shown after a successful import.
+   * - Allows specifying the stamper to use for the import (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
+   * - Ensures the imported private key is added to the user's wallet list and the provider state is refreshed.
+   *
+   * @param params.curve - curve type (v1Curve) for the private key (Eg: "CURVE_SECP256K1" for Ethereum, "CURVE_ED25519" for Solana).
+   * @param params.addressFormats - array of address formats (v1AddressFormat[]) that the private key supports (Eg: "ADDRESS_FORMAT_ETHEREUM" for Ethereum, "ADDRESS_FORMAT_SOLANA" for Solana).
+   * @param params.successPageDuration - duration (in ms) for the success page after import (default: 0, no success page).
+   * @param params.stampWith - parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
+   *
+   * @returns A promise that resolves to the new private key's ID.
+   */
+  handleImportPrivateKey: (params?: {
+    curve: v1Curve;
+    addressFormats: v1AddressFormat[];
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;
   }) => Promise<string>;
@@ -551,7 +659,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * Handles the signing of a message by displaying a modal for user interaction.
    *
    * - This function opens a modal with the SignMessageModal component, prompting the user to review and approve the message signing request.
-   * - Supports signing with any wallet account managed by Turnkey, including externally linked wallets.
+   * - Supports signing with any wallet account managed by Turnkey, including externally connected wallets.
    * - Allows for optional overrides of the encoding and hash function used for the payload, enabling advanced use cases or compatibility with specific blockchains.
    * - Optionally displays a subtext in the modal for additional context or instructions to the user.
    * - Returns a promise that resolves to a `v1SignRawPayloadResult` object containing the signed message, signature, and metadata.
@@ -579,21 +687,21 @@ export interface ClientContextType extends TurnkeyClientMethods {
   }) => Promise<v1SignRawPayloadResult>;
 
   /**
-   * Handles the linking of an external wallet account to the user's Turnkey account.
+   * Handles the connecting of an external wallet account to the user's Turnkey account.
    *
-   * - This function opens a modal with the LinkWalletModal component, allowing the user to select and connect an external wallet provider (such as MetaMask, Phantom, etc.).
+   * - This function opens a modal with the ConnectWalletModal component, allowing the user to select and connect an external wallet provider (such as MetaMask, Phantom, etc.).
    * - It fetches the list of available wallet providers (for all supported chains) and passes them to the modal for user selection.
-   * - After a successful wallet connection, the provider state is refreshed to include the newly linked wallet account.
-   * - Optionally, a success page is shown for the specified duration after linking (default: 2000ms).
+   * - After a successful wallet connection, the provider state is refreshed to include the newly connected wallet account.
+   * - Optionally, a success page is shown for the specified duration after connecting (default: 2000ms).
    * - Supports both Ethereum and Solana wallet providers, and can be extended to additional chains as supported by Turnkey.
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes if the client is not initialized or no active session is found.
    *
-   * @param params.successPageDuration - duration (in ms) for the success page after linking (default: 2000ms).
+   * @param params.successPageDuration - duration (in ms) for the success page after connecting (default: 2000ms).
    *
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized or if no active session is found.
    */
-  handleLinkExternalWallet: (params?: {
+  handleConnectExternalWallet: (params?: {
     successPageDuration?: number | undefined;
   }) => Promise<void>;
 
@@ -630,5 +738,5 @@ export interface ClientContextType extends TurnkeyClientMethods {
 
 /** @internal */
 export const ClientContext = createContext<ClientContextType | undefined>(
-  undefined,
+  undefined
 );

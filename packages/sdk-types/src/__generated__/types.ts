@@ -83,7 +83,7 @@ export type externalactivityv1PolicyEvaluation = {
   /** Unique identifier for the Vote associated with this policy evaluation. */
   voteId: string;
   /** Detailed evaluation result for each Policy that was run. */
-  policyEvaluations: immutablecommonv1PolicyEvaluation[];
+  policyEvaluations: privateumpv1PolicyEvaluation[];
   createdAt: externaldatav1Timestamp;
 };
 
@@ -105,6 +105,25 @@ export type externaldatav1Quorum = {
   userIds: string[];
 };
 
+export type externaldatav1SmartContractInterface = {
+  /** The Organization the Smart Contract Interface belongs to. */
+  organizationId: string;
+  /** Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+  smartContractInterfaceId: string;
+  /** The address corresponding to the Smart Contract or Program. */
+  smartContractAddress: string;
+  /** The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+  smartContractInterface: string;
+  /** The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  type: string;
+  /** The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  label: string;
+  /** The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  notes: string;
+  createdAt: externaldatav1Timestamp;
+  updatedAt: externaldatav1Timestamp;
+};
+
 export type externaldatav1Timestamp = {
   seconds: string;
   nanos: string;
@@ -115,7 +134,7 @@ export type immutableactivityv1Address = {
   address?: string;
 };
 
-export type immutablecommonv1PolicyEvaluation = {
+export type privateumpv1PolicyEvaluation = {
   policyId?: string;
   outcome?: v1Outcome;
 };
@@ -457,28 +476,6 @@ export type v1AuthenticatorTransport =
   | "AUTHENTICATOR_TRANSPORT_NFC"
   | "AUTHENTICATOR_TRANSPORT_USB"
   | "AUTHENTICATOR_TRANSPORT_HYBRID";
-
-export type v1BootProof = {
-  /** The hex encoded Ephemeral Public Key. */
-  ephemeralPublicKeyHex: string;
-  /** The DER encoded COSE Sign1 struct Attestation doc. */
-  awsAttestationDocB64: string;
-  /** The borsch serialized base64 encoded Manifest. */
-  qosManifestB64: string;
-  /** The borsch serialized base64 encoded Manifest Envelope. */
-  qosManifestEnvelopeB64: string;
-  /** The label under which the enclave app was deployed. */
-  deploymentLabel: string;
-  /** Name of the enclave app */
-  enclaveApp: string;
-  /** Owner of the app i.e. 'tkhq' */
-  owner: string;
-  createdAt: externaldatav1Timestamp;
-};
-
-export type v1BootProofResponse = {
-  bootProof: v1BootProof;
-};
 
 export type v1Config = {
   features?: v1Feature[];
@@ -1733,20 +1730,6 @@ export type v1GetAuthenticatorsResponse = {
   authenticators: v1Authenticator[];
 };
 
-export type v1GetBootProofRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** Hex encoded ephemeral public key. */
-  ephemeralKey: string;
-};
-
-export type v1GetLatestBootProofRequest = {
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  /** Name of enclave app. */
-  appName: string;
-};
-
 export type v1GetOauth2CredentialRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -1854,7 +1837,7 @@ export type v1GetSmartContractInterfaceRequest = {
 
 export type v1GetSmartContractInterfaceResponse = {
   /** Object to be used in conjunction with policies to guard transaction signing. */
-  smartContractInterface: v1SmartContractInterface;
+  smartContractInterface: externaldatav1SmartContractInterface;
 };
 
 export type v1GetSmartContractInterfacesRequest = {
@@ -1864,7 +1847,7 @@ export type v1GetSmartContractInterfacesRequest = {
 
 export type v1GetSmartContractInterfacesResponse = {
   /** A list of smart contract interfaces. */
-  smartContractInterfaces: v1SmartContractInterface[];
+  smartContractInterfaces: externaldatav1SmartContractInterface[];
 };
 
 export type v1GetSubOrgIdsRequest = {
@@ -2074,8 +2057,6 @@ export type v1InitFiatOnRampIntent = {
   countrySubdivisionCode?: string;
   /** Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false. */
   sandboxMode?: boolean;
-  /** Optional MoonPay Widget URL to sign when using MoonPay client SDKs with URL Signing enabled. */
-  urlForSignature?: string;
 };
 
 export type v1InitFiatOnRampRequest = {
@@ -2092,8 +2073,6 @@ export type v1InitFiatOnRampResult = {
   onRampUrl: string;
   /** Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
   onRampTransactionId: string;
-  /** Optional signature of the MoonPay Widget URL. The signature is generated if the Init Fiat On Ramp intent includes the urlForSignature field. The signature can be used to initialize the MoonPay SDKs when URL signing is enabled for your project. */
-  onRampUrlSignature?: string;
 };
 
 export type v1InitImportPrivateKeyIntent = {
@@ -3066,25 +3045,6 @@ export type v1SimpleClientExtensionResults = {
   credProps?: v1CredPropsAuthenticationExtensionsClientOutputs;
 };
 
-export type v1SmartContractInterface = {
-  /** The Organization the Smart Contract Interface belongs to. */
-  organizationId: string;
-  /** Unique identifier for a given Smart Contract Interface (ABI or IDL). */
-  smartContractInterfaceId: string;
-  /** The address corresponding to the Smart Contract or Program. */
-  smartContractAddress: string;
-  /** The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
-  smartContractInterface: string;
-  /** The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-  type: string;
-  /** The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-  label: string;
-  /** The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-  notes: string;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-};
-
 export type v1SmartContractInterfaceReference = {
   smartContractInterfaceId?: string;
   smartContractAddress?: string;
@@ -3711,30 +3671,6 @@ export type TGetAuthenticatorsBody = {
 
 export type TGetAuthenticatorsInput = { body: TGetAuthenticatorsBody };
 
-export type TGetBootProofResponse = {
-  bootProof: v1BootProof;
-};
-
-export type TGetBootProofBody = {
-  organizationId?: string;
-  /** Hex encoded ephemeral public key. */
-  ephemeralKey: string;
-};
-
-export type TGetBootProofInput = { body: TGetBootProofBody };
-
-export type TGetLatestBootProofResponse = {
-  bootProof: v1BootProof;
-};
-
-export type TGetLatestBootProofBody = {
-  organizationId?: string;
-  /** Name of enclave app. */
-  appName: string;
-};
-
-export type TGetLatestBootProofInput = { body: TGetLatestBootProofBody };
-
 export type TGetOauth2CredentialResponse = {
   oauth2Credential: v1Oauth2Credential;
 };
@@ -3824,7 +3760,7 @@ export type TGetPrivateKeyInput = { body: TGetPrivateKeyBody };
 
 export type TGetSmartContractInterfaceResponse = {
   /** Object to be used in conjunction with policies to guard transaction signing. */
-  smartContractInterface: v1SmartContractInterface;
+  smartContractInterface: externaldatav1SmartContractInterface;
 };
 
 export type TGetSmartContractInterfaceBody = {
@@ -3942,7 +3878,7 @@ export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
 
 export type TGetSmartContractInterfacesResponse = {
   /** A list of smart contract interfaces. */
-  smartContractInterfaces: v1SmartContractInterface[];
+  smartContractInterfaces: externaldatav1SmartContractInterface[];
 };
 
 export type TGetSmartContractInterfacesBody = {
@@ -4227,8 +4163,8 @@ export type TCreatePrivateKeyTagInput = { body: TCreatePrivateKeyTagBody };
 
 export type TCreatePrivateKeysResponse = {
   activity: v1Activity;
-  /** A list of Private Key IDs. */
-  privateKeyIds: string[];
+  /** A list of Private Key IDs and addresses. */
+  privateKeys: v1PrivateKeyResult[];
 };
 
 export type TCreatePrivateKeysBody = {
@@ -4325,6 +4261,7 @@ export type TCreateSmartContractInterfaceInput = {
 export type TCreateSubOrganizationResponse = {
   activity: v1Activity;
   subOrganizationId: string;
+  wallet?: v1WalletResult;
   rootUserIds?: string[];
 };
 
@@ -4784,8 +4721,6 @@ export type TInitFiatOnRampResponse = {
   onRampUrl: string;
   /** Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
   onRampTransactionId: string;
-  /** Optional signature of the MoonPay Widget URL. The signature is generated if the Init Fiat On Ramp intent includes the urlForSignature field. The signature can be used to initialize the MoonPay SDKs when URL signing is enabled for your project. */
-  onRampUrlSignature?: string;
 };
 
 export type TInitFiatOnRampBody = {
@@ -4811,8 +4746,6 @@ export type TInitFiatOnRampBody = {
   countrySubdivisionCode?: string;
   /** Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false. */
   sandboxMode?: boolean;
-  /** Optional MoonPay Widget URL to sign when using MoonPay client SDKs with URL Signing enabled. */
-  urlForSignature?: string;
 };
 
 export type TInitFiatOnRampInput = { body: TInitFiatOnRampBody };

@@ -195,6 +195,7 @@ export type ConnectedWalletAccount =
 export interface ConnectedEthereumWalletAccount extends v1WalletAccount {
   source: WalletSource.Connected;
   chainInfo: EvmChainInfo;
+  isAuthenticator: boolean;
   signMessage: (message: string) => Promise<string>;
   signAndSendTransaction: (unsignedTransaction: string) => Promise<string>;
 }
@@ -202,6 +203,7 @@ export interface ConnectedEthereumWalletAccount extends v1WalletAccount {
 export interface ConnectedSolanaWalletAccount extends v1WalletAccount {
   source: WalletSource.Connected;
   chainInfo: SolanaChainInfo;
+  isAuthenticator: boolean;
   signMessage: (message: string) => Promise<string>;
   signTransaction: (unsignedTransaction: string) => Promise<string>;
 }
@@ -277,7 +279,7 @@ export type CreateSubOrgParams = {
   /** array of authenticators to create. */
   authenticators?: {
     /** name of the authenticator. */
-    authenticatorName: string;
+    authenticatorName?: string;
     /** challenge for the authenticator. */
     challenge: string;
     /** attestation for the authenticator. */
@@ -464,7 +466,7 @@ export type TWalletManagerConfig = {
 export interface ApiKeyStamperBase {
   listKeyPairs(): Promise<string[]>;
   createKeyPair(
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
+    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string }
   ): Promise<string>;
   deleteKeyPair(publicKeyHex: string): Promise<void>;
   clearKeyPairs(): Promise<void>;
@@ -564,7 +566,7 @@ export interface BaseWalletInterface {
   sign: (
     payload: string,
     provider: WalletProvider,
-    intent: SignIntent,
+    intent: SignIntent
   ) => Promise<string>;
   getPublicKey: (provider: WalletProvider) => Promise<string>;
   getProviders: () => Promise<WalletProvider[]>;
@@ -572,7 +574,7 @@ export interface BaseWalletInterface {
   disconnectWalletAccount: (provider: WalletProvider) => Promise<void>;
   switchChain?: (
     provider: WalletProvider,
-    chainOrId: string | SwitchableChain,
+    chainOrId: string | SwitchableChain
   ) => Promise<void>;
 }
 

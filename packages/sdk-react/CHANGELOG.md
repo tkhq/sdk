@@ -1,5 +1,16 @@
 # @turnkey/sdk-react
 
+## 5.4.0-beta.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-types@0.4.0-beta.6
+  - @turnkey/crypto@2.6.0-beta.6
+  - @turnkey/sdk-browser@5.9.0-beta.1
+  - @turnkey/wallet-stamper@1.1.0-beta.6
+  - @turnkey/sdk-server@4.8.1-beta.0
+
 ## 5.4.0-beta.5
 
 ### Minor Changes
@@ -44,6 +55,16 @@
   - @turnkey/sdk-browser@5.7.1-beta.0
   - @turnkey/crypto@2.5.1-beta.3
   - @turnkey/wallet-stamper@1.0.9-beta.3
+
+## 5.3.4
+
+### Patch Changes
+
+- Updated dependencies [[`026264c`](https://github.com/tkhq/sdk/commit/026264c55aa16342c8925af0bdcdf72dc00e5158), [`d7420e6`](https://github.com/tkhq/sdk/commit/d7420e6c3559efc1024b58749b31d253150cb189)]:
+  - @turnkey/sdk-browser@5.9.0
+  - @turnkey/sdk-server@4.8.0
+  - @turnkey/crypto@2.6.0
+  - @turnkey/wallet-stamper@1.0.9
 
 ## 5.3.3
 

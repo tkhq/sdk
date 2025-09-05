@@ -36,7 +36,7 @@ export default function UserSettings() {
       (user?.authenticators?.length || 0) +
       (user?.oauthProviders?.length || 0) +
       (user?.apiKeys?.filter((apiKey) =>
-        apiKey.apiKeyName.startsWith("wallet-auth"),
+        apiKey.apiKeyName.startsWith("wallet-auth")
       ).length || 0) +
       (user?.userEmail ? 1 : 0) +
       (user?.userPhoneNumber ? 1 : 0);
@@ -45,7 +45,7 @@ export default function UserSettings() {
 
   function handleDeleteSubOrganization() {
     pushPage({
-      key: "Delete Sub-Organization",
+      key: "Delete sub-organization",
       content: <DeleteSubOrgWarning />,
       preventBack: true,
       showTitle: false,
