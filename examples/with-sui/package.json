@@ -8,7 +8,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@mysten/sui.js": "^0.37.1",
+    "@mysten/sui": "^1.37.6",
     "@noble/hashes": "1.4.0",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
