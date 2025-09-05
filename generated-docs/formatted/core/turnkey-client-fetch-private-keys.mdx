@@ -1,0 +1,36 @@
+---
+title: "fetchPrivateKeys()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Fetches all private keys for the current user.
+
+<ul>
+  <li>Retrieves private keys from the Turnkey API.</li>
+  <li>Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2054">core.ts:2054</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="v1PrivateKey[]" required={true} >
+  A promise that resolves to an array of `v1PrivateKey` objects.
+</ResponseField>

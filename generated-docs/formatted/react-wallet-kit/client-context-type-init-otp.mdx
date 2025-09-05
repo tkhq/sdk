@@ -1,0 +1,38 @@
+---
+title: "initOtp()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Initializes the OTP process by sending an OTP code to the provided contact.
+
+<ul>
+  <li>This function initiates the OTP flow by sending a one-time password (OTP) code to the user's contact information (email address or phone number) via the auth proxy.</li>
+  <li>Supports both email and SMS OTP types.</li>
+  <li>Returns an OTP ID that is required for subsequent OTP verification.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="contact" type='string' required={true}>
+contact information for the user (e.g., email address or phone number).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="otpType" type='OtpType' required={true}>
+type of OTP to initialize (OtpType.Email or OtpType.Sms).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true}>
+  A promise that resolves to the OTP ID required for verification.
+</ResponseField>

@@ -2,8 +2,103 @@
 title: "Crypto"
 mode: wide
 ---
-  
+
 # @turnkey/crypto
+
+## 2.6.0-beta.6
+
+### Minor Changes
+
+- @turnkey/react-wallet-kit and @turnkey/core beta release
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.6
+
+## 2.6.0-beta.5
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.5
+
+## 2.6.0
+
+### Minor Changes
+
+- [#840](https://github.com/tkhq/sdk/pull/840) [`d7420e6`](https://github.com/tkhq/sdk/commit/d7420e6c3559efc1024b58749b31d253150cb189) Author [@zkharit](https://github.com/zkharit) - This change adds a new encryption mechanism to allow for messages to be encrypted to an enclaves quorum public key. A helper function specifically for OAith 2.0 client secret encryption is also included
+
+## 2.5.1-beta.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.4
+
+## 2.5.1-beta.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.3
+
+## 2.5.1-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.2
+
+## 2.5.1-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.1
+
+## 2.5.1-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.0
+
+## 2.5.0
+
+### Minor Changes
+
+- [#812](https://github.com/tkhq/sdk/pull/812) [`6cde41c`](https://github.com/tkhq/sdk/commit/6cde41cfecdfb7d54abf52cc65e28ef0e2ad6ba3) Author [@turnekybc](https://github.com/turnekybc) - Add `@turnkey/encoding` as a package dependency instead of a devDependency to `@turnkey/crypto`. This resolves an issue with transitive dependencies when devDependencies are not included in the artifact.
+
+## 2.4.3
+
+### Patch Changes
+
+- [#720](https://github.com/tkhq/sdk/pull/720) [`6cbff7a`](https://github.com/tkhq/sdk/commit/6cbff7a0c0b3a9a05586399e5cef476154d3bdca) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `decryptExportBundle` not working in some environments by adding a shim to handle `bs58`'s ESM-only export.
+
+## 2.4.2
+
+### Patch Changes
+
+- [#699](https://github.com/tkhq/sdk/pull/699) [`c5cdf82`](https://github.com/tkhq/sdk/commit/c5cdf8229da5da1bd6d52db06b2fe42826e96d57) Author [@andrewkmin](https://github.com/andrewkmin) - Add validations to `fromDerSignature` for parsing DER signatures in the Turnkey context
+
+- [#716](https://github.com/tkhq/sdk/pull/716) [`fa46701`](https://github.com/tkhq/sdk/commit/fa467019eef34b5199372248edff1e7a64934e79) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `decryptCredentialBundle` not working in React Native by adding a shim to handle `bs58check`'s ESM-only export.
+
+## 2.4.1
+
+### Patch Changes
+
+- [#700](https://github.com/tkhq/sdk/pull/700) [`878e039`](https://github.com/tkhq/sdk/commit/878e03973856cfec83e6e3fda5b76d1b64943628) Author [@andrewkmin](https://github.com/andrewkmin) - Add validations to uncompressRawPublicKey method
+
+## 2.4.0
+
+### Minor Changes
+
+- [#662](https://github.com/tkhq/sdk/pull/662) [`10ee5c5`](https://github.com/tkhq/sdk/commit/10ee5c524b477ce998e4fc635152cd101ae5a9cc) Thanks [@moe-dev](https://github.com/moe-dev)! - Add function `verifySessionJwtSignature` to verify session tokens return from Turnkey and signed by the notarizer
 
 ## 2.3.1
 

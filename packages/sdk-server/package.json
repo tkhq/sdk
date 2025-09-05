@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/sdk-server",
-  "version": "4.8.0",
+  "version": "4.8.1-beta.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {

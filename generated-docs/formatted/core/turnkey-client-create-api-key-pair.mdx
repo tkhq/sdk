@@ -1,0 +1,41 @@
+---
+title: "createApiKeyPair()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Creates a new API key pair and returns the public key.
+
+<ul>
+  <li>This function generates a new API key pair and stores it in the underlying key store (IndexedDB).</li>
+  <li>If an external key pair is provided, it will use that key pair for creation instead of generating a new one.</li>
+  <li>If ``storeOverride`` is set to true, the generated or provided public key will be set as the override key in the API key stamper, making it the active key for subsequent signing operations.</li>
+  <li>Ensures the API key stamper is initialized before proceeding.</li>
+  <li>Handles both native CryptoKeyPair objects and raw key material.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3889">core.ts:3889</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="externalKeyPair" type='CryptoKeyPair | object' required={false}>
+An externally generated key pair (either a CryptoKeyPair or an object with publicKey/privateKey strings) to use instead of generating a new one.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="storeOverride" type='boolean' required={false}>
+If true, sets the generated or provided public key as the override key in the API key stamper (defaults to false).
+@returnparams.s A promise that resolves to the public key of the created or provided API key pair as a string.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true} />

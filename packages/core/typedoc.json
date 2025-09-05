@@ -1,0 +1,39 @@
+{
+  "entryPoints": ["src/__clients__/core.ts"],
+  "name": "core",
+  "exclude": [
+    "src/turnkey-helpers.ts",
+    "**/__generated__/**",
+    "**/__inputs__/**",
+    "**/__types__/**",
+    "**/__storage__/**",
+    "**/__polyfills__/**",
+    "**/node_modules/**",
+    "src/__generated__/sdk_api_types.ts",
+    "src/__generated__/sdk-client-base.ts",
+    "src/__inputs__/public_api.types.ts",
+    "src/__inputs__/public_api.swagger.json",
+    "src/__types__/base.ts"
+  ],
+  "excludeInternal": true,
+  "externalPattern": ["**/node_modules/**"],
+  "includeVersion": true,
+  "alwaysCreateEntryPointModule": false,
+  "gitRevision": "main",
+  "router": "structure-dir",
+  "projectDocuments": ["documents/*.md", "CHANGELOG.md"],
+  "validation": {
+    "notExported": false,
+    "notDocumented": false
+  },
+  "visibilityFilters": {
+    "external": false
+  },
+  "outputs": [
+    {
+      "name": "json",
+      "path": "./generated-docs/sdks",
+      "fileExtension": "json"
+    }
+  ]
+}

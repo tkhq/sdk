@@ -1,0 +1,47 @@
+---
+title: "loginWithPasskey()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Logs in a user using a passkey, optionally specifying the public key, session key, and session expiration.
+
+<ul>
+  <li>This function initiates the login process with a passkey and handles session creation and storage.</li>
+  <li>If a public key is not provided, a new key pair will be generated for authentication.</li>
+  <li>If a session key is not provided, the default session key will be used.</li>
+  <li>The session expiration can be customized via the expirationSeconds parameter.</li>
+  <li>Handles cleanup of unused key pairs if login fails.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L317">core.ts:317</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="expirationSeconds" type='string' required={false}>
+session expiration time in seconds (defaults to the configured default).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="publicKey" type='string' required={false}>
+public key to use for authentication. If not provided, a new key pair will be generated.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
+session key to use for session creation (defaults to the default session key).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="PasskeyAuthResult" required={true} >
+  A promise that resolves to a PasskeyAuthResult, which includes:
+         - `sessionToken`: the signed JWT session token.
+         - `credentialId`: an empty string.
+</ResponseField>

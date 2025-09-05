@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/viem",
-  "version": "0.13.1",
+  "version": "0.14.0-beta.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -62,6 +62,7 @@
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/core": "workspace:*",
     "cross-fetch": "^4.0.0"
   },
   "devDependencies": {

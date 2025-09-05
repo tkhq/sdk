@@ -1,0 +1,58 @@
+---
+title: "handleXOauth()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L177">react-wallet-kit/src/providers/client/Types.tsx:177</a></p>
+
+<H3Bordered text="Overview" />
+
+Handles the Twitter (X) OAuth 2.0 flow.
+
+<ul>
+  <li>This function initiates the OAuth 2.0 PKCE flow with Twitter (X) by redirecting the user to the X authorization page or opening it in a popup window.</li>
+  <li>It supports both "popup" and "redirect" flows, determined by the ``openInPage`` parameter.</li>
+  <li>Generates a new ephemeral API key pair and uses its public key as part of the state and a cryptographic nonce to bind the OAuth session.</li>
+  <li>Creates a PKCE verifier/challenge pair, storing the verifier in ``sessionStorage`` for later use in the token exchange.</li>
+  <li>Constructs the Twitter (X) OAuth URL with all required parameters, including client ID, redirect URI, response type, scope, PKCE code challenge, nonce, and state.</li>
+  <li>The ``state`` parameter encodes the provider name, flow type, ephemeral public key, and any additional key-value pairs provided in ``additionalState``.</li>
+  <li>If ``openInPage`` is true, the current page is redirected to the OAuth URL and the function returns a promise that resolves on redirect or rejects after 5 minutes if no redirect occurs.</li>
+  <li>If ``openInPage`` is false, a popup window is opened for the OAuth flow, and the function returns a promise that resolves when the OAuth code is captured or rejects if the popup is closed or times out.</li>
+  <li>On receiving an authorization code, the function exchanges it for an OIDC token via the Turnkey proxy (``proxyOAuth2Authenticate``) using the PKCE verifier, redirect URI, and nonce.</li>
+  <li>On successful authentication, the function either calls the provided ``onOauthSuccess`` callback, triggers the ``onOauthRedirect`` callback from provider callbacks, or completes the OAuth flow internally by calling ``completeOauth``.</li>
+  <li>Handles error cases such as missing configuration, popup failures, missing PKCE verifier, or Turnkey proxy failures, throwing a ``TurnkeyError`` with appropriate error codes.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="additionalState" type='Record&lt;string, string&gt;' required={false}>
+Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="clientId" type='string' required={false}>
+The Twitter (X) Client ID to use (defaults to the client ID from configuration).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="onOauthSuccess" type='object' required={false}>
+Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+
+onOauthSuccess params:
+- oidcToken: The OIDC token issued by Turnkey after exchanging the auth code.
+- providerName: The name of the OAuth provider ("twitter").
+</NestedParam>
+    <NestedParam parentKey="params" childKey="openInPage" type='boolean' required={false}>
+Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="void" required={true}>
+  A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
+</ResponseField>

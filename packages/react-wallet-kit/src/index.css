@@ -1,0 +1,248 @@
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary-light: oklch(0.547 0.2389 266.82);
+  --color-primary-dark: oklch(0.547 0.2389 266.82);
+  /* This is the color of the text that goes on top of primary color buttons */
+  --color-primary-text-light: rgb(255, 255, 255);
+  --color-primary-text-dark: rgb(255, 255, 255);
+
+  --color-danger-light: oklch(0.65 0.1406 12.71);
+  --color-danger-dark: oklch(0.6088 0.1801 30.71);
+  /* This is the color of the text that goes on top of danger color buttons */
+  --color-danger-text-light: rgb(255, 255, 255);
+  --color-danger-text-dark: rgb(255, 255, 255);
+
+  --color-success-light: oklch(0.7231 0.1834 142.46);
+  --color-success-dark: oklch(0.7679 0.1603 152.74);
+  /* This is the color of the text that goes on top of success color buttons */
+  --color-success-text-light: rgb(255, 255, 255);
+  --color-success-text-dark: rgb(255, 255, 255);
+
+  --color-button-light: rgb(255, 255, 255);
+  --color-button-dark: oklch(0.2532 0.0056 285.99);
+
+  --color-modal-background-light: oklch(0.9758 0.0057 264.53);
+  --color-modal-background-dark: oklch(0.15 0 0);
+  --color-modal-text-light: oklch(0 0.1 41);
+  --color-modal-text-dark: rgb(255, 255, 255);
+
+  --color-icon-background-light: oklch(0.928 0.006 264.531);
+  --color-icon-background-dark: oklch(0.3222 0.0053 286.1);
+  --color-icon-text-light: oklch(0.6066 0 0);
+  --color-icon-text-dark: oklch(0.7174 0.0029 286.32);
+
+  --animate-shake: shake 250ms ease-in-out;
+  @keyframes shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-5px);
+    }
+    75% {
+      transform: translateX(5px);
+    }
+  }
+}
+
+@layer base {
+  input:-webkit-autofill {
+    box-shadow: inset 0 0 0 1000px var(--color-button-light) !important;
+    -webkit-text-fill-color: var(--color-modal-text-light) !important;
+    caret-color: var(--color-modal-text-light);
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  .dark input:-webkit-autofill,
+  html.dark input:-webkit-autofill {
+    box-shadow: inset 0 0 0 1000px var(--color-button-dark) !important;
+    -webkit-text-fill-color: var(--color-modal-text-dark) !important;
+    caret-color: var(--color-modal-text-dark);
+  }
+
+  .tk-style-sentinel {
+    position: absolute;
+    width: 1234px;
+    height: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .tk-modal {
+    /* Reset line-height which preflight sets to 1.5 */
+    line-height: normal;
+  }
+
+  .tk-modal *,
+  .tk-modal *::before,
+  .tk-modal *::after {
+    box-sizing: revert-layer;
+    border-width: revert-layer;
+    border-style: revert-layer;
+    border-color: revert-layer;
+  }
+
+  /* Reset button styles */
+  .tk-modal button,
+  .tk-modal input,
+  .tk-modal textarea,
+  .tk-modal select {
+    font-family: inherit;
+    /* 1 */
+    font-feature-settings: inherit;
+    /* 1 */
+    font-variation-settings: inherit;
+    /* 1 */
+    font-size: revert-layer;
+    /* 1 */
+    font-weight: revert-layer;
+    /* 1 */
+    line-height: inherit;
+    /* 1 */
+    letter-spacing: inherit;
+    /* 1 */
+    color: revert-layer;
+    /* 1 */
+    margin: revert-layer;
+    /* 2 */
+    padding: revert-layer;
+    /* 3 */
+  }
+
+  @media (max-width: 440px) {
+    .tk-modal button {
+      font-size: medium;
+    }
+  }
+
+  /* Text size on mobile is important for inputs. The screen will zoom in if the font size is less than 16px */
+  @media (max-width: 440px) {
+    .tk-modal input {
+      font-size: medium;
+    }
+  }
+}
+
+@layer components {
+  /* A nice scrollbar that conforms to light/dark mode */
+  .tk-scrollbar {
+    /* For Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-icon-text-light)
+      var(--color-icon-background-light); /* thumb and track (light mode) */
+  }
+  /* For WebKit browsers */
+  .tk-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .tk-scrollbar::-webkit-scrollbar-track {
+    background: var(--color-icon-background-light);
+  }
+  .tk-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--color-icon-text-light);
+    border-radius: 10px;
+    border: 2px solid var(--color-icon-background-light);
+  }
+
+  /* Dark mode styles */
+  .dark .tk-scrollbar {
+    scrollbar-color: var(--color-icon-text-dark)
+      var(--color-icon-background-dark); /* thumb and track (dark mode) */
+  }
+  .dark .tk-scrollbar::-webkit-scrollbar-track {
+    background: var(--color-icon-background-dark);
+  }
+  .dark .tk-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--color-icon-text-dark);
+    border: 2px solid var(--color-icon-background-dark);
+  }
+}
+
+.tk-modal * {
+  box-sizing: revert-layer;
+  padding: revert-layer;
+  margin: revert-layer;
+}
+
+.tk-modal *,
+.tk-modal *::before,
+.tk-modal *::after {
+  box-sizing: revert-layer;
+  border-width: revert-layer;
+  border-style: revert-layer;
+  border-color: revert-layer;
+}
+
+.tk-modal blockquote,
+.tk-modal dl,
+.tk-modal dd,
+.tk-modal h1,
+.tk-modal h2,
+.tk-modal h3,
+.tk-modal h4,
+.tk-modal h5,
+.tk-modal h6,
+.tk-modal hr,
+.tk-modal figure,
+.tk-modal p,
+.tk-modal pre {
+  margin: revert !important;
+}
+
+.tk-modal button {
+  -webkit-appearance: button;
+  background-color: revert-layer !important;
+  background-image: revert-layer !important;
+}
+
+.tk-modal input:where([type="button"]) {
+  -webkit-appearance: button;
+  background-color: revert-layer !important;
+  background-image: revert-layer !important;
+}
+
+.tk-modal input:where([type="reset"]) {
+  -webkit-appearance: button;
+  background-color: revert-layer !important;
+  background-image: revert-layer !important;
+}
+
+.tk-modal input:where([type="submit"]) {
+  -webkit-appearance: button;
+  background-color: revert-layer !important;
+  background-image: revert-layer !important;
+}
+
+/* Reset button styles */
+.tk-modal button,
+.tk-modal input,
+.tk-modal textarea,
+.tk-modal select {
+  font-family: inherit;
+  /* 1 */
+  font-feature-settings: inherit;
+  /* 1 */
+  font-variation-settings: inherit;
+  /* 1 */
+  font-size: revert-layer;
+  /* 1 */
+  font-weight: revert-layer;
+  /* 1 */
+  line-height: inherit;
+  /* 1 */
+  letter-spacing: inherit;
+  /* 1 */
+  color: revert-layer !important;
+  /* 1 */
+  margin: revert-layer !important;
+  /* 2 */
+  padding: revert-layer !important;
+  /* 3 */
+}

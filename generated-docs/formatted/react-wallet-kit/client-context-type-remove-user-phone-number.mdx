@@ -1,0 +1,39 @@
+---
+title: "removeUserPhoneNumber()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Removes the user's phone number.
+
+<ul>
+  <li>This function removes the user's phone number by setting it to an empty string.</li>
+  <li>If a userId is provided, it removes the phone number for that specific user; otherwise, it uses the current session's userId.</li>
+  <li>Automatically ensures an active session exists before making the request.</li>
+  <li>Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="userId" type='string' required={false}>
+user ID to remove a specific user's phone number (defaults to the current session's userId).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true}>
+  A promise that resolves to the userId of the user whose phone number was removed.
+</ResponseField>

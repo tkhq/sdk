@@ -1,0 +1,44 @@
+---
+title: "switchWalletAccountChain()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Switches the wallet provider associated with a given wallet account to a different chain.
+
+<ul>
+  <li>Requires the wallet manager and its connector to be initialized</li>
+  <li>Only works for connected wallet accounts</li>
+  <li>Looks up the provider for the given account address</li>
+  <li>Does nothing if the provider is already on the desired chain.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L623">core.ts:623</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="chainOrId" type='string | SwitchableChain' required={true}>
+The target chain, specified as a chain ID string or a SwitchableChain object.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="walletAccount" type='WalletAccount' required={true}>
+The wallet account whose provider should be switched.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="walletProviders" type='WalletProvider[]' required={false}>
+Optional list of wallet providers to search; falls back to `getWalletProviders()` if omitted.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="void" required={true} >
+  A promise that resolves once the chain switch is complete.
+</ResponseField>

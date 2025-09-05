@@ -1,0 +1,42 @@
+---
+title: "storeSession()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Stores a session token and updates the session associated with the specified session key, or by default the active session.
+
+<ul>
+  <li>This function parses and stores a signed JWT session token in local storage, associating it with the given session key.</li>
+  <li>If a sessionKey is provided, the session will be stored under that key; otherwise, it will use the default session key.</li>
+  <li>If a session already exists for the session key, its associated key pair will be deleted before storing the new session.</li>
+  <li>After storing the session, any unused key pairs are automatically cleared from storage.</li>
+  <li>Ensures that session management is consistent and prevents orphaned key pairs.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3542">core.ts:3542</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
+session key to store the session under (defaults to the default session key).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="sessionToken" type='string' required={true}>
+JWT session token to store.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="void" required={true} >
+  A promise that resolves when the session is successfully stored.
+</ResponseField>

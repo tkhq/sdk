@@ -1,0 +1,48 @@
+---
+title: "exportWalletAccount()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Exports a wallet account as an encrypted bundle.
+
+<ul>
+  <li>This function exports the specified wallet account as an encrypted bundle, suitable for backup or transfer.</li>
+  <li>The exported bundle contains the wallet account's key material, encrypted to the provided target public key.</li>
+  <li>If a targetPublicKey is provided, the bundle will be encrypted to that public key; otherwise, an error will be thrown.</li>
+  <li>If an organizationId is provided, the wallet account will be exported under that sub-organization; otherwise, the current session's organizationId is used.</li>
+  <li>Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3296">core.ts:3296</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="address" type='string' required={true}>
+address of the wallet account to export.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="organizationId" type='string' required={false}>
+organization ID to export the wallet account under a specific sub-organization.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="targetPublicKey" type='string' required={true}>
+public key to encrypt the bundle to.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="string" required={true} >
+  A promise that resolves to an `ExportBundle` object containing the encrypted wallet account and metadata.
+</ResponseField>

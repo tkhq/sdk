@@ -1,0 +1,54 @@
+---
+title: "refreshWallets()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L94">react-wallet-kit/src/providers/client/Types.tsx:94</a></p>
+
+<H3Bordered text="Overview" />
+
+Refreshes the wallets state for the current user session.
+
+<ul>
+  <li>This function fetches the latest list of wallets associated with the current session or user,</li>
+</ul>
+
+and updates the ``wallets`` state variable in the provider.
+
+<ul>
+  <li>If a ``stampWith`` parameter is provided, it will use that stamper to fetch the wallets</li>
+</ul>
+
+(supports Passkey, ApiKey, or Wallet stampers for granular authentication control).
+
+<ul>
+  <li>Automatically handles error reporting via the configured callbacks.</li>
+  <li>Typically used after wallet creation, import, export, account changes, or authentication</li>
+</ul>
+
+to ensure the provider state is up to date.
+
+<ul>
+  <li>If no wallets are found, the state will be set to an empty array.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="void" required={true}>
+  A promise that resolves when the wallets are successfully refreshed and state is updated.
+</ResponseField>

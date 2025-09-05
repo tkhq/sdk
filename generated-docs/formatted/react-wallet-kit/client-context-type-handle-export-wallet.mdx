@@ -1,0 +1,48 @@
+---
+title: "handleExportWallet()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L311">react-wallet-kit/src/providers/client/Types.tsx:311</a></p>
+
+<H3Bordered text="Overview" />
+
+Handles the export wallet flow.
+
+<ul>
+  <li>This function opens a modal with the ExportComponent for exporting a wallet.</li>
+  <li>Uses Turnkey's export iframe flow to securely export wallet material.</li>
+  <li>The export process encrypts the exported bundle to a target public key, which is generated and managed inside the iframe for maximum security.</li>
+  <li>A request is made to the Turnkey API to export the wallet, encrypted to the target public key.</li>
+  <li>The resulting export bundle is injected into the iframe, where it is decrypted and displayed to the user.</li>
+  <li>If a custom iframe URL is used, a target public key can be provided explicitly.</li>
+  <li>Optionally allows specifying the stamper to use for the export (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.</li>
+  <li>The modal-driven UI ensures the user is guided through the export process and can securely retrieve their exported material.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+The stamper to use for the export (Passkey, ApiKey, or Wallet).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="targetPublicKey" type='string' required={false}>
+The target public key to encrypt the export bundle to (required for custom iframe flows).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="walletId" type='string' required={true}>
+The ID of the wallet to export.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="void" required={true}>
+  A void promise.
+</ResponseField>

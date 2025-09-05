@@ -19,7 +19,10 @@
     "packages/iframe-stamper",
     "packages/crypto",
     "packages/react-native-passkey-stamper",
-    "packages/telegram-cloud-storage-stamper"
+    "packages/telegram-cloud-storage-stamper",
+    "packages/core",
+    "packages/react-wallet-kit",
+    "packages/sdk-types"
   ],
   "sandboxes": ["/examples/react-components"],
   "node": "20"

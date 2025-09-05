@@ -67,6 +67,8 @@ const EnvelopeSchema = {
   },
 };
 
+type Curve = "CURVE_SECP256K1" | "CURVE_P256";
+
 /**
  * Get PublicKey function
  * Derives public key from Uint8Array or hexstring private key
@@ -423,6 +425,7 @@ export const compressRawPublicKey = (rawPublicKey: Uint8Array): Uint8Array => {
  */
 export const uncompressRawPublicKey = (
   rawPublicKey: Uint8Array,
+  curve: Curve = "CURVE_P256",
 ): Uint8Array => {
   if (rawPublicKey.length !== 33) {
     throw new Error("failed to uncompress raw public key: invalid length");
@@ -437,14 +440,26 @@ export const uncompressRawPublicKey = (
   const lsb = rawPublicKey[0] === 3;
   const x = BigInt("0x" + uint8ArrayToHexString(rawPublicKey.subarray(1)));
 
-  // https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf (Appendix D).
-  const p = BigInt(
-    "115792089210356248762697446949407573530086143415290314195533631308867097853951",
-  );
-  const b = BigInt(
-    "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b ",
-  );
-  const a = p - BigInt(3);
+  let p: bigint, a: bigint, b: bigint;
+  if (curve === "CURVE_P256") {
+    // p-256 domain parameters
+    // https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf (Appendix D).
+    p = BigInt(
+      "115792089210356248762697446949407573530086143415290314195533631308867097853951",
+    );
+    b = BigInt(
+      "0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b",
+    );
+    a = p - BigInt(3);
+  } else {
+    // secp256k1 domain parameters
+    // https://www.secg.org/sec2-v2.pdf (Section 2.4.1).
+    p = BigInt(
+      "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffefffffc2f",
+    );
+    a = BigInt(0);
+    b = BigInt(7);
+  }
 
   // Now compute y based on x
   const rhs = ((x * x + a) * x + b) % p;

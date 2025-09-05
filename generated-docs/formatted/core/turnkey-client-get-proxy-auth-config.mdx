@@ -1,0 +1,36 @@
+---
+title: "getProxyAuthConfig()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Fetches the WalletKit proxy authentication configuration from the auth proxy.
+
+<ul>
+  <li>This function makes a request to the Turnkey auth proxy to retrieve the current WalletKit configuration,</li>
+</ul>
+
+including supported authentication methods, OAuth providers, and any custom proxy settings.
+
+<ul>
+  <li>Useful for dynamically configuring the client UI or authentication flows based on the proxy's capabilities.</li>
+  <li>Ensures that the client is aware of the latest proxy-side configuration, which may affect available login/signup options.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3932">core.ts:3932</a></p>
+
+<H3Bordered text="Parameters" />
+
+<p>No parameters.</p>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="ProxyTGetWalletKitConfigResponse" required={true} >
+  A promise that resolves to a `ProxyTGetWalletKitConfigResponse` object containing the proxy authentication configuration.
+</ResponseField>

@@ -1,0 +1,38 @@
+---
+title: "clearSession()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Clears the session associated with the specified session key, or the active session by default.
+
+<ul>
+  <li>This function deletes the session and its associated key pair from storage.</li>
+  <li>If a sessionKey is provided, it will clear the session under that key; otherwise, it will clear the default (active) session.</li>
+  <li>Removes the session data from local storage and deletes the corresponding API key pair from the key store.</li>
+  <li>Throws an error if the session does not exist or if there is an error during the clearing process.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3575">core.ts:3575</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
+session key to clear the session under (defaults to the default session key).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="void" required={true} >
+  A promise that resolves when the session is successfully cleared.
+</ResponseField>

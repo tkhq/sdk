@@ -1,0 +1,47 @@
+---
+title: "loginWithOtp()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Logs in a user using an OTP verification token.
+
+<ul>
+  <li>This function logs in a user using the verification token received after OTP verification (from email or SMS).</li>
+  <li>If a public key is not provided, a new API key pair will be generated for authentication.</li>
+  <li>Optionally invalidates any existing sessions for the user if ``invalidateExisting`` is set to true.</li>
+  <li>Stores the resulting session token under the specified session key, or the default session key if not provided.</li>
+  <li>Handles cleanup of unused key pairs if login fails.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="invalidateExisting" type='boolean' required={false}>
+flag to invalidate existing session for the user.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="publicKey" type='string' required={false}>
+public key to use for authentication. If not provided, a new key pair will be generated.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
+session key to use for session creation (defaults to the default session key).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="verificationToken" type='string' required={true}>
+verification token received after OTP verification.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="BaseAuthResult" required={true}>
+  A promise that resolves to a BaseAuthResult, which includes:
+         - `sessionToken`: the signed JWT session token.
+</ResponseField>
