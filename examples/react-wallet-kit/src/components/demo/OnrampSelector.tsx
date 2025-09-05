@@ -161,7 +161,7 @@ export default function OnrampSelector({
         window.open(
           res.onRampUrl,
           "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes"
+          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
         );
       } else if (onrampDisplayOption === "new tab") {
         window.open(res.onRampUrl, "_blank", "noopener,noreferrer");
@@ -263,7 +263,7 @@ export default function OnrampSelector({
         window.open(
           res.onRampUrl,
           "_blank",
-          "popup,width=500,height=700,scrollbars=yes,resizable=yes"
+          "popup,width=500,height=700,scrollbars=yes,resizable=yes",
         );
       } else if (onrampDisplayOption === "new tab") {
         window.open(res.onRampUrl, "_blank", "noopener,noreferrer");

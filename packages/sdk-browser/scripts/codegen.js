@@ -87,7 +87,8 @@ function extractLatestVersions(definitions) {
   const latestVersions = {};
 
   // Regex to separate the version prefix, base activity details, and (optional) activity version
-  const keyVersionRegex = /^(v\d+)([A-Z][a-z]+(?:[A-Z][a-z]+)*)(V\d+)?$/;
+  // prettier-ignore
+  const keyVersionRegex = /^(?<prefix>v\d+)(?<name>[A-Z][a-z0-9]*(?:[A-Z][a-z0-9]*)*)(?<suffix>V\d+)?$/;
 
   Object.keys(definitions).forEach((key) => {
     const match = key.match(keyVersionRegex);
@@ -428,7 +429,7 @@ export class TurnkeySDKClientBase {
       );
     } else if (methodType === "command") {
       const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-        .replace(/([a-z])([A-Z])/g, "$1_$2")
+        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
         .toUpperCase()}`;
       const versionedActivityType =
         VERSIONED_ACTIVITY_TYPES[unversionedActivityType];

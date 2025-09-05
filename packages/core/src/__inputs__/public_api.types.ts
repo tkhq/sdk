@@ -28,6 +28,18 @@ export type paths = {
     /** Get details about authenticators for a user. */
     post: operations["PublicApiService_GetAuthenticators"];
   };
+  "/public/v1/query/get_boot_proof": {
+    /** Get the boot proof for a given ephemeral key. */
+    post: operations["PublicApiService_GetBootProof"];
+  };
+  "/public/v1/query/get_latest_boot_proof": {
+    /** Get the latest boot proof for a given enclave app name. */
+    post: operations["PublicApiService_GetLatestBootProof"];
+  };
+  "/public/v1/query/get_oauth2_credential": {
+    /** Get details about an OAuth 2.0 credential. */
+    post: operations["PublicApiService_GetOauth2Credential"];
+  };
   "/public/v1/query/get_oauth_providers": {
     /** Get details about Oauth providers for a user. */
     post: operations["PublicApiService_GetOauthProviders"];
@@ -71,6 +83,10 @@ export type paths = {
   "/public/v1/query/list_activities": {
     /** List all activities within an organization. */
     post: operations["PublicApiService_GetActivities"];
+  };
+  "/public/v1/query/list_oauth2_credentials": {
+    /** List all OAuth 2.0 credentials within an organization. */
+    post: operations["PublicApiService_ListOauth2Credentials"];
   };
   "/public/v1/query/list_policies": {
     /** List all policies within an organization. */
@@ -136,6 +152,10 @@ export type paths = {
     /** Create invitations to join an existing organization. */
     post: operations["PublicApiService_CreateInvitations"];
   };
+  "/public/v1/submit/create_oauth2_credential": {
+    /** Enable authentication for end users with an OAuth 2.0 provider */
+    post: operations["PublicApiService_CreateOauth2Credential"];
+  };
   "/public/v1/submit/create_oauth_providers": {
     /** Create Oauth providers for a specified user. */
     post: operations["PublicApiService_CreateOauthProviders"];
@@ -199,6 +219,10 @@ export type paths = {
   "/public/v1/submit/delete_invitation": {
     /** Delete an existing invitation. */
     post: operations["PublicApiService_DeleteInvitation"];
+  };
+  "/public/v1/submit/delete_oauth2_credential": {
+    /** Disable authentication for end users with an OAuth 2.0 provider */
+    post: operations["PublicApiService_DeleteOauth2Credential"];
   };
   "/public/v1/submit/delete_oauth_providers": {
     /** Remove Oauth providers for a specified user. */
@@ -288,6 +312,10 @@ export type paths = {
     /** Authenticate a user with an OIDC token (Oauth). */
     post: operations["PublicApiService_Oauth"];
   };
+  "/public/v1/submit/oauth2_authenticate": {
+    /** Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities */
+    post: operations["PublicApiService_Oauth2Authenticate"];
+  };
   "/public/v1/submit/oauth_login": {
     /** Create an Oauth session for a user. */
     post: operations["PublicApiService_OauthLogin"];
@@ -331,6 +359,10 @@ export type paths = {
   "/public/v1/submit/stamp_login": {
     /** Create a session for a user through stamping client side (API key, wallet client, or passkey client). */
     post: operations["PublicApiService_StampLogin"];
+  };
+  "/public/v1/submit/update_oauth2_credential": {
+    /** Update an OAuth 2.0 provider credential */
+    post: operations["PublicApiService_UpdateOauth2Credential"];
   };
   "/public/v1/submit/update_policy": {
     /** Update an existing policy. */
@@ -455,7 +487,7 @@ export type definitions = {
     /** @description Unique identifier for the Vote associated with this policy evaluation. */
     voteId: string;
     /** @description Detailed evaluation result for each Policy that was run. */
-    policyEvaluations: definitions["privateumpv1PolicyEvaluation"][];
+    policyEvaluations: definitions["immutablecommonv1PolicyEvaluation"][];
     createdAt: definitions["externaldatav1Timestamp"];
   };
   externaldatav1Address: {
@@ -476,24 +508,6 @@ export type definitions = {
     /** @description Unique identifiers of quorum set members. */
     userIds: string[];
   };
-  externaldatav1SmartContractInterface: {
-    /** @description The Organization the Smart Contract Interface belongs to. */
-    organizationId: string;
-    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
-    smartContractInterfaceId: string;
-    /** @description The address corresponding to the Smart Contract or Program. */
-    smartContractAddress: string;
-    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
-    smartContractInterface: string;
-    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    type: string;
-    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    label: string;
-    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    notes: string;
-    createdAt: definitions["externaldatav1Timestamp"];
-    updatedAt: definitions["externaldatav1Timestamp"];
-  };
   externaldatav1Timestamp: {
     seconds: string;
     nanos: string;
@@ -502,7 +516,7 @@ export type definitions = {
     format?: definitions["v1AddressFormat"];
     address?: string;
   };
-  privateumpv1PolicyEvaluation: {
+  immutablecommonv1PolicyEvaluation: {
     policyId?: string;
     outcome?: definitions["v1Outcome"];
   };
@@ -673,7 +687,11 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE"
     | "ACTIVITY_TYPE_ENABLE_AUTH_PROXY"
     | "ACTIVITY_TYPE_DISABLE_AUTH_PROXY"
-    | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG";
+    | "ACTIVITY_TYPE_UPDATE_AUTH_PROXY_CONFIG"
+    | "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL"
+    | "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL"
+    | "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"
+    | "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -825,6 +843,26 @@ export type definitions = {
     | "AUTHENTICATOR_TRANSPORT_NFC"
     | "AUTHENTICATOR_TRANSPORT_USB"
     | "AUTHENTICATOR_TRANSPORT_HYBRID";
+  v1BootProof: {
+    /** @description The hex encoded Ephemeral Public Key. */
+    ephemeralPublicKeyHex: string;
+    /** @description The DER encoded COSE Sign1 struct Attestation doc. */
+    awsAttestationDocB64: string;
+    /** @description The borsch serialized base64 encoded Manifest. */
+    qosManifestB64: string;
+    /** @description The borsch serialized base64 encoded Manifest Envelope. */
+    qosManifestEnvelopeB64: string;
+    /** @description The label under which the enclave app was deployed. */
+    deploymentLabel: string;
+    /** @description Name of the enclave app */
+    enclaveApp: string;
+    /** @description Owner of the app i.e. 'tkhq' */
+    owner: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+  };
+  v1BootProofResponse: {
+    bootProof: definitions["v1BootProof"];
+  };
   v1Config: {
     features?: definitions["v1Feature"][];
     quorum?: definitions["externaldatav1Quorum"];
@@ -912,6 +950,27 @@ export type definitions = {
   v1CreateInvitationsResult: {
     /** @description A list of Invitation IDs */
     invitationIds: string[];
+  };
+  v1CreateOauth2CredentialIntent: {
+    /** @description The OAuth 2.0 provider */
+    provider: definitions["v1Oauth2Provider"];
+    /** @description The Client ID issued by the OAuth 2.0 provider */
+    clientId: string;
+    /** @description The client secret issued by the OAuth 2.0 provider encrypted to the TLS Fetcher quorum key */
+    encryptedClientSecret: string;
+  };
+  v1CreateOauth2CredentialRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateOauth2CredentialIntent"];
+  };
+  v1CreateOauth2CredentialResult: {
+    /** @description Unique identifier of the OAuth 2.0 credential that was created */
+    oauth2CredentialId: string;
   };
   v1CreateOauthProvidersIntent: {
     /** @description The ID of the User to add an Oauth provider to */
@@ -1477,6 +1536,23 @@ export type definitions = {
     /** @description Unique identifier for a given Invitation. */
     invitationId: string;
   };
+  v1DeleteOauth2CredentialIntent: {
+    /** @description The ID of the OAuth 2.0 credential to delete */
+    oauth2CredentialId: string;
+  };
+  v1DeleteOauth2CredentialRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteOauth2CredentialIntent"];
+  };
+  v1DeleteOauth2CredentialResult: {
+    /** @description Unique identifier of the OAuth 2.0 credential that was deleted */
+    oauth2CredentialId: string;
+  };
   v1DeleteOauthProvidersIntent: {
     /** @description The ID of the User to remove an Oauth provider from */
     userId: string;
@@ -1951,6 +2027,27 @@ export type definitions = {
     /** @description A list of authenticators. */
     authenticators: definitions["v1Authenticator"][];
   };
+  v1GetBootProofRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Hex encoded ephemeral public key. */
+    ephemeralKey: string;
+  };
+  v1GetLatestBootProofRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Name of enclave app. */
+    appName: string;
+  };
+  v1GetOauth2CredentialRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given OAuth 2.0 Credential. */
+    oauth2CredentialId: string;
+  };
+  v1GetOauth2CredentialResponse: {
+    oauth2Credential: definitions["v1Oauth2Credential"];
+  };
   v1GetOauthProvidersRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -2030,7 +2127,7 @@ export type definitions = {
   };
   v1GetSmartContractInterfaceResponse: {
     /** @description Object to be used in conjunction with policies to guard transaction signing. */
-    smartContractInterface: definitions["externaldatav1SmartContractInterface"];
+    smartContractInterface: definitions["v1SmartContractInterface"];
   };
   v1GetSmartContractInterfacesRequest: {
     /** @description Unique identifier for a given organization. */
@@ -2038,7 +2135,7 @@ export type definitions = {
   };
   v1GetSmartContractInterfacesResponse: {
     /** @description A list of smart contract interfaces. */
-    smartContractInterfaces: definitions["externaldatav1SmartContractInterface"][];
+    smartContractInterfaces: definitions["v1SmartContractInterface"][];
   };
   v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
@@ -2225,6 +2322,8 @@ export type definitions = {
     countrySubdivisionCode?: string;
     /** @description Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false. */
     sandboxMode?: boolean;
+    /** @description Optional MoonPay Widget URL to sign when using MoonPay client SDKs with URL Signing enabled. */
+    urlForSignature?: string;
   };
   v1InitFiatOnRampRequest: {
     /** @enum {string} */
@@ -2240,6 +2339,8 @@ export type definitions = {
     onRampUrl: string;
     /** @description Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
     onRampTransactionId: string;
+    /** @description Optional signature of the MoonPay Widget URL. The signature is generated if the Init Fiat On Ramp intent includes the urlForSignature field. The signature can be used to initialize the MoonPay SDKs when URL signing is enabled for your project. */
+    onRampUrlSignature?: string;
   };
   v1InitImportPrivateKeyIntent: {
     /** @description The ID of the User importing a Private Key. */
@@ -2496,6 +2597,10 @@ export type definitions = {
     enableAuthProxyIntent?: definitions["v1EnableAuthProxyIntent"];
     disableAuthProxyIntent?: definitions["v1DisableAuthProxyIntent"];
     updateAuthProxyConfigIntent?: definitions["v1UpdateAuthProxyConfigIntent"];
+    createOauth2CredentialIntent?: definitions["v1CreateOauth2CredentialIntent"];
+    updateOauth2CredentialIntent?: definitions["v1UpdateOauth2CredentialIntent"];
+    deleteOauth2CredentialIntent?: definitions["v1DeleteOauth2CredentialIntent"];
+    oauth2AuthenticateIntent?: definitions["v1Oauth2AuthenticateIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -2532,6 +2637,13 @@ export type definitions = {
     | "INVITATION_STATUS_CREATED"
     | "INVITATION_STATUS_ACCEPTED"
     | "INVITATION_STATUS_REVOKED";
+  v1ListOauth2CredentialsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1ListOauth2CredentialsResponse: {
+    oauth2Credentials: definitions["v1Oauth2Credential"][];
+  };
   v1ListPrivateKeyTagsRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -2562,6 +2674,47 @@ export type definitions = {
   v1NOOPCodegenAnchorResponse: {
     stamp: definitions["v1WebAuthnStamp"];
   };
+  v1Oauth2AuthenticateIntent: {
+    /** @description The OAuth 2.0 credential id whose client_id and client_secret will be used in the OAuth 2.0 flow */
+    oauth2CredentialId: string;
+    /** @description The auth_code provided by the OAuth 2.0 provider to the end user to be exchanged for a Bearer token in the OAuth 2.0 flow */
+    authCode: string;
+    /** @description The URI the user is redirected to after they have authenticated with the OAuth 2.0 provider */
+    redirectUri: string;
+    /** @description The code verifier used by OAuth 2.0 PKCE providers */
+    codeVerifier: string;
+    /** @description An optional nonce used by the client to prevent replay/substitution of an ID token */
+    nonce?: string;
+  };
+  v1Oauth2AuthenticateRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1Oauth2AuthenticateIntent"];
+  };
+  v1Oauth2AuthenticateResult: {
+    /** @description Base64 encoded OIDC token issued by Turnkey to be used with the LoginWithOAuth activity */
+    oidcToken: string;
+  };
+  v1Oauth2Credential: {
+    /** @description Unique identifier for a given OAuth 2.0 Credential. */
+    oauth2CredentialId: string;
+    /** @description Unique identifier for an Organization. */
+    organizationId: string;
+    /** @description The provider for a given OAuth 2.0 Credential. */
+    provider: definitions["v1Oauth2Provider"];
+    /** @description The client id for a given OAuth 2.0 Credential. */
+    clientId: string;
+    /** @description The encrypted client secret for a given OAuth 2.0 Credential encrypted to the TLS Fetcher quorum key. */
+    encryptedClientSecret: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  /** @enum {string} */
+  v1Oauth2Provider: "OAUTH2_PROVIDER_X" | "OAUTH2_PROVIDER_DISCORD";
   v1OauthIntent: {
     /** @description Base64 encoded OIDC token */
     oidcToken: string;
@@ -2930,6 +3083,10 @@ export type definitions = {
     enableAuthProxyResult?: definitions["v1EnableAuthProxyResult"];
     disableAuthProxyResult?: definitions["v1DisableAuthProxyResult"];
     updateAuthProxyConfigResult?: definitions["v1UpdateAuthProxyConfigResult"];
+    createOauth2CredentialResult?: definitions["v1CreateOauth2CredentialResult"];
+    updateOauth2CredentialResult?: definitions["v1UpdateOauth2CredentialResult"];
+    deleteOauth2CredentialResult?: definitions["v1DeleteOauth2CredentialResult"];
+    oauth2AuthenticateResult?: definitions["v1Oauth2AuthenticateResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -3098,6 +3255,24 @@ export type definitions = {
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
   };
+  v1SmartContractInterface: {
+    /** @description The Organization the Smart Contract Interface belongs to. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+    smartContractInterfaceId: string;
+    /** @description The address corresponding to the Smart Contract or Program. */
+    smartContractAddress: string;
+    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+    smartContractInterface: string;
+    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    type: string;
+    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    label: string;
+    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    notes: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
   v1SmartContractInterfaceReference: {
     smartContractInterfaceId?: string;
     smartContractAddress?: string;
@@ -3197,10 +3372,35 @@ export type definitions = {
      * @description Desired OTP code length (6–9).
      */
     otpLength?: number;
+    /** @description A map of OAuth 2.0 provider and their respective credential ID to use for the OAuth 2.0 authentication flow. */
+    oauth2ProviderCredentialIds?: { [key: string]: string };
   };
   v1UpdateAuthProxyConfigResult: {
     /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
     configId?: string;
+  };
+  v1UpdateOauth2CredentialIntent: {
+    /** @description The ID of the OAuth 2.0 credential to update */
+    oauth2CredentialId: string;
+    /** @description The OAuth 2.0 provider */
+    provider: definitions["v1Oauth2Provider"];
+    /** @description The Client ID issued by the OAuth 2.0 provider */
+    clientId: string;
+    /** @description The client secret issued by the OAuth 2.0 provider encrypted to the TLS Fetcher quorum key */
+    encryptedClientSecret: string;
+  };
+  v1UpdateOauth2CredentialRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1UpdateOauth2CredentialIntent"];
+  };
+  v1UpdateOauth2CredentialResult: {
+    /** @description Unique identifier of the OAuth 2.0 credential that was updated */
+    oauth2CredentialId: string;
   };
   v1UpdatePolicyIntent: {
     /** @description Unique identifier for a given Policy. */
@@ -3711,6 +3911,60 @@ export type operations = {
       };
     };
   };
+  /** Get the boot proof for a given ephemeral key. */
+  PublicApiService_GetBootProof: {
+    parameters: {
+      body: {
+        body: definitions["v1GetBootProofRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1BootProofResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the latest boot proof for a given enclave app name. */
+  PublicApiService_GetLatestBootProof: {
+    parameters: {
+      body: {
+        body: definitions["v1GetLatestBootProofRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1BootProofResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about an OAuth 2.0 credential. */
+  PublicApiService_GetOauth2Credential: {
+    parameters: {
+      body: {
+        body: definitions["v1GetOauth2CredentialRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetOauth2CredentialResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get details about Oauth providers for a user. */
   PublicApiService_GetOauthProviders: {
     parameters: {
@@ -3902,6 +4156,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetActivitiesResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all OAuth 2.0 credentials within an organization. */
+  PublicApiService_ListOauth2Credentials: {
+    parameters: {
+      body: {
+        body: definitions["v1ListOauth2CredentialsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListOauth2CredentialsResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -4197,6 +4469,24 @@ export type operations = {
       };
     };
   };
+  /** Enable authentication for end users with an OAuth 2.0 provider */
+  PublicApiService_CreateOauth2Credential: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateOauth2CredentialRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create Oauth providers for a specified user. */
   PublicApiService_CreateOauthProviders: {
     parameters: {
@@ -4472,6 +4762,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeleteInvitationRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Disable authentication for end users with an OAuth 2.0 provider */
+  PublicApiService_DeleteOauth2Credential: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteOauth2CredentialRequest"];
       };
     };
     responses: {
@@ -4881,6 +5189,24 @@ export type operations = {
       };
     };
   };
+  /** Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities */
+  PublicApiService_Oauth2Authenticate: {
+    parameters: {
+      body: {
+        body: definitions["v1Oauth2AuthenticateRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create an Oauth session for a user. */
   PublicApiService_OauthLogin: {
     parameters: {
@@ -5066,6 +5392,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1StampLoginRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Update an OAuth 2.0 provider credential */
+  PublicApiService_UpdateOauth2Credential: {
+    parameters: {
+      body: {
+        body: definitions["v1UpdateOauth2CredentialRequest"];
       };
     };
     responses: {

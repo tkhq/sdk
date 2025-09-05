@@ -291,6 +291,83 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getBootProof = async (
+    input: SdkApiTypes.TGetBootProofBody,
+  ): Promise<SdkApiTypes.TGetBootProofResponse> => {
+    return this.request("/public/v1/query/get_boot_proof", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetBootProof = async (
+    input: SdkApiTypes.TGetBootProofBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_boot_proof";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getLatestBootProof = async (
+    input: SdkApiTypes.TGetLatestBootProofBody,
+  ): Promise<SdkApiTypes.TGetLatestBootProofResponse> => {
+    return this.request("/public/v1/query/get_latest_boot_proof", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetLatestBootProof = async (
+    input: SdkApiTypes.TGetLatestBootProofBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getOauth2Credential = async (
+    input: SdkApiTypes.TGetOauth2CredentialBody,
+  ): Promise<SdkApiTypes.TGetOauth2CredentialResponse> => {
+    return this.request("/public/v1/query/get_oauth2_credential", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetOauth2Credential = async (
+    input: SdkApiTypes.TGetOauth2CredentialBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_oauth2_credential";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getOauthProviders = async (
     input: SdkApiTypes.TGetOauthProvidersBody,
   ): Promise<SdkApiTypes.TGetOauthProvidersResponse> => {
@@ -563,6 +640,32 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_activities";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listOauth2Credentials = async (
+    input: SdkApiTypes.TListOauth2CredentialsBody,
+  ): Promise<SdkApiTypes.TListOauth2CredentialsResponse> => {
+    return this.request("/public/v1/query/list_oauth2_credentials", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampListOauth2Credentials = async (
+    input: SdkApiTypes.TListOauth2CredentialsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_oauth2_credentials";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1014,6 +1117,39 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  createOauth2Credential = async (
+    input: SdkApiTypes.TCreateOauth2CredentialBody,
+  ): Promise<SdkApiTypes.TCreateOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_oauth2_credential",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL",
+      },
+      "createOauth2CredentialResult",
+    );
+  };
+
+  stampCreateOauth2Credential = async (
+    input: SdkApiTypes.TCreateOauth2CredentialBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_oauth2_credential";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   createOauthProviders = async (
     input: SdkApiTypes.TCreateOauthProvidersBody,
   ): Promise<SdkApiTypes.TCreateOauthProvidersResponse> => {
@@ -1157,7 +1293,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
-      "createPrivateKeysResultV2",
+      "createPrivateKeysResult",
     );
   };
 
@@ -1223,7 +1359,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
-      "createReadWriteSessionResultV2",
+      "createReadWriteSessionResult",
     );
   };
 
@@ -1290,7 +1426,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
       },
-      "createSubOrganizationResultV7",
+      "createSubOrganizationResult",
     );
   };
 
@@ -1531,6 +1667,39 @@ export class TurnkeySDKClientBase {
     }
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_invitation";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteOauth2Credential = async (
+    input: SdkApiTypes.TDeleteOauth2CredentialBody,
+  ): Promise<SdkApiTypes.TDeleteOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_oauth2_credential",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
+      },
+      "deleteOauth2CredentialResult",
+    );
+  };
+
+  stampDeleteOauth2Credential = async (
+    input: SdkApiTypes.TDeleteOauth2CredentialBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_oauth2_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2173,7 +2342,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
       },
-      "initOtpAuthResultV2",
+      "initOtpAuthResult",
     );
   };
 
@@ -2249,6 +2418,39 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  oauth2Authenticate = async (
+    input: SdkApiTypes.TOauth2AuthenticateBody,
+  ): Promise<SdkApiTypes.TOauth2AuthenticateResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/oauth2_authenticate",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
+      },
+      "oauth2AuthenticateResult",
+    );
+  };
+
+  stampOauth2Authenticate = async (
+    input: SdkApiTypes.TOauth2AuthenticateBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/oauth2_authenticate";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2612,6 +2814,39 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  updateOauth2Credential = async (
+    input: SdkApiTypes.TUpdateOauth2CredentialBody,
+  ): Promise<SdkApiTypes.TUpdateOauth2CredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/update_oauth2_credential",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL",
+      },
+      "updateOauth2CredentialResult",
+    );
+  };
+
+  stampUpdateOauth2Credential = async (
+    input: SdkApiTypes.TUpdateOauth2CredentialBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_oauth2_credential";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   updatePolicy = async (
     input: SdkApiTypes.TUpdatePolicyBody,
   ): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
@@ -2624,7 +2859,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
       },
-      "updatePolicyResultV2",
+      "updatePolicyResult",
     );
   };
 

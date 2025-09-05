@@ -304,6 +304,156 @@ export const signGetAuthenticators = (
   });
 
 /**
+ * `POST /public/v1/query/get_boot_proof`
+ */
+export type TGetBootProofResponse =
+  operations["PublicApiService_GetBootProof"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_boot_proof`
+ */
+export type TGetBootProofInput = { body: TGetBootProofBody };
+
+/**
+ * `POST /public/v1/query/get_boot_proof`
+ */
+export type TGetBootProofBody =
+  operations["PublicApiService_GetBootProof"]["parameters"]["body"]["body"];
+
+/**
+ * Get a specific boot proof
+ *
+ * Get the boot proof for a given ephemeral key.
+ *
+ * `POST /public/v1/query/get_boot_proof`
+ */
+export const getBootProof = (input: TGetBootProofInput) =>
+  request<TGetBootProofResponse, TGetBootProofBody, never, never, never>({
+    uri: "/public/v1/query/get_boot_proof",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetBootProof` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetBootProof}
+ */
+export const signGetBootProof = (
+  input: TGetBootProofInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetBootProofBody, never, never>({
+    uri: "/public/v1/query/get_boot_proof",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_latest_boot_proof`
+ */
+export type TGetLatestBootProofResponse =
+  operations["PublicApiService_GetLatestBootProof"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_latest_boot_proof`
+ */
+export type TGetLatestBootProofInput = { body: TGetLatestBootProofBody };
+
+/**
+ * `POST /public/v1/query/get_latest_boot_proof`
+ */
+export type TGetLatestBootProofBody =
+  operations["PublicApiService_GetLatestBootProof"]["parameters"]["body"]["body"];
+
+/**
+ * Get the latest boot proof for an app
+ *
+ * Get the latest boot proof for a given enclave app name.
+ *
+ * `POST /public/v1/query/get_latest_boot_proof`
+ */
+export const getLatestBootProof = (input: TGetLatestBootProofInput) =>
+  request<
+    TGetLatestBootProofResponse,
+    TGetLatestBootProofBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_latest_boot_proof",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetLatestBootProof` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetLatestBootProof}
+ */
+export const signGetLatestBootProof = (
+  input: TGetLatestBootProofInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetLatestBootProofBody, never, never>({
+    uri: "/public/v1/query/get_latest_boot_proof",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_oauth2_credential`
+ */
+export type TGetOauth2CredentialResponse =
+  operations["PublicApiService_GetOauth2Credential"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_oauth2_credential`
+ */
+export type TGetOauth2CredentialInput = { body: TGetOauth2CredentialBody };
+
+/**
+ * `POST /public/v1/query/get_oauth2_credential`
+ */
+export type TGetOauth2CredentialBody =
+  operations["PublicApiService_GetOauth2Credential"]["parameters"]["body"]["body"];
+
+/**
+ * Get OAuth 2.0 credential
+ *
+ * Get details about an OAuth 2.0 credential.
+ *
+ * `POST /public/v1/query/get_oauth2_credential`
+ */
+export const getOauth2Credential = (input: TGetOauth2CredentialInput) =>
+  request<
+    TGetOauth2CredentialResponse,
+    TGetOauth2CredentialBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_oauth2_credential",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetOauth2Credential` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetOauth2Credential}
+ */
+export const signGetOauth2Credential = (
+  input: TGetOauth2CredentialInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetOauth2CredentialBody, never, never>({
+    uri: "/public/v1/query/get_oauth2_credential",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_oauth_providers`
  */
 export type TGetOauthProvidersResponse =
@@ -841,6 +991,58 @@ export const signGetActivities = (
 ) =>
   signedRequest<TGetActivitiesBody, never, never>({
     uri: "/public/v1/query/list_activities",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_oauth2_credentials`
+ */
+export type TListOauth2CredentialsResponse =
+  operations["PublicApiService_ListOauth2Credentials"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_oauth2_credentials`
+ */
+export type TListOauth2CredentialsInput = { body: TListOauth2CredentialsBody };
+
+/**
+ * `POST /public/v1/query/list_oauth2_credentials`
+ */
+export type TListOauth2CredentialsBody =
+  operations["PublicApiService_ListOauth2Credentials"]["parameters"]["body"]["body"];
+
+/**
+ * List OAuth 2.0 Credentials
+ *
+ * List all OAuth 2.0 credentials within an organization.
+ *
+ * `POST /public/v1/query/list_oauth2_credentials`
+ */
+export const listOauth2Credentials = (input: TListOauth2CredentialsInput) =>
+  request<
+    TListOauth2CredentialsResponse,
+    TListOauth2CredentialsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_oauth2_credentials",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListOauth2Credentials` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListOauth2Credentials}
+ */
+export const signListOauth2Credentials = (
+  input: TListOauth2CredentialsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListOauth2CredentialsBody, never, never>({
+    uri: "/public/v1/query/list_oauth2_credentials",
     body: input.body,
     options,
   });
@@ -1623,6 +1825,60 @@ export const signCreateInvitations = (
 ) =>
   signedRequest<TCreateInvitationsBody, never, never>({
     uri: "/public/v1/submit/create_invitations",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_oauth2_credential`
+ */
+export type TCreateOauth2CredentialResponse =
+  operations["PublicApiService_CreateOauth2Credential"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_oauth2_credential`
+ */
+export type TCreateOauth2CredentialInput = {
+  body: TCreateOauth2CredentialBody;
+};
+
+/**
+ * `POST /public/v1/submit/create_oauth2_credential`
+ */
+export type TCreateOauth2CredentialBody =
+  operations["PublicApiService_CreateOauth2Credential"]["parameters"]["body"]["body"];
+
+/**
+ * Create an OAuth 2.0 Credential
+ *
+ * Enable authentication for end users with an OAuth 2.0 provider
+ *
+ * `POST /public/v1/submit/create_oauth2_credential`
+ */
+export const createOauth2Credential = (input: TCreateOauth2CredentialInput) =>
+  request<
+    TCreateOauth2CredentialResponse,
+    TCreateOauth2CredentialBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_oauth2_credential",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateOauth2Credential` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateOauth2Credential}
+ */
+export const signCreateOauth2Credential = (
+  input: TCreateOauth2CredentialInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateOauth2CredentialBody, never, never>({
+    uri: "/public/v1/submit/create_oauth2_credential",
     body: input.body,
     options,
   });
@@ -2425,6 +2681,60 @@ export const signDeleteInvitation = (
 ) =>
   signedRequest<TDeleteInvitationBody, never, never>({
     uri: "/public/v1/submit/delete_invitation",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_oauth2_credential`
+ */
+export type TDeleteOauth2CredentialResponse =
+  operations["PublicApiService_DeleteOauth2Credential"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_oauth2_credential`
+ */
+export type TDeleteOauth2CredentialInput = {
+  body: TDeleteOauth2CredentialBody;
+};
+
+/**
+ * `POST /public/v1/submit/delete_oauth2_credential`
+ */
+export type TDeleteOauth2CredentialBody =
+  operations["PublicApiService_DeleteOauth2Credential"]["parameters"]["body"]["body"];
+
+/**
+ * Delete an OAuth 2.0 Credential
+ *
+ * Disable authentication for end users with an OAuth 2.0 provider
+ *
+ * `POST /public/v1/submit/delete_oauth2_credential`
+ */
+export const deleteOauth2Credential = (input: TDeleteOauth2CredentialInput) =>
+  request<
+    TDeleteOauth2CredentialResponse,
+    TDeleteOauth2CredentialBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_oauth2_credential",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteOauth2Credential` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteOauth2Credential}
+ */
+export const signDeleteOauth2Credential = (
+  input: TDeleteOauth2CredentialInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteOauth2CredentialBody, never, never>({
+    uri: "/public/v1/submit/delete_oauth2_credential",
     body: input.body,
     options,
   });
@@ -3512,6 +3822,58 @@ export const signOauth = (
   });
 
 /**
+ * `POST /public/v1/submit/oauth2_authenticate`
+ */
+export type TOauth2AuthenticateResponse =
+  operations["PublicApiService_Oauth2Authenticate"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/oauth2_authenticate`
+ */
+export type TOauth2AuthenticateInput = { body: TOauth2AuthenticateBody };
+
+/**
+ * `POST /public/v1/submit/oauth2_authenticate`
+ */
+export type TOauth2AuthenticateBody =
+  operations["PublicApiService_Oauth2Authenticate"]["parameters"]["body"]["body"];
+
+/**
+ * OAuth 2.0 authentication
+ *
+ * Authenticate a user with an OAuth 2.0 provider and receive an OIDC token to use with the LoginWithOAuth or CreateSubOrganization activities
+ *
+ * `POST /public/v1/submit/oauth2_authenticate`
+ */
+export const oauth2Authenticate = (input: TOauth2AuthenticateInput) =>
+  request<
+    TOauth2AuthenticateResponse,
+    TOauth2AuthenticateBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/oauth2_authenticate",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `Oauth2Authenticate` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link Oauth2Authenticate}
+ */
+export const signOauth2Authenticate = (
+  input: TOauth2AuthenticateInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TOauth2AuthenticateBody, never, never>({
+    uri: "/public/v1/submit/oauth2_authenticate",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/oauth_login`
  */
 export type TOauthLoginResponse =
@@ -4031,6 +4393,60 @@ export const signStampLogin = (
 ) =>
   signedRequest<TStampLoginBody, never, never>({
     uri: "/public/v1/submit/stamp_login",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_oauth2_credential`
+ */
+export type TUpdateOauth2CredentialResponse =
+  operations["PublicApiService_UpdateOauth2Credential"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_oauth2_credential`
+ */
+export type TUpdateOauth2CredentialInput = {
+  body: TUpdateOauth2CredentialBody;
+};
+
+/**
+ * `POST /public/v1/submit/update_oauth2_credential`
+ */
+export type TUpdateOauth2CredentialBody =
+  operations["PublicApiService_UpdateOauth2Credential"]["parameters"]["body"]["body"];
+
+/**
+ * Update an OAuth 2.0 Credential
+ *
+ * Update an OAuth 2.0 provider credential
+ *
+ * `POST /public/v1/submit/update_oauth2_credential`
+ */
+export const updateOauth2Credential = (input: TUpdateOauth2CredentialInput) =>
+  request<
+    TUpdateOauth2CredentialResponse,
+    TUpdateOauth2CredentialBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_oauth2_credential",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateOauth2Credential` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateOauth2Credential}
+ */
+export const signUpdateOauth2Credential = (
+  input: TUpdateOauth2CredentialInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateOauth2CredentialBody, never, never>({
+    uri: "/public/v1/submit/update_oauth2_credential",
     body: input.body,
     options,
   });
