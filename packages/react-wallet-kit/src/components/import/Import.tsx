@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
-import { IframeStamper } from "@turnkey/iframe-stamper";
+import { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
@@ -262,7 +262,11 @@ export function ImportComponent(props: {
           }
 
           const encryptedKeyBundle =
-            await importIframeClient.extractKeyEncryptedBundle();
+            await importIframeClient.extractKeyEncryptedBundle(
+              curve === "CURVE_ED25519"
+                ? KeyFormat.Solana
+                : KeyFormat.Hexadecimal,
+            );
           if (!encryptedKeyBundle || encryptedKeyBundle.trim() === "") {
             throw new TurnkeyError(
               "Encrypted bundle is empty",
