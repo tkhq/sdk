@@ -1,7 +1,7 @@
 /// <reference lib="dom" />
 // Turnkey-specific cryptographic utilities
-import bs58check from "./bs58check";
-import bs58 from "./bs58";
+import { bs58check } from "@turnkey/encoding";
+import { bs58 } from "@turnkey/encoding";
 import {
   uint8ArrayToHexString,
   uint8ArrayFromHexString,

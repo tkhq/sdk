@@ -33,6 +33,4 @@ function unwrap(obj: any): any {
   return cur;
 }
 
-const bs58check = unwrap(raw) as Bs58Check;
-
-export default bs58check;
+export const bs58check = unwrap(raw) as Bs58Check;

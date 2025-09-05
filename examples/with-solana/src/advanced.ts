@@ -1,7 +1,7 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
 import nacl from "tweetnacl";
-import bs58 from "bs58";
+import { bs58 } from "@turnkey/encoding";
 import prompts from "prompts";
 
 // Load environment variables from `.env.local`

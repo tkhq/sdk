@@ -12,7 +12,7 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 import nacl from "tweetnacl";
-import bs58 from "bs58";
+import { bs58 } from "@turnkey/encoding";
 
 const DEFAULT_BLOCK_HASH = "GZSq3KvoFVhE22CQsaWSAxBoAvRiZSs7xVNa6yPecMUu";
 const TKHQ_WARCHEST = "tkhqC9QX2gkqJtUFk2QKhBmQfFyyqZXSpr73VFRi35C";
