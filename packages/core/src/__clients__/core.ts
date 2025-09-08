@@ -22,6 +22,7 @@ import {
   BaseAuthResult,
   AuthAction,
   PasskeyAuthResult,
+  v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -72,6 +73,7 @@ import {
   getCurveTypeFromProvider,
   isValidPasskeyName,
   addressFromPublicKey,
+  getPolicySignature,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -2434,6 +2436,237 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to fetch user",
         errorCode: TurnkeyErrorCodes.FETCH_USER_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Fetches an existing user by P-256 API key public key, or creates a new one if none exists.
+   *
+   * - This function is idempotent: multiple calls with the same `publicKey` will always return the same user.
+   * - Attempts to find a user whose API keys include the given P-256 public key.
+   * - If a matching user is found, it is returned as-is.
+   * - If no matching user is found, a new user is created with the given public key as a P-256 API key.
+   *
+   * @param params.publicKey - the P-256 public key to use for lookup and creation.
+   * @param params.createParams.userName - optional username to assign if creating a new user (defaults to `"Public Key User"`).
+   * @param params.createParams.apiKeyName - optional API key name to assign if creating a new API key (defaults to `public-key-user-${publicKey}`).
+   * @returns A promise that resolves to the existing or newly created {@link v1User}.
+   * @throws {TurnkeyError} If there is no active session, if the input is invalid, if user retrieval fails, or if user creation fails.
+   */
+  fetchOrCreateP256ApiKeyUser = async (params: {
+    publicKey: string;
+    createParams?: {
+      apiKeyName?: string;
+      userName?: string;
+    };
+  }): Promise<v1User> => {
+    const { publicKey, createParams } = params;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const session = await this.storageManager.getActiveSession();
+        if (!session) {
+          throw new TurnkeyError(
+            "No active session found. Please log in first.",
+            TurnkeyErrorCodes.NO_SESSION_FOUND,
+          );
+        }
+
+        const organizationId = session.organizationId!;
+
+        // we validate their input
+        if (!publicKey?.trim()) {
+          throw new TurnkeyError(
+            "'publicKey' is required and cannot be empty.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        const usersResponse = await this.httpClient.getUsers({
+          organizationId,
+        });
+        if (!usersResponse || !usersResponse.users) {
+          throw new TurnkeyError(
+            "No users found in the response",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+
+        const userWithPublicKey = usersResponse.users.find((user) =>
+          user.apiKeys.some(
+            (apiKey) =>
+              apiKey.credential.publicKey === publicKey &&
+              apiKey.credential.type === "CREDENTIAL_TYPE_API_KEY_P256",
+          ),
+        );
+
+        // the user already exists, so we return it
+        if (userWithPublicKey) {
+          return userWithPublicKey;
+        }
+
+        // at this point we know the user doesn't exist, so we create it
+        const userName = createParams?.userName?.trim() || "Public Key User";
+        const apiKeyName =
+          createParams?.apiKeyName?.trim() || `public-key-user-${publicKey}`;
+
+        const createUserResp = await this.httpClient.createUsers({
+          organizationId,
+          users: [
+            {
+              userName: userName,
+              userTags: [],
+              apiKeys: [
+                {
+                  apiKeyName: apiKeyName,
+                  curveType: "API_KEY_CURVE_P256",
+                  publicKey,
+                },
+              ],
+              authenticators: [],
+              oauthProviders: [],
+            },
+          ],
+        });
+
+        if (
+          !createUserResp?.userIds ||
+          createUserResp.userIds.length === 0 ||
+          !createUserResp.userIds[0]
+        ) {
+          throw new TurnkeyError(
+            "Failed to create P-256 API key user",
+            TurnkeyErrorCodes.CREATE_USERS_ERROR,
+          );
+        }
+
+        const newUserId = createUserResp.userIds[0];
+
+        return await this.fetchUser({
+          organizationId,
+          userId: newUserId,
+        });
+      },
+      {
+        errorMessage: "Failed to get or create P-256 API key user",
+        errorCode: TurnkeyErrorCodes.CREATE_USERS_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Fetches each requested policy if it exists, or creates it if it does not.
+   *
+   * - This function is idempotent: multiple calls with the same policies will not create duplicates.
+   * - For every policy in the request:
+   *   - If it already exists, it is returned with its `policyId`.
+   *   - If it does not exist, it is created and returned with its new `policyId`.
+   *
+   * @param params.policies - the list of policies to fetch or create.
+   * @returns A promise that resolves to an array of objects, each containing:
+   *          - `policyId`: the unique identifier of the policy.
+   *          - `policyName`: human-readable name of the policy.
+   *          - `effect`: the instruction to DENY or ALLOW an activity.
+   *          - `condition`: (optional) the condition expression that triggers the effect.
+   *          - `consensus`: (optional) the consensus expression that triggers the effect.
+   *          - `notes`: (optional) developer notes or description for the policy.
+   * @throws {TurnkeyError} If there is no active session, if the input is invalid,
+   *                        if fetching policies fails, or if creating policies fails.
+   */
+  fetchOrCreatePolicies = async (params: {
+    policies: v1CreatePolicyIntentV3[];
+  }): Promise<({ policyId: string } & v1CreatePolicyIntentV3)[]> => {
+    const { policies } = params;
+
+    return await withTurnkeyErrorHandling(
+      async () => {
+        const session = await this.storageManager.getActiveSession();
+        if (!session) {
+          throw new TurnkeyError(
+            "No active session found. Please log in first.",
+            TurnkeyErrorCodes.NO_SESSION_FOUND,
+          );
+        }
+
+        if (!Array.isArray(policies) || policies.length === 0) {
+          throw new TurnkeyError(
+            "'policies' must be a non-empty array of policy definitions.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        const organizationId = session.organizationId!;
+
+        // we first fetch existing policies
+        const existingPoliciesResponse = await this.httpClient.getPolicies({
+          organizationId,
+        });
+        const existingPolicies = existingPoliciesResponse.policies || [];
+
+        // we create a map of existing policies by their signature
+        // where the policySignature maps to its policyId
+        const existingPoliciesSignatureMap: Record<string, string> = {};
+        for (const existingPolicy of existingPolicies) {
+          const signature = getPolicySignature(existingPolicy);
+          existingPoliciesSignatureMap[signature] = existingPolicy.policyId;
+        }
+
+        // we go through each requested policy and check if it already exists
+        // if it exists, we add it to the alreadyExistingPolicies list
+        // if it doesn't exist, we add it to the missingPolicies list
+        const alreadyExistingPolicies: (v1CreatePolicyIntentV3 & {
+          policyId: string;
+        })[] = [];
+        const missingPolicies: v1CreatePolicyIntentV3[] = [];
+
+        for (const policy of policies) {
+          const existingId =
+            existingPoliciesSignatureMap[getPolicySignature(policy)];
+          if (existingId) {
+            alreadyExistingPolicies.push({ ...policy, policyId: existingId });
+          } else {
+            missingPolicies.push(policy);
+          }
+        }
+
+        // if there are no missing policies, that means we're done
+        // so we return them with their respective IDs
+        if (missingPolicies.length === 0) {
+          return alreadyExistingPolicies;
+        }
+
+        // at this point we know there is at least one missing policy.
+        // so we create the missing policies and then return the full list
+
+        const createPoliciesResponse = await this.httpClient.createPolicies({
+          organizationId,
+          policies: missingPolicies,
+        });
+
+        // assign returned IDs back to the missing ones in order
+        if (!createPoliciesResponse || !createPoliciesResponse.policyIds) {
+          throw new TurnkeyError(
+            "Failed to create missing delegated access policies",
+            TurnkeyErrorCodes.CREATE_POLICY_ERROR,
+          );
+        }
+
+        const newlyCreatedPolicies = missingPolicies.map((p, idx) => ({
+          ...p,
+
+          // we can safely assert the ID exists because we know Turnkey's api
+          // will return one ID for each created policy or throw an error
+          policyId: createPoliciesResponse.policyIds[idx]!,
+        }));
+
+        // we return the full list of policies, both existing and the newly created
+        // which includes each of their respective IDs
+        return [...alreadyExistingPolicies, ...newlyCreatedPolicies];
+      },
+      {
+        errorMessage: "Failed to get or create delegated access policies",
+        errorCode: TurnkeyErrorCodes.CREATE_USERS_ERROR,
       },
     );
   };
