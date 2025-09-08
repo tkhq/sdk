@@ -2,6 +2,9 @@
 
 The `@turnkey/react-wallet-kit` is a powerful SDK that allows you to integrate Turnkey's Embedded Wallets into your React applications. It provides a set of UI components and easy-to-use functions, all exported from a hook, enabling you to quickly build secure embedded wallet experiences.
 
+## Getting started
+
+To learn how to setup your Turnkey organization and configure the Auth Proxy, check out our [Getting Started](https://docs.turnkey.com/sdks/react/getting-started) guide!
 
 ## Installation
 
@@ -95,7 +98,7 @@ export default function RootLayout({
 > - Centralizing Turnkey setup in app/providers.tsx keeps configuration, styles, and callbacks in one place.
 
 
-## Quick Authentication
+## Quick authentication
 
 The easiest way to handle authentication is using the `handleLogin` function from the `useTurnkey` hook. This will automatically show a modal with all the authentication methods you've enabled in your dashboard.
 
@@ -110,4 +113,4 @@ function LoginButton() {
 ```
 
 
-For more information, check out [our docs!](https://docs.turnkey.com)
+For more information, check out [our docs!](https://docs.turnkey.com/sdks/react)
