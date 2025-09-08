@@ -510,6 +510,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         proxyAuthConfig?.enabledProviders.includes("facebook"),
     };
 
+    const resolvedClientIds = {
+      googleClientId:
+        config.auth?.oauthConfig?.googleClientId ??
+        proxyAuthConfig?.oauthClientIds?.google,
+      appleClientId:
+        config.auth?.oauthConfig?.appleClientId ??
+        proxyAuthConfig?.oauthClientIds?.apple,
+      facebookClientId:
+        config.auth?.oauthConfig?.facebookClientId ??
+        proxyAuthConfig?.oauthClientIds?.facebook,
+      xClientId:
+        config.auth?.oauthConfig?.xClientId ??
+        proxyAuthConfig?.oauthClientIds?.x,
+      discordClientId:
+        config.auth?.oauthConfig?.discordClientId ??
+        proxyAuthConfig?.oauthClientIds?.discord,
+    };
+
+    const redirectUrl =
+      config.auth?.oauthConfig?.oauthRedirectUri ??
+      proxyAuthConfig?.oauthRedirectUrl;
+
     // Set a default ordering for the oAuth methods
     const oauthOrder =
       config.auth?.oauthOrder ??
@@ -539,6 +561,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         methods: resolvedMethods,
         oauthConfig: {
           ...config.auth?.oauthConfig,
+          ...resolvedClientIds,
+          oauthRedirectUri: redirectUrl,
           openOauthInPage: config.auth?.oauthConfig?.openOauthInPage,
         },
         sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,

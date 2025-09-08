@@ -3600,6 +3600,10 @@ export type v1WalletAccountParams = {
 export type v1WalletKitSettingsParams = {
   /** List of enabled social login providers (e.g., 'apple', 'google', 'facebook') */
   enabledSocialProviders?: string[];
+  /** Mapping of social login providers to their Oauth client IDs. */
+  oauthClientIds?: Record<string, any>;
+  /** Oauth redirect URL to be used for social login flows. */
+  oauthRedirectUrl?: string;
 };
 
 export type v1WalletParams = {
@@ -5565,6 +5569,10 @@ export type ProxyTGetWalletKitConfigResponse = {
   sessionExpirationSeconds: string;
   /** The organization ID this configuration applies to */
   organizationId: string;
+  /** Mapping of social login providers to their OAuth client IDs. */
+  oauthClientIds?: Record<string, any>;
+  /** OAuth redirect URL to be used for social login flows. */
+  oauthRedirectUrl?: string;
 };
 
 export type ProxyTGetWalletKitConfigBody = {};

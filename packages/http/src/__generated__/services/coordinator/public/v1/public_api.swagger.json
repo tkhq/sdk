@@ -11549,6 +11549,19 @@
           },
           "description": "List of enabled social login providers (e.g., 'apple', 'google', 'facebook')",
           "title": "Enabled Social Providers"
+        },
+        "oauthClientIds": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Mapping of social login providers to their Oauth client IDs.",
+          "title": "Oauth Client IDs"
+        },
+        "oauthRedirectUrl": {
+          "type": "string",
+          "description": "Oauth redirect URL to be used for social login flows.",
+          "title": "Oauth Redirect URL"
         }
       }
     },
