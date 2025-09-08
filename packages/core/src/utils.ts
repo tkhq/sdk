@@ -16,6 +16,7 @@ import {
   v1TransactionType,
   ProxyTGetWalletKitConfigResponse,
   v1User,
+  v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
@@ -746,6 +747,17 @@ export function getPublicKeyFromStampHeader(stampHeaderValue: string): string {
     );
   }
 }
+
+/**@internal */
+export function getPolicySignature(policy: v1CreatePolicyIntentV3): string {
+  return JSON.stringify({
+    policyName: policy.policyName,
+    effect: policy.effect,
+    condition: policy.condition ?? null,
+    consensus: policy.consensus ?? null,
+  });
+}
+
 /**@internal */
 export function isEthereumProvider(
   provider: WalletProvider,

@@ -69,6 +69,7 @@ import {
   WalletAuthResult,
   AuthAction,
   PasskeyAuthResult,
+  v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -1939,6 +1940,40 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         () => client.fetchUser(params),
         callbacks,
         "Failed to fetch user",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const fetchOrCreateDelegatedAccessUser = useCallback(
+    async (params: { publicKey: string }): Promise<v1User> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.fetchOrCreateDelegatedAccessUser(params),
+        callbacks,
+        "Failed to fetch or create delegated access user",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const fetchOrCreatePolicies = useCallback(
+    async (params: {
+      policies: v1CreatePolicyIntentV3[];
+    }): Promise<({ policyId: string } & v1CreatePolicyIntentV3)[]> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.fetchOrCreatePolicies(params),
+        callbacks,
+        "Failed to fetch or create delegated access user",
       );
     },
     [client, callbacks],
@@ -4917,6 +4952,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         signTransaction,
         signAndSendTransaction,
         fetchUser,
+        fetchOrCreateDelegatedAccessUser,
+        fetchOrCreatePolicies,
         refreshUser,
         updateUserEmail,
         removeUserEmail,

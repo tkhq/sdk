@@ -2,7 +2,11 @@
 import Image from "next/image";
 
 import { useEffect, useState } from "react";
-import { OAuthProviders, v1AddressFormat } from "@turnkey/sdk-types";
+import {
+  OAuthProviders,
+  v1AddressFormat,
+  v1CreatePolicyIntentV3,
+} from "@turnkey/sdk-types";
 import {
   AuthState,
   Chain,
@@ -1042,6 +1046,71 @@ export default function AuthPage() {
           )}
         </div>
       </div>
+      {authState === AuthState.Authenticated && (
+        <div>
+          <h2>Delegated Access User Methods</h2>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={async () => {
+                console.log(
+                  await turnkey.fetchOrCreateDelegatedAccessUser({
+                    publicKey: process.env.NEXT_PUBLIC_DA_PUBLIC_KEY!,
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "orange",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              Fetch or Create Delegated Acess User
+            </button>
+
+            <button
+              onClick={async () => {
+                const user = await turnkey.fetchOrCreateDelegatedAccessUser({
+                  publicKey: process.env.NEXT_PUBLIC_DA_PUBLIC_KEY!,
+                });
+
+                const policies: v1CreatePolicyIntentV3[] = [
+                  {
+                    policyName: `Allow ${user.userId} to sign transactions with <WALLET_ID>`,
+                    effect: "EFFECT_ALLOW",
+                    consensus: `approvers.any(user, user.id == '${user.userId}')`,
+                    condition:
+                      "activity.action == 'SIGN' && wallet.id == '<WALLET_ID>'",
+                    notes:
+                      "Policy allowing a specific user to sign transactions with a specific wallet.",
+                  },
+                  {
+                    policyName: `Allow ${user.userId} to sign transactions with <PRIVATE_KEY_ID>`,
+                    effect: "EFFECT_ALLOW",
+                    consensus: `approvers.any(user, user.id == '${user.userId}')`,
+                    condition:
+                      "activity.action == 'SIGN' && private_key.id == '<PRIVATE_KEY_ID>'",
+                    notes:
+                      "Policy allowing a specific user to sign transactions with a specific private key.",
+                  },
+                ];
+
+                console.log(
+                  await turnkey.fetchOrCreatePolicies({ policies: policies }),
+                );
+              }}
+              style={{
+                backgroundColor: "orange",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              Fetch or Create Policies
+            </button>
+          </div>
+        </div>
+      )}
       <div>
         <h2>Multi Session Management Methods</h2>
         <p>
