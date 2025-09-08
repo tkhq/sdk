@@ -3771,6 +3771,16 @@ export type definitions = {
      * @description List of enabled social login providers (e.g., 'apple', 'google', 'facebook')
      */
     enabledSocialProviders?: string[];
+    /**
+     * Oauth Client IDs
+     * @description Mapping of social login providers to their Oauth client IDs.
+     */
+    oauthClientIds?: { [key: string]: string };
+    /**
+     * Oauth Redirect URL
+     * @description Oauth redirect URL to be used for social login flows.
+     */
+    oauthRedirectUrl?: string;
   };
   v1WalletParams: {
     /** @description Human-readable name for a Wallet. */

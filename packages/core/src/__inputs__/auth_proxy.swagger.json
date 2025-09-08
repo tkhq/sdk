@@ -477,6 +477,19 @@
           "type": "string",
           "description": "The organization ID this configuration applies to",
           "title": "Organization ID"
+        },
+        "oauthClientIds": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Mapping of social login providers to their OAuth client IDs.",
+          "title": "OAuth Client IDs"
+        },
+        "oauthRedirectUrl": {
+          "type": "string",
+          "description": "OAuth redirect URL to be used for social login flows.",
+          "title": "OAuth Redirect URL"
         }
       },
       "required": [
