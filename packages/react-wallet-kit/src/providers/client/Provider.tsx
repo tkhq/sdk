@@ -284,6 +284,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                               authCode: code,
                               redirectUri: redirectURI,
                               codeVerifier: verifier,
+                              clientId,
                               nonce: nonce,
                             });
 
@@ -355,6 +356,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                               authCode: code,
                               redirectUri: redirectURI,
                               codeVerifier: verifier,
+                              clientId,
                               nonce: nonce,
                             });
 
@@ -2765,6 +2767,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         authCode,
                         redirectUri: redirectURI,
                         codeVerifier: verifier,
+                        clientId,
                         nonce: nonce,
                       })
                       .then((resp) => {
@@ -2959,6 +2962,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         authCode,
                         redirectUri: redirectURI,
                         codeVerifier: verifier,
+                        clientId,
                         nonce,
                       })
                       .then((resp) => {

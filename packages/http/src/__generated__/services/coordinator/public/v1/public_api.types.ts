@@ -28,6 +28,14 @@ export type paths = {
     /** Get details about authenticators for a user. */
     post: operations["PublicApiService_GetAuthenticators"];
   };
+  "/public/v1/query/get_boot_proof": {
+    /** Get the boot proof for a given ephemeral key. */
+    post: operations["PublicApiService_GetBootProof"];
+  };
+  "/public/v1/query/get_latest_boot_proof": {
+    /** Get the latest boot proof for a given enclave app name. */
+    post: operations["PublicApiService_GetLatestBootProof"];
+  };
   "/public/v1/query/get_oauth2_credential": {
     /** Get details about an OAuth 2.0 credential. */
     post: operations["PublicApiService_GetOauth2Credential"];
@@ -479,7 +487,7 @@ export type definitions = {
     /** @description Unique identifier for the Vote associated with this policy evaluation. */
     voteId: string;
     /** @description Detailed evaluation result for each Policy that was run. */
-    policyEvaluations: definitions["privateumpv1PolicyEvaluation"][];
+    policyEvaluations: definitions["immutablecommonv1PolicyEvaluation"][];
     createdAt: definitions["externaldatav1Timestamp"];
   };
   externaldatav1Address: {
@@ -500,24 +508,6 @@ export type definitions = {
     /** @description Unique identifiers of quorum set members. */
     userIds: string[];
   };
-  externaldatav1SmartContractInterface: {
-    /** @description The Organization the Smart Contract Interface belongs to. */
-    organizationId: string;
-    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
-    smartContractInterfaceId: string;
-    /** @description The address corresponding to the Smart Contract or Program. */
-    smartContractAddress: string;
-    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
-    smartContractInterface: string;
-    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    type: string;
-    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    label: string;
-    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    notes: string;
-    createdAt: definitions["externaldatav1Timestamp"];
-    updatedAt: definitions["externaldatav1Timestamp"];
-  };
   externaldatav1Timestamp: {
     seconds: string;
     nanos: string;
@@ -526,7 +516,7 @@ export type definitions = {
     format?: definitions["v1AddressFormat"];
     address?: string;
   };
-  privateumpv1PolicyEvaluation: {
+  immutablecommonv1PolicyEvaluation: {
     policyId?: string;
     outcome?: definitions["v1Outcome"];
   };
@@ -853,6 +843,26 @@ export type definitions = {
     | "AUTHENTICATOR_TRANSPORT_NFC"
     | "AUTHENTICATOR_TRANSPORT_USB"
     | "AUTHENTICATOR_TRANSPORT_HYBRID";
+  v1BootProof: {
+    /** @description The hex encoded Ephemeral Public Key. */
+    ephemeralPublicKeyHex: string;
+    /** @description The DER encoded COSE Sign1 struct Attestation doc. */
+    awsAttestationDocB64: string;
+    /** @description The borsch serialized base64 encoded Manifest. */
+    qosManifestB64: string;
+    /** @description The borsch serialized base64 encoded Manifest Envelope. */
+    qosManifestEnvelopeB64: string;
+    /** @description The label under which the enclave app was deployed. */
+    deploymentLabel: string;
+    /** @description Name of the enclave app */
+    enclaveApp: string;
+    /** @description Owner of the app i.e. 'tkhq' */
+    owner: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+  };
+  v1BootProofResponse: {
+    bootProof: definitions["v1BootProof"];
+  };
   v1Config: {
     features?: definitions["v1Feature"][];
     quorum?: definitions["externaldatav1Quorum"];
@@ -2017,6 +2027,18 @@ export type definitions = {
     /** @description A list of authenticators. */
     authenticators: definitions["v1Authenticator"][];
   };
+  v1GetBootProofRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Hex encoded ephemeral public key. */
+    ephemeralKey: string;
+  };
+  v1GetLatestBootProofRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Name of enclave app. */
+    appName: string;
+  };
   v1GetOauth2CredentialRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -2105,7 +2127,7 @@ export type definitions = {
   };
   v1GetSmartContractInterfaceResponse: {
     /** @description Object to be used in conjunction with policies to guard transaction signing. */
-    smartContractInterface: definitions["externaldatav1SmartContractInterface"];
+    smartContractInterface: definitions["v1SmartContractInterface"];
   };
   v1GetSmartContractInterfacesRequest: {
     /** @description Unique identifier for a given organization. */
@@ -2113,7 +2135,7 @@ export type definitions = {
   };
   v1GetSmartContractInterfacesResponse: {
     /** @description A list of smart contract interfaces. */
-    smartContractInterfaces: definitions["externaldatav1SmartContractInterface"][];
+    smartContractInterfaces: definitions["v1SmartContractInterface"][];
   };
   v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
@@ -2300,6 +2322,8 @@ export type definitions = {
     countrySubdivisionCode?: string;
     /** @description Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false. */
     sandboxMode?: boolean;
+    /** @description Optional MoonPay Widget URL to sign when using MoonPay client SDKs with URL Signing enabled. */
+    urlForSignature?: string;
   };
   v1InitFiatOnRampRequest: {
     /** @enum {string} */
@@ -2315,6 +2339,8 @@ export type definitions = {
     onRampUrl: string;
     /** @description Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow. */
     onRampTransactionId: string;
+    /** @description Optional signature of the MoonPay Widget URL. The signature is generated if the Init Fiat On Ramp intent includes the urlForSignature field. The signature can be used to initialize the MoonPay SDKs when URL signing is enabled for your project. */
+    onRampUrlSignature?: string;
   };
   v1InitImportPrivateKeyIntent: {
     /** @description The ID of the User importing a Private Key. */
@@ -3229,6 +3255,24 @@ export type definitions = {
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
   };
+  v1SmartContractInterface: {
+    /** @description The Organization the Smart Contract Interface belongs to. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+    smartContractInterfaceId: string;
+    /** @description The address corresponding to the Smart Contract or Program. */
+    smartContractAddress: string;
+    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+    smartContractInterface: string;
+    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    type: string;
+    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    label: string;
+    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    notes: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
   v1SmartContractInterfaceReference: {
     smartContractInterfaceId?: string;
     smartContractAddress?: string;
@@ -3328,8 +3372,6 @@ export type definitions = {
      * @description Desired OTP code length (6–9).
      */
     otpLength?: number;
-    /** @description A map of OAuth 2.0 provider and their respective credential ID to use for the OAuth 2.0 authentication flow. */
-    oauth2ProviderCredentialIds?: { [key: string]: string };
   };
   v1UpdateAuthProxyConfigResult: {
     /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
@@ -3860,6 +3902,42 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetAuthenticatorsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the boot proof for a given ephemeral key. */
+  PublicApiService_GetBootProof: {
+    parameters: {
+      body: {
+        body: definitions["v1GetBootProofRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1BootProofResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the latest boot proof for a given enclave app name. */
+  PublicApiService_GetLatestBootProof: {
+    parameters: {
+      body: {
+        body: definitions["v1GetLatestBootProofRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1BootProofResponse"];
       };
       /** An unexpected error response. */
       default: {

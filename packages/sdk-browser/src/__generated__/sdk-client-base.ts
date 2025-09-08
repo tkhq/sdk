@@ -334,6 +334,67 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getBootProof = async (
+    input: SdkApiTypes.TGetBootProofBody,
+  ): Promise<SdkApiTypes.TGetBootProofResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+    return this.request("/public/v1/query/get_boot_proof", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetBootProof = async (
+    input: SdkApiTypes.TGetBootProofBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_boot_proof";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getLatestBootProof = async (
+    input: SdkApiTypes.TGetLatestBootProofBody,
+  ): Promise<SdkApiTypes.TGetLatestBootProofResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+    return this.request("/public/v1/query/get_latest_boot_proof", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetLatestBootProof = async (
+    input: SdkApiTypes.TGetLatestBootProofBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getOauth2Credential = async (
     input: SdkApiTypes.TGetOauth2CredentialBody,
   ): Promise<SdkApiTypes.TGetOauth2CredentialResponse> => {
