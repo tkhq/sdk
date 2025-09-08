@@ -104,6 +104,7 @@ export function RemovePasskey(params: {
       </div>
       <div className="flex my-2 mt-0">
         <ActionButton
+          name="remove-passkey-button"
           onClick={handleContinue}
           loading={isLoading}
           className="w-full max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"

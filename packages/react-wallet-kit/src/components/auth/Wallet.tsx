@@ -35,6 +35,7 @@ export function WalletAuthButton(props: WalletAuthButtonProps) {
   return (
     <div className="flex flex-col w-full">
       <ActionButton
+        name="wallet-auth-button"
         onClick={handleContinue}
         loading={isLoading}
         className="w-full text-inherit bg-button-light dark:bg-button-dark"
