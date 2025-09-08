@@ -144,6 +144,7 @@ export function SignMessageModal(props: SignMessageModalProps) {
       </div>
       <ActionButton
         onClick={handleSign}
+        name="sign-button"
         spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         loading={loading}
         loadingText={

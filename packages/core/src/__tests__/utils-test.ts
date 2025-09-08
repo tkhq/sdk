@@ -717,6 +717,37 @@ describe("withTurnkeyErrorHandling", () => {
     });
   });
 
+  it("multiple nested TurnkeyErrors", async () => {
+    const first = new TurnkeyError("first error", DEFAULT_CODE);
+
+    try {
+      await withTurnkeyErrorHandling(failWith(first), {
+        errorMessage: DEFAULT_MSG,
+        errorCode: DEFAULT_CODE,
+      });
+      throw new Error("should not reach");
+    } catch (e) {
+      try {
+        await withTurnkeyErrorHandling(failWith(e), {
+          errorMessage: DEFAULT_MSG,
+          errorCode: DEFAULT_CODE,
+        });
+        throw new Error("should not reach");
+      } catch (e2) {
+        try {
+          await withTurnkeyErrorHandling(failWith(e), {
+            errorMessage: DEFAULT_MSG,
+            errorCode: DEFAULT_CODE,
+          });
+          throw new Error("should not reach");
+        } catch (e3) {
+          // It should be the *same* instance as the first TurnkeyError
+          expect(e3).toBe(first);
+        }
+      }
+    }
+  });
+
   describe("when thrown error is a generic Error", () => {
     it("maps by message when customMessageByMessages matches", async () => {
       const err = new Error("db connection refused");
