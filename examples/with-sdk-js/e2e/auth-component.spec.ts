@@ -1,10 +1,6 @@
-import { test, expect, chromium } from "@playwright/test";
-import {
-  withSdkJsSelectors,
-  walletKitSelectors,
-  externalSelectors,
-} from "./helpers/selectors";
-import * as WebAuthnUtils from "./helpers/WebAuthnUtils";
+import { test, expect } from "@playwright/test";
+import { withSdkJsSelectors, walletKitSelectors } from "./helpers/selectors";
+import * as WebAuthnUtils from "./helpers/web-authn-utils";
 
 test.describe("log in with oauth methods", () => {
   test.beforeEach(async ({ page }) => {

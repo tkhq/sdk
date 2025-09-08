@@ -1,5 +1,5 @@
-import { test, expect, Page } from "@playwright/test";
-import { walletKitSelectors, withSdkJsSelectors } from "./helpers/selectors";
+import { test, expect } from "@playwright/test";
+import { withSdkJsSelectors } from "./helpers/selectors";
 import { authenticateWithPasskey } from "./shared/auth";
 import { waitForConsole } from "./helpers/console-listener";
 

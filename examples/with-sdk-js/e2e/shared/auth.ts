@@ -1,5 +1,5 @@
 import { Page } from "playwright-core";
-import * as WebAuthnUtils from "../helpers/WebAuthnUtils";
+import * as WebAuthnUtils from "../helpers/web-authn-utils";
 import { walletKitSelectors, withSdkJsSelectors } from "../helpers/selectors";
 import { expect } from "@playwright/test";
 
