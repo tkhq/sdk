@@ -1053,7 +1053,7 @@ export default function AuthPage() {
             <button
               onClick={async () => {
                 console.log(
-                  await turnkey.fetchOrCreateDelegatedAccessUser({
+                  await turnkey.fetchOrCreateP256ApiKeyUser({
                     publicKey: process.env.NEXT_PUBLIC_DA_PUBLIC_KEY!,
                   }),
                 );
@@ -1065,12 +1065,12 @@ export default function AuthPage() {
                 color: "white",
               }}
             >
-              Fetch or Create Delegated Acess User
+              Fetch or Create P-256 User
             </button>
 
             <button
               onClick={async () => {
-                const user = await turnkey.fetchOrCreateDelegatedAccessUser({
+                const user = await turnkey.fetchOrCreateP256ApiKeyUser({
                   publicKey: process.env.NEXT_PUBLIC_DA_PUBLIC_KEY!,
                 });
 

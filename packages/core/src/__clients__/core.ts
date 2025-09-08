@@ -2440,10 +2440,28 @@ export class TurnkeyClient {
     );
   };
 
-  fetchOrCreateDelegatedAccessUser = async (params: {
+  /**
+   * Fetches an existing user by P-256 API key public key, or creates a new one if none exists.
+   *
+   * - This function is idempotent: multiple calls with the same `publicKey` will always return the same user.
+   * - Attempts to find a user whose API keys include the given P-256 public key.
+   * - If a matching user is found, it is returned as-is.
+   * - If no matching user is found, a new user is created with the given public key as a P-256 API key.
+   *
+   * @param params.publicKey - the P-256 public key to use for lookup and creation.
+   * @param params.createParams.userName - optional username to assign if creating a new user (defaults to `"Public Key User"`).
+   * @param params.createParams.apiKeyName - optional API key name to assign if creating a new API key (defaults to `public-key-user-${publicKey}`).
+   * @returns A promise that resolves to the existing or newly created {@link v1User}.
+   * @throws {TurnkeyError} If there is no active session, if the input is invalid, if user retrieval fails, or if user creation fails.
+   */
+  fetchOrCreateP256ApiKeyUser = async (params: {
     publicKey: string;
+    createParams?: {
+      apiKeyName?: string;
+      userName?: string;
+    };
   }): Promise<v1User> => {
-    const { publicKey } = params;
+    const { publicKey, createParams } = params;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -2477,7 +2495,9 @@ export class TurnkeyClient {
 
         const userWithPublicKey = usersResponse.users.find((user) =>
           user.apiKeys.some(
-            (apiKey) => apiKey.credential.publicKey === publicKey,
+            (apiKey) =>
+              apiKey.credential.publicKey === publicKey &&
+              apiKey.credential.type === "CREDENTIAL_TYPE_API_KEY_P256",
           ),
         );
 
@@ -2487,15 +2507,19 @@ export class TurnkeyClient {
         }
 
         // at this point we know the user doesn't exist, so we create it
+        const userName = createParams?.userName?.trim() || "Public Key User";
+        const apiKeyName =
+          createParams?.apiKeyName?.trim() || `public-key-user-${publicKey}`;
+
         const createUserResp = await this.httpClient.createUsers({
           organizationId,
           users: [
             {
-              userName: "Delegated Access User",
+              userName: userName,
               userTags: [],
               apiKeys: [
                 {
-                  apiKeyName: `delegated-access-key-${publicKey}`,
+                  apiKeyName: apiKeyName,
                   curveType: "API_KEY_CURVE_P256",
                   publicKey,
                 },
@@ -2512,7 +2536,7 @@ export class TurnkeyClient {
           !createUserResp.userIds[0]
         ) {
           throw new TurnkeyError(
-            "Failed to create delegated access user",
+            "Failed to create P-256 API key user",
             TurnkeyErrorCodes.CREATE_USERS_ERROR,
           );
         }
@@ -2525,12 +2549,31 @@ export class TurnkeyClient {
         });
       },
       {
-        errorMessage: "Failed to get or create delegated access user",
+        errorMessage: "Failed to get or create P-256 API key user",
         errorCode: TurnkeyErrorCodes.CREATE_USERS_ERROR,
       },
     );
   };
 
+  /**
+   * Fetches each requested policy if it exists, or creates it if it does not.
+   *
+   * - This function is idempotent: multiple calls with the same policies will not create duplicates.
+   * - For every policy in the request:
+   *   - If it already exists, it is returned with its `policyId`.
+   *   - If it does not exist, it is created and returned with its new `policyId`.
+   *
+   * @param params.policies - the list of policies to fetch or create.
+   * @returns A promise that resolves to an array of objects, each containing:
+   *          - `policyId`: the unique identifier of the policy.
+   *          - `policyName`: human-readable name of the policy.
+   *          - `effect`: the instruction to DENY or ALLOW an activity.
+   *          - `condition`: (optional) the condition expression that triggers the effect.
+   *          - `consensus`: (optional) the consensus expression that triggers the effect.
+   *          - `notes`: (optional) developer notes or description for the policy.
+   * @throws {TurnkeyError} If there is no active session, if the input is invalid,
+   *                        if fetching policies fails, or if creating policies fails.
+   */
   fetchOrCreatePolicies = async (params: {
     policies: v1CreatePolicyIntentV3[];
   }): Promise<({ policyId: string } & v1CreatePolicyIntentV3)[]> => {

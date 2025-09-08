@@ -1945,15 +1945,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks],
   );
 
-  const fetchOrCreateDelegatedAccessUser = useCallback(
-    async (params: { publicKey: string }): Promise<v1User> => {
+  const fetchOrCreateP256ApiKeyUser = useCallback(
+    async (params: {
+      publicKey: string;
+      createParams?: {
+        apiKeyName?: string;
+        userName?: string;
+      };
+    }): Promise<v1User> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       return withTurnkeyErrorHandling(
-        () => client.fetchOrCreateDelegatedAccessUser(params),
+        () => client.fetchOrCreateP256ApiKeyUser(params),
         callbacks,
         "Failed to fetch or create delegated access user",
       );
@@ -4952,7 +4958,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         signTransaction,
         signAndSendTransaction,
         fetchUser,
-        fetchOrCreateDelegatedAccessUser,
+        fetchOrCreateP256ApiKeyUser,
         fetchOrCreatePolicies,
         refreshUser,
         updateUserEmail,
