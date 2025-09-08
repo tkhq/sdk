@@ -1,6 +1,6 @@
 {
-  "name": "with-x",
   "version": "0.1.1-beta.0",
+  "name": "@turnkey/with-x",
   "private": true,
   "scripts": {
     "dev": "PORT=$(grep PORT .env.local | cut -d '=' -f2) next dev",
