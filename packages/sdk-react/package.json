@@ -59,19 +59,20 @@
     "@react-oauth/google": "0.12.1",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
-    "@turnkey/sdk-types": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
     "jwt-decode": "4.0.0",
     "libphonenumber-js": "1.11.14",
-    "next": "15.2.3 ",
+    "next": "15.2.3",
     "react-apple-login": "1.1.6",
     "react-international-phone": "4.3.0",
     "usehooks-ts": "3.1.1"
   },
   "peerDependencies": {
-    "@types/react": ">=18.2.75 <20",
-    "react": "16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
+    "react": "^18.3.1 || ^19.0.0",
+    "react-dom": "^18.3.1 || ^19.0.0",
+    "@types/react": ">=18.2.0 <20"
   },
   "peerDependenciesMeta": {
     "@types/react": {
@@ -79,8 +80,9 @@
     }
   },
   "devDependencies": {
-    "postcss-import": "16.1.0",
-    "react": "18.2.0"
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "postcss-import": "16.1.0"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -53,7 +53,7 @@
     "compile:contracts": "hardhat compile"
   },
   "peerDependencies": {
-    "viem": "1.16.6 || ^2.24.2"
+    "viem": ">=2.24.2 <3"
   },
   "dependencies": {
     "@noble/curves": "1.8.0",
