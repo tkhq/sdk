@@ -1037,7 +1037,7 @@ export default function AuthPage() {
             </button>
 
             <button
-              data-testid="get-wallet-providers"
+              data-testid="fetch-wallet-providers"
               onClick={async () => {
                 console.log(
                   "Successfully called fetchWalletProviders",
@@ -1285,7 +1285,7 @@ export default function AuthPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <button
-              data-testid="get-wallet-providers-2"
+              data-testid="fetch-wallet-providers-2"
               onClick={async () => {
                 const providers = await turnkey.fetchWalletProviders();
                 console.log("Wallet Providers:", providers);
