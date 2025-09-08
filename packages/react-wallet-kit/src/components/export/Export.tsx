@@ -199,6 +199,7 @@ export function ExportComponent(params: {
 
         <div className="mt-4">
           <ActionButton
+            name="export-done"
             onClick={closeModal}
             spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
             className="text-primary-text-light dark:text-primary-text-dark bg-primary-light dark:bg-primary-dark"
