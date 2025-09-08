@@ -44,7 +44,7 @@ export function AuthComponent({ sessionKey }: AuthComponentProps) {
     initOtp,
     loginWithPasskey,
     signUpWithPasskey,
-    getWalletProviders,
+    fetchWalletProviders,
     loginOrSignupWithWallet,
     disconnectWalletAccount,
   } = useTurnkey();
@@ -302,7 +302,7 @@ export function AuthComponent({ sessionKey }: AuthComponentProps) {
 
   const handleShowWalletSelector = async () => {
     try {
-      const walletProviders = await getWalletProviders();
+      const walletProviders = await fetchWalletProviders();
 
       pushPage({
         key: "Select wallet provider",

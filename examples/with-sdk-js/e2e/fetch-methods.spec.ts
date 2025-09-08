@@ -77,18 +77,18 @@ test("fetchWalletAccounts", async ({ page }) => {
   expect(msg.location().url).toMatch(/page.tsx$/);
 });
 
-test("getWalletProviders", async ({ page }) => {
+test("fetchWalletProviders", async ({ page }) => {
   const whenConsole = waitForConsole(
     page,
-    /Successfully called getWalletProviders/,
+    /Successfully called fetchWalletProviders/,
     ["log"],
   );
   await page
-    .getByTestId(withSdkJsSelectors.fetchMethods.getWalletProviders)
+    .getByTestId(withSdkJsSelectors.fetchMethods.fetchWalletProviders)
     .click();
 
   const msg = await whenConsole;
-  expect(msg.text).toMatch(/Successfully called getWalletProviders/);
+  expect(msg.text).toMatch(/Successfully called fetchWalletProviders/);
   expect(msg.type).toBe("log");
   expect(msg.location().url).toMatch(/page.tsx$/);
 });
