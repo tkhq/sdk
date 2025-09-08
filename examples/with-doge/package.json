@@ -1,0 +1,17 @@
+{
+  "name": "@turnkey/example-with-doge",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "tsx src/createDogeTx.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "^4.8.0",
+    "axios": "^1.8.2",
+    "bitcoinjs-lib": "^6.1.6",
+    "dotenv": "^16.0.3",
+    "path": "^0.12.7"
+  }
+}
