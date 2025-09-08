@@ -8,6 +8,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@iota/iota-sdk": "^1.6.1",
     "@noble/hashes": "1.4.0",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
@@ -17,7 +18,6 @@
     "prompts": "^2.4.2"
   },
   "devDependencies": {
-    "@iota/iota-sdk": "^1.6.1",
     "@types/async-retry": "^1.4.8",
     "@types/prompts": "^2.4.2",
     "tsx": "^3.12.7",

@@ -1362,6 +1362,9 @@ importers:
 
   examples/with-iota:
     dependencies:
+      '@iota/iota-sdk':
+        specifier: ^1.6.1
+        version: 1.6.1(typescript@5.4.3)
       '@noble/hashes':
         specifier: 1.4.0
         version: 1.4.0
@@ -1384,9 +1387,6 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
     devDependencies:
-      '@iota/iota-sdk':
-        specifier: ^1.6.1
-        version: 1.6.1(typescript@5.4.3)
       '@types/async-retry':
         specifier: ^1.4.8
         version: 1.4.9
