@@ -53,23 +53,23 @@
     "compile:contracts": "hardhat compile"
   },
   "peerDependencies": {
-    "viem": "^1.16.6 || ^2.24.2"
+    "viem": "1.16.6 || ^2.24.2"
   },
   "dependencies": {
     "@noble/curves": "1.8.0",
-    "@openzeppelin/contracts": "^4.9.0",
+    "@openzeppelin/contracts": "4.9.0",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/core": "workspace:*",
-    "cross-fetch": "^4.0.0"
+    "cross-fetch": "4.0.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.3",
-    "jest": "^29.3.1",
+    "@types/jest": "29.5.3",
+    "jest": "29.3.1",
     "typescript": "5.4.3",
-    "viem": "^2.24.2"
+    "viem": "2.24.2"
   },
   "engines": {
     "node": ">=18.0.0"
