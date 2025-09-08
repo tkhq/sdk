@@ -1040,8 +1040,8 @@ export default function AuthPage() {
               data-testid="get-wallet-providers"
               onClick={async () => {
                 console.log(
-                  "Successfully called getWalletProviders",
-                  await turnkey.getWalletProviders(),
+                  "Successfully called fetchWalletProviders",
+                  await turnkey.fetchWalletProviders(),
                 );
               }}
               style={{
@@ -1287,7 +1287,7 @@ export default function AuthPage() {
             <button
               data-testid="get-wallet-providers-2"
               onClick={async () => {
-                const providers = await turnkey.getWalletProviders();
+                const providers = await turnkey.fetchWalletProviders();
                 console.log("Wallet Providers:", providers);
               }}
               style={{
@@ -1303,7 +1303,7 @@ export default function AuthPage() {
             <button
               data-testid="connect-wallet-account"
               onClick={async () => {
-                const providers = await turnkey.getWalletProviders();
+                const providers = await turnkey.fetchWalletProviders();
                 console.log("Wallet Providers:", providers);
                 await turnkey.connectWalletAccount(providers[4]);
               }}
@@ -1320,7 +1320,9 @@ export default function AuthPage() {
             <button
               data-testid="sign-up-with-wallet"
               onClick={async () => {
-                const provider = await turnkey.getWalletProviders(Chain.Solana);
+                const provider = await turnkey.fetchWalletProviders(
+                  Chain.Solana,
+                );
                 console.log("Injected Solana Provider:", provider);
                 await turnkey.signUpWithWallet({
                   walletProvider: provider[1],
@@ -1339,7 +1341,9 @@ export default function AuthPage() {
             <button
               data-testid="login-with-wallet"
               onClick={async () => {
-                const provider = await turnkey.getWalletProviders(Chain.Solana);
+                const provider = await turnkey.fetchWalletProviders(
+                  Chain.Solana,
+                );
                 console.log("Injected Solana Provider:", provider);
                 await turnkey.loginWithWallet({
                   walletProvider: provider[1],
@@ -1358,7 +1362,9 @@ export default function AuthPage() {
             <button
               data-testid="continue-with-wallet"
               onClick={async () => {
-                const provider = await turnkey.getWalletProviders(Chain.Solana);
+                const provider = await turnkey.fetchWalletProviders(
+                  Chain.Solana,
+                );
                 console.log("Injected Solana Provider:", provider);
                 await turnkey.loginOrSignupWithWallet({
                   walletProvider: provider[1],

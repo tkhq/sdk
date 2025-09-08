@@ -40,7 +40,7 @@ export const withSdkJsSelectors = {
     fetchUser: "fetch-user",
     fetchWallets: "fetch-wallets",
     fetchWalletAccounts: "fetch-wallet-accounts",
-    getWalletProviders: "get-wallet-providers",
+    fetchWalletProviders: "get-wallet-providers",
   },
   sessionManagement: {
     getActiveSession2: "get-active-session-2",
@@ -55,7 +55,7 @@ export const withSdkJsSelectors = {
     loginWithSessionKeyButton: "login-with-session-key-button",
   },
   externalWalletMethods: {
-    getWalletProviders2: "get-wallet-providers-2",
+    fetchWalletProviders2: "get-wallet-providers-2",
     connectWalletAccount: "connect-wallet-account",
     signUpWithWallet: "sign-up-with-wallet",
     loginWithWallet: "login-with-wallet",

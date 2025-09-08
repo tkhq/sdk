@@ -51,7 +51,7 @@ export default function DemoPanel() {
     handleExportWallet,
     handleImportWallet,
     handleConnectExternalWallet,
-    getWalletProviders,
+    fetchWalletProviders,
   } = useTurnkey();
 
   const { pushPage } = useModal();
@@ -72,7 +72,7 @@ export default function DemoPanel() {
 
   useEffect(() => {
     const getConnectedWalletIcons = async (): Promise<string[]> => {
-      const res = await getWalletProviders();
+      const res = await fetchWalletProviders();
       const providersVisited = new Set<string>();
       let icons: string[] = [];
       for (const provider of res) {

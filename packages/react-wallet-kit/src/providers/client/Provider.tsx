@@ -1234,7 +1234,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks],
   );
 
-  const getWalletProviders = useCallback(
+  const fetchWalletProviders = useCallback(
     async (chain?: Chain): Promise<WalletProvider[]> => {
       if (!client) {
         throw new TurnkeyError(
@@ -1242,7 +1242,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       }
-      const newProviders = await client.getWalletProviders(chain);
+      const newProviders = await client.fetchWalletProviders(chain);
 
       // we update state with the latest providers
       // we keep this state so that initializeWalletProviderListeners() re-runs
@@ -2607,7 +2607,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
 
       const walletProviders = await withTurnkeyErrorHandling(
-        () => getWalletProviders(),
+        () => fetchWalletProviders(),
         callbacks,
         "Failed to refresh wallets",
       );
@@ -2621,7 +2621,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         setWallets(wallets);
       }
     },
-    [client, callbacks, getWalletProviders, fetchWallets],
+    [client, callbacks, fetchWalletProviders, fetchWallets],
   );
 
   const handleDiscordOauth = useCallback(
@@ -4667,7 +4667,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      const providers = await getWalletProviders();
+      const providers = await fetchWalletProviders();
 
       pushPage({
         key: "Connect wallet",
@@ -4898,7 +4898,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         logout,
         loginWithPasskey,
         signUpWithPasskey,
-        getWalletProviders,
+        fetchWalletProviders,
         connectWalletAccount,
         disconnectWalletAccount,
         switchWalletAccountChain,

@@ -528,7 +528,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of wallet providers.
    * @throws {TurnkeyError} If the wallet manager is uninitialized or provider retrieval fails.
    */
-  getWalletProviders = async (chain?: Chain): Promise<WalletProvider[]> => {
+  fetchWalletProviders = async (chain?: Chain): Promise<WalletProvider[]> => {
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.walletManager) {
@@ -615,7 +615,7 @@ export class TurnkeyClient {
    *
    * @param params.walletAccount - The wallet account whose provider should be switched.
    * @param params.chainOrId - The target chain, specified as a chain ID string or a SwitchableChain object.
-   * @param params.walletProviders - Optional list of wallet providers to search; falls back to `getWalletProviders()` if omitted.
+   * @param params.walletProviders - Optional list of wallet providers to search; falls back to `fetchWalletProviders()` if omitted.
    * @returns A promise that resolves once the chain switch is complete.
    *
    * @throws {TurnkeyError} If the wallet manager is uninitialized, the provider is not connected, or the switch fails.
@@ -643,7 +643,8 @@ export class TurnkeyClient {
           );
         }
 
-        const providers = walletProviders ?? (await this.getWalletProviders());
+        const providers =
+          walletProviders ?? (await this.fetchWalletProviders());
         const walletProvider = findWalletProviderFromAddress(
           walletAccount.address,
           providers,
@@ -1814,7 +1815,8 @@ export class TurnkeyClient {
         // if wallet connecting is disabled we return only embedded wallets
         if (!this.walletManager?.connector) return embedded;
 
-        const providers = walletProviders ?? (await this.getWalletProviders());
+        const providers =
+          walletProviders ?? (await this.fetchWalletProviders());
 
         const groupedProviders = new Map<string, WalletProvider[]>();
         for (const provider of providers) {
@@ -1939,7 +1941,8 @@ export class TurnkeyClient {
 
         const connected: ConnectedWalletAccount[] = [];
 
-        const providers = walletProviders ?? (await this.getWalletProviders());
+        const providers =
+          walletProviders ?? (await this.fetchWalletProviders());
 
         // Context: connected wallets don't all have some uuid we can use for the walletId so what
         //          we do is we use a normalized version of the name for the wallet, like "metamask"
