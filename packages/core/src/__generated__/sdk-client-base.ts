@@ -507,6 +507,97 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getBootProof = async (
+    input: SdkTypes.TGetBootProofBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetBootProofResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_boot_proof",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetBootProof = async (
+    input: SdkTypes.TGetBootProofBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_boot_proof";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_BOOT_PROOF",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getLatestBootProof = async (
+    input: SdkTypes.TGetLatestBootProofBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetLatestBootProofResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_latest_boot_proof",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetLatestBootProof = async (
+    input: SdkTypes.TGetLatestBootProofBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_LATEST_BOOT_PROOF",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getOauth2Credential = async (
     input: SdkTypes.TGetOauth2CredentialBody,
     stampWith?: StamperType,

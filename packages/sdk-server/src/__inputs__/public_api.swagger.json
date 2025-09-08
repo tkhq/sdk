@@ -260,6 +260,70 @@
         "tags": ["Authenticators"]
       }
     },
+    "/public/v1/query/get_boot_proof": {
+      "post": {
+        "summary": "Get a specific boot proof",
+        "description": "Get the boot proof for a given ephemeral key.",
+        "operationId": "PublicApiService_GetBootProof",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1BootProofResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetBootProofRequest"
+            }
+          }
+        ],
+        "tags": ["Boot Proof"]
+      }
+    },
+    "/public/v1/query/get_latest_boot_proof": {
+      "post": {
+        "summary": "Get the latest boot proof for an app",
+        "description": "Get the latest boot proof for a given enclave app name.",
+        "operationId": "PublicApiService_GetLatestBootProof",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1BootProofResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetLatestBootProofRequest"
+            }
+          }
+        ],
+        "tags": ["Boot Proof"]
+      }
+    },
     "/public/v1/query/get_oauth2_credential": {
       "post": {
         "summary": "Get OAuth 2.0 credential",
@@ -3435,7 +3499,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/privateumpv1PolicyEvaluation"
+            "$ref": "#/definitions/immutablecommonv1PolicyEvaluation"
           },
           "description": "Detailed evaluation result for each Policy that was run."
         },
@@ -3494,56 +3558,6 @@
       },
       "required": ["threshold", "userIds"]
     },
-    "externaldatav1SmartContractInterface": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "The Organization the Smart Contract Interface belongs to."
-        },
-        "smartContractInterfaceId": {
-          "type": "string",
-          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
-        },
-        "smartContractAddress": {
-          "type": "string",
-          "description": "The address corresponding to the Smart Contract or Program."
-        },
-        "smartContractInterface": {
-          "type": "string",
-          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
-        },
-        "type": {
-          "type": "string",
-          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "label": {
-          "type": "string",
-          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "notes": {
-          "type": "string",
-          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
-        },
-        "createdAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "updatedAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        }
-      },
-      "required": [
-        "organizationId",
-        "smartContractInterfaceId",
-        "smartContractAddress",
-        "smartContractInterface",
-        "type",
-        "label",
-        "notes",
-        "createdAt",
-        "updatedAt"
-      ]
-    },
     "externaldatav1Timestamp": {
       "type": "object",
       "properties": {
@@ -3567,7 +3581,7 @@
         }
       }
     },
-    "privateumpv1PolicyEvaluation": {
+    "immutablecommonv1PolicyEvaluation": {
       "type": "object",
       "properties": {
         "policyId": {
@@ -4182,6 +4196,61 @@
         "AUTHENTICATOR_TRANSPORT_USB",
         "AUTHENTICATOR_TRANSPORT_HYBRID"
       ]
+    },
+    "v1BootProof": {
+      "type": "object",
+      "properties": {
+        "ephemeralPublicKeyHex": {
+          "type": "string",
+          "description": "The hex encoded Ephemeral Public Key."
+        },
+        "awsAttestationDocB64": {
+          "type": "string",
+          "description": "The DER encoded COSE Sign1 struct Attestation doc."
+        },
+        "qosManifestB64": {
+          "type": "string",
+          "description": "The borsch serialized base64 encoded Manifest."
+        },
+        "qosManifestEnvelopeB64": {
+          "type": "string",
+          "description": "The borsch serialized base64 encoded Manifest Envelope."
+        },
+        "deploymentLabel": {
+          "type": "string",
+          "description": "The label under which the enclave app was deployed."
+        },
+        "enclaveApp": {
+          "type": "string",
+          "description": "Name of the enclave app"
+        },
+        "owner": {
+          "type": "string",
+          "description": "Owner of the app i.e. 'tkhq'"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "ephemeralPublicKeyHex",
+        "awsAttestationDocB64",
+        "qosManifestB64",
+        "qosManifestEnvelopeB64",
+        "deploymentLabel",
+        "enclaveApp",
+        "owner",
+        "createdAt"
+      ]
+    },
+    "v1BootProofResponse": {
+      "type": "object",
+      "properties": {
+        "bootProof": {
+          "$ref": "#/definitions/v1BootProof"
+        }
+      },
+      "required": ["bootProof"]
     },
     "v1Config": {
       "type": "object",
@@ -7031,6 +7100,34 @@
       },
       "required": ["authenticators"]
     },
+    "v1GetBootProofRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "ephemeralKey": {
+          "type": "string",
+          "description": "Hex encoded ephemeral public key."
+        }
+      },
+      "required": ["organizationId", "ephemeralKey"]
+    },
+    "v1GetLatestBootProofRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "appName": {
+          "type": "string",
+          "description": "Name of enclave app."
+        }
+      },
+      "required": ["organizationId", "appName"]
+    },
     "v1GetOauth2CredentialRequest": {
       "type": "object",
       "properties": {
@@ -7263,7 +7360,7 @@
       "type": "object",
       "properties": {
         "smartContractInterface": {
-          "$ref": "#/definitions/externaldatav1SmartContractInterface",
+          "$ref": "#/definitions/v1SmartContractInterface",
           "description": "Object to be used in conjunction with policies to guard transaction signing."
         }
       },
@@ -7286,7 +7383,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/externaldatav1SmartContractInterface"
+            "$ref": "#/definitions/v1SmartContractInterface"
           },
           "description": "A list of smart contract interfaces."
         }
@@ -7748,6 +7845,10 @@
         "sandboxMode": {
           "type": "boolean",
           "description": "Optional flag to indicate whether to use the sandbox mode to simulate transactions for the on-ramp provider. Default is false."
+        },
+        "urlForSignature": {
+          "type": "string",
+          "description": "Optional MoonPay Widget URL to sign when using MoonPay client SDKs with URL Signing enabled."
         }
       },
       "required": [
@@ -7788,6 +7889,10 @@
         "onRampTransactionId": {
           "type": "string",
           "description": "Unique identifier used to retrieve transaction statuses for a given fiat on-ramp flow."
+        },
+        "onRampUrlSignature": {
+          "type": "string",
+          "description": "Optional signature of the MoonPay Widget URL. The signature is generated if the Init Fiat On Ramp intent includes the urlForSignature field. The signature can be used to initialize the MoonPay SDKs when URL signing is enabled for your project."
         }
       },
       "required": ["onRampUrl", "onRampTransactionId"]
@@ -10176,6 +10281,56 @@
         }
       }
     },
+    "v1SmartContractInterface": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "The Organization the Smart Contract Interface belongs to."
+        },
+        "smartContractInterfaceId": {
+          "type": "string",
+          "description": "Unique identifier for a given Smart Contract Interface (ABI or IDL)."
+        },
+        "smartContractAddress": {
+          "type": "string",
+          "description": "The address corresponding to the Smart Contract or Program."
+        },
+        "smartContractInterface": {
+          "type": "string",
+          "description": "The JSON corresponding to the Smart Contract Interface (ABI or IDL)."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "label": {
+          "type": "string",
+          "description": "The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA)."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "organizationId",
+        "smartContractInterfaceId",
+        "smartContractAddress",
+        "smartContractInterface",
+        "type",
+        "label",
+        "notes",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
     "v1SmartContractInterfaceReference": {
       "type": "object",
       "properties": {
@@ -10373,13 +10528,6 @@
           "type": "integer",
           "format": "int32",
           "description": "Desired OTP code length (6–9)."
-        },
-        "oauth2ProviderCredentialIds": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "A map of OAuth 2.0 provider and their respective credential ID to use for the OAuth 2.0 authentication flow."
         }
       }
     },

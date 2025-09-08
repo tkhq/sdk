@@ -531,9 +531,19 @@
         "nonce": {
           "type": "string",
           "description": "An optional nonce used by the client to prevent replay/substitution of an ID token"
+        },
+        "clientId": {
+          "type": "string",
+          "description": "The client ID registered with the OAuth 2.0 provider"
         }
       },
-      "required": ["provider", "authCode", "redirectUri", "codeVerifier"]
+      "required": [
+        "provider",
+        "authCode",
+        "redirectUri",
+        "codeVerifier",
+        "clientId"
+      ]
     },
     "v1OAuth2AuthenticateResponse": {
       "type": "object",
