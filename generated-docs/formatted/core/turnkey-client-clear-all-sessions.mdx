@@ -1,0 +1,32 @@
+---
+title: "clearAllSessions()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Clears all sessions and resets the active session state.
+
+<ul>
+  <li>This function removes all session data from the client and persistent storage, including all associated key pairs.</li>
+  <li>Iterates through all stored session keys, clearing each session and deleting its corresponding API key pair.</li>
+  <li>After clearing, there will be no active session, and all session-related data will be removed from local storage.</li>
+  <li>Throws an error if no sessions exist or if there is an error during the clearing process.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3608">core.ts:3608</a></p>
+
+<H3Bordered text="Parameters" />
+
+<p>No parameters.</p>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="void" required={true} >
+  A promise that resolves when all sessions are successfully cleared.
+</ResponseField>

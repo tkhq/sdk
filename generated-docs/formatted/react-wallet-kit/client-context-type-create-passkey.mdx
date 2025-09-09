@@ -1,0 +1,47 @@
+---
+title: "createPasskey()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Creates a new passkey authenticator for the user.
+
+<ul>
+  <li>This function generates a new passkey attestation and challenge, suitable for registration with the user's device.</li>
+  <li>Handles both web and React Native environments, automatically selecting the appropriate passkey creation flow.</li>
+  <li>The resulting attestation and challenge can be used to register the passkey with Turnkey.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="challenge" type='string' required={false}>
+challenge string to use for passkey registration. If not provided, a new challenge will be generated.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="name" type='string' required={false}>
+display name for the passkey (defaults to a generated name based on the current timestamp).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="object" required={true}>
+  A promise that resolves to an object containing:
+  - attestation: attestation object returned from the passkey creation process.
+  - encodedChallenge: encoded challenge string used for passkey registration.
+  <Expandable title="return details">
+    <NestedParam parentKey="returns" childKey="attestation" type='v1Attestation' required={true}></NestedParam>
+    <NestedParam parentKey="returns" childKey="encodedChallenge" type='string' required={true}></NestedParam>
+  </Expandable>
+</ResponseField>

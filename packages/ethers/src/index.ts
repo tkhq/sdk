@@ -29,6 +29,7 @@ import {
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient } from "@turnkey/sdk-server";
+import type { TurnkeySDKClientBase } from "@turnkey/core";
 
 type TPayloadEncoding = TurnkeyApiTypes["v1PayloadEncoding"];
 
@@ -36,7 +37,11 @@ type TConfig = {
   /**
    * Turnkey client
    */
-  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeyServerClient;
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase;
   /**
    * Turnkey organization ID
    */
@@ -51,7 +56,8 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   private readonly client:
     | TurnkeyClient
     | TurnkeyBrowserClient
-    | TurnkeyServerClient;
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase;
 
   public readonly organizationId: string;
   public readonly signWith: string;
@@ -138,7 +144,9 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         },
       );
 
-      assertActivityCompleted(activity);
+      assertActivityCompleted(
+        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+      );
 
       return assertNonNull(signedTransaction);
     }
@@ -268,7 +276,9 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         hashFunction: "HASH_FUNCTION_NO_OP",
       });
 
-      assertActivityCompleted(activity);
+      assertActivityCompleted(
+        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+      );
 
       result = {
         r,

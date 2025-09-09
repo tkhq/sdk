@@ -1,5 +1,11 @@
 # @turnkey/webauthn-stamper
 
+## 0.6.0-beta.0
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
 ## 0.5.1
 
 ### Patch Changes

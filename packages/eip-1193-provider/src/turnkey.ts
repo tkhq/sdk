@@ -10,6 +10,7 @@ import { signatureToHex } from "viem";
 import { pad } from "viem/utils";
 
 import { TURNKEY_ERROR_CODE } from "./constants";
+import type { TurnkeySDKClientBase } from "@turnkey/core";
 
 export function unwrapActivityResult<
   T extends definitions["v1ActivityResponse"],
@@ -42,7 +43,7 @@ export async function signMessage({
   organizationId,
   signWith,
 }: {
-  client: TurnkeyClient | TurnkeyBrowserClient;
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeySDKClientBase;
   message: `0x${string}`;
   organizationId: string;
   signWith: string;
@@ -71,9 +72,12 @@ export async function signMessage({
   }
 
   const { signRawPayloadResult: signature } =
-    unwrapActivityResult<TSignRawPayloadResponse>(activityResponse, {
-      errorMessage: "Error signing message",
-    });
+    unwrapActivityResult<TSignRawPayloadResponse>(
+      activityResponse as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+      {
+        errorMessage: "Error signing message",
+      },
+    );
 
   if (!signature) {
     // @todo update error message
@@ -93,7 +97,7 @@ export async function signTransaction({
   organizationId,
   signWith,
 }: {
-  client: TurnkeyClient | TurnkeyBrowserClient;
+  client: TurnkeyClient | TurnkeyBrowserClient | TurnkeySDKClientBase;
   unsignedTransaction: string;
   organizationId: string;
   signWith: string;
@@ -120,9 +124,12 @@ export async function signTransaction({
   }
 
   const { signTransactionResult } =
-    unwrapActivityResult<TSignTransactionResponse>(activityResponse, {
-      errorMessage: "Error signing transaction",
-    });
+    unwrapActivityResult<TSignTransactionResponse>(
+      activityResponse as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+      {
+        errorMessage: "Error signing transaction",
+      },
+    );
 
   if (!signTransactionResult) {
     // @todo update error handling (e.g. consensus)

@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 2.6.0-beta.0
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
 ## 2.5.0
 
 ### Minor Changes

@@ -1,0 +1,32 @@
+---
+title: "getAllSessions()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Retrieves all sessions stored in persistent storage.
+
+<ul>
+  <li>This function fetches all session objects currently stored by the client, including those that are not active.</li>
+  <li>Returns a record mapping each session key to its corresponding ``Session`` object.</li>
+  <li>Useful for session management, auditing, or displaying all available sessions to the user.</li>
+  <li>Automatically skips any session keys that do not have a valid session object.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3755">core.ts:3755</a></p>
+
+<H3Bordered text="Parameters" />
+
+<p>No parameters.</p>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="undefined | Record&lt;string, Session&gt;" required={true} >
+  A promise that resolves to a record of session keys and their corresponding `Session` objects, or `undefined` if no sessions exist.
+</ResponseField>

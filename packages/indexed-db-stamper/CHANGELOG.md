@@ -1,5 +1,65 @@
 # @turnkey/indexed-db-stamper
 
+## 1.2.0-beta.6
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.6
+  - @turnkey/api-key-stamper@0.5.0-beta.6
+
+## 1.2.0-beta.5
+
+### Minor Changes
+
+- SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.5.0-beta.5
+  - @turnkey/encoding@0.6.0-beta.5
+
+## 1.1.2-beta.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.4
+  - @turnkey/api-key-stamper@0.4.8-beta.4
+
+## 1.1.2-beta.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.3
+  - @turnkey/api-key-stamper@0.4.8-beta.3
+
+## 1.1.2-beta.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.2
+  - @turnkey/api-key-stamper@0.4.8-beta.2
+
+## 1.1.2-beta.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.1
+  - @turnkey/api-key-stamper@0.4.8-beta.1
+
+## 1.1.2-beta.0
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/encoding@0.6.0-beta.0
+  - @turnkey/api-key-stamper@0.4.8-beta.0
+
 ## 1.1.1
 
 ### Patch Changes

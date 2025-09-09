@@ -1,0 +1,45 @@
+---
+title: "fetchUser()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<H3Bordered text="Overview" />
+
+Fetches the user details for the current session or a specified user.
+
+<ul>
+  <li>Retrieves user details from the Turnkey API using the provided userId and organizationId, or defaults to those from the active session.</li>
+  <li>If no userId is provided, the userId from the current session is used.</li>
+  <li>If no organizationId is provided, the organizationId from the current session is used.</li>
+  <li>Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).</li>
+  <li>Ensures that an active session exists before making the request.</li>
+</ul>
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2394">core.ts:2394</a></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={false} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="organizationId" type='string' required={false}>
+organization ID to specify the sub-organization (defaults to the current session's organizationId).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="userId" type='string' required={false}>
+user ID to fetch specific user details (defaults to the current session's userId).
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="v1User" required={true} >
+  A promise that resolves to a `v1User` object containing the user details.
+</ResponseField>

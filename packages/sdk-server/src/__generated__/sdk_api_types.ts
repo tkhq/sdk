@@ -75,6 +75,28 @@ export type TGetAuthenticatorsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetBootProofResponse =
+  operations["PublicApiService_GetBootProof"]["responses"]["200"]["schema"];
+
+export type TGetBootProofInput = { body: TGetBootProofBody };
+
+export type TGetBootProofBody = Omit<
+  operations["PublicApiService_GetBootProof"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetLatestBootProofResponse =
+  operations["PublicApiService_GetLatestBootProof"]["responses"]["200"]["schema"];
+
+export type TGetLatestBootProofInput = { body: TGetLatestBootProofBody };
+
+export type TGetLatestBootProofBody = Omit<
+  operations["PublicApiService_GetLatestBootProof"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetOauth2CredentialResponse =
   operations["PublicApiService_GetOauth2Credential"]["responses"]["200"]["schema"];
 

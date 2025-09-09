@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/ethers",
-  "version": "1.2.10",
+  "version": "1.3.0-beta.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -56,7 +56,8 @@
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
-    "@turnkey/sdk-server": "workspace:*"
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/core": "workspace:*"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "3.0.5",
