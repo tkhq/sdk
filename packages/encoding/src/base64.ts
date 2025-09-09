@@ -46,6 +46,36 @@ export function base64StringToBase64UrlEncodedString(input: string): string {
   return input.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
+/**
+ * Converts a base64url-encoded string into a standard base64-encoded string.
+ *
+ * - Replaces URL-safe characters (`-` and `_`) back to standard base64 characters (`+` and `/`).
+ * - Pads the result with `=` to ensure the length is a multiple of 4.
+ *
+ * @param {string} input - The base64url-encoded string to convert.
+ * @returns {string} - The equivalent base64-encoded string.
+ */
+export function base64UrlToBase64(input: string): string {
+  let b64 = input.replace(/-/g, "+").replace(/_/g, "/");
+  const padLen = (4 - (b64.length % 4)) % 4;
+  return b64 + "=".repeat(padLen);
+}
+
+/**
+ * Decodes a base64url-encoded string into a plain UTF-8 string.
+ *
+ * - Converts the input from base64url to base64.
+ * - Decodes the base64 string into a plain string using a pure JS `atob` implementation.
+ *
+ * @param {string} input - The base64url-encoded string to decode.
+ * @returns {string} - The decoded plain string.
+ * @throws {Error} If the input is not correctly base64url/base64 encoded.
+ */
+export function decodeBase64urlToString(input: string): string {
+  const b64 = base64UrlToBase64(input);
+  return atob(b64);
+}
+
 // Pure JS implementation of btoa. This is adapted from the following:
 // https://github.com/jsdom/abab/blob/80874ae1fe1cde2e587bb6e51b6d7c9b42ca1d34/lib/btoa.js
 function btoa(s: string): string {
@@ -112,4 +142,43 @@ function btoaLookup(index: number) {
 
   // Throw INVALID_CHARACTER_ERR exception here -- won't be hit in the tests.
   return undefined;
+}
+
+// Pure JS implementation of btoa.
+function atob(input: string): string {
+  if (arguments.length === 0) {
+    throw new TypeError("1 argument required, but only 0 present.");
+  }
+  // coerce to string
+  let s = `${input}`;
+  // strip out any non-Base64 chars (whitespace, invalid stuff)
+  s = s.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+  // "The atob() method must throw an "InvalidCharacterError" if
+  // its not a multiple of 4
+  if (s.length % 4 === 1) {
+    throw new Error(
+      "InvalidCharacterError: The string to be decoded is not correctly encoded.",
+    );
+  }
+
+  const keyStr =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  let output = "";
+  // bc = byte counter, bs = 6-bit buffer storage, buffer = lookup value, idx = input index
+  for (
+    let bc = 0, bs = 0, buffer: number | undefined, idx = 0;
+    // the loop condition: pull keyStr.indexOf; when char not in keyStr, indexOf returns -1 and loop stops
+    (buffer = keyStr.indexOf(s.charAt(idx++))) > -1;
+
+  ) {
+    // pack the 6-bit group into bs
+    bs = bc % 4 ? (bs << 6) + buffer : buffer;
+    // every time we have assembled 4 groups (i.e. bc%4 !== 0), flush out one byte
+    if (bc++ % 4) {
+      output += String.fromCharCode((bs >> ((-2 * bc) & 6)) & 0xff);
+    }
+  }
+
+  return output;
 }
