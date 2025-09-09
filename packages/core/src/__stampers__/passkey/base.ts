@@ -39,7 +39,7 @@ export class CrossPlatformPasskeyStamper implements TStamper {
           PasskeyStamper = PasskeyStamperModule.PasskeyStamper;
         } catch {
           throw new Error(
-            "Please install react-native-passkeys and @turnkey/react-native-passkey-stamper in your app to use passkeys."
+            "Please install react-native-passkeys and @turnkey/react-native-passkey-stamper in your app to use passkeys.",
           );
         }
 
@@ -54,7 +54,7 @@ export class CrossPlatformPasskeyStamper implements TStamper {
         });
       } catch (error) {
         throw new Error(
-          `Failed to load passkey stamper for react-native: ${error}`
+          `Failed to load passkey stamper for react-native: ${error}`,
         );
       }
     } else {
@@ -72,11 +72,11 @@ export class CrossPlatformPasskeyStamper implements TStamper {
    * @returns {Promise<Passkey>}
    */
   createWebPasskey = async (
-    config: Record<any, any> = {} // TODO (Amir): This needs to be typed
+    config: Record<any, any> = {}, // TODO (Amir): This needs to be typed
   ): Promise<Passkey> => {
     const challenge = generateRandomBuffer();
     const encodedChallenge = base64StringToBase64UrlEncodedString(
-      btoa(String.fromCharCode(...new Uint8Array(challenge)))
+      btoa(String.fromCharCode(...new Uint8Array(challenge))),
     );
     const authenticatorUserId = generateRandomBuffer();
 
@@ -138,14 +138,14 @@ export class CrossPlatformPasskeyStamper implements TStamper {
   };
 
   createReactNativePasskey = async (
-    config: Record<any, any> = {} // TODO (Amir): This needs to be typed
+    config: Record<any, any> = {}, // TODO (Amir): This needs to be typed
   ): Promise<TurnkeyAuthenticatorParams> => {
     const { name, displayName, authenticatorName } = config;
     const { createPasskey } = PasskeyStamperModule; // We do a 'selective' import when initializing the stamper. This is safe to do here.
 
     if (!createPasskey) {
       throw new Error(
-        "Ensure you have @turnkey/react-native-passkey-stamper installed and linked correctly. Are you not on React Native?"
+        "Ensure you have @turnkey/react-native-passkey-stamper installed and linked correctly. Are you not on React Native?",
       );
     }
 

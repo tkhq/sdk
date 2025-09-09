@@ -75,14 +75,14 @@ export class WebWalletManager {
 
       // add async init step to the initializer queue
       this.initializers.push(() =>
-        wcUnified.init({ ethereumNamespaces, solanaNamespaces })
+        wcUnified.init({ ethereumNamespaces, solanaNamespaces }),
       );
 
       // register WalletConnect as a wallet interface for each enabled chain
       if (enableWalletConnectEvm)
         this.addChainInterface(
           Chain.Ethereum,
-          WalletInterfaceType.WalletConnect
+          WalletInterfaceType.WalletConnect,
         );
       if (enableWalletConnectSol)
         this.addChainInterface(Chain.Solana, WalletInterfaceType.WalletConnect);
@@ -136,7 +136,7 @@ export class WebWalletManager {
         .filter(Boolean) as WalletInterface[];
 
       const providersArrays = await Promise.all(
-        walletsToQuery.map((wallet) => wallet.getProviders())
+        walletsToQuery.map((wallet) => wallet.getProviders()),
       );
 
       // we still need to filter by chain because WalletConnect can return providers for multiple chains
@@ -147,7 +147,7 @@ export class WebWalletManager {
 
     // collect all providers from all initialized wallets
     const providersArrays = await Promise.all(
-      Object.values(this.wallets).map((wallet) => wallet.getProviders())
+      Object.values(this.wallets).map((wallet) => wallet.getProviders()),
     );
 
     return providersArrays.flat();
@@ -161,7 +161,7 @@ export class WebWalletManager {
    */
   private addChainInterface = (
     chain: Chain,
-    interfaceType: WalletInterfaceType
+    interfaceType: WalletInterfaceType,
   ) => {
     if (!this.chainToInterfaces[chain]) this.chainToInterfaces[chain] = [];
     this.chainToInterfaces[chain]!.push(interfaceType);

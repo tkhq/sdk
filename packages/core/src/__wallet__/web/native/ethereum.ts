@@ -45,7 +45,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
   abstract sign(
     payload: string | Hex,
     provider: WalletProvider,
-    intent: SignIntent
+    intent: SignIntent,
   ): Promise<Hex>;
 
   /**
@@ -62,7 +62,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
     const signature = await this.sign(
       message,
       provider,
-      SignIntent.SignMessage
+      SignIntent.SignMessage,
     );
     return getCompressedPublicKey(signature, message);
   };
@@ -126,12 +126,12 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
 
     window.addEventListener(
       "eip6963:announceProvider",
-      handler as EventListener
+      handler as EventListener,
     );
     window.dispatchEvent(new Event("eip6963:requestProvider"));
     window.removeEventListener(
       "eip6963:announceProvider",
-      handler as EventListener
+      handler as EventListener,
     );
 
     await Promise.all(providerPromises);
@@ -185,7 +185,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    */
   async switchChain(
     provider: WalletProvider,
-    chainOrId: string | SwitchableChain
+    chainOrId: string | SwitchableChain,
   ): Promise<void> {
     if (provider.chainInfo.namespace !== Chain.Ethereum) {
       throw new Error("Only EVM wallets can switch chains");
@@ -212,7 +212,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
       if (typeof chainOrId === "string") {
         throw new Error(
           `Chain ${chainId} not recognized. ` +
-            `If you want to add it, call switchChain with a SwitchableChain object.`
+            `If you want to add it, call switchChain with a SwitchableChain object.`,
         );
       }
 
@@ -267,7 +267,7 @@ export class EthereumWallet extends BaseEthereumWallet {
   sign = async (
     payload: string,
     provider: WalletProvider,
-    intent: SignIntent
+    intent: SignIntent,
   ): Promise<Hex> => {
     const selectedProvider = asEip1193(provider);
     const account = await getAccount(selectedProvider);
@@ -333,7 +333,7 @@ const getAccount = async (provider: EIP1193Provider): Promise<Address> => {
  */
 const getCompressedPublicKey = async (
   signature: string,
-  message: string
+  message: string,
 ): Promise<string> => {
   const secp256k1PublicKey = await recoverPublicKey({
     hash: hashMessage(message),

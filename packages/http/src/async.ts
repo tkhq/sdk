@@ -191,6 +191,6 @@ function sleep(ms: number): Promise<void> {
 
 function assertNever(input: never, message?: string): never {
   throw new Error(
-    message != null ? message : `Unexpected case: ${JSON.stringify(input)}`
+    message != null ? message : `Unexpected case: ${JSON.stringify(input)}`,
   );
 }

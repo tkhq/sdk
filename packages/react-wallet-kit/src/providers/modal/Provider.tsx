@@ -21,7 +21,7 @@ export type ModalContextType = {
 };
 
 export const ModalContext = createContext<ModalContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export function ModalProvider({ children }: { children: ReactNode }) {

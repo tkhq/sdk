@@ -29,7 +29,7 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
   abstract sign(
     message: string | Uint8Array,
     provider: WalletProvider,
-    intent: SignIntent
+    intent: SignIntent,
   ): Promise<string>;
 
   /**
@@ -88,7 +88,7 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
           provider: wallet as WalletRpcProvider,
           connectedAddresses,
         });
-      })
+      }),
     );
 
     return discovered;
@@ -148,7 +148,7 @@ export class SolanaWallet extends BaseSolanaWallet {
   sign = async (
     payload: string,
     provider: WalletProvider,
-    intent: SignIntent
+    intent: SignIntent,
   ): Promise<string> => {
     const wallet = asSolana(provider);
     await connectAccount(wallet);
@@ -258,6 +258,6 @@ const connectAccount = async (wallet: SWSWallet): Promise<void> => {
   }
 
   throw new Error(
-    "Wallet is not connected and does not implement standard:connect"
+    "Wallet is not connected and does not implement standard:connect",
   );
 };

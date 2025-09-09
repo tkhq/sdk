@@ -58,14 +58,14 @@ export class MobileWalletManager {
 
       // add async init step to the initializer queue
       this.initializers.push(() =>
-        wcUnified.init({ ethereumNamespaces, solanaNamespaces })
+        wcUnified.init({ ethereumNamespaces, solanaNamespaces }),
       );
 
       // register WalletConnect as a wallet interface for each enabled chain
       if (enableWalletConnectEvm) {
         this.addChainInterface(
           Chain.Ethereum,
-          WalletInterfaceType.WalletConnect
+          WalletInterfaceType.WalletConnect,
         );
       }
       if (enableWalletConnectSol) {
@@ -123,7 +123,7 @@ export class MobileWalletManager {
         .filter(Boolean) as WalletInterface[];
 
       const providersArrays = await Promise.all(
-        walletsToQuery.map((wallet) => wallet.getProviders())
+        walletsToQuery.map((wallet) => wallet.getProviders()),
       );
 
       // we still need to filter by chain because WalletConnect can return providers for multiple chains
@@ -133,7 +133,7 @@ export class MobileWalletManager {
     }
 
     const providersArrays = await Promise.all(
-      Object.values(this.wallets).map((wallet) => wallet.getProviders())
+      Object.values(this.wallets).map((wallet) => wallet.getProviders()),
     );
 
     return providersArrays.flat();
@@ -147,7 +147,7 @@ export class MobileWalletManager {
    */
   private addChainInterface = (
     chain: Chain,
-    interfaceType: WalletInterfaceType
+    interfaceType: WalletInterfaceType,
   ) => {
     if (!this.chainToInterfaces[chain]) this.chainToInterfaces[chain] = [];
     this.chainToInterfaces[chain]!.push(interfaceType);

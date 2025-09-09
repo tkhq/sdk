@@ -57,7 +57,7 @@ export const createUserSubOrg = async ({
     {
       baseUrl: NEXT_PUBLIC_BASE_URL,
     },
-    stamper
+    stamper,
   );
 
   const activityPoller = createActivityPoller({
@@ -136,7 +136,7 @@ export const getSubOrgByPublicKey = async (publicKey: string) => {
     {
       baseUrl: NEXT_PUBLIC_BASE_URL,
     },
-    stamper
+    stamper,
   );
 
   const subOrg = await client.getSubOrgIds({

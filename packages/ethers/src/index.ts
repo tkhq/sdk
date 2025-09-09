@@ -77,7 +77,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         organizationId: this.organizationId,
         signWith: this.signWith,
       },
-      provider
+      provider,
     );
   }
 
@@ -102,7 +102,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       });
 
       ethereumAddress = data.privateKey.addresses.find(
-        (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM"
+        (item: any) => item.format === "ADDRESS_FORMAT_ETHEREUM",
       )?.address;
 
       if (typeof ethereumAddress !== "string" || !ethereumAddress) {
@@ -116,7 +116,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   private async _signTransactionImpl(
-    unsignedTransaction: string
+    unsignedTransaction: string,
   ): Promise<string> {
     if (isHttpClient(this.client)) {
       const { activity } = await this.client.signTransaction({
@@ -133,7 +133,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       assertActivityCompleted(activity);
 
       return assertNonNull(
-        activity?.result?.signTransactionResult?.signedTransaction
+        activity?.result?.signTransactionResult?.signedTransaction,
       );
     } else {
       const { activity, signedTransaction } = await this.client.signTransaction(
@@ -141,11 +141,11 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
           signWith: this.signWith,
           type: "TRANSACTION_TYPE_ETHEREUM",
           unsignedTransaction,
-        }
+        },
       );
 
       assertActivityCompleted(
-        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */
+        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
       );
 
       return assertNonNull(signedTransaction);
@@ -153,7 +153,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   }
 
   private async _signTransactionWithErrorWrapping(
-    message: string
+    message: string,
   ): Promise<string> {
     let signedTx: string;
     try {
@@ -195,7 +195,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       const selfAddress = await this.getAddress();
       if (getAddress(from) !== selfAddress) {
         throw new Error(
-          `Transaction \`tx.from\` address mismatch. Self address: ${selfAddress}; \`tx.from\` address: ${from}`
+          `Transaction \`tx.from\` address mismatch. Self address: ${selfAddress}; \`tx.from\` address: ${from}`,
         );
       }
     }
@@ -224,7 +224,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
   async _signMessageWithErrorWrapping(
     message: string,
-    payloadEncoding: TPayloadEncoding = "PAYLOAD_ENCODING_HEXADECIMAL"
+    payloadEncoding: TPayloadEncoding = "PAYLOAD_ENCODING_HEXADECIMAL",
   ): Promise<string> {
     let signedMessage: string;
     try {
@@ -248,7 +248,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
 
   async _signMessageImpl(
     message: string,
-    payloadEncoding: TPayloadEncoding = "PAYLOAD_ENCODING_HEXADECIMAL"
+    payloadEncoding: TPayloadEncoding = "PAYLOAD_ENCODING_HEXADECIMAL",
   ): Promise<string> {
     let result;
 
@@ -277,7 +277,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       });
 
       assertActivityCompleted(
-        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */
+        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
       );
 
       result = {
@@ -293,7 +293,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
   async signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
-    value: Record<string, any>
+    value: Record<string, any>,
   ): Promise<string> {
     const populated = await TypedDataEncoder.resolveNames(
       domain,
@@ -306,19 +306,19 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
         assertNonNull(address);
 
         return address ?? "";
-      }
+      },
     );
 
     // Build the full EIP-712 payload (domain, types, and message)
     const payload = TypedDataEncoder.getPayload(
       populated.domain,
       types,
-      populated.value
+      populated.value,
     );
 
     return this._signMessageWithErrorWrapping(
       JSON.stringify(payload),
-      "PAYLOAD_ENCODING_EIP712"
+      "PAYLOAD_ENCODING_EIP712",
     );
   }
 

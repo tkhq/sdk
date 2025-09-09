@@ -47,7 +47,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
         window.history.replaceState(
           null,
           document.title,
-          window.location.pathname + window.location.search
+          window.location.pathname + window.location.search,
         );
       }
     }
@@ -71,7 +71,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
         const nonce = bytesToHex(sha256(new TextEncoder().encode(publicKey)));
         const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!.replace(
           /\/$/,
-          ""
+          "",
         );
 
         const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
@@ -89,7 +89,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
       const authWindow = window.open(
         "about:blank",
         "_blank",
-        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`
+        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
       );
 
       if (!authWindow) {
@@ -107,7 +107,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
         const nonce = bytesToHex(sha256(new TextEncoder().encode(publicKey)));
         const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!.replace(
           /\/$/,
-          ""
+          "",
         );
 
         const googleAuthUrl = new URL(GOOGLE_AUTH_URL);

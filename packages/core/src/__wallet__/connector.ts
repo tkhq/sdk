@@ -11,7 +11,7 @@ export interface CrossPlatformWalletConnectorInterface {
   sign(
     message: string | Uint8Array,
     walletProvider: WalletProvider,
-    intent: SignIntent
+    intent: SignIntent,
   ): Promise<string>;
 }
 
@@ -30,11 +30,11 @@ export class CrossPlatformWalletConnector
   constructor(
     private readonly wallets: Partial<
       Record<WalletInterfaceType, WalletInterface>
-    >
+    >,
   ) {
     if (!Object.keys(wallets).length) {
       throw new Error(
-        "Cannot create WalletConnector: no wallet interfaces provided"
+        "Cannot create WalletConnector: no wallet interfaces provided",
       );
     }
   }
@@ -90,7 +90,7 @@ export class CrossPlatformWalletConnector
    */
   async switchChain(
     provider: WalletProvider,
-    chainOrId: string | SwitchableChain
+    chainOrId: string | SwitchableChain,
   ): Promise<void> {
     if (provider.chainInfo.namespace !== Chain.Ethereum) {
       throw new Error("Only Ethereum wallets support chain switching");
@@ -99,7 +99,7 @@ export class CrossPlatformWalletConnector
     const wallet = this.wallets[provider.interfaceType];
     if (!wallet?.switchChain) {
       throw new Error(
-        `Wallet ${provider.interfaceType} doesn’t support switching chains`
+        `Wallet ${provider.interfaceType} doesn’t support switching chains`,
       );
     }
 
@@ -118,13 +118,13 @@ export class CrossPlatformWalletConnector
   async sign(
     payload: string,
     walletProvider: WalletProvider,
-    intent: SignIntent
+    intent: SignIntent,
   ): Promise<string> {
     const wallet = this.wallets[walletProvider.interfaceType];
 
     if (!wallet) {
       throw new Error(
-        `Wallet for ${walletProvider.interfaceType} not initialized`
+        `Wallet for ${walletProvider.interfaceType} not initialized`,
       );
     }
 
