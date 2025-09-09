@@ -652,14 +652,16 @@ export function buildSignUpBody(params: {
   createSubOrgParams: CreateSubOrgParams | undefined;
 }): ProxyTSignupBody {
   const { createSubOrgParams } = params;
-  const websiteName = window.location.hostname;
+  const authenticatorName = isWeb()
+    ? `${window.location.hostname}-${Date.now()}`
+    : `passkey-${Date.now()}`;
 
   let authenticators: v1AuthenticatorParamsV2[] = [];
   if (createSubOrgParams?.authenticators?.length) {
     authenticators =
       createSubOrgParams?.authenticators?.map((authenticator) => ({
         authenticatorName:
-          authenticator?.authenticatorName || `${websiteName}-${Date.now()}`,
+          authenticator?.authenticatorName || authenticatorName,
         challenge: authenticator.challenge,
         attestation: authenticator.attestation,
       })) || [];
