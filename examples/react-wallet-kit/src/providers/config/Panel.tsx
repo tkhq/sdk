@@ -1,4 +1,5 @@
 import {
+  faCheck,
   faGamepad,
   faGears,
   faGripLines,
@@ -17,22 +18,74 @@ import { useEffect } from "react";
 import { TurnkeyProviderConfig } from "@turnkey/react-wallet-kit";
 import ConfigViewer from "@/components/demo/ConfigViewer";
 import { completeTheme, textColour } from "@/utils";
-import { Button } from "@headlessui/react";
+import { Button, Checkbox } from "@headlessui/react";
 import { DemoConfig } from "@/types";
+import {
+  AppleSVG,
+  DiscordSVG,
+  FacebookSVG,
+  GoogleSVG,
+  TwitterXSVG,
+} from "@/components/Svg";
+
+const omitKeys = [
+  "apiBaseUrl",
+  "authProxyUrl",
+  "importIframeUrl",
+  "exportIframeUrl",
+  "googleClientId",
+  "appleClientId",
+  "facebookClientId",
+  "oauthRedirectUri",
+  "walletConfig",
+  "renderModalInProvider",
+  "oauthOrder",
+  "organizationId",
+  "authProxyConfigId",
+  "createSuborgParams",
+  "autoRefreshSession",
+  "oauthConfig",
+];
 
 interface AuthMethod {
   name: string;
-  toggles: { toggle: string; overrideDisplayName?: string }[];
+  toggles: {
+    toggle: string;
+    overrideDisplayName?: string;
+    icon?: React.FC<React.SVGProps<SVGSVGElement>>;
+  }[];
   order: "socials" | "email" | "sms" | "passkey" | "wallet";
 }
 
 const authMethods: AuthMethod[] = [
   {
-    name: "Socials",
+    name: "OAuth",
     toggles: [
-      { overrideDisplayName: "Google", toggle: "googleOauthEnabled" },
-      { overrideDisplayName: "Apple", toggle: "appleOauthEnabled" },
-      { overrideDisplayName: "Facebook", toggle: "facebookOauthEnabled" },
+      {
+        overrideDisplayName: "Google",
+        toggle: "googleOauthEnabled",
+        icon: GoogleSVG,
+      },
+      {
+        overrideDisplayName: "Apple",
+        toggle: "appleOauthEnabled",
+        icon: AppleSVG,
+      },
+      {
+        overrideDisplayName: "Facebook",
+        toggle: "facebookOauthEnabled",
+        icon: FacebookSVG,
+      },
+      {
+        overrideDisplayName: "X (Twitter)",
+        toggle: "xOauthEnabled",
+        icon: TwitterXSVG,
+      },
+      {
+        overrideDisplayName: "Discord",
+        toggle: "discordOauthEnabled",
+        icon: DiscordSVG,
+      },
     ],
     order: "socials",
   },
@@ -95,7 +148,12 @@ export function TurnkeyConfigPanel() {
     config: Partial<TurnkeyProviderConfig>,
     demoConfig?: Partial<DemoConfig>,
   ) => {
-    localStorage.setItem("turnkeyConfig", JSON.stringify(config));
+    // store everything but the omitted keys in local storage
+    const filteredConfig = Object.fromEntries(
+      Object.entries(config).filter(([key]) => !omitKeys.includes(key)),
+    );
+
+    localStorage.setItem("turnkeyConfig", JSON.stringify(filteredConfig));
     localStorage.setItem("turnkeyDemoConfig", JSON.stringify(demoConfig));
   };
 
@@ -184,37 +242,51 @@ export function TurnkeyConfigPanel() {
 
                           {/* Individual Toggles */}
                           {method.toggles.length > 1 && (
-                            <div className="space-y-1">
-                              {method.toggles.map((toggleKey) => (
-                                <ToggleSwitch
-                                  key={toggleKey.toggle}
-                                  size="sm"
-                                  label={
-                                    toggleKey?.overrideDisplayName ||
-                                    toggleKey.toggle
-                                  }
-                                  checked={
-                                    config.auth?.methods?.[
-                                      toggleKey.toggle as keyof typeof config.auth.methods
-                                    ] ?? false
-                                  }
-                                  onChange={(val) =>
-                                    handleSetConfig({
-                                      auth: {
-                                        ...config.auth,
-                                        methods: {
-                                          ...config.auth?.methods,
-                                          [toggleKey.toggle]: val,
+                            <div className="space-y-3 flex flex-col justify-between mt-3 w-full">
+                              {method.toggles.map((toggleKey) => {
+                                const isChecked =
+                                  config.auth?.methods?.[
+                                    toggleKey.toggle as keyof typeof config.auth.methods
+                                  ] ?? false;
+                                return (
+                                  <Checkbox
+                                    key={toggleKey.toggle}
+                                    className="flex justify-between items-center cursor-pointer"
+                                    checked={isChecked}
+                                    onChange={(val: boolean) =>
+                                      handleSetConfig({
+                                        auth: {
+                                          ...config.auth,
+                                          methods: {
+                                            ...config.auth?.methods,
+                                            [toggleKey.toggle]: val,
+                                          },
                                         },
-                                      },
-                                    })
-                                  }
-                                />
-                              ))}
+                                      })
+                                    }
+                                  >
+                                    <p className="flex items-center">
+                                      {toggleKey?.icon && (
+                                        <toggleKey.icon className="mr-3 size-5.5" />
+                                      )}
+                                      {toggleKey?.overrideDisplayName ||
+                                        toggleKey.toggle}
+                                    </p>
+                                    <div
+                                      className={`rounded-md flex items-center justify-center size-5.5 border-2 ${isChecked ? "bg-primary-light dark:bg-primary-dark border-transparent" : "bg-transparent border-primary-text-light dark:border-primary-text-dark"} transition-colors`}
+                                    >
+                                      <FontAwesomeIcon
+                                        icon={faCheck}
+                                        className={`size-4 text-primary-text-light dark:text-primary-text-dark ${isChecked ? "" : "invisible"}`}
+                                      />
+                                    </div>
+                                  </Checkbox>
+                                );
+                              })}
 
-                              {method.name === "Socials" && (
+                              {method.name === "OAuth" && (
                                 <>
-                                  <div className="w-full h-[1px] mb-2 mt-3 bg-icon-text-light dark:bg-icon-text-dark" />
+                                  <div className="w-full h-[1px] bg-icon-text-light dark:bg-icon-text-dark" />
                                   <ToggleSwitch
                                     label="Open OAuth In Page"
                                     size="sm"

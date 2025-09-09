@@ -49,9 +49,10 @@ export const initialConfig: TurnkeyProviderConfig = {
       googleOauthEnabled: true,
       appleOauthEnabled: false,
       facebookOauthEnabled: false,
+      xOauthEnabled: false,
+      discordOauthEnabled: false,
     },
     methodOrder: ["socials", "email", "sms", "passkey", "wallet"],
-    oauthOrder: ["google", "apple", "facebook"],
     autoRefreshSession: true,
     createSuborgParams: {
       emailOtpAuth: createSuborgParams,
