@@ -3,7 +3,7 @@ import {
   uint8ArrayToHexString,
   stringToBase64urlString,
 } from "@turnkey/encoding";
-import bs58 from "bs58";
+import { bs58 } from "@turnkey/encoding";
 import { recoverPublicKey, hashMessage, type Hex, toHex } from "viem";
 import { compressRawPublicKey } from "@turnkey/crypto";
 import {

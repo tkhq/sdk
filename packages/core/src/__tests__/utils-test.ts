@@ -48,7 +48,7 @@ import {
 jest.mock("bs58", () => ({
   encode: jest.fn(() => "base58-encoded"),
 }));
-import bs58 from "bs58";
+import { bs58 } from "@turnkey/encoding";
 
 // For deterministic ETH behavior, mock the heavy crypto/EC parts.
 
