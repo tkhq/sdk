@@ -248,7 +248,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to create passkey",
         errorCode: TurnkeyErrorCodes.CREATE_PASSKEY_ERROR,
-        customMessageByMessages: {
+        customErrorByMessages: {
           "timed out or was not allowed": {
             message: "Passkey creation was cancelled by the user.",
             code: TurnkeyErrorCodes.SELECT_PASSKEY_CANCELLED,
@@ -365,7 +365,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Unable to log in with the provided passkey",
         errorCode: TurnkeyErrorCodes.PASSKEY_LOGIN_AUTH_ERROR,
-        customMessageByMessages: {
+        customErrorByMessages: {
           "timed out or was not allowed": {
             message: "Passkey login was cancelled by the user.",
             code: TurnkeyErrorCodes.SELECT_PASSKEY_CANCELLED,
@@ -981,7 +981,7 @@ export class TurnkeyClient {
           {
             errorMessage: "Failed to create stamped request for wallet login",
             errorCode: TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
-            customMessageByMessages: {
+            customErrorByMessages: {
               "Failed to sign the message": {
                 message: "Wallet auth was cancelled by the user.",
                 code: TurnkeyErrorCodes.CONNECT_WALLET_CANCELLED,
@@ -1171,7 +1171,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to initialize OTP",
         errorCode: TurnkeyErrorCodes.INIT_OTP_ERROR,
-        customMessageByMessages: {
+        customErrorByMessages: {
           "Max number of OTPs have been initiated": {
             message:
               "Maximum number of OTPs has been reached for this contact.",
@@ -1241,7 +1241,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to verify OTP",
         errorCode: TurnkeyErrorCodes.VERIFY_OTP_ERROR,
-        customMessageByMessages: {
+        customErrorByMessages: {
           "Invalid OTP code": {
             message: "The provided OTP code is invalid.",
             code: TurnkeyErrorCodes.INVALID_OTP_CODE,
@@ -1537,7 +1537,7 @@ export class TurnkeyClient {
       oidcToken,
       publicKey,
       createSubOrgParams,
-      providerName = "OpenID Connect Provider" + Date.now(),
+      providerName = "OpenID Connect Provider" + " " + Date.now(),
       sessionKey = SessionKey.DefaultSessionkey,
       invalidateExisting = false,
     } = params;
@@ -1661,7 +1661,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to complete OAuth login",
         errorCode: TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-        customMessageByMessages: {
+        customErrorByMessages: {
           "OAUTH disallowed": {
             message:
               "OAuth is disabled on the dashboard for this organization.",
@@ -3630,7 +3630,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to import wallet",
         errorCode: TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-        customMessageByMessages: {
+        customErrorByMessages: {
           "invalid mnemonic": {
             message: "Invalid mnemonic input",
             code: TurnkeyErrorCodes.BAD_REQUEST,
@@ -3710,7 +3710,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to import wallet",
         errorCode: TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-        customMessageByMessages: {
+        customErrorByMessages: {
           "invalid mnemonic": {
             message: "Invalid mnemonic input",
             code: TurnkeyErrorCodes.BAD_REQUEST,

@@ -572,7 +572,7 @@ describe("withTurnkeyErrorHandling", () => {
         {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customMessageByMessages: {
+          customErrorByMessages: {
             ECONNREFUSED: {
               message: "Database unavailable",
               code: TurnkeyErrorCodes.INVALID_REQUEST,
@@ -612,13 +612,13 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(original), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customMessageByCodes: {
+          customErrorByCodes: {
             [DEFAULT_CODE]: {
               message: "override via code",
               code: DEFAULT_CODE,
             },
           },
-          customMessageByMessages: {
+          customErrorByMessages: {
             original: { message: "message-map-hit", code: DEFAULT_CODE },
           },
         }),
@@ -640,8 +640,8 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(original), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          // no customMessageByCodes hit
-          customMessageByMessages: {
+          // no customErrorByCodes hit
+          customErrorByMessages: {
             specific: { message: "mapped by message", code: DEFAULT_CODE },
           },
         }),
@@ -681,7 +681,7 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(reqErr), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customMessageByMessages: {
+          customErrorByMessages: {
             expired: {
               message: "Session expired, please re-auth",
               code: DEFAULT_CODE,
@@ -756,7 +756,7 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(err), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customMessageByMessages: {
+          customErrorByMessages: {
             "connection refused": {
               message: "Database unavailable",
               code: DEFAULT_CODE,
@@ -794,7 +794,7 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith("timeout while fetching"), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customMessageByMessages: {
+          customErrorByMessages: {
             timeout: { message: "Network timeout", code: DEFAULT_CODE },
           },
         }),
