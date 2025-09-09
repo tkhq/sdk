@@ -19,7 +19,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "e2e": "playwright test -c e2e"
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@noble/hashes": "1.4.0",

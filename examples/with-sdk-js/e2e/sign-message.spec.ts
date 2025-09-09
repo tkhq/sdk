@@ -26,8 +26,6 @@ test("sign SOL transaction", async ({ page }) => {
     .getByTestId(withSdkJsSelectors.signingMethods.signSolTransaction)
     .click();
   const msg = await whenConsole;
-
-  console.log("msg", msg);
   expect(msg.text).toMatch(/Transaction Signature: [0-9a-f]+/);
   expect(msg.type).toBe("log");
   expect(msg.location().url).toMatch(/page.tsx$/);
@@ -43,8 +41,6 @@ test("sign ETH transaction", async ({ page }) => {
     .getByTestId(withSdkJsSelectors.signingMethods.signEthTransaction)
     .click();
   const msg = await whenConsole;
-
-  console.log("msg", msg);
   expect(msg.text).toMatch(/Transaction Signature: [0-9a-f]+/);
   expect(msg.type).toBe("log");
   expect(msg.location().url).toMatch(/page.tsx$/);
@@ -60,8 +56,6 @@ test("sign with viem", async ({ page }) => {
     .getByTestId(withSdkJsSelectors.signingMethods.signWithViem)
     .click();
   const msg = await whenConsole;
-
-  console.log("msg", msg);
   expect(msg.text).toMatch(/Viem Signature: [0-9a-f]+/);
   expect(msg.type).toBe("log");
   expect(msg.location().url).toMatch(/page.tsx$/);
