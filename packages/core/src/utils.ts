@@ -917,8 +917,8 @@ export async function getAuthProxyConfig(
  * @param errorOptions.catchFn Optional function to execute in the catch block
  * @param errorOptions.errorMessage The default error message to use if no custom message is found
  * @param errorOptions.errorCode The default error code to use if no custom message is found
- * @param errorOptions.customMessageByCodes Optional mapping of error codes to custom messages, if you're trying to target a specific error code and surface a custom message, use this
- * @param errorOptions.customMessageByMessages Optional mapping of error messages to custom messages, if you're trying to target a specific error message and surface a custom message, use this
+ * @param errorOptions.customErrorByCodes Optional mapping of error codes to custom messages, if you're trying to target a specific error code and surface a custom message, use this
+ * @param errorOptions.customErrorByMessages Optional mapping of error messages to custom messages, if you're trying to target a specific error message and surface a custom message, use this
  * @param finallyFn Optional function to execute in the finally block
  * @returns The result of the async function or throws an error
  */
@@ -928,10 +928,10 @@ export async function withTurnkeyErrorHandling<T>(
     catchFn?: () => Promise<void>;
     errorMessage: string;
     errorCode: TurnkeyErrorCodes;
-    customMessageByCodes?: Partial<
+    customErrorByCodes?: Partial<
       Record<TurnkeyErrorCodes, { message: string; code: TurnkeyErrorCodes }>
     >;
-    customMessageByMessages?: Record<
+    customErrorByMessages?: Record<
       string,
       { message: string; code: TurnkeyErrorCodes }
     >;
@@ -943,8 +943,8 @@ export async function withTurnkeyErrorHandling<T>(
   const {
     errorMessage,
     errorCode,
-    customMessageByCodes,
-    customMessageByMessages,
+    customErrorByCodes,
+    customErrorByMessages,
     catchFn,
   } = catchOptions;
   const finallyFn = finallyOptions?.finallyFn;
@@ -953,7 +953,7 @@ export async function withTurnkeyErrorHandling<T>(
   } catch (error) {
     await catchFn?.();
     if (error instanceof TurnkeyError) {
-      const customCodeMessage = customMessageByCodes?.[error.code!];
+      const customCodeMessage = customErrorByCodes?.[error.code!];
       if (customCodeMessage) {
         throw new TurnkeyError(
           customCodeMessage.message,
@@ -961,20 +961,20 @@ export async function withTurnkeyErrorHandling<T>(
           error,
         );
       }
-      throwMatchingMessage(error.message, customMessageByMessages, error);
+      throwMatchingMessage(error.message, customErrorByMessages, error);
 
       throw error;
     } else if (error instanceof TurnkeyRequestError) {
-      throwMatchingMessage(error.message, customMessageByMessages, error);
+      throwMatchingMessage(error.message, customErrorByMessages, error);
 
       throw new TurnkeyError(errorMessage, errorCode, error);
     } else if (error instanceof Error) {
-      throwMatchingMessage(error.message, customMessageByMessages, error);
+      throwMatchingMessage(error.message, customErrorByMessages, error);
 
       // Wrap other errors in a TurnkeyError
       throw new TurnkeyError(errorMessage, errorCode, error);
     } else {
-      throwMatchingMessage(String(error), customMessageByMessages, error);
+      throwMatchingMessage(String(error), customErrorByMessages, error);
       // Handle non-Error exceptions
       throw new TurnkeyError(String(error), errorCode, error);
     }
@@ -988,25 +988,22 @@ export async function withTurnkeyErrorHandling<T>(
  * If no match is found, it does nothing.
  *
  * @param errorMessage The error message to check against the custom messages.
- * @param customMessageByMessages An object mapping error messages to custom messages and codes.
+ * @param customErrorByMessages An object mapping error messages to custom messages and codes.
  * @param error The original error that triggered this function.
  */
 const throwMatchingMessage = (
   errorMessage: string,
-  customMessageByMessages:
+  customErrorByMessages:
     | Record<string, { message: string; code: TurnkeyErrorCodes }>
     | undefined,
   error: any,
 ) => {
-  if (
-    customMessageByMessages &&
-    Object.keys(customMessageByMessages).length > 0
-  ) {
-    Object.keys(customMessageByMessages).forEach((key) => {
+  if (customErrorByMessages && Object.keys(customErrorByMessages).length > 0) {
+    Object.keys(customErrorByMessages).forEach((key) => {
       if (errorMessage.includes(key)) {
         throw new TurnkeyError(
-          customMessageByMessages[key]!.message,
-          customMessageByMessages[key]!.code,
+          customErrorByMessages[key]!.message,
+          customErrorByMessages[key]!.code,
           error,
         );
       }
