@@ -57,7 +57,7 @@
   },
   "devDependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
-    "bs58": "^6.0.0",
+    "@turnkey/encoding": "workspace:*",
     "tweetnacl": "^1.0.3"
   },
   "engines": {

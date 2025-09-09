@@ -6,7 +6,7 @@ import {
 } from "@turnkey/crypto";
 
 import { Buffer } from "buffer";
-import bs58check from "bs58check";
+import { bs58check } from "@turnkey/encoding";
 import { AeadId, CipherSuite, KdfId, KemId } from "hpke-js";
 
 import type { EmbeddedAPIKey } from "./models";
