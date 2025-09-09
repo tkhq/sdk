@@ -28,7 +28,7 @@ import {
   SolanaChainInfo,
   Curve,
 } from "./__types__/base";
-import bs58 from "bs58";
+import { bs58 } from "@turnkey/encoding";
 
 // Import all defaultAccountAtIndex functions for each address format
 import {
