@@ -1,10 +1,10 @@
-import { EthereumWalletInterface, WalletType } from "./types";
+import { type EthereumWalletInterface, WalletType } from "./types";
 import {
   recoverPublicKey,
   hashMessage,
-  Hex,
-  Address,
-  EIP1193Provider,
+  type Hex,
+  type Address,
+  type EIP1193Provider,
 } from "viem";
 import "viem/window";
 import { WalletStamperError } from "./errors";
@@ -116,7 +116,7 @@ export class EthereumWallet extends BaseEthereumWallet {
 
 export const getCompressedPublicKey = async (
   signature: Hex,
-  message: string,
+  message: string
 ) => {
   const secp256k1PublicKey = await recoverPublicKey({
     hash: hashMessage(message),

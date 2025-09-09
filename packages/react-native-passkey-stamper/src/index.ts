@@ -1,7 +1,7 @@
 import {
   Passkey,
-  PasskeyCreateResult,
-  PasskeyGetResult,
+  type PasskeyCreateResult,
+  type PasskeyGetResult,
 } from "react-native-passkey";
 import type { TurnkeyApiTypes } from "@turnkey/http";
 import { base64StringToBase64UrlEncodedString as base64Tobase64url } from "@turnkey/encoding";
@@ -136,7 +136,7 @@ export async function createPasskey(
   options?: {
     withSecurityKey: boolean;
     withPlatformKey: boolean;
-  },
+  }
 ): Promise<TurnkeyAuthenticatorParams> {
   const challenge = config.challenge || getRandomChallenge();
 
@@ -187,10 +187,10 @@ export async function createPasskey(
     attestation: {
       credentialId: base64Tobase64url(registrationResult.id),
       clientDataJson: base64Tobase64url(
-        registrationResult.response.clientDataJSON,
+        registrationResult.response.clientDataJSON
       ),
       attestationObject: base64Tobase64url(
-        registrationResult.response.attestationObject,
+        registrationResult.response.attestationObject
       ),
       // TODO: can we infer the transport from the registration result?
       // In all honesty this isn't critical so we default to "hybrid" because that's the transport used by passkeys.
@@ -251,10 +251,10 @@ export class PasskeyStamper {
 
     const stamp = {
       authenticatorData: base64Tobase64url(
-        authenticationResult.response.authenticatorData,
+        authenticationResult.response.authenticatorData
       ),
       clientDataJson: base64Tobase64url(
-        authenticationResult.response.clientDataJSON,
+        authenticationResult.response.clientDataJSON
       ),
       credentialId: base64Tobase64url(authenticationResult.id),
       signature: base64Tobase64url(authenticationResult.response.signature),

@@ -477,19 +477,6 @@
           "type": "string",
           "description": "The organization ID this configuration applies to",
           "title": "Organization ID"
-        },
-        "oauthClientIds": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Mapping of social login providers to their OAuth client IDs.",
-          "title": "OAuth Client IDs"
-        },
-        "oauthRedirectUrl": {
-          "type": "string",
-          "description": "OAuth redirect URL to be used for social login flows.",
-          "title": "OAuth Redirect URL"
         }
       },
       "required": [
@@ -544,19 +531,9 @@
         "nonce": {
           "type": "string",
           "description": "An optional nonce used by the client to prevent replay/substitution of an ID token"
-        },
-        "clientId": {
-          "type": "string",
-          "description": "The client ID registered with the OAuth 2.0 provider"
         }
       },
-      "required": [
-        "provider",
-        "authCode",
-        "redirectUri",
-        "codeVerifier",
-        "clientId"
-      ]
+      "required": ["provider", "authCode", "redirectUri", "codeVerifier"]
     },
     "v1OAuth2AuthenticateResponse": {
       "type": "object",

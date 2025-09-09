@@ -1,7 +1,7 @@
 "use client";
 
 import { useScreenSize } from "../../utils/utils";
-import { createContext, useState, ReactNode } from "react";
+import { createContext, useState, type ReactNode } from "react";
 
 export type ModalPage = {
   key: string;
@@ -21,7 +21,7 @@ export type ModalContextType = {
 };
 
 export const ModalContext = createContext<ModalContextType | undefined>(
-  undefined,
+  undefined
 );
 
 export function ModalProvider({ children }: { children: ReactNode }) {

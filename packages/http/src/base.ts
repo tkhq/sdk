@@ -4,7 +4,7 @@ import { getBrowserConfig, getConfig } from "./config";
 import { stringToBase64urlString } from "@turnkey/encoding";
 import {
   getWebAuthnAssertion,
-  TurnkeyCredentialRequestOptions,
+  type TurnkeyCredentialRequestOptions,
 } from "./webauthn";
 import type { TurnkeyClient } from ".";
 
@@ -171,7 +171,7 @@ function getBaseUrl(): string {
 
 function substitutePath(
   uri: string,
-  substitutionMap: TSubstitutionShape,
+  substitutionMap: TSubstitutionShape
 ): string {
   let result = uri;
 
@@ -182,8 +182,8 @@ function substitutePath(
     invariant(
       output !== result,
       `Substitution error: cannot find "${key}" in URI "${uri}". \`substitutionMap\`: ${JSON.stringify(
-        substitutionMap,
-      )}`,
+        substitutionMap
+      )}`
     );
 
     result = output;
@@ -191,7 +191,7 @@ function substitutePath(
 
   invariant(
     !/\{.*\}/.test(result),
-    `Substitution error: found unsubstituted components in "${result}"`,
+    `Substitution error: found unsubstituted components in "${result}"`
   );
 
   return result;

@@ -9,12 +9,12 @@ import { compressRawPublicKey } from "@turnkey/crypto";
 import {
   Chain,
   WalletInterfaceType,
-  WalletProvider,
-  WalletProviderInfo,
+  type WalletProvider,
+  type WalletProviderInfo,
   SignIntent,
-  WalletConnectProvider,
-  WalletConnectInterface,
-  SwitchableChain,
+  type WalletConnectProvider,
+  type WalletConnectInterface,
+  type SwitchableChain,
 } from "@types";
 import type { WalletConnectClient } from "./client";
 import type { SessionTypes } from "@walletconnect/types";
@@ -41,7 +41,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
   >();
 
   private addChangeListener(
-    listener: (event?: WalletConnectChangeEvent) => void,
+    listener: (event?: WalletConnectChangeEvent) => void
   ) {
     this.changeListeners.add(listener);
     return () => this.changeListeners.delete(listener);
@@ -112,7 +112,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
       this.solanaNamespaces.length === 0
     ) {
       throw new Error(
-        "At least one namespace must be enabled for WalletConnect",
+        "At least one namespace must be enabled for WalletConnect"
       );
     }
 
@@ -191,7 +191,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
    */
   async switchChain(
     provider: WalletProvider,
-    chainOrId: string | SwitchableChain,
+    chainOrId: string | SwitchableChain
   ): Promise<void> {
     if (provider.chainInfo.namespace !== Chain.Ethereum) {
       throw new Error("Only EVM wallets support chain switching");
@@ -208,8 +208,8 @@ export class WalletConnectWallet implements WalletConnectInterface {
     if (!this.ethereumNamespaces.includes(caip)) {
       throw new Error(
         `Unsupported chain ${caip}. Supported chains: ${this.ethereumNamespaces.join(
-          ", ",
-        )}. If you’d like to support ${caip}, add it to the \`ethereumNamespaces\` in your WalletConnect config.`,
+          ", "
+        )}. If you’d like to support ${caip}, add it to the \`ethereumNamespaces\` in your WalletConnect config.`
       );
     }
 
@@ -222,7 +222,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
       this.ethChain = caip;
     } catch (err: any) {
       throw new Error(
-        `Failed to switch chain: ${err.message || err.toString()}`,
+        `Failed to switch chain: ${err.message || err.toString()}`
       );
     }
   }
@@ -251,7 +251,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
   async sign(
     payload: string,
     provider: WalletProvider,
-    intent: SignIntent,
+    intent: SignIntent
   ): Promise<string> {
     const session = await this.ensureSession();
 
@@ -289,7 +289,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
           return (await this.client.request(
             this.ethChain,
             "eth_sendTransaction",
-            [txParams],
+            [txParams]
           )) as string;
         default:
           throw new Error(`Unsupported Ethereum intent: ${intent}`);
@@ -312,14 +312,14 @@ export class WalletConnectWallet implements WalletConnectInterface {
             {
               pubkey: address,
               message: msgB58,
-            },
+            }
           );
           return uint8ArrayToHexString(bs58.decode(sigB58));
         }
         case SignIntent.SignTransaction: {
           const txBytes = uint8ArrayFromHexString(payload);
           const txBase64 = stringToBase64urlString(
-            String.fromCharCode(...txBytes),
+            String.fromCharCode(...txBytes)
           );
           const { signature: sigB58 } = await this.client.request(
             this.solChain,
@@ -327,14 +327,14 @@ export class WalletConnectWallet implements WalletConnectInterface {
             {
               feePayer: address,
               transaction: txBase64,
-            },
+            }
           );
           return uint8ArrayToHexString(bs58.decode(sigB58));
         }
         case SignIntent.SignAndSendTransaction: {
           const txBytes = uint8ArrayFromHexString(payload);
           const txBase64 = stringToBase64urlString(
-            String.fromCharCode(...txBytes),
+            String.fromCharCode(...txBytes)
           );
           const sigB58 = await this.client.request(
             this.solChain,
@@ -343,7 +343,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
               feePayer: address,
               transaction: txBase64,
               options: { skipPreflight: false },
-            },
+            }
           );
           return uint8ArrayToHexString(bs58.decode(sigB58));
         }
@@ -478,7 +478,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
    */
   private async buildEthProvider(
     session: SessionTypes.Struct | null,
-    info: WalletProviderInfo,
+    info: WalletProviderInfo
   ): Promise<WalletProvider> {
     const raw = session?.namespaces.eip155?.accounts?.[0] ?? "";
     const address = raw.split(":")[2];
@@ -512,7 +512,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
    */
   private buildSolProvider(
     session: SessionTypes.Struct | null,
-    info: WalletProviderInfo,
+    info: WalletProviderInfo
   ): WalletProvider {
     const raw = session?.namespaces.solana?.accounts?.[0] ?? "";
     const address = raw.split(":")[2];
@@ -594,7 +594,7 @@ function hasConnectedAccounts(session: SessionTypes.Struct | null): boolean {
  * @returns The connected EVM address, or `undefined` if none.
  */
 function getConnectedEthereum(
-  session: SessionTypes.Struct | null,
+  session: SessionTypes.Struct | null
 ): string | undefined {
   const acc = session?.namespaces.eip155?.accounts?.[0];
   return acc ? acc.split(":")[2] : undefined;
@@ -610,7 +610,7 @@ function getConnectedEthereum(
  * @returns The connected Solana address (base58), or `undefined` if none.
  */
 function getConnectedSolana(
-  session: SessionTypes.Struct | null,
+  session: SessionTypes.Struct | null
 ): string | undefined {
   const acc = session?.namespaces.solana?.accounts?.[0];
   return acc ? acc.split(":")[2] : undefined;

@@ -1,6 +1,6 @@
 import "./PhoneInput.module.css";
 import {
-  BaseTextFieldProps,
+  type BaseTextFieldProps,
   InputAdornment,
   MenuItem,
   Select,
@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  CountryIso2,
+  type CountryIso2,
   defaultCountries,
   parseCountry,
   usePhoneInput,
@@ -254,7 +254,7 @@ export const MuiPhone: React.FC<MUIPhoneProps> = ({
               onChange={(e) => setCountry(e.target.value as CountryIso2)}
               renderValue={(value) => {
                 const selectedCountry = countries.find(
-                  (c) => parseCountry(c).iso2 === value,
+                  (c) => parseCountry(c).iso2 === value
                 );
                 const parsedCountry = selectedCountry
                   ? parseCountry(selectedCountry)

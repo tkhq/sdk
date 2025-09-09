@@ -4,5 +4,5 @@
     "noEmit": true,
     "tsBuildInfoFile": "./.cache/.tsbuildinfo"
   },
-  "include": ["**/*.js"]
+  "include": ["**/*.js", "global.d.ts"]
 }

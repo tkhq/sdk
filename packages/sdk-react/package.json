@@ -52,10 +52,10 @@
   "dependencies": {
     "@emotion/react": "11.13.3",
     "@emotion/styled": "11.13.0",
-    "@icons-pack/react-simple-icons": "10.1.0",
-    "@mui/icons-material": "6.1.5",
-    "@mui/material": "6.1.5",
-    "@noble/hashes": "1.4.0",
+    "@icons-pack/react-simple-icons": "13.7.0",
+    "@mui/icons-material": "7.3.2",
+    "@mui/material": "7.3.2",
+    "@noble/hashes": "1.8.0",
     "@react-oauth/google": "0.12.1",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
@@ -63,16 +63,16 @@
     "@turnkey/sdk-types": "workspace:*",
     "@turnkey/wallet-stamper": "workspace:*",
     "jwt-decode": "4.0.0",
-    "libphonenumber-js": "1.11.14",
+    "libphonenumber-js": "1.12.15",
     "next": "15.2.3",
     "react-apple-login": "1.1.6",
-    "react-international-phone": "4.3.0",
+    "react-international-phone": "4.6.0",
     "usehooks-ts": "3.1.1"
   },
   "peerDependencies": {
+    "@types/react": ">=18.2.0 <20",
     "react": "^18.3.1 || ^19.0.0",
-    "react-dom": "^18.3.1 || ^19.0.0",
-    "@types/react": ">=18.2.0 <20"
+    "react-dom": "^18.3.1 || ^19.0.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
@@ -80,9 +80,9 @@
     }
   },
   "devDependencies": {
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
-    "postcss-import": "16.1.0"
+    "postcss-import": "16.1.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   },
   "engines": {
     "node": ">=18.0.0"

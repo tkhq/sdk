@@ -34,7 +34,7 @@ type ConfigContextValue = {
   hardwareAccelerationEnabled: boolean;
   setConfig: (
     newConfig: Partial<TurnkeyProviderConfig>,
-    demoConfig?: Partial<DemoConfig>,
+    demoConfig?: Partial<DemoConfig>
   ) => void;
 };
 
@@ -70,7 +70,7 @@ export function TurnkeyConfigProvider({
   const panelWidth = 384;
   const setConfig = (
     newConfig: Partial<TurnkeyProviderConfig>,
-    demoConfig?: Partial<DemoConfig>,
+    demoConfig?: Partial<DemoConfig>
   ) => {
     setConfigState((prev) => ({ ...prev, ...newConfig }));
     setDemoConfig((prev) => ({ ...prev, ...demoConfig }));
@@ -125,7 +125,7 @@ export function TurnkeyConfigProvider({
       <div
         className={clsx(
           "transition-colors overflow-hidden h-full absolute inset-0 flex dark:bg-panel-background-dark bg-panel-background-light text-text-light dark:text-text-dark",
-          config.ui?.darkMode && "dark",
+          config.ui?.darkMode && "dark"
         )}
       >
         {/* Sliding Config Panel */}
@@ -174,7 +174,7 @@ export function TurnkeyConfigProvider({
           onClick={() => setPanelOpen(!panelOpen)}
           className={clsx(
             "fixed z-10 cursor-pointer top-1/2 -translate-y-1/2 w-[80px] h-[250px] rounded-r-xl bg-panel-background-light dark:bg-panel-background-dark hidden sm:flex flex-col items-center justify-center transition-all ease-out",
-            panelOpen ? " -translate-x-full" : "",
+            panelOpen ? " -translate-x-full" : ""
           )}
         >
           <div className="flex flex-row items-center justify-center gap-3 transform -rotate-90 text-xl font-medium text-center w-[250px] whitespace-pre">
