@@ -503,15 +503,20 @@ export const encryptToEnclave = async (
  * when enabling authentication with an OAuth 2.0 provider
  *
  * @param client_secret The client secret issued by the OAuth 2.0 provider
+ * @param dangerouslyOverrideTlsFetcherPublicKey *(optional)* Hex-encoded
+ *              uncompressed P-256 public key to encrypt to (use only in
+ *              tests/dev environment).  Defaults to the production TLS Fetcher key.
  * @returns {Promise<string>} A hex encoded borsh serialized envelope with the encrypted client
  *                            secret meant to be passed to the CreateOauth2Credential Activity
  */
 export const encryptOauth2ClientSecret = async (
   client_secret: string,
+  dangerouslyOverrideTlsFetcherPublicKey?: string,
 ): Promise<string> => {
   return uint8ArrayToHexString(
     await encryptToEnclave(
-      PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
+      dangerouslyOverrideTlsFetcherPublicKey ??
+        PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
       client_secret,
     ),
   );
