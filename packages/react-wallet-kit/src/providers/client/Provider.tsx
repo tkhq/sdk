@@ -171,7 +171,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
   >(undefined);
-  const { pushPage, closeModal } = useModal();
+  const { isMobile, pushPage, closeModal } = useModal();
 
   const completeRedirectOauth = async () => {
     // Check for either hash or search parameters that could indicate an OAuth redirect
@@ -564,7 +564,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ...config.auth?.oauthConfig,
           ...resolvedClientIds,
           oauthRedirectUri: redirectUrl,
-          openOauthInPage: config.auth?.oauthConfig?.openOauthInPage,
+
+          // on mobile we default to true since many mobile browsers
+          // (e.g. Safari) block popups
+          openOauthInPage: isMobile
+            ? true
+            : config.auth?.oauthConfig?.openOauthInPage,
         },
         sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
         methodOrder,

@@ -73,7 +73,7 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       xClientId?: string;
       /** client ID for Discord OAuth. */
       discordClientId?: string;
-      /** whether to open OAuth in the same page. */
+      /** whether to open OAuth in the same page. Always true on mobile. */
       openOauthInPage?: boolean;
     };
     /** session expiration time in seconds. */
