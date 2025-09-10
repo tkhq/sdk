@@ -1,5 +1,16 @@
 # @turnkey/telegram-cloud-storage-stamper
 
+## 2.1.0
+
+### Minor Changes
+
+- [#677](https://github.com/tkhq/sdk/pull/677) [`06347ad`](https://github.com/tkhq/sdk/commit/06347adfa08fb0867c350e43821d0fed06c49624) Author [@amircheikh](https://github.com/amircheikh) - SDK beta release @turnkey/react-wallet-kit @turnkey/core
+
+### Patch Changes
+
+- Updated dependencies [[`06347ad`](https://github.com/tkhq/sdk/commit/06347adfa08fb0867c350e43821d0fed06c49624)]:
+  - @turnkey/api-key-stamper@0.5.0
+
 ## 2.1.0-beta.6
 
 ### Patch Changes
