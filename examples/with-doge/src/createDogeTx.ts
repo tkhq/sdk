@@ -25,7 +25,7 @@ type UTXO = { txid: string; vout: number; valueSats: number };
 const dogeTestnet: bitcoin.networks.Network = {
   // Prefix added when signing arbitrary messages (not used for tx signatures)
   messagePrefix: "\x19Dogecoin Signed Message:\n",
-  //  // Dogecoin doesn’t use bech32 addresses (no native segwit), so disable it
+  // Dogecoin doesn’t use bech32 addresses (no native segwit), so disable it
   bech32: undefined as any,
   // BIP32 HD wallet version bytes (testnet standard: same as Bitcoin testnet)
   // Used when deriving extended keys (xpub/xprv) for testnet
