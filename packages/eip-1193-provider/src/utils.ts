@@ -1,8 +1,8 @@
 import {
-  AddEthereumChainParameter,
-  Chain,
-  RpcTransactionRequest,
-  TransactionSerializable,
+  type AddEthereumChainParameter,
+  type Chain,
+  type RpcTransactionRequest,
+  type TransactionSerializable,
   serializeTransaction,
 } from "viem";
 

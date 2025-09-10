@@ -1,12 +1,18 @@
 "use client";
 
-import { ReactNode, createContext, useState, useEffect, useRef } from "react";
+import {
+  type ReactNode,
+  createContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import {
   Turnkey,
   TurnkeyIframeClient,
   TurnkeyIndexedDbClient,
   TurnkeyPasskeyClient,
-  TurnkeySDKBrowserConfig,
+  type TurnkeySDKBrowserConfig,
   TurnkeyBrowserClient,
   TurnkeyWalletClient,
   AuthClient,

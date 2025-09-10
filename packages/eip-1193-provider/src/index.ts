@@ -10,7 +10,7 @@ import {
   MethodNotSupportedRpcError,
   ProviderDisconnectedError,
   ChainDisconnectedError,
-  Hex,
+  type Hex,
 } from "viem";
 import { getAddress, getHttpRpcClient, hashTypedData } from "viem/utils";
 
@@ -26,7 +26,7 @@ import { signMessage, signTransaction, turnkeyIsDisconnected } from "./turnkey";
 import { ChainIdMismatchError, UnrecognizedChainError } from "./errors";
 import { VERSION } from "./version";
 
-export { TurnkeyEIP1193Provider };
+export type { TurnkeyEIP1193Provider };
 
 export const createEIP1193Provider = async (
   options: TurnkeyEIP1193ProviderOptions,
@@ -225,7 +225,7 @@ export const createEIP1193Provider = async (
           eventEmitter.emit("chainChanged", { chainId: activeChain.chainId });
           return null;
         }
-        // @ts-expect-error fall through expected
+
         case "eth_sendTransaction": {
           const [transaction] = params as WalletRpcSchema[7]["Parameters"];
           const signedTransaction = await request({
@@ -273,7 +273,7 @@ export const createEIP1193Provider = async (
         case "eth_newFilter":
         case "eth_newPendingTransactionFilter":
         case "eth_syncing":
-        // @ts-expect-error fall through expected
+
         case "eth_uninstallFilter":
           const {
             rpcUrls: [rpcUrl],

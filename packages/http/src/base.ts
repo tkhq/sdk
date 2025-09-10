@@ -4,7 +4,7 @@ import { getBrowserConfig, getConfig } from "./config";
 import { stringToBase64urlString } from "@turnkey/encoding";
 import {
   getWebAuthnAssertion,
-  TurnkeyCredentialRequestOptions,
+  type TurnkeyCredentialRequestOptions,
 } from "./webauthn";
 import type { TurnkeyClient } from ".";
 

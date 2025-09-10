@@ -1,6 +1,10 @@
 import type { TurnkeyClient } from ".";
 import { PublicApiService as TurnkeyApi } from "./__generated__/barrel";
-import { TActivity, TActivityResponse, TurnkeyActivityError } from "./shared";
+import {
+  type TActivity,
+  type TActivityResponse,
+  TurnkeyActivityError,
+} from "./shared";
 
 const DEFAULT_REFRESH_INTERVAL_MS = 500;
 

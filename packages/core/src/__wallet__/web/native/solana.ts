@@ -9,10 +9,10 @@ import {
 import {
   Chain,
   SignIntent,
-  SolanaWalletInterface,
+  type SolanaWalletInterface,
   WalletInterfaceType,
-  WalletProvider,
-  WalletRpcProvider,
+  type WalletProvider,
+  type WalletRpcProvider,
 } from "@types";
 
 /**

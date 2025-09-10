@@ -1,9 +1,9 @@
 import { CrossPlatformWalletStamper } from "../stamper";
 import { CrossPlatformWalletConnector } from "../connector";
 import {
-  TWalletManagerConfig,
-  WalletInterface,
-  WalletProvider,
+  type TWalletManagerConfig,
+  type WalletInterface,
+  type WalletProvider,
   WalletInterfaceType,
   Chain,
 } from "@types";

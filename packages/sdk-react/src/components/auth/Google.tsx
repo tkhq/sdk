@@ -68,7 +68,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
         const publicKey = await indexedDbClient?.getPublicKey();
         if (!publicKey) return;
 
-        const nonce = bytesToHex(sha256(publicKey));
+        const nonce = bytesToHex(sha256(new TextEncoder().encode(publicKey)));
         const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!.replace(
           /\/$/,
           "",
@@ -104,7 +104,7 @@ const GoogleAuthButton: React.FC<GoogleAuthButtonProps> = ({
         const publicKey = await indexedDbClient?.getPublicKey();
         if (!publicKey) return;
 
-        const nonce = bytesToHex(sha256(publicKey));
+        const nonce = bytesToHex(sha256(new TextEncoder().encode(publicKey)));
         const redirectURI = process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI!.replace(
           /\/$/,
           "",

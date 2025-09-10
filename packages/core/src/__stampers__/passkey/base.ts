@@ -5,7 +5,7 @@ import {
   base64StringToBase64UrlEncodedString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
-import { getWebAuthnAttestation, TurnkeyApiTypes } from "@turnkey/http";
+import { getWebAuthnAttestation, type TurnkeyApiTypes } from "@turnkey/http";
 import { v4 as uuidv4 } from "uuid";
 
 let PasskeyStamperModule: typeof import("@turnkey/react-native-passkey-stamper");

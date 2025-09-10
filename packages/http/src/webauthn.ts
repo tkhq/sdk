@@ -65,9 +65,8 @@ async function getCredentialRequestOptions(
 async function getChallengeFromPayload(payload: string): Promise<Uint8Array> {
   const messageBuffer = new TextEncoder().encode(payload);
   const hashBuffer = await crypto.subtle.digest("SHA-256", messageBuffer);
-  const hexString = Buffer.from(hashBuffer).toString("hex");
-  const hexBuffer = Buffer.from(hexString, "utf8");
-  return new Uint8Array(hexBuffer);
+  // Ensure hashBuffer is an ArrayBuffer, and create a Uint8Array from it
+  return new Uint8Array(hashBuffer as ArrayBuffer);
 }
 
 /* Pulled from https://www.w3.org/TR/webauthn-2/#enum-transport */

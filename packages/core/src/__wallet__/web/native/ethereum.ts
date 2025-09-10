@@ -1,22 +1,22 @@
 import {
   recoverPublicKey,
   hashMessage,
-  Hex,
-  Address,
-  EIP1193Provider,
+  type Hex,
+  type Address,
+  type EIP1193Provider,
   toHex,
 } from "viem";
 import { Transaction } from "ethers";
 import { compressRawPublicKey } from "@turnkey/crypto";
 import {
   Chain,
-  EthereumWalletInterface,
+  type EthereumWalletInterface,
   SignIntent,
-  SwitchableChain,
+  type SwitchableChain,
   WalletInterfaceType,
-  WalletProvider,
-  WalletProviderInfo,
-  WalletRpcProvider,
+  type WalletProvider,
+  type WalletProviderInfo,
+  type WalletRpcProvider,
 } from "@types";
 import {
   uint8ArrayFromHexString,

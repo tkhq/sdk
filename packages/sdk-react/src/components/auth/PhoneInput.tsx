@@ -1,6 +1,6 @@
 import "./PhoneInput.module.css";
 import {
-  BaseTextFieldProps,
+  type BaseTextFieldProps,
   InputAdornment,
   MenuItem,
   Select,
@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  CountryIso2,
+  type CountryIso2,
   defaultCountries,
   parseCountry,
   usePhoneInput,

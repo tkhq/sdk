@@ -23,11 +23,11 @@
     "@turnkey/webauthn-stamper": "workspace:*",
     "axios": "1.8.2",
     "encoding": "0.1.13",
-    "eslint": "8.56.0",
-    "eslint-config-next": "14.2.25",
+    "eslint": "9.35.0",
+    "eslint-config-next": "15.5.2",
     "esm": "3.2.25",
     "install": "0.13.0",
-    "next": "14.2.25",
+    "next": "15.5.2",
     "npm": "9.7.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -35,9 +35,9 @@
     "typescript": "5.4.3"
   },
   "devDependencies": {
-    "@solana/web3.js": "1.95.8",
+    "@solana/web3.js": "1.98.4",
     "@types/node": "20.3.1",
     "@types/react": "18.2.25",
-    "@types/react-dom": "18.2.6"
+    "@types/react-dom": "18.3.7"
   }
 }

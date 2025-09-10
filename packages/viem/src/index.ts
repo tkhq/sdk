@@ -9,9 +9,9 @@ import {
   serializeTypedData,
 } from "viem";
 import {
-  SignAuthorizationReturnType,
+  type SignAuthorizationReturnType,
   toAccount,
-  SignAuthorizationParameters,
+  type SignAuthorizationParameters,
 } from "viem/accounts";
 import type {
   Hex,
@@ -28,9 +28,9 @@ import {
   assertNonNull,
   assertActivityCompleted,
   isHttpClient,
-  TActivityStatus,
-  TActivityId,
-  TSignature,
+  type TActivityStatus,
+  type TActivityId,
+  type TSignature,
   TurnkeyActivityError as TurnkeyHttpActivityError,
   TurnkeyActivityConsensusNeededError as TurnkeyHttpActivityConsensusNeededError,
   TurnkeyClient,

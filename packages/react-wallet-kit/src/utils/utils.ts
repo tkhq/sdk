@@ -1,13 +1,13 @@
 import {
   AuthAction,
-  BaseAuthResult,
-  Session,
+  type BaseAuthResult,
+  type Session,
   TurnkeyError,
   TurnkeyErrorCodes,
 } from "@turnkey/sdk-types";
 import type { TurnkeyCallbacks } from "../types/base";
 import { useCallback, useRef, useState, useEffect } from "react";
-import { WalletInterfaceType, WalletProvider } from "@turnkey/core";
+import { WalletInterfaceType, type WalletProvider } from "@turnkey/core";
 
 export const DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize";
 export const X_AUTH_URL = "https://x.com/i/oauth2/authorize";

@@ -30,20 +30,26 @@ import {
 } from "../../utils/timers";
 import {
   Chain,
-  CreateSubOrgParams,
+  type CreateSubOrgParams,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ExportBundle,
+  type ExportBundle,
   getAuthProxyConfig,
   OtpType,
   StamperType,
-  SwitchableChain,
+  type SwitchableChain,
   TurnkeyClient,
-  Wallet,
-  WalletAccount,
+  type Wallet,
+  type WalletAccount,
   WalletInterfaceType,
-  WalletProvider,
+  type WalletProvider,
 } from "@turnkey/core";
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
@@ -65,11 +71,11 @@ import {
   type v1HashFunction,
   type v1Curve,
   type v1PrivateKey,
-  BaseAuthResult,
-  WalletAuthResult,
+  type BaseAuthResult,
+  type WalletAuthResult,
   AuthAction,
-  PasskeyAuthResult,
-  v1CreatePolicyIntentV3,
+  type PasskeyAuthResult,
+  type v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {

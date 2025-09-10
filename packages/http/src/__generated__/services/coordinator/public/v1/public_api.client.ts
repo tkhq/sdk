@@ -2,10 +2,10 @@
 
 import {
   fetch,
-  GrpcStatus,
-  THttpConfig,
-  TSignedRequest,
-  TStamper,
+  type GrpcStatus,
+  type THttpConfig,
+  type TSignedRequest,
+  type TStamper,
   TurnkeyRequestError,
 } from "../../../../../base";
 import { VERSION } from "../../../../../version";

@@ -12,20 +12,20 @@ import {
   type v1WalletAccount,
   TurnkeyError,
   TurnkeyErrorCodes,
-  v1SignRawPayloadResult,
-  v1TransactionType,
-  ProxyTGetWalletKitConfigResponse,
-  v1User,
-  v1CreatePolicyIntentV3,
+  type v1SignRawPayloadResult,
+  type v1TransactionType,
+  type ProxyTGetWalletKitConfigResponse,
+  type v1User,
+  type v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
   type WalletProvider,
   Chain,
-  GrpcStatus,
+  type GrpcStatus,
   TurnkeyRequestError,
-  EvmChainInfo,
-  SolanaChainInfo,
+  type EvmChainInfo,
+  type SolanaChainInfo,
   Curve,
 } from "./__types__/base";
 import { bs58 } from "@turnkey/encoding";

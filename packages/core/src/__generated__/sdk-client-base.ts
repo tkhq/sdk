@@ -2,17 +2,17 @@
 
 import {
   TERMINAL_ACTIVITY_STATUSES,
-  TActivityResponse,
-  TActivityStatus,
-  TSignedRequest,
+  type TActivityResponse,
+  type TActivityStatus,
+  type TSignedRequest,
 } from "@turnkey/http";
 
 import {
-  GrpcStatus,
-  TStamper,
+  type GrpcStatus,
+  type TStamper,
   TurnkeyRequestError,
-  TurnkeyHttpClientConfig,
-  StorageBase,
+  type TurnkeyHttpClientConfig,
+  type StorageBase,
 } from "../__types__/base";
 
 import { VERSION } from "../__generated__/version";

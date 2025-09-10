@@ -1,7 +1,7 @@
 import {
   ApiKeyStamper,
   signWithApiKey,
-  TApiKeyStamperConfig,
+  type TApiKeyStamperConfig,
 } from "@turnkey/api-key-stamper";
 
 import {

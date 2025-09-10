@@ -3,7 +3,7 @@
 import {
   request,
   signedRequest,
-  TurnkeyCredentialRequestOptions,
+  type TurnkeyCredentialRequestOptions,
 } from "../../../../../base";
 import type { operations } from "./public_api.types";
 

@@ -1,9 +1,9 @@
 import {
   SignIntent,
-  WalletProvider,
-  WalletInterface,
+  type WalletProvider,
+  type WalletInterface,
   WalletInterfaceType,
-  SwitchableChain,
+  type SwitchableChain,
   Chain,
 } from "@types";
 

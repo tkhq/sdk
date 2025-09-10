@@ -9,9 +9,9 @@ import {
   type GrpcStatus,
   type TurnkeySDKBrowserConfig,
   TurnkeyRequestError,
-  Stamper,
-  IframeClientParams,
-  PasskeyClientParams,
+  type Stamper,
+  type IframeClientParams,
+  type PasskeyClientParams,
 } from "./__types__/base";
 
 import { StorageKeys, getStorageValue, removeStorageValue } from "@storage";

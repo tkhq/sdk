@@ -9,12 +9,12 @@ import { compressRawPublicKey } from "@turnkey/crypto";
 import {
   Chain,
   WalletInterfaceType,
-  WalletProvider,
-  WalletProviderInfo,
+  type WalletProvider,
+  type WalletProviderInfo,
   SignIntent,
-  WalletConnectProvider,
-  WalletConnectInterface,
-  SwitchableChain,
+  type WalletConnectProvider,
+  type WalletConnectInterface,
+  type SwitchableChain,
 } from "@types";
 import type { WalletConnectClient } from "./client";
 import type { SessionTypes } from "@walletconnect/types";

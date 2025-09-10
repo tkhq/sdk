@@ -1,4 +1,4 @@
-import { Hex, ProviderRpcError, hexToNumber } from "viem";
+import { type Hex, ProviderRpcError, hexToNumber } from "viem";
 import { PROVIDER_ERROR_CODE, PROVIDER_ERROR_MESSAGE } from "./constants";
 
 // https://docs.metamask.io/wallet/reference/wallet_switchethereumchain/

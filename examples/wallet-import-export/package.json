@@ -11,16 +11,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@turnkey/sdk-server": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
     "axios": "1.8.2",
     "classnames": "2.3.2",
     "encoding": "0.1.13",
-    "eslint": "8.56.0",
-    "eslint-config-next": "14.2.25",
+    "eslint": "9.35.0",
+    "eslint-config-next": "15.5.2",
     "esm": "3.2.25",
     "install": "0.13.0",
-    "next": "14.2.25",
+    "next": "15.5.2",
     "npm": "9.7.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@types/node": "20.3.1",
-    "@types/react": "18.2.14",
-    "@types/react-dom": "18.2.6"
+    "@types/react": "18.3.24",
+    "@types/react-dom": "18.3.7"
   }
 }

@@ -1,7 +1,7 @@
 import {
   Passkey,
-  PasskeyCreateResult,
-  PasskeyGetResult,
+  type PasskeyCreateResult,
+  type PasskeyGetResult,
 } from "react-native-passkey";
 import type { TurnkeyApiTypes } from "@turnkey/http";
 import { base64StringToBase64UrlEncodedString as base64Tobase64url } from "@turnkey/encoding";

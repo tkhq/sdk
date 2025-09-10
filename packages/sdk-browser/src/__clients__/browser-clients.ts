@@ -3,19 +3,19 @@ import type { IframeStamper, KeyFormat } from "@turnkey/iframe-stamper";
 import type { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import type { IndexedDbStamper } from "@turnkey/indexed-db-stamper";
 import { getWebAuthnAttestation } from "@turnkey/http";
-import { Session, SessionType } from "@turnkey/sdk-types";
+import { type Session, SessionType } from "@turnkey/sdk-types";
 
 import type * as SdkApiTypes from "../__generated__/sdk_api_types";
 import { TurnkeyBaseClient } from "../__clients__/base-client";
 
 import {
   AuthClient,
-  TurnkeySDKClientConfig,
-  TurnkeyWalletClientConfig,
-  LoginWithBundleParams,
-  LoginWithPasskeyParams,
-  LoginWithWalletParams,
-  RefreshSessionParams,
+  type TurnkeySDKClientConfig,
+  type TurnkeyWalletClientConfig,
+  type LoginWithBundleParams,
+  type LoginWithPasskeyParams,
+  type LoginWithWalletParams,
+  type RefreshSessionParams,
 } from "@types";
 
 import { generateRandomBuffer, base64UrlEncode } from "@utils";

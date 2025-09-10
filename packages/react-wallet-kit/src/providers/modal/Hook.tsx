@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext } from "react";
-import { ModalContext, ModalContextType } from "./Provider";
+import { ModalContext, type ModalContextType } from "./Provider";
 
 /** @internal */
 export const useModal = (): ModalContextType => {

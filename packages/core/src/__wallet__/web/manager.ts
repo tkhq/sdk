@@ -3,9 +3,9 @@ import { CrossPlatformWalletConnector } from "../connector";
 import { EthereumWallet } from "./native/ethereum";
 import { SolanaWallet } from "./native/solana";
 import {
-  TWalletManagerConfig,
-  WalletInterface,
-  WalletProvider,
+  type TWalletManagerConfig,
+  type WalletInterface,
+  type WalletProvider,
   WalletInterfaceType,
   Chain,
 } from "@types";

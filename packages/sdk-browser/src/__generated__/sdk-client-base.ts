@@ -2,18 +2,18 @@
 
 import {
   TERMINAL_ACTIVITY_STATUSES,
-  TActivityResponse,
-  TActivityStatus,
-  TSignedRequest,
+  type TActivityResponse,
+  type TActivityStatus,
+  type TSignedRequest,
 } from "@turnkey/http";
 
 import type { definitions } from "../__inputs__/public_api.types";
 
 import {
-  GrpcStatus,
-  TStamper,
+  type GrpcStatus,
+  type TStamper,
   TurnkeyRequestError,
-  TurnkeySDKClientConfig,
+  type TurnkeySDKClientConfig,
 } from "../__types__/base";
 
 import { VERSION } from "../__generated__/version";

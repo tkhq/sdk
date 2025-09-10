@@ -124,11 +124,11 @@ const generateSDKClientFromSwagger = async (
   const imports = [];
 
   imports.push(
-    'import { TERMINAL_ACTIVITY_STATUSES, TActivityResponse, TActivityStatus, TSignedRequest } from "@turnkey/http";',
+    'import { TERMINAL_ACTIVITY_STATUSES, type TActivityResponse, type TActivityStatus, type TSignedRequest } from "@turnkey/http";',
   );
 
   imports.push(
-    'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeyHttpClientConfig, StorageBase } from "../__types__/base";',
+    'import { type GrpcStatus, type TStamper, TurnkeyRequestError, type TurnkeyHttpClientConfig, type StorageBase } from "../__types__/base";',
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
