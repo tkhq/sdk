@@ -1,0 +1,42 @@
+---
+title: "fetchOrCreatePolicies()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Fetches each requested policy if it exists, or creates it if it does not.
+
+<ul>
+  <li>This function is idempotent: multiple calls with the same policies will not create duplicates.</li>
+  <li>For every policy in the request:</li>
+  <li>If it already exists, it is returned with its ``policyId``.</li>
+  <li>If it does not exist, it is created and returned with its new ``policyId``.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="policies" type='v1CreatePolicyIntentV3[]' required={true}>
+the list of policies to fetch or create.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="object & v1CreatePolicyIntentV3[]" required={true}>
+  A promise that resolves to an array of objects, each containing:
+         - `policyId`: the unique identifier of the policy.
+         - `policyName`: human-readable name of the policy.
+         - `effect`: the instruction to DENY or ALLOW an activity.
+         - `condition`: (optional) the condition expression that triggers the effect.
+         - `consensus`: (optional) the consensus expression that triggers the effect.
+         - `notes`: (optional) developer notes or description for the policy.
+</ResponseField>
