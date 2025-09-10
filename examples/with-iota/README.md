@@ -2,7 +2,7 @@
 
 This is a simple example that walks through the following:
 
-- Construction of a iota transaction sending the funds out on mainnet
+- Construction of an IOTA transaction sending the funds out on mainnet
 
 ## Getting started
 
@@ -43,7 +43,7 @@ Now open `.env.local` and add the missing environment variables:
 
 ### 3/ Running the script
 
-Note that this example is currently set up with iota mainnet. You will need a balance to run this example
+Note that this example is currently set up with IOTA mainnet. You will need a balance to run this example.
 
 ```bash
 $ pnpm start
@@ -54,7 +54,7 @@ You should see output similar to the following:
 ```
 ? Recipient address: (<recipient_iota_address>)
 
-Sending 1000 MIOTA (0.000001 IOTA) to <recipient_iota_address>
+Sending 1000000 Nanos (1 IOTA) to <recipient_iota_address>
 
 Transaction Hash: <iota_transaction_hash>
 ```
