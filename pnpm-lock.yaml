@@ -983,6 +983,24 @@ importers:
         specifier: ^16.0.3
         version: 16.5.0
 
+  examples/with-doge:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      axios:
+        specifier: '>1.8.2'
+        version: 1.9.0
+      bitcoinjs-lib:
+        specifier: 6.1.6
+        version: 6.1.6
+      dotenv:
+        specifier: 16.0.3
+        version: 16.0.3
+      path:
+        specifier: 0.12.7
+        version: 0.12.7
+
   examples/with-eip-1193-provider:
     dependencies:
       '@radix-ui/react-dialog':
@@ -8562,6 +8580,10 @@ packages:
   bitcoin-ops@1.4.1:
     resolution: {integrity: sha512-pef6gxZFztEhaE9RY9HmWVmiIHqCb2OyS4HPKkpc6CIiiOa3Qmuoylxc5P2EkU3w+5eTSifI9SEZC88idAIGow==}
 
+  bitcoinjs-lib@6.1.6:
+    resolution: {integrity: sha512-Fk8+Vc+e2rMoDU5gXkW9tD+313rhkm5h6N9HfZxXvYU9LedttVvmXKTgd9k5rsQJjkSfsv6XRM8uhJv94SrvcA==}
+    engines: {node: '>=8.0.0'}
+
   bitcoinjs-lib@6.1.7:
     resolution: {integrity: sha512-tlf/r2DGMbF7ky1MgUqXHzypYHakkEnm0SZP23CJKIqNY/5uNAnMbFhMJdhjrL/7anfb/U8+AlpdjPWjPnAalg==}
     engines: {node: '>=8.0.0'}
@@ -9337,6 +9359,10 @@ packages:
 
   dotenv@14.3.2:
     resolution: {integrity: sha512-vwEppIphpFdvaMCaHfCEv9IgwcxMljMw2TnAQBB4VWPvzXQLTb82jwmdOKzlEVUL3gNFT4l4TPKO+Bn+sqcrVQ==}
+    engines: {node: '>=12'}
+
+  dotenv@16.0.3:
+    resolution: {integrity: sha512-7GO6HghkA5fYG9TYnNxi14/7K9f5occMlp3zXAuSxn7CKCxt9xbNWG7yF8hTCSUchlfWSe3uLmlPfigevRItzQ==}
     engines: {node: '>=12'}
 
   dotenv@16.5.0:
@@ -24711,6 +24737,15 @@ snapshots:
 
   bitcoin-ops@1.4.1: {}
 
+  bitcoinjs-lib@6.1.6:
+    dependencies:
+      '@noble/hashes': 1.8.0
+      bech32: 2.0.0
+      bip174: 2.1.1
+      bs58check: 3.0.1
+      typeforce: 1.18.0
+      varuint-bitcoin: 1.1.2
+
   bitcoinjs-lib@6.1.7:
     dependencies:
       '@noble/hashes': 1.8.0
@@ -25591,6 +25626,8 @@ snapshots:
       tslib: 2.8.1
 
   dotenv@14.3.2: {}
+
+  dotenv@16.0.3: {}
 
   dotenv@16.5.0: {}
 
