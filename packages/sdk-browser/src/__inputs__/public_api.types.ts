@@ -3372,8 +3372,6 @@ export type definitions = {
      * @description Desired OTP code length (6–9).
      */
     otpLength?: number;
-    /** @description A map of OAuth 2.0 provider and their respective credential ID to use for the OAuth 2.0 authentication flow. */
-    oauth2ProviderCredentialIds?: { [key: string]: string };
   };
   v1UpdateAuthProxyConfigResult: {
     /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
@@ -3773,6 +3771,16 @@ export type definitions = {
      * @description List of enabled social login providers (e.g., 'apple', 'google', 'facebook')
      */
     enabledSocialProviders?: string[];
+    /**
+     * Oauth Client IDs
+     * @description Mapping of social login providers to their Oauth client IDs.
+     */
+    oauthClientIds?: { [key: string]: string };
+    /**
+     * Oauth Redirect URL
+     * @description Oauth redirect URL to be used for social login flows.
+     */
+    oauthRedirectUrl?: string;
   };
   v1WalletParams: {
     /** @description Human-readable name for a Wallet. */

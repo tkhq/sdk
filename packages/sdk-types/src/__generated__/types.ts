@@ -3175,8 +3175,6 @@ export type v1UpdateAuthProxyConfigIntent = {
   otpAlphanumeric?: boolean;
   /** Desired OTP code length (6–9). */
   otpLength?: number;
-  /** A map of OAuth 2.0 provider and their respective credential ID to use for the OAuth 2.0 authentication flow. */
-  oauth2ProviderCredentialIds?: Record<string, any>;
 };
 
 export type v1UpdateAuthProxyConfigResult = {
@@ -3602,6 +3600,10 @@ export type v1WalletAccountParams = {
 export type v1WalletKitSettingsParams = {
   /** List of enabled social login providers (e.g., 'apple', 'google', 'facebook') */
   enabledSocialProviders?: string[];
+  /** Mapping of social login providers to their Oauth client IDs. */
+  oauthClientIds?: Record<string, any>;
+  /** Oauth redirect URL to be used for social login flows. */
+  oauthRedirectUrl?: string;
 };
 
 export type v1WalletParams = {
@@ -5469,6 +5471,8 @@ export type ProxyTOAuth2AuthenticateBody = {
   codeVerifier: string;
   /** An optional nonce used by the client to prevent replay/substitution of an ID token */
   nonce?: string;
+  /** The client ID registered with the OAuth 2.0 provider */
+  clientId: string;
 };
 
 export type ProxyTOAuth2AuthenticateInput = {
@@ -5565,6 +5569,10 @@ export type ProxyTGetWalletKitConfigResponse = {
   sessionExpirationSeconds: string;
   /** The organization ID this configuration applies to */
   organizationId: string;
+  /** Mapping of social login providers to their OAuth client IDs. */
+  oauthClientIds?: Record<string, any>;
+  /** OAuth redirect URL to be used for social login flows. */
+  oauthRedirectUrl?: string;
 };
 
 export type ProxyTGetWalletKitConfigBody = {};

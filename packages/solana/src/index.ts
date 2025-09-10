@@ -1,4 +1,5 @@
 import { PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
+import { Buffer as NodeBuffer } from "buffer";
 import type { TurnkeySDKClientBase } from "@turnkey/core";
 import {
   assertNonNull,
@@ -9,6 +10,19 @@ import {
 } from "@turnkey/http";
 import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
 import type { TurnkeyServerClient, TurnkeyApiTypes } from "@turnkey/sdk-server";
+
+function hexToU8a(hex: string): Uint8Array {
+  if (hex.startsWith("0x")) hex = hex.slice(2);
+  const out = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < out.length; i++)
+    out[i] = parseInt(hex.substr(i * 2, 2), 16);
+  return out;
+}
+
+function u8aToBuffer(u8: Uint8Array): Buffer {
+  // Creates a Node Buffer that satisfies the intersection type
+  return NodeBuffer.from(u8.buffer, u8.byteOffset, u8.byteLength);
+}
 
 type TClient =
   | TurnkeyClient
@@ -34,7 +48,7 @@ export class TurnkeySigner {
   public async signAllTransactions(
     txs: (Transaction | VersionedTransaction)[],
     fromAddress: string,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<(Transaction | VersionedTransaction)[]> {
     const fromKey = new PublicKey(fromAddress);
 
@@ -43,11 +57,11 @@ export class TurnkeySigner {
     const signRawPayloadsResult = await this.signRawPayloads(
       messages,
       fromAddress,
-      organizationId,
+      organizationId
     );
 
     const signatures = signRawPayloadsResult?.signatures?.map(
-      (sig: TSignature) => `${sig?.r}${sig?.s}`,
+      (sig: TSignature) => `${sig?.r}${sig?.s}`
     );
 
     for (let i in txs) {
@@ -66,18 +80,27 @@ export class TurnkeySigner {
   public async addSignature(
     tx: Transaction | VersionedTransaction,
     fromAddress: string,
-    organizationId?: string,
+    organizationId?: string
   ) {
     const fromKey = new PublicKey(fromAddress);
     const messageToSign: Buffer = this.getMessageToSign(tx);
     const signRawPayloadResult = await this.signRawPayload(
       messageToSign.toString("hex"),
       fromAddress,
-      organizationId ?? this.organizationId,
+      organizationId ?? this.organizationId
     );
-    const signature = `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`;
 
-    tx.addSignature(fromKey, Buffer.from(signature, "hex"));
+    const sigHex = `${signRawPayloadResult.r}${signRawPayloadResult.s}`;
+
+    const sigU8 = hexToU8a(sigHex);
+
+    if ("version" in tx) {
+      // VersionedTransaction expects Uint8Array
+      tx.addSignature(fromKey, sigU8);
+    } else {
+      // Legacy Transaction expects Buffer & Uint8Array
+      tx.addSignature(fromKey, u8aToBuffer(sigU8));
+    }
   }
 
   /**
@@ -89,16 +112,16 @@ export class TurnkeySigner {
   public async signMessage(
     message: Uint8Array,
     fromAddress: string,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<Uint8Array> {
     const signRawPayloadResult = await this.signRawPayload(
       Buffer.from(message).toString("hex"),
       fromAddress,
-      organizationId,
+      organizationId
     );
     return Buffer.from(
       `${signRawPayloadResult?.r}${signRawPayloadResult?.s}`,
-      "hex",
+      "hex"
     );
   }
 
@@ -112,19 +135,19 @@ export class TurnkeySigner {
   public async signTransaction(
     tx: Transaction | VersionedTransaction,
     fromAddress: string,
-    organizationId?: string,
+    organizationId?: string
   ): Promise<Transaction | VersionedTransaction> {
     const payloadToSign = Buffer.from(
       tx.serialize({
         requireAllSignatures: false,
         verifySignatures: false,
-      }),
+      })
     ).toString("hex");
 
     const signedTransaction = await this.signTransactionImpl(
       payloadToSign,
       fromAddress,
-      organizationId,
+      organizationId
     );
 
     const decodedTransaction = Buffer.from(signedTransaction, "hex");
@@ -140,7 +163,7 @@ export class TurnkeySigner {
   private async signTransactionImpl(
     unsignedTransaction: string,
     signWith: string,
-    organizationId?: string,
+    organizationId?: string
   ) {
     if (isHttpClient(this.client)) {
       const response = await this.client.signTransaction({
@@ -159,7 +182,7 @@ export class TurnkeySigner {
       assertActivityCompleted(activity);
 
       return assertNonNull(
-        activity?.result?.signTransactionResult?.signedTransaction,
+        activity?.result?.signTransactionResult?.signedTransaction
       );
     } else {
       const { activity, signedTransaction } = await this.client.signTransaction(
@@ -168,11 +191,11 @@ export class TurnkeySigner {
           signWith,
           unsignedTransaction,
           type: "TRANSACTION_TYPE_SOLANA",
-        },
+        }
       );
 
       assertActivityCompleted(
-        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */
       );
 
       return assertNonNull(signedTransaction);
@@ -182,7 +205,7 @@ export class TurnkeySigner {
   private async signRawPayload(
     payload: string,
     signWith: string,
-    organizationId?: string,
+    organizationId?: string
   ) {
     if (isHttpClient(this.client)) {
       const response = await this.client.signRawPayload({
@@ -216,7 +239,7 @@ export class TurnkeySigner {
       });
 
       assertActivityCompleted(
-        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */
       );
 
       return assertNonNull({
@@ -230,7 +253,7 @@ export class TurnkeySigner {
   private async signRawPayloads(
     payloads: string[],
     signWith: string,
-    organizationId?: string,
+    organizationId?: string
   ) {
     if (isHttpClient(this.client)) {
       const response = await this.client.signRawPayloads({
@@ -264,7 +287,7 @@ export class TurnkeySigner {
       });
 
       assertActivityCompleted(
-        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
+        activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */
       );
 
       return assertNonNull({
@@ -284,7 +307,7 @@ export class TurnkeySigner {
       messageToSign = (tx as Transaction).serializeMessage();
     } else {
       messageToSign = Buffer.from(
-        (tx as VersionedTransaction).message.serialize(),
+        (tx as VersionedTransaction).message.serialize()
       );
     }
 
