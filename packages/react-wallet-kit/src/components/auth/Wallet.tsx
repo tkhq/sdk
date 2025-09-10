@@ -35,6 +35,7 @@ export function WalletAuthButton(props: WalletAuthButtonProps) {
   return (
     <div className="flex flex-col w-full">
       <ActionButton
+        name="wallet-auth-button"
         onClick={handleContinue}
         loading={isLoading}
         className="w-full text-inherit bg-button-light dark:bg-button-dark"
@@ -403,7 +404,7 @@ export interface WalletConnectScreenProps {
 export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const { provider, successPageDuration, onAction, onDisconnect } = props;
   const { pushPage, closeModal, isMobile } = useModal();
-  const { getWalletProviders } = useTurnkey();
+  const { fetchWalletProviders } = useTurnkey();
   const hasRan = useRef(false);
 
   const [walletConnectProvider, setWalletConnectProvider] =
@@ -445,7 +446,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
     setDisconnectError(false);
     try {
       await onDisconnect?.(walletConnectProvider ?? provider);
-      const newProviders = await getWalletProviders();
+      const newProviders = await fetchWalletProviders();
       setWalletConnectProvider(
         newProviders.find((p) => p.interfaceType === provider.interfaceType),
       );

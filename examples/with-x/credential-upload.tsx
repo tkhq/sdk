@@ -1,3 +1,9 @@
+import { webcrypto as nodeCrypto } from "node:crypto";
+if (!globalThis.crypto) {
+  // @ts-ignore
+  globalThis.crypto = nodeCrypto as unknown as Crypto;
+}
+
 import { encryptOauth2ClientSecret } from "@turnkey/crypto";
 import { Turnkey } from "@turnkey/sdk-server";
 import dotenv from "dotenv";

@@ -61,6 +61,7 @@ export function EmailInput(props: EmailInputProps) {
         )}
       >
         <Input
+          data-testid="email-input"
           type="email"
           placeholder="Enter your email"
           value={email}
@@ -75,6 +76,7 @@ export function EmailInput(props: EmailInputProps) {
             onClick={handleContinue}
             disabled={buttonDisabled}
             loading={loading}
+            name="email-continue-icon"
             className={clsx("absolute right-2 w-6 h-6", buttonClass)}
             spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
           />
@@ -87,6 +89,7 @@ export function EmailInput(props: EmailInputProps) {
           disabled={buttonDisabled}
           loading={loading}
           className={clsx("w-full", buttonClass)}
+          name="email-continue"
           spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         >
           Continue

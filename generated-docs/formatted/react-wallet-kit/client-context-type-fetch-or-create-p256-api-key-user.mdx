@@ -1,0 +1,45 @@
+---
+title: "fetchOrCreateP256ApiKeyUser()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>react-wallet-kit</code></p>
+
+<H3Bordered text="Overview" />
+
+Fetches an existing user by P-256 API key public key, or creates a new one if none exists.
+
+<ul>
+  <li>This function is idempotent: multiple calls with the same ``publicKey`` will always return the same user.</li>
+  <li>Attempts to find a user whose API keys include the given P-256 public key.</li>
+  <li>If a matching user is found, it is returned as-is.</li>
+  <li>If no matching user is found, a new user is created with the given public key as a P-256 API key.</li>
+</ul>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="params" type='object' required={true} path="params" >
+  <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="createParams" type='object' required={false}></NestedParam>
+    <Expandable title="createParams details">
+    <NestedParam parentKey="params.createParams" childKey="apiKeyName" type='string' required={false}>
+optional API key name to assign if creating a new API key (defaults to `public-key-user-${publicKey}`).
+</NestedParam>
+    <NestedParam parentKey="params.createParams" childKey="userName" type='string' required={false}>
+optional username to assign if creating a new user (defaults to `"Public Key User"`).
+</NestedParam>
+    </Expandable>
+    <NestedParam parentKey="params" childKey="publicKey" type='string' required={true}>
+the P-256 public key to use for lookup and creation.
+</NestedParam>
+  </Expandable>
+</ParamField>
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="v1User" required={true}>
+  A promise that resolves to the existing or newly created v1User.
+</ResponseField>

@@ -48,7 +48,7 @@ import {
 jest.mock("bs58", () => ({
   encode: jest.fn(() => "base58-encoded"),
 }));
-import bs58 from "bs58";
+import { bs58 } from "@turnkey/encoding";
 
 // For deterministic ETH behavior, mock the heavy crypto/EC parts.
 
@@ -572,7 +572,7 @@ describe("withTurnkeyErrorHandling", () => {
         {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customMessageByMessages: {
+          customErrorsByMessages: {
             ECONNREFUSED: {
               message: "Database unavailable",
               code: TurnkeyErrorCodes.INVALID_REQUEST,
@@ -612,13 +612,13 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(original), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customMessageByCodes: {
+          customErrorsByCodes: {
             [DEFAULT_CODE]: {
               message: "override via code",
               code: DEFAULT_CODE,
             },
           },
-          customMessageByMessages: {
+          customErrorsByMessages: {
             original: { message: "message-map-hit", code: DEFAULT_CODE },
           },
         }),
@@ -640,8 +640,8 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(original), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          // no customMessageByCodes hit
-          customMessageByMessages: {
+          // no customErrorByCodes hit
+          customErrorsByMessages: {
             specific: { message: "mapped by message", code: DEFAULT_CODE },
           },
         }),
@@ -681,7 +681,7 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(reqErr), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customMessageByMessages: {
+          customErrorsByMessages: {
             expired: {
               message: "Session expired, please re-auth",
               code: DEFAULT_CODE,
@@ -717,6 +717,37 @@ describe("withTurnkeyErrorHandling", () => {
     });
   });
 
+  it("multiple nested TurnkeyErrors", async () => {
+    const first = new TurnkeyError("first error", DEFAULT_CODE);
+
+    try {
+      await withTurnkeyErrorHandling(failWith(first), {
+        errorMessage: DEFAULT_MSG,
+        errorCode: DEFAULT_CODE,
+      });
+      throw new Error("should not reach");
+    } catch (e) {
+      try {
+        await withTurnkeyErrorHandling(failWith(e), {
+          errorMessage: DEFAULT_MSG,
+          errorCode: DEFAULT_CODE,
+        });
+        throw new Error("should not reach");
+      } catch (e2) {
+        try {
+          await withTurnkeyErrorHandling(failWith(e), {
+            errorMessage: DEFAULT_MSG,
+            errorCode: DEFAULT_CODE,
+          });
+          throw new Error("should not reach");
+        } catch (e3) {
+          // It should be the *same* instance as the first TurnkeyError
+          expect(e3).toBe(first);
+        }
+      }
+    }
+  });
+
   describe("when thrown error is a generic Error", () => {
     it("maps by message when customMessageByMessages matches", async () => {
       const err = new Error("db connection refused");
@@ -725,7 +756,7 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(err), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customMessageByMessages: {
+          customErrorsByMessages: {
             "connection refused": {
               message: "Database unavailable",
               code: DEFAULT_CODE,
@@ -763,7 +794,7 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith("timeout while fetching"), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customMessageByMessages: {
+          customErrorsByMessages: {
             timeout: { message: "Network timeout", code: DEFAULT_CODE },
           },
         }),

@@ -12,7 +12,7 @@ interface ToggleSwitchProps {
 
 export function ToggleSwitch(props: ToggleSwitchProps) {
   const { checked, onChange, size = "md", disabled, label, tooltip } = props;
-  const height = size === "sm" ? "h-4" : "h-5";
+  const height = size === "sm" ? "h-4.5" : "h-5.5";
   const width = size === "sm" ? "w-8" : "w-10";
   const knobSize = size === "sm" ? "h-3 w-3" : "h-4 w-4";
   const translate = checked

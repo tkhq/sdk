@@ -2,7 +2,11 @@
 import Image from "next/image";
 
 import { useEffect, useState } from "react";
-import { OAuthProviders, v1AddressFormat } from "@turnkey/sdk-types";
+import {
+  OAuthProviders,
+  v1AddressFormat,
+  v1CreatePolicyIntentV3,
+} from "@turnkey/sdk-types";
 import {
   AuthState,
   Chain,
@@ -242,13 +246,27 @@ export default function AuthPage() {
       <div className="max-w-screen">
         <h2>Managed States</h2>
         <div className="flex flex-wrap gap-2">
-          <p className="p-2 border bg-neutral-100 w-fit rounded">
+          <p
+            data-testid="auth-state"
+            className="p-2 border bg-neutral-100 w-fit rounded"
+          >
             Auth State:{" "}
-            <span className={getAuthStateColour(authState)}>{authState}</span>
+            <span
+              data-testid="auth-state-value"
+              className={getAuthStateColour(authState)}
+            >
+              {authState}
+            </span>
           </p>
-          <p className="p-2 border bg-neutral-100 w-fit rounded">
+          <p
+            data-testid="client-state"
+            className="p-2 border bg-neutral-100 w-fit rounded"
+          >
             Client State:{" "}
-            <span className={getClientStateColour(clientState)}>
+            <span
+              data-testid="client-state-value"
+              className={getClientStateColour(clientState)}
+            >
               {clientState ?? "undefined"}
             </span>
           </p>
@@ -259,10 +277,14 @@ export default function AuthPage() {
             {allSessions &&
               Object.keys(allSessions).map((key: string) => (
                 <div
+                  data-testid={`session-${key}`}
                   key={allSessions[key].publicKey}
                   className="p-2 text-xs border bg-neutral-100 rounded"
                 >
-                  <p className="truncate">Session: {key}</p>
+                  <p className="truncate">
+                    Session:{" "}
+                    <span data-testid={`session-key-${key}`}>{key}</span>
+                  </p>
                   <p className="max-w-lg break-words line-clamp-3">
                     Token: {allSessions[key].token}
                   </p>
@@ -282,6 +304,7 @@ export default function AuthPage() {
           <div className="flex items-center gap-4 mb-2">
             <h3>Turnkey Wallets</h3>
             <button
+              data-testid="create-wallet"
               onClick={async () => {
                 const allAddressFormats: v1AddressFormat[] = [
                   "ADDRESS_FORMAT_ETHEREUM",
@@ -308,44 +331,66 @@ export default function AuthPage() {
           <div className="flex flex-wrap gap-2">
             {wallets && wallets.length > 0
               ? wallets.map((wallet: Wallet) => {
+                  let count = 0;
                   if (wallet.source === WalletSource.Embedded)
                     return (
                       <div
+                        data-testid={`wallet-${count}`}
                         key={wallet.walletId}
                         className="p-2 text-xs border bg-neutral-100 rounded justify-between flex flex-col"
                       >
                         <div>
                           <p className="truncate">
-                            Wallet ID: {wallet.walletId}
+                            Wallet ID:{" "}
+                            <span data-testid={`wallet-id-value-${count}`}>
+                              {wallet.walletId}
+                            </span>
                           </p>
                           <p className="truncate">
-                            Wallet Name: {wallet.walletName}
+                            Wallet Name:{" "}
+                            <span data-testid={`wallet-name-value-${count}`}>
+                              {wallet.walletName}
+                            </span>
                           </p>
                           <p className="truncate">Accounts:</p>
-                          <div className="flex flex-col gap-1">
-                            {wallet.accounts.map((account) => (
-                              <button
-                                className="text-left !p-1"
-                                key={account.address}
-                                onClick={() => setActiveWalletAccount(account)}
-                              >
-                                {account.address}
-                                {activeWallet?.walletId === wallet.walletId && (
+                          <div
+                            data-testid={`wallet-accounts-${count}`}
+                            className="flex flex-col gap-1"
+                          >
+                            {wallet.accounts.map((account, i) => {
+                              return (
+                                <button
+                                  data-testid={`set-active-wallet-account-${count}-${i}`}
+                                  className="text-left !p-1"
+                                  key={account.address}
+                                  onClick={() =>
+                                    setActiveWalletAccount(account)
+                                  }
+                                >
                                   <span
-                                    className={`ml-2 ${activeWalletAccount?.address === account.address ? "text-green-500" : "text-gray-500"}`}
+                                    data-testid={`wallet-account-address-value-${count}-${i}`}
                                   >
-                                    {activeWalletAccount?.address ===
-                                    account.address
-                                      ? " (Active)"
-                                      : "(Set Active)"}
+                                    {account.address}
                                   </span>
-                                )}
-                              </button>
-                            ))}
+                                  {activeWallet?.walletId ===
+                                    wallet.walletId && (
+                                    <span
+                                      className={`ml-2 ${activeWalletAccount?.address === account.address ? "text-green-500" : "text-gray-500"}`}
+                                    >
+                                      {activeWalletAccount?.address ===
+                                      account.address
+                                        ? " (Active)"
+                                        : "(Set Active)"}
+                                    </span>
+                                  )}
+                                </button>
+                              );
+                            })}
                           </div>
                         </div>
                         <div className="flex gap-1 w-full">
                           <button
+                            data-testid={`create-eth-account-${count}`}
                             style={{
                               backgroundColor: "blue",
                               borderRadius: "8px",
@@ -365,6 +410,7 @@ export default function AuthPage() {
                             Create Eth Wallet Account
                           </button>
                           <button
+                            data-testid={`create-sol-account-${count}`}
                             style={{
                               backgroundColor: "pink",
                               borderRadius: "8px",
@@ -384,6 +430,7 @@ export default function AuthPage() {
                             Create Sol Wallet Account
                           </button>
                           <button
+                            data-testid={`create-btc-account-${count}`}
                             style={{
                               backgroundColor: "orange",
                               borderRadius: "8px",
@@ -406,6 +453,7 @@ export default function AuthPage() {
                           </button>
                         </div>
                         <button
+                          data-testid={`set-active-wallet-${count}`}
                           onClick={() => setActiveWallet(wallet)}
                           className={`transition-all  mt-auto p-1 rounded w-full text-xs ${activeWallet?.walletId !== wallet.walletId ? "bg-blue-200" : "bg-neutral-300"}`}
                           disabled={activeWallet?.walletId === wallet.walletId}
@@ -416,6 +464,7 @@ export default function AuthPage() {
                         </button>
                       </div>
                     );
+                  count++;
                 })
               : null}
           </div>
@@ -425,6 +474,7 @@ export default function AuthPage() {
         <h2>Modals</h2>
         <div className="flex flex-wrap gap-2">
           <button
+            data-testid="show-auth-modal"
             onClick={showLoginModal}
             style={{
               backgroundColor: "purple",
@@ -438,6 +488,7 @@ export default function AuthPage() {
           {authState === AuthState.Authenticated && (
             <>
               <button
+                data-testid="show-signing-modal"
                 onClick={showSigningModal}
                 style={{
                   backgroundColor: "purple",
@@ -449,6 +500,7 @@ export default function AuthPage() {
                 Show Signing Modal
               </button>
               <button
+                data-testid="show-export-wallet-modal"
                 onClick={async () => {
                   if (!activeWallet) {
                     console.error("No active wallet selected");
@@ -470,6 +522,7 @@ export default function AuthPage() {
                 Show Export Wallet Modal
               </button>
               <button
+                data-testid="show-export-wallet-account-modal"
                 onClick={async () => {
                   if (!activeWalletAccount) {
                     console.error("No active wallet selected");
@@ -492,6 +545,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-import-wallet-modal"
                 onClick={async () =>
                   console.log(
                     await turnkey.handleImportWallet({
@@ -514,6 +568,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-update-user-email-modal"
                 onClick={async () =>
                   console.log(
                     await turnkey.handleUpdateUserEmail({
@@ -532,6 +587,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-update-user-phone-modal"
                 onClick={async () => {
                   console.log(
                     await turnkey.handleUpdateUserPhoneNumber({
@@ -550,6 +606,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-add-email-modal"
                 onClick={async () => {
                   if (!user || !user.authenticators) {
                     console.error("No authenticators found for user");
@@ -572,6 +629,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-add-phone-modal"
                 onClick={async () => {
                   if (!user || !user.authenticators) {
                     console.error("No authenticators found for user");
@@ -594,6 +652,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-add-passkey-modal"
                 onClick={async () => {
                   console.log(
                     await turnkey.handleAddPasskey({
@@ -612,6 +671,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-remove-passkey-modal"
                 onClick={async () => {
                   if (!user || !user.authenticators) {
                     console.error("No authenticators found for user");
@@ -635,6 +695,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-remove-user-email-modal"
                 onClick={async () => {
                   if (!user || !user.authenticators) {
                     console.error("No authenticators found for user");
@@ -657,6 +718,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-remove-user-phone-modal"
                 onClick={async () => {
                   if (!user || !user.authenticators) {
                     console.error("No authenticators found for user");
@@ -679,6 +741,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-connect-external-wallet-modal"
                 onClick={async () => {
                   if (!user || !user.authenticators) {
                     console.error("No authenticators found for user");
@@ -701,6 +764,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-x-oauth-modal"
                 onClick={async () => {
                   console.log(await turnkey.handleXOauth());
                 }}
@@ -715,6 +779,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-discord-oauth-modal"
                 onClick={async () => {
                   console.log(await turnkey.handleDiscordOauth());
                 }}
@@ -729,6 +794,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-google-oauth-modal"
                 onClick={async () => {
                   console.log(await turnkey.handleGoogleOauth());
                 }}
@@ -743,6 +809,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-apple-oauth-modal"
                 onClick={async () => {
                   console.log(await turnkey.handleAppleOauth());
                 }}
@@ -757,6 +824,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="show-facebook-oauth-modal"
                 onClick={async () => {
                   console.log(await turnkey.handleFacebookOauth());
                 }}
@@ -771,6 +839,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="add-google-oauth"
                 onClick={async () => {
                   console.log(
                     await turnkey.handleAddOauthProvider({
@@ -789,6 +858,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="add-apple-oauth"
                 onClick={async () => {
                   console.log(
                     await turnkey.handleAddOauthProvider({
@@ -806,6 +876,7 @@ export default function AuthPage() {
                 Add Apple OAuth
               </button>
               <button
+                data-testid="add-facebook-oauth"
                 onClick={async () => {
                   console.log(
                     await turnkey.handleAddOauthProvider({
@@ -824,6 +895,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                data-testid="remove-oauth-provider"
                 onClick={async () => {
                   const providerId = user?.oauthProviders?.[0]?.providerId;
                   if (!providerId) {
@@ -853,6 +925,7 @@ export default function AuthPage() {
         <h2>Auth Methods</h2>
         <div className="flex flex-wrap gap-2">
           <button
+            data-testid="logout-button"
             onClick={async () => {
               await turnkey.logout();
             }}
@@ -872,7 +945,13 @@ export default function AuthPage() {
           <h2>Fetch Methods</h2>
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={async () => console.log(await httpClient?.getWhoami({}))}
+              data-testid="get-whoami"
+              onClick={async () =>
+                console.log(
+                  "Successfully called getWhoami",
+                  await httpClient?.getWhoami({}),
+                )
+              }
               style={{
                 backgroundColor: "green",
                 borderRadius: "8px",
@@ -884,8 +963,12 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="get-active-session"
               onClick={async () => {
-                console.log(await turnkey.getSession());
+                console.log(
+                  "Successfully called getActiveSession",
+                  await turnkey.getSession(),
+                );
               }}
               style={{
                 backgroundColor: "green",
@@ -898,8 +981,12 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="fetch-user"
               onClick={async () => {
-                console.log(await turnkey.fetchUser());
+                console.log(
+                  "Successfully called fetchUser",
+                  await turnkey.fetchUser(),
+                );
               }}
               style={{
                 backgroundColor: "green",
@@ -912,8 +999,12 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="fetch-wallets"
               onClick={async () => {
-                console.log(await turnkey.fetchWallets());
+                console.log(
+                  "Successfully called fetchWallets",
+                  await turnkey.fetchWallets(),
+                );
               }}
               style={{
                 backgroundColor: "green",
@@ -926,12 +1017,14 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="fetch-wallet-accounts"
               onClick={async () => {
                 if (!activeWallet) {
                   console.error("No active wallet selected");
                   return;
                 }
                 console.log(
+                  "Successfully called fetchWalletAccounts",
                   await turnkey.fetchWalletAccounts({
                     wallet: activeWallet,
                   }),
@@ -948,8 +1041,12 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="fetch-wallet-providers"
               onClick={async () => {
-                console.log(await turnkey.getWalletProviders());
+                console.log(
+                  "Successfully called fetchWalletProviders",
+                  await turnkey.fetchWalletProviders(),
+                );
               }}
               style={{
                 backgroundColor: "green",
@@ -968,8 +1065,12 @@ export default function AuthPage() {
         <div className="flex flex-wrap gap-2">
           {authState === AuthState.Authenticated && (
             <button
+              data-testid="get-active-session-2"
               onClick={async () => {
-                console.log(await turnkey.getSession());
+                console.log(
+                  "Successfully called getActiveSession",
+                  await turnkey.getSession(),
+                );
               }}
               style={{
                 backgroundColor: "orange",
@@ -983,8 +1084,12 @@ export default function AuthPage() {
           )}
 
           <button
+            data-testid="get-all-sessions"
             onClick={async () => {
-              console.log(await turnkey.getAllSessions());
+              console.log(
+                "Successfully called getAllSessions",
+                await turnkey.getAllSessions(),
+              );
             }}
             style={{
               backgroundColor: "orange",
@@ -998,8 +1103,12 @@ export default function AuthPage() {
 
           {authState === AuthState.Authenticated && (
             <button
+              data-testid="clear-active-session"
               onClick={async () => {
-                await turnkey.clearSession();
+                console.log(
+                  "Successfully called clearActiveSession",
+                  await turnkey.clearSession(),
+                );
               }}
               style={{
                 backgroundColor: "orange",
@@ -1013,8 +1122,12 @@ export default function AuthPage() {
           )}
 
           <button
+            data-testid="clear-all-sessions"
             onClick={async () => {
-              await turnkey.clearAllSessions();
+              console.log(
+                "Successfully called clearAllSessions",
+                await turnkey.clearAllSessions(),
+              );
             }}
             style={{
               backgroundColor: "orange",
@@ -1027,8 +1140,12 @@ export default function AuthPage() {
           </button>
           {authState === AuthState.Authenticated && (
             <button
+              data-testid="refresh-active-session"
               onClick={async () => {
-                console.log(await turnkey.refreshSession());
+                console.log(
+                  "Successfully called refreshActiveSession",
+                  await turnkey.refreshSession(),
+                );
               }}
               style={{
                 backgroundColor: "orange",
@@ -1042,11 +1159,79 @@ export default function AuthPage() {
           )}
         </div>
       </div>
+      {authState === AuthState.Authenticated && (
+        <div>
+          <h2>Delegated Access User Methods</h2>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={async () => {
+                console.log(
+                  await turnkey.fetchOrCreateP256ApiKeyUser({
+                    publicKey: process.env.NEXT_PUBLIC_DA_PUBLIC_KEY!,
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "orange",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              Fetch or Create P-256 User
+            </button>
+
+            <button
+              onClick={async () => {
+                const user = await turnkey.fetchOrCreateP256ApiKeyUser({
+                  publicKey: process.env.NEXT_PUBLIC_DA_PUBLIC_KEY!,
+                });
+
+                const policies: v1CreatePolicyIntentV3[] = [
+                  {
+                    policyName: `Allow ${user.userId} to sign transactions with <WALLET_ID>`,
+                    effect: "EFFECT_ALLOW",
+                    consensus: `approvers.any(user, user.id == '${user.userId}')`,
+                    condition:
+                      "activity.action == 'SIGN' && wallet.id == '<WALLET_ID>'",
+                    notes:
+                      "Policy allowing a specific user to sign transactions with a specific wallet.",
+                  },
+                  {
+                    policyName: `Allow ${user.userId} to sign transactions with <PRIVATE_KEY_ID>`,
+                    effect: "EFFECT_ALLOW",
+                    consensus: `approvers.any(user, user.id == '${user.userId}')`,
+                    condition:
+                      "activity.action == 'SIGN' && private_key.id == '<PRIVATE_KEY_ID>'",
+                    notes:
+                      "Policy allowing a specific user to sign transactions with a specific private key.",
+                  },
+                ];
+
+                console.log(
+                  await turnkey.fetchOrCreatePolicies({ policies: policies }),
+                );
+              }}
+              style={{
+                backgroundColor: "orange",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              Fetch or Create Policies
+            </button>
+          </div>
+        </div>
+      )}
       <div>
         <h2>Multi Session Management Methods</h2>
         <p>
           Active Session:{" "}
-          <span className="rounded bg-neutral-200 w-fit p-1">
+          <span
+            data-testid="active-session"
+            className="rounded bg-neutral-200 w-fit p-1"
+          >
             {activeSessionKey ?? "N/A"}
           </span>
         </p>
@@ -1056,6 +1241,7 @@ export default function AuthPage() {
             {allSessions &&
               Object.keys(allSessions).map((key: string) => (
                 <button
+                  data-testid={`switch-session-${key}`}
                   key={key}
                   className="rounded bg-blue-200 w-fit !p-1 text-sm"
                   onClick={async () => switchSession(key)}
@@ -1068,12 +1254,14 @@ export default function AuthPage() {
         <div className="flex flex-wrap gap-2 mt-2">
           <div className="flex gap-2">
             <input
+              data-testid="session-key-input"
               type="text"
               placeholder="Enter session key"
               className="p-1 border border-neutral-300 rounded"
               onChange={(e) => setSessionKey(e.target.value)}
             />
             <button
+              data-testid="login-with-session-key-button"
               onClick={async () => {
                 console.log("Switching to session:", sessionKey);
                 await turnkey.handleLogin({
@@ -1107,16 +1295,23 @@ export default function AuthPage() {
                           className="p-2 text-xs border bg-neutral-100 rounded justify-between flex flex-col"
                         >
                           <div>
-                            <p className="truncate">
+                            <p
+                              data-testid={`connected-wallet-id-${wallet.walletId}`}
+                              className="truncate"
+                            >
                               Wallet ID: {wallet.walletId}
                             </p>
-                            <p className="truncate">
+                            <p
+                              data-testid={`connected-wallet-name-${wallet.walletId}`}
+                              className="truncate"
+                            >
                               Wallet Name: {wallet.walletName}
                             </p>
                             <p className="truncate">Accounts:</p>
                             <div className="flex flex-col gap-1">
                               {wallet.accounts.map((account) => (
                                 <button
+                                  data-testid={`set-active-connected-wallet-account-${account.address}`}
                                   className="text-left !p-1"
                                   key={account.address}
                                   onClick={() =>
@@ -1140,6 +1335,7 @@ export default function AuthPage() {
                             </div>
                           </div>
                           <button
+                            data-testid={`set-active-connected-wallet-${wallet.walletId}`}
                             onClick={() => setActiveWallet(wallet)}
                             className={`transition-all  mt-auto p-1 rounded w-full text-xs ${activeWallet?.walletId !== wallet.walletId ? "bg-blue-200" : "bg-neutral-300"}`}
                             disabled={
@@ -1158,8 +1354,9 @@ export default function AuthPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <button
+              data-testid="fetch-wallet-providers-2"
               onClick={async () => {
-                const providers = await turnkey.getWalletProviders();
+                const providers = await turnkey.fetchWalletProviders();
                 console.log("Wallet Providers:", providers);
               }}
               style={{
@@ -1173,8 +1370,9 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="connect-wallet-account"
               onClick={async () => {
-                const providers = await turnkey.getWalletProviders();
+                const providers = await turnkey.fetchWalletProviders();
                 console.log("Wallet Providers:", providers);
                 await turnkey.connectWalletAccount(providers[4]);
               }}
@@ -1189,8 +1387,11 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="sign-up-with-wallet"
               onClick={async () => {
-                const provider = await turnkey.getWalletProviders(Chain.Solana);
+                const provider = await turnkey.fetchWalletProviders(
+                  Chain.Solana,
+                );
                 console.log("Injected Solana Provider:", provider);
                 await turnkey.signUpWithWallet({
                   walletProvider: provider[1],
@@ -1207,8 +1408,11 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="login-with-wallet"
               onClick={async () => {
-                const provider = await turnkey.getWalletProviders(Chain.Solana);
+                const provider = await turnkey.fetchWalletProviders(
+                  Chain.Solana,
+                );
                 console.log("Injected Solana Provider:", provider);
                 await turnkey.loginWithWallet({
                   walletProvider: provider[1],
@@ -1225,8 +1429,11 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="continue-with-wallet"
               onClick={async () => {
-                const provider = await turnkey.getWalletProviders(Chain.Solana);
+                const provider = await turnkey.fetchWalletProviders(
+                  Chain.Solana,
+                );
                 console.log("Injected Solana Provider:", provider);
                 await turnkey.loginOrSignupWithWallet({
                   walletProvider: provider[1],
@@ -1243,6 +1450,7 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="connect-or-disconnect-wallet"
               onClick={async () => await turnkey.handleConnectExternalWallet()}
               style={{
                 backgroundColor: "rebeccapurple",
@@ -1351,6 +1559,7 @@ export default function AuthPage() {
           <h2>Signing Methods</h2>
           <div className="flex flex-wrap gap-2 mb-2">
             <button
+              data-testid="sign-sol-transaction"
               onClick={async () => {
                 if (
                   !activeWalletAccount ||
@@ -1398,6 +1607,7 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="sign-eth-transaction"
               onClick={async () => {
                 if (!activeWalletAccount) {
                   console.error("No active wallet account selected");
@@ -1434,6 +1644,7 @@ export default function AuthPage() {
               Sign Ethereum Transaction
             </button>
             <button
+              data-testid="sign-message"
               onClick={doSignMessage}
               style={{
                 backgroundColor: "pink",
@@ -1446,6 +1657,7 @@ export default function AuthPage() {
             </button>
 
             <button
+              data-testid="sign-with-viem"
               onClick={signWithViem}
               style={{
                 backgroundColor: "pink",

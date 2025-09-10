@@ -71,6 +71,7 @@ export function ExportWarning(props: {
         <IconText icon={faEye} text={warnings[exportType][2]!} />
       </div>
       <ActionButton
+        name="confirm-export-warning-button"
         loading={isLoading}
         spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         className="text-primary-text-light dark:text-primary-text-dark bg-primary-light dark:bg-primary-dark"

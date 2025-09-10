@@ -73,7 +73,7 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       xClientId?: string;
       /** client ID for Discord OAuth. */
       discordClientId?: string;
-      /** whether to open OAuth in the same page. */
+      /** whether to open OAuth in the same page. Always true on mobile. */
       openOauthInPage?: boolean;
     };
     /** session expiration time in seconds. */
@@ -94,6 +94,8 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     /** whether to automatically refresh the session. */
     autoRefreshSession?: boolean;
   };
+  /** whether to automatically refresh managed state variables */
+  autoRefreshManagedState?: boolean;
   /** UI configuration. */
   ui?: {
     /** enables or disables dark mode. */

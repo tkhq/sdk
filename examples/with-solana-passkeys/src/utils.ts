@@ -7,7 +7,7 @@ import {
   Transaction,
   VersionedTransaction,
 } from "@solana/web3.js";
-import bs58 from "bs58";
+import { bs58 } from "@turnkey/encoding";
 
 export function refineNonNull<T>(
   input: T | null | undefined,

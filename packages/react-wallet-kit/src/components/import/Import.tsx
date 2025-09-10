@@ -383,12 +383,14 @@ export function ImportComponent(props: {
       />
       <Input
         type="text"
+        data-testid="import-wallet-name-input"
         placeholder={placeholder}
         value={walletName}
         onChange={(e) => setWalletName(e.target.value)}
         className="placeholder:text-icon-text-light dark:placeholder:text-icon-text-dark w-full my-2 py-3 px-3 rounded-md text-inherit bg-icon-background-light dark:bg-icon-background-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 box-border"
       />
       <ActionButton
+        name="import-button"
         loading={isLoading}
         spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         onClick={handleImport}
@@ -397,6 +399,7 @@ export function ImportComponent(props: {
         Import
       </ActionButton>
       <p
+        data-testid="import-error-message"
         className={clsx(
           "text-sm text-red-500 transition-opacity delay-75 line-clamp-2 w-full",
           error

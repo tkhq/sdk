@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/encoding",
-  "version": "0.6.0-beta.6",
+  "version": "0.6.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {
@@ -40,5 +40,9 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "bs58": "6.0.0",
+    "bs58check": "4.0.0"
   }
 }

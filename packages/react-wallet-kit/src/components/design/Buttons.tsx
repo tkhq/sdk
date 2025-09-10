@@ -11,15 +11,17 @@ interface IconButtonProps {
   loading?: boolean;
   className?: string;
   spinnerClassName?: string;
+  name?: string;
 }
 
 export function BaseButton(
   props: React.ButtonHTMLAttributes<HTMLButtonElement>,
 ) {
-  const { children, className, disabled, ...buttonProps } = props;
+  const { children, className, disabled, name, ...buttonProps } = props;
 
   return (
     <button
+      data-testid={name}
       className={clsx("cursor-pointer", className)}
       disabled={!!disabled}
       {...buttonProps}
@@ -29,8 +31,15 @@ export function BaseButton(
   );
 }
 export function IconButton(props: IconButtonProps) {
-  const { icon, onClick, disabled, loading, className, spinnerClassName } =
-    props;
+  const {
+    icon,
+    onClick,
+    disabled,
+    loading,
+    className,
+    spinnerClassName,
+    name,
+  } = props;
   return (
     <BaseButton
       className={clsx(
@@ -40,6 +49,7 @@ export function IconButton(props: IconButtonProps) {
       )}
       onClick={onClick}
       disabled={!!disabled}
+      name={name}
     >
       {loading ? (
         <div className="flex justify-center items-center">
@@ -62,6 +72,7 @@ interface ActionButtonProps {
   loadingText?: string;
   className?: string;
   spinnerClassName?: string;
+  name?: string;
 }
 
 export function ActionButton(props: ActionButtonProps) {
@@ -75,6 +86,7 @@ export function ActionButton(props: ActionButtonProps) {
     loadingText,
     className,
     spinnerClassName,
+    name,
   } = props;
   return (
     <BaseButton
@@ -82,6 +94,7 @@ export function ActionButton(props: ActionButtonProps) {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       disabled={disabled || loading}
+      name={name}
       className={clsx(
         "w-full px-4 py-3 rounded-md border border-modal-background-dark/15 dark:border-modal-background-light/15 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-all duration-300",
         (disabled || loading) && "opacity-50 cursor-not-allowed",

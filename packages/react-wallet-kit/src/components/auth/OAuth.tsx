@@ -31,6 +31,7 @@ export function OAuthButton(props: OAuthButtonProps) {
     <div ref={containerRef} className="w-full h-full">
       <ActionButton
         onClick={onClick}
+        name={`oauth-${name.toLowerCase()}`}
         className={`flex items-center justify-center gap-2 w-full h-full rounded-md bg-button-light dark:bg-button-dark text-inherit ${className || ""}`}
       >
         {icon}

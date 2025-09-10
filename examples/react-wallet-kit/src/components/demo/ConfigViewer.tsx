@@ -21,6 +21,9 @@ const omitKeys = [
   "oauthRedirectUri",
   "walletConfig",
   "renderModalInProvider",
+  "oauthOrder",
+  "createSuborgParams",
+  "autoRefreshSession",
 ];
 
 function renderValue(value: any, indentLevel = 2, key?: string): string {

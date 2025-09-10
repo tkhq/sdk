@@ -259,7 +259,7 @@
                   "sdks/react/auth",
                   "sdks/react/using-embedded-wallets",
                   {
-                    "group": "Using External Wallets",
+                    "group": "Using external wallets",
                     "pages": [
                       "sdks/react/using-external-wallets/overview",
                       "sdks/react/using-external-wallets/authentication",
@@ -356,7 +356,10 @@
                       "generated-docs/formatted/react-wallet-kit/client-context-type-fetch-private-keys",
                       "generated-docs/formatted/react-wallet-kit/client-context-type-handle-discord-oauth",
                       "generated-docs/formatted/react-wallet-kit/client-context-type-handle-import-private-key",
-                      "generated-docs/formatted/react-wallet-kit/client-context-type-handle-xoauth"
+                      "generated-docs/formatted/react-wallet-kit/client-context-type-handle-xoauth",
+                      "generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-p256-api-key-user",
+                      "generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-policies",
+                      "generated-docs/formatted/react-wallet-kit/client-context-type-fetch-wallet-providers"
                     ]
                   }
                 ]
@@ -439,7 +442,10 @@
                       "generated-docs/formatted/core/turnkey-client-update-user-phone-number",
                       "generated-docs/formatted/core/turnkey-client-verify-otp",
                       "generated-docs/formatted/core/turnkey-client-switch-wallet-account-chain",
-                      "generated-docs/formatted/core/turnkey-client-fetch-private-keys"
+                      "generated-docs/formatted/core/turnkey-client-fetch-private-keys",
+                      "generated-docs/formatted/core/turnkey-client-fetch-or-create-p256-api-key-user",
+                      "generated-docs/formatted/core/turnkey-client-fetch-or-create-policies",
+                      "generated-docs/formatted/core/turnkey-client-fetch-wallet-providers"
                     ]
                   }
                 ]
