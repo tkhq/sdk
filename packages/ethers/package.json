@@ -50,7 +50,7 @@
     "typecheck": "tsc -p tsconfig.typecheck.json"
   },
   "peerDependencies": {
-    "ethers": "^6.10.0"
+    "ethers": "6.10.0"
   },
   "dependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
@@ -61,13 +61,13 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "3.0.5",
-    "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
-    "@openzeppelin/contracts": "^4.9.0",
-    "@typechain/ethers-v6": "^0.5.1",
-    "@typechain/hardhat": "^9.1.0",
-    "ethers": "^6.10.0",
-    "hardhat": "^2.19.4",
-    "typechain": "^8.3.2"
+    "@nomicfoundation/hardhat-network-helpers": "1.0.8",
+    "@openzeppelin/contracts": "4.9.0",
+    "@typechain/ethers-v6": "0.5.1",
+    "@typechain/hardhat": "9.1.0",
+    "ethers": "6.10.0",
+    "hardhat": "2.19.4",
+    "typechain": "8.3.2"
   },
   "engines": {
     "node": ">=18.0.0"

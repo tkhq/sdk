@@ -11,7 +11,7 @@
   "dependencies": {
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/ethers": "workspace:*",
-    "dotenv": "^16.0.3",
-    "ethers": "^6.10.0"
+    "dotenv": "16.0.3",
+    "ethers": "6.10.0"
   }
 }

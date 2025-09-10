@@ -53,15 +53,15 @@
     "@turnkey/encoding": "workspace:*"
   },
   "optionalDependencies": {
-    "viem": "^2.21.35"
+    "viem": "2.21.35"
   },
   "devDependencies": {
-    "@solana/web3.js": "^1.95.8",
+    "@solana/web3.js": "1.95.8",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "dotenv": "^16.0.3",
-    "tweetnacl": "^1.0.3",
-    "tweetnacl-util": "^0.15.1",
+    "dotenv": "16.0.3",
+    "tweetnacl": "1.0.3",
+    "tweetnacl-util": "0.15.1",
     "typescript": "5.4.3"
   }
 }

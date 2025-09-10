@@ -10,14 +10,14 @@
   "dependencies": {
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/ethers": "workspace:*",
-    "@uniswap/sdk-core": "^3.1.1",
-    "dotenv": "^16.0.3",
-    "ethers": "^6.10.0",
-    "hardhat": "^2.12.7",
-    "prompts": "^2.4.2"
+    "@uniswap/sdk-core": "3.1.1",
+    "dotenv": "16.0.3",
+    "ethers": "6.10.0",
+    "hardhat": "2.12.7",
+    "prompts": "2.4.2"
   },
   "devDependencies": {
-    "@types/prompts": "^2.4.2",
+    "@types/prompts": "2.4.2",
     "typescript": "5.4.3"
   }
 }

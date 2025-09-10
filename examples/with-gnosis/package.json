@@ -7,13 +7,13 @@
     "clean": "rimraf ./dist ./.cache"
   },
   "dependencies": {
-    "@safe-global/protocol-kit": "^3.0.1",
-    "@safe-global/safe-core-sdk-types": "^4.0.1",
-    "@safe-global/safe-ethers-lib": "^1.9.2",
+    "@safe-global/protocol-kit": "3.0.1",
+    "@safe-global/safe-core-sdk-types": "4.0.1",
+    "@safe-global/safe-ethers-lib": "1.9.2",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/ethers": "workspace:*",
-    "dotenv": "^16.0.3",
-    "ethers": "^6.10.0"
+    "dotenv": "16.0.3",
+    "ethers": "6.10.0"
   },
   "overrides": {
     "@safe-global/protocol-kit": {

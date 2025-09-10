@@ -14,11 +14,11 @@
     "@turnkey/crypto": "workspace:^",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
-    "dotenv": "^16.0.3",
-    "tronweb": "^6.0.3"
+    "dotenv": "16.0.3",
+    "tronweb": "6.0.3"
   },
   "devDependencies": {
-    "ts-node": "^10.9.2",
+    "ts-node": "10.9.2",
     "typescript": "5.4.3"
   }
 }

@@ -55,12 +55,12 @@
     "@turnkey/webauthn-stamper": "workspace:*",
     "@turnkey/indexed-db-stamper": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
-    "buffer": "^6.0.3",
-    "cross-fetch": "^3.1.5",
-    "hpke-js": "^1.2.7"
+    "buffer": "6.0.3",
+    "cross-fetch": "3.1.5",
+    "hpke-js": "1.2.7"
   },
   "devDependencies": {
-    "glob": "^8.0.3",
+    "glob": "8.0.3",
     "typescript": "5.4.3"
   },
   "engines": {
