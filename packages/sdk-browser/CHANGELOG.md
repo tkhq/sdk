@@ -1,6 +1,6 @@
 # @turnkey/sdk-browser
 
-## 5.9.0
+## 5.10.0
 
 ### Minor Changes
 

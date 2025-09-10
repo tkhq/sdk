@@ -6,6 +6,15 @@
 
 - [#677](https://github.com/tkhq/sdk/pull/677) [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c) Author [@amircheikh](https://github.com/amircheikh) - beta for @turnkey/react-wallet-kit and @turnkey/core
 
+- Initial Stable Release: `@turnkey/react-wallet-kit` 🎉
+  Turnkey’s **Embedded Wallet Kit** is the easiest way to integrate Turnkey’s Embedded Wallets into your React applications, with no backend required.
+
+  - Built on [`@turnkey/core`](https://www.npmjs.com/package/@turnkey/core)
+  - Provides a set of UI components and simple functions, all exported through a React hook
+  - Designed to help you quickly build secure embedded wallet experiences
+
+  📚 [Read the full docs here](https://docs.turnkey.com/sdks/react)
+
 ### Minor Changes
 
 - [#677](https://github.com/tkhq/sdk/pull/677) [`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e) Author [@amircheikh](https://github.com/amircheikh) - @turnkey/react-wallet-kit and @turnkey/core beta-3 release

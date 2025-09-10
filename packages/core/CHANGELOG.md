@@ -6,6 +6,17 @@
 
 - [#677](https://github.com/tkhq/sdk/pull/677) [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c) Author [@amircheikh](https://github.com/amircheikh) - beta for @turnkey/react-wallet-kit and @turnkey/core
 
+- Initial Stable Release: `@turnkey/core` 🎉  
+  Turnkey’s **core TypeScript client-side SDK** for Embedded Wallets is now generally available.
+
+  - Provides a set of functions and utilities to interact with Turnkey’s APIs
+  - Includes a powerful session management system
+  - Comes with built-in stampers for signing flows
+  - Exposes a raw HTTP client for advanced use cases
+  - Designed to be the foundation for building Embedded Wallets across frameworks (React, React Native, Angular, Vue, Svelte)
+
+  📚 [Read the full docs here](https://docs.turnkey.com/sdks/typescript-frontend)
+
 ### Minor Changes
 
 - [#677](https://github.com/tkhq/sdk/pull/677) [`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e) Author [@amircheikh](https://github.com/amircheikh) - @turnkey/react-wallet-kit and @turnkey/core beta-3 release
