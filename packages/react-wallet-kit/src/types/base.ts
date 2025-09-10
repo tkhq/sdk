@@ -94,6 +94,8 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     /** whether to automatically refresh the session. */
     autoRefreshSession?: boolean;
   };
+  /** whether to automatically refresh managed state variables */
+  autoRefreshManagedState?: boolean;
   /** UI configuration. */
   ui?: {
     /** enables or disables dark mode. */

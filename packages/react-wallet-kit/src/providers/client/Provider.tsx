@@ -576,6 +576,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         oauthOrder,
         autoRefreshSession: config.auth?.autoRefreshSession ?? true,
       },
+      autoRefreshManagedState: config.autoRefreshManagedState ?? true,
       walletConfig: {
         ...config.walletConfig,
         features: {
@@ -2328,7 +2329,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (res) await refreshWallets({ stampWith: params?.stampWith });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, session, user],
   );
 
   const importWallet = useCallback(
@@ -2352,7 +2353,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (res) await refreshWallets({ stampWith: params?.stampWith });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, session, user],
   );
 
   const importPrivateKey = useCallback(
@@ -2376,7 +2377,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, session, user],
   );
 
   const deleteSubOrganization = useCallback(
@@ -2395,7 +2396,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to delete sub-organization",
       );
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, session, user],
   );
 
   const storeSession = useCallback(
@@ -2427,7 +2428,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setAllSessions(allSessions);
       return;
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, session, user],
   );
 
   const clearSession = useCallback(
@@ -2448,7 +2449,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setAllSessions(allSessions);
       return;
     },
-    [client, callbacks],
+    [client, callbacks, session, user, masterConfig],
   );
 
   const clearAllSessions = useCallback(async (): Promise<void> => {
@@ -2464,7 +2465,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to clear all sessions",
     );
-  }, [client, callbacks]);
+  }, [client, callbacks, session, user, masterConfig]);
 
   const refreshSession = useCallback(
     async (params?: {
@@ -2513,7 +2514,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setAllSessions(allSessions);
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, scheduleSessionExpiration, session, user, masterConfig],
   );
 
   const getSession = useCallback(
@@ -2529,7 +2530,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to get session",
       );
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, session, user],
   );
 
   const getAllSessions = useCallback(async (): Promise<
@@ -2545,7 +2546,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to get all sessions",
     );
-  }, [client, callbacks]);
+  }, [client, callbacks, masterConfig, session, user]);
 
   const setActiveSession = useCallback(
     async (params: { sessionKey: string }): Promise<void> => {
@@ -2581,7 +2582,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       return;
     },
-    [client, callbacks],
+    [client, callbacks, session, user, masterConfig],
   );
 
   const getActiveSessionKey = useCallback(async (): Promise<
@@ -2597,7 +2598,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to get active session key",
     );
-  }, [client, callbacks]);
+  }, [client, callbacks, masterConfig, session, user]);
 
   const clearUnusedKeyPairs = useCallback(async (): Promise<void> => {
     if (!client)
@@ -2610,7 +2611,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to clear unused key pairs",
     );
-  }, [client, callbacks]);
+  }, [client, callbacks, masterConfig, session, user]);
 
   const createApiKeyPair = useCallback(
     async (params?: {
@@ -2630,7 +2631,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to create API key pair",
       );
     },
-    [client, callbacks],
+    [client, callbacks, session, user, masterConfig],
   );
 
   const getProxyAuthConfig =
@@ -2645,10 +2646,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to get proxy auth config",
       );
-    }, [client, callbacks]);
+    }, [client, callbacks, masterConfig, session, user]);
 
   const refreshUser = useCallback(
     async (params?: { stampWith?: StamperType | undefined }): Promise<void> => {
+      if (!masterConfig?.autoRefreshManagedState) return;
       const { stampWith } = params || {};
       if (!client)
         throw new TurnkeyError(
@@ -2664,11 +2666,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         setUser(user);
       }
     },
-    [client, callbacks],
+    [client, callbacks, fetchUser, masterConfig, session, user],
   );
 
   const refreshWallets = useCallback(
     async (params?: { stampWith?: StamperType | undefined }): Promise<void> => {
+      if (!masterConfig?.autoRefreshManagedState) return;
       const { stampWith } = params || {};
       if (!client)
         throw new TurnkeyError(
@@ -2691,7 +2694,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         setWallets(wallets);
       }
     },
-    [client, callbacks, fetchWalletProviders, fetchWallets],
+    [
+      client,
+      callbacks,
+      fetchWalletProviders,
+      fetchWallets,
+      masterConfig,
+      session,
+      user,
+    ],
   );
 
   const handleDiscordOauth = useCallback(
@@ -2886,7 +2897,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
     },
-    [client, callbacks],
+    [
+      client,
+      callbacks,
+      completeOauth,
+      createApiKeyPair,
+      masterConfig,
+      session,
+      user,
+    ],
   );
 
   const handleXOauth = useCallback(
@@ -3081,7 +3100,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, session, user],
   );
 
   const handleGoogleOauth = useCallback(
@@ -3254,7 +3273,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, session, user],
   );
 
   const handleAppleOauth = useCallback(
@@ -3423,7 +3442,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, session, user],
   );
 
   const handleFacebookOauth = useCallback(
@@ -3622,7 +3641,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, client, session, user],
   );
 
   const handleLogin = useCallback(
@@ -3632,7 +3651,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         content: <AuthComponent sessionKey={params?.sessionKey} />,
       });
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleExportWallet = useCallback(
@@ -3654,7 +3673,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         ),
       });
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleExportPrivateKey = useCallback(
@@ -3678,7 +3697,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         ),
       });
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleExportWalletAccount = useCallback(
@@ -3702,7 +3721,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         ),
       });
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleImportWallet = useCallback(
@@ -3752,7 +3771,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleImportPrivateKey = useCallback(
@@ -3803,7 +3822,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleUpdateUserName = useCallback(
@@ -3897,7 +3916,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleUpdateUserPhoneNumber = useCallback(
@@ -4036,7 +4055,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleUpdateUserEmail = useCallback(
@@ -4159,7 +4178,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleAddEmail = useCallback(
@@ -4170,12 +4189,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       successPageDuration?: number | undefined;
     }): Promise<string> => {
       const { successPageDuration = 2000, subTitle, title } = params || {};
-
-      if (!client)
+      if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
+      }
 
       if (!session) {
         throw new TurnkeyError(
@@ -4284,7 +4303,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, client, session, user],
   );
 
   const handleAddPhoneNumber = useCallback(
@@ -4430,7 +4449,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleRemovePasskey = useCallback(
@@ -4491,7 +4510,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to remove passkey",
       );
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleAddPasskey = useCallback(
@@ -4556,7 +4575,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleRemoveOauthProvider = useCallback(
@@ -4620,7 +4639,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleAddOauthProvider = useCallback(
@@ -4711,7 +4730,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleConnectExternalWallet = useCallback(
@@ -4749,7 +4768,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         ),
       });
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleRemoveUserEmail = useCallback(
@@ -4798,7 +4817,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   const handleRemoveUserPhoneNumber = useCallback(
@@ -4847,7 +4866,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage],
+    [pushPage, masterConfig, client, session, user],
   );
 
   useEffect(() => {
