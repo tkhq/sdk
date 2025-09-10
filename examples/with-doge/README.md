@@ -6,7 +6,7 @@ This script shows how to send Dogecoin on testnet using:
 - Turnkey for signing raw payload digests (secp256k1).
 - [Electrs Testnet API](https://doge-electrs-testnet-demo.qed.me/) for UTXO lookup & broadcasting.
 
-1. Network Parameters
+**1.Network Parameters**
 
 We override Bitcoin defaults to use Dogecoin testnet parameters:
 
@@ -26,7 +26,7 @@ References:
 - Dogecoin Core [chainparams.cpp](https://github.com/dogecoin/dogecoin/blob/master/src/chainparams.cpp)
 - bitcoinjs-lib [networks](https://github.com/bitcoinjs/bitcoinjs-lib#networks)
 
-2. Fetch UTXOs
+**2.Fetch UTXOs**
 
 Ask Electrs for unspent outputs at the sender address:
 
@@ -41,7 +41,7 @@ References:
 
 - Electrs API: [addresses](https://github.com/Blockstream/esplora/blob/master/API.md#addresses)
 
-3. Coin Selection
+**3.Coin Selection**
 
 ```
 function selectUtxos(utxos: UTXO[], need: number) { ... }
@@ -52,7 +52,7 @@ function selectUtxos(utxos: UTXO[], need: number) { ... }
 - Returns { picked, total }
 - Simple “greedy” strategy; good enough for test/demo, but real wallets use smarter policies for privacy/dust.
 
-4. Signatures with Turnkey
+**4.Signatures with Turnkey**
 
 ```
 async function turnkeySignDigestHex(digestHex: string): Promise<string> { ... }
@@ -69,7 +69,7 @@ References:
 - [Low-S signatures](https://github.com/bitcoin/bitcoin/pull/6769)
 - [BIP66: Strict DER signatures](https://github.com/bitcoin/bips/blob/master/bip-0066.mediawiki)
 
-5. Build the Transaction
+**5.Build the Transaction**
 
 ```
 const tx = new bitcoin.Transaction();
@@ -100,7 +100,7 @@ if (change > 0) {
 
 Fee = sum(inputs) − sum(outputs)
 
-6. Sign Inputs
+**6.Sign Inputs**
 
 ```
 for (let i = 0; i < UTXOS.length; i++) {
@@ -116,7 +116,7 @@ for (let i = 0; i < UTXOS.length; i++) {
 - Append 0x01 (SIGHASH_ALL flag)
 - Build scriptSig = [sig, pubkey]
 
-7. Broadcast & Confirm
+**7.Broadcast & Confirm**
 
 - POST hex to Electrs /tx
 - Poll /tx/:txid/status until confirmed=true
