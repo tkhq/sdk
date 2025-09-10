@@ -121,14 +121,14 @@ for (let i = 0; i < UTXOS.length; i++) {
 - POST hex to Electrs /tx
 - Poll /tx/:txid/status until confirmed=true
 
-To recap the full flow: 
+To recap the full flow:
 
-1. Fetch UTXOs (unspent coins) 
-2. Select enough inputs to cover send+fee 
-3. Build transaction (inputs, outputs, change) 
-4. Compute sighashes & sign with Turnkey 
-5. Insert signatures & pubkeys into inputs 
-6. Serialize (toHex) and broadcast via Electrs 
+1. Fetch UTXOs (unspent coins)
+2. Select enough inputs to cover send+fee
+3. Build transaction (inputs, outputs, change)
+4. Compute sighashes & sign with Turnkey
+5. Insert signatures & pubkeys into inputs
+6. Serialize (toHex) and broadcast via Electrs
 7. Poll for confirmation
 
 ## Getting started
