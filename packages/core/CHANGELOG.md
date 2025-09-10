@@ -4,8 +4,6 @@
 
 ### Major Changes
 
-- [#677](https://github.com/tkhq/sdk/pull/677) [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c) Author [@amircheikh](https://github.com/amircheikh) - beta for @turnkey/react-wallet-kit and @turnkey/core
-
 - Initial Stable Release: `@turnkey/core` 🎉  
   Turnkey’s **core TypeScript client-side SDK** for Embedded Wallets is now generally available.
 
