@@ -2095,30 +2095,39 @@ export class TurnkeyClient {
   /**
    * Signs a message using the specified wallet account.
    *
-   * - Supports both embedded and connected wallets.
-   * - For **connected wallets**:
+   * Behavior differs depending on the wallet type:
+   *
+   * - **Connected wallets**
    *   - Delegates signing to the wallet provider’s native signing method.
-   *   - **Important:** For Ethereum wallets (e.g., MetaMask), signatures follow [EIP-191](https://eips.ethereum.org/EIPS/eip-191).
-   *     The message is automatically prefixed with `"\x19Ethereum Signed Message:\n" + message length`
-   *     before signing. As a result, this signature **cannot be used as a raw transaction signature**
-   *     or broadcast on-chain.
-   * - For **embedded wallets**, uses the Turnkey API to sign the message directly.
-   * - Automatically handles message encoding and hashing based on the wallet account’s address format,
+   *   - *Ethereum*: signatures always follow [EIP-191](https://eips.ethereum.org/EIPS/eip-191).
+   *     - The wallet automatically prefixes messages with
+   *       `"\x19Ethereum Signed Message:\n" + message length` before signing.
+   *     - As a result, these signatures cannot be used as raw transaction signatures or broadcast on-chain.
+   *     - If `addEthereumPrefix` is set to `false`, an error is thrown because connected Ethereum wallets always prefix.
+   *   - *Other chains*: follows the native connected wallet behavior.
+   *
+   * - **Embedded wallets**
+   *   - Uses the Turnkey API to sign the message directly.
+   *   - Supports optional `addEthereumPrefix`:
+   *     - If `true` (default for Ethereum), the message is prefixed before signing.
+   *     - If `false`, the raw message is signed without any prefix.
+   *
+   * Additional details:
+   * - Automatically handles encoding and hashing based on the wallet account’s address format,
    *   unless explicitly overridden.
+   * - Optionally allows stamping with a specific stamper
+   *   (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
    *
    * @param params.message - message to sign.
    * @param params.walletAccount - wallet account to use for signing.
-   * @param params.encoding - override for the payload encoding (defaults to the encoding appropriate for the address type).
-   * @param params.hashFunction - override for the hash function (defaults to the hash function appropriate for the address type).
-   * @param params.stampWith - stamper to tag the signing request (e.g., Passkey, ApiKey, or Wallet).
-   * @param params.addEthereumPrefix - whether to prefix the message with Ethereum's `"\x19Ethereum Signed Message:\n"` string.
-   *   - If `true` (default for Ethereum), the message is prefixed before signing.
-   *   - If `false`:
-   *     - Connected wallets will throw an error because they always prefix automatically.
-   *     - Embedded wallets will sign the raw message without any prefix.
+   * @param params.encoding - override for payload encoding (defaults to the encoding appropriate for the address format).
+   * @param params.hashFunction - override for hash function (defaults to the function appropriate for the address format).
+   * @param params.stampWith - optional stamper for the signing request.
+   * @param params.addEthereumPrefix - whether to prefix the message with Ethereum’s
+   *   `"\x19Ethereum Signed Message:\n"` string (default: `true` for Ethereum).
    *
-   * @returns A promise resolving to a `v1SignRawPayloadResult` containing the signature and metadata.
-   * @throws {TurnkeyError} If signing fails, if the wallet account does not support signing, or if the response is invalid.
+   * @returns A promise that resolves to a `v1SignRawPayloadResult` containing the signature and metadata.
+   * @throws {TurnkeyError} If signing fails, the wallet type does not support message signing, or the response is invalid.
    */
   signMessage = async (params: {
     message: string;
@@ -2205,18 +2214,24 @@ export class TurnkeyClient {
   /**
    * Signs a transaction using the specified wallet account.
    *
-   * - This function signs a blockchain transaction using the provided wallet address and transaction data.
-   * - Supports all Turnkey-supported blockchain networks (e.g., Ethereum, Solana, Tron).
-   * - Automatically determines the appropriate signing method based on the transaction type.
-   * - Delegates signing to the Turnkey API, which returns the signed transaction and related metadata.
-   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * Behavior differs depending on the type of wallet:
    *
-   * @param params.walletAccount - wallet account to use for signing the transaction.
-   * @param params.unsignedTransaction - unsigned transaction data (serialized as a string) to be signed.
+   * - **Connected wallets**
+   *   - Ethereum: does not support raw transaction signing. Calling this function will throw an error instructing you to use `signAndSendTransaction` instead.
+   *   - Solana: supports raw transaction signing via the connected wallet provider.
+   *   - Other chains: not supported; will throw an error.
+   *
+   * - **Embedded wallets**
+   *   - Delegates signing to the Turnkey API, which returns the signed transaction.
+   *   - Supports all Turnkey-supported transaction types (e.g., Ethereum, Solana, Tron).
+   *   - Optionally allows stamping with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
+   *
+   * @param params.walletAccount - wallet account to use for signing.
+   * @param params.unsignedTransaction - unsigned transaction data (serialized string).
    * @param params.transactionType - type of transaction (e.g., "TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA", "TRANSACTION_TYPE_TRON").
-   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
-   * @returns A promise that resolves to a `TSignTransactionResponse` object containing the signed transaction and any additional signing metadata.
-   * @throws {TurnkeyError} If there is an error signing the transaction or if the response is invalid.
+   * @param params.stampWith - stamper to use for signing (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
+   * @returns A promise that resolves to the signed transaction string.
+   * @throws {TurnkeyError} If the wallet type is unsupported, signing fails, or the response is invalid.
    */
   signTransaction = async (params: {
     unsignedTransaction: string;
@@ -2274,22 +2289,27 @@ export class TurnkeyClient {
   /**
    * Signs and broadcasts a transaction using the specified wallet account.
    *
-   * - For **connected wallets**:
-   *   - Calls the wallet’s native `signAndSendTransaction` method.
-   *   - Does **not** require an `rpcUrl`.
+   * Behavior differs depending on the type of wallet:
    *
-   * - For **embedded wallets**:
+   * - **Connected wallets**
+   *   - *Ethereum*: delegates to the wallet’s native `signAndSendTransaction` method.
+   *     - Does **not** require an `rpcUrl` (the wallet handles broadcasting).
+   *   - *Solana*: signs the transaction locally with the connected wallet, but requires an `rpcUrl` to broadcast it.
+   *   - Other chains: not supported; will throw an error.
+   *
+   * - **Embedded wallets**
    *   - Signs the transaction using the Turnkey API.
-   *   - Requires an `rpcUrl` to broadcast the transaction.
-   *   - Broadcasts the transaction using a JSON-RPC client.
+   *   - Requires an `rpcUrl` to broadcast the signed transaction, since Turnkey does not broadcast directly.
+   *   - Broadcasts the transaction using a JSON-RPC client and returns the resulting transaction hash/signature.
+   *   - Optionally allows stamping with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
    *
-   * @param params.walletAccount - wallet account to use for signing and sending.
-   * @param params.unsignedTransaction - unsigned transaction (serialized string).
-   * @param params.transactionType - transaction type (e.g., "TRANSACTION_TYPE_SOLANA").
-   * @param params.rpcUrl - required for embedded wallets to broadcast the signed transaction.
-   * @param params.stampWith - optional stamper to tag the signing request.
+   * @param params.walletAccount - wallet account to use for signing and broadcasting.
+   * @param params.unsignedTransaction - unsigned transaction data (serialized string).
+   * @param params.transactionType - type of transaction (e.g., `"TRANSACTION_TYPE_SOLANA"`, `"TRANSACTION_TYPE_ETHEREUM"`).
+   * @param params.rpcUrl - JSON-RPC endpoint used for broadcasting (required for Solana connected wallets and all embedded wallets).
+   * @param params.stampWith - optional stamper to use when signing (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
    * @returns A promise that resolves to a transaction signature or hash.
-   * @throws {TurnkeyError} If signing or broadcasting fails.
+   * @throws {TurnkeyError} If the wallet type is unsupported, or if signing/broadcasting fails.
    */
   signAndSendTransaction = async (params: {
     unsignedTransaction: string;
