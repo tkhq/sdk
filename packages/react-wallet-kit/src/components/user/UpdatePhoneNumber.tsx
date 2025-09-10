@@ -119,7 +119,7 @@ export function UpdatePhoneNumber(params: {
           onClick={handleContinue}
           disabled={!isValid}
           loading={loading}
-          className="w-full max-w-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
+          className="w-full md:max-w-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
           spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         >
           Continue

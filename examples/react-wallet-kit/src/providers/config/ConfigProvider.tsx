@@ -215,7 +215,12 @@ export function TurnkeyConfigProvider({
           </a>
 
           <div className="sm:flex hidden font-bold text-sm w-52 justify-end">
-            <span>@turnkey/react-wallet-kit</span>
+            <a
+              href="https://www.npmjs.com/package/@turnkey/react-wallet-kit"
+              target="_blank"
+            >
+              @turnkey/react-wallet-kit
+            </a>
           </div>
         </div>
 

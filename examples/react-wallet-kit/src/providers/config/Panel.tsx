@@ -242,7 +242,7 @@ export function TurnkeyConfigPanel() {
 
                           {/* Individual Toggles */}
                           {method.toggles.length > 1 && (
-                            <div className="space-y-3 flex flex-col justify-between mt-3 w-full">
+                            <div className="flex flex-col justify-between mt-3 w-full">
                               {method.toggles.map((toggleKey) => {
                                 const isChecked =
                                   config.auth?.methods?.[
@@ -251,7 +251,7 @@ export function TurnkeyConfigPanel() {
                                 return (
                                   <Checkbox
                                     key={toggleKey.toggle}
-                                    className="flex justify-between items-center cursor-pointer"
+                                    className="flex justify-between items-center cursor-pointer py-1.5"
                                     checked={isChecked}
                                     onChange={(val: boolean) =>
                                       handleSetConfig({
@@ -286,7 +286,7 @@ export function TurnkeyConfigPanel() {
 
                               {method.name === "OAuth" && (
                                 <>
-                                  <div className="w-full h-[1px] bg-icon-text-light dark:bg-icon-text-dark" />
+                                  <div className="w-full my-3 h-[1px] bg-icon-text-light dark:bg-icon-text-dark" />
                                   <ToggleSwitch
                                     label="Open OAuth In Page"
                                     size="sm"

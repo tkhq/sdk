@@ -97,6 +97,21 @@ type AddressFormatConfig = {
  * const config = addressFormatConfig["ADDRESS_FORMAT_ETHEREUM"];
  * ```
  */
+
+const sessionExpiredError =
+  "could not find public key in organization or its parent organization";
+
+const globalErrorsToMatch: Record<
+  string,
+  { message: string; code: TurnkeyErrorCodes }
+> = {
+  [sessionExpiredError]: {
+    message:
+      "Session public key could not be found in the sub-organization or parent organization",
+    code: TurnkeyErrorCodes.SESSION_EXPIRED,
+  },
+};
+
 export const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> =
   {
     ADDRESS_FORMAT_UNCOMPRESSED: {
@@ -946,9 +961,11 @@ export async function withTurnkeyErrorHandling<T>(
     errorMessage,
     errorCode,
     customErrorsByCodes,
-    customErrorsByMessages,
+    customErrorsByMessages = globalErrorsToMatch,
     catchFn,
   } = catchOptions;
+  // add global errors to customErrorsByMessages
+  Object.assign(customErrorsByMessages, globalErrorsToMatch);
   const finallyFn = finallyOptions?.finallyFn;
   try {
     return await fn();

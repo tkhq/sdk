@@ -4,9 +4,11 @@ import {
   AppleSVG,
   CheckboxCircleFillSVG,
   DeleteSVG,
+  DiscordSVG,
   EditSVG,
   FacebookSVG,
   GoogleSVG,
+  TwitterXSVG,
 } from "../Svg";
 import EmailAuthButton from "./AuthButtons/EmailAuthButton";
 import PhoneAuthButton from "./AuthButtons/PhoneAuthButton";
@@ -124,6 +126,20 @@ export default function UserSettings() {
                   canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.FACEBOOK}
                   logo={<FacebookSVG className="w-6 h-6" />}
+                />
+              )}
+              {clientConfig?.auth?.methods?.xOauthEnabled && (
+                <SocialButton
+                  canRemoveAuthMethod={canRemoveAuthMethod}
+                  provider={OAuthProviders.X}
+                  logo={<TwitterXSVG className="w-6 h-6" />}
+                />
+              )}
+              {clientConfig?.auth?.methods?.discordOauthEnabled && (
+                <SocialButton
+                  canRemoveAuthMethod={canRemoveAuthMethod}
+                  provider={OAuthProviders.DISCORD}
+                  logo={<DiscordSVG className="w-6 h-6" />}
                 />
               )}
               {clientConfig?.auth?.methods?.passkeyAuthEnabled && (

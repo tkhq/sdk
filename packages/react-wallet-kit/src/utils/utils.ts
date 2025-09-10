@@ -83,6 +83,7 @@ export const isValidSession = (session?: Session | undefined): boolean => {
 
 export async function withTurnkeyErrorHandling<T>(
   fn: () => Promise<T>,
+  sessionExpireFn: () => Promise<void>,
   callbacks?: { onError?: (error: TurnkeyError) => void },
   fallbackMessage = "An unknown error occurred",
   fallbackCode = TurnkeyErrorCodes.UNKNOWN,
@@ -91,6 +92,9 @@ export async function withTurnkeyErrorHandling<T>(
     return await fn();
   } catch (error) {
     if (error instanceof TurnkeyError) {
+      if (error.code === TurnkeyErrorCodes.SESSION_EXPIRED) {
+        sessionExpireFn();
+      }
       callbacks?.onError?.(error);
       throw error;
     }

@@ -604,6 +604,63 @@ describe("withTurnkeyErrorHandling", () => {
     });
   });
 
+  it("catches global error message", async () => {
+    const globalError = new TurnkeyRequestError({
+      message:
+        "Turnkey error 16: could not find public key in organization or its parent organization",
+      code: 16,
+      details: null,
+    });
+    const normalError = new TurnkeyError(
+      "test message",
+      TurnkeyErrorCodes.BAD_REQUEST,
+    );
+
+    await expect(
+      withTurnkeyErrorHandling(
+        async () => {
+          throw globalError;
+        },
+        {
+          // throw in a dummy message map to make sure we hit that code path even with a passed-in message match
+          customErrorsByMessages: {
+            "test message": {
+              message: "test message",
+              code: TurnkeyErrorCodes.BAD_REQUEST,
+            },
+          },
+          errorMessage: DEFAULT_MSG,
+          errorCode: DEFAULT_CODE,
+        },
+      ),
+    ).rejects.toMatchObject({
+      code: TurnkeyErrorCodes.SESSION_EXPIRED,
+      message:
+        "Session public key could not be found in the sub-organization or parent organization",
+    });
+    await expect(
+      withTurnkeyErrorHandling(
+        async () => {
+          throw normalError;
+        },
+        {
+          // throw in a dummy message map to make sure we hit that code path even with a passed-in message match
+          customErrorsByMessages: {
+            "test message": {
+              message: "Thrown test message",
+              code: TurnkeyErrorCodes.INTERNAL_ERROR,
+            },
+          },
+          errorMessage: DEFAULT_MSG,
+          errorCode: DEFAULT_CODE,
+        },
+      ),
+    ).rejects.toMatchObject({
+      code: TurnkeyErrorCodes.INTERNAL_ERROR,
+      message: "Thrown test message",
+    });
+  });
+
   describe("when thrown error is TurnkeyError", () => {
     it("uses customMessageByCodes when the code matches (takes priority over message map)", async () => {
       const original = new TurnkeyError("original message", DEFAULT_CODE);
