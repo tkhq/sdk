@@ -1,0 +1,27 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./.cache/.tsbuildinfo",
+    "lib": ["es2020"],
+    "jsx": "react-native",
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.js",
+    "src/**/*.jsx",
+    "src/**/*.json"
+  ],
+  "exclude": ["**/__tests__/**/*", "**/__fixtures__/**/*"],
+  "references": [
+    { "path": "../sdk-react-native" },
+    { "path": "../core" },
+    { "path": "../sdk-types" }
+  ]
+}
