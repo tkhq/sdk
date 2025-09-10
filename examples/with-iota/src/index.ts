@@ -39,8 +39,15 @@ async function main() {
     IOTA_PUBLIC_KEY,
   } = process.env;
 
+  // *** ENVIRONMENT CHECKING *** //
+
   if (IOTA_ADDRESS === undefined || IOTA_PUBLIC_KEY === undefined) {
     throw new Error('IOTA_ADDRESS or IOTA_PUBLIC_KEY not set in .env.local');
+  }
+
+  const publicKey = new Ed25519PublicKey(Buffer.from(IOTA_PUBLIC_KEY!, 'hex'));
+  if (publicKey.toIotaAddress() !== IOTA_ADDRESS) {
+    throw new Error('IOTA_PUBLIC_KEY does not match IOTA_ADDRESS');
   }
 
   // sending to the same address
@@ -54,12 +61,9 @@ async function main() {
     defaultOrganizationId: ORGANIZATION_ID!,
   });
 
-  const provider = new IotaClient({ url: getFullnodeUrl('testnet') });
-  const publicKey = new Ed25519PublicKey(Buffer.from(IOTA_PUBLIC_KEY!, 'hex'));
+  // *** TRANSACTION BUILDING *** //
 
-  if (publicKey.toIotaAddress() !== IOTA_ADDRESS) {
-    throw new Error('IOTA_PUBLIC_KEY does not match IOTA_ADDRESS');
-  }
+  const provider = new IotaClient({ url: getFullnodeUrl('testnet') });
 
   // fetch the user's IOTA coin objects
   const coins = await provider.getCoins({
@@ -78,7 +82,7 @@ async function main() {
       version: coins.data[0]!.version,
       digest: coins.data[0]!.digest,
     },
-  ]);
+  ]); // separate intended send amount from gas payment
   const coin = tx.splitCoins(tx.gas, [tx.pure('u64', amount)]);
   tx.transferObjects([coin], tx.pure.address(recipient));
 
@@ -96,6 +100,8 @@ async function main() {
 
   const signature = Buffer.from(r + s, 'hex');
   const serialized = toSerializedSignature({ signature, pubKey: publicKey });
+
+  // *** EXECUTION *** //
 
   const result = await provider.executeTransactionBlock({
     transactionBlock: Buffer.from(txBytes).toString('base64'),

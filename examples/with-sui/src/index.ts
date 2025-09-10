@@ -43,6 +43,11 @@ async function main() {
     throw new Error('SUI_ADDRESS or SUI_PUBLIC_KEY not set in .env.local');
   }
 
+  const publicKey = new Ed25519PublicKey(Buffer.from(SUI_PUBLIC_KEY!, 'hex'));
+  if (publicKey.toSuiAddress() !== SUI_ADDRESS) {
+    throw new Error('SUI_PUBLIC_KEY does not match SUI_ADDRESS');
+  }
+
   // sending to the same address
   const recipient = SUI_ADDRESS;
   const amount = 1_000_000n; // 0.001 SUI
@@ -54,12 +59,9 @@ async function main() {
     defaultOrganizationId: ORGANIZATION_ID!,
   });
 
-  const provider = new SuiClient({ url: getFullnodeUrl('testnet') });
-  const publicKey = new Ed25519PublicKey(Buffer.from(SUI_PUBLIC_KEY!, 'hex'));
+  // *** TRANSACTION BUILDING *** //
 
-  if (publicKey.toSuiAddress() !== SUI_ADDRESS) {
-    throw new Error('SUI_PUBLIC_KEY does not match SUI_ADDRESS');
-  }
+  const provider = new SuiClient({ url: getFullnodeUrl('testnet') });
 
   // fetch the user's SUI coin objects
   const coins = await provider.getCoins({
@@ -78,7 +80,7 @@ async function main() {
       version: coins.data[0]!.version,
       digest: coins.data[0]!.digest,
     },
-  ]);
+  ]); // separate intended send amount from gas payment
   const coin = tx.splitCoins(tx.gas, [tx.pure('u64', amount)]);
   tx.transferObjects([coin], tx.pure.address(recipient));
 
@@ -96,6 +98,8 @@ async function main() {
 
   const signature = Buffer.from(r + s, 'hex');
   const serialized = toSerializedSignature({ signature, pubKey: publicKey });
+
+  // *** EXECUTION *** //
 
   const result = await provider.executeTransactionBlock({
     transactionBlock: Buffer.from(txBytes).toString('base64'),
