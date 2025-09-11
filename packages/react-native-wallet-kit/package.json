@@ -31,11 +31,14 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "@fortawesome/free-brands-svg-icons": "^6.7.2",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@noble/hashes": "^1.8.0",
     "@turnkey/core": "workspace:*",
-    "@turnkey/sdk-types": "workspace:*",
-    "@turnkey/sdk-react-native": "workspace:*",
+    "@turnkey/iframe-stamper": "^2.6.0",
     "@turnkey/react-native-passkey-stamper": "workspace:*",
+    "@turnkey/sdk-react-native": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",
     "libphonenumber-js": "^1.11.14"
