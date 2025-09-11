@@ -27,6 +27,8 @@ import {
   EvmChainInfo,
   SolanaChainInfo,
   Curve,
+  EmbeddedWallet,
+  WalletSource,
 } from "./__types__/base";
 import { bs58 } from "@turnkey/encoding";
 
@@ -1150,4 +1152,40 @@ export function isValidPasskeyName(name: string): string {
     );
   }
   return name;
+}
+
+export function mapAccountsToWallet(
+  accounts: v1WalletAccount[],
+): EmbeddedWallet[] {
+  // map of walletId to Wallet
+  const walletMap = new Map<string, EmbeddedWallet>();
+
+  // map all wallet accounts to their wallets
+  accounts.forEach(async (account) => {
+    if (walletMap.has(account.walletDetails!.walletId)) {
+      const wallet = walletMap.get(account.walletDetails!.walletId)!;
+      wallet.accounts.push({
+        ...account,
+        source: WalletSource.Embedded,
+      });
+      return;
+    } else {
+      walletMap.set(account.walletDetails!.walletId, {
+        source: WalletSource.Embedded,
+        walletId: account.walletDetails!.walletId,
+        walletName: account.walletDetails!.walletName,
+        createdAt: account.walletDetails!.createdAt,
+        updatedAt: account.walletDetails!.updatedAt,
+        exported: account.walletDetails!.exported,
+        imported: account.walletDetails!.imported,
+        accounts: [
+          {
+            ...account,
+            source: WalletSource.Embedded,
+          },
+        ],
+      });
+    }
+  });
+  return Array.from(walletMap.values());
 }

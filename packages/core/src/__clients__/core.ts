@@ -74,6 +74,7 @@ import {
   isValidPasskeyName,
   addressFromPublicKey,
   getPolicySignature,
+  mapAccountsToWallet,
 } from "@utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -1784,35 +1785,22 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const res = await this.httpClient.getWallets(
-          { organizationId: session.organizationId },
+        const res = await this.httpClient.getWalletAccounts(
+          {
+            organizationId: session.organizationId,
+            includeWalletDetails: true,
+          },
           stampWith,
         );
 
-        if (!res || !res.wallets) {
+        if (!res || !res.accounts) {
           throw new TurnkeyError(
-            "No wallets found in the response",
+            "No wallet accounts found in the response",
             TurnkeyErrorCodes.BAD_RESPONSE,
           );
         }
 
-        const embedded: EmbeddedWallet[] = await Promise.all(
-          res.wallets.map(async (wallet) => {
-            const embeddedWallet: Wallet = {
-              ...wallet,
-              source: WalletSource.Embedded,
-              accounts: [],
-            };
-
-            const accounts = await this.fetchWalletAccounts({
-              wallet: embeddedWallet,
-              ...(stampWith !== undefined && { stampWith }),
-            });
-
-            embeddedWallet.accounts = accounts;
-            return embeddedWallet;
-          }),
-        );
+        const embedded: EmbeddedWallet[] = mapAccountsToWallet(res.accounts);
 
         // if wallet connecting is disabled we return only embedded wallets
         if (!this.walletManager?.connector) return embedded;
