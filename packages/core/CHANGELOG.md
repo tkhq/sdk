@@ -6,6 +6,7 @@
 
 - Initial Stable Release: `@turnkey/core` 🎉  
   Turnkey’s **core TypeScript client-side SDK** for Embedded Wallets is now generally available.
+
   - Provides a set of functions and utilities to interact with Turnkey’s APIs
   - Includes a powerful session management system
   - Comes with built-in stampers for signing flows

@@ -6,6 +6,7 @@
 
 - Initial Stable Release: `@turnkey/react-wallet-kit` 🎉
   Turnkey’s **Embedded Wallet Kit** is the easiest way to integrate Turnkey’s Embedded Wallets into your React applications, with no backend required.
+
   - Built on [`@turnkey/core`](https://www.npmjs.com/package/@turnkey/core)
   - Provides a set of UI components and simple functions, all exported through a React hook
   - Designed to help you quickly build secure embedded wallet experiences
