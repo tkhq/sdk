@@ -604,60 +604,89 @@ describe("withTurnkeyErrorHandling", () => {
     });
   });
 
-  it("catches global error message", async () => {
-    const globalError = new TurnkeyRequestError({
-      message:
-        "Turnkey error 16: could not find public key in organization or its parent organization",
-      code: 16,
-      details: null,
-    });
-    const normalError = new TurnkeyError(
-      "test message",
-      TurnkeyErrorCodes.BAD_REQUEST,
-    );
+  describe("catch global error messages", () => {
+    it("catches global error message while throwing in a message map", async () => {
+      const globalError = new TurnkeyRequestError({
+        message:
+          "Turnkey error 16: could not find public key in organization or its parent organization",
+        code: 16,
+        details: null,
+      });
 
-    await expect(
-      withTurnkeyErrorHandling(
-        async () => {
-          throw globalError;
-        },
-        {
-          // throw in a dummy message map to make sure we hit that code path even with a passed-in message match
-          customErrorsByMessages: {
-            "test message": {
-              message: "test message",
-              code: TurnkeyErrorCodes.BAD_REQUEST,
-            },
+      await expect(
+        withTurnkeyErrorHandling(
+          async () => {
+            throw globalError;
           },
-          errorMessage: DEFAULT_MSG,
-          errorCode: DEFAULT_CODE,
-        },
-      ),
-    ).rejects.toMatchObject({
-      code: TurnkeyErrorCodes.SESSION_EXPIRED,
-      message:
-        "Session public key could not be found in the sub-organization or parent organization",
+          {
+            // throw in a dummy message map to make sure we hit that code path even with a passed-in message match
+            customErrorsByMessages: {
+              "test message": {
+                message: "test message",
+                code: TurnkeyErrorCodes.BAD_REQUEST,
+              },
+            },
+            errorMessage: DEFAULT_MSG,
+            errorCode: DEFAULT_CODE,
+          },
+        ),
+      ).rejects.toMatchObject({
+        code: TurnkeyErrorCodes.SESSION_EXPIRED,
+        message:
+          "Session public key could not be found in the sub-organization or parent organization",
+      });
     });
-    await expect(
-      withTurnkeyErrorHandling(
-        async () => {
-          throw normalError;
-        },
-        {
-          // throw in a dummy message map to make sure we hit that code path even with a passed-in message match
-          customErrorsByMessages: {
-            "test message": {
-              message: "Thrown test message",
-              code: TurnkeyErrorCodes.INTERNAL_ERROR,
-            },
+
+    it("catches second global error but without a message map passed in", async () => {
+      const globalError2 = new TurnkeyRequestError({
+        message:
+          "Turnkey error 17: Unauthenticated desc = expired api key publicKey",
+        code: 17,
+        details: null,
+      });
+      await expect(
+        withTurnkeyErrorHandling(
+          async () => {
+            throw globalError2;
           },
-          errorMessage: DEFAULT_MSG,
-          errorCode: DEFAULT_CODE,
-        },
-      ),
-    ).rejects.toMatchObject({
-      code: TurnkeyErrorCodes.INTERNAL_ERROR,
-      message: "Thrown test message",
+          {
+            errorMessage: DEFAULT_MSG,
+            errorCode: DEFAULT_CODE,
+          },
+        ),
+      ).rejects.toMatchObject({
+        code: TurnkeyErrorCodes.SESSION_EXPIRED,
+        message: "Session API key has expired",
+      });
+    });
+
+    it("normal error message takes priority over global message map", async () => {
+      const normalError = new TurnkeyError(
+        "test message",
+        TurnkeyErrorCodes.UNKNOWN,
+      );
+
+      await expect(
+        withTurnkeyErrorHandling(
+          async () => {
+            throw normalError;
+          },
+          {
+            // throw in a dummy message map to make sure we hit that code path even with a passed-in message match
+            customErrorsByMessages: {
+              "test message": {
+                message: "Thrown test message",
+                code: TurnkeyErrorCodes.INTERNAL_ERROR,
+              },
+            },
+            errorMessage: DEFAULT_MSG,
+            errorCode: DEFAULT_CODE,
+          },
+        ),
+      ).rejects.toMatchObject({
+        code: TurnkeyErrorCodes.INTERNAL_ERROR,
+        message: "Thrown test message",
+      });
     });
   });
 

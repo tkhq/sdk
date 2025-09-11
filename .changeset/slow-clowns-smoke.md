@@ -2,4 +2,5 @@
 "@turnkey/react-wallet-kit": minor
 ---
 
-Added config option to disable managed state auto refreshing. Sessions now expire automatically when the session keypair is rendered invalid (ex: When a user has >10 sessions active, the earliest session is invalidated)
+- Added config option to disable managed state auto refreshing.
+- The session state is automatically cleared if a request to Turnkey returns an unauthorized error indicating that the session keypair is no longer valid.
