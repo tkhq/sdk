@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { ClientContext, ClientContextType } from './Types';
+import { ClientContext, ClientContextType } from '../providers/client/Types';
 
 export const useTurnkey = (): ClientContextType => {
   const context = useContext(ClientContext);
