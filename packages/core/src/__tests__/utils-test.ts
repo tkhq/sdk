@@ -7,8 +7,10 @@ import {
   it,
 } from "@jest/globals";
 import {
+  externaldatav1Timestamp,
   TurnkeyError,
   TurnkeyErrorCodes,
+  v1Wallet,
   type v1AddressFormat,
   type v1User,
   type v1WalletAccount,
@@ -33,15 +35,18 @@ import {
   withTurnkeyErrorHandling,
   assertValidP256ECDSAKeyPair,
   isValidPasskeyName,
+  mapAccountsToWallet,
 } from "../utils";
 import * as utils from "../utils";
 import { stringToBase64urlString } from "@turnkey/encoding";
 import {
   Chain,
+  EmbeddedWallet,
   EvmChainInfo,
   SolanaChainInfo,
   WalletInterfaceType,
   WalletProvider,
+  WalletSource,
 } from "../__types__/base";
 
 // mock the bs58 library
@@ -1129,5 +1134,158 @@ describe("isValidPasskeyName", () => {
       // restore original navigator
       (global as any).navigator = originalNav;
     }
+  });
+});
+
+const mkDate: externaldatav1Timestamp = {
+  seconds: "1735689600", // 2025-01-01T00:00:00Z
+  nanos: "0",
+};
+
+const mkWallet = (over: Partial<v1Wallet> = {}): v1Wallet => ({
+  walletId: "w_1",
+  walletName: "Main",
+  createdAt: mkDate,
+  updatedAt: mkDate,
+  exported: false,
+  imported: false,
+  ...over,
+});
+
+const mkAccount = (over: Partial<v1WalletAccount> = {}): v1WalletAccount => ({
+  walletAccountId: `wa_${Math.random().toString(36).slice(2)}`,
+  organizationId: "org_1",
+  walletId: over.walletDetails?.walletId ?? "w_1",
+  curve: "CURVE_SECP256K1",
+  pathFormat: "PATH_FORMAT_BIP32",
+  path: "m/44'/60'/0'/0",
+  addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+  address: "0xabc",
+  createdAt: mkDate,
+  updatedAt: mkDate,
+  walletDetails: mkWallet(),
+  ...over,
+});
+
+describe("mapAccountsToWallet", () => {
+  it("returns an empty array for empty input", () => {
+    expect(mapAccountsToWallet([])).toEqual([]);
+  });
+
+  it("groups multiple accounts with the same walletId into one wallet", () => {
+    const w = mkWallet({ walletId: "w_A", walletName: "Alpha" });
+
+    const a1 = mkAccount({
+      address: "0x111",
+      path: "m/44'/60'/0'/0",
+      walletDetails: w,
+      walletId: "w_A",
+    });
+    const a2 = mkAccount({
+      address: "0x222",
+      path: "m/44'/60'/0'/1",
+      walletDetails: w,
+      walletId: "w_A",
+    });
+
+    const out = mapAccountsToWallet([a1, a2]) as EmbeddedWallet[];
+    expect(out).toHaveLength(1);
+
+    const wallet = out[0];
+    expect(wallet!.walletId).toBe("w_A");
+    expect(wallet!.walletName).toBe("Alpha");
+    expect(wallet!.source).toBe(WalletSource.Embedded);
+    expect(wallet!.exported).toBe(w.exported);
+    expect(wallet!.imported).toBe(w.imported);
+
+    expect(wallet!.accounts).toHaveLength(2);
+    // Preserve original account props and set source on each account
+    expect(wallet!.accounts[0]).toMatchObject({
+      address: "0x111",
+      source: WalletSource.Embedded,
+    });
+    expect(wallet!.accounts[1]).toMatchObject({
+      address: "0x222",
+      source: WalletSource.Embedded,
+    });
+  });
+
+  it("creates separate wallets for different walletIds and preserves first-seen order", () => {
+    const wA = mkWallet({ walletId: "w_A", walletName: "Alpha" });
+    const wB = mkWallet({ walletId: "w_B", walletName: "Beta" });
+
+    const a1 = mkAccount({
+      address: "0xA1",
+      walletDetails: wA,
+      walletId: "w_A",
+    });
+    const b1 = mkAccount({
+      address: "0xB1",
+      walletDetails: wB,
+      walletId: "w_B",
+    });
+    const a2 = mkAccount({
+      address: "0xA2",
+      walletDetails: wA,
+      walletId: "w_A",
+    });
+
+    // First encounter: w_A, then w_B (order should follow first appearance)
+    const out = mapAccountsToWallet([a1, b1, a2]) as EmbeddedWallet[];
+    expect(out.map((w) => w.walletId)).toEqual(["w_A", "w_B"]);
+
+    const alpha = out[0];
+    const beta = out[1];
+
+    expect(alpha!.walletName).toBe("Alpha");
+    expect(alpha!.accounts.map((a) => a.address)).toEqual(["0xA1", "0xA2"]);
+
+    expect(beta!.walletName).toBe("Beta");
+    expect(beta!.accounts.map((a) => a.address)).toEqual(["0xB1"]);
+  });
+
+  it("preserves wallet-level metadata from walletDetails", () => {
+    const w = mkWallet({
+      walletId: "w_meta",
+      walletName: "Meta",
+      createdAt: mkDate,
+      updatedAt: mkDate,
+      exported: true,
+      imported: true,
+    });
+    const a = mkAccount({ walletDetails: w, walletId: "w_meta" });
+
+    const out = mapAccountsToWallet([a]) as EmbeddedWallet[];
+    expect(out[0]).toMatchObject({
+      walletId: "w_meta",
+      walletName: "Meta",
+      createdAt: mkDate,
+      updatedAt: mkDate,
+      exported: true,
+      imported: true,
+      source: WalletSource.Embedded,
+    });
+  });
+
+  it("handles accounts arriving out of order and still groups correctly", () => {
+    const w = mkWallet({ walletId: "w_mix", walletName: "Mixed" });
+
+    const a2 = mkAccount({
+      address: "0xM2",
+      path: "m/44'/60'/0'/1",
+      walletDetails: w,
+      walletId: "w_mix",
+    });
+    const a1 = mkAccount({
+      address: "0xM1",
+      path: "m/44'/60'/0'/0",
+      walletDetails: w,
+      walletId: "w_mix",
+    });
+
+    const out = mapAccountsToWallet([a2, a1]) as EmbeddedWallet[];
+    expect(out).toHaveLength(1);
+    // Keeps push order within that wallet (a2 then a1) since accounts are appended as seen
+    expect(out[0]!.accounts.map((a) => a.address)).toEqual(["0xM2", "0xM1"]);
   });
 });
