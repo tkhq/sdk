@@ -107,7 +107,7 @@ export function RemovePasskey(params: {
           name="remove-passkey-button"
           onClick={handleContinue}
           loading={isLoading}
-          className="w-full max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
+          className="w-full md:max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
           spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         >
           Remove Passkey

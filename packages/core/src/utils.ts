@@ -97,6 +97,28 @@ type AddressFormatConfig = {
  * const config = addressFormatConfig["ADDRESS_FORMAT_ETHEREUM"];
  * ```
  */
+
+const sessionExpiredErrors = {
+  pubKeyNotFound:
+    "could not find public key in organization or its parent organization",
+  apiKeyExpired: "Unauthenticated desc = expired api key publicKey",
+};
+
+// Global errors to match against error messages returned from the API
+const globalErrorsToMatch: Readonly<
+  Record<string, { message: string; code: TurnkeyErrorCodes }>
+> = Object.freeze({
+  [sessionExpiredErrors.pubKeyNotFound]: {
+    message:
+      "Session public key could not be found in the sub-organization or parent organization",
+    code: TurnkeyErrorCodes.SESSION_EXPIRED,
+  },
+  [sessionExpiredErrors.apiKeyExpired]: {
+    message: "Session API key has expired",
+    code: TurnkeyErrorCodes.SESSION_EXPIRED,
+  },
+});
+
 export const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> =
   {
     ADDRESS_FORMAT_UNCOMPRESSED: {
@@ -942,13 +964,17 @@ export async function withTurnkeyErrorHandling<T>(
     finallyFn: () => Promise<void>;
   },
 ): Promise<T> {
-  const {
-    errorMessage,
-    errorCode,
-    customErrorsByCodes,
-    customErrorsByMessages,
-    catchFn,
-  } = catchOptions;
+  const { errorMessage, errorCode, customErrorsByCodes, catchFn } =
+    catchOptions;
+
+  // Merge global error mappings with any caller-provided ones.
+  //   - Start with the globals so they’re always available.
+  //   - Spread the caller’s entries last so they override globals on conflicts.
+  //   - If the caller didn’t provide any, just fall back to the globals.
+  const customErrorsByMessages = catchOptions.customErrorsByMessages
+    ? { ...globalErrorsToMatch, ...catchOptions.customErrorsByMessages }
+    : globalErrorsToMatch;
+
   const finallyFn = finallyOptions?.finallyFn;
   try {
     return await fn();

@@ -82,7 +82,7 @@ export default function DeleteSubOrgWarning() {
           disabled={
             (!deleteWithoutExport && unExportedWallets.length > 0) || isLoading
           }
-          className="w-full flex items-center justify-center cursor-pointer transition-all active:scale-95 disabled:active:scale-100 disabled:bg-black/20 disabled:text-gray-700 dark:disabled:bg-white/20 dark:disabled:text-gray-300 p-3 rounded-md border-none max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
+          className="w-full flex items-center justify-center cursor-pointer transition-all active:scale-95 disabled:active:scale-100 disabled:bg-black/20 disabled:text-gray-700 dark:disabled:bg-white/20 dark:disabled:text-gray-300 p-3 rounded-md border-none md:max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
         >
           {isLoading ? (
             <Spinner className="!text-danger-light dark:!text-danger-dark" />

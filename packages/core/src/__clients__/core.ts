@@ -213,7 +213,7 @@ export class TurnkeyClient {
           });
           if (!res) {
             throw new TurnkeyError(
-              "Failed to create React Native passkey",
+              "Failed to create Web passkey",
               TurnkeyErrorCodes.INTERNAL_ERROR,
             );
           }

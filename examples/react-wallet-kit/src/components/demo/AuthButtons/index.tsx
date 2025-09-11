@@ -39,7 +39,7 @@ export function AuthToggleButton(props: AuthToggleButtonProps) {
     >
       <p className="flex items-center gap-2 text-text-light dark:text-text-dark">
         {icon}
-        <span>{label}</span>
+        <span className="capitalize">{label.toLocaleLowerCase()}</span>
       </p>
       {isLinked ? (
         <p

@@ -87,8 +87,12 @@ export default function DemoPanel() {
       return icons;
     };
 
-    if (!selectedWallet) {
+    if (
+      !selectedWallet ||
+      !wallets.find((w) => w.walletId === selectedWallet.walletId)
+    ) {
       setSelectedWallet(wallets[0]);
+      setSelectedWalletAccount(wallets[0]?.accounts[0]);
     }
     if (!selectedWalletAccount && wallets[0]?.accounts.length > 0) {
       setSelectedWalletAccount(wallets[0].accounts[0]);

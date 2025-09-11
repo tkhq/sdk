@@ -1128,6 +1128,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return withTurnkeyErrorHandling(
         () => client.createPasskey({ ...params }),
+        () => logout(),
         callbacks,
         "Failed to create passkey",
       );
@@ -1153,6 +1154,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             // We only handle post logout if the sessionKey is defined since that means we actually logged out of a session.
             if (sessionKey) handlePostLogout(sessionKey);
           },
+          () => logout(),
           callbacks,
           "Failed to logout",
         );
@@ -1179,6 +1181,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
         () => client.loginWithPasskey({ ...params, expirationSeconds }),
+        () => logout(),
         callbacks,
         "Failed to login with passkey",
       );
@@ -1250,6 +1253,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             passkeyDisplayName: passkeyName,
             expirationSeconds,
           }),
+        () => logout(),
         callbacks,
         "Failed to sign up with passkey",
       );
@@ -1365,6 +1369,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
         () => client.loginWithWallet({ ...params, expirationSeconds }),
+        () => logout(),
         callbacks,
         "Failed to login with wallet",
       );
@@ -1413,6 +1418,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
         () => client.signUpWithWallet({ ...params, expirationSeconds }),
+        () => logout(),
         callbacks,
         "Failed to sign up with wallet",
       );
@@ -1461,6 +1467,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
         () => client.loginOrSignupWithWallet({ ...params, expirationSeconds }),
+        () => logout(),
         callbacks,
         "Failed to login or sign up with wallet",
       );
@@ -1486,6 +1493,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return withTurnkeyErrorHandling(
         () => client.initOtp(params),
+        () => logout(),
         callbacks,
         "Failed to initialize OTP",
       );
@@ -1508,6 +1516,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return withTurnkeyErrorHandling(
         () => client.verifyOtp(params),
+        () => logout(),
         callbacks,
         "Failed to verify OTP",
       );
@@ -1531,6 +1540,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.loginWithOtp(params),
+        () => logout(),
         callbacks,
         "Failed to login with OTP",
       );
@@ -1583,6 +1593,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.signUpWithOtp(params),
+        () => logout(),
         callbacks,
         "Failed to sign up with OTP",
       );
@@ -1641,6 +1652,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.completeOtp(params),
+        () => logout(),
         callbacks,
         "Failed to complete OTP",
       );
@@ -1672,6 +1684,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.loginWithOauth(params),
+        () => logout(),
         callbacks,
         "Failed to login with OAuth",
       );
@@ -1718,6 +1731,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.signUpWithOauth(params),
+        () => logout(),
         callbacks,
         "Failed to sign up with OAuth",
       );
@@ -1767,6 +1781,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.completeOauth(params),
+        () => logout(),
         callbacks,
         "Failed to complete OAuth",
       );
@@ -1795,6 +1810,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return withTurnkeyErrorHandling(
         () => client.fetchWallets(params),
+        () => logout(),
         callbacks,
         "Failed to fetch wallets",
       );
@@ -1817,6 +1833,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return withTurnkeyErrorHandling(
         () => client.fetchWalletAccounts(params),
+        () => logout(),
         callbacks,
         "Failed to fetch wallet accounts",
       );
@@ -1836,6 +1853,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return withTurnkeyErrorHandling(
         () => client.fetchPrivateKeys(params),
+        () => logout(),
         callbacks,
         "Failed to fetch private keys",
       );
@@ -1859,6 +1877,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.signMessage(params),
+        () => logout(),
         callbacks,
         "Failed to sign message",
       );
@@ -1928,6 +1947,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.signTransaction(params),
+        () => logout(),
         callbacks,
         "Failed to sign transaction",
       );
@@ -1950,6 +1970,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.signAndSendTransaction(params),
+        () => logout(),
         callbacks,
         "Failed to sign transaction",
       );
@@ -1970,6 +1991,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.fetchUser(params),
+        () => logout(),
         callbacks,
         "Failed to fetch user",
       );
@@ -1992,6 +2014,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.fetchOrCreateP256ApiKeyUser(params),
+        () => logout(),
         callbacks,
         "Failed to fetch or create delegated access user",
       );
@@ -2010,6 +2033,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.fetchOrCreatePolicies(params),
+        () => logout(),
         callbacks,
         "Failed to fetch or create delegated access user",
       );
@@ -2031,6 +2055,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.updateUserEmail(params),
+        () => logout(),
         callbacks,
         "Failed to update user email",
       );
@@ -2052,6 +2077,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.removeUserEmail(params),
+        () => logout(),
         callbacks,
         "Failed to remove user email",
       );
@@ -2075,6 +2101,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.updateUserPhoneNumber(params),
+        () => logout(),
         callbacks,
         "Failed to update user phone number",
       );
@@ -2096,6 +2123,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.removeUserPhoneNumber(params),
+        () => logout(),
         callbacks,
         "Failed to remove user phone number",
       );
@@ -2118,6 +2146,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.updateUserName(params),
+        () => logout(),
         callbacks,
         "Failed to update user name",
       );
@@ -2141,6 +2170,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.addOauthProvider(params),
+        () => logout(),
         callbacks,
         "Failed to add OAuth provider",
       );
@@ -2163,6 +2193,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.removeOauthProviders(params),
+        () => logout(),
         callbacks,
         "Failed to remove OAuth providers",
       );
@@ -2186,6 +2217,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.addPasskey(params),
+        () => logout(),
         callbacks,
         "Failed to add passkey",
       );
@@ -2208,6 +2240,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.removePasskeys(params),
+        () => logout(),
         callbacks,
         "Failed to remove passkeys",
       );
@@ -2232,6 +2265,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.createWallet(params),
+        () => logout(),
         callbacks,
         "Failed to create wallet",
       );
@@ -2255,6 +2289,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.createWalletAccounts(params),
+        () => logout(),
         callbacks,
         "Failed to create wallet accounts",
       );
@@ -2278,6 +2313,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.exportWallet(params),
+        () => logout(),
         callbacks,
         "Failed to export wallet",
       );
@@ -2301,6 +2337,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.exportPrivateKey(params),
+        () => logout(),
         callbacks,
         "Failed to export private key",
       );
@@ -2323,6 +2360,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.exportWalletAccount(params),
+        () => logout(),
         callbacks,
         "Failed to export wallet accounts",
       );
@@ -2347,6 +2385,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.importWallet(params),
+        () => logout(),
         callbacks,
         "Failed to import wallet",
       );
@@ -2372,6 +2411,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const res = await withTurnkeyErrorHandling(
         () => client.importPrivateKey(params),
+        () => logout(),
         callbacks,
         "Failed to import private key",
       );
@@ -2392,6 +2432,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.deleteSubOrganization(params),
+        () => logout(),
         callbacks,
         "Failed to delete sub-organization",
       );
@@ -2411,6 +2452,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       await withTurnkeyErrorHandling(
         () => client.storeSession(params),
+        () => logout(),
         callbacks,
         "Failed to store session",
       );
@@ -2440,6 +2482,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       await withTurnkeyErrorHandling(
         () => client.clearSession(params),
+        () => logout(),
         callbacks,
         "Failed to clear session",
       );
@@ -2462,6 +2505,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     setAllSessions(undefined);
     return await withTurnkeyErrorHandling(
       () => client.clearAllSessions(),
+      () => logout(),
       callbacks,
       "Failed to clear all sessions",
     );
@@ -2494,6 +2538,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.refreshSession({ ...params }),
+        () => logout(),
         callbacks,
         "Failed to refresh session",
       );
@@ -2526,6 +2571,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.getSession(params),
+        () => logout(),
         callbacks,
         "Failed to get session",
       );
@@ -2543,6 +2589,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     return withTurnkeyErrorHandling(
       () => client.getAllSessions(),
+      () => logout(),
       callbacks,
       "Failed to get all sessions",
     );
@@ -2557,6 +2604,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const session = await withTurnkeyErrorHandling(
         () => client.getSession({ sessionKey: params.sessionKey }),
+        () => logout(),
         callbacks,
         "Failed to get session",
       );
@@ -2568,6 +2616,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       await withTurnkeyErrorHandling(
         () => client.setActiveSession(params),
+        () => logout(),
         callbacks,
         "Failed to set active session",
       );
@@ -2577,6 +2626,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           await refreshWallets();
           await refreshUser();
         },
+        () => logout(),
         callbacks,
         "Failed to refresh data after setting active session",
       );
@@ -2595,6 +2645,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     return withTurnkeyErrorHandling(
       () => client.getActiveSessionKey(),
+      () => logout(),
       callbacks,
       "Failed to get active session key",
     );
@@ -2608,6 +2659,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     return withTurnkeyErrorHandling(
       () => client.clearUnusedKeyPairs(),
+      () => logout(),
       callbacks,
       "Failed to clear unused key pairs",
     );
@@ -2627,6 +2679,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.createApiKeyPair(params),
+        () => logout(),
         callbacks,
         "Failed to create API key pair",
       );
@@ -2643,6 +2696,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.getProxyAuthConfig(),
+        () => logout(),
         callbacks,
         "Failed to get proxy auth config",
       );
@@ -2659,6 +2713,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       const user = await withTurnkeyErrorHandling(
         () => fetchUser({ stampWith }),
+        () => logout(),
         callbacks,
         "Failed to refresh user",
       );
@@ -2681,12 +2736,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const walletProviders = await withTurnkeyErrorHandling(
         () => fetchWalletProviders(),
+        () => logout(),
         callbacks,
         "Failed to refresh wallets",
       );
 
       const wallets = await withTurnkeyErrorHandling(
         () => fetchWallets({ stampWith, walletProviders }),
+        () => logout(),
         callbacks,
         "Failed to refresh wallets",
       );
@@ -3759,6 +3816,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 ),
               }),
             ),
+          () => logout(),
         );
       } catch (error) {
         if (error instanceof TurnkeyError) {
@@ -3810,6 +3868,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 ),
               }),
             ),
+          () => logout(),
         );
       } catch (error) {
         if (error instanceof TurnkeyError) {
@@ -3895,6 +3954,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   showTitle: false,
                 });
               }),
+            () => logout(),
           );
         } else {
           const res = await updateUserName({
@@ -3993,6 +4053,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   showTitle: false,
                 });
               }),
+            () => logout(),
           );
         } else {
           const otpId = await initOtp({
@@ -4040,6 +4101,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   showTitle: false,
                 });
               }),
+            () => logout(),
             callbacks,
             "Failed to update phone number",
           );
@@ -4119,6 +4181,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   showTitle: false,
                 });
               }),
+            () => logout(),
           );
         } else {
           const otpId = await initOtp({
@@ -4163,6 +4226,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   showTitle: false,
                 });
               }),
+            () => logout(),
             callbacks,
             "Failed to update email",
           );
@@ -4244,6 +4308,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   showTitle: false,
                 });
               }),
+            () => logout(),
           );
         } else {
           const otpId = await initOtp({
@@ -4288,6 +4353,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   showTitle: false,
                 });
               }),
+            () => logout(),
             callbacks,
             "Failed to add email",
           );
@@ -4385,6 +4451,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   showTitle: false,
                 });
               }),
+            () => logout(),
             callbacks,
             "Failed to add phone number",
           );
@@ -4434,6 +4501,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   showTitle: false,
                 });
               }),
+            () => logout(),
             callbacks,
             "Failed to add phone number",
           );
@@ -4506,6 +4574,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               preventBack: true,
             });
           }),
+        () => logout(),
         callbacks,
         "Failed to remove passkey",
       );
