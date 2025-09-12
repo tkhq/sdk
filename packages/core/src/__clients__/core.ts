@@ -2106,7 +2106,7 @@ export class TurnkeyClient {
    * - Optionally allows stamping with a specific stamper
    *   (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
    *
-   * @param params.message - message to sign.
+   * @param params.message - plaintext (UTF-8) message to sign.
    * @param params.walletAccount - wallet account to use for signing.
    * @param params.encoding - override for payload encoding (defaults to the encoding appropriate for the address format).
    * @param params.hashFunction - override for hash function (defaults to the function appropriate for the address format).
@@ -2216,7 +2216,8 @@ export class TurnkeyClient {
    *   - Optionally allows stamping with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
    *
    * @param params.walletAccount - wallet account to use for signing.
-   * @param params.unsignedTransaction - unsigned transaction data (serialized string).
+   * @param params.unsignedTransaction - unsigned transaction data as a serialized
+   *   string in the canonical encoding for the given `transactionType`.
    * @param params.transactionType - type of transaction (e.g., "TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA", "TRANSACTION_TYPE_TRON").
    * @param params.stampWith - stamper to use for signing (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
    * @returns A promise that resolves to the signed transaction string.
@@ -2293,7 +2294,8 @@ export class TurnkeyClient {
    *   - Optionally allows stamping with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
    *
    * @param params.walletAccount - wallet account to use for signing and broadcasting.
-   * @param params.unsignedTransaction - unsigned transaction data (serialized string).
+   * @param params.unsignedTransaction - unsigned transaction data as a serialized
+   *   string in the canonical encoding for the given `transactionType`.
    * @param params.transactionType - type of transaction (e.g., `"TRANSACTION_TYPE_SOLANA"`, `"TRANSACTION_TYPE_ETHEREUM"`).
    * @param params.rpcUrl - JSON-RPC endpoint used for broadcasting (required for Solana connected wallets and all embedded wallets).
    * @param params.stampWith - optional stamper to use when signing (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
