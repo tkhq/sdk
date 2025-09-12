@@ -2149,10 +2149,8 @@ export class TurnkeyClient {
 
           let encodedMessage = message;
           if (isEthereum) {
-            encodedMessage = getEncodedMessage(
-              walletAccount.addressFormat,
-              message,
-            );
+            const msgBytes = toUtf8Bytes(message);
+            encodedMessage = getEncodedMessage(payloadEncoding, msgBytes);
           }
 
           const sigHex = await walletAccount.signMessage(encodedMessage);
@@ -2160,17 +2158,20 @@ export class TurnkeyClient {
         }
 
         // this is an embedded wallet
-        let messageToEncode = message;
+        let msgBytes = toUtf8Bytes(message);
 
         if (addEthereumPrefix && isEthereum) {
-          const prefix = `\x19Ethereum Signed Message:\n${toUtf8Bytes(message).length}`;
-          messageToEncode = prefix + message;
+          const prefix = `\x19Ethereum Signed Message:\n${msgBytes.length}`;
+          const prefixBytes = toUtf8Bytes(prefix);
+
+          const combined = new Uint8Array(prefixBytes.length + msgBytes.length);
+          combined.set(prefixBytes, 0);
+          combined.set(msgBytes, prefixBytes.length);
+
+          msgBytes = combined;
         }
 
-        const encodedMessage = getEncodedMessage(
-          walletAccount.addressFormat,
-          messageToEncode,
-        );
+        const encodedMessage = getEncodedMessage(payloadEncoding, msgBytes);
 
         const response = await this.httpClient.signRawPayload(
           {

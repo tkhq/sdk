@@ -74,7 +74,7 @@ import {
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
-import { keccak256 } from "ethers";
+import { keccak256, toUtf8String } from "ethers";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -443,23 +443,20 @@ export function getEncodingType(addressFormat: v1AddressFormat) {
 }
 
 export function getEncodedMessage(
-  addressFormat: v1AddressFormat,
-  rawMessage: string,
+  payloadEncoding: v1PayloadEncoding,
+  rawMessage: Uint8Array,
 ): string {
-  const config = addressFormatConfig[addressFormat];
-  if (!config) {
-    throw new TurnkeyError(
-      `Unsupported address format: ${addressFormat}`,
-      TurnkeyErrorCodes.INVALID_REQUEST,
+  if (payloadEncoding === "PAYLOAD_ENCODING_HEXADECIMAL") {
+    return (
+      "0x" +
+      Array.from(rawMessage)
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("")
     );
   }
-  if (config.encoding === "PAYLOAD_ENCODING_HEXADECIMAL") {
-    return ("0x" +
-      Array.from(new TextEncoder().encode(rawMessage))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("")) as string;
-  }
-  return rawMessage;
+
+  // we decode back to a UTF-8 string
+  return toUtf8String(rawMessage);
 }
 
 export const broadcastTransaction = async (params: {
