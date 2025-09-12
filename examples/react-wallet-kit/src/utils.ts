@@ -3,7 +3,8 @@ import { PublicKey } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import { Buffer } from "buffer";
 
-import { hashMessage, recoverAddress } from "ethers";
+import { hashMessage } from "ethers";
+import { recoverMessageAddress } from "viem";
 
 // Custom hook to get the current screen size
 export function useScreenSize() {
@@ -231,23 +232,25 @@ function oklchToHex({ L, C, h }: { L: number; C: number; h: number }) {
  * @param {string} address - The Ethereum address of the signer.
  * @returns {boolean} - The recovered Ethereum address.
  */
-export function verifyEthSignatureWithAddress(
+export async function verifyEthSignatureWithAddress(
   message: string,
   r: string,
   s: string,
   v: string,
   address: string,
-): boolean {
+): Promise<boolean> {
   try {
     // Construct the full signature
-    const signature = `0x${r}${s}${v}`;
+    const signature: `0x${string}` = `0x${r}${s}${v}`;
 
     const hashedMessage = hashMessage(message);
 
     // Recover the address from the signature
     return (
       address.toLowerCase() ===
-      recoverAddress(hashedMessage, signature).toLowerCase()
+      (
+        await recoverMessageAddress({ message: hashedMessage, signature })
+      ).toLowerCase()
     );
   } catch (error) {
     console.error("Ethereum signature verification failed:", error);

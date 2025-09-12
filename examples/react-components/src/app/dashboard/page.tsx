@@ -451,12 +451,12 @@ export default function Dashboard() {
     }
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     if (!signature) return;
     const addressType = selectedAccount?.startsWith("0x") ? "ETH" : "SOL";
     const verificationPassed =
       addressType === "ETH"
-        ? verifyEthSignatureWithAddress(
+        ? await verifyEthSignatureWithAddress(
             messageToSign,
             signature.r,
             signature.s,
