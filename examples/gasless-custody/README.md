@@ -77,3 +77,4 @@ This script will do the following:
 
 Check your terminal for more info!
 
+Some of the flows demonstrated are covered more completely in other developer examples, such as [`sweeper`](https://github.com/tkhq/sdk/tree/main/examples/sweeper), [`with-zerodev-aa`](https://github.com/tkhq/sdk/tree/main/examples/with-zerodev-aa), and further inspiration can be taken from [`with-eth-passkeys-galore`](https://github.com/tkhq/sdk/tree/main/examples/with-eth-passkeys-galore).
