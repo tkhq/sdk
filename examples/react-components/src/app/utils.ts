@@ -1,8 +1,8 @@
-import { PublicKey, PublicKeyInitData } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import { Buffer } from "buffer";
 
-import { hashMessage, keccak256, recoverAddress, toUtf8Bytes } from "ethers";
+import { recoverMessageAddress, keccak256, stringToHex } from "viem";
 
 /**
  * Verifies an Ethereum signature and returns the address it was signed with.
@@ -11,22 +11,28 @@ import { hashMessage, keccak256, recoverAddress, toUtf8Bytes } from "ethers";
  * @param {string} s - The s value of the signature.
  * @param {string} v - The v value of the signature.
  * @param {string} address - The Ethereum address of the signer.
- * @returns {boolean} - The recovered Ethereum address.
+ * @returns {Promise<boolean>} - The recovered Ethereum address.
  */
-export function verifyEthSignatureWithAddress(
+export async function verifyEthSignatureWithAddress(
   message: string,
   r: string,
   s: string,
   v: string,
   address: string,
-): boolean {
+): Promise<boolean> {
   try {
     // Construct the full signature
-    const signature = `0x${r}${s}${v === "00" ? "1b" : "1c"}`; // 1b/1c corresponds to v for Ethereum
-    const hashedMessage = keccak256(toUtf8Bytes(message));
+    const signature: `0x${string}` = `0x${r}${s}${v === "00" ? "1b" : "1c"}`; // 1b/1c corresponds to v for Ethereum
+    const hashedMessage = keccak256(stringToHex(message));
 
     // Recover the address from the signature
-    return address == recoverAddress(hashedMessage, signature);
+    return (
+      address ==
+      (await recoverMessageAddress({
+        message: hashedMessage,
+        signature,
+      }))
+    );
   } catch (error) {
     console.error("Ethereum signature verification failed:", error);
     return false;

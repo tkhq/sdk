@@ -336,7 +336,7 @@ export default function DemoPanel() {
               const verificationPassed =
                 selectedWalletAccount.addressFormat ===
                 "ADDRESS_FORMAT_ETHEREUM"
-                  ? verifyEthSignatureWithAddress(
+                  ? await verifyEthSignatureWithAddress(
                       messageToSign,
                       res.r,
                       res.s,
