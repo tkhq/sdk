@@ -30,9 +30,17 @@ import { isWalletConnect } from "../../utils/utils";
 
 type AuthComponentProps = {
   sessionKey?: string | undefined;
+  logo?: string | undefined;
+  logoClassName?: string | undefined;
+  title?: string | undefined;
 };
 
-export function AuthComponent({ sessionKey }: AuthComponentProps) {
+export function AuthComponent({
+  sessionKey,
+  logo,
+  logoClassName,
+  title,
+}: AuthComponentProps) {
   const {
     config,
     clientState,
@@ -410,7 +418,19 @@ export function AuthComponent({ sessionKey }: AuthComponentProps) {
       {config.authProxyConfigId ? (
         rendered.length > 0 ? (
           <>
-            <div className="mt-12" />
+            {logo ? (
+              <div className="mt-3 mb-4 flex flex-col items-center">
+                <img
+                  src={logo}
+                  className={`max-w-32 mt-3 w-fit max-h-16 h-fit object-contain ${logoClassName}`}
+                />
+                <h2 className="text-lg font-medium mb-4 text-center">
+                  {title ?? "Log in or sign up"}
+                </h2>
+              </div>
+            ) : (
+              <div className="mt-12" />
+            )}
             {rendered.map((component, index) => (
               <div key={index} className="w-full">
                 {index > 0 && <OrSeparator />}

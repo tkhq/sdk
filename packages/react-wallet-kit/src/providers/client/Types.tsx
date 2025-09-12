@@ -104,11 +104,21 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - After successful authentication, the provider state is updated and all relevant session, user, and wallet data are refreshed.
    * - This function is typically used to trigger authentication from a UI button or navigation event.
    *
-   * @param params.sessionKey - Optional session key to resume an existing session or pre-fill session details in the login modal.
+   * @param params.sessionKey - session key to resume an existing session or pre-fill session details in the login modal.
+   * @param params.logoLight - URL of a custom logo image to display at the top of the login modal in light mode (overrides config.ui.logoLight).
+   * @param params.logoDark - URL of a custom logo image to display at the top of the login modal in dark mode (overrides config.ui.logoDark).
+   * @param params.logoClassName - additional CSS class names to apply to the logo image for custom styling.
+   * @param params.title - title text to display at the top of the login modal (defaults to "Log in or sign up").
    *
    * @returns A void promise.
    */
-  handleLogin: (params?: { sessionKey?: string }) => Promise<void>;
+  handleLogin: (params?: {
+    sessionKey?: string;
+    logoLight?: string;
+    logoDark?: string;
+    logoClassName?: string;
+    title?: string;
+  }) => Promise<void>;
 
   /**
    * Handles the Discord OAuth 2.0 flow.

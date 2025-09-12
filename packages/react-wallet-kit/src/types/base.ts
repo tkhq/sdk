@@ -98,6 +98,9 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   autoRefreshManagedState?: boolean;
   /** UI configuration. */
   ui?: {
+    /** logo for the auth component */
+    logoLight?: string;
+    logoDark?: string;
     /** enables or disables dark mode. */
     darkMode?: boolean;
     /** color scheme configuration. */

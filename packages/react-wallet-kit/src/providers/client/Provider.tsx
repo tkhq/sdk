@@ -3702,10 +3702,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleLogin = useCallback(
-    async (params?: { sessionKey?: string }) => {
+    async (params?: {
+      sessionKey?: string;
+      logoLight?: string;
+      logoDark?: string;
+      logoClassName?: string;
+      title?: string;
+    }) => {
+      const logo = masterConfig?.ui?.darkMode
+        ? (params?.logoDark ?? masterConfig?.ui?.logoDark)
+        : (params?.logoLight ?? masterConfig?.ui?.logoLight);
       pushPage({
-        key: "Log in or sign up",
-        content: <AuthComponent sessionKey={params?.sessionKey} />,
+        key: params?.title ?? "Log in or sign up",
+        content: (
+          <AuthComponent
+            sessionKey={params?.sessionKey}
+            logo={logo}
+            logoClassName={params?.logoClassName}
+            title={params?.title}
+          />
+        ),
+        showTitle: logo ? false : true,
       });
     },
     [pushPage, masterConfig, client, session, user],
