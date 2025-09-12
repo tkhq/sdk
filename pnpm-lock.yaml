@@ -609,6 +609,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.1.10
         version: 4.1.13
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../../packages/encoding
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
         version: link:../../packages/react-wallet-kit

@@ -3,7 +3,13 @@ import { PublicKey } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import { Buffer } from "buffer";
 
-import { hashMessage, recoverAddress } from "ethers";
+import { createPublicClient, http, verifyMessage } from "viem";
+import { mainnet } from "viem/chains";
+import {
+  normalizePadding,
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
 
 // Custom hook to get the current screen size
 export function useScreenSize() {
@@ -222,6 +228,45 @@ function oklchToHex({ L, C, h }: { L: number; C: number; h: number }) {
   return "#" + [r, g, b8].map((v) => v.toString(16).padStart(2, "0")).join("");
 }
 
+const client = createPublicClient({
+  chain: mainnet,
+  transport: http(),
+});
+
+// Utility to joins r, s, v components into a single hex-encoded signature string
+function joinRSV(r: string, s: string, v: string | number): `0x${string}` {
+  // we normalize input (strip 0x if present)
+  const rHex = r.startsWith("0x") ? r.slice(2) : r;
+  const sHex = s.startsWith("0x") ? s.slice(2) : s;
+  const vHex =
+    typeof v === "number"
+      ? v.toString(16)
+      : v.startsWith("0x")
+        ? v.slice(2)
+        : v;
+
+  // convert to bytes
+  const rBytes = uint8ArrayFromHexString(rHex);
+  const sBytes = uint8ArrayFromHexString(sHex);
+  const vBytes = uint8ArrayFromHexString(vHex);
+
+  // pad to proper lengths
+  const rPadded = normalizePadding(rBytes, 32);
+  const sPadded = normalizePadding(sBytes, 32);
+  const vPadded = normalizePadding(vBytes, 1);
+
+  // concatenate r + s + v
+  const signatureBytes = new Uint8Array(
+    rPadded.length + sPadded.length + vPadded.length,
+  );
+  signatureBytes.set(rPadded, 0);
+  signatureBytes.set(sPadded, rPadded.length);
+  signatureBytes.set(vPadded, rPadded.length + sPadded.length);
+
+  // we convert back to hex
+  return `0x${uint8ArrayToHexString(signatureBytes)}` as `0x${string}`;
+}
+
 /**
  * Verifies an Ethereum signature and returns the address it was signed with.
  * @param {string} message - The original message that was signed.
@@ -229,26 +274,22 @@ function oklchToHex({ L, C, h }: { L: number; C: number; h: number }) {
  * @param {string} s - The s value of the signature.
  * @param {string} v - The v value of the signature.
  * @param {string} address - The Ethereum address of the signer.
- * @returns {boolean} - The recovered Ethereum address.
+ * @returns {boolean} - True if the signature is valid, false otherwise.
  */
-export function verifyEthSignatureWithAddress(
+export async function verifyEthSignatureWithAddress(
   message: string,
   r: string,
   s: string,
-  v: string,
-  address: string,
-): boolean {
+  v: string | number,
+  address: `0x${string}`,
+): Promise<boolean> {
   try {
-    // Construct the full signature
-    const signature = `0x${r}${s}${v}`;
-
-    const hashedMessage = hashMessage(message);
-
-    // Recover the address from the signature
-    return (
-      address.toLowerCase() ===
-      recoverAddress(hashedMessage, signature).toLowerCase()
-    );
+    const signature = joinRSV(r, s, v);
+    return await client.verifyMessage({
+      address,
+      message,
+      signature,
+    });
   } catch (error) {
     console.error("Ethereum signature verification failed:", error);
     return false;

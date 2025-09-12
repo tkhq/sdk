@@ -57,13 +57,17 @@ import { bs58 } from "@turnkey/encoding";
 
 // For deterministic ETH behavior, mock the heavy crypto/EC parts.
 
-// Mock keccak256 to return a predictable value
-jest.mock("ethers", () => ({
-  keccak256: jest.fn(
-    () => "11".repeat(12) + "1234567890abcdef1234567890abcdef12345678",
-  ),
-}));
-import { keccak256 } from "ethers";
+// Mock ethers keccak256, and toUtf8Bytes
+jest.mock("ethers", () => {
+  const actual = jest.requireActual("ethers") as typeof import("ethers");
+  return {
+    ...actual,
+    keccak256: jest.fn(
+      () => "11".repeat(12) + "1234567890abcdef1234567890abcdef12345678",
+    ),
+  };
+});
+import { keccak256, toUtf8Bytes } from "ethers";
 
 // Mock uncompressRawPublicKey
 jest.mock("@turnkey/crypto", () => {
@@ -214,31 +218,36 @@ describe("address format helpers", () => {
   describe("getEncodedMessage", () => {
     it("hex-encodes ASCII with 0x prefix when encoding is HEX (e.g., Ethereum)", () => {
       // "Hello" => 48 65 6c 6c 6f
-      expect(getEncodedMessage(ETH, "Hello")).toBe("0x48656c6c6f");
+      expect(
+        getEncodedMessage("PAYLOAD_ENCODING_HEXADECIMAL", toUtf8Bytes("Hello")),
+      ).toBe("0x48656c6c6f");
     });
 
     it("hex-encodes multibyte UTF-8 correctly (e.g., 'é' => c3 a9)", () => {
-      expect(getEncodedMessage(ETH, "é")).toBe("0xc3a9");
+      expect(
+        getEncodedMessage("PAYLOAD_ENCODING_HEXADECIMAL", toUtf8Bytes("é")),
+      ).toBe("0xc3a9");
     });
 
     it("returns raw message when encoding is TEXT_UTF8 (e.g., Cosmos)", () => {
-      expect(getEncodedMessage(COSMOS, "plain text")).toBe("plain text");
+      expect(
+        getEncodedMessage(
+          "PAYLOAD_ENCODING_TEXT_UTF8",
+          toUtf8Bytes("plain text"),
+        ),
+      ).toBe("plain text");
     });
 
     it("returns '0x' for empty string when HEX encoding", () => {
-      expect(getEncodedMessage(UNCOMPRESSED, "")).toBe("0x");
-    });
-
-    it("throws for unsupported formats", () => {
-      const BAD = "ADDRESS_FORMAT_UNKNOWN" as unknown as v1AddressFormat;
-      expect(() => getEncodedMessage(BAD, "msg")).toThrow(
-        /Unsupported address format: ADDRESS_FORMAT_UNKNOWN/,
-      );
+      expect(
+        getEncodedMessage("PAYLOAD_ENCODING_HEXADECIMAL", new Uint8Array([])),
+      ).toBe("0x");
     });
 
     it("does not hex-encode for formats with TEXT_UTF8 (control case)", () => {
-      // Double-check we don't accidentally hex for TEXT_UTF8 formats
-      expect(getEncodedMessage(COSMOS, "é")).toBe("é");
+      expect(
+        getEncodedMessage("PAYLOAD_ENCODING_TEXT_UTF8", toUtf8Bytes("é")),
+      ).toBe("é");
     });
   });
 });
