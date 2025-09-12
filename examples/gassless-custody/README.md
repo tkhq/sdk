@@ -70,7 +70,7 @@ This script will do the following:
 2. instantiate a Viem public client (to be used to fetch onchain data)
 3. create a ZeroDev Validator
 4. create a ZeroDev Kernel Client (with Paymaster support)
-5. generate a new (user) recipient address
+5. generate a new recipient address
 6. check token balances
 7. constructs a gassless transaction from sender to this new address
 8. automatically sweeps the balance from this new address to a provided OMNIBUS_ADDRESS
