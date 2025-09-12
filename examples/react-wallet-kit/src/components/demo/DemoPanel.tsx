@@ -40,6 +40,7 @@ import {
 } from "@/utils";
 import SignatureVerification from "./SignatureVerification";
 import Image from "next/image";
+import OnrampSelector from "./OnrampSelector";
 
 export default function DemoPanel() {
   const {
@@ -365,6 +366,26 @@ export default function DemoPanel() {
           >
             Sign Message
           </Button>
+
+          <Button
+            onClick={async () => {
+              if (!selectedWalletAccount) return;
+              pushPage({
+                key: "Add funds to your wallet",
+                content: (
+                  <OnrampSelector
+                    selectedWalletAccount={selectedWalletAccount}
+                  />
+                ),
+                preventBack: true,
+                showTitle: true,
+              });
+            }}
+            className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
+          >
+            <FontAwesomeIcon icon={faPlus} className="w-4 h-4 mr-2" /> Add Funds
+          </Button>
+
           {selectedWallet?.source === WalletSource.Embedded && (
             <>
               <hr className="border-draggable-background-light dark:border-draggable-background-dark" />
