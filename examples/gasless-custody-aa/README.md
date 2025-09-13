@@ -1,4 +1,4 @@
-# Example: `gassless-custody`
+# Example: `gasless-custody`
 
 This example shows how to construct and broadcast a transaction using Turnkey with [`Viem`](https://viem.sh/docs/clients/wallet.html), and [`Zerodev`](https://docs.zerodev.app/sdk/getting-started/quickstart).
 
@@ -14,7 +14,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/gassless-custody/
+$ cd examples/gassless-custody-aa/
 ```
 
 ### 2a/ Setting up Turnkey
@@ -25,14 +25,11 @@ The first step is to set up your Turnkey organization and account. By following 
 - An organization ID
 - A Turnkey wallet account (address), private key address, or a private key ID
 
-### 2b/ Transferring Turnkey wallet to browser wallet
 
-For fast development (do not do this in prod!!), export the Turnkey wallet you've just created, importing to a browser wallet like Metamask. You will need it for ZeroDev setup.
+### 2b/ ZeroDev config
 
-### 2c/ ZeroDev config
-
-Create a ZeroDev account if you do not already have one. Visit the [ZeroDev Dashboard](https://dashboard.zerodev.app/), and from the Project view add your relevant networks and head to `Self Funded Paymasters`.
-Choose a chain to deploy a `Verifying Paymaster` to, connect the wallet address from earlier, and with some testnet (or mainnet) balance choose to `Fund`.
+Create a ZeroDev account if you do not already have one. Visit the [ZeroDev Dashboard](https://dashboard.zerodev.app/), and from the Project view add your relevant networks and head to `Gas Policies`.
+Choose a chain and tick `Sponsor all transactions`.
 Finally, return to the Project's `General` tab and copy your Active Network's `Bundler/Paymaster RPC` URL.
 You can find more details on the tutorial page here: https://docs.zerodev.app/sdk/getting-started/tutorial.
 
@@ -51,8 +48,8 @@ Now open `.env.local` and add the missing environment variables:
 - `SIGN_WITH` -- A Turnkey wallet account address, private key address, or private key ID. 
 - `ZERODEV_RPC`
 - `OMNIBUS_ADDRESS`
-- Optional: `TOKEN_ADDRESS`
-- Optional: `TRANSFER_AMOUNT`
+- `TOKEN_ADDRESS`
+- `TOKEN_ABI`
 
 ### 3/ Running the scripts
 
@@ -66,15 +63,16 @@ $ pnpm start
 
 This script will do the following:
 
-1. instantiate a Turnkey Viem wallet client
-2. instantiate a Viem public client (to be used to fetch onchain data)
-3. create a ZeroDev Validator
-4. create a ZeroDev Kernel Client (with Paymaster support)
-5. generate a new recipient address
-6. check token balances
-7. constructs a gassless transaction from sender to this new address
+1. instantiate a Turnkey server client
+2. generate a fresh Turnkey wallet, representing the user
+3. create relevant Account and Client types for the user and signer
+4. generate EIP-7702 Authorizations for both user and signer
+5. instantiate ZeroDev types for these new smart accounts
+6. wait for user to deposit a small amount of ERC-20 token to user wallet
+7. constructs a gassless transaction, in this case a self-send to demonstrate functionality
 8. automatically sweeps the balance from this new address to a provided OMNIBUS_ADDRESS
 
 Check your terminal for more info!
 
-Some of the flows demonstrated are covered more completely in other developer examples, such as [`sweeper`](https://github.com/tkhq/sdk/tree/main/examples/sweeper), [`with-zerodev-aa`](https://github.com/tkhq/sdk/tree/main/examples/with-zerodev-aa), and further inspiration can be taken from [`with-eth-passkeys-galore`](https://github.com/tkhq/sdk/tree/main/examples/with-eth-passkeys-galore).
+Some of the flows demonstrated are covered more completely in other developer examples, such as [ZeroDev's demo](https://7702.zerodev.app/turnkey),
+ [`sweeper`](https://github.com/tkhq/sdk/tree/main/examples/sweeper), [`with-zerodev-aa`](https://github.com/tkhq/sdk/tree/main/examples/with-zerodev-aa), and further inspiration can be taken from [`with-eth-passkeys-galore`](https://github.com/tkhq/sdk/tree/main/examples/with-eth-passkeys-galore).
