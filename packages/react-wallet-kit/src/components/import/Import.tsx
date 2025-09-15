@@ -39,6 +39,7 @@ export function ImportComponent(props: {
   onError: (error: TurnkeyError) => void;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
+  name?: string;
 }) {
   const {
     importType,
@@ -49,6 +50,7 @@ export function ImportComponent(props: {
     defaultWalletAccounts,
     successPageDuration,
     stampWith,
+    name,
   } = props;
 
   const { config, session, importWallet, importPrivateKey, httpClient } =
@@ -61,7 +63,7 @@ export function ImportComponent(props: {
     );
   }
 
-  const [walletName, setWalletName] = useState<string>("");
+  const [walletName, setWalletName] = useState<string>(name || "");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<TurnkeyError | null>(null);
 
@@ -381,20 +383,22 @@ export function ImportComponent(props: {
         }}
         className={`transition-all ${shaking ? "animate-shake" : ""}`}
       />
-      <Input
-        type="text"
-        data-testid="import-wallet-name-input"
-        placeholder={placeholder}
-        value={walletName}
-        onChange={(e) => setWalletName(e.target.value)}
-        className="placeholder:text-icon-text-light dark:placeholder:text-icon-text-dark w-full my-2 py-3 px-3 rounded-md text-inherit bg-icon-background-light dark:bg-icon-background-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 box-border"
-      />
+      {!name && (
+        <Input
+          type="text"
+          data-testid="import-wallet-name-input"
+          placeholder={placeholder}
+          value={walletName}
+          onChange={(e) => setWalletName(e.target.value)}
+          className="placeholder:text-icon-text-light dark:placeholder:text-icon-text-dark w-full mt-2 py-3 px-3 rounded-md text-inherit bg-icon-background-light dark:bg-icon-background-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 box-border"
+        />
+      )}
       <ActionButton
         name="import-button"
         loading={isLoading}
         spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         onClick={handleImport}
-        className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
+        className="bg-primary-light mt-2 dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
       >
         Import
       </ActionButton>

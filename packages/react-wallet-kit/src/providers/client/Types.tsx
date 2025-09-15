@@ -391,6 +391,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.defaultWalletAccounts - array of default wallet accounts (v1AddressFormat[] or v1WalletAccountParams[]) to pre-fill the import form.
    * @param params.successPageDuration - duration (in ms) for the success page after import (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
+   * @param params.walletName - name for the imported wallet, if not provided, an input box will be shown for the name.
    *
    * @returns A promise that resolves to the new wallet's ID.
    */
@@ -398,6 +399,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
     defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;
+    walletName?: string;
   }) => Promise<string>;
 
   /**
@@ -414,6 +416,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.addressFormats - array of address formats (v1AddressFormat[]) that the private key supports (Eg: "ADDRESS_FORMAT_ETHEREUM" for Ethereum, "ADDRESS_FORMAT_SOLANA" for Solana).
    * @param params.successPageDuration - duration (in ms) for the success page after import (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
+   * @param params.keyName - name for the imported private key, if not provided, an input box will be shown for the name.
    *
    * @returns A promise that resolves to the new private key's ID.
    */
@@ -422,6 +425,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
     addressFormats: v1AddressFormat[];
     successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
     stampWith?: StamperType | undefined;
+    keyName?: string;
   }) => Promise<string>;
 
   /**
