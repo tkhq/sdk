@@ -13,7 +13,7 @@ import {
   TurnkeyRequestError,
   TurnkeyHttpClientConfig,
   StorageBase,
-} from "../__types__/base";
+} from "@types";
 
 import { VERSION } from "../__generated__/version";
 
@@ -21,7 +21,7 @@ import type * as SdkTypes from "@turnkey/sdk-types";
 
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
-import { StamperType } from "../__types__/base";
+import { StamperType } from "@types";
 
 export class TurnkeySDKClientBase {
   config: TurnkeyHttpClientConfig;

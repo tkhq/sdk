@@ -29,7 +29,8 @@ import {
   Curve,
   EmbeddedWallet,
   WalletSource,
-} from "./__types__/base";
+  StamperType,
+} from "@types";
 import { bs58 } from "@turnkey/encoding";
 
 // Import all defaultAccountAtIndex functions for each address format
@@ -384,6 +385,24 @@ export const toExternalTimestamp = (
     nanos: nanos.toString(),
   };
 };
+
+export async function getActiveSessionOrThrowIfRequired(
+  stampWith: StamperType | undefined,
+  getActiveSession: () => Promise<Session | undefined>,
+): Promise<Session | undefined> {
+  const session = await getActiveSession();
+
+  // the api-key stamper requires an active session
+  // if there is no stampWith defined, the default is api-key stamper
+  if ((!stampWith || stampWith === StamperType.ApiKey) && !session) {
+    throw new TurnkeyError(
+      "No active session found. Please log in first.",
+      TurnkeyErrorCodes.NO_SESSION_FOUND,
+    );
+  }
+
+  return session;
+}
 
 export function parseSession(token: string | Session): Session {
   if (typeof token !== "string") {

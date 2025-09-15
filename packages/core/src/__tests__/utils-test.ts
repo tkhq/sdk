@@ -47,7 +47,7 @@ import {
   WalletInterfaceType,
   WalletProvider,
   WalletSource,
-} from "../__types__/base";
+} from "../__types__";
 
 // mock the bs58 library
 jest.mock("bs58", () => ({
