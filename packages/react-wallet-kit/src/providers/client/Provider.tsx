@@ -3803,11 +3803,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
+      walletName?: string;
     }): Promise<string> => {
       const {
         defaultWalletAccounts,
         successPageDuration = 2000,
         stampWith,
+        walletName,
       } = params || {};
       try {
         return withTurnkeyErrorHandling(
@@ -3829,6 +3831,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       successPageDuration,
                     })}
                     {...(stampWith !== undefined && { stampWith })}
+                    {...(walletName !== undefined && { name: walletName })}
                   />
                 ),
               }),
@@ -3855,12 +3858,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       addressFormats: v1AddressFormat[];
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
+      keyName?: string;
     }): Promise<string> => {
       const {
         curve,
         addressFormats,
         successPageDuration = 2000,
         stampWith,
+        keyName,
       } = params || {};
       try {
         return withTurnkeyErrorHandling(
@@ -3881,6 +3886,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       successPageDuration,
                     })}
                     {...(stampWith !== undefined && { stampWith })}
+                    {...(keyName !== undefined && { name: keyName })}
                   />
                 ),
               }),
