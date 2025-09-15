@@ -126,6 +126,7 @@ export type TIframeSettings = {
 
 export type TSignableMessage = {
   message: string;
+  // can trivially add message encoding parameter here if needed
 };
 
 export enum TransactionType {
@@ -500,8 +501,6 @@ export class IframeStamper {
    * Returns the signed message string
    */
   async signMessage(message: TSignableMessage): Promise<string> {
-    console.log("in IframeStamper.signMessage", message);
-
     return this.createRequest<string>(IframeEventType.SignMessage, {
       value: JSON.stringify(message),
     });

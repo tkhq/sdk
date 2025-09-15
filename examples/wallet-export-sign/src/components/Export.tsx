@@ -49,6 +49,10 @@ export function Export(props: ExportProps) {
   );
   const [iframeDisplay, setIframeDisplay] = useState<string>("none");
 
+  // New state: message to sign and returned signature
+  const [message, setMessage] = useState<string>("Hello, Turnkey!");
+  const [signature, setSignature] = useState<string>("");
+
   useEffect(() => {
     setIframeDisplay(props.iframeDisplay);
     return () => {
@@ -96,14 +100,16 @@ export function Export(props: ExportProps) {
       return;
     }
 
-    // Example usage of signMessage
+    // Use the message state and store the returned signature
     iframeStamper
-      .signMessage({ message: "Hello, Turnkey!" })
-      .then((signature: string) => {
-        console.log("Message signature:", signature);
+      .signMessage({ message })
+      .then((sig: string) => {
+        setSignature(sig);
+        console.log("Message signature:", sig);
       })
       .catch((error: Error) => {
         console.error("Error signing message:", error);
+        alert("Error signing message: " + error.message);
       });
   };
 
@@ -115,15 +121,34 @@ export function Export(props: ExportProps) {
       >
         <style>{iframeCss}</style>
       </div>
-      <div className={styles.modalSpace}>
-        <button
-          className={styles.modalButton}
-          onClick={() => {
-            signMessage();
-          }}
-        >
-          Sign tx
-        </button>
+
+      <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8, maxWidth: 420 }}>
+        <label style={{ fontSize: 13 }}>Message to sign</label>
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          style={{ width: "400px", height: "80px", padding: 8, fontFamily: "monospace" }}
+        />
+
+        <div>
+          <button
+            onClick={() => {
+              signMessage();
+            }}
+            style={{ padding: "8px 12px", cursor: "pointer" }}
+          >
+            Sign message
+          </button>
+        </div>
+
+        {signature ? (
+          <div style={{ marginTop: 8 }}>
+            <label style={{ fontSize: 13 }}>Signature</label>
+            <div style={{ ...styles, width: "100%", height: "auto", whiteSpace: "pre-wrap", marginTop: 8 }}>
+              {signature}
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );
