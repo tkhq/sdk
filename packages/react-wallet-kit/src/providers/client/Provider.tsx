@@ -64,6 +64,7 @@ import {
   type v1PayloadEncoding,
   type v1HashFunction,
   type v1Curve,
+  TInitFiatOnRampBody,
   type v1PrivateKey,
   BaseAuthResult,
   WalletAuthResult,
@@ -898,7 +899,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         if (!session) return;
 
         callbacks?.beforeSessionExpiry?.({ sessionKey });
-
         if (masterConfig?.auth?.autoRefreshSession) {
           await refreshSession({
             expirationSeconds: session.expirationSeconds!,
@@ -1349,6 +1349,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     },
     [client, callbacks],
   );
+
+  async function initFiatOnramp(
+    params: TInitFiatOnRampBody,
+  ): Promise<{ onRampUrl: string; onRampTransactionId: string }> {
+    if (!client) {
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    return withTurnkeyErrorHandling(
+      () => client.initFiatOnramp(params),
+      callbacks,
+      "Failed to initialize OTP",
+    );
+  }
 
   const loginWithWallet = useCallback(
     async (params: {
@@ -5086,6 +5102,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         loginWithWallet,
         signUpWithWallet,
         loginOrSignupWithWallet,
+        initFiatOnramp,
         initOtp,
         verifyOtp,
         loginWithOtp,
