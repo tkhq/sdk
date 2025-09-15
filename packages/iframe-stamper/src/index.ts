@@ -124,8 +124,14 @@ export type TIframeSettings = {
   styles?: TIframeStyles;
 };
 
+export enum MessageType {
+  Ethereum = "ETHEREUM",
+  Solana = "SOLANA",
+}
+
 export type TSignableMessage = {
   message: string;
+  type: MessageType;
 };
 
 export enum TransactionType {
@@ -134,7 +140,7 @@ export enum TransactionType {
 }
 
 export type TSignableTransaction = {
-  transaction: string; // serialized transaction
+  transaction: string; // serialized
   type: TransactionType;
 };
 
@@ -500,8 +506,6 @@ export class IframeStamper {
    * Returns the signed message string
    */
   async signMessage(message: TSignableMessage): Promise<string> {
-    console.log("in IframeStamper.signMessage", message);
-
     return this.createRequest<string>(IframeEventType.SignMessage, {
       value: JSON.stringify(message),
     });
