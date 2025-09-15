@@ -41,6 +41,12 @@ export enum IframeEventType {
   // Event sent by the iframe to its parent when `ApplySettings` is successful
   // Value: true (boolean)
   SettingsApplied = "SETTINGS_APPLIED",
+  // Event sent by the iframe to its parent when `signTransaction` is successful
+  // Value: true (boolean)
+  TransactionSigned = "TRANSACTION_SIGNED",
+  // Event sent by the iframe to its parent when `signMessage` is successful
+  // Value: true (boolean)
+  MessageSigned = "MESSAGE_SIGNED",
   // Event sent by the parent page to request a signature
   // Value: payload to sign
   StampRequest = "STAMP_REQUEST",
@@ -59,12 +65,12 @@ export enum IframeEventType {
   // Event sent by the parent to initialize a new embedded key.
   // Value: none
   InitEmbeddedKey = "INIT_EMBEDDED_KEY",
-  // Event sent by the parent page to request a signature for a message
-  // Value: payload to sign
-  SignMessageRequest = "SIGN_MESSAGE_REQUEST",
   // Event sent by the parent page to request a signature for a transaction
   // Value: payload to sign
-  SignTransactionRequest = "SIGN_TRANSACTION_REQUEST",
+  SignTransaction = "SIGN_TRANSACTION",
+  // Event sent by the parent page to request a signature for a message
+  // Value: payload to sign
+  SignMessage = "SIGN_MESSAGE",
   // Event sent by the iframe to communicate an error
   // Value: serialized error
   Error = "ERROR",
@@ -494,7 +500,9 @@ export class IframeStamper {
    * Returns the signed message string
    */
   async signMessage(message: TSignableMessage): Promise<string> {
-    return this.createRequest<string>(IframeEventType.SignMessageRequest, {
+    console.log("in IframeStamper.signMessage", message);
+
+    return this.createRequest<string>(IframeEventType.SignMessage, {
       value: JSON.stringify(message),
     });
   }
@@ -504,7 +512,7 @@ export class IframeStamper {
    * Returns the signed, serialized transaction payload
    */
   async signTransaction(transaction: TSignableTransaction): Promise<string> {
-    return this.createRequest<string>(IframeEventType.SignTransactionRequest, {
+    return this.createRequest<string>(IframeEventType.SignTransaction, {
       value: JSON.stringify(transaction),
     });
   }
