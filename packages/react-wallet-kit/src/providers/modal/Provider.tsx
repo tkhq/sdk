@@ -1,7 +1,7 @@
 "use client";
 
 import { useScreenSize } from "../../utils/utils";
-import { createContext, useState, ReactNode } from "react";
+import { createContext, useState, ReactNode, useCallback } from "react";
 
 export type ModalPage = {
   key: string;
@@ -26,13 +26,21 @@ export const ModalContext = createContext<ModalContextType | undefined>(
 
 export function ModalProvider({ children }: { children: ReactNode }) {
   const [modalStack, setModalStack] = useState<ModalPage[]>([]);
-
   const { isMobile, width } = useScreenSize();
-  const openModal = (page: ModalPage) => setModalStack([page]);
-  const pushPage = (page: ModalPage) =>
-    setModalStack((prev) => [...prev, page]);
-  const popPage = () => setModalStack((prev) => prev.slice(0, -1));
-  const closeModal = () => setModalStack([]);
+
+  const openModal = useCallback((page: ModalPage) => setModalStack([page]), []);
+
+  const pushPage = useCallback(
+    (page: ModalPage) => setModalStack((prev) => [...prev, page]),
+    [],
+  );
+
+  const popPage = useCallback(
+    () => setModalStack((prev) => prev.slice(0, -1)),
+    [],
+  );
+
+  const closeModal = useCallback(() => setModalStack([]), []);
 
   return (
     <ModalContext.Provider

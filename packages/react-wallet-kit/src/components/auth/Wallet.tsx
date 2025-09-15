@@ -8,7 +8,7 @@ import {
   faLaptop,
   faMobileScreen,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import type { WalletProvider } from "@turnkey/core";
 import { QRCodeSVG as QRCode } from "qrcode.react";
@@ -406,7 +406,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const { provider, successPageDuration, onAction, onDisconnect } = props;
   const { pushPage, closeModal, isMobile } = useModal();
   const { fetchWalletProviders } = useTurnkey();
-  const hasRan = useRef(false);
+  const hasRun = useRef(false);
 
   const [walletConnectProvider, setWalletConnectProvider] =
     useState<WalletProvider>();
@@ -420,12 +420,12 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const [disconnectError, setDisconnectError] = useState(false);
 
   // kick off authentication/pairing or signing on mount or when URI changes
-  useMemo(() => {
-    (async () => {
-      if (hasRan.current) return;
+  useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+    const runAction = async () => {
       try {
         await onAction(walletConnectProvider ?? provider);
-        hasRan.current = true;
         pushPage({
           key: "Connect Success",
           content: (
@@ -438,9 +438,10 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
           preventBack: true,
           showTitle: false,
         });
-      } catch (e) {}
-    })();
-  }, [walletConnectProvider?.uri]);
+      } catch (error) {}
+    };
+    runAction();
+  }, []);
 
   const handleDisconnect = async () => {
     setIsDisconnecting(true);
