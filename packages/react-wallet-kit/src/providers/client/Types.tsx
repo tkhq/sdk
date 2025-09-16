@@ -25,6 +25,10 @@ import type {
   KeyFormat,
 } from "../../types/base";
 import { createContext } from "react";
+import {
+  RefreshUserParams,
+  RefreshWalletsParams,
+} from "../../types/method-types";
 
 /*
  * In order for jsdocs params to show up properly you must redeclare the core client method here using FUNCTION SIGNATURE. ex:
@@ -39,6 +43,7 @@ import { createContext } from "react";
  * Same goes for new functions in the provider!!
  */
 
+/** @expand */
 export interface ClientContextType extends TurnkeyClientMethods {
   /** @internal */
   httpClient: TurnkeySDKClientBase | undefined;
@@ -71,9 +76,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the user details are successfully refreshed and state is updated.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error refreshing the user details.
    */
-  refreshUser: (params?: {
-    stampWith?: StamperType | undefined;
-  }) => Promise<void>;
+  refreshUser: (params?: RefreshUserParams) => Promise<void>;
 
   /**
    * Refreshes the wallets state for the current user session.
@@ -91,9 +94,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the wallets are successfully refreshed and state is updated.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error refreshing the wallets.
    */
-  refreshWallets: (params?: {
-    stampWith?: StamperType | undefined;
-  }) => Promise<void>;
+  refreshWallets: (params?: RefreshWalletsParams) => Promise<void>;
 
   /**
    * Handles the login or sign-up flow.

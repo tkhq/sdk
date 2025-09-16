@@ -19,11 +19,11 @@ Signs up a user using a passkey, creating a new sub-organization and session.
 
 <p><strong>Package:</strong> <code>core</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L412">core.ts:412</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L443">core/src/__clients__/core.ts:443</a></p>
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='SignUpWithPasskeyParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="challenge" type='string' required={false}>
 challenge string to use for passkey registration. If not provided, a new challenge will be generated.
@@ -31,6 +31,46 @@ challenge string to use for passkey registration. If not provided, a new challen
     <NestedParam parentKey="params" childKey="createSubOrgParams" type='CreateSubOrgParams' required={false}>
 parameters for creating a sub-organization (e.g., authenticators, user metadata).
 </NestedParam>
+    <Expandable title="createSubOrgParams details">
+    <NestedParam parentKey="params.createSubOrgParams" childKey="apiKeys" type='object[]' required={false}>
+list of api keys
+</NestedParam>
+    <NestedParam parentKey="params.createSubOrgParams" childKey="authenticators" type='object[]' required={false}>
+list of authenticators
+</NestedParam>
+    <NestedParam parentKey="params.createSubOrgParams" childKey="customWallet" type='CustomWallet' required={false}>
+custom wallets to create during sub-org creation time
+</NestedParam>
+    <Expandable title="customWallet details">
+    <NestedParam parentKey="params.createSubOrgParams.customWallet" childKey="walletAccounts" type='v1WalletAccountParams[]' required={true}>
+list of wallet accounts to create
+</NestedParam>
+    <NestedParam parentKey="params.createSubOrgParams.customWallet" childKey="walletName" type='string' required={true}>
+name of the wallet created
+</NestedParam>
+    </Expandable>
+    <NestedParam parentKey="params.createSubOrgParams" childKey="oauthProviders" type='Provider[]' required={false}>
+list of oauth providers
+</NestedParam>
+    <NestedParam parentKey="params.createSubOrgParams" childKey="subOrgName" type='string' required={false}>
+name of the sub-organization
+</NestedParam>
+    <NestedParam parentKey="params.createSubOrgParams" childKey="userEmail" type='string' required={false}>
+email of the user
+</NestedParam>
+    <NestedParam parentKey="params.createSubOrgParams" childKey="userName" type='string' required={false}>
+name of the user
+</NestedParam>
+    <NestedParam parentKey="params.createSubOrgParams" childKey="userPhoneNumber" type='string' required={false}>
+phone number of the user
+</NestedParam>
+    <NestedParam parentKey="params.createSubOrgParams" childKey="userTag" type='string' required={false}>
+tag of the user
+</NestedParam>
+    <NestedParam parentKey="params.createSubOrgParams" childKey="verificationToken" type='string' required={false}>
+verification token if email or phone number is provided
+</NestedParam>
+    </Expandable>
     <NestedParam parentKey="params" childKey="expirationSeconds" type='string' required={false}>
 session expiration time in seconds (defaults to the configured default).
 </NestedParam>
@@ -50,4 +90,8 @@ A successful response returns the following fields:
   A promise that resolves to a PasskeyAuthResult, which includes:
          - `sessionToken`: the signed JWT session token.
          - `credentialId`: the credential ID associated with the passkey created.
+  <Expandable title="return details">
+    <NestedParam parentKey="returns" childKey="credentialId" type='string' required={true}></NestedParam>
+    <NestedParam parentKey="returns" childKey="sessionToken" type='string' required={true}></NestedParam>
+  </Expandable>
 </ResponseField>

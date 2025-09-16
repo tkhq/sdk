@@ -1,58 +1,99 @@
 import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
-  TDeleteSubOrganizationResponse,
-  Session,
-  TStampLoginResponse,
-  v1AddressFormat,
-  v1Attestation,
-  v1Pagination,
-  v1SignRawPayloadResult,
-  v1TransactionType,
-  v1User,
+  type TDeleteSubOrganizationResponse,
+  type Session,
+  type TStampLoginResponse,
+  type v1Attestation,
+  type v1SignRawPayloadResult,
+  type v1User,
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
-  ProxyTGetWalletKitConfigResponse,
-  v1WalletAccountParams,
-  v1PayloadEncoding,
-  v1HashFunction,
-  v1Curve,
-  v1PrivateKey,
-  WalletAuthResult,
-  BaseAuthResult,
+  type ProxyTGetWalletKitConfigResponse,
+  type v1WalletAccountParams,
+  type v1PrivateKey,
+  type WalletAuthResult,
+  type BaseAuthResult,
   AuthAction,
-  PasskeyAuthResult,
-  v1CreatePolicyIntentV3,
+  type PasskeyAuthResult,
+  type v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ExportBundle,
+  SignIntent,
   StamperType,
-  TurnkeySDKClientConfig,
-  WalletAccount,
-  Wallet,
   OtpType,
   OtpTypeToFilterTypeMap,
-  CreateSubOrgParams,
   Chain,
   FilterType,
-  EmbeddedWallet,
   WalletSource,
-  ConnectedWallet,
   Curve,
-  StorageBase,
   SessionKey,
-  EmbeddedWalletAccount,
-  ConnectedWalletAccount,
-  WalletManagerBase,
-  WalletProvider,
-  SwitchableChain,
-  ConnectedEthereumWalletAccount,
-  ConnectedSolanaWalletAccount,
-  SignIntent,
-  CreatePasskeyParams,
-  CreatePasskeyResult,
-} from "@types";
+  type ExportBundle,
+  type TurnkeySDKClientConfig,
+  type WalletAccount,
+  type Wallet,
+  type EmbeddedWallet,
+  type ConnectedWallet,
+  type StorageBase,
+  type EmbeddedWalletAccount,
+  type ConnectedWalletAccount,
+  type WalletManagerBase,
+  type WalletProvider,
+  type ConnectedEthereumWalletAccount,
+  type ConnectedSolanaWalletAccount,
+  type CreatePasskeyParams,
+  type CreatePasskeyResult,
+  type LogoutParams,
+  type LoginWithPasskeyParams,
+  type SignUpWithPasskeyParams,
+  type SwitchWalletAccountChainParams,
+  type LoginWithWalletParams,
+  type SignUpWithWalletParams,
+  type LoginOrSignupWithWalletParams,
+  type InitOtpParams,
+  type VerifyOtpParams,
+  type VerifyOtpResult,
+  type LoginWithOtpParams,
+  type SignUpWithOtpParams,
+  type CompleteOtpParams,
+  type CompleteOauthParams,
+  type LoginWithOauthParams,
+  type SignUpWithOauthParams,
+  type FetchWalletsParams,
+  type FetchWalletAccountsParams,
+  type FetchPrivateKeysParams,
+  type SignMessageParams,
+  type SignTransactionParams,
+  type SignAndSendTransactionParams,
+  type FetchUserParams,
+  type FetchOrCreateP256ApiKeyUserParams,
+  type FetchOrCreatePoliciesParams,
+  type FetchOrCreatePoliciesResult,
+  type UpdateUserEmailParams,
+  type RemoveUserEmailParams,
+  type UpdateUserPhoneNumberParams,
+  type RemoveUserPhoneNumberParams,
+  type UpdateUserNameParams,
+  type AddOauthProviderParams,
+  type RemoveOauthProvidersParams,
+  type AddPasskeyParams,
+  type RemovePasskeyParams,
+  type CreateWalletParams,
+  type CreateWalletAccountsParams,
+  type ExportWalletParams,
+  type ExportPrivateKeyParams,
+  type ExportWalletAccountParams,
+  type ImportWalletParams,
+  type ImportPrivateKeyParams,
+  type DeleteSubOrganizationParams,
+  type StoreSessionParams,
+  type ClearSessionParams,
+  type RefreshSessionParams,
+  type GetSessionParams,
+  type SetActiveSessionParams,
+  type CreateApiKeyPairParams,
+} from "../__types__";
 import {
   buildSignUpBody,
   generateWalletAccountsFromAddressFormat,
@@ -78,7 +119,7 @@ import {
   getPolicySignature,
   mapAccountsToWallet,
   getActiveSessionOrThrowIfRequired,
-} from "@utils";
+} from "../utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
@@ -90,27 +131,22 @@ import { jwtDecode } from "jwt-decode";
 import { createWalletManager } from "../__wallet__/base";
 import { toUtf8Bytes } from "ethers";
 
-// Gathers all public methods exposed in our core client and turns it into a type that
-// can be used to extend clients created for other packages built off core
-//
-// Should be used to keep any packages that extend this core package in sync with each
-// other, meaning any new additions to core should also be reflected in those packages
+/**
+ * @internal
+ * Gathers all public methods exposed in our core client and turns it into a type that
+ * can be used to extend clients created for other packages built off core
+ *
+ * Should be used to keep any packages that extend this core package in sync with each
+ * other, meaning any new additions to core should also be reflected in those packages
+ */
 type PublicMethods<T> = {
-  [K in keyof T as K extends string | number | symbol
-    ? K extends
-        | "init"
-        | "constructor"
-        | "config"
-        | "httpClient"
-        | "user"
-        | "wallets"
-      ? never
-      : K
-    : never]: T[K] extends (...args: any[]) => any ? T[K] : never;
+  [K in keyof T as T[K] extends Function ? K : never]: T[K];
 };
 
-/**@internal */
-export type TurnkeyClientMethods = PublicMethods<TurnkeyClient>;
+export type TurnkeyClientMethods = Omit<
+  PublicMethods<TurnkeyClient>,
+  "init" | "config" | "httpClient" | "constructor"
+>;
 
 export class TurnkeyClient {
   config: TurnkeySDKClientConfig;
@@ -188,13 +224,11 @@ export class TurnkeyClient {
    *
    * @param params.name - display name for the passkey (defaults to a generated name based on the current timestamp).
    * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
-   * @returns A promise that resolves to an object containing:
-   *   - attestation: attestation object returned from the passkey creation process.
-   *   - encodedChallenge: encoded challenge string used for passkey registration.
+   * @returns A promise that resolves to {@link CreatePasskeyResult}
    * @throws {TurnkeyError} If there is an error during passkey creation, or if the platform is unsupported.
    */
   createPasskey = async (
-    params?: CreatePasskeyParams,
+    params: CreatePasskeyParams,
   ): Promise<CreatePasskeyResult> => {
     const { name: nameFromParams, challenge } = params || {};
     return withTurnkeyErrorHandling(
@@ -279,7 +313,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves when the logout process is complete.
    * @throws {TurnkeyError} If there is no active session or if there is an error during the logout process.
    */
-  logout = async (params?: { sessionKey?: string }): Promise<void> => {
+  logout = async (params?: LogoutParams): Promise<void> => {
     withTurnkeyErrorHandling(
       async () => {
         if (params?.sessionKey) {
@@ -326,11 +360,9 @@ export class TurnkeyClient {
    *          - `credentialId`: an empty string.
    * @throws {TurnkeyError} If there is an error during the passkey login process or if the user cancels the passkey prompt.
    */
-  loginWithPasskey = async (params?: {
-    publicKey?: string;
-    sessionKey?: string;
-    expirationSeconds?: string;
-  }): Promise<PasskeyAuthResult> => {
+  loginWithPasskey = async (
+    params?: LoginWithPasskeyParams,
+  ): Promise<PasskeyAuthResult> => {
     let generatedPublicKey: string | undefined = undefined;
     return await withTurnkeyErrorHandling(
       async () => {
@@ -419,13 +451,9 @@ export class TurnkeyClient {
    *          - `credentialId`: the credential ID associated with the passkey created.
    * @throws {TurnkeyError} If there is an error during passkey creation, sub-organization creation, or session storage.
    */
-  signUpWithPasskey = async (params?: {
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-    passkeyDisplayName?: string;
-    expirationSeconds?: string;
-    challenge?: string;
-  }): Promise<PasskeyAuthResult> => {
+  signUpWithPasskey = async (
+    params?: SignUpWithPasskeyParams,
+  ): Promise<PasskeyAuthResult> => {
     const {
       createSubOrgParams,
       passkeyDisplayName,
@@ -632,11 +660,9 @@ export class TurnkeyClient {
    *
    * @throws {TurnkeyError} If the wallet manager is uninitialized, the provider is not connected, or the switch fails.
    */
-  switchWalletAccountChain = async (params: {
-    walletAccount: WalletAccount;
-    chainOrId: string | SwitchableChain;
-    walletProviders?: WalletProvider[] | undefined;
-  }): Promise<void> => {
+  switchWalletAccountChain = async (
+    params: SwitchWalletAccountChainParams,
+  ): Promise<void> => {
     const { walletAccount, chainOrId, walletProviders } = params;
 
     return withTurnkeyErrorHandling(
@@ -704,12 +730,9 @@ export class TurnkeyClient {
    *          - `address`: the authenticated wallet address.
    * @throws {TurnkeyError} If the wallet stamper is uninitialized, a public key cannot be found or generated, or login fails.
    */
-  loginWithWallet = async (params: {
-    walletProvider: WalletProvider;
-    publicKey?: string;
-    sessionKey?: string;
-    expirationSeconds?: string;
-  }): Promise<WalletAuthResult> => {
+  loginWithWallet = async (
+    params: LoginWithWalletParams,
+  ): Promise<WalletAuthResult> => {
     let publicKey =
       params.publicKey || (await this.apiKeyStamper?.createKeyPair());
     return withTurnkeyErrorHandling(
@@ -804,12 +827,9 @@ export class TurnkeyClient {
    *          - `address`: the authenticated wallet address.
    * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, session storage, or cleanup.
    */
-  signUpWithWallet = async (params: {
-    walletProvider: WalletProvider;
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-    expirationSeconds?: string;
-  }): Promise<WalletAuthResult> => {
+  signUpWithWallet = async (
+    params: SignUpWithWalletParams,
+  ): Promise<WalletAuthResult> => {
     const {
       walletProvider,
       createSubOrgParams,
@@ -946,12 +966,9 @@ export class TurnkeyClient {
    *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, or session storage.
    */
-  loginOrSignupWithWallet = async (params: {
-    walletProvider: WalletProvider;
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-    expirationSeconds?: string;
-  }): Promise<WalletAuthResult & { action: AuthAction }> => {
+  loginOrSignupWithWallet = async (
+    params: LoginOrSignupWithWalletParams,
+  ): Promise<WalletAuthResult & { action: AuthAction }> => {
     const createSubOrgParams = params.createSubOrgParams;
     const sessionKey = params.sessionKey || SessionKey.DefaultSessionkey;
     const walletProvider = params.walletProvider;
@@ -1161,10 +1178,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the OTP ID required for verification.
    * @throws {TurnkeyError} If there is an error during the OTP initialization process or if the maximum number of OTPs has been reached.
    */
-  initOtp = async (params: {
-    otpType: OtpType;
-    contact: string;
-  }): Promise<string> => {
+  initOtp = async (params: InitOtpParams): Promise<string> => {
     return withTurnkeyErrorHandling(
       async () => {
         const initOtpRes = await this.httpClient.proxyInitOtp(params);
@@ -1209,12 +1223,7 @@ export class TurnkeyClient {
    *   - verificationToken: verification token to be used for login or sign-up.
    * @throws {TurnkeyError} If there is an error during the OTP verification process, such as an invalid code or network failure.
    */
-  verifyOtp = async (params: {
-    otpId: string;
-    otpCode: string;
-    contact: string;
-    otpType: OtpType;
-  }): Promise<{ subOrganizationId: string; verificationToken: string }> => {
+  verifyOtp = async (params: VerifyOtpParams): Promise<VerifyOtpResult> => {
     const { otpId, otpCode, contact, otpType } = params;
 
     return withTurnkeyErrorHandling(
@@ -1278,12 +1287,9 @@ export class TurnkeyClient {
    *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OTP login process or if key pair cleanup fails.
    */
-  loginWithOtp = async (params: {
-    verificationToken: string;
-    publicKey?: string;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-  }): Promise<BaseAuthResult> => {
+  loginWithOtp = async (
+    params: LoginWithOtpParams,
+  ): Promise<BaseAuthResult> => {
     const {
       verificationToken,
       invalidateExisting = false,
@@ -1363,14 +1369,9 @@ export class TurnkeyClient {
    *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OTP sign-up process or session storage.
    */
-  signUpWithOtp = async (params: {
-    verificationToken: string;
-    contact: string;
-    otpType: OtpType;
-    createSubOrgParams?: CreateSubOrgParams;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-  }): Promise<BaseAuthResult> => {
+  signUpWithOtp = async (
+    params: SignUpWithOtpParams,
+  ): Promise<BaseAuthResult> => {
     const {
       verificationToken,
       contact,
@@ -1439,16 +1440,9 @@ export class TurnkeyClient {
    *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during OTP verification, sign-up, or login.
    */
-  completeOtp = async (params: {
-    otpId: string;
-    otpCode: string;
-    contact: string;
-    otpType: OtpType;
-    publicKey?: string;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-    createSubOrgParams?: CreateSubOrgParams;
-  }): Promise<
+  completeOtp = async (
+    params: CompleteOtpParams,
+  ): Promise<
     BaseAuthResult & { verificationToken: string; action: AuthAction }
   > => {
     const {
@@ -1535,14 +1529,9 @@ export class TurnkeyClient {
    *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during the OAuth completion process, such as account lookup, sign-up, or login.
    */
-  completeOauth = async (params: {
-    oidcToken: string;
-    publicKey: string;
-    providerName?: string;
-    sessionKey?: string;
-    invalidateExisting?: boolean;
-    createSubOrgParams?: CreateSubOrgParams;
-  }): Promise<BaseAuthResult & { action: AuthAction }> => {
+  completeOauth = async (
+    params: CompleteOauthParams,
+  ): Promise<BaseAuthResult & { action: AuthAction }> => {
     const {
       oidcToken,
       publicKey,
@@ -1619,12 +1608,9 @@ export class TurnkeyClient {
    *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OAuth login process or if key pair cleanup fails.
    */
-  loginWithOauth = async (params: {
-    oidcToken: string;
-    publicKey: string;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-  }): Promise<BaseAuthResult> => {
+  loginWithOauth = async (
+    params: LoginWithOauthParams,
+  ): Promise<BaseAuthResult> => {
     const {
       oidcToken,
       invalidateExisting = false,
@@ -1713,13 +1699,9 @@ export class TurnkeyClient {
    *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OAuth sign-up or login process.
    */
-  signUpWithOauth = async (params: {
-    oidcToken: string;
-    publicKey: string;
-    providerName: string;
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-  }): Promise<BaseAuthResult> => {
+  signUpWithOauth = async (
+    params: SignUpWithOauthParams,
+  ): Promise<BaseAuthResult> => {
     const {
       oidcToken,
       publicKey,
@@ -1778,10 +1760,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of `Wallet` objects.
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallets.
    */
-  fetchWallets = async (params?: {
-    walletProviders?: WalletProvider[] | undefined;
-    stampWith?: StamperType | undefined;
-  }): Promise<Wallet[]> => {
+  fetchWallets = async (params?: FetchWalletsParams): Promise<Wallet[]> => {
     const { stampWith, walletProviders } = params || {};
     const session = await this.storageManager.getActiveSession();
 
@@ -1884,12 +1863,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of `v1WalletAccount` objects.
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallet accounts.
    */
-  fetchWalletAccounts = async (params: {
-    wallet: Wallet;
-    walletProviders?: WalletProvider[];
-    paginationOptions?: v1Pagination;
-    stampWith?: StamperType | undefined;
-  }): Promise<WalletAccount[]> => {
+  fetchWalletAccounts = async (
+    params: FetchWalletAccountsParams,
+  ): Promise<WalletAccount[]> => {
     const { wallet, stampWith, walletProviders, paginationOptions } = params;
     const session = await this.storageManager.getActiveSession();
 
@@ -2053,9 +2029,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of `v1PrivateKey` objects.
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching private keys.
    */
-  fetchPrivateKeys = async (params?: {
-    stampWith?: StamperType | undefined;
-  }): Promise<v1PrivateKey[]> => {
+  fetchPrivateKeys = async (
+    params?: FetchPrivateKeysParams,
+  ): Promise<v1PrivateKey[]> => {
     const { stampWith } = params || {};
     const session = await this.storageManager.getActiveSession();
 
@@ -2126,14 +2102,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a `v1SignRawPayloadResult` containing the signature and metadata.
    * @throws {TurnkeyError} If signing fails, the wallet type does not support message signing, or the response is invalid.
    */
-  signMessage = async (params: {
-    message: string;
-    walletAccount: WalletAccount;
-    encoding?: v1PayloadEncoding;
-    hashFunction?: v1HashFunction;
-    stampWith?: StamperType | undefined;
-    addEthereumPrefix?: boolean;
-  }): Promise<v1SignRawPayloadResult> => {
+  signMessage = async (
+    params: SignMessageParams,
+  ): Promise<v1SignRawPayloadResult> => {
     const { message, walletAccount, stampWith, addEthereumPrefix } = params;
 
     const hashFunction =
@@ -2232,12 +2203,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the signed transaction string.
    * @throws {TurnkeyError} If the wallet type is unsupported, signing fails, or the response is invalid.
    */
-  signTransaction = async (params: {
-    unsignedTransaction: string;
-    transactionType: v1TransactionType;
-    walletAccount: WalletAccount;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  signTransaction = async (params: SignTransactionParams): Promise<string> => {
     const { walletAccount, unsignedTransaction, transactionType, stampWith } =
       params;
 
@@ -2311,13 +2277,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a transaction signature or hash.
    * @throws {TurnkeyError} If the wallet type is unsupported, or if signing/broadcasting fails.
    */
-  signAndSendTransaction = async (params: {
-    unsignedTransaction: string;
-    transactionType: v1TransactionType;
-    walletAccount: WalletAccount;
-    rpcUrl?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  signAndSendTransaction = async (
+    params: SignAndSendTransactionParams,
+  ): Promise<string> => {
     const {
       walletAccount,
       unsignedTransaction,
@@ -2416,11 +2378,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a `v1User` object containing the user details.
    * @throws {TurnkeyError} If there is no active session, if there is no userId, or if there is an error fetching user details.
    */
-  fetchUser = async (params?: {
-    organizationId?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<v1User> => {
+  fetchUser = async (params?: FetchUserParams): Promise<v1User> => {
     const {
       organizationId: organizationIdFromParams,
       userId: userIdFromParams,
@@ -2486,15 +2444,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the existing or newly created {@link v1User}.
    * @throws {TurnkeyError} If there is no active session, if the input is invalid, if user retrieval fails, or if user creation fails.
    */
-  fetchOrCreateP256ApiKeyUser = async (params: {
-    publicKey: string;
-    createParams?: {
-      apiKeyName?: string;
-      userName?: string;
-    };
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<v1User> => {
+  fetchOrCreateP256ApiKeyUser = async (
+    params: FetchOrCreateP256ApiKeyUserParams,
+  ): Promise<v1User> => {
     const {
       publicKey,
       createParams,
@@ -2628,10 +2580,9 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the input is invalid,
    *                        if fetching policies fails, or if creating policies fails.
    */
-  fetchOrCreatePolicies = async (params: {
-    policies: v1CreatePolicyIntentV3[];
-    stampWith?: StamperType | undefined;
-  }): Promise<({ policyId: string } & v1CreatePolicyIntentV3)[]> => {
+  fetchOrCreatePolicies = async (
+    params: FetchOrCreatePoliciesParams,
+  ): Promise<FetchOrCreatePoliciesResult> => {
     const { policies, stampWith } = params;
 
     return await withTurnkeyErrorHandling(
@@ -2751,12 +2702,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the userId of the updated user.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating or verifying the user email.
    */
-  updateUserEmail = async (params: {
-    email: string;
-    verificationToken?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  updateUserEmail = async (params: UpdateUserEmailParams): Promise<string> => {
     const { verificationToken, email, stampWith } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -2823,10 +2769,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the userId of the user whose email was removed.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the user email.
    */
-  removeUserEmail = async (params?: {
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  removeUserEmail = async (params?: RemoveUserEmailParams): Promise<string> => {
     const { stampWith } = params || {};
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -2881,12 +2824,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the userId of the updated user.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating or verifying the user phone number.
    */
-  updateUserPhoneNumber = async (params: {
-    phoneNumber: string;
-    verificationToken?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  updateUserPhoneNumber = async (
+    params: UpdateUserPhoneNumberParams,
+  ): Promise<string> => {
     const { verificationToken, phoneNumber, stampWith } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -2941,10 +2881,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the userId of the user whose phone number was removed.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the user phone number.
    */
-  removeUserPhoneNumber = async (params?: {
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  removeUserPhoneNumber = async (
+    params?: RemoveUserPhoneNumberParams,
+  ): Promise<string> => {
     const { stampWith } = params || {};
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -2998,11 +2937,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the userId of the updated user.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating the user name.
    */
-  updateUserName = async (params: {
-    userName: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  updateUserName = async (params: UpdateUserNameParams): Promise<string> => {
     const { userName, stampWith } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -3061,13 +2996,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of provider IDs associated with the user.
    * @throws {TurnkeyError} If there is no active session, if the account already exists, or if there is an error adding the OAuth provider.
    */
-  addOauthProvider = async (params: {
-    providerName: string;
-    oidcToken: string;
-    organizationId?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
+  addOauthProvider = async (
+    params: AddOauthProviderParams,
+  ): Promise<string[]> => {
     const { providerName, oidcToken, stampWith } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -3180,11 +3111,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of provider IDs that were removed.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the OAuth provider.
    */
-  removeOauthProviders = async (params: {
-    providerIds: string[];
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
+  removeOauthProviders = async (
+    params: RemoveOauthProvidersParams,
+  ): Promise<string[]> => {
     const { providerIds, stampWith } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -3239,12 +3168,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of authenticator IDs for the newly added passkey(s).
    * @throws {TurnkeyError} If there is no active session, if passkey creation fails, or if there is an error adding the passkey.
    */
-  addPasskey = async (params?: {
-    name?: string;
-    displayName?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
+  addPasskey = async (params?: AddPasskeyParams): Promise<string[]> => {
     const { stampWith } = params || {};
     const name = params?.name || `Turnkey Passkey-${Date.now()}`;
 
@@ -3312,11 +3236,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of authenticator IDs that were removed.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the passkeys.
    */
-  removePasskeys = async (params: {
-    authenticatorIds: string[];
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
+  removePasskeys = async (params: RemovePasskeyParams): Promise<string[]> => {
     const { authenticatorIds, stampWith } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -3375,13 +3295,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the ID of the newly created wallet.
    * @throws {TurnkeyError} If there is no active session or if there is an error creating the wallet.
    */
-  createWallet = async (params: {
-    walletName: string;
-    accounts?: v1WalletAccountParams[] | v1AddressFormat[];
-    organizationId?: string;
-    mnemonicLength?: number;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  createWallet = async (params: CreateWalletParams): Promise<string> => {
     const {
       walletName,
       accounts,
@@ -3459,12 +3373,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of addresses for the newly created accounts.
    * @throws {TurnkeyError} If there is no active session, if the wallet does not exist, or if there is an error creating the wallet accounts.
    */
-  createWalletAccounts = async (params: {
-    accounts: v1WalletAccountParams[] | v1AddressFormat[];
-    walletId: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
+  createWalletAccounts = async (
+    params: CreateWalletAccountsParams,
+  ): Promise<string[]> => {
     const {
       accounts,
       walletId,
@@ -3548,12 +3459,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an `ExportBundle` object containing the encrypted wallet seed phrase and metadata.
    * @throws {TurnkeyError} If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the wallet.
    */
-  exportWallet = async (params: {
-    walletId: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<ExportBundle> => {
+  exportWallet = async (params: ExportWalletParams): Promise<ExportBundle> => {
     const {
       walletId,
       targetPublicKey,
@@ -3616,12 +3522,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an `ExportBundle` object containing the encrypted private key and metadata.
    * @throws {TurnkeyError} If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the private key.
    */
-  exportPrivateKey = async (params: {
-    privateKeyId: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<ExportBundle> => {
+  exportPrivateKey = async (
+    params: ExportPrivateKeyParams,
+  ): Promise<ExportBundle> => {
     const {
       privateKeyId,
       targetPublicKey,
@@ -3684,12 +3587,9 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the wallet account.
    *
    */
-  exportWalletAccount = async (params: {
-    address: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<ExportBundle> => {
+  exportWalletAccount = async (
+    params: ExportWalletAccountParams,
+  ): Promise<ExportBundle> => {
     const {
       address,
       targetPublicKey,
@@ -3754,14 +3654,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the ID of the imported wallet.
    * @throws {TurnkeyError} If there is no active session, if the encrypted bundle is invalid, or if there is an error importing the wallet.
    */
-  importWallet = async (params: {
-    encryptedBundle: string;
-    walletName: string;
-    accounts?: v1WalletAccountParams[];
-    organizationId?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  importWallet = async (params: ImportWalletParams): Promise<string> => {
     const {
       encryptedBundle,
       accounts,
@@ -3850,15 +3743,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the ID of the imported wallet.
    * @throws {TurnkeyError} If there is no active session, if the encrypted bundle is invalid, or if there is an error importing the wallet.
    */
-  importPrivateKey = async (params: {
-    encryptedBundle: string;
-    privateKeyName: string;
-    curve: v1Curve;
-    addressFormats: v1AddressFormat[];
-    organizationId?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  importPrivateKey = async (
+    params: ImportPrivateKeyParams,
+  ): Promise<string> => {
     const {
       encryptedBundle,
       privateKeyName,
@@ -3940,11 +3827,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a `TDeleteSubOrganizationResponse` object containing the result of the deletion.
    * @throws {TurnkeyError} If there is no active session or if there is an error deleting the sub-organization.
    */
-  deleteSubOrganization = async (params?: {
-    deleteWithoutExport?: boolean;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<TDeleteSubOrganizationResponse> => {
+  deleteSubOrganization = async (
+    params?: DeleteSubOrganizationParams,
+  ): Promise<TDeleteSubOrganizationResponse> => {
     const {
       deleteWithoutExport = false,
       organizationId: organizationIdFromParams,
@@ -3986,10 +3871,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves when the session is successfully stored.
    * @throws {TurnkeyError} If there is an error storing the session or cleaning up key pairs.
    */
-  storeSession = async (params: {
-    sessionToken: string;
-    sessionKey?: string;
-  }): Promise<void> => {
+  storeSession = async (params: StoreSessionParams): Promise<void> => {
     const { sessionToken, sessionKey = SessionKey.DefaultSessionkey } = params;
     if (!sessionToken) return;
 
@@ -4019,7 +3901,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves when the session is successfully cleared.
    * @throws {TurnkeyError} If the session does not exist or if there is an error clearing the session.
    */
-  clearSession = async (params?: { sessionKey?: string }): Promise<void> => {
+  clearSession = async (params?: ClearSessionParams): Promise<void> => {
     const { sessionKey = SessionKey.DefaultSessionkey } = params || {};
     withTurnkeyErrorHandling(
       async () => {
@@ -4086,13 +3968,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a `TStampLoginResponse` object containing the refreshed session details.
    * @throws {TurnkeyError} If the session key does not exist, if there is no active session, or if there is an error refreshing the session.
    */
-  refreshSession = async (params?: {
-    expirationSeconds?: string;
-    publicKey?: string;
-    sessionKey?: string;
-    invalidateExisitng?: boolean;
-    stampWith?: StamperType | undefined;
-  }): Promise<TStampLoginResponse | undefined> => {
+  refreshSession = async (
+    params?: RefreshSessionParams,
+  ): Promise<TStampLoginResponse | undefined> => {
     const {
       sessionKey = await this.storageManager.getActiveSessionKey(),
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -4172,9 +4050,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a `Session` object containing the session details, or undefined if not found.
    * @throws {TurnkeyError} If there is an error retrieving the session from storage.
    */
-  getSession = async (params?: {
-    sessionKey?: string;
-  }): Promise<Session | undefined> => {
+  getSession = async (
+    params?: GetSessionParams,
+  ): Promise<Session | undefined> => {
     return withTurnkeyErrorHandling(
       async () => {
         const { sessionKey = await this.storageManager.getActiveSessionKey() } =
@@ -4234,7 +4112,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves when the active session key is successfully set.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error setting the active session key.
    */
-  setActiveSession = async (params: { sessionKey: string }): Promise<void> => {
+  setActiveSession = async (params: SetActiveSessionParams): Promise<void> => {
     const { sessionKey } = params;
     return withTurnkeyErrorHandling(
       async () => {
@@ -4333,10 +4211,9 @@ export class TurnkeyClient {
    * @returnparams.s A promise that resolves to the public key of the created or provided API key pair as a string.
    * @throws {TurnkeyError} If the API key stamper is not initialized or if there is an error during key pair creation or storage.
    */
-  createApiKeyPair = async (params?: {
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string };
-    storeOverride?: boolean;
-  }): Promise<string> => {
+  createApiKeyPair = async (
+    params?: CreateApiKeyPairParams,
+  ): Promise<string> => {
     return withTurnkeyErrorHandling(
       async () => {
         const externalKeyPair = params?.externalKeyPair;

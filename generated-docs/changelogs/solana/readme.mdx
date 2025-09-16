@@ -5,6 +5,16 @@ mode: wide
 
 # @turnkey/solana
 
+## 1.1.0
+
+### Minor Changes
+
+- Updated dependencies [[`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e), [`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e), [`4880f26`](https://github.com/tkhq/sdk/commit/4880f26a4dd324c049bff7f35284098ccfc55823), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`06347ad`](https://github.com/tkhq/sdk/commit/06347adfa08fb0867c350e43821d0fed06c49624)]:
+  - @turnkey/sdk-server@4.9.0
+  - @turnkey/core@1.0.0
+  - @turnkey/http@3.12.0
+  - @turnkey/sdk-browser@5.10.0
+
 ## 1.1.0-beta.1
 
 ### Patch Changes
@@ -464,7 +474,6 @@ mode: wide
 - a4f0f69: Integrate @turnkey/solana with Turnkey's Sign Transaction endpoint. There are no breaking changes, but a major release felt right given this is effectively adding "full" Solana support.
 
   This release introduces a new method: `signTransaction`. Under the hood, this creates an activity of type `ACTIVITY_TYPE_SIGN_TRANSACTION_V2`. There is **no action required** for existing users of `addSignature`.
-
   - `addSignature` does not use our Policy Engine, and instead signs a transaction's message straight up
   - While `addSignature` mutates the incoming transaction by adding a signature to it directly, `signTransaction` returns a new transaction object
   - Both legacy and versioned (V0) transactions are supported

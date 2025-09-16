@@ -29,36 +29,80 @@ import {
   clearKeys,
 } from "../../utils/timers";
 import {
-  Chain,
-  CreateSubOrgParams,
-  DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ExportBundle,
   getAuthProxyConfig,
+  Chain,
+  DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   OtpType,
   StamperType,
-  SwitchableChain,
   TurnkeyClient,
-  Wallet,
-  WalletAccount,
   WalletInterfaceType,
   WalletProvider,
+  type AddOauthProviderParams,
+  type AddPasskeyParams,
+  type ClearSessionParams,
+  type CompleteOauthParams,
+  type CompleteOtpParams,
+  type CreateApiKeyPairParams,
+  type CreatePasskeyParams,
+  type CreatePasskeyResult,
+  type CreateWalletAccountsParams,
+  type CreateWalletParams,
+  type DeleteSubOrganizationParams,
+  type ExportBundle,
+  type ExportPrivateKeyParams,
+  type ExportWalletAccountParams,
+  type ExportWalletParams,
+  type FetchOrCreateP256ApiKeyUserParams,
+  type FetchOrCreatePoliciesParams,
+  type FetchOrCreatePoliciesResult,
+  type FetchPrivateKeysParams,
+  type FetchUserParams,
+  type FetchWalletAccountsParams,
+  type FetchWalletsParams,
+  type GetSessionParams,
+  type ImportPrivateKeyParams,
+  type ImportWalletParams,
+  type InitOtpParams,
+  type LoginOrSignupWithWalletParams,
+  type LoginWithOauthParams,
+  type LoginWithOtpParams,
+  type LoginWithPasskeyParams,
+  type LoginWithWalletParams,
+  type LogoutParams,
+  type RefreshSessionParams,
+  type RemoveOauthProvidersParams,
+  type RemovePasskeyParams,
+  type RemoveUserEmailParams,
+  type RemoveUserPhoneNumberParams,
+  type SetActiveSessionParams,
+  type SignAndSendTransactionParams,
+  type SignMessageParams,
+  type SignTransactionParams,
+  type SignUpWithOauthParams,
+  type SignUpWithOtpParams,
+  type SignUpWithPasskeyParams,
+  type SignUpWithWalletParams,
+  type StoreSessionParams,
+  type SwitchWalletAccountChainParams,
+  type UpdateUserEmailParams,
+  type UpdateUserNameParams,
+  type UpdateUserPhoneNumberParams,
+  type VerifyOtpParams,
+  type Wallet,
+  type WalletAccount,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
-  SessionType,
   OAuthProviders,
   type Session,
   type TDeleteSubOrganizationResponse,
   type TStampLoginResponse,
   type v1AddressFormat,
-  type v1Attestation,
   type ProxyTGetWalletKitConfigResponse,
-  type v1Pagination,
   type v1SignRawPayloadResult,
-  type v1TransactionType,
   type v1User,
   type v1WalletAccountParams,
   type v1PayloadEncoding,
@@ -69,7 +113,6 @@ import {
   WalletAuthResult,
   AuthAction,
   PasskeyAuthResult,
-  v1CreatePolicyIntentV3,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -1114,12 +1157,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   };
 
   const createPasskey = useCallback(
-    async (params?: {
-      name?: string;
-      displayName?: string;
-      stampWith?: StamperType | undefined;
-      challenge?: string;
-    }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> => {
+    async (params?: CreatePasskeyParams): Promise<CreatePasskeyResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1136,39 +1174,35 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks],
   );
 
-  const logout: (params?: { sessionKey?: string }) => Promise<void> =
-    useCallback(
-      async (params?: { sessionKey?: string }): Promise<void> => {
-        if (!client) {
-          throw new TurnkeyError(
-            "Client is not initialized.",
-            TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-          );
-        }
-        await withTurnkeyErrorHandling(
-          async () => {
-            // If no sessionKey is provided, we try to get the active one.
-            let sessionKey = params?.sessionKey;
-            if (!sessionKey) sessionKey = await getActiveSessionKey();
-            await client.logout(params);
-            // We only handle post logout if the sessionKey is defined since that means we actually logged out of a session.
-            if (sessionKey) handlePostLogout(sessionKey);
-          },
-          () => logout(),
-          callbacks,
-          "Failed to logout",
+  const logout: (params?: LogoutParams) => Promise<void> = useCallback(
+    async (params?: { sessionKey?: string }): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
+      }
+      await withTurnkeyErrorHandling(
+        async () => {
+          // If no sessionKey is provided, we try to get the active one.
+          let sessionKey = params?.sessionKey;
+          if (!sessionKey) sessionKey = await getActiveSessionKey();
+          await client.logout(params);
+          // We only handle post logout if the sessionKey is defined since that means we actually logged out of a session.
+          if (sessionKey) handlePostLogout(sessionKey);
+        },
+        () => logout(),
+        callbacks,
+        "Failed to logout",
+      );
 
-        return;
-      },
-      [client, callbacks],
-    );
+      return;
+    },
+    [client, callbacks],
+  );
 
   const loginWithPasskey = useCallback(
-    async (params?: {
-      publicKey?: string;
-      sessionKey?: string;
-    }): Promise<PasskeyAuthResult> => {
+    async (params?: LoginWithPasskeyParams): Promise<PasskeyAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1198,12 +1232,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const signUpWithPasskey = useCallback(
-    async (params?: {
-      createSubOrgParams?: CreateSubOrgParams;
-      sessionKey?: string;
-      passkeyDisplayName?: string;
-      challenge?: string;
-    }): Promise<PasskeyAuthResult> => {
+    async (params?: SignUpWithPasskeyParams): Promise<PasskeyAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1335,10 +1364,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const switchWalletAccountChain = useCallback(
-    async (params: {
-      walletAccount: WalletAccount;
-      chainOrId: string | SwitchableChain;
-    }): Promise<void> => {
+    async (params: SwitchWalletAccountChainParams): Promise<void> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1351,12 +1377,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const loginWithWallet = useCallback(
-    async (params: {
-      walletProvider: WalletProvider;
-      sessionType?: SessionType;
-      publicKey?: string;
-      sessionKey?: string;
-    }): Promise<WalletAuthResult> => {
+    async (params: LoginWithWalletParams): Promise<WalletAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1386,12 +1407,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const signUpWithWallet = useCallback(
-    async (params: {
-      walletProvider: WalletProvider;
-      createSubOrgParams?: CreateSubOrgParams;
-      sessionType?: SessionType;
-      sessionKey?: string;
-    }): Promise<WalletAuthResult> => {
+    async (params: SignUpWithWalletParams): Promise<WalletAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1435,12 +1451,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const loginOrSignupWithWallet = useCallback(
-    async (params: {
-      walletProvider: WalletProvider;
-      createSubOrgParams?: CreateSubOrgParams;
-      sessionKey?: string;
-      expirationSeconds?: string;
-    }): Promise<WalletAuthResult & { action: AuthAction }> => {
+    async (
+      params: LoginOrSignupWithWalletParams,
+    ): Promise<WalletAuthResult & { action: AuthAction }> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1484,7 +1497,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const initOtp = useCallback(
-    async (params: { otpType: OtpType; contact: string }): Promise<string> => {
+    async (params: InitOtpParams): Promise<string> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1502,12 +1515,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const verifyOtp = useCallback(
-    async (params: {
-      otpId: string;
-      otpCode: string;
-      contact: string;
-      otpType: OtpType;
-    }): Promise<{ subOrganizationId: string; verificationToken: string }> => {
+    async (
+      params: VerifyOtpParams,
+    ): Promise<{ subOrganizationId: string; verificationToken: string }> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1525,12 +1535,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const loginWithOtp = useCallback(
-    async (params: {
-      verificationToken: string;
-      publicKey?: string;
-      invalidateExisting?: boolean;
-      sessionKey?: string;
-    }): Promise<BaseAuthResult> => {
+    async (params: LoginWithOtpParams): Promise<BaseAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1557,13 +1562,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const signUpWithOtp = useCallback(
-    async (params: {
-      verificationToken: string;
-      contact: string;
-      otpType: OtpType;
-      createSubOrgParams?: CreateSubOrgParams;
-      sessionKey?: string;
-    }): Promise<BaseAuthResult> => {
+    async (params: SignUpWithOtpParams): Promise<BaseAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1610,16 +1609,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const completeOtp = useCallback(
-    async (params: {
-      otpId: string;
-      otpCode: string;
-      contact: string;
-      otpType: OtpType;
-      publicKey?: string;
-      invalidateExisting?: boolean;
-      sessionKey?: string;
-      createSubOrgParams?: CreateSubOrgParams;
-    }): Promise<
+    async (
+      params: CompleteOtpParams,
+    ): Promise<
       BaseAuthResult & { verificationToken: string; action: AuthAction }
     > => {
       if (!client) {
@@ -1669,12 +1661,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const loginWithOauth = useCallback(
-    async (params: {
-      oidcToken: string;
-      publicKey: string;
-      invalidateExisting?: boolean;
-      sessionKey?: string;
-    }): Promise<BaseAuthResult> => {
+    async (params: LoginWithOauthParams): Promise<BaseAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1701,13 +1688,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const signUpWithOauth = useCallback(
-    async (params: {
-      oidcToken: string;
-      publicKey: string;
-      providerName: string;
-      createSubOrgParams?: CreateSubOrgParams;
-      sessionKey?: string;
-    }): Promise<BaseAuthResult> => {
+    async (params: SignUpWithOauthParams): Promise<BaseAuthResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1748,14 +1729,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const completeOauth = useCallback(
-    async (params: {
-      oidcToken: string;
-      publicKey: string;
-      providerName?: string;
-      sessionKey?: string;
-      invalidateExisting?: boolean;
-      createSubOrgParams?: CreateSubOrgParams;
-    }): Promise<BaseAuthResult & { action: AuthAction }> => {
+    async (
+      params: CompleteOauthParams,
+    ): Promise<BaseAuthResult & { action: AuthAction }> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1798,10 +1774,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const fetchWallets = useCallback(
-    async (params?: {
-      walletProviders?: WalletProvider[] | undefined;
-      stampWith?: StamperType | undefined;
-    }): Promise<Wallet[]> => {
+    async (params?: FetchWalletsParams): Promise<Wallet[]> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1819,12 +1792,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const fetchWalletAccounts = useCallback(
-    async (params: {
-      wallet: Wallet;
-      walletProviders?: WalletProvider[];
-      paginationOptions?: v1Pagination;
-      stampWith?: StamperType | undefined;
-    }): Promise<WalletAccount[]> => {
+    async (params: FetchWalletAccountsParams): Promise<WalletAccount[]> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1842,9 +1810,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const fetchPrivateKeys = useCallback(
-    async (params?: {
-      stampWith?: StamperType | undefined;
-    }): Promise<v1PrivateKey[]> => {
+    async (params?: FetchPrivateKeysParams): Promise<v1PrivateKey[]> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1862,14 +1828,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const signMessage = useCallback(
-    async (params: {
-      message: string;
-      walletAccount: WalletAccount;
-      encoding?: v1PayloadEncoding;
-      hashFunction?: v1HashFunction;
-      stampWith?: StamperType | undefined;
-      addEthereumPrefix?: boolean;
-    }): Promise<v1SignRawPayloadResult> => {
+    async (params: SignMessageParams): Promise<v1SignRawPayloadResult> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1934,12 +1893,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const signTransaction = useCallback(
-    async (params: {
-      unsignedTransaction: string;
-      transactionType: v1TransactionType;
-      walletAccount: WalletAccount;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params: SignTransactionParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1956,13 +1910,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const signAndSendTransaction = useCallback(
-    async (params: {
-      unsignedTransaction: string;
-      transactionType: v1TransactionType;
-      walletAccount: WalletAccount;
-      rpcUrl?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params: SignAndSendTransactionParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1979,11 +1927,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const fetchUser = useCallback(
-    async (params?: {
-      organizationId?: string;
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<v1User> => {
+    async (params?: FetchUserParams): Promise<v1User> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2000,13 +1944,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const fetchOrCreateP256ApiKeyUser = useCallback(
-    async (params: {
-      publicKey: string;
-      createParams?: {
-        apiKeyName?: string;
-        userName?: string;
-      };
-    }): Promise<v1User> => {
+    async (params: FetchOrCreateP256ApiKeyUserParams): Promise<v1User> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2023,9 +1961,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const fetchOrCreatePolicies = useCallback(
-    async (params: {
-      policies: v1CreatePolicyIntentV3[];
-    }): Promise<({ policyId: string } & v1CreatePolicyIntentV3)[]> => {
+    async (
+      params: FetchOrCreatePoliciesParams,
+    ): Promise<FetchOrCreatePoliciesResult> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2042,12 +1980,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const updateUserEmail = useCallback(
-    async (params: {
-      email: string;
-      verificationToken?: string;
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params: UpdateUserEmailParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2066,10 +1999,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const removeUserEmail = useCallback(
-    async (params?: {
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params?: RemoveUserEmailParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2088,12 +2018,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const updateUserPhoneNumber = useCallback(
-    async (params: {
-      phoneNumber: string;
-      verificationToken?: string;
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params: UpdateUserPhoneNumberParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2112,10 +2037,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const removeUserPhoneNumber = useCallback(
-    async (params?: {
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params?: RemoveUserPhoneNumberParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2134,11 +2056,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const updateUserName = useCallback(
-    async (params: {
-      userName: string;
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params: UpdateUserNameParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2157,12 +2075,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const addOauthProvider = useCallback(
-    async (params: {
-      providerName: string;
-      oidcToken: string;
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string[]> => {
+    async (params: AddOauthProviderParams): Promise<string[]> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2181,11 +2094,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const removeOauthProviders = useCallback(
-    async (params: {
-      providerIds: string[];
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string[]> => {
+    async (params: RemoveOauthProvidersParams): Promise<string[]> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2204,12 +2113,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const addPasskey = useCallback(
-    async (params?: {
-      name?: string;
-      displayName?: string;
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string[]> => {
+    async (params?: AddPasskeyParams): Promise<string[]> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2228,11 +2132,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const removePasskeys = useCallback(
-    async (params: {
-      authenticatorIds: string[];
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string[]> => {
+    async (params: RemovePasskeyParams): Promise<string[]> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2251,13 +2151,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const createWallet = useCallback(
-    async (params: {
-      walletName: string;
-      accounts?: v1WalletAccountParams[] | v1AddressFormat[];
-      organizationId?: string;
-      mnemonicLength?: number;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params: CreateWalletParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2276,12 +2170,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const createWalletAccounts = useCallback(
-    async (params: {
-      accounts: v1WalletAccountParams[] | v1AddressFormat[];
-      walletId: string;
-      organizationId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string[]> => {
+    async (params: CreateWalletAccountsParams): Promise<string[]> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2300,12 +2189,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const exportWallet = useCallback(
-    async (params: {
-      walletId: string;
-      targetPublicKey: string;
-      organizationId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<ExportBundle> => {
+    async (params: ExportWalletParams): Promise<ExportBundle> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2324,12 +2208,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const exportPrivateKey = useCallback(
-    async (params: {
-      privateKeyId: string;
-      targetPublicKey: string;
-      organizationId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<ExportBundle> => {
+    async (params: ExportPrivateKeyParams): Promise<ExportBundle> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2347,12 +2226,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const exportWalletAccount = useCallback(
-    async (params: {
-      address: string;
-      targetPublicKey: string;
-      organizationId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<ExportBundle> => {
+    async (params: ExportWalletAccountParams): Promise<ExportBundle> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2371,13 +2245,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const importWallet = useCallback(
-    async (params: {
-      encryptedBundle: string;
-      walletName: string;
-      accounts?: v1WalletAccountParams[];
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params: ImportWalletParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2396,14 +2264,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const importPrivateKey = useCallback(
-    async (params: {
-      encryptedBundle: string;
-      privateKeyName: string;
-      curve: v1Curve;
-      addressFormats: v1AddressFormat[];
-      userId?: string;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params: ImportPrivateKeyParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2421,10 +2282,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const deleteSubOrganization = useCallback(
-    async (params?: {
-      deleteWithoutExport?: boolean;
-      stampWith?: StamperType | undefined;
-    }): Promise<TDeleteSubOrganizationResponse> => {
+    async (
+      params?: DeleteSubOrganizationParams,
+    ): Promise<TDeleteSubOrganizationResponse> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2441,10 +2301,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const storeSession = useCallback(
-    async (params: {
-      sessionToken: string;
-      sessionKey?: string;
-    }): Promise<void> => {
+    async (params: StoreSessionParams): Promise<void> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2474,7 +2331,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const clearSession = useCallback(
-    async (params?: { sessionKey?: string }): Promise<void> => {
+    async (params?: ClearSessionParams): Promise<void> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2512,13 +2369,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }, [client, callbacks, session, user, masterConfig]);
 
   const refreshSession = useCallback(
-    async (params?: {
-      expirationSeconds?: string;
-      publicKey?: string;
-      sessionKey?: string;
-      invalidateExisitng?: boolean;
-      stampWith?: StamperType | undefined;
-    }): Promise<TStampLoginResponse | undefined> => {
+    async (
+      params?: RefreshSessionParams,
+    ): Promise<TStampLoginResponse | undefined> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2563,7 +2416,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const getSession = useCallback(
-    async (params?: { sessionKey?: string }): Promise<Session | undefined> => {
+    async (params?: GetSessionParams): Promise<Session | undefined> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2596,7 +2449,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }, [client, callbacks, masterConfig, session, user]);
 
   const setActiveSession = useCallback(
-    async (params: { sessionKey: string }): Promise<void> => {
+    async (params: SetActiveSessionParams): Promise<void> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2666,12 +2519,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }, [client, callbacks, masterConfig, session, user]);
 
   const createApiKeyPair = useCallback(
-    async (params?: {
-      externalKeyPair?:
-        | CryptoKeyPair
-        | { publicKey: string; privateKey: string };
-      storeOverride?: boolean;
-    }): Promise<string> => {
+    async (params?: CreateApiKeyPairParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",

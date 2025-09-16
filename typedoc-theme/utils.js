@@ -1,5 +1,3 @@
-const { mkdirSync, readFileSync, writeFileSync } = require("fs");
-
 const md = {
   esc: (t = "") => String(t).replace(/</g, "&lt;").replace(/>/g, "&gt;"),
 };
@@ -136,6 +134,16 @@ function pickSummary(comment) {
   return (comment.shortText || comment.text || "").trim();
 }
 
+function pickSummaryFromHighlightedProperties(comments) {
+  if (!comments || !Array.isArray(comments)) return "";
+  if (Array.isArray(comments)) {
+    return comments
+      .map((c) => c.text || "")
+      .join("")
+      .trim();
+  }
+}
+
 function extractSummaryText(comment) {
   if (!comment) return "";
   if (Array.isArray(comment.summary) && comment.summary.length) {
@@ -236,99 +244,6 @@ function formatCommentToMDX(comment) {
 
 function isOptionalParam(p) {
   return !!(p?.flags?.isOptional || p?.flags?.optional);
-}
-
-// Core type resolver: stringify + optional “shape” for expansion
-function resolveType(t) {
-  if (!t) return { text: "unknown", shape: null };
-
-  // Intrinsic: string, number, boolean, void, unknown, any
-  if (t.type === "intrinsic") return { text: t.name, shape: null };
-
-  // Literals: 'abc', 123, true, null
-  if (t.type === "literal") {
-    return {
-      text: t.value === null ? "null" : JSON.stringify(t.value),
-      shape: null,
-    };
-  }
-
-  // Arrays
-  if (t.type === "array") {
-    const inner = resolveType(t.elementType);
-    return {
-      text: `${inner.text}[]`,
-      shape: { kind: "array", element: inner },
-    };
-  }
-
-  // Tuples
-  if (t.type === "tuple") {
-    const parts = (t.elements || []).map((e) => resolveType(e).text);
-    return { text: `[${parts.join(", ")}]`, shape: null };
-  }
-
-  // Unions / Intersections
-  if (t.type === "union") {
-    const parts = t.types.map((x) => resolveType(x));
-    return {
-      text: parts.map((p) => p.text).join(" | "),
-      shape: { kind: "union", parts },
-    };
-  }
-  if (t.type === "intersection") {
-    const parts = t.types.map((x) => resolveType(x));
-    return {
-      text: parts.map((p) => p.text).join(" & "),
-      shape: { kind: "intersection", parts },
-    };
-  }
-
-  // Inline object/function type
-  if (t.type === "reflection") {
-    return { text: "object", shape: t.declaration || null };
-  }
-
-  // typeof Query
-  if (t.type === "query") {
-    const inner = resolveType(t.queryType);
-    return { text: `typeof ${inner.text}`, shape: null };
-  }
-
-  // References: named types, Promise<T>, CryptoKeyPair, etc.
-  if (t.type === "reference") {
-    const typeArgs = (t.typeArguments || []).map((a) => resolveType(a));
-    const txt = typeArgs.length
-      ? `${t.name}<${typeArgs.map((a) => a.text).join(", ")}>`
-      : t.name;
-    // If reference inlines a declaration (rare), use it
-    const shape = t.reflection || null;
-    return { text: txt, shape, typeArguments: typeArgs, name: t.name };
-  }
-
-  // Fallback
-  return { text: t.name || "unknown", shape: null };
-}
-
-function unwrapPromise(rt) {
-  // Accepts a signature.return type 't' and returns { display, innerType(Resolved) }
-  const r = resolveType(rt);
-  if (
-    r.name === "Promise" &&
-    Array.isArray(r.typeArguments) &&
-    r.typeArguments.length === 1
-  ) {
-    return {
-      display: r.typeArguments[0].text,
-      inner: r.typeArguments[0],
-    };
-  }
-  // Also handle stringified Promise<...> just in case
-  const match = /^Promise<(.+)>$/.test(r.text);
-  if (match && r.typeArguments?.[0]) {
-    return { display: r.typeArguments[0].text, inner: r.typeArguments[0] };
-  }
-  return { display: r.text, inner: r };
 }
 
 // Find call signatures inside a type (reflection or unions that contain a function type)
@@ -444,8 +359,6 @@ module.exports = {
   toKebab,
   pickSummary,
   isOptionalParam,
-  resolveType,
-  unwrapPromise,
   getCallSignaturesFromType,
   posixJoin,
   isGroupObject,
@@ -455,5 +368,6 @@ module.exports = {
   addPagesDedup,
   unscopedFolder,
   humanTitleFromPkg,
+  pickSummaryFromHighlightedProperties,
   md,
 };

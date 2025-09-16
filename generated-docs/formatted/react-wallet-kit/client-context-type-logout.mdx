@@ -19,7 +19,7 @@ Logs out the current client session.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='LogoutParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
 session key to specify which session to log out from (defaults to the active session).

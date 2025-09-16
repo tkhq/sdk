@@ -19,7 +19,7 @@ Initializes the OTP process by sending an OTP code to the provided contact.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='InitOtpParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="contact" type='string' required={true}>
 contact information for the user (e.g., email address or phone number).

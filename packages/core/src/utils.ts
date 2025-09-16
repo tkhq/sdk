@@ -30,7 +30,7 @@ import {
   EmbeddedWallet,
   WalletSource,
   StamperType,
-} from "@types";
+} from "./__types__";
 import { bs58 } from "@turnkey/encoding";
 
 // Import all defaultAccountAtIndex functions for each address format

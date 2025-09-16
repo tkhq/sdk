@@ -1,0 +1,23 @@
+---
+title: "constructor()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="message" type='string' required={true} />
+
+<ParamField body="statusCode" type='number' required={false} />
+
+<ParamField body="code" type='TurnkeyErrorCodes' required={false} />
+
+<ParamField body="cause" type='unknown' required={false} />
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="TurnkeyNetworkError" required={true} />

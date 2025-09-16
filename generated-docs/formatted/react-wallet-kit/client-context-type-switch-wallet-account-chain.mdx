@@ -20,7 +20,7 @@ Switches the wallet provider associated with a given wallet account to a differe
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='SwitchWalletAccountChainParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="chainOrId" type='string | SwitchableChain' required={true}>
 The target chain, specified as a chain ID string or a SwitchableChain object.

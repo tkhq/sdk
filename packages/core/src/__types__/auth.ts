@@ -100,30 +100,50 @@ export type CreateSuborgResponse = {
  * CreateSubOrgParams defines the parameters to pass on sub-organization creation.
  */
 export type CreateSubOrgParams = {
+  /** name of the user */
   userName?: string | undefined;
+  /** name of the sub-organization */
   subOrgName?: string | undefined;
+  /** email of the user */
   userEmail?: string | undefined;
+  /** tag of the user */
   userTag?: string | undefined;
+  /** list of authenticators */
   authenticators?: {
+    /** name of the authenticator */
     authenticatorName?: string;
+    /** challenge string to use for passkey registration */
     challenge: string;
+    /** attestation object returned from the passkey creation process */
     attestation: v1Attestation;
   }[];
+  /** phone number of the user */
   userPhoneNumber?: string | undefined;
+  /** verification token if email or phone number is provided */
   verificationToken?: string | undefined;
+  /** list of api keys */
   apiKeys?: {
+    /* name of the api key */
     apiKeyName?: string | undefined;
+    /* public key in hex format */
     publicKey: string;
+    /* expiration in seconds */
     expirationSeconds?: string | undefined;
+    /* curve type */
     curveType?: v1ApiKeyCurve | undefined;
   }[];
-  customWallet?:
-    | {
-        walletName: string;
-        walletAccounts: v1WalletAccountParams[];
-      }
-    | undefined;
+  /** custom wallets to create during sub-org creation time */
+  customWallet?: CustomWallet | undefined;
+  /** list of oauth providers */
   oauthProviders?: Provider[] | undefined;
+};
+
+/** @expand */
+export type CustomWallet = {
+  /** name of the wallet created */
+  walletName: string;
+  /** list of wallet accounts to create */
+  walletAccounts: v1WalletAccountParams[];
 };
 
 /** @internal */

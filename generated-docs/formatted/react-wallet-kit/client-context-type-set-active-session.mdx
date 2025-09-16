@@ -20,7 +20,7 @@ Sets the active session to the specified session key.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='SetActiveSessionParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="sessionKey" type='string' required={true}>
 session key to set as the active session.

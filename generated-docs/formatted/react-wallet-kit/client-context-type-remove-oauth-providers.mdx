@@ -21,7 +21,7 @@ Removes a list of OAuth providers from the user.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='RemoveOauthProvidersParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="providerIds" type='string[]' required={true}>
 IDs of the OAuth providers to remove.

@@ -19,11 +19,11 @@ Removes a list of OAuth providers from the user.
 
 <p><strong>Package:</strong> <code>core</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3087">core.ts:3087</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L3103">core/src/__clients__/core.ts:3103</a></p>
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='RemoveOauthProvidersParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="providerIds" type='string[]' required={true}>
 IDs of the OAuth providers to remove.

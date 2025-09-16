@@ -1,0 +1,22 @@
+---
+title: "stamp()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="payload" type='string' required={true} />
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="object" required={true} >
+  <Expandable title="return details">
+    <NestedParam parentKey="returns" childKey="stampHeaderName" type='string' required={true}></NestedParam>
+    <NestedParam parentKey="returns" childKey="stampHeaderValue" type='string' required={true}></NestedParam>
+  </Expandable>
+</ResponseField>

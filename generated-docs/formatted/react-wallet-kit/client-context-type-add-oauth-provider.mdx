@@ -22,10 +22,13 @@ Adds an OAuth provider to the user.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='AddOauthProviderParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="oidcToken" type='string' required={true}>
 OIDC token for the OAuth provider.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="organizationId" type='string' required={false}>
+organization ID to specify the sub-organization (defaults to the current session's organizationId).
 </NestedParam>
     <NestedParam parentKey="params" childKey="providerName" type='string' required={true}>
 name of the OAuth provider to add (e.g., "Google", "Apple").

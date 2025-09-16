@@ -21,7 +21,7 @@ Signs up a user using a passkey, creating a new sub-organization and session.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='SignUpWithPasskeyParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="challenge" type='string' required={false}>
 challenge string to use for passkey registration. If not provided, a new challenge will be generated.

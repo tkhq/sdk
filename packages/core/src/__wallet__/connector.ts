@@ -5,7 +5,7 @@ import {
   WalletInterfaceType,
   SwitchableChain,
   Chain,
-} from "@types";
+} from "../__types__";
 
 export interface CrossPlatformWalletConnectorInterface {
   sign(

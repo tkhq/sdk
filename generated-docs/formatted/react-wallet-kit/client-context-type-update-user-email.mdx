@@ -21,7 +21,7 @@ Updates the user's email address.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='UpdateUserEmailParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="email" type='string' required={true}>
 new email address to set for the user.

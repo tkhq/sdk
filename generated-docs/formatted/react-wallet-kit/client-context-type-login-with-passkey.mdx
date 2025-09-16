@@ -21,7 +21,7 @@ Logs in a user using a passkey, optionally specifying the public key, session ke
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='LoginWithPasskeyParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="expirationSeconds" type='string' required={false}>
 session expiration time in seconds (defaults to the configured default).

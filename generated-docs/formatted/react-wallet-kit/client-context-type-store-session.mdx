@@ -21,7 +21,7 @@ Stores a session token and updates the session associated with the specified ses
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='StoreSessionParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
 session key to store the session under (defaults to the default session key).

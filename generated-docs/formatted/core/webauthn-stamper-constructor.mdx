@@ -1,0 +1,17 @@
+---
+title: "constructor()"
+---
+
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+
+<p><strong>Package:</strong> <code>core</code></p>
+
+<H3Bordered text="Parameters" />
+
+<ParamField body="config" type='TWebauthnStamperConfig' required={true} />
+
+<H3Bordered text="Response" />
+A successful response returns the following fields:
+
+<ResponseField name="returns" type="WebauthnStamper" required={true} />

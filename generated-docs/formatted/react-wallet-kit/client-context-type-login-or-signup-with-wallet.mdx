@@ -22,7 +22,7 @@ Logs in an existing user or signs up a new user using a wallet, creating a new s
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='LoginOrSignupWithWalletParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="createSubOrgParams" type='CreateSubOrgParams' required={false}>
 optional parameters for creating a sub-organization (e.g., authenticators, user metadata).

@@ -7,11 +7,95 @@ import { NestedParam } from "/snippets/nested-param.mdx";
 
 <p><strong>Package:</strong> <code>core</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L120">core.ts:120</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L149">core/src/__clients__/core.ts:149</a></p>
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="config" type='TurnkeySDKClientConfig' required={true} />
+<ParamField body="config" type='TurnkeySDKClientConfig' required={true} >
+  <Expandable title="config details">
+    <NestedParam parentKey="config" childKey="apiBaseUrl" type='string' required={false}>
+base URL for the Turnkey API.
+</NestedParam>
+    <NestedParam parentKey="config" childKey="authProxyConfigId" type='string' required={false}>
+ID for the auth proxy configuration.
+</NestedParam>
+    <NestedParam parentKey="config" childKey="authProxyUrl" type='string' required={false}>
+URL for the auth proxy.
+</NestedParam>
+    <NestedParam parentKey="config" childKey="organizationId" type='string' required={true}>
+ID of the organization.
+</NestedParam>
+    <NestedParam parentKey="config" childKey="passkeyConfig" type='TPasskeyStamperConfig' required={false}>
+configuration for the passkey stamper.
+</NestedParam>
+    <Expandable title="passkeyConfig details">
+    <NestedParam parentKey="config.passkeyConfig" childKey="allowCredentials" type='PublicKeyCredentialDescriptor[]' required={false}>
+list of credentials to pass. Defaults to empty.
+</NestedParam>
+    <NestedParam parentKey="config.passkeyConfig" childKey="extensions" type='Record&lt;string, unknown&gt;' required={false}>
+optional extensions. Defaults to empty.
+</NestedParam>
+    <NestedParam parentKey="config.passkeyConfig" childKey="rpId" type='string' required={false}>
+The RPID ("Relying Party ID") for your app. This is automatically determined in web environments based on the current hostname. See https://github.com/f-23/react-native-passkey?tab=readme-ov-file#configuration to set this up for react-native.
+</NestedParam>
+    <NestedParam parentKey="config.passkeyConfig" childKey="rpName" type='string' required={false}>
+name for the Relying Party (RP). This is used in the passkey creation flow on mobile.
+</NestedParam>
+    <NestedParam parentKey="config.passkeyConfig" childKey="timeout" type='number' required={false}>
+timeout value in milliseconds. Defaults to 5 minutes.
+</NestedParam>
+    <NestedParam parentKey="config.passkeyConfig" childKey="userVerification" type='UserVerificationRequirement' required={false}>
+override for UV flag. Defaults to "preferred".
+</NestedParam>
+    <NestedParam parentKey="config.passkeyConfig" childKey="withPlatformKey" type='boolean' required={false}>
+option to force platform passkeys on native platforms.
+</NestedParam>
+    <NestedParam parentKey="config.passkeyConfig" childKey="withSecurityKey" type='boolean' required={false}>
+option to force security passkeys on native platforms.
+</NestedParam>
+    </Expandable>
+    <NestedParam parentKey="config" childKey="walletConfig" type='TWalletManagerConfig' required={false}>
+configuration for the wallet manager.
+</NestedParam>
+    <Expandable title="walletConfig details">
+    <NestedParam parentKey="config.walletConfig" childKey="chains" type='object' required={true}>
+chains to support in the wallet manager.
+</NestedParam>
+    <Expandable title="chains details">
+    <NestedParam parentKey="config.walletConfig.chains" childKey="ethereum" type='object' required={false}></NestedParam>
+    <Expandable title="ethereum details">
+    <NestedParam parentKey="config.walletConfig.chains.ethereum" childKey="native" type='boolean' required={false}></NestedParam>
+    <NestedParam parentKey="config.walletConfig.chains.ethereum" childKey="walletConnectNamespaces" type='unknown[]' required={false}></NestedParam>
+    </Expandable>
+    <NestedParam parentKey="config.walletConfig.chains" childKey="solana" type='object' required={false}></NestedParam>
+    <Expandable title="solana details">
+    <NestedParam parentKey="config.walletConfig.chains.solana" childKey="native" type='boolean' required={false}></NestedParam>
+    <NestedParam parentKey="config.walletConfig.chains.solana" childKey="walletConnectNamespaces" type='unknown[]' required={false}></NestedParam>
+    </Expandable>
+    </Expandable>
+    <NestedParam parentKey="config.walletConfig" childKey="features" type='object' required={false}>
+features to enable in the wallet manager.
+</NestedParam>
+    <Expandable title="features details">
+    <NestedParam parentKey="config.walletConfig.features" childKey="auth" type='boolean' required={false}></NestedParam>
+    <NestedParam parentKey="config.walletConfig.features" childKey="connecting" type='boolean' required={false}></NestedParam>
+    </Expandable>
+    <NestedParam parentKey="config.walletConfig" childKey="walletConnect" type='object' required={false}>
+configuration for WalletConnect.
+</NestedParam>
+    <Expandable title="walletConnect details">
+    <NestedParam parentKey="config.walletConfig.walletConnect" childKey="appMetadata" type='object' required={true}></NestedParam>
+    <Expandable title="appMetadata details">
+    <NestedParam parentKey="config.walletConfig.walletConnect.appMetadata" childKey="description" type='string' required={true}></NestedParam>
+    <NestedParam parentKey="config.walletConfig.walletConnect.appMetadata" childKey="icons" type='string[]' required={true}></NestedParam>
+    <NestedParam parentKey="config.walletConfig.walletConnect.appMetadata" childKey="name" type='string' required={true}></NestedParam>
+    <NestedParam parentKey="config.walletConfig.walletConnect.appMetadata" childKey="url" type='string' required={true}></NestedParam>
+    </Expandable>
+    <NestedParam parentKey="config.walletConfig.walletConnect" childKey="projectId" type='string' required={true}></NestedParam>
+    </Expandable>
+    </Expandable>
+  </Expandable>
+</ParamField>
 
 <ParamField body="apiKeyStamper" type='CrossPlatformApiKeyStamper' required={false} />
 

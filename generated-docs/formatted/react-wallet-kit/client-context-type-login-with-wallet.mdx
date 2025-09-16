@@ -21,7 +21,7 @@ Logs in a user using the specified wallet provider.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='LoginWithWalletParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="expirationSeconds" type='string' required={false}>
 optional session expiration time in seconds (defaults to the configured default).

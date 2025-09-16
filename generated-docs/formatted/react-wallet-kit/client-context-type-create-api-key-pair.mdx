@@ -21,7 +21,7 @@ Creates a new API key pair and returns the public key.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='CreateApiKeyPairParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="externalKeyPair" type='CryptoKeyPair | object' required={false}>
 An externally generated key pair (either a CryptoKeyPair or an object with publicKey/privateKey strings) to use instead of generating a new one.

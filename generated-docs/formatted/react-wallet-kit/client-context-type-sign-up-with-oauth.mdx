@@ -20,7 +20,7 @@ Signs up a user using OAuth authentication.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='SignUpWithOauthParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="createSubOrgParams" type='CreateSubOrgParams' required={false}>
 parameters for sub-organization creation (e.g., authenticators, user metadata).

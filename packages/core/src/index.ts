@@ -27,3 +27,5 @@ export {
   getAuthProxyConfig,
   addressFormatConfig,
 } from "./utils";
+
+export * from "@turnkey/sdk-types";

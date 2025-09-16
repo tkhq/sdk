@@ -20,7 +20,7 @@ Removes the user's phone number.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='RemoveUserPhoneNumberParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).

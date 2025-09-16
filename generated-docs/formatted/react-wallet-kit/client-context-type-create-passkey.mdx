@@ -19,16 +19,13 @@ Creates a new passkey authenticator for the user.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='CreatePasskeyParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="challenge" type='string' required={false}>
-challenge string to use for passkey registration. If not provided, a new challenge will be generated.
+Hello2
 </NestedParam>
     <NestedParam parentKey="params" childKey="name" type='string' required={false}>
-display name for the passkey (defaults to a generated name based on the current timestamp).
-</NestedParam>
-    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
-parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+Hello
 </NestedParam>
   </Expandable>
 </ParamField>
@@ -36,12 +33,14 @@ parameter to stamp the request with a specific stamper (StamperType.Passkey, Sta
 <H3Bordered text="Response" />
 A successful response returns the following fields:
 
-<ResponseField name="returns" type="object" required={true}>
-  A promise that resolves to an object containing:
-  - attestation: attestation object returned from the passkey creation process.
-  - encodedChallenge: encoded challenge string used for passkey registration.
+<ResponseField name="returns" type="CreatePasskeyResult" required={true}>
+  A promise that resolves to CreatePasskeyResult
   <Expandable title="return details">
-    <NestedParam parentKey="returns" childKey="attestation" type='v1Attestation' required={true}></NestedParam>
-    <NestedParam parentKey="returns" childKey="encodedChallenge" type='string' required={true}></NestedParam>
+    <NestedParam parentKey="returns" childKey="attestation" type='v1Attestation' required={true}>
+attestation object returned from the passkey creation process
+</NestedParam>
+    <NestedParam parentKey="returns" childKey="encodedChallenge" type='string' required={true}>
+encoded challenge string used for passkey registration
+</NestedParam>
   </Expandable>
 </ResponseField>
