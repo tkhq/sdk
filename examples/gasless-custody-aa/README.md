@@ -49,6 +49,8 @@ Now open `.env.local` and add the missing environment variables:
 - `ZERODEV_RPC`
 - `OMNIBUS_ADDRESS`
 - `TOKEN_ADDRESS`
+
+Also ensure the token ABI populated in `src/token_abi.ts` is correct for your contract. ERC-20 is populated by default.
 - `TOKEN_ABI`
 
 ### 3/ Running the scripts

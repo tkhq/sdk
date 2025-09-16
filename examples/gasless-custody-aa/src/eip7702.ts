@@ -1,7 +1,7 @@
 import { resolve } from "path";
 import * as dotenv from "dotenv";
 
-import { Abi, Account, createPublicClient, createWalletClient, encodeFunctionData, http, formatUnits, decodeFunctionResult } from "viem";
+import { Account, createPublicClient, createWalletClient, encodeFunctionData, http, formatUnits, decodeFunctionResult } from "viem";
 import { baseSepolia } from "viem/chains";
 import { getEntryPoint, KERNEL_V3_3, KernelVersionToAddressesMap } from "@zerodev/sdk/constants";
 import {
@@ -13,6 +13,7 @@ import {
 import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
+import { TOKEN_ABI } from "./token_abi";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
@@ -158,7 +159,7 @@ const main = async () => {
         to: process.env.TOKEN_ADDRESS as `0x${string}`,
         value: BigInt(0),
         data: encodeFunctionData({
-          abi: JSON.parse(process.env.TOKEN_ABI!) as Abi,
+          abi: TOKEN_ABI,
           functionName: "transfer",
           args: [userKernelAccount.address, "10000"], // self-send 0.01 USDC (6 decimals)
         }),
@@ -185,34 +186,34 @@ const main = async () => {
       publicClient.call({
         to: process.env.TOKEN_ADDRESS as `0x${string}`,
         data: encodeFunctionData({
-          abi: JSON.parse(process.env.TOKEN_ABI!) as Abi,
+          abi: TOKEN_ABI,
           functionName: "symbol",
         }),
       }).then(result => result.data ? decodeFunctionResult({
-        abi: JSON.parse(process.env.TOKEN_ABI!) as Abi,
+        abi: TOKEN_ABI,
         functionName: "symbol",
         data: result.data,
       }) as string : ""),
       publicClient.call({
         to: process.env.TOKEN_ADDRESS as `0x${string}`,
         data: encodeFunctionData({
-          abi: JSON.parse(process.env.TOKEN_ABI!) as Abi,
+          abi: TOKEN_ABI,
           functionName: "decimals",
         }),
       }).then(result => result.data ? decodeFunctionResult({
-        abi: JSON.parse(process.env.TOKEN_ABI!) as Abi,
+        abi: TOKEN_ABI,
         functionName: "decimals",
         data: result.data,
       }) as number : 0),
       publicClient.call({
         to: process.env.TOKEN_ADDRESS as `0x${string}`,
         data: encodeFunctionData({
-          abi: JSON.parse(process.env.TOKEN_ABI!) as Abi,
+          abi: TOKEN_ABI,
           functionName: "balanceOf",
           args: [userKernelAccount.address],
         }),
       }).then(result => result.data ? decodeFunctionResult({
-        abi: JSON.parse(process.env.TOKEN_ABI!) as Abi,
+        abi: TOKEN_ABI,
         functionName: "balanceOf",
         data: result.data,
       }) as bigint : BigInt(0)),
@@ -230,7 +231,7 @@ const main = async () => {
             to: process.env.TOKEN_ADDRESS as `0x${string}`,
             value: BigInt(0),
             data: encodeFunctionData({
-              abi: JSON.parse(process.env.TOKEN_ABI!) as Abi,
+              abi: TOKEN_ABI,
               functionName: "transfer",
               args: [process.env.OMNIBUS_ADDRESS as `0x${string}`, tokenBalance],
             }),
