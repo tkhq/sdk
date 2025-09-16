@@ -1,6 +1,6 @@
 import { WebStorageManager } from "./web/storage";
 import { isReactNative, isWeb } from "@utils";
-import type { StorageBase } from "@types";
+import type { StorageBase } from "../__types__";
 
 // TODO (Amir): Turn this into a class that extends StorageBase and make an init function. See stamper
 export async function createStorageManager(): Promise<StorageBase> {

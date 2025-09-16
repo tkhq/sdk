@@ -100,19 +100,14 @@ import {
   type Session,
   type TDeleteSubOrganizationResponse,
   type TStampLoginResponse,
-  type v1AddressFormat,
   type ProxyTGetWalletKitConfigResponse,
   type v1SignRawPayloadResult,
   type v1User,
-  type v1WalletAccountParams,
-  type v1PayloadEncoding,
-  type v1HashFunction,
-  type v1Curve,
   type v1PrivateKey,
-  BaseAuthResult,
-  WalletAuthResult,
+  type BaseAuthResult,
+  type WalletAuthResult,
   AuthAction,
-  PasskeyAuthResult,
+  type PasskeyAuthResult,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -123,7 +118,6 @@ import {
   ClientState,
   ExportType,
   ImportType,
-  KeyFormat,
 } from "../../types/base";
 import { AuthComponent } from "../../components/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -149,6 +143,33 @@ import { ClientContext } from "./Types";
 import { OtpVerification } from "../../components/auth/OTP";
 import { RemoveEmail } from "../../components/user/RemoveEmail";
 import { RemovePhoneNumber } from "../../components/user/RemovePhoneNumber";
+import type {
+  HandleAddEmailParams,
+  HandleAddOauthProviderParams,
+  HandleAddPasskeyParams,
+  HandleAddPhoneNumberParams,
+  HandleAppleOauthParams,
+  HandleConnectExternalWalletParams,
+  HandleDiscordOauthParams,
+  HandleExportPrivateKeyParams,
+  HandleExportWalletAccountParams,
+  HandleFacebookOauthParams,
+  HandleGoogleOauthParams,
+  HandleImportPrivateKeyParams,
+  HandleImportWalletParams,
+  HandleLoginParams,
+  HandleRemoveOauthProviderParams,
+  HandleRemovePasskeyParams,
+  HandleRemoveUserEmailParams,
+  HandleRemoveUserPhoneNumberParams,
+  HandleSignMessageParams,
+  HandleUpdateUserEmailParams,
+  HandleUpdateUserNameParams,
+  HandleUpdateUserPhoneNumberParams,
+  HandleXOauthParams,
+  RefreshUserParams,
+  RefreshWalletsParams,
+} from "../../types/method-types";
 
 /**
  * @inline
@@ -1845,16 +1866,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleSignMessage = useCallback(
-    async (params: {
-      message: string;
-      walletAccount: WalletAccount;
-      encoding?: v1PayloadEncoding;
-      hashFunction?: v1HashFunction;
-      addEthereumPrefix?: boolean;
-      subText?: string;
-      successPageDuration?: number | undefined;
-      stampWith?: StamperType | undefined;
-    }): Promise<v1SignRawPayloadResult> => {
+    async (
+      params: HandleSignMessageParams,
+    ): Promise<v1SignRawPayloadResult> => {
       const { successPageDuration = 2000 } = params;
       if (!client)
         throw new TurnkeyError(
@@ -2551,7 +2565,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     }, [client, callbacks, masterConfig, session, user]);
 
   const refreshUser = useCallback(
-    async (params?: { stampWith?: StamperType | undefined }): Promise<void> => {
+    async (params?: RefreshUserParams): Promise<void> => {
       if (!masterConfig?.autoRefreshManagedState) return;
       const { stampWith } = params || {};
       if (!client)
@@ -2573,7 +2587,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const refreshWallets = useCallback(
-    async (params?: { stampWith?: StamperType | undefined }): Promise<void> => {
+    async (params?: RefreshWalletsParams): Promise<void> => {
       if (!masterConfig?.autoRefreshManagedState) return;
       const { stampWith } = params || {};
       if (!client)
@@ -2611,16 +2625,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleDiscordOauth = useCallback(
-    async (params?: {
-      clientId?: string;
-      openInPage?: boolean;
-      additionalState?: Record<string, string>;
-      onOauthSuccess?: (params: {
-        oidcToken: string;
-        providerName: string;
-        sessionKey?: string;
-      }) => any;
-    }): Promise<void> => {
+    async (params?: HandleDiscordOauthParams): Promise<void> => {
       const {
         clientId = masterConfig?.auth?.oauthConfig?.discordClientId,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
@@ -2814,16 +2819,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleXOauth = useCallback(
-    async (params?: {
-      clientId?: string;
-      openInPage?: boolean;
-      additionalState?: Record<string, string>;
-      onOauthSuccess?: (params: {
-        oidcToken: string;
-        providerName: string;
-        sessionKey?: string;
-      }) => any;
-    }): Promise<void> => {
+    async (params?: HandleXOauthParams): Promise<void> => {
       const {
         clientId = masterConfig?.auth?.oauthConfig?.xClientId,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
@@ -3009,16 +3005,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleGoogleOauth = useCallback(
-    async (params?: {
-      clientId?: string;
-      openInPage?: boolean;
-      additionalState?: Record<string, string>;
-      onOauthSuccess?: (params: {
-        oidcToken: string;
-        providerName: string;
-        sessionKey?: string;
-      }) => any;
-    }): Promise<void> => {
+    async (params?: HandleGoogleOauthParams): Promise<void> => {
       const {
         clientId = masterConfig?.auth?.oauthConfig?.googleClientId,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
@@ -3182,16 +3169,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleAppleOauth = useCallback(
-    async (params?: {
-      clientId?: string;
-      openInPage?: boolean;
-      additionalState?: Record<string, string>;
-      onOauthSuccess?: (params: {
-        oidcToken: string;
-        providerName: string;
-        sessionKey?: string;
-      }) => any;
-    }): Promise<void> => {
+    async (params?: HandleAppleOauthParams): Promise<void> => {
       const {
         clientId = masterConfig?.auth?.oauthConfig?.appleClientId,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
@@ -3351,16 +3329,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleFacebookOauth = useCallback(
-    async (params?: {
-      clientId?: string;
-      openInPage?: boolean;
-      additionalState?: Record<string, string>;
-      onOauthSuccess?: (params: {
-        oidcToken: string;
-        providerName: string;
-        sessionKey?: string;
-      }) => any;
-    }): Promise<void> => {
+    async (params?: HandleFacebookOauthParams): Promise<void> => {
       const {
         clientId = masterConfig?.auth?.oauthConfig?.facebookClientId,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
@@ -3550,13 +3519,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleLogin = useCallback(
-    async (params?: {
-      sessionKey?: string;
-      logoLight?: string;
-      logoDark?: string;
-      logoClassName?: string;
-      title?: string;
-    }) => {
+    async (params?: HandleLoginParams) => {
       const logo = masterConfig?.ui?.darkMode
         ? (params?.logoDark ?? masterConfig?.ui?.logoDark)
         : (params?.logoLight ?? masterConfig?.ui?.logoLight);
@@ -3599,12 +3562,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleExportPrivateKey = useCallback(
-    async (params: {
-      privateKeyId: string;
-      targetPublicKey?: string;
-      keyFormat?: KeyFormat;
-      stampWith?: StamperType | undefined;
-    }) => {
+    async (params: HandleExportPrivateKeyParams) => {
       const { privateKeyId, targetPublicKey, keyFormat, stampWith } = params;
       pushPage({
         key: "Export private key",
@@ -3623,12 +3581,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleExportWalletAccount = useCallback(
-    async (params: {
-      address: string;
-      targetPublicKey?: string;
-      keyFormat?: KeyFormat;
-      stampWith?: StamperType | undefined;
-    }) => {
+    async (params: HandleExportWalletAccountParams) => {
       const { address, targetPublicKey, keyFormat, stampWith } = params;
       pushPage({
         key: "Export wallet account",
@@ -3647,12 +3600,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleImportWallet = useCallback(
-    async (params?: {
-      defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-      successPageDuration?: number | undefined;
-      stampWith?: StamperType | undefined;
-      walletName?: string;
-    }): Promise<string> => {
+    async (params?: HandleImportWalletParams): Promise<string> => {
       const {
         defaultWalletAccounts,
         successPageDuration = 2000,
@@ -3701,13 +3649,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleImportPrivateKey = useCallback(
-    async (params?: {
-      curve: v1Curve;
-      addressFormats: v1AddressFormat[];
-      successPageDuration?: number | undefined;
-      stampWith?: StamperType | undefined;
-      keyName?: string;
-    }): Promise<string> => {
+    async (params?: HandleImportPrivateKeyParams): Promise<string> => {
       const {
         curve,
         addressFormats,
@@ -3756,13 +3698,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleUpdateUserName = useCallback(
-    async (params?: {
-      userName?: string;
-      title?: string;
-      subTitle?: string;
-      successPageDuration?: number | undefined;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params?: HandleUpdateUserNameParams): Promise<string> => {
       const {
         successPageDuration = 2000,
         subTitle,
@@ -3851,13 +3787,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleUpdateUserPhoneNumber = useCallback(
-    async (params?: {
-      phoneNumber?: string;
-      formattedPhone?: string;
-      title?: string;
-      subTitle?: string;
-      successPageDuration?: number | undefined;
-    }): Promise<string> => {
+    async (params?: HandleUpdateUserPhoneNumberParams): Promise<string> => {
       const { successPageDuration = 2000, subTitle, title } = params || {};
 
       if (!client)
@@ -3992,12 +3922,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleUpdateUserEmail = useCallback(
-    async (params?: {
-      email?: string;
-      title?: string;
-      subTitle?: string;
-      successPageDuration?: number | undefined;
-    }): Promise<string> => {
+    async (params?: HandleUpdateUserEmailParams): Promise<string> => {
       const { successPageDuration = 2000, subTitle, title } = params || {};
 
       if (!client)
@@ -4117,12 +4042,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleAddEmail = useCallback(
-    async (params?: {
-      email?: string;
-      title?: string;
-      subTitle?: string;
-      successPageDuration?: number | undefined;
-    }): Promise<string> => {
+    async (params?: HandleAddEmailParams): Promise<string> => {
       const { successPageDuration = 2000, subTitle, title } = params || {};
       if (!client) {
         throw new TurnkeyError(
@@ -4244,13 +4164,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleAddPhoneNumber = useCallback(
-    async (params?: {
-      phoneNumber?: string;
-      formattedPhone?: string;
-      title?: string;
-      subTitle?: string;
-      successPageDuration?: number | undefined;
-    }): Promise<string> => {
+    async (params?: HandleAddPhoneNumberParams): Promise<string> => {
       const { successPageDuration = 2000, subTitle, title } = params || {};
 
       if (!client)
@@ -4392,14 +4306,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleRemovePasskey = useCallback(
-    async (params: {
-      authenticatorId: string;
-      userId?: string;
-      title?: string;
-      subTitle?: string;
-      successPageDuration?: number | undefined;
-      stampWith?: StamperType | undefined;
-    }): Promise<string[]> => {
+    async (params: HandleRemovePasskeyParams): Promise<string[]> => {
       const {
         authenticatorId,
         successPageDuration = 2000,
@@ -4454,13 +4361,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleAddPasskey = useCallback(
-    async (params?: {
-      name?: string;
-      displayName?: string;
-      userId?: string;
-      successPageDuration?: number | undefined;
-      stampWith?: StamperType | undefined;
-    }): Promise<string[]> => {
+    async (params?: HandleAddPasskeyParams): Promise<string[]> => {
       const {
         name,
         displayName,
@@ -4519,13 +4420,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleRemoveOauthProvider = useCallback(
-    async (params: {
-      providerId: string;
-      title?: string;
-      subTitle?: string;
-      successPageDuration?: number | undefined;
-      stampWith?: StamperType | undefined;
-    }): Promise<string[]> => {
+    async (params: HandleRemoveOauthProviderParams): Promise<string[]> => {
       const {
         providerId,
         successPageDuration = 2000,
@@ -4583,10 +4478,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleAddOauthProvider = useCallback(
-    async (params: {
-      providerName: OAuthProviders;
-      stampWith?: StamperType | undefined;
-    }): Promise<void> => {
+    async (params: HandleAddOauthProviderParams): Promise<void> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -4674,9 +4566,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleConnectExternalWallet = useCallback(
-    async (params?: {
-      successPageDuration?: number | undefined;
-    }): Promise<void> => {
+    async (params?: HandleConnectExternalWalletParams): Promise<void> => {
       const { successPageDuration = 2000 } = params || {};
       if (!client)
         throw new TurnkeyError(
@@ -4712,11 +4602,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleRemoveUserEmail = useCallback(
-    async (params?: {
-      userId?: string;
-      successPageDuration?: number | undefined;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params?: HandleRemoveUserEmailParams): Promise<string> => {
       const { successPageDuration = 2000, stampWith, userId } = params || {};
       if (!session) {
         throw new TurnkeyError(
@@ -4761,11 +4647,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleRemoveUserPhoneNumber = useCallback(
-    async (params?: {
-      userId?: string;
-      successPageDuration?: number | undefined;
-      stampWith?: StamperType | undefined;
-    }): Promise<string> => {
+    async (params?: HandleRemoveUserPhoneNumberParams): Promise<string> => {
       const { successPageDuration = 2000, stampWith, userId } = params || {};
       if (!session) {
         throw new TurnkeyError(

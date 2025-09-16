@@ -2,8 +2,6 @@
   {
     "group": "core",
     "pages": [
-      "generated-docs/formatted/core/api-key-stamper-constructor",
-      "generated-docs/formatted/core/api-key-stamper-stamp",
       "generated-docs/formatted/core/turnkey-client-add-oauth-provider",
       "generated-docs/formatted/core/turnkey-client-add-passkey",
       "generated-docs/formatted/core/turnkey-client-clear-all-sessions",
@@ -61,11 +59,7 @@
       "generated-docs/formatted/core/turnkey-client-update-user-email",
       "generated-docs/formatted/core/turnkey-client-update-user-name",
       "generated-docs/formatted/core/turnkey-client-update-user-phone-number",
-      "generated-docs/formatted/core/turnkey-client-verify-otp",
-      "generated-docs/formatted/core/turnkey-error-constructor",
-      "generated-docs/formatted/core/turnkey-network-error-constructor",
-      "generated-docs/formatted/core/webauthn-stamper-constructor",
-      "generated-docs/formatted/core/webauthn-stamper-stamp"
+      "generated-docs/formatted/core/turnkey-client-verify-otp"
     ]
   },
   {

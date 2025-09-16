@@ -447,13 +447,7 @@
                       "generated-docs/formatted/core/turnkey-client-fetch-private-keys",
                       "generated-docs/formatted/core/turnkey-client-fetch-or-create-p256-api-key-user",
                       "generated-docs/formatted/core/turnkey-client-fetch-or-create-policies",
-                      "generated-docs/formatted/core/turnkey-client-fetch-wallet-providers",
-                      "generated-docs/formatted/core/api-key-stamper-constructor",
-                      "generated-docs/formatted/core/api-key-stamper-stamp",
-                      "generated-docs/formatted/core/webauthn-stamper-constructor",
-                      "generated-docs/formatted/core/webauthn-stamper-stamp",
-                      "generated-docs/formatted/core/turnkey-error-constructor",
-                      "generated-docs/formatted/core/turnkey-network-error-constructor"
+                      "generated-docs/formatted/core/turnkey-client-fetch-wallet-providers"
                     ]
                   }
                 ]

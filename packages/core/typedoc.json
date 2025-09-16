@@ -1,11 +1,13 @@
 {
-  "entryPoints": ["src/index.ts"],
+  "entryPoints": ["src/__typedoc-entry__/index.ts"],
   "name": "core",
   "exclude": [
     "src/turnkey-helpers.ts",
     "**/__generated__/**",
     "**/__inputs__/**",
     "**/__storage__/**",
+    "**/__stampers__/**",
+    "**/__wallets__/**",
     "**/__polyfills__/**",
     "**/node_modules/**",
     "src/__generated__/sdk_api_types.ts",

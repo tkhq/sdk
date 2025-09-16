@@ -7,7 +7,7 @@ import { NestedParam } from "/snippets/nested-param.mdx";
 
 <p><strong>Package:</strong> <code>react-wallet-kit</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L569">react-wallet-kit/src/providers/client/Types.tsx:569</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L513">react-wallet-kit/src/providers/client/Types.tsx:513</a></p>
 
 <H3Bordered text="Overview" />
 
@@ -25,7 +25,7 @@ Handles the addition of an OAuth provider for the user.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='HandleAddOauthProviderParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="providerName" type='OAuthProviders' required={true}>
 The name of the OAuth provider to add (OAuthProviders.GOOGLE, OAuthProviders.APPLE, OAuthProviders.FACEBOOK).

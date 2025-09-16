@@ -15,7 +15,7 @@ import {
   WalletConnectProvider,
   WalletConnectInterface,
   SwitchableChain,
-} from "@types";
+} from "../../__types__";
 import type { WalletConnectClient } from "./client";
 import type { SessionTypes } from "@walletconnect/types";
 import { Transaction } from "ethers";

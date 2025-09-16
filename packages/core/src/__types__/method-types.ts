@@ -19,15 +19,11 @@ import type {
   Wallet,
 } from "./index";
 
-/** @expand */
 export type CreatePasskeyParams = {
-  /** Hello */
   name?: string;
-  /** Hello2 */
   challenge?: string;
 };
 
-/** @expand */
 export type CreatePasskeyResult = {
   /** attestation object returned from the passkey creation process */
   attestation: v1Attestation;

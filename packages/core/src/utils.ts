@@ -366,9 +366,9 @@ const hexByByte = Array.from({ length: 256 }, (_, i) =>
 
 export const bytesToHex = (bytes: Uint8Array): string => {
   let hex = "0x";
-  if (bytes === undefined || bytes.length === 0) return hex;
-  for (const byte of bytes) {
-    hex += hexByByte[byte];
+  if (!bytes || bytes.length === 0) return hex;
+  for (let i = 0; i < bytes.length; i++) {
+    hex += hexByByte[Number(bytes[i])];
   }
   return hex;
 };

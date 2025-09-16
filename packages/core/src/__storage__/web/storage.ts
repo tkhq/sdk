@@ -1,5 +1,5 @@
 import WindowWrapper from "@polyfills/window";
-import { type StorageBase, type Wallet, SessionKey } from "@types";
+import { type StorageBase, type Wallet, SessionKey } from "../../__types__";
 import { parseSession } from "@utils";
 import {
   TurnkeyError,

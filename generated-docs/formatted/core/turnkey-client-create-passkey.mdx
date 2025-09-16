@@ -17,17 +17,17 @@ Creates a new passkey authenticator for the user.
 
 <p><strong>Package:</strong> <code>core</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L219">core/src/__clients__/core.ts:219</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L230">__clients__/core.ts:230</a></p>
 
 <H3Bordered text="Parameters" />
 
 <ParamField body="params" type='CreatePasskeyParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="challenge" type='string' required={false}>
-Hello2
+challenge string to use for passkey registration. If not provided, a new challenge will be generated.
 </NestedParam>
     <NestedParam parentKey="params" childKey="name" type='string' required={false}>
-Hello
+display name for the passkey (defaults to a generated name based on the current timestamp).
 </NestedParam>
   </Expandable>
 </ParamField>

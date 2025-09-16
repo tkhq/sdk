@@ -7,7 +7,7 @@ import { NestedParam } from "/snippets/nested-param.mdx";
 
 <p><strong>Package:</strong> <code>react-wallet-kit</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L411">react-wallet-kit/src/providers/client/Types.tsx:411</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L378">react-wallet-kit/src/providers/client/Types.tsx:378</a></p>
 
 <H3Bordered text="Overview" />
 
@@ -24,13 +24,16 @@ Handles the import private key flow.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='HandleImportPrivateKeyParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="addressFormats" type='v1AddressFormat[]' required={true}>
 array of address formats (v1AddressFormat[]) that the private key supports (Eg: "ADDRESS_FORMAT_ETHEREUM" for Ethereum, "ADDRESS_FORMAT_SOLANA" for Solana).
 </NestedParam>
     <NestedParam parentKey="params" childKey="curve" type='v1Curve' required={true}>
 curve type (v1Curve) for the private key (Eg: "CURVE_SECP256K1" for Ethereum, "CURVE_ED25519" for Solana).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="keyName" type='string' required={false}>
+name for the imported private key, if not provided, an input box will be shown for the name.
 </NestedParam>
     <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
 parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
