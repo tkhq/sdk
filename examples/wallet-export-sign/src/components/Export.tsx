@@ -10,33 +10,45 @@ interface ExportProps {
   setIframeStamper: Dispatch<SetStateAction<IframeStamper | null>>;
 }
 
-const styles = {
-  padding: "20px",
-  borderRadius: "8px",
-  borderWidth: "2px",
-  borderStyle: "solid",
-  borderColor: "#ff6961",
+const containerStyles: React.CSSProperties = {
+  marginTop: 12,
+  display: "flex",
+  flexDirection: "column",
+  gap: 12,
+  maxWidth: 520,
+  fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+};
+
+const cardStyles: React.CSSProperties = {
+  padding: 16,
+  borderRadius: 12,
+  border: "1px solid rgba(216,219,227,1)",
+  background: "#ffffff",
+  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+};
+
+const monoBox: React.CSSProperties = {
   fontFamily: "monospace",
-  color: "#333",
-  width: "340px",
-  height: "100px",
-  backgroundColor: "#ffd966",
-  boxShadow: "0px 0px 10px #aaa",
-  overflowWrap: "break-word" as "break-word",
-  // wordWrap removed to fix type error
-  resize: "none" as const,
+  fontSize: 13,
+  padding: 8,
+  borderRadius: 8,
+  background: "#fff7d6",
+  border: "1px solid #ffd966",
+  wordBreak: "break-word",
+  whiteSpace: "pre-wrap",
 };
 
 const iframeCss = `
   iframe {
     box-sizing: border-box;
-    width: 400px;
-    height: 120px;
+    width: 480px;
+    height: 140px;
     border-radius: 8px;
     border-width: 1px;
     border-style: solid;
     border-color: rgba(216, 219, 227, 1);
     padding: 20px;
+    background: white;
   }
 `;
 
@@ -49,13 +61,15 @@ export function Export(props: ExportProps) {
   );
   const [iframeDisplay, setIframeDisplay] = useState<string>("none");
 
-  // New state: message to sign and returned signature
+  // message + signature
   const [message, setMessage] = useState<string>("Hello, Turnkey!");
   const [signature, setSignature] = useState<string>("");
 
-  // New state: transaction serialized input and returned signed transaction
+  // transaction + signed transaction
   const [txSerialized, setTxSerialized] = useState<string>("");
   const [txSigned, setTxSigned] = useState<string>("");
+
+  const [initializing, setInitializing] = useState<boolean>(false);
 
   useEffect(() => {
     setIframeDisplay(props.iframeDisplay);
@@ -64,29 +78,32 @@ export function Export(props: ExportProps) {
         setIframeDisplay("none");
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.iframeDisplay]);
 
   useEffect(() => {
     if (!iframeStamper) {
-      const iframeStamper = new IframeStamper({
+      setInitializing(true);
+      const stamper = new IframeStamper({
         iframeUrl: props.iframeUrl,
         iframeContainer: document.getElementById(TurnkeyIframeContainerId),
         iframeElementId: TurnkeyIframeElementId,
       });
-      iframeStamper
+
+      stamper
         .init()
         .then(() => {
-          setIframeStamper(iframeStamper);
-          props.setIframeStamper(iframeStamper);
-          return iframeStamper;
+          setIframeStamper(stamper);
+          props.setIframeStamper(stamper);
+          return stamper;
         })
-        .then((iframeStamper: IframeStamper) => {
-          return iframeStamper.applySettings({ styles });
+        .then((s: IframeStamper) => s.applySettings({ styles: { padding: "12px" } }))
+        .then(() => {
+          setInitializing(false);
         })
-        .then((settingsApplied: boolean) => {
-          if (settingsApplied !== true) {
-            alert("Unexpected error while applying settings.");
-          }
+        .catch((err) => {
+          console.error("Iframe init error:", err);
+          setInitializing(false);
         });
     }
 
@@ -96,20 +113,19 @@ export function Export(props: ExportProps) {
         setIframeStamper(null);
       }
     };
-  }, [props.setIframeStamper, iframeStamper, setIframeStamper]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [props.setIframeStamper, iframeStamper]);
 
   const signMessage = () => {
     if (iframeStamper === null) {
-      alert("Cannot sign message without an iframe.");
+      alert("Iframe not ready — reveal private key first.");
       return;
     }
 
-    // Use the message state and store the returned signature
     iframeStamper
       .signMessage({ message })
       .then((sig: string) => {
         setSignature(sig);
-        console.log("Message signature:", sig);
       })
       .catch((error: Error) => {
         console.error("Error signing message:", error);
@@ -119,23 +135,19 @@ export function Export(props: ExportProps) {
 
   const signTransaction = () => {
     if (iframeStamper === null) {
-      alert("Cannot sign transaction without an iframe.");
+      alert("Iframe not ready — reveal private key first.");
       return;
     }
 
     if (!txSerialized || txSerialized.trim() === "") {
-      alert("Please provide a serialized transaction (base64).");
+      alert("Please provide a base64 serialized versioned Solana transaction.");
       return;
     }
 
-    // Attempt to sign the serialized (base64) versioned Solana transaction.
-    // The IframeStamper API is expected to provide a signTransaction method that
-    // accepts { serializedTransaction: string } and returns the signed transaction (base64).
     iframeStamper
       .signTransaction({ transaction: txSerialized, type: TransactionType.Solana })
       .then((signed: string) => {
         setTxSigned(signed);
-        console.log("Signed transaction (base64):", signed);
       })
       .catch((error: Error) => {
         console.error("Error signing transaction:", error);
@@ -143,72 +155,143 @@ export function Export(props: ExportProps) {
       });
   };
 
-  // --- Changed rendering: keep iframe container mounted (so iframeStamper can initialize),
-  //     but only show the message/transaction UI after iframeDisplay === "block" (i.e. after reveal).
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // lightweight UX: brief visual confirmation could be added later
+    } catch (e) {
+      console.error("Copy failed", e);
+      alert("Copy failed");
+    }
+  };
+
+  // Only reveal signing UI after iframeDisplay === "block" (i.e. after Reveal)
   return (
     <div>
-      <div
-        style={{ display: iframeDisplay }}
-        id={TurnkeyIframeContainerId}
-      >
+      {/* keep iframe mounted but visually controlled by parent */}
+      <div style={{ display: iframeDisplay }} id={TurnkeyIframeContainerId}>
         <style>{iframeCss}</style>
       </div>
 
       {iframeDisplay === "block" ? (
-        <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8, maxWidth: 420 }}>
-          <label style={{ fontSize: 13 }}>Message to sign</label>
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            style={{ width: "400px", height: "80px", padding: 8, fontFamily: "monospace" }}
-          />
-
-          <div>
-            <button
-              onClick={() => {
-                signMessage();
-              }}
-              style={{ padding: "8px 12px", cursor: "pointer" }}
-            >
-              Sign message
-            </button>
-          </div>
-
-          {signature ? (
-            <div style={{ marginTop: 8 }}>
-              <label style={{ fontSize: 13 }}>Signature</label>
-              <div style={{ ...styles, width: "100%", height: "auto", whiteSpace: "pre-wrap", marginTop: 8 }}>
-                {signature}
+        <div style={containerStyles}>
+          <div style={cardStyles}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0, fontSize: 16 }}>Signing tools</h3>
+              <div style={{ fontSize: 13, color: "#666" }}>
+                {initializing ? "Connecting…" : iframeStamper ? "Connected" : "Not connected"}
               </div>
             </div>
-          ) : null}
 
-          {/* Transaction signing section */}
-          <div style={{ marginTop: 16 }}>
-            <label style={{ fontSize: 13 }}>Serialized Solana Versioned Transaction (base64)</label>
+            <div style={{ marginTop: 12 }}>
+              <div style={{ fontSize: 13, color: "#444", marginBottom: 8 }}>Wallet public key</div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <div style={{ ...monoBox, flex: 1 }}>
+                  {iframeStamper ? iframeStamper.publicKey() : "—"}
+                </div>
+                <button
+                  onClick={() => iframeStamper && copyToClipboard(iframeStamper.publicKey())}
+                  disabled={!iframeStamper}
+                  style={{ padding: "6px 10px", cursor: iframeStamper ? "pointer" : "not-allowed" }}
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Message signing */}
+          <div style={cardStyles}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <strong>Sign arbitrary message</strong>
+              <small style={{ color: "#666" }}>ED25519 signature</small>
+            </div>
+
+            <textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              style={{ width: "100%", height: 88, marginTop: 10, padding: 10, fontFamily: "monospace", fontSize: 13 }}
+            />
+
+            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <button
+                onClick={signMessage}
+                disabled={!iframeStamper}
+                style={{ padding: "8px 12px", cursor: iframeStamper ? "pointer" : "not-allowed" }}
+              >
+                Sign message
+              </button>
+
+              <button
+                onClick={() => {
+                  setMessage("");
+                  setSignature("");
+                }}
+                style={{ padding: "8px 12px" }}
+              >
+                Clear
+              </button>
+            </div>
+
+            {signature ? (
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontSize: 13, color: "#444" }}>Signature (base64 / hex depending on backend)</div>
+                <div style={{ ...monoBox, marginTop: 8 }}>
+                  {signature}
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <button onClick={() => copyToClipboard(signature)} style={{ padding: "6px 10px" }}>
+                    Copy signature
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Transaction signing */}
+          <div style={cardStyles}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <strong>Sign Solana transaction</strong>
+              <small style={{ color: "#666" }}>Versioned transaction (base64)</small>
+            </div>
+
             <textarea
               value={txSerialized}
               onChange={(e) => setTxSerialized(e.target.value)}
               placeholder="Paste base64 serialized versioned transaction here"
-              style={{ width: "400px", height: "120px", padding: 8, fontFamily: "monospace", marginTop: 8 }}
+              style={{ width: "100%", height: 120, marginTop: 10, padding: 10, fontFamily: "monospace", fontSize: 13 }}
             />
 
-            <div style={{ marginTop: 8 }}>
+            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
               <button
-                onClick={() => {
-                  signTransaction();
-                }}
-                style={{ padding: "8px 12px", cursor: "pointer" }}
+                onClick={signTransaction}
+                disabled={!iframeStamper}
+                style={{ padding: "8px 12px", cursor: iframeStamper ? "pointer" : "not-allowed" }}
               >
                 Sign transaction
+              </button>
+
+              <button
+                onClick={() => {
+                  setTxSerialized("");
+                  setTxSigned("");
+                }}
+                style={{ padding: "8px 12px" }}
+              >
+                Clear
               </button>
             </div>
 
             {txSigned ? (
-              <div style={{ marginTop: 8 }}>
-                <label style={{ fontSize: 13 }}>Signed transaction (base64)</label>
-                <div style={{ ...styles, width: "100%", height: "auto", whiteSpace: "pre-wrap", marginTop: 8 }}>
+              <div style={{ marginTop: 12 }}>
+                <div style={{ fontSize: 13, color: "#444" }}>Signed transaction (base64)</div>
+                <div style={{ ...monoBox, marginTop: 8 }}>
                   {txSigned}
+                </div>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <button onClick={() => copyToClipboard(txSigned)} style={{ padding: "6px 10px" }}>
+                    Copy signed tx
+                  </button>
                 </div>
               </div>
             ) : null}
