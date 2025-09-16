@@ -72,6 +72,8 @@ export interface ClientContextType extends TurnkeyClientMethods {
   user: v1User | undefined;
   /** @internal */
   wallets: Wallet[];
+  /** @internal */
+  walletProviders: WalletProvider[];
 
   /**
    * Refreshes the user details.

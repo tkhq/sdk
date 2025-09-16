@@ -30,18 +30,7 @@ export class WalletConnectClient {
   private sessionUpdateHandlers: Array<() => void> = [];
   private sessionEventHandlers: Array<(args: any) => void> = [];
   private sessionDeleteHandlers: Array<() => void> = [];
-
-  /**
-   * Registers a callback for WalletConnect `session_delete`.
-   *
-   * - Fired from the underlying SignClient when a session is terminated.
-   * - Useful for clearing UI state or internal session data after a disconnect.
-   *
-   * @param fn - Callback to invoke when the session is deleted.
-   */
-  public onSessionDelete(fn: () => void) {
-    this.sessionDeleteHandlers.push(fn);
-  }
+  private proposalExpireHandlers: Array<() => void> = [];
 
   /**
    * Registers a callback for WalletConnect `session_update`.
@@ -82,6 +71,30 @@ export class WalletConnectClient {
   }
 
   /**
+   * Registers a callback for WalletConnect `session_delete`.
+   *
+   * - Fired from the underlying SignClient when a session is terminated.
+   * - Useful for clearing UI state or internal session data after a disconnect.
+   *
+   * @param fn - Callback to invoke when the session is deleted.
+   */
+  public onSessionDelete(fn: () => void) {
+    this.sessionDeleteHandlers.push(fn);
+  }
+
+  /**
+   * Registers a callback for WalletConnect `proposal_expire`.
+   *
+   * - Fired from the underlying SignClient when a session proposal expires.
+   * - Useful for re-initiating the pairing process, and refreshing the pairing URI.
+   *
+   * @param fn - Callback to invoke when the proposal expires.
+   */
+  public onProposalExpire(fn: () => void) {
+    this.proposalExpireHandlers.push(fn);
+  }
+
+  /**
    * Initializes the WalletConnect SignClient with your project credentials.
    *
    * - Must be called before `pair()`, `approve()`, or `request()`.
@@ -112,6 +125,9 @@ export class WalletConnectClient {
     });
     this.client.on("session_event", (args) => {
       this.sessionEventHandlers.forEach((h) => h(args));
+    });
+    this.client.on("proposal_expire", () => {
+      this.proposalExpireHandlers.forEach((h) => h());
     });
   }
 
@@ -151,7 +167,6 @@ export class WalletConnectClient {
    * @returns A promise that resolves to the established session.
    * @throws {Error} If called before `pair()` or if approval fails.
    */
-
   async approve(): Promise<SessionTypes.Struct> {
     if (!this.pendingApproval) {
       throw new Error("WalletConnect: call pair() before approve()");
@@ -220,5 +235,29 @@ export class WalletConnectClient {
       topic: session.topic,
       reason: { code: 6000, message: "User disconnected" },
     });
+  }
+
+  /**
+   * Cancels all in-progress WalletConnect pairings, if any.
+   *
+   * - Iterates through the core pairing registry and disconnects every active pairing
+   * - Always clears the pending approval callback so subsequent `pair()` calls
+   *   can be made
+   * - Safe to call even if no pairings exist. it simply resets internal state
+   *
+   * @returns A promise that resolves once cancellation is complete.
+   */
+  async cancelPairing(): Promise<void> {
+    const pairings = this.client.core.pairing.getPairings();
+
+    // disconnect all active pairings
+    // technically there should only be one active pairing at a time
+    for (const pairing of pairings) {
+      await this.client.core.pairing.disconnect({
+        topic: pairing.topic,
+      });
+    }
+
+    this.pendingApproval = null;
   }
 }

@@ -23,7 +23,8 @@ import { Transaction } from "ethers";
 type WalletConnectChangeEvent =
   | { type: "disconnect" }
   | { type: "chainChanged"; chainId?: string }
-  | { type: "update" };
+  | { type: "update" }
+  | { type: "proposalExpired" };
 
 export class WalletConnectWallet implements WalletConnectInterface {
   readonly interfaceType = WalletInterfaceType.WalletConnect;
@@ -60,11 +61,6 @@ export class WalletConnectWallet implements WalletConnectInterface {
    * @param client - The low-level WalletConnect client used for session/RPC.
    */
   constructor(private client: WalletConnectClient) {
-    // session disconnected
-    this.client.onSessionDelete(() => {
-      this.notifyChange({ type: "disconnect" });
-    });
-
     // session updated (actual update to the session for example adding a chain to namespaces)
     this.client.onSessionUpdate(() => {
       this.notifyChange({ type: "update" });
@@ -79,6 +75,28 @@ export class WalletConnectWallet implements WalletConnectInterface {
             : undefined;
         this.notifyChange({ type: "chainChanged", chainId });
       }
+    });
+
+    // session disconnected
+    this.client.onSessionDelete(() => {
+      this.notifyChange({ type: "disconnect" });
+    });
+
+    this.client.onProposalExpire(async () => {
+      // when the proposal expires, we want to create a new pairing URI
+      const namespaces = this.buildNamespaces();
+
+      // we cancel the previous pairing, if any
+      // this is to avoid multiple pairings
+      // we also error if there is an active pairing
+      // and we try to create a new one
+      await this.client.cancelPairing();
+
+      await this.client.pair(namespaces).then((newUri) => {
+        this.uri = newUri;
+      });
+
+      this.notifyChange({ type: "proposalExpired" });
     });
   }
 
@@ -126,7 +144,9 @@ export class WalletConnectWallet implements WalletConnectInterface {
 
     const namespaces = this.buildNamespaces();
 
-    this.uri = await this.client.pair(namespaces);
+    await this.client.pair(namespaces).then((newUri) => {
+      this.uri = newUri;
+    });
   }
 
   /**
@@ -420,6 +440,9 @@ export class WalletConnectWallet implements WalletConnectInterface {
     await this.client.pair(namespaces).then((newUri) => {
       this.uri = newUri;
     });
+
+    // we emit a disconnect event because WalletConnect doesn't
+    this.notifyChange({ type: "disconnect" });
   }
 
   /**

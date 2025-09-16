@@ -44,6 +44,7 @@ export function AuthComponent({
   const {
     config,
     clientState,
+    walletProviders,
     handleGoogleOauth,
     handleAppleOauth,
     handleFacebookOauth,
@@ -52,7 +53,6 @@ export function AuthComponent({
     initOtp,
     loginWithPasskey,
     signUpWithPasskey,
-    fetchWalletProviders,
     loginOrSignupWithWallet,
     disconnectWalletAccount,
   } = useTurnkey();
@@ -310,8 +310,6 @@ export function AuthComponent({
 
   const handleShowWalletSelector = async () => {
     try {
-      const walletProviders = await fetchWalletProviders();
-
       pushPage({
         key: "Select wallet provider",
         content: (

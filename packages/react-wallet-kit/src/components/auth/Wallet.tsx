@@ -8,13 +8,13 @@ import {
   faLaptop,
   faMobileScreen,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import type { WalletProvider } from "@turnkey/core";
 import { QRCodeSVG as QRCode } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
 import { isEthereumProvider, isSolanaProvider } from "@turnkey/core";
-import { useTurnkey } from "../../providers/client/Hook";
+import { useTurnkey } from "../../providers";
 
 interface WalletAuthButtonProps {
   onContinue: () => Promise<void>;
@@ -48,7 +48,7 @@ export function WalletAuthButton(props: WalletAuthButtonProps) {
 
 const canDisconnect = (
   provider: WalletProvider,
-  shouldShowDisconnect?: boolean,
+  shouldShowDisconnect?: boolean
 ) => {
   return (
     shouldShowDisconnect &&
@@ -58,7 +58,7 @@ const canDisconnect = (
 };
 
 export function ExternalWalletChainSelector(
-  props: ExternalWalletSelectorProps,
+  props: ExternalWalletSelectorProps
 ) {
   const { providers, onSelect, onDisconnect } = props;
   const { isMobile } = useModal();
@@ -76,7 +76,7 @@ export function ExternalWalletChainSelector(
     <div
       className={clsx(
         "flex flex-col w-72 gap-4 mt-11 items-center justify-center",
-        isMobile ? "w-full" : "w-72",
+        isMobile ? "w-full" : "w-72"
       )}
     >
       <img src={providers[0]?.info.icon} className="size-14 rounded-full" />
@@ -141,7 +141,7 @@ export function ExternalWalletChainSelector(
                   isHovering ? "right-4" : "-right-4",
                   canDisconnect(p, shouldShowDisconnect)
                     ? "text-danger-light dark:text-danger-dark"
-                    : "text-icon-text-light dark:text-icon-text-dark",
+                    : "text-icon-text-light dark:text-icon-text-dark"
                 )}
                 size={canDisconnect(p, shouldShowDisconnect) ? "lg" : "1x"}
                 icon={
@@ -177,7 +177,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
       acc[name]!.push(provider);
       return acc;
     },
-    {},
+    {}
   );
 
   const handleSelectGroup = (group: WalletProvider[]) => {
@@ -214,7 +214,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     <div
       className={clsx(
         "flex flex-col h-40 mt-4 gap-2 justify-center items-center text-xs text-center text-icon-text-light dark:text-icon-text-dark",
-        isMobile ? "w-full" : "w-72",
+        isMobile ? "w-full" : "w-72"
       )}
     >
       <span className="text-sm font-medium">
@@ -229,7 +229,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     <div
       className={clsx(
         "w-72 min-h-42 max-h-64 mt-12 overflow-y-auto tk-scrollbar p-0.5",
-        isMobile ? "w-full" : "w-72",
+        isMobile ? "w-full" : "w-72"
       )}
     >
       <div className="flex flex-col gap-2">
@@ -265,7 +265,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                       // we should never reach here
                       // if we do then it means we forgot to update the auth component after adding a new chain
                       throw new Error(
-                        `Unsupported provider namespace. Expected Ethereum or Solana.`,
+                        `Unsupported provider namespace. Expected Ethereum or Solana.`
                       );
                     }
 
@@ -278,7 +278,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                           "relative",
                           "size-4",
                           "transition-all duration-200",
-                          isHovering ? "-translate-x-8" : "translate-x-0",
+                          isHovering ? "-translate-x-8" : "translate-x-0"
                         )}
                       >
                         <Logo className="size-4" />
@@ -296,7 +296,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                     group.length === 1 &&
                       canDisconnect(group[0]!, shouldShowDisconnect)
                       ? "text-danger-light dark:text-danger-dark"
-                      : "text-icon-text-light dark:text-icon-text-dark",
+                      : "text-icon-text-light dark:text-icon-text-dark"
                   )}
                   size={
                     group.length === 1 &&
@@ -313,7 +313,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                 />
               </ActionButton>
             );
-          },
+          }
         )}
       </div>
     </div>
@@ -350,7 +350,7 @@ export function DisconnectWalletScreen(props: DisconnectWalletScreenProps) {
         <div
           className={clsx(
             "text-2xl font-bold text-center",
-            hasError && "text-danger-light dark:text-danger-dark",
+            hasError && "text-danger-light dark:text-danger-dark"
           )}
         >
           {hasError
@@ -370,7 +370,7 @@ export function DisconnectWalletScreen(props: DisconnectWalletScreenProps) {
           loading={isLoading}
           className={clsx(
             "w-full max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark",
-            hasError && "animate-shake opacity-50",
+            hasError && "animate-shake opacity-50"
           )}
           spinnerClassName="text-primary-danger-text-light dark:text-primary-danger-text-dark"
         >
@@ -403,75 +403,104 @@ export interface WalletConnectScreenProps {
 }
 
 export function WalletConnectScreen(props: WalletConnectScreenProps) {
-  const { provider, successPageDuration, onAction, onDisconnect } = props;
+  const {
+    provider: inputProvider,
+    onAction,
+    onDisconnect,
+    successPageDuration,
+  } = props;
+
   const { pushPage, closeModal, isMobile } = useModal();
-  const { fetchWalletProviders } = useTurnkey();
-  const hasRun = useRef(false);
-
-  const [walletConnectProvider, setWalletConnectProvider] =
-    useState<WalletProvider>();
-  const connectedAccount = walletConnectProvider?.connectedAddresses[0];
-
-  useEffect(() => {
-    setWalletConnectProvider(provider);
-  }, [provider]);
+  const { walletProviders } = useTurnkey();
 
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [disconnectError, setDisconnectError] = useState(false);
+  const [showConnectedScreen, setShowConnectedScreen] = useState(inputProvider.connectedAddresses?.length > 0);
 
-  // kick off authentication/pairing or signing on mount or when URI changes
+  // Use a ref to track the latest provider for use in callbacks
+  const latestProviderRef = useRef<WalletProvider | null>(null);
+
+  // Find the current provider state
+  const provider = walletProviders.find(
+    (p) =>
+      p.interfaceType === inputProvider.interfaceType &&
+      p.chainInfo.namespace === inputProvider.chainInfo.namespace,
+  );
+
+  if (!provider) {
+    throw new Error("WalletConnect provider not found");
+  }
+
+  console.log("URI", provider.uri);
+
+  // Keep the ref updated with the latest provider
   useEffect(() => {
-    if (hasRun.current) return;
-    hasRun.current = true;
-    const runAction = async () => {
-      try {
-        await onAction(walletConnectProvider ?? provider);
-        pushPage({
-          key: "Connect Success",
-          content: (
-            <SuccessPage
-              text="Successfully connected to WalletConnect!"
-              onComplete={closeModal}
-              duration={successPageDuration}
-            />
-          ),
-          preventBack: true,
-          showTitle: false,
-        });
-      } catch (error) {}
-    };
-    runAction();
-  }, []);
+    latestProviderRef.current = provider;
+  }, [provider]);
 
+  const connectedAccount = provider.connectedAddresses?.[0] ?? null;
+  const hasConnection = !!connectedAccount;
+
+  // Handle the connection action - uses the ref to get latest provider
+  const runAction = useCallback(async (targetProvider: WalletProvider) => {
+    try {
+      await onAction(targetProvider);
+      pushPage({
+        key: "Connect Success",
+        content: (
+          <SuccessPage
+            text="Successfully connected to WalletConnect!"
+            onComplete={closeModal}
+            duration={successPageDuration}
+          />
+        ),
+        preventBack: true,
+        showTitle: false,
+      });
+    } catch (error) {
+      console.error("Connection error:", error);
+    }
+  }, [onAction, pushPage, closeModal, successPageDuration]);
+
+  // Handle disconnection - uses the ref to get the correct provider after state update
   const handleDisconnect = async () => {
     setIsDisconnecting(true);
     setDisconnectError(false);
+    
     try {
-      await onDisconnect?.(walletConnectProvider ?? provider);
-      const newProviders = await fetchWalletProviders();
-      setWalletConnectProvider(
-        newProviders.find((p) => p.interfaceType === provider.interfaceType),
-      );
+      // Use the current provider from ref for disconnect
+      await onDisconnect?.(latestProviderRef.current!);
     } catch (err) {
+      console.error("Error disconnecting wallet:", err);
       setDisconnectError(true);
     } finally {
       setIsDisconnecting(false);
+      setShowConnectedScreen(false);
     }
   };
+
+  // Initial connection effect
+  useEffect(() => {
+    if (!hasConnection && latestProviderRef.current?.uri) {
+      runAction(latestProviderRef.current);
+    }
+  }, [hasConnection, latestProviderRef.current, runAction]);
+
+
   return (
     <div className="p-3 flex flex-col items-center">
-      {connectedAccount ? (
+      {showConnectedScreen ? (
         <div
           className={clsx(
             "mt-8 flex flex-col items-center gap-3",
-            isMobile ? "w-full" : "w-96",
+            isMobile ? "w-full" : "w-96"
           )}
         >
           <div className="w-full justify-between flex items-center flex-1">
             <div
               className={clsx(
                 "flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 text-icon-text-light dark:text-icon-text-dark",
-                isMobile ? "size-18" : "size-24",
+                isMobile ? "size-18" : "size-24"
               )}
             >
               <FontAwesomeIcon
@@ -484,12 +513,12 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
               <div className="flex items-center justify-center">
                 <img
                   className="size-5"
-                  src={walletConnectProvider.info.icon}
+                  src={provider.info.icon}
                   alt="Wallet connect logo"
                 />
                 <img
                   className="size-5 absolute animate-ping"
-                  src={walletConnectProvider.info.icon}
+                  src={provider.info.icon}
                   alt="Wallet connect logo"
                 />
               </div>
@@ -503,7 +532,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             <div
               className={clsx(
                 "flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 text-icon-text-light dark:text-icon-text-dark",
-                isMobile ? "size-18" : "size-24",
+                isMobile ? "size-18" : "size-24"
               )}
             >
               <FontAwesomeIcon icon={faLaptop} size={isMobile ? "3x" : "4x"} />
@@ -512,7 +541,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
 
           <div
             className={clsx(
-              "flex flex-row items-center mt-5 text-2xl font-bold text-center",
+              "flex flex-row items-center mt-5 text-2xl font-bold text-center"
             )}
           >
             Already connected
@@ -547,19 +576,19 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         <div
           className={clsx(
             "mt-8 flex flex-col items-center gap-3",
-            isMobile ? "w-full" : "w-96",
+            isMobile ? "w-full" : "w-96"
           )}
         >
-          {walletConnectProvider?.uri && (
+          {provider.uri && (
             // @ts-expect-error: qrcode.react uses a different React type version
             <QRCode
               className="    
               border border-modal-background-dark/20 dark:border-modal-background-light/20
               shadow-[0_0_42px] shadow-primary-light/50
               dark:shadow-[0_0_42px] dark:shadow-primary-dark/50"
-              value={walletConnectProvider.uri}
+              value={provider.uri}
               imageSettings={{
-                src: walletConnectProvider.info.icon ?? "",
+                src: provider.info.icon ?? "",
                 width: 24,
                 height: 24,
                 excavate: true,

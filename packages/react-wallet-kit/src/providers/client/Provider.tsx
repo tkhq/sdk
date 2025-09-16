@@ -839,13 +839,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         )
       : [];
 
-    // we exclude WalletConnect from the native event wiring
-    // this is because WC is handled separately with a custom wrapper’s
-    //  `change` event
+    // WalletConnect is excluded from native event wiring. Instead,
+    // it uses a unified `change` event exposed by our custom wrapper
+    //
+    // unlike native providers, we register listeners for WalletConnect
+    // even if it’s not currently “connected”. This is required so we
+    // can detect proposal expiration events and display the new regenerated
+    // URI for the UI
     const wcProviders = walletProviders.filter(
-      (p) =>
-        p.interfaceType === WalletInterfaceType.WalletConnect &&
-        p.connectedAddresses.length > 0,
+      (p) => p.interfaceType === WalletInterfaceType.WalletConnect,
+    );
+
+    // since all WalletConnect providers share the same underlying session
+    // and emit identical events, we only attach listeners to a single provider
+    const wcProvider = wcProviders.find(
+      (p) => p.interfaceType === WalletInterfaceType.WalletConnect,
     );
 
     function attachEthereumListeners(
@@ -904,13 +912,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (cleanup) cleanups.push(cleanup);
     });
 
-    wcProviders.forEach((p) => {
-      const standardEvents = (p as any).provider?.features?.["standard:events"];
+    if (wcProvider) {
+      const standardEvents = (wcProvider.provider as any)?.features?.[
+        "standard:events"
+      ];
       if (standardEvents?.on) {
-        const unsubscribe = standardEvents.on("change", onWalletsChanged);
-        cleanups.push(unsubscribe);
+        if (standardEvents?.on) {
+          const unsubscribe = standardEvents.on("change", (evt: any) => {
+            // if the event is a proposalExpired, we want to re-fetch the providers
+            // to refresh the uri
+            if (evt?.type === "proposalExpired") {
+              debouncedFetchWalletProviders();
+            }
+
+            // any other event (disconnect, chain switch, accounts changed)
+            // we refresh the wallets state
+            onWalletsChanged();
+          });
+          cleanups.push(unsubscribe);
+        }
       }
-    });
+    }
 
     return () => {
       cleanups.forEach((remove) => remove());
@@ -1366,21 +1388,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
       await client.disconnectWalletAccount(walletProvider);
-
-      // we only refresh the wallets if:
-      // 1. there is an active session. This is needed because for WalletConnect
-      //    you can disconnect a wallet before actually being logged in
-      //
-      // 2. it was a WalletConnect provider that we just disconnected. Since
-      //    native providers emit a disconnect event which will already refresh
-      //    the wallets. This event is triggered in `initializeWalletProviderListeners()`
-      if (
-        session &&
-        walletProvider.interfaceType === WalletInterfaceType.WalletConnect
-      ) {
-        // this will update our walletProvider state
-        await refreshWallets();
-      }
     },
     [client, callbacks],
   );
@@ -4968,25 +4975,37 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * only trigger `refreshWallets()` once.
    *
    * Defining the debounced function outside of the `useEffect` ensures all event
-   * listeners in `initializeProviders` share the same instance, instead of creating
+   * listeners in `initializeWalletProviderListeners` share the same instance, instead of creating
    * a new one on every render.
    */
   const debouncedRefreshWallets = useDebouncedCallback(refreshWallets, 100);
+  const debouncedFetchWalletProviders = useDebouncedCallback(
+    fetchWalletProviders,
+    100,
+  );
   useEffect(() => {
     if (!client) return;
 
-    const handleRefreshWallets = async () => {
+    const handleUpdateState = async () => {
+      console.log("Wallet provider event received");
       // we only refresh the wallets if there is an active session
       // this is needed because a disconnect event can occur
       // while the user is unauthenticated
+      //
+      // WalletProviders state is updated regardless of session state
       if (session) {
-        // this will update our walletProvider state
+        console.log("Refreshing wallets and wallet providers");
+        // this updates both the wallets and walletProviders state
         await debouncedRefreshWallets();
+      } else {
+        // this updates only the walletProviders state
+        console.log("Refreshing wallet providers");
+        await debouncedFetchWalletProviders();
       }
     };
 
     let cleanup = () => {};
-    initializeWalletProviderListeners(walletProviders, handleRefreshWallets)
+    initializeWalletProviderListeners(walletProviders, handleUpdateState)
       .then((fn) => {
         cleanup = fn;
       })
@@ -4997,7 +5016,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return () => {
       cleanup();
     };
-  }, [client, walletProviders]);
+  }, [client, walletProviders, session]);
 
   useEffect(() => {
     // authState must be consistent with session state. We found during testing that there are cases where the session and authState can be out of sync in very rare edge cases.
@@ -5014,6 +5033,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     if (!client || !masterConfig) return;
     completeRedirectOauth().finally(() => {
       clearSessionTimeouts();
+
+      // if auth or wallet connecting features are enabled, we want to fetch
+      // the wallet providers to set the state
+      if (
+        masterConfig.walletConfig?.features?.auth ||
+        masterConfig.walletConfig?.features?.connecting
+      ) {
+        fetchWalletProviders();
+      }
+
       initializeSessions().finally(() => {
         // Set the client state to ready only after all initializations are done.
         setClientState(ClientState.Ready);
@@ -5034,6 +5063,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         authState,
         user,
         wallets,
+        walletProviders,
         config: masterConfig,
         httpClient: client?.httpClient,
         createPasskey,
