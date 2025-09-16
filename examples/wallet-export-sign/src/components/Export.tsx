@@ -1,6 +1,6 @@
 "use client";
 
-import { IframeStamper } from "@turnkey/iframe-stamper";
+import { IframeStamper, TransactionType } from "@turnkey/iframe-stamper";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface ExportProps {
@@ -22,9 +22,9 @@ const styles = {
   height: "100px",
   backgroundColor: "#ffd966",
   boxShadow: "0px 0px 10px #aaa",
-  overflowWrap: "break-word",
-  wordWrap: "break-word",
-  resize: "none",
+  overflowWrap: "break-word" as "break-word",
+  // wordWrap removed to fix type error
+  resize: "none" as const,
 };
 
 const iframeCss = `
@@ -40,8 +40,8 @@ const iframeCss = `
   }
 `;
 
-const TurnkeyIframeContainerId = "turnkey-export-iframe-container-id";
-const TurnkeyIframeElementId = "turnkey-export-iframe-element-id";
+const TurnkeyIframeContainerId = "turnkey-export-and-sign-iframe-container-id";
+const TurnkeyIframeElementId = "turnkey-export-and-sign-iframe-element-id";
 
 export function Export(props: ExportProps) {
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
@@ -52,6 +52,10 @@ export function Export(props: ExportProps) {
   // New state: message to sign and returned signature
   const [message, setMessage] = useState<string>("Hello, Turnkey!");
   const [signature, setSignature] = useState<string>("");
+
+  // New state: transaction serialized input and returned signed transaction
+  const [txSerialized, setTxSerialized] = useState<string>("");
+  const [txSigned, setTxSigned] = useState<string>("");
 
   useEffect(() => {
     setIframeDisplay(props.iframeDisplay);
@@ -113,6 +117,34 @@ export function Export(props: ExportProps) {
       });
   };
 
+  const signTransaction = () => {
+    if (iframeStamper === null) {
+      alert("Cannot sign transaction without an iframe.");
+      return;
+    }
+
+    if (!txSerialized || txSerialized.trim() === "") {
+      alert("Please provide a serialized transaction (base64).");
+      return;
+    }
+
+    // Attempt to sign the serialized (base64) versioned Solana transaction.
+    // The IframeStamper API is expected to provide a signTransaction method that
+    // accepts { serializedTransaction: string } and returns the signed transaction (base64).
+    iframeStamper
+      .signTransaction({ transaction: txSerialized, type: TransactionType.Solana })
+      .then((signed: string) => {
+        setTxSigned(signed);
+        console.log("Signed transaction (base64):", signed);
+      })
+      .catch((error: Error) => {
+        console.error("Error signing transaction:", error);
+        alert("Error signing transaction: " + error.message);
+      });
+  };
+
+  // --- Changed rendering: keep iframe container mounted (so iframeStamper can initialize),
+  //     but only show the message/transaction UI after iframeDisplay === "block" (i.e. after reveal).
   return (
     <div>
       <div
@@ -122,34 +154,67 @@ export function Export(props: ExportProps) {
         <style>{iframeCss}</style>
       </div>
 
-      <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8, maxWidth: 420 }}>
-        <label style={{ fontSize: 13 }}>Message to sign</label>
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          style={{ width: "400px", height: "80px", padding: 8, fontFamily: "monospace" }}
-        />
+      {iframeDisplay === "block" ? (
+        <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8, maxWidth: 420 }}>
+          <label style={{ fontSize: 13 }}>Message to sign</label>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            style={{ width: "400px", height: "80px", padding: 8, fontFamily: "monospace" }}
+          />
 
-        <div>
-          <button
-            onClick={() => {
-              signMessage();
-            }}
-            style={{ padding: "8px 12px", cursor: "pointer" }}
-          >
-            Sign message
-          </button>
-        </div>
-
-        {signature ? (
-          <div style={{ marginTop: 8 }}>
-            <label style={{ fontSize: 13 }}>Signature</label>
-            <div style={{ ...styles, width: "100%", height: "auto", whiteSpace: "pre-wrap", marginTop: 8 }}>
-              {signature}
-            </div>
+          <div>
+            <button
+              onClick={() => {
+                signMessage();
+              }}
+              style={{ padding: "8px 12px", cursor: "pointer" }}
+            >
+              Sign message
+            </button>
           </div>
-        ) : null}
-      </div>
+
+          {signature ? (
+            <div style={{ marginTop: 8 }}>
+              <label style={{ fontSize: 13 }}>Signature</label>
+              <div style={{ ...styles, width: "100%", height: "auto", whiteSpace: "pre-wrap", marginTop: 8 }}>
+                {signature}
+              </div>
+            </div>
+          ) : null}
+
+          {/* Transaction signing section */}
+          <div style={{ marginTop: 16 }}>
+            <label style={{ fontSize: 13 }}>Serialized Solana Versioned Transaction (base64)</label>
+            <textarea
+              value={txSerialized}
+              onChange={(e) => setTxSerialized(e.target.value)}
+              placeholder="Paste base64 serialized versioned transaction here"
+              style={{ width: "400px", height: "120px", padding: 8, fontFamily: "monospace", marginTop: 8 }}
+            />
+
+            <div style={{ marginTop: 8 }}>
+              <button
+                onClick={() => {
+                  signTransaction();
+                }}
+                style={{ padding: "8px 12px", cursor: "pointer" }}
+              >
+                Sign transaction
+              </button>
+            </div>
+
+            {txSigned ? (
+              <div style={{ marginTop: 8 }}>
+                <label style={{ fontSize: 13 }}>Signed transaction (base64)</label>
+                <div style={{ ...styles, width: "100%", height: "auto", whiteSpace: "pre-wrap", marginTop: 8 }}>
+                  {txSigned}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
