@@ -30,7 +30,7 @@ export class WalletConnectClient {
   private sessionUpdateHandlers: Array<() => void> = [];
   private sessionEventHandlers: Array<(args: any) => void> = [];
   private sessionDeleteHandlers: Array<() => void> = [];
-  private proposalExpireHandlers: Array<() => void> = [];
+  private pairingExpireHandlers: Array<() => void> = [];
 
   /**
    * Registers a callback for WalletConnect `session_update`.
@@ -83,15 +83,15 @@ export class WalletConnectClient {
   }
 
   /**
-   * Registers a callback for WalletConnect `proposal_expire`.
+   * Registers a callback for WalletConnect `pairing_expire`.
    *
    * - Fired from the underlying SignClient when a session proposal expires.
    * - Useful for re-initiating the pairing process, and refreshing the pairing URI.
    *
-   * @param fn - Callback to invoke when the proposal expires.
+   * @param fn - Callback to invoke when the pairing expires.
    */
-  public onProposalExpire(fn: () => void) {
-    this.proposalExpireHandlers.push(fn);
+  public onPairingExpire(fn: () => void) {
+    this.pairingExpireHandlers.push(fn);
   }
 
   /**
@@ -126,8 +126,8 @@ export class WalletConnectClient {
     this.client.on("session_event", (args) => {
       this.sessionEventHandlers.forEach((h) => h(args));
     });
-    this.client.on("proposal_expire", () => {
-      this.proposalExpireHandlers.forEach((h) => h());
+    this.client.core.pairing.events.on("pairing_expire", () => {
+      this.pairingExpireHandlers.forEach((h) => h());
     });
   }
 
@@ -175,6 +175,21 @@ export class WalletConnectClient {
     try {
       const session = await this.pendingApproval();
       return session;
+    } catch (error: any) {
+      // we sanitize common errors to be more user-friendly
+      if (error.message?.includes("Proposal expired")) {
+        throw new Error(
+          "WalletConnect: The connection request has expired. Please scan the QR code again.",
+        );
+      }
+
+      if (error.message?.includes("User rejected")) {
+        throw new Error(
+          "WalletConnect: The connection request was rejected by the user.",
+        );
+      }
+
+      throw new Error(`WalletConnect: Approval failed: ${error.message}`);
     } finally {
       // we clear the pending state regardless of outcome
       this.pendingApproval = null;
@@ -248,16 +263,32 @@ export class WalletConnectClient {
    * @returns A promise that resolves once cancellation is complete.
    */
   async cancelPairing(): Promise<void> {
-    const pairings = this.client.core.pairing.getPairings();
+    try {
+      const pairings = this.client.core.pairing.getPairings();
 
-    // disconnect all active pairings
-    // technically there should only be one active pairing at a time
-    for (const pairing of pairings) {
-      await this.client.core.pairing.disconnect({
-        topic: pairing.topic,
+      // disconnect all active pairings
+      // technically there should only be one active pairing at a tim
+      const disconnectPromises = pairings.map(async (pairing) => {
+        try {
+          await this.client.core.pairing.disconnect({
+            topic: pairing.topic,
+          });
+        } catch (err: any) {
+          if (
+            err.message?.includes("Expired") ||
+            err.message?.includes("Not found") ||
+            err.message?.includes("No matching key")
+          ) {
+            // already expired/disconnected, so we ignore
+            return;
+          }
+          console.warn("failed to disconnect pairing:", err);
+        }
       });
-    }
 
-    this.pendingApproval = null;
+      await Promise.allSettled(disconnectPromises);
+    } finally {
+      this.pendingApproval = null;
+    }
   }
 }

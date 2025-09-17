@@ -36,6 +36,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
   private solChain!: string;
 
   private uri?: string;
+  private isRegeneratingUri = false;
 
   private changeListeners = new Set<
     (event?: WalletConnectChangeEvent) => void
@@ -82,21 +83,31 @@ export class WalletConnectWallet implements WalletConnectInterface {
       this.notifyChange({ type: "disconnect" });
     });
 
-    this.client.onProposalExpire(async () => {
-      // when the proposal expires, we want to create a new pairing URI
-      const namespaces = this.buildNamespaces();
+    // pairing expired without a session being established
+    this.client.onPairingExpire(async () => {
+      // prevent multiple simultaneous regenerations
+      if (this.isRegeneratingUri) return;
 
-      // we cancel the previous pairing, if any
-      // this is to avoid multiple pairings
-      // we also error if there is an active pairing
-      // and we try to create a new one
-      await this.client.cancelPairing();
+      this.isRegeneratingUri = true;
 
-      await this.client.pair(namespaces).then((newUri) => {
+      try {
+        // we cancel the previous pairing, if any
+        // this is to avoid multiple pairings
+        // we also error if there is an active pairing
+        // and we try to create a new one
+        await this.client.cancelPairing();
+
+        const namespaces = this.buildNamespaces();
+
+        const newUri = await this.client.pair(namespaces);
         this.uri = newUri;
-      });
 
-      this.notifyChange({ type: "proposalExpired" });
+        this.notifyChange({ type: "proposalExpired" });
+      } catch (error) {
+        console.error("failed to regenerate URI:", error);
+      } finally {
+        this.isRegeneratingUri = false;
+      }
     });
   }
 
