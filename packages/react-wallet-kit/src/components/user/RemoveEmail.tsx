@@ -16,6 +16,7 @@ export function RemoveEmail(params: {
   onSuccess: (userId: string) => void;
   onError: (error: any) => void;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 }) {
   const { user, removeUserEmail } = useTurnkey();
   const { isMobile, closeModal, pushPage } = useModal();
@@ -26,6 +27,7 @@ export function RemoveEmail(params: {
     onError,
     successPageDuration,
     userId = user?.userId,
+    organizationId,
   } = params;
 
   const handleContinue = async () => {
@@ -34,6 +36,7 @@ export function RemoveEmail(params: {
       const res = await removeUserEmail({
         userId: userId!,
         stampWith: params.stampWith,
+        ...(organizationId && { organizationId }),
       });
       handleSuccess(res);
     } catch (error) {

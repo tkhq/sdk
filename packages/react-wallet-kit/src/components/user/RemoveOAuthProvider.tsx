@@ -17,12 +17,13 @@ export function RemoveOAuthProvider(params: {
   onSuccess: (providerIds: string[]) => void;
   onError: (error: any) => void;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 }) {
   const { user, removeOauthProviders } = useTurnkey();
   const { isMobile, closeModal, pushPage } = useModal();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { onSuccess, onError, successPageDuration } = params;
+  const { onSuccess, onError, successPageDuration, organizationId } = params;
 
   const handleContinue = async () => {
     try {
@@ -31,6 +32,7 @@ export function RemoveOAuthProvider(params: {
         providerIds: [params.providerId],
         userId: user?.userId!,
         stampWith: params.stampWith,
+        ...(organizationId && { organizationId }),
       });
       handleSuccess(res);
     } catch (error) {

@@ -12,10 +12,14 @@ import type { KeyFormat } from "./base";
 
 export type RefreshUserParams = {
   stampWith?: StamperType | undefined;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type RefreshWalletsParams = {
   stampWith?: StamperType | undefined;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type HandleLoginParams = {
@@ -65,6 +69,8 @@ export type HandleExportWalletParams = {
   walletId: string;
   targetPublicKey?: string;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type HandleExportPrivateKeyParams = {
@@ -72,6 +78,8 @@ export type HandleExportPrivateKeyParams = {
   targetPublicKey?: string;
   keyFormat?: KeyFormat;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type HandleExportWalletAccountParams = {
@@ -79,6 +87,8 @@ export type HandleExportWalletAccountParams = {
   targetPublicKey?: string;
   keyFormat?: KeyFormat;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type HandleImportWalletParams = {
@@ -86,6 +96,8 @@ export type HandleImportWalletParams = {
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
   walletName?: string;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type HandleImportPrivateKeyParams = {
@@ -94,6 +106,8 @@ export type HandleImportPrivateKeyParams = {
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
   keyName?: string;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type HandleUpdateUserEmailParams = {
@@ -101,6 +115,9 @@ export type HandleUpdateUserEmailParams = {
   title?: string;
   subTitle?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  stampWith?: StamperType | undefined;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type HandleUpdateUserPhoneNumberParams = {
@@ -109,6 +126,9 @@ export type HandleUpdateUserPhoneNumberParams = {
   title?: string;
   subTitle?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  organizationId?: string;
+  userId?: string;
+  stampWith?: StamperType | undefined;
 };
 
 export type HandleUpdateUserNameParams = {
@@ -117,6 +137,8 @@ export type HandleUpdateUserNameParams = {
   subTitle?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type HandleAddEmailParams = {
@@ -124,6 +146,9 @@ export type HandleAddEmailParams = {
   title?: string;
   subTitle?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  organizationId?: string;
+  userId?: string;
+  stampWith?: StamperType | undefined;
 };
 
 export type HandleAddPhoneNumberParams = {
@@ -132,11 +157,17 @@ export type HandleAddPhoneNumberParams = {
   title?: string;
   subTitle?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  organizationId?: string;
+  userId?: string;
+  stampWith?: StamperType | undefined;
 };
 
 export type HandleAddOauthProviderParams = {
   providerName: OAuthProviders;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
+  successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  userId?: string;
 };
 
 export type HandleRemoveOauthProviderParams = {
@@ -145,6 +176,7 @@ export type HandleRemoveOauthProviderParams = {
   subTitle?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type HandleAddPasskeyParams = {
@@ -153,6 +185,7 @@ export type HandleAddPasskeyParams = {
   userId?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type HandleRemovePasskeyParams = {
@@ -162,6 +195,7 @@ export type HandleRemovePasskeyParams = {
   subTitle?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type HandleSignMessageParams = {
@@ -173,6 +207,7 @@ export type HandleSignMessageParams = {
   subText?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type HandleConnectExternalWalletParams = {
@@ -183,10 +218,12 @@ export type HandleRemoveUserEmailParams = {
   userId?: string;
   successPageDuration?: number | undefined;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type HandleRemoveUserPhoneNumberParams = {
   userId?: string;
   successPageDuration?: number | undefined;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };

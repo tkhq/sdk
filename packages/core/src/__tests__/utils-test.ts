@@ -1178,7 +1178,7 @@ const mkAccount = (over: Partial<v1WalletAccount> = {}): v1WalletAccount => ({
 
 describe("mapAccountsToWallet", () => {
   it("returns an empty array for empty input", () => {
-    expect(mapAccountsToWallet([])).toEqual([]);
+    expect(mapAccountsToWallet([], new Map())).toEqual([]);
   });
 
   it("groups multiple accounts with the same walletId into one wallet", () => {
@@ -1197,7 +1197,11 @@ describe("mapAccountsToWallet", () => {
       walletId: "w_A",
     });
 
-    const out = mapAccountsToWallet([a1, a2]) as EmbeddedWallet[];
+    const walletMap = new Map<string, EmbeddedWallet>([
+      ["w_A", { ...w, source: WalletSource.Embedded, accounts: [] }],
+    ]);
+
+    const out = mapAccountsToWallet([a1, a2], walletMap) as EmbeddedWallet[];
     expect(out).toHaveLength(1);
 
     const wallet = out[0];
@@ -1239,8 +1243,16 @@ describe("mapAccountsToWallet", () => {
       walletId: "w_A",
     });
 
+    const walletMap = new Map<string, EmbeddedWallet>([
+      ["w_A", { ...wA, source: WalletSource.Embedded, accounts: [] }],
+      ["w_B", { ...wB, source: WalletSource.Embedded, accounts: [] }],
+    ]);
+
     // First encounter: w_A, then w_B (order should follow first appearance)
-    const out = mapAccountsToWallet([a1, b1, a2]) as EmbeddedWallet[];
+    const out = mapAccountsToWallet(
+      [a1, b1, a2],
+      walletMap,
+    ) as EmbeddedWallet[];
     expect(out.map((w) => w.walletId)).toEqual(["w_A", "w_B"]);
 
     const alpha = out[0];
@@ -1264,7 +1276,11 @@ describe("mapAccountsToWallet", () => {
     });
     const a = mkAccount({ walletDetails: w, walletId: "w_meta" });
 
-    const out = mapAccountsToWallet([a]) as EmbeddedWallet[];
+    const walletMap = new Map<string, EmbeddedWallet>([
+      ["w_meta", { ...w, source: WalletSource.Embedded, accounts: [] }],
+    ]);
+
+    const out = mapAccountsToWallet([a], walletMap) as EmbeddedWallet[];
     expect(out[0]).toMatchObject({
       walletId: "w_meta",
       walletName: "Meta",
@@ -1292,7 +1308,11 @@ describe("mapAccountsToWallet", () => {
       walletId: "w_mix",
     });
 
-    const out = mapAccountsToWallet([a2, a1]) as EmbeddedWallet[];
+    const walletMap = new Map<string, EmbeddedWallet>([
+      ["w_mix", { ...w, source: WalletSource.Embedded, accounts: [] }],
+    ]);
+
+    const out = mapAccountsToWallet([a2, a1], walletMap) as EmbeddedWallet[];
     expect(out).toHaveLength(1);
     // Keeps push order within that wallet (a2 then a1) since accounts are appended as seen
     expect(out[0]!.accounts.map((a) => a.address)).toEqual(["0xM2", "0xM1"]);

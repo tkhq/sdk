@@ -21,6 +21,7 @@ import { createAccount } from "@turnkey/viem";
 import { createWalletClient, http, type Account } from "viem";
 import { parseEther, Transaction as EthTransaction } from "ethers";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { StamperType } from "@turnkey/core";
 
 export default function AuthPage() {
   const [email, setEmail] = useState<string>("");
@@ -31,6 +32,8 @@ export default function AuthPage() {
   const [newEmail, setNewEmail] = useState<string>("");
   const [newPhoneNumber, setNewPhoneNumber] = useState<string>("");
   const [newUserName, setNewUserName] = useState<string>("");
+  const [organizationId, setOrganizationId] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
 
   const [activeSessionKey, setActiveSessionKey] = useState<string | null>(null);
   const [sessionKey, setSessionKey] = useState<string>("");
@@ -1816,6 +1819,208 @@ export default function AuthPage() {
               Verify OTP
             </button>
           </div>
+        </div>
+      </div>
+      <div>
+        <h2>Sessionless methods</h2>
+        <div className="flex flex-wrap gap-2 mb-2">
+          <button
+            onClick={async () => {
+              await turnkey.signUpWithPasskey({
+                passkeyDisplayName: `A TEMP PASSKEY-${Date.now()}`,
+              });
+              await turnkey.createWallet({
+                walletName: "TEMP WALLET",
+                accounts: ["ADDRESS_FORMAT_ETHEREUM"],
+              });
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Signup with passkey
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.loginWithPasskey();
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Login with passkey
+          </button>
+          <button
+            onClick={async () => {
+              console.log(
+                "Setting temp session to " + (session?.organizationId || ""),
+              );
+              setOrganizationId(session?.organizationId || "");
+              setUserId(session?.userId || "");
+              setActiveWalletAccount(wallets[0].accounts[0]);
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Set Temp OrgId
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                console.log(
+                  "Fetching wallets for organizationId",
+                  organizationId,
+                );
+                console.log(
+                  await turnkey.fetchWallets({
+                    organizationId: organizationId,
+                    userId: userId,
+                    stampWith: StamperType.Passkey,
+                  }),
+                );
+              } catch (e) {
+                console.error(e);
+              }
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Fetch Wallet
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                console.log(
+                  "Fetching wallets for organizationId and userId",
+                  organizationId,
+                  userId,
+                );
+                await turnkey.refreshWallets({
+                  organizationId: organizationId,
+                  userId: userId,
+                  stampWith: StamperType.Passkey,
+                });
+                await turnkey.refreshUser({
+                  organizationId: organizationId,
+                  userId: userId,
+                  stampWith: StamperType.Passkey,
+                });
+              } catch (e) {
+                console.error(e);
+              }
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Refresh State
+          </button>
+          <button
+            data-testid="sign-message"
+            onClick={async () => {
+              console.log(
+                await turnkey.signMessage({
+                  walletAccount: activeWalletAccount!,
+                  message: "Hello, World!",
+                  organizationId: organizationId,
+                  stampWith: StamperType.Passkey,
+                }),
+              );
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Sign Message
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.handleAddEmail({
+                organizationId,
+                userId,
+                stampWith: StamperType.Passkey,
+              });
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Add Email
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.handleUpdateUserName({
+                organizationId,
+                stampWith: StamperType.Passkey,
+              });
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Update User Name
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.handleExportWallet({
+                walletId: activeWallet?.walletId!,
+                organizationId,
+                userId,
+                stampWith: StamperType.Passkey,
+              });
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Handle Export Wallet
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.handleImportWallet({
+                organizationId,
+                userId,
+                stampWith: StamperType.Passkey,
+              });
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Handle Import Wallet
+          </button>
         </div>
       </div>
     </main>

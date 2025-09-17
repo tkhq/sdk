@@ -1,3 +1,5 @@
+// ENTRY FILE FOR TYPEDOC - all exports here will be included in the generated docs
+
 export type { ClientContextType } from "../providers/client/Types";
 
 export type {
@@ -56,31 +58,4 @@ export type {
   WalletAccount,
 } from "@turnkey/core";
 
-export type {
-  HandleAddEmailParams,
-  HandleAddOauthProviderParams,
-  HandleAddPasskeyParams,
-  HandleAddPhoneNumberParams,
-  HandleAppleOauthParams,
-  HandleConnectExternalWalletParams,
-  HandleDiscordOauthParams,
-  HandleExportPrivateKeyParams,
-  HandleExportWalletAccountParams,
-  HandleExportWalletParams,
-  HandleFacebookOauthParams,
-  HandleGoogleOauthParams,
-  HandleImportPrivateKeyParams,
-  HandleImportWalletParams,
-  HandleLoginParams,
-  HandleRemoveOauthProviderParams,
-  HandleRemovePasskeyParams,
-  HandleRemoveUserEmailParams,
-  HandleRemoveUserPhoneNumberParams,
-  HandleSignMessageParams,
-  HandleUpdateUserEmailParams,
-  HandleUpdateUserNameParams,
-  HandleUpdateUserPhoneNumberParams,
-  HandleXOauthParams,
-  RefreshUserParams,
-  RefreshWalletsParams,
-} from "../types/method-types";
+export type * from "../types/method-types";

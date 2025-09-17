@@ -39,6 +39,7 @@ export type LoginWithPasskeyParams = {
   publicKey?: string;
   sessionKey?: string;
   expirationSeconds?: string;
+  organizationId?: string;
 };
 
 export type SignUpWithPasskeyParams = {
@@ -47,6 +48,7 @@ export type SignUpWithPasskeyParams = {
   passkeyDisplayName?: string;
   expirationSeconds?: string;
   challenge?: string;
+  organizationId?: string;
 };
 
 export type SwitchWalletAccountChainParams = {
@@ -60,6 +62,7 @@ export type LoginWithWalletParams = {
   publicKey?: string;
   sessionKey?: string;
   expirationSeconds?: string;
+  organizationId?: string;
 };
 
 export type SignUpWithWalletParams = {
@@ -147,6 +150,8 @@ export type SignUpWithOauthParams = {
 export type FetchWalletsParams = {
   walletProviders?: WalletProvider[] | undefined;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type FetchWalletAccountsParams = {
@@ -154,10 +159,13 @@ export type FetchWalletAccountsParams = {
   walletProviders?: WalletProvider[];
   paginationOptions?: v1Pagination;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
+  userId?: string;
 };
 
 export type FetchPrivateKeysParams = {
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type SignMessageParams = {
@@ -167,6 +175,7 @@ export type SignMessageParams = {
   hashFunction?: v1HashFunction;
   stampWith?: StamperType | undefined;
   addEthereumPrefix?: boolean;
+  organizationId?: string;
 };
 
 export type SignTransactionParams = {
@@ -174,6 +183,7 @@ export type SignTransactionParams = {
   transactionType: v1TransactionType;
   walletAccount: WalletAccount;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type SignAndSendTransactionParams = {
@@ -182,6 +192,7 @@ export type SignAndSendTransactionParams = {
   walletAccount: WalletAccount;
   rpcUrl?: string;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type FetchUserParams = {
@@ -203,6 +214,7 @@ export type FetchOrCreateP256ApiKeyUserParams = {
 export type FetchOrCreatePoliciesParams = {
   policies: v1CreatePolicyIntentV3[];
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type FetchOrCreatePoliciesResult = ({
@@ -214,11 +226,13 @@ export type UpdateUserEmailParams = {
   verificationToken?: string;
   userId?: string;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type RemoveUserEmailParams = {
   userId?: string;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type UpdateUserPhoneNumberParams = {
@@ -226,17 +240,20 @@ export type UpdateUserPhoneNumberParams = {
   verificationToken?: string;
   userId?: string;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type RemoveUserPhoneNumberParams = {
   userId?: string;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type UpdateUserNameParams = {
   userName: string;
   userId?: string;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type AddOauthProviderParams = {
@@ -251,6 +268,7 @@ export type RemoveOauthProvidersParams = {
   providerIds: string[];
   userId?: string;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type AddPasskeyParams = {
@@ -258,12 +276,14 @@ export type AddPasskeyParams = {
   displayName?: string;
   userId?: string;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type RemovePasskeyParams = {
   authenticatorIds: string[];
   userId?: string;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 };
 
 export type CreateWalletParams = {

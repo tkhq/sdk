@@ -1172,10 +1172,9 @@ export function isValidPasskeyName(name: string): string {
 
 export function mapAccountsToWallet(
   accounts: v1WalletAccount[],
+  walletMap: Map<string, EmbeddedWallet>,
 ): EmbeddedWallet[] {
   // map of walletId to Wallet
-  const walletMap = new Map<string, EmbeddedWallet>();
-
   // map all wallet accounts to their wallets
   accounts.forEach(async (account) => {
     if (walletMap.has(account.walletDetails!.walletId)) {

@@ -32,8 +32,16 @@ export function ExportComponent(params: {
   targetPublicKey?: string;
   keyFormat?: KeyFormat | undefined;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 }) {
-  const { exportType, targetPublicKey, keyFormat, stampWith, target } = params;
+  const {
+    exportType,
+    targetPublicKey,
+    keyFormat,
+    stampWith,
+    target,
+    organizationId,
+  } = params;
   const { config } = useTurnkey();
 
   if (!config) {
@@ -150,6 +158,7 @@ export function ExportComponent(params: {
           keyFormat={keyFormat}
           stampWith={stampWith}
           setExportIframeVisible={setExportIframeVisible}
+          organizationId={organizationId}
         />
       )}
       <div

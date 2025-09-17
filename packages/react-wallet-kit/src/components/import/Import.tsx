@@ -40,6 +40,8 @@ export function ImportComponent(props: {
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
   name?: string;
+  organizationId?: string;
+  userId?: string;
 }) {
   const {
     importType,
@@ -60,6 +62,21 @@ export function ImportComponent(props: {
     throw new TurnkeyError(
       "Turnkey SDK is not properly configured. Please check your configuration.",
       TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
+    );
+  }
+
+  const organizationId = props.organizationId || session?.organizationId;
+  if (!organizationId) {
+    throw new TurnkeyError(
+      "Organization ID or a valid session is required for importing. Please pass in an organizationId or log in.",
+      TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+    );
+  }
+  const userId = props.userId || session?.userId;
+  if (!userId) {
+    throw new TurnkeyError(
+      "User ID or a valid session is required for importing. Please pass in a userId or log in.",
+      TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
     );
   }
 
@@ -185,10 +202,13 @@ export function ImportComponent(props: {
       let response;
       switch (importType) {
         case ImportType.Wallet:
-          const initWalletResult = await httpClient?.initImportWallet({
-            organizationId: session?.organizationId!,
-            userId: session?.userId!,
-          });
+          const initWalletResult = await httpClient?.initImportWallet(
+            {
+              organizationId: organizationId!,
+              userId: userId!,
+            },
+            stampWith,
+          );
 
           if (!initWalletResult || !initWalletResult.importBundle) {
             throw new TurnkeyError(
@@ -199,8 +219,8 @@ export function ImportComponent(props: {
 
           const injectedWallet = await importIframeClient.injectImportBundle(
             initWalletResult.importBundle,
-            session?.organizationId!,
-            session?.userId!,
+            organizationId!,
+            userId!,
           );
 
           if (!injectedWallet) {
@@ -236,14 +256,19 @@ export function ImportComponent(props: {
             accounts,
             encryptedBundle: encryptedWalletBundle,
             stampWith,
+            organizationId: organizationId!,
+            userId: userId!,
           });
 
           break;
         case ImportType.PrivateKey:
-          const initPrivateKeyResult = await httpClient?.initImportPrivateKey({
-            organizationId: session?.organizationId!,
-            userId: session?.userId!,
-          });
+          const initPrivateKeyResult = await httpClient?.initImportPrivateKey(
+            {
+              organizationId: organizationId!,
+              userId: userId!,
+            },
+            stampWith,
+          );
 
           if (!initPrivateKeyResult || !initPrivateKeyResult.importBundle) {
             throw new TurnkeyError(
@@ -253,8 +278,8 @@ export function ImportComponent(props: {
           }
           const injectedKey = await importIframeClient.injectImportBundle(
             initPrivateKeyResult.importBundle,
-            session?.organizationId!,
-            session?.userId!,
+            organizationId!,
+            userId!,
           );
           if (!injectedKey) {
             throw new TurnkeyError(
@@ -282,6 +307,8 @@ export function ImportComponent(props: {
             privateKeyName: walletName,
             encryptedBundle: encryptedKeyBundle,
             stampWith,
+            organizationId: organizationId!,
+            userId: userId!,
           });
 
           break;

@@ -31,6 +31,7 @@ interface SignMessageModalProps {
   encoding?: v1PayloadEncoding;
   hashFunction?: v1HashFunction;
   addEthereumPrefix?: boolean;
+  organizationId?: string;
 }
 
 export function SignMessageModal(props: SignMessageModalProps) {
@@ -40,6 +41,7 @@ export function SignMessageModal(props: SignMessageModalProps) {
     subText = "Use your wallet to sign this message",
     stampWith,
     successPageDuration,
+    organizationId,
     onSuccess,
     onError,
   } = props;
@@ -69,6 +71,7 @@ export function SignMessageModal(props: SignMessageModalProps) {
           addEthereumPrefix: props.addEthereumPrefix,
         }),
         ...(stampWith && { stampWith }),
+        ...(organizationId && { organizationId }),
       });
       handleSuccess(result);
     } catch (error) {
