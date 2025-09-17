@@ -3,22 +3,29 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+// Polyfills must be early to satisfy crypto/random usage across dependencies
+import 'react-native-get-random-values';
+import { Buffer } from 'buffer';
+(global as any).Buffer = (global as any).Buffer || Buffer;
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { TurnkeyProvider } from '@turnkey/react-native-wallet-kit';
+import { TURNKEY_CONFIG, TURNKEY_CALLBACKS } from '@/constants/turnkey';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
+      <TurnkeyProvider config={TURNKEY_CONFIG} callbacks={TURNKEY_CALLBACKS}>
+        <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="otp" options={{ headerShown: false }} />
+          <Stack.Screen name="(main)" options={{ headerShown: false }} />
+          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </TurnkeyProvider>
     </ThemeProvider>
   );
 }
