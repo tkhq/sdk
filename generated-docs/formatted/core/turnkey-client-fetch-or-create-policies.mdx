@@ -18,14 +18,17 @@ Fetches each requested policy if it exists, or creates it if it does not.
 
 <p><strong>Package:</strong> <code>core</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2580">core.ts:2580</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L2583">__clients__/core.ts:2583</a></p>
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='FetchOrCreatePoliciesParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="policies" type='v1CreatePolicyIntentV3[]' required={true}>
 the list of policies to fetch or create.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 </NestedParam>
   </Expandable>
 </ParamField>
@@ -33,7 +36,7 @@ the list of policies to fetch or create.
 <H3Bordered text="Response" />
 A successful response returns the following fields:
 
-<ResponseField name="returns" type="object & v1CreatePolicyIntentV3[]" required={true} >
+<ResponseField name="returns" type="FetchOrCreatePoliciesResult" required={true} >
   A promise that resolves to an array of objects, each containing:
          - `policyId`: the unique identifier of the policy.
          - `policyName`: human-readable name of the policy.

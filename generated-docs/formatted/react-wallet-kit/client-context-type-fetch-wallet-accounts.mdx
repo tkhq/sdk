@@ -21,7 +21,7 @@ Fetches all accounts for a specific wallet, including both embedded and connecte
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='FetchWalletAccountsParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="paginationOptions" type='v1Pagination' required={false}>
 pagination options for embedded wallets.

@@ -21,7 +21,7 @@ Signs up a user using a wallet, creating a new sub-organization and session.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='SignUpWithWalletParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="createSubOrgParams" type='CreateSubOrgParams' required={false}>
 parameters for creating a sub-organization (e.g., authenticators, user metadata).

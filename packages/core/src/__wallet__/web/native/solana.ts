@@ -13,7 +13,7 @@ import {
   WalletInterfaceType,
   WalletProvider,
   WalletRpcProvider,
-} from "@types";
+} from "../../../__types__";
 
 /**
  * Abstract base class for Solana wallet implementations using Wallet Standard.

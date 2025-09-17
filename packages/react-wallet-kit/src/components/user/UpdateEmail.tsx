@@ -8,16 +8,26 @@ import { useState } from "react";
 import clsx from "clsx";
 import { OtpVerification } from "../auth/OTP";
 import { SuccessPage } from "../design/Success";
-import { OtpType } from "@turnkey/core";
+import { OtpType, StamperType } from "@turnkey/core";
 
 export function UpdateEmail(params: {
   onSuccess: (userId: string) => void;
   onError: (error: any) => void;
+  organizationId: string;
+  userId: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show
   title?: string;
   subTitle?: string;
+  stampWith?: StamperType | undefined;
 }) {
-  const { onSuccess, onError, successPageDuration } = params;
+  const {
+    onSuccess,
+    onError,
+    successPageDuration,
+    organizationId,
+    stampWith,
+    userId,
+  } = params;
   const { user, updateUserEmail, initOtp, verifyOtp } = useTurnkey();
   const { isMobile, pushPage, closeModal } = useModal();
   const email = user?.userEmail || "";
@@ -53,7 +63,9 @@ export function UpdateEmail(params: {
                 const res = await updateUserEmail({
                   email: emailInput,
                   verificationToken,
-                  userId: user!.userId,
+                  userId,
+                  organizationId,
+                  ...(stampWith && { stampWith }),
                 });
                 handleSuccess(res);
               }}

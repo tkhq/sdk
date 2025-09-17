@@ -22,7 +22,7 @@ Exports a wallet as an encrypted bundle.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='ExportWalletParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="organizationId" type='string' required={false}>
 organization ID to export the wallet under a specific sub-organization (walletId must be associated with the sub-organization).

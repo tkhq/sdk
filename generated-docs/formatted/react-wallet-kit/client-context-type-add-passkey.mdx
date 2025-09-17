@@ -21,7 +21,7 @@ Adds a new passkey authenticator for the user.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='AddPasskeyParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="displayName" type='string' required={false}>
 display name of the passkey (defaults to the value of `name`).

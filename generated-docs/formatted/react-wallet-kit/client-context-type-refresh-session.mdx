@@ -22,7 +22,7 @@ Refreshes the session associated with the specified session key, or the active s
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='RefreshSessionParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="expirationSeconds" type='string' required={false}>
 expiration time in seconds for the refreshed session (defaults to the configured default).

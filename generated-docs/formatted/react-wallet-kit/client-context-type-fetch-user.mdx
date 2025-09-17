@@ -21,7 +21,7 @@ Fetches the user details for the current session or a specified user.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='FetchUserParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="organizationId" type='string' required={false}>
 organization ID to specify the sub-organization (defaults to the current session's organizationId).

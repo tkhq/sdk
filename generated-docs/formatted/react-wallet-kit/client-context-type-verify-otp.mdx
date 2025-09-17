@@ -20,7 +20,7 @@ Verifies the OTP code sent to the user.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='VerifyOtpParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="contact" type='string' required={true}>
 contact information for the user (e.g., email address or phone number).
@@ -40,12 +40,8 @@ type of OTP being verified (OtpType.Email or OtpType.Sms).
 <H3Bordered text="Response" />
 A successful response returns the following fields:
 
-<ResponseField name="returns" type="object" required={true}>
+<ResponseField name="returns" type="VerifyOtpResult" required={true}>
   A promise that resolves to an object containing:
   - subOrganizationId: sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
   - verificationToken: verification token to be used for login or sign-up.
-  <Expandable title="return details">
-    <NestedParam parentKey="returns" childKey="subOrganizationId" type='string' required={true}></NestedParam>
-    <NestedParam parentKey="returns" childKey="verificationToken" type='string' required={true}></NestedParam>
-  </Expandable>
 </ResponseField>

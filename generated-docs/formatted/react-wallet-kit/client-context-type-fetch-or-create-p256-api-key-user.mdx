@@ -20,19 +20,21 @@ Fetches an existing user by P-256 API key public key, or creates a new one if no
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='FetchOrCreateP256ApiKeyUserParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="createParams" type='object' required={false}></NestedParam>
     <Expandable title="createParams details">
-    <NestedParam parentKey="params.createParams" childKey="apiKeyName" type='string' required={false}>
-optional API key name to assign if creating a new API key (defaults to `public-key-user-${publicKey}`).
-</NestedParam>
-    <NestedParam parentKey="params.createParams" childKey="userName" type='string' required={false}>
-optional username to assign if creating a new user (defaults to `"Public Key User"`).
-</NestedParam>
+    <NestedParam parentKey="params.createParams" childKey="apiKeyName" type='string' required={false}></NestedParam>
+    <NestedParam parentKey="params.createParams" childKey="userName" type='string' required={false}></NestedParam>
     </Expandable>
+    <NestedParam parentKey="params" childKey="organizationId" type='string' required={false}>
+organization ID to specify the sub-organization (defaults to the current session's organizationId).
+</NestedParam>
     <NestedParam parentKey="params" childKey="publicKey" type='string' required={true}>
 the P-256 public key to use for lookup and creation.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
+parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
 </NestedParam>
   </Expandable>
 </ParamField>

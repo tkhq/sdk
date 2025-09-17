@@ -17,6 +17,7 @@ export function RemovePasskey(params: {
   stampWith?: string | undefined;
   title?: string;
   subTitle?: string;
+  organizationId?: string;
 }) {
   const { user, removePasskeys } = useTurnkey();
   const {
@@ -25,6 +26,7 @@ export function RemovePasskey(params: {
     userId = user?.userId,
     successPageDuration,
     authenticatorId,
+    organizationId,
   } = params;
   const [isLoading, setIsLoading] = useState(false);
   const { isMobile, pushPage, closeModal } = useModal();
@@ -35,6 +37,7 @@ export function RemovePasskey(params: {
       const res = await removePasskeys({
         authenticatorIds: [authenticatorId],
         ...(userId && { userId }),
+        ...(organizationId && { organizationId }),
       });
       handleSuccess(res);
     } catch (error) {

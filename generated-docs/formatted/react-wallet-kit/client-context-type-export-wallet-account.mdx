@@ -21,7 +21,7 @@ Exports a wallet account as an encrypted bundle.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='ExportWalletAccountParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="address" type='string' required={true}>
 address of the wallet account to export.

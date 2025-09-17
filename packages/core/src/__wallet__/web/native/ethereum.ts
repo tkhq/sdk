@@ -17,7 +17,7 @@ import {
   WalletProvider,
   WalletProviderInfo,
   WalletRpcProvider,
-} from "@types";
+} from "../../../__types__";
 import {
   uint8ArrayFromHexString,
   uint8ArrayToHexString,

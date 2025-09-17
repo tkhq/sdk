@@ -4,41 +4,57 @@ import type {
   TurnkeySDKClientBase,
   TurnkeyClientMethods,
   Wallet,
-  StamperType,
-  WalletAccount,
 } from "@turnkey/core";
 import type {
-  OAuthProviders,
   Session,
-  v1AddressFormat,
-  v1Curve,
-  v1HashFunction,
-  v1PayloadEncoding,
   v1SignRawPayloadResult,
   v1User,
-  v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 import type {
   TurnkeyProviderConfig,
   AuthState,
   ClientState,
-  KeyFormat,
 } from "../../types/base";
 import { createContext } from "react";
+import type {
+  HandleAddEmailParams,
+  HandleAddOauthProviderParams,
+  HandleAddPasskeyParams,
+  HandleAddPhoneNumberParams,
+  HandleAppleOauthParams,
+  HandleConnectExternalWalletParams,
+  HandleDiscordOauthParams,
+  HandleExportPrivateKeyParams,
+  HandleExportWalletAccountParams,
+  HandleExportWalletParams,
+  HandleFacebookOauthParams,
+  HandleGoogleOauthParams,
+  HandleImportPrivateKeyParams,
+  HandleImportWalletParams,
+  HandleLoginParams,
+  HandleRemoveOauthProviderParams,
+  HandleRemovePasskeyParams,
+  HandleRemoveUserEmailParams,
+  HandleRemoveUserPhoneNumberParams,
+  HandleSignMessageParams,
+  HandleUpdateUserEmailParams,
+  HandleUpdateUserNameParams,
+  HandleUpdateUserPhoneNumberParams,
+  HandleXOauthParams,
+  RefreshUserParams,
+  RefreshWalletsParams,
+} from "../../types/method-types";
 
-/*
- * In order for jsdocs params to show up properly you must redeclare the core client method here using FUNCTION SIGNATURE. ex:
+/**
+ * @internal
+ * ClientContextType
  *
- * DO:
- *  methodName(params: { param1: string, param2?: number }): Promise<ReturnType>;
- *
- * NOT:
- * methodName: (params: { param1: string, param2?: number }) => Promise<ReturnType>;
- *
- * This is because of some weird typescript behavior where it doesn't recognize arrow-function-typed methods as methods for jsdocs purposes.
- * Same goes for new functions in the provider!!
+ * This is where we define the shape of the context provided by the TurnkeyProvider. JS doc comments MUST be added here to show up in the generated docs as well as intellisense in IDEs.
+ * Make sure to add JS doc comments for any new methods you add in the provider so they get generated in our sdk reference docs.
+ * **IMPORTANT** - New core methods DO NOT need to be redeclared here, their shape and JS doc comments should come from the core package directly via TurnkeyClientMethods.
  */
 
+/** @expand */
 export interface ClientContextType extends TurnkeyClientMethods {
   /** @internal */
   httpClient: TurnkeySDKClientBase | undefined;
@@ -68,12 +84,12 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - If no user is found, the state will not be updated.
    *
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - user ID to target (defaults to the session's user ID).
    * @returns A promise that resolves when the user details are successfully refreshed and state is updated.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error refreshing the user details.
    */
-  refreshUser: (params?: {
-    stampWith?: StamperType | undefined;
-  }) => Promise<void>;
+  refreshUser: (params?: RefreshUserParams) => Promise<void>;
 
   /**
    * Refreshes the wallets state for the current user session.
@@ -88,12 +104,12 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * - If no wallets are found, the state will be set to an empty array.
    *
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - user ID to target (defaults to the session's user ID).
    * @returns A promise that resolves when the wallets are successfully refreshed and state is updated.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error refreshing the wallets.
    */
-  refreshWallets: (params?: {
-    stampWith?: StamperType | undefined;
-  }) => Promise<void>;
+  refreshWallets: (params?: RefreshWalletsParams) => Promise<void>;
 
   /**
    * Handles the login or sign-up flow.
@@ -112,13 +128,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    *
    * @returns A void promise.
    */
-  handleLogin: (params?: {
-    sessionKey?: string;
-    logoLight?: string;
-    logoDark?: string;
-    logoClassName?: string;
-    title?: string;
-  }) => Promise<void>;
+  handleLogin: (params?: HandleLoginParams) => Promise<void>;
 
   /**
    * Handles the Discord OAuth 2.0 flow.
@@ -147,15 +157,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleDiscordOauth: (params?: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    openInPage?: boolean;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }) => Promise<void>;
+  handleDiscordOauth: (params?: HandleDiscordOauthParams) => Promise<void>;
 
   /**
    * Handles the Twitter (X) OAuth 2.0 flow.
@@ -184,15 +186,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleXOauth: (params?: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    openInPage?: boolean;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }) => Promise<void>;
+  handleXOauth: (params?: HandleXOauthParams) => Promise<void>;
 
   /**
    * Handles the Google OAuth flow.
@@ -219,15 +213,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleGoogleOauth: (params?: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    openInPage?: boolean;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }) => Promise<void>;
+  handleGoogleOauth: (params?: HandleGoogleOauthParams) => Promise<void>;
 
   /**
    * Handles the Apple OAuth flow.
@@ -254,15 +240,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleAppleOauth: (params?: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    openInPage?: boolean;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }) => Promise<void>;
+  handleAppleOauth: (params?: HandleAppleOauthParams) => Promise<void>;
 
   /**
    * Handles the Facebook OAuth flow.
@@ -290,15 +268,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleFacebookOauth: (params?: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    openInPage?: boolean;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }) => Promise<void>;
+  handleFacebookOauth: (params?: HandleFacebookOauthParams) => Promise<void>;
 
   /**
    * Handles the export wallet flow.
@@ -315,14 +285,12 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.walletId - The ID of the wallet to export.
    * @param params.targetPublicKey - The target public key to encrypt the export bundle to (required for custom iframe flows).
    * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
+   * @param params.organizationId - The organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - The user ID to target (defaults to the session's user ID).
    *
    * @returns A void promise.
    */
-  handleExportWallet: (params: {
-    walletId: string;
-    targetPublicKey?: string;
-    stampWith?: StamperType | undefined;
-  }) => Promise<void>;
+  handleExportWallet: (params: HandleExportWalletParams) => Promise<void>;
 
   /**
    * handles the export private key flow.
@@ -341,14 +309,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.targetPublicKey - The target public key to encrypt the export bundle to (required for custom iframe flows).
    * @param params.keyFormat - The format of the private key to export (KeyFormat.Hexadecimal or KeyFormat.Solana).
    * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
+   * @param params.organizationId - The organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - The user ID to target (defaults to the session's user ID).
    * @return A void promise.
    */
-  handleExportPrivateKey: (params: {
-    privateKeyId: string;
-    targetPublicKey?: string;
-    keyFormat?: KeyFormat;
-    stampWith?: StamperType | undefined;
-  }) => Promise<void>;
+  handleExportPrivateKey: (
+    params: HandleExportPrivateKeyParams,
+  ) => Promise<void>;
 
   /**
    * Handles the export wallet account flow.
@@ -367,16 +334,15 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.targetPublicKey - The target public key to encrypt the export bundle to (required for custom iframe flows).
    * @param params.keyFormat - The format of the address to export (KeyFormat.Hexadecimal or KeyFormat.Solana).
    * @param params.stampWith - The stamper to use for the export (Passkey, ApiKey, or Wallet).
+   * @param params.organizationId - The organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - The user ID to target (defaults to the session's user ID).
    *
    * @returns A void promise.
    */
 
-  handleExportWalletAccount: (params: {
-    address: string;
-    targetPublicKey?: string;
-    keyFormat?: KeyFormat;
-    stampWith?: StamperType | undefined;
-  }) => Promise<void>;
+  handleExportWalletAccount: (
+    params: HandleExportWalletAccountParams,
+  ) => Promise<void>;
 
   /**
    * Handles the import wallet flow.
@@ -392,15 +358,12 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.successPageDuration - duration (in ms) for the success page after import (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
    * @param params.walletName - name for the imported wallet, if not provided, an input box will be shown for the name.
+   * @param params.organizationId - The organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - The user ID to target (defaults to the session's user ID).
    *
    * @returns A promise that resolves to the new wallet's ID.
    */
-  handleImportWallet: (params?: {
-    defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    stampWith?: StamperType | undefined;
-    walletName?: string;
-  }) => Promise<string>;
+  handleImportWallet: (params?: HandleImportWalletParams) => Promise<string>;
 
   /**
    * Handles the import private key flow.
@@ -417,16 +380,14 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.successPageDuration - duration (in ms) for the success page after import (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
    * @param params.keyName - name for the imported private key, if not provided, an input box will be shown for the name.
+   * @param params.organizationId - The organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - The user ID to target (defaults to the session's user ID).
    *
    * @returns A promise that resolves to the new private key's ID.
    */
-  handleImportPrivateKey: (params?: {
-    curve: v1Curve;
-    addressFormats: v1AddressFormat[];
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    stampWith?: StamperType | undefined;
-    keyName?: string;
-  }) => Promise<string>;
+  handleImportPrivateKey: (
+    params?: HandleImportPrivateKeyParams,
+  ) => Promise<string>;
 
   /**
    * Handles the update user name flow.
@@ -443,16 +404,15 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.subTitle - subtitle for the modal.
    * @param params.successPageDuration - duration (in ms) for the success page after update (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the update (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - user ID to target (defaults to the session's user ID).
    *
    * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error updating the user name.
    */
-  handleUpdateUserEmail: (params?: {
-    email?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<string>;
+  handleUpdateUserEmail: (
+    params?: HandleUpdateUserEmailParams,
+  ) => Promise<string>;
 
   /**
    * Handles the update user phone number flow.
@@ -470,17 +430,16 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.title - title for the modal.
    * @param params.subTitle - subtitle for the modal.
    * @param params.successPageDuration - duration for the success page (default: 0, no success page).
+   * @param params.stampWith - parameter to specify the stamper to use for the update (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - user ID to target (defaults to the session's user ID).
    *
    * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, SMS OTP is not enabled, or if there is an error updating the phone number.
    */
-  handleUpdateUserPhoneNumber: (params?: {
-    phoneNumber?: string;
-    formattedPhone?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<string>;
+  handleUpdateUserPhoneNumber: (
+    params?: HandleUpdateUserPhoneNumberParams,
+  ) => Promise<string>;
   /**
    * Handles the update user email flow.
    *
@@ -497,17 +456,15 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.subTitle - subtitle for the modal.
    * @param params.successPageDuration - duration (in ms) for the success page after update (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the update (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - user ID to target (defaults to the session's user ID).
    *
    * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error updating the email.
    */
-  handleUpdateUserName: (params?: {
-    userName?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    stampWith?: StamperType | undefined;
-  }) => Promise<string>;
+  handleUpdateUserName: (
+    params?: HandleUpdateUserNameParams,
+  ) => Promise<string>;
   /**
    * Handles the add user email flow.
    *
@@ -523,16 +480,14 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.title - title for the modal (defaults to "Connect an email" if the user does not have an email).
    * @param params.subTitle - subtitle for the modal.
    * @param params.successPageDuration - duration (in ms) for the success page after update (default: 0, no success page).
+   * @param params.stampWith - parameter to specify the stamper to use for the update (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - user ID to target (defaults to the session's user ID).
    *
    * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the email.
    */
-  handleAddEmail: (params?: {
-    email?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<string>;
+  handleAddEmail: (params?: HandleAddEmailParams) => Promise<string>;
 
   /**
    * Handles the add phone number flow.
@@ -550,17 +505,16 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.title - title for the modal.
    * @param params.subTitle - subtitle for the modal.
    * @param params.successPageDuration - duration (in ms) for the success page after update (default: 0, no success page).
+   * @param params.stampWith - parameter to specify the stamper to use for the update (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.userId - user ID to target (defaults to the session's user ID).
    *
    * @returns A promise that resolves to the userId of the user that was changed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the phone number.
    */
-  handleAddPhoneNumber: (params?: {
-    phoneNumber?: string;
-    formattedPhone?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-  }) => Promise<string>;
+  handleAddPhoneNumber: (
+    params?: HandleAddPhoneNumberParams,
+  ) => Promise<string>;
 
   /**
    * Handles the addition of an OAuth provider for the user.
@@ -575,14 +529,16 @@ export interface ClientContextType extends TurnkeyClientMethods {
    *
    * @param params.providerName - The name of the OAuth provider to add (OAuthProviders.GOOGLE, OAuthProviders.APPLE, OAuthProviders.FACEBOOK).
    * @param params.stampWith - parameter to specify the stamper to use for the addition (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.successPageDuration - duration (in ms) for the success page after addition (default: 0, no success page).
+   * @param params.userId - user ID to target (defaults to the session's user ID).
    *
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the provider.
    */
-  handleAddOauthProvider: (params: {
-    providerName: OAuthProviders;
-    stampWith?: StamperType | undefined;
-  }) => Promise<void>;
+  handleAddOauthProvider: (
+    params: HandleAddOauthProviderParams,
+  ) => Promise<void>;
 
   /**
    * Handles the removal of an OAuth provider.
@@ -600,17 +556,14 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.subTitle - subtitle for the modal.
    * @param params.successPageDuration - duration (in ms) for the success page after removal (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    *
    * @returns A promise that resolves to an array of provider IDs that were removed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error removing the provider.
    */
-  handleRemoveOauthProvider: (params: {
-    providerId: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    stampWith?: StamperType | undefined;
-  }) => Promise<string[]>;
+  handleRemoveOauthProvider: (
+    params: HandleRemoveOauthProviderParams,
+  ) => Promise<string[]>;
 
   /**
    * Handles the addition of a passkey (authenticator) for the user.
@@ -628,17 +581,12 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.userId - user ID to add the passkey for a specific user (defaults to current session's userId).
    * @param params.successPageDuration - duration (in ms) for the success page after addition (default: 0, no success page).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    *
    * @returns A promise that resolves to the user's updated passkeys.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the passkey.
    */
-  handleAddPasskey: (params?: {
-    name?: string;
-    displayName?: string;
-    userId?: string;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    stampWith?: StamperType | undefined;
-  }) => Promise<string[]>;
+  handleAddPasskey: (params?: HandleAddPasskeyParams) => Promise<string[]>;
 
   /**
    * Handles the removal of a passkey (authenticator) for the user.
@@ -656,18 +604,12 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.subTitle - subtitle for the modal.
    * @param params.successPageDuration - duration (in ms) for the success page after removal (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    *
    * @returns A promise that resolves to an array of authenticator IDs that were removed.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error removing the passkey.
    */
-  handleRemovePasskey: (params: {
-    authenticatorId: string;
-    userId?: string;
-    title?: string;
-    subTitle?: string;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    stampWith?: StamperType | undefined;
-  }) => Promise<string[]>;
+  handleRemovePasskey: (params: HandleRemovePasskeyParams) => Promise<string[]>;
 
   /**
    * Handles the signing of a message by displaying a modal for user interaction.
@@ -686,19 +628,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.subText - subtext to display in the modal.
    * @param params.successPageDuration - duration in seconds to display the success page after signing.
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @returns A promise that resolves to a `v1SignRawPayloadResult` object containing the signed message.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error during the signing process.
    */
-  handleSignMessage: (params: {
-    message: string;
-    walletAccount: WalletAccount;
-    encoding?: v1PayloadEncoding;
-    hashFunction?: v1HashFunction;
-    addEthereumPrefix?: boolean;
-    subText?: string;
-    successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
-    stampWith?: StamperType | undefined;
-  }) => Promise<v1SignRawPayloadResult>;
+  handleSignMessage: (
+    params: HandleSignMessageParams,
+  ) => Promise<v1SignRawPayloadResult>;
 
   /**
    * Handles the connecting of an external wallet account to the user's Turnkey account.
@@ -715,9 +651,9 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized or if no active session is found.
    */
-  handleConnectExternalWallet: (params?: {
-    successPageDuration?: number | undefined;
-  }) => Promise<void>;
+  handleConnectExternalWallet: (
+    params?: HandleConnectExternalWalletParams,
+  ) => Promise<void>;
 
   /**
    * Handles the removal of a user's email address from their Turnkey account.
@@ -727,12 +663,11 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.userId - The user ID to remove the email for (defaults to current session's userId).
    * @param params.successPageDuration - duration (in ms) for the success page after removal (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    */
-  handleRemoveUserEmail: (params?: {
-    userId?: string;
-    successPageDuration?: number | undefined;
-    stampWith?: StamperType | undefined;
-  }) => Promise<string>;
+  handleRemoveUserEmail: (
+    params?: HandleRemoveUserEmailParams,
+  ) => Promise<string>;
 
   /**
    * Handles the removal of a user's phone number from their Turnkey account.
@@ -742,12 +677,11 @@ export interface ClientContextType extends TurnkeyClientMethods {
    * @param params.userId - The user ID to remove the phone number for (defaults to current session's userId).
    * @param params.successPageDuration - duration (in ms) for the success page after removal (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    */
-  handleRemoveUserPhoneNumber: (params?: {
-    userId?: string;
-    successPageDuration?: number | undefined;
-    stampWith?: StamperType | undefined;
-  }) => Promise<string>;
+  handleRemoveUserPhoneNumber: (
+    params?: HandleRemoveUserPhoneNumberParams,
+  ) => Promise<string>;
 }
 
 /** @internal */

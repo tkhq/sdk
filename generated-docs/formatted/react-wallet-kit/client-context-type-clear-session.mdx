@@ -20,7 +20,7 @@ Clears the session associated with the specified session key, or the active sess
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='ClearSessionParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
 session key to clear the session under (defaults to the default session key).

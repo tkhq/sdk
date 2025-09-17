@@ -7,7 +7,7 @@ import { NestedParam } from "/snippets/nested-param.mdx";
 
 <p><strong>Package:</strong> <code>react-wallet-kit</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L74">react-wallet-kit/src/providers/client/Types.tsx:74</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L94">react-wallet-kit/src/providers/client/Types.tsx:94</a></p>
 
 <H3Bordered text="Overview" />
 
@@ -28,7 +28,7 @@ and updates the ``user`` state variable in the provider.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='RefreshUserParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).

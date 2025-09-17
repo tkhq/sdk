@@ -8,14 +8,17 @@ import { PhoneInputBox } from "../design/Inputs";
 import clsx from "clsx";
 import { OtpVerification } from "../auth/OTP";
 import { SuccessPage } from "../design/Success";
-import { OtpType } from "@turnkey/core";
+import { OtpType, StamperType } from "@turnkey/core";
 
 export function UpdatePhoneNumber(params: {
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  organizationId: string;
+  userId: string;
   onSuccess: (userId: string) => void;
   onError: (error: any) => void;
   title?: string;
   subTitle?: string;
+  stampWith?: StamperType | undefined;
 }) {
   const { user, initOtp, verifyOtp, updateUserPhoneNumber } = useTurnkey();
   const { isMobile, pushPage, closeModal } = useModal();
@@ -25,7 +28,14 @@ export function UpdatePhoneNumber(params: {
   const [isValid, setIsValid] = useState(false);
   const [formattedPhone, setFormattedPhone] = useState("");
 
-  const { onSuccess, onError, successPageDuration } = params;
+  const {
+    onSuccess,
+    onError,
+    successPageDuration,
+    organizationId,
+    stampWith,
+    userId,
+  } = params;
 
   const handleContinue = async () => {
     if (isValid) {
@@ -52,7 +62,9 @@ export function UpdatePhoneNumber(params: {
                 const res = await updateUserPhoneNumber({
                   phoneNumber: phoneInput,
                   verificationToken,
-                  userId: user!.userId,
+                  userId,
+                  organizationId,
+                  ...(params.stampWith && { stampWith }),
                 });
                 handleSuccess(res);
               }}

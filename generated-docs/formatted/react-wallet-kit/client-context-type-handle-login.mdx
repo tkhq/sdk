@@ -7,7 +7,7 @@ import { NestedParam } from "/snippets/nested-param.mdx";
 
 <p><strong>Package:</strong> <code>react-wallet-kit</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L111">react-wallet-kit/src/providers/client/Types.tsx:111</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L131">react-wallet-kit/src/providers/client/Types.tsx:131</a></p>
 
 <H3Bordered text="Overview" />
 
@@ -23,10 +23,22 @@ Handles the login or sign-up flow.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='HandleLoginParams' required={false} >
   <Expandable title="params details">
+    <NestedParam parentKey="params" childKey="logoClassName" type='string' required={false}>
+additional CSS class names to apply to the logo image for custom styling.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="logoDark" type='string' required={false}>
+URL of a custom logo image to display at the top of the login modal in dark mode (overrides config.ui.logoDark).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="logoLight" type='string' required={false}>
+URL of a custom logo image to display at the top of the login modal in light mode (overrides config.ui.logoLight).
+</NestedParam>
     <NestedParam parentKey="params" childKey="sessionKey" type='string' required={false}>
-Optional session key to resume an existing session or pre-fill session details in the login modal.
+session key to resume an existing session or pre-fill session details in the login modal.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="title" type='string' required={false}>
+title text to display at the top of the login modal (defaults to "Log in or sign up").
 </NestedParam>
   </Expandable>
 </ParamField>

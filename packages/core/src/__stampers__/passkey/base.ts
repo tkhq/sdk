@@ -1,5 +1,10 @@
 import { generateRandomBuffer, isReactNative, isWeb } from "@utils";
-import type { Passkey, TStamp, TStamper, TPasskeyStamperConfig } from "@types";
+import type {
+  Passkey,
+  TStamp,
+  TStamper,
+  TPasskeyStamperConfig,
+} from "../../__types__";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import {
   base64StringToBase64UrlEncodedString,

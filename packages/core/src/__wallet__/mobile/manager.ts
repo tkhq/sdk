@@ -6,7 +6,7 @@ import {
   WalletProvider,
   WalletInterfaceType,
   Chain,
-} from "@types";
+} from "../../__types__";
 import { WalletConnectClient } from "../wallet-connect/client";
 import { WalletConnectWallet } from "../wallet-connect/base";
 

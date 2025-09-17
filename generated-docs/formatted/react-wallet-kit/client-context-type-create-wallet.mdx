@@ -23,9 +23,9 @@ Creates a new wallet for sub-organization.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='CreateWalletParams' required={true} >
   <Expandable title="params details">
-    <NestedParam parentKey="params" childKey="accounts" type='v1AddressFormat[] | v1WalletAccountParams[]' required={false}>
+    <NestedParam parentKey="params" childKey="accounts" type='v1WalletAccountParams[] | v1AddressFormat[]' required={false}>
 array of account parameters or address formats to create in the wallet.
 </NestedParam>
     <NestedParam parentKey="params" childKey="mnemonicLength" type='number' required={false}>

@@ -22,13 +22,16 @@ Imports a wallet from an encrypted bundle.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='ImportWalletParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="accounts" type='v1WalletAccountParams[]' required={false}>
 array of account parameters to create in the imported wallet (defaults to standard Ethereum and Solana accounts).
 </NestedParam>
     <NestedParam parentKey="params" childKey="encryptedBundle" type='string' required={true}>
 encrypted bundle containing the wallet seed phrase and metadata.
+</NestedParam>
+    <NestedParam parentKey="params" childKey="organizationId" type='string' required={false}>
+organization ID to import the wallet under a specific sub-organization (wallet will be associated with the sub-organization).
 </NestedParam>
     <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
 parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).

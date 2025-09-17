@@ -16,6 +16,7 @@ export function RemovePhoneNumber(params: {
   onSuccess: (userId: string) => void;
   onError: (error: any) => void;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 }) {
   const { user, removeUserPhoneNumber } = useTurnkey();
   const { isMobile, closeModal, pushPage } = useModal();
@@ -26,6 +27,7 @@ export function RemovePhoneNumber(params: {
     onError,
     successPageDuration,
     userId = user?.userId,
+    organizationId,
   } = params;
 
   const handleContinue = async () => {
@@ -34,6 +36,7 @@ export function RemovePhoneNumber(params: {
       const res = await removeUserPhoneNumber({
         userId: userId!,
         stampWith: params.stampWith,
+        ...(organizationId && { organizationId }),
       });
       handleSuccess(res);
     } catch (error) {

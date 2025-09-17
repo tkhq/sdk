@@ -19,11 +19,11 @@ Creates a new API key pair and returns the public key.
 
 <p><strong>Package:</strong> <code>core</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L4125">core.ts:4125</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/core/src/__clients__/core.ts#L4214">__clients__/core.ts:4214</a></p>
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='CreateApiKeyPairParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="externalKeyPair" type='CryptoKeyPair | object' required={false}>
 An externally generated key pair (either a CryptoKeyPair or an object with publicKey/privateKey strings) to use instead of generating a new one.

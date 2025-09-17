@@ -195,6 +195,8 @@
                   "networks/stacks",
                   "networks/aptos",
                   "networks/movement",
+                  "networks/iota",
+                  "networks/doge",
                   "networks/others"
                 ]
               },
@@ -270,6 +272,7 @@
                   "sdks/react/sub-organization-customization",
                   "sdks/react/advanced-api-requests",
                   "sdks/react/advanced-backend-authentication",
+                  "sdks/react/migrating-sdk-react",
                   "sdks/react/troubleshooting",
                   "sdks/react/legacy",
                   {

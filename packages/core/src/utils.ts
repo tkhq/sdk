@@ -29,7 +29,8 @@ import {
   Curve,
   EmbeddedWallet,
   WalletSource,
-} from "./__types__/base";
+  StamperType,
+} from "./__types__";
 import { bs58 } from "@turnkey/encoding";
 
 // Import all defaultAccountAtIndex functions for each address format
@@ -74,7 +75,7 @@ import {
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
-import { keccak256 } from "ethers";
+import { keccak256, toUtf8String } from "ethers";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -365,9 +366,9 @@ const hexByByte = Array.from({ length: 256 }, (_, i) =>
 
 export const bytesToHex = (bytes: Uint8Array): string => {
   let hex = "0x";
-  if (bytes === undefined || bytes.length === 0) return hex;
-  for (const byte of bytes) {
-    hex += hexByByte[byte];
+  if (!bytes || bytes.length === 0) return hex;
+  for (let i = 0; i < bytes.length; i++) {
+    hex += hexByByte[Number(bytes[i])];
   }
   return hex;
 };
@@ -384,6 +385,24 @@ export const toExternalTimestamp = (
     nanos: nanos.toString(),
   };
 };
+
+export async function getActiveSessionOrThrowIfRequired(
+  stampWith: StamperType | undefined,
+  getActiveSession: () => Promise<Session | undefined>,
+): Promise<Session | undefined> {
+  const session = await getActiveSession();
+
+  // the api-key stamper requires an active session
+  // if there is no stampWith defined, the default is api-key stamper
+  if ((!stampWith || stampWith === StamperType.ApiKey) && !session) {
+    throw new TurnkeyError(
+      "No active session found. Please log in first.",
+      TurnkeyErrorCodes.NO_SESSION_FOUND,
+    );
+  }
+
+  return session;
+}
 
 export function parseSession(token: string | Session): Session {
   if (typeof token !== "string") {
@@ -443,23 +462,20 @@ export function getEncodingType(addressFormat: v1AddressFormat) {
 }
 
 export function getEncodedMessage(
-  addressFormat: v1AddressFormat,
-  rawMessage: string,
+  payloadEncoding: v1PayloadEncoding,
+  rawMessage: Uint8Array,
 ): string {
-  const config = addressFormatConfig[addressFormat];
-  if (!config) {
-    throw new TurnkeyError(
-      `Unsupported address format: ${addressFormat}`,
-      TurnkeyErrorCodes.INVALID_REQUEST,
+  if (payloadEncoding === "PAYLOAD_ENCODING_HEXADECIMAL") {
+    return (
+      "0x" +
+      Array.from(rawMessage)
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("")
     );
   }
-  if (config.encoding === "PAYLOAD_ENCODING_HEXADECIMAL") {
-    return ("0x" +
-      Array.from(new TextEncoder().encode(rawMessage))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("")) as string;
-  }
-  return rawMessage;
+
+  // we decode back to a UTF-8 string
+  return toUtf8String(rawMessage);
 }
 
 export const broadcastTransaction = async (params: {
@@ -1156,10 +1172,9 @@ export function isValidPasskeyName(name: string): string {
 
 export function mapAccountsToWallet(
   accounts: v1WalletAccount[],
+  walletMap: Map<string, EmbeddedWallet>,
 ): EmbeddedWallet[] {
   // map of walletId to Wallet
-  const walletMap = new Map<string, EmbeddedWallet>();
-
   // map all wallet accounts to their wallets
   accounts.forEach(async (account) => {
     if (walletMap.has(account.walletDetails!.walletId)) {

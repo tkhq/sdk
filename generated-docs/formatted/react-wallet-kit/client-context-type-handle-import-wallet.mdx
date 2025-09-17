@@ -7,7 +7,7 @@ import { NestedParam } from "/snippets/nested-param.mdx";
 
 <p><strong>Package:</strong> <code>react-wallet-kit</code></p>
 
-<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L387">react-wallet-kit/src/providers/client/Types.tsx:387</a></p>
+<p><strong>Defined in:</strong> <a href="https://github.com/tkhq/sdk/blob/main/packages/react-wallet-kit/src/providers/client/Types.tsx#L358">react-wallet-kit/src/providers/client/Types.tsx:358</a></p>
 
 <H3Bordered text="Overview" />
 
@@ -24,7 +24,7 @@ Handles the import wallet flow.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='HandleImportWalletParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="defaultWalletAccounts" type='v1AddressFormat[] | v1WalletAccountParams[]' required={false}>
 array of default wallet accounts (v1AddressFormat[] or v1WalletAccountParams[]) to pre-fill the import form.
@@ -34,6 +34,9 @@ parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wall
 </NestedParam>
     <NestedParam parentKey="params" childKey="successPageDuration" type='number' required={false}>
 duration (in ms) for the success page after import (default: 0, no success page).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="walletName" type='string' required={false}>
+name for the imported wallet, if not provided, an input box will be shown for the name.
 </NestedParam>
   </Expandable>
 </ParamField>

@@ -5,7 +5,7 @@ import {
   type TStamper,
   type WalletProvider,
   WalletInterfaceType,
-} from "@types";
+} from "../__types__";
 import {
   stringToBase64urlString,
   uint8ArrayFromHexString,
@@ -16,7 +16,7 @@ import {
   getSignatureSchemeFromProvider,
   isEthereumProvider,
   isSolanaProvider,
-} from "@utils";
+} from "../utils";
 
 const STAMP_HEADER_NAME = "X-Stamp";
 

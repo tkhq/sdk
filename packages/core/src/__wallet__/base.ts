@@ -1,5 +1,5 @@
 import { isReactNative, isWeb } from "@utils";
-import type { TWalletManagerConfig, WalletManagerBase } from "@types";
+import type { TWalletManagerConfig, WalletManagerBase } from "../__types__";
 
 /**
  * Creates and initializes a wallet manager instance based on the runtime environment.

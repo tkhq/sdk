@@ -21,7 +21,7 @@ Updates the user's phone number.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={true} path="params" >
+<ParamField body="params" type='UpdateUserPhoneNumberParams' required={true} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="phoneNumber" type='string' required={true}>
 new phone number to set for the user.

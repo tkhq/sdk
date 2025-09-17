@@ -27,6 +27,7 @@ export function ExportWarning(props: {
   keyFormat?: KeyFormat | undefined;
   setExportIframeVisible?: (visible: boolean) => void;
   stampWith?: StamperType | undefined;
+  organizationId?: string | undefined;
 }) {
   const {
     target,
@@ -60,6 +61,15 @@ export function ExportWarning(props: {
     ],
   };
 
+  const organizationId = props.organizationId || session?.organizationId;
+
+  if (!organizationId) {
+    throw new TurnkeyError(
+      "Organization ID is required for exporting.",
+      TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+    );
+  }
+
   return (
     <div className="flex flex-col w-full px-10">
       <div className="flex flex-col gap-4 py-6 text-icon-text-light dark:text-icon-text-dark">
@@ -86,6 +96,7 @@ export function ExportWarning(props: {
                   targetPublicKey:
                     targetPublicKey || exportIframeClient?.iframePublicKey!,
                   ...(stampWith && { stampWith: stampWith }),
+                  organizationId,
                 });
                 if (!exportBundle) {
                   throw new TurnkeyError(
@@ -95,7 +106,7 @@ export function ExportWarning(props: {
                 }
                 await exportIframeClient?.injectWalletExportBundle(
                   exportBundle,
-                  session?.organizationId!,
+                  organizationId,
                 );
                 break;
               case ExportType.PrivateKey:
@@ -104,6 +115,7 @@ export function ExportWarning(props: {
                   targetPublicKey:
                     targetPublicKey || exportIframeClient?.iframePublicKey!,
                   ...(stampWith && { stampWith: stampWith }),
+                  organizationId,
                 });
                 if (!exportBundle) {
                   throw new TurnkeyError(
@@ -123,6 +135,7 @@ export function ExportWarning(props: {
                   targetPublicKey:
                     targetPublicKey || exportIframeClient?.iframePublicKey!,
                   ...(stampWith && { stampWith: stampWith }),
+                  organizationId,
                 });
                 if (!exportBundle) {
                   throw new TurnkeyError(

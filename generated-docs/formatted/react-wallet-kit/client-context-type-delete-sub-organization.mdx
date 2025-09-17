@@ -21,10 +21,13 @@ Deletes the current sub-organization (sub-org) for the active session.
 
 <H3Bordered text="Parameters" />
 
-<ParamField body="params" type='object' required={false} path="params" >
+<ParamField body="params" type='DeleteSubOrganizationParams' required={false} >
   <Expandable title="params details">
     <NestedParam parentKey="params" childKey="deleteWithoutExport" type='boolean' required={false}>
 flag to delete the sub-organization without requiring all wallets to be exported first (defaults to false).
+</NestedParam>
+    <NestedParam parentKey="params" childKey="organizationId" type='string' required={false}>
+organization ID to delete a specific sub-organization (defaults to the current session's organizationId).
 </NestedParam>
     <NestedParam parentKey="params" childKey="stampWith" type='StamperType' required={false}>
 parameter to stamp the request with a specific stamper.
