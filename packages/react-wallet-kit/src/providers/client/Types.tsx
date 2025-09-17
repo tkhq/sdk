@@ -4,6 +4,7 @@ import type {
   TurnkeySDKClientBase,
   TurnkeyClientMethods,
   Wallet,
+  WalletProvider,
 } from "@turnkey/core";
 import type {
   Session,
