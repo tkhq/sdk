@@ -1017,6 +1017,12 @@ export class TurnkeyClient {
             errorMessage: "Failed to create stamped request for wallet login",
             errorCode: TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
             customErrorsByMessages: {
+              "WalletConnect: The connection request has expired. Please scan the QR code again.":
+                {
+                  message:
+                    "Your WalletConnect session expired. Please scan the QR code again.",
+                  code: TurnkeyErrorCodes.WALLET_CONNECT_EXPIRED,
+                },
               "Failed to sign the message": {
                 message: "Wallet auth was cancelled by the user.",
                 code: TurnkeyErrorCodes.CONNECT_WALLET_CANCELLED,

@@ -63,6 +63,7 @@ export const useDebouncedCallback = <T extends (...args: any[]) => void>(
 ): T => {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fnRef = useRef(fn);
+
   fnRef.current = fn;
 
   return useCallback(
@@ -76,7 +77,6 @@ export const useDebouncedCallback = <T extends (...args: any[]) => void>(
     [wait],
   ) as T;
 };
-
 export const isValidSession = (session?: Session | undefined): boolean => {
   return session?.expiry !== undefined && session.expiry * 1000 > Date.now();
 };
@@ -91,14 +91,25 @@ export async function withTurnkeyErrorHandling<T>(
   try {
     return await fn();
   } catch (error) {
+    let tkError: TurnkeyError;
+
     if (error instanceof TurnkeyError) {
-      if (error.code === TurnkeyErrorCodes.SESSION_EXPIRED) {
-        sessionExpireFn();
+      tkError = error;
+
+      if (tkError.code === TurnkeyErrorCodes.SESSION_EXPIRED) {
+        await sessionExpireFn();
       }
-      callbacks?.onError?.(error);
-      throw error;
+
+      // skip onError for WalletConnect expired errors
+      if (tkError.code !== TurnkeyErrorCodes.WALLET_CONNECT_EXPIRED) {
+        callbacks?.onError?.(tkError);
+      }
+
+      throw tkError;
     }
-    const tkError = new TurnkeyError(fallbackMessage, fallbackCode, error);
+
+    // we wrap non-Turnkey errors
+    tkError = new TurnkeyError(fallbackMessage, fallbackCode, error);
     callbacks?.onError?.(tkError);
     throw tkError;
   }
@@ -368,7 +379,8 @@ export function useWalletProviderState(initialState: WalletProvider[] = []) {
         .map((x) => x.toLowerCase())
         .sort()
         .join(",");
-      return `${namespace}|${interfaceType}|${name}|${connectedAddresses}`;
+      const uri = provider.uri || "";
+      return `${namespace}|${interfaceType}|${name}|${connectedAddresses}|${uri}`;
     };
 
     const A = a.map(key).sort();

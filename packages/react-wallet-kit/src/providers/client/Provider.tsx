@@ -797,21 +797,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @internal
    * Attach listeners for connected wallet providers so we can refresh state on changes.
    *
-   * - Ethereum: listens for disconnect and chain switches to trigger a refresh.
+   * - Ethereum: listens for disconnect and chain/account changes to trigger a refresh.
    * - Solana: listens for disconnect via Wallet Standard `change` events to trigger a refresh.
-   * - WalletConnect: listens for disconnect via our custom wrapper’s `change` event to trigger a refresh.
+   * - WalletConnect:
+   *    - listens for disconnect and other state changes via its unified `change` event
+   *    - additionally listens for `pairingExpired` events (proposal expiration), in which
+   *      case we re-fetch providers to refresh the pairing URI for the UI.
    *
    * Notes:
-   * - Only providers that are connected are bound.
-   * - WalletConnect is excluded from the “native” paths and handled via its unified `change` event.
+   * - Only connected providers are bound, except WalletConnect which must always register
+   *   to handle proposal expiration even if no active session exists.
+   * - Since all WalletConnect providers share the same session, we only attach to one.
    *
    * @param walletProviders - Discovered providers; only connected ones are bound.
-   * @param onWalletsChanged - Invoked when a relevant provider event occurs.
+   * @param onUpdateState - Invoked when a relevant provider event occurs.
    * @returns Cleanup function that removes all listeners registered by this call.
    */
   async function initializeWalletProviderListeners(
     walletProviders: WalletProvider[],
-    onWalletsChanged: () => void,
+    onUpdateState: () => Promise<void>,
   ): Promise<() => void> {
     if (walletProviders.length === 0) return () => {};
 
@@ -839,26 +843,34 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         )
       : [];
 
-    // we exclude WalletConnect from the native event wiring
-    // this is because WC is handled separately with a custom wrapper’s
-    //  `change` event
+    // WalletConnect is excluded from native event wiring. Instead,
+    // it uses a unified `change` event exposed by our custom wrapper
+    //
+    // unlike native providers, we register listeners for WalletConnect
+    // even if it’s not currently “connected”. This is required so we
+    // can detect proposal expiration events and display the new regenerated
+    // URI for the UI
     const wcProviders = walletProviders.filter(
-      (p) =>
-        p.interfaceType === WalletInterfaceType.WalletConnect &&
-        p.connectedAddresses.length > 0,
+      (p) => p.interfaceType === WalletInterfaceType.WalletConnect,
+    );
+
+    // since all WalletConnect providers share the same underlying session
+    // and emit identical events, we only attach listeners to a single provider
+    const wcProvider = wcProviders.find(
+      (p) => p.interfaceType === WalletInterfaceType.WalletConnect,
     );
 
     function attachEthereumListeners(
       provider: any,
-      onWalletsChanged: () => void,
+      onUpdateState: () => Promise<void>,
     ) {
       if (typeof provider.on !== "function") return;
 
-      const handleChainChanged = (_chainId: string) => onWalletsChanged();
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (accounts.length === 0) onWalletsChanged();
+      const handleChainChanged = async (_chainId: string) => onUpdateState();
+      const handleAccountsChanged = async (accounts: string[]) => {
+        if (accounts.length === 0) onUpdateState();
       };
-      const handleDisconnect = () => onWalletsChanged();
+      const handleDisconnect = () => onUpdateState();
 
       provider.on("chainChanged", handleChainChanged);
       provider.on("accountsChanged", handleAccountsChanged);
@@ -873,14 +885,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     function attachSolanaListeners(
       provider: any,
-      onWalletsChanged: () => void,
+      onUpdateState: () => Promise<void>,
     ) {
       const cleanups: Array<() => void> = [];
 
       const walletEvents = provider?.features?.["standard:events"];
       if (walletEvents?.on) {
-        const offChange = walletEvents.on("change", (_evt: any) => {
-          onWalletsChanged();
+        const offChange = walletEvents.on("change", async (_evt: any) => {
+          await onUpdateState();
         });
         cleanups.push(offChange);
       }
@@ -891,26 +903,37 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     ethProviders.forEach((p) => {
       const cleanup = attachEthereumListeners(
         (p as any).provider,
-        onWalletsChanged,
+        onUpdateState,
       );
       if (cleanup) cleanups.push(cleanup);
     });
 
     solProviders.forEach((p) => {
-      const cleanup = attachSolanaListeners(
-        (p as any).provider,
-        onWalletsChanged,
-      );
+      const cleanup = attachSolanaListeners((p as any).provider, onUpdateState);
       if (cleanup) cleanups.push(cleanup);
     });
 
-    wcProviders.forEach((p) => {
-      const standardEvents = (p as any).provider?.features?.["standard:events"];
+    if (wcProvider) {
+      const standardEvents = (wcProvider.provider as any)?.features?.[
+        "standard:events"
+      ];
       if (standardEvents?.on) {
-        const unsubscribe = standardEvents.on("change", onWalletsChanged);
-        cleanups.push(unsubscribe);
+        if (standardEvents?.on) {
+          const unsubscribe = standardEvents.on("change", async (evt: any) => {
+            // if the event is a proposalExpired, we want to re-fetch the providers
+            // to refresh the uri, there is no need to refresh the wallets state
+            if (evt?.type === "pairingExpired") {
+              debouncedFetchWalletProviders();
+            }
+
+            // any other event (disconnect, chain switch, accounts changed)
+            // we refresh the wallets state
+            await onUpdateState();
+          });
+          cleanups.push(unsubscribe);
+        }
       }
-    });
+    }
 
     return () => {
       cleanups.forEach((remove) => remove());
@@ -1366,21 +1389,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
       await client.disconnectWalletAccount(walletProvider);
-
-      // we only refresh the wallets if:
-      // 1. there is an active session. This is needed because for WalletConnect
-      //    you can disconnect a wallet before actually being logged in
-      //
-      // 2. it was a WalletConnect provider that we just disconnected. Since
-      //    native providers emit a disconnect event which will already refresh
-      //    the wallets. This event is triggered in `initializeWalletProviderListeners()`
-      if (
-        session &&
-        walletProvider.interfaceType === WalletInterfaceType.WalletConnect
-      ) {
-        // this will update our walletProvider state
-        await refreshWallets();
-      }
     },
     [client, callbacks],
   );
@@ -4968,25 +4976,35 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * only trigger `refreshWallets()` once.
    *
    * Defining the debounced function outside of the `useEffect` ensures all event
-   * listeners in `initializeProviders` share the same instance, instead of creating
+   * listeners in `initializeWalletProviderListeners` share the same instance, instead of creating
    * a new one on every render.
    */
   const debouncedRefreshWallets = useDebouncedCallback(refreshWallets, 100);
+  const debouncedFetchWalletProviders = useDebouncedCallback(
+    fetchWalletProviders,
+    100,
+  );
+
   useEffect(() => {
     if (!client) return;
 
-    const handleRefreshWallets = async () => {
+    const handleUpdateState = async () => {
       // we only refresh the wallets if there is an active session
       // this is needed because a disconnect event can occur
       // while the user is unauthenticated
+      //
+      // WalletProviders state is updated regardless of session state
       if (session) {
-        // this will update our walletProvider state
+        // this updates both the wallets and walletProviders state
         await debouncedRefreshWallets();
+      } else {
+        // this updates only the walletProviders state
+        await debouncedFetchWalletProviders();
       }
     };
 
     let cleanup = () => {};
-    initializeWalletProviderListeners(walletProviders, handleRefreshWallets)
+    initializeWalletProviderListeners(walletProviders, handleUpdateState)
       .then((fn) => {
         cleanup = fn;
       })
@@ -4997,7 +5015,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return () => {
       cleanup();
     };
-  }, [client, walletProviders]);
+  }, [client, walletProviders, session]);
 
   useEffect(() => {
     // authState must be consistent with session state. We found during testing that there are cases where the session and authState can be out of sync in very rare edge cases.
@@ -5014,6 +5032,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     if (!client || !masterConfig) return;
     completeRedirectOauth().finally(() => {
       clearSessionTimeouts();
+
+      // if auth or wallet connecting features are enabled, we want to fetch
+      // the wallet providers to set the state
+      if (
+        masterConfig.walletConfig?.features?.auth ||
+        masterConfig.walletConfig?.features?.connecting
+      ) {
+        fetchWalletProviders();
+      }
+
       initializeSessions().finally(() => {
         // Set the client state to ready only after all initializations are done.
         setClientState(ClientState.Ready);
@@ -5034,6 +5062,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         authState,
         user,
         wallets,
+        walletProviders,
         config: masterConfig,
         httpClient: client?.httpClient,
         createPasskey,
