@@ -94,28 +94,6 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     /** whether to automatically refresh the session. */
     autoRefreshSession?: boolean;
   };
-  /** UI configuration. */
-  ui?: {
-    /** enables or disables dark mode. */
-    darkMode?: boolean;
-    /** color scheme configuration. */
-    colors?: {
-      /** light color scheme overrides. */
-      light?: Partial<ThemeOverrides>;
-      /** dark color scheme overrides. */
-      dark?: Partial<ThemeOverrides>;
-    };
-    /** whether to use large action buttons. */
-    preferLargeActionButtons?: boolean; // If true, this will use full width buttons for actions like "Continue". Otherwise, small icon buttons will be used instead.
-    /** border radius for UI elements. */
-    borderRadius?: string | number; // e.g., 8, "1rem"
-    /** background blur for UI elements. */
-    backgroundBlur?: string | number; // e.g., 10, "1rem"
-    /** whether to render the modal in the provider. */
-    renderModalInProvider?: boolean; // If true, the modal will be rendered as a child of the TurnkeyProvider instead of a sibling to the body. This is useful for font inheritance, and css manipulations to modals.
-    /** whether to suppress missing styles error. */
-    supressMissingStylesError?: boolean; // If true, the Turnkey styles missing error will no longer show. It's possible that styles can be imported but not detected properly. This will suppress the error in that case.
-  };
 }
 
 /**@internal */

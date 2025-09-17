@@ -83,14 +83,6 @@ import {
   KeyFormat,
 } from "../types/base";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faApple,
-  faDiscord,
-  faFacebook,
-  faGoogle,
-  faXTwitter,
-} from "@fortawesome/free-brands-svg-icons";
 
 import { ClientContext } from "../types/client";
 
@@ -159,7 +151,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
   >(undefined);
-  const { isMobile, pushPage, closeModal } = useModal();
 
   const completeRedirectOauth = async () => {
     // Check for either hash or search parameters that could indicate an OAuth redirect
@@ -192,6 +183,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
               masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
 
             if (clientId && redirectURI) {
+              // TODO: Consider removing OAuth redirect handling if not needed in React Native
               await handleFacebookPKCEFlow({
                 code,
                 publicKey,
@@ -200,38 +192,24 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
                 redirectURI,
                 callbacks,
                 completeOauth,
-                onPushPage: (oidcToken) => {
-                  return new Promise((resolve, reject) => {
-                    pushPage({
-                      key: `Facebook OAuth`,
-                      content: (
-                        <ActionPage
-                          title={`Authenticating with Facebook...`}
-                          action={async () => {
-                            try {
-                              await completeOauth({
-                                oidcToken,
-                                publicKey,
-                                providerName: "facebook",
-                                ...(sessionKey && { sessionKey }),
-                              });
-                              // Clean up the URL after processing
-                              window.history.replaceState(
-                                null,
-                                document.title,
-                                window.location.pathname,
-                              );
-                              resolve();
-                            } catch (err) {
-                              reject(err);
-                            }
-                          }}
-                          icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
-                        />
-                      ),
-                      showTitle: false,
+                onPushPage: async (oidcToken) => {
+                  // Execute OAuth completion directly without modal
+                  try {
+                    await completeOauth({
+                      oidcToken,
+                      publicKey,
+                      providerName: "facebook",
+                      ...(sessionKey && { sessionKey }),
                     });
-                  });
+                    // Clean up the URL after processing
+                    window.history.replaceState(
+                      null,
+                      document.title,
+                      window.location.pathname,
+                    );
+                  } catch (err) {
+                    throw err;
+                  }
                 },
               }).catch((error) => {
                 // Handle errors
@@ -259,67 +237,53 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             const sessionKey = stateParams.get("sessionKey");
 
             if (clientId && redirectURI && verifier && nonce) {
-              await new Promise((resolve, reject) => {
-                pushPage({
-                  key: `Discord OAuth`,
-                  content: (
-                    <ActionPage
-                      title={`Authenticating with Discord...`}
-                      action={async () => {
-                        try {
-                          const resp =
-                            await client?.httpClient.proxyOAuth2Authenticate({
-                              provider: "OAUTH2_PROVIDER_DISCORD",
-                              authCode: code,
-                              redirectUri: redirectURI,
-                              codeVerifier: verifier,
-                              clientId,
-                              nonce: nonce,
-                            });
+              // TODO: Consider removing OAuth redirect handling if not needed in React Native
+              try {
+                const resp =
+                  await client?.httpClient.proxyOAuth2Authenticate({
+                    provider: "OAUTH2_PROVIDER_DISCORD",
+                    authCode: code,
+                    redirectUri: redirectURI,
+                    codeVerifier: verifier,
+                    clientId,
+                    nonce: nonce,
+                  });
 
-                          sessionStorage.removeItem("discord_verifier");
+                sessionStorage.removeItem("discord_verifier");
 
-                          const oidcToken = resp?.oidcToken;
-                          if (!oidcToken) {
-                            throw new TurnkeyError(
-                              "Missing OIDC token",
-                              TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-                            );
-                          }
-                          await completeOauth({
-                            oidcToken,
-                            publicKey,
-                            providerName: "discord",
-                            ...(sessionKey && { sessionKey }),
-                          });
-                          // Clean up the URL after processing
-                          window.history.replaceState(
-                            null,
-                            document.title,
-                            window.location.pathname,
-                          );
-                          resolve(null);
-                        } catch (err) {
-                          reject(err);
-                          if (callbacks?.onError) {
-                            callbacks.onError(
-                              err instanceof TurnkeyError
-                                ? err
-                                : new TurnkeyError(
-                                    "Discord authentication failed",
-                                    TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-                                    err,
-                                  ),
-                            );
-                          }
-                        }
-                      }}
-                      icon={<FontAwesomeIcon size="3x" icon={faDiscord} />}
-                    />
-                  ),
-                  showTitle: false,
+                const oidcToken = resp?.oidcToken;
+                if (!oidcToken) {
+                  throw new TurnkeyError(
+                    "Missing OIDC token",
+                    TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                  );
+                }
+                await completeOauth({
+                  oidcToken,
+                  publicKey,
+                  providerName: "discord",
+                  ...(sessionKey && { sessionKey }),
                 });
-              });
+                // Clean up the URL after processing
+                window.history.replaceState(
+                  null,
+                  document.title,
+                  window.location.pathname,
+                );
+              } catch (err) {
+                if (callbacks?.onError) {
+                  callbacks.onError(
+                    err instanceof TurnkeyError
+                      ? err
+                      : new TurnkeyError(
+                          "Discord authentication failed",
+                          TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+                          err,
+                        ),
+                  );
+                }
+                throw err;
+              }
             }
           }
           if (provider === "twitter" && flow === "redirect" && publicKey) {
@@ -331,67 +295,53 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             const sessionKey = stateParams.get("sessionKey");
 
             if (clientId && redirectURI && verifier && nonce) {
-              await new Promise((resolve, reject) => {
-                pushPage({
-                  key: `Twitter OAuth`,
-                  content: (
-                    <ActionPage
-                      title={`Authenticating with Twitter...`}
-                      action={async () => {
-                        try {
-                          const resp =
-                            await client?.httpClient.proxyOAuth2Authenticate({
-                              provider: "OAUTH2_PROVIDER_X",
-                              authCode: code,
-                              redirectUri: redirectURI,
-                              codeVerifier: verifier,
-                              clientId,
-                              nonce: nonce,
-                            });
+              // TODO: Consider removing OAuth redirect handling if not needed in React Native
+              try {
+                const resp =
+                  await client?.httpClient.proxyOAuth2Authenticate({
+                    provider: "OAUTH2_PROVIDER_X",
+                    authCode: code,
+                    redirectUri: redirectURI,
+                    codeVerifier: verifier,
+                    clientId,
+                    nonce: nonce,
+                  });
 
-                          sessionStorage.removeItem("twitter_verifier");
+                sessionStorage.removeItem("twitter_verifier");
 
-                          const oidcToken = resp?.oidcToken;
-                          if (!oidcToken) {
-                            throw new TurnkeyError(
-                              "Missing OIDC token",
-                              TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-                            );
-                          }
-                          await completeOauth({
-                            oidcToken,
-                            publicKey,
-                            providerName: "twitter",
-                            ...(sessionKey && { sessionKey }),
-                          });
-                          // Clean up the URL after processing
-                          window.history.replaceState(
-                            null,
-                            document.title,
-                            window.location.pathname,
-                          );
-                          resolve(null);
-                        } catch (err) {
-                          reject(err);
-                          if (callbacks?.onError) {
-                            callbacks.onError(
-                              err instanceof TurnkeyError
-                                ? err
-                                : new TurnkeyError(
-                                    "Twitter authentication failed",
-                                    TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-                                    err,
-                                  ),
-                            );
-                          }
-                        }
-                      }}
-                      icon={<FontAwesomeIcon size="3x" icon={faXTwitter} />}
-                    />
-                  ),
-                  showTitle: false,
+                const oidcToken = resp?.oidcToken;
+                if (!oidcToken) {
+                  throw new TurnkeyError(
+                    "Missing OIDC token",
+                    TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                  );
+                }
+                await completeOauth({
+                  oidcToken,
+                  publicKey,
+                  providerName: "twitter",
+                  ...(sessionKey && { sessionKey }),
                 });
-              });
+                // Clean up the URL after processing
+                window.history.replaceState(
+                  null,
+                  document.title,
+                  window.location.pathname,
+                );
+              } catch (err) {
+                if (callbacks?.onError) {
+                  callbacks.onError(
+                    err instanceof TurnkeyError
+                      ? err
+                      : new TurnkeyError(
+                          "Twitter authentication failed",
+                          TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+                          err,
+                        ),
+                  );
+                }
+                throw err;
+              }
             }
           }
         }
@@ -405,46 +355,19 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           parseOAuthRedirect(hash);
 
         if (idToken && flow === "redirect" && publicKey) {
+          // TODO: Consider removing OAuth redirect handling if not needed in React Native
           if (openModal === "true") {
-            const providerName = provider
-              ? provider.charAt(0).toUpperCase() + provider.slice(1)
-              : "Provider";
-
-            // Determine which icon to show based on the provider
-            let icon;
-            if (provider === "apple") {
-              icon = <FontAwesomeIcon size="3x" icon={faApple} />;
-            } else {
-              // Default to Google icon
-              icon = <FontAwesomeIcon size="3x" icon={faGoogle} />;
-            }
-
-            // This state is set when the OAuth flow comes from the AuthComponent
-            await new Promise((resolve, reject) => {
-              pushPage({
-                key: `${providerName} OAuth`,
-                content: (
-                  <ActionPage
-                    title={`Authenticating with ${providerName}...`}
-                    action={async () => {
-                      try {
-                        await completeOauth({
-                          oidcToken: idToken,
-                          publicKey,
-                          ...(provider ? { providerName: provider } : {}),
-                          ...(sessionKey && { sessionKey }),
-                        });
-                        resolve(null);
-                      } catch (err) {
-                        reject(err);
-                      }
-                    }}
-                    icon={icon}
-                  />
-                ),
-                showTitle: false,
+            // Execute OAuth completion directly without modal
+            try {
+              await completeOauth({
+                oidcToken: idToken,
+                publicKey,
+                ...(provider ? { providerName: provider } : {}),
+                ...(sessionKey && { sessionKey }),
               });
-            });
+            } catch (err) {
+              throw err;
+            }
           } else if (callbacks?.onOauthRedirect) {
             callbacks.onOauthRedirect({ idToken, publicKey });
           } else {
@@ -553,11 +476,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           ...resolvedClientIds,
           oauthRedirectUri: redirectUrl,
 
-          // on mobile we default to true since many mobile browsers
-          // (e.g. Safari) block popups
-          openOauthInPage: isMobile
-            ? true
-            : config.auth?.oauthConfig?.openOauthInPage,
+          // Always true in React Native. TODO: Consider removing this config
+          openOauthInPage: true,
         },
         sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
         methodOrder,
@@ -1864,41 +1784,17 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
     }): Promise<v1SignRawPayloadResult> => {
-      const { successPageDuration = 2000 } = params;
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      return new Promise((resolve, reject) => {
-        pushPage({
-          key: "Sign message",
-          content: (
-            <SignMessageModal
-              message={params.message}
-              subText={params?.subText}
-              walletAccount={params.walletAccount}
-              stampWith={params.stampWith}
-              successPageDuration={successPageDuration}
-              onSuccess={(result) => {
-                resolve(result);
-              }}
-              onError={(error) => {
-                reject(error);
-              }}
-              {...(params?.encoding && { encoding: params.encoding })}
-              {...(params?.hashFunction && {
-                hashFunction: params.hashFunction,
-              })}
-              {...(params?.addEthereumPrefix && {
-                addEthereumPrefix: params.addEthereumPrefix,
-              })}
-            />
-          ),
-        });
+      // Execute signing directly without modal
+      return signMessage({
+        message: params.message,
+        walletAccount: params.walletAccount,
+        ...(params.encoding && { encoding: params.encoding }),
+        ...(params.hashFunction && { hashFunction: params.hashFunction }),
+        ...(params.addEthereumPrefix !== undefined && { addEthereumPrefix: params.addEthereumPrefix }),
+        ...(params.stampWith && { stampWith: params.stampWith }),
       });
     },
-    [client, callbacks],
+    [signMessage],
   );
 
   const signTransaction = useCallback(
@@ -3615,12 +3511,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleLogin = useCallback(
     async (params?: { sessionKey?: string }) => {
-      pushPage({
-        key: "Log in or sign up",
-        content: <AuthComponent sessionKey={params?.sessionKey} />,
-      });
+      // No-op: Modal functionality removed
+      return Promise.resolve();
     },
-    [pushPage],
+    [],
   );
 
   const handleExportWallet = useCallback(
@@ -3629,20 +3523,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       targetPublicKey?: string;
       stampWith?: StamperType | undefined;
     }) => {
-      const { walletId, targetPublicKey, stampWith } = params;
-      pushPage({
-        key: "Export wallet",
-        content: (
-          <ExportComponent
-            target={walletId}
-            exportType={ExportType.Wallet}
-            {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
-            {...(stampWith !== undefined ? { stampWith } : {})}
-          />
-        ),
-      });
+      // No-op: Modal functionality removed
+      return Promise.resolve();
     },
-    [pushPage],
+    [],
   );
 
   const handleExportPrivateKey = useCallback(
@@ -3652,21 +3536,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       keyFormat?: KeyFormat;
       stampWith?: StamperType | undefined;
     }) => {
-      const { privateKeyId, targetPublicKey, keyFormat, stampWith } = params;
-      pushPage({
-        key: "Export private key",
-        content: (
-          <ExportComponent
-            target={privateKeyId}
-            exportType={ExportType.PrivateKey}
-            {...(keyFormat !== undefined ? { keyFormat } : {})}
-            {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
-            {...(stampWith !== undefined ? { stampWith } : {})}
-          />
-        ),
-      });
+      // No-op: Modal functionality removed
+      return Promise.resolve();
     },
-    [pushPage],
+    [],
   );
 
   const handleExportWalletAccount = useCallback(
@@ -3676,21 +3549,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       keyFormat?: KeyFormat;
       stampWith?: StamperType | undefined;
     }) => {
-      const { address, targetPublicKey, keyFormat, stampWith } = params;
-      pushPage({
-        key: "Export wallet account",
-        content: (
-          <ExportComponent
-            target={address}
-            exportType={ExportType.WalletAccount}
-            {...(keyFormat !== undefined ? { keyFormat } : {})}
-            {...(targetPublicKey !== undefined ? { targetPublicKey } : {})}
-            {...(stampWith !== undefined ? { stampWith } : {})}
-          />
-        ),
-      });
+      // No-op: Modal functionality removed
+      return Promise.resolve();
     },
-    [pushPage],
+    [],
   );
 
   const handleImportWallet = useCallback(
@@ -3699,48 +3561,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
     }): Promise<string> => {
-      const {
-        defaultWalletAccounts,
-        successPageDuration = 2000,
-        stampWith,
-      } = params || {};
-      try {
-        return withTurnkeyErrorHandling(
-          () =>
-            new Promise<string>((resolve, reject) =>
-              pushPage({
-                key: "Import wallet",
-                content: (
-                  <ImportComponent
-                    importType={ImportType.Wallet}
-                    onError={(error: unknown) => {
-                      reject(error);
-                    }}
-                    onSuccess={(walletId: string) => resolve(walletId)}
-                    {...(defaultWalletAccounts !== undefined && {
-                      defaultWalletAccounts,
-                    })}
-                    {...(successPageDuration !== undefined && {
-                      successPageDuration,
-                    })}
-                    {...(stampWith !== undefined && { stampWith })}
-                  />
-                ),
-              }),
-            ),
-        );
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to import wallet.",
-          TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Import wallet functionality removed - modal not available",
+        TurnkeyErrorCodes.IMPORT_WALLET_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleImportPrivateKey = useCallback(
@@ -3750,48 +3577,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
     }): Promise<string> => {
-      const {
-        curve,
-        addressFormats,
-        successPageDuration = 2000,
-        stampWith,
-      } = params || {};
-      try {
-        return withTurnkeyErrorHandling(
-          () =>
-            new Promise<string>((resolve, reject) =>
-              pushPage({
-                key: "Import private key",
-                content: (
-                  <ImportComponent
-                    importType={ImportType.PrivateKey}
-                    curve={curve}
-                    addressFormats={addressFormats}
-                    onError={(error: unknown) => {
-                      reject(error);
-                    }}
-                    onSuccess={(privateKeyId: string) => resolve(privateKeyId)}
-                    {...(successPageDuration !== undefined && {
-                      successPageDuration,
-                    })}
-                    {...(stampWith !== undefined && { stampWith })}
-                  />
-                ),
-              }),
-            ),
-        );
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to import private key.",
-          TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Import private key functionality removed - modal not available",
+        TurnkeyErrorCodes.IMPORT_WALLET_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleUpdateUserName = useCallback(
@@ -3802,90 +3594,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
     }): Promise<string> => {
-      const {
-        successPageDuration = 2000,
-        subTitle,
-        title,
-        stampWith,
-      } = params || {};
-
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-
-      const onSuccess = () => {
-        if (!successPageDuration) return;
-        pushPage({
-          key: "success",
-          content: (
-            <SuccessPage
-              text="User name changed successfully!"
-              duration={successPageDuration}
-              onComplete={() => {
-                closeModal();
-              }}
-            />
-          ),
-          preventBack: true,
-          showTitle: false,
-        });
-      };
-
-      try {
-        if (!params?.userName && params?.userName !== "") {
-          return withTurnkeyErrorHandling(
-            () =>
-              new Promise((resolve, reject) => {
-                pushPage({
-                  key: "Update User Name",
-                  content: (
-                    <UpdateUserName
-                      onSuccess={(userId: string) => {
-                        resolve(userId);
-                      }}
-                      onError={(error: unknown) => {
-                        reject(error);
-                      }}
-                      successPageDuration={successPageDuration}
-                      stampWith={stampWith}
-                      {...(title !== undefined ? { title } : {})}
-                      {...(subTitle !== undefined ? { subTitle } : {})}
-                    />
-                  ),
-                  showTitle: false,
-                });
-              }),
-          );
-        } else {
-          const res = await updateUserName({
-            userName: params.userName!,
-            userId: user!.userId,
-            stampWith,
-          });
-          onSuccess();
-          return res;
-        }
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to update user name.",
-          TurnkeyErrorCodes.UPDATE_USER_NAME_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Update user name functionality removed - modal not available",
+        TurnkeyErrorCodes.UPDATE_USER_NAME_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleUpdateUserPhoneNumber = useCallback(
@@ -3896,135 +3611,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       subTitle?: string;
       successPageDuration?: number | undefined;
     }): Promise<string> => {
-      const { successPageDuration = 2000, subTitle, title } = params || {};
-
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-
-      if (!masterConfig) {
-        throw new TurnkeyError(
-          "Config is not ready yet!",
-          TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
-        );
-      }
-
-      if (!masterConfig.auth?.methods?.smsOtpAuthEnabled) {
-        throw new TurnkeyError(
-          "SMS OTP authentication is not enabled in the configuration.",
-          TurnkeyErrorCodes.AUTH_METHOD_NOT_ENABLED,
-        );
-      }
-
-      const onSuccess = () => {
-        if (!successPageDuration) return;
-        pushPage({
-          key: "success",
-          content: (
-            <SuccessPage
-              text="Phone number changed successfully!"
-              duration={successPageDuration}
-              onComplete={() => {
-                closeModal();
-              }}
-            />
-          ),
-          preventBack: true,
-          showTitle: false,
-        });
-      };
-
-      try {
-        if (!params?.phoneNumber && params?.phoneNumber !== "") {
-          return withTurnkeyErrorHandling(
-            () =>
-              new Promise((resolve, reject) => {
-                pushPage({
-                  key: "Update Phone Number",
-                  content: (
-                    <UpdatePhoneNumber
-                      successPageDuration={successPageDuration}
-                      onSuccess={(userId: string) => resolve(userId)}
-                      onError={(error) => reject(error)}
-                      {...(title !== undefined ? { title } : {})}
-                      {...(subTitle !== undefined ? { subTitle } : {})}
-                    />
-                  ),
-                  showTitle: false,
-                });
-              }),
-          );
-        } else {
-          const otpId = await initOtp({
-            otpType: OtpType.Sms,
-            contact: params.phoneNumber,
-          });
-          return withTurnkeyErrorHandling(
-            () =>
-              new Promise((resolve, reject) => {
-                pushPage({
-                  key: "Update Phone Number",
-                  content: (
-                    <OtpVerification
-                      otpType={OtpType.Sms}
-                      contact={params.phoneNumber!}
-                      otpId={otpId}
-                      onContinue={async (otpCode: string) => {
-                        try {
-                          const { verificationToken } = await verifyOtp({
-                            otpId,
-                            otpCode,
-                            contact: params.phoneNumber!,
-                            otpType: OtpType.Sms,
-                          });
-                          const res = await updateUserPhoneNumber({
-                            phoneNumber: params.phoneNumber!,
-                            verificationToken,
-                            userId: user!.userId,
-                          });
-                          onSuccess();
-                          resolve(res);
-                        } catch (error) {
-                          reject(error);
-                        }
-                      }}
-                      {...(!user?.userPhoneNumber && {
-                        title: title ?? "Connect a phone number",
-                      })}
-                      {...(subTitle !== undefined && { subTitle })}
-                      {...(params!.formattedPhone && {
-                        formattedPhone: params.formattedPhone,
-                      })}
-                    />
-                  ),
-                  showTitle: false,
-                });
-              }),
-            callbacks,
-            "Failed to update phone number",
-          );
-        }
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to initialize OTP for sms verification.",
-          TurnkeyErrorCodes.INIT_OTP_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Update phone number functionality removed - modal not available",
+        TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleUpdateUserEmail = useCallback(
@@ -4034,120 +3627,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       subTitle?: string;
       successPageDuration?: number | undefined;
     }): Promise<string> => {
-      const { successPageDuration = 2000, subTitle, title } = params || {};
-
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-
-      const onSuccess = () => {
-        if (!successPageDuration) return;
-        pushPage({
-          key: "success",
-          content: (
-            <SuccessPage
-              text="Email changed successfully!"
-              duration={successPageDuration}
-              onComplete={() => {
-                closeModal();
-              }}
-            />
-          ),
-          preventBack: true,
-          showTitle: false,
-        });
-      };
-
-      try {
-        if (!params?.email && params?.email !== "") {
-          return withTurnkeyErrorHandling(
-            () =>
-              new Promise((resolve, reject) => {
-                pushPage({
-                  key: "Update Email",
-                  content: (
-                    <UpdateEmail
-                      successPageDuration={successPageDuration}
-                      onSuccess={(userId: string) => {
-                        resolve(userId);
-                      }}
-                      onError={(error) => reject(error)}
-                      {...(title !== undefined ? { title } : {})}
-                      {...(subTitle !== undefined ? { subTitle } : {})}
-                    />
-                  ),
-                  showTitle: false,
-                });
-              }),
-          );
-        } else {
-          const otpId = await initOtp({
-            otpType: OtpType.Email,
-            contact: params.email,
-          });
-          return withTurnkeyErrorHandling(
-            () =>
-              new Promise((resolve, reject) => {
-                pushPage({
-                  key: "Update Email",
-                  content: (
-                    <OtpVerification
-                      otpType={OtpType.Email}
-                      contact={params.email!}
-                      otpId={otpId}
-                      onContinue={async (otpCode: string) => {
-                        try {
-                          const { verificationToken } = await verifyOtp({
-                            otpId,
-                            otpCode,
-                            contact: params.email!,
-                            otpType: OtpType.Email,
-                          });
-                          const res = await updateUserEmail({
-                            email: params.email!,
-                            verificationToken,
-                            userId: user!.userId,
-                          });
-                          onSuccess();
-                          resolve(res);
-                        } catch (error) {
-                          reject(error);
-                        }
-                      }}
-                      {...(!user?.userEmail && {
-                        title: title ?? "Connect an email",
-                      })}
-                      {...(subTitle !== undefined && { subTitle })}
-                    />
-                  ),
-                  showTitle: false,
-                });
-              }),
-            callbacks,
-            "Failed to update email",
-          );
-        }
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to initialize OTP for email verification.",
-          TurnkeyErrorCodes.INIT_OTP_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Update email functionality removed - modal not available",
+        TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleAddEmail = useCallback(
@@ -4157,122 +3643,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       subTitle?: string;
       successPageDuration?: number | undefined;
     }): Promise<string> => {
-      const { successPageDuration = 2000, subTitle, title } = params || {};
-
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-
-      const onSuccess = () => {
-        if (!successPageDuration) return;
-        pushPage({
-          key: "success",
-          content: (
-            <SuccessPage
-              text="Email added successfully!"
-              duration={successPageDuration}
-              onComplete={() => {
-                closeModal();
-              }}
-            />
-          ),
-          preventBack: true,
-          showTitle: false,
-        });
-      };
-
-      try {
-        if (!params?.email && params?.email !== "") {
-          return withTurnkeyErrorHandling(
-            () =>
-              new Promise((resolve, reject) => {
-                pushPage({
-                  key: "Add Email",
-                  content: (
-                    <UpdateEmail
-                      successPageDuration={successPageDuration}
-                      onSuccess={(userId: string) => {
-                        resolve(userId);
-                      }}
-                      onError={(error) => reject(error)}
-                      {...(!user?.userEmail
-                        ? { title: title ?? "Connect an email" }
-                        : {})}
-                      {...(subTitle !== undefined ? { subTitle } : {})}
-                    />
-                  ),
-                  showTitle: false,
-                });
-              }),
-          );
-        } else {
-          const otpId = await initOtp({
-            otpType: OtpType.Email,
-            contact: params.email,
-          });
-          return withTurnkeyErrorHandling(
-            () =>
-              new Promise((resolve, reject) => {
-                pushPage({
-                  key: "Add Email",
-                  content: (
-                    <OtpVerification
-                      otpType={OtpType.Email}
-                      contact={params.email!}
-                      otpId={otpId}
-                      onContinue={async (otpCode: string) => {
-                        try {
-                          const { verificationToken } = await verifyOtp({
-                            otpId,
-                            otpCode,
-                            contact: params.email!,
-                            otpType: OtpType.Email,
-                          });
-                          const res = await updateUserEmail({
-                            email: params.email!,
-                            verificationToken,
-                            userId: user!.userId,
-                          });
-                          onSuccess();
-                          resolve(res);
-                        } catch (error) {
-                          reject(error);
-                        }
-                      }}
-                      {...(!user?.userEmail && {
-                        title: title ?? "Connect an email",
-                      })}
-                      {...(subTitle !== undefined && { subTitle })}
-                    />
-                  ),
-                  showTitle: false,
-                });
-              }),
-            callbacks,
-            "Failed to add email",
-          );
-        }
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to initialize OTP for email verification.",
-          TurnkeyErrorCodes.INIT_OTP_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Add email functionality removed - modal not available",
+        TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleAddPhoneNumber = useCallback(
@@ -4283,142 +3660,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       subTitle?: string;
       successPageDuration?: number | undefined;
     }): Promise<string> => {
-      const { successPageDuration = 2000, subTitle, title } = params || {};
-
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-      if (!masterConfig) {
-        throw new TurnkeyError(
-          "Config is not ready yet!",
-          TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
-        );
-      }
-
-      if (!masterConfig.auth?.methods?.smsOtpAuthEnabled) {
-        throw new TurnkeyError(
-          "SMS OTP authentication is not enabled in the configuration.",
-          TurnkeyErrorCodes.AUTH_METHOD_NOT_ENABLED,
-        );
-      }
-
-      const onSuccess = () => {
-        if (!successPageDuration) return;
-        pushPage({
-          key: "success",
-          content: (
-            <SuccessPage
-              text="Phone number updated successfully!"
-              duration={successPageDuration}
-              onComplete={() => {
-                closeModal();
-              }}
-            />
-          ),
-          preventBack: true,
-          showTitle: false,
-        });
-      };
-
-      try {
-        if (!params?.phoneNumber && params?.phoneNumber !== "") {
-          return withTurnkeyErrorHandling(
-            () =>
-              new Promise((resolve, reject) => {
-                pushPage({
-                  key: "Add Phone Number",
-                  content: (
-                    <UpdatePhoneNumber
-                      successPageDuration={successPageDuration}
-                      onSuccess={(userId: string) => {
-                        resolve(userId);
-                      }}
-                      onError={(error) => {
-                        reject(error);
-                      }}
-                      {...(!user?.userPhoneNumber && {
-                        title: title ?? "Connect a phone number",
-                      })}
-                      {...(subTitle !== undefined && { subTitle })}
-                    />
-                  ),
-                  showTitle: false,
-                });
-              }),
-            callbacks,
-            "Failed to add phone number",
-          );
-        } else {
-          const otpId = await initOtp({
-            otpType: OtpType.Sms,
-            contact: params.phoneNumber,
-          });
-          return withTurnkeyErrorHandling(
-            () =>
-              new Promise((resolve, reject) => {
-                pushPage({
-                  key: "Add Phone Number",
-                  content: (
-                    <OtpVerification
-                      otpType={OtpType.Sms}
-                      contact={params.phoneNumber!}
-                      otpId={otpId}
-                      onContinue={async (otpCode: string) => {
-                        try {
-                          const { verificationToken } = await verifyOtp({
-                            otpId,
-                            otpCode,
-                            contact: params.phoneNumber!,
-                            otpType: OtpType.Sms,
-                          });
-                          const res = await updateUserPhoneNumber({
-                            phoneNumber: params.phoneNumber!,
-                            verificationToken,
-                            userId: user!.userId,
-                          });
-                          onSuccess();
-                          resolve(res);
-                        } catch (error) {
-                          reject(error);
-                        }
-                      }}
-                      {...(!user?.userPhoneNumber && {
-                        title: title ?? "Connect a phone number",
-                      })}
-                      {...(subTitle !== undefined && { subTitle })}
-                      {...(params!.formattedPhone && {
-                        formattedPhone: params.formattedPhone,
-                      })}
-                    />
-                  ),
-                  showTitle: false,
-                });
-              }),
-            callbacks,
-            "Failed to add phone number",
-          );
-        }
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to initialize OTP for sms verification.",
-          TurnkeyErrorCodes.INIT_OTP_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Add phone number functionality removed - modal not available",
+        TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleRemovePasskey = useCallback(
@@ -4430,56 +3678,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
     }): Promise<string[]> => {
-      const {
-        authenticatorId,
-        successPageDuration = 2000,
-        subTitle,
-        title,
-        stampWith,
-        userId,
-      } = params;
-
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-      return withTurnkeyErrorHandling(
-        () =>
-          new Promise((resolve, reject) => {
-            pushPage({
-              key: "Remove Passkey",
-              content: (
-                <RemovePasskey
-                  authenticatorId={authenticatorId}
-                  successPageDuration={successPageDuration}
-                  onSuccess={(authenticatorIds: string[]) => {
-                    resolve(authenticatorIds);
-                  }}
-                  onError={(error) => {
-                    reject(error);
-                  }}
-                  stampWith={stampWith}
-                  {...(userId && { userId })}
-                  {...(title !== undefined && { title })}
-                  {...(subTitle !== undefined && { subTitle })}
-                />
-              ),
-              showTitle: false,
-              preventBack: true,
-            });
-          }),
-        callbacks,
-        "Failed to remove passkey",
-      );
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Remove passkey functionality removed - modal not available",
+        TurnkeyErrorCodes.INITIALIZE_CLIENT_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleAddPasskey = useCallback(
@@ -4490,61 +3695,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
     }): Promise<string[]> => {
-      const {
-        name,
-        displayName,
-        successPageDuration = 2000,
-        stampWith,
-      } = params || {};
-
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-      const userId = params?.userId || session.userId;
-      try {
-        const resPromise = addPasskey({
-          ...(name && { name }),
-          ...(displayName && { displayName }),
-          userId,
-          stampWith,
-        });
-        resPromise.then(() => {
-          pushPage({
-            key: "Passkey Added",
-            content: (
-              <SuccessPage
-                text="Successfully added passkey!"
-                duration={successPageDuration}
-                onComplete={() => {
-                  closeModal();
-                }}
-              />
-            ),
-            preventBack: true,
-            showTitle: false,
-          });
-        });
-        return await resPromise;
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to add passkey in handler.",
-          TurnkeyErrorCodes.ADD_PASSKEY_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Add passkey functionality removed - modal not available",
+        TurnkeyErrorCodes.ADD_PASSKEY_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleRemoveOauthProvider = useCallback(
@@ -4555,60 +3712,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
     }): Promise<string[]> => {
-      const {
-        providerId,
-        successPageDuration = 2000,
-        subTitle,
-        title,
-        stampWith,
-      } = params;
-
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-      try {
-        return new Promise((resolve, reject) => {
-          pushPage({
-            key: "Remove OAuth Provider",
-            content: (
-              <RemoveOAuthProvider
-                providerId={providerId}
-                stampWith={stampWith}
-                successPageDuration={successPageDuration}
-                onSuccess={(providerIds: string[]) => {
-                  resolve(providerIds);
-                }}
-                onError={(error: unknown) => {
-                  reject(error);
-                }}
-                {...(title !== undefined && { title })}
-                {...(subTitle !== undefined && { subTitle })}
-              />
-            ),
-            showTitle: false,
-            preventBack: true,
-          });
-        });
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to remove OAuth provider in handler.",
-          TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Remove OAuth provider functionality removed - modal not available",
+        TurnkeyErrorCodes.REMOVE_OAUTH_PROVIDER_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleAddOauthProvider = useCallback(
@@ -4616,128 +3726,26 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       providerName: OAuthProviders;
       stampWith?: StamperType | undefined;
     }): Promise<void> => {
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-
-      const { providerName, stampWith } = params;
-
-      const onOauthSuccess = async (params: {
-        providerName: string;
-        oidcToken: string;
-      }) => {
-        await addOauthProvider({
-          providerName: params.providerName,
-          oidcToken: params.oidcToken,
-          stampWith,
-        });
-        pushPage({
-          key: "OAuth Provider Added",
-          content: (
-            <SuccessPage
-              text={`Successfully added ${params.providerName} OAuth provider!`}
-              duration={3000}
-              onComplete={() => {
-                closeModal();
-              }}
-            />
-          ),
-          preventBack: true,
-          showTitle: false,
-        });
-      };
-
-      switch (providerName) {
-        case OAuthProviders.DISCORD: {
-          await handleDiscordOauth({
-            openInPage: false,
-            onOauthSuccess,
-          });
-          break;
-        }
-        case OAuthProviders.X: {
-          await handleXOauth({
-            openInPage: false,
-            onOauthSuccess,
-          });
-          break;
-        }
-        case OAuthProviders.GOOGLE: {
-          await handleGoogleOauth({
-            openInPage: false,
-            onOauthSuccess,
-          });
-          break;
-        }
-        case OAuthProviders.APPLE: {
-          await handleAppleOauth({
-            openInPage: false,
-            onOauthSuccess,
-          });
-          break;
-        }
-        case OAuthProviders.FACEBOOK: {
-          await handleFacebookOauth({
-            openInPage: false,
-            onOauthSuccess,
-          });
-          break;
-        }
-        default: {
-          throw new TurnkeyError(
-            `Unsupported OAuth provider: ${providerName}`,
-            TurnkeyErrorCodes.NOT_FOUND,
-          );
-        }
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Add OAuth provider functionality removed - modal not available",
+        TurnkeyErrorCodes.OAUTH_LOGIN_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleConnectExternalWallet = useCallback(
     async (params?: {
       successPageDuration?: number | undefined;
     }): Promise<void> => {
-      const { successPageDuration = 2000 } = params || {};
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-      if (!masterConfig?.walletConfig?.features?.connecting) {
-        throw new TurnkeyError(
-          "Wallet connecting is not enabled.",
-          TurnkeyErrorCodes.FEATURE_NOT_ENABLED,
-        );
-      }
-
-      const providers = await fetchWalletProviders();
-
-      pushPage({
-        key: "Connect wallet",
-        content: (
-          <ConnectWalletModal
-            providers={providers}
-            successPageDuration={successPageDuration}
-          />
-        ),
-      });
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Connect external wallet functionality removed - modal not available",
+        TurnkeyErrorCodes.INITIALIZE_CLIENT_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleRemoveUserEmail = useCallback(
@@ -4746,47 +3754,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
     }): Promise<string> => {
-      const { successPageDuration = 2000, stampWith, userId } = params || {};
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-
-      try {
-        return new Promise((resolve, reject) => {
-          pushPage({
-            key: "Remove Email",
-            content: (
-              <RemoveEmail
-                successPageDuration={successPageDuration}
-                {...(userId && { userId })}
-                {...(stampWith && { stampWith })}
-                onSuccess={(userId: string) => {
-                  resolve(userId);
-                }}
-                onError={(error: unknown) => {
-                  reject(error);
-                }}
-              />
-            ),
-            showTitle: false,
-            preventBack: true,
-          });
-        });
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to remove user email.",
-          TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Remove user email functionality removed - modal not available",
+        TurnkeyErrorCodes.UPDATE_USER_EMAIL_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   const handleRemoveUserPhoneNumber = useCallback(
@@ -4795,47 +3769,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       successPageDuration?: number | undefined;
       stampWith?: StamperType | undefined;
     }): Promise<string> => {
-      const { successPageDuration = 2000, stampWith, userId } = params || {};
-      if (!session) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-
-      try {
-        return new Promise((resolve, reject) => {
-          pushPage({
-            key: "Remove Phone Number",
-            content: (
-              <RemovePhoneNumber
-                successPageDuration={successPageDuration}
-                {...(userId && { userId })}
-                {...(stampWith && { stampWith })}
-                onSuccess={(userId: string) => {
-                  resolve(userId);
-                }}
-                onError={(error: unknown) => {
-                  reject(error);
-                }}
-              />
-            ),
-            showTitle: false,
-            preventBack: true,
-          });
-        });
-      } catch (error) {
-        if (error instanceof TurnkeyError) {
-          throw error;
-        }
-        throw new TurnkeyError(
-          "Failed to remove user phone number.",
-          TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR,
-          error,
-        );
-      }
+      // No-op: Modal functionality removed
+      return Promise.reject(new TurnkeyError(
+        "Remove user phone number functionality removed - modal not available",
+        TurnkeyErrorCodes.UPDATE_USER_PHONE_NUMBER_ERROR
+      ));
     },
-    [pushPage],
+    [],
   );
 
   useEffect(() => {
