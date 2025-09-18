@@ -1,6 +1,10 @@
 "use client";
 
-import { IframeStamper, TransactionType } from "@turnkey/iframe-stamper";
+import {
+  IframeStamper,
+  TransactionType,
+  MessageType,
+} from "@turnkey/iframe-stamper";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface ExportProps {
@@ -16,7 +20,8 @@ const containerStyles: React.CSSProperties = {
   flexDirection: "column",
   gap: 12,
   maxWidth: 520,
-  fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+  fontFamily:
+    "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
   maxHeight: "min(80vh, 700px)",
   overflowY: "scroll",
 };
@@ -59,7 +64,7 @@ const TurnkeyIframeElementId = "turnkey-export-and-sign-iframe-element-id";
 
 export function Export(props: ExportProps) {
   const [iframeStamper, setIframeStamper] = useState<IframeStamper | null>(
-    null
+    null,
   );
   const [iframeDisplay, setIframeDisplay] = useState<string>("none");
 
@@ -99,7 +104,9 @@ export function Export(props: ExportProps) {
           props.setIframeStamper(stamper);
           return stamper;
         })
-        .then((s: IframeStamper) => s.applySettings({ styles: { padding: "12px" } }))
+        .then((s: IframeStamper) =>
+          s.applySettings({ styles: { padding: "12px" } }),
+        )
         .then(() => {
           setInitializing(false);
         })
@@ -125,7 +132,7 @@ export function Export(props: ExportProps) {
     }
 
     iframeStamper
-      .signMessage({ message })
+      .signMessage({ message, type: TransactionType.Solana })
       .then((sig: string) => {
         setSignature(sig);
       })
@@ -147,7 +154,10 @@ export function Export(props: ExportProps) {
     }
 
     iframeStamper
-      .signTransaction({ transaction: txSerialized, type: TransactionType.Solana })
+      .signTransaction({
+        transaction: txSerialized,
+        type: TransactionType.Solana,
+      })
       .then((signed: string) => {
         setTxSigned(signed);
       })
@@ -179,7 +189,13 @@ export function Export(props: ExportProps) {
         <div style={containerStyles}>
           {/* Message signing */}
           <div style={cardStyles}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <strong>Sign arbitrary message</strong>
               <small style={{ color: "#666" }}>ED25519 signature</small>
             </div>
@@ -187,14 +203,24 @@ export function Export(props: ExportProps) {
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              style={{ width: "100%", height: 88, marginTop: 10, padding: 10, fontFamily: "monospace", fontSize: 13 }}
+              style={{
+                width: "100%",
+                height: 88,
+                marginTop: 10,
+                padding: 10,
+                fontFamily: "monospace",
+                fontSize: 13,
+              }}
             />
 
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
               <button
                 onClick={signMessage}
                 disabled={!iframeStamper}
-                style={{ padding: "8px 12px", cursor: iframeStamper ? "pointer" : "not-allowed" }}
+                style={{
+                  padding: "8px 12px",
+                  cursor: iframeStamper ? "pointer" : "not-allowed",
+                }}
               >
                 Sign message
               </button>
@@ -212,12 +238,15 @@ export function Export(props: ExportProps) {
 
             {signature ? (
               <div style={{ marginTop: 12 }}>
-                <div style={{ fontSize: 13, color: "#444" }}>Signature (base64 / hex depending on backend)</div>
-                <div style={{ ...monoBox, marginTop: 8 }}>
-                  {signature}
+                <div style={{ fontSize: 13, color: "#444" }}>
+                  Signature (base64 / hex depending on backend)
                 </div>
+                <div style={{ ...monoBox, marginTop: 8 }}>{signature}</div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                  <button onClick={() => copyToClipboard(signature)} style={{ padding: "6px 10px" }}>
+                  <button
+                    onClick={() => copyToClipboard(signature)}
+                    style={{ padding: "6px 10px" }}
+                  >
                     Copy signature
                   </button>
                 </div>
@@ -227,23 +256,41 @@ export function Export(props: ExportProps) {
 
           {/* Transaction signing */}
           <div style={cardStyles}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
               <strong>Sign Solana transaction</strong>
-              <small style={{ color: "#666" }}>Versioned transaction (base64)</small>
+              <small style={{ color: "#666" }}>
+                Versioned transaction (base64)
+              </small>
             </div>
 
             <textarea
               value={txSerialized}
               onChange={(e) => setTxSerialized(e.target.value)}
               placeholder="Paste base64 serialized versioned transaction here"
-              style={{ width: "100%", height: 120, marginTop: 10, padding: 10, fontFamily: "monospace", fontSize: 13 }}
+              style={{
+                width: "100%",
+                height: 120,
+                marginTop: 10,
+                padding: 10,
+                fontFamily: "monospace",
+                fontSize: 13,
+              }}
             />
 
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
               <button
                 onClick={signTransaction}
                 disabled={!iframeStamper}
-                style={{ padding: "8px 12px", cursor: iframeStamper ? "pointer" : "not-allowed" }}
+                style={{
+                  padding: "8px 12px",
+                  cursor: iframeStamper ? "pointer" : "not-allowed",
+                }}
               >
                 Sign transaction
               </button>
@@ -261,12 +308,15 @@ export function Export(props: ExportProps) {
 
             {txSigned ? (
               <div style={{ marginTop: 12 }}>
-                <div style={{ fontSize: 13, color: "#444" }}>Signed transaction (base64)</div>
-                <div style={{ ...monoBox, marginTop: 8 }}>
-                  {txSigned}
+                <div style={{ fontSize: 13, color: "#444" }}>
+                  Signed transaction (base64)
                 </div>
+                <div style={{ ...monoBox, marginTop: 8 }}>{txSigned}</div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-                  <button onClick={() => copyToClipboard(txSigned)} style={{ padding: "6px 10px" }}>
+                  <button
+                    onClick={() => copyToClipboard(txSigned)}
+                    style={{ padding: "6px 10px" }}
+                  >
                     Copy signed tx
                   </button>
                 </div>

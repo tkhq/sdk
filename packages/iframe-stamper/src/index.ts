@@ -47,6 +47,9 @@ export enum IframeEventType {
   // Event sent by the iframe to its parent when `signMessage` is successful
   // Value: true (boolean)
   MessageSigned = "MESSAGE_SIGNED",
+  // Event sent by the iframe to its parent when `clearEmbeddedPrivateKey` is successful
+  // Value: true (boolean)
+  EmbeddedPrivateKeyCleared = "EMBEDDED_PRIVATE_KEY_CLEARED",
   // Event sent by the parent page to request a signature
   // Value: payload to sign
   StampRequest = "STAMP_REQUEST",
@@ -65,12 +68,15 @@ export enum IframeEventType {
   // Event sent by the parent to initialize a new embedded key.
   // Value: none
   InitEmbeddedKey = "INIT_EMBEDDED_KEY",
-  // Event sent by the parent page to request a signature for a transaction
+  // Event sent by the parent page to request a signature for a transaction.
   // Value: payload to sign
   SignTransaction = "SIGN_TRANSACTION",
-  // Event sent by the parent page to request a signature for a message
+  // Event sent by the parent page to request a signature for a message.
   // Value: payload to sign
   SignMessage = "SIGN_MESSAGE",
+  // Event sent by the parent page to request that the iframe embedded private key is cleared from memory.
+  // Value: none
+  clearEmbeddedPrivateKey = "CLEAR_EMBEDDED_PRIVATE_KEY",
   // Event sent by the iframe to communicate an error
   // Value: serialized error
   Error = "ERROR",
@@ -178,7 +184,7 @@ export class IframeStamper {
 
     if (typeof MessageChannel === "undefined") {
       throw new Error(
-        "Cannot initialize iframe without MessageChannel support"
+        "Cannot initialize iframe without MessageChannel support",
       );
     }
 
@@ -189,7 +195,7 @@ export class IframeStamper {
 
     if (this.container.querySelector(`#${config.iframeElementId}`)) {
       throw new Error(
-        `Iframe element with ID ${config.iframeElementId} already exists`
+        `Iframe element with ID ${config.iframeElementId} already exists`,
       );
     }
 
@@ -264,7 +270,7 @@ export class IframeStamper {
    * @param dangerouslyOverrideIframeKeyTtl Optional TTL override for the iframe's embedded key (default 48 hours). Only use this if you are intentional about the security implications.
    */
   async init(
-    dangerouslyOverrideIframeKeyTtl?: number | undefined
+    dangerouslyOverrideIframeKeyTtl?: number | undefined,
   ): Promise<string> {
     return new Promise((resolve, reject) => {
       this.container.appendChild(this.iframe);
@@ -273,8 +279,8 @@ export class IframeStamper {
         if (!this.iframe.contentWindow?.postMessage) {
           reject(
             new Error(
-              "contentWindow or contentWindow.postMessage does not exist"
-            )
+              "contentWindow or contentWindow.postMessage does not exist",
+            ),
           );
           return;
         }
@@ -285,7 +291,7 @@ export class IframeStamper {
             dangerouslyOverrideIframeKeyTtl: dangerouslyOverrideIframeKeyTtl,
           },
           this.iframeOrigin,
-          [this.messageChannel.port2]
+          [this.messageChannel.port2],
         );
       });
 
@@ -325,7 +331,7 @@ export class IframeStamper {
    */
   async getEmbeddedPublicKey(): Promise<string | null> {
     const publicKey = await this.createRequest<string | null>(
-      IframeEventType.GetEmbeddedPublicKey
+      IframeEventType.GetEmbeddedPublicKey,
     );
     this.iframePublicKey = publicKey;
 
@@ -350,7 +356,7 @@ export class IframeStamper {
    */
   async initEmbeddedKey(): Promise<string | null> {
     const publicKey = await this.createRequest<string | null>(
-      IframeEventType.InitEmbeddedKey
+      IframeEventType.InitEmbeddedKey,
     );
     this.iframePublicKey = publicKey;
 
@@ -365,7 +371,7 @@ export class IframeStamper {
    */
   private createRequest<T>(
     type: IframeEventType,
-    payload: any = {}
+    payload: any = {},
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       const requestId = generateUUID();
@@ -406,7 +412,7 @@ export class IframeStamper {
   async injectKeyExportBundle(
     bundle: string,
     organizationId: string,
-    keyFormat?: KeyFormat
+    keyFormat?: KeyFormat,
   ): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.InjectKeyExportBundle, {
       value: bundle,
@@ -423,14 +429,14 @@ export class IframeStamper {
    */
   async injectWalletExportBundle(
     bundle: string,
-    organizationId: string
+    organizationId: string,
   ): Promise<boolean> {
     return this.createRequest<boolean>(
       IframeEventType.InjectWalletExportBundle,
       {
         value: bundle,
         organizationId,
-      }
+      },
     );
   }
 
@@ -441,7 +447,7 @@ export class IframeStamper {
   async injectImportBundle(
     bundle: string,
     organizationId: string,
-    userId: string
+    userId: string,
   ): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.InjectImportBundle, {
       value: bundle,
@@ -458,7 +464,7 @@ export class IframeStamper {
    */
   async extractWalletEncryptedBundle(): Promise<string> {
     return this.createRequest<string>(
-      IframeEventType.ExtractWalletEncryptedBundle
+      IframeEventType.ExtractWalletEncryptedBundle,
     );
   }
 
@@ -472,7 +478,7 @@ export class IframeStamper {
   async extractKeyEncryptedBundle(keyFormat?: KeyFormat): Promise<string> {
     return this.createRequest<string>(
       IframeEventType.ExtractKeyEncryptedBundle,
-      { keyFormat }
+      { keyFormat },
     );
   }
 
@@ -492,7 +498,7 @@ export class IframeStamper {
   async stamp(payload: string): Promise<TStamp> {
     if (this.iframePublicKey === null) {
       throw new Error(
-        "null iframe public key. Have you called/awaited .init()?"
+        "null iframe public key. Have you called/awaited .init()?",
       );
     }
 
@@ -519,5 +525,13 @@ export class IframeStamper {
     return this.createRequest<string>(IframeEventType.SignTransaction, {
       value: JSON.stringify(transaction),
     });
+  }
+
+  /**
+   * Function to clear the iframe's in-memory embedded private key. For now, we assume that there will be only one private key at most.
+   * Returns boolean
+   */
+  async clearEmbeddedPrivateKey(): Promise<boolean> {
+    return this.createRequest<boolean>(IframeEventType.clearEmbeddedPrivateKey);
   }
 }
