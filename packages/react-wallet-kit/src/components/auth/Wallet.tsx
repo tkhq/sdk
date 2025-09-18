@@ -1,9 +1,11 @@
-import { ActionButton } from "../design/Buttons";
+import { ActionButton, BaseButton } from "../design/Buttons";
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faCheck,
   faChevronRight,
   faClose,
+  faCopy,
   faLaptop,
   faMobileScreen,
 } from "@fortawesome/free-solid-svg-icons";
@@ -420,6 +422,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const [showConnectedScreen, setShowConnectedScreen] = useState(
     inputProvider.connectedAddresses?.length > 0,
   );
+  const [showCopied, setShowCopied] = useState(false);
 
   // Use a ref to track the latest provider for use in callbacks
   const latestProviderRef = useRef<WalletProvider | null>(null);
@@ -474,6 +477,14 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
     },
     100,
   );
+
+  const handleCopy = () => {
+    setShowCopied(true);
+    navigator.clipboard.writeText(`${provider.uri}`);
+    setTimeout(() => {
+      setShowCopied(false);
+    }, 1500);
+  };
 
   // Handle disconnection - uses the ref to get the correct provider after state update
   const handleDisconnect = async () => {
@@ -585,22 +596,53 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
           )}
         >
           {provider.uri && (
-            // @ts-expect-error: qrcode.react uses a different React type version
-            <QRCode
-              className="    
-              border border-modal-background-dark/20 dark:border-modal-background-light/20
-              shadow-[0_0_42px] shadow-primary-light/50
-              dark:shadow-[0_0_42px] dark:shadow-primary-dark/50"
-              value={provider.uri}
-              imageSettings={{
-                src: provider.info.icon ?? "",
-                width: 24,
-                height: 24,
-                excavate: true,
-              }}
-              size={200}
-            />
+            <>
+              {/* @ts-expect-error: qrcode.react uses a different React type version */}
+              <QRCode
+                className="    
+                  border border-modal-background-dark/20 dark:border-modal-background-light/20
+                  shadow-[0_0_42px] shadow-primary-light/50
+                  dark:shadow-[0_0_42px] dark:shadow-primary-dark/50"
+                value={provider.uri}
+                imageSettings={{
+                  src: provider.info.icon ?? "",
+                  width: 24,
+                  height: 24,
+                  excavate: true,
+                }}
+                size={200}
+              />
+              <BaseButton
+                onClick={handleCopy}
+                className={clsx(
+                  "text-xs font-semibold bg-transparent border-none text-icon-text-light dark:text-icon-text-dark",
+                  "flex flex-row items-center gap-x-2 px-3 py-2 rounded-full transition-all",
+                  "hover:bg-icon-background-light dark:hover:bg-icon-background-dark active:scale-95",
+                )}
+              >
+                <span>Copy link</span>
+
+                <div className="relative">
+                  <FontAwesomeIcon
+                    icon={showCopied ? faCheck : faCopy}
+                    className={clsx(
+                      "transition-colors",
+                      showCopied
+                        ? "text-success-light dark:text-success-dark"
+                        : "text-icon-text-light dark:text-icon-text-dark",
+                    )}
+                  />
+                  {showCopied && (
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      className="absolute inset-0 m-auto text-success-light dark:text-success-dark animate-ping"
+                    />
+                  )}
+                </div>
+              </BaseButton>
+            </>
           )}
+
           <div className={clsx("text-2xl font-bold text-center")}>
             Use your phone
           </div>
