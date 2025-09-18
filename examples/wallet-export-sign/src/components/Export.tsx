@@ -17,6 +17,8 @@ const containerStyles: React.CSSProperties = {
   gap: 12,
   maxWidth: 520,
   fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+  maxHeight: "min(80vh, 700px)", // Add this line
+  overflowY: "scroll", // Add this line
 };
 
 const cardStyles: React.CSSProperties = {
@@ -190,7 +192,7 @@ export function Export(props: ExportProps) {
                   {iframeStamper ? iframeStamper.publicKey() : "—"}
                 </div>
                 <button
-                  onClick={() => iframeStamper && copyToClipboard(iframeStamper.publicKey())}
+                  onClick={() => iframeStamper && copyToClipboard(iframeStamper.publicKey() || "")}
                   disabled={!iframeStamper}
                   style={{ padding: "6px 10px", cursor: iframeStamper ? "pointer" : "not-allowed" }}
                 >

@@ -124,9 +124,14 @@ export type TIframeSettings = {
   styles?: TIframeStyles;
 };
 
+export enum MessageType {
+  Ethereum = "ETHEREUM",
+  Solana = "SOLANA",
+}
+
 export type TSignableMessage = {
   message: string;
-  // can trivially add message encoding parameter here if needed
+  type: MessageType;
 };
 
 export enum TransactionType {
@@ -135,7 +140,7 @@ export enum TransactionType {
 }
 
 export type TSignableTransaction = {
-  transaction: string; // serialized transaction
+  transaction: string; // serialized
   type: TransactionType;
 };
 
