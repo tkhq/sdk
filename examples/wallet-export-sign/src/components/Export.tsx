@@ -17,8 +17,8 @@ const containerStyles: React.CSSProperties = {
   gap: 12,
   maxWidth: 520,
   fontFamily: "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
-  maxHeight: "min(80vh, 700px)", // Add this line
-  overflowY: "scroll", // Add this line
+  maxHeight: "min(80vh, 700px)",
+  overflowY: "scroll",
 };
 
 const cardStyles: React.CSSProperties = {
@@ -177,31 +177,6 @@ export function Export(props: ExportProps) {
 
       {iframeDisplay === "block" ? (
         <div style={containerStyles}>
-          <div style={cardStyles}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h3 style={{ margin: 0, fontSize: 16 }}>Signing tools</h3>
-              <div style={{ fontSize: 13, color: "#666" }}>
-                {initializing ? "Connecting…" : iframeStamper ? "Connected" : "Not connected"}
-              </div>
-            </div>
-
-            <div style={{ marginTop: 12 }}>
-              <div style={{ fontSize: 13, color: "#444", marginBottom: 8 }}>Wallet public key</div>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <div style={{ ...monoBox, flex: 1 }}>
-                  {iframeStamper ? iframeStamper.publicKey() : "—"}
-                </div>
-                <button
-                  onClick={() => iframeStamper && copyToClipboard(iframeStamper.publicKey() || "")}
-                  disabled={!iframeStamper}
-                  style={{ padding: "6px 10px", cursor: iframeStamper ? "pointer" : "not-allowed" }}
-                >
-                  Copy
-                </button>
-              </div>
-            </div>
-          </div>
-
           {/* Message signing */}
           <div style={cardStyles}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
