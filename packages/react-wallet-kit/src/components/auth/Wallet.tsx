@@ -1,5 +1,4 @@
 import { ActionButton } from "../design/Buttons";
-import { useModal } from "../../providers/modal/Hook";
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -14,7 +13,8 @@ import type { WalletProvider } from "@turnkey/core";
 import { QRCodeSVG as QRCode } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
 import { isEthereumProvider, isSolanaProvider } from "@turnkey/core";
-import { useTurnkey } from "../../providers";
+import { useModal } from "../../providers/modal/Hook";
+import { useTurnkey } from "../../providers/client/Hook";
 import { useDebouncedCallback } from "../../utils/utils";
 
 interface WalletAuthButtonProps {
