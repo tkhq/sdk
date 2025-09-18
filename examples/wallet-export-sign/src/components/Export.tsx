@@ -1,6 +1,10 @@
 "use client";
 
-import { IframeStamper, TransactionType } from "@turnkey/iframe-stamper";
+import {
+  IframeStamper,
+  TransactionType,
+  MessageType,
+} from "@turnkey/iframe-stamper";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 interface ExportProps {
@@ -128,7 +132,7 @@ export function Export(props: ExportProps) {
     }
 
     iframeStamper
-      .signMessage({ message })
+      .signMessage({ message, type: TransactionType.Solana })
       .then((sig: string) => {
         setSignature(sig);
       })
