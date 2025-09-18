@@ -7,7 +7,7 @@ import {
   faXTwitter,
 } from "@fortawesome/free-brands-svg-icons";
 import { OtpType, type WalletProvider } from "@turnkey/core";
-import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsisH, faFingerprint } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
 import { OAuthButton } from "./OAuth";
 import { EmailInput } from "./Email";
@@ -56,7 +56,7 @@ export function AuthComponent({
     loginOrSignupWithWallet,
     disconnectWalletAccount,
   } = useTurnkey();
-  const { pushPage, isMobile } = useModal();
+  const { pushPage, isMobile, openSheet } = useModal();
 
   if (!config || clientState === ClientState.Loading) {
     // Don't check ClientState.Error here. We already check in the modal root
@@ -372,12 +372,38 @@ export function AuthComponent({
     .filter(Boolean);
 
   const oauthBlock =
-    oauthButtons.length > 0 ? (
+    oauthButtons.length > 0 && oauthButtons.length <= 5 ? (
       <div
         key="socials"
         className="w-full h-11 flex flex-row justify-center items-center gap-2"
       >
         {oauthButtons}
+      </div>
+    ) : oauthButtons.length > 0 ? (
+      <div
+        key="socials"
+        className="w-full h-11 flex flex-row justify-center items-center gap-2"
+      >
+        {oauthButtons.slice(0, 4)}
+        <OAuthButton
+          key="more"
+          name="More"
+          icon={<FontAwesomeIcon icon={faEllipsisH} />}
+          onClick={() =>
+            openSheet({
+              key: "Select a social method",
+              content: (
+                <div className="w-full h-full flex flex-wrap justify-center items-center gap-2">
+                  {oauthButtons.map((button) => (
+                    <div key={button?.key} className="w-16 h-11">
+                      {button}
+                    </div>
+                  ))}
+                </div>
+              ),
+            })
+          }
+        />
       </div>
     ) : null;
 

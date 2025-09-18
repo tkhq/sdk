@@ -1974,6 +1974,7 @@ export default function AuthPage() {
             onClick={async () => {
               await turnkey.handleUpdateUserName({
                 organizationId,
+                userId,
                 stampWith: StamperType.Passkey,
               });
             }}
