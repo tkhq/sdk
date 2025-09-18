@@ -97,6 +97,7 @@ const getFormatConfig = (format) => {
       }),
       postcss({
         extract: "styles.css",
+        config: true, // Look for postcss.config.js. We run the postcss-important script there.
         minimize: true,
       }),
     ],
