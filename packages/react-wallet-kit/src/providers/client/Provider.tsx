@@ -2250,7 +2250,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to create wallet",
       );
-      if (res && session)
+      const s = await getSession();
+      if (res && s)
         await refreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
@@ -2275,7 +2276,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to create wallet accounts",
       );
-      if (res && session)
+      const s = await getSession();
+      if (res && s)
         await refreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
@@ -2300,7 +2302,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to export wallet",
       );
-      if (res && session)
+      const s = await getSession();
+      if (res && s)
         await refreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
@@ -2343,7 +2346,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to export wallet accounts",
       );
-      if (res && session)
+      const s = await getSession();
+      if (res && s)
         await refreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
@@ -2368,7 +2372,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to import wallet",
       );
-      if (res && session)
+      const s = await getSession();
+      if (res && s)
         await refreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
@@ -2456,15 +2461,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       await withTurnkeyErrorHandling(
-        () => client.clearSession(params),
+        async () => client.clearSession(params),
         () => logout(),
         callbacks,
         "Failed to clear session",
       );
-      const session = await getSession();
-      const allSessions = await getAllSessions();
-      setSession(session);
-      setAllSessions(allSessions);
+      const sessionKey = params?.sessionKey ?? (await getActiveSessionKey());
+      if (!sessionKey) return;
+      if (!params?.sessionKey) {
+        setSession(undefined);
+      }
+      clearSessionTimeouts([sessionKey]);
+      // clear only the cleared session from allSessions
+      const newAllSessions = { ...allSessions };
+      if (newAllSessions) {
+        delete newAllSessions[sessionKey];
+      }
+      setAllSessions(newAllSessions);
       return;
     },
     [client, callbacks, session, user, masterConfig],
@@ -2478,6 +2491,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     setSession(undefined);
     setAllSessions(undefined);
+    clearSessionTimeouts();
     return await withTurnkeyErrorHandling(
       () => client.clearAllSessions(),
       () => logout(),
@@ -2579,7 +2593,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to get session",
       );
-      if (!session) {
+      const s = await getSession();
+      if (!s) {
         throw new TurnkeyError(
           "Session not found.",
           TurnkeyErrorCodes.NOT_FOUND,
@@ -2704,7 +2719,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-
       const walletProviders = await withTurnkeyErrorHandling(
         () => fetchWalletProviders(),
         () => logout(),
@@ -3839,7 +3853,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
 
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
@@ -3953,14 +3968,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
           TurnkeyErrorCodes.INVALID_REQUEST,
         );
       }
-      const userId = params?.userId || user?.userId;
+      const userId = params?.userId || s?.userId;
       if (!userId) {
         throw new TurnkeyError(
           "A user ID is required to update a phone number.",
@@ -4092,14 +4108,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
 
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
           TurnkeyErrorCodes.INVALID_REQUEST,
         );
       }
-      const userId = params?.userId || user?.userId;
+      const userId = params?.userId || s?.userId;
       if (!userId) {
         throw new TurnkeyError(
           "A user ID is required to update an email.",
@@ -4230,14 +4247,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
           TurnkeyErrorCodes.INVALID_REQUEST,
         );
       }
-      const userId = params?.userId || user?.userId;
+      const userId = params?.userId || s?.userId;
       if (!userId) {
         throw new TurnkeyError(
           "A user ID is required to add an email.",
@@ -4384,14 +4402,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
           TurnkeyErrorCodes.INVALID_REQUEST,
         );
       }
-      const userId = params?.userId || user?.userId;
+      const userId = params?.userId || s?.userId;
       if (!userId) {
         throw new TurnkeyError(
           "A user ID is required to add a phone number.",
@@ -4533,7 +4552,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
 
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
@@ -4590,14 +4610,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
 
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
           TurnkeyErrorCodes.INVALID_REQUEST,
         );
       }
-      const userId = params?.userId || session?.userId;
+      const userId = params?.userId || s?.userId;
       if (!userId) {
         throw new TurnkeyError(
           "A user ID or a valid session is required to add a passkey.",
@@ -4658,7 +4679,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
@@ -4711,14 +4733,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       const { providerName, stampWith, successPageDuration = 2000 } = params;
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
           TurnkeyErrorCodes.INVALID_REQUEST,
         );
       }
-      const userId = params?.userId || user?.userId;
+      const userId = params?.userId || s?.userId;
       if (!userId) {
         throw new TurnkeyError(
           "A user ID is required to add an OAuth provider.",
@@ -4808,7 +4831,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      if (!session) {
+      const s = await getSession();
+      if (!s) {
         throw new TurnkeyError(
           "No active session found.",
           TurnkeyErrorCodes.NO_SESSION_FOUND,
@@ -4823,14 +4847,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const providers = await fetchWalletProviders();
 
-      pushPage({
-        key: "Connect wallet",
-        content: (
-          <ConnectWalletModal
-            providers={providers}
-            successPageDuration={successPageDuration}
-          />
-        ),
+      return new Promise((resolve, reject) => {
+        pushPage({
+          key: "Connect wallet",
+          content: (
+            <ConnectWalletModal
+              providers={providers}
+              successPageDuration={successPageDuration}
+              onSuccess={() => {
+                resolve();
+              }}
+              onError={(error) => {
+                reject(error);
+              }}
+            />
+          ),
+        });
       });
     },
     [pushPage, masterConfig, client, session, user],
@@ -4839,7 +4871,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleRemoveUserEmail = useCallback(
     async (params?: HandleRemoveUserEmailParams): Promise<string> => {
       const { successPageDuration = 2000, stampWith, userId } = params || {};
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
@@ -4886,7 +4919,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleRemoveUserPhoneNumber = useCallback(
     async (params?: HandleRemoveUserPhoneNumberParams): Promise<string> => {
       const { successPageDuration = 2000, stampWith, userId } = params || {};
-      const organizationId = params?.organizationId || session?.organizationId;
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",

@@ -13,9 +13,11 @@ import { isWalletConnect } from "../../utils/utils";
 interface ConnectWalletModalProps {
   providers: WalletProvider[];
   successPageDuration?: number | undefined;
+  onSuccess: () => void;
+  onError: (error: any) => void;
 }
 export function ConnectWalletModal(props: ConnectWalletModalProps) {
-  const { providers, successPageDuration } = props;
+  const { providers, successPageDuration, onSuccess, onError } = props;
   const { pushPage, closeModal } = useModal();
   const { connectWalletAccount, disconnectWalletAccount } = useTurnkey();
 
@@ -49,22 +51,27 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
           }
           closeOnComplete={false}
           action={async () => {
-            await connectWalletAccount(provider);
-            if (successPageDuration && successPageDuration > 0) {
-              pushPage({
-                key: "Connecting Success",
-                content: (
-                  <SuccessPage
-                    text="Successfully connected wallet!"
-                    onComplete={() => closeModal()}
-                    duration={successPageDuration}
-                  />
-                ),
-                preventBack: true,
-                showTitle: false,
-              });
-            } else {
-              closeModal();
+            try {
+              await connectWalletAccount(provider);
+              onSuccess();
+              if (successPageDuration && successPageDuration > 0) {
+                pushPage({
+                  key: "Connecting Success",
+                  content: (
+                    <SuccessPage
+                      text="Successfully connected wallet!"
+                      onComplete={() => closeModal()}
+                      duration={successPageDuration}
+                    />
+                  ),
+                  preventBack: true,
+                  showTitle: false,
+                });
+              } else {
+                closeModal();
+              }
+            } catch (error) {
+              onError(error);
             }
           }}
         />
@@ -80,22 +87,27 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
         <DisconnectWalletScreen
           provider={provider}
           onDisconnect={async () => {
-            await disconnectWalletAccount(provider);
-            if (successPageDuration) {
-              pushPage({
-                key: "Disconnect Success",
-                content: (
-                  <SuccessPage
-                    text="Successfully disconnected wallet!"
-                    onComplete={() => closeModal()}
-                    duration={successPageDuration}
-                  />
-                ),
-                preventBack: true,
-                showTitle: false,
-              });
-            } else {
-              closeModal();
+            try {
+              await disconnectWalletAccount(provider);
+              onSuccess();
+              if (successPageDuration) {
+                pushPage({
+                  key: "Disconnect Success",
+                  content: (
+                    <SuccessPage
+                      text="Successfully disconnected wallet!"
+                      onComplete={() => closeModal()}
+                      duration={successPageDuration}
+                    />
+                  ),
+                  preventBack: true,
+                  showTitle: false,
+                });
+              } else {
+                closeModal();
+              }
+            } catch (error) {
+              onError(error);
             }
           }}
         />
