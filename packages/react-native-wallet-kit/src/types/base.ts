@@ -6,7 +6,7 @@ import type {
   TurnkeyNetworkError,
 } from "@turnkey/sdk-types";
 
-import { KeyFormat as IframeKeyFormat } from "@turnkey/iframe-stamper";
+import type { KeyFormat as IframeKeyFormat } from "@turnkey/iframe-stamper";
 
 export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: {
