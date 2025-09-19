@@ -132,7 +132,7 @@ export function Export(props: ExportProps) {
     }
 
     iframeStamper
-      .signMessage({ message, type: TransactionType.Solana })
+      .signMessage({ message, type: MessageType.Solana })
       .then((sig: string) => {
         setSignature(sig);
       })
