@@ -23,6 +23,7 @@ import type {
   HandleAddPasskeyParams,
   HandleAddPhoneNumberParams,
   HandleAppleOauthParams,
+  HandleCoinbaseOnRampParams,
   HandleConnectExternalWalletParams,
   HandleDiscordOauthParams,
   HandleExportPrivateKeyParams,
@@ -685,6 +686,9 @@ export interface ClientContextType extends TurnkeyClientMethods {
   handleRemoveUserPhoneNumber: (
     params?: HandleRemoveUserPhoneNumberParams,
   ) => Promise<string>;
+
+  // TODO (Amir): Complete JSDoc
+  handleCoinbaseOnRamp: (params: HandleCoinbaseOnRampParams) => Promise<void>;
 }
 
 /** @internal */
