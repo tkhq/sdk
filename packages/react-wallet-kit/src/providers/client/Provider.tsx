@@ -1400,7 +1400,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const address = await client.connectWalletAccount(walletProvider);
 
       let wallets: Wallet[];
-      if (session) {
+
+      const s = await getSession();
+      if (s) {
         // this will update our walletProvider state
         wallets = await refreshWallets();
       } else {
