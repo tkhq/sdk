@@ -36,6 +36,7 @@ import {
   TurnkeyClient,
   WalletInterfaceType,
   WalletProvider,
+  WalletSource,
   type AddOauthProviderParams,
   type AddPasskeyParams,
   type ClearSessionParams,
@@ -89,7 +90,8 @@ import {
   type VerifyOtpParams,
   type Wallet,
   type WalletAccount,
-  VerifyOtpResult,
+  type VerifyOtpResult,
+  type ConnectedWallet,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -1388,18 +1390,39 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const connectWalletAccount = useCallback(
-    async (walletProvider: WalletProvider): Promise<void> => {
+    async (walletProvider: WalletProvider): Promise<WalletAccount> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       }
-      await client.connectWalletAccount(walletProvider);
+      const address = await client.connectWalletAccount(walletProvider);
 
       // this will update our walletProvider state
-      await refreshWallets();
+      const wallets = await refreshWallets();
+
+      // we narrow to only connected wallets
+      // because we know the account must come from one of them
+      const connectedWallets = wallets.filter(
+        (w): w is ConnectedWallet => w.source === WalletSource.Connected,
+      );
+
+      // find the matching account
+      const matchedAccount = connectedWallets
+        .flatMap((w) => w.accounts)
+        .find((a) => a.address === address);
+
+      if (!matchedAccount) {
+        throw new TurnkeyError(
+          `No connected wallet account found for address: ${address}`,
+          TurnkeyErrorCodes.NO_WALLET_FOUND,
+        );
+      }
+
+      return matchedAccount;
     },
+
     [client, callbacks],
   );
 
@@ -2734,9 +2757,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const refreshWallets = useCallback(
-    async (params?: RefreshWalletsParams): Promise<void> => {
-      if (!masterConfig?.autoRefreshManagedState) return;
+    async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
+      if (!masterConfig?.autoRefreshManagedState) return [];
+
       const { stampWith, organizationId, userId } = params || {};
+
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2764,6 +2789,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (wallets) {
         setWallets(wallets);
       }
+
+      return wallets;
     },
     [
       client,

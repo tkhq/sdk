@@ -100,12 +100,12 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
    * - Calls `standard:connect` only if no accounts are present. This will prompt the user to connect their wallet.
    *
    * @param provider - The wallet provider to connect.
-   * @returns A promise that resolves once the wallet has ≥ 1 account.
+   * @returns A promise that resolves with the connected wallet's address.
    * @throws {Error} If the wallet does not implement `standard:connect`.
    */
-  connectWalletAccount = async (provider: WalletProvider): Promise<void> => {
+  connectWalletAccount = async (provider: WalletProvider): Promise<string> => {
     const wallet = asSolana(provider);
-    await connectAccount(wallet);
+    return await connectAccount(wallet);
   };
 
   /**
@@ -242,11 +242,11 @@ const asSolana = (provider: WalletProvider): SWSWallet => {
  * - If not, attempts `standard:connect`, which may prompt the user.
  *
  * @param wallet - The Wallet Standard wallet to connect.
- * @returns A promise that resolves once the wallet has ≥ 1 account.
+ * @returns A promise that resolves with the connected wallet's address.
  * @throws {Error} If the wallet does not implement `standard:connect`.
  */
-const connectAccount = async (wallet: SWSWallet): Promise<void> => {
-  if (wallet.accounts.length) return;
+const connectAccount = async (wallet: SWSWallet): Promise<string> => {
+  if (wallet.accounts.length) return wallet.accounts[0]!.address;
 
   const stdConnect = wallet.features["standard:connect"] as
     | { connect: () => Promise<{ accounts: readonly unknown[] }> }
@@ -254,7 +254,7 @@ const connectAccount = async (wallet: SWSWallet): Promise<void> => {
 
   if (stdConnect) {
     await stdConnect.connect();
-    return;
+    return wallet.accounts[0]!.address;
   }
 
   throw new Error(

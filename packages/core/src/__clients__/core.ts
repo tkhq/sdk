@@ -597,10 +597,12 @@ export class TurnkeyClient {
    * - Requires the wallet manager and its connector to be initialized.
    *
    * @param walletProvider - wallet provider to connect.
-   * @returns A promise that resolves once the wallet account is connected.
+   * @returns A promise that resolves with the connected wallet's address.
    * @throws {TurnkeyError} If the wallet manager is uninitialized or the connection fails.
    */
-  connectWalletAccount = async (walletProvider: WalletProvider) => {
+  connectWalletAccount = async (
+    walletProvider: WalletProvider,
+  ): Promise<string> => {
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.walletManager?.connector) {
@@ -609,7 +611,9 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
           );
         }
-        await this.walletManager.connector.connectWalletAccount(walletProvider);
+        return await this.walletManager.connector.connectWalletAccount(
+          walletProvider,
+        );
       },
       {
         errorMessage: "Unable to connect wallet account",

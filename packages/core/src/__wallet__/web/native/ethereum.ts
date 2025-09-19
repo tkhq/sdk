@@ -145,12 +145,12 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    * - If not connected, the wallet will typically prompt the user to authorize.
    *
    * @param provider - The wallet provider to use.
-   * @returns A promise that resolves once at least one account is connected.
+   * @returns A promise that resolves with the connected wallet's address.
    * @throws {Error} If the wallet returns no accounts after the request.
    */
-  connectWalletAccount = async (provider: WalletProvider): Promise<void> => {
+  connectWalletAccount = async (provider: WalletProvider): Promise<string> => {
     const wallet = asEip1193(provider);
-    await getAccount(wallet);
+    return await getAccount(wallet);
   };
 
   /**
