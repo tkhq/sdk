@@ -1399,8 +1399,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       const address = await client.connectWalletAccount(walletProvider);
 
-      // this will update our walletProvider state
-      const wallets = await refreshWallets();
+      let wallets: Wallet[];
+      if (session) {
+        // this will update our walletProvider state
+        wallets = await refreshWallets();
+      } else {
+        wallets = await fetchWallets({ connectedOnly: true });
+      }
 
       // we narrow to only connected wallets
       // because we know the account must come from one of them
@@ -1435,6 +1440,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
       await client.disconnectWalletAccount(walletProvider);
+
+      // no need here to call `refreshWallets()` because the provider emits a disconnect event which
+      // will trigger a refresh via the listener we set up in `initializeWalletProviderListeners()`
     },
     [client, callbacks],
   );
@@ -4920,13 +4928,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      const s = await getSession();
-      if (!s) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
       if (!masterConfig?.walletConfig?.features?.connecting) {
         throw new TurnkeyError(
           "Wallet connecting is not enabled.",

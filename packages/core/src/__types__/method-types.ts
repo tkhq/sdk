@@ -149,9 +149,10 @@ export type SignUpWithOauthParams = {
 
 export type FetchWalletsParams = {
   walletProviders?: WalletProvider[] | undefined;
-  stampWith?: StamperType | undefined;
   organizationId?: string;
   userId?: string;
+  connectedOnly?: boolean;
+  stampWith?: StamperType | undefined;
 };
 
 export type FetchWalletAccountsParams = {
