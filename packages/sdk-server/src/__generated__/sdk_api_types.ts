@@ -233,6 +233,17 @@ export type TGetActivitiesBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetAppProofsResponse =
+  operations["PublicApiService_GetAppProofs"]["responses"]["200"]["schema"];
+
+export type TGetAppProofsInput = { body: TGetAppProofsBody };
+
+export type TGetAppProofsBody = Omit<
+  operations["PublicApiService_GetAppProofs"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TListOauth2CredentialsResponse =
   operations["PublicApiService_ListOauth2Credentials"]["responses"]["200"]["schema"];
 

@@ -28,7 +28,7 @@ export function UpdateEmail(params: {
     stampWith,
     userId,
   } = params;
-  const { user, updateUserEmail, initOtp, verifyOtp } = useTurnkey();
+  const { config, user, updateUserEmail, initOtp, verifyOtp } = useTurnkey();
   const { isMobile, pushPage, closeModal } = useModal();
   const email = user?.userEmail || "";
   const [emailInput, setEmailInput] = useState(email);
@@ -53,6 +53,12 @@ export function UpdateEmail(params: {
               contact={emailInput}
               otpId={otpId}
               otpType={OtpType.Email}
+              otpLength={
+                config?.auth?.otpLength !== undefined
+                  ? Number(config.auth.otpLength)
+                  : undefined
+              }
+              alphanumeric={config?.auth?.otpAlphanumeric}
               onContinue={async (otpCode: string) => {
                 const { verificationToken } = await verifyOtp({
                   otpId,
