@@ -1904,23 +1904,13 @@ export default function AuthPage() {
           <button
             onClick={async () => {
               try {
-                console.log(
-                  "Fetching wallets for organizationId and userId",
-                  organizationId,
-                  userId,
-                );
-                await turnkey.refreshWallets({
-                  organizationId: organizationId,
-                  userId: userId,
-                  stampWith: StamperType.Passkey,
-                });
-                await turnkey.refreshUser({
-                  organizationId: organizationId,
-                  userId: userId,
-                  stampWith: StamperType.Passkey,
-                });
+                await turnkey.loginWithPasskey();
+                await turnkey.refreshWallets();
+                await turnkey.refreshUser();
               } catch (e) {
                 console.error(e);
+              } finally {
+                await turnkey.clearSession();
               }
             }}
             style={{

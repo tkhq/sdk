@@ -3669,26 +3669,31 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleExportWallet = useCallback(
-    async (params: HandleExportWalletParams) => {
+    async (params: HandleExportWalletParams): Promise<void> => {
       const { walletId, targetPublicKey, stampWith, organizationId } = params;
-      pushPage({
-        key: "Export wallet",
-        content: (
-          <ExportComponent
-            target={walletId}
-            exportType={ExportType.Wallet}
-            {...(targetPublicKey !== undefined && { targetPublicKey })}
-            {...(stampWith !== undefined && { stampWith })}
-            {...(organizationId !== undefined && { organizationId })}
-          />
-        ),
-      });
+
+      return new Promise<void>((resolve, reject) =>
+        pushPage({
+          key: "Export wallet",
+          content: (
+            <ExportComponent
+              target={walletId}
+              exportType={ExportType.Wallet}
+              {...(targetPublicKey !== undefined && { targetPublicKey })}
+              {...(stampWith !== undefined && { stampWith })}
+              {...(organizationId !== undefined && { organizationId })}
+              onSuccess={() => resolve()}
+              onError={(error: any) => reject(error)}
+            />
+          ),
+        }),
+      );
     },
     [pushPage, masterConfig, client, session, user],
   );
 
   const handleExportPrivateKey = useCallback(
-    async (params: HandleExportPrivateKeyParams) => {
+    async (params: HandleExportPrivateKeyParams): Promise<void> => {
       const {
         privateKeyId,
         targetPublicKey,
@@ -3696,40 +3701,49 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         stampWith,
         organizationId,
       } = params;
-      pushPage({
-        key: "Export private key",
-        content: (
-          <ExportComponent
-            target={privateKeyId}
-            exportType={ExportType.PrivateKey}
-            {...(keyFormat !== undefined && { keyFormat })}
-            {...(targetPublicKey !== undefined && { targetPublicKey })}
-            {...(stampWith !== undefined && { stampWith })}
-            {...(organizationId !== undefined && { organizationId })}
-          />
-        ),
-      });
+      return new Promise<void>((resolve, reject) =>
+        pushPage({
+          key: "Export private key",
+          content: (
+            <ExportComponent
+              target={privateKeyId}
+              exportType={ExportType.PrivateKey}
+              {...(keyFormat !== undefined && { keyFormat })}
+              {...(targetPublicKey !== undefined && { targetPublicKey })}
+              {...(stampWith !== undefined && { stampWith })}
+              {...(organizationId !== undefined && { organizationId })}
+              onSuccess={() => resolve()}
+              onError={(error: any) => reject(error)}
+            />
+          ),
+        }),
+      );
     },
     [pushPage, masterConfig, client, session, user],
   );
 
   const handleExportWalletAccount = useCallback(
-    async (params: HandleExportWalletAccountParams) => {
+    async (params: HandleExportWalletAccountParams): Promise<void> => {
       const { address, targetPublicKey, keyFormat, stampWith, organizationId } =
         params;
-      pushPage({
-        key: "Export wallet account",
-        content: (
-          <ExportComponent
-            target={address}
-            exportType={ExportType.WalletAccount}
-            {...(keyFormat !== undefined && { keyFormat })}
-            {...(targetPublicKey !== undefined && { targetPublicKey })}
-            {...(stampWith !== undefined && { stampWith })}
-            {...(organizationId !== undefined && { organizationId })}
-          />
-        ),
-      });
+
+      return new Promise<void>((resolve, reject) =>
+        pushPage({
+          key: "Export wallet account",
+          content: (
+            <ExportComponent
+              target={address}
+              exportType={ExportType.WalletAccount}
+              {...(keyFormat !== undefined && { keyFormat })}
+              {...(targetPublicKey !== undefined && { targetPublicKey })}
+              {...(stampWith !== undefined && { stampWith })}
+              {...(organizationId !== undefined && { organizationId })}
+              onSuccess={() => resolve()}
+              onError={(error: any) => reject(error)}
+            />
+          ),
+        }),
+      );
     },
     [pushPage, masterConfig, client, session, user],
   );
@@ -4748,77 +4762,78 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.INVALID_REQUEST,
         );
       }
+      return new Promise<void>(async (resolve, reject) => {
+        try {
+          const onOauthSuccess = async (params: {
+            providerName: string;
+            oidcToken: string;
+          }) => {
+            await addOauthProvider({
+              providerName: params.providerName,
+              oidcToken: params.oidcToken,
+              stampWith,
+              organizationId,
+              userId,
+            });
+            resolve();
+            pushPage({
+              key: "OAuth Provider Added",
+              content: (
+                <SuccessPage
+                  text={`Successfully added ${params.providerName} OAuth provider!`}
+                  duration={successPageDuration}
+                  onComplete={() => {
+                    closeModal();
+                  }}
+                />
+              ),
+              preventBack: true,
+              showTitle: false,
+            });
+          };
 
-      const onOauthSuccess = async (params: {
-        providerName: string;
-        oidcToken: string;
-      }) => {
-        await addOauthProvider({
-          providerName: params.providerName,
-          oidcToken: params.oidcToken,
-          stampWith,
-          organizationId,
-          userId,
-        });
-        pushPage({
-          key: "OAuth Provider Added",
-          content: (
-            <SuccessPage
-              text={`Successfully added ${params.providerName} OAuth provider!`}
-              duration={successPageDuration}
-              onComplete={() => {
-                closeModal();
-              }}
-            />
-          ),
-          preventBack: true,
-          showTitle: false,
-        });
-      };
-
-      switch (providerName) {
-        case OAuthProviders.DISCORD: {
-          await handleDiscordOauth({
-            openInPage: false,
-            onOauthSuccess,
-          });
-          break;
+          switch (providerName) {
+            case OAuthProviders.DISCORD: {
+              return await handleDiscordOauth({
+                openInPage: false,
+                onOauthSuccess,
+              });
+            }
+            case OAuthProviders.X: {
+              return await handleXOauth({
+                openInPage: false,
+                onOauthSuccess,
+              });
+            }
+            case OAuthProviders.GOOGLE: {
+              return await handleGoogleOauth({
+                openInPage: false,
+                onOauthSuccess,
+              });
+            }
+            case OAuthProviders.APPLE: {
+              return await handleAppleOauth({
+                openInPage: false,
+                onOauthSuccess,
+              });
+            }
+            case OAuthProviders.FACEBOOK: {
+              return await handleFacebookOauth({
+                openInPage: false,
+                onOauthSuccess,
+              });
+            }
+            default: {
+              throw new TurnkeyError(
+                `Unsupported OAuth provider: ${providerName}`,
+                TurnkeyErrorCodes.NOT_FOUND,
+              );
+            }
+          }
+        } catch (error) {
+          reject(error);
         }
-        case OAuthProviders.X: {
-          await handleXOauth({
-            openInPage: false,
-            onOauthSuccess,
-          });
-          break;
-        }
-        case OAuthProviders.GOOGLE: {
-          await handleGoogleOauth({
-            openInPage: false,
-            onOauthSuccess,
-          });
-          break;
-        }
-        case OAuthProviders.APPLE: {
-          await handleAppleOauth({
-            openInPage: false,
-            onOauthSuccess,
-          });
-          break;
-        }
-        case OAuthProviders.FACEBOOK: {
-          await handleFacebookOauth({
-            openInPage: false,
-            onOauthSuccess,
-          });
-          break;
-        }
-        default: {
-          throw new TurnkeyError(
-            `Unsupported OAuth provider: ${providerName}`,
-            TurnkeyErrorCodes.NOT_FOUND,
-          );
-        }
-      }
+      });
     },
     [pushPage, masterConfig, client, session, user],
   );
