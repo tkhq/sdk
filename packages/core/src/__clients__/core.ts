@@ -597,10 +597,12 @@ export class TurnkeyClient {
    * - Requires the wallet manager and its connector to be initialized.
    *
    * @param walletProvider - wallet provider to connect.
-   * @returns A promise that resolves once the wallet account is connected.
+   * @returns A promise that resolves with the connected wallet's address.
    * @throws {TurnkeyError} If the wallet manager is uninitialized or the connection fails.
    */
-  connectWalletAccount = async (walletProvider: WalletProvider) => {
+  connectWalletAccount = async (
+    walletProvider: WalletProvider,
+  ): Promise<string> => {
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.walletManager?.connector) {
@@ -609,7 +611,9 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
           );
         }
-        await this.walletManager.connector.connectWalletAccount(walletProvider);
+        return await this.walletManager.connector.connectWalletAccount(
+          walletProvider,
+        );
       },
       {
         errorMessage: "Unable to connect wallet account",
@@ -1770,74 +1774,101 @@ export class TurnkeyClient {
    * - Returns both embedded and connected wallets in a single array, each with their respective accounts populated.
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.walletProviders - array of wallet providers to use for fetching wallets.
    * @param params.organizationId - organization ID to target (defaults to the session's organization ID).
    * @param params.userId - user ID to target (defaults to the session's user ID).
+   * @param params.connectedOnly - if true, fetches only connected wallets; if false or undefined, fetches both embedded and connected wallets.
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an array of `Wallet` objects.
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallets.
    */
   fetchWallets = async (params?: FetchWalletsParams): Promise<Wallet[]> => {
-    const { stampWith, walletProviders } = params || {};
+    const {
+      walletProviders,
+      organizationId: organizationIdFromParams,
+      userId: userIdFromParams,
+      connectedOnly,
+      stampWith,
+    } = params || {};
     const session = await this.storageManager.getActiveSession();
-
-    const organizationId = params?.organizationId || session?.organizationId;
-    if (!organizationId) {
+    if (!session && !connectedOnly) {
       throw new TurnkeyError(
-        "No organization ID provided and no active session found. Please log in first or pass in an organization ID.",
-        TurnkeyErrorCodes.INVALID_REQUEST,
+        "No active session found. Fetching embedded wallets requires a valid session. If you only need connected wallets, set the 'connectedOnly' parameter to true.",
+        TurnkeyErrorCodes.NO_SESSION_FOUND,
       );
     }
 
-    const userId = params?.userId || session?.userId;
-    if (!userId) {
+    // if `connectedOnly` is true, we need to make sure the walletManager is initialized
+    // or else we can't fetch connected wallets, and we throw an error
+    if (connectedOnly && !this.walletManager?.connector) {
       throw new TurnkeyError(
-        "No user ID provided and no active session found. Please log in first or pass in a user ID.",
-        TurnkeyErrorCodes.INVALID_REQUEST,
+        "Wallet connector is not initialized",
+        TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
       );
     }
 
     return withTurnkeyErrorHandling(
       async () => {
-        const res = await this.httpClient.getWalletAccounts(
-          {
-            organizationId,
-            includeWalletDetails: true,
-          },
-          stampWith,
-        );
-        const walletsRes = await this.httpClient.getWallets(
-          {
-            organizationId,
-          },
-          stampWith,
-        );
+        let embedded: EmbeddedWallet[] = [];
 
-        if (!res || !res.accounts) {
-          throw new TurnkeyError(
-            "No wallet accounts found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+        // if connectedOnly is true, we skip fetching embedded wallets
+        if (!connectedOnly) {
+          const organizationId =
+            organizationIdFromParams || session?.organizationId;
+
+          if (!organizationId) {
+            throw new TurnkeyError(
+              "No organization ID provided and no active session found. Please log in first or pass in an organization ID.",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+
+          const userId = userIdFromParams || session?.userId;
+          if (!userId) {
+            throw new TurnkeyError(
+              "No user ID provided and no active session found. Please log in first or pass in a user ID.",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+
+          const res = await this.httpClient.getWalletAccounts(
+            {
+              organizationId,
+              includeWalletDetails: true,
+            },
+            stampWith,
           );
+          const walletsRes = await this.httpClient.getWallets(
+            {
+              organizationId,
+            },
+            stampWith,
+          );
+
+          if (!res || !res.accounts) {
+            throw new TurnkeyError(
+              "No wallet accounts found in the response",
+              TurnkeyErrorCodes.BAD_RESPONSE,
+            );
+          }
+
+          // create a map of walletId to EmbeddedWallet for easy lookup
+          const walletMap: Map<string, EmbeddedWallet> = new Map(
+            walletsRes.wallets.map((wallet) => [
+              wallet.walletId,
+              {
+                ...wallet,
+                source: WalletSource.Embedded,
+                accounts: [],
+              },
+            ]),
+          );
+          // map the accounts to their respective wallets
+          embedded = mapAccountsToWallet(res.accounts, walletMap);
         }
 
-        // create a map of walletId to EmbeddedWallet for easy lookup
-        const walletMap: Map<string, EmbeddedWallet> = new Map(
-          walletsRes.wallets.map((wallet) => [
-            wallet.walletId,
-            {
-              ...wallet,
-              source: WalletSource.Embedded,
-              accounts: [],
-            },
-          ]),
-        );
-        // map the accounts to their respective wallets
-        const embedded: EmbeddedWallet[] = mapAccountsToWallet(
-          res.accounts,
-          walletMap,
-        );
-
         // if wallet connecting is disabled we return only embedded wallets
+        // this will never be hit if `connectedOnly` is true because of the check above
         if (!this.walletManager?.connector) return embedded;
 
         const providers =
@@ -1877,8 +1908,10 @@ export class TurnkeyClient {
             wallet,
             walletProviders: grouped,
             ...(stampWith !== undefined && { stampWith }),
-            organizationId,
-            userId,
+            ...(organizationIdFromParams !== undefined && {
+              organizationId: organizationIdFromParams,
+            }),
+            ...(userIdFromParams !== undefined && { userId: userIdFromParams }),
           });
 
           wallet.accounts = accounts;
@@ -1922,26 +1955,27 @@ export class TurnkeyClient {
     const session = await this.storageManager.getActiveSession();
 
     const organizationId = params?.organizationId || session?.organizationId;
-    if (!organizationId) {
-      throw new TurnkeyError(
-        "No organization ID provided and no active session found. Please log in first or pass in an organization ID.",
-        TurnkeyErrorCodes.INVALID_REQUEST,
-      );
-    }
-
     const userId = params?.userId || session?.userId;
-    if (!userId) {
-      throw new TurnkeyError(
-        "No user ID provided and no active session found. Please log in first or pass in a user ID.",
-        TurnkeyErrorCodes.INVALID_REQUEST,
-      );
-    }
 
     return withTurnkeyErrorHandling(
       async () => {
         // this is an embedded wallet so we fetch accounts from Turnkey
         if (wallet.source === WalletSource.Embedded) {
           const embedded: EmbeddedWalletAccount[] = [];
+
+          if (!organizationId) {
+            throw new TurnkeyError(
+              "No organization ID provided and no active session found. Please log in first or pass in an organization ID.",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+
+          if (!userId) {
+            throw new TurnkeyError(
+              "No user ID provided and no active session found. Please log in first or pass in a user ID.",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
 
           const res = await this.httpClient.getWalletAccounts(
             {
@@ -1997,14 +2031,21 @@ export class TurnkeyClient {
           this.walletManager!.connector,
         );
 
-        const user = await this.fetchUser({
-          userId,
-          organizationId,
-          stampWith,
-        });
+        let ethereumAddresses: string[] = [];
+        let solanaAddresses: string[] = [];
 
-        const { ethereum: ethereumAddresses, solana: solanaAddresses } =
-          getAuthenticatorAddresses(user);
+        // we only fetch the user if we have to the organizationId and userId
+        // if not that means `isAuthenticator` will always be false
+        if (organizationId && userId) {
+          const user = await this.fetchUser({
+            userId,
+            organizationId,
+            stampWith,
+          });
+
+          ({ ethereum: ethereumAddresses, solana: solanaAddresses } =
+            getAuthenticatorAddresses(user));
+        }
 
         for (const provider of matching) {
           const timestamp = toExternalTimestamp();
@@ -2013,7 +2054,7 @@ export class TurnkeyClient {
             if (isEthereumProvider(provider)) {
               const evmAccount: ConnectedEthereumWalletAccount = {
                 walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
-                organizationId,
+                organizationId: organizationId ?? "",
                 walletId: wallet.walletId,
                 pathFormat: "PATH_FORMAT_BIP32",
                 path: WalletSource.Connected,
@@ -2042,7 +2083,7 @@ export class TurnkeyClient {
             if (isSolanaProvider(provider)) {
               const solAccount: ConnectedSolanaWalletAccount = {
                 walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
-                organizationId,
+                organizationId: organizationId ?? "",
                 walletId: wallet.walletId,
                 pathFormat: "PATH_FORMAT_BIP32",
                 path: WalletSource.Connected,
@@ -2097,7 +2138,10 @@ export class TurnkeyClient {
     params?: FetchPrivateKeysParams,
   ): Promise<v1PrivateKey[]> => {
     const { stampWith } = params || {};
-    const session = await this.storageManager.getActiveSession();
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
 
     const organizationId = params?.organizationId || session?.organizationId;
 
@@ -2540,16 +2584,13 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const session = await this.storageManager.getActiveSession();
-        if (!session) {
-          throw new TurnkeyError(
-            "No active session found. Please log in first.",
-            TurnkeyErrorCodes.NO_SESSION_FOUND,
-          );
-        }
+        const session = await getActiveSessionOrThrowIfRequired(
+          stampWith,
+          this.storageManager.getActiveSession,
+        );
 
         const organizationId =
-          organizationIdFromParams || session.organizationId;
+          organizationIdFromParams || session?.organizationId;
         if (!organizationId) {
           throw new TurnkeyError(
             "Organization ID is required to fetch or create P-256 API key user.",

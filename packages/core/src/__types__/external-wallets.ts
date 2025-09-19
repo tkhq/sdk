@@ -131,7 +131,14 @@ export interface BaseWalletInterface {
    */
   getProviders: () => Promise<WalletProvider[]>;
 
-  connectWalletAccount: (provider: WalletProvider) => Promise<void>;
+  /**
+   * Connects the specified wallet account.
+   */
+  connectWalletAccount: (provider: WalletProvider) => Promise<string>;
+
+  /**
+   * Disconnects the specified wallet account.
+   */
   disconnectWalletAccount: (provider: WalletProvider) => Promise<void>;
 
   /**

@@ -36,6 +36,7 @@ import {
   TurnkeyClient,
   WalletInterfaceType,
   WalletProvider,
+  WalletSource,
   type AddOauthProviderParams,
   type AddPasskeyParams,
   type ClearSessionParams,
@@ -89,7 +90,8 @@ import {
   type VerifyOtpParams,
   type Wallet,
   type WalletAccount,
-  VerifyOtpResult,
+  type VerifyOtpResult,
+  type ConnectedWallet,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -1388,18 +1390,46 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const connectWalletAccount = useCallback(
-    async (walletProvider: WalletProvider): Promise<void> => {
+    async (walletProvider: WalletProvider): Promise<WalletAccount> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       }
-      await client.connectWalletAccount(walletProvider);
+      const address = await client.connectWalletAccount(walletProvider);
 
-      // this will update our walletProvider state
-      await refreshWallets();
+      let wallets: Wallet[];
+
+      const s = await getSession();
+      if (s) {
+        // this will update our walletProvider state
+        wallets = await refreshWallets();
+      } else {
+        wallets = await fetchWallets({ connectedOnly: true });
+      }
+
+      // we narrow to only connected wallets
+      // because we know the account must come from one of them
+      const connectedWallets = wallets.filter(
+        (w): w is ConnectedWallet => w.source === WalletSource.Connected,
+      );
+
+      // find the matching account
+      const matchedAccount = connectedWallets
+        .flatMap((w) => w.accounts)
+        .find((a) => a.address === address);
+
+      if (!matchedAccount) {
+        throw new TurnkeyError(
+          `No connected wallet account found for address: ${address}`,
+          TurnkeyErrorCodes.NO_WALLET_FOUND,
+        );
+      }
+
+      return matchedAccount;
     },
+
     [client, callbacks],
   );
 
@@ -1412,6 +1442,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
       await client.disconnectWalletAccount(walletProvider);
+
+      // no need here to call `refreshWallets()` because the provider emits a disconnect event which
+      // will trigger a refresh via the listener we set up in `initializeWalletProviderListeners()`
     },
     [client, callbacks],
   );
@@ -2734,9 +2767,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const refreshWallets = useCallback(
-    async (params?: RefreshWalletsParams): Promise<void> => {
-      if (!masterConfig?.autoRefreshManagedState) return;
+    async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
+      if (!masterConfig?.autoRefreshManagedState) return [];
+
       const { stampWith, organizationId, userId } = params || {};
+
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -2764,6 +2799,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (wallets) {
         setWallets(wallets);
       }
+
+      return wallets;
     },
     [
       client,
@@ -4893,13 +4930,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      const s = await getSession();
-      if (!s) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
       if (!masterConfig?.walletConfig?.features?.connecting) {
         throw new TurnkeyError(
           "Wallet connecting is not enabled.",

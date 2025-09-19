@@ -196,12 +196,29 @@ export class WalletConnectWallet implements WalletConnectInterface {
    * - Throws if the approved session contains no connected accounts.
    *
    * @param _provider - Unused (present for interface compatibility).
+   * @returns A promise that resolves with the connected wallet's address.
    * @throws {Error} If the session contains no accounts.
    */
-  async connectWalletAccount(_provider: WalletProvider): Promise<void> {
+  async connectWalletAccount(provider: WalletProvider): Promise<string> {
     const session = await this.client.approve();
-    if (!hasConnectedAccounts(session))
-      throw new Error("No account found in session");
+
+    let address: string | undefined;
+    switch (provider.chainInfo.namespace) {
+      case Chain.Ethereum:
+        address = getConnectedEthereum(session);
+        break;
+      case Chain.Solana:
+        address = getConnectedSolana(session);
+        break;
+      default:
+        throw new Error(`Unsupported namespace: ${provider.chainInfo}`);
+    }
+
+    if (!address) {
+      throw new Error("No connected account found");
+    }
+
+    return address;
   }
 
   /**
@@ -514,8 +531,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
     session: SessionTypes.Struct | null,
     info: WalletProviderInfo,
   ): Promise<WalletProvider> {
-    const raw = session?.namespaces.eip155?.accounts?.[0] ?? "";
-    const address = raw.split(":")[2];
+    const address = getConnectedEthereum(session);
 
     const chainIdString = this.ethChain.split(":")[1] ?? "1";
     const chainIdDecimal = Number(chainIdString);
