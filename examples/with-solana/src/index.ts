@@ -76,7 +76,7 @@ async function main() {
         `- Any online faucet (e.g. https://faucet.solana.com/)`,
         `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=${network}`,
         `\n--------`,
-      ].join("\n")
+      ].join("\n"),
     );
     // Await user confirmation to continue
     await prompts([
@@ -120,14 +120,14 @@ async function main() {
 
         const { r, s } = getSignatureFromActivity(activity);
         return Buffer.from(`${r}${s}`, "hex");
-      }
+      },
     );
   }
 
   const isValidSignature = nacl.sign.detached.verify(
     messageAsUint8Array,
     signature,
-    bs58.decode(solAddress)
+    bs58.decode(solAddress),
   );
 
   if (!isValidSignature) {
@@ -179,23 +179,11 @@ async function main() {
     connection,
   });
 
-  console.log(
-    "serialized tx",
-    transaction.serialize({ verifySignatures: false }).toString("hex")
-  );
-
-  const parsedTx = Transaction.from(
-    Buffer.from(
-      "01000102e05271368f77a2c5fefe77ce50e2b2f93ceb671eee8b172734c8d4df9d9eddc10000000000000000000000000000000000000000000000000000000000000000c44bc121b92145204c6b6fa9deff9335e2727ddb6854130ad7d944f4e674e41701010200000c020000006400000000000000",
-      "hex"
-    )
-  );
-
   let signedTransaction: Transaction | undefined = undefined; // legacy
   try {
     signedTransaction = (await turnkeySigner.signTransaction(
-      parsedTx,
-      solAddress
+      transaction,
+      solAddress,
     )) as Transaction;
   } catch (error: any) {
     await handleActivityError(turnkeyClient, error).then(
@@ -206,10 +194,10 @@ async function main() {
 
         const decodedTransaction = Buffer.from(
           getSignedTransactionFromActivity(activity),
-          "hex"
+          "hex",
         );
         signedTransaction = Transaction.from(decodedTransaction);
-      }
+      },
     );
   }
 
