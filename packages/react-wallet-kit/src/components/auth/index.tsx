@@ -79,6 +79,12 @@ export function AuthComponent({
             contact={email}
             otpId={otpId}
             otpType={OtpType.Email}
+            otpLength={
+              config.auth?.otpLength !== undefined
+                ? Number(config.auth.otpLength)
+                : undefined
+            }
+            alphanumeric={config.auth?.otpAlphanumeric}
             {...(sessionKey && { sessionKey })}
           />
         ),
@@ -104,6 +110,13 @@ export function AuthComponent({
             formattedContact={formattedPhone}
             otpId={otpId}
             otpType={OtpType.Sms}
+            otpLength={
+              config.auth?.otpLength !== undefined
+                ? Number(config.auth.otpLength)
+                : undefined
+            }
+            alphanumeric={config.auth?.otpAlphanumeric}
+            {...(sessionKey && { sessionKey })}
           />
         ),
         showTitle: false,

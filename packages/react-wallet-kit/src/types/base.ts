@@ -76,8 +76,12 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       /** whether to open OAuth in the same page. Always true on mobile. */
       openOauthInPage?: boolean;
     };
-    /** session expiration time in seconds. */
+    /** session expiration time in seconds. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
     sessionExpirationSeconds?: string;
+    /** If otp sent will be alphanumeric. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
+    otpAlphanumeric?: boolean;
+    /** length of the OTP. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
+    otpLength?: string;
     /** parameters for creating a sub-organization for each authentication method. */
     createSuborgParams?: {
       /** parameters for email OTP authentication. */

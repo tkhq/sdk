@@ -13,8 +13,8 @@ interface OtpVerificationProps {
   contact: string;
   otpId: string;
   otpType: OtpType;
-  otpLength?: number;
-  alphanumeric?: boolean;
+  otpLength?: number | undefined; // Length of the OTP code. Defaults to 6.
+  alphanumeric?: boolean | undefined; // Whether the OTP is alphanumeric or numeric only. Defaults to true (alphanumeric).
   formattedContact?: string; // Optional formatted contact for display purposes
   sessionKey?: string; // Optional sessionKey for multisession
   onContinue?: (optCode: string) => Promise<void>; // Optional callback for continue action
@@ -62,7 +62,7 @@ export function OtpVerification(props: OtpVerificationProps) {
       const niceError =
         (error as TurnkeyError).code === TurnkeyErrorCodes.INVALID_OTP_CODE
           ? "Invalid OTP code"
-          : "An error has occurred"; // eek! maybe this is bad!
+          : "An error has occurred";
       setError(niceError);
       shakeInput();
       throw new Error(`Error completing OTP: ${error}`);

@@ -762,6 +762,36 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getAppProofs = async (
+    input: SdkApiTypes.TGetAppProofsBody,
+  ): Promise<SdkApiTypes.TGetAppProofsResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+    return this.request("/public/v1/query/list_app_proofs", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetAppProofs = async (
+    input: SdkApiTypes.TGetAppProofsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_app_proofs";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   listOauth2Credentials = async (
     input: SdkApiTypes.TListOauth2CredentialsBody,
   ): Promise<SdkApiTypes.TListOauth2CredentialsResponse> => {

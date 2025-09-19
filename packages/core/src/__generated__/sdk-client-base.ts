@@ -1145,6 +1145,51 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getAppProofs = async (
+    input: SdkTypes.TGetAppProofsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetAppProofsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_app_proofs",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetAppProofs = async (
+    input: SdkTypes.TGetAppProofsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_app_proofs";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_APP_PROOFS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   listOauth2Credentials = async (
     input: SdkTypes.TListOauth2CredentialsBody,
     stampWith?: StamperType,

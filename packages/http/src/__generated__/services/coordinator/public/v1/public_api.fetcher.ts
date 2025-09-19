@@ -996,6 +996,52 @@ export const signGetActivities = (
   });
 
 /**
+ * `POST /public/v1/query/list_app_proofs`
+ */
+export type TGetAppProofsResponse =
+  operations["PublicApiService_GetAppProofs"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_app_proofs`
+ */
+export type TGetAppProofsInput = { body: TGetAppProofsBody };
+
+/**
+ * `POST /public/v1/query/list_app_proofs`
+ */
+export type TGetAppProofsBody =
+  operations["PublicApiService_GetAppProofs"]["parameters"]["body"]["body"];
+
+/**
+ * List app proofs for an activity
+ *
+ * List the app proofs for the given activity.
+ *
+ * `POST /public/v1/query/list_app_proofs`
+ */
+export const getAppProofs = (input: TGetAppProofsInput) =>
+  request<TGetAppProofsResponse, TGetAppProofsBody, never, never, never>({
+    uri: "/public/v1/query/list_app_proofs",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetAppProofs` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetAppProofs}
+ */
+export const signGetAppProofs = (
+  input: TGetAppProofsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetAppProofsBody, never, never>({
+    uri: "/public/v1/query/list_app_proofs",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_oauth2_credentials`
  */
 export type TListOauth2CredentialsResponse =

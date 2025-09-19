@@ -20,7 +20,8 @@ export function UpdatePhoneNumber(params: {
   subTitle?: string;
   stampWith?: StamperType | undefined;
 }) {
-  const { user, initOtp, verifyOtp, updateUserPhoneNumber } = useTurnkey();
+  const { config, user, initOtp, verifyOtp, updateUserPhoneNumber } =
+    useTurnkey();
   const { isMobile, pushPage, closeModal } = useModal();
   const phone = user?.userPhoneNumber || "";
   const [phoneInput, setPhoneInput] = useState(phone);
@@ -52,6 +53,12 @@ export function UpdatePhoneNumber(params: {
               {...(formattedPhone && { formattedPhone })}
               otpId={otpId}
               otpType={OtpType.Sms}
+              otpLength={
+                config?.auth?.otpLength !== undefined
+                  ? Number(config.auth.otpLength)
+                  : undefined
+              }
+              alphanumeric={config?.auth?.otpAlphanumeric}
               onContinue={async (otpCode: string) => {
                 const { verificationToken } = await verifyOtp({
                   otpId,

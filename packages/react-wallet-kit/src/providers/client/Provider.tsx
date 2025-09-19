@@ -618,12 +618,36 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "socials" | "email" | "sms" | "passkey" | "wallet"
       >);
 
+    // Warn if they are trying to set auth proxy only settings directly
+    if (config.auth?.sessionExpirationSeconds) {
+      console.warn(
+        "Turnkey SDK warning. You have set sessionExpirationSeconds directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure session expiration in the Turnkey dashboard.",
+      );
+    }
+    if (config.auth?.otpAlphanumeric !== undefined) {
+      console.warn(
+        "Turnkey SDK warning. You have set otpAlphanumeric directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
+      );
+    }
+    if (config.auth?.otpLength) {
+      console.warn(
+        "Turnkey SDK warning. You have set otpLength directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
+      );
+    }
+    // These are settings that can only be set via the auth proxy config
+    const authProxyOnlySettings = {
+      sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
+      otpAlphanumeric: proxyAuthConfig?.otpAlphanumeric ?? true, // This fallback will never be hit. This is purely for the tests to pass before mono is released
+      otpLength: proxyAuthConfig?.otpLength ?? "6", // This fallback will never be hit. This is purely for the tests to pass before mono is released
+    };
+
     return {
       ...config,
 
       // Overrides:
       auth: {
         ...config.auth,
+        ...authProxyOnlySettings,
         methods: resolvedMethods,
         oauthConfig: {
           ...config.auth?.oauthConfig,
@@ -636,7 +660,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             ? true
             : config.auth?.oauthConfig?.openOauthInPage,
         },
-        sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
         methodOrder,
         oauthOrder,
         autoRefreshSession: config.auth?.autoRefreshSession ?? true,
@@ -4055,6 +4078,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       otpType={OtpType.Sms}
                       contact={params.phoneNumber!}
                       otpId={otpId}
+                      otpLength={
+                        masterConfig.auth?.otpLength !== undefined
+                          ? Number(masterConfig.auth.otpLength)
+                          : undefined
+                      }
+                      alphanumeric={masterConfig.auth?.otpAlphanumeric}
                       onContinue={async (otpCode: string) => {
                         try {
                           const { verificationToken } = await verifyOtp({
@@ -4197,6 +4226,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       otpType={OtpType.Email}
                       contact={params.email!}
                       otpId={otpId}
+                      otpLength={
+                        masterConfig?.auth?.otpLength !== undefined
+                          ? Number(masterConfig.auth.otpLength)
+                          : undefined
+                      }
+                      alphanumeric={masterConfig?.auth?.otpAlphanumeric}
                       onContinue={async (otpCode: string) => {
                         try {
                           const { verificationToken } = await verifyOtp({
@@ -4338,6 +4373,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       otpType={OtpType.Email}
                       contact={params.email!}
                       otpId={otpId}
+                      otpLength={
+                        masterConfig?.auth?.otpLength !== undefined
+                          ? Number(masterConfig.auth.otpLength)
+                          : undefined
+                      }
+                      alphanumeric={masterConfig?.auth?.otpAlphanumeric}
                       onContinue={async (otpCode: string) => {
                         try {
                           const { verificationToken } = await verifyOtp({
@@ -4497,6 +4538,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       otpType={OtpType.Sms}
                       contact={params.phoneNumber!}
                       otpId={otpId}
+                      otpLength={
+                        masterConfig.auth?.otpLength !== undefined
+                          ? Number(masterConfig.auth.otpLength)
+                          : undefined
+                      }
+                      alphanumeric={masterConfig?.auth?.otpAlphanumeric}
                       onContinue={async (otpCode: string) => {
                         try {
                           const { verificationToken } = await verifyOtp({
