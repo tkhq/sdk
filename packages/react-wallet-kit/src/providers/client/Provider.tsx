@@ -151,6 +151,7 @@ import type {
   HandleAddPasskeyParams,
   HandleAddPhoneNumberParams,
   HandleAppleOauthParams,
+  HandleCoinbaseOnRampParams,
   HandleConnectExternalWalletParams,
   HandleDiscordOauthParams,
   HandleExportPrivateKeyParams,
@@ -5129,6 +5130,47 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [pushPage, masterConfig, client, session, user],
   );
 
+  const handleCoinbaseOnRamp = useCallback(
+    async (params: HandleCoinbaseOnRampParams): Promise<void> => {
+      const { successPageDuration = 2000 } = params || {};
+      const organizationId = params?.organizationId || session?.organizationId;
+      if (!organizationId) {
+        throw new TurnkeyError(
+          "A session or passed in organization ID is required.",
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
+      }
+
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+
+      const res = await client.httpClient.initFiatOnRamp(params);
+      const { onRampUrl } = res;
+
+      // Popup flow (can abstract this into a utility)
+      const width = popupWidth;
+      const height = popupHeight;
+      const left = window.screenX + (window.innerWidth - width) / 2;
+      const top = window.screenY + (window.innerHeight - height) / 2;
+
+      const popupWindow = window.open(
+        "about:blank",
+        "_blank",
+        `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+      );
+
+      if (!popupWindow) {
+        throw new Error("Failed to open Coinbase payment window.");
+      }
+
+      popupWindow.location.href = onRampUrl.toString();
+    },
+    [masterConfig, client, session, user],
+  );
+
   useEffect(() => {
     if (proxyAuthConfigRef.current) return;
 
@@ -5346,6 +5388,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleConnectExternalWallet,
         handleRemoveUserEmail,
         handleRemoveUserPhoneNumber,
+        handleCoinbaseOnRamp,
       }}
     >
       {children}

@@ -3,6 +3,11 @@ import type {
   StamperType,
   v1AddressFormat,
   v1Curve,
+  v1FiatOnRampBlockchainNetwork,
+  v1FiatOnRampCryptoCurrency,
+  v1FiatOnRampCurrency,
+  v1FiatOnRampPaymentMethod,
+  v1FiatOnRampProvider,
   v1HashFunction,
   v1PayloadEncoding,
   v1WalletAccountParams,
@@ -223,6 +228,23 @@ export type HandleRemoveUserEmailParams = {
 
 export type HandleRemoveUserPhoneNumberParams = {
   userId?: string;
+  successPageDuration?: number | undefined;
+  stampWith?: StamperType | undefined;
+  organizationId?: string;
+};
+
+export type HandleCoinbaseOnRampParams = {
+  onrampProvider: v1FiatOnRampProvider;
+  walletAddress: string;
+  network: v1FiatOnRampBlockchainNetwork;
+  cryptoCurrencyCode: v1FiatOnRampCryptoCurrency;
+  fiatCurrencyCode?: v1FiatOnRampCurrency;
+  fiatCurrencyAmount?: string;
+  paymentMethod?: v1FiatOnRampPaymentMethod;
+  countryCode?: string;
+  countrySubdivisionCode?: string;
+  sandboxMode?: boolean;
+  urlForSignature?: string;
   successPageDuration?: number | undefined;
   stampWith?: StamperType | undefined;
   organizationId?: string;

@@ -24,6 +24,7 @@ import type {
   HandleAddPasskeyParams,
   HandleAddPhoneNumberParams,
   HandleAppleOauthParams,
+  HandleCoinbaseOnRampParams,
   HandleConnectExternalWalletParams,
   HandleDiscordOauthParams,
   HandleExportPrivateKeyParams,
@@ -334,7 +335,7 @@ export type ClientContextType = Override<
      * @return A void promise.
      */
     handleExportPrivateKey: (
-      params: HandleExportPrivateKeyParams,
+      params: HandleExportPrivateKeyParams
     ) => Promise<void>;
 
     /**
@@ -361,7 +362,7 @@ export type ClientContextType = Override<
      */
 
     handleExportWalletAccount: (
-      params: HandleExportWalletAccountParams,
+      params: HandleExportWalletAccountParams
     ) => Promise<void>;
 
     /**
@@ -406,7 +407,7 @@ export type ClientContextType = Override<
      * @returns A promise that resolves to the new private key's ID.
      */
     handleImportPrivateKey: (
-      params?: HandleImportPrivateKeyParams,
+      params?: HandleImportPrivateKeyParams
     ) => Promise<string>;
 
     /**
@@ -431,7 +432,7 @@ export type ClientContextType = Override<
      * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error updating the user name.
      */
     handleUpdateUserEmail: (
-      params?: HandleUpdateUserEmailParams,
+      params?: HandleUpdateUserEmailParams
     ) => Promise<string>;
 
     /**
@@ -458,7 +459,7 @@ export type ClientContextType = Override<
      * @throws {TurnkeyError} If the client is not initialized, no active session is found, SMS OTP is not enabled, or if there is an error updating the phone number.
      */
     handleUpdateUserPhoneNumber: (
-      params?: HandleUpdateUserPhoneNumberParams,
+      params?: HandleUpdateUserPhoneNumberParams
     ) => Promise<string>;
     /**
      * Handles the update user email flow.
@@ -483,7 +484,7 @@ export type ClientContextType = Override<
      * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error updating the email.
      */
     handleUpdateUserName: (
-      params?: HandleUpdateUserNameParams,
+      params?: HandleUpdateUserNameParams
     ) => Promise<string>;
     /**
      * Handles the add user email flow.
@@ -533,7 +534,7 @@ export type ClientContextType = Override<
      * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the phone number.
      */
     handleAddPhoneNumber: (
-      params?: HandleAddPhoneNumberParams,
+      params?: HandleAddPhoneNumberParams
     ) => Promise<string>;
 
     /**
@@ -557,7 +558,7 @@ export type ClientContextType = Override<
      * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the provider.
      */
     handleAddOauthProvider: (
-      params: HandleAddOauthProviderParams,
+      params: HandleAddOauthProviderParams
     ) => Promise<void>;
 
     /**
@@ -583,7 +584,7 @@ export type ClientContextType = Override<
      * if there is an error removing the provider, or if the user cancels the action.
      */
     handleRemoveOauthProvider: (
-      params: HandleRemoveOauthProviderParams,
+      params: HandleRemoveOauthProviderParams
     ) => Promise<string[]>;
 
     /**
@@ -631,7 +632,7 @@ export type ClientContextType = Override<
      * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error removing the passkey.
      */
     handleRemovePasskey: (
-      params: HandleRemovePasskeyParams,
+      params: HandleRemovePasskeyParams
     ) => Promise<string[]>;
 
     /**
@@ -656,7 +657,7 @@ export type ClientContextType = Override<
      * @throws {TurnkeyError} If the client is not initialized, if there is an error during the signing process, or if the user cancels the action.
      */
     handleSignMessage: (
-      params: HandleSignMessageParams,
+      params: HandleSignMessageParams
     ) => Promise<v1SignRawPayloadResult>;
 
     /**
@@ -677,7 +678,7 @@ export type ClientContextType = Override<
      * @throws {TurnkeyError} If the client is not initialized or if the user cancels the action.
      */
     handleConnectExternalWallet: (
-      params?: HandleConnectExternalWalletParams,
+      params?: HandleConnectExternalWalletParams
     ) => Promise<{
       type: "connect" | "disconnect";
       account: WalletAccount;
@@ -700,7 +701,7 @@ export type ClientContextType = Override<
      * if the user cancels the action, or if there is an error during the removal process.
      */
     handleRemoveUserEmail: (
-      params?: HandleRemoveUserEmailParams,
+      params?: HandleRemoveUserEmailParams
     ) => Promise<string>;
 
     /**
@@ -720,12 +721,15 @@ export type ClientContextType = Override<
      * if the user cancels the action, or if there is an error during the removal process.
      */
     handleRemoveUserPhoneNumber: (
-      params?: HandleRemoveUserPhoneNumberParams,
+      params?: HandleRemoveUserPhoneNumberParams
     ) => Promise<string>;
+
+    // TODO (Amir): Complete JSDoc
+    handleCoinbaseOnRamp: (params: HandleCoinbaseOnRampParams) => Promise<void>;
   }
 >;
 
 /** @internal */
 export const ClientContext = createContext<ClientContextType | undefined>(
-  undefined,
+  undefined
 );
