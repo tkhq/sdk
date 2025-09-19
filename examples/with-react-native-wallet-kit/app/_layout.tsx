@@ -4,7 +4,9 @@ import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 // Polyfills must be early to satisfy crypto/random usage across dependencies
+import '@walletconnect/react-native-compat';
 import 'react-native-get-random-values';
+import 'react-native-url-polyfill/auto';
 import { Buffer } from 'buffer';
 (global as any).Buffer = (global as any).Buffer || Buffer;
 
