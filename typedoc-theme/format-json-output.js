@@ -25,6 +25,38 @@ const {
 const SDK_DOCS_INDEX_PATH = "generated-docs/sdk-docs.json";
 const DOCS_INDEX_PATH = "generated-docs/docs.json";
 const CHANGELOG_ROOT = "generated-docs/changelogs";
+const INPUT = "generated-docs/sdks.json";
+const OUTDIR = "generated-docs";
+
+const MDX_IMPORTS = `
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+`;
+
+const KINDS = {
+  Project: 1,
+  Module: 2,
+  Namespace: 4,
+  Enum: 8,
+  EnumMember: 16,
+  Variable: 32,
+  Function: 64,
+  Class: 128,
+  Interface: 256,
+  Constructor: 512,
+  Property: 1024,
+  PropertySignature: 1024,
+  Method: 2048,
+  CallSignature: 4096,
+  IndexSignature: 8192,
+  ConstructorSignature: 16384,
+  Parameter: 32768,
+  TypeLiteral: 65536,
+  TypeAlias: 4194304,
+  ObjectLiteral: 2097152,
+};
+
+const PKG_INDEX = new WeakMap();
 
 const { mkdirSync, readFileSync, writeFileSync } = require("fs");
 const { join, posix: posixPath } = require("path");
@@ -86,39 +118,6 @@ if (groupsNormalized.length !== PACKAGES_TO_SYNC.length) {
       `Extra items will be ignored/last group reused.`,
   );
 }
-
-const INPUT = "generated-docs/sdks.json";
-const OUTDIR = "generated-docs/formatted";
-
-const MDX_IMPORTS = `
-import { H3Bordered } from "/snippets/h3-bordered.mdx";
-import { NestedParam } from "/snippets/nested-param.mdx";
-`;
-
-const KINDS = {
-  Project: 1,
-  Module: 2,
-  Namespace: 4,
-  Enum: 8,
-  EnumMember: 16,
-  Variable: 32,
-  Function: 64,
-  Class: 128,
-  Interface: 256,
-  Constructor: 512,
-  Property: 1024,
-  PropertySignature: 1024,
-  Method: 2048,
-  CallSignature: 4096,
-  IndexSignature: 8192,
-  ConstructorSignature: 16384,
-  Parameter: 32768,
-  TypeLiteral: 65536,
-  TypeAlias: 4194304,
-  ObjectLiteral: 2097152,
-};
-
-const PKG_INDEX = new WeakMap();
 
 /** Build an id->node index for a package subtree once */
 function buildPkgIndex(root) {
@@ -652,7 +651,7 @@ function walkPackage(pkgNode) {
   visit(pkgNode);
 }
 
-// Top-level children are packages/modules in your monorepo JSON
+// Top-level children are packages/modules in our monorepo JSON
 for (const child of json.children || []) {
   if (child.kind === KINDS.Module) {
     walkPackage(child);
@@ -707,7 +706,8 @@ for (let i = 0; i < PACKAGES_TO_SYNC.length; i++) {
   // Inside that, find or create the nested "SDK reference" group
   const nestedSdkRef = ensureGroupIn(productGroup.pages, "SDK reference");
 
-  addPagesDedup(nestedSdkRef.pages, pages);
+  // replace wholesale for simplicity & alphabetical sort
+  nestedSdkRef.pages = pages;
   summary.push({ pkg, group: displayGroup, added: pages.length });
 }
 
