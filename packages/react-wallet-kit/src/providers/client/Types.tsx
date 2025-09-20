@@ -579,7 +579,8 @@ export type ClientContextType = Override<
      * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
      *
      * @returns A promise that resolves to an array of provider IDs that were removed.
-     * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error removing the provider.
+     * @throws {TurnkeyError} If the client is not initialized, no active session is found,
+     * if there is an error removing the provider, or if the user cancels the action.
      */
     handleRemoveOauthProvider: (
       params: HandleRemoveOauthProviderParams,
@@ -652,7 +653,7 @@ export type ClientContextType = Override<
      * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
      * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
      * @returns A promise that resolves to a `v1SignRawPayloadResult` object containing the signed message.
-     * @throws {TurnkeyError} If the client is not initialized or if there is an error during the signing process.
+     * @throws {TurnkeyError} If the client is not initialized, if there is an error during the signing process, or if the user cancels the action.
      */
     handleSignMessage: (
       params: HandleSignMessageParams,
@@ -670,22 +671,33 @@ export type ClientContextType = Override<
      *
      * @param params.successPageDuration - duration (in ms) for the success page after connecting (default: 2000ms).
      *
-     * @returns A void promise.
-     * @throws {TurnkeyError} If the client is not initialized or if no active session is found.
+     * @returns A promise that resolves to an object describing the action:
+     *   - `{ type: "connect", account: WalletAccount }` when a wallet is successfully connected.
+     *   - `{ type: "disconnect", account?: WalletAccount }` when a wallet is disconnected.
+     * @throws {TurnkeyError} If the client is not initialized or if the user cancels the action.
      */
     handleConnectExternalWallet: (
       params?: HandleConnectExternalWalletParams,
-    ) => Promise<void>;
+    ) => Promise<{
+      type: "connect" | "disconnect";
+      account: WalletAccount;
+    }> | void;
 
     /**
      * Handles the removal of a user's email address from their Turnkey account.
      *
-     * - This function opens a modal with the RemoveUserEmail component, allowing the user to confirm and remove their email address.
+     * - Opens a modal with the RemoveUserEmail component, allowing the user to confirm and remove their email address.
+     * - Supports optional overrides for userId, organizationId, and stamper type.
+     * - Returns the user ID associated with the removed email.
      *
-     * @param params.userId - The user ID to remove the email for (defaults to current session's userId).
-     * @param params.successPageDuration - duration (in ms) for the success page after removal (default: 0, no success page).
-     * @param params.stampWith - parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+     * @param params.userId - user ID to remove the email for (defaults to the current session's userId).
+     * @param params.successPageDuration - duration in milliseconds to display the success page after removal (default: 0, no success page).
+     * @param params.stampWith - stamper type to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
      * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+     *
+     * @returns A promise that resolves to the user ID associated with the removed email.
+     * @throws {TurnkeyError} If the client is not initialized, no active session is found,
+     * if the user cancels the action, or if there is an error during the removal process.
      */
     handleRemoveUserEmail: (
       params?: HandleRemoveUserEmailParams,
@@ -694,12 +706,18 @@ export type ClientContextType = Override<
     /**
      * Handles the removal of a user's phone number from their Turnkey account.
      *
-     * - This function opens a modal with the RemoveUserPhoneNumber component, allowing the user to confirm and remove their phone number.
+     * - Opens a modal with the RemovePhoneNumber component, allowing the user to confirm and remove their phone number.
+     * - Supports optional overrides for userId, organizationId, and stamper type.
+     * - Returns the user ID associated with the removed phone number.
      *
-     * @param params.userId - The user ID to remove the phone number for (defaults to current session's userId).
-     * @param params.successPageDuration - duration (in ms) for the success page after removal (default: 0, no success page).
-     * @param params.stampWith - parameter to specify the stamper to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+     * @param params.userId - user ID to remove the phone number for (defaults to the current session's userId).
+     * @param params.successPageDuration - duration in milliseconds to display the success page after removal (default: 0, no success page).
+     * @param params.stampWith - stamper type to use for the removal (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
      * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+     *
+     * @returns A promise that resolves to the user ID associated with the removed phone number.
+     * @throws {TurnkeyError} If the client is not initialized, no active session is found,
+     * if the user cancels the action, or if there is an error during the removal process.
      */
     handleRemoveUserPhoneNumber: (
       params?: HandleRemoveUserPhoneNumberParams,
