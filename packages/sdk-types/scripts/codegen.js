@@ -440,7 +440,8 @@ function generateApiTypes(swagger, prefix = "") {
         for (const [prop, schema] of Object.entries(
           requestTypeDef.properties,
         )) {
-          if (prop === "organizationId") continue;
+          // NOTE: Not sure why this was here, seems wrong
+          // if (prop === "organizationId") continue;
           let type = "any";
           if (schema.$ref) {
             type = refToTs(schema.$ref);
