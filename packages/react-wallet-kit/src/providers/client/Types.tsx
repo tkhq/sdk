@@ -671,12 +671,17 @@ export type ClientContextType = Override<
      *
      * @param params.successPageDuration - duration (in ms) for the success page after connecting (default: 2000ms).
      *
-     * @returns A promise that resolves to the connected wallet account or void if a wallet was disconnected.
+     * @returns A promise that resolves to an object describing the action:
+     *   - `{ type: "connect", account: WalletAccount }` when a wallet is successfully connected.
+     *   - `{ type: "disconnect", account?: WalletAccount }` when a wallet is disconnected.
      * @throws {TurnkeyError} If the client is not initialized or if the user cancels the action.
      */
     handleConnectExternalWallet: (
       params?: HandleConnectExternalWalletParams,
-    ) => Promise<WalletAccount | void>;
+    ) => Promise<{
+      type: "connect" | "disconnect";
+      account: WalletAccount;
+    }> | void;
 
     /**
      * Handles the removal of a user's email address from their Turnkey account.

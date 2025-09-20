@@ -4972,7 +4972,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleConnectExternalWallet = useCallback(
     async (
       params?: HandleConnectExternalWalletParams,
-    ): Promise<WalletAccount | void> => {
+    ): Promise<{ type: "connect" | "disconnect"; account: WalletAccount }> => {
       const { successPageDuration = 2000 } = params || {};
       if (!client)
         throw new TurnkeyError(
@@ -4995,11 +4995,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             <ConnectWalletModal
               providers={providers}
               successPageDuration={successPageDuration}
-              onConnect={(account: WalletAccount) => {
-                resolve(account);
-              }}
-              onDisconnect={() => {
-                resolve();
+              onSuccess={(
+                type: "connect" | "disconnect",
+                account: WalletAccount,
+              ) => {
+                resolve({ type, account });
               }}
               onError={(error) => {
                 reject(error);

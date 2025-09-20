@@ -7,21 +7,25 @@ import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ActionPage } from "../auth/Action";
 import { SuccessPage } from "../design/Success";
-import type { WalletAccount, WalletProvider } from "@turnkey/core";
+import {
+  WalletSource,
+  type ConnectedWallet,
+  type WalletAccount,
+  type WalletProvider,
+} from "@turnkey/core";
 import { isWalletConnect } from "../../utils/utils";
 
 interface ConnectWalletModalProps {
   providers: WalletProvider[];
   successPageDuration?: number | undefined;
-  onConnect: (account: WalletAccount) => void;
-  onDisconnect: () => void;
+  onSuccess: (type: "connect" | "disconnect", account: WalletAccount) => void;
   onError: (error: any) => void;
 }
 export function ConnectWalletModal(props: ConnectWalletModalProps) {
-  const { providers, successPageDuration, onConnect, onDisconnect, onError } =
-    props;
+  const { providers, successPageDuration, onSuccess, onError } = props;
   const { pushPage, closeModal } = useModal();
-  const { connectWalletAccount, disconnectWalletAccount } = useTurnkey();
+  const { wallets, connectWalletAccount, disconnectWalletAccount } =
+    useTurnkey();
 
   const handleConnectWallet = async (provider: WalletProvider) => {
     if (isWalletConnect(provider)) {
@@ -34,7 +38,7 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
             provider={provider}
             onAction={async (provider: WalletProvider) => {
               const account = await connectWalletAccount(provider);
-              onConnect(account);
+              onSuccess("connect", account);
             }}
             successPageDuration={successPageDuration}
           />
@@ -58,7 +62,7 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
           action={async () => {
             try {
               const account = await connectWalletAccount(provider);
-              onConnect(account);
+              onSuccess("connect", account);
               if (successPageDuration && successPageDuration > 0) {
                 pushPage({
                   key: "Connecting Success",
@@ -93,8 +97,24 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
           provider={provider}
           onDisconnect={async () => {
             try {
+              const address = provider.connectedAddresses[0];
+
+              // we narrow to only connected wallets
+              // because we know the account must come from one of them
+              const connectedWallets = wallets.filter(
+                (w): w is ConnectedWallet =>
+                  w.source === WalletSource.Connected,
+              );
+
+              // find the matching account
+              const matchedAccount = connectedWallets
+                .flatMap((w) => w.accounts)
+                .find((a) => a.address === address);
+
               await disconnectWalletAccount(provider);
-              onDisconnect();
+
+              onSuccess("disconnect", matchedAccount!);
+
               if (successPageDuration) {
                 pushPage({
                   key: "Disconnect Success",
