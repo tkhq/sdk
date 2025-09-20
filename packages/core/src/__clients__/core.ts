@@ -1300,6 +1300,7 @@ export class TurnkeyClient {
    *
    * @param params.verificationToken - verification token received after OTP verification.
    * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
+   * @param params.organizationId - optional organization ID to target (defaults to the verified subOrg ID linked to the verification token contact).
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
@@ -1313,6 +1314,7 @@ export class TurnkeyClient {
       verificationToken,
       invalidateExisting = false,
       publicKey = await this.apiKeyStamper?.createKeyPair(),
+      organizationId,
       sessionKey = SessionKey.DefaultSessionkey,
     } = params;
 
@@ -1322,6 +1324,7 @@ export class TurnkeyClient {
           verificationToken,
           publicKey: publicKey!,
           invalidateExisting,
+          ...(organizationId && { organizationId }),
         });
 
         if (!res) {

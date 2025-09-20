@@ -99,6 +99,7 @@ export type VerifyOtpResult = {
 export type LoginWithOtpParams = {
   verificationToken: string;
   publicKey?: string;
+  organizationId?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
 };

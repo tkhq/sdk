@@ -309,6 +309,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         />
                       ),
                       showTitle: false,
+                      onClose: () => {
+                        reject(
+                          new TurnkeyError(
+                            "User cancelled the Facebook authentication process.",
+                            TurnkeyErrorCodes.USER_CANCELED,
+                          ),
+                        );
+                      },
                     });
                   });
                 },
@@ -397,6 +405,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     />
                   ),
                   showTitle: false,
+                  onClose: () => {
+                    reject(
+                      new TurnkeyError(
+                        "User cancelled the Discord authentication process.",
+                        TurnkeyErrorCodes.USER_CANCELED,
+                      ),
+                    );
+                  },
                 });
               });
             }
@@ -469,6 +485,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     />
                   ),
                   showTitle: false,
+                  onClose: () => {
+                    reject(
+                      new TurnkeyError(
+                        "User cancelled the Twitter authentication process.",
+                        TurnkeyErrorCodes.USER_CANCELED,
+                      ),
+                    );
+                  },
                 });
               });
             }
@@ -522,6 +546,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   />
                 ),
                 showTitle: false,
+                onClose: () => {
+                  reject(
+                    new TurnkeyError(
+                      `User cancelled the ${providerName} authentication process.`,
+                      TurnkeyErrorCodes.USER_CANCELED,
+                    ),
+                  );
+                },
               });
             });
           } else if (callbacks?.onOauthRedirect) {
@@ -1938,6 +1970,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
+
       return new Promise((resolve, reject) => {
         pushPage({
           key: "Sign message",
@@ -1966,6 +1999,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               })}
             />
           ),
+          onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User cancelled the signing process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
         });
       });
     },
@@ -4807,6 +4847,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             ),
             showTitle: false,
             preventBack: true,
+            onClose: () =>
+              reject(
+                new TurnkeyError(
+                  "User cancelled the remove OAuth provider process.",
+                  TurnkeyErrorCodes.USER_CANCELED,
+                ),
+              ),
           });
         });
       } catch (error) {
@@ -4923,7 +4970,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const handleConnectExternalWallet = useCallback(
-    async (params?: HandleConnectExternalWalletParams): Promise<void> => {
+    async (
+      params?: HandleConnectExternalWalletParams,
+    ): Promise<WalletAccount | void> => {
       const { successPageDuration = 2000 } = params || {};
       if (!client)
         throw new TurnkeyError(
@@ -4946,7 +4995,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             <ConnectWalletModal
               providers={providers}
               successPageDuration={successPageDuration}
-              onSuccess={() => {
+              onConnect={(account: WalletAccount) => {
+                resolve(account);
+              }}
+              onDisconnect={() => {
                 resolve();
               }}
               onError={(error) => {
@@ -4954,6 +5006,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               }}
             />
           ),
+          onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User cancelled the connect wallet process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
         });
       });
     },
@@ -4992,6 +5051,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             ),
             showTitle: false,
             preventBack: true,
+            onClose: () =>
+              reject(
+                new TurnkeyError(
+                  "User cancelled the remove email process.",
+                  TurnkeyErrorCodes.USER_CANCELED,
+                ),
+              ),
           });
         });
       } catch (error) {
@@ -5040,6 +5106,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             ),
             showTitle: false,
             preventBack: true,
+            onClose: () =>
+              reject(
+                new TurnkeyError(
+                  "User cancelled the remove phone number process.",
+                  TurnkeyErrorCodes.USER_CANCELED,
+                ),
+              ),
           });
         });
       } catch (error) {

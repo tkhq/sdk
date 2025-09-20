@@ -207,7 +207,10 @@ export function ModalRoot(props: ModalRootProps) {
                     <IconButton
                       className="w-6.5 h-6.5"
                       icon={faClose}
-                      onClick={closeModal}
+                      onClick={() => {
+                        current?.onClose?.();
+                        closeModal();
+                      }}
                     />
                   </div>
                 </div>

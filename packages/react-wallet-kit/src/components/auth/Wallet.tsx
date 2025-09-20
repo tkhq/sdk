@@ -11,7 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
-import type { WalletAccount, WalletProvider } from "@turnkey/core";
+import type { WalletProvider } from "@turnkey/core";
 import { QRCodeSVG as QRCode } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
 import { isEthereumProvider, isSolanaProvider } from "@turnkey/core";
@@ -401,7 +401,7 @@ export function ConnectedIndicator(props: ConnectedIndicatorProps) {
 export interface WalletConnectScreenProps {
   provider: WalletProvider;
   successPageDuration: number | undefined;
-  onAction: (provider: WalletProvider) => Promise<void | WalletAccount>;
+  onAction: (provider: WalletProvider) => Promise<void>;
   onDisconnect?: (provider: WalletProvider) => Promise<void>;
 }
 

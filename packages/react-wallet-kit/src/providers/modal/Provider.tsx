@@ -8,6 +8,7 @@ export type ModalPage = {
   content: ReactNode;
   showTitle?: boolean;
   preventBack?: boolean;
+  onClose?: () => void;
 };
 
 export type ModalContextType = {
