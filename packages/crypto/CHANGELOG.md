@@ -1,5 +1,11 @@
 # @turnkey/crypto
 
+## 2.7.0
+
+### Minor Changes
+
+- [#947](https://github.com/tkhq/sdk/pull/947) [`2191a1b`](https://github.com/tkhq/sdk/commit/2191a1b201fb17dea4c79cf9e02b3a493b18f97a) Author [@amircheikh](https://github.com/amircheikh) - - Added `encryptOnRampSecret` helper function. This is used for encrypting your fiat on ramp secrets before passing into the `CreateFiatOnRampCredential` activity
+
 ## 2.6.0
 
 ### Minor Changes
