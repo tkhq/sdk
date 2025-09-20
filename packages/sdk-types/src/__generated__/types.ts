@@ -5537,6 +5537,8 @@ export type ProxyTOAuthLoginBody = {
   publicKey: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Unique identifier for a given Organization. If provided, this organization id will be used directly. If omitted, uses the OIDC token to look up the associated organization id. */
+  organizationId?: string;
 };
 
 export type ProxyTOAuthLoginInput = { body: ProxyTOAuthLoginBody };
@@ -5567,6 +5569,8 @@ export type ProxyTOtpLoginBody = {
   publicKey: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Unique identifier for a given Organization. If provided, this organization id will be used directly. If omitted, uses the verification token to look up the verified sub-organization based on the contact and verification type. */
+  organizationId?: string;
   /** Optional signature associated with the public key passed into the verification step. This must be a hex-encoded ECDSA signature over the verification token. Only required if a public key was provided during the verification step. */
   clientSignature?: string;
 };
