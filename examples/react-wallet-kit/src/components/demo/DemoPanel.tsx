@@ -40,6 +40,7 @@ import {
 } from "@/utils";
 import SignatureVerification from "./SignatureVerification";
 import Image from "next/image";
+import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
 export default function DemoPanel() {
   const {
@@ -113,6 +114,15 @@ export default function DemoPanel() {
 
   function truncateAddress(address: string) {
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
+  }
+
+  function handleError(error: unknown) {
+    if (error instanceof TurnkeyError) {
+      if (error.code === TurnkeyErrorCodes.USER_CANCELED) {
+        // no-op, user cancelled intentionally
+        return;
+      }
+    }
   }
 
   return (
@@ -218,7 +228,11 @@ export default function DemoPanel() {
             </Menu>
             <Button
               onClick={async () => {
-                await handleConnectExternalWallet();
+                try {
+                  await handleConnectExternalWallet();
+                } catch (error) {
+                  handleError(error);
+                }
               }}
               className=" active:scale-95 px-4 py-2 text-sm rounded-full border-2 border-background-light dark:border-background-dark hover:bg-panel-background-light/80 dark:hover:bg-panel-background-dark/80 hover:cursor-pointer hover:border-primary-light dark:hover:border-primary-dark transition-all"
             >
@@ -323,43 +337,49 @@ export default function DemoPanel() {
             onClick={async () => {
               if (!selectedWalletAccount) return;
               const messageToSign = "Signing within Turnkey Demo.";
-              const res = await handleSignMessage({
-                message: messageToSign,
-                walletAccount: selectedWalletAccount,
-                addEthereumPrefix: true,
-              });
-              if (!res) {
-                console.error("Failed to sign message");
-                return;
-              }
 
-              const verificationPassed =
-                selectedWalletAccount.addressFormat ===
-                "ADDRESS_FORMAT_ETHEREUM"
-                  ? await verifyEthSignatureWithAddress(
-                      messageToSign,
-                      res.r,
-                      res.s,
-                      res.v,
-                      selectedWalletAccount.address as `0x${string}`,
-                    )
-                  : verifySolSignatureWithAddress(
-                      messageToSign,
-                      res.r,
-                      res.s,
-                      selectedWalletAccount.address,
-                    );
-              pushPage({
-                key: "Signature verification",
-                content: (
-                  <SignatureVerification
-                    verificationPassed={verificationPassed}
-                    signature={`${res.r}${res.s}${res.v}`}
-                  />
-                ),
-                preventBack: true,
-                showTitle: false,
-              });
+              try {
+                const res = await handleSignMessage({
+                  message: messageToSign,
+                  walletAccount: selectedWalletAccount,
+                  addEthereumPrefix: true,
+                });
+
+                if (!res) {
+                  console.error("Failed to sign message");
+                  return;
+                }
+
+                const verificationPassed =
+                  selectedWalletAccount.addressFormat ===
+                  "ADDRESS_FORMAT_ETHEREUM"
+                    ? await verifyEthSignatureWithAddress(
+                        messageToSign,
+                        res.r,
+                        res.s,
+                        res.v,
+                        selectedWalletAccount.address as `0x${string}`,
+                      )
+                    : verifySolSignatureWithAddress(
+                        messageToSign,
+                        res.r,
+                        res.s,
+                        selectedWalletAccount.address,
+                      );
+                pushPage({
+                  key: "Signature verification",
+                  content: (
+                    <SignatureVerification
+                      verificationPassed={verificationPassed}
+                      signature={`${res.r}${res.s}${res.v}`}
+                    />
+                  ),
+                  preventBack: true,
+                  showTitle: false,
+                });
+              } catch (error) {
+                handleError(error);
+              }
             }}
             className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
           >
@@ -372,10 +392,14 @@ export default function DemoPanel() {
               <div className="flex justify-between items-center gap-4">
                 <Button
                   onClick={async () => {
-                    if (selectedWallet) {
-                      await handleExportWallet({
-                        walletId: selectedWallet.walletId,
-                      });
+                    try {
+                      if (selectedWallet) {
+                        await handleExportWallet({
+                          walletId: selectedWallet.walletId,
+                        });
+                      }
+                    } catch (error) {
+                      handleError(error);
                     }
                   }}
                   className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
@@ -386,12 +410,16 @@ export default function DemoPanel() {
                 <Button
                   className="active:scale-95 flex items-center justify-center w-full text-sm transition-all text-text-light dark:text-text-dark rounded-lg bg-background-light dark:bg-background-dark p-3 hover:bg-background-light/80 dark:hover:bg-background-dark/80 cursor-pointer"
                   onClick={async () => {
-                    await handleImportWallet({
-                      defaultWalletAccounts: [
-                        "ADDRESS_FORMAT_SOLANA",
-                        "ADDRESS_FORMAT_ETHEREUM",
-                      ],
-                    });
+                    try {
+                      await handleImportWallet({
+                        defaultWalletAccounts: [
+                          "ADDRESS_FORMAT_SOLANA",
+                          "ADDRESS_FORMAT_ETHEREUM",
+                        ],
+                      });
+                    } catch (error) {
+                      handleError(error);
+                    }
                   }}
                 >
                   <FontAwesomeIcon

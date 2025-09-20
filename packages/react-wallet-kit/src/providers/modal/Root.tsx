@@ -29,6 +29,7 @@ export function ModalRoot(props: ModalRootProps) {
   } = useModal();
   const { clientState } = useTurnkey();
 
+  const root = modalStack.length > 0 ? modalStack[0] : null;
   const current = modalStack[modalStack.length - 1];
   const [sheetCurrent, setSheetCurrent] = useState<ModalPage | null>(sheet);
   const hasBack = modalStack.length > 1 && !current?.preventBack;
@@ -208,7 +209,7 @@ export function ModalRoot(props: ModalRootProps) {
                       className="w-6.5 h-6.5"
                       icon={faClose}
                       onClick={() => {
-                        current?.onClose?.();
+                        root?.onClose?.();
                         closeModal();
                       }}
                     />
