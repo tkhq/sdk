@@ -1,5 +1,17 @@
 # @turnkey/sdk-browser
 
+## 5.10.1
+
+### Patch Changes
+
+- [#958](https://github.com/tkhq/sdk/pull/958) [`5a96fe8`](https://github.com/tkhq/sdk/commit/5a96fe80db4c4c45e09ad8c613695ee4c2b8e51f) Author [@amircheikh](https://github.com/amircheikh) - - Synced api with mono
+
+- Updated dependencies [[`2191a1b`](https://github.com/tkhq/sdk/commit/2191a1b201fb17dea4c79cf9e02b3a493b18f97a), [`5a96fe8`](https://github.com/tkhq/sdk/commit/5a96fe80db4c4c45e09ad8c613695ee4c2b8e51f)]:
+  - @turnkey/crypto@2.7.0
+  - @turnkey/sdk-types@0.4.1
+  - @turnkey/http@3.12.1
+  - @turnkey/wallet-stamper@1.1.1
+
 ## 5.10.0
 
 ### Minor Changes

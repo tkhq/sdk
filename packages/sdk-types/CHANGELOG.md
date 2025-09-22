@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.4.1
+
+### Patch Changes
+
+- [#958](https://github.com/tkhq/sdk/pull/958) [`5a96fe8`](https://github.com/tkhq/sdk/commit/5a96fe80db4c4c45e09ad8c613695ee4c2b8e51f) Author [@amircheikh](https://github.com/amircheikh) - - Synced api with mono
+
 ## 0.4.0
 
 ## 0.4.0-beta.6

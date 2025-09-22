@@ -1,5 +1,30 @@
 # @turnkey/core
 
+## 1.1.0
+
+### Minor Changes
+
+- [#940](https://github.com/tkhq/sdk/pull/940) [`e4bc82f`](https://github.com/tkhq/sdk/commit/e4bc82fc51c692d742923ccfff72c2c862ee71a4) Author [@moeodeh3](https://github.com/moeodeh3) - - Added optional params for sessionless stamping (passkey/wallet only setups)
+
+### Patch Changes
+
+- [#946](https://github.com/tkhq/sdk/pull/946) [`0080c4d`](https://github.com/tkhq/sdk/commit/0080c4d011a7f8d04b41d89b31863b75d1a816ef) Author [@moeodeh3](https://github.com/moeodeh3) - - Added `proposalExpired` event emission in WalletConnect provider
+  - Added automatic URI regeneration when a WalletConnect URI expires
+
+- [#958](https://github.com/tkhq/sdk/pull/958) [`5a96fe8`](https://github.com/tkhq/sdk/commit/5a96fe80db4c4c45e09ad8c613695ee4c2b8e51f) Author [@amircheikh](https://github.com/amircheikh) - - Synced api with mono
+
+- [#960](https://github.com/tkhq/sdk/pull/960) [`c2a0bd7`](https://github.com/tkhq/sdk/commit/c2a0bd7ea8a53524cde16897f375f8a7088ba963) Author [@moeodeh3](https://github.com/moeodeh3) - - Removed requirement of session for external wallet usage
+  - `connectExternalWalletAccount()` now returns the wallet address instead of `void`
+  - `fetchWallets()` now supports an optional `connectedOnly` parameter to fetch only connected wallets
+
+- [#940](https://github.com/tkhq/sdk/pull/940) [`90841f9`](https://github.com/tkhq/sdk/commit/90841f95f3f738c47c04797096902d9d0a23afc7) Author [@moeodeh3](https://github.com/moeodeh3) - - Fixed signMessage() to respect the provided encoding override instead of silently ignoring it
+  - Corrected Ethereum message prefixing for embedded wallets in `signMessage()` to fully align with EIP-191 standards
+- Updated dependencies [[`2191a1b`](https://github.com/tkhq/sdk/commit/2191a1b201fb17dea4c79cf9e02b3a493b18f97a), [`5a96fe8`](https://github.com/tkhq/sdk/commit/5a96fe80db4c4c45e09ad8c613695ee4c2b8e51f)]:
+  - @turnkey/crypto@2.7.0
+  - @turnkey/sdk-types@0.4.1
+  - @turnkey/http@3.12.1
+  - @turnkey/react-native-passkey-stamper@1.2.1
+
 ## 1.0.0
 
 ### Major Changes
