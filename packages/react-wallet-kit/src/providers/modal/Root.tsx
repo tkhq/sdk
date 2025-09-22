@@ -178,7 +178,7 @@ export function ModalRoot(props: ModalRootProps) {
                   padding: innerPadding,
                   borderRadius: getBorderRadius(),
                 }}
-                className="relative overflow-clip bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex justify-center shadow-xl transition-all overflow-x-clip"
+                className="relative bg-modal-background-light dark:bg-modal-background-dark text-modal-text-light dark:text-modal-text-dark flex justify-center shadow-xl transition-all overflow-x-clip"
               >
                 <div
                   className="h-6.5 absolute z-30 flex items-center justify-between transition-all"
@@ -264,73 +264,78 @@ export function ModalRoot(props: ModalRootProps) {
                     </a>
                   </div>
                 </TransitionChild>
-                <Transition
-                  appear
-                  show={!!sheet}
-                  as={Fragment}
-                  afterLeave={() => setSheetCurrent(null)}
+                <div
+                  style={{ borderRadius: getBorderRadius() }}
+                  className="overflow-clip absolute top-0 left-0 w-full h-full"
                 >
-                  <div className="overflow-clip">
-                    <TransitionChild
-                      as={Fragment}
-                      enter="ease-out duration-150"
-                      enterFrom="opacity-0"
-                      enterTo="opacity-100"
-                      leave="ease-in duration-100"
-                      leaveFrom="opacity-100"
-                      leaveTo="opacity-0"
-                    >
-                      <div
-                        style={{ borderRadius: getBorderRadius() }}
-                        className="absolute left-0 top-0 z-40 bg-black/20 w-full h-full transition-all"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          closeSheet();
-                        }}
-                      ></div>
-                    </TransitionChild>
-                    <TransitionChild
-                      as={Fragment}
-                      enter="ease-out duration-150"
-                      enterFrom="translate-y-full"
-                      enterTo="translate-y-0"
-                      leave="ease-out duration-150"
-                      leaveFrom="translate-y-0"
-                      leaveTo="translate-y-full"
-                    >
-                      <div
-                        style={{
-                          borderRadius: getBorderRadius(),
-                          width: isMobile ? maxMobileScreenWidth : width,
-                        }}
-                        className="absolute transition-all duration-100 self-start bottom-0 left-0 right-0 bg-modal-background-light dark:bg-modal-background-dark border-t border-icon-background-light dark:border-icon-background-dark p-4 z-50"
+                  <Transition
+                    appear
+                    show={!!sheet}
+                    as={Fragment}
+                    afterLeave={() => setSheetCurrent(null)}
+                  >
+                    <div>
+                      <TransitionChild
+                        as={Fragment}
+                        enter="ease-out duration-150"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-100"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
                       >
-                        <div className="flex justify-between mb-3">
-                          <div className="w-6.5 h-6.5"></div>
-                          <h1 className="text-base font-medium text-center !my-0 !mx-4">
-                            {sheetCurrent?.key}
-                          </h1>
-                          <IconButton
-                            className="w-6.5 h-6.5"
-                            icon={faClose}
-                            onClick={closeSheet}
-                          />
-                        </div>
-                        <TransitionChild
-                          as={Fragment}
-                          enter="ease-out duration-200"
-                          enterFrom="translate-y-full opacity-0"
-                          enterTo="translate-y-0 opacity-100"
-                          leave="ease-out duration-150"
-                          leaveFrom="translate-y-0 opacity-100"
-                          leaveTo="translate-y-full opacity-0"
+                        <div
+                          style={{ borderRadius: getBorderRadius() }}
+                          className="absolute left-0 top-0 z-40 bg-black/20 w-full h-full transition-all"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            closeSheet();
+                          }}
+                        ></div>
+                      </TransitionChild>
+                      <TransitionChild
+                        as={Fragment}
+                        enter="ease-out duration-150"
+                        enterFrom="translate-y-full"
+                        enterTo="translate-y-0"
+                        leave="ease-out duration-150"
+                        leaveFrom="translate-y-0"
+                        leaveTo="translate-y-full"
+                      >
+                        <div
+                          style={{
+                            borderRadius: getBorderRadius(),
+                            width: isMobile ? maxMobileScreenWidth : width,
+                          }}
+                          className="absolute transition-all duration-100 self-start bottom-0 left-0 right-0 bg-modal-background-light dark:bg-modal-background-dark border-t border-icon-background-light dark:border-icon-background-dark p-4 z-50"
                         >
-                          {sheetCurrent?.content}
-                        </TransitionChild>
-                      </div>
-                    </TransitionChild>
-                  </div>
-                </Transition>
+                          <div className="flex justify-between mb-3">
+                            <div className="w-6.5 h-6.5"></div>
+                            <h1 className="text-base font-medium text-center !my-0 !mx-4">
+                              {sheetCurrent?.key}
+                            </h1>
+                            <IconButton
+                              className="w-6.5 h-6.5"
+                              icon={faClose}
+                              onClick={closeSheet}
+                            />
+                          </div>
+                          <TransitionChild
+                            as={Fragment}
+                            enter="ease-out duration-200"
+                            enterFrom="translate-y-full opacity-0"
+                            enterTo="translate-y-0 opacity-100"
+                            leave="ease-out duration-150"
+                            leaveFrom="translate-y-0 opacity-100"
+                            leaveTo="translate-y-full opacity-0"
+                          >
+                            {sheetCurrent?.content}
+                          </TransitionChild>
+                        </div>
+                      </TransitionChild>
+                    </div>
+                  </Transition>
+                </div>
               </div>
             </TransitionChild>
           </div>
