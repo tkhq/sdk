@@ -6,14 +6,16 @@ export * from "./types/method-types";
 
 // bubble up types from core
 /** @internal */
-export * from "@turnkey/core/src/__types__/auth";
+export type * from "@turnkey/core/dist/__types__/auth";
 /** @internal */
-export * from "@turnkey/core/src/__types__/config";
+export type * from "@turnkey/core/dist/__types__/config";
 /** @internal */
-export * from "@turnkey/core/src/__types__/error";
+export * from "@turnkey/core/dist/__types__/enums";
 /** @internal */
-export * from "@turnkey/core/src/__types__/export";
+export type * from "@turnkey/core/dist/__types__/error";
 /** @internal */
-export * from "@turnkey/core/src/__types__/external-wallets";
+export type * from "@turnkey/core/dist/__types__/export";
 /** @internal */
-export * from "@turnkey/core/src/__types__/method-types";
+export type * from "@turnkey/core/dist/__types__/external-wallets";
+/** @internal */
+export type * from "@turnkey/core/dist/__types__/method-types";
