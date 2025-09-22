@@ -3,38 +3,12 @@ import type { EIP1193Provider as EthereumProvider } from "viem";
 import type { Wallet as SolanaProvider } from "@wallet-standard/base";
 import type { CrossPlatformWalletStamper } from "../__wallet__/stamper";
 import type { CrossPlatformWalletConnector } from "../__wallet__/connector";
-
-/** @internal */
-export enum Chain {
-  Ethereum = "ethereum",
-  Solana = "solana",
-}
-
-/**@internal */
-export enum Curve {
-  SECP256K1 = "CURVE_SECP256K1",
-  ED25519 = "CURVE_ED25519",
-}
-
-/** @internal */
-export enum WalletInterfaceType {
-  Solana = "solana",
-  Ethereum = "ethereum",
-  WalletConnect = "wallet_connect",
-}
-
-/** @internal */
-export enum WalletSource {
-  Embedded = "embedded",
-  Connected = "connected",
-}
-
-/** @internal */
-export enum SignIntent {
-  SignMessage = "sign_message",
-  SignTransaction = "sign_transaction",
-  SignAndSendTransaction = "sign_and_send",
-}
+import type {
+  Chain,
+  SignIntent,
+  WalletInterfaceType,
+  WalletSource,
+} from "./enums";
 
 /** @internal */
 export type SwitchableChain = {

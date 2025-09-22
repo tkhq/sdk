@@ -8,33 +8,6 @@ import type {
 /** @internal */
 export const DEFAULT_SESSION_EXPIRATION_IN_SECONDS = "900"; // 15 minutes
 
-/**
- * OtpType defines the type of OTP to use.
- */
-export enum OtpType {
-  Email = "OTP_TYPE_EMAIL",
-  Sms = "OTP_TYPE_SMS",
-}
-
-/** @internal */
-export enum FilterType {
-  Email = "EMAIL",
-  Sms = "PHONE_NUMBER",
-  OidcToken = "OIDC_TOKEN",
-  PublicKey = "PUBLIC_KEY",
-}
-
-/** @internal */
-export const OtpTypeToFilterTypeMap = {
-  [OtpType.Email]: FilterType.Email,
-  [OtpType.Sms]: FilterType.Sms,
-};
-
-/** @internal */
-export enum SessionKey {
-  DefaultSessionkey = "@turnkey/session/v3",
-}
-
 /** @internal */
 export type TStamp = {
   stampHeaderName: string;
@@ -44,15 +17,6 @@ export type TStamp = {
 /** @internal */
 export interface TStamper {
   stamp: (input: string) => Promise<TStamp>;
-}
-
-/**
- * StamperType defines the type of stamper to use when stamping a request.
- */
-export enum StamperType {
-  ApiKey = "api-key",
-  Passkey = "passkey",
-  Wallet = "wallet",
 }
 
 /** @internal */
