@@ -16,8 +16,13 @@ export {
 export { TurnkeyClient, type TurnkeyClientMethods } from "./__clients__/core";
 export { type TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 
-// Export all types and values from __types__/base
-export * from "./__types__/index";
+// Export all types and values from __types__/
+export * from "./__types__/auth";
+export * from "./__types__/config";
+export * from "./__types__/error";
+export * from "./__types__/export";
+export * from "./__types__/external-wallets";
+export * from "./__types__/method-types";
 
 /**@internal */
 export {
