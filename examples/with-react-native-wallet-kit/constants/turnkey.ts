@@ -22,7 +22,7 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
     methods: {
       // Enable/disable the methods you want available
       passkeyAuthEnabled: true,
-      walletAuthEnabled: true,
+      walletAuthEnabled: false,
       emailOtpAuthEnabled: true,
       smsOtpAuthEnabled: false,
       // Disable OAuth initially on RN until native flows are wired
@@ -47,16 +47,12 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
     // sessionExpirationSeconds: "86400",
     autoRefreshSession: true,
   },
-
   walletConfig: {
     features: {
-      auth: true,
-      connecting: true,
+      auth: false,
+      connecting: false,
     },
-    chains: {
-      ethereum: { native: true },
-      solana: { native: true },
-    },
+    chains: {},
   },
 };
 

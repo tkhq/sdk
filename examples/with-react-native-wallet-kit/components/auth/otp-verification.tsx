@@ -25,7 +25,7 @@ export const OtpVerification: React.FC<OtpVerificationProps> = ({
         onTextChange={onTextChange}
         onFilled={onFilled}
         focusColor={colors.primary}
-        type="numeric"
+        type="alphanumeric"
         autoFocus
         theme={{
           containerStyle: styles.otpContainer,
