@@ -46,11 +46,10 @@ cp .env.local.example .env.local
 Edit `.env.local` and fill in the following:
 
 ```env
-API_PUBLIC_KEY=<your-api-public-key>
-API_PRIVATE_KEY=<your-api-private-key> # DO NOT commit this
+TURNKEY_API_PUBLIC_KEY=<your-api-public-key>
+TURNKEY_API_PRIVATE_KEY=<your-api-private-key> # DO NOT commit this
 NEXT_PUBLIC_BASE_URL=https://api.turnkey.com
 NEXT_PUBLIC_ORGANIZATION_ID=<your-org-id>
-NEXT_PUBLIC_RPID=localhost
 ```
 
 > **Note:** Your private key is used only in development and must be handled securely. Do not expose it in production builds.
