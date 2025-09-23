@@ -15,10 +15,13 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { OtpVerification } from '@/components/auth/otp-verification';
+import { OtpType } from '@/types/types';
+import { useTurnkey } from '@turnkey/react-native-wallet-kit';
 
 export default function OtpScreen() {
   const router = useRouter();
-  const { email } = useLocalSearchParams<{ email: string }>();
+  const { completeOtp } = useTurnkey();
+  const { email, otpId } = useLocalSearchParams<{ email: string; otpId: string }>();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
@@ -35,6 +38,7 @@ export default function OtpScreen() {
   };
 
   const handleVerify = async (code?: string) => {
+
     const codeToVerify = code || otpCode;
 
     if (codeToVerify.length !== 6) {
@@ -42,14 +46,35 @@ export default function OtpScreen() {
       return;
     }
 
-    setLoading(true);
+    if (!otpId) {
+      Alert.alert('Missing OTP', 'We could not find your OTP session. Please try again.');
+      return;
+    }
 
-    // Mock verification - accept any 6-digit code for testing
-    setTimeout(() => {
-      setLoading(false);
-      // Navigate to main app on success
+    setLoading(true);
+    console.log('completeOtp', {
+      otpId,
+      otpCode: codeToVerify,
+      contact: email,
+      otpType: OtpType.Email,
+      });
+    try {
+    await completeOtp({
+      otpId,
+      otpCode: codeToVerify,
+      contact: email,
+      otpType: OtpType.Email,
+      });
       router.replace('/(main)');
-    }, 1500);
+    } catch (error) {
+      console.error('Error verifying OTP', error);
+      Alert.alert('Error', 'Failed to verify OTP');
+      return;
+    }
+    finally {
+      setLoading(false);
+    }
+
   };
 
   const handleResendCode = async () => {

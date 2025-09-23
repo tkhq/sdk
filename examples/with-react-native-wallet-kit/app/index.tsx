@@ -15,9 +15,25 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { EmailInput, validateEmail } from '@/components/auth/email-input';
 import { EmailButton } from '@/components/auth/email-button';
+import { useTurnkey } from '@turnkey/react-native-wallet-kit';
+import { OtpType } from '@/types/types';
+
+const customWallet = {
+  walletName: "Default Wallet",
+  walletAccounts: [
+    {
+      curve: "CURVE_SECP256K1" as const,
+      pathFormat: "PATH_FORMAT_BIP32" as const,
+      path: `m/44'/60'/0'/0/0`,
+      addressFormat: "ADDRESS_FORMAT_ETHEREUM" as const,
+    },
+  ],
+}
+
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { initOtp, completeOtp, signUpWithPasskey, httpClient } = useTurnkey();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
@@ -32,17 +48,25 @@ export default function LoginScreen() {
       return;
     }
 
-    setEmailError(false);
     setLoading(true);
 
-    // Mock authentication - navigate to OTP screen
-    setTimeout(() => {
-      setLoading(false);
-      router.push({
-        pathname: '/otp',
-        params: { email },
-      });
-    }, 1000);
+    const otpId = await initOtp({
+      otpType: OtpType.Email,
+      contact: email,
+    });
+
+    if (!otpId) {
+      Alert.alert('Error', 'Failed to initialize OTP');
+      return;
+    }
+
+    setEmailError(false);
+    setLoading(false);
+    console.log('otpId', otpId, 'email', email);
+    router.push({
+      pathname: '/otp',
+      params: { email, otpId },
+    });
   };
 
   const handleEmailChange = (text: string) => {
@@ -52,8 +76,27 @@ export default function LoginScreen() {
     }
   };
 
-  const handlePasskeyPress = () => {
-    Alert.alert('Coming Soon', 'Passkey authentication will be available in Phase 2');
+  const handleSignUpWithPasskeyPress = async () => {
+    try {
+    setLoading(true);
+    // Check to see if the user's account exists
+    const account = await httpClient?.proxyGetAccount({
+      filterType: "EMAIL",
+      filterValue: email,
+    })
+    console.log('account', account);
+    await signUpWithPasskey({
+      passkeyDisplayName: 'Default Passkey',
+      createSubOrgParams: {
+        customWallet,
+        },
+      });
+    } catch (error) {
+      console.error('Error signing up with passkey', error);
+    }
+    finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,11 +134,11 @@ export default function LoginScreen() {
             {/* Passkey Button (Placeholder) */}
             <TouchableOpacity
               style={[styles.passkeyButton, { backgroundColor: colors.primary }]}
-              onPress={handlePasskeyPress}
+              onPress={handleSignUpWithPasskeyPress}
               activeOpacity={0.8}
             >
               <Text style={styles.passkeyButtonText}>
-                Continue with passkey
+                Sign up with passkey
               </Text>
             </TouchableOpacity>
 
