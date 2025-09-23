@@ -1,61 +1,59 @@
-import {
-    AuthAction,
-    BaseAuthResult,
-    Session,
-    TurnkeyError,
-    TurnkeyErrorCodes,
-  } from "@turnkey/sdk-types";
-  import type { TurnkeyCallbacks } from "../types/base";
-  import { useCallback, useRef, useState, useEffect } from "react";
-  import { WalletInterfaceType, WalletProvider } from "@turnkey/core";
-  
-  export const DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize";
-  export const X_AUTH_URL = "https://x.com/i/oauth2/authorize";
-  export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
-  export const APPLE_AUTH_URL = "https://account.apple.com/auth/authorize";
-  export const APPLE_AUTH_SCRIPT_URL =
-    "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
-  export const FACEBOOK_AUTH_URL = "https://www.facebook.com/v11.0/dialog/oauth";
-  export const FACEBOOK_GRAPH_URL =
-    "https://graph.facebook.com/v11.0/oauth/access_token";
-  export const popupWidth = 500;
-  export const popupHeight = 600;
-  
-  export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
-  
-  export const authErrors = {
-    // Passkey-related errors
-    passkey: {
-      createFailed: "Passkey not created. Please try again.",
-      loginFailed: "Failed to login with passkey. Please try again.",
-      timeoutOrNotAllowed:
-        "The operation either timed out or was not allowed. Please try again.",
-    },
-  
-    // OTP-related errors
-    otp: {
-      sendFailed: "Failed to send OTP",
-      invalidEmail: "Invalid email address.",
-      invalidPhone: "Invalid phone number.",
-    },
-  
-    // OAuth-related errors
-    oauth: {
-      loginFailed: "Failed to login with OAuth provider",
-    },
-  
-    // Wallet-related errors
-    wallet: {
-      loginFailed: "Failed to login with wallet",
-      noPublicKey: "No public key found",
-    },
-  
-    // Sub-organization-related errors
-    suborg: {
-      fetchFailed: "Failed to fetch account",
-      createFailed: "Failed to create account.",
-    },
-  };
+import  {
+  type AuthAction,
+  BaseAuthResult,
+  Session,
+  TurnkeyError,
+  TurnkeyErrorCodes,
+} from "@turnkey/sdk-types";
+import type { TurnkeyCallbacks } from "../types/base";
+import { useCallback, useRef, useState, useEffect } from "react";
+import { WalletInterfaceType, type WalletProvider } from "@turnkey/core";
+
+export const DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize";
+export const X_AUTH_URL = "https://x.com/i/oauth2/authorize";
+export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
+export const APPLE_AUTH_URL = "https://account.apple.com/auth/authorize";
+export const APPLE_AUTH_SCRIPT_URL =
+  "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
+export const FACEBOOK_AUTH_URL = "https://www.facebook.com/v11.0/dialog/oauth";
+export const FACEBOOK_GRAPH_URL =
+  "https://graph.facebook.com/v11.0/oauth/access_token";
+
+export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
+
+export const authErrors = {
+  // Passkey-related errors
+  passkey: {
+    createFailed: "Passkey not created. Please try again.",
+    loginFailed: "Failed to login with passkey. Please try again.",
+    timeoutOrNotAllowed:
+      "The operation either timed out or was not allowed. Please try again.",
+  },
+
+  // OTP-related errors
+  otp: {
+    sendFailed: "Failed to send OTP",
+    invalidEmail: "Invalid email address.",
+    invalidPhone: "Invalid phone number.",
+  },
+
+  // OAuth-related errors
+  oauth: {
+    loginFailed: "Failed to login with OAuth provider",
+  },
+
+  // Wallet-related errors
+  wallet: {
+    loginFailed: "Failed to login with wallet",
+    noPublicKey: "No public key found",
+  },
+
+  // Sub-organization-related errors
+  suborg: {
+    fetchFailed: "Failed to fetch account",
+    createFailed: "Failed to create account.",
+  },
+};
   
   export const useDebouncedCallback = <T extends (...args: any[]) => void>(
     fn: T,
@@ -83,6 +81,7 @@ import {
   
   export async function withTurnkeyErrorHandling<T>(
     fn: () => Promise<T>,
+    sessionExpireFn: () => Promise<void>,
     callbacks?: { onError?: (error: TurnkeyError) => void },
     fallbackMessage = "An unknown error occurred",
     fallbackCode = TurnkeyErrorCodes.UNKNOWN,
@@ -90,11 +89,25 @@ import {
     try {
       return await fn();
     } catch (error) {
+      let tkError: TurnkeyError;
+  
       if (error instanceof TurnkeyError) {
-        callbacks?.onError?.(error);
-        throw error;
+        tkError = error;
+  
+        if (tkError.code === TurnkeyErrorCodes.SESSION_EXPIRED) {
+          await sessionExpireFn();
+        }
+  
+        // skip onError for WalletConnect expired errors
+        if (tkError.code !== TurnkeyErrorCodes.WALLET_CONNECT_EXPIRED) {
+          callbacks?.onError?.(tkError);
+        }
+  
+        throw tkError;
       }
-      const tkError = new TurnkeyError(fallbackMessage, fallbackCode, error);
+  
+      // we wrap non-Turnkey errors
+      tkError = new TurnkeyError(fallbackMessage, fallbackCode, error);
       callbacks?.onError?.(tkError);
       throw tkError;
     }
@@ -208,6 +221,8 @@ import {
   
     const encoder = new TextEncoder();
     const data = encoder.encode(verifier);
+    // @todo: this is not supported in react-native
+    // @ts-ignore
     const digest = await window.crypto.subtle.digest("SHA-256", data);
   
     const base64Challenge = btoa(String.fromCharCode(...new Uint8Array(digest)))

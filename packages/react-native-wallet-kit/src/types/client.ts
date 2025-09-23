@@ -6,6 +6,7 @@ import type {
   Wallet,
   StamperType,
   WalletAccount,
+  WalletProvider,
 } from "@turnkey/core";
 import type {
   OAuthProviders,
@@ -23,7 +24,7 @@ import type {
   AuthState,
   ClientState,
   KeyFormat,
-} from "./base";
+} from "../types/base";
 import { createContext } from "react";
 
 /*
@@ -39,7 +40,8 @@ import { createContext } from "react";
  * Same goes for new functions in the provider!!
  */
 
-export interface ClientContextType extends TurnkeyClientMethods {
+export interface ClientContextType
+  extends Omit<TurnkeyClientMethods, "connectWalletAccount"> {
   /** @internal */
   httpClient: TurnkeySDKClientBase | undefined;
   /** @internal */
@@ -56,6 +58,13 @@ export interface ClientContextType extends TurnkeyClientMethods {
   user: v1User | undefined;
   /** @internal */
   wallets: Wallet[];
+  /** @internal */
+  walletProviders: WalletProvider[];
+
+  /**
+   * Connect an external wallet account and return the resolved WalletAccount.
+   */
+  connectWalletAccount(walletProvider: WalletProvider): Promise<WalletAccount>;
 
   /**
    * Refreshes the user details.
@@ -93,7 +102,7 @@ export interface ClientContextType extends TurnkeyClientMethods {
    */
   refreshWallets: (params?: {
     stampWith?: StamperType | undefined;
-  }) => Promise<void>;
+  }) => Promise<Wallet[]>;
 
   /**
    * Handles the login or sign-up flow.
