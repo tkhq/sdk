@@ -101,7 +101,7 @@ async function main() {
             : ["ADDRESS_FORMAT_ETHEREUM"],
       });
     console.log(
-      `Successfully imported wallet with id: ${privateKeyImportResult.privateKeyId}`,
+      `Successfully imported private key with id: ${privateKeyImportResult.privateKeyId}`,
     );
   }
 }
