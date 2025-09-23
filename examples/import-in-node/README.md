@@ -38,6 +38,7 @@ Now open `.env.local` and add the missing environment variables:
 
 - `API_PUBLIC_KEY`
 - `API_PRIVATE_KEY`
+- `USER_ID`
 - `BASE_URL`
 - `ORGANIZATION_ID`
 
