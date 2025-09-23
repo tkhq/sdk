@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 1.1.2
+
+### Patch Changes
+
+- [#972](https://github.com/tkhq/sdk/pull/972) [`010543c`](https://github.com/tkhq/sdk/commit/010543c3b1b56a18816ea92a1a1cbe028cf988e4) Author [@moeodeh3](https://github.com/moeodeh3) - Fix exported types
+
 ## 1.1.0
 
 ### Minor Changes
