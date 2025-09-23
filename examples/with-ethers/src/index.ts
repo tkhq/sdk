@@ -122,9 +122,12 @@ async function main() {
     type: 2,
   };
 
+  const populatedTx =
+    await connectedSigner.populateTransaction(transactionRequest);
+
   let signedTx;
   try {
-    signedTx = await connectedSigner.signTransaction(transactionRequest);
+    signedTx = await connectedSigner.signTransaction(populatedTx);
   } catch (error: any) {
     signedTx = await handleActivityError(error).then(
       async (activity?: TActivity) => {
@@ -164,7 +167,7 @@ async function main() {
   // 3. Make a simple send tx (which calls `signTransaction` under the hood)
   let sentTx;
   try {
-    sentTx = await connectedSigner.sendTransaction(transactionRequest);
+    sentTx = await connectedSigner.sendTransaction(populatedTx);
   } catch (error: any) {
     sentTx = await handleActivityError(error).then(
       async (activity?: TActivity) => {
