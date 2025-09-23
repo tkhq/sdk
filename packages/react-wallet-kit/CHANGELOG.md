@@ -1,5 +1,16 @@
 # @turnkey/react-wallet-kit
 
+## 1.1.1
+
+### Patch Changes
+
+- [#968](https://github.com/tkhq/sdk/pull/968) [`14424ee`](https://github.com/tkhq/sdk/commit/14424eeeabb9cea8067f978051dceb0537c22e34) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed type re-exports from `@turnkey/core`
+
+- [#962](https://github.com/tkhq/sdk/pull/962) [`62937e7`](https://github.com/tkhq/sdk/commit/62937e74e1e27093906e434c62f6f0545f73e934) Author [@moeodeh3](https://github.com/moeodeh3) - - Fixed memory leaks in `handle*` functions
+  - `handleConnectExternalWallet` now returns `{ type: "connect" | "disconnect"; account?: WalletAccount }`
+
+- [#964](https://github.com/tkhq/sdk/pull/964) [`1e15cc9`](https://github.com/tkhq/sdk/commit/1e15cc9d672905b87566324ec5b10580318fca19) Author [@moeodeh3](https://github.com/moeodeh3) - Fix `onClose` callbacks not triggering in child modal pages
+
 ## 1.1.0
 
 ### Minor Changes
