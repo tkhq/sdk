@@ -73,31 +73,16 @@ const main = async () => {
     transport: http(),
   });
 
-  // upgrade EOAs to smart accounts
-  const signerAuthorization = await signerClient.signAuthorization({
-    chainId: chain.id,
-    nonce: 0,
-    address: kernelAddresses.accountImplementationAddress,
-  });
-
-  const userAuthorization = await userClient.signAuthorization({
-    chainId: chain.id,
-    nonce: 0,
-    address: kernelAddresses.accountImplementationAddress,
-  });
-
   const signerKernelAccount = await createKernelAccount(publicClient, {
     eip7702Account: signerClient,
     entryPoint,
     kernelVersion,
-    eip7702Auth: signerAuthorization,
   });
 
   const userKernelAccount = await createKernelAccount(publicClient, {
     eip7702Account: userClient,
     entryPoint,
     kernelVersion,
-    eip7702Auth: userAuthorization,
   });
 
   const paymasterClient = createZeroDevPaymasterClient({
