@@ -83,6 +83,8 @@ import {
   StamperType,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { Platform } from "react-native";
+import DeviceInfo from "react-native-device-info";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
@@ -144,7 +146,7 @@ import { ClientContext } from "../types";
 /**
  * @inline
  */
-interface ClientProviderProps {
+interface TurnkeyProviderProps {
   children: ReactNode;
   config: TurnkeyProviderConfig;
   callbacks?: TurnkeyCallbacks | undefined;
@@ -176,7 +178,7 @@ interface ClientProviderProps {
  *
  * @returns A React context provider exposing authentication, wallet, and user management methods and state.
  */
-export const ClientProvider: React.FC<ClientProviderProps> = ({
+export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   config,
   children,
   callbacks,
@@ -992,7 +994,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         masterConfig?.auth?.sessionExpirationSeconds ??
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
-      const websiteName = window.location.hostname;
+      const websiteName = Platform.OS === 'web' && typeof window !== 'undefined'
+        ? window.location.hostname
+        : DeviceInfo.getApplicationName() || DeviceInfo.getBundleId() || 'mobile-app';
       const timestamp =
         new Date().toLocaleDateString() +
         "-" +
