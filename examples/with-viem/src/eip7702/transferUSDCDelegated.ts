@@ -16,7 +16,7 @@ import {
   type Transport,
 } from "viem";
 
-import { gasStationAbi } from "./abi";
+import { gasStationAbi } from "./abis/combined_abi";
 
 import { base, mainnet } from "viem/chains";
 import { createAccount } from "@turnkey/viem";
