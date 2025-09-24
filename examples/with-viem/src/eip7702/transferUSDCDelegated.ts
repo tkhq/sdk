@@ -1,6 +1,7 @@
 import { resolve } from "path";
 import * as dotenv from "dotenv";
 import { z } from "zod";
+import { parseArgs } from "node:util";
 
 import {
   SignedAuthorization,
@@ -17,12 +18,53 @@ import {
 
 import { gasStationAbi } from "./abi";
 
-import { base } from "viem/chains";
+import { base, mainnet } from "viem/chains";
 import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { print } from "../util";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
+
+// Parse command line arguments
+const { values } = parseArgs({
+  args: process.argv.slice(2),
+  options: {
+    chain: {
+      type: "string",
+      short: "c",
+      default: "base",
+    },
+  },
+});
+
+// Validate chain argument
+const validChains = ["base", "mainnet"] as const;
+type ValidChain = (typeof validChains)[number];
+
+if (!validChains.includes(values.chain as ValidChain)) {
+  console.error(
+    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`
+  );
+  process.exit(1);
+}
+
+const selectedChain = values.chain as ValidChain;
+
+// Chain and USDC address configuration
+const chainConfig = {
+  base: {
+    chain: base,
+    usdcAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    explorerUrl: "https://basescan.org",
+  },
+  mainnet: {
+    chain: mainnet,
+    usdcAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+    explorerUrl: "https://etherscan.io",
+  },
+} as const;
+
+const config = chainConfig[selectedChain];
 
 const envSchema = z.object({
   BASE_URL: z.string().url(),
@@ -32,7 +74,8 @@ const envSchema = z.object({
   EOA_ADDRESS: z.string().min(1),
   GAS_STATION_CA: z.string().min(1),
   PAYMASTER: z.string().min(1),
-  RPC_URL: z.string().url(),
+  ETH_RPC_URL: z.string().url(),
+  BASE_RPC_URL: z.string().url(),
   // same as EOA address while Gassy and TK GasStation are combined
   EXECUTION_ADDRESS: z.string().min(1),
   SKIP_AUTHORIZATION: z
@@ -43,8 +86,10 @@ const envSchema = z.object({
 
 const env = envSchema.parse(process.env);
 
-// Base USDC contract address and ABI
-const BASE_USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as const;
+print(
+  `🌐 Using ${selectedChain.toUpperCase()} network`,
+  `USDC: ${config.usdcAddress}`
+);
 const ERC20_ABI = [
   {
     type: "function",
@@ -88,8 +133,10 @@ async function authorize7702ForEOA({
 }) {
   // Create public client for monitoring transactions
   const publicClient = createPublicClient({
-    chain: base,
-    transport: http(env.RPC_URL),
+    chain: config.chain,
+    transport: http(
+      selectedChain === "base" ? env.BASE_RPC_URL : env.ETH_RPC_URL
+    ),
   });
   // Sign the EIP-7702 authorization to delegate the gas station contract to the EOA
   const authorization = await eoaWalletClient.signAuthorization({
@@ -111,7 +158,7 @@ async function authorize7702ForEOA({
 
   print(
     "EIP-7702 Authorization Transaction sent by paymaster",
-    `https://basescan.org/tx/${authTxHash}`
+    `${config.explorerUrl}/tx/${authTxHash}`
   );
 
   print("Waiting for authorization confirmation...", "");
@@ -159,8 +206,10 @@ async function executeUSDCTransferWithIntent({
   transferAmount?: bigint;
 }) {
   const publicClient = createPublicClient({
-    chain: base,
-    transport: http(env.RPC_URL),
+    chain: config.chain,
+    transport: http(
+      selectedChain === "base" ? env.BASE_RPC_URL : env.ETH_RPC_URL
+    ),
   });
 
   print("Creating EIP-712 intent for USDC transfer...", "");
@@ -192,7 +241,7 @@ async function executeUSDCTransferWithIntent({
   const domain = {
     name: "TKGasStation",
     version: "1",
-    chainId: base.id,
+    chainId: config.chain.id,
     verifyingContract: executionAddress, // EOA address (now delegated to gas station)
   };
 
@@ -207,7 +256,7 @@ async function executeUSDCTransferWithIntent({
 
   const message = {
     nonce: currentNonce,
-    outputContract: BASE_USDC_ADDRESS, // Gas station will call USDC contract
+    outputContract: config.usdcAddress, // Gas station will call USDC contract
     ethAmount: 0n, // No ETH being sent
     arguments: transferCallData, // The USDC transfer function call
   };
@@ -240,7 +289,7 @@ async function executeUSDCTransferWithIntent({
     data: encodeFunctionData({
       abi: gasStationAbi,
       functionName: "execute",
-      args: [currentNonce, BASE_USDC_ADDRESS, transferCallData, signature],
+      args: [currentNonce, config.usdcAddress, transferCallData, signature],
     }),
     gas: BigInt(200000),
     account: paymasterWalletClient.account,
@@ -248,7 +297,7 @@ async function executeUSDCTransferWithIntent({
 
   print(
     "Gas station execution transaction sent by paymaster",
-    `https://basescan.org/tx/${txHash}`
+    `${config.explorerUrl}/tx/${txHash}`
   );
 
   print("Waiting for transaction confirmation...", "");
@@ -303,13 +352,17 @@ const main = async () => {
   });
   const eoaWalletClient = createWalletClient({
     account: eoaAccount,
-    chain: base,
-    transport: http(env.RPC_URL),
+    chain: config.chain,
+    transport: http(
+      selectedChain === "base" ? env.BASE_RPC_URL : env.ETH_RPC_URL
+    ),
   });
   const paymasterWalletClient = createWalletClient({
     account: paymasterAccount,
-    chain: base,
-    transport: http(env.RPC_URL),
+    chain: config.chain,
+    transport: http(
+      selectedChain === "base" ? env.BASE_RPC_URL : env.ETH_RPC_URL
+    ),
   });
 
   // Step 1: Authorize the EOA to use the gas station contract via EIP-7702 (optional)
@@ -349,7 +402,7 @@ const main = async () => {
   if (transferReceipt.status === "success") {
     print(
       "✅ Successfully transferred 1 penny USDC from EOA to paymaster via delegated contract",
-      `Transfer TX: https://basescan.org/tx/${transferReceipt.transactionHash}`
+      `Transfer TX: ${config.explorerUrl}/tx/${transferReceipt.transactionHash}`
     );
     print(
       "Final transaction gas usage",
@@ -358,7 +411,7 @@ const main = async () => {
   } else {
     print(
       "❌ EIP-7702 flow completed but USDC transfer FAILED",
-      `Failed TX: https://basescan.org/tx/${transferReceipt.transactionHash}`
+      `Failed TX: ${config.explorerUrl}/tx/${transferReceipt.transactionHash}`
     );
     print(
       "Gas wasted on failed transaction",
