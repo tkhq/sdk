@@ -3786,6 +3786,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               onError={(error: any) => reject(error)}
             />
           ),
+           onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User cancelled the export wallet process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
         }),
       );
     },
@@ -3816,6 +3823,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               onError={(error: any) => reject(error)}
             />
           ),
+           onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User cancelled the export private key process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
         }),
       );
     },
@@ -3842,6 +3856,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               onError={(error: any) => reject(error)}
             />
           ),
+           onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User cancelled the export wallet account process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
         }),
       );
     },
