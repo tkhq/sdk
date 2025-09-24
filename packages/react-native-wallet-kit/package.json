@@ -40,7 +40,8 @@
     "@turnkey/sdk-types": "workspace:*",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",
-    "libphonenumber-js": "^1.11.14"
+    "libphonenumber-js": "^1.11.14",
+    "react-native-device-info": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "7.26.9",
