@@ -96,43 +96,38 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
         <DisconnectWalletScreen
           provider={provider}
           onDisconnect={async () => {
-            try {
-              const address = provider.connectedAddresses[0];
+            const address = provider.connectedAddresses[0];
 
-              // we narrow to only connected wallets
-              // because we know the account must come from one of them
-              const connectedWallets = wallets.filter(
-                (w): w is ConnectedWallet =>
-                  w.source === WalletSource.Connected,
-              );
+            // we narrow to only connected wallets
+            // because we know the account must come from one of them
+            const connectedWallets = wallets.filter(
+              (w): w is ConnectedWallet => w.source === WalletSource.Connected,
+            );
 
-              // find the matching account
-              const matchedAccount = connectedWallets
-                .flatMap((w) => w.accounts)
-                .find((a) => a.address === address);
+            // find the matching account
+            const matchedAccount = connectedWallets
+              .flatMap((w) => w.accounts)
+              .find((a) => a.address === address);
 
-              await disconnectWalletAccount(provider);
+            await disconnectWalletAccount(provider);
 
-              onSuccess("disconnect", matchedAccount!);
+            onSuccess("disconnect", matchedAccount!);
 
-              if (successPageDuration) {
-                pushPage({
-                  key: "Disconnect Success",
-                  content: (
-                    <SuccessPage
-                      text="Successfully disconnected wallet!"
-                      onComplete={() => closeModal()}
-                      duration={successPageDuration}
-                    />
-                  ),
-                  preventBack: true,
-                  showTitle: false,
-                });
-              } else {
-                closeModal();
-              }
-            } catch (error) {
-              onError(error);
+            if (successPageDuration) {
+              pushPage({
+                key: "Disconnect Success",
+                content: (
+                  <SuccessPage
+                    text="Successfully disconnected wallet!"
+                    onComplete={() => closeModal()}
+                    duration={successPageDuration}
+                  />
+                ),
+                preventBack: true,
+                showTitle: false,
+              });
+            } else {
+              closeModal();
             }
           }}
         />
