@@ -124,7 +124,7 @@ function getContractConfig() {
       abi: separateAbi,
       delegateAddress: env.TWO_DELEGATE_CONTRACT as `0x${string}`,
       gasStationAddress: env.TWO_EXECUTION_CONTRACT as `0x${string}`,
-      nonceType: "uint256" as const,
+      nonceType: "uint128" as const,
       nonceFunctionName: "getNonce" as const,
       nonceArgs: (eoaAddress: `0x${string}`) => [eoaAddress] as const,
       executeArgs: (
@@ -294,6 +294,7 @@ async function executeUSDCTransferWithIntent({
   // Step 1: Get current nonce using the appropriate contract and method
   
   /// Nonce reading when directly from the EoA
+  /*
   let readArgs = {
     address: env.EOA_ADDRESS as `0x${string}`,//contractConfig.gasStationAddress,
     abi: contractConfig.abi,
@@ -301,8 +302,8 @@ async function executeUSDCTransferWithIntent({
     args: []//contractConfig.nonceArgs(eoaWalletClient.account.address),
   }
   const currentNonce = await publicClient.readContract(readArgs);
-  
-/*
+  */
+
   let readArgs = {
     address: contractConfig.gasStationAddress,
     abi: contractConfig.abi,
@@ -310,7 +311,7 @@ async function executeUSDCTransferWithIntent({
     args: contractConfig.nonceArgs(eoaWalletClient.account.address),
   }
   const currentNonce = await publicClient.readContract(readArgs);
-  */
+
   print(`Current nonce from gas station contract: ${currentNonce}`, "");
 
   // Step 2: Create the USDC transfer call data (what the gas station will call)
@@ -384,7 +385,6 @@ async function executeUSDCTransferWithIntent({
   )
 
   console.log({ args });
-   throw new Error("test");
   const txHash = await paymasterWalletClient.sendTransaction({
     to: contractConfig.gasStationAddress, // Call the appropriate gas station contract // env.EOA_ADDRESS as `0x${string}`,
     data: encodeFunctionData({
