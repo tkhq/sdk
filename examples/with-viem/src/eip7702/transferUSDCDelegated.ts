@@ -131,7 +131,7 @@ function getContractConfig() {
         outputContract: `0x${string}`,
         callData: `0x${string}`,
         signature: `0x${string}`
-      ) => [eoaAddress, nonce, outputContract, callData, signature] as const,
+      ) => [eoaAddress, nonce, outputContract, 0n, callData, signature] as const, // Two-contract ABI includes ethAmount parameter
     };
   } else {
     return {
@@ -142,6 +142,7 @@ function getContractConfig() {
       nonceType: "uint128" as const,
       nonceArgs: () => [] as const,
       executeArgs: (
+        eoaAddress: `0x${string}`,
         nonce: bigint,
         outputContract: `0x${string}`,
         callData: `0x${string}`,
@@ -362,13 +363,14 @@ async function executeUSDCTransferWithIntent({
     data: encodeFunctionData({
       abi: contractConfig.abi,
       functionName: "execute",
-      args: contractConfig.executeArgs(
-        env.EOA_ADDRESS,
+      args: [env.EOA_ADDRESS as `0x${string}`, currentNonce, config.usdcAddress as `0x${string}`, 0n, transferCallData, signature],
+      /*args: contractConfig.executeArgs(
+        env.EOA_ADDRESS as `0x${string}`,
         currentNonce,
         config.usdcAddress as `0x${string}`,
         transferCallData,
         signature
-      ),
+      ),*/
     }),
     gas: BigInt(200000),
     account: paymasterWalletClient.account,
