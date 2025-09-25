@@ -16,7 +16,8 @@ import {
   type Transport,
 } from "viem";
 
-import { gasStationAbi } from "./abis/combined_abi";
+import { gasStationAbi as combinedAbi } from "./abis/combined_abi";
+import { gasStationAbi as separateAbi } from "./abis/gasStationAbi";
 
 import { base, mainnet } from "viem/chains";
 import { createAccount } from "@turnkey/viem";
@@ -72,12 +73,24 @@ const envSchema = z.object({
   API_PUBLIC_KEY: z.string().min(1),
   ORGANIZATION_ID: z.string().min(1),
   EOA_ADDRESS: z.string().min(1),
-  GAS_STATION_CA: z.string().min(1),
   PAYMASTER: z.string().min(1),
   ETH_RPC_URL: z.string().url(),
   BASE_RPC_URL: z.string().url(),
-  // same as EOA address while Gassy and TK GasStation are combined
-  EXECUTION_ADDRESS: z.string().min(1),
+
+  // Single contract approach (default) - combined delegate + execution contract
+  SINGLE_CONTRACT_ADDRESS: z.string().min(1),
+  SINGLE_EXECUTION_ADDRESS: z.string().min(1),
+
+  // Two contract approach (optional - only required when USE_TWO_CONTRACTS=true)
+  TWO_DELEGATE_CONTRACT: z.string().min(1).optional(),
+  TWO_EXECUTION_CONTRACT: z.string().min(1).optional(),
+
+  // Flag to switch between single contract (default) and two contract approaches
+  USE_TWO_CONTRACTS: z
+    .string()
+    .optional()
+    .transform((val) => val === "true"),
+
   SKIP_AUTHORIZATION: z
     .string()
     .optional()
@@ -86,9 +99,59 @@ const envSchema = z.object({
 
 const env = envSchema.parse(process.env);
 
+// Validate required environment variables based on the mode
+if (env.USE_TWO_CONTRACTS) {
+  if (!env.TWO_DELEGATE_CONTRACT || !env.TWO_EXECUTION_CONTRACT) {
+    console.error(
+      "When USE_TWO_CONTRACTS=true, both TWO_DELEGATE_CONTRACT and GAS_STATION_SEPERATE must be provided"
+    );
+    process.exit(1);
+  }
+}
+
 print(
   `🌐 Using ${selectedChain.toUpperCase()} network`,
   `USDC: ${config.usdcAddress}`
+);
+
+// Get appropriate configuration based on the contract approach flag
+function getContractConfig() {
+  if (env.USE_TWO_CONTRACTS) {
+    return {
+      abi: separateAbi,
+      delegateAddress: env.TWO_DELEGATE_CONTRACT as `0x${string}`,
+      gasStationAddress: env.TWO_EXECUTION_CONTRACT as `0x${string}`,
+      nonceType: "uint256" as const,
+      nonceArgs: (eoaAddress: `0x${string}`) => [eoaAddress] as const,
+      executeArgs: (
+        nonce: bigint,
+        outputContract: `0x${string}`,
+        callData: `0x${string}`,
+        signature: `0x${string}`
+      ) => [nonce, outputContract, callData, signature] as const,
+    };
+  } else {
+    return {
+      abi: combinedAbi,
+      delegateAddress: env.SINGLE_CONTRACT_ADDRESS as `0x${string}`,
+      gasStationAddress: env.SINGLE_EXECUTION_ADDRESS as `0x${string}`,
+      nonceType: "uint128" as const,
+      nonceArgs: () => [] as const,
+      executeArgs: (
+        nonce: bigint,
+        outputContract: `0x${string}`,
+        callData: `0x${string}`,
+        signature: `0x${string}`
+      ) => [nonce, outputContract, 0n, callData, signature] as const, // Combined ABI includes ethAmount parameter
+    };
+  }
+}
+
+print(
+  `🔧 Using ${env.USE_TWO_CONTRACTS ? "two-contract" : "single-contract"} contract approach`,
+  env.USE_TWO_CONTRACTS
+    ? `Delegate: ${env.TWO_DELEGATE_CONTRACT}, Gas Station: ${env.TWO_EXECUTION_CONTRACT}`
+    : `Combined Contract: ${env.SINGLE_CONTRACT_ADDRESS} (Execution: ${env.SINGLE_EXECUTION_ADDRESS})`
 );
 const ERC20_ABI = [
   {
@@ -138,9 +201,12 @@ async function authorize7702ForEOA({
       selectedChain === "base" ? env.BASE_RPC_URL : env.ETH_RPC_URL
     ),
   });
-  // Sign the EIP-7702 authorization to delegate the gas station contract to the EOA
+  // Get contract configuration based on the flag
+  const contractConfig = getContractConfig();
+
+  // Sign the EIP-7702 authorization to delegate the appropriate contract to the EOA
   const authorization = await eoaWalletClient.signAuthorization({
-    contractAddress: env.GAS_STATION_CA as `0x${string}`,
+    contractAddress: contractConfig.delegateAddress,
     account: eoaWalletClient.account,
     chainId: 0, // 0 means valid on any EIP-7702 compatible chain
     // No executor specified - means the paymaster will execute the transaction
@@ -214,12 +280,15 @@ async function executeUSDCTransferWithIntent({
 
   print("Creating EIP-712 intent for USDC transfer...", "");
 
-  const executionAddress = env.EXECUTION_ADDRESS as `0x${string}`;
-  // Step 1: Get current nonce using the EOA's context
+  // Get contract configuration based on the flag
+  const contractConfig = getContractConfig();
+
+  // Step 1: Get current nonce using the appropriate contract and method
   const currentNonce = await publicClient.readContract({
-    address: executionAddress,
-    abi: gasStationAbi,
+    address: contractConfig.gasStationAddress,
+    abi: contractConfig.abi,
     functionName: "nonce",
+    args: contractConfig.nonceArgs(eoaWalletClient.account.address),
   });
 
   print(`Current nonce from gas station contract: ${currentNonce}`, "");
@@ -242,12 +311,12 @@ async function executeUSDCTransferWithIntent({
     name: "TKGasStation",
     version: "1",
     chainId: config.chain.id,
-    verifyingContract: executionAddress, // EOA address (now delegated to gas station)
+    verifyingContract: contractConfig.gasStationAddress, // Gas station contract address
   };
 
   const types = {
     Execution: [
-      { name: "nonce", type: "uint128" },
+      { name: "nonce", type: contractConfig.nonceType },
       { name: "outputContract", type: "address" },
       { name: "ethAmount", type: "uint256" },
       { name: "arguments", type: "bytes" },
@@ -285,11 +354,16 @@ async function executeUSDCTransferWithIntent({
   );
 
   const txHash = await paymasterWalletClient.sendTransaction({
-    to: executionAddress, // Call the gas station contract with EOA context
+    to: contractConfig.gasStationAddress, // Call the appropriate gas station contract
     data: encodeFunctionData({
-      abi: gasStationAbi,
+      abi: contractConfig.abi,
       functionName: "execute",
-      args: [currentNonce, config.usdcAddress, transferCallData, signature],
+      args: contractConfig.executeArgs(
+        currentNonce,
+        config.usdcAddress as `0x${string}`,
+        transferCallData,
+        signature
+      ),
     }),
     gas: BigInt(200000),
     account: paymasterWalletClient.account,
@@ -338,6 +412,12 @@ async function executeUSDCTransferWithIntent({
  *
  * The authorization allows the EOA to use the gas station contract's functionality
  * for gasless transactions or sponsored transactions.
+ *
+ * Contract Approach Configuration:
+ * - Single Contract (default): Uses one combined contract for both delegation and execution
+ * - Two Contract: Uses separate contracts for delegation (TWO_DELEGATE_CONTRACT) and execution (GAS_STATION_SEPERATE)
+ *
+ * Set USE_TWO_CONTRACTS=true to switch to the two contract approach.
  */
 const main = async () => {
   const eoaAccount = await createAccount({
