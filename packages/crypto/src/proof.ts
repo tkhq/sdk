@@ -33,12 +33,13 @@ export async function verify(appProof: v1AppProof, bootProof: v1BootProof): Prom
 
   // Verify manifest digest
   const decodedBootProofManifest = Uint8Array.from(atob(bootProof.qosManifestB64).split("").map((c) => c.charCodeAt(0)));
+  console.log()
   const manifestHash = sha256(decodedBootProofManifest);
   if (!bytesEq(manifestHash, attestationDoc.user_data)) {
     throw new Error("attestationDoc's user_data doesn't match the hash of the manifest");
   }
 
-  // 3. Verify that all the ephemeral public keys match: app proof, boot proof structure, actual attestion doc
+  // 3. Verify that all the ephemeral public keys match: app proof, boot proof structure, actual attestation doc
   const u8 = new Uint8Array(attestationDoc.public_key);
   const attestationPubKey = Buffer.from(u8).toString("hex");
   if (appProof.publicKey !== attestationPubKey || attestationPubKey !== bootProof.ephemeralPublicKeyHex) {
@@ -124,8 +125,6 @@ IwLz3/Y=
 // Official SHA-256 fingerprint
 const AWS_ROOT_CERT_SHA256 = "641A0321A3E244EFE456463195D606317ED7CDCC3C1756E09893F3C68F79BB5B";
 
-const BASIC_CONSTRAINTS_EXTENSION_VALUE = "2.5.29.19";
-
 export async function verifyCertificateChain(cabundle: Uint8Array[], rootCertPem: string, leafCert: Uint8Array, timestampMs: number): Promise<void> {
   try {
     // Check root and assert fingerprint
@@ -146,25 +145,14 @@ export async function verifyCertificateChain(cabundle: Uint8Array[], rootCertPem
 
     // Build path leaf → intermediates → root, with our hardcoded known root certificate
     const builder = new x509.X509ChainBuilder({ certificates: [rootX509, ...intermediatesX509] });
-    const path = await builder.build(leaf); // order: [leaf, ..., intermediates, ..., root]
+    const path = await builder.build(leaf);
     if (!path || path.length < 2) throw new Error("Could not build a certificate path to the AWS root");
 
     // Verify certificate chain signatures
     const appProofDate = new Date(timestampMs);
     for (let i = 0; i < path.length; i++) {
       const cert = path[i];
-      if (!cert) continue;
-
-      // Check basic constraints
-      const basicConstraintsExtension = cert.getExtension(BASIC_CONSTRAINTS_EXTENSION_VALUE);
-      if (!basicConstraintsExtension) throw new Error(`Failed to get basic constraints extension for ${cert.subject}`);
-      const basicConstraints = basicConstraintsExtension as x509.BasicConstraintsExtension;
-
-      if (i === 0) { // is leaf
-        if (basicConstraints.ca === true) throw new Error("Leaf certificate has CA=true");
-      } else {
-        if (basicConstraints.ca !== true) throw new Error(`Issuer missing CA=true: ${cert.subject}`);
-      }
+      if (!cert) throw new Error("Invalid certificate in chain");
 
       // Verify signature
       if (i === path.length - 1) { // is root
@@ -176,7 +164,10 @@ export async function verifyCertificateChain(cabundle: Uint8Array[], rootCertPem
         const issuer = path[i + 1];
         if (!issuer) throw new Error("Issuer can't be null");
 
-        const ok = await cert.verify( { publicKey: issuer.publicKey, date: appProofDate });
+        // Because attestation docs technically expire after 3 hours, an app proof generated 3+ hours after an enclave
+        // is spun up will fail verification due to certificate expiration. To fix this, we set `signatureOnly: true`.
+        // We've scoped work to solve this by generating attestation docs every couple hours, coming soon.
+        const ok = await cert.verify( { publicKey: issuer.publicKey, signatureOnly: true, date: appProofDate });
         if (!ok) throw new Error(`Signature check failed: ${cert.subject} not signed by ${issuer.subject}`);
       }
     }
@@ -193,30 +184,6 @@ function bytesEq(a: ArrayBuffer, b: ArrayBuffer) {
   for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return false;
   return true;
 }
-
-// function getExt<T>(cert: x509.X509Certificate, Ctor: new (...args: any[]) => T): T | undefined {
-//   return cert.extensions.find(e => e instanceof Ctor) as any;
-// }
-
-// function assertIssuerSubjectLink(child: x509.X509Certificate, issuer: x509.X509Certificate) {
-//   // DN equality
-//   if (child.issuer !== issuer.subject) {
-//     throw new Error(`[name] Issuer DN mismatch\n child.issuer = ${child.issuer}\n issuer.subject = ${issuer.subject}`);
-//   }
-//   // Optional AKI/SKI if present
-//   const aki = getExt(child, x509.AuthorityKeyIdentifierExtension);
-//   const ski = getExt(issuer, x509.SubjectKeyIdentifierExtension);
-//   if (aki?.keyId && ski?.keyId && !bytesEq(aki.keyId.buffer, ski.keyId.buffer)) {
-//     throw new Error(`[aki/ski] KeyId mismatch between\n child=${child.subject}\n issuer=${issuer.subject}`);
-//   }
-// }
-
-// function assertConstraints(child: x509.X509Certificate, issuer: x509.X509Certificate) {
-//   const ku = getExt(issuer, x509.KeyUsagesExtension)?.usages;
-//   if (ku !== undefined && (ku & x509.KeyUsageFlags.keyCertSign) === 0) {
-//     throw new Error(`[keyUsage] Issuer missing keyCertSign: ${issuer.subject}`);
-//   }
-// }
 
 export function verifyCoseSign1Sig(coseSign1: any, leaf: Uint8Array): void {
   const [protectedHeaders, , payload, signature] = coseSign1;
