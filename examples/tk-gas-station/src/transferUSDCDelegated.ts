@@ -143,7 +143,7 @@ function getContractConfig() {
       gasStationAddress: env.SINGLE_EXECUTION_ADDRESS as `0x${string}`,
       nonceType: "uint128" as const,
       nonceFunctionName: "nonce" as const,
-      nonceArgs: () => [] as const,
+      nonceArgs: (eoaAddress: `0x${string}`) => [eoaAddress] as const,
       executeArgs: (
         eoaAddress: `0x${string}`,
         nonce: bigint,
@@ -292,13 +292,25 @@ async function executeUSDCTransferWithIntent({
   const contractConfig = getContractConfig();
 
   // Step 1: Get current nonce using the appropriate contract and method
-  const currentNonce = await publicClient.readContract({
+  
+  /// Nonce reading when directly from the EoA
+  let readArgs = {
+    address: env.EOA_ADDRESS as `0x${string}`,//contractConfig.gasStationAddress,
+    abi: contractConfig.abi,
+    functionName: contractConfig.nonceFunctionName,
+    args: []//contractConfig.nonceArgs(eoaWalletClient.account.address),
+  }
+  const currentNonce = await publicClient.readContract(readArgs);
+  
+/*
+  let readArgs = {
     address: contractConfig.gasStationAddress,
     abi: contractConfig.abi,
     functionName: contractConfig.nonceFunctionName,
     args: contractConfig.nonceArgs(eoaWalletClient.account.address),
-  });
-
+  }
+  const currentNonce = await publicClient.readContract(readArgs);
+  */
   print(`Current nonce from gas station contract: ${currentNonce}`, "");
 
   // Step 2: Create the USDC transfer call data (what the gas station will call)
@@ -319,7 +331,7 @@ async function executeUSDCTransferWithIntent({
     name: "TKGasDelegate",
     version: "1",
     chainId: config.chain.id,
-    verifyingContract: eoaWalletClient.account.address,
+    verifyingContract: env.EOA_ADDRESS as `0x${string}`,//eoaWalletClient.account.address,
   };
 
   const types = {
@@ -343,6 +355,8 @@ async function executeUSDCTransferWithIntent({
     "EOA signing EIP-712 message to authorize gas station execution...",
     ""
   );
+  console.log({ domain });
+  console.log(eoaWalletClient.account);
 
   // Step 4: EOA signs the execution intent
   const signature = await eoaWalletClient.signTypedData({
@@ -361,18 +375,22 @@ async function executeUSDCTransferWithIntent({
     ""
   );
 
+  let args = contractConfig.executeArgs(
+    eoaWalletClient.account.address,
+    currentNonce,
+    config.usdcAddress as `0x${string}`,
+    transferCallData,
+    signature
+  )
+
+  console.log({ args });
+   throw new Error("test");
   const txHash = await paymasterWalletClient.sendTransaction({
-    to: contractConfig.gasStationAddress, // Call the appropriate gas station contract
+    to: contractConfig.gasStationAddress, // Call the appropriate gas station contract // env.EOA_ADDRESS as `0x${string}`,
     data: encodeFunctionData({
       abi: contractConfig.abi,
       functionName: "execute",
-      args: contractConfig.executeArgs(
-        eoaWalletClient.account.address,
-        currentNonce,
-        config.usdcAddress as `0x${string}`,
-        transferCallData,
-        signature
-      ),
+      args: args,
     }),
     gas: BigInt(200000),
     account: paymasterWalletClient.account,
