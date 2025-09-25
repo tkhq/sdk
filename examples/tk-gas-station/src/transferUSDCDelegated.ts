@@ -319,7 +319,7 @@ async function executeUSDCTransferWithIntent({
     name: "TKGasDelegate",
     version: "1",
     chainId: config.chain.id,
-    verifyingContract: eoaWalletClient.account.address, // Must match the gas station contract address
+    verifyingContract: contractConfig.gasStationAddress, // Must match the gas station contract address
   };
 
   const types = {
