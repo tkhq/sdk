@@ -120,6 +120,11 @@ export default function LoginScreen() {
   const handleGoogleOauthPress = async () => {
     try {
       setLoading(true);
+      const utils = require('@noble/hashes/utils');
+const nodeCrypto = (() => { try { return require('crypto'); } catch { return undefined; } })();
+console.log('[probe] noble utils randomBytes exists:', typeof utils.randomBytes);
+console.log('[probe] node crypto present:', !!nodeCrypto, 'randomBytes:', !!nodeCrypto?.randomBytes, 'webcrypto:', !!nodeCrypto?.webcrypto);
+console.log('[probe] global crypto:', !!globalThis.crypto, 'getRandomValues:', !!globalThis.crypto?.getRandomValues);
       await handleGoogleOauth();
       router.replace('/(main)');
     } catch (error) {
