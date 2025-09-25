@@ -119,6 +119,7 @@ import {
   getPolicySignature,
   mapAccountsToWallet,
   getActiveSessionOrThrowIfRequired,
+  parseCreateWalletInput,
 } from "../utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -3465,17 +3466,9 @@ export class TurnkeyClient {
       );
     }
 
-    let walletAccounts: v1WalletAccountParams[] = [];
-    if (accounts && !isWalletAccountArray(accounts)) {
-      walletAccounts = generateWalletAccountsFromAddressFormat({
-        addresses: accounts,
-      });
-    } else {
-      walletAccounts = (accounts as v1WalletAccountParams[]) || [
-        ...DEFAULT_ETHEREUM_ACCOUNTS,
-        ...DEFAULT_SOLANA_ACCOUNTS,
-      ];
-    }
+    const walletAccounts: v1WalletAccountParams[] = parseCreateWalletInput({
+      accounts,
+    });
 
     return withTurnkeyErrorHandling(
       async () => {
