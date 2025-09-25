@@ -696,6 +696,26 @@ export function generateWalletAccountsFromAddressFormat(params: {
   });
 }
 
+/**@internal */
+export function parseCreateWalletInput(params: {
+  accounts: v1AddressFormat[] | v1WalletAccountParams[] | undefined;
+}): v1WalletAccountParams[] {
+  const { accounts } = params;
+  let walletAccounts: v1WalletAccountParams[] = [];
+  if (accounts && !isWalletAccountArray(accounts)) {
+    walletAccounts = generateWalletAccountsFromAddressFormat({
+      addresses: accounts,
+    });
+  } else {
+    walletAccounts = (accounts as v1WalletAccountParams[]) || [
+      ...DEFAULT_ETHEREUM_ACCOUNTS,
+      ...DEFAULT_SOLANA_ACCOUNTS,
+    ];
+  }
+
+  return walletAccounts;
+}
+
 export function buildSignUpBody(params: {
   createSubOrgParams: CreateSubOrgParams | undefined;
 }): ProxyTSignupBody {

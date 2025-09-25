@@ -341,6 +341,31 @@ export default function AuthPage() {
             >
               Create Wallet
             </button>
+
+            <button
+              data-testid="create-wallet"
+              onClick={async () => {
+                const allAddressFormats: v1AddressFormat[] = [
+                  "ADDRESS_FORMAT_ETHEREUM",
+                  "ADDRESS_FORMAT_SOLANA",
+                ];
+
+                console.log(
+                  await turnkey.handleCreateWallet({
+                    walletName: `My Wallet ${new Date().toISOString()}`,
+                    accounts: allAddressFormats,
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "yellowgreen",
+                borderRadius: "8px",
+                padding: "4px 16px",
+                color: "black",
+              }}
+            >
+              Create Wallet With Modal
+            </button>
           </div>
           <div className="flex flex-wrap gap-2">
             {wallets && wallets.length > 0

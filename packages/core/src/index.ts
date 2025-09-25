@@ -28,6 +28,7 @@ export * from "./__types__/method-types";
 /**@internal */
 export {
   generateWalletAccountsFromAddressFormat,
+  parseCreateWalletInput,
   isEthereumProvider,
   isSolanaProvider,
   getAuthProxyConfig,
