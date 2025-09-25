@@ -57,11 +57,7 @@ export const gasStationAbi = [
       { internalType: "string", name: "name", type: "string" },
       { internalType: "string", name: "version", type: "string" },
       { internalType: "uint256", name: "chainId", type: "uint256" },
-      {
-        internalType: "address",
-        name: "verifyingContract",
-        type: "address",
-      },
+      { internalType: "address", name: "verifyingContract", type: "address" },
       { internalType: "bytes32", name: "salt", type: "bytes32" },
       { internalType: "uint256[]", name: "extensions", type: "uint256[]" },
     ],
@@ -71,11 +67,7 @@ export const gasStationAbi = [
   {
     inputs: [
       { internalType: "uint128", name: "_nonce", type: "uint128" },
-      {
-        internalType: "address",
-        name: "_outputContract",
-        type: "address",
-      },
+      { internalType: "address", name: "_outputContract", type: "address" },
       { internalType: "uint256", name: "_ethAmount", type: "uint256" },
       { internalType: "bytes", name: "_arguments", type: "bytes" },
       { internalType: "bytes", name: "_signature", type: "bytes" },
@@ -91,11 +83,7 @@ export const gasStationAbi = [
   {
     inputs: [
       { internalType: "uint128", name: "_nonce", type: "uint128" },
-      {
-        internalType: "address",
-        name: "_outputContract",
-        type: "address",
-      },
+      { internalType: "address", name: "_outputContract", type: "address" },
       { internalType: "bytes", name: "_arguments", type: "bytes" },
       { internalType: "bytes", name: "_signature", type: "bytes" },
     ],
@@ -112,11 +100,7 @@ export const gasStationAbi = [
       { internalType: "uint128", name: "_nonce", type: "uint128" },
       {
         components: [
-          {
-            internalType: "address",
-            name: "outputContract",
-            type: "address",
-          },
+          { internalType: "address", name: "outputContract", type: "address" },
           { internalType: "uint256", name: "ethAmount", type: "uint256" },
           { internalType: "bytes", name: "arguments", type: "bytes" },
         ],
@@ -138,18 +122,10 @@ export const gasStationAbi = [
     inputs: [
       { internalType: "uint128", name: "_counter", type: "uint128" },
       { internalType: "uint128", name: "_deadline", type: "uint128" },
-      {
-        internalType: "address",
-        name: "_outputContract",
-        type: "address",
-      },
+      { internalType: "address", name: "_outputContract", type: "address" },
       {
         components: [
-          {
-            internalType: "address",
-            name: "outputContract",
-            type: "address",
-          },
+          { internalType: "address", name: "outputContract", type: "address" },
           { internalType: "uint256", name: "ethAmount", type: "uint256" },
           { internalType: "bytes", name: "arguments", type: "bytes" },
         ],
@@ -173,11 +149,7 @@ export const gasStationAbi = [
       { internalType: "uint128", name: "_deadline", type: "uint128" },
       {
         components: [
-          {
-            internalType: "address",
-            name: "outputContract",
-            type: "address",
-          },
+          { internalType: "address", name: "outputContract", type: "address" },
           { internalType: "uint256", name: "ethAmount", type: "uint256" },
           { internalType: "bytes", name: "arguments", type: "bytes" },
         ],
@@ -199,11 +171,7 @@ export const gasStationAbi = [
     inputs: [
       { internalType: "uint128", name: "_counter", type: "uint128" },
       { internalType: "uint128", name: "_deadline", type: "uint128" },
-      {
-        internalType: "address",
-        name: "_outputContract",
-        type: "address",
-      },
+      { internalType: "address", name: "_outputContract", type: "address" },
       { internalType: "bytes", name: "_arguments", type: "bytes" },
       { internalType: "bytes", name: "_signature", type: "bytes" },
     ],
@@ -219,11 +187,7 @@ export const gasStationAbi = [
     inputs: [
       { internalType: "uint128", name: "_counter", type: "uint128" },
       { internalType: "uint128", name: "_deadline", type: "uint128" },
-      {
-        internalType: "address",
-        name: "_outputContract",
-        type: "address",
-      },
+      { internalType: "address", name: "_outputContract", type: "address" },
       { internalType: "uint256", name: "_ethAmount", type: "uint256" },
       { internalType: "bytes", name: "_arguments", type: "bytes" },
       { internalType: "bytes", name: "_signature", type: "bytes" },
@@ -240,12 +204,24 @@ export const gasStationAbi = [
     inputs: [
       { internalType: "uint128", name: "_counter", type: "uint128" },
       { internalType: "uint128", name: "_deadline", type: "uint128" },
-      {
-        internalType: "address",
-        name: "_outputContract",
-        type: "address",
-      },
+      { internalType: "address", name: "_outputContract", type: "address" },
       { internalType: "uint256", name: "_ethAmount", type: "uint256" },
+      { internalType: "bytes", name: "_arguments", type: "bytes" },
+      { internalType: "bytes", name: "_signature", type: "bytes" },
+    ],
+    name: "executeTimeboxedArbitrary",
+    outputs: [
+      { internalType: "bool", name: "", type: "bool" },
+      { internalType: "bytes", name: "", type: "bytes" },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "uint128", name: "_counter", type: "uint128" },
+      { internalType: "uint128", name: "_deadline", type: "uint128" },
+      { internalType: "address", name: "_outputContract", type: "address" },
       { internalType: "bytes", name: "_arguments", type: "bytes" },
       { internalType: "bytes", name: "_signature", type: "bytes" },
     ],
@@ -273,11 +249,7 @@ export const gasStationAbi = [
       { internalType: "uint128", name: "_nonce", type: "uint128" },
       {
         components: [
-          {
-            internalType: "address",
-            name: "outputContract",
-            type: "address",
-          },
+          { internalType: "address", name: "outputContract", type: "address" },
           { internalType: "uint256", name: "ethAmount", type: "uint256" },
           { internalType: "bytes", name: "arguments", type: "bytes" },
         ],
@@ -311,11 +283,7 @@ export const gasStationAbi = [
   {
     inputs: [
       { internalType: "uint128", name: "_nonce", type: "uint128" },
-      {
-        internalType: "address",
-        name: "_outputContract",
-        type: "address",
-      },
+      { internalType: "address", name: "_outputContract", type: "address" },
       { internalType: "uint256", name: "_ethAmount", type: "uint256" },
       { internalType: "bytes", name: "_arguments", type: "bytes" },
     ],
@@ -329,11 +297,7 @@ export const gasStationAbi = [
       { internalType: "uint128", name: "_counter", type: "uint128" },
       { internalType: "uint128", name: "_deadline", type: "uint128" },
       { internalType: "address", name: "_sender", type: "address" },
-      {
-        internalType: "address",
-        name: "_outputContract",
-        type: "address",
-      },
+      { internalType: "address", name: "_outputContract", type: "address" },
     ],
     name: "hashTimeboxedExecution",
     outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],

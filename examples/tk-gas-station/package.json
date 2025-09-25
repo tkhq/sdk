@@ -7,6 +7,7 @@
     "start-basic": "tsx src/basic-paymaster.ts",
     "start-advanced": "tsx src/advanced-paymaster.ts",
     "start-gasless": "tsx src/gasless-transaction.ts",
+    "start-7702-usdc": "tsx src/eip7702/transferUSDCDelegated.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -17,14 +18,12 @@
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0",
     "prompts": "^2.4.2",
-    "viem": "^2.24.2"
+    "viem": "^2.34.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/prompts": "^2.4.2",
     "tsx": "^4.7.0",
     "typescript": "^5.3.0"
-  },
-  "peerDependencies": {
-    "viem": "2.24.2"
   }
 }

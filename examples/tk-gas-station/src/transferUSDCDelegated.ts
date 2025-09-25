@@ -16,13 +16,16 @@ import {
   type Transport,
 } from "viem";
 
-import { gasStationAbi as combinedAbi } from "./abis/combined_abi";
-import { gasStationAbi as separateAbi } from "./abis/gasStationAbi";
+import { gasStationAbi as combinedAbi } from "../abi/combined_abi";
+import { gasStationAbi as separateAbi } from "../abi/gasStationAbi";
 
 import { base, mainnet } from "viem/chains";
 import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import { print } from "../util";
+
+export function print(header: string, body: string): void {
+  console.log(`${header}\n\t${body}\n`);
+}
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
 
@@ -122,13 +125,16 @@ function getContractConfig() {
       delegateAddress: env.TWO_DELEGATE_CONTRACT as `0x${string}`,
       gasStationAddress: env.TWO_EXECUTION_CONTRACT as `0x${string}`,
       nonceType: "uint256" as const,
+      nonceFunctionName: "getNonce" as const,
       nonceArgs: (eoaAddress: `0x${string}`) => [eoaAddress] as const,
       executeArgs: (
+        eoaAddress: `0x${string}`,
         nonce: bigint,
         outputContract: `0x${string}`,
         callData: `0x${string}`,
         signature: `0x${string}`
-      ) => [nonce, outputContract, callData, signature] as const,
+      ) =>
+        [eoaAddress, nonce, outputContract, 0n, callData, signature] as const,
     };
   } else {
     return {
@@ -136,8 +142,10 @@ function getContractConfig() {
       delegateAddress: env.SINGLE_CONTRACT_ADDRESS as `0x${string}`,
       gasStationAddress: env.SINGLE_EXECUTION_ADDRESS as `0x${string}`,
       nonceType: "uint128" as const,
+      nonceFunctionName: "nonce" as const,
       nonceArgs: () => [] as const,
       executeArgs: (
+        eoaAddress: `0x${string}`,
         nonce: bigint,
         outputContract: `0x${string}`,
         callData: `0x${string}`,
@@ -287,7 +295,7 @@ async function executeUSDCTransferWithIntent({
   const currentNonce = await publicClient.readContract({
     address: contractConfig.gasStationAddress,
     abi: contractConfig.abi,
-    functionName: "nonce",
+    functionName: contractConfig.nonceFunctionName,
     args: contractConfig.nonceArgs(eoaWalletClient.account.address),
   });
 
@@ -308,10 +316,10 @@ async function executeUSDCTransferWithIntent({
 
   // Step 3: EOA signs EIP-712 message for the gas station contract execution
   const domain = {
-    name: "TKGasStation",
+    name: "TKGasDelegate",
     version: "1",
     chainId: config.chain.id,
-    verifyingContract: contractConfig.gasStationAddress, // Gas station contract address
+    verifyingContract: eoaWalletClient.account.address, // Must match the gas station contract address
   };
 
   const types = {
@@ -359,6 +367,7 @@ async function executeUSDCTransferWithIntent({
       abi: contractConfig.abi,
       functionName: "execute",
       args: contractConfig.executeArgs(
+        eoaWalletClient.account.address,
         currentNonce,
         config.usdcAddress as `0x${string}`,
         transferCallData,

@@ -13,7 +13,6 @@
     "start-1559-sign-raw": "tsx src/eip1559/signRawTransaction.ts",
     "start-4844": "tsx src/eip4844/signTransaction.ts",
     "start-4844-sign-raw": "tsx src/eip4844/signRawTransaction.ts",
-    "start-7702": "tsx src/eip7702/transferUSDCDelegated.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },

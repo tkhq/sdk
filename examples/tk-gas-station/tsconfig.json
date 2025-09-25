@@ -15,8 +15,12 @@
     "noEmit": true,
     "declaration": false,
     "outDir": "./dist",
-    "rootDir": "./src"
+    "rootDir": "./",
+    "paths": {
+      "viem": ["./node_modules/viem"],
+      "viem/*": ["./node_modules/viem/*"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "abi/**/*"],
   "exclude": ["node_modules", "dist"]
 }
