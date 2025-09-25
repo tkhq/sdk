@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -14,8 +14,8 @@ import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { EmailInput, validateEmail } from '@/components/auth/email-input';
-import { EmailButton } from '@/components/auth/email-button';
-import { useTurnkey } from '@turnkey/react-native-wallet-kit';
+import { SecondaryButton } from '@/components/ui/secondary-button';
+import { AuthState, useTurnkey } from '@turnkey/react-native-wallet-kit';
 import { OtpType } from '@/types/types';
 
 const customWallet = {
@@ -33,13 +33,23 @@ const customWallet = {
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { initOtp, completeOtp, signUpWithPasskey, httpClient } = useTurnkey();
+  const { initOtp, completeOtp, signUpWithPasskey, loginWithPasskey, handleGoogleOauth, httpClient, authState, session } = useTurnkey();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+
+
+  useEffect(() => {
+    console.log('authState', authState === AuthState.Authenticated);
+    console.log('session', session);
+    if (authState === AuthState.Authenticated) {
+      router.replace('/(main)');
+    }
+  }, [authState, router]);
 
   const handleEmailSubmit = async () => {
     if (!validateEmail(email)) {
@@ -79,22 +89,42 @@ export default function LoginScreen() {
   const handleSignUpWithPasskeyPress = async () => {
     try {
     setLoading(true);
-    // Check to see if the user's account exists
-    const account = await httpClient?.proxyGetAccount({
-      filterType: "EMAIL",
-      filterValue: email,
-    })
-    console.log('account', account);
+      console.log('signing up with passkey');
     await signUpWithPasskey({
-      passkeyDisplayName: 'Default Passkey',
+      passkeyDisplayName: 'DefaultPasskey',
       createSubOrgParams: {
         customWallet,
         },
       });
+      router.replace('/(main)');
     } catch (error) {
       console.error('Error signing up with passkey', error);
     }
     finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLoginWithPasskeyPress = async () => {
+    try {
+      setLoading(true);
+      await loginWithPasskey();
+      router.replace('/(main)');
+    } catch (error) {
+      console.error('Error logging in with passkey', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleOauthPress = async () => {
+    try {
+      setLoading(true);
+      await handleGoogleOauth();
+      router.replace('/(main)');
+    } catch (error) {
+      console.error('Error signing in with Google', error);
+    } finally {
       setLoading(false);
     }
   };
@@ -134,20 +164,45 @@ export default function LoginScreen() {
             {/* Passkey Button (Placeholder) */}
             <TouchableOpacity
               style={[styles.passkeyButton, { backgroundColor: colors.primary }]}
-              onPress={handleSignUpWithPasskeyPress}
+              onPress={handleLoginWithPasskeyPress}
               activeOpacity={0.8}
             >
               <Text style={styles.passkeyButtonText}>
-                Sign up with passkey
+                Login with passkey
               </Text>
+            </TouchableOpacity>
+            {/* Sign up with passkey Button */}
+            <SecondaryButton
+              onPress={handleSignUpWithPasskeyPress}
+              disabled={!email}
+              loading={loading}
+            >
+              Sign up with passkey
+            </SecondaryButton>
+
+            {/* Google OAuth Button */}
+            <TouchableOpacity
+              style={[styles.googleButton]}
+              onPress={handleGoogleOauthPress}
+              activeOpacity={0.8}
+              disabled={loading}
+            >
+              <View style={styles.googleButtonContent}>
+                <Text style={styles.googleIcon}>G</Text>
+                <Text style={styles.googleButtonText}>
+                  Continue with Google
+                </Text>
+              </View>
             </TouchableOpacity>
 
             {/* Email Button */}
-            <EmailButton
+            <SecondaryButton
               onPress={handleEmailSubmit}
               disabled={!email}
               loading={loading}
-            />
+            >
+              Continue with email
+            </SecondaryButton>
 
             {/* OR Divider (Placeholder for OAuth) */}
             <View style={styles.dividerContainer}>
@@ -158,9 +213,9 @@ export default function LoginScreen() {
               <View style={[styles.divider, { backgroundColor: colors.inputBorder }]} />
             </View>
 
-            {/* OAuth Buttons Placeholder */}
+            {/* Additional OAuth Buttons Placeholder */}
             <Text style={[styles.placeholderText, { color: colors.secondaryText }]}>
-              OAuth buttons will be added in Phase 3
+              Apple and Facebook buttons coming soon
             </Text>
           </View>
         </ScrollView>
@@ -229,5 +284,31 @@ const styles = StyleSheet.create({
   placeholderText: {
     fontSize: 14,
     textAlign: 'center',
+  },
+  googleButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  googleButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  googleIcon: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#4285F4',
+  },
+  googleButtonText: {
+    color: '#3C4043',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
