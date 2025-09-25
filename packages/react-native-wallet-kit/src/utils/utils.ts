@@ -20,7 +20,7 @@ export const FACEBOOK_GRAPH_URL =
   "https://graph.facebook.com/v11.0/oauth/access_token";
 
 export const TURNKEY_OAUTH_ORIGIN_URL = "https://oauth-origin.turnkey.com";
-export const TURNKEY__OAUTH_REDIRECT_URL = "https://oauth-redirect.turnkey.com";
+export const TURNKEY_OAUTH_REDIRECT_URL = "https://oauth-redirect.turnkey.com";
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
 
