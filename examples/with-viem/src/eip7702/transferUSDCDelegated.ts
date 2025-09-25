@@ -18,6 +18,7 @@ import {
 
 import { gasStationAbi as combinedAbi } from "./abis/combined_abi";
 import { gasStationAbi as separateAbi } from "./abis/gasStationAbi";
+import { delegateAbi } from "./abis/delegateAbi";
 
 import { base, mainnet } from "viem/chains";
 import { createAccount } from "@turnkey/viem";
@@ -119,20 +120,23 @@ function getContractConfig() {
   if (env.USE_TWO_CONTRACTS) {
     return {
       abi: separateAbi,
+      delegateAbi: delegateAbi,
       delegateAddress: env.TWO_DELEGATE_CONTRACT as `0x${string}`,
       gasStationAddress: env.TWO_EXECUTION_CONTRACT as `0x${string}`,
-      nonceType: "uint256" as const,
+      nonceType: "uint128" as const,
       nonceArgs: (eoaAddress: `0x${string}`) => [eoaAddress] as const,
       executeArgs: (
+        eoaAddress: `0x${string}`,
         nonce: bigint,
         outputContract: `0x${string}`,
         callData: `0x${string}`,
         signature: `0x${string}`
-      ) => [nonce, outputContract, callData, signature] as const,
+      ) => [eoaAddress, nonce, outputContract, callData, signature] as const,
     };
   } else {
     return {
       abi: combinedAbi,
+      delegateAbi: delegateAbi,
       delegateAddress: env.SINGLE_CONTRACT_ADDRESS as `0x${string}`,
       gasStationAddress: env.SINGLE_EXECUTION_ADDRESS as `0x${string}`,
       nonceType: "uint128" as const,
@@ -287,7 +291,7 @@ async function executeUSDCTransferWithIntent({
   const currentNonce = await publicClient.readContract({
     address: contractConfig.gasStationAddress,
     abi: contractConfig.abi,
-    functionName: "nonce",
+    functionName: "getNonce",
     args: contractConfig.nonceArgs(eoaWalletClient.account.address),
   });
 
@@ -311,7 +315,7 @@ async function executeUSDCTransferWithIntent({
     name: "TKGasStation",
     version: "1",
     chainId: config.chain.id,
-    verifyingContract: contractConfig.gasStationAddress, // Gas station contract address
+    verifyingContract: contractConfig.delegateAddress, // Gas station contract address
   };
 
   const types = {
@@ -359,6 +363,7 @@ async function executeUSDCTransferWithIntent({
       abi: contractConfig.abi,
       functionName: "execute",
       args: contractConfig.executeArgs(
+        env.EOA_ADDRESS,
         currentNonce,
         config.usdcAddress as `0x${string}`,
         transferCallData,
