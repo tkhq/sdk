@@ -7,6 +7,7 @@ import {
   useDebouncedCallback,
   useWalletProviderState,
   withTurnkeyErrorHandling,
+  TURNKEY_OAUTH_ORIGIN_URL,
 } from "../utils/utils";
 import {
   type TimerMap,
@@ -85,6 +86,9 @@ import {
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
 import DeviceInfo from "react-native-device-info";
+import { InAppBrowser } from "react-native-inappbrowser-reborn";
+import { sha256 } from "@noble/hashes/sha2";
+import { bytesToHex } from "@noble/hashes/utils";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
@@ -133,7 +137,6 @@ import type {
   HandleRemovePasskeyParams,
   HandleRemoveUserEmailParams,
   HandleRemoveUserPhoneNumberParams,
-  HandleSignMessageParams,
   HandleUpdateUserEmailParams,
   HandleUpdateUserNameParams,
   HandleUpdateUserPhoneNumberParams,
@@ -2478,7 +2481,127 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleGoogleOauth = useCallback(
     async (params?: HandleGoogleOauthParams): Promise<void> => {
-      return Promise.resolve();
+      const {
+        clientId = masterConfig?.auth?.oauthConfig?.googleClientId,
+      } = params || {};
+
+      try {
+        if (!masterConfig) {
+          throw new TurnkeyError(
+            "Config is not ready yet!",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        if (!clientId) {
+          throw new TurnkeyError(
+            "Google Client ID is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri;
+        if (!redirectUri) {
+          throw new TurnkeyError(
+            "OAuth Redirect URI is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        // Extract scheme from the redirect URI (expects ...?scheme=<app-scheme>)
+        const queryIndex = redirectUri.indexOf("?");
+        const query = queryIndex >= 0 ? redirectUri.substring(queryIndex + 1) : "";
+        const redirectParams = new URLSearchParams(query);
+        const scheme = redirectParams.get("scheme") || undefined;
+        if (!scheme) {
+          throw new TurnkeyError(
+            "OAuth Redirect URI must include a scheme query param (e.g., https://oauth-redirect.turnkey.com?scheme=yourapp)",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        if (!(await InAppBrowser.isAvailable())) {
+          throw new TurnkeyError(
+            "InAppBrowser is not available",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        // Create key pair and generate nonce
+        const publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new TurnkeyError(
+            "Failed to create public key for OAuth.",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+        const nonce = bytesToHex(sha256(publicKey));
+
+        // Build OAuth Origin URL which will redirect to Google
+        const oauthUrl =
+          TURNKEY_OAUTH_ORIGIN_URL +
+          `?provider=google` +
+          `&clientId=${encodeURIComponent(clientId)}` +
+          `&redirectUri=${encodeURIComponent(redirectUri)}` +
+          `&nonce=${encodeURIComponent(nonce)}`;
+
+        const result = await InAppBrowser.openAuth(oauthUrl, scheme, {
+          dismissButtonStyle: "cancel",
+          animated: true,
+          modalPresentationStyle: "fullScreen",
+          modalTransitionStyle: "coverVertical",
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          showTitle: true,
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+        });
+
+        if (!result || result.type !== "success" || !result.url) {
+          throw new TurnkeyError(
+            "OAuth flow did not complete successfully",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        // result.url is expected to be like: <scheme>://?id_token=...&state=... (from oauth-redirect)
+        const qsIndex = result.url.indexOf("?");
+        const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
+        const urlParams = new URLSearchParams(queryString);
+        const idToken = urlParams.get("id_token");
+        const sessionKey = urlParams.get("sessionKey") || undefined;
+
+        if (!idToken) {
+          throw new TurnkeyError(
+            "oidcToken not found in the response",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        if (params?.onOauthSuccess) {
+          params.onOauthSuccess({ oidcToken: idToken, providerName: "google" });
+          return;
+        }
+
+        if (callbacks?.onOauthRedirect) {
+          callbacks.onOauthRedirect({
+            idToken,
+            publicKey,
+            ...(sessionKey && { sessionKey }),
+          });
+          return;
+        }
+
+        await completeOauth({
+          oidcToken: idToken,
+          publicKey,
+          providerName: "google",
+          ...(sessionKey && { sessionKey }),
+        });
+        return;
+      } catch (error) {
+        throw error;
+      }
     },
     [client, callbacks, masterConfig, session, user],
   );
