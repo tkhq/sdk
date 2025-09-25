@@ -2326,12 +2326,18 @@ importers:
       '@noble/hashes':
         specifier: 1.8.0
         version: 1.8.0
+      '@peculiar/webcrypto':
+        specifier: ^1.5.0
+        version: 1.5.0
       '@peculiar/x509':
         specifier: 1.12.3
         version: 1.12.3
       '@turnkey/encoding':
         specifier: workspace:*
         version: link:../encoding
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
       borsh:
         specifier: 2.0.0
         version: 2.0.0
@@ -2345,6 +2351,9 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
+      '@types/jest':
+        specifier: ^29.5.3
+        version: 29.5.14
       jest:
         specifier: 29.7.0
         version: 29.7.0(@types/node@20.3.1)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@20.3.1)(typescript@5.4.3))

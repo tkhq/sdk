@@ -33,7 +33,6 @@ export async function verify(appProof: v1AppProof, bootProof: v1BootProof): Prom
 
   // Verify manifest digest
   const decodedBootProofManifest = Uint8Array.from(atob(bootProof.qosManifestB64).split("").map((c) => c.charCodeAt(0)));
-  console.log()
   const manifestHash = sha256(decodedBootProofManifest);
   if (!bytesEq(manifestHash, attestationDoc.user_data)) {
     throw new Error("attestationDoc's user_data doesn't match the hash of the manifest");
@@ -164,8 +163,8 @@ export async function verifyCertificateChain(cabundle: Uint8Array[], rootCertPem
         const issuer = path[i + 1];
         if (!issuer) throw new Error("Issuer can't be null");
 
-        // Because attestation docs technically expire after 3 hours, an app proof generated 3+ hours after an enclave
-        // is spun up will fail verification due to certificate expiration. To fix this, we set `signatureOnly: true`.
+        // Attestation docs technically expire after 3 hours, so an app proof generated 3+ hours after an enclave
+        // boots up will fail verification due to certificate expiration. To prevent this failure, we set `signatureOnly: true`.
         // We've scoped work to solve this by generating attestation docs every couple hours, coming soon.
         const ok = await cert.verify( { publicKey: issuer.publicKey, signatureOnly: true, date: appProofDate });
         if (!ok) throw new Error(`Signature check failed: ${cert.subject} not signed by ${issuer.subject}`);
@@ -176,7 +175,6 @@ export async function verifyCertificateChain(cabundle: Uint8Array[], rootCertPem
     throw new Error(`Certificate chain verification failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
-
 
 function bytesEq(a: ArrayBuffer, b: ArrayBuffer) {
   const A = new Uint8Array(a), B = new Uint8Array(b);

@@ -19,7 +19,7 @@ describe("Proof verification tests", () => {
     owner: "tkhq",
     createdAt: { // 2025-09-16 21:25:49.436158+00
       seconds: "1758057949",
-      nanos: 436158000,
+      nanos: "436158000",
     },
   };
 
@@ -40,7 +40,7 @@ describe("Proof verification tests", () => {
     owner: "tkhq",
     createdAt: { // 2025-09-16 21:24:01.448145+00
       seconds: "1758057841",
-      nanos: 448145000,
+      nanos: "448145000",
     },
   };
 
