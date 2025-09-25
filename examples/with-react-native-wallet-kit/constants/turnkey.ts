@@ -17,7 +17,9 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
   organizationId: "cd473579-efee-4cb1-8a23-734bd1b4be31",
   apiBaseUrl: "https://api.turnkey.com",
   authProxyConfigId: "544e423d-f5c9-4dfb-947e-8cf726e3922e",
-
+  passkeyConfig: {
+    rpId: "passkeyapp.tkhqlabs.xyz",
+  },
   auth: {
     methods: {
       // Enable/disable the methods you want available
@@ -34,7 +36,9 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
     },
     oauthOrder: ["google", "apple", "x", "discord", "facebook"],
     oauthConfig: {
-      oauthRedirectUri: "withreactnativewalletkit://oauthredirect",
+      oauthRedirectUri: "https://oauth-redirect.turnkey.com",
+      // @ts-expect-error: appScheme is available in source; dist types will include it after build
+      appScheme: "withreactnativewalletkit",
       googleClientId: "GOOGLE_CLIENT_ID",
       appleClientId: "APPLE_CLIENT_ID",
       facebookClientId: "FACEBOOK_CLIENT_ID",

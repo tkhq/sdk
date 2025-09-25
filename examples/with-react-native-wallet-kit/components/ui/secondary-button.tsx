@@ -1,4 +1,4 @@
-
+import type { ReactNode } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -8,17 +8,19 @@ import {
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
-interface EmailButtonProps {
+interface SecondaryButtonProps {
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
+  children: ReactNode;
 }
 
-export const EmailButton: React.FC<EmailButtonProps> = ({
+export const SecondaryButton = ({
   onPress,
   disabled = false,
   loading = false,
-}) => {
+  children,
+}: SecondaryButtonProps) => {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
@@ -33,7 +35,7 @@ export const EmailButton: React.FC<EmailButtonProps> = ({
         <ActivityIndicator size="small" color={colors.secondaryText} />
       ) : (
         <Text style={[styles.text, { color: colors.secondaryText }]}>
-          Continue with email
+          {children}
         </Text>
       )}
     </TouchableOpacity>
@@ -52,3 +54,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 });
+
+

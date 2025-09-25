@@ -1,27 +1,66 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
+import { useTurnkey } from '@turnkey/react-native-wallet-kit';
 
 export default function HomeScreen() {
+  const { logout, session, authState } = useTurnkey();
+
+  console.log('logout', logout);
+  console.log('session', session);
+  console.log('authState', authState);
+
+  // Calculate session expiry date
+  const getExpiryDate = () => {
+    if (session?.expiry) {
+      const date = new Date(session.expiry * 1000);
+      return date.toLocaleString();
+    }
+    return 'N/A';
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
+    <ScrollView style={styles.container}>
+      <ThemedView style={styles.content}>
+        <ThemedView style={styles.titleContainer}>
+          <ThemedText type="title">Welcome!</ThemedText>
+          <HelloWave />
+        </ThemedView>
+
+        {/* Session Details Section */}
+        {session && (
+          <ThemedView style={styles.sessionContainer}>
+            <ThemedText type="subtitle">Session Details</ThemedText>
+            <ThemedView style={styles.sessionInfo}>
+              <ThemedText>
+                <ThemedText type="defaultSemiBold">Organization ID: </ThemedText>
+                {session.organizationId || 'N/A'}
+              </ThemedText>
+              <ThemedText>
+                <ThemedText type="defaultSemiBold">User ID: </ThemedText>
+                {session.userId || 'N/A'}
+              </ThemedText>
+              <ThemedText>
+                <ThemedText type="defaultSemiBold">Session Expires: </ThemedText>
+                {getExpiryDate()}
+              </ThemedText>
+              <ThemedText>
+                <ThemedText type="defaultSemiBold">Session Type: </ThemedText>
+                {session.sessionType || 'N/A'}
+              </ThemedText>
+            </ThemedView>
+
+            {/* Logout Button */}
+            <TouchableOpacity style={styles.logoutButton} onPress={() => logout()}>
+              <ThemedText style={styles.logoutButtonText}>Logout</ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        )}
+
+        <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
         <ThemedText>
           Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
@@ -74,25 +113,49 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
-    </ParallaxScrollView>
+      </ThemedView>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  content: {
+    padding: 20,
+    paddingTop: 60,
+  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginBottom: 20,
   },
   stepContainer: {
     gap: 8,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  sessionContainer: {
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    gap: 12,
+  },
+  sessionInfo: {
+    gap: 8,
+  },
+  logoutButton: {
+    backgroundColor: '#ef4444',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  logoutButtonText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
