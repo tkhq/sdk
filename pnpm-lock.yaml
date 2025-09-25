@@ -2932,6 +2932,9 @@ importers:
       react-native-gesture-handler:
         specifier: '>=2.0.0'
         version: 2.28.0(react-native@0.81.4(@babel/core@7.26.9)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)
+      react-native-inappbrowser-reborn:
+        specifier: '>=3.7.0'
+        version: 3.7.0(react-native@0.81.4(@babel/core@7.26.9)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))
       react-native-safe-area-context:
         specifier: '>=4.0.0'
         version: 5.6.1(react-native@0.81.4(@babel/core@7.26.9)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0)
@@ -19711,7 +19714,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
       '@types/debug': 4.1.12
-      debug: 4.3.4
+      debug: 4.4.3(supports-color@8.1.1)
       pony-cause: 2.1.11
       semver: 7.7.3
       uuid: 9.0.1
@@ -19725,7 +19728,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
       '@types/debug': 4.1.12
-      debug: 4.3.4
+      debug: 4.4.3(supports-color@8.1.1)
       pony-cause: 2.1.11
       semver: 7.7.3
       uuid: 9.0.1
@@ -33686,6 +33689,12 @@ snapshots:
       invariant: 2.2.4
       opencollective-postinstall: 2.0.3
       react-native: 0.76.5(@babel/core@7.26.9)(@babel/preset-env@7.20.2(@babel/core@7.26.9))(@types/react@19.1.17)(bufferutil@4.0.9)(encoding@0.1.13)(react@19.1.0)(utf-8-validate@5.0.10)
+
+  react-native-inappbrowser-reborn@3.7.0(react-native@0.81.4(@babel/core@7.26.9)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10)):
+    dependencies:
+      invariant: 2.2.4
+      opencollective-postinstall: 2.0.3
+      react-native: 0.81.4(@babel/core@7.26.9)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10)
 
   react-native-is-edge-to-edge@1.2.1(react-native@0.81.4(@babel/core@7.26.9)(@types/react@19.1.17)(bufferutil@4.0.9)(react@19.1.0)(utf-8-validate@5.0.10))(react@19.1.0):
     dependencies:

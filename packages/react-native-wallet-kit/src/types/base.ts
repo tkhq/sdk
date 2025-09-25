@@ -63,6 +63,8 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     oauthConfig?: {
       /** redirect URI for OAuth. */
       oauthRedirectUri?: string;
+      /** application deep link scheme used to complete OAuth in React Native (e.g., "myapp"). */
+      appScheme?: string;
       /** client ID for Google OAuth. */
       googleClientId?: string;
       /** client ID for Apple OAuth. */

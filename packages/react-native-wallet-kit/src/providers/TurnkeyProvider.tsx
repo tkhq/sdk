@@ -8,6 +8,7 @@ import {
   useWalletProviderState,
   withTurnkeyErrorHandling,
   TURNKEY_OAUTH_ORIGIN_URL,
+  TURNKEY_OAUTH_REDIRECT_URL,
 } from "../utils/utils";
 import {
   type TimerMap,
@@ -267,9 +268,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         proxyAuthConfig?.oauthClientIds?.discord,
     };
 
+    // Resolve redirect URL; do NOT attach scheme here. We'll attach in handler on demand.
+    const appScheme = config.auth?.oauthConfig?.appScheme ?? undefined;
     const redirectUrl =
       config.auth?.oauthConfig?.oauthRedirectUri ??
-      proxyAuthConfig?.oauthRedirectUrl;
+      proxyAuthConfig?.oauthRedirectUrl ??
+      TURNKEY_OAUTH_REDIRECT_URL;
 
     // Set a default ordering for the oAuth methods
     const oauthOrder =
@@ -326,6 +330,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           ...config.auth?.oauthConfig,
           ...resolvedClientIds,
           oauthRedirectUri: redirectUrl,
+          ...(appScheme && { appScheme }),
 
           // Always true in React Native. TODO: Consider removing this config
           openOauthInPage: true,
@@ -2500,7 +2505,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri;
+        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri || TURNKEY_OAUTH_REDIRECT_URL;
         if (!redirectUri) {
           throw new TurnkeyError(
             "OAuth Redirect URI is not configured.",
@@ -2508,14 +2513,16 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        // Extract scheme from the redirect URI (expects ...?scheme=<app-scheme>)
+        // Resolve scheme from config (preferred) or from redirect URI fallback
+        const schemeFromConfig = masterConfig.auth?.oauthConfig?.appScheme;
         const queryIndex = redirectUri.indexOf("?");
         const query = queryIndex >= 0 ? redirectUri.substring(queryIndex + 1) : "";
         const redirectParams = new URLSearchParams(query);
-        const scheme = redirectParams.get("scheme") || undefined;
+        const schemeFromUrl = redirectParams.get("scheme") || undefined;
+        const scheme = schemeFromConfig || schemeFromUrl;
         if (!scheme) {
           throw new TurnkeyError(
-            "OAuth Redirect URI must include a scheme query param (e.g., https://oauth-redirect.turnkey.com?scheme=yourapp)",
+            "Missing appScheme. Please set auth.oauthConfig.appScheme or include ?scheme= in oauthRedirectUri.",
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
