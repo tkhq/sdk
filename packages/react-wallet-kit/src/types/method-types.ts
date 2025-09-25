@@ -227,3 +227,14 @@ export type HandleRemoveUserPhoneNumberParams = {
   stampWith?: StamperType | undefined;
   organizationId?: string;
 };
+
+export type HandleCreateWalletParams = {
+  walletName: string;
+  accounts?: v1WalletAccountParams[] | v1AddressFormat[];
+  organizationId?: string;
+  mnemonicLength?: number;
+  stampWith?: StamperType | undefined;
+  promptApproval?: boolean;
+
+  //verify?: boolean; - For when we add verification on wallet create
+};

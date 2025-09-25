@@ -152,6 +152,7 @@ import type {
   HandleAddPhoneNumberParams,
   HandleAppleOauthParams,
   HandleConnectExternalWalletParams,
+  HandleCreateWalletParams,
   HandleDiscordOauthParams,
   HandleExportPrivateKeyParams,
   HandleExportWalletAccountParams,
@@ -173,6 +174,7 @@ import type {
   RefreshUserParams,
   RefreshWalletsParams,
 } from "../../types/method-types";
+import { CreateWallet } from "../../components/wallet/CreateWallet";
 
 /**
  * @inline
@@ -5129,6 +5131,40 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [pushPage, masterConfig, client, session, user],
   );
 
+  const handleCreateWallet = useCallback(
+    async (params: HandleCreateWalletParams): Promise<string> => {
+      try {
+        return new Promise((resolve, reject) => {
+          pushPage({
+            key: "Create wallet",
+            content: (
+              <CreateWallet
+                {...params}
+                onSuccess={(walletId: string) => {
+                  resolve(walletId);
+                }}
+                onError={(error: unknown) => {
+                  reject(error);
+                }}
+              />
+            ),
+            showTitle: false,
+          });
+        });
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to create wallet in handler.",
+          TurnkeyErrorCodes.CREATE_WALLET_ERROR,
+          error,
+        );
+      }
+    },
+    [client],
+  );
+
   useEffect(() => {
     if (proxyAuthConfigRef.current) return;
 
@@ -5346,6 +5382,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleConnectExternalWallet,
         handleRemoveUserEmail,
         handleRemoveUserPhoneNumber,
+        handleCreateWallet,
       }}
     >
       {children}
