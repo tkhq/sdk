@@ -2327,7 +2327,7 @@ importers:
         specifier: 1.8.0
         version: 1.8.0
       '@peculiar/webcrypto':
-        specifier: ^1.5.0
+        specifier: 1.5.0
         version: 1.5.0
       '@peculiar/x509':
         specifier: 1.12.3
@@ -2351,6 +2351,9 @@ importers:
       '@turnkey/http':
         specifier: workspace:*
         version: link:../http
+      '@types/cbor-js':
+        specifier: ^0.1.1
+        version: 0.1.1
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.14
@@ -7415,6 +7418,9 @@ packages:
 
   '@types/cacheable-request@6.0.3':
     resolution: {integrity: sha512-IQ3EbTzGxIigb1I3qPZc1rWJnH0BmSKv5QYTalEwweFvyBDLSAe24zP0le/hyi7ecGfZVlIVAg4BZqb8WBwKqw==}
+
+  '@types/cbor-js@0.1.1':
+    resolution: {integrity: sha512-pfCx/EZC7VNBThwAQ0XvGPOXYm8BUk+gSVonaIGcEKBuqGJHTdcwAGW8WZkdRs/u9n9yOt1pBoPTCS1s8ZYpEQ==}
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
@@ -21465,6 +21471,8 @@ snapshots:
       '@types/keyv': 3.1.4
       '@types/node': 20.3.1
       '@types/responselike': 1.0.3
+
+  '@types/cbor-js@0.1.1': {}
 
   '@types/connect@3.4.38':
     dependencies:
