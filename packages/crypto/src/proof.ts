@@ -1,4 +1,7 @@
-import { uint8ArrayFromHexString } from "@turnkey/encoding";
+import {
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
 import type { v1AppProof, v1BootProof } from "@turnkey/sdk-types";
 import { p256 } from "@noble/curves/p256";
 import { sha256 } from "@noble/hashes/sha2";
@@ -10,14 +13,16 @@ import { AWS_ROOT_CERT_PEM, AWS_ROOT_CERT_SHA256 } from "./constants";
 
 x509.cryptoProvider.set(new PeculiarCrypto());
 
-// verify goes through the following verification steps for an app proof & boot proof pair:
-//  - Verify app proof signature
-//  - Verify the boot proof
-//    - Attestation doc was signed by AWS
-//    - Attestation doc's `user_data` is the hash of the qos manifest
-//  - Verify the connection between the app proof & boot proof i.e. that the ephemeral key's match
-//
-// For more information, check out https://whitepaper.turnkey.com/foundations
+/**
+ * verify goes through the following verification steps for an app proof & boot proof pair:
+ *  - Verify app proof signature
+ *  - Verify the boot proof
+ *    - Attestation doc was signed by AWS
+ *    - Attestation doc's `user_data` is the hash of the qos manifest
+ *  - Verify the connection between the app proof & boot proof i.e. that the ephemeral keys match
+ *
+ * For more information, check out https://whitepaper.turnkey.com/foundations
+ */
 export async function verify(
   appProof: v1AppProof,
   bootProof: v1BootProof,
@@ -56,16 +61,16 @@ export async function verify(
       .split("")
       .map((c) => c.charCodeAt(0)),
   );
-  const manifestHash = sha256(decodedBootProofManifest);
-  if (!bytesEq(manifestHash, attestationDoc.user_data)) {
+  const manifestDigest = sha256(decodedBootProofManifest);
+  if (!bytesEq(manifestDigest, attestationDoc.user_data)) {
     throw new Error(
-      "attestationDoc's user_data doesn't match the hash of the manifest",
+      `attestationDoc's user_data doesn't match the hash of the manifest. attestationDoc.user_data: ${attestationDoc.user_data} , manifest digest: ${manifestDigest}`,
     );
   }
 
   // 3. Verify that all the ephemeral public keys match: app proof, boot proof structure, actual attestation doc
-  const u8 = new Uint8Array(attestationDoc.public_key);
-  const attestationPubKey = Buffer.from(u8).toString("hex");
+  const publicKeyBytes = new Uint8Array(attestationDoc.public_key);
+  const attestationPubKey = uint8ArrayToHexString(publicKeyBytes);
   if (
     appProof.publicKey !== attestationPubKey ||
     attestationPubKey !== bootProof.ephemeralPublicKeyHex
@@ -77,10 +82,6 @@ export async function verify(
 }
 
 export function verifyAppProofSignature(appProof: v1AppProof): void {
-  if (!appProof) {
-    throw new Error("App proof cannot be null");
-  }
-
   if (appProof.scheme !== "SIGNATURE_SCHEME_EPHEMERAL_KEY_P256") {
     throw new Error("Unsupported signature scheme");
   }
@@ -95,7 +96,7 @@ export function verifyAppProofSignature(appProof: v1AppProof): void {
 
   if (publicKeyBytes.length !== 130) {
     throw new Error(
-      `Expected 130 bytes (encryption + signing keys), got ${publicKeyBytes.length} bytes`,
+      `Expected 130 bytes (encryption + signing pub keys), got ${publicKeyBytes.length} bytes`,
     );
   }
 
@@ -150,7 +151,7 @@ export async function verifyCertificateChain(
   try {
     // Check root and assert fingerprint
     const rootX509 = new x509.X509Certificate(rootCertPem);
-    const rootDer = Buffer.from(new Uint8Array(rootX509.rawData));
+    const rootDer = new Uint8Array(rootX509.rawData);
     const rootSha = createHash("sha256")
       .update(rootDer)
       .digest("hex")
@@ -202,7 +203,9 @@ export async function verifyCertificateChain(
         if (!issuer) throw new Error("Issuer can't be null");
 
         // Attestation docs technically expire after 3 hours, so an app proof generated 3+ hours after an enclave
-        // boots up will fail verification due to certificate expiration. To prevent this failure, we set `signatureOnly: true`.
+        // boots up will fail verification due to certificate expiration. This is okay because enclaves are immutable;
+        // even if the cert is technically invalid, the code contained within it cannot change. To prevent the cert
+        // expiration failure, we set `signatureOnly: true`.
         const ok = await cert.verify({
           publicKey: issuer.publicKey,
           signatureOnly: true,
@@ -231,12 +234,12 @@ function bytesEq(a: ArrayBuffer, b: ArrayBuffer) {
 
 export function verifyCoseSign1Sig(coseSign1: any, leaf: Uint8Array): void {
   const [protectedHeaders, , payload, signature] = coseSign1;
-  const tbs = Buffer.from(
+  const tbs = new Uint8Array(
     CBOR.encode([
       "Signature1",
-      Buffer.from(protectedHeaders),
+      new Uint8Array(protectedHeaders),
       new Uint8Array(0),
-      Buffer.from(payload),
+      new Uint8Array(payload),
     ]),
   );
 
@@ -248,7 +251,7 @@ export function verifyCoseSign1Sig(coseSign1: any, leaf: Uint8Array): void {
   verify.end();
   const ok = verify.verify(
     { key: pubKey, dsaEncoding: "ieee-p1363" as any },
-    Buffer.from(signature),
+    new Uint8Array(signature),
   );
   if (!ok) throw new Error("COSE_Sign1 ES384 verification failed");
 }
