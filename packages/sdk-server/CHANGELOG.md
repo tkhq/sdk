@@ -1,5 +1,17 @@
 # @turnkey/sdk-server
 
+## 4.10.0
+
+### Minor Changes
+
+- [#977](https://github.com/tkhq/sdk/pull/977) [`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241) Author [@besler613](https://github.com/besler613) - OAuth2Authenticate now supports returning the encrypted bearer token via the optional `bearerTokenTargetPublicKey` request parameter (mono release v2025.9.5)
+
+### Patch Changes
+
+- Updated dependencies [[`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241)]:
+  - @turnkey/http@3.13.0
+  - @turnkey/wallet-stamper@1.1.1
+
 ## 4.9.1
 
 ### Patch Changes
