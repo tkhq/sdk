@@ -1,5 +1,18 @@
 # @turnkey/cosmjs
 
+## 0.8.2
+
+### Patch Changes
+
+- [#977](https://github.com/tkhq/sdk/pull/977) [`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241) Author [@besler613](https://github.com/besler613) - OAuth2Authenticate now supports returning the encrypted bearer token via the optional `bearerTokenTargetPublicKey` request parameter.
+
+- Updated dependencies [[`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241), [`010543c`](https://github.com/tkhq/sdk/commit/010543c3b1b56a18816ea92a1a1cbe028cf988e4)]:
+  - @turnkey/sdk-browser@5.11.0
+  - @turnkey/sdk-server@4.10.0
+  - @turnkey/core@1.2.0
+  - @turnkey/http@3.13.0
+  - @turnkey/api-key-stamper@0.5.1
+
 ## 0.8.1
 
 ### Patch Changes

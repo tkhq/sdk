@@ -1,5 +1,24 @@
 # @turnkey/sdk-browser
 
+## 5.11.0
+
+### Minor Changes
+
+- [#977](https://github.com/tkhq/sdk/pull/977) [`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241) Author [@besler613](https://github.com/besler613) - OAuth2Authenticate now supports returning the encrypted bearer token via the optional `bearerTokenTargetPublicKey` request parameter.
+
+### Patch Changes
+
+- Updated dependencies [[`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241)]:
+  - @turnkey/sdk-types@0.5.0
+  - @turnkey/http@3.13.0
+  - @turnkey/api-key-stamper@0.5.1
+  - @turnkey/crypto@2.7.1
+  - @turnkey/encoding@0.6.1
+  - @turnkey/iframe-stamper@2.6.1
+  - @turnkey/indexed-db-stamper@1.2.1
+  - @turnkey/wallet-stamper@1.1.2
+  - @turnkey/webauthn-stamper@0.6.1
+
 ## 5.10.1
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @turnkey/react-native-passkey-stamper
 
+## 1.2.2
+
+### Patch Changes
+
+- [#977](https://github.com/tkhq/sdk/pull/977) [`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241) Author [@besler613](https://github.com/besler613) - OAuth2Authenticate now supports returning the encrypted bearer token via the optional `bearerTokenTargetPublicKey` request parameter.
+
+- Updated dependencies [[`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241)]:
+  - @turnkey/http@3.13.0
+  - @turnkey/encoding@0.6.1
+
 ## 1.2.1
 
 ### Patch Changes
