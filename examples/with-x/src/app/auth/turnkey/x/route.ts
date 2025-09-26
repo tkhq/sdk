@@ -3,6 +3,7 @@ import {
   DEFAULT_SOLANA_ACCOUNTS,
   Turnkey as TurnkeySDKClient,
 } from "@turnkey/sdk-server";
+import { generateP256KeyPair, decryptCredentialBundle } from "@turnkey/crypto";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -59,6 +60,9 @@ export async function POST(req: Request) {
     });
 
     // perform an Oauth2Authenticate activity with the parameters passed by the client that will respond with an OIDC token issued by Turnkey to be used with a future LoginWithOAuth or CreateSubOrganization activity
+    // NOTE: P256 keypair is only required if you would like the encrypted bearer token to be returned in the response
+    let keypair = generateP256KeyPair();
+
     const oauth2AuthenticateResponse = await turnkeyClient
       .apiClient()
       .oauth2Authenticate({
@@ -66,7 +70,18 @@ export async function POST(req: Request) {
         authCode: body.auth_code,
         redirectUri: process.env.X_REDIRECT_URI!,
         codeVerifier: "base64_encoded_sha256(code_verifier)", // in production this value should be a random value and the codeChallenge will be the base64_encoded_sha256(code_verifier)
+        bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
       });
+
+    let encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
+
+    // you can now decrypt and store the bearer token as shown below (code commented out for security reasons)
+    // if (encryptedBearerToken !== undefined) {
+    //   const decryptedBearerToken = await decryptCredentialBundle(
+    //     encryptedBearerToken,
+    //     keypair.privateKey,
+    //   );
+    // }
 
     // check if there are any existing users with that OIDC token
     const getSubOrgIdsResponse = await turnkeyClient.apiClient().getSubOrgIds({
@@ -134,4 +149,20 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
+}
+
+// Gets the encrypted bearer token from the b64-encoded OIDC ID Token
+export function getEncryptedBearerTokenFromOidcToken(token: string): string | undefined {
+  const payloadSeg = token.split(".")[1];
+  if (!payloadSeg) throw new Error("Invalid JWT");
+
+  // base64url -> base64 (and pad)
+  const b64 = payloadSeg.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = b64 + "===".slice((b64.length + 3) % 4);
+
+  const json = Buffer.from(padded, "base64").toString("utf8");
+  const claims = JSON.parse(json) as Record<string, unknown>;
+
+  // Your example token actually has "encrypted_bearer_token".
+  return (claims["encrypted_bearer_token"]) as string | undefined;
 }
