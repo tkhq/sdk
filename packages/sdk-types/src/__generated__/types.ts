@@ -2479,6 +2479,8 @@ export type v1Oauth2AuthenticateIntent = {
   codeVerifier: string;
   /** An optional nonce used by the client to prevent replay/substitution of an ID token */
   nonce?: string;
+  /** An optional P256 public key to which, if provided, the bearer token will be encrypted and returned via the `encrypted_bearer_token` claim of the OIDC Token */
+  bearerTokenTargetPublicKey?: string;
 };
 
 export type v1Oauth2AuthenticateRequest = {
@@ -5027,6 +5029,8 @@ export type TOauth2AuthenticateBody = {
   codeVerifier: string;
   /** An optional nonce used by the client to prevent replay/substitution of an ID token */
   nonce?: string;
+  /** An optional P256 public key to which, if provided, the bearer token will be encrypted and returned via the `encrypted_bearer_token` claim of the OIDC Token */
+  bearerTokenTargetPublicKey?: string;
 };
 
 export type TOauth2AuthenticateInput = { body: TOauth2AuthenticateBody };
