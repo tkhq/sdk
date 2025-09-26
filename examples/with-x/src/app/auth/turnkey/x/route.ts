@@ -73,7 +73,9 @@ export async function POST(req: Request) {
         bearerTokenTargetPublicKey: keypair.publicKeyUncompressed, // NOTE: This only needs to be provided if you would like the encrypted bearer token to be returned via the `enctypedBearerToken` claim of the OIDC ID Token
       });
 
-    let encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(oauth2AuthenticateResponse.oidcToken);
+    let encryptedBearerToken = getEncryptedBearerTokenFromOidcToken(
+      oauth2AuthenticateResponse.oidcToken,
+    );
 
     // you can now decrypt and store the bearer token as shown below (code commented out for security reasons)
     // if (encryptedBearerToken !== undefined) {
@@ -152,7 +154,9 @@ export async function POST(req: Request) {
 }
 
 // Gets the encrypted bearer token from the b64-encoded OIDC ID Token
-export function getEncryptedBearerTokenFromOidcToken(token: string): string | undefined {
+export function getEncryptedBearerTokenFromOidcToken(
+  token: string,
+): string | undefined {
   const payloadSeg = token.split(".")[1];
   if (!payloadSeg) throw new Error("Invalid JWT");
 
@@ -164,5 +168,5 @@ export function getEncryptedBearerTokenFromOidcToken(token: string): string | un
   const claims = JSON.parse(json) as Record<string, unknown>;
 
   // Your example token actually has "encrypted_bearer_token".
-  return (claims["encrypted_bearer_token"]) as string | undefined;
+  return claims["encrypted_bearer_token"] as string | undefined;
 }
