@@ -19,13 +19,16 @@ if (
   !process.env.BASE_URL ||
   !process.env.API_PRIVATE_KEY ||
   !process.env.API_PUBLIC_KEY ||
-  !process.env.ORGANIZATION_ID ||
-  !process.env.RPC_URL
+  !process.env.ORGANIZATION_ID
 ) {
   throw new Error(
-    "Missing environment variables. Please check your .env.local file for SIGN_WITH, BASE_URL, API_PRIVATE_KEY, API_PUBLIC_KEY, ORGANIZATION_ID, and RPC_URL.",
+    "Missing environment variables. Please check your .env.local file for SIGN_WITH, BASE_URL, API_PRIVATE_KEY, API_PUBLIC_KEY, ORGANIZATION_ID.",
   );
 }
+
+const debug = (...args: any[]) => {
+  console.log("[*]", ...args);
+};
 
 const turnkeyClient = new TurnkeyServerSDK({
   apiBaseUrl: process.env.BASE_URL,
@@ -33,10 +36,6 @@ const turnkeyClient = new TurnkeyServerSDK({
   apiPublicKey: process.env.API_PUBLIC_KEY,
   defaultOrganizationId: process.env.ORGANIZATION_ID,
 });
-
-const debug = (...args: any[]) => {
-  console.log("[*]", ...args);
-};
 
 async function main() {
   // Turnkey setup
@@ -56,12 +55,12 @@ async function main() {
   // Create admin key for the upgraded account
   const adminKey = Key.createSecp256k1({ role: "admin" });
 
-  debug(`Turnkey EOA address: ${turnkeyEoa.address}`);
+  debug('Setup complete, preparing to upgrade EOA to a Porto wallet...', {
+    turnkeyEoa: turnkeyEoa.address,
+    adminKey: adminKey.publicKey,
+  })
 
-  /** Upgrade the EOA wallet */
-
-  // Step 1: Prepare the upgrade
-  debug("Preparing to upgrade EOA to a Porto wallet...");
+  // Per https://porto.sh/sdk/viem/RelayActions/upgradeAccount#prepared-usage
   const { digests, ...request } = await RelayActions.prepareUpgradeAccount(
     client,
     {
@@ -71,19 +70,11 @@ async function main() {
     },
   );
 
-  // Assert that turnkeyEoa has a sign function before proceeding
-  if (!turnkeyEoa.sign || typeof turnkeyEoa.sign !== "function") {
-    throw new Error("Turnkey EOA account must have a sign function");
-  }
-
-  // Step 2: Sign with your Turnkey EOA
-  debug("Upgrade prepared. Signing transaction...");
   const signatures = {
-    auth: await turnkeyEoa.sign({ hash: digests.auth }),
-    exec: await turnkeyEoa.sign({ hash: digests.exec }),
+    auth: await turnkeyEoa.sign!({ hash: digests.auth }),
+    exec: await turnkeyEoa.sign!({ hash: digests.exec }),
   };
 
-  // Step 3: Complete the upgrade
   debug("Executing upgrade transaction...");
   const portoAccount = await RelayActions.upgradeAccount(client, {
     ...request,
@@ -92,7 +83,7 @@ async function main() {
 
   debug("Account successfully upgraded!");
 
-  /** Make sure the account is funded */
+  // Make sure the account is funded
   debug(`Make sure your account is funded with ${TARGET_CHAIN.name} ETH...`);
 
   let balance = (
@@ -118,14 +109,13 @@ async function main() {
   }
   debug(`Account funded with ${formatEther(balance)} ${TARGET_CHAIN.name} ETH`);
 
-  /** Interact with the upgraded Porto wallet */
-
+  // Do something with the Porto account (in this case, send ETH)
   const { id: userOpHash } = await RelayActions.sendCalls(client, {
     account: portoAccount,
     calls: [
       {
         to: "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
-        value: parseEther("0.000001"),
+        value: AMOUNT_TO_SEND,
       },
     ],
     chain: TARGET_CHAIN,

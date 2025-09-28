@@ -28,9 +28,6 @@ This is an example of upgrading a Turnkey EOA to a [Porto](https://porto.sh/) wa
 
     # Base URL for the Turnkey API
     BASE_URL="https://api.turnkey.com"
-
-    # We use Porto's RPC
-    RPC_URL="https://rpc.porto.sh"
     ```
 
 ## Running the example
