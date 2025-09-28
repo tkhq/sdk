@@ -17,6 +17,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const AMOUNT_TO_SEND = parseEther('0.000001')
 const TARGET_CHAIN = baseSepolia
+const SCANNER_NETWORK = 'base-sepolia'
 
 if (
   !process.env.SIGN_WITH ||
@@ -117,7 +118,7 @@ async function main() {
 
   /** Interact with the upgraded Porto wallet */
 
-  const userOpHash = await RelayActions.sendCalls(client, {
+  const {id: userOpHash} = await RelayActions.sendCalls(client, {
     account: portoAccount,
     calls: [{ 
       to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8', 
@@ -129,7 +130,7 @@ async function main() {
 
   debug(`User operation sent: ${userOpHash}`);
   debug(
-    `See details at https://jiffyscan.xyz/userOpHash/${userOpHash}?network=${TARGET_CHAIN.name}`
+    `See details at https://jiffyscan.xyz/userOpHash/${userOpHash}?network=${SCANNER_NETWORK}`
   );
 }
 
