@@ -2513,26 +2513,15 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        // Resolve scheme from config (preferred) or from redirect URI fallback
-        const schemeFromConfig = masterConfig.auth?.oauthConfig?.appScheme;
-        const queryIndex = redirectUri.indexOf("?");
-        const query = queryIndex >= 0 ? redirectUri.substring(queryIndex + 1) : "";
-        const redirectParams = new URLSearchParams(query);
-        const schemeFromUrl = redirectParams.get("scheme") || undefined;
-        const scheme = schemeFromConfig || schemeFromUrl;
+        const scheme = masterConfig.auth?.oauthConfig?.appScheme;
         if (!scheme) {
           throw new TurnkeyError(
-            "Missing appScheme. Please set auth.oauthConfig.appScheme or include ?scheme= in oauthRedirectUri.",
+            "Missing appScheme. Please set auth.oauthConfig.appScheme.",
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
 
-        if (!(await InAppBrowser.isAvailable())) {
-          throw new TurnkeyError(
-            "InAppBrowser is not available",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
+        const finalRedirectUri = `${redirectUri}?scheme=${encodeURIComponent(scheme)}`;
 
         // Create key pair and generate nonce
         const publicKey = await createApiKeyPair();
@@ -2549,10 +2538,18 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           TURNKEY_OAUTH_ORIGIN_URL +
           `?provider=google` +
           `&clientId=${encodeURIComponent(clientId)}` +
-          `&redirectUri=${encodeURIComponent(redirectUri)}` +
+          `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
           `&nonce=${encodeURIComponent(nonce)}`;
         console.log('oauthUrl', oauthUrl);
         console.log('scheme', scheme);
+
+        if (!(await InAppBrowser.isAvailable())) {
+          throw new TurnkeyError(
+            "InAppBrowser is not available",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
         const result = await InAppBrowser.openAuth(oauthUrl, scheme, {
           dismissButtonStyle: "cancel",
           animated: true,
