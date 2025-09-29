@@ -11,7 +11,9 @@ import {
   TURNKEY_OAUTH_REDIRECT_URL,
   DISCORD_AUTH_URL,
   X_AUTH_URL,
+  FACEBOOK_AUTH_URL,
   generateChallengePair,
+  exchangeCodeForToken,
 } from "../utils/utils";
 import {
   type TimerMap,
@@ -2552,6 +2554,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
+        console.log("discordAuthUrl", discordAuthUrl);
 
         const result = await InAppBrowser.openAuth(discordAuthUrl, scheme, {
           dismissButtonStyle: "cancel",
@@ -2709,7 +2712,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           `&code_challenge_method=S256` +
           `&scope=${encodeURIComponent("tweet.read users.read")}` +
           `&state=${encodeURIComponent(state)}`;
-
+        console.log("twitterAuthUrl", twitterAuthUrl);
         if (!(await InAppBrowser.isAvailable())) {
           throw new TurnkeyError(
             "InAppBrowser is not available",
@@ -2938,7 +2941,168 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleFacebookOauth = useCallback(
     async (params?: HandleFacebookOauthParams): Promise<void> => {
-      return Promise.resolve();
+      const {
+        clientId = masterConfig?.auth?.oauthConfig?.facebookClientId,
+        additionalState: additionalParameters,
+      } = params || {};
+
+      try {
+        if (!masterConfig) {
+          throw new TurnkeyError(
+            "Config is not ready yet!",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        if (!clientId) {
+          throw new TurnkeyError(
+            "Facebook Client ID is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri || TURNKEY_OAUTH_REDIRECT_URL;
+        if (!redirectUri) {
+          throw new TurnkeyError(
+            "OAuth Redirect URI is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const scheme = masterConfig.auth?.oauthConfig?.appScheme;
+        if (!scheme) {
+          throw new TurnkeyError(
+            "Missing appScheme. Please set auth.oauthConfig.appScheme.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const finalRedirectUri = `${redirectUri}?scheme=${encodeURIComponent(scheme)}`;
+
+        // Create key pair and generate nonce
+        const publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new TurnkeyError(
+            "Failed to create public key for OAuth.",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+        const nonce = bytesToHex(sha256(publicKey));
+
+        // Generate PKCE challenge pair
+        const { verifier, codeChallenge } = await generateChallengePair();
+        await AsyncStorage.setItem("facebook_verifier", verifier);
+
+        // Create state parameter
+        let state = `provider=facebook&flow=redirect&publicKey=${encodeURIComponent(publicKey)}`;
+        if (additionalParameters) {
+          const extra = Object.entries(additionalParameters)
+            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .join("&");
+          if (extra) state += `&${extra}`;
+        }
+
+        // Construct Facebook Auth URL
+        const facebookAuthUrl =
+          FACEBOOK_AUTH_URL +
+          `?client_id=${encodeURIComponent(clientId)}` +
+          `&redirect_uri=${encodeURIComponent(finalRedirectUri)}` +
+          `&response_type=code` +
+          `&code_challenge=${encodeURIComponent(codeChallenge)}` +
+          `&code_challenge_method=S256` +
+          `&nonce=${encodeURIComponent(nonce)}` +
+          `&scope=${encodeURIComponent("openid")}` +
+          `&state=${encodeURIComponent(state)}`;
+
+        if (!(await InAppBrowser.isAvailable())) {
+          throw new TurnkeyError(
+            "InAppBrowser is not available",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+        console.log("facebookAuthUrl", facebookAuthUrl);
+        const result = await InAppBrowser.openAuth(facebookAuthUrl, scheme, {
+          dismissButtonStyle: "cancel",
+          animated: true,
+          modalPresentationStyle: "fullScreen",
+          modalTransitionStyle: "coverVertical",
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          showTitle: true,
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+        });
+
+        if (!result || result.type !== "success" || !result.url) {
+          throw new TurnkeyError(
+            "OAuth flow did not complete successfully",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        // Extract params from deep link
+        const qsIndex = result.url.indexOf("?");
+        const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
+        const urlParams = new URLSearchParams(queryString);
+        const authCode = urlParams.get("code");
+        const stateParam = urlParams.get("state");
+        const sessionKey = stateParam
+          ?.split("&")
+          .find((param) => param.startsWith("sessionKey="))
+          ?.split("=")[1];
+
+        if (!authCode) {
+          throw new TurnkeyError(
+            "Missing authorization code from Facebook OAuth",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        const storedVerifier = await AsyncStorage.getItem("facebook_verifier");
+        if (!storedVerifier) {
+          throw new TurnkeyError(
+            "Missing PKCE verifier",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        try {
+          const tokenData = await exchangeCodeForToken(
+            clientId,
+            finalRedirectUri,
+            authCode,
+            storedVerifier,
+          );
+
+          await AsyncStorage.removeItem("facebook_verifier");
+
+          const idToken = tokenData?.id_token as string;
+          if (!idToken) {
+            throw new TurnkeyError(
+              "Missing oidcToken from OAuth exchange",
+              TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+            );
+          }
+
+          if (params?.onOauthSuccess) {
+            params.onOauthSuccess({ oidcToken: idToken, providerName: "facebook", ...(sessionKey && { sessionKey }) });
+            return;
+          }
+
+          if (callbacks?.onOauthRedirect) {
+            callbacks.onOauthRedirect({ idToken, publicKey, ...(sessionKey && { sessionKey }) });
+            return;
+          }
+
+          await completeOauth({ oidcToken: idToken, publicKey, providerName: "facebook", ...(sessionKey && { sessionKey }) });
+          return;
+        } finally {
+          // Ensure cleanup even on error
+          await AsyncStorage.removeItem("facebook_verifier");
+        }
+      } catch (error) {
+        throw error;
+      }
     },
     [client, callbacks, masterConfig, session, user],
   );
