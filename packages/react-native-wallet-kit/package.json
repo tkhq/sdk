@@ -35,6 +35,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@noble/hashes": "^1.8.0",
     "@turnkey/core": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:*",
     "@turnkey/react-native-passkey-stamper": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
