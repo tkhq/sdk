@@ -17,6 +17,7 @@ import {
   AuthAction,
   type PasskeyAuthResult,
   type v1CreatePolicyIntentV3,
+  type v1BootProof,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -93,6 +94,7 @@ import {
   type GetSessionParams,
   type SetActiveSessionParams,
   type CreateApiKeyPairParams,
+  type FetchBootProofForAppProofParams,
 } from "../__types__";
 import {
   buildSignUpBody,
@@ -4418,6 +4420,76 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to get auth proxy config",
         errorCode: TurnkeyErrorCodes.GET_PROXY_AUTH_CONFIG_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Fetches the boot proof for a given app proof.
+   *
+   * - This function is idempotent: multiple calls with the same `app proof` will always return the boot proof.
+   * - Attempts to find the boot proof for the given app proof.
+   * - If a boot proof is found, it is returned as is.
+   * - If no boot proof is found, an error is thrown.
+   *
+   * @param params.appProof - the app proof for which the boot proof is being fetched.
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to the {@link v1BootProof} associated with the given app proof.
+   * @throws {TurnkeyError} If there is no active session, if the input is invalid, or if boot proof retrieval fails.
+   */
+  fetchBootProofForAppProof = async (
+    params: FetchBootProofForAppProofParams,
+  ): Promise<v1BootProof> => {
+    const {
+      appProof,
+      stampWith,
+      organizationId: organizationIdFromParams,
+    } = params;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const session = await getActiveSessionOrThrowIfRequired(
+          stampWith,
+          this.storageManager.getActiveSession,
+        );
+
+        const organizationId =
+          organizationIdFromParams || session?.organizationId;
+        if (!organizationId) {
+          throw new TurnkeyError(
+            "Organization ID is required to fetch a Boot Proof.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        // validate their input
+        if (appProof === null || appProof?.publicKey === null) {
+          throw new TurnkeyError(
+            "'appProof' is required and cannot be empty.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+        const ephemeralKey = appProof!.publicKey!;
+
+        const bootProofResponse = await this.httpClient.getBootProof(
+          {
+            organizationId,
+            ephemeralKey,
+          },
+          stampWith,
+        );
+        if (!bootProofResponse || !bootProofResponse.bootProof) {
+          throw new TurnkeyError(
+            "No boot proof found in the response",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+        return bootProofResponse.bootProof;
+      },
+      {
+        errorMessage: "Failed to get boot proof for app proof",
+        errorCode: TurnkeyErrorCodes.FETCH_BOOT_PROOF_ERROR,
       },
     );
   };

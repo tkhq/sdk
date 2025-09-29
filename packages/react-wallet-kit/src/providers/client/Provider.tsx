@@ -92,6 +92,7 @@ import {
   type WalletAccount,
   type VerifyOtpResult,
   type ConnectedWallet,
+  type FetchBootProofForAppProofParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -110,6 +111,7 @@ import {
   type WalletAuthResult,
   AuthAction,
   type PasskeyAuthResult,
+  v1BootProof,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -2806,6 +2808,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks, fetchUser, masterConfig, session, user],
   );
 
+  const fetchBootProofForAppProof = useCallback(
+    async (params: FetchBootProofForAppProofParams): Promise<v1BootProof> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.fetchBootProofForAppProof(params),
+        () => logout(),
+        callbacks,
+        "Failed to fetch or create delegated access user",
+      );
+    },
+    [client, callbacks],
+  );
+
   const refreshWallets = useCallback(
     async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
       if (!masterConfig?.autoRefreshManagedState) return [];
@@ -5322,6 +5341,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         getActiveSessionKey,
         createApiKeyPair,
         getProxyAuthConfig,
+        fetchBootProofForAppProof,
         handleLogin,
         handleGoogleOauth,
         handleXOauth,
