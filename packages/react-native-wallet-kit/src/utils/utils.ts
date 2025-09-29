@@ -7,6 +7,8 @@ import  {
 } from "@turnkey/sdk-types";
 import type { TurnkeyCallbacks } from "../types/base";
 import { useCallback, useRef, useState, useEffect } from "react";
+import { sha256 } from "@noble/hashes/sha256";
+import { stringToBase64urlString } from "@turnkey/encoding";
 import { WalletInterfaceType, type WalletProvider } from "@turnkey/core";
 
 export const DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize";
@@ -211,29 +213,24 @@ export const authErrors = {
   }
   
   // Function to generate PKCE challenge pair for Facebook OAuth
-  export async function generateChallengePair(): Promise<{
+export async function generateChallengePair(): Promise<{
     verifier: string;
     codeChallenge: string;
   }> {
+    // Generate verifier from 32 random bytes
     const randomBytes = new Uint8Array(32);
-    window.crypto.getRandomValues(randomBytes);
-    const verifier = btoa(String.fromCharCode(...randomBytes))
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "");
-  
-    const encoder = new TextEncoder();
-    const data = encoder.encode(verifier);
-    // @todo: this is not supported in react-native
-    // @ts-ignore
-    const digest = await window.crypto.subtle.digest("SHA-256", data);
-  
-    const base64Challenge = btoa(String.fromCharCode(...new Uint8Array(digest)))
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "");
-  
-    return { verifier, codeChallenge: base64Challenge };
+    // eslint-disable-next-line no-undef
+    crypto.getRandomValues(randomBytes);
+    const randomAsBinary = String.fromCharCode(...randomBytes);
+    const verifier = stringToBase64urlString(randomAsBinary);
+
+    // Compute SHA-256 over ASCII(verifier), then base64url encode
+    const ascii = new TextEncoder().encode(verifier);
+    const digest = sha256(ascii);
+    const digestAsBinary = String.fromCharCode(...digest);
+    const codeChallenge = stringToBase64urlString(digestAsBinary);
+
+    return { verifier, codeChallenge };
   }
   
   // Function to exchange Facebook authorization code for token

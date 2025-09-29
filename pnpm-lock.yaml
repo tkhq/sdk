@@ -2902,6 +2902,9 @@ importers:
       '@turnkey/core':
         specifier: workspace:*
         version: link:../core
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
       '@turnkey/iframe-stamper':
         specifier: workspace:*
         version: link:../iframe-stamper

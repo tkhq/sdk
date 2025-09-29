@@ -9,6 +9,8 @@ import {
   withTurnkeyErrorHandling,
   TURNKEY_OAUTH_ORIGIN_URL,
   TURNKEY_OAUTH_REDIRECT_URL,
+  X_AUTH_URL,
+  generateChallengePair,
 } from "../utils/utils";
 import {
   type TimerMap,
@@ -2479,7 +2481,162 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleXOauth = useCallback(
     async (params?: HandleXOauthParams): Promise<void> => {
-      return Promise.resolve();
+      const {
+        clientId = masterConfig?.auth?.oauthConfig?.xClientId,
+        additionalState: additionalParameters,
+      } = params || {};
+      try {
+        if (!masterConfig) {
+          throw new TurnkeyError(
+            "Config is not ready yet!",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        if (!clientId) {
+          throw new TurnkeyError(
+            "Twitter Client ID is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri || TURNKEY_OAUTH_REDIRECT_URL;
+        if (!redirectUri) {
+          throw new TurnkeyError(
+            "OAuth Redirect URI is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const scheme = masterConfig.auth?.oauthConfig?.appScheme;
+        if (!scheme) {
+          throw new TurnkeyError(
+            "Missing appScheme. Please set auth.oauthConfig.appScheme.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const finalRedirectUri = `${redirectUri}?scheme=${encodeURIComponent(scheme)}`;
+
+        const publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new TurnkeyError(
+            "Failed to create public key for OAuth.",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+        const nonce = bytesToHex(sha256(publicKey));
+
+        const { verifier, codeChallenge } = await generateChallengePair();
+        sessionStorage.setItem("twitter_verifier", verifier);
+
+        let state = `provider=twitter&flow=redirect&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}`;
+        if (additionalParameters) {
+          const extra = Object.entries(additionalParameters)
+            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .join("&");
+          if (extra) state += `&${extra}`;
+        }
+        const twitterAuthUrl =
+          X_AUTH_URL +
+          `?client_id=${encodeURIComponent(clientId)}` +
+          `&redirect_uri=${encodeURIComponent(finalRedirectUri)}` +
+          `&response_type=code` +
+          `&code_challenge=${encodeURIComponent(codeChallenge)}` +
+          `&code_challenge_method=S256` +
+          `&scope=${encodeURIComponent("tweet.read users.read")}` +
+          `&state=${encodeURIComponent(state)}`;
+
+        if (!(await InAppBrowser.isAvailable())) {
+          throw new TurnkeyError(
+            "InAppBrowser is not available",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const result = await InAppBrowser.openAuth(twitterAuthUrl, scheme, {
+          dismissButtonStyle: "cancel",
+          animated: true,
+          modalPresentationStyle: "fullScreen",
+          modalTransitionStyle: "coverVertical",
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          showTitle: true,
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+        });
+
+        if (!result || result.type !== "success" || !result.url) {
+          throw new TurnkeyError(
+            "OAuth flow did not complete successfully",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        const qsIndex = result.url.indexOf("?");
+        const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
+        const urlParams = new URLSearchParams(queryString);
+        const authCode = urlParams.get("code");
+        const stateParam = urlParams.get("state");
+        const sessionKey = stateParam
+          ?.split("&")
+          .find((param) => param.startsWith("sessionKey="))
+          ?.split("=")[1];
+
+        if (!authCode) {
+          throw new TurnkeyError(
+            "Missing authorization code from Twitter OAuth",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        const storedVerifier = sessionStorage.getItem("twitter_verifier");
+        if (!storedVerifier) {
+          throw new TurnkeyError(
+            "Missing PKCE verifier",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        try {
+          const resp = await client?.httpClient?.proxyOAuth2Authenticate({
+            provider: "OAUTH2_PROVIDER_X",
+            authCode,
+            redirectUri: finalRedirectUri,
+            codeVerifier: storedVerifier,
+            clientId,
+            nonce,
+          });
+
+          sessionStorage.removeItem("twitter_verifier");
+
+          const oidcToken = resp?.oidcToken as string;
+          if (!oidcToken) {
+            throw new TurnkeyError(
+              "Missing oidcToken from OAuth exchange",
+              TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+            );
+          }
+
+          if (params?.onOauthSuccess) {
+            params.onOauthSuccess({ oidcToken, providerName: "twitter", ...(sessionKey && { sessionKey }) });
+            return;
+          }
+
+          if (callbacks?.onOauthRedirect) {
+            callbacks.onOauthRedirect({ idToken: oidcToken, publicKey, ...(sessionKey && { sessionKey }) });
+            return;
+          }
+
+          await completeOauth({ oidcToken, publicKey, providerName: "twitter", ...(sessionKey && { sessionKey }) });
+          return;
+        } finally {
+          // Ensure cleanup even on error
+          sessionStorage.removeItem("twitter_verifier");
+        }
+      } catch (error) {
+        throw error;
+      }
     },
     [client, callbacks, masterConfig, session, user],
   );
@@ -2540,8 +2697,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           `&clientId=${encodeURIComponent(clientId)}` +
           `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
           `&nonce=${encodeURIComponent(nonce)}`;
-        console.log('oauthUrl', oauthUrl);
-        console.log('scheme', scheme);
 
         if (!(await InAppBrowser.isAvailable())) {
           throw new TurnkeyError(
