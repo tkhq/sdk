@@ -2551,7 +2551,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           `&clientId=${encodeURIComponent(clientId)}` +
           `&redirectUri=${encodeURIComponent(redirectUri)}` +
           `&nonce=${encodeURIComponent(nonce)}`;
-
+        console.log('oauthUrl', oauthUrl);
+        console.log('scheme', scheme);
         const result = await InAppBrowser.openAuth(oauthUrl, scheme, {
           dismissButtonStyle: "cancel",
           animated: true,
