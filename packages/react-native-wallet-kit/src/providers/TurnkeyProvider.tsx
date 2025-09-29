@@ -9,6 +9,7 @@ import {
   withTurnkeyErrorHandling,
   TURNKEY_OAUTH_ORIGIN_URL,
   TURNKEY_OAUTH_REDIRECT_URL,
+  DISCORD_AUTH_URL,
   X_AUTH_URL,
   generateChallengePair,
 } from "../utils/utils";
@@ -92,6 +93,7 @@ import DeviceInfo from "react-native-device-info";
 import { InAppBrowser } from "react-native-inappbrowser-reborn";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
@@ -2473,7 +2475,168 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleDiscordOauth = useCallback(
     async (params?: HandleDiscordOauthParams): Promise<void> => {
-      return Promise.resolve();
+      const {
+        clientId = masterConfig?.auth?.oauthConfig?.discordClientId,
+        additionalState: additionalParameters,
+      } = params || {};
+      try {
+        if (!masterConfig) {
+          throw new TurnkeyError(
+            "Config is not ready yet!",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        if (!clientId) {
+          throw new TurnkeyError(
+            "Discord Client ID is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri || TURNKEY_OAUTH_REDIRECT_URL;
+        if (!redirectUri) {
+          throw new TurnkeyError(
+            "OAuth Redirect URI is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const scheme = masterConfig.auth?.oauthConfig?.appScheme;
+        if (!scheme) {
+          throw new TurnkeyError(
+            "Missing appScheme. Please set auth.oauthConfig.appScheme.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const finalRedirectUri = `${redirectUri}?scheme=${encodeURIComponent(scheme)}`;
+
+        // Create key pair and generate nonce
+        const publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new TurnkeyError(
+            "Failed to create public key for OAuth.",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+        const nonce = bytesToHex(sha256(publicKey));
+
+        // Generate PKCE challenge pair
+        const { verifier, codeChallenge } = await generateChallengePair();
+        await AsyncStorage.setItem("discord_verifier", verifier);
+
+        // Create state parameter
+        let state = `provider=discord&flow=redirect&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}`;
+        if (additionalParameters) {
+          const extra = Object.entries(additionalParameters)
+            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .join("&");
+          if (extra) state += `&${extra}`;
+        }
+
+        // Construct Discord Auth URL
+        const discordAuthUrl =
+          DISCORD_AUTH_URL +
+          `?client_id=${encodeURIComponent(clientId)}` +
+          `&redirect_uri=${encodeURIComponent(finalRedirectUri)}` +
+          `&response_type=code` +
+          `&code_challenge=${encodeURIComponent(codeChallenge)}` +
+          `&code_challenge_method=S256` +
+          `&scope=${encodeURIComponent("identify email")}` +
+          `&state=${encodeURIComponent(state)}`;
+
+        if (!(await InAppBrowser.isAvailable())) {
+          throw new TurnkeyError(
+            "InAppBrowser is not available",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const result = await InAppBrowser.openAuth(discordAuthUrl, scheme, {
+          dismissButtonStyle: "cancel",
+          animated: true,
+          modalPresentationStyle: "fullScreen",
+          modalTransitionStyle: "coverVertical",
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          showTitle: true,
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+        });
+
+        if (!result || result.type !== "success" || !result.url) {
+          throw new TurnkeyError(
+            "OAuth flow did not complete successfully",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        // Extract params from deep link
+        const qsIndex = result.url.indexOf("?");
+        const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
+        const urlParams = new URLSearchParams(queryString);
+        const authCode = urlParams.get("code");
+        const stateParam = urlParams.get("state");
+        const sessionKey = stateParam
+          ?.split("&")
+          .find((param) => param.startsWith("sessionKey="))
+          ?.split("=")[1];
+
+        if (!authCode) {
+          throw new TurnkeyError(
+            "Missing authorization code from Discord OAuth",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        const storedVerifier = await AsyncStorage.getItem("discord_verifier");
+        if (!storedVerifier) {
+          throw new TurnkeyError(
+            "Missing PKCE verifier",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        try {
+          const resp = await client?.httpClient?.proxyOAuth2Authenticate({
+            provider: "OAUTH2_PROVIDER_DISCORD",
+            authCode,
+            redirectUri: finalRedirectUri,
+            codeVerifier: storedVerifier,
+            clientId,
+            nonce,
+          });
+
+            await AsyncStorage.removeItem("discord_verifier");
+
+          const oidcToken = resp?.oidcToken as string;
+          if (!oidcToken) {
+            throw new TurnkeyError(
+              "Missing oidcToken from OAuth exchange",
+              TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+            );
+          }
+
+          if (params?.onOauthSuccess) {
+            params.onOauthSuccess({ oidcToken, providerName: "discord", ...(sessionKey && { sessionKey }) });
+            return;
+          }
+
+          if (callbacks?.onOauthRedirect) {
+            callbacks.onOauthRedirect({ idToken: oidcToken, publicKey, ...(sessionKey && { sessionKey }) });
+            return;
+          }
+
+        	await completeOauth({ oidcToken, publicKey, providerName: "discord", ...(sessionKey && { sessionKey }) });
+          return;
+        } finally {
+          // Ensure cleanup even on error
+          await AsyncStorage.removeItem("discord_verifier");
+        }
+      } catch (error) {
+        throw error;
+      }
     },
     [client, callbacks, masterConfig, session, user],
   );
@@ -2528,7 +2691,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const nonce = bytesToHex(sha256(publicKey));
 
         const { verifier, codeChallenge } = await generateChallengePair();
-        sessionStorage.setItem("twitter_verifier", verifier);
+        await AsyncStorage.setItem("twitter_verifier", verifier);
 
         let state = `provider=twitter&flow=redirect&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}`;
         if (additionalParameters) {
@@ -2590,7 +2753,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const storedVerifier = sessionStorage.getItem("twitter_verifier");
+        const storedVerifier = await AsyncStorage.getItem("twitter_verifier");
         if (!storedVerifier) {
           throw new TurnkeyError(
             "Missing PKCE verifier",
@@ -2608,7 +2771,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             nonce,
           });
 
-          sessionStorage.removeItem("twitter_verifier");
+          await AsyncStorage.removeItem("twitter_verifier");
 
           const oidcToken = resp?.oidcToken as string;
           if (!oidcToken) {
@@ -2632,7 +2795,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           return;
         } finally {
           // Ensure cleanup even on error
-          sessionStorage.removeItem("twitter_verifier");
+          await AsyncStorage.removeItem("twitter_verifier");
         }
       } catch (error) {
         throw error;
