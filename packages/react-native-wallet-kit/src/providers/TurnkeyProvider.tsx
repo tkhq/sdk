@@ -2496,7 +2496,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri || TURNKEY_OAUTH_REDIRECT_URL;
+        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri // || TURNKEY_OAUTH_REDIRECT_URL;
         if (!redirectUri) {
           throw new TurnkeyError(
             "OAuth Redirect URI is not configured.",
@@ -2512,7 +2512,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const finalRedirectUri = `${redirectUri}?scheme=${encodeURIComponent(scheme)}`;
+        const finalRedirectUri = redirectUri // `${redirectUri}?scheme=${encodeURIComponent(scheme)}`;
 
         // Create key pair and generate nonce
         const publicKey = await createApiKeyPair();
