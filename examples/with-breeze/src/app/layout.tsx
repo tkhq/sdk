@@ -2,11 +2,25 @@
 
 import "@turnkey/react-wallet-kit/styles.css";
 import "./global.css";
-import { TurnkeyProvider } from "@turnkey/react-wallet-kit";
+import { CreateSubOrgParams, TurnkeyProvider } from "@turnkey/react-wallet-kit";
 
 interface RootLayoutProps {
   children: React.ReactNode;
 }
+
+export const createSuborgParams: CreateSubOrgParams = {
+  customWallet: {
+    walletName: "Wallet 1",
+    walletAccounts: [
+      {
+        addressFormat: "ADDRESS_FORMAT_SOLANA",
+        curve: "CURVE_ED25519",
+        pathFormat: "PATH_FORMAT_BIP32",
+        path: "m/44'/501'/0'/0/0",
+      },
+    ],
+  },
+};
 
 function RootLayout({ children }: RootLayoutProps) {
   return (
@@ -23,6 +37,9 @@ function RootLayout({ children }: RootLayoutProps) {
             authProxyConfigId: process.env.NEXT_PUBLIC_AUTH_PROXY_ID!,
             authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
             auth: {
+              createSuborgParams: {
+                passkeyAuth: createSuborgParams
+              },
               methods: {
                 smsOtpAuthEnabled: false,
                 googleOauthEnabled: false,
@@ -36,6 +53,7 @@ function RootLayout({ children }: RootLayoutProps) {
               },
               autoRefreshSession: true,
             },
+            
           }}
         >
           {children}
