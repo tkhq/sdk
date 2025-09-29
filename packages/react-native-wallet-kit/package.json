@@ -34,6 +34,7 @@
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@noble/hashes": "^1.8.0",
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@turnkey/core": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:*",
@@ -54,9 +55,9 @@
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
     "react-native": ">=0.70.0",
     "react-native-gesture-handler": ">=2.0.0",
+    "react-native-inappbrowser-reborn": ">=3.7.0",
     "react-native-safe-area-context": ">=4.0.0",
-    "react-native-svg": ">=13.0.0",
-    "react-native-inappbrowser-reborn": ">=3.7.0"
+    "react-native-svg": ">=13.0.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {

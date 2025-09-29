@@ -7,6 +7,7 @@ import  {
 } from "@turnkey/sdk-types";
 import type { TurnkeyCallbacks } from "../types/base";
 import { useCallback, useRef, useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { sha256 } from "@noble/hashes/sha256";
 import { stringToBase64urlString } from "@turnkey/encoding";
 import { WalletInterfaceType, type WalletProvider } from "@turnkey/core";
@@ -289,7 +290,7 @@ export async function generateChallengePair(): Promise<{
     onPushPage: (idToken: string) => Promise<void>;
   }): Promise<void> {
     // Retrieve the verifier stored during OAuth initiation
-    const verifier = sessionStorage.getItem("facebook_verifier");
+    const verifier = await AsyncStorage.getItem("facebook_verifier");
     if (!verifier) {
       throw new TurnkeyError(
         "Missing PKCE verifier for Facebook authentication",
@@ -307,7 +308,7 @@ export async function generateChallengePair(): Promise<{
       );
   
       // Clean up the verifier as it's no longer needed
-      sessionStorage.removeItem("facebook_verifier");
+      await AsyncStorage.removeItem("facebook_verifier");
   
       // Handle different UI flows based on openModal parameter
       if (openModal === "true") {
