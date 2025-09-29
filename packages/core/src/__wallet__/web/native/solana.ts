@@ -189,7 +189,7 @@ export class SolanaWallet extends BaseSolanaWallet {
               signTransaction: (args: {
                 account: typeof account;
                 transaction: Uint8Array;
-              }) => Promise<readonly { signature: Uint8Array }[]>;
+              }) => Promise<readonly { signedTransaction: Uint8Array }[]>;
             }
           | undefined;
 
@@ -201,11 +201,11 @@ export class SolanaWallet extends BaseSolanaWallet {
           account,
           transaction: data,
         });
-        if (!results?.length || !results[0]?.signature) {
+        if (!results?.length || !results[0]?.signedTransaction) {
           throw new Error("No signature returned from signTransaction");
         }
 
-        return uint8ArrayToHexString(results[0].signature);
+        return uint8ArrayToHexString(results[0].signedTransaction);
       }
 
       default:
