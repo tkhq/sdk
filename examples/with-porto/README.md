@@ -2,7 +2,6 @@
 
 This is an example of upgrading a Turnkey EOA to a [Porto](https://porto.sh/) wallet and then doing something with it.
 
-
 ## Setup
 
 1.  **Install Dependencies**: Ensure you have [pnpm](https://pnpm.io/) installed. Then, run:

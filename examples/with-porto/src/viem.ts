@@ -2,7 +2,7 @@ import * as path from "path";
 import * as dotenv from "dotenv";
 import { createClient, http, parseEther, formatEther } from "viem";
 import { baseSepolia } from "viem/chains";
-import { RelayActions, Key } from "porto/viem";
+import { RelayActions, Key, Account } from "porto/viem";
 
 import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
@@ -48,37 +48,24 @@ async function main() {
 
   // Create Porto client
   const client = createClient({
-    chain: TARGET_CHAIN, // or your target chain
+    chain: TARGET_CHAIN,
     transport: http("https://rpc.porto.sh"),
   });
 
-  // Create admin key for the upgraded account
-  const adminKey = Key.createSecp256k1({ role: "admin" });
-
-  debug('Setup complete, preparing to upgrade EOA to a Porto wallet...', {
+  debug("Setup complete, preparing to upgrade EOA to a Porto wallet...", {
     turnkeyEoa: turnkeyEoa.address,
-    adminKey: adminKey.publicKey,
-  })
+  });
 
-  // Per https://porto.sh/sdk/viem/RelayActions/upgradeAccount#prepared-usage
-  const { digests, ...request } = await RelayActions.prepareUpgradeAccount(
-    client,
-    {
-      address: turnkeyEoa.address,
-      authorizeKeys: [adminKey],
-      chain: TARGET_CHAIN,
+  const portoAccount = Account.from({
+    address: turnkeyEoa.address,
+    async sign({ hash }) {
+      return await turnkeyEoa.sign!({ hash });
     },
-  );
+  });
 
-  const signatures = {
-    auth: await turnkeyEoa.sign!({ hash: digests.auth }),
-    exec: await turnkeyEoa.sign!({ hash: digests.exec }),
-  };
-
-  debug("Executing upgrade transaction...");
-  const portoAccount = await RelayActions.upgradeAccount(client, {
-    ...request,
-    signatures,
+  await RelayActions.upgradeAccount(client, {
+    account: portoAccount,
+    chain: TARGET_CHAIN,
   });
 
   debug("Account successfully upgraded!");
@@ -88,12 +75,11 @@ async function main() {
 
   let balance = (
     await RelayActions.getAssets(client, {
-      account: turnkeyEoa.address,
+      account: portoAccount.address,
       chainFilter: [TARGET_CHAIN.id],
       assetTypeFilter: ["native"],
     })
-  )[TARGET_CHAIN.id][0].balance;
-  debug(`${TARGET_CHAIN.name} ETH balance:`, balance);
+  )[TARGET_CHAIN.id]![0]!.balance;
 
   while (balance < AMOUNT_TO_SEND) {
     debug(`Waiting for funds...`);
@@ -101,11 +87,11 @@ async function main() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     balance = (
       await RelayActions.getAssets(client, {
-        account: turnkeyEoa.address,
+        account: portoAccount.address,
         chainFilter: [TARGET_CHAIN.id],
         assetTypeFilter: ["native"],
       })
-    )[TARGET_CHAIN.id][0].balance;
+    )[TARGET_CHAIN.id]![0]!.balance;
   }
   debug(`Account funded with ${formatEther(balance)} ${TARGET_CHAIN.name} ETH`);
 
@@ -119,7 +105,6 @@ async function main() {
       },
     ],
     chain: TARGET_CHAIN,
-    key: adminKey,
   });
 
   debug(`User operation sent: ${userOpHash}`);
