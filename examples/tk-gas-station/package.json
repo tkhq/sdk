@@ -8,6 +8,8 @@
     "start-advanced": "tsx src/advanced-paymaster.ts",
     "start-gasless": "tsx src/gasless-transaction.ts",
     "start-7702-usdc": "tsx src/eip7702/transferUSDCDelegated.ts",
+    "eth-transfer": "tsx src/examples/transferETHDelegated.ts",
+    "usdc-transfer": "tsx src/examples/transferUSDCDelegated.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
