@@ -314,7 +314,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       onClose: () => {
                         reject(
                           new TurnkeyError(
-                            "User cancelled the Facebook authentication process.",
+                            "User canceled the Facebook authentication process.",
                             TurnkeyErrorCodes.USER_CANCELED,
                           ),
                         );
@@ -410,7 +410,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   onClose: () => {
                     reject(
                       new TurnkeyError(
-                        "User cancelled the Discord authentication process.",
+                        "User canceled the Discord authentication process.",
                         TurnkeyErrorCodes.USER_CANCELED,
                       ),
                     );
@@ -490,7 +490,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   onClose: () => {
                     reject(
                       new TurnkeyError(
-                        "User cancelled the Twitter authentication process.",
+                        "User canceled the Twitter authentication process.",
                         TurnkeyErrorCodes.USER_CANCELED,
                       ),
                     );
@@ -551,7 +551,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 onClose: () => {
                   reject(
                     new TurnkeyError(
-                      `User cancelled the ${providerName} authentication process.`,
+                      `User canceled the ${providerName} authentication process.`,
                       TurnkeyErrorCodes.USER_CANCELED,
                     ),
                   );
@@ -2004,7 +2004,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           onClose: () =>
             reject(
               new TurnkeyError(
-                "User cancelled the signing process.",
+                "User canceled the signing process.",
                 TurnkeyErrorCodes.USER_CANCELED,
               ),
             ),
@@ -3805,6 +3805,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               onError={(error: any) => reject(error)}
             />
           ),
+          onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User canceled the export wallet process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
         }),
       );
     },
@@ -3835,6 +3842,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               onError={(error: any) => reject(error)}
             />
           ),
+          onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User canceled the export private key process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
         }),
       );
     },
@@ -3861,6 +3875,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               onError={(error: any) => reject(error)}
             />
           ),
+          onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User canceled the export wallet account process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
         }),
       );
     },
@@ -4869,7 +4890,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             onClose: () =>
               reject(
                 new TurnkeyError(
-                  "User cancelled the remove OAuth provider process.",
+                  "User canceled the remove OAuth provider process.",
                   TurnkeyErrorCodes.USER_CANCELED,
                 ),
               ),
@@ -5028,7 +5049,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           onClose: () =>
             reject(
               new TurnkeyError(
-                "User cancelled the connect wallet process.",
+                "User canceled the connect wallet process.",
                 TurnkeyErrorCodes.USER_CANCELED,
               ),
             ),
@@ -5073,7 +5094,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             onClose: () =>
               reject(
                 new TurnkeyError(
-                  "User cancelled the remove email process.",
+                  "User canceled the remove email process.",
                   TurnkeyErrorCodes.USER_CANCELED,
                 ),
               ),
@@ -5128,7 +5149,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             onClose: () =>
               reject(
                 new TurnkeyError(
-                  "User cancelled the remove phone number process.",
+                  "User canceled the remove phone number process.",
                   TurnkeyErrorCodes.USER_CANCELED,
                 ),
               ),
