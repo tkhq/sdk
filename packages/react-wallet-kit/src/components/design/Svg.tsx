@@ -167,3 +167,80 @@ export function SolanaLogo(props: SVGProps) {
     </svg>
   );
 }
+
+export function VerifyBorderSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={88}
+      height={88}
+      fill="none"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M4 68v14a2 2 0 0 0 2 2h14v4H6a6 6 0 0 1-6-6V68h4Zm84 14a6 6 0 0 1-6 6H68v-4h14a2 2 0 0 0 2-2V68h4v14ZM82 0a6 6 0 0 1 6 6v14h-4V6a2 2 0 0 0-2-2H68V0h14ZM20 4H6a2 2 0 0 0-2 2v14H0V6a6 6 0 0 1 6-6h14v4Z"
+        style={{
+          fill: "currentColor",
+          fillOpacity: 1,
+        }}
+      />
+    </svg>
+  );
+}
+
+export function VerifyInnerSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={56}
+      height={40}
+      fill="none"
+      {...props}
+    >
+      <rect
+        width={56}
+        height={4}
+        fill="#868C95"
+        rx={2}
+        style={{
+          fill: "#868c95",
+          fillOpacity: 1,
+        }}
+      />
+      <rect
+        width={46.421}
+        height={4}
+        y={12}
+        fill="#868C95"
+        rx={2}
+        style={{
+          fill: "#868c95",
+          fillOpacity: 1,
+        }}
+      />
+      <rect
+        width={56}
+        height={4}
+        y={24}
+        fill="#868C95"
+        rx={2}
+        style={{
+          fill: "#868c95",
+          fillOpacity: 1,
+        }}
+      />
+      <rect
+        width={46.421}
+        height={4}
+        y={36}
+        fill="#868C95"
+        rx={2}
+        style={{
+          fill: "#868c95",
+          fillOpacity: 1,
+        }}
+      />
+    </svg>
+  );
+}

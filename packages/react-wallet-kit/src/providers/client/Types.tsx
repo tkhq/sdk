@@ -25,6 +25,7 @@ import type {
   HandleAddPhoneNumberParams,
   HandleAppleOauthParams,
   HandleConnectExternalWalletParams,
+  HandleCreateWalletParams,
   HandleDiscordOauthParams,
   HandleExportPrivateKeyParams,
   HandleExportWalletAccountParams,
@@ -722,6 +723,9 @@ export type ClientContextType = Override<
     handleRemoveUserPhoneNumber: (
       params?: HandleRemoveUserPhoneNumberParams,
     ) => Promise<string>;
+
+    // TODO (Amir): JSDoc
+    handleCreateWallet: (params: HandleCreateWalletParams) => Promise<string>;
   }
 >;
 
