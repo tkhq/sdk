@@ -8,6 +8,7 @@ import type {
   v1PayloadEncoding,
   v1TransactionType,
   v1WalletAccountParams,
+  v1AppProof,
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
@@ -371,4 +372,10 @@ export type SetActiveSessionParams = { sessionKey: string };
 export type CreateApiKeyPairParams = {
   externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string };
   storeOverride?: boolean;
+};
+
+export type FetchBootProofForAppProofParams = {
+  appProof?: v1AppProof;
+  organizationId?: string;
+  stampWith?: StamperType | undefined;
 };
