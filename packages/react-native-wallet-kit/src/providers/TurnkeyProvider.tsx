@@ -88,6 +88,7 @@ import {
   type VerifyOtpResult,
   type ConnectedWallet,
   StamperType,
+  OAuthProviders,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
@@ -125,28 +126,15 @@ import {
 
 
 import type {
-  HandleAddEmailParams,
-  HandleAddOauthProviderParams,
-  HandleAddPasskeyParams,
-  HandleAddPhoneNumberParams,
   HandleAppleOauthParams,
-  HandleConnectExternalWalletParams,
   HandleDiscordOauthParams,
   HandleExportPrivateKeyParams,
   HandleExportWalletAccountParams,
   HandleExportWalletParams,
   HandleFacebookOauthParams,
   HandleGoogleOauthParams,
-  HandleImportPrivateKeyParams,
-  HandleImportWalletParams,
-  HandleLoginParams,
   HandleRemoveOauthProviderParams,
   HandleRemovePasskeyParams,
-  HandleRemoveUserEmailParams,
-  HandleRemoveUserPhoneNumberParams,
-  HandleUpdateUserEmailParams,
-  HandleUpdateUserNameParams,
-  HandleUpdateUserPhoneNumberParams,
   HandleXOauthParams,
   RefreshUserParams,
   RefreshWalletsParams,
@@ -226,80 +214,24 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     proxyAuthConfig?: ProxyTGetWalletKitConfigResponse | undefined,
   ) => {
     // Juggle the local overrides with the values set in the dashboard (proxyAuthConfig).
-    const resolvedMethods = {
-      emailOtpAuthEnabled:
-        config.auth?.methods?.emailOtpAuthEnabled ??
-        proxyAuthConfig?.enabledProviders.includes("email"),
-      smsOtpAuthEnabled:
-        config.auth?.methods?.smsOtpAuthEnabled ??
-        proxyAuthConfig?.enabledProviders.includes("sms"),
-      passkeyAuthEnabled:
-        config.auth?.methods?.passkeyAuthEnabled ??
-        proxyAuthConfig?.enabledProviders.includes("passkey"),
-      walletAuthEnabled:
-        config.auth?.methods?.walletAuthEnabled ??
-        proxyAuthConfig?.enabledProviders.includes("wallet"),
-      googleOauthEnabled:
-        config.auth?.methods?.googleOauthEnabled ??
-        proxyAuthConfig?.enabledProviders.includes("google"),
-      xOauthEnabled:
-        config.auth?.methods?.xOauthEnabled ??
-        proxyAuthConfig?.enabledProviders.includes("x"),
-      discordOauthEnabled:
-        config.auth?.methods?.discordOauthEnabled ??
-        proxyAuthConfig?.enabledProviders.includes("discord"),
-      appleOauthEnabled:
-        config.auth?.methods?.appleOauthEnabled ??
-        proxyAuthConfig?.enabledProviders.includes("apple"),
-      facebookOauthEnabled:
-        config.auth?.methods?.facebookOauthEnabled ??
-        proxyAuthConfig?.enabledProviders.includes("facebook"),
-    };
+    // Resolve OTP enablement
+    const emailOtpEnabled =
+      config.auth?.otp?.email ??
+      (proxyAuthConfig?.enabledProviders.includes("email") ?? false);
+    const smsOtpEnabled =
+      config.auth?.otp?.sms ??
+      (proxyAuthConfig?.enabledProviders.includes("sms") ?? false);
 
-    const resolvedClientIds = {
-      googleClientId:
-        config.auth?.oauthConfig?.googleClientId ??
-        proxyAuthConfig?.oauthClientIds?.google,
-      appleClientId:
-        config.auth?.oauthConfig?.appleClientId ??
-        proxyAuthConfig?.oauthClientIds?.apple,
-      facebookClientId:
-        config.auth?.oauthConfig?.facebookClientId ??
-        proxyAuthConfig?.oauthClientIds?.facebook,
-      xClientId:
-        config.auth?.oauthConfig?.xClientId ??
-        proxyAuthConfig?.oauthClientIds?.x,
-      discordClientId:
-        config.auth?.oauthConfig?.discordClientId ??
-        proxyAuthConfig?.oauthClientIds?.discord,
-    };
+    // Resolve wallet enablement (defaults to true if not specified anywhere)
+    const walletEnabledCandidate =
+      config.auth?.wallet ?? proxyAuthConfig?.enabledProviders.includes("wallet");
 
-    // Resolve redirect URL; do NOT attach scheme here. We'll attach in handler on demand.
-    const appScheme = config.auth?.oauthConfig?.appScheme ?? undefined;
+    // Resolve shared redirect; do NOT attach scheme here. We'll attach in handler on demand.
+    const appScheme = config.auth?.oauth?.appScheme ?? undefined;
     const redirectUrl =
-      config.auth?.oauthConfig?.oauthRedirectUri ??
+      config.auth?.oauth?.redirectUri ??
       proxyAuthConfig?.oauthRedirectUrl ??
       TURNKEY_OAUTH_REDIRECT_URL;
-
-    // Set a default ordering for the oAuth methods
-    const oauthOrder =
-      config.auth?.oauthOrder ??
-      (["google", "apple", "x", "discord", "facebook"] as const).filter(
-        (provider) => resolvedMethods[`${provider}OauthEnabled` as const],
-      );
-
-    // Set a default ordering for the overall auth methods
-    const methodOrder =
-      config.auth?.methodOrder ??
-      ([
-        oauthOrder.length > 0 ? "socials" : null,
-        resolvedMethods.emailOtpAuthEnabled ? "email" : null,
-        resolvedMethods.smsOtpAuthEnabled ? "sms" : null,
-        resolvedMethods.passkeyAuthEnabled ? "passkey" : null,
-        resolvedMethods.walletAuthEnabled ? "wallet" : null,
-      ].filter(Boolean) as Array<
-        "socials" | "email" | "sms" | "passkey" | "wallet"
-      >);
 
     // Warn if they are trying to set auth proxy only settings directly
     if (config.auth?.sessionExpirationSeconds) {
@@ -307,12 +239,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         "Turnkey SDK warning. You have set sessionExpirationSeconds directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure session expiration in the Turnkey dashboard.",
       );
     }
-    if (config.auth?.otpAlphanumeric !== undefined) {
+    if (config.auth?.otp?.alphanumeric !== undefined) {
       console.warn(
         "Turnkey SDK warning. You have set otpAlphanumeric directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
       );
     }
-    if (config.auth?.otpLength) {
+    if (config.auth?.otp?.length) {
       console.warn(
         "Turnkey SDK warning. You have set otpLength directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
       );
@@ -320,8 +252,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     // These are settings that can only be set via the auth proxy config
     const authProxyOnlySettings = {
       sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
-      otpAlphanumeric: proxyAuthConfig?.otpAlphanumeric ?? true, // This fallback will never be hit. This is purely for the tests to pass before mono is released
-      otpLength: proxyAuthConfig?.otpLength ?? "6", // This fallback will never be hit. This is purely for the tests to pass before mono is released
+      otp: {
+        alphanumeric: proxyAuthConfig?.otpAlphanumeric ?? true, // This fallback will never be hit. This is purely for the tests to pass before mono is released
+        length: proxyAuthConfig?.otpLength ?? "6", // This fallback will never be hit. This is purely for the tests to pass before mono is released
+      },
     };
 
     return {
@@ -330,20 +264,24 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       // Overrides:
       auth: {
         ...config.auth,
-        ...authProxyOnlySettings,
-        methods: resolvedMethods,
-        oauthConfig: {
-          ...config.auth?.oauthConfig,
-          ...resolvedClientIds,
-          oauthRedirectUri: redirectUrl,
-          ...(appScheme && { appScheme }),
-
-          // Always true in React Native. TODO: Consider removing this config
-          openOauthInPage: true,
+        // Proxy-controlled settings
+        sessionExpirationSeconds: authProxyOnlySettings.sessionExpirationSeconds,
+        otp: {
+          ...config.auth?.otp,
+          // Enablement flags
+          email: emailOtpEnabled,
+          sms: smsOtpEnabled,
+          // Proxy-only settings
+          alphanumeric:
+            authProxyOnlySettings.otp.alphanumeric,
+          length: authProxyOnlySettings.otp.length,
         },
-        sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
-        methodOrder,
-        oauthOrder,
+        // OAuth shared settings
+        oauth: {
+          ...config.auth?.oauth,
+          ...(appScheme && { appScheme }),
+          redirectUri: redirectUrl,
+        },
         autoRefreshSession: config.auth?.autoRefreshSession ?? true,
       },
       autoRefreshManagedState: config.autoRefreshManagedState ?? true,
@@ -352,10 +290,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         features: {
           ...config.walletConfig?.features,
           auth:
-            // If walletAuthEnabled is not set, default to true. Wallet auth can be enabled/disabled in the dashboard or by explicitly changing the walletAuthEnabled / walletConfig auth feature.
-            resolvedMethods.walletAuthEnabled ??
+            // If wallet is not set, default to true. Wallet auth can be enabled/disabled in the dashboard or by explicitly changing auth.wallet / walletConfig auth feature.
+            (walletEnabledCandidate ??
             config.walletConfig?.features?.auth ??
-            true,
+            true),
           connecting: config.walletConfig?.features?.connecting ?? true, // Default connecting to true if not set. We don't care about auth settings here.
         },
         chains: {
@@ -375,6 +313,37 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       importIframeUrl: config.importIframeUrl ?? "https://import.turnkey.com",
       exportIframeUrl: config.exportIframeUrl ?? "https://export.turnkey.com",
     } as TurnkeyProviderConfig;
+  };
+
+  const getOauthProviderSettings = (
+    provider: "google" | "apple" | "facebook" | "x" | "discord",
+  ) => {
+    const oauth = masterConfig?.auth?.oauth;
+    const providerConfig = oauth
+      ? (oauth as any)[provider]
+      : undefined;
+    const providerObjectConfig =
+      providerConfig && typeof providerConfig === "object"
+        ? (providerConfig as { clientId?: string; redirectUri?: string })
+        : undefined;
+
+    const proxyClientIds = proxyAuthConfigRef.current?.oauthClientIds as
+      | Record<string, string | undefined>
+      | undefined;
+
+    const clientId =
+      providerObjectConfig?.clientId ??
+      (proxyClientIds ? proxyClientIds[provider] : undefined);
+
+    const redirectUri =
+      providerObjectConfig?.redirectUri ??
+      oauth?.redirectUri ??
+      proxyAuthConfigRef.current?.oauthRedirectUrl ??
+      TURNKEY_OAUTH_REDIRECT_URL;
+
+    const appScheme = oauth?.appScheme;
+
+    return { clientId, redirectUri, appScheme } as const;
   };
 
   /**
@@ -552,7 +521,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     // it uses a unified `change` event exposed by our custom wrapper
     //
     // unlike native providers, we register listeners for WalletConnect
-    // even if it’s not currently “connected”. This is required so we
+    // even if it's not currently "connected". This is required so we
     // can detect proposal expiration events and display the new regenerated
     // URI for the UI
     const wcProviders = walletProviders.filter(
@@ -2477,10 +2446,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleDiscordOauth = useCallback(
     async (params?: HandleDiscordOauthParams): Promise<void> => {
-      const {
-        clientId = masterConfig?.auth?.oauthConfig?.discordClientId,
-        additionalState: additionalParameters,
-      } = params || {};
+      const { additionalState: additionalParameters } = params || {};
+      const { clientId, redirectUri, appScheme: scheme } =
+        getOauthProviderSettings("discord");
       try {
         if (!masterConfig) {
           throw new TurnkeyError(
@@ -2496,23 +2464,19 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri // || TURNKEY_OAUTH_REDIRECT_URL;
         if (!redirectUri) {
           throw new TurnkeyError(
             "OAuth Redirect URI is not configured.",
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
-
-        const scheme = masterConfig.auth?.oauthConfig?.appScheme;
+        //@todo remove this, not needed for discord oauth
         if (!scheme) {
           throw new TurnkeyError(
-            "Missing appScheme. Please set auth.oauthConfig.appScheme.",
+            "Missing appScheme. Please set auth.oauth.appScheme.",
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
-
-        const finalRedirectUri = redirectUri // `${redirectUri}?scheme=${encodeURIComponent(scheme)}`;
 
         // Create key pair and generate nonce
         const publicKey = await createApiKeyPair();
@@ -2541,7 +2505,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const discordAuthUrl =
           DISCORD_AUTH_URL +
           `?client_id=${encodeURIComponent(clientId)}` +
-          `&redirect_uri=${encodeURIComponent(finalRedirectUri)}` +
+          `&redirect_uri=${encodeURIComponent(redirectUri)}` +
           `&response_type=code` +
           `&code_challenge=${encodeURIComponent(codeChallenge)}` +
           `&code_challenge_method=S256` +
@@ -2605,7 +2569,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           const resp = await client?.httpClient?.proxyOAuth2Authenticate({
             provider: "OAUTH2_PROVIDER_DISCORD",
             authCode,
-            redirectUri: finalRedirectUri,
+            redirectUri,
             codeVerifier: storedVerifier,
             clientId,
             nonce,
@@ -2647,10 +2611,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleXOauth = useCallback(
     async (params?: HandleXOauthParams): Promise<void> => {
-      const {
-        clientId = masterConfig?.auth?.oauthConfig?.xClientId,
-        additionalState: additionalParameters,
-      } = params || {};
+      const { additionalState: additionalParameters } = params || {};
+      const { clientId, redirectUri, appScheme: scheme } =
+        getOauthProviderSettings("x");
       try {
         if (!masterConfig) {
           throw new TurnkeyError(
@@ -2666,7 +2629,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri || TURNKEY_OAUTH_REDIRECT_URL;
         if (!redirectUri) {
           throw new TurnkeyError(
             "OAuth Redirect URI is not configured.",
@@ -2674,15 +2636,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const scheme = masterConfig.auth?.oauthConfig?.appScheme;
         if (!scheme) {
           throw new TurnkeyError(
-            "Missing appScheme. Please set auth.oauthConfig.appScheme.",
+            "Missing appScheme. Please set auth.oauth.appScheme.",
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
-
-        const finalRedirectUri = `${redirectUri}?scheme=${encodeURIComponent(scheme)}`;
 
         const publicKey = await createApiKeyPair();
         if (!publicKey) {
@@ -2706,7 +2665,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const twitterAuthUrl =
           X_AUTH_URL +
           `?client_id=${encodeURIComponent(clientId)}` +
-          `&redirect_uri=${encodeURIComponent(finalRedirectUri)}` +
+          `&redirect_uri=${encodeURIComponent(redirectUri)}` +
           `&response_type=code` +
           `&code_challenge=${encodeURIComponent(codeChallenge)}` +
           `&code_challenge_method=S256` +
@@ -2768,7 +2727,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           const resp = await client?.httpClient?.proxyOAuth2Authenticate({
             provider: "OAUTH2_PROVIDER_X",
             authCode,
-            redirectUri: finalRedirectUri,
+            redirectUri,
             codeVerifier: storedVerifier,
             clientId,
             nonce,
@@ -2809,9 +2768,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleGoogleOauth = useCallback(
     async (params?: HandleGoogleOauthParams): Promise<void> => {
-      const {
-        clientId = masterConfig?.auth?.oauthConfig?.googleClientId,
-      } = params || {};
+      const {} = params || {};
+      const { clientId, redirectUri, appScheme: scheme } =
+        getOauthProviderSettings("google");
 
       try {
         if (!masterConfig) {
@@ -2828,7 +2787,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri || TURNKEY_OAUTH_REDIRECT_URL;
         if (!redirectUri) {
           throw new TurnkeyError(
             "OAuth Redirect URI is not configured.",
@@ -2836,10 +2794,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const scheme = masterConfig.auth?.oauthConfig?.appScheme;
         if (!scheme) {
           throw new TurnkeyError(
-            "Missing appScheme. Please set auth.oauthConfig.appScheme.",
+            "Missing appScheme. Please set auth.oauth.appScheme.",
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
@@ -2941,10 +2898,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleFacebookOauth = useCallback(
     async (params?: HandleFacebookOauthParams): Promise<void> => {
-      const {
-        clientId = masterConfig?.auth?.oauthConfig?.facebookClientId,
-        additionalState: additionalParameters,
-      } = params || {};
+      const { additionalState: additionalParameters } = params || {};
+      const { clientId, redirectUri, appScheme: scheme } =
+        getOauthProviderSettings("facebook");
 
       try {
         if (!masterConfig) {
@@ -2961,7 +2917,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const redirectUri = masterConfig.auth?.oauthConfig?.oauthRedirectUri || TURNKEY_OAUTH_REDIRECT_URL;
         if (!redirectUri) {
           throw new TurnkeyError(
             "OAuth Redirect URI is not configured.",
@@ -2969,10 +2924,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const scheme = masterConfig.auth?.oauthConfig?.appScheme;
         if (!scheme) {
           throw new TurnkeyError(
-            "Missing appScheme. Please set auth.oauthConfig.appScheme.",
+            "Missing appScheme. Please set auth.oauth.appScheme.",
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
@@ -3108,28 +3062,28 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   );
 
   const handleLogin = useCallback(
-    async (params?: HandleLoginParams) => {
+    async () => {
       return Promise.resolve();
     },
     [ masterConfig, client, session, user],
   );
 
   const handleExportWallet = useCallback(
-    async (params: HandleExportWalletParams): Promise<void> => {
+    async (_params: HandleExportWalletParams): Promise<void> => {
       return Promise.resolve();
     },
     [ masterConfig, client, session, user],
   );
 
   const handleExportPrivateKey = useCallback(
-    async (params: HandleExportPrivateKeyParams): Promise<void> => {
+    async (_params: HandleExportPrivateKeyParams): Promise<void> => {
       return Promise.resolve();
     },
     [ masterConfig, client, session, user],
   );
 
   const handleExportWalletAccount = useCallback(
-    async (params: HandleExportWalletAccountParams): Promise<void> => {
+    async (_params: HandleExportWalletAccountParams): Promise<void> => {
     
       return Promise.resolve();
       
@@ -3138,14 +3092,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   );
 
   const handleImportWallet = useCallback(
-    async (params?: HandleImportWalletParams): Promise<string> => {
+    async (): Promise<string> => {
       return Promise.resolve("");
     },
     [masterConfig, client, session, user],
   );
 
   const handleImportPrivateKey = useCallback(
-    async (params?: HandleImportPrivateKeyParams): Promise<string> => {
+    async (): Promise<string> => {
       
       return Promise.resolve("");
     },
@@ -3153,84 +3107,84 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   );
 
   const handleUpdateUserName = useCallback(
-    async (params?: HandleUpdateUserNameParams): Promise<string> => {
+    async (): Promise<string> => {
       return Promise.resolve("");
     },
     [ masterConfig, client, session, user],
   );
 
   const handleUpdateUserPhoneNumber = useCallback(
-    async (params?: HandleUpdateUserPhoneNumberParams): Promise<string> => {
+    async (): Promise<string> => {
       return Promise.resolve("");
     },
     [ masterConfig, client, session, user],
   );
 
   const handleUpdateUserEmail = useCallback(
-    async (params?: HandleUpdateUserEmailParams): Promise<string> => {
+    async (): Promise<string> => {
       return Promise.resolve("");
     },
     [ masterConfig, client, session, user],
   );
 
   const handleAddEmail = useCallback(
-    async (params?: HandleAddEmailParams): Promise<string> => {
+    async (): Promise<string> => {
       return Promise.resolve("");
     },
     [ client, session, user],
   );
 
   const handleAddPhoneNumber = useCallback(
-    async (params?: HandleAddPhoneNumberParams): Promise<string> => {
+    async (): Promise<string> => {
       return Promise.resolve("");
     },
     [ masterConfig, client, session, user],
   );
 
   const handleRemovePasskey = useCallback(
-    async (params: HandleRemovePasskeyParams): Promise<string[]> => {
+    async (_params: HandleRemovePasskeyParams): Promise<string[]> => {
       return Promise.resolve([]);
     },
     [ masterConfig, client, session, user],
   );
 
   const handleAddPasskey = useCallback(
-    async (params?: HandleAddPasskeyParams): Promise<string[]> => {
+    async (): Promise<string[]> => {
       return Promise.resolve([]);
     },
     [ masterConfig, client, session, user],
   );
 
   const handleRemoveOauthProvider = useCallback(
-    async (params: HandleRemoveOauthProviderParams): Promise<string[]> => {
+    async (_params: HandleRemoveOauthProviderParams): Promise<string[]> => {
       return Promise.resolve([]);
     },
     [ masterConfig, client, session, user],
   );
 
   const handleAddOauthProvider = useCallback(
-    async (params: HandleAddOauthProviderParams): Promise<void> => {
+    async (_params: { providerName: OAuthProviders; stampWith?: StamperType | undefined }): Promise<void> => {
       return Promise.resolve();
     },
     [ masterConfig, client, session, user],
   );
 
   const handleConnectExternalWallet = useCallback(
-    async (params?: HandleConnectExternalWalletParams): Promise<void> => {
+    async (): Promise<void> => {
       return Promise.resolve();
     },
     [ masterConfig, client, session, user],
   );
 
   const handleRemoveUserEmail = useCallback(
-    async (params?: HandleRemoveUserEmailParams): Promise<string> => {
+    async (): Promise<string> => {
       return Promise.resolve("");
     },
     [ masterConfig, client, session, user],
   );
 
   const handleRemoveUserPhoneNumber = useCallback(
-    async (params?: HandleRemoveUserPhoneNumberParams): Promise<string> => {
+    async (): Promise<string> => {
       return Promise.resolve("");
     },
     [ masterConfig, client, session, user],

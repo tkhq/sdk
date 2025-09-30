@@ -8,6 +8,14 @@ import type {
 
 export type { KeyFormat  } from "@turnkey/iframe-stamper";
 
+// New OAuth provider config union: boolean enables; object configures and enables
+export type OauthProviderConfig =
+  | boolean
+  | {
+      clientId?: string;
+      redirectUri?: string;
+    };
+
 export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: {
     idToken: string;
@@ -43,47 +51,34 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
 
   /** configuration for authentication methods. */
   auth?: {
-    /** enables or disables specific authentication methods. */
-    methods?: {
-      emailOtpAuthEnabled?: boolean;
-      smsOtpAuthEnabled?: boolean;
-      passkeyAuthEnabled?: boolean;
-      walletAuthEnabled?: boolean;
-      googleOauthEnabled?: boolean;
-      appleOauthEnabled?: boolean;
-      xOauthEnabled?: boolean;
-      discordOauthEnabled?: boolean;
-      facebookOauthEnabled?: boolean;
+    /** one-time password (OTP) settings and enablement */
+    otp?: {
+      /** enable email OTP */
+      email?: boolean;
+      /** enable SMS OTP */
+      sms?: boolean;
+      /** OTP alphanumeric mode (proxy controlled if using auth proxy) */
+      alphanumeric?: boolean;
+      /** OTP length (proxy controlled if using auth proxy) */
+      length?: string;
     };
-    /** order of authentication methods. */
-    methodOrder?: Array<"socials" | "email" | "sms" | "passkey" | "wallet">;
-    /** order of OAuth authentication methods. */
-    oauthOrder?: Array<"google" | "apple" | "facebook" | "x" | "discord">;
-    /** configuration for OAuth authentication. */
-    oauthConfig?: {
-      /** redirect URI for OAuth. */
-      oauthRedirectUri?: string;
+    /** OAuth settings per provider */
+    oauth?: {
+      /** shared default redirect URI for OAuth providers */
+      redirectUri?: string;
       /** application deep link scheme used to complete OAuth in React Native (e.g., "myapp"). */
       appScheme?: string;
-      /** client ID for Google OAuth. */
-      googleClientId?: string;
-      /** client ID for Apple OAuth. */
-      appleClientId?: string;
-      /** client ID for Facebook OAuth. */
-      facebookClientId?: string;
-      /** client ID for X (formerly Twitter) OAuth. */
-      xClientId?: string;
-      /** client ID for Discord OAuth. */
-      discordClientId?: string;
-      /** whether to open OAuth in the same page. Always true on mobile. */
-      openOauthInPage?: boolean;
+      /** provider enablement/configuration (boolean enables; object configures and enables) */
+      google?: OauthProviderConfig;
+      apple?: OauthProviderConfig;
+      facebook?: OauthProviderConfig;
+      x?: OauthProviderConfig;
+      discord?: OauthProviderConfig;
     };
-    /** session expiration time in seconds. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
-    sessionExpirationSeconds?: string;
-    /** If otp sent will be alphanumeric. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
-    otpAlphanumeric?: boolean;
-    /** length of the OTP. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
-    otpLength?: string;
+    /** passkey enablement and options */
+    passkey?: boolean | { passkeyName?: string };
+    /** wallet auth enablement */
+    wallet?: boolean;
     /** parameters for creating a sub-organization for each authentication method. */
     createSuborgParams?: {
       /** parameters for email OTP authentication. */
@@ -99,6 +94,8 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     };
     /** whether to automatically refresh the session. */
     autoRefreshSession?: boolean;
+    /** session expiration time in seconds. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
+    sessionExpirationSeconds?: string;
   };
   /** whether to automatically refresh managed state variables */
   autoRefreshManagedState?: boolean;
