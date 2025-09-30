@@ -77,6 +77,7 @@ export const useDebouncedCallback = <T extends (...args: any[]) => void>(
     [wait],
   ) as T;
 };
+
 export const isValidSession = (session?: Session | undefined): boolean => {
   return session?.expiry !== undefined && session.expiry * 1000 > Date.now();
 };
