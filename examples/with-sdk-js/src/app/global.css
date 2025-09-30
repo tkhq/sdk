@@ -31,9 +31,3 @@
     BlinkMacSystemFont,
     sans-serif;
 }
-
-button {
-  border-radius: 8px;
-  padding: 8px 16px;
-  cursor: pointer;
-}

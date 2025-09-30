@@ -1,10 +1,11 @@
 import clsx from "clsx";
-import { useModal } from "../../providers";
+import { useModal } from "../../providers/modal/Hook";
 import type { HandleCreateWalletParams } from "../../types/method-types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faWallet } from "@fortawesome/free-solid-svg-icons";
 import { ActionButton } from "../design/Buttons";
 import { parseCreateWalletInput, v1WalletAccountParams } from "@turnkey/core";
+import { VerifyPage } from "../design/Verify";
 
 type CreateWalletProps = HandleCreateWalletParams & {
   onSuccess: (walletId: string) => void;
@@ -30,7 +31,7 @@ function DetailEntry(props: { name: string; value: string | number | object }) {
 
 export function CreateWallet(props: CreateWalletProps) {
   const { walletName, mnemonicLength, accounts } = props;
-  const { isMobile } = useModal();
+  const { isMobile, pushPage } = useModal();
 
   const parsedAccounts: v1WalletAccountParams[] = parseCreateWalletInput({
     accounts,
@@ -71,9 +72,22 @@ export function CreateWallet(props: CreateWalletProps) {
           </div>
         </div>
       </div>
-      <div className="flex my-2 mt-0">
+      <div className="flex my-2">
         <ActionButton
-          onClick={() => {}}
+          onClick={() => {
+            pushPage({
+              key: "verify",
+              showTitle: false,
+              preventBack: true,
+              content: (
+                <VerifyPage
+                  action={async () => {
+                    await new Promise((resolve) => setTimeout(resolve, 2000));
+                  }}
+                />
+              ),
+            });
+          }}
           loading={false}
           className="w-full md:max-w-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
         >
