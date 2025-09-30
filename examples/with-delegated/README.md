@@ -9,7 +9,7 @@ This is a minimal **Next.js** app showing how to add a **Delegated Access (DA) A
 - List the sub-organization’s embedded wallet accounts
 - Create a **Delegated Access (DA) user** with a P-256 API key
 - Build and submit a Turnkey **policy** that restricts the DA user signing to a specific Ethereum recipient address
-- Test the policy by having the DA user attempt both an allowed and a denied Ethereum transaction
+- Test the policy by having the DA user attempt to sign both an allowed and a denied Ethereum transaction
 
 ---
 
@@ -25,7 +25,7 @@ When you go through the demo:
 > **Note:**
 >
 > - The Auth Proxy methods called by `handleLogin` are **idempotent**: if the user already exists, they’ll just log in instead of creating a new sub-org.
-> - To use your own backend instead of Auth Proxy, see [Advanced Backend Authentication](https://docs.turnkey.com/sdks/react/advanced-backend-authentication).
+> - You can use your own backend instead, but for simplicity we stick with the Auth Proxy. If you'd like to see how, check out this guide: [Advanced Backend Authentication](https://docs.turnkey.com/sdks/react/advanced-backend-authentication).
 
 3. Once authenticated, the dashboard shows:
    - The sub-organization ID
@@ -35,6 +35,8 @@ When you go through the demo:
 > **Note:** The DA user is non-root, so at this point any signing requests will be denied by the Turnkey policy engine until a policy is added.
 
 5. A policy is created (via [`fetchOrCreatePolicies`](https://docs.turnkey.com/generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-policies)) that allows the DA user to sign Ethereum transactions only to a specific recipient address.
+
+6. The **Policy Validation (Demo)** section generates two raw unsigned Ethereum transactions, one to the allowed recipient (`NEXT_PUBLIC_RECIPIENT_ADDRESS`) and one to a denied recipient of your choice and then it submits them to Turnkey for signing. The results show whether the configured policies permit or block each transaction.
 
 ---
 
@@ -67,11 +69,17 @@ cp .env.local.example .env.local
 
 Now open `.env.local` and add the missing environment variables:
 
-- `NEXT_PUBLIC_BASE_URL`
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_AUTH_PROXY_CONFIG_ID`
-- `NEXT_PUBLIC_DA_PUBLIC_KEY`
 - `NEXT_PUBLIC_RECIPIENT_ADDRESS`
+- `NEXT_PUBLIC_DA_PUBLIC_KEY`
+- `TURNKEY_DA_PUBLIC_KEY`
+- `TURNKEY_DA_PRIVATE_KEY`
+
+**Note:** NEXT_PUBLIC_DA_PUBLIC_KEY and TURNKEY_DA_PUBLIC_KEY hold the same public key. We keep them in two separate environment variables because:
+
+- `NEXT_PUBLIC_DA_PUBLIC_KEY` is exposed to the browser (frontend).
+- `TURNKEY_DA_PUBLIC_KEY` is used in server actions, where secrets belong.
 
 ### 2/ Running the demo
 

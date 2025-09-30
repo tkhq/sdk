@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   useTurnkey,
@@ -10,11 +10,45 @@ import {
   type WalletAccount,
 } from "@turnkey/react-wallet-kit";
 
+import { serializeTransaction, parseGwei } from "viem";
+
+import { validatePolicyAction } from "@/server/actions/validatePolicy";
+
 type AccountsBlock = {
   walletId: string;
   walletName: string;
   accounts: WalletAccount[];
 };
+
+// Build a raw unsigned legacy Ethereum tx
+function buildUnsignedLegacyRaw({
+  chainId = 1,
+  nonce = 0,
+  gas = BigInt(21000),
+  gasPriceGwei = 1,
+  to,
+  value = BigInt(0),
+}: {
+  chainId?: number;
+  nonce?: number;
+  gas?: bigint;
+  gasPriceGwei?: number;
+  to: `0x${string}` | string;
+  value?: bigint;
+}) {
+  const tx = {
+    chainId,
+    nonce,
+    to: to as `0x${string}`,
+    gas,
+    gasPrice: parseGwei(String(gasPriceGwei)),
+    value,
+    data: "0x" as `0x${string}`,
+    type: "legacy" as const,
+  };
+
+  return serializeTransaction(tx);
+}
 
 export default function Dashboard() {
   const {
@@ -24,9 +58,9 @@ export default function Dashboard() {
     logout,
     fetchOrCreateP256ApiKeyUser,
     fetchOrCreatePolicies,
-    fetchWallets,
-    fetchWalletAccounts,
+    wallets,
   } = useTurnkey();
+
   const router = useRouter();
 
   const [daUser, setDaUser] = useState<any | null>(null);
@@ -47,11 +81,17 @@ export default function Dashboard() {
   const [policyError, setPolicyError] = useState<string | null>(null);
   const [submittingPolicy, setSubmittingPolicy] = useState(false);
 
-  // Display suborg embedded wallet accounts
-  const [accountsData, setAccountsData] = useState<AccountsBlock[] | null>(
-    null,
-  );
-  const [accountsErr, setAccountsErr] = useState<string | null>(null);
+  // Validation demo state (recipients -> unsigned raw hex)
+  const [signWithAddress, setSignWithAddress] = useState<string>("");
+  const [toAllowed, setToAllowed] = useState<string>(recipientAddress);
+  const [toDenied, setToDenied] = useState<string>("");
+
+  const [unsignedAllowHex, setUnsignedAllowHex] = useState<string>("");
+  const [unsignedDenyHex, setUnsignedDenyHex] = useState<string>("");
+
+  const [valResult, setValResult] = useState<any | null>(null);
+  const [valLoading, setValLoading] = useState(false);
+  const [valError, setValError] = useState<string | null>(null);
 
   useEffect(() => {
     if (authState === AuthState.Unauthenticated) {
@@ -59,45 +99,29 @@ export default function Dashboard() {
     }
   }, [authState, router]);
 
-  // Fetch wallet accounts
+  // Get wallet accounts
+  const accountsData = useMemo(() => {
+    const list = (wallets ?? []).filter(
+      (w: Wallet) => w.source === WalletSource.Embedded,
+    );
+    return list.map((w: Wallet) => ({
+      walletId: w.walletId,
+      walletName: w.walletName,
+      accounts: (w as any).accounts ?? [],
+    })) as AccountsBlock[];
+  }, [wallets]);
+
+  // Auto-pick first embedded EVM account address for `signWith`
+  const firstEmbeddedAddress = useMemo(() => {
+    const a = accountsData?.[0]?.accounts?.[0];
+    return (a as any)?.address || "";
+  }, [accountsData]);
+
   useEffect(() => {
-    const loadAccounts = async () => {
-      if (authState !== AuthState.Authenticated) return;
-
-      try {
-        setAccountsErr(null);
-        const wallets = await fetchWallets();
-        if (!wallets || wallets.length === 0) {
-          setAccountsData([]);
-          return;
-        }
-
-        const embeddedWallets = wallets.filter(
-          (w: Wallet) => w.source === WalletSource.Embedded,
-        );
-
-        const results: AccountsBlock[] = [];
-        for (const w of embeddedWallets) {
-          const accounts = await fetchWalletAccounts({ wallet: w });
-          results.push({
-            walletId: w.walletId,
-            walletName: w.walletName,
-            accounts: accounts ?? [],
-          });
-        }
-        setAccountsData(results);
-      } catch (e: any) {
-        console.error(e);
-        setAccountsErr(e?.message ?? "Failed to load wallet accounts.");
-      }
-    };
-
-    loadAccounts();
-  }, [authState, fetchWallets, fetchWalletAccounts]);
-
-  if (authState !== AuthState.Authenticated) {
-    return <p>Loading...</p>;
-  }
+    if (!signWithAddress && firstEmbeddedAddress) {
+      setSignWithAddress(firstEmbeddedAddress);
+    }
+  }, [firstEmbeddedAddress, signWithAddress]);
 
   const isEthAddress = (addr: string) =>
     /^0x[a-fA-F0-9]{40}$/.test(addr.trim());
@@ -151,11 +175,18 @@ export default function Dashboard() {
         consensus: `approvers.any(user, user.id == '${daUser.userId}')`,
         condition: `eth.tx.to == '${recipientAddress}'`,
         notes:
-          "Allow Delegated Access user to sign Ethereum transactions only to the specified recipient.",
+          "Allow Delegated Access user to sign Ethereum transactions only to the specified recipient",
       },
     ];
     setPolicyJson(JSON.stringify(template, null, 2));
   };
+
+  // Keep in sync setToAllowed if recipientAddress changes manually
+  useEffect(() => {
+    if (recipientAddress) {
+      setToAllowed(recipientAddress);
+    }
+  }, [recipientAddress]);
 
   const handleSubmitPolicies = async () => {
     setPolicyError(null);
@@ -175,9 +206,78 @@ export default function Dashboard() {
     }
   };
 
+  // Generate raw unsigned hex whenever the "to" fields change
+  useEffect(() => {
+    if (isEthAddress(toAllowed)) {
+      setUnsignedAllowHex(
+        buildUnsignedLegacyRaw({
+          to: toAllowed.trim(),
+          chainId: 1,
+          nonce: 0,
+          gas: BigInt(21000),
+          gasPriceGwei: 1,
+          value: BigInt(0),
+        }),
+      );
+    } else {
+      setUnsignedAllowHex("");
+    }
+  }, [toAllowed]);
+
+  useEffect(() => {
+    if (isEthAddress(toDenied)) {
+      setUnsignedDenyHex(
+        buildUnsignedLegacyRaw({
+          to: toDenied.trim(),
+          chainId: 1,
+          nonce: 0,
+          gas: BigInt(21000),
+          gasPriceGwei: 1,
+          value: BigInt(0),
+        }),
+      );
+    } else {
+      setUnsignedDenyHex("");
+    }
+  }, [toDenied]);
+
+  // Run the policy validation
+  async function runValidationDemo() {
+    setValLoading(true);
+    setValError(null);
+    setValResult(null);
+    try {
+      const subOrgId = session?.organizationId!;
+      if (!isEthAddress(signWithAddress)) {
+        throw new Error(
+          "The signer address must be a valid 0x-prefixed, 40-hex Ethereum address.",
+        );
+      }
+      if (!unsignedAllowHex || !unsignedDenyHex) {
+        throw new Error(
+          "Fill both Tx To fields with valid 0x addresses to generate raw unsigned tx.",
+        );
+      }
+
+      const res = await validatePolicyAction(subOrgId, signWithAddress, [
+        { label: "Policy Tx Allowed", unsignedTx: unsignedAllowHex },
+        { label: "Policy Tx Denied", unsignedTx: unsignedDenyHex },
+      ]);
+      setValResult(res);
+    } catch (e: any) {
+      setValError(e?.message || "Validation failed");
+    } finally {
+      setValLoading(false);
+    }
+  }
+
+  if (authState !== AuthState.Authenticated) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <main className="relative min-h-screen p-6">
-      {/* Logout button in top-right */}
+      {/* Logout button */}
       <button
         type="button"
         onClick={async () => {
@@ -194,23 +294,21 @@ export default function Dashboard() {
           <p className="text-xl font-semibold">
             Welcome back, {user?.userName}!
           </p>
-          {/* Sub-organization ID */}
+        </div>
+
+        {/* Suborg ID */}
+        <section>
           <p className="mt-2 text-md">
             <span className="font-medium">Your sub-organization id:</span>{" "}
             <span className="font-mono">
               {session?.organizationId ?? "Not found"}
             </span>
           </p>
-        </div>
+        </section>
 
         {/* Embedded Wallet Accounts */}
         <section className="flex flex-col gap-4">
           <h2 className="text-lg font-medium">Turnkey Wallet Accounts</h2>
-          {accountsErr && (
-            <div className="p-3 border border-red-300 bg-red-50 rounded text-red-700">
-              {accountsErr}
-            </div>
-          )}
           <div className="p-4 border rounded bg-gray-50 text-left overflow-x-auto">
             <pre className="text-sm whitespace-pre-wrap">
               {JSON.stringify(accountsData ?? [], null, 2)}
@@ -221,8 +319,6 @@ export default function Dashboard() {
         {/* Delegated Access User */}
         <section className="flex flex-col gap-4">
           <h2 className="text-lg font-medium">Delegated Access User</h2>
-
-          {/* Public Key input */}
           <div className="flex flex-col gap-2 max-w-xl">
             <label className="text-sm font-medium">
               Add the Delegated Access P256 public key
@@ -262,7 +358,6 @@ export default function Dashboard() {
         <section className="flex flex-col gap-4">
           <h2 className="text-lg font-medium">Delegated Access User Policy</h2>
 
-          {/* Recipient address before submitting policy */}
           <div className="flex flex-col gap-2 max-w-xl">
             <label className="text-sm font-medium">
               Add the Ethereum recipient address
@@ -321,6 +416,111 @@ export default function Dashboard() {
               <h3 className="font-semibold mb-2">Policy Result:</h3>
               <pre className="text-sm whitespace-pre-wrap">
                 {JSON.stringify(policyResult, null, 2)}
+              </pre>
+            </div>
+          )}
+        </section>
+
+        {/* Policy Validation (Demo) — recipients -> generated raw unsigned txs */}
+        <section className="flex flex-col gap-4">
+          <h2 className="text-lg font-medium">Policy Validation (Demo)</h2>
+
+          {/* Sign-with address (auto-filled; editable) */}
+          <div className="flex flex-col gap-2 max-w-xl">
+            <label className="text-sm font-medium">
+              Sign With (EVM address)
+            </label>
+            <input
+              type="text"
+              value={signWithAddress}
+              onChange={(e) => setSignWithAddress(e.target.value)}
+              placeholder="0x… (first embedded account auto-selected)"
+              className="w-full p-2 border rounded font-mono text-sm"
+              spellCheck={false}
+            />
+            {!isEthAddress(signWithAddress) && signWithAddress && (
+              <div className="text-sm text-red-600">
+                Enter a valid 0x-prefixed, 40-hex Ethereum address.
+              </div>
+            )}
+          </div>
+
+          {/* Tx-To fields */}
+          <div className="flex flex-col gap-2 max-w-2xl">
+            <label className="text-sm font-medium">Tx To (Allowed)</label>
+            <input
+              type="text"
+              value={toAllowed}
+              onChange={(e) => setToAllowed(e.target.value)}
+              placeholder="0x recipient to ALLOW"
+              className="w-full p-2 border rounded font-mono text-sm"
+              spellCheck={false}
+            />
+            {!isEthAddress(toAllowed) && toAllowed && (
+              <div className="text-sm text-red-600">
+                Enter a valid 0x-prefixed, 40-hex Ethereum address.
+              </div>
+            )}
+
+            <label className="text-sm font-medium mt-4">
+              Tx To (Denied) - fill in other Ethereum address
+            </label>
+            <input
+              type="text"
+              value={toDenied}
+              onChange={(e) => setToDenied(e.target.value)}
+              placeholder="0x recipient to DENY"
+              className="w-full p-2 border rounded font-mono text-sm"
+              spellCheck={false}
+            />
+            {!isEthAddress(toDenied) && toDenied && (
+              <div className="text-sm text-red-600">
+                Enter a valid 0x-prefixed, 40-hex Ethereum address.
+              </div>
+            )}
+
+            {unsignedAllowHex && (
+              <div className="p-3 border rounded bg-gray-50">
+                <div className="text-xs font-medium mb-1">
+                  Generated Unsigned (Allow — raw RLP)
+                </div>
+                <pre className="text-xs whitespace-pre-wrap break-all">
+                  {unsignedAllowHex}
+                </pre>
+              </div>
+            )}
+
+            {unsignedDenyHex && (
+              <div className="p-3 border rounded bg-gray-50">
+                <div className="text-xs font-medium mb-1">
+                  Generated Unsigned (Deny — raw RLP)
+                </div>
+                <pre className="text-xs whitespace-pre-wrap break-all">
+                  {unsignedDenyHex}
+                </pre>
+              </div>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={runValidationDemo}
+            disabled={valLoading}
+            className="self-start rounded bg-emerald-600 px-6 py-2 text-white hover:bg-emerald-700 disabled:opacity-50"
+          >
+            {valLoading ? "Validating..." : "Run Validation"}
+          </button>
+
+          {valError && (
+            <div className="p-3 border border-red-300 bg-red-50 rounded text-red-700">
+              {valError}
+            </div>
+          )}
+          {valResult && (
+            <div className="p-4 border rounded bg-gray-50 text-left overflow-x-auto">
+              <h3 className="font-semibold mb-2">Validation Result:</h3>
+              <pre className="text-sm whitespace-pre-wrap">
+                {JSON.stringify(valResult, null, 2)}
               </pre>
             </div>
           )}
