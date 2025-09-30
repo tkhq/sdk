@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.6.0
+
+### Minor Changes
+
+- [#974](https://github.com/tkhq/sdk/pull/974) [`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c) Author [@narimonf](https://github.com/narimonf) - Added FETCH_BOOT_PROOF_ERROR type.
+
 ## 0.5.0
 
 ### Minor Changes

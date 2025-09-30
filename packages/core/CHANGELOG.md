@@ -1,5 +1,22 @@
 # @turnkey/core
 
+## 1.3.0
+
+### Minor Changes
+
+- [#974](https://github.com/tkhq/sdk/pull/974) [`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c) Author [@narimonf](https://github.com/narimonf) - Added `fetchBootProofForAppProof`, which fetches the boot proof for a given app proof.
+
+### Patch Changes
+
+- [#982](https://github.com/tkhq/sdk/pull/982) [`4adbf9b`](https://github.com/tkhq/sdk/commit/4adbf9bbb6b93f84aa80e06a1eeabd61d1dbbb86) Author [@ethankonk](https://github.com/ethankonk) - - Fixed signing and broadcasting transactions with connected solana accounts
+  - Fixed `fetchWallets` wallet account pagination issue
+
+- [#983](https://github.com/tkhq/sdk/pull/983) [`4ead6da`](https://github.com/tkhq/sdk/commit/4ead6da626468fde41daf85eae90faf18651d1c1) Author [@moeodeh3](https://github.com/moeodeh3) - WalletConnect initialization now has a 5-second timeout. If setup fails, it no longer blocks overall client initialization
+
+- Updated dependencies [[`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c), [`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c)]:
+  - @turnkey/crypto@2.8.0
+  - @turnkey/sdk-types@0.6.0
+
 ## 1.2.0
 
 ### Minor Changes
