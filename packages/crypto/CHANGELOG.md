@@ -1,5 +1,16 @@
 # @turnkey/crypto
 
+## 2.8.0
+
+### Minor Changes
+
+- [#974](https://github.com/tkhq/sdk/pull/974) [`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c) Author [@narimonf](https://github.com/narimonf) - Added verification tooling for app proofs and boot proofs. Primarily adds `verify()`, which verifies an app proof boot proof pair.
+
+### Patch Changes
+
+- Updated dependencies [[`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c)]:
+  - @turnkey/sdk-types@0.6.0
+
 ## 2.7.0
 
 ### Minor Changes

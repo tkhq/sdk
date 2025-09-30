@@ -1,5 +1,19 @@
 # @turnkey/react-wallet-kit
 
+## 1.2.0
+
+### Minor Changes
+
+- [#974](https://github.com/tkhq/sdk/pull/974) [`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c) Author [@narimonf](https://github.com/narimonf) - Added `fetchBootProofForAppProof`, which fetches the boot proof for a given app proof.
+
+### Patch Changes
+
+- [#973](https://github.com/tkhq/sdk/pull/973) [`48f59f9`](https://github.com/tkhq/sdk/commit/48f59f9ffe7f64ec526b40bb8e03feac8ad0d7ba) Author [@moeodeh3](https://github.com/moeodeh3) - Fix handling of providers that cannot be disconnected
+
+- Updated dependencies [[`4adbf9b`](https://github.com/tkhq/sdk/commit/4adbf9bbb6b93f84aa80e06a1eeabd61d1dbbb86), [`4ead6da`](https://github.com/tkhq/sdk/commit/4ead6da626468fde41daf85eae90faf18651d1c1), [`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c), [`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c)]:
+  - @turnkey/core@1.3.0
+  - @turnkey/sdk-types@0.6.0
+
 ## 1.1.2
 
 ### Patch Changes
