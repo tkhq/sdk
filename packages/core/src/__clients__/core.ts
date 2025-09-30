@@ -121,6 +121,7 @@ import {
   getPolicySignature,
   mapAccountsToWallet,
   getActiveSessionOrThrowIfRequired,
+  fetchAllWalletAccountsWithCursor,
 } from "../utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -1836,26 +1837,18 @@ export class TurnkeyClient {
             );
           }
 
-          const res = await this.httpClient.getWalletAccounts(
-            {
-              organizationId,
-              includeWalletDetails: true,
-            },
+          const accounts = await fetchAllWalletAccountsWithCursor(
+            this.httpClient,
+            organizationId,
             stampWith,
           );
+
           const walletsRes = await this.httpClient.getWallets(
             {
               organizationId,
             },
             stampWith,
           );
-
-          if (!res || !res.accounts) {
-            throw new TurnkeyError(
-              "No wallet accounts found in the response",
-              TurnkeyErrorCodes.BAD_RESPONSE,
-            );
-          }
 
           // create a map of walletId to EmbeddedWallet for easy lookup
           const walletMap: Map<string, EmbeddedWallet> = new Map(
@@ -1869,7 +1862,7 @@ export class TurnkeyClient {
             ]),
           );
           // map the accounts to their respective wallets
-          embedded = mapAccountsToWallet(res.accounts, walletMap);
+          embedded = mapAccountsToWallet(accounts, walletMap);
         }
 
         // if wallet connecting is disabled we return only embedded wallets

@@ -76,6 +76,7 @@ import {
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
 import { keccak256, toUtf8String } from "ethers";
+import type { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -478,6 +479,11 @@ export function getEncodedMessage(
   return toUtf8String(rawMessage);
 }
 
+export function hexSignedTxToBase58(hex: string): string {
+  const bytes = uint8ArrayFromHexString(hex);
+  return bs58.encode(bytes);
+}
+
 export const broadcastTransaction = async (params: {
   signedTransaction: string;
   rpcUrl: string;
@@ -487,6 +493,8 @@ export const broadcastTransaction = async (params: {
 
   switch (transactionType) {
     case "TRANSACTION_TYPE_SOLANA": {
+      const encodedTx = hexSignedTxToBase58(signedTransaction);
+
       const response = await fetch(rpcUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -494,7 +502,7 @@ export const broadcastTransaction = async (params: {
           jsonrpc: "2.0",
           id: 1,
           method: "sendTransaction",
-          params: [signedTransaction],
+          params: [encodedTx, { encoding: "base58" }],
         }),
       });
 
@@ -1221,4 +1229,46 @@ export async function withTimeout<T>(
   return Promise.race([promise, timer]).finally(() =>
     clearTimeout(timeout!),
   ) as Promise<T>;
+}
+
+export async function fetchAllWalletAccountsWithCursor(
+  httpClient: TurnkeySDKClientBase,
+  organizationId: string,
+  stampWith?: StamperType,
+): Promise<v1WalletAccount[]> {
+  let hasMore = true;
+  let cursor: string | undefined;
+  const accounts = [];
+  const limit = 100;
+
+  while (hasMore) {
+    const response = await httpClient.getWalletAccounts(
+      {
+        organizationId,
+        includeWalletDetails: true,
+        paginationOptions: {
+          limit: limit.toString(),
+          ...(cursor && { after: cursor }),
+        },
+      },
+      stampWith,
+    );
+
+    if (!response || !response.accounts) {
+      throw new TurnkeyError(
+        "No wallet accounts found in the response",
+        TurnkeyErrorCodes.BAD_RESPONSE,
+      );
+    }
+
+    accounts.push(...response.accounts);
+
+    hasMore = response.accounts.length === limit;
+    cursor =
+      response.accounts && response.accounts.length > 0
+        ? response.accounts[response.accounts.length - 1]?.walletAccountId
+        : undefined;
+  }
+
+  return accounts;
 }

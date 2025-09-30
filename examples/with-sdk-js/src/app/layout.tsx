@@ -62,6 +62,15 @@ function RootLayout({ children }: RootLayoutProps) {
                   ],
                 },
               },
+              // walletConnect: {
+              //   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!,
+              //   appMetadata: {
+              //     name: "Turnkey Wallet",
+              //     description: "A wallet for Turnkey",
+              //     url: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_URL!,
+              //     icons: ["/favicon.svg"],
+              //   },
+              // },
             },
           }}
         >
