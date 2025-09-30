@@ -86,14 +86,3 @@ Now open `.env.local` and add the missing environment variables:
 ```bash
 pnpm start
 ```
-
-### 3/ Testing the Delegated account permissions
-
-We want to make sure that the Delegated account API keys are highly scoped to sending ETH transactions only to the specified `NEXT_PUBLIC_RECIPIENT_ADDRESS` and transactions to other addresses are not possible.
-Use https://build.tx.xyz/ to generate an unsigned transaction that should be allowed and one that should be denied by the policy engine. Add them into the `validatePolicy.ts` script alongside the sub-organization
-
-Run the validation script with:
-
-```bash
-pnpm validate
-```
