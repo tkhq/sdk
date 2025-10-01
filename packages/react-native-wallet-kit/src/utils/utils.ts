@@ -18,11 +18,11 @@ export const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 export const APPLE_AUTH_URL = "https://account.apple.com/auth/authorize";
 export const APPLE_AUTH_SCRIPT_URL =
   "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
-export const FACEBOOK_AUTH_URL = "https://www.facebook.com/v11.0/dialog/oauth";
+export const FACEBOOK_AUTH_URL = "https://www.facebook.com/v23.0/dialog/oauth";
 export const FACEBOOK_GRAPH_URL =
-  "https://graph.facebook.com/v11.0/oauth/access_token";
-
-export const TURNKEY_OAUTH_ORIGIN_URL = "https://oauth-origin.turnkey.com";
+  "https://graph.facebook.com/v23.0/oauth/access_token";
+//@todo remove, local testing only
+export const TURNKEY_OAUTH_ORIGIN_URL =  "http://localhost:3000" //"https://oauth-origin.turnkey.com";
 export const TURNKEY_OAUTH_REDIRECT_URL = "https://oauth-redirect.turnkey.com";
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
