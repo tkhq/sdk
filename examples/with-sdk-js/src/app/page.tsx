@@ -321,8 +321,8 @@ export default function AuthPage() {
               data-testid="create-wallet"
               onClick={async () => {
                 const allAddressFormats: v1AddressFormat[] = [
-                  "ADDRESS_FORMAT_ETHEREUM",
                   "ADDRESS_FORMAT_SOLANA",
+                  "ADDRESS_FORMAT_ETHEREUM",
                 ];
 
                 console.log(
@@ -340,6 +340,52 @@ export default function AuthPage() {
               }}
             >
               Create Wallet
+            </button>
+            <button
+              data-testid="create-eth-wallet"
+              onClick={async () => {
+                const allAddressFormats: v1AddressFormat[] = [
+                  "ADDRESS_FORMAT_ETHEREUM",
+                ];
+
+                console.log(
+                  await turnkey.createWallet({
+                    walletName: `My Wallet ${new Date().toISOString()}`,
+                    accounts: allAddressFormats,
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "yellowgreen",
+                borderRadius: "8px",
+                padding: "4px 16px",
+                color: "black",
+              }}
+            >
+              Create ETH Wallet
+            </button>
+            <button
+              data-testid="create-sol-wallet"
+              onClick={async () => {
+                const allAddressFormats: v1AddressFormat[] = [
+                  "ADDRESS_FORMAT_SOLANA",
+                ];
+
+                console.log(
+                  await turnkey.createWallet({
+                    walletName: `My Wallet ${new Date().toISOString()}`,
+                    accounts: allAddressFormats,
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "yellowgreen",
+                borderRadius: "8px",
+                padding: "4px 16px",
+                color: "black",
+              }}
+            >
+              Create SOL Wallet
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
