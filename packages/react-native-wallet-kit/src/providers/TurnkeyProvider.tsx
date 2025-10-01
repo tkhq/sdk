@@ -2953,7 +2953,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
           `&nonce=${encodeURIComponent(nonce)}` +
           `&state=${encodeURIComponent(state)}`;
-
+        console.log("oauthUrl", oauthUrl);
         if (!(await InAppBrowser.isAvailable())) {
           throw new TurnkeyError(
             "InAppBrowser is not available",
@@ -2979,7 +2979,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
-
+        console.log("result.url", result.url);
         // Extract params from deep link
         const qsIndex = result.url.indexOf("?");
         const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
