@@ -5,6 +5,8 @@ export const withSdkJsSelectors = {
   },
   createMethods: {
     createWallet: "create-wallet",
+    createETHWallet: "create-eth-wallet",
+    createSOLWallet: "create-sol-wallet",
   },
   modals: {
     authModal: "show-auth-modal",
