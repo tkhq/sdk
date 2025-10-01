@@ -14,6 +14,5 @@ export type {
   TransferParams,
   ContractCallParams,
   ExecutionIntent,
-  GasStationClients,
 } from "./config";
 export type { ExecutionParams } from "./helpers";

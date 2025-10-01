@@ -43,21 +43,20 @@ ORGANIZATION_ID=your_turnkey_organization_id
 EOA_ADDRESS=0x...                    # User's wallet address
 PAYMASTER=0x...                      # Your paymaster address
 
-# Gas Station Contracts (deploy these first)
-DELEGATE_CONTRACT=0x...              # EIP-7702 delegate contract
-EXECUTION_CONTRACT=0x...             # Execution logic contract
-
 # RPC Configuration
 BASE_RPC_URL=https://mainnet.base.org
 ETH_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/...
 ```
+
+**Note**: The gas station contracts are deployed at deterministic addresses across all chains and are built into the SDK. You don't need to specify them unless using custom deployments.
 
 ### 3. Initialize and Use
 
 ```typescript
 import { GasStationClient, GasStationHelpers } from "./lib";
 import { Turnkey } from "@turnkey/sdk-server";
-import { parseEther } from "viem";
+import { createAccount } from "@turnkey/viem";
+import { parseEther, createWalletClient, http } from "viem";
 import { base } from "viem/chains";
 
 // Initialize Turnkey
@@ -68,28 +67,52 @@ const turnkeyClient = new Turnkey({
   defaultOrganizationId: process.env.ORGANIZATION_ID!,
 });
 
-// Create Gas Station client
-const gasStation = new GasStationClient({
-  turnkeyClient,
+// Create Turnkey accounts
+const userAccount = await createAccount({
+  client: turnkeyClient.apiClient(),
   organizationId: process.env.ORGANIZATION_ID!,
-  eoaAddress: process.env.EOA_ADDRESS as `0x${string}`,
-  paymasterAddress: process.env.PAYMASTER as `0x${string}`,
-  delegateContract: process.env.DELEGATE_CONTRACT as `0x${string}`,
-  executionContract: process.env.EXECUTION_CONTRACT as `0x${string}`,
+  signWith: process.env.EOA_ADDRESS as `0x${string}`,
+});
+
+const paymasterAccount = await createAccount({
+  client: turnkeyClient.apiClient(),
+  organizationId: process.env.ORGANIZATION_ID!,
+  signWith: process.env.PAYMASTER as `0x${string}`,
+});
+
+// Create viem wallet clients
+const userWalletClient = createWalletClient({
+  account: userAccount,
   chain: base,
-  rpcUrl: process.env.BASE_RPC_URL!,
+  transport: http(process.env.BASE_RPC_URL!),
+});
+
+const paymasterWalletClient = createWalletClient({
+  account: paymasterAccount,
+  chain: base,
+  transport: http(process.env.BASE_RPC_URL!),
+});
+
+// Create Gas Station clients
+const userClient = new GasStationClient({
+  walletClient: userWalletClient,
+  explorerUrl: "https://basescan.org",
+});
+
+const paymasterClient = new GasStationClient({
+  walletClient: paymasterWalletClient,
   explorerUrl: "https://basescan.org",
 });
 
 // One-time: Authorize the EOA to use gas station
-await gasStation.authorize();
+await userClient.authorize(paymasterClient);
 
 // Execute a gasless ETH transfer
 const ethTransfer = GasStationHelpers.buildETHTransfer(
   "0xRecipient...",
   parseEther("0.1")
 );
-await gasStation.execute(ethTransfer);
+await userClient.execute(ethTransfer, paymasterClient);
 
 // Execute a gasless token transfer
 const usdcTransfer = GasStationHelpers.buildTokenTransfer(
@@ -97,39 +120,68 @@ const usdcTransfer = GasStationHelpers.buildTokenTransfer(
   "0xRecipient...",
   parseUnits("10", 6)
 );
-await gasStation.execute(usdcTransfer);
+await userClient.execute(usdcTransfer, paymasterClient);
 ```
 
 ## Core API
 
 ### GasStationClient
 
-Main client for all gas station operations.
+Main client for gas station operations. Each client instance wraps a viem wallet client.
+
+#### Constructor
+
+```typescript
+new GasStationClient({
+  walletClient: WalletClient,          // Viem wallet client (e.g., with Turnkey account)
+  explorerUrl: string,                 // Block explorer URL for transaction links
+  delegateContract?: `0x${string}`,    // Optional: defaults to deterministic address
+  executionContract?: `0x${string}`,   // Optional: defaults to deterministic address
+})
+```
 
 #### Methods
 
-**`authorize(): Promise<{ txHash, blockNumber }>`**
+**End User Methods** (call with user client):
 
-- Authorize the EOA via EIP-7702 (one-time setup per EOA)
-- Paymaster pays for this transaction
+**`signAuthorization(): Promise<SignedAuthorization>`**
 
-**`execute(params: ExecutionParams): Promise<{ txHash, blockNumber, gasUsed }>`**
-
-- Execute any action through the gas station
-- Generic method that maps to contract's execute function
-- Accepts `{ outputContract, callData, value }`
-
-**`getNonce(): Promise<bigint>`**
-
-- Get current nonce for the EOA from gas station contract
+- Sign an EIP-7702 authorization for the gas station contract
+- Returns authorization that can be submitted by paymaster
 
 **`createIntent(): Promise<IntentBuilder>`**
 
-- Create a builder for composing complex transactions
+- Create a builder for composing transactions
+- Intent must be signed before execution
+
+**`getNonce(address?: Address): Promise<bigint>`**
+
+- Get current nonce from gas station contract
+- Defaults to the signer's address if not specified
+
+**Paymaster Methods** (call with paymaster client):
+
+**`submitAuthorization(auth: SignedAuthorization): Promise<{ txHash, blockNumber }>`**
+
+- Submit a signed EIP-7702 authorization transaction
+- Paymaster pays for gas
 
 **`executeIntent(intent: ExecutionIntent): Promise<{ txHash, blockNumber, gasUsed }>`**
 
-- Execute a pre-built signed intent
+- Execute a signed intent through the gas station
+- Paymaster pays for gas
+
+**Convenience Methods** (require both clients):
+
+**`authorize(paymasterClient: GasStationClient): Promise<{ txHash, blockNumber }>`**
+
+- Combined flow: user signs authorization, paymaster submits
+- One-time setup per EOA
+
+**`execute(params: ExecutionParams, paymasterClient: GasStationClient): Promise<{ txHash, blockNumber, gasUsed }>`**
+
+- Combined flow: user signs intent, paymaster executes
+- Accepts `{ outputContract, callData, value }`
 
 ### GasStationHelpers
 
@@ -157,14 +209,14 @@ Utility methods for building common execution parameters.
 Composable builder for complex multi-step transactions.
 
 ```typescript
-const nonce = await gasStation.getNonce();
-const builder = await gasStation.createIntent();
+const nonce = await userClient.getNonce();
+const builder = await userClient.createIntent();
 
 const intent = await builder
   .transferToken(usdcAddress, recipient, amount)
   .sign(nonce);
 
-await gasStation.executeIntent(intent);
+await paymasterClient.executeIntent(intent);
 ```
 
 ## Common Use Cases
@@ -179,7 +231,7 @@ const payment = GasStationHelpers.buildTokenTransfer(
   parseUnits("50", 6)
 );
 
-const result = await gasStation.execute(payment);
+const result = await userClient.execute(payment, paymasterClient);
 console.log(`Payment sent: ${result.txHash}`);
 ```
 
@@ -192,7 +244,7 @@ const approval = GasStationHelpers.buildTokenApproval(
   dexAddress,
   parseUnits("100", 6)
 );
-await gasStation.execute(approval);
+await userClient.execute(approval, paymasterClient);
 
 // Step 2: Execute swap
 const swap = GasStationHelpers.buildContractCall({
@@ -201,7 +253,7 @@ const swap = GasStationHelpers.buildContractCall({
   functionName: "swapExactTokensForTokens",
   args: [amountIn, amountOutMin, path, recipient, deadline],
 });
-await gasStation.execute(swap);
+await userClient.execute(swap, paymasterClient);
 ```
 
 ### NFT Minting
@@ -215,21 +267,34 @@ const mint = GasStationHelpers.buildContractCall({
   value: parseEther("0.1"), // Optional ETH to send
 });
 
-await gasStation.execute(mint);
+await userClient.execute(mint, paymasterClient);
 ```
 
 ### User Onboarding
 
 ```typescript
 async function onboardUser(userAddress: string) {
-  // Create gas station for this user
-  const userGasStation = new GasStationClient({
-    ...config,
-    eoaAddress: userAddress as `0x${string}`,
+  // Create viem wallet client for user
+  const userAccount = await createAccount({
+    client: turnkeyClient.apiClient(),
+    organizationId: ORGANIZATION_ID,
+    signWith: userAddress as `0x${string}`,
+  });
+
+  const userWalletClient = createWalletClient({
+    account: userAccount,
+    chain: base,
+    transport: http(BASE_RPC_URL),
+  });
+
+  // Create Gas Station clients
+  const userClient = new GasStationClient({
+    walletClient: userWalletClient,
+    explorerUrl: "https://basescan.org",
   });
 
   // Authorize user (paymaster pays)
-  await userGasStation.authorize();
+  await userClient.authorize(paymasterClient);
 
   // User can now execute transactions without ETH
   console.log("✅ User ready for gasless transactions!");
@@ -283,13 +348,19 @@ Available presets for quick setup:
 - **SEPOLIA** - Sepolia testnet
 
 ```typescript
-const gasStation = GasStationClient.fromPreset("BASE_MAINNET", {
-  turnkeyClient,
-  organizationId: "...",
-  eoaAddress: "0x...",
-  paymasterAddress: "0x...",
-  delegateContract: "0x...",
-  executionContract: "0x...",
+// Chain presets are available for quick configuration
+import { CHAIN_PRESETS } from "./lib";
+
+const basePreset = CHAIN_PRESETS.BASE_MAINNET;
+const userWalletClient = createWalletClient({
+  account: userAccount,
+  chain: basePreset.chain,
+  transport: http(basePreset.rpcUrl),
+});
+
+const userClient = new GasStationClient({
+  walletClient: userWalletClient,
+  explorerUrl: basePreset.explorerUrl,
 });
 ```
 
@@ -353,7 +424,7 @@ const customCall = GasStationHelpers.buildContractCall({
 });
 
 // Execute gaslessly
-await gasStation.execute(customCall);
+await userClient.execute(customCall, paymasterClient);
 ```
 
 ## Contract Deployment
@@ -372,11 +443,12 @@ See `abi/gas-station.ts` for the expected interface.
 
 ## Best Practices
 
-1. **Authorization**: Only call `authorize()` once per EOA
-2. **Nonce Management**: Always fetch fresh nonce before creating intents
-3. **Error Handling**: Wrap executions in try/catch for robust error handling
-4. **Rate Limiting**: Implement paymaster rate limits to prevent abuse
-5. **Monitoring**: Track gas costs and failed transactions for optimization
+1. **Client Separation**: Create separate client instances for users and paymasters
+2. **Authorization**: Only call `authorize()` once per EOA
+3. **Nonce Management**: Always fetch fresh nonce before creating intents
+4. **Error Handling**: Wrap executions in try/catch for robust error handling
+5. **Rate Limiting**: Implement paymaster rate limits to prevent abuse
+6. **Monitoring**: Track gas costs and failed transactions for optimization
 
 ## License
 

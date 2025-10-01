@@ -1,131 +1,86 @@
 import {
-  createWalletClient,
-  http,
   encodeFunctionData,
-  parseEther,
   type SignedAuthorization,
   type PublicClient,
+  type WalletClient,
+  type Account,
+  type Chain,
+  type Transport,
 } from "viem";
-import { createAccount } from "@turnkey/viem";
 import { gasStationAbi } from "../../abi/gas-station";
 import type {
   GasStationConfig,
   TransferParams,
   ExecutionIntent,
-  GasStationClients,
-  ChainPreset,
 } from "./config";
-import { getPreset } from "./config";
+import {
+  DEFAULT_DELEGATE_CONTRACT,
+  DEFAULT_EXECUTION_CONTRACT,
+} from "./config";
 import { IntentBuilder } from "./IntentBuilder";
-import { print, createPublicClientForChain, ERC20_ABI } from "./helpers";
+import { print, createPublicClientForChain } from "./helpers";
 
 export class GasStationClient {
-  private config: GasStationConfig;
-  private clients?: GasStationClients;
+  private walletClient: WalletClient<Transport, Chain, Account>;
   private publicClient: PublicClient;
+  private delegateContract: `0x${string}`;
+  private executionContract: `0x${string}`;
+  private explorerUrl: string;
 
   constructor(config: GasStationConfig) {
-    this.config = config;
-    this.publicClient = createPublicClientForChain(config.chain, config.rpcUrl);
+    this.walletClient = config.walletClient;
+    this.publicClient = createPublicClientForChain(
+      config.walletClient.chain,
+      config.walletClient.transport.url!
+    );
+    this.delegateContract =
+      config.delegateContract ?? DEFAULT_DELEGATE_CONTRACT;
+    this.executionContract =
+      config.executionContract ?? DEFAULT_EXECUTION_CONTRACT;
+    this.explorerUrl = config.explorerUrl;
   }
 
   /**
-   * Factory method to create a GasStationClient from a preset configuration
+   * Sign an EIP-7702 authorization to delegate control to the gas station contract
+   * Call this with an end-user client to get a signed authorization
+   * The authorization can then be submitted by the paymaster using submitAuthorization()
    */
-  static fromPreset(
-    presetName: "BASE_MAINNET" | "ETHEREUM_MAINNET" | "SEPOLIA",
-    config: {
-      turnkeyClient: any;
-      organizationId: string;
-      eoaAddress: `0x${string}`;
-      paymasterAddress: `0x${string}`;
-      delegateContract: `0x${string}`;
-      executionContract: `0x${string}`;
-      overrides?: Partial<ChainPreset>;
-    }
-  ): GasStationClient {
-    const preset = getPreset(presetName, config.overrides);
+  async signAuthorization(): Promise<SignedAuthorization> {
+    print("Signing EIP-7702 authorization...", "");
 
-    return new GasStationClient({
-      turnkeyClient: config.turnkeyClient,
-      organizationId: config.organizationId,
-      eoaAddress: config.eoaAddress,
-      paymasterAddress: config.paymasterAddress,
-      delegateContract: config.delegateContract,
-      executionContract: config.executionContract,
-      chain: preset.chain,
-      rpcUrl: preset.rpcUrl,
-      explorerUrl: preset.explorerUrl,
-    });
-  }
-
-  /**
-   * Initialize wallet clients for EOA and paymaster
-   * Called automatically before operations that need them
-   */
-  private async ensureClients(): Promise<GasStationClients> {
-    if (this.clients) {
-      return this.clients;
-    }
-
-    const eoaAccount = await createAccount({
-      client: this.config.turnkeyClient.apiClient(),
-      organizationId: this.config.organizationId,
-      signWith: this.config.eoaAddress,
-    });
-
-    const paymasterAccount = await createAccount({
-      client: this.config.turnkeyClient.apiClient(),
-      organizationId: this.config.organizationId,
-      signWith: this.config.paymasterAddress,
-    });
-
-    const eoaWalletClient = createWalletClient({
-      account: eoaAccount,
-      chain: this.config.chain,
-      transport: http(this.config.rpcUrl),
-    });
-
-    const paymasterWalletClient = createWalletClient({
-      account: paymasterAccount,
-      chain: this.config.chain,
-      transport: http(this.config.rpcUrl),
-    });
-
-    this.clients = { eoaWalletClient, paymasterWalletClient };
-    return this.clients;
-  }
-
-  /**
-   * Authorize the EOA to use the gas station contract via EIP-7702
-   * This only needs to be called once per EOA
-   */
-  async authorize(): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
-    print("===== Starting EIP-7702 Authorization =====", "");
-
-    const { eoaWalletClient, paymasterWalletClient } =
-      await this.ensureClients();
-
-    // Sign EIP-7702 authorization to delegate the contract to the EOA
-    const authorization = await eoaWalletClient.signAuthorization({
-      contractAddress: this.config.delegateContract,
-      account: eoaWalletClient.account,
+    const authorization = await this.walletClient.signAuthorization({
+      contractAddress: this.delegateContract,
+      account: this.walletClient.account,
       chainId: 0, // 0 means valid on any EIP-7702 compatible chain
     });
 
-    // Paymaster broadcasts the authorization transaction
-    const authTxHash = await paymasterWalletClient.sendTransaction({
+    print("✓ Authorization signed", "");
+
+    return authorization as SignedAuthorization;
+  }
+
+  /**
+   * Submit a signed EIP-7702 authorization transaction
+   * Call this with a paymaster client to broadcast the authorization transaction
+   * The paymaster pays for the gas
+   */
+  async submitAuthorization(
+    authorization: SignedAuthorization
+  ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
+    print("Submitting authorization transaction...", "");
+
+    const authTxHash = await this.walletClient.sendTransaction({
       from: "0x0000000000000000000000000000000000000000",
       gas: BigInt(200000),
-      authorizationList: [authorization as SignedAuthorization],
+      authorizationList: [authorization],
       to: "0x0000000000000000000000000000000000000000",
       type: "eip7702",
-      account: paymasterWalletClient.account,
+      account: this.walletClient.account,
     });
 
     print(
       "Authorization transaction sent",
-      `${this.config.explorerUrl}/tx/${authTxHash}`
+      `${this.explorerUrl}/tx/${authTxHash}`
     );
     print("Waiting for confirmation...", "");
 
@@ -148,16 +103,36 @@ export class GasStationClient {
   }
 
   /**
-   * Get the current nonce for the EOA from the gas station contract
+   * Convenience method that combines signAuthorization and submitAuthorization
+   * This requires the caller to have access to both the end-user and paymaster clients
+   * For separate flows, use signAuthorization() and submitAuthorization() directly
    */
-  async getNonce(): Promise<bigint> {
-    const { eoaWalletClient } = await this.ensureClients();
+  async authorize(
+    paymasterClient: GasStationClient
+  ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
+    print("===== Starting EIP-7702 Authorization =====", "");
+
+    // End user signs the authorization
+    const authorization = await this.signAuthorization();
+
+    // Paymaster submits the transaction
+    const result = await paymasterClient.submitAuthorization(authorization);
+
+    return result;
+  }
+
+  /**
+   * Get the current nonce for an EOA address from the gas station contract
+   * If no address is provided, uses the signer's address
+   */
+  async getNonce(eoaAddress?: `0x${string}`): Promise<bigint> {
+    const address = eoaAddress ?? this.walletClient.account.address;
 
     const nonce = await this.publicClient.readContract({
-      address: this.config.executionContract,
+      address: this.executionContract,
       abi: gasStationAbi,
       functionName: "getNonce",
-      args: [eoaWalletClient.account.address],
+      args: [address],
     });
 
     return nonce as bigint;
@@ -165,30 +140,28 @@ export class GasStationClient {
 
   /**
    * Create an intent builder for composing complex transactions
+   * Call this with an end-user client to create intents for signing
    */
-  async createIntent(): Promise<IntentBuilder> {
-    const { eoaWalletClient } = await this.ensureClients();
-
+  createIntent(): IntentBuilder {
     return IntentBuilder.create({
-      eoaWalletClient,
-      chainId: this.config.chain.id,
-      eoaAddress: this.config.eoaAddress,
+      eoaWalletClient: this.walletClient,
+      chainId: this.walletClient.chain.id,
+      eoaAddress: this.walletClient.account.address,
       nonceType: "uint128",
     });
   }
 
   /**
    * Execute a signed intent through the gas station contract
+   * Call this with a paymaster client to submit and pay for the transaction
    */
   async executeIntent(
     intent: ExecutionIntent
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint; gasUsed: bigint }> {
-    const { paymasterWalletClient } = await this.ensureClients();
-
     print("Executing intent via gas station...", "");
 
-    const txHash = await paymasterWalletClient.sendTransaction({
-      to: this.config.executionContract,
+    const txHash = await this.walletClient.sendTransaction({
+      to: this.executionContract,
       data: encodeFunctionData({
         abi: gasStationAbi,
         functionName: "execute",
@@ -202,13 +175,10 @@ export class GasStationClient {
         ],
       }),
       gas: BigInt(200000),
-      account: paymasterWalletClient.account,
+      account: this.walletClient.account,
     });
 
-    print(
-      "Execution transaction sent",
-      `${this.config.explorerUrl}/tx/${txHash}`
-    );
+    print("Execution transaction sent", `${this.explorerUrl}/tx/${txHash}`);
     print("Waiting for confirmation...", "");
 
     const receipt = await this.publicClient.waitForTransactionReceipt({
@@ -234,36 +204,40 @@ export class GasStationClient {
   }
 
   /**
-   * Execute a generic action through the gas station
-   * This is the core execution method that maps to the contract's execute function
+   * Convenience method that combines creating, signing, and executing an intent
+   * This requires the caller to have access to both the end-user and paymaster clients
+   * For separate flows, use createIntent() + sign() with user client, then executeIntent() with paymaster client
    *
    * @param params - Execution parameters (outputContract, callData, value)
+   * @param paymasterClient - The paymaster client that will submit and pay for the transaction
    * @returns Transaction receipt with txHash, blockNumber, and gasUsed
    */
-  async execute(params: {
-    outputContract: `0x${string}`;
-    callData: `0x${string}`;
-    value?: bigint;
-  }): Promise<{
+  async execute(
+    params: {
+      outputContract: `0x${string}`;
+      callData: `0x${string}`;
+      value?: bigint;
+    },
+    paymasterClient: GasStationClient
+  ): Promise<{
     txHash: `0x${string}`;
     blockNumber: bigint;
     gasUsed: bigint;
   }> {
     print("===== Preparing Execution =====", "");
 
+    // Get nonce for the end user
     const nonce = await this.getNonce();
     print(`Current nonce: ${nonce}`, "");
 
-    const builder = await this.createIntent();
-
-    // Set the target contract and value
+    // Create and sign intent with end user client
+    const builder = this.createIntent();
     builder.setTarget(params.outputContract).withValue(params.value ?? 0n);
-
-    // Set the callData directly (it's already encoded by the helpers)
     (builder as any).callData = params.callData;
-
     const intent = await builder.sign(nonce);
-    const result = await this.executeIntent(intent);
+
+    // Execute with paymaster client
+    const result = await paymasterClient.executeIntent(intent);
 
     print("===== Execution Complete =====", "");
     return result;

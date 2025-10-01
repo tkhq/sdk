@@ -2,9 +2,10 @@ import { resolve } from "path";
 import * as dotenv from "dotenv";
 import { z } from "zod";
 import { parseArgs } from "node:util";
-import { parseEther } from "viem";
+import { parseEther, createWalletClient, http } from "viem";
 import { base, mainnet } from "viem/chains";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import { createAccount } from "@turnkey/viem";
 import { GasStationClient, GasStationHelpers, print } from "../lib";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
@@ -57,8 +58,6 @@ const envSchema = z.object({
   PAYMASTER: z.string().min(1),
   ETH_RPC_URL: z.string().url(),
   BASE_RPC_URL: z.string().url(),
-  DELEGATE_CONTRACT: z.string().min(1),
-  EXECUTION_CONTRACT: z.string().min(1),
   SKIP_AUTHORIZATION: z
     .string()
     .optional()
@@ -72,11 +71,6 @@ print(
   `ETH transfers on ${config.chain.name}`
 );
 
-print(
-  `🔧 Gas Station Configuration`,
-  `Delegate: ${env.DELEGATE_CONTRACT}, Execution: ${env.EXECUTION_CONTRACT}`
-);
-
 const turnkeyClient = new TurnkeyServerSDK({
   apiBaseUrl: env.BASE_URL,
   apiPrivateKey: env.API_PRIVATE_KEY,
@@ -87,27 +81,52 @@ const turnkeyClient = new TurnkeyServerSDK({
 /**
  * Demonstrates ETH transfer using the Gas Station pattern with EIP-7702 authorization
  *
- * This example shows how to use the GasStationClient to:
- * 1. Authorize an EOA to use the gas station contract (one-time setup)
- * 2. Execute gasless ETH transfers where the paymaster pays for gas
+ * This example shows the separation of concerns:
+ * 1. End user client signs the authorization and creates signed intents
+ * 2. Paymaster client submits transactions and pays for gas
  */
 const main = async () => {
-  // Initialize the Gas Station client with configuration
-  const gasStation = new GasStationClient({
-    turnkeyClient,
+  const rpcUrl = selectedChain === "base" ? env.BASE_RPC_URL : env.ETH_RPC_URL;
+
+  // Create viem wallet clients with Turnkey accounts
+  const userAccount = await createAccount({
+    client: turnkeyClient.apiClient(),
     organizationId: env.ORGANIZATION_ID,
-    eoaAddress: env.EOA_ADDRESS as `0x${string}`,
-    paymasterAddress: env.PAYMASTER as `0x${string}`,
-    delegateContract: env.DELEGATE_CONTRACT as `0x${string}`,
-    executionContract: env.EXECUTION_CONTRACT as `0x${string}`,
+    signWith: env.EOA_ADDRESS as `0x${string}`,
+  });
+
+  const paymasterAccount = await createAccount({
+    client: turnkeyClient.apiClient(),
+    organizationId: env.ORGANIZATION_ID,
+    signWith: env.PAYMASTER as `0x${string}`,
+  });
+
+  const userWalletClient = createWalletClient({
+    account: userAccount,
     chain: config.chain,
-    rpcUrl: selectedChain === "base" ? env.BASE_RPC_URL : env.ETH_RPC_URL,
+    transport: http(rpcUrl),
+  });
+
+  const paymasterWalletClient = createWalletClient({
+    account: paymasterAccount,
+    chain: config.chain,
+    transport: http(rpcUrl),
+  });
+
+  // Create Gas Station clients with the viem wallet clients
+  const userClient = new GasStationClient({
+    walletClient: userWalletClient,
+    explorerUrl: config.explorerUrl,
+  });
+
+  const paymasterClient = new GasStationClient({
+    walletClient: paymasterWalletClient,
     explorerUrl: config.explorerUrl,
   });
 
   // Step 1: Authorize the EOA via EIP-7702 (optional if already authorized)
   if (!env.SKIP_AUTHORIZATION) {
-    await gasStation.authorize();
+    await userClient.authorize(paymasterClient);
   } else {
     print(
       "===== Skipping EIP-7702 Authorization (SKIP_AUTHORIZATION=true) =====",
@@ -131,8 +150,8 @@ const main = async () => {
     `${transferAmount} wei (0.001 ETH) to ${env.PAYMASTER}`
   );
 
-  // Execute the generic action
-  const result = await gasStation.execute(executionParams);
+  // Execute: user signs, paymaster submits
+  const result = await userClient.execute(executionParams, paymasterClient);
 
   print("===== ETH Transfer Complete =====", "");
   print(

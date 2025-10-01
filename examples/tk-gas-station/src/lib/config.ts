@@ -1,17 +1,17 @@
 import type { Chain, WalletClient, Account, Transport } from "viem";
-import type { Turnkey } from "@turnkey/sdk-server";
 import { base, mainnet, sepolia } from "viem/chains";
+
+// Default contract addresses (deterministically deployed across all chains)
+export const DEFAULT_DELEGATE_CONTRACT: `0x${string}` =
+  "0xfA5a20d173801C9762C5DdA2157e0133ed9ca32a";
+export const DEFAULT_EXECUTION_CONTRACT: `0x${string}` =
+  "0x576A4D741b96996cc93B4919a04c16545734481f";
 
 // Type definitions
 export interface GasStationConfig {
-  turnkeyClient: Turnkey;
-  organizationId: string;
-  eoaAddress: `0x${string}`;
-  paymasterAddress: `0x${string}`;
-  delegateContract: `0x${string}`;
-  executionContract: `0x${string}`;
-  chain: Chain;
-  rpcUrl: string;
+  walletClient: WalletClient<Transport, Chain, Account>;
+  delegateContract?: `0x${string}`;
+  executionContract?: `0x${string}`;
   explorerUrl: string;
 }
 
@@ -48,11 +48,6 @@ export interface ExecutionIntent {
   callData: `0x${string}`;
   signature: `0x${string}`;
   eoaAddress: `0x${string}`;
-}
-
-export interface GasStationClients {
-  eoaWalletClient: WalletClient<Transport, Chain, Account>;
-  paymasterWalletClient: WalletClient<Transport, Chain, Account>;
 }
 
 // Chain preset configurations
