@@ -6,26 +6,18 @@ import {
   Wallet,
   WalletAccount,
 } from "@turnkey/react-wallet-kit";
-import { Connection, VersionedTransaction, PublicKey } from "@solana/web3.js";
+import { VersionedTransaction, PublicKey } from "@solana/web3.js";
 import { TurnkeySigner } from "@turnkey/solana";
-
-const connection = new Connection(
-  "https://solana-rpc.publicnode.com",
-  "confirmed"
-);
-
-// Jupiter API endpoint
-const JUPITER_API = "https://quote-api.jup.ag/v6";
+import { createUltraOrder, executeUltraOrder } from "../actions/jupiter";
 
 const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const SOL_MINT = "So11111111111111111111111111111111111111112";
 
 export default function JupiterSwapPage() {
-  const [activeWalletAccount, setActiveWalletAccount] =
-    useState<WalletAccount | null>(null);
-  const [status, setStatus] = useState("");
+  const [activeWalletAccount, setActiveWalletAccount] = useState<WalletAccount | null>(null);
+  const [status, setStatus] = useState<string>("");
 
-  const { wallets, httpClient, handleLogin, logout } = useTurnkey();
+  const { wallets, httpClient, handleLogin, logout, session } = useTurnkey();
 
   const turnkeySigner = activeWalletAccount
     ? new TurnkeySigner({
@@ -34,58 +26,56 @@ export default function JupiterSwapPage() {
       })
     : null;
 
-  // Generic Jupiter swap
-  const handleSwap = async (fromMint: string, toMint: string, amount: number) => {
+  const handleLogout = () => {
+    setActiveWalletAccount(null);
+    logout();
+    setStatus("");
+  };
+
+  const handleUltraSwap = async (fromMint: string, toMint: string, amount: number) => {
     try {
       if (!activeWalletAccount || !turnkeySigner) {
         setStatus("❌ No active account selected");
         return;
       }
 
-      setStatus("Fetching Jupiter quote…");
-
-      // Jupiter quote
-      const quoteResp = await fetch(
-        `${JUPITER_API}/quote?inputMint=${fromMint}&outputMint=${toMint}&amount=${amount}&slippageBps=50`
-      );
-      const quote = await quoteResp.json();
-      if (!quote?.data || quote.data.length === 0) {
-        throw new Error("No quote available");
-      }
-      const bestRoute = quote.data[0];
-
-      // Jupiter swap transaction
-      const swapResp = await fetch(`${JUPITER_API}/swap`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userPublicKey: activeWalletAccount.address,
-          route: bestRoute,
-        }),
-      });
-      const swapData = await swapResp.json();
-
-      if (!swapData.swapTransaction) {
-        throw new Error("Failed to fetch swap transaction");
+      let taker: string;
+      try {
+        taker = new PublicKey(activeWalletAccount.address).toBase58();
+      } catch {
+        throw new Error("❌ Active account is not a valid Solana address");
       }
 
-      // Deserialize and sign
-      const rawBytes = Uint8Array.from(atob(swapData.swapTransaction), (c) =>
-        c.charCodeAt(0)
-      );
-      const transaction = VersionedTransaction.deserialize(rawBytes);
-
-      await turnkeySigner.addSignature(transaction, activeWalletAccount.address);
-
-      // Broadcast
-      const txid = await connection.sendRawTransaction(transaction.serialize(), {
-        skipPreflight: false,
-        maxRetries: 3,
+      setStatus("Creating Ultra order…");
+      const orderResp = await createUltraOrder({
+        inputMint: fromMint,
+        outputMint: toMint,
+        amount,
+        slippageBps: 50,
+        taker,
       });
-      await connection.confirmTransaction(txid, "confirmed");
 
+      const { requestId, transaction: unsignedBase64 } = orderResp;
+      if (!requestId || !unsignedBase64) {
+        throw new Error("Ultra order missing fields");
+      }
+
+      // Deserialize unsigned tx
+      const rawBytes = Uint8Array.from(atob(unsignedBase64), (c) => c.charCodeAt(0));
+      const tx = VersionedTransaction.deserialize(rawBytes);
+
+      // Sign
+      await turnkeySigner.addSignature(tx, activeWalletAccount.address);
+
+      // Serialize back to base64
+      const signedBase64 = Buffer.from(tx.serialize()).toString("base64");
+
+      setStatus("Executing Ultra order…");
+      const execResp = await executeUltraOrder({ requestId, signedTransaction: signedBase64 });
+
+      const txid = execResp.signature;
       setStatus(
-        `✅ Swap broadcasted. Transaction ID: ${txid}`
+        `✅ Swap broadcasted. <a href="https://solscan.io/tx/${txid}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">${txid}</a>`
       );
     } catch (err: any) {
       console.error(err);
@@ -94,77 +84,76 @@ export default function JupiterSwapPage() {
   };
 
   return (
-    <main className="p-4 flex flex-col gap-4">
-      <h1 className="text-lg">Turnkey + Jupiter Swap Playground</h1>
+    <main className="min-h-screen flex flex-col items-center p-4 gap-4 pt-40">
+      <div className="flex items-center relative mb-4">
+        <h1 className="w-full text-center text-lg">
+          Turnkey x Jupiter Ultra Swap Demo
+        </h1>
+      </div>
 
       <div className="flex gap-2">
-        <button
-          onClick={() => handleSwap(USDC_MINT, SOL_MINT, 1_000_000)} // 1 USDC
-          className="bg-green-600 text-white px-4 py-2 rounded"
-        >
-          Swap 1 USDC → SOL
-        </button>
-        <button
-          onClick={() => handleSwap(SOL_MINT, USDC_MINT, 100_000_000)} // ~0.1 SOL (9 decimals)
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          Swap 0.1 SOL → USDC
-        </button>
+        {session && (
+          <div>
+            <button
+              onClick={() => handleUltraSwap(USDC_MINT, SOL_MINT, 100_000)}
+              className="bg-green-600 text-white px-4 py-2 rounded"
+            >
+              Swap 0.1 USDC → SOL
+            </button>
+            <button
+              onClick={() => handleUltraSwap(SOL_MINT, USDC_MINT, 100_000)}
+              className="bg-blue-600 text-white px-4 py-2 rounded ml-2"
+            >
+              Swap 0.0001 SOL → USDC
+            </button>
+          </div>
+        )}
       </div>
 
       {status && (
-        <p className="text-sm mt-2">
-          {status.includes("Transaction ID") ? (
-            <span>
-              {status.split("Transaction ID:")[0]}
-              <a
-                href={`https://solscan.io/tx/${status.split("Transaction ID:")[1].trim()}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline"
-              >
-                {status.split("Transaction ID:")[1].trim()}
-              </a>
-            </span>
-          ) : (
-            status
-          )}
-        </p>
+        <p
+          className="text-sm mt-2"
+          dangerouslySetInnerHTML={{ __html: status }}
+        />
       )}
 
-      <div>
-        <h3>Select Wallet Account</h3>
-        {wallets && wallets.length > 0 ? (
-          wallets.map((w: Wallet) =>
-            w.accounts.map((acct: WalletAccount) => (
-              <button
-                key={acct.address}
-                onClick={() => setActiveWalletAccount(acct)}
-                className={`block w-full text-left px-2 py-1 border rounded mt-1 ${
-                  activeWalletAccount?.address === acct.address
-                    ? "bg-gray-200"
-                    : ""
-                }`}
-              >
-                {acct.address}
-              </button>
-            ))
-          )
-        ) : (
-          <p>No wallets available. Log in first.</p>
+      <div className="flex flex-col items-center">
+        {wallets && wallets.length > 0 && (
+          <>
+            <h3 className="mb-2">Select Wallet Account</h3>
+            {wallets.map((w: Wallet) =>
+              w.accounts.map((acct: WalletAccount) => (
+                <button
+                  key={acct.address}
+                  onClick={() => setActiveWalletAccount(acct)}
+                  className={`block w-[500px] text-left px-2 py-1 border rounded mt-1 ${
+                    activeWalletAccount?.address === acct.address ? "bg-gray-200" : ""
+                  }`}
+                >
+                  {acct.address}
+                </button>
+              ))
+            )}
+          </>
         )}
-        <button
-          onClick={() => handleLogin()}
-          className="bg-purple-600 text-white px-4 py-2 rounded mt-2"
-        >
-          Login with Turnkey
-        </button>
-        <button
-          onClick={() => logout()}
-          className="bg-purple-600 text-white px-4 py-2 rounded mt-2"
-        >
-          Log out of Turnkey
-        </button>
+
+        {!wallets?.length && <p>No wallets available. Log in first.</p>}
+
+        {session ? (
+          <button
+            onClick={handleLogout}
+            className="bg-purple-600 text-white px-4 py-2 rounded mt-2"
+          >
+            Log out of Turnkey
+          </button>
+        ) : (
+          <button
+            onClick={() => handleLogin()}
+            className="bg-purple-600 text-white px-4 py-2 rounded mt-2"
+          >
+            Login with Turnkey
+          </button>
+        )}
       </div>
     </main>
   );

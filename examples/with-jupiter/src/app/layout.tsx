@@ -26,7 +26,7 @@ function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>A monumental leap</title>
+        <title>Turnkey x Jupiter Swap demo</title>
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body>
