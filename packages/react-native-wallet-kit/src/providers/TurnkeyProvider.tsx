@@ -2991,7 +2991,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
-
+        console.log("facebook result.url", result.url);
         // Extract params from deep link
         const qsIndex = result.url.indexOf("?");
         const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
