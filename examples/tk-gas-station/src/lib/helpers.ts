@@ -5,6 +5,10 @@ import {
   http,
   type Address,
   type Chain,
+  type Hex,
+  concat,
+  toHex,
+  pad,
 } from "viem";
 
 // Utility functions
@@ -155,4 +159,55 @@ export class GasStationHelpers {
   ): ExecutionParams {
     return this.buildETHTransfer(to, parseEther(etherAmount));
   }
+}
+
+/**
+ * Packs execution data for the delegate contract's execute function.
+ * Layout: [signature(65)][nonce(16)][address(20)][value(32)][arguments]
+ *
+ * This matches the parsing logic in TKGasDelegate.execute():
+ * - signature: bytes 0-65
+ * - nonce: bytes 65-81 (uint128)
+ * - address (to): bytes 81-101 (20 bytes)
+ * - value: bytes 101-133 (uint256, 32 bytes)
+ * - arguments: bytes 133 onwards
+ */
+export function packExecutionData(
+  signature: Hex,
+  nonce: bigint,
+  to: Address,
+  value: bigint,
+  arguments_: Hex
+): Hex {
+  return concat([
+    signature, // 65 bytes
+    pad(toHex(nonce), { size: 16 }), // 16 bytes (uint128)
+    to, // 20 bytes
+    pad(toHex(value), { size: 32 }), // 32 bytes (uint256)
+    arguments_, // variable length
+  ]);
+}
+
+/**
+ * Packs execution data for the delegate contract's executeNoValue function.
+ * Layout: [signature(65)][nonce(16)][address(20)][arguments]
+ *
+ * This matches the parsing logic in TKGasDelegate.executeNoValue():
+ * - signature: bytes 0-65
+ * - nonce: bytes 65-81 (uint128)
+ * - address (to): bytes 81-101 (20 bytes)
+ * - arguments: bytes 101 onwards
+ */
+export function packExecutionDataNoValue(
+  signature: Hex,
+  nonce: bigint,
+  to: Address,
+  arguments_: Hex
+): Hex {
+  return concat([
+    signature, // 65 bytes
+    pad(toHex(nonce), { size: 16 }), // 16 bytes (uint128)
+    to, // 20 bytes
+    arguments_, // variable length
+  ]);
 }

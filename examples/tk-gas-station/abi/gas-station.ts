@@ -6,12 +6,14 @@ export const gasStationAbi = [
     stateMutability: "nonpayable",
     type: "constructor",
   },
+  { inputs: [], name: "NoEthAllowed", type: "error" },
   { inputs: [], name: "NotDelegated", type: "error" },
+  { stateMutability: "nonpayable", type: "fallback" },
   {
     inputs: [
       { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_nonce", type: "uint128" },
       { internalType: "bytes", name: "_signature", type: "bytes" },
+      { internalType: "uint128", name: "_nonce", type: "uint128" },
     ],
     name: "burnNonce",
     outputs: [],
@@ -21,23 +23,7 @@ export const gasStationAbi = [
   {
     inputs: [
       { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_counter", type: "uint128" },
-      { internalType: "address", name: "_sender", type: "address" },
-      { internalType: "bytes", name: "_signature", type: "bytes" },
-    ],
-    name: "burnTimeboxedCounter",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_nonce", type: "uint128" },
-      { internalType: "address", name: "_outputContract", type: "address" },
-      { internalType: "uint256", name: "_ethAmount", type: "uint256" },
-      { internalType: "bytes", name: "_arguments", type: "bytes" },
-      { internalType: "bytes", name: "_signature", type: "bytes" },
+      { internalType: "bytes", name: "_data", type: "bytes" },
     ],
     name: "execute",
     outputs: [
@@ -50,34 +36,7 @@ export const gasStationAbi = [
   {
     inputs: [
       { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_nonce", type: "uint128" },
-      { internalType: "address", name: "_outputContract", type: "address" },
-      { internalType: "bytes", name: "_arguments", type: "bytes" },
-      { internalType: "bytes", name: "_signature", type: "bytes" },
-    ],
-    name: "execute",
-    outputs: [
-      { internalType: "bool", name: "", type: "bool" },
-      { internalType: "bytes", name: "", type: "bytes" },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_nonce", type: "uint128" },
-      {
-        components: [
-          { internalType: "address", name: "outputContract", type: "address" },
-          { internalType: "uint256", name: "ethAmount", type: "uint256" },
-          { internalType: "bytes", name: "arguments", type: "bytes" },
-        ],
-        internalType: "struct IBatchExecution.Execution[]",
-        name: "_executions",
-        type: "tuple[]",
-      },
-      { internalType: "bytes", name: "_signature", type: "bytes" },
+      { internalType: "bytes", name: "_data", type: "bytes" },
     ],
     name: "executeBatch",
     outputs: [
@@ -90,117 +49,9 @@ export const gasStationAbi = [
   {
     inputs: [
       { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_counter", type: "uint128" },
-      { internalType: "uint128", name: "_deadline", type: "uint128" },
-      { internalType: "address", name: "_sender", type: "address" },
-      {
-        components: [
-          { internalType: "address", name: "outputContract", type: "address" },
-          { internalType: "uint256", name: "ethAmount", type: "uint256" },
-          { internalType: "bytes", name: "arguments", type: "bytes" },
-        ],
-        internalType: "struct IBatchExecution.Execution[]",
-        name: "_executions",
-        type: "tuple[]",
-      },
-      { internalType: "bytes", name: "_signature", type: "bytes" },
+      { internalType: "bytes", name: "_data", type: "bytes" },
     ],
-    name: "executeBatchTimeboxed",
-    outputs: [
-      { internalType: "bool", name: "", type: "bool" },
-      { internalType: "bytes[]", name: "", type: "bytes[]" },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_counter", type: "uint128" },
-      { internalType: "uint128", name: "_deadline", type: "uint128" },
-      {
-        components: [
-          { internalType: "address", name: "outputContract", type: "address" },
-          { internalType: "uint256", name: "ethAmount", type: "uint256" },
-          { internalType: "bytes", name: "arguments", type: "bytes" },
-        ],
-        internalType: "struct IBatchExecution.Execution[]",
-        name: "_executions",
-        type: "tuple[]",
-      },
-      { internalType: "bytes", name: "_signature", type: "bytes" },
-    ],
-    name: "executeBatchTimeboxedArbitrary",
-    outputs: [
-      { internalType: "bool", name: "", type: "bool" },
-      { internalType: "bytes[]", name: "", type: "bytes[]" },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_counter", type: "uint128" },
-      { internalType: "uint128", name: "_deadline", type: "uint128" },
-      { internalType: "address", name: "_outputContract", type: "address" },
-      { internalType: "uint256", name: "_ethAmount", type: "uint256" },
-      { internalType: "bytes", name: "_arguments", type: "bytes" },
-      { internalType: "bytes", name: "_signature", type: "bytes" },
-    ],
-    name: "executeTimeboxed",
-    outputs: [
-      { internalType: "bool", name: "", type: "bool" },
-      { internalType: "bytes", name: "", type: "bytes" },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_counter", type: "uint128" },
-      { internalType: "uint128", name: "_deadline", type: "uint128" },
-      { internalType: "address", name: "_outputContract", type: "address" },
-      { internalType: "bytes", name: "_arguments", type: "bytes" },
-      { internalType: "bytes", name: "_signature", type: "bytes" },
-    ],
-    name: "executeTimeboxed",
-    outputs: [
-      { internalType: "bool", name: "", type: "bool" },
-      { internalType: "bytes", name: "", type: "bytes" },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_counter", type: "uint128" },
-      { internalType: "uint128", name: "_deadline", type: "uint128" },
-      { internalType: "address", name: "_outputContract", type: "address" },
-      { internalType: "bytes", name: "_arguments", type: "bytes" },
-      { internalType: "bytes", name: "_signature", type: "bytes" },
-    ],
-    name: "executeTimeboxedArbitrary",
-    outputs: [
-      { internalType: "bool", name: "", type: "bool" },
-      { internalType: "bytes", name: "", type: "bytes" },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_counter", type: "uint128" },
-      { internalType: "uint128", name: "_deadline", type: "uint128" },
-      { internalType: "address", name: "_outputContract", type: "address" },
-      { internalType: "uint256", name: "_ethAmount", type: "uint256" },
-      { internalType: "bytes", name: "_arguments", type: "bytes" },
-      { internalType: "bytes", name: "_signature", type: "bytes" },
-    ],
-    name: "executeTimeboxedArbitrary",
+    name: "executeNoValue",
     outputs: [
       { internalType: "bool", name: "", type: "bool" },
       { internalType: "bytes", name: "", type: "bytes" },
@@ -211,13 +62,6 @@ export const gasStationAbi = [
   {
     inputs: [{ internalType: "address", name: "_targetEoA", type: "address" }],
     name: "getNonce",
-    outputs: [{ internalType: "uint128", name: "", type: "uint128" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "_targetEoA", type: "address" }],
-    name: "getTimeboxedCounter",
     outputs: [{ internalType: "uint128", name: "", type: "uint128" }],
     stateMutability: "view",
     type: "function",
@@ -236,4 +80,5 @@ export const gasStationAbi = [
     stateMutability: "view",
     type: "function",
   },
+  { stateMutability: "payable", type: "receive" },
 ] as const;

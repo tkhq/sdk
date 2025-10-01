@@ -18,7 +18,12 @@ import {
   DEFAULT_EXECUTION_CONTRACT,
 } from "./config";
 import { IntentBuilder } from "./IntentBuilder";
-import { print, createPublicClientForChain } from "./helpers";
+import {
+  print,
+  createPublicClientForChain,
+  packExecutionData,
+  packExecutionDataNoValue,
+} from "./helpers";
 
 export class GasStationClient {
   private walletClient: WalletClient<Transport, Chain, Account>;
@@ -152,27 +157,42 @@ export class GasStationClient {
   }
 
   /**
-   * Execute a signed intent through the gas station contract
-   * Call this with a paymaster client to submit and pay for the transaction
+   * Execute a signed intent through the gas station contract.
+   * Packs the execution data according to the delegate contract's expected format and
+   * submits it via the execution contract.
+   * Call this with a paymaster client to submit and pay for the transaction.
    */
   async executeIntent(
     intent: ExecutionIntent
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint; gasUsed: bigint }> {
     print("Executing intent via gas station...", "");
 
+    // Pack the execution data based on whether we're sending ETH
+    const packedData =
+      intent.ethAmount > 0n
+        ? packExecutionData(
+            intent.signature,
+            intent.nonce,
+            intent.outputContract,
+            intent.ethAmount,
+            intent.callData
+          )
+        : packExecutionDataNoValue(
+            intent.signature,
+            intent.nonce,
+            intent.outputContract,
+            intent.callData
+          );
+
+    // Determine which function to call based on ETH amount
+    const functionName = intent.ethAmount > 0n ? "execute" : "executeNoValue";
+
     const txHash = await this.walletClient.sendTransaction({
       to: this.executionContract,
       data: encodeFunctionData({
         abi: gasStationAbi,
-        functionName: "execute",
-        args: [
-          intent.eoaAddress,
-          intent.nonce,
-          intent.outputContract,
-          intent.ethAmount,
-          intent.callData,
-          intent.signature,
-        ],
+        functionName,
+        args: [intent.eoaAddress, packedData],
       }),
       gas: BigInt(200000),
       account: this.walletClient.account,
