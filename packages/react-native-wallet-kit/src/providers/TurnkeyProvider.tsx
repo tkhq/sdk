@@ -2891,7 +2891,128 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleAppleOauth = useCallback(
     async (params?: HandleAppleOauthParams): Promise<void> => {
-      return Promise.resolve();
+      const { additionalState: additionalParameters } = params || {};
+      const { clientId, redirectUri, appScheme: scheme } =
+        getOauthProviderSettings("apple");
+
+      try {
+        if (!masterConfig) {
+          throw new TurnkeyError(
+            "Config is not ready yet!",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        if (!clientId) {
+          throw new TurnkeyError(
+            "Apple Client ID is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        if (!redirectUri) {
+          throw new TurnkeyError(
+            "OAuth Redirect URI is not configured.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        if (!scheme) {
+          throw new TurnkeyError(
+            "Missing appScheme. Please set auth.oauth.appScheme.",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const finalRedirectUri = `${redirectUri}?scheme=${encodeURIComponent(scheme)}`;
+
+        // Create key pair and generate nonce
+        const publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new TurnkeyError(
+            "Failed to create public key for OAuth.",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+        const nonce = bytesToHex(sha256(publicKey));
+
+        // Create state parameter (parity with web Provider.tsx)
+        let state = `provider=apple&flow=redirect&publicKey=${encodeURIComponent(publicKey)}`;
+        if (additionalParameters) {
+          const extra = Object.entries(additionalParameters)
+            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .join("&");
+          if (extra) state += `&${extra}`;
+        }
+
+        // Build OAuth Origin URL which will redirect to Apple
+        const oauthUrl =
+          TURNKEY_OAUTH_ORIGIN_URL +
+          `?provider=apple` +
+          `&clientId=${encodeURIComponent(clientId)}` +
+          `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
+          `&nonce=${encodeURIComponent(nonce)}` +
+          `&state=${encodeURIComponent(state)}`;
+
+        if (!(await InAppBrowser.isAvailable())) {
+          throw new TurnkeyError(
+            "InAppBrowser is not available",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        const result = await InAppBrowser.openAuth(oauthUrl, scheme, {
+          dismissButtonStyle: "cancel",
+          animated: true,
+          modalPresentationStyle: "fullScreen",
+          modalTransitionStyle: "coverVertical",
+          modalEnabled: true,
+          enableBarCollapsing: false,
+          showTitle: true,
+          enableUrlBarHiding: true,
+          enableDefaultShare: true,
+        });
+
+        if (!result || result.type !== "success" || !result.url) {
+          throw new TurnkeyError(
+            "OAuth flow did not complete successfully",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        // Extract params from deep link
+        const qsIndex = result.url.indexOf("?");
+        const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
+        const urlParams = new URLSearchParams(queryString);
+        const idToken = urlParams.get("id_token");
+        const stateParam = urlParams.get("state");
+        const sessionKey = stateParam
+          ?.split("&")
+          .find((param) => param.startsWith("sessionKey="))
+          ?.split("=")[1];
+
+        if (!idToken) {
+          throw new TurnkeyError(
+            "oidcToken not found in the response",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        if (params?.onOauthSuccess) {
+          params.onOauthSuccess({ oidcToken: idToken, providerName: "apple", ...(sessionKey && { sessionKey }) });
+          return;
+        }
+
+        if (callbacks?.onOauthRedirect) {
+          callbacks.onOauthRedirect({ idToken, publicKey, ...(sessionKey && { sessionKey }) });
+          return;
+        }
+
+        await completeOauth({ oidcToken: idToken, publicKey, providerName: "apple", ...(sessionKey && { sessionKey }) });
+        return;
+      } catch (error) {
+        throw error;
+      }
     },
     [client, callbacks, masterConfig, session, user],
   );
