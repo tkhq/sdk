@@ -2960,13 +2960,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         const facebookAuthUrl =
           TURNKEY_OAUTH_ORIGIN_URL +
           `?provider=facebook` +
-          `?client_id=${encodeURIComponent(clientId)}` +
-          `&redirect_uri=${encodeURIComponent(finalRedirectUri)}` +
-          `&response_type=code` +
-          `&code_challenge=${encodeURIComponent(codeChallenge)}` +
-          `&code_challenge_method=S256` +
+          `?clientId=${encodeURIComponent(clientId)}` +
+          `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
+          `&codeChallenge=${encodeURIComponent(codeChallenge)}` +
           `&nonce=${encodeURIComponent(nonce)}` +
-          `&scope=${encodeURIComponent("openid")}` +
           `&state=${encodeURIComponent(state)}`;
 
         if (!(await InAppBrowser.isAvailable())) {
