@@ -2958,7 +2958,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         // Construct Facebook Auth URL
         const facebookAuthUrl =
-          FACEBOOK_AUTH_URL +
+          TURNKEY_OAUTH_ORIGIN_URL +
+          `?provider=facebook` +
           `?client_id=${encodeURIComponent(clientId)}` +
           `&redirect_uri=${encodeURIComponent(finalRedirectUri)}` +
           `&response_type=code` +
