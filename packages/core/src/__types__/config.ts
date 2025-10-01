@@ -1,5 +1,6 @@
 import type { Session } from "@turnkey/sdk-types";
 import type { TStamper } from "./auth";
+import type { StamperType } from "./enums";
 
 /**
  * TurnkeyHttpClientConfig defines the configuration for the Turnkey HTTP client.
@@ -13,6 +14,7 @@ import type { TStamper } from "./auth";
  * @property passkeyStamper - stamper for passkeys.
  * @property walletStamper - stamper for wallets.
  * @property storageManager - storage manager for session management.
+ * @property defaultStamperType - default stamper type to be used for requests.
  * @remarks
  * This interface is used to configure the Turnkey HTTP client, which is responsible for making API
  * requests to Turnkey. It includes options for custom API key stamping, passkey stamping, wallet stamping,
@@ -30,6 +32,8 @@ export interface TurnkeyHttpClientConfig {
   passkeyStamper?: TStamper | undefined;
   walletStamper?: TStamper | undefined;
   storageManager?: StorageBase | undefined;
+
+  defaultStamperType?: StamperType | undefined;
 }
 
 /**
@@ -61,6 +65,8 @@ export interface TurnkeySDKClientConfig {
   passkeyConfig?: TPasskeyStamperConfig;
   /** configuration for the wallet manager. */
   walletConfig?: TWalletManagerConfig;
+  /** default stamper to be used for all requests */
+  defaultStamperType?: StamperType | undefined;
 }
 
 /**

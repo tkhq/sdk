@@ -36,6 +36,7 @@ export const withSdkJsSelectors = {
   },
   fetchMethods: {
     getWhoami: "get-whoami",
+    getWhoamiTempClient: "get-whoami-temp-client",
     getActiveSession: "get-active-session",
     fetchUser: "fetch-user",
     fetchWallets: "fetch-wallets",

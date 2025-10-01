@@ -93,6 +93,8 @@ import {
   type VerifyOtpResult,
   type ConnectedWallet,
   type FetchBootProofForAppProofParams,
+  type TurnkeySDKClientBase,
+  type CreateHttpClientParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -766,6 +768,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             walletConnect: masterConfig.walletConfig.walletConnect,
           }),
         },
+        defaultStamperType: masterConfig.defaultStamperType,
       });
 
       await turnkeyClient.init();
@@ -1259,6 +1262,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     }
   };
+
+  const createHttpClient = useCallback(
+    (params?: CreateHttpClientParams): TurnkeySDKClientBase => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.createHttpClient(params);
+    },
+    [client],
+  );
 
   const createPasskey = useCallback(
     async (params?: CreatePasskeyParams): Promise<CreatePasskeyResult> => {
@@ -5304,6 +5320,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         walletProviders,
         config: masterConfig,
         httpClient: client?.httpClient,
+        createHttpClient,
         createPasskey,
         logout,
         loginWithPasskey,

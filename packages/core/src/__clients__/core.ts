@@ -95,6 +95,7 @@ import {
   type SetActiveSessionParams,
   type CreateApiKeyPairParams,
   type FetchBootProofForAppProofParams,
+  type CreateHttpClientParams,
 } from "../__types__";
 import {
   buildSignUpBody,
@@ -201,22 +202,53 @@ export class TurnkeyClient {
       this.walletManager = await createWalletManager(this.config.walletConfig);
     }
 
-    // We can comfortably default to the prod urls here
-    const apiBaseUrl = this.config.apiBaseUrl || "https://api.turnkey.com";
-    const authProxyUrl =
-      this.config.authProxyUrl || "https://authproxy.turnkey.com";
-
     // Initialize the HTTP client with the appropriate stampers
-    this.httpClient = new TurnkeySDKClientBase({
+    // Note: not passing anything here since we want to use the configured stampers and this.config
+    this.httpClient = this.createHttpClient();
+  }
+
+  /**
+   * Creates a new TurnkeySDKClientBase instance with the provided configuration.
+   * This method is used internally to create the HTTP client for making API requests,
+   * but can also be used to create an additional client with different configurations if needed.
+   * By default, it uses the configuration provided during the TurnkeyClient initialization.
+   *
+   * @param params - Optional configuration parameters to override the default client configuration.
+   * @param params.apiBaseUrl - The base URL of the Turnkey API (defaults to `https://api.turnkey.com` if not provided).
+   * @param params.organizationId - The organization ID to associate requests with.
+   * @param params.authProxyUrl - The base URL of the Auth Proxy (defaults to `https://authproxy.turnkey.com` if not provided).
+   * @param params.authProxyConfigId - The configuration ID to use when making Auth Proxy requests.
+   * @param params.defaultStamperType - The default stamper type to use for signing requests
+   *   (overrides automatic detection of ApiKey, Passkey, or Wallet stampers).
+   *
+   * @returns A new instance of {@link TurnkeySDKClientBase} configured with the provided parameters.
+   */
+  createHttpClient = (
+    params?: CreateHttpClientParams,
+  ): TurnkeySDKClientBase => {
+    // We can comfortably default to the prod urls here
+    const apiBaseUrl =
+      params?.apiBaseUrl || this.config.apiBaseUrl || "https://api.turnkey.com";
+    const authProxyUrl =
+      params?.authProxyUrl ||
+      this.config.authProxyUrl ||
+      "https://authproxy.turnkey.com";
+
+    const organizationId = params?.organizationId || this.config.organizationId;
+
+    return new TurnkeySDKClientBase({
       ...this.config,
+      ...params,
+
       apiBaseUrl,
       authProxyUrl,
+      organizationId,
       apiKeyStamper: this.apiKeyStamper,
       passkeyStamper: this.passkeyStamper,
       walletStamper: this.walletManager?.stamper,
       storageManager: this.storageManager,
     });
-  }
+  };
 
   /**
    * Creates a new passkey authenticator for the user.
@@ -1794,7 +1826,7 @@ export class TurnkeyClient {
       organizationId: organizationIdFromParams,
       userId: userIdFromParams,
       connectedOnly,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params || {};
     const session = await this.storageManager.getActiveSession();
     if (!session && !connectedOnly) {
@@ -1949,7 +1981,12 @@ export class TurnkeyClient {
   fetchWalletAccounts = async (
     params: FetchWalletAccountsParams,
   ): Promise<WalletAccount[]> => {
-    const { wallet, stampWith, walletProviders, paginationOptions } = params;
+    const {
+      wallet,
+      stampWith = this.config.defaultStamperType,
+      walletProviders,
+      paginationOptions,
+    } = params;
     const session = await this.storageManager.getActiveSession();
 
     const organizationId = params?.organizationId || session?.organizationId;
@@ -2135,7 +2172,7 @@ export class TurnkeyClient {
   fetchPrivateKeys = async (
     params?: FetchPrivateKeysParams,
   ): Promise<v1PrivateKey[]> => {
-    const { stampWith } = params || {};
+    const { stampWith = this.config.defaultStamperType } = params || {};
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -2217,7 +2254,7 @@ export class TurnkeyClient {
     const {
       message,
       walletAccount,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       addEthereumPrefix,
       organizationId,
     } = params;
@@ -2325,7 +2362,7 @@ export class TurnkeyClient {
       walletAccount,
       unsignedTransaction,
       transactionType,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId,
     } = params;
 
@@ -2409,7 +2446,7 @@ export class TurnkeyClient {
       unsignedTransaction,
       transactionType,
       rpcUrl,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId,
     } = params;
 
@@ -2508,7 +2545,7 @@ export class TurnkeyClient {
     const {
       organizationId: organizationIdFromParams,
       userId: userIdFromParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params || {};
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -2576,7 +2613,7 @@ export class TurnkeyClient {
     const {
       publicKey,
       createParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId: organizationIdFromParams,
     } = params;
 
@@ -2707,7 +2744,7 @@ export class TurnkeyClient {
   fetchOrCreatePolicies = async (
     params: FetchOrCreatePoliciesParams,
   ): Promise<FetchOrCreatePoliciesResult> => {
-    const { policies, stampWith } = params;
+    const { policies, stampWith = this.config.defaultStamperType } = params;
 
     return await withTurnkeyErrorHandling(
       async () => {
@@ -2829,7 +2866,12 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating or verifying the user email.
    */
   updateUserEmail = async (params: UpdateUserEmailParams): Promise<string> => {
-    const { verificationToken, email, stampWith, organizationId } = params;
+    const {
+      verificationToken,
+      email,
+      stampWith = this.config.defaultStamperType,
+      organizationId,
+    } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -2898,7 +2940,8 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the user email.
    */
   removeUserEmail = async (params?: RemoveUserEmailParams): Promise<string> => {
-    const { stampWith, organizationId } = params || {};
+    const { stampWith = this.config.defaultStamperType, organizationId } =
+      params || {};
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -2957,8 +3000,12 @@ export class TurnkeyClient {
   updateUserPhoneNumber = async (
     params: UpdateUserPhoneNumberParams,
   ): Promise<string> => {
-    const { verificationToken, phoneNumber, stampWith, organizationId } =
-      params;
+    const {
+      verificationToken,
+      phoneNumber,
+      stampWith = this.config.defaultStamperType,
+      organizationId,
+    } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3017,7 +3064,8 @@ export class TurnkeyClient {
   removeUserPhoneNumber = async (
     params?: RemoveUserPhoneNumberParams,
   ): Promise<string> => {
-    const { stampWith, organizationId } = params || {};
+    const { stampWith = this.config.defaultStamperType, organizationId } =
+      params || {};
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3073,7 +3121,11 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating the user name.
    */
   updateUserName = async (params: UpdateUserNameParams): Promise<string> => {
-    const { userName, stampWith, organizationId } = params;
+    const {
+      userName,
+      stampWith = this.config.defaultStamperType,
+      organizationId,
+    } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3135,7 +3187,11 @@ export class TurnkeyClient {
   addOauthProvider = async (
     params: AddOauthProviderParams,
   ): Promise<string[]> => {
-    const { providerName, oidcToken, stampWith } = params;
+    const {
+      providerName,
+      oidcToken,
+      stampWith = this.config.defaultStamperType,
+    } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3252,7 +3308,11 @@ export class TurnkeyClient {
   removeOauthProviders = async (
     params: RemoveOauthProvidersParams,
   ): Promise<string[]> => {
-    const { providerIds, stampWith, organizationId } = params;
+    const {
+      providerIds,
+      stampWith = this.config.defaultStamperType,
+      organizationId,
+    } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3309,7 +3369,8 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if passkey creation fails, or if there is an error adding the passkey.
    */
   addPasskey = async (params?: AddPasskeyParams): Promise<string[]> => {
-    const { stampWith, organizationId } = params || {};
+    const { stampWith = this.config.defaultStamperType, organizationId } =
+      params || {};
     const name = params?.name || `Turnkey Passkey-${Date.now()}`;
 
     return withTurnkeyErrorHandling(
@@ -3379,7 +3440,11 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the passkeys.
    */
   removePasskeys = async (params: RemovePasskeyParams): Promise<string[]> => {
-    const { authenticatorIds, stampWith, organizationId } = params;
+    const {
+      authenticatorIds,
+      stampWith = this.config.defaultStamperType,
+      organizationId,
+    } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -3444,7 +3509,7 @@ export class TurnkeyClient {
       accounts,
       organizationId: organizationIdFromParams,
       mnemonicLength,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -3523,7 +3588,7 @@ export class TurnkeyClient {
       accounts,
       walletId,
       organizationId: organizationIdFromParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -3606,7 +3671,7 @@ export class TurnkeyClient {
     const {
       walletId,
       targetPublicKey,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId: organizationIdFromParams,
     } = params;
 
@@ -3671,7 +3736,7 @@ export class TurnkeyClient {
     const {
       privateKeyId,
       targetPublicKey,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId: organizationIdFromParams,
     } = params;
 
@@ -3736,7 +3801,7 @@ export class TurnkeyClient {
     const {
       address,
       targetPublicKey,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId: organizationIdFromParams,
     } = params;
 
@@ -3804,7 +3869,7 @@ export class TurnkeyClient {
       walletName,
       organizationId: organizationIdFromParams,
       userId: userIdFromParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -3896,7 +3961,7 @@ export class TurnkeyClient {
       curve,
       organizationId: organizationIdFromParams,
       userId: userIdFromParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -3976,7 +4041,7 @@ export class TurnkeyClient {
     const {
       deleteWithoutExport = false,
       organizationId: organizationIdFromParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params || {};
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -4118,6 +4183,7 @@ export class TurnkeyClient {
       sessionKey = await this.storageManager.getActiveSessionKey(),
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       publicKey,
+      stampWith = this.config.defaultStamperType,
       invalidateExisitng = false,
     } = params || {};
     if (!sessionKey) {
@@ -4159,7 +4225,7 @@ export class TurnkeyClient {
             expirationSeconds,
             invalidateExisting: invalidateExisitng,
           },
-          params?.stampWith,
+          stampWith,
         );
 
         if (!res || !res.session) {
@@ -4436,7 +4502,7 @@ export class TurnkeyClient {
   ): Promise<v1BootProof> => {
     const {
       appProof,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId: organizationIdFromParams,
     } = params;
 
