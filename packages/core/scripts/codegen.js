@@ -149,6 +149,7 @@ const generateSDKClientFromSwagger = async (
     private passkeyStamper?: TStamper | undefined;
     private walletStamper?: TStamper | undefined;
 
+    public defaultStamperType: StamperType | undefined;
     
     // Storage manager
     private storageManager?: StorageBase | undefined;
@@ -168,10 +169,28 @@ const generateSDKClientFromSwagger = async (
         if (config.storageManager) {
         this.storageManager = config.storageManager;
         }
+        if (config.defaultStamperType) {
+        this.defaultStamperType = config.defaultStamperType;
+        } else{
+          // Set default stamper type based on available stampers
+          if (this.apiKeyStamper) {
+            this.defaultStamperType = StamperType.ApiKey;
+          } else if (this.passkeyStamper) {
+            this.defaultStamperType = StamperType.Passkey;
+          } else if (this.walletStamper) {
+            this.defaultStamperType = StamperType.Wallet;
+          } else {
+            this.defaultStamperType = undefined;
+          }
+        }
+
     }
 
     private getStamper(stampWith?: StamperType): TStamper | undefined {
-        if (!stampWith) return this.apiKeyStamper || this.passkeyStamper || this.walletStamper;
+        if (!stampWith) {
+        // Use default stamper type if none specified
+        stampWith = this.defaultStamperType;
+        } 
         
         switch (stampWith) {
         case StamperType.ApiKey:

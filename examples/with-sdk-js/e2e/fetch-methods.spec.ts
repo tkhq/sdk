@@ -19,6 +19,38 @@ test("getWhoAmI", async ({ page }) => {
   expect(msg.location().url).toMatch(/page.tsx$/);
 });
 
+test("getWhoamiWithTempClient", async ({ page }) => {
+  // First wait for the "passkey" log
+  const whenPasskey = waitForConsole(
+    page,
+    /tempPasskeyClient StamperType:passkey/,
+    ["log"],
+  );
+
+  // Also wait for the "apiKey" log
+  const whenApiKey = waitForConsole(
+    page,
+    /notTempApiKeyClient StamperType:api-key/,
+    ["log"],
+  );
+
+  // Trigger the button
+  await page.getByTestId("get-whoami-temp-client").click();
+
+  // Verify the "passkey" message
+  const passkeyMsg = await whenPasskey;
+  expect(passkeyMsg.text).toMatch(/tempPasskeyClient StamperType:passkey/);
+  expect(passkeyMsg.type).toBe("log");
+  expect(passkeyMsg.location().url).toMatch(/page.tsx$/);
+
+  // Verify the "apiKey" message
+  const apiKeyMsg = await whenApiKey;
+
+  expect(apiKeyMsg.text).toMatch(/notTempApiKeyClient StamperType:api-key/);
+  expect(apiKeyMsg.type).toBe("log");
+  expect(apiKeyMsg.location().url).toMatch(/page.tsx$/);
+});
+
 test("getActiveSession", async ({ page }) => {
   const whenConsole = waitForConsole(
     page,

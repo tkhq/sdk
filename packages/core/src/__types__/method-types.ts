@@ -20,6 +20,14 @@ import type {
   Wallet,
 } from "./index";
 
+export type CreateHttpClientParams = {
+  apiBaseUrl?: string | undefined;
+  organizationId?: string | undefined;
+  authProxyUrl?: string | undefined;
+  authProxyConfigId?: string | undefined;
+  defaultStamperType?: StamperType | undefined;
+};
+
 export type CreatePasskeyParams = {
   name?: string;
   challenge?: string;

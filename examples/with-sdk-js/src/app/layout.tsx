@@ -2,7 +2,7 @@
 
 import "@turnkey/react-wallet-kit/styles.css";
 import "./global.css";
-import { TurnkeyProvider } from "@turnkey/react-wallet-kit";
+import { StamperType, TurnkeyProvider } from "@turnkey/react-wallet-kit";
 
 interface RootLayoutProps {
   children: React.ReactNode;
