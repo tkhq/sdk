@@ -3017,7 +3017,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
-
+        console.log("exchangeCodeForToken", {
+          clientId,
+            finalRedirectUri,
+            authCode,
+            storedVerifier,
+        });
         try {
           const tokenData = await exchangeCodeForToken(
             clientId,
