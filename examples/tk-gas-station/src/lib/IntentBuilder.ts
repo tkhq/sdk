@@ -6,7 +6,7 @@ import {
   type Transport,
 } from "viem";
 import type { ContractCallParams, ExecutionIntent } from "./config";
-import { ERC20_ABI, print } from "./helpers";
+import { ERC20_ABI, print } from "./gasStationUtils";
 
 interface IntentBuilderConfig {
   eoaWalletClient: WalletClient<Transport, Chain, Account>;

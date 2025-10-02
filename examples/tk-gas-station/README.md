@@ -379,6 +379,83 @@ const userClient = new GasStationClient({
 - **EIP-7702 Scoping**: Authorization is per-EOA and can be revoked
 - **Turnkey Integration**: Private keys never leave Turnkey's secure infrastructure
 
+### Security Policies
+
+Turnkey policies provide additional security layers by restricting what transactions can be signed and executed. The Gas Station SDK includes helpers for creating these policies.
+
+#### EOA Intent Signing Policies
+
+Restrict what EIP-712 intents the EOA can sign:
+
+```typescript
+// USDC-only policy
+const eoaPolicy = GasStationClient.buildIntentSigningPolicy({
+  organizationId: "your-org-id",
+  eoaUserId: "user-id",
+  restrictions: {
+    allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"], // USDC on Base
+    maxEthAmount: parseEther("0.01"), // Max 0.01 ETH per transaction
+  },
+  policyName: "USDC Only Policy",
+});
+```
+
+#### Paymaster Execution Policies
+
+Restrict what on-chain transactions the paymaster can submit:
+
+```typescript
+// Paymaster protection policy
+const paymasterPolicy = GasStationClient.buildPaymasterExecutionPolicy({
+  organizationId: "paymaster-org-id",
+  paymasterUserId: "paymaster-user-id",
+  executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+  restrictions: {
+    allowedEOAs: ["0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"],
+    allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
+    maxGasPrice: parseGwei("50"), // Max 50 gwei gas price
+    maxGasLimit: 500000n, // Max 500k gas limit
+  },
+  policyName: "Paymaster Protection",
+});
+```
+
+#### Defense in Depth
+
+Combine both policy types for maximum security:
+
+```typescript
+// Layer 1: EOA can only sign USDC intents
+const eoaPolicy = GasStationClient.buildIntentSigningPolicy({
+  organizationId: "user-org",
+  eoaUserId: "user-id",
+  restrictions: {
+    allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
+    maxEthAmount: 0n, // No ETH transfers
+  },
+});
+
+// Layer 2: Paymaster can only execute for specific users with gas limits
+const paymasterPolicy = GasStationClient.buildPaymasterExecutionPolicy({
+  organizationId: "paymaster-org",
+  paymasterUserId: "paymaster-user-id",
+  executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+  restrictions: {
+    allowedEOAs: ["0xUserAddress..."],
+    allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
+    maxGasPrice: parseGwei("50"),
+    maxGasLimit: 500000n,
+  },
+});
+```
+
+**Best Practices:**
+
+- Start with restrictive policies and relax as needed
+- Use gas limits to prevent DoS attacks
+- Monitor policy violations in Turnkey activity logs
+- Test policies thoroughly before production deployment
+
 ## Troubleshooting
 
 ### Authorization Failed

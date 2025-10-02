@@ -1,5 +1,5 @@
-export { GasStationClient } from "./GasStationClient";
-export { IntentBuilder } from "./IntentBuilder";
+export { GasStationClient } from "./gasStationClient";
+export { IntentBuilder } from "./intentBuilder";
 export {
   GasStationHelpers,
   print,
@@ -8,12 +8,12 @@ export {
   createPublicClientForChain,
   packExecutionData,
   packExecutionDataNoValue,
-} from "./helpers";
+} from "./gasStationUtils";
 export { CHAIN_PRESETS, getPreset, createCustomPreset } from "./config";
 export {
   buildIntentSigningPolicy,
   buildPaymasterExecutionPolicy,
-} from "./policyHelpers";
+} from "./policyutils";
 export type {
   GasStationConfig,
   ChainPreset,
@@ -21,4 +21,4 @@ export type {
   ContractCallParams,
   ExecutionIntent,
 } from "./config";
-export type { ExecutionParams } from "./helpers";
+export type { ExecutionParams } from "./gasStationUtils";

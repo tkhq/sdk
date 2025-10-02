@@ -17,13 +17,13 @@ import {
   DEFAULT_DELEGATE_CONTRACT,
   DEFAULT_EXECUTION_CONTRACT,
 } from "./config";
-import { IntentBuilder } from "./IntentBuilder";
+import { IntentBuilder } from "./intentBuilder";
 import {
   print,
   createPublicClientForChain,
   packExecutionData,
   packExecutionDataNoValue,
-} from "./helpers";
+} from "./gasStationUtils";
 
 export class GasStationClient {
   private walletClient: WalletClient<Transport, Chain, Account>;
