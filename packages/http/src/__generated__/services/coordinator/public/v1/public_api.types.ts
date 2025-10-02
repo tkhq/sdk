@@ -260,6 +260,10 @@ export type paths = {
     /** Delete users within an organization. */
     post: operations["PublicApiService_DeleteUsers"];
   };
+  "/public/v1/submit/delete_wallet_accounts": {
+    /** Delete wallet accounts for an organization. */
+    post: operations["PublicApiService_DeleteWalletAccounts"];
+  };
   "/public/v1/submit/delete_wallets": {
     /** Delete wallets for an organization. */
     post: operations["PublicApiService_DeleteWallets"];
@@ -697,7 +701,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL"
     | "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL"
     | "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"
-    | "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE";
+    | "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
+    | "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1440,6 +1445,8 @@ export type definitions = {
     walletId: string;
     /** @description A list of wallet Accounts. */
     accounts: definitions["v1WalletAccountParams"][];
+    /** @description Indicates if the wallet accounts should be persisted. This is helpful if you'd like to see the addresses of different derivation paths without actually creating the accounts. Defaults to true. */
+    persist?: boolean;
   };
   v1CreateWalletAccountsRequest: {
     /** @enum {string} */
@@ -1720,6 +1727,25 @@ export type definitions = {
   v1DeleteUsersResult: {
     /** @description A list of User IDs. */
     userIds: string[];
+  };
+  v1DeleteWalletAccountsIntent: {
+    /** @description List of unique identifiers for wallet accounts within an organization */
+    walletAccountIds: string[];
+    /** @description Optional parameter for deleting the wallet accounts, even if any have not been previously exported. If they have been exported, this field is ignored. */
+    deleteWithoutExport?: boolean;
+  };
+  v1DeleteWalletAccountsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1DeleteWalletAccountsIntent"];
+  };
+  v1DeleteWalletAccountsResult: {
+    /** @description A list of wallet account unique identifiers that were removed */
+    walletAccountIds: string[];
   };
   v1DeleteWalletsIntent: {
     /** @description List of unique identifiers for wallets within an organization */
@@ -2626,6 +2652,7 @@ export type definitions = {
     updateOauth2CredentialIntent?: definitions["v1UpdateOauth2CredentialIntent"];
     deleteOauth2CredentialIntent?: definitions["v1DeleteOauth2CredentialIntent"];
     oauth2AuthenticateIntent?: definitions["v1Oauth2AuthenticateIntent"];
+    deleteWalletAccountsIntent?: definitions["v1DeleteWalletAccountsIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -3116,6 +3143,7 @@ export type definitions = {
     updateOauth2CredentialResult?: definitions["v1UpdateOauth2CredentialResult"];
     deleteOauth2CredentialResult?: definitions["v1DeleteOauth2CredentialResult"];
     oauth2AuthenticateResult?: definitions["v1Oauth2AuthenticateResult"];
+    deleteWalletAccountsResult?: definitions["v1DeleteWalletAccountsResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -3403,6 +3431,10 @@ export type definitions = {
      * @description Desired OTP code length (6–9).
      */
     otpLength?: number;
+    /** @description Custom 'from' email sender for auth-related emails. */
+    sendFromEmailSenderName?: string;
+    /** @description Verification token required for get account with PII (email/phone number). Default false. */
+    verificationTokenRequiredForGetAccountPii?: boolean;
   };
   v1UpdateAuthProxyConfigResult: {
     /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
@@ -4983,6 +5015,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1DeleteUsersRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Delete wallet accounts for an organization. */
+  PublicApiService_DeleteWalletAccounts: {
+    parameters: {
+      body: {
+        body: definitions["v1DeleteWalletAccountsRequest"];
       };
     };
     responses: {

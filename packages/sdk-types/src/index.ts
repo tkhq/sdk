@@ -1,3 +1,5 @@
+import type { v1AppProof } from "./__generated__/types";
+
 export enum SessionType {
   READ_ONLY = "SESSION_TYPE_READ_ONLY",
   READ_WRITE = "SESSION_TYPE_READ_WRITE",
@@ -26,6 +28,7 @@ export type SessionResponse = {
 
 export interface BaseAuthResult {
   sessionToken: string;
+  appProofs?: v1AppProof[] | undefined;
 }
 
 export interface PasskeyAuthResult extends BaseAuthResult {
@@ -82,6 +85,7 @@ export enum TurnkeyErrorCodes {
   CREATE_SUB_ORGANIZATION_ERROR = "CREATE_SUB_ORGANIZATION_ERROR",
   CREATE_USERS_ERROR = "CREATE_USERS_ERROR",
   FETCH_BOOT_PROOF_ERROR = "FETCH_BOOT_PROOF_ERROR",
+  VERIFY_APP_PROOFS_ERROR = "VERIFY_APP_PROOFS_ERROR",
   CREATE_POLICY_ERROR = "CREATE_POLICY_ERROR",
   STORE_SESSION_ERROR = "STORE_SESSION_ERROR",
   CLEAR_SESSION_ERROR = "CLEAR_SESSION_ERROR",

@@ -1997,6 +1997,39 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  deleteWalletAccounts = async (
+    input: SdkApiTypes.TDeleteWalletAccountsBody,
+  ): Promise<SdkApiTypes.TDeleteWalletAccountsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_wallet_accounts",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
+      },
+      "deleteWalletAccountsResult",
+    );
+  };
+
+  stampDeleteWalletAccounts = async (
+    input: SdkApiTypes.TDeleteWalletAccountsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_wallet_accounts";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   deleteWallets = async (
     input: SdkApiTypes.TDeleteWalletsBody,
   ): Promise<SdkApiTypes.TDeleteWalletsResponse> => {
