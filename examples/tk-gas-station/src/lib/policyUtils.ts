@@ -114,7 +114,7 @@ export function buildPaymasterExecutionPolicy(config: {
   organizationId: string;
   paymasterUserId: string;
   executionContractAddress: `0x${string}`;
-  restrictions: {
+  restrictions?: {
     allowedEOAs?: `0x${string}`[];
     allowedContracts?: `0x${string}`[];
     maxGasPrice?: bigint;
@@ -129,17 +129,23 @@ export function buildPaymasterExecutionPolicy(config: {
   ];
 
   // Parse the packed bytes in the execute() or executeNoValue() call
-  // The "to" address is at bytes 81-101 of the packed data
-  // In eth.tx.data, that's at hex position 300-340 (after selector, offset, length, signature, nonce)
+  // Packed data structure (starts at byte 100 of calldata):
+  //   - Signature: 65 bytes (chars 200-330)
+  //   - Nonce: 16 bytes (chars 330-362)
+  //   - Output Contract: 20 bytes (chars 362-402)
+  //   - Call Data: variable
+  //
+  // NOTE: eth.tx.data includes the "0x" prefix, so add 2 to all char positions
   if (
-    config.restrictions.allowedContracts &&
+    config.restrictions?.allowedContracts &&
     config.restrictions.allowedContracts.length > 0
   ) {
     const contracts = config.restrictions.allowedContracts
       .map((addr) => {
         // Remove 0x prefix and pad to 40 hex chars (20 bytes)
         const cleanAddr = addr.slice(2).toLowerCase().padStart(40, "0");
-        return `eth.tx.data[300..340] == '${cleanAddr}'`;
+        // Position 362 in raw hex = position 364 in eth.tx.data (with 0x prefix)
+        return `eth.tx.data[364..404] == '${cleanAddr}'`;
       })
       .join(" || ");
     conditions.push(`(${contracts})`);
@@ -147,25 +153,27 @@ export function buildPaymasterExecutionPolicy(config: {
 
   // Check EOA address (passed as first parameter to execute())
   // In ABI encoding: bytes 4-35 (after 4-byte function selector)
+  // NOTE: eth.tx.data includes the "0x" prefix, so add 2 to all char positions
   if (
-    config.restrictions.allowedEOAs &&
+    config.restrictions?.allowedEOAs &&
     config.restrictions.allowedEOAs.length > 0
   ) {
     const eoas = config.restrictions.allowedEOAs
       .map((addr) => {
         // Remove 0x prefix, convert to lowercase, pad to 64 hex chars (32 bytes)
         const cleanAddr = addr.slice(2).toLowerCase().padStart(64, "0");
-        return `eth.tx.data[4..36] == '${cleanAddr}'`;
+        // Position 8 in raw hex = position 10 in eth.tx.data (with 0x prefix)
+        return `eth.tx.data[10..74] == '${cleanAddr}'`;
       })
       .join(" || ");
     conditions.push(`(${eoas})`);
   }
 
-  if (config.restrictions.maxGasPrice !== undefined) {
+  if (config.restrictions?.maxGasPrice !== undefined) {
     conditions.push(`eth.tx.gasPrice <= ${config.restrictions.maxGasPrice}`);
   }
 
-  if (config.restrictions.maxGasLimit !== undefined) {
+  if (config.restrictions?.maxGasLimit !== undefined) {
     conditions.push(`eth.tx.gas <= ${config.restrictions.maxGasLimit}`);
   }
 

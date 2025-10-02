@@ -10,9 +10,7 @@
     "start-7702-usdc": "tsx src/eip7702/transferUSDCDelegated.ts",
     "eth-transfer": "tsx src/examples/transferETHDelegated.ts",
     "usdc-transfer": "tsx src/examples/transferUSDCDelegated.ts",
-    "create-suborg": "tsx src/examples/signWithPolicies.ts",
-    "create-policies": "tsx src/examples/createPolicies.ts",
-    "debug-policy": "tsx src/examples/policyDebugger.ts",
+    "test:policies": "jest policyEnforcement",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -28,7 +26,10 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/prompts": "^2.4.2",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.2",
     "tsx": "^4.7.0",
     "typescript": "^5.3.0"
   }

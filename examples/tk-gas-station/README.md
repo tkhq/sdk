@@ -456,6 +456,151 @@ const paymasterPolicy = GasStationClient.buildPaymasterExecutionPolicy({
 - Monitor policy violations in Turnkey activity logs
 - Test policies thoroughly before production deployment
 
+### Advanced: Writing Custom Paymaster Policies
+
+When using `buildPaymasterExecutionPolicy`, the SDK creates Turnkey policies that parse the transaction calldata to enforce restrictions. Understanding the transaction structure allows you to write custom policies for advanced use cases.
+
+#### Transaction Data Structure
+
+When the paymaster signs an execution transaction calling `executeNoValue(address eoaAddress, bytes memory packedData)`, the transaction data (`eth.tx.data`) has the following structure:
+
+| Position in eth.tx.data | Length    | Content              | Example                                          |
+| ----------------------- | --------- | -------------------- | ------------------------------------------------ |
+| `[2..10]`               | 8 chars   | Function selector    | `6c5c2ed9`                                       |
+| `[10..74]`              | 64 chars  | EOA address (padded) | `0000...742d35cc6634c0532925a3b844bc9e7595f0beb` |
+| `[74..138]`             | 64 chars  | Offset to bytes      | `0000...0040`                                    |
+| `[138..202]`            | 64 chars  | Packed data length   | `0000...00a9`                                    |
+| `[202..332]`            | 130 chars | Signature (65 bytes) | EIP-712 signature from EOA                       |
+| `[332..364]`            | 32 chars  | Nonce (16 bytes)     | `00000000000000000000000000000000`               |
+| `[364..404]`            | 40 chars  | **Output contract**  | `833589fcd6edb6e08f4c7c32d4f71b54bda02913`       |
+| `[404+]`                | Variable  | Call data            | Encoded function call                            |
+
+**Important:** Turnkey's `eth.tx.data` includes the `0x` prefix, so positions start at index 2 (after `0x`).
+
+#### Policy Conditions Reference
+
+**Check execution contract address:**
+
+```typescript
+eth.tx.to == "0x576a4d741b96996cc93b4919a04c16545734481f";
+```
+
+**Check which EOA is executing:**
+
+```typescript
+eth.tx.data[10..74] == '0000000000000000000000742d35cc6634c0532925a3b844bc9e7595f0beb'
+```
+
+**Check target contract (output contract):**
+
+```typescript
+eth.tx.data[364..404] == '833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+```
+
+**Check gas price:**
+
+```typescript
+eth.tx.gasPrice <= 50000000000; // 50 gwei in wei
+```
+
+**Check gas limit:**
+
+```typescript
+eth.tx.gas <= 500000;
+```
+
+#### Example: Custom Multi-Contract Policy
+
+Allow paymaster to execute for USDC or DAI only:
+
+```typescript
+const policy = {
+  organizationId: "paymaster-org-id",
+  policyName: "Stablecoin Execution Policy",
+  effect: "EFFECT_ALLOW",
+  consensus: `approvers.any(user, user.id == '${paymasterUserId}')`,
+  condition: [
+    "activity.resource == 'PRIVATE_KEY'",
+    "activity.action == 'SIGN'",
+    "eth.tx.to == '0x576a4d741b96996cc93b4919a04c16545734481f'",
+    // Allow USDC or DAI
+    "(eth.tx.data[364..404] == '833589fcd6edb6e08f4c7c32d4f71b54bda02913' || eth.tx.data[364..404] == '50c5725949a6f0c72e6c4a641f24049a917db0cb')",
+    // Gas limits
+    "eth.tx.gasPrice <= 100000000000",
+    "eth.tx.gas <= 500000",
+  ].join(" && "),
+  notes: "Allow USDC and DAI execution with gas limits",
+};
+
+await turnkeyClient.apiClient().createPolicy(policy);
+```
+
+#### Example: Whitelist Specific EOAs
+
+Only allow execution for approved user wallets:
+
+```typescript
+const approvedEOAs = [
+  "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+  "0x1234567890123456789012345678901234567890",
+];
+
+const eoaConditions = approvedEOAs
+  .map((addr) => {
+    const padded = addr.slice(2).toLowerCase().padStart(64, "0");
+    return `eth.tx.data[10..74] == '${padded}'`;
+  })
+  .join(" || ");
+
+const policy = {
+  organizationId: "paymaster-org-id",
+  policyName: "Approved Users Only",
+  effect: "EFFECT_ALLOW",
+  consensus: `approvers.any(user, user.id == '${paymasterUserId}')`,
+  condition: [
+    "activity.resource == 'PRIVATE_KEY'",
+    "activity.action == 'SIGN'",
+    "eth.tx.to == '0x576a4d741b96996cc93b4919a04c16545734481f'",
+    `(${eoaConditions})`,
+  ].join(" && "),
+};
+
+await turnkeyClient.apiClient().createPolicy(policy);
+```
+
+#### Using the Helper Functions
+
+For most cases, use the built-in helpers which handle the byte positions correctly:
+
+```typescript
+import { buildPaymasterExecutionPolicy } from "./lib";
+
+const policy = buildPaymasterExecutionPolicy({
+  organizationId: subOrgId,
+  paymasterUserId: paymasterUserId,
+  executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+  restrictions: {
+    allowedContracts: [
+      "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+      "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb", // DAI
+    ],
+    allowedEOAs: ["0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"],
+    maxGasPrice: parseGwei("100"),
+    maxGasLimit: 500000n,
+  },
+  policyName: "Production Paymaster Policy",
+});
+
+await turnkeyClient.apiClient().createPolicy(policy);
+```
+
+The helper functions automatically:
+
+- Convert addresses to lowercase
+- Add proper padding for EOA addresses
+- Calculate correct byte positions (accounting for `0x` prefix)
+- Generate proper OR conditions for multiple allowed values
+
 ## Troubleshooting
 
 ### Authorization Failed
