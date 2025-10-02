@@ -145,8 +145,8 @@ export function buildPaymasterExecutionPolicy(config: {
     conditions.push(`(${contracts})`);
   }
 
-  // Check EOA address (would need to be passed as first parameter to execute())
-  // That's at position 4-36 in standard ABI encoding
+  // Check EOA address (passed as first parameter to execute())
+  // In ABI encoding: bytes 4-35 (after 4-byte function selector)
   if (
     config.restrictions.allowedEOAs &&
     config.restrictions.allowedEOAs.length > 0
@@ -155,7 +155,7 @@ export function buildPaymasterExecutionPolicy(config: {
       .map((addr) => {
         // Remove 0x prefix, convert to lowercase, pad to 64 hex chars (32 bytes)
         const cleanAddr = addr.slice(2).toLowerCase().padStart(64, "0");
-        return `eth.tx.data[10..74] == '${cleanAddr}'`;
+        return `eth.tx.data[4..36] == '${cleanAddr}'`;
       })
       .join(" || ");
     conditions.push(`(${eoas})`);

@@ -162,6 +162,60 @@ export class GasStationClient {
   }
 
   /**
+   * Sign an execution transaction for a signed intent (paymaster signs, doesn't send)
+   * This is useful for testing policies - the paymaster attempts to sign the execution
+   * but doesn't actually broadcast it to the network.
+   * Call this with a paymaster client to test if the paymaster can sign the execution.
+   */
+  async signExecution(intent: ExecutionIntent): Promise<`0x${string}`> {
+    print("Paymaster signing execution transaction...", "");
+
+    // Pack the execution data based on whether we're sending ETH
+    const packedData =
+      intent.ethAmount > 0n
+        ? packExecutionData(
+            intent.signature,
+            intent.nonce,
+            intent.outputContract,
+            intent.ethAmount,
+            intent.callData
+          )
+        : packExecutionDataNoValue(
+            intent.signature,
+            intent.nonce,
+            intent.outputContract,
+            intent.callData
+          );
+
+    // Determine which function to call based on ETH amount
+    const functionName = intent.ethAmount > 0n ? "execute" : "executeNoValue";
+
+    // Encode the function call data
+    const callData = encodeFunctionData({
+      abi: gasStationAbi,
+      functionName,
+      args: [intent.eoaAddress, packedData],
+    });
+
+    // Get current gas price for the transaction
+    const gasPrice = await this.publicClient.getGasPrice();
+
+    // Sign the transaction without sending it
+    const signedTx = await this.walletClient.signTransaction({
+      to: this.executionContract,
+      data: callData,
+      gas: BigInt(200000),
+      gasPrice, // Add gas price for legacy transaction type
+      account: this.walletClient.account,
+      chain: this.walletClient.chain,
+    });
+
+    print("✓ Paymaster signed execution transaction", "");
+
+    return signedTx;
+  }
+
+  /**
    * Execute a signed intent through the gas station contract.
    * Packs the execution data according to the delegate contract's expected format and
    * submits it via the execution contract.
