@@ -740,6 +740,9 @@ importers:
 
   examples/tk-gas-station:
     dependencies:
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../packages/crypto
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers

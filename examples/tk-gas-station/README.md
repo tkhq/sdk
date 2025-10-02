@@ -108,19 +108,24 @@ const paymasterClient = new GasStationClient({
 await userClient.authorize(paymasterClient);
 
 // Execute a gasless ETH transfer
-const ethTransfer = GasStationHelpers.buildETHTransfer(
-  "0xRecipient...",
-  parseEther("0.1")
-);
-await userClient.execute(ethTransfer, paymasterClient);
+let nonce = await userClient.getNonce();
+const ethIntent = await userClient
+  .createIntent()
+  .transferETH("0xRecipient...", parseEther("0.1"))
+  .sign(nonce);
+await paymasterClient.execute(ethIntent);
 
 // Execute a gasless token transfer
-const usdcTransfer = GasStationHelpers.buildTokenTransfer(
-  "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
-  "0xRecipient...",
-  parseUnits("10", 6)
-);
-await userClient.execute(usdcTransfer, paymasterClient);
+nonce = await userClient.getNonce();
+const usdcIntent = await userClient
+  .createIntent()
+  .transferToken(
+    "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
+    "0xRecipient...",
+    parseUnits("10", 6)
+  )
+  .sign(nonce);
+await paymasterClient.execute(usdcIntent);
 ```
 
 ## Core API
@@ -166,7 +171,7 @@ new GasStationClient({
 - Submit a signed EIP-7702 authorization transaction
 - Paymaster pays for gas
 
-**`executeIntent(intent: ExecutionIntent): Promise<{ txHash, blockNumber, gasUsed }>`**
+**`execute(intent: ExecutionIntent): Promise<{ txHash, blockNumber, gasUsed }>`**
 
 - Execute a signed intent through the gas station
 - Paymaster pays for gas
@@ -177,11 +182,6 @@ new GasStationClient({
 
 - Combined flow: user signs authorization, paymaster submits
 - One-time setup per EOA
-
-**`execute(params: ExecutionParams, paymasterClient: GasStationClient): Promise<{ txHash, blockNumber, gasUsed }>`**
-
-- Combined flow: user signs intent, paymaster executes
-- Accepts `{ outputContract, callData, value }`
 
 ### GasStationHelpers
 
@@ -210,13 +210,13 @@ Composable builder for complex multi-step transactions.
 
 ```typescript
 const nonce = await userClient.getNonce();
-const builder = await userClient.createIntent();
+const builder = userClient.createIntent();
 
 const intent = await builder
   .transferToken(usdcAddress, recipient, amount)
   .sign(nonce);
 
-await paymasterClient.executeIntent(intent);
+await paymasterClient.execute(intent);
 ```
 
 ## Common Use Cases
@@ -225,13 +225,13 @@ await paymasterClient.executeIntent(intent);
 
 ```typescript
 // Gasless USDC payment
-const payment = GasStationHelpers.buildTokenTransfer(
-  usdcAddress,
-  recipientAddress,
-  parseUnits("50", 6)
-);
+const nonce = await userClient.getNonce();
+const intent = await userClient
+  .createIntent()
+  .transferToken(usdcAddress, recipientAddress, parseUnits("50", 6))
+  .sign(nonce);
 
-const result = await userClient.execute(payment, paymasterClient);
+const result = await paymasterClient.execute(intent);
 console.log(`Payment sent: ${result.txHash}`);
 ```
 
@@ -239,35 +239,43 @@ console.log(`Payment sent: ${result.txHash}`);
 
 ```typescript
 // Step 1: Approve DEX to spend tokens
-const approval = GasStationHelpers.buildTokenApproval(
-  usdcAddress,
-  dexAddress,
-  parseUnits("100", 6)
-);
-await userClient.execute(approval, paymasterClient);
+let nonce = await userClient.getNonce();
+const approvalIntent = await userClient
+  .createIntent()
+  .approveToken(usdcAddress, dexAddress, parseUnits("100", 6))
+  .sign(nonce);
+await paymasterClient.execute(approvalIntent);
 
 // Step 2: Execute swap
-const swap = GasStationHelpers.buildContractCall({
-  contract: dexAddress,
-  abi: DEX_ABI,
-  functionName: "swapExactTokensForTokens",
-  args: [amountIn, amountOutMin, path, recipient, deadline],
-});
-await userClient.execute(swap, paymasterClient);
+nonce = await userClient.getNonce();
+const swapIntent = await userClient
+  .createIntent()
+  .callContract({
+    contract: dexAddress,
+    abi: DEX_ABI,
+    functionName: "swapExactTokensForTokens",
+    args: [amountIn, amountOutMin, path, recipient, deadline],
+  })
+  .sign(nonce);
+await paymasterClient.execute(swapIntent);
 ```
 
 ### NFT Minting
 
 ```typescript
-const mint = GasStationHelpers.buildContractCall({
-  contract: nftContract,
-  abi: NFT_ABI,
-  functionName: "mint",
-  args: [tokenId],
-  value: parseEther("0.1"), // Optional ETH to send
-});
+const nonce = await userClient.getNonce();
+const mintIntent = await userClient
+  .createIntent()
+  .callContract({
+    contract: nftContract,
+    abi: NFT_ABI,
+    functionName: "mint",
+    args: [tokenId],
+    value: parseEther("0.1"), // Optional ETH to send
+  })
+  .sign(nonce);
 
-await userClient.execute(mint, paymasterClient);
+await paymasterClient.execute(mintIntent);
 ```
 
 ### User Onboarding
@@ -415,16 +423,20 @@ const MY_CONTRACT_ABI = [
   },
 ];
 
-// Build execution params
-const customCall = GasStationHelpers.buildContractCall({
-  contract: myContractAddress,
-  abi: MY_CONTRACT_ABI,
-  functionName: "customFunction",
-  args: [12345, recipientAddress],
-});
+// Build and execute
+const nonce = await userClient.getNonce();
+const intent = await userClient
+  .createIntent()
+  .callContract({
+    contract: myContractAddress,
+    abi: MY_CONTRACT_ABI,
+    functionName: "customFunction",
+    args: [12345, recipientAddress],
+  })
+  .sign(nonce);
 
 // Execute gaslessly
-await userClient.execute(customCall, paymasterClient);
+await paymasterClient.execute(intent);
 ```
 
 ## Contract Deployment

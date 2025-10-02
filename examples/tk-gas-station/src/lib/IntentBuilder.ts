@@ -51,6 +51,14 @@ export class IntentBuilder {
   }
 
   /**
+   * Set the call data directly (for pre-encoded function calls)
+   */
+  withCallData(callData: `0x${string}`): this {
+    this.callData = callData;
+    return this;
+  }
+
+  /**
    * Add a contract call to this intent
    */
   callContract(params: ContractCallParams): this {

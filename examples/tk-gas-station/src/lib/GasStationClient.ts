@@ -148,6 +148,11 @@ export class GasStationClient {
    * Call this with an end-user client to create intents for signing
    */
   createIntent(): IntentBuilder {
+    if (!this.walletClient.account?.address) {
+      throw new Error(
+        `Wallet client account is not properly configured. Account: ${JSON.stringify(this.walletClient.account)}`
+      );
+    }
     return IntentBuilder.create({
       eoaWalletClient: this.walletClient,
       chainId: this.walletClient.chain.id,
@@ -162,7 +167,7 @@ export class GasStationClient {
    * submits it via the execution contract.
    * Call this with a paymaster client to submit and pay for the transaction.
    */
-  async executeIntent(
+  async execute(
     intent: ExecutionIntent
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint; gasUsed: bigint }> {
     print("Executing intent via gas station...", "");
@@ -221,45 +226,5 @@ export class GasStationClient {
       blockNumber: receipt.blockNumber,
       gasUsed: receipt.gasUsed,
     };
-  }
-
-  /**
-   * Convenience method that combines creating, signing, and executing an intent
-   * This requires the caller to have access to both the end-user and paymaster clients
-   * For separate flows, use createIntent() + sign() with user client, then executeIntent() with paymaster client
-   *
-   * @param params - Execution parameters (outputContract, callData, value)
-   * @param paymasterClient - The paymaster client that will submit and pay for the transaction
-   * @returns Transaction receipt with txHash, blockNumber, and gasUsed
-   */
-  async execute(
-    params: {
-      outputContract: `0x${string}`;
-      callData: `0x${string}`;
-      value?: bigint;
-    },
-    paymasterClient: GasStationClient
-  ): Promise<{
-    txHash: `0x${string}`;
-    blockNumber: bigint;
-    gasUsed: bigint;
-  }> {
-    print("===== Preparing Execution =====", "");
-
-    // Get nonce for the end user
-    const nonce = await this.getNonce();
-    print(`Current nonce: ${nonce}`, "");
-
-    // Create and sign intent with end user client
-    const builder = this.createIntent();
-    builder.setTarget(params.outputContract).withValue(params.value ?? 0n);
-    (builder as any).callData = params.callData;
-    const intent = await builder.sign(nonce);
-
-    // Execute with paymaster client
-    const result = await paymasterClient.executeIntent(intent);
-
-    print("===== Execution Complete =====", "");
-    return result;
   }
 }

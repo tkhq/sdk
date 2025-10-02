@@ -153,8 +153,22 @@ const main = async () => {
     `${transferAmount} units (0.01 USDC) to ${env.PAYMASTER}`
   );
 
-  // Execute: user signs, paymaster submits
-  const result = await userClient.execute(executionParams, paymasterClient);
+  // Step 1: User gets their current nonce
+  const nonce = await userClient.getNonce();
+  print(`Current nonce: ${nonce}`, "");
+
+  // Step 2: User creates and signs the intent
+  const intent = await userClient
+    .createIntent()
+    .setTarget(executionParams.outputContract)
+    .withValue(executionParams.value ?? 0n)
+    .withCallData(executionParams.callData)
+    .sign(nonce);
+
+  print("✓ Intent signed by user", "");
+
+  // Step 3: Paymaster executes the signed intent
+  const result = await paymasterClient.execute(intent);
 
   print("===== USDC Transfer Complete =====", "");
   print(

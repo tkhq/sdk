@@ -137,21 +137,35 @@ const main = async () => {
   // Step 2: Execute ETH transfer using the generic execute API with helpers
   print("===== Starting ETH Transfer =====", "");
 
-  const transferAmount = parseEther("0.001"); // 0.001 ETH
+  const transferAmount = parseEther("0.0001"); // 0.0001 ETH
 
   // Build the execution parameters using the helper
   const executionParams = GasStationHelpers.buildETHTransfer(
-    env.PAYMASTER as `0x${string}`,
+    env.PAYMASTER as `0x${string}`, // transfer eth to paymaster from EOA
     transferAmount
   );
 
   print(
     `Executing ETH transfer`,
-    `${transferAmount} wei (0.001 ETH) to ${env.PAYMASTER}`
+    `${transferAmount} wei (0.0001 ETH) to ${env.PAYMASTER}`
   );
 
-  // Execute: user signs, paymaster submits
-  const result = await userClient.execute(executionParams, paymasterClient);
+  // Step 1: User gets their current nonce
+  const nonce = await userClient.getNonce();
+  print(`Current nonce: ${nonce}`, "");
+
+  // Step 2: User creates and signs the intent
+  const intent = await userClient
+    .createIntent()
+    .setTarget(executionParams.outputContract)
+    .withValue(executionParams.value ?? 0n)
+    .withCallData(executionParams.callData)
+    .sign(nonce);
+
+  print("✓ Intent signed by user", "");
+
+  // Step 3: Paymaster executes the signed intent
+  const result = await paymasterClient.execute(intent);
 
   print("===== ETH Transfer Complete =====", "");
   print(

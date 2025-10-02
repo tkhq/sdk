@@ -10,10 +10,14 @@
     "start-7702-usdc": "tsx src/eip7702/transferUSDCDelegated.ts",
     "eth-transfer": "tsx src/examples/transferETHDelegated.ts",
     "usdc-transfer": "tsx src/examples/transferUSDCDelegated.ts",
+    "create-suborg": "tsx src/examples/signWithPolicies.ts",
+    "create-policies": "tsx src/examples/createPolicies.ts",
+    "debug-policy": "tsx src/examples/policyDebugger.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@turnkey/crypto": "workspace:*",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/viem": "workspace:*",
