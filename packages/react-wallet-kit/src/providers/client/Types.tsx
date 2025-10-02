@@ -42,6 +42,7 @@ import type {
   HandleUpdateUserEmailParams,
   HandleUpdateUserNameParams,
   HandleUpdateUserPhoneNumberParams,
+  HandleVerifyAppProofsParams,
   HandleXOauthParams,
   RefreshUserParams,
   RefreshWalletsParams,
@@ -722,6 +723,24 @@ export type ClientContextType = Override<
     handleRemoveUserPhoneNumber: (
       params?: HandleRemoveUserPhoneNumberParams,
     ) => Promise<string>;
+
+    /**
+     * Handles verification of a list of app proofs against their corresponding boot proofs.
+     *
+     * - This function iterates through each provided app proof, fetches the corresponding boot proof, and verifies the app proof against the boot proof.
+     * - If any app proof fails verification, an error is thrown.
+     * - A modal is opened to show the progress of the verification
+     *
+     * @param params.appProofs - the app proofs to verify.
+     * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
+     * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+     * @param params.successPageDuration - duration (in ms) for the success page after verification (default: 0, no success page).
+     * @returns A promise that resolves when all app proofs have been successfully verified.
+     * @throws {TurnkeyError} If there is no active session, if the input is invalid, if verification fails, or if the user cancels the action.
+     */
+    handleVerifyAppProofs: (
+      params: HandleVerifyAppProofsParams,
+    ) => Promise<void>;
   }
 >;
 

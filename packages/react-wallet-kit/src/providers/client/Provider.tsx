@@ -95,6 +95,7 @@ import {
   type FetchBootProofForAppProofParams,
   type TurnkeySDKClientBase,
   type CreateHttpClientParams,
+  type VerifyAppProofsParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -113,7 +114,8 @@ import {
   type WalletAuthResult,
   AuthAction,
   type PasskeyAuthResult,
-  v1BootProof,
+  type v1BootProof,
+  type v1AppProof,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -173,10 +175,12 @@ import type {
   HandleUpdateUserEmailParams,
   HandleUpdateUserNameParams,
   HandleUpdateUserPhoneNumberParams,
+  HandleVerifyAppProofsParams,
   HandleXOauthParams,
   RefreshUserParams,
   RefreshWalletsParams,
 } from "../../types/method-types";
+import { VerifyPage } from "../../components/verify/Verify";
 
 /**
  * @inline
@@ -1176,8 +1180,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     method: AuthMethod;
     action: AuthAction;
     identifier: string;
+    appProofs?: v1AppProof[] | undefined;
   }) => {
-    const { method, action, identifier } = params;
+    const { method, action, identifier, appProofs } = params;
     try {
       const sessionKey = await getActiveSessionKey();
       const session = await getSession({
@@ -1197,6 +1202,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       await refreshWallets();
       await refreshUser();
+
+      if (
+        masterConfig?.auth?.verifyWalletOnSignup === true &&
+        appProofs &&
+        appProofs.length > 0 &&
+        action === AuthAction.SIGNUP
+      ) {
+        // On signup, if we have appProofs, verify them
+        await handleVerifyAppProofs({ appProofs });
+      }
 
       callbacks?.onAuthenticationSuccess?.({
         session,
@@ -1344,6 +1359,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Passkey,
           action: AuthAction.LOGIN,
           identifier: res.credentialId,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -1411,6 +1427,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Passkey,
           action: AuthAction.SIGNUP,
           identifier: res.credentialId,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -1535,6 +1552,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Wallet,
           action: AuthAction.LOGIN,
           identifier: res.address,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -1579,6 +1597,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Wallet,
           action: AuthAction.SIGNUP,
           identifier: res.address,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -1625,6 +1644,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Wallet,
           action: res.action,
           identifier: res.address,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -1688,6 +1708,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Otp,
           action: AuthAction.LOGIN,
           identifier: params.verificationToken,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -1735,6 +1756,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Otp,
           action: AuthAction.SIGNUP,
           identifier: params.verificationToken,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -1787,6 +1809,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Otp,
           action: res.action,
           identifier: res.verificationToken,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -1814,6 +1837,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Oauth,
           action: AuthAction.LOGIN,
           identifier: params.oidcToken,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -1855,6 +1879,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Oauth,
           action: AuthAction.SIGNUP,
           identifier: params.oidcToken,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -1900,6 +1925,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           method: AuthMethod.Oauth,
           action: res.action,
           identifier: params.oidcToken,
+          appProofs: res.appProofs,
         });
       }
       return res;
@@ -2836,6 +2862,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         () => logout(),
         callbacks,
         "Failed to fetch or create delegated access user",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const verifyAppProofs = useCallback(
+    async (params: VerifyAppProofsParams): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.verifyAppProofs(params),
+        () => logout(),
+        callbacks,
+        "Failed to verify app proofs",
       );
     },
     [client, callbacks],
@@ -5185,6 +5228,62 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [pushPage, masterConfig, client, session, user],
   );
 
+  const handleVerifyAppProofs = useCallback(
+    async (params: HandleVerifyAppProofsParams): Promise<void> => {
+      const { appProofs, successPageDuration = 3000, stampWith } = params || {};
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
+      if (!organizationId) {
+        throw new TurnkeyError(
+          "A session or passed in organization ID is required.",
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
+      }
+
+      try {
+        return new Promise((resolve, reject) => {
+          pushPage({
+            key: "Verify app proofs",
+            showTurnkeyBranding: false,
+            content: (
+              <VerifyPage
+                appProofs={appProofs}
+                onSuccess={() => {
+                  resolve();
+                }}
+                onError={(error: unknown) => {
+                  reject(error);
+                }}
+                successPageDuration={successPageDuration}
+                {...(stampWith && { stampWith })}
+                {...(organizationId !== undefined && { organizationId })}
+              />
+            ),
+            showTitle: false,
+            preventBack: true,
+            onClose: () =>
+              reject(
+                new TurnkeyError(
+                  "User canceled the verify app proofs process.",
+                  TurnkeyErrorCodes.USER_CANCELED,
+                ),
+              ),
+          });
+        });
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to verify app proofs.",
+          TurnkeyErrorCodes.VERIFY_APP_PROOFS_ERROR,
+          error,
+        );
+      }
+    },
+    [pushPage, client],
+  );
+
   useEffect(() => {
     if (proxyAuthConfigRef.current) return;
 
@@ -5380,6 +5479,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         createApiKeyPair,
         getProxyAuthConfig,
         fetchBootProofForAppProof,
+        verifyAppProofs,
         handleLogin,
         handleGoogleOauth,
         handleXOauth,
@@ -5404,6 +5504,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleConnectExternalWallet,
         handleRemoveUserEmail,
         handleRemoveUserPhoneNumber,
+        handleVerifyAppProofs,
       }}
     >
       {children}
