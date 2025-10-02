@@ -13,7 +13,7 @@ export { CHAIN_PRESETS, getPreset, createCustomPreset } from "./config";
 export {
   buildIntentSigningPolicy,
   buildPaymasterExecutionPolicy,
-} from "./policyutils";
+} from "./policyUtils";
 export type {
   GasStationConfig,
   ChainPreset,
