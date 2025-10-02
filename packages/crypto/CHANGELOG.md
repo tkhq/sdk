@@ -1,5 +1,29 @@
 # @turnkey/crypto
 
+## 2.8.0
+
+### Minor Changes
+
+- [#974](https://github.com/tkhq/sdk/pull/974) [`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c) Author [@narimonf](https://github.com/narimonf) - Added verification tooling for app proofs and boot proofs. Primarily adds `verify()`, which verifies an app proof boot proof pair.
+
+### Patch Changes
+
+- Updated dependencies [[`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c)]:
+  - @turnkey/sdk-types@0.6.0
+
+## 2.7.0
+
+### Minor Changes
+
+- [#947](https://github.com/tkhq/sdk/pull/947) [`2191a1b`](https://github.com/tkhq/sdk/commit/2191a1b201fb17dea4c79cf9e02b3a493b18f97a) Author [@amircheikh](https://github.com/amircheikh) - - Added `encryptOnRampSecret` helper function. This is used for encrypting your fiat on ramp secrets before passing into the `CreateFiatOnRampCredential` activity
+
+## 2.6.0
+
+### Minor Changes
+
+- Updated dependencies [[`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e), [`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e), [`4880f26`](https://github.com/tkhq/sdk/commit/4880f26a4dd324c049bff7f35284098ccfc55823), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`06347ad`](https://github.com/tkhq/sdk/commit/06347adfa08fb0867c350e43821d0fed06c49624), [`6bfcbc5`](https://github.com/tkhq/sdk/commit/6bfcbc5c098e64ab1d115518733b87cfc1653e17)]:
+  - @turnkey/encoding@0.6.0
+
 ## 2.6.0-beta.6
 
 ### Minor Changes
@@ -118,12 +142,10 @@
 ### Minor Changes
 
 - https://github.com/tkhq/sdk/pull/384: Reorganize into two subparts:
-
   - `crypto.ts`: core cryptography utilities
   - `turnkey.ts`: Turnkey-specific cryptography utilities
 
   Add `verifyStampSignature` method:
-
   - See in-line code docs for more details + example of usage
   - This is useful for checking the validity of a stamp (signature) against the request body
 

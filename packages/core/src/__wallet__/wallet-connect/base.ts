@@ -15,7 +15,7 @@ import {
   WalletConnectProvider,
   WalletConnectInterface,
   SwitchableChain,
-} from "@types";
+} from "../../__types__";
 import type { WalletConnectClient } from "./client";
 import type { SessionTypes } from "@walletconnect/types";
 import { Transaction } from "ethers";
@@ -23,7 +23,8 @@ import { Transaction } from "ethers";
 type WalletConnectChangeEvent =
   | { type: "disconnect" }
   | { type: "chainChanged"; chainId?: string }
-  | { type: "update" };
+  | { type: "update" }
+  | { type: "proposalExpired" };
 
 export class WalletConnectWallet implements WalletConnectInterface {
   readonly interfaceType = WalletInterfaceType.WalletConnect;
@@ -35,6 +36,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
   private solChain!: string;
 
   private uri?: string;
+  private isRegeneratingUri = false;
 
   private changeListeners = new Set<
     (event?: WalletConnectChangeEvent) => void
@@ -60,11 +62,6 @@ export class WalletConnectWallet implements WalletConnectInterface {
    * @param client - The low-level WalletConnect client used for session/RPC.
    */
   constructor(private client: WalletConnectClient) {
-    // session disconnected
-    this.client.onSessionDelete(() => {
-      this.notifyChange({ type: "disconnect" });
-    });
-
     // session updated (actual update to the session for example adding a chain to namespaces)
     this.client.onSessionUpdate(() => {
       this.notifyChange({ type: "update" });
@@ -78,6 +75,38 @@ export class WalletConnectWallet implements WalletConnectInterface {
             ? event.data.chainId
             : undefined;
         this.notifyChange({ type: "chainChanged", chainId });
+      }
+    });
+
+    // session disconnected
+    this.client.onSessionDelete(() => {
+      this.notifyChange({ type: "disconnect" });
+    });
+
+    // pairing expired without a session being established
+    this.client.onPairingExpire(async () => {
+      // prevent multiple simultaneous regenerations
+      if (this.isRegeneratingUri) return;
+
+      this.isRegeneratingUri = true;
+
+      try {
+        // we cancel the previous pairing, if any
+        // this is to avoid multiple pairings
+        // we also error if there is an active pairing
+        // and we try to create a new one
+        await this.client.cancelPairing();
+
+        const namespaces = this.buildNamespaces();
+
+        const newUri = await this.client.pair(namespaces);
+        this.uri = newUri;
+
+        this.notifyChange({ type: "proposalExpired" });
+      } catch (error) {
+        console.error("failed to regenerate URI:", error);
+      } finally {
+        this.isRegeneratingUri = false;
       }
     });
   }
@@ -126,7 +155,9 @@ export class WalletConnectWallet implements WalletConnectInterface {
 
     const namespaces = this.buildNamespaces();
 
-    this.uri = await this.client.pair(namespaces);
+    await this.client.pair(namespaces).then((newUri) => {
+      this.uri = newUri;
+    });
   }
 
   /**
@@ -165,12 +196,29 @@ export class WalletConnectWallet implements WalletConnectInterface {
    * - Throws if the approved session contains no connected accounts.
    *
    * @param _provider - Unused (present for interface compatibility).
+   * @returns A promise that resolves with the connected wallet's address.
    * @throws {Error} If the session contains no accounts.
    */
-  async connectWalletAccount(_provider: WalletProvider): Promise<void> {
+  async connectWalletAccount(provider: WalletProvider): Promise<string> {
     const session = await this.client.approve();
-    if (!hasConnectedAccounts(session))
-      throw new Error("No account found in session");
+
+    let address: string | undefined;
+    switch (provider.chainInfo.namespace) {
+      case Chain.Ethereum:
+        address = getConnectedEthereum(session);
+        break;
+      case Chain.Solana:
+        address = getConnectedSolana(session);
+        break;
+      default:
+        throw new Error(`Unsupported namespace: ${provider.chainInfo}`);
+    }
+
+    if (!address) {
+      throw new Error("No connected account found");
+    }
+
+    return address;
   }
 
   /**
@@ -420,6 +468,9 @@ export class WalletConnectWallet implements WalletConnectInterface {
     await this.client.pair(namespaces).then((newUri) => {
       this.uri = newUri;
     });
+
+    // we emit a disconnect event because WalletConnect doesn't
+    this.notifyChange({ type: "disconnect" });
   }
 
   /**
@@ -480,8 +531,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
     session: SessionTypes.Struct | null,
     info: WalletProviderInfo,
   ): Promise<WalletProvider> {
-    const raw = session?.namespaces.eip155?.accounts?.[0] ?? "";
-    const address = raw.split(":")[2];
+    const address = getConnectedEthereum(session);
 
     const chainIdString = this.ethChain.split(":")[1] ?? "1";
     const chainIdDecimal = Number(chainIdString);

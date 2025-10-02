@@ -1,5 +1,44 @@
 # @turnkey/solana
 
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`4adbf9b`](https://github.com/tkhq/sdk/commit/4adbf9bbb6b93f84aa80e06a1eeabd61d1dbbb86), [`4ead6da`](https://github.com/tkhq/sdk/commit/4ead6da626468fde41daf85eae90faf18651d1c1), [`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c)]:
+  - @turnkey/core@1.3.0
+  - @turnkey/sdk-browser@5.11.1
+  - @turnkey/sdk-server@4.10.1
+
+## 1.1.2
+
+### Patch Changes
+
+- Updated dependencies [[`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241), [`010543c`](https://github.com/tkhq/sdk/commit/010543c3b1b56a18816ea92a1a1cbe028cf988e4)]:
+  - @turnkey/sdk-browser@5.11.0
+  - @turnkey/sdk-server@4.10.0
+  - @turnkey/core@1.2.0
+  - @turnkey/http@3.13.0
+
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies [[`0080c4d`](https://github.com/tkhq/sdk/commit/0080c4d011a7f8d04b41d89b31863b75d1a816ef), [`5a96fe8`](https://github.com/tkhq/sdk/commit/5a96fe80db4c4c45e09ad8c613695ee4c2b8e51f), [`c2a0bd7`](https://github.com/tkhq/sdk/commit/c2a0bd7ea8a53524cde16897f375f8a7088ba963), [`90841f9`](https://github.com/tkhq/sdk/commit/90841f95f3f738c47c04797096902d9d0a23afc7), [`e4bc82f`](https://github.com/tkhq/sdk/commit/e4bc82fc51c692d742923ccfff72c2c862ee71a4)]:
+  - @turnkey/core@1.1.0
+  - @turnkey/sdk-browser@5.10.1
+  - @turnkey/sdk-server@4.9.1
+  - @turnkey/http@3.12.1
+
+## 1.1.0
+
+### Minor Changes
+
+- Updated dependencies [[`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e), [`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e), [`4880f26`](https://github.com/tkhq/sdk/commit/4880f26a4dd324c049bff7f35284098ccfc55823), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`06347ad`](https://github.com/tkhq/sdk/commit/06347adfa08fb0867c350e43821d0fed06c49624)]:
+  - @turnkey/sdk-server@4.9.0
+  - @turnkey/core@1.0.0
+  - @turnkey/http@3.12.0
+  - @turnkey/sdk-browser@5.10.0
+
 ## 1.1.0-beta.1
 
 ### Patch Changes
@@ -459,7 +498,6 @@
 - a4f0f69: Integrate @turnkey/solana with Turnkey's Sign Transaction endpoint. There are no breaking changes, but a major release felt right given this is effectively adding "full" Solana support.
 
   This release introduces a new method: `signTransaction`. Under the hood, this creates an activity of type `ACTIVITY_TYPE_SIGN_TRANSACTION_V2`. There is **no action required** for existing users of `addSignature`.
-
   - `addSignature` does not use our Policy Engine, and instead signs a transaction's message straight up
   - While `addSignature` mutates the incoming transaction by adding a signature to it directly, `signTransaction` returns a new transaction object
   - Both legacy and versioned (V0) transactions are supported

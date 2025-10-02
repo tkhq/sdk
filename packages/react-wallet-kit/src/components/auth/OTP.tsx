@@ -4,7 +4,7 @@ import { useTurnkey } from "../../providers/client/Hook";
 import { Spinner } from "../design/Spinners";
 import { Input } from "@headlessui/react";
 import { BaseButton } from "../design/Buttons";
-import { OtpType } from "@turnkey/core";
+import { OtpType, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faPhone } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
@@ -13,8 +13,8 @@ interface OtpVerificationProps {
   contact: string;
   otpId: string;
   otpType: OtpType;
-  otpLength?: number;
-  alphanumeric?: boolean;
+  otpLength?: number | undefined; // Length of the OTP code. Defaults to 6.
+  alphanumeric?: boolean | undefined; // Whether the OTP is alphanumeric or numeric only. Defaults to true (alphanumeric).
   formattedContact?: string; // Optional formatted contact for display purposes
   sessionKey?: string; // Optional sessionKey for multisession
   onContinue?: (optCode: string) => Promise<void>; // Optional callback for continue action
@@ -59,9 +59,10 @@ export function OtpVerification(props: OtpVerificationProps) {
         closeModal();
       }
     } catch (error) {
-      const niceError = (error as Error).message.includes("Invalid OTP")
-        ? "Invalid OTP code"
-        : "An error has occurred"; // eek! maybe this is bad!
+      const niceError =
+        (error as TurnkeyError).code === TurnkeyErrorCodes.INVALID_OTP_CODE
+          ? "Invalid OTP code"
+          : "An error has occurred";
       setError(niceError);
       shakeInput();
       throw new Error(`Error completing OTP: ${error}`);

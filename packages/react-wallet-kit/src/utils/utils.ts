@@ -63,6 +63,7 @@ export const useDebouncedCallback = <T extends (...args: any[]) => void>(
 ): T => {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fnRef = useRef(fn);
+
   fnRef.current = fn;
 
   return useCallback(
@@ -83,6 +84,7 @@ export const isValidSession = (session?: Session | undefined): boolean => {
 
 export async function withTurnkeyErrorHandling<T>(
   fn: () => Promise<T>,
+  sessionExpireFn: () => Promise<void>,
   callbacks?: { onError?: (error: TurnkeyError) => void },
   fallbackMessage = "An unknown error occurred",
   fallbackCode = TurnkeyErrorCodes.UNKNOWN,
@@ -90,11 +92,25 @@ export async function withTurnkeyErrorHandling<T>(
   try {
     return await fn();
   } catch (error) {
+    let tkError: TurnkeyError;
+
     if (error instanceof TurnkeyError) {
-      callbacks?.onError?.(error);
-      throw error;
+      tkError = error;
+
+      if (tkError.code === TurnkeyErrorCodes.SESSION_EXPIRED) {
+        await sessionExpireFn();
+      }
+
+      // skip onError for WalletConnect expired errors
+      if (tkError.code !== TurnkeyErrorCodes.WALLET_CONNECT_EXPIRED) {
+        callbacks?.onError?.(tkError);
+      }
+
+      throw tkError;
     }
-    const tkError = new TurnkeyError(fallbackMessage, fallbackCode, error);
+
+    // we wrap non-Turnkey errors
+    tkError = new TurnkeyError(fallbackMessage, fallbackCode, error);
     callbacks?.onError?.(tkError);
     throw tkError;
   }
@@ -328,15 +344,22 @@ export function useScreenSize() {
   const [width, setWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 1024,
   );
+  const [height, setHeight] = useState(
+    typeof window !== "undefined" ? window.innerHeight : 768,
+  );
 
   useEffect(() => {
-    const handleResize = () => setWidth(window.innerWidth);
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+      setHeight(window.innerHeight);
+    };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return {
     width,
+    height,
 
     // I have no idea why but, Tailwind's responsive design breakpoints do not work. Throughout the modal components, you will see conditional styling using this `isMobile` variable.
     // This is fine since we only need to style for 2 screen sizes: mobile and desktop. If anyone can figure out why Tailwind's responsive design breakpoints do not work, please fix it and restyle the components accordingly, changing the `isMobile` to the Tailwind stuff when applicable.
@@ -364,7 +387,8 @@ export function useWalletProviderState(initialState: WalletProvider[] = []) {
         .map((x) => x.toLowerCase())
         .sort()
         .join(",");
-      return `${namespace}|${interfaceType}|${name}|${connectedAddresses}`;
+      const uri = provider.uri || "";
+      return `${namespace}|${interfaceType}|${name}|${connectedAddresses}|${uri}`;
     };
 
     const A = a.map(key).sort();

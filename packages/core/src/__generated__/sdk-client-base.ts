@@ -13,7 +13,7 @@ import {
   TurnkeyRequestError,
   TurnkeyHttpClientConfig,
   StorageBase,
-} from "../__types__/base";
+} from "../__types__";
 
 import { VERSION } from "../__generated__/version";
 
@@ -21,7 +21,7 @@ import type * as SdkTypes from "@turnkey/sdk-types";
 
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
-import { StamperType } from "../__types__/base";
+import { StamperType } from "../__types__";
 
 export class TurnkeySDKClientBase {
   config: TurnkeyHttpClientConfig;
@@ -1134,6 +1134,51 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId,
       type: "ACTIVITY_TYPE_GET_ACTIVITIES",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getAppProofs = async (
+    input: SdkTypes.TGetAppProofsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetAppProofsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_app_proofs",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetAppProofs = async (
+    input: SdkTypes.TGetAppProofsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_app_proofs";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_APP_PROOFS",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

@@ -14,6 +14,8 @@ import { Listbox } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import parsePhoneNumberFromString from "libphonenumber-js";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useScreenSize } from "../../utils/utils";
 
 const FlagImage = OriginalFlagImage as React.ElementType;
 
@@ -177,6 +179,9 @@ const isValidPhone = (phone: string) => {
   return phoneNumber?.isValid() ?? false;
 };
 
+type Placement = "top start" | "bottom start";
+const desiredPanelHeight = 288; // tailwind's max-h-72
+
 export function PhoneInputBox(props: PhoneInputBoxProps) {
   const { value, onChange, onFocus, onBlur, onEnter } = props;
   const { inputValue, handlePhoneValueChange, inputRef, country, setCountry } =
@@ -194,11 +199,39 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
       },
     });
 
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const [placement, setPlacement] = useState<Placement>("bottom start");
+
+  const { height } = useScreenSize();
+
+  const update = useCallback(() => {
+    const btn = buttonRef.current;
+    if (!btn) return;
+
+    const b = btn.getBoundingClientRect();
+    const spaceAbove = b.top - height;
+    const spaceBelow = height - b.bottom;
+
+    const next: Placement =
+      spaceBelow < desiredPanelHeight && spaceAbove > spaceBelow
+        ? "top start"
+        : "bottom start";
+
+    setPlacement(next);
+  }, [height, desiredPanelHeight]);
+
+  useEffect(() => {
+    update();
+  }, [update, height]);
+
   return (
     <div className="w-full flex items-center gap-2 rounded-md text-inherit bg-button-light dark:bg-button-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus-within:outline-primary-light focus-within:dark:outline-primary-dark focus-within:outline-[1px] focus-within:outline-offset-0 box-border transition-all">
       <Listbox as="div" value={country.iso2} onChange={setCountry}>
         <div className="relative">
-          <ListboxButton className="flex flex-row min-w-20 gap-2 px-3 cursor-pointer bg-button-light dark:bg-button-dark border-none rounded-md text-left items-center">
+          <ListboxButton
+            ref={buttonRef}
+            className="flex flex-row min-w-20 gap-2 px-3 cursor-pointer bg-button-light dark:bg-button-dark border-none rounded-md text-left items-center"
+          >
             <div className="flex flex-row space-x-2 items-center">
               <FlagImage iso2={country.iso2} className="w-5 h-4 rounded-sm" />
               <div className="text-sm text-modal-text-light dark:text-modal-text-dark">
@@ -214,8 +247,9 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
 
           <ListboxOptions
             transition
-            className="absolute tk-scrollbar z-50 mt-1 border border-modal-background-dark/20 dark:border-modal-background-light/20 rounded-md shadow-lg max-h-72 overflow-y-auto overflow-x-hidden text-sm 
+            className="absolute tk-scrollbar z-50 mt-1 border border-modal-background-dark/20 dark:border-modal-background-light/20 !max-h-72 !w-fit rounded-md shadow-lg overflow-y-auto overflow-x-hidden text-sm 
             transition duration-200 ease-out data-closed:-translate-y-2 data-closed:opacity-0"
+            anchor={placement}
           >
             {countries.map((c) => {
               const { iso2, name, dialCode } = parseCountry(c);

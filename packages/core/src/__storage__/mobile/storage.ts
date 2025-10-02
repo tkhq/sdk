@@ -1,4 +1,4 @@
-import { type StorageBase, SessionKey } from "@types";
+import { type StorageBase, SessionKey } from "../../__types__";
 import { parseSession } from "@utils";
 import type { Session } from "@turnkey/sdk-types";
 

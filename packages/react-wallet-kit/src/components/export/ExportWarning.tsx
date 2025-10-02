@@ -27,6 +27,8 @@ export function ExportWarning(props: {
   keyFormat?: KeyFormat | undefined;
   setExportIframeVisible?: (visible: boolean) => void;
   stampWith?: StamperType | undefined;
+  organizationId?: string | undefined;
+  onError: (error: any) => void;
 }) {
   const {
     target,
@@ -35,6 +37,7 @@ export function ExportWarning(props: {
     exportType,
     keyFormat,
     stampWith,
+    onError,
   } = props;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +62,15 @@ export function ExportWarning(props: {
       "Make sure nobody can see your screen when viewing your account details.",
     ],
   };
+
+  const organizationId = props.organizationId || session?.organizationId;
+
+  if (!organizationId) {
+    throw new TurnkeyError(
+      "Organization ID is required for exporting.",
+      TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+    );
+  }
 
   return (
     <div className="flex flex-col w-full px-10">
@@ -86,16 +98,19 @@ export function ExportWarning(props: {
                   targetPublicKey:
                     targetPublicKey || exportIframeClient?.iframePublicKey!,
                   ...(stampWith && { stampWith: stampWith }),
+                  organizationId,
                 });
                 if (!exportBundle) {
-                  throw new TurnkeyError(
-                    "Failed to retrieve export bundle",
-                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                  onError(
+                    new TurnkeyError(
+                      "Failed to retrieve export bundle",
+                      TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                    ),
                   );
                 }
                 await exportIframeClient?.injectWalletExportBundle(
                   exportBundle,
-                  session?.organizationId!,
+                  organizationId,
                 );
                 break;
               case ExportType.PrivateKey:
@@ -104,11 +119,14 @@ export function ExportWarning(props: {
                   targetPublicKey:
                     targetPublicKey || exportIframeClient?.iframePublicKey!,
                   ...(stampWith && { stampWith: stampWith }),
+                  organizationId,
                 });
                 if (!exportBundle) {
-                  throw new TurnkeyError(
-                    "Failed to retrieve export bundle",
-                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                  onError(
+                    new TurnkeyError(
+                      "Failed to retrieve export bundle",
+                      TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                    ),
                   );
                 }
                 await exportIframeClient?.injectKeyExportBundle(
@@ -123,11 +141,14 @@ export function ExportWarning(props: {
                   targetPublicKey:
                     targetPublicKey || exportIframeClient?.iframePublicKey!,
                   ...(stampWith && { stampWith: stampWith }),
+                  organizationId,
                 });
                 if (!exportBundle) {
-                  throw new TurnkeyError(
-                    "Failed to retrieve export bundle",
-                    TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                  onError(
+                    new TurnkeyError(
+                      "Failed to retrieve export bundle",
+                      TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                    ),
                   );
                 }
                 await exportIframeClient?.injectKeyExportBundle(
@@ -146,10 +167,12 @@ export function ExportWarning(props: {
               props.setExportIframeVisible(true);
             }
           } catch (error) {
-            throw new TurnkeyError(
-              `Error exporting wallet`,
-              TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
-              error,
+            onError(
+              new TurnkeyError(
+                `Error exporting wallet`,
+                TurnkeyErrorCodes.EXPORT_WALLET_ERROR,
+                error,
+              ),
             );
           } finally {
             setIsLoading(false);

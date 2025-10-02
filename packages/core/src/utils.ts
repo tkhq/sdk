@@ -27,7 +27,10 @@ import {
   EvmChainInfo,
   SolanaChainInfo,
   Curve,
-} from "./__types__/base";
+  EmbeddedWallet,
+  WalletSource,
+  StamperType,
+} from "./__types__";
 import { bs58 } from "@turnkey/encoding";
 
 // Import all defaultAccountAtIndex functions for each address format
@@ -72,7 +75,8 @@ import {
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
-import { keccak256 } from "ethers";
+import { keccak256, toUtf8String } from "ethers";
+import type { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -97,6 +101,28 @@ type AddressFormatConfig = {
  * const config = addressFormatConfig["ADDRESS_FORMAT_ETHEREUM"];
  * ```
  */
+
+const sessionExpiredErrors = {
+  pubKeyNotFound:
+    "could not find public key in organization or its parent organization",
+  apiKeyExpired: "Unauthenticated desc = expired api key publicKey",
+};
+
+// Global errors to match against error messages returned from the API
+const globalErrorsToMatch: Readonly<
+  Record<string, { message: string; code: TurnkeyErrorCodes }>
+> = Object.freeze({
+  [sessionExpiredErrors.pubKeyNotFound]: {
+    message:
+      "Session public key could not be found in the sub-organization or parent organization",
+    code: TurnkeyErrorCodes.SESSION_EXPIRED,
+  },
+  [sessionExpiredErrors.apiKeyExpired]: {
+    message: "Session API key has expired",
+    code: TurnkeyErrorCodes.SESSION_EXPIRED,
+  },
+});
+
 export const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> =
   {
     ADDRESS_FORMAT_UNCOMPRESSED: {
@@ -341,9 +367,9 @@ const hexByByte = Array.from({ length: 256 }, (_, i) =>
 
 export const bytesToHex = (bytes: Uint8Array): string => {
   let hex = "0x";
-  if (bytes === undefined || bytes.length === 0) return hex;
-  for (const byte of bytes) {
-    hex += hexByByte[byte];
+  if (!bytes || bytes.length === 0) return hex;
+  for (let i = 0; i < bytes.length; i++) {
+    hex += hexByByte[Number(bytes[i])];
   }
   return hex;
 };
@@ -360,6 +386,24 @@ export const toExternalTimestamp = (
     nanos: nanos.toString(),
   };
 };
+
+export async function getActiveSessionOrThrowIfRequired(
+  stampWith: StamperType | undefined,
+  getActiveSession: () => Promise<Session | undefined>,
+): Promise<Session | undefined> {
+  const session = await getActiveSession();
+
+  // the api-key stamper requires an active session
+  // if there is no stampWith defined, the default is api-key stamper
+  if ((!stampWith || stampWith === StamperType.ApiKey) && !session) {
+    throw new TurnkeyError(
+      "No active session found. Please log in first.",
+      TurnkeyErrorCodes.NO_SESSION_FOUND,
+    );
+  }
+
+  return session;
+}
 
 export function parseSession(token: string | Session): Session {
   if (typeof token !== "string") {
@@ -419,23 +463,25 @@ export function getEncodingType(addressFormat: v1AddressFormat) {
 }
 
 export function getEncodedMessage(
-  addressFormat: v1AddressFormat,
-  rawMessage: string,
+  payloadEncoding: v1PayloadEncoding,
+  rawMessage: Uint8Array,
 ): string {
-  const config = addressFormatConfig[addressFormat];
-  if (!config) {
-    throw new TurnkeyError(
-      `Unsupported address format: ${addressFormat}`,
-      TurnkeyErrorCodes.INVALID_REQUEST,
+  if (payloadEncoding === "PAYLOAD_ENCODING_HEXADECIMAL") {
+    return (
+      "0x" +
+      Array.from(rawMessage)
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join("")
     );
   }
-  if (config.encoding === "PAYLOAD_ENCODING_HEXADECIMAL") {
-    return ("0x" +
-      Array.from(new TextEncoder().encode(rawMessage))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("")) as string;
-  }
-  return rawMessage;
+
+  // we decode back to a UTF-8 string
+  return toUtf8String(rawMessage);
+}
+
+export function hexSignedTxToBase58(hex: string): string {
+  const bytes = uint8ArrayFromHexString(hex);
+  return bs58.encode(bytes);
 }
 
 export const broadcastTransaction = async (params: {
@@ -447,6 +493,8 @@ export const broadcastTransaction = async (params: {
 
   switch (transactionType) {
     case "TRANSACTION_TYPE_SOLANA": {
+      const encodedTx = hexSignedTxToBase58(signedTransaction);
+
       const response = await fetch(rpcUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -454,7 +502,7 @@ export const broadcastTransaction = async (params: {
           jsonrpc: "2.0",
           id: 1,
           method: "sendTransaction",
-          params: [signedTransaction],
+          params: [encodedTx, { encoding: "base58" }],
         }),
       });
 
@@ -919,8 +967,8 @@ export async function getAuthProxyConfig(
  * @param errorOptions.catchFn Optional function to execute in the catch block
  * @param errorOptions.errorMessage The default error message to use if no custom message is found
  * @param errorOptions.errorCode The default error code to use if no custom message is found
- * @param errorOptions.customErrorByCodes Optional mapping of error codes to custom messages, if you're trying to target a specific error code and surface a custom message, use this
- * @param errorOptions.customErrorByMessages Optional mapping of error messages to custom messages, if you're trying to target a specific error message and surface a custom message, use this
+ * @param errorOptions.customErrorsByCodes Optional mapping of error codes to custom messages, if you're trying to target a specific error code and surface a custom message, use this
+ * @param errorOptions.customErrorsByMessages Optional mapping of error messages to custom messages, if you're trying to target a specific error message and surface a custom message, use this
  * @param finallyFn Optional function to execute in the finally block
  * @returns The result of the async function or throws an error
  */
@@ -930,10 +978,10 @@ export async function withTurnkeyErrorHandling<T>(
     catchFn?: () => Promise<void>;
     errorMessage: string;
     errorCode: TurnkeyErrorCodes;
-    customErrorByCodes?: Partial<
+    customErrorsByCodes?: Partial<
       Record<TurnkeyErrorCodes, { message: string; code: TurnkeyErrorCodes }>
     >;
-    customErrorByMessages?: Record<
+    customErrorsByMessages?: Record<
       string,
       { message: string; code: TurnkeyErrorCodes }
     >;
@@ -942,20 +990,24 @@ export async function withTurnkeyErrorHandling<T>(
     finallyFn: () => Promise<void>;
   },
 ): Promise<T> {
-  const {
-    errorMessage,
-    errorCode,
-    customErrorByCodes,
-    customErrorByMessages,
-    catchFn,
-  } = catchOptions;
+  const { errorMessage, errorCode, customErrorsByCodes, catchFn } =
+    catchOptions;
+
+  // Merge global error mappings with any caller-provided ones.
+  //   - Start with the globals so they’re always available.
+  //   - Spread the caller’s entries last so they override globals on conflicts.
+  //   - If the caller didn’t provide any, just fall back to the globals.
+  const customErrorsByMessages = catchOptions.customErrorsByMessages
+    ? { ...globalErrorsToMatch, ...catchOptions.customErrorsByMessages }
+    : globalErrorsToMatch;
+
   const finallyFn = finallyOptions?.finallyFn;
   try {
     return await fn();
   } catch (error) {
     await catchFn?.();
     if (error instanceof TurnkeyError) {
-      const customCodeMessage = customErrorByCodes?.[error.code!];
+      const customCodeMessage = customErrorsByCodes?.[error.code!];
       if (customCodeMessage) {
         throw new TurnkeyError(
           customCodeMessage.message,
@@ -963,20 +1015,20 @@ export async function withTurnkeyErrorHandling<T>(
           error,
         );
       }
-      throwMatchingMessage(error.message, customErrorByMessages, error);
+      throwMatchingMessage(error.message, customErrorsByMessages, error);
 
       throw error;
     } else if (error instanceof TurnkeyRequestError) {
-      throwMatchingMessage(error.message, customErrorByMessages, error);
+      throwMatchingMessage(error.message, customErrorsByMessages, error);
 
       throw new TurnkeyError(errorMessage, errorCode, error);
     } else if (error instanceof Error) {
-      throwMatchingMessage(error.message, customErrorByMessages, error);
+      throwMatchingMessage(error.message, customErrorsByMessages, error);
 
       // Wrap other errors in a TurnkeyError
       throw new TurnkeyError(errorMessage, errorCode, error);
     } else {
-      throwMatchingMessage(String(error), customErrorByMessages, error);
+      throwMatchingMessage(String(error), customErrorsByMessages, error);
       // Handle non-Error exceptions
       throw new TurnkeyError(String(error), errorCode, error);
     }
@@ -990,22 +1042,25 @@ export async function withTurnkeyErrorHandling<T>(
  * If no match is found, it does nothing.
  *
  * @param errorMessage The error message to check against the custom messages.
- * @param customErrorByMessages An object mapping error messages to custom messages and codes.
+ * @param customErrorsByMessages An object mapping error messages to custom messages and codes.
  * @param error The original error that triggered this function.
  */
 const throwMatchingMessage = (
   errorMessage: string,
-  customErrorByMessages:
+  customErrorsByMessages:
     | Record<string, { message: string; code: TurnkeyErrorCodes }>
     | undefined,
   error: any,
 ) => {
-  if (customErrorByMessages && Object.keys(customErrorByMessages).length > 0) {
-    Object.keys(customErrorByMessages).forEach((key) => {
+  if (
+    customErrorsByMessages &&
+    Object.keys(customErrorsByMessages).length > 0
+  ) {
+    Object.keys(customErrorsByMessages).forEach((key) => {
       if (errorMessage.includes(key)) {
         throw new TurnkeyError(
-          customErrorByMessages[key]!.message,
-          customErrorByMessages[key]!.code,
+          customErrorsByMessages[key]!.message,
+          customErrorsByMessages[key]!.code,
           error,
         );
       }
@@ -1121,4 +1176,99 @@ export function isValidPasskeyName(name: string): string {
     );
   }
   return name;
+}
+
+export function mapAccountsToWallet(
+  accounts: v1WalletAccount[],
+  walletMap: Map<string, EmbeddedWallet>,
+): EmbeddedWallet[] {
+  // map of walletId to Wallet
+  // map all wallet accounts to their wallets
+  accounts.forEach(async (account) => {
+    if (walletMap.has(account.walletDetails!.walletId)) {
+      const wallet = walletMap.get(account.walletDetails!.walletId)!;
+      wallet.accounts.push({
+        ...account,
+        source: WalletSource.Embedded,
+      });
+      return;
+    } else {
+      walletMap.set(account.walletDetails!.walletId, {
+        source: WalletSource.Embedded,
+        walletId: account.walletDetails!.walletId,
+        walletName: account.walletDetails!.walletName,
+        createdAt: account.walletDetails!.createdAt,
+        updatedAt: account.walletDetails!.updatedAt,
+        exported: account.walletDetails!.exported,
+        imported: account.walletDetails!.imported,
+        accounts: [
+          {
+            ...account,
+            source: WalletSource.Embedded,
+          },
+        ],
+      });
+    }
+  });
+  return Array.from(walletMap.values());
+}
+
+export async function withTimeout<T>(
+  promise: Promise<T>,
+  ms: number,
+  label: string,
+): Promise<T> {
+  let timeout: NodeJS.Timeout;
+  const timer = new Promise<never>((_, reject) => {
+    timeout = setTimeout(
+      () => reject(new Error(`${label} timed out after ${ms}ms`)),
+      ms,
+    );
+  });
+
+  return Promise.race([promise, timer]).finally(() =>
+    clearTimeout(timeout!),
+  ) as Promise<T>;
+}
+
+export async function fetchAllWalletAccountsWithCursor(
+  httpClient: TurnkeySDKClientBase,
+  organizationId: string,
+  stampWith?: StamperType,
+): Promise<v1WalletAccount[]> {
+  let hasMore = true;
+  let cursor: string | undefined;
+  const accounts = [];
+  const limit = 100;
+
+  while (hasMore) {
+    const response = await httpClient.getWalletAccounts(
+      {
+        organizationId,
+        includeWalletDetails: true,
+        paginationOptions: {
+          limit: limit.toString(),
+          ...(cursor && { after: cursor }),
+        },
+      },
+      stampWith,
+    );
+
+    if (!response || !response.accounts) {
+      throw new TurnkeyError(
+        "No wallet accounts found in the response",
+        TurnkeyErrorCodes.BAD_RESPONSE,
+      );
+    }
+
+    accounts.push(...response.accounts);
+
+    hasMore = response.accounts.length === limit;
+    cursor =
+      response.accounts && response.accounts.length > 0
+        ? response.accounts[response.accounts.length - 1]?.walletAccountId
+        : undefined;
+  }
+
+  return accounts;
 }

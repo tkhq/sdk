@@ -42,7 +42,10 @@ describe("isValidSession", () => {
 
 describe("withTurnkeyErrorHandling", () => {
   it("resolves with the fn result on success", async () => {
-    const result = await withTurnkeyErrorHandling(async () => 42);
+    const result = await withTurnkeyErrorHandling(
+      async () => 42,
+      async () => {},
+    );
     expect(result).toBe(42);
   });
 
@@ -58,6 +61,7 @@ describe("withTurnkeyErrorHandling", () => {
         async () => {
           throw original;
         },
+        async () => {},
         { onError },
         "fallback msg",
         TurnkeyErrorCodes.UNKNOWN,
@@ -77,6 +81,7 @@ describe("withTurnkeyErrorHandling", () => {
         async () => {
           throw cause;
         },
+        async () => {},
         { onError },
         "Custom fallback",
         TurnkeyErrorCodes.NETWORK_ERROR, // pick any code that exists in your enum
@@ -103,6 +108,7 @@ describe("withTurnkeyErrorHandling", () => {
           // eslint-disable-next-line no-throw-literal
           throw "stringly-typed error";
         },
+        async () => {},
         { onError },
         "Wrapped non-error",
         TurnkeyErrorCodes.UNKNOWN,
@@ -120,9 +126,12 @@ describe("withTurnkeyErrorHandling", () => {
 
   it("uses default fallback message/code when none are provided", async () => {
     await expect(
-      withTurnkeyErrorHandling(async () => {
-        throw new Error("boom");
-      }),
+      withTurnkeyErrorHandling(
+        async () => {
+          throw new Error("boom");
+        },
+        async () => {},
+      ),
     ).rejects.toEqual(
       expect.objectContaining({
         message: "An unknown error occurred",
@@ -133,10 +142,42 @@ describe("withTurnkeyErrorHandling", () => {
 
   it("does not require callbacks; still wraps and throws", async () => {
     await expect(
-      withTurnkeyErrorHandling(async () => {
-        throw new Error("no callbacks here");
-      }),
+      withTurnkeyErrorHandling(
+        async () => {
+          throw new Error("no callbacks here");
+        },
+        async () => {},
+      ),
     ).rejects.toBeInstanceOf(TurnkeyError);
+  });
+
+  it("logs out if TurnkeyErrorCodes.SESSION_EXPIRED is encountered", async () => {
+    const logout = jest.fn();
+
+    await expect(
+      withTurnkeyErrorHandling(
+        async () => {
+          throw new TurnkeyError(
+            "session expired",
+            TurnkeyErrorCodes.SESSION_EXPIRED,
+          );
+        },
+        async () => {
+          logout();
+          return;
+        },
+        {},
+        "session expired",
+        TurnkeyErrorCodes.SESSION_EXPIRED,
+      ),
+    ).rejects.toEqual(
+      expect.objectContaining({
+        message: "session expired",
+        code: TurnkeyErrorCodes.SESSION_EXPIRED,
+      }),
+    );
+
+    expect(logout).toHaveBeenCalledTimes(1);
   });
 });
 

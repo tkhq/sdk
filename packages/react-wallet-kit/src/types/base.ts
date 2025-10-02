@@ -73,11 +73,15 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       xClientId?: string;
       /** client ID for Discord OAuth. */
       discordClientId?: string;
-      /** whether to open OAuth in the same page. */
+      /** whether to open OAuth in the same page. Always true on mobile. */
       openOauthInPage?: boolean;
     };
-    /** session expiration time in seconds. */
+    /** session expiration time in seconds. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
     sessionExpirationSeconds?: string;
+    /** If otp sent will be alphanumeric. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
+    otpAlphanumeric?: boolean;
+    /** length of the OTP. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
+    otpLength?: string;
     /** parameters for creating a sub-organization for each authentication method. */
     createSuborgParams?: {
       /** parameters for email OTP authentication. */
@@ -94,8 +98,13 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     /** whether to automatically refresh the session. */
     autoRefreshSession?: boolean;
   };
+  /** whether to automatically refresh managed state variables */
+  autoRefreshManagedState?: boolean;
   /** UI configuration. */
   ui?: {
+    /** logo for the auth component */
+    logoLight?: string;
+    logoDark?: string;
     /** enables or disables dark mode. */
     darkMode?: boolean;
     /** color scheme configuration. */

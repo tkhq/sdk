@@ -78,6 +78,10 @@ import type {
   TGetActivitiesResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetAppProofsBody,
+  TGetAppProofsResponse,
+} from "./public_api.fetcher";
+import type {
   TListOauth2CredentialsBody,
   TListOauth2CredentialsResponse,
 } from "./public_api.fetcher";
@@ -1021,6 +1025,37 @@ export class TurnkeyClient {
     input: TGetActivitiesBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_activities";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List the app proofs for the given activity.
+   *
+   * Sign the provided `TGetAppProofsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_app_proofs).
+   *
+   * See also {@link stampGetAppProofs}.
+   */
+  getAppProofs = async (
+    input: TGetAppProofsBody,
+  ): Promise<TGetAppProofsResponse> => {
+    return this.request("/public/v1/query/list_app_proofs", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetAppProofsBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetAppProofs}.
+   */
+  stampGetAppProofs = async (
+    input: TGetAppProofsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/list_app_proofs";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

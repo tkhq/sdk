@@ -20,7 +20,13 @@ import {
 import { createAccount } from "@turnkey/viem";
 import { createWalletClient, http, type Account } from "viem";
 import { parseEther, Transaction as EthTransaction } from "ethers";
-import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import {
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
+import { StamperType } from "@turnkey/core";
 
 export default function AuthPage() {
   const [email, setEmail] = useState<string>("");
@@ -31,6 +37,8 @@ export default function AuthPage() {
   const [newEmail, setNewEmail] = useState<string>("");
   const [newPhoneNumber, setNewPhoneNumber] = useState<string>("");
   const [newUserName, setNewUserName] = useState<string>("");
+  const [organizationId, setOrganizationId] = useState<string>("");
+  const [userId, setUserId] = useState<string>("");
 
   const [activeSessionKey, setActiveSessionKey] = useState<string | null>(null);
   const [sessionKey, setSessionKey] = useState<string>("");
@@ -49,6 +57,12 @@ export default function AuthPage() {
   } = useTurnkey();
 
   const turnkey = useTurnkey();
+
+  // FOR SOLANA TRANSACTIONS TESTING
+  // const heliusEndpoint =
+  //   process.env.NEXT_PUBLIC_HELIUS_BASE_URL! +
+  //   process.env.NEXT_PUBLIC_HELIUS_API_KEY!;
+  // const solanaConnection = new Connection(heliusEndpoint);
 
   useEffect(() => {
     console.log("wallets:", wallets);
@@ -1280,280 +1294,268 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
-      {authState === AuthState.Authenticated && (
+
+      <div>
+        <h2>External Wallet Methods</h2>
         <div>
-          <h2>External Wallet Methods</h2>
-          <div>
-            <h3>Connected Wallets</h3>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {wallets && wallets.length > 0
-                ? wallets.map((wallet: Wallet) => {
-                    if (wallet.source === WalletSource.Connected)
-                      return (
-                        <div
-                          key={wallet.walletId}
-                          className="p-2 text-xs border bg-neutral-100 rounded justify-between flex flex-col"
-                        >
-                          <div>
-                            <p
-                              data-testid={`connected-wallet-id-${wallet.walletId}`}
-                              className="truncate"
-                            >
-                              Wallet ID: {wallet.walletId}
-                            </p>
-                            <p
-                              data-testid={`connected-wallet-name-${wallet.walletId}`}
-                              className="truncate"
-                            >
-                              Wallet Name: {wallet.walletName}
-                            </p>
-                            <p className="truncate">Accounts:</p>
-                            <div className="flex flex-col gap-1">
-                              {wallet.accounts.map((account) => (
-                                <button
-                                  data-testid={`set-active-connected-wallet-account-${account.address}`}
-                                  className="text-left !p-1"
-                                  key={account.address}
-                                  onClick={() =>
-                                    setActiveWalletAccount(account)
-                                  }
-                                >
-                                  {account.address}
-                                  {activeWallet?.walletId ===
-                                    wallet.walletId && (
-                                    <span
-                                      className={`ml-2 ${activeWalletAccount?.address === account.address ? "text-green-500" : "text-gray-500"}`}
-                                    >
-                                      {activeWalletAccount?.address ===
-                                      account.address
-                                        ? " (Active)"
-                                        : "(Set Active)"}
-                                    </span>
-                                  )}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <button
-                            data-testid={`set-active-connected-wallet-${wallet.walletId}`}
-                            onClick={() => setActiveWallet(wallet)}
-                            className={`transition-all  mt-auto p-1 rounded w-full text-xs ${activeWallet?.walletId !== wallet.walletId ? "bg-blue-200" : "bg-neutral-300"}`}
-                            disabled={
-                              activeWallet?.walletId === wallet.walletId
-                            }
+          <h3>Connected Wallets</h3>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {wallets && wallets.length > 0
+              ? wallets.map((wallet: Wallet) => {
+                  if (wallet.source === WalletSource.Connected)
+                    return (
+                      <div
+                        key={wallet.walletId}
+                        className="p-2 text-xs border bg-neutral-100 rounded justify-between flex flex-col"
+                      >
+                        <div>
+                          <p
+                            data-testid={`connected-wallet-id-${wallet.walletId}`}
+                            className="truncate"
                           >
-                            {activeWallet?.walletId === wallet.walletId
-                              ? "Active"
-                              : "Set Active"}
-                          </button>
+                            Wallet ID: {wallet.walletId}
+                          </p>
+                          <p
+                            data-testid={`connected-wallet-name-${wallet.walletId}`}
+                            className="truncate"
+                          >
+                            Wallet Name: {wallet.walletName}
+                          </p>
+                          <p className="truncate">Accounts:</p>
+                          <div className="flex flex-col gap-1">
+                            {wallet.accounts.map((account) => (
+                              <button
+                                data-testid={`set-active-connected-wallet-account-${account.address}`}
+                                className="text-left !p-1"
+                                key={account.address}
+                                onClick={() => setActiveWalletAccount(account)}
+                              >
+                                {account.address}
+                                {activeWallet?.walletId === wallet.walletId && (
+                                  <span
+                                    className={`ml-2 ${activeWalletAccount?.address === account.address ? "text-green-500" : "text-gray-500"}`}
+                                  >
+                                    {activeWalletAccount?.address ===
+                                    account.address
+                                      ? " (Active)"
+                                      : "(Set Active)"}
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      );
-                  })
-                : null}
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              data-testid="fetch-wallet-providers-2"
-              onClick={async () => {
-                const providers = await turnkey.fetchWalletProviders();
-                console.log("Wallet Providers:", providers);
-              }}
-              style={{
-                backgroundColor: "rebeccapurple",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-              }}
-            >
-              Get Wallet Providers
-            </button>
-
-            <button
-              data-testid="connect-wallet-account"
-              onClick={async () => {
-                const providers = await turnkey.fetchWalletProviders();
-                console.log("Wallet Providers:", providers);
-                await turnkey.connectWalletAccount(providers[4]);
-              }}
-              style={{
-                backgroundColor: "rebeccapurple",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-              }}
-            >
-              Connect A Wallet
-            </button>
-
-            <button
-              data-testid="sign-up-with-wallet"
-              onClick={async () => {
-                const provider = await turnkey.fetchWalletProviders(
-                  Chain.Solana,
-                );
-                console.log("Injected Solana Provider:", provider);
-                await turnkey.signUpWithWallet({
-                  walletProvider: provider[1],
-                });
-              }}
-              style={{
-                backgroundColor: "rebeccapurple",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-              }}
-            >
-              Sign Up with Wallet
-            </button>
-
-            <button
-              data-testid="login-with-wallet"
-              onClick={async () => {
-                const provider = await turnkey.fetchWalletProviders(
-                  Chain.Solana,
-                );
-                console.log("Injected Solana Provider:", provider);
-                await turnkey.loginWithWallet({
-                  walletProvider: provider[1],
-                });
-              }}
-              style={{
-                backgroundColor: "rebeccapurple",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-              }}
-            >
-              Login with Wallet
-            </button>
-
-            <button
-              data-testid="continue-with-wallet"
-              onClick={async () => {
-                const provider = await turnkey.fetchWalletProviders(
-                  Chain.Solana,
-                );
-                console.log("Injected Solana Provider:", provider);
-                await turnkey.loginOrSignupWithWallet({
-                  walletProvider: provider[1],
-                });
-              }}
-              style={{
-                backgroundColor: "rebeccapurple",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-              }}
-            >
-              Continue with Wallet
-            </button>
-
-            <button
-              data-testid="connect-or-disconnect-wallet"
-              onClick={async () => await turnkey.handleConnectExternalWallet()}
-              style={{
-                backgroundColor: "rebeccapurple",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-              }}
-            >
-              Connect/Disconnect Wallet
-            </button>
-
-            <button
-              onClick={async () => {
-                if (!activeWalletAccount) {
-                  console.error("No active wallet account selected");
-                  return;
-                }
-                const tx = {
-                  to: "0x0000000000000000000000000000000000000000",
-                  value: parseEther("0.001"),
-                  nonce: 0,
-                  gasLimit: BigInt("21000"),
-                  maxFeePerGas: BigInt("1000000000"),
-                  maxPriorityFeePerGas: BigInt("1000000000"),
-                  chainId: 1,
-                };
-
-                const unsignedTransaction =
-                  EthTransaction.from(tx).unsignedSerialized;
-                console.log("Unsigned Transaction:", unsignedTransaction);
-
-                const signature = await turnkey.signAndSendTransaction({
-                  unsignedTransaction,
-                  walletAccount: activeWalletAccount,
-                  transactionType: "TRANSACTION_TYPE_ETHEREUM",
-                });
-                console.log("Transaction Signature:", signature);
-              }}
-              style={{
-                backgroundColor: "rebeccapurple",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-              }}
-            >
-              Sign And Send Ethereum Transaction
-            </button>
-
-            <button
-              onClick={async () => {
-                if (!activeWalletAccount) {
-                  console.error("No active wallet account selected");
-                  return;
-                }
-                const mainNet = "0x1";
-
-                console.log(
-                  "Switching Ethereum chain to mainnet for account:",
-                  activeWalletAccount,
-                );
-                await turnkey.switchWalletAccountChain({
-                  walletAccount: activeWalletAccount,
-                  chainOrId: mainNet,
-                });
-              }}
-              style={{
-                backgroundColor: "rebeccapurple",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-              }}
-            >
-              Switch Ethereum Chain to Mainnet
-            </button>
-
-            <button
-              onClick={async () => {
-                if (!activeWalletAccount) {
-                  console.error("No active wallet account selected");
-                  return;
-                }
-                const polygon = "0x89";
-                console.log(
-                  "Switching Ethereum chain to Polygon for account:",
-                  activeWalletAccount,
-                );
-                await turnkey.switchWalletAccountChain({
-                  walletAccount: activeWalletAccount,
-                  chainOrId: polygon,
-                });
-              }}
-              style={{
-                backgroundColor: "rebeccapurple",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "white",
-              }}
-            >
-              Switch Ethereum Chain to Polygon
-            </button>
+                        <button
+                          data-testid={`set-active-connected-wallet-${wallet.walletId}`}
+                          onClick={() => setActiveWallet(wallet)}
+                          className={`transition-all  mt-auto p-1 rounded w-full text-xs ${activeWallet?.walletId !== wallet.walletId ? "bg-blue-200" : "bg-neutral-300"}`}
+                          disabled={activeWallet?.walletId === wallet.walletId}
+                        >
+                          {activeWallet?.walletId === wallet.walletId
+                            ? "Active"
+                            : "Set Active"}
+                        </button>
+                      </div>
+                    );
+                })
+              : null}
           </div>
         </div>
-      )}
+        <div className="flex flex-wrap gap-2">
+          <button
+            data-testid="fetch-wallet-providers-2"
+            onClick={async () => {
+              const providers = await turnkey.fetchWalletProviders();
+              console.log("Wallet Providers:", providers);
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Get Wallet Providers
+          </button>
+
+          <button
+            data-testid="connect-wallet-account"
+            onClick={async () => {
+              const providers = await turnkey.fetchWalletProviders();
+              console.log("Wallet Providers:", providers);
+              await turnkey.connectWalletAccount(providers[4]);
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Connect A Wallet
+          </button>
+
+          <button
+            data-testid="sign-up-with-wallet"
+            onClick={async () => {
+              const provider = await turnkey.fetchWalletProviders(Chain.Solana);
+              console.log("Injected Solana Provider:", provider);
+              await turnkey.signUpWithWallet({
+                walletProvider: provider[1],
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Sign Up with Wallet
+          </button>
+
+          <button
+            data-testid="login-with-wallet"
+            onClick={async () => {
+              const provider = await turnkey.fetchWalletProviders(Chain.Solana);
+              console.log("Injected Solana Provider:", provider);
+              await turnkey.loginWithWallet({
+                walletProvider: provider[1],
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Login with Wallet
+          </button>
+
+          <button
+            data-testid="continue-with-wallet"
+            onClick={async () => {
+              const provider = await turnkey.fetchWalletProviders(Chain.Solana);
+              console.log("Injected Solana Provider:", provider);
+              await turnkey.loginOrSignupWithWallet({
+                walletProvider: provider[1],
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Continue with Wallet
+          </button>
+
+          <button
+            data-testid="connect-or-disconnect-wallet"
+            onClick={async () => await turnkey.handleConnectExternalWallet()}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Connect/Disconnect Wallet
+          </button>
+
+          <button
+            onClick={async () => {
+              if (!activeWalletAccount) {
+                console.error("No active wallet account selected");
+                return;
+              }
+              const tx = {
+                to: "0x0000000000000000000000000000000000000000",
+                value: parseEther("0.001"),
+                nonce: 0,
+                gasLimit: BigInt("21000"),
+                maxFeePerGas: BigInt("1000000000"),
+                maxPriorityFeePerGas: BigInt("1000000000"),
+                chainId: 1,
+              };
+
+              const unsignedTransaction =
+                EthTransaction.from(tx).unsignedSerialized;
+              console.log("Unsigned Transaction:", unsignedTransaction);
+
+              const signature = await turnkey.signAndSendTransaction({
+                unsignedTransaction,
+                walletAccount: activeWalletAccount,
+                transactionType: "TRANSACTION_TYPE_ETHEREUM",
+              });
+              console.log("Transaction Signature:", signature);
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Sign And Send Ethereum Transaction
+          </button>
+
+          <button
+            onClick={async () => {
+              if (!activeWalletAccount) {
+                console.error("No active wallet account selected");
+                return;
+              }
+              const mainNet = "0x1";
+
+              console.log(
+                "Switching Ethereum chain to mainnet for account:",
+                activeWalletAccount,
+              );
+              await turnkey.switchWalletAccountChain({
+                walletAccount: activeWalletAccount,
+                chainOrId: mainNet,
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Switch Ethereum Chain to Mainnet
+          </button>
+
+          <button
+            onClick={async () => {
+              if (!activeWalletAccount) {
+                console.error("No active wallet account selected");
+                return;
+              }
+              const polygon = "0x89";
+              console.log(
+                "Switching Ethereum chain to Polygon for account:",
+                activeWalletAccount,
+              );
+              await turnkey.switchWalletAccountChain({
+                walletAccount: activeWalletAccount,
+                chainOrId: polygon,
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Switch Ethereum Chain to Polygon
+          </button>
+        </div>
+      </div>
       {authState === AuthState.Authenticated && (
         <div>
           <h2>Signing Methods</h2>
@@ -1816,6 +1818,269 @@ export default function AuthPage() {
               Verify OTP
             </button>
           </div>
+        </div>
+      </div>
+      <div>
+        <h2>Sessionless methods</h2>
+        <div className="flex flex-wrap gap-2 mb-2">
+          <button
+            onClick={async () => {
+              await turnkey.signUpWithPasskey({
+                passkeyDisplayName: `A TEMP PASSKEY-${Date.now()}`,
+              });
+              await turnkey.createWallet({
+                walletName: "TEMP WALLET",
+                accounts: ["ADDRESS_FORMAT_ETHEREUM"],
+              });
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Signup with passkey
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.loginWithPasskey();
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Login with passkey
+          </button>
+          <button
+            onClick={async () => {
+              console.log(
+                "Setting temp session to " + (session?.organizationId || ""),
+              );
+              setOrganizationId(session?.organizationId || "");
+              setUserId(session?.userId || "");
+              setActiveWalletAccount(wallets[0].accounts[0]);
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Set Temp OrgId
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                console.log(
+                  "Fetching wallets for organizationId",
+                  organizationId,
+                );
+                console.log(
+                  await turnkey.fetchWallets({
+                    organizationId: organizationId,
+                    userId: userId,
+                    stampWith: StamperType.Passkey,
+                  }),
+                );
+              } catch (e) {
+                console.error(e);
+              }
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Fetch Wallet
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                await turnkey.loginWithPasskey();
+                await turnkey.refreshWallets();
+                await turnkey.refreshUser();
+              } catch (e) {
+                console.error(e);
+              } finally {
+                await turnkey.clearSession();
+              }
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Refresh State
+          </button>
+          <button
+            data-testid="sign-message"
+            onClick={async () => {
+              console.log(
+                await turnkey.signMessage({
+                  walletAccount: activeWalletAccount!,
+                  message: "Hello, World!",
+                  organizationId: organizationId,
+                  stampWith: StamperType.Passkey,
+                  addEthereumPrefix: true,
+                }),
+              );
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Sign Message
+          </button>
+          <button
+            onClick={async () => {
+              if (
+                !activeWalletAccount ||
+                activeWalletAccount.addressFormat !== "ADDRESS_FORMAT_SOLANA"
+              ) {
+                console.error("No active wallet account selected");
+                return;
+              }
+              const solanaAccount = activeWalletAccount;
+              const from = new PublicKey(solanaAccount.address);
+
+              const tx = new Transaction().add(
+                SystemProgram.transfer({
+                  fromPubkey: from,
+                  toPubkey: from,
+                  lamports: 1_000,
+                }),
+              );
+
+              // const recentBlockhash = (
+              //   await solanaConnection.getLatestBlockhash()
+              // ).blockhash;
+
+              const recentBlockhash = "11111111111111111111111111111111";
+
+              tx.recentBlockhash = recentBlockhash;
+              tx.feePayer = from;
+
+              const raw = tx.serialize({
+                requireAllSignatures: false,
+                verifySignatures: false,
+              });
+              const unsignedTransaction = raw.toString("hex");
+              console.log("Unsigned Solana tx (hex):", unsignedTransaction);
+
+              const signature = await turnkey.signAndSendTransaction({
+                unsignedTransaction,
+                walletAccount: solanaAccount,
+                transactionType: "TRANSACTION_TYPE_SOLANA",
+                organizationId,
+                // rpcUrl: heliusEndpoint,
+                stampWith: StamperType.Passkey,
+              });
+              console.log("Transaction Signature:", signature);
+            }}
+            style={{
+              backgroundColor: "pink",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Sign Solana Transaction
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.handleAddEmail({
+                organizationId,
+                userId,
+                stampWith: StamperType.Passkey,
+              });
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Add Email
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.handleUpdateUserName({
+                organizationId,
+                userId,
+                stampWith: StamperType.Passkey,
+              });
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Update User Name
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.handleExportWallet({
+                walletId: activeWallet?.walletId!,
+                organizationId,
+                userId,
+                stampWith: StamperType.Passkey,
+              });
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Handle Export Wallet
+          </button>
+          <button
+            onClick={async () => {
+              await turnkey.handleImportWallet({
+                organizationId,
+                userId,
+                stampWith: StamperType.Passkey,
+              });
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Handle Import Wallet
+          </button>
+          <button
+            onClick={async () => {
+              const res = await turnkey.handleConnectExternalWallet();
+              console.log("Connect Wallet Result:", res);
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Connect Wallet
+          </button>
         </div>
       </div>
     </main>

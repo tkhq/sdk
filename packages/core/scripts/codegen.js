@@ -128,7 +128,7 @@ const generateSDKClientFromSwagger = async (
   );
 
   imports.push(
-    'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeyHttpClientConfig, StorageBase } from "../__types__/base";',
+    'import { GrpcStatus, TStamper, TurnkeyRequestError, TurnkeyHttpClientConfig, StorageBase } from "../__types__";',
   );
 
   imports.push('import { VERSION } from "../__generated__/version";');
@@ -138,7 +138,7 @@ const generateSDKClientFromSwagger = async (
     'import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";',
   );
 
-  imports.push('import { StamperType } from "../__types__/base";');
+  imports.push('import { StamperType } from "../__types__";');
 
   codeBuffer.push(`
     export class TurnkeySDKClientBase {

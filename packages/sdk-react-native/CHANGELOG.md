@@ -1,5 +1,41 @@
 # @turnkey/sdk-react-native
 
+## 1.5.3
+
+### Patch Changes
+
+- Updated dependencies [[`3997c0f`](https://github.com/tkhq/sdk/commit/3997c0fd08a8a85108acf904c0bf39d69f8dc79c)]:
+  - @turnkey/crypto@2.8.0
+
+## 1.5.2
+
+### Patch Changes
+
+- Updated dependencies [[`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241)]:
+  - @turnkey/http@3.13.0
+  - @turnkey/crypto@2.7.0
+  - @turnkey/react-native-passkey-stamper@1.2.2
+
+## 1.5.1
+
+### Patch Changes
+
+- Updated dependencies [[`2191a1b`](https://github.com/tkhq/sdk/commit/2191a1b201fb17dea4c79cf9e02b3a493b18f97a), [`5a96fe8`](https://github.com/tkhq/sdk/commit/5a96fe80db4c4c45e09ad8c613695ee4c2b8e51f)]:
+  - @turnkey/crypto@2.7.0
+  - @turnkey/http@3.12.1
+  - @turnkey/react-native-passkey-stamper@1.2.1
+
+## 1.5.0
+
+### Minor Changes
+
+- Updated dependencies [[`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e), [`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e), [`4880f26`](https://github.com/tkhq/sdk/commit/4880f26a4dd324c049bff7f35284098ccfc55823), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`c6ee323`](https://github.com/tkhq/sdk/commit/c6ee3239c389a7bbbbb23610c84b883ed298f95c), [`06347ad`](https://github.com/tkhq/sdk/commit/06347adfa08fb0867c350e43821d0fed06c49624), [`6bfcbc5`](https://github.com/tkhq/sdk/commit/6bfcbc5c098e64ab1d115518733b87cfc1653e17)]:
+  - @turnkey/encoding@0.6.0
+  - @turnkey/http@3.12.0
+  - @turnkey/crypto@2.6.0
+  - @turnkey/react-native-passkey-stamper@1.2.0
+  - @turnkey/api-key-stamper@0.5.0
+
 ## 1.5.0-beta.1
 
 ### Patch Changes
@@ -228,7 +264,6 @@
 
 - ef399e1: - Eliminated a race condition in `refreshSession` that could throw:
   `TurnkeyReactNativeError: Embedded key not found when refreshing the session`
-
   - The embedded key is now generated entirely in memory using `generateP256KeyPair`
   - Removed the need to store and immediately retrieve the private key from secure storage
   - `refreshSession` now accepts a single optional parameter object
@@ -325,7 +360,6 @@ handleGoogleOAuth({
 ### Major Changes
 
 - fcf9503: This breaking change adds support for multiple sessions:
-
   - The concept of a **selected session** has been introduced:
     - Users can switch between sessions using `setSelectedSession({ sessionKey: <key> })`.
     - The selected session determines the active `client`, `user`, and `session` state.

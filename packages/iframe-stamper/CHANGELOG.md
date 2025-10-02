@@ -1,5 +1,7 @@
 # @turnkey/iframe-stamper
 
+## 2.6.0
+
 ## 2.6.0-beta.0
 
 ### Minor Changes
@@ -11,7 +13,6 @@
 ### Minor Changes
 
 - e501690: Add new utility functions
-
   - Add `clearEmbeddedKey()` async function, which clears the embedded key within an iframe
   - Add `initEmbeddedKey()` async function, which reinitializes the embedded key within an iframe
 

@@ -1,5 +1,43 @@
 # @turnkey/sdk-server
 
+## 4.10.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/wallet-stamper@1.1.2
+
+## 4.10.0
+
+### Minor Changes
+
+- [#977](https://github.com/tkhq/sdk/pull/977) [`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241) Author [@besler613](https://github.com/besler613) - OAuth2Authenticate now supports returning the encrypted bearer token via the optional `bearerTokenTargetPublicKey` request parameter (mono release v2025.9.5)
+
+### Patch Changes
+
+- Updated dependencies [[`4567059`](https://github.com/tkhq/sdk/commit/45670598f102223925b87a5295edca15a6ce8241)]:
+  - @turnkey/http@3.13.0
+  - @turnkey/wallet-stamper@1.1.1
+
+## 4.9.1
+
+### Patch Changes
+
+- [#958](https://github.com/tkhq/sdk/pull/958) [`5a96fe8`](https://github.com/tkhq/sdk/commit/5a96fe80db4c4c45e09ad8c613695ee4c2b8e51f) Author [@amircheikh](https://github.com/amircheikh) - - Synced api with mono
+
+- Updated dependencies [[`5a96fe8`](https://github.com/tkhq/sdk/commit/5a96fe80db4c4c45e09ad8c613695ee4c2b8e51f)]:
+  - @turnkey/http@3.12.1
+  - @turnkey/wallet-stamper@1.1.1
+
+## 4.9.0
+
+### Minor Changes
+
+- Updated dependencies [[`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e), [`fc1d6e2`](https://github.com/tkhq/sdk/commit/fc1d6e2d26f4a53116633e9e8cccccd792267f4e), [`06347ad`](https://github.com/tkhq/sdk/commit/06347adfa08fb0867c350e43821d0fed06c49624)]:
+  - @turnkey/http@3.12.0
+  - @turnkey/api-key-stamper@0.5.0
+  - @turnkey/wallet-stamper@1.1.0
+
 ## 4.8.1-beta.0
 
 ### Patch Changes
@@ -151,7 +189,6 @@
 ### Patch Changes
 
 - [#763](https://github.com/tkhq/sdk/pull/763) [`cb13c26`](https://github.com/tkhq/sdk/commit/cb13c26edb79a01ab651e3b2897334fd154b436a) Author [@andrewkmin](https://github.com/andrewkmin) - Release per mono v2025.7.1. This release contains the following API changes:
-
   - Introduction of `SmartContractInterfaces`: we've now exposed endpoints for uploading ABIs and IDLs to help secure EVM and Solana signing flows. For more information, see our docs [here](https://docs.turnkey.com/concepts/policies/smart-contract-interfaces)
 
 - Updated dependencies [[`cb13c26`](https://github.com/tkhq/sdk/commit/cb13c26edb79a01ab651e3b2897334fd154b436a)]:
@@ -249,7 +286,6 @@ These changes standardize authentication processes, simplify integration, and st
 ### Patch Changes
 
 - [#631](https://github.com/tkhq/sdk/pull/631) [`e8a5f1b`](https://github.com/tkhq/sdk/commit/e8a5f1b431623c4ff1cb85c6039464b328cf0e6a) Author [@andrewkmin](https://github.com/andrewkmin) - Remove unused Next.js dependency
-
   - while the `"use server"` directive in `actions.ts` is to be used specifically with Next, removing it from this package (`@turnkey/sdk-server`) is fine, though applications _using_ this package will need Next.js
 
 - Updated dependencies [[`07dfd33`](https://github.com/tkhq/sdk/commit/07dfd3397472687092e1c73b1d68714f421b9ca0)]:
@@ -340,7 +376,6 @@ These changes standardize authentication processes, simplify integration, and st
   For Next.js 12.x, this issue is fixed in 12.3.5
 
 - 72890f5: ### @turnkey/sdk-browser
-
   - Move all type definitions to [`./__types__/base.ts`](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts)
   - `TurnkeyBrowserClient`
     - `refereshSession()` now consumes a [RefreshSessionParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L213) parameter
@@ -349,13 +384,11 @@ These changes standardize authentication processes, simplify integration, and st
     - `loginWithWallet()` now consumes a [LoginWithWalletParams](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-browser/src/__types__/base.ts#L231) parameter
 
   ### @turnkey/sdk-react
-
   - `Auth.tsx`
     - updated `passkeyClient?.loginWithPasskey()` to implement new method signature
     - updated `walletClient?.loginWithWallet()` to implement new method signature
 
   ### @turnkey/sdk-server
-
   - Move all type definitions to [`./__types__/base.ts`](https://github.com/tkhq/sdk/blob/494911d948d0a53c0d00aa01e9821aefd5e3f80d/packages/sdk-server/src/__types__/base.ts)
 
 - Updated dependencies [ecdb29a]
@@ -369,7 +402,6 @@ These changes standardize authentication processes, simplify integration, and st
 - 93540e7: ## Major Package Updates
 
   ### @turnkey/sdk-browser
-
   - create abstract `TurnkeyBaseClient` class which extends `TurnkeySDKClientBase`
     - `TurnkeyBrowserClient`, `TurnkeyIframeClient`, `TurnkeyPasskeyClient`, and `TurnkeyWalletClient` all extend `TurnkeyBaseClient`
   - TurnkeyBrowserClient
@@ -383,20 +415,17 @@ These changes standardize authentication processes, simplify integration, and st
       - createPasskeySession - leverages passkey authentication to create a read-write session. Once authenticated, the user will not be prompted for additional passkey taps.
 
   ### @turnkey/sdk-react
-
   - update `TurnkeyContext` to use new `.getSession()` method to check if there is an active session
   - `OTPVerification` component no longer receives `authIframeClient` or `onValidateSuccess` props
 
   ## Minor Package Updates
 
   ### @turnkey/sdk-server
-
   - expose `sendCredential` server action
   - add `SessionType` enum
     - `READ_ONLY` & `READ_WRITE`
 
   ### @turnkey/eip-1193-provider
-
   - update dependencies in `package.json`
     - moved from `peerDependencies` to `dependencies`
       - `"@turnkey/http": "workspace:*"`
@@ -561,7 +590,6 @@ These changes standardize authentication processes, simplify integration, and st
 ### Minor Changes
 
 - c988ed0: Support activity polling (e.g. for awaiting consensus)
-
   - [Breaking] Update the `activityPoller` parameter for configuring polling behavior
   - Polling continues until either a max number of retries is reached, or if the activity hits a terminal status
 

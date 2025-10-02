@@ -8,16 +8,20 @@ import { PhoneInputBox } from "../design/Inputs";
 import clsx from "clsx";
 import { OtpVerification } from "../auth/OTP";
 import { SuccessPage } from "../design/Success";
-import { OtpType } from "@turnkey/core";
+import { OtpType, StamperType } from "@turnkey/core";
 
 export function UpdatePhoneNumber(params: {
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  organizationId: string;
+  userId: string;
   onSuccess: (userId: string) => void;
   onError: (error: any) => void;
   title?: string;
   subTitle?: string;
+  stampWith?: StamperType | undefined;
 }) {
-  const { user, initOtp, verifyOtp, updateUserPhoneNumber } = useTurnkey();
+  const { config, user, initOtp, verifyOtp, updateUserPhoneNumber } =
+    useTurnkey();
   const { isMobile, pushPage, closeModal } = useModal();
   const phone = user?.userPhoneNumber || "";
   const [phoneInput, setPhoneInput] = useState(phone);
@@ -25,7 +29,14 @@ export function UpdatePhoneNumber(params: {
   const [isValid, setIsValid] = useState(false);
   const [formattedPhone, setFormattedPhone] = useState("");
 
-  const { onSuccess, onError, successPageDuration } = params;
+  const {
+    onSuccess,
+    onError,
+    successPageDuration,
+    organizationId,
+    stampWith,
+    userId,
+  } = params;
 
   const handleContinue = async () => {
     if (isValid) {
@@ -42,6 +53,12 @@ export function UpdatePhoneNumber(params: {
               {...(formattedPhone && { formattedPhone })}
               otpId={otpId}
               otpType={OtpType.Sms}
+              otpLength={
+                config?.auth?.otpLength !== undefined
+                  ? Number(config.auth.otpLength)
+                  : undefined
+              }
+              alphanumeric={config?.auth?.otpAlphanumeric}
               onContinue={async (otpCode: string) => {
                 const { verificationToken } = await verifyOtp({
                   otpId,
@@ -52,7 +69,9 @@ export function UpdatePhoneNumber(params: {
                 const res = await updateUserPhoneNumber({
                   phoneNumber: phoneInput,
                   verificationToken,
-                  userId: user!.userId,
+                  userId,
+                  organizationId,
+                  ...(params.stampWith && { stampWith }),
                 });
                 handleSuccess(res);
               }}
@@ -119,7 +138,7 @@ export function UpdatePhoneNumber(params: {
           onClick={handleContinue}
           disabled={!isValid}
           loading={loading}
-          className="w-full max-w-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
+          className="w-full md:max-w-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
           spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         >
           Continue

@@ -8,8 +8,6 @@
  */
 const {
   md,
-  unwrapPromise,
-  resolveType,
   getCallSignaturesFromType,
   toKebab,
   pickSummary,
@@ -21,11 +19,44 @@ const {
   flattenDocContent,
   humanTitleFromPkg,
   unscopedFolder,
+  pickSummaryFromHighlightedProperties,
 } = require("./utils");
 
 const SDK_DOCS_INDEX_PATH = "generated-docs/sdk-docs.json";
 const DOCS_INDEX_PATH = "generated-docs/docs.json";
 const CHANGELOG_ROOT = "generated-docs/changelogs";
+const INPUT = "generated-docs/sdks.json";
+const OUTDIR = "generated-docs";
+
+const MDX_IMPORTS = `
+import { H3Bordered } from "/snippets/h3-bordered.mdx";
+import { NestedParam } from "/snippets/nested-param.mdx";
+`;
+
+const KINDS = {
+  Project: 1,
+  Module: 2,
+  Namespace: 4,
+  Enum: 8,
+  EnumMember: 16,
+  Variable: 32,
+  Function: 64,
+  Class: 128,
+  Interface: 256,
+  Constructor: 512,
+  Property: 1024,
+  PropertySignature: 1024,
+  Method: 2048,
+  CallSignature: 4096,
+  IndexSignature: 8192,
+  ConstructorSignature: 16384,
+  Parameter: 32768,
+  TypeLiteral: 65536,
+  TypeAlias: 4194304,
+  ObjectLiteral: 2097152,
+};
+
+const PKG_INDEX = new WeakMap();
 
 const { mkdirSync, readFileSync, writeFileSync } = require("fs");
 const { join, posix: posixPath } = require("path");
@@ -88,34 +119,166 @@ if (groupsNormalized.length !== PACKAGES_TO_SYNC.length) {
   );
 }
 
-const INPUT = "generated-docs/sdks.json";
-const OUTDIR = "generated-docs/formatted";
+/** Build an id->node index for a package subtree once */
+function buildPkgIndex(root) {
+  const map = new Map();
+  const visit = (n) => {
+    if (!n || typeof n !== "object") return;
+    if (typeof n.id === "number") map.set(n.id, n);
+    if (Array.isArray(n.children)) n.children.forEach(visit);
+    if (Array.isArray(n.signatures)) n.signatures.forEach(visit);
+    if (Array.isArray(n.parameters)) n.parameters.forEach(visit);
+    if (Array.isArray(n.documents)) n.documents.forEach(visit);
+    if (n.declaration) visit(n.declaration);
+    if (n.type && typeof n.type === "object") visit(n.type);
+  };
+  visit(root);
+  return map;
+}
 
-const MDX_IMPORTS = `
-import { H3Bordered } from "/snippets/h3-bordered.mdx";
-import { NestedParam } from "/snippets/nested-param.mdx";
-`;
+function getPkgIndex(pkgNode) {
+  if (!pkgNode) return null;
+  let idx = PKG_INDEX.get(pkgNode);
+  if (!idx) {
+    idx = buildPkgIndex(pkgNode);
+    PKG_INDEX.set(pkgNode, idx);
+  }
+  return idx;
+}
 
-const KINDS = {
-  Project: 1,
-  Module: 2,
-  Namespace: 4,
-  Enum: 8,
-  EnumMember: 16,
-  Variable: 32,
-  Function: 64,
-  Class: 128,
-  Interface: 256,
-  Constructor: 512,
-  Property: 1024,
-  PropertySignature: 1024,
-  Method: 2048,
-  CallSignature: 4096,
-  IndexSignature: 8192,
-  ConstructorSignature: 16384,
-  Parameter: 32768,
-  TypeLiteral: 65536,
-};
+function kindHasShape(kind) {
+  return (
+    kind === KINDS.Interface || // 256
+    kind === KINDS.TypeLiteral || // 65536
+    kind === KINDS.ObjectLiteral // 2097152
+  );
+}
+
+function extractShapeFromTarget(node, pkgNode) {
+  // 1) Type alias? Resolve its .type
+  if (node.kind === KINDS.TypeAlias && node.type) {
+    const aliased = resolveType(node.type, pkgNode);
+    return aliased.shape?.declaration || aliased.shape || null;
+  }
+  // 2) Reflection type?
+  if (node.type && node.type.type === "reflection" && node.type.declaration) {
+    return node.type.declaration;
+  }
+  // 3) Nodes that carry children directly (Interface / ObjectLiteral / TypeLiteral)
+  if (
+    kindHasShape(node.kind) &&
+    Array.isArray(node.children) &&
+    node.children.length
+  ) {
+    return node;
+  }
+  // 4) Fallback: if it has a declaration object
+  if (node.declaration) return node.declaration;
+  return null;
+}
+
+function resolveType(t, pkgNode) {
+  if (!t) return { text: "unknown", shape: null };
+
+  // Intrinsic
+  if (t.type === "intrinsic") return { text: t.name, shape: null };
+
+  // Literal
+  if (t.type === "literal") {
+    return {
+      text: t.value === null ? "null" : JSON.stringify(t.value),
+      shape: null,
+    };
+  }
+
+  // Array
+  if (t.type === "array") {
+    const inner = resolveType(t.elementType, pkgNode);
+    return {
+      text: `${inner.text}[]`,
+      shape: { kind: "array", element: inner },
+    };
+  }
+
+  // Tuple
+  if (t.type === "tuple") {
+    const parts = (t.elements || []).map((e) => resolveType(e, pkgNode).text);
+    return { text: `[${parts.join(", ")}]`, shape: null };
+  }
+
+  // Union / Intersection
+  if (t.type === "union") {
+    const parts = t.types.map((x) => resolveType(x, pkgNode));
+    return {
+      text: parts.map((p) => p.text).join(" | "),
+      shape: { kind: "union", parts },
+    };
+  }
+  if (t.type === "intersection") {
+    const parts = t.types.map((x) => resolveType(x, pkgNode));
+    return {
+      text: parts.map((p) => p.text).join(" & "),
+      shape: { kind: "intersection", parts },
+    };
+  }
+
+  // Inline object/function
+  if (t.type === "reflection") {
+    return { text: "object", shape: t.declaration || null };
+  }
+
+  // typeof Query
+  if (t.type === "query") {
+    const inner = resolveType(t.queryType, pkgNode);
+    return { text: `typeof ${inner.text}`, shape: null };
+  }
+
+  // Reference (named types, Promise<T>, etc.)
+  if (t.type === "reference") {
+    const typeArgs = (t.typeArguments || []).map((a) =>
+      resolveType(a, pkgNode),
+    );
+    const txt = typeArgs.length
+      ? `${t.name}<${typeArgs.map((a) => a.text).join(", ")}>`
+      : t.name;
+
+    // Prefer inline reflection if present
+    let shape = t.reflection?.declaration || t.reflection || null;
+
+    // Resolve by id within the package
+    const idx = getPkgIndex(pkgNode);
+
+    const targetId = typeof t.target === "number" ? t.target : t.target?.id;
+    if (!shape && idx && targetId != null) {
+      const targetNode = idx.get(targetId);
+      if (targetNode) {
+        const decl = extractShapeFromTarget(targetNode, pkgNode);
+        if (decl) shape = decl;
+      }
+    }
+    return { text: txt, shape, typeArguments: typeArgs, name: t.name };
+  }
+
+  // Fallback
+  return { text: t.name || "unknown", shape: null };
+}
+
+function unwrapPromiseWithPkg(rt, pkgNode) {
+  const r = resolveType(rt, pkgNode);
+  if (
+    r.name === "Promise" &&
+    Array.isArray(r.typeArguments) &&
+    r.typeArguments.length === 1
+  ) {
+    return { display: r.typeArguments[0].text, inner: r.typeArguments[0] };
+  }
+  // stringified fallback
+  const m = /^Promise<(.+)>$/.exec(r.text);
+  if (m && r.typeArguments?.[0]) {
+    return { display: r.typeArguments[0].text, inner: r.typeArguments[0] };
+  }
+  return { display: r.text, inner: r };
+}
 
 function writeChangelogForPackage(pkgNode) {
   const pkgName = pkgNode.name || "package";
@@ -164,7 +327,12 @@ function addPage(pkgName, filename) {
   groupPages.get(pkgName).add(page);
 }
 
-function renderNestedParams({ parentKey, declaration }) {
+function renderNestedParams({
+  parentKey,
+  declaration,
+  pkgNode,
+  highlightedProperties,
+}) {
   if (!declaration) return "";
   const props = (declaration.children || []).filter(
     (c) =>
@@ -176,11 +344,14 @@ function renderNestedParams({ parentKey, declaration }) {
 
   let out = "";
   for (const p of props) {
-    const { text: typeText, shape } = resolveType(p.type);
+    const { text: typeText, shape } = resolveType(p.type, pkgNode);
     const requiredAttr = isOptionalParam(p)
       ? " required={false}"
       : " required={true}";
-    const desc = pickSummary(p.comment);
+
+    const desc =
+      pickSummary(p.comment) ||
+      pickSummaryFromHighlightedProperties(highlightedProperties?.[p.name]);
     const childKey = p.name;
 
     out += `    <NestedParam parentKey="${md.esc(parentKey)}" childKey="${md.esc(childKey)}" type='${md.esc(
@@ -194,6 +365,7 @@ function renderNestedParams({ parentKey, declaration }) {
       out += renderNestedParams({
         parentKey: `${parentKey}.${childKey}`,
         declaration: subDecl,
+        pkgNode,
       });
       out += `    </Expandable>\n`;
     }
@@ -201,12 +373,13 @@ function renderNestedParams({ parentKey, declaration }) {
   return out;
 }
 
-function renderParamFieldFromParam(param) {
+function renderParamFieldFromParam(param, pkgNode) {
   const name = param.name || "param";
-  const { text: typeText, shape } = resolveType(param.type);
+  const { text: typeText, shape } = resolveType(param.type, pkgNode);
   const requiredAttr = isOptionalParam(param)
     ? " required={false}"
     : " required={true}";
+
   const desc = pickSummary(param.comment);
   const decl = shape?.declaration || shape;
   let s = `<ParamField body="${md.esc(name)}" type='${md.esc(typeText)}'${requiredAttr}${
@@ -217,7 +390,12 @@ function renderParamFieldFromParam(param) {
 
   if (decl?.children?.length) {
     s += `  <Expandable title="${md.esc(name)} details">\n`;
-    s += renderNestedParams({ parentKey: name, declaration: decl });
+    s += renderNestedParams({
+      parentKey: name,
+      declaration: decl,
+      pkgNode,
+      highlightedProperties: param.type?.highlightedProperties,
+    });
     s += `  </Expandable>\n`;
   }
   if (desc.trim() || decl?.children?.length) {
@@ -226,11 +404,11 @@ function renderParamFieldFromParam(param) {
   return s;
 }
 
-function renderResponseFromSignature(signature) {
+function renderResponseFromSignature(signature, pkgNode) {
   const ret = signature.type;
   if (!ret) return "";
 
-  const { display, inner } = unwrapPromise(ret);
+  const { display, inner } = unwrapPromiseWithPkg(ret, pkgNode);
   let out = `<H3Bordered text="Response" />\nA successful response returns the following fields:\n\n`;
   out += `<ResponseField name="returns" type="${md.esc(display)}" required={true}>\n`;
 
@@ -249,18 +427,22 @@ function renderResponseFromSignature(signature) {
   const decl = inner?.shape?.declaration || inner?.shape;
   if (decl?.children?.length) {
     out += `  <Expandable title="return details">\n`;
-    out += renderNestedParams({ parentKey: "returns", declaration: decl });
+    out += renderNestedParams({
+      parentKey: "returns",
+      declaration: decl,
+      pkgNode,
+    });
     out += `  </Expandable>\n`;
   }
   out += `</ResponseField>\n`;
   return out;
 }
 
-function renderResponse(signature) {
+function renderResponse(signature, pkgNode) {
   const ret = signature.type;
   if (!ret) return "";
 
-  const { display, inner } = unwrapPromise(ret);
+  const { display, inner } = unwrapPromiseWithPkg(ret, pkgNode);
 
   // Returns description (TypeDoc JSON stores this as `comment.blockTags` sometimes; we’ll use .comment.returns if present)
   const returnsText =
@@ -282,7 +464,11 @@ function renderResponse(signature) {
 
   if (decl?.children?.length) {
     out += `  <Expandable title="return details">\n`;
-    out += renderNestedParams({ parentKey: "returns", declaration: decl });
+    out += renderNestedParams({
+      parentKey: "returns",
+      declaration: decl,
+      pkgNode,
+    });
     out += `  </Expandable>\n`;
   }
   if (returnsText || decl?.children?.length) {
@@ -291,7 +477,7 @@ function renderResponse(signature) {
   return out;
 }
 
-function buildMethodMDX({ pkgName, node }) {
+function buildMethodMDX({ pkgName, node, pkgNode }) {
   const sig = (node.signatures || [])[0];
   if (!sig) return null;
 
@@ -317,13 +503,15 @@ function buildMethodMDX({ pkgName, node }) {
   const params = sig.parameters || [];
   paramsBlock += `<H3Bordered text="Parameters" />\n\n`;
   if (params.length) {
-    params.forEach((p) => (paramsBlock += renderParamFieldFromParam(p) + "\n"));
+    params.forEach(
+      (p) => (paramsBlock += renderParamFieldFromParam(p, pkgNode) + "\n"),
+    );
   } else {
     paramsBlock += `<p>No parameters.</p>\n\n`;
   }
 
   const responseBlock =
-    renderResponse(sig) ||
+    renderResponse(sig, pkgNode) ||
     `<H3Bordered text="Response" />\n<p>No response documented.</p>\n`;
 
   return (
@@ -331,7 +519,7 @@ function buildMethodMDX({ pkgName, node }) {
   );
 }
 
-function buildCallablePropMDX({ pkgName, propNode, signature }) {
+function buildCallablePropMDX({ pkgName, propNode, signature, pkgNode }) {
   const title = `${propNode.name}()`;
   const descMDX =
     formatCommentToMDX(propNode.comment) ||
@@ -354,13 +542,15 @@ function buildCallablePropMDX({ pkgName, propNode, signature }) {
   let paramsBlock = `<H3Bordered text="Parameters" />\n\n`;
   const params = signature.parameters || [];
   if (params.length) {
-    params.forEach((p) => (paramsBlock += renderParamFieldFromParam(p) + "\n"));
+    params.forEach(
+      (p) => (paramsBlock += renderParamFieldFromParam(p, pkgNode) + "\n"),
+    );
   } else {
     paramsBlock += `<p>No parameters.</p>\n\n`;
   }
 
   const responseBlock =
-    renderResponseFromSignature(signature) ||
+    renderResponseFromSignature(signature, pkgNode) ||
     `<H3Bordered text="Response" />\n<p>No response documented.</p>\n`;
   return frontmatter + imports + meta + overview + paramsBlock + responseBlock;
 }
@@ -400,7 +590,12 @@ function walkPackage(pkgNode) {
           (child.kind === KINDS.Method || child.kind === KINDS.Constructor) &&
           child.signatures?.length
         ) {
-          const mdx = buildMethodMDX({ pkgName, className, node: child });
+          const mdx = buildMethodMDX({
+            pkgName,
+            className,
+            node: child,
+            pkgNode,
+          });
           if (!mdx) continue;
           const filename =
             child.kind === KINDS.Constructor
@@ -415,7 +610,7 @@ function walkPackage(pkgNode) {
 
     // Top-level functions
     if (node.kind === KINDS.Function && node.signatures?.length) {
-      const mdx = buildMethodMDX({ pkgName, className: "", node });
+      const mdx = buildMethodMDX({ pkgName, className: "", node, pkgNode });
       if (mdx) {
         const filename = `${toKebab(node.name)}.mdx`;
         writeFileSync(join(outForPkg, filename), mdx, "utf8");
@@ -438,6 +633,7 @@ function walkPackage(pkgNode) {
               interfaceName,
               propNode: prop,
               signature: sig,
+              pkgNode,
             });
             const filename = `${toKebab(interfaceName)}-${toKebab(prop.name)}.mdx`;
             writeFileSync(join(outForPkg, filename), mdx, "utf8");
@@ -455,7 +651,7 @@ function walkPackage(pkgNode) {
   visit(pkgNode);
 }
 
-// Top-level children are packages/modules in your monorepo JSON
+// Top-level children are packages/modules in our monorepo JSON
 for (const child of json.children || []) {
   if (child.kind === KINDS.Module) {
     walkPackage(child);
@@ -510,7 +706,8 @@ for (let i = 0; i < PACKAGES_TO_SYNC.length; i++) {
   // Inside that, find or create the nested "SDK reference" group
   const nestedSdkRef = ensureGroupIn(productGroup.pages, "SDK reference");
 
-  addPagesDedup(nestedSdkRef.pages, pages);
+  // replace wholesale for simplicity & alphabetical sort
+  nestedSdkRef.pages = pages;
   summary.push({ pkg, group: displayGroup, added: pages.length });
 }
 

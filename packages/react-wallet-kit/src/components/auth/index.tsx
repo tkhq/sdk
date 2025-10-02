@@ -7,7 +7,7 @@ import {
   faXTwitter,
 } from "@fortawesome/free-brands-svg-icons";
 import { OtpType, type WalletProvider } from "@turnkey/core";
-import { faFingerprint } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsisH, faFingerprint } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
 import { OAuthButton } from "./OAuth";
 import { EmailInput } from "./Email";
@@ -30,12 +30,21 @@ import { isWalletConnect } from "../../utils/utils";
 
 type AuthComponentProps = {
   sessionKey?: string | undefined;
+  logo?: string | undefined;
+  logoClassName?: string | undefined;
+  title?: string | undefined;
 };
 
-export function AuthComponent({ sessionKey }: AuthComponentProps) {
+export function AuthComponent({
+  sessionKey,
+  logo,
+  logoClassName,
+  title,
+}: AuthComponentProps) {
   const {
     config,
     clientState,
+    walletProviders,
     handleGoogleOauth,
     handleAppleOauth,
     handleFacebookOauth,
@@ -44,11 +53,10 @@ export function AuthComponent({ sessionKey }: AuthComponentProps) {
     initOtp,
     loginWithPasskey,
     signUpWithPasskey,
-    fetchWalletProviders,
     loginOrSignupWithWallet,
     disconnectWalletAccount,
   } = useTurnkey();
-  const { pushPage, isMobile } = useModal();
+  const { pushPage, isMobile, openSheet } = useModal();
 
   if (!config || clientState === ClientState.Loading) {
     // Don't check ClientState.Error here. We already check in the modal root
@@ -71,6 +79,12 @@ export function AuthComponent({ sessionKey }: AuthComponentProps) {
             contact={email}
             otpId={otpId}
             otpType={OtpType.Email}
+            otpLength={
+              config.auth?.otpLength !== undefined
+                ? Number(config.auth.otpLength)
+                : undefined
+            }
+            alphanumeric={config.auth?.otpAlphanumeric}
             {...(sessionKey && { sessionKey })}
           />
         ),
@@ -96,6 +110,13 @@ export function AuthComponent({ sessionKey }: AuthComponentProps) {
             formattedContact={formattedPhone}
             otpId={otpId}
             otpType={OtpType.Sms}
+            otpLength={
+              config.auth?.otpLength !== undefined
+                ? Number(config.auth.otpLength)
+                : undefined
+            }
+            alphanumeric={config.auth?.otpAlphanumeric}
+            {...(sessionKey && { sessionKey })}
           />
         ),
         showTitle: false,
@@ -302,8 +323,6 @@ export function AuthComponent({ sessionKey }: AuthComponentProps) {
 
   const handleShowWalletSelector = async () => {
     try {
-      const walletProviders = await fetchWalletProviders();
-
       pushPage({
         key: "Select wallet provider",
         content: (
@@ -366,12 +385,38 @@ export function AuthComponent({ sessionKey }: AuthComponentProps) {
     .filter(Boolean);
 
   const oauthBlock =
-    oauthButtons.length > 0 ? (
+    oauthButtons.length > 0 && oauthButtons.length <= 5 ? (
       <div
         key="socials"
         className="w-full h-11 flex flex-row justify-center items-center gap-2"
       >
         {oauthButtons}
+      </div>
+    ) : oauthButtons.length > 0 ? (
+      <div
+        key="socials"
+        className="w-full h-11 flex flex-row justify-center items-center gap-2"
+      >
+        {oauthButtons.slice(0, 4)}
+        <OAuthButton
+          key="more"
+          name="More"
+          icon={<FontAwesomeIcon icon={faEllipsisH} />}
+          onClick={() =>
+            openSheet({
+              key: "Select a social method",
+              content: (
+                <div className="w-full h-full flex flex-wrap justify-center items-center gap-2">
+                  {oauthButtons.map((button) => (
+                    <div key={button?.key} className="w-16 h-11">
+                      {button}
+                    </div>
+                  ))}
+                </div>
+              ),
+            })
+          }
+        />
       </div>
     ) : null;
 
@@ -410,7 +455,19 @@ export function AuthComponent({ sessionKey }: AuthComponentProps) {
       {config.authProxyConfigId ? (
         rendered.length > 0 ? (
           <>
-            <div className="mt-12" />
+            {logo ? (
+              <div className="mt-3 mb-4 flex flex-col items-center">
+                <img
+                  src={logo}
+                  className={`max-w-32 mt-3 w-fit max-h-16 h-fit object-contain ${logoClassName}`}
+                />
+                <h2 className="text-lg font-medium mb-4 text-center">
+                  {title ?? "Log in or sign up"}
+                </h2>
+              </div>
+            ) : (
+              <div className="mt-12" />
+            )}
             {rendered.map((component, index) => (
               <div key={index} className="w-full">
                 {index > 0 && <OrSeparator />}

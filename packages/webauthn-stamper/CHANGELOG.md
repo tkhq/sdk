@@ -1,5 +1,7 @@
 # @turnkey/webauthn-stamper
 
+## 0.6.0
+
 ## 0.6.0-beta.0
 
 ### Minor Changes

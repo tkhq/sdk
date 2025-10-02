@@ -8,17 +8,27 @@ import { useState } from "react";
 import clsx from "clsx";
 import { OtpVerification } from "../auth/OTP";
 import { SuccessPage } from "../design/Success";
-import { OtpType } from "@turnkey/core";
+import { OtpType, StamperType } from "@turnkey/core";
 
 export function UpdateEmail(params: {
   onSuccess: (userId: string) => void;
   onError: (error: any) => void;
+  organizationId: string;
+  userId: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show
   title?: string;
   subTitle?: string;
+  stampWith?: StamperType | undefined;
 }) {
-  const { onSuccess, onError, successPageDuration } = params;
-  const { user, updateUserEmail, initOtp, verifyOtp } = useTurnkey();
+  const {
+    onSuccess,
+    onError,
+    successPageDuration,
+    organizationId,
+    stampWith,
+    userId,
+  } = params;
+  const { config, user, updateUserEmail, initOtp, verifyOtp } = useTurnkey();
   const { isMobile, pushPage, closeModal } = useModal();
   const email = user?.userEmail || "";
   const [emailInput, setEmailInput] = useState(email);
@@ -43,6 +53,12 @@ export function UpdateEmail(params: {
               contact={emailInput}
               otpId={otpId}
               otpType={OtpType.Email}
+              otpLength={
+                config?.auth?.otpLength !== undefined
+                  ? Number(config.auth.otpLength)
+                  : undefined
+              }
+              alphanumeric={config?.auth?.otpAlphanumeric}
               onContinue={async (otpCode: string) => {
                 const { verificationToken } = await verifyOtp({
                   otpId,
@@ -53,7 +69,9 @@ export function UpdateEmail(params: {
                 const res = await updateUserEmail({
                   email: emailInput,
                   verificationToken,
-                  userId: user!.userId,
+                  userId,
+                  organizationId,
+                  ...(stampWith && { stampWith }),
                 });
                 handleSuccess(res);
               }}
@@ -125,7 +143,7 @@ export function UpdateEmail(params: {
           onClick={handleContinue}
           disabled={!isValidEmail(emailInput)}
           loading={isLoading}
-          className="w-full max-w-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
+          className="w-full md:max-w-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
           spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         >
           Continue

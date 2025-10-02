@@ -1,20 +1,23 @@
-import { ActionButton } from "../design/Buttons";
-import { useModal } from "../../providers/modal/Hook";
+import { ActionButton, BaseButton } from "../design/Buttons";
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faCheck,
   faChevronRight,
   faClose,
+  faCopy,
   faLaptop,
   faMobileScreen,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import type { WalletProvider } from "@turnkey/core";
 import { QRCodeSVG as QRCode } from "qrcode.react";
 import { SuccessPage } from "../design/Success";
 import { isEthereumProvider, isSolanaProvider } from "@turnkey/core";
+import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
+import { useDebouncedCallback } from "../../utils/utils";
 
 interface WalletAuthButtonProps {
   onContinue: () => Promise<void>;
@@ -403,29 +406,57 @@ export interface WalletConnectScreenProps {
 }
 
 export function WalletConnectScreen(props: WalletConnectScreenProps) {
-  const { provider, successPageDuration, onAction, onDisconnect } = props;
+  const {
+    provider: inputProvider,
+    onAction,
+    onDisconnect,
+    successPageDuration,
+  } = props;
+
   const { pushPage, closeModal, isMobile } = useModal();
-  const { fetchWalletProviders } = useTurnkey();
-  const hasRan = useRef(false);
-
-  const [walletConnectProvider, setWalletConnectProvider] =
-    useState<WalletProvider>();
-  const connectedAccount = walletConnectProvider?.connectedAddresses[0];
-
-  useEffect(() => {
-    setWalletConnectProvider(provider);
-  }, [provider]);
+  const { walletProviders } = useTurnkey();
 
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const [disconnectError, setDisconnectError] = useState(false);
+  const [showConnectedScreen, setShowConnectedScreen] = useState(
+    inputProvider.connectedAddresses?.length > 0,
+  );
+  const [showCopied, setShowCopied] = useState(false);
 
-  // kick off authentication/pairing or signing on mount or when URI changes
-  useMemo(() => {
-    (async () => {
-      if (hasRan.current) return;
+  // Use a ref to track the latest provider for use in callbacks
+  const latestProviderRef = useRef<WalletProvider | null>(null);
+
+  // Find the current provider state
+  const provider = walletProviders.find(
+    (p) =>
+      p.interfaceType === inputProvider.interfaceType &&
+      p.chainInfo.namespace === inputProvider.chainInfo.namespace,
+  );
+
+  if (!provider) {
+    throw new Error("WalletConnect provider not found");
+  }
+
+  const connectedAccount = provider.connectedAddresses?.[0] ?? null;
+
+  // Initial connection effect
+  useEffect(() => {
+    if (provider) {
+      latestProviderRef.current = provider;
+      if (!isConnecting) {
+        runAction(provider);
+      }
+    }
+  }, [provider]);
+
+  // Handle the connection action - uses the ref to get latest provider
+  const runAction = useDebouncedCallback(
+    async (targetProvider: WalletProvider) => {
+      setIsConnecting(true);
+
       try {
-        await onAction(walletConnectProvider ?? provider);
-        hasRan.current = true;
+        await onAction(targetProvider);
         pushPage({
           key: "Connect Success",
           content: (
@@ -438,28 +469,43 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
           preventBack: true,
           showTitle: false,
         });
-      } catch (e) {}
-    })();
-  }, [walletConnectProvider?.uri]);
+      } catch {
+        // noop
+      } finally {
+        setIsConnecting(false);
+      }
+    },
+    100,
+  );
 
+  const handleCopy = () => {
+    setShowCopied(true);
+    navigator.clipboard.writeText(`${provider.uri}`);
+    setTimeout(() => {
+      setShowCopied(false);
+    }, 1500);
+  };
+
+  // Handle disconnection - uses the ref to get the correct provider after state update
   const handleDisconnect = async () => {
     setIsDisconnecting(true);
     setDisconnectError(false);
+
     try {
-      await onDisconnect?.(walletConnectProvider ?? provider);
-      const newProviders = await fetchWalletProviders();
-      setWalletConnectProvider(
-        newProviders.find((p) => p.interfaceType === provider.interfaceType),
-      );
+      // Use the current provider from ref for disconnect
+      await onDisconnect?.(latestProviderRef.current!);
     } catch (err) {
+      console.error("Error disconnecting wallet:", err);
       setDisconnectError(true);
     } finally {
       setIsDisconnecting(false);
+      setShowConnectedScreen(false);
     }
   };
+
   return (
     <div className="p-3 flex flex-col items-center">
-      {connectedAccount ? (
+      {showConnectedScreen ? (
         <div
           className={clsx(
             "mt-8 flex flex-col items-center gap-3",
@@ -483,12 +529,12 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
               <div className="flex items-center justify-center">
                 <img
                   className="size-5"
-                  src={walletConnectProvider.info.icon}
+                  src={provider.info.icon}
                   alt="Wallet connect logo"
                 />
                 <img
                   className="size-5 absolute animate-ping"
-                  src={walletConnectProvider.info.icon}
+                  src={provider.info.icon}
                   alt="Wallet connect logo"
                 />
               </div>
@@ -549,23 +595,54 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             isMobile ? "w-full" : "w-96",
           )}
         >
-          {walletConnectProvider?.uri && (
-            // @ts-expect-error: qrcode.react uses a different React type version
-            <QRCode
-              className="    
-              border border-modal-background-dark/20 dark:border-modal-background-light/20
-              shadow-[0_0_42px] shadow-primary-light/50
-              dark:shadow-[0_0_42px] dark:shadow-primary-dark/50"
-              value={walletConnectProvider.uri}
-              imageSettings={{
-                src: walletConnectProvider.info.icon ?? "",
-                width: 24,
-                height: 24,
-                excavate: true,
-              }}
-              size={200}
-            />
+          {provider.uri && (
+            <>
+              {/* @ts-expect-error: qrcode.react uses a different React type version */}
+              <QRCode
+                className="    
+                  border border-modal-background-dark/20 dark:border-modal-background-light/20
+                  shadow-[0_0_42px] shadow-primary-light/50
+                  dark:shadow-[0_0_42px] dark:shadow-primary-dark/50"
+                value={provider.uri}
+                imageSettings={{
+                  src: provider.info.icon ?? "",
+                  width: 24,
+                  height: 24,
+                  excavate: true,
+                }}
+                size={200}
+              />
+              <BaseButton
+                onClick={handleCopy}
+                className={clsx(
+                  "text-xs font-semibold bg-transparent border-none text-icon-text-light dark:text-icon-text-dark",
+                  "flex flex-row items-center gap-x-2 px-3 py-2 rounded-full transition-all",
+                  "hover:bg-icon-background-light dark:hover:bg-icon-background-dark active:scale-95",
+                )}
+              >
+                <span>Copy link</span>
+
+                <div className="relative">
+                  <FontAwesomeIcon
+                    icon={showCopied ? faCheck : faCopy}
+                    className={clsx(
+                      "transition-colors",
+                      showCopied
+                        ? "text-success-light dark:text-success-dark"
+                        : "text-icon-text-light dark:text-icon-text-dark",
+                    )}
+                  />
+                  {showCopied && (
+                    <FontAwesomeIcon
+                      icon={faCheck}
+                      className="absolute inset-0 m-auto text-success-light dark:text-success-dark animate-ping"
+                    />
+                  )}
+                </div>
+              </BaseButton>
+            </>
           )}
+
           <div className={clsx("text-2xl font-bold text-center")}>
             Use your phone
           </div>

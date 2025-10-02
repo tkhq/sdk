@@ -17,6 +17,8 @@ export function UpdateUserName(params: {
   title?: string;
   subTitle?: string;
   stampWith?: StamperType | undefined;
+  organizationId: string;
+  userId: string;
 }) {
   const { user, updateUserName } = useTurnkey();
   const { isMobile, pushPage, closeModal } = useModal();
@@ -36,8 +38,9 @@ export function UpdateUserName(params: {
       try {
         const res = await updateUserName({
           userName: userNameInput,
-          userId: user!.userId,
+          userId: params.userId,
           stampWith: params?.stampWith,
+          organizationId: params.organizationId,
         });
         handleSuccess(res);
       } catch (error) {
@@ -104,7 +107,7 @@ export function UpdateUserName(params: {
           onClick={handleContinue}
           disabled={!isValidUserName(userNameInput)}
           loading={loading}
-          className="w-full max-w-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
+          className="w-full md:max-w-md bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark"
           spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         >
           Continue

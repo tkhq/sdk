@@ -5,7 +5,7 @@ import {
   WalletInterfaceType,
   SwitchableChain,
   Chain,
-} from "@types";
+} from "../__types__";
 
 export interface CrossPlatformWalletConnectorInterface {
   sign(
@@ -43,16 +43,16 @@ export class CrossPlatformWalletConnector
    * Connects the wallet account for the given provider.
    *
    * @param provider - The wallet provider to connect.
-   * @returns A promise that resolves once the wallet account is connected.
+   * @returns A promise that resolves with the connected wallet's address.
    */
-  async connectWalletAccount(provider: WalletProvider): Promise<void> {
+  async connectWalletAccount(provider: WalletProvider): Promise<string> {
     const wallet = this.wallets[provider.interfaceType];
 
     if (!wallet) {
       throw new Error(`Wallet for ${provider.interfaceType} not initialized`);
     }
 
-    await wallet.connectWalletAccount(provider);
+    return await wallet.connectWalletAccount(provider);
   }
 
   /**

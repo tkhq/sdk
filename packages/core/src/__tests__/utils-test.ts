@@ -7,8 +7,10 @@ import {
   it,
 } from "@jest/globals";
 import {
+  externaldatav1Timestamp,
   TurnkeyError,
   TurnkeyErrorCodes,
+  v1Wallet,
   type v1AddressFormat,
   type v1User,
   type v1WalletAccount,
@@ -33,16 +35,19 @@ import {
   withTurnkeyErrorHandling,
   assertValidP256ECDSAKeyPair,
   isValidPasskeyName,
+  mapAccountsToWallet,
 } from "../utils";
 import * as utils from "../utils";
 import { stringToBase64urlString } from "@turnkey/encoding";
 import {
   Chain,
+  EmbeddedWallet,
   EvmChainInfo,
   SolanaChainInfo,
   WalletInterfaceType,
   WalletProvider,
-} from "../__types__/base";
+  WalletSource,
+} from "../__types__";
 
 // mock the bs58 library
 jest.mock("bs58", () => ({
@@ -52,13 +57,17 @@ import { bs58 } from "@turnkey/encoding";
 
 // For deterministic ETH behavior, mock the heavy crypto/EC parts.
 
-// Mock keccak256 to return a predictable value
-jest.mock("ethers", () => ({
-  keccak256: jest.fn(
-    () => "11".repeat(12) + "1234567890abcdef1234567890abcdef12345678",
-  ),
-}));
-import { keccak256 } from "ethers";
+// Mock ethers keccak256, and toUtf8Bytes
+jest.mock("ethers", () => {
+  const actual = jest.requireActual("ethers") as typeof import("ethers");
+  return {
+    ...actual,
+    keccak256: jest.fn(
+      () => "11".repeat(12) + "1234567890abcdef1234567890abcdef12345678",
+    ),
+  };
+});
+import { keccak256, toUtf8Bytes } from "ethers";
 
 // Mock uncompressRawPublicKey
 jest.mock("@turnkey/crypto", () => {
@@ -209,31 +218,36 @@ describe("address format helpers", () => {
   describe("getEncodedMessage", () => {
     it("hex-encodes ASCII with 0x prefix when encoding is HEX (e.g., Ethereum)", () => {
       // "Hello" => 48 65 6c 6c 6f
-      expect(getEncodedMessage(ETH, "Hello")).toBe("0x48656c6c6f");
+      expect(
+        getEncodedMessage("PAYLOAD_ENCODING_HEXADECIMAL", toUtf8Bytes("Hello")),
+      ).toBe("0x48656c6c6f");
     });
 
     it("hex-encodes multibyte UTF-8 correctly (e.g., 'é' => c3 a9)", () => {
-      expect(getEncodedMessage(ETH, "é")).toBe("0xc3a9");
+      expect(
+        getEncodedMessage("PAYLOAD_ENCODING_HEXADECIMAL", toUtf8Bytes("é")),
+      ).toBe("0xc3a9");
     });
 
     it("returns raw message when encoding is TEXT_UTF8 (e.g., Cosmos)", () => {
-      expect(getEncodedMessage(COSMOS, "plain text")).toBe("plain text");
+      expect(
+        getEncodedMessage(
+          "PAYLOAD_ENCODING_TEXT_UTF8",
+          toUtf8Bytes("plain text"),
+        ),
+      ).toBe("plain text");
     });
 
     it("returns '0x' for empty string when HEX encoding", () => {
-      expect(getEncodedMessage(UNCOMPRESSED, "")).toBe("0x");
-    });
-
-    it("throws for unsupported formats", () => {
-      const BAD = "ADDRESS_FORMAT_UNKNOWN" as unknown as v1AddressFormat;
-      expect(() => getEncodedMessage(BAD, "msg")).toThrow(
-        /Unsupported address format: ADDRESS_FORMAT_UNKNOWN/,
-      );
+      expect(
+        getEncodedMessage("PAYLOAD_ENCODING_HEXADECIMAL", new Uint8Array([])),
+      ).toBe("0x");
     });
 
     it("does not hex-encode for formats with TEXT_UTF8 (control case)", () => {
-      // Double-check we don't accidentally hex for TEXT_UTF8 formats
-      expect(getEncodedMessage(COSMOS, "é")).toBe("é");
+      expect(
+        getEncodedMessage("PAYLOAD_ENCODING_TEXT_UTF8", toUtf8Bytes("é")),
+      ).toBe("é");
     });
   });
 });
@@ -572,7 +586,7 @@ describe("withTurnkeyErrorHandling", () => {
         {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customErrorByMessages: {
+          customErrorsByMessages: {
             ECONNREFUSED: {
               message: "Database unavailable",
               code: TurnkeyErrorCodes.INVALID_REQUEST,
@@ -604,6 +618,92 @@ describe("withTurnkeyErrorHandling", () => {
     });
   });
 
+  describe("catch global error messages", () => {
+    it("catches global error message while throwing in a message map", async () => {
+      const globalError = new TurnkeyRequestError({
+        message:
+          "Turnkey error 16: could not find public key in organization or its parent organization",
+        code: 16,
+        details: null,
+      });
+
+      await expect(
+        withTurnkeyErrorHandling(
+          async () => {
+            throw globalError;
+          },
+          {
+            // throw in a dummy message map to make sure we hit that code path even with a passed-in message match
+            customErrorsByMessages: {
+              "test message": {
+                message: "test message",
+                code: TurnkeyErrorCodes.BAD_REQUEST,
+              },
+            },
+            errorMessage: DEFAULT_MSG,
+            errorCode: DEFAULT_CODE,
+          },
+        ),
+      ).rejects.toMatchObject({
+        code: TurnkeyErrorCodes.SESSION_EXPIRED,
+        message:
+          "Session public key could not be found in the sub-organization or parent organization",
+      });
+    });
+
+    it("catches second global error but without a message map passed in", async () => {
+      const globalError2 = new TurnkeyRequestError({
+        message:
+          "Turnkey error 17: Unauthenticated desc = expired api key publicKey",
+        code: 17,
+        details: null,
+      });
+      await expect(
+        withTurnkeyErrorHandling(
+          async () => {
+            throw globalError2;
+          },
+          {
+            errorMessage: DEFAULT_MSG,
+            errorCode: DEFAULT_CODE,
+          },
+        ),
+      ).rejects.toMatchObject({
+        code: TurnkeyErrorCodes.SESSION_EXPIRED,
+        message: "Session API key has expired",
+      });
+    });
+
+    it("normal error message takes priority over global message map", async () => {
+      const normalError = new TurnkeyError(
+        "test message",
+        TurnkeyErrorCodes.UNKNOWN,
+      );
+
+      await expect(
+        withTurnkeyErrorHandling(
+          async () => {
+            throw normalError;
+          },
+          {
+            // throw in a dummy message map to make sure we hit that code path even with a passed-in message match
+            customErrorsByMessages: {
+              "test message": {
+                message: "Thrown test message",
+                code: TurnkeyErrorCodes.INTERNAL_ERROR,
+              },
+            },
+            errorMessage: DEFAULT_MSG,
+            errorCode: DEFAULT_CODE,
+          },
+        ),
+      ).rejects.toMatchObject({
+        code: TurnkeyErrorCodes.INTERNAL_ERROR,
+        message: "Thrown test message",
+      });
+    });
+  });
+
   describe("when thrown error is TurnkeyError", () => {
     it("uses customMessageByCodes when the code matches (takes priority over message map)", async () => {
       const original = new TurnkeyError("original message", DEFAULT_CODE);
@@ -612,13 +712,13 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(original), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customErrorByCodes: {
+          customErrorsByCodes: {
             [DEFAULT_CODE]: {
               message: "override via code",
               code: DEFAULT_CODE,
             },
           },
-          customErrorByMessages: {
+          customErrorsByMessages: {
             original: { message: "message-map-hit", code: DEFAULT_CODE },
           },
         }),
@@ -641,7 +741,7 @@ describe("withTurnkeyErrorHandling", () => {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
           // no customErrorByCodes hit
-          customErrorByMessages: {
+          customErrorsByMessages: {
             specific: { message: "mapped by message", code: DEFAULT_CODE },
           },
         }),
@@ -681,7 +781,7 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(reqErr), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customErrorByMessages: {
+          customErrorsByMessages: {
             expired: {
               message: "Session expired, please re-auth",
               code: DEFAULT_CODE,
@@ -756,7 +856,7 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith(err), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customErrorByMessages: {
+          customErrorsByMessages: {
             "connection refused": {
               message: "Database unavailable",
               code: DEFAULT_CODE,
@@ -794,7 +894,7 @@ describe("withTurnkeyErrorHandling", () => {
         withTurnkeyErrorHandling(failWith("timeout while fetching"), {
           errorMessage: DEFAULT_MSG,
           errorCode: DEFAULT_CODE,
-          customErrorByMessages: {
+          customErrorsByMessages: {
             timeout: { message: "Network timeout", code: DEFAULT_CODE },
           },
         }),
@@ -1043,5 +1143,178 @@ describe("isValidPasskeyName", () => {
       // restore original navigator
       (global as any).navigator = originalNav;
     }
+  });
+});
+
+const mkDate: externaldatav1Timestamp = {
+  seconds: "1735689600", // 2025-01-01T00:00:00Z
+  nanos: "0",
+};
+
+const mkWallet = (over: Partial<v1Wallet> = {}): v1Wallet => ({
+  walletId: "w_1",
+  walletName: "Main",
+  createdAt: mkDate,
+  updatedAt: mkDate,
+  exported: false,
+  imported: false,
+  ...over,
+});
+
+const mkAccount = (over: Partial<v1WalletAccount> = {}): v1WalletAccount => ({
+  walletAccountId: `wa_${Math.random().toString(36).slice(2)}`,
+  organizationId: "org_1",
+  walletId: over.walletDetails?.walletId ?? "w_1",
+  curve: "CURVE_SECP256K1",
+  pathFormat: "PATH_FORMAT_BIP32",
+  path: "m/44'/60'/0'/0",
+  addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+  address: "0xabc",
+  createdAt: mkDate,
+  updatedAt: mkDate,
+  walletDetails: mkWallet(),
+  ...over,
+});
+
+describe("mapAccountsToWallet", () => {
+  it("returns an empty array for empty input", () => {
+    expect(mapAccountsToWallet([], new Map())).toEqual([]);
+  });
+
+  it("groups multiple accounts with the same walletId into one wallet", () => {
+    const w = mkWallet({ walletId: "w_A", walletName: "Alpha" });
+
+    const a1 = mkAccount({
+      address: "0x111",
+      path: "m/44'/60'/0'/0",
+      walletDetails: w,
+      walletId: "w_A",
+    });
+    const a2 = mkAccount({
+      address: "0x222",
+      path: "m/44'/60'/0'/1",
+      walletDetails: w,
+      walletId: "w_A",
+    });
+
+    const walletMap = new Map<string, EmbeddedWallet>([
+      ["w_A", { ...w, source: WalletSource.Embedded, accounts: [] }],
+    ]);
+
+    const out = mapAccountsToWallet([a1, a2], walletMap) as EmbeddedWallet[];
+    expect(out).toHaveLength(1);
+
+    const wallet = out[0];
+    expect(wallet!.walletId).toBe("w_A");
+    expect(wallet!.walletName).toBe("Alpha");
+    expect(wallet!.source).toBe(WalletSource.Embedded);
+    expect(wallet!.exported).toBe(w.exported);
+    expect(wallet!.imported).toBe(w.imported);
+
+    expect(wallet!.accounts).toHaveLength(2);
+    // Preserve original account props and set source on each account
+    expect(wallet!.accounts[0]).toMatchObject({
+      address: "0x111",
+      source: WalletSource.Embedded,
+    });
+    expect(wallet!.accounts[1]).toMatchObject({
+      address: "0x222",
+      source: WalletSource.Embedded,
+    });
+  });
+
+  it("creates separate wallets for different walletIds and preserves first-seen order", () => {
+    const wA = mkWallet({ walletId: "w_A", walletName: "Alpha" });
+    const wB = mkWallet({ walletId: "w_B", walletName: "Beta" });
+
+    const a1 = mkAccount({
+      address: "0xA1",
+      walletDetails: wA,
+      walletId: "w_A",
+    });
+    const b1 = mkAccount({
+      address: "0xB1",
+      walletDetails: wB,
+      walletId: "w_B",
+    });
+    const a2 = mkAccount({
+      address: "0xA2",
+      walletDetails: wA,
+      walletId: "w_A",
+    });
+
+    const walletMap = new Map<string, EmbeddedWallet>([
+      ["w_A", { ...wA, source: WalletSource.Embedded, accounts: [] }],
+      ["w_B", { ...wB, source: WalletSource.Embedded, accounts: [] }],
+    ]);
+
+    // First encounter: w_A, then w_B (order should follow first appearance)
+    const out = mapAccountsToWallet(
+      [a1, b1, a2],
+      walletMap,
+    ) as EmbeddedWallet[];
+    expect(out.map((w) => w.walletId)).toEqual(["w_A", "w_B"]);
+
+    const alpha = out[0];
+    const beta = out[1];
+
+    expect(alpha!.walletName).toBe("Alpha");
+    expect(alpha!.accounts.map((a) => a.address)).toEqual(["0xA1", "0xA2"]);
+
+    expect(beta!.walletName).toBe("Beta");
+    expect(beta!.accounts.map((a) => a.address)).toEqual(["0xB1"]);
+  });
+
+  it("preserves wallet-level metadata from walletDetails", () => {
+    const w = mkWallet({
+      walletId: "w_meta",
+      walletName: "Meta",
+      createdAt: mkDate,
+      updatedAt: mkDate,
+      exported: true,
+      imported: true,
+    });
+    const a = mkAccount({ walletDetails: w, walletId: "w_meta" });
+
+    const walletMap = new Map<string, EmbeddedWallet>([
+      ["w_meta", { ...w, source: WalletSource.Embedded, accounts: [] }],
+    ]);
+
+    const out = mapAccountsToWallet([a], walletMap) as EmbeddedWallet[];
+    expect(out[0]).toMatchObject({
+      walletId: "w_meta",
+      walletName: "Meta",
+      createdAt: mkDate,
+      updatedAt: mkDate,
+      exported: true,
+      imported: true,
+      source: WalletSource.Embedded,
+    });
+  });
+
+  it("handles accounts arriving out of order and still groups correctly", () => {
+    const w = mkWallet({ walletId: "w_mix", walletName: "Mixed" });
+
+    const a2 = mkAccount({
+      address: "0xM2",
+      path: "m/44'/60'/0'/1",
+      walletDetails: w,
+      walletId: "w_mix",
+    });
+    const a1 = mkAccount({
+      address: "0xM1",
+      path: "m/44'/60'/0'/0",
+      walletDetails: w,
+      walletId: "w_mix",
+    });
+
+    const walletMap = new Map<string, EmbeddedWallet>([
+      ["w_mix", { ...w, source: WalletSource.Embedded, accounts: [] }],
+    ]);
+
+    const out = mapAccountsToWallet([a2, a1], walletMap) as EmbeddedWallet[];
+    expect(out).toHaveLength(1);
+    // Keeps push order within that wallet (a2 then a1) since accounts are appended as seen
+    expect(out[0]!.accounts.map((a) => a.address)).toEqual(["0xM2", "0xM1"]);
   });
 });

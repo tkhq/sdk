@@ -3,7 +3,7 @@ import {
   stringToBase64urlString,
   pointEncode,
 } from "@turnkey/encoding";
-import type { TStamp, ApiKeyStamperBase } from "@types";
+import type { TStamp, ApiKeyStamperBase } from "../../../__types__";
 import { assertValidP256ECDSAKeyPair } from "@utils";
 
 const DB_NAME = "TurnkeyStamperDB";

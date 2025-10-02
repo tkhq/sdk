@@ -10,7 +10,7 @@
     "checkJs": false,
     "paths": {
       "@polyfills/*": ["./src/__polyfills__/*"],
-      "@types": ["./src/__types__/base"],
+      "@types": ["./src/__types__/index"],
       "@utils": ["./src/utils"]
     }
   },

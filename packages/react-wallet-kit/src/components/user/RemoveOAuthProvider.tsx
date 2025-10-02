@@ -17,12 +17,13 @@ export function RemoveOAuthProvider(params: {
   onSuccess: (providerIds: string[]) => void;
   onError: (error: any) => void;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
 }) {
   const { user, removeOauthProviders } = useTurnkey();
   const { isMobile, closeModal, pushPage } = useModal();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { onSuccess, onError, successPageDuration } = params;
+  const { onSuccess, onError, successPageDuration, organizationId } = params;
 
   const handleContinue = async () => {
     try {
@@ -31,6 +32,7 @@ export function RemoveOAuthProvider(params: {
         providerIds: [params.providerId],
         userId: user?.userId!,
         stampWith: params.stampWith,
+        ...(organizationId && { organizationId }),
       });
       handleSuccess(res);
     } catch (error) {
@@ -102,7 +104,7 @@ export function RemoveOAuthProvider(params: {
         <ActionButton
           onClick={handleContinue}
           loading={isLoading}
-          className="w-full max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
+          className="w-full md:max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark"
           spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
         >
           Remove Provider

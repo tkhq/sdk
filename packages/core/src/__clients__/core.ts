@@ -1,56 +1,101 @@
 import { TurnkeySDKClientBase } from "../__generated__/sdk-client-base";
 import {
-  TDeleteSubOrganizationResponse,
-  Session,
-  TStampLoginResponse,
-  v1AddressFormat,
-  v1Attestation,
-  v1Pagination,
-  v1SignRawPayloadResult,
-  v1TransactionType,
-  v1User,
+  type TDeleteSubOrganizationResponse,
+  type Session,
+  type TStampLoginResponse,
+  type v1Attestation,
+  type v1SignRawPayloadResult,
+  type v1User,
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
-  ProxyTGetWalletKitConfigResponse,
-  v1WalletAccountParams,
-  v1PayloadEncoding,
-  v1HashFunction,
-  v1Curve,
-  v1PrivateKey,
-  WalletAuthResult,
-  BaseAuthResult,
+  type ProxyTGetWalletKitConfigResponse,
+  type v1WalletAccountParams,
+  type v1PrivateKey,
+  type WalletAuthResult,
+  type BaseAuthResult,
   AuthAction,
-  PasskeyAuthResult,
-  v1CreatePolicyIntentV3,
+  type PasskeyAuthResult,
+  type v1CreatePolicyIntentV3,
+  type v1BootProof,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
-  ExportBundle,
+  SignIntent,
   StamperType,
-  TurnkeySDKClientConfig,
-  WalletAccount,
-  Wallet,
   OtpType,
   OtpTypeToFilterTypeMap,
-  CreateSubOrgParams,
   Chain,
   FilterType,
-  EmbeddedWallet,
   WalletSource,
-  ConnectedWallet,
   Curve,
-  StorageBase,
   SessionKey,
-  EmbeddedWalletAccount,
-  ConnectedWalletAccount,
-  WalletManagerBase,
-  WalletProvider,
-  SwitchableChain,
-  ConnectedEthereumWalletAccount,
-  ConnectedSolanaWalletAccount,
-  SignIntent,
-} from "../__types__/base"; // TODO (Amir): How many of these should we keep in sdk-types
+  type ExportBundle,
+  type TurnkeySDKClientConfig,
+  type WalletAccount,
+  type Wallet,
+  type EmbeddedWallet,
+  type ConnectedWallet,
+  type StorageBase,
+  type EmbeddedWalletAccount,
+  type ConnectedWalletAccount,
+  type WalletManagerBase,
+  type WalletProvider,
+  type ConnectedEthereumWalletAccount,
+  type ConnectedSolanaWalletAccount,
+  type CreatePasskeyParams,
+  type CreatePasskeyResult,
+  type LogoutParams,
+  type LoginWithPasskeyParams,
+  type SignUpWithPasskeyParams,
+  type SwitchWalletAccountChainParams,
+  type LoginWithWalletParams,
+  type SignUpWithWalletParams,
+  type LoginOrSignupWithWalletParams,
+  type InitOtpParams,
+  type VerifyOtpParams,
+  type VerifyOtpResult,
+  type LoginWithOtpParams,
+  type SignUpWithOtpParams,
+  type CompleteOtpParams,
+  type CompleteOauthParams,
+  type LoginWithOauthParams,
+  type SignUpWithOauthParams,
+  type FetchWalletsParams,
+  type FetchWalletAccountsParams,
+  type FetchPrivateKeysParams,
+  type SignMessageParams,
+  type SignTransactionParams,
+  type SignAndSendTransactionParams,
+  type FetchUserParams,
+  type FetchOrCreateP256ApiKeyUserParams,
+  type FetchOrCreatePoliciesParams,
+  type FetchOrCreatePoliciesResult,
+  type UpdateUserEmailParams,
+  type RemoveUserEmailParams,
+  type UpdateUserPhoneNumberParams,
+  type RemoveUserPhoneNumberParams,
+  type UpdateUserNameParams,
+  type AddOauthProviderParams,
+  type RemoveOauthProvidersParams,
+  type AddPasskeyParams,
+  type RemovePasskeyParams,
+  type CreateWalletParams,
+  type CreateWalletAccountsParams,
+  type ExportWalletParams,
+  type ExportPrivateKeyParams,
+  type ExportWalletAccountParams,
+  type ImportWalletParams,
+  type ImportPrivateKeyParams,
+  type DeleteSubOrganizationParams,
+  type StoreSessionParams,
+  type ClearSessionParams,
+  type RefreshSessionParams,
+  type GetSessionParams,
+  type SetActiveSessionParams,
+  type CreateApiKeyPairParams,
+  type FetchBootProofForAppProofParams,
+} from "../__types__";
 import {
   buildSignUpBody,
   generateWalletAccountsFromAddressFormat,
@@ -74,7 +119,10 @@ import {
   isValidPasskeyName,
   addressFromPublicKey,
   getPolicySignature,
-} from "@utils";
+  mapAccountsToWallet,
+  getActiveSessionOrThrowIfRequired,
+  fetchAllWalletAccountsWithCursor,
+} from "../utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
@@ -86,27 +134,22 @@ import { jwtDecode } from "jwt-decode";
 import { createWalletManager } from "../__wallet__/base";
 import { toUtf8Bytes } from "ethers";
 
-// Gathers all public methods exposed in our core client and turns it into a type that
-// can be used to extend clients created for other packages built off core
-//
-// Should be used to keep any packages that extend this core package in sync with each
-// other, meaning any new additions to core should also be reflected in those packages
+/**
+ * @internal
+ * Gathers all public methods exposed in our core client and turns it into a type that
+ * can be used to extend clients created for other packages built off core
+ *
+ * Should be used to keep any packages that extend this core package in sync with each
+ * other, meaning any new additions to core should also be reflected in those packages
+ */
 type PublicMethods<T> = {
-  [K in keyof T as K extends string | number | symbol
-    ? K extends
-        | "init"
-        | "constructor"
-        | "config"
-        | "httpClient"
-        | "user"
-        | "wallets"
-      ? never
-      : K
-    : never]: T[K] extends (...args: any[]) => any ? T[K] : never;
+  [K in keyof T as T[K] extends Function ? K : never]: T[K];
 };
 
-/**@internal */
-export type TurnkeyClientMethods = PublicMethods<TurnkeyClient>;
+export type TurnkeyClientMethods = Omit<
+  PublicMethods<TurnkeyClient>,
+  "init" | "config" | "httpClient" | "constructor"
+>;
 
 export class TurnkeyClient {
   config: TurnkeySDKClientConfig;
@@ -183,37 +226,41 @@ export class TurnkeyClient {
    * - The resulting attestation and challenge can be used to register the passkey with Turnkey.
    *
    * @param params.name - display name for the passkey (defaults to a generated name based on the current timestamp).
-   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
-   * @returns A promise that resolves to an object containing:
-   *   - attestation: attestation object returned from the passkey creation process.
-   *   - encodedChallenge: encoded challenge string used for passkey registration.
+   * @returns A promise that resolves to {@link CreatePasskeyResult}
    * @throws {TurnkeyError} If there is an error during passkey creation, or if the platform is unsupported.
    */
-  createPasskey = async (params?: {
-    name?: string;
-    stampWith?: StamperType | undefined;
-    challenge?: string;
-  }): Promise<{ attestation: v1Attestation; encodedChallenge: string }> => {
+  createPasskey = async (
+    params: CreatePasskeyParams,
+  ): Promise<CreatePasskeyResult> => {
+    const { name: nameFromParams, challenge } = params || {};
     return withTurnkeyErrorHandling(
       async () => {
+        if (!this.passkeyStamper) {
+          throw new TurnkeyError(
+            "Passkey stamper is not initialized",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
         const name = isValidPasskeyName(
-          params?.name || `passkey-${Date.now()}`,
+          nameFromParams || `passkey-${Date.now()}`,
         );
+
         let passkey: { encodedChallenge: string; attestation: v1Attestation };
         if (isWeb()) {
-          const res = await this.passkeyStamper?.createWebPasskey({
+          const res = await this.passkeyStamper.createWebPasskey({
             publicKey: {
               user: {
                 name,
                 displayName: name,
               },
-              ...(params?.challenge && { challenge: params.challenge }),
+              ...(challenge && { challenge }),
             },
           });
           if (!res) {
             throw new TurnkeyError(
-              "Failed to create React Native passkey",
+              "Failed to create Web passkey",
               TurnkeyErrorCodes.INTERNAL_ERROR,
             );
           }
@@ -222,7 +269,7 @@ export class TurnkeyClient {
             attestation: res?.attestation,
           };
         } else if (isReactNative()) {
-          const res = await this.passkeyStamper?.createReactNativePasskey({
+          const res = await this.passkeyStamper.createReactNativePasskey({
             name,
             displayName: name,
           });
@@ -248,7 +295,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to create passkey",
         errorCode: TurnkeyErrorCodes.CREATE_PASSKEY_ERROR,
-        customErrorByMessages: {
+        customErrorsByMessages: {
           "timed out or was not allowed": {
             message: "Passkey creation was cancelled by the user.",
             code: TurnkeyErrorCodes.SELECT_PASSKEY_CANCELLED,
@@ -269,7 +316,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves when the logout process is complete.
    * @throws {TurnkeyError} If there is no active session or if there is an error during the logout process.
    */
-  logout = async (params?: { sessionKey?: string }): Promise<void> => {
+  logout = async (params?: LogoutParams): Promise<void> => {
     withTurnkeyErrorHandling(
       async () => {
         if (params?.sessionKey) {
@@ -311,16 +358,15 @@ export class TurnkeyClient {
    * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @returns A promise that resolves to a {@link PasskeyAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    *          - `credentialId`: an empty string.
    * @throws {TurnkeyError} If there is an error during the passkey login process or if the user cancels the passkey prompt.
    */
-  loginWithPasskey = async (params?: {
-    publicKey?: string;
-    sessionKey?: string;
-    expirationSeconds?: string;
-  }): Promise<PasskeyAuthResult> => {
+  loginWithPasskey = async (
+    params?: LoginWithPasskeyParams,
+  ): Promise<PasskeyAuthResult> => {
     let generatedPublicKey: string | undefined = undefined;
     return await withTurnkeyErrorHandling(
       async () => {
@@ -340,7 +386,8 @@ export class TurnkeyClient {
         const sessionResponse = await this.httpClient.stampLogin(
           {
             publicKey: generatedPublicKey,
-            organizationId: this.config.organizationId,
+            organizationId:
+              params?.organizationId ?? this.config.organizationId,
             expirationSeconds,
           },
           StamperType.Passkey,
@@ -365,7 +412,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Unable to log in with the provided passkey",
         errorCode: TurnkeyErrorCodes.PASSKEY_LOGIN_AUTH_ERROR,
-        customErrorByMessages: {
+        customErrorsByMessages: {
           "timed out or was not allowed": {
             message: "Passkey login was cancelled by the user.",
             code: TurnkeyErrorCodes.SELECT_PASSKEY_CANCELLED,
@@ -404,23 +451,21 @@ export class TurnkeyClient {
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @returns A promise that resolves to a {@link PasskeyAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    *          - `credentialId`: the credential ID associated with the passkey created.
    * @throws {TurnkeyError} If there is an error during passkey creation, sub-organization creation, or session storage.
    */
-  signUpWithPasskey = async (params?: {
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-    passkeyDisplayName?: string;
-    expirationSeconds?: string;
-    challenge?: string;
-  }): Promise<PasskeyAuthResult> => {
+  signUpWithPasskey = async (
+    params?: SignUpWithPasskeyParams,
+  ): Promise<PasskeyAuthResult> => {
     const {
       createSubOrgParams,
       passkeyDisplayName,
       sessionKey = SessionKey.DefaultSessionkey,
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      organizationId,
     } = params || {};
 
     let generatedPublicKey: string | undefined = undefined;
@@ -479,7 +524,7 @@ export class TurnkeyClient {
 
         const sessionResponse = await this.httpClient.stampLogin({
           publicKey: newGeneratedKeyPair!,
-          organizationId: this.config.organizationId,
+          organizationId: organizationId ?? this.config.organizationId,
           expirationSeconds,
         });
 
@@ -555,10 +600,12 @@ export class TurnkeyClient {
    * - Requires the wallet manager and its connector to be initialized.
    *
    * @param walletProvider - wallet provider to connect.
-   * @returns A promise that resolves once the wallet account is connected.
+   * @returns A promise that resolves with the connected wallet's address.
    * @throws {TurnkeyError} If the wallet manager is uninitialized or the connection fails.
    */
-  connectWalletAccount = async (walletProvider: WalletProvider) => {
+  connectWalletAccount = async (
+    walletProvider: WalletProvider,
+  ): Promise<string> => {
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.walletManager?.connector) {
@@ -567,7 +614,9 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
           );
         }
-        await this.walletManager.connector.connectWalletAccount(walletProvider);
+        return await this.walletManager.connector.connectWalletAccount(
+          walletProvider,
+        );
       },
       {
         errorMessage: "Unable to connect wallet account",
@@ -622,11 +671,9 @@ export class TurnkeyClient {
    *
    * @throws {TurnkeyError} If the wallet manager is uninitialized, the provider is not connected, or the switch fails.
    */
-  switchWalletAccountChain = async (params: {
-    walletAccount: WalletAccount;
-    chainOrId: string | SwitchableChain;
-    walletProviders?: WalletProvider[] | undefined;
-  }): Promise<void> => {
+  switchWalletAccountChain = async (
+    params: SwitchWalletAccountChainParams,
+  ): Promise<void> => {
     const { walletAccount, chainOrId, walletProviders } = params;
 
     return withTurnkeyErrorHandling(
@@ -689,17 +736,15 @@ export class TurnkeyClient {
    * @param params.publicKey - optional public key to associate with the session (generated if not provided).
    * @param params.sessionKey - optional key to store the session under (defaults to the default session key).
    * @param params.expirationSeconds - optional session expiration time in seconds (defaults to the configured default).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @returns A promise that resolves to a {@link WalletAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    *          - `address`: the authenticated wallet address.
    * @throws {TurnkeyError} If the wallet stamper is uninitialized, a public key cannot be found or generated, or login fails.
    */
-  loginWithWallet = async (params: {
-    walletProvider: WalletProvider;
-    publicKey?: string;
-    sessionKey?: string;
-    expirationSeconds?: string;
-  }): Promise<WalletAuthResult> => {
+  loginWithWallet = async (
+    params: LoginWithWalletParams,
+  ): Promise<WalletAuthResult> => {
     let publicKey =
       params.publicKey || (await this.apiKeyStamper?.createKeyPair());
     return withTurnkeyErrorHandling(
@@ -731,7 +776,8 @@ export class TurnkeyClient {
         const sessionResponse = await this.httpClient.stampLogin(
           {
             publicKey,
-            organizationId: this.config.organizationId,
+            organizationId:
+              params?.organizationId ?? this.config.organizationId,
             expirationSeconds,
           },
           StamperType.Wallet,
@@ -789,17 +835,15 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @returns A promise that resolves to a {@link WalletAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    *          - `address`: the authenticated wallet address.
    * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, session storage, or cleanup.
    */
-  signUpWithWallet = async (params: {
-    walletProvider: WalletProvider;
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-    expirationSeconds?: string;
-  }): Promise<WalletAuthResult> => {
+  signUpWithWallet = async (
+    params: SignUpWithWalletParams,
+  ): Promise<WalletAuthResult> => {
     const {
       walletProvider,
       createSubOrgParams,
@@ -930,18 +974,16 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @returns A promise that resolves to an object containing:
    *          - `sessionToken`: the signed JWT session token.
    *          - `address`: the authenticated wallet address.
    *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during wallet authentication, sub-organization creation, or session storage.
    */
-  loginOrSignupWithWallet = async (params: {
-    walletProvider: WalletProvider;
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-    expirationSeconds?: string;
-  }): Promise<WalletAuthResult & { action: AuthAction }> => {
+  loginOrSignupWithWallet = async (
+    params: LoginOrSignupWithWalletParams,
+  ): Promise<WalletAuthResult & { action: AuthAction }> => {
     const createSubOrgParams = params.createSubOrgParams;
     const sessionKey = params.sessionKey || SessionKey.DefaultSessionkey;
     const walletProvider = params.walletProvider;
@@ -981,7 +1023,13 @@ export class TurnkeyClient {
           {
             errorMessage: "Failed to create stamped request for wallet login",
             errorCode: TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
-            customErrorByMessages: {
+            customErrorsByMessages: {
+              "WalletConnect: The connection request has expired. Please scan the QR code again.":
+                {
+                  message:
+                    "Your WalletConnect session expired. Please scan the QR code again.",
+                  code: TurnkeyErrorCodes.WALLET_CONNECT_EXPIRED,
+                },
               "Failed to sign the message": {
                 message: "Wallet auth was cancelled by the user.",
                 code: TurnkeyErrorCodes.CONNECT_WALLET_CANCELLED,
@@ -1148,13 +1196,11 @@ export class TurnkeyClient {
    *
    * @param params.otpType - type of OTP to initialize (OtpType.Email or OtpType.Sms).
    * @param params.contact - contact information for the user (e.g., email address or phone number).
+   * @param params.organizationId - optional organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @returns A promise that resolves to the OTP ID required for verification.
    * @throws {TurnkeyError} If there is an error during the OTP initialization process or if the maximum number of OTPs has been reached.
    */
-  initOtp = async (params: {
-    otpType: OtpType;
-    contact: string;
-  }): Promise<string> => {
+  initOtp = async (params: InitOtpParams): Promise<string> => {
     return withTurnkeyErrorHandling(
       async () => {
         const initOtpRes = await this.httpClient.proxyInitOtp(params);
@@ -1171,7 +1217,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to initialize OTP",
         errorCode: TurnkeyErrorCodes.INIT_OTP_ERROR,
-        customErrorByMessages: {
+        customErrorsByMessages: {
           "Max number of OTPs have been initiated": {
             message:
               "Maximum number of OTPs has been reached for this contact.",
@@ -1199,12 +1245,7 @@ export class TurnkeyClient {
    *   - verificationToken: verification token to be used for login or sign-up.
    * @throws {TurnkeyError} If there is an error during the OTP verification process, such as an invalid code or network failure.
    */
-  verifyOtp = async (params: {
-    otpId: string;
-    otpCode: string;
-    contact: string;
-    otpType: OtpType;
-  }): Promise<{ subOrganizationId: string; verificationToken: string }> => {
+  verifyOtp = async (params: VerifyOtpParams): Promise<VerifyOtpResult> => {
     const { otpId, otpCode, contact, otpType } = params;
 
     return withTurnkeyErrorHandling(
@@ -1241,7 +1282,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to verify OTP",
         errorCode: TurnkeyErrorCodes.VERIFY_OTP_ERROR,
-        customErrorByMessages: {
+        customErrorsByMessages: {
           "Invalid OTP code": {
             message: "The provided OTP code is invalid.",
             code: TurnkeyErrorCodes.INVALID_OTP_CODE,
@@ -1262,22 +1303,21 @@ export class TurnkeyClient {
    *
    * @param params.verificationToken - verification token received after OTP verification.
    * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
+   * @param params.organizationId - optional organization ID to target (defaults to the verified subOrg ID linked to the verification token contact).
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OTP login process or if key pair cleanup fails.
    */
-  loginWithOtp = async (params: {
-    verificationToken: string;
-    publicKey?: string;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-  }): Promise<BaseAuthResult> => {
+  loginWithOtp = async (
+    params: LoginWithOtpParams,
+  ): Promise<BaseAuthResult> => {
     const {
       verificationToken,
       invalidateExisting = false,
       publicKey = await this.apiKeyStamper?.createKeyPair(),
+      organizationId,
       sessionKey = SessionKey.DefaultSessionkey,
     } = params;
 
@@ -1287,6 +1327,7 @@ export class TurnkeyClient {
           verificationToken,
           publicKey: publicKey!,
           invalidateExisting,
+          ...(organizationId && { organizationId }),
         });
 
         if (!res) {
@@ -1353,14 +1394,9 @@ export class TurnkeyClient {
    *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OTP sign-up process or session storage.
    */
-  signUpWithOtp = async (params: {
-    verificationToken: string;
-    contact: string;
-    otpType: OtpType;
-    createSubOrgParams?: CreateSubOrgParams;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-  }): Promise<BaseAuthResult> => {
+  signUpWithOtp = async (
+    params: SignUpWithOtpParams,
+  ): Promise<BaseAuthResult> => {
     const {
       verificationToken,
       contact,
@@ -1429,16 +1465,9 @@ export class TurnkeyClient {
    *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during OTP verification, sign-up, or login.
    */
-  completeOtp = async (params: {
-    otpId: string;
-    otpCode: string;
-    contact: string;
-    otpType: OtpType;
-    publicKey?: string;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-    createSubOrgParams?: CreateSubOrgParams;
-  }): Promise<
+  completeOtp = async (
+    params: CompleteOtpParams,
+  ): Promise<
     BaseAuthResult & { verificationToken: string; action: AuthAction }
   > => {
     const {
@@ -1525,14 +1554,9 @@ export class TurnkeyClient {
    *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
    * @throws {TurnkeyError} If there is an error during the OAuth completion process, such as account lookup, sign-up, or login.
    */
-  completeOauth = async (params: {
-    oidcToken: string;
-    publicKey: string;
-    providerName?: string;
-    sessionKey?: string;
-    invalidateExisting?: boolean;
-    createSubOrgParams?: CreateSubOrgParams;
-  }): Promise<BaseAuthResult & { action: AuthAction }> => {
+  completeOauth = async (
+    params: CompleteOauthParams,
+  ): Promise<BaseAuthResult & { action: AuthAction }> => {
     const {
       oidcToken,
       publicKey,
@@ -1609,12 +1633,9 @@ export class TurnkeyClient {
    *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OAuth login process or if key pair cleanup fails.
    */
-  loginWithOauth = async (params: {
-    oidcToken: string;
-    publicKey: string;
-    invalidateExisting?: boolean;
-    sessionKey?: string;
-  }): Promise<BaseAuthResult> => {
+  loginWithOauth = async (
+    params: LoginWithOauthParams,
+  ): Promise<BaseAuthResult> => {
     const {
       oidcToken,
       invalidateExisting = false,
@@ -1661,7 +1682,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to complete OAuth login",
         errorCode: TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-        customErrorByMessages: {
+        customErrorsByMessages: {
           "OAUTH disallowed": {
             message:
               "OAuth is disabled on the dashboard for this organization.",
@@ -1703,13 +1724,9 @@ export class TurnkeyClient {
    *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OAuth sign-up or login process.
    */
-  signUpWithOauth = async (params: {
-    oidcToken: string;
-    publicKey: string;
-    providerName: string;
-    createSubOrgParams?: CreateSubOrgParams;
-    sessionKey?: string;
-  }): Promise<BaseAuthResult> => {
+  signUpWithOauth = async (
+    params: SignUpWithOauthParams,
+  ): Promise<BaseAuthResult> => {
     const {
       oidcToken,
       publicKey,
@@ -1763,58 +1780,93 @@ export class TurnkeyClient {
    * - Returns both embedded and connected wallets in a single array, each with their respective accounts populated.
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
-   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.walletProviders - array of wallet providers to use for fetching wallets.
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID).
+   * @param params.userId - user ID to target (defaults to the session's user ID).
+   * @param params.connectedOnly - if true, fetches only connected wallets; if false or undefined, fetches both embedded and connected wallets.
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an array of `Wallet` objects.
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallets.
    */
-  fetchWallets = async (params?: {
-    walletProviders?: WalletProvider[] | undefined;
-    stampWith?: StamperType | undefined;
-  }): Promise<Wallet[]> => {
-    const { stampWith, walletProviders } = params || {};
+  fetchWallets = async (params?: FetchWalletsParams): Promise<Wallet[]> => {
+    const {
+      walletProviders,
+      organizationId: organizationIdFromParams,
+      userId: userIdFromParams,
+      connectedOnly,
+      stampWith,
+    } = params || {};
     const session = await this.storageManager.getActiveSession();
-
-    if (!session) {
+    if (!session && !connectedOnly) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
+        "No active session found. Fetching embedded wallets requires a valid session. If you only need connected wallets, set the 'connectedOnly' parameter to true.",
         TurnkeyErrorCodes.NO_SESSION_FOUND,
+      );
+    }
+
+    // if `connectedOnly` is true, we need to make sure the walletManager is initialized
+    // or else we can't fetch connected wallets, and we throw an error
+    if (connectedOnly && !this.walletManager?.connector) {
+      throw new TurnkeyError(
+        "Wallet connector is not initialized",
+        TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
       );
     }
 
     return withTurnkeyErrorHandling(
       async () => {
-        const res = await this.httpClient.getWallets(
-          { organizationId: session.organizationId },
-          stampWith,
-        );
+        let embedded: EmbeddedWallet[] = [];
 
-        if (!res || !res.wallets) {
-          throw new TurnkeyError(
-            "No wallets found in the response",
-            TurnkeyErrorCodes.BAD_RESPONSE,
+        // if connectedOnly is true, we skip fetching embedded wallets
+        if (!connectedOnly) {
+          const organizationId =
+            organizationIdFromParams || session?.organizationId;
+
+          if (!organizationId) {
+            throw new TurnkeyError(
+              "No organization ID provided and no active session found. Please log in first or pass in an organization ID.",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+
+          const userId = userIdFromParams || session?.userId;
+          if (!userId) {
+            throw new TurnkeyError(
+              "No user ID provided and no active session found. Please log in first or pass in a user ID.",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+
+          const accounts = await fetchAllWalletAccountsWithCursor(
+            this.httpClient,
+            organizationId,
+            stampWith,
           );
+
+          const walletsRes = await this.httpClient.getWallets(
+            {
+              organizationId,
+            },
+            stampWith,
+          );
+
+          // create a map of walletId to EmbeddedWallet for easy lookup
+          const walletMap: Map<string, EmbeddedWallet> = new Map(
+            walletsRes.wallets.map((wallet) => [
+              wallet.walletId,
+              {
+                ...wallet,
+                source: WalletSource.Embedded,
+                accounts: [],
+              },
+            ]),
+          );
+          // map the accounts to their respective wallets
+          embedded = mapAccountsToWallet(accounts, walletMap);
         }
 
-        const embedded: EmbeddedWallet[] = await Promise.all(
-          res.wallets.map(async (wallet) => {
-            const embeddedWallet: Wallet = {
-              ...wallet,
-              source: WalletSource.Embedded,
-              accounts: [],
-            };
-
-            const accounts = await this.fetchWalletAccounts({
-              wallet: embeddedWallet,
-              ...(stampWith !== undefined && { stampWith }),
-            });
-
-            embeddedWallet.accounts = accounts;
-            return embeddedWallet;
-          }),
-        );
-
         // if wallet connecting is disabled we return only embedded wallets
+        // this will never be hit if `connectedOnly` is true because of the check above
         if (!this.walletManager?.connector) return embedded;
 
         const providers =
@@ -1832,35 +1884,39 @@ export class TurnkeyClient {
           groupedProviders.set(walletId, group);
         }
 
-        const connected: ConnectedWallet[] = (
-          await Promise.all(
-            Array.from(groupedProviders.entries()).map(
-              async ([walletId, grouped]) => {
-                const timestamp = toExternalTimestamp();
+        // has to be done in a for of loop so we can await each fetchWalletAccounts call individually
+        // otherwise await Promise.all would cause them all to fire at once breaking passkey only set ups
+        // (multiple wallet fetches at once causing "OperationError: A request is already pending.")
+        let connected: ConnectedWallet[] = [];
+        for (const [walletId, grouped] of groupedProviders.entries()) {
+          const timestamp = toExternalTimestamp();
 
-                const wallet: Wallet = {
-                  source: WalletSource.Connected,
-                  walletId,
-                  walletName: grouped[0]?.info?.name ?? "Unknown",
-                  createdAt: timestamp,
-                  updatedAt: timestamp,
-                  exported: false,
-                  imported: false,
-                  accounts: [],
-                };
+          const wallet: Wallet = {
+            source: WalletSource.Connected,
+            walletId,
+            walletName: grouped[0]?.info?.name ?? "Unknown",
+            createdAt: timestamp,
+            updatedAt: timestamp,
+            exported: false,
+            imported: false,
+            accounts: [],
+          };
 
-                const accounts = await this.fetchWalletAccounts({
-                  wallet,
-                  walletProviders: grouped,
-                  ...(stampWith !== undefined && { stampWith }),
-                });
+          const accounts = await this.fetchWalletAccounts({
+            wallet,
+            walletProviders: grouped,
+            ...(stampWith !== undefined && { stampWith }),
+            ...(organizationIdFromParams !== undefined && {
+              organizationId: organizationIdFromParams,
+            }),
+            ...(userIdFromParams !== undefined && { userId: userIdFromParams }),
+          });
 
-                wallet.accounts = accounts;
-                return wallet;
-              },
-            ),
-          )
-        ).filter((wallet) => wallet.accounts.length > 0);
+          wallet.accounts = accounts;
+          if (wallet.accounts.length > 0) {
+            connected.push(wallet);
+          }
+        }
 
         return [...embedded, ...connected];
       },
@@ -1884,24 +1940,20 @@ export class TurnkeyClient {
    * @param params.walletProviders - list of wallet providers to filter by (used for connected wallets).
    * @param params.paginationOptions - pagination options for embedded wallets.
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID).
+   * @param params.userId - user ID to target (defaults to the session's user ID).
+   *
    * @returns A promise that resolves to an array of `v1WalletAccount` objects.
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallet accounts.
    */
-  fetchWalletAccounts = async (params: {
-    wallet: Wallet;
-    walletProviders?: WalletProvider[];
-    paginationOptions?: v1Pagination;
-    stampWith?: StamperType | undefined;
-  }): Promise<WalletAccount[]> => {
+  fetchWalletAccounts = async (
+    params: FetchWalletAccountsParams,
+  ): Promise<WalletAccount[]> => {
     const { wallet, stampWith, walletProviders, paginationOptions } = params;
     const session = await this.storageManager.getActiveSession();
 
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
+    const organizationId = params?.organizationId || session?.organizationId;
+    const userId = params?.userId || session?.userId;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -1909,10 +1961,24 @@ export class TurnkeyClient {
         if (wallet.source === WalletSource.Embedded) {
           const embedded: EmbeddedWalletAccount[] = [];
 
+          if (!organizationId) {
+            throw new TurnkeyError(
+              "No organization ID provided and no active session found. Please log in first or pass in an organization ID.",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+
+          if (!userId) {
+            throw new TurnkeyError(
+              "No user ID provided and no active session found. Please log in first or pass in a user ID.",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+
           const res = await this.httpClient.getWalletAccounts(
             {
               walletId: wallet.walletId,
-              organizationId: session.organizationId,
+              organizationId,
               paginationOptions: paginationOptions || { limit: "100" },
             },
             stampWith,
@@ -1963,12 +2029,21 @@ export class TurnkeyClient {
           this.walletManager!.connector,
         );
 
-        const user = await this.fetchUser({
-          stampWith,
-        });
+        let ethereumAddresses: string[] = [];
+        let solanaAddresses: string[] = [];
 
-        const { ethereum: ethereumAddresses, solana: solanaAddresses } =
-          getAuthenticatorAddresses(user);
+        // we only fetch the user if we have to the organizationId and userId
+        // if not that means `isAuthenticator` will always be false
+        if (organizationId && userId) {
+          const user = await this.fetchUser({
+            userId,
+            organizationId,
+            stampWith,
+          });
+
+          ({ ethereum: ethereumAddresses, solana: solanaAddresses } =
+            getAuthenticatorAddresses(user));
+        }
 
         for (const provider of matching) {
           const timestamp = toExternalTimestamp();
@@ -1977,7 +2052,7 @@ export class TurnkeyClient {
             if (isEthereumProvider(provider)) {
               const evmAccount: ConnectedEthereumWalletAccount = {
                 walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
-                organizationId: session.organizationId,
+                organizationId: organizationId ?? "",
                 walletId: wallet.walletId,
                 pathFormat: "PATH_FORMAT_BIP32",
                 path: WalletSource.Connected,
@@ -2006,7 +2081,7 @@ export class TurnkeyClient {
             if (isSolanaProvider(provider)) {
               const solAccount: ConnectedSolanaWalletAccount = {
                 walletAccountId: `${wallet.walletId}-${provider.interfaceType}-${address}`,
-                organizationId: session.organizationId,
+                organizationId: organizationId ?? "",
                 walletId: wallet.walletId,
                 pathFormat: "PATH_FORMAT_BIP32",
                 path: WalletSource.Connected,
@@ -2053,26 +2128,32 @@ export class TurnkeyClient {
    * - Supports stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID).
    * @returns A promise that resolves to an array of `v1PrivateKey` objects.
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching private keys.
    */
-  fetchPrivateKeys = async (params?: {
-    stampWith?: StamperType | undefined;
-  }): Promise<v1PrivateKey[]> => {
+  fetchPrivateKeys = async (
+    params?: FetchPrivateKeysParams,
+  ): Promise<v1PrivateKey[]> => {
     const { stampWith } = params || {};
-    const session = await this.storageManager.getActiveSession();
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
 
-    if (!session) {
+    const organizationId = params?.organizationId || session?.organizationId;
+
+    if (!organizationId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "No organization ID provided and no active session found. Please log in first or pass in an organization ID.",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
 
     return withTurnkeyErrorHandling(
       async () => {
         const res = await this.httpClient.getPrivateKeys(
-          { organizationId: session.organizationId },
+          { organizationId },
           stampWith,
         );
 
@@ -2095,40 +2176,51 @@ export class TurnkeyClient {
   /**
    * Signs a message using the specified wallet account.
    *
-   * - Supports both embedded and connected wallets.
-   * - For **connected wallets**:
+   * Behavior differs depending on the wallet type:
+   *
+   * - **Connected wallets**
    *   - Delegates signing to the wallet provider’s native signing method.
-   *   - **Important:** For Ethereum wallets (e.g., MetaMask), signatures follow [EIP-191](https://eips.ethereum.org/EIPS/eip-191).
-   *     The message is automatically prefixed with `"\x19Ethereum Signed Message:\n" + message length`
-   *     before signing. As a result, this signature **cannot be used as a raw transaction signature**
-   *     or broadcast on-chain.
-   * - For **embedded wallets**, uses the Turnkey API to sign the message directly.
-   * - Automatically handles message encoding and hashing based on the wallet account’s address format,
+   *   - *Ethereum*: signatures always follow [EIP-191](https://eips.ethereum.org/EIPS/eip-191).
+   *     - The wallet automatically prefixes messages with
+   *       `"\x19Ethereum Signed Message:\n" + message length` before signing.
+   *     - As a result, these signatures cannot be used as raw transaction signatures or broadcast on-chain.
+   *     - If `addEthereumPrefix` is set to `false`, an error is thrown because connected Ethereum wallets always prefix.
+   *   - *Other chains*: follows the native connected wallet behavior.
+   *
+   * - **Embedded wallets**
+   *   - Uses the Turnkey API to sign the message directly.
+   *   - Supports optional `addEthereumPrefix`:
+   *     - If `true` (default for Ethereum), the message is prefixed before signing.
+   *     - If `false`, the raw message is signed without any prefix.
+   *
+   * Additional details:
+   * - Automatically handles encoding and hashing based on the wallet account’s address format,
    *   unless explicitly overridden.
+   * - Optionally allows stamping with a specific stamper
+   *   (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
    *
-   * @param params.message - message to sign.
+   * @param params.message - plaintext (UTF-8) message to sign.
    * @param params.walletAccount - wallet account to use for signing.
-   * @param params.encoding - override for the payload encoding (defaults to the encoding appropriate for the address type).
-   * @param params.hashFunction - override for the hash function (defaults to the hash function appropriate for the address type).
-   * @param params.stampWith - stamper to tag the signing request (e.g., Passkey, ApiKey, or Wallet).
-   * @param params.addEthereumPrefix - whether to prefix the message with Ethereum's `"\x19Ethereum Signed Message:\n"` string.
-   *   - If `true` (default for Ethereum), the message is prefixed before signing.
-   *   - If `false`:
-   *     - Connected wallets will throw an error because they always prefix automatically.
-   *     - Embedded wallets will sign the raw message without any prefix.
+   * @param params.encoding - override for payload encoding (defaults to the encoding appropriate for the address format).
+   * @param params.hashFunction - override for hash function (defaults to the function appropriate for the address format).
+   * @param params.stampWith - optional stamper for the signing request.
+   * @param params.addEthereumPrefix - whether to prefix the message with Ethereum’s
+   *   `"\x19Ethereum Signed Message:\n"` string (default: `true` for Ethereum).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID).
    *
-   * @returns A promise resolving to a `v1SignRawPayloadResult` containing the signature and metadata.
-   * @throws {TurnkeyError} If signing fails, if the wallet account does not support signing, or if the response is invalid.
+   * @returns A promise that resolves to a `v1SignRawPayloadResult` containing the signature and metadata.
+   * @throws {TurnkeyError} If signing fails, the wallet type does not support message signing, or the response is invalid.
    */
-  signMessage = async (params: {
-    message: string;
-    walletAccount: WalletAccount;
-    encoding?: v1PayloadEncoding;
-    hashFunction?: v1HashFunction;
-    stampWith?: StamperType | undefined;
-    addEthereumPrefix?: boolean;
-  }): Promise<v1SignRawPayloadResult> => {
-    const { message, walletAccount, stampWith, addEthereumPrefix } = params;
+  signMessage = async (
+    params: SignMessageParams,
+  ): Promise<v1SignRawPayloadResult> => {
+    const {
+      message,
+      walletAccount,
+      stampWith,
+      addEthereumPrefix,
+      organizationId,
+    } = params;
 
     const hashFunction =
       params.hashFunction || getHashFunction(walletAccount.addressFormat);
@@ -2152,10 +2244,8 @@ export class TurnkeyClient {
 
           let encodedMessage = message;
           if (isEthereum) {
-            encodedMessage = getEncodedMessage(
-              walletAccount.addressFormat,
-              message,
-            );
+            const msgBytes = toUtf8Bytes(message);
+            encodedMessage = getEncodedMessage(payloadEncoding, msgBytes);
           }
 
           const sigHex = await walletAccount.signMessage(encodedMessage);
@@ -2163,17 +2253,20 @@ export class TurnkeyClient {
         }
 
         // this is an embedded wallet
-        let messageToEncode = message;
+        let msgBytes = toUtf8Bytes(message);
 
         if (addEthereumPrefix && isEthereum) {
-          const prefix = `\x19Ethereum Signed Message:\n${toUtf8Bytes(message).length}`;
-          messageToEncode = prefix + message;
+          const prefix = `\x19Ethereum Signed Message:\n${msgBytes.length}`;
+          const prefixBytes = toUtf8Bytes(prefix);
+
+          const combined = new Uint8Array(prefixBytes.length + msgBytes.length);
+          combined.set(prefixBytes, 0);
+          combined.set(msgBytes, prefixBytes.length);
+
+          msgBytes = combined;
         }
 
-        const encodedMessage = getEncodedMessage(
-          walletAccount.addressFormat,
-          messageToEncode,
-        );
+        const encodedMessage = getEncodedMessage(payloadEncoding, msgBytes);
 
         const response = await this.httpClient.signRawPayload(
           {
@@ -2181,6 +2274,7 @@ export class TurnkeyClient {
             payload: encodedMessage,
             encoding: payloadEncoding,
             hashFunction,
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -2205,27 +2299,35 @@ export class TurnkeyClient {
   /**
    * Signs a transaction using the specified wallet account.
    *
-   * - This function signs a blockchain transaction using the provided wallet address and transaction data.
-   * - Supports all Turnkey-supported blockchain networks (e.g., Ethereum, Solana, Tron).
-   * - Automatically determines the appropriate signing method based on the transaction type.
-   * - Delegates signing to the Turnkey API, which returns the signed transaction and related metadata.
-   * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * Behavior differs depending on the type of wallet:
    *
-   * @param params.walletAccount - wallet account to use for signing the transaction.
-   * @param params.unsignedTransaction - unsigned transaction data (serialized as a string) to be signed.
+   * - **Connected wallets**
+   *   - Ethereum: does not support raw transaction signing. Calling this function will throw an error instructing you to use `signAndSendTransaction` instead.
+   *   - Solana: supports raw transaction signing via the connected wallet provider.
+   *   - Other chains: not supported; will throw an error.
+   *
+   * - **Embedded wallets**
+   *   - Delegates signing to the Turnkey API, which returns the signed transaction.
+   *   - Supports all Turnkey-supported transaction types (e.g., Ethereum, Solana, Tron).
+   *   - Optionally allows stamping with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
+   *
+   * @param params.walletAccount - wallet account to use for signing.
+   * @param params.unsignedTransaction - unsigned transaction data as a serialized
+   *   string in the canonical encoding for the given `transactionType`.
    * @param params.transactionType - type of transaction (e.g., "TRANSACTION_TYPE_ETHEREUM", "TRANSACTION_TYPE_SOLANA", "TRANSACTION_TYPE_TRON").
-   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
-   * @returns A promise that resolves to a `TSignTransactionResponse` object containing the signed transaction and any additional signing metadata.
-   * @throws {TurnkeyError} If there is an error signing the transaction or if the response is invalid.
+   * @param params.stampWith - stamper to use for signing (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
+   * @param params.organizationId - organization ID to target (defaults to the session's organization ID).
+   * @returns A promise that resolves to the signed transaction string.
+   * @throws {TurnkeyError} If the wallet type is unsupported, signing fails, or the response is invalid.
    */
-  signTransaction = async (params: {
-    unsignedTransaction: string;
-    transactionType: v1TransactionType;
-    walletAccount: WalletAccount;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const { walletAccount, unsignedTransaction, transactionType, stampWith } =
-      params;
+  signTransaction = async (params: SignTransactionParams): Promise<string> => {
+    const {
+      walletAccount,
+      unsignedTransaction,
+      transactionType,
+      stampWith,
+      organizationId,
+    } = params;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -2258,6 +2360,7 @@ export class TurnkeyClient {
             signWith: walletAccount.address,
             unsignedTransaction,
             type: transactionType,
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -2274,36 +2377,40 @@ export class TurnkeyClient {
   /**
    * Signs and broadcasts a transaction using the specified wallet account.
    *
-   * - For **connected wallets**:
-   *   - Calls the wallet’s native `signAndSendTransaction` method.
-   *   - Does **not** require an `rpcUrl`.
+   * Behavior differs depending on the type of wallet:
    *
-   * - For **embedded wallets**:
+   * - **Connected wallets**
+   *   - *Ethereum*: delegates to the wallet’s native `signAndSendTransaction` method.
+   *     - Does **not** require an `rpcUrl` (the wallet handles broadcasting).
+   *   - *Solana*: signs the transaction locally with the connected wallet, but requires an `rpcUrl` to broadcast it.
+   *   - Other chains: not supported; will throw an error.
+   *
+   * - **Embedded wallets**
    *   - Signs the transaction using the Turnkey API.
-   *   - Requires an `rpcUrl` to broadcast the transaction.
-   *   - Broadcasts the transaction using a JSON-RPC client.
+   *   - Requires an `rpcUrl` to broadcast the signed transaction, since Turnkey does not broadcast directly.
+   *   - Broadcasts the transaction using a JSON-RPC client and returns the resulting transaction hash/signature.
+   *   - Optionally allows stamping with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
    *
-   * @param params.walletAccount - wallet account to use for signing and sending.
-   * @param params.unsignedTransaction - unsigned transaction (serialized string).
-   * @param params.transactionType - transaction type (e.g., "TRANSACTION_TYPE_SOLANA").
-   * @param params.rpcUrl - required for embedded wallets to broadcast the signed transaction.
-   * @param params.stampWith - optional stamper to tag the signing request.
+   * @param params.walletAccount - wallet account to use for signing and broadcasting.
+   * @param params.unsignedTransaction - unsigned transaction data as a serialized
+   *   string in the canonical encoding for the given `transactionType`.
+   * @param params.transactionType - type of transaction (e.g., `"TRANSACTION_TYPE_SOLANA"`, `"TRANSACTION_TYPE_ETHEREUM"`).
+   * @param params.rpcUrl - JSON-RPC endpoint used for broadcasting (required for Solana connected wallets and all embedded wallets).
+   * @param params.stampWith - optional stamper to use when signing (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
+   * @param params.organizationId - **Only for Turnkey embedded wallets**: organization ID to target (defaults to the session's organization ID).
    * @returns A promise that resolves to a transaction signature or hash.
-   * @throws {TurnkeyError} If signing or broadcasting fails.
+   * @throws {TurnkeyError} If the wallet type is unsupported, or if signing/broadcasting fails.
    */
-  signAndSendTransaction = async (params: {
-    unsignedTransaction: string;
-    transactionType: v1TransactionType;
-    walletAccount: WalletAccount;
-    rpcUrl?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  signAndSendTransaction = async (
+    params: SignAndSendTransactionParams,
+  ): Promise<string> => {
     const {
       walletAccount,
       unsignedTransaction,
       transactionType,
       rpcUrl,
       stampWith,
+      organizationId,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -2360,6 +2467,7 @@ export class TurnkeyClient {
             signWith: walletAccount.address,
             unsignedTransaction,
             type: transactionType,
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -2396,21 +2504,18 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a `v1User` object containing the user details.
    * @throws {TurnkeyError} If there is no active session, if there is no userId, or if there is an error fetching user details.
    */
-  fetchUser = async (params?: {
-    organizationId?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<v1User> => {
-    const { stampWith } = params || {};
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
+  fetchUser = async (params?: FetchUserParams): Promise<v1User> => {
+    const {
+      organizationId: organizationIdFromParams,
+      userId: userIdFromParams,
+      stampWith,
+    } = params || {};
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
 
-    const userId = params?.userId || session.userId;
+    const userId = userIdFromParams || session?.userId;
     if (!userId) {
       throw new TurnkeyError(
         "User ID must be provided to fetch user",
@@ -2418,7 +2523,13 @@ export class TurnkeyClient {
       );
     }
 
-    const organizationId = params?.organizationId || session.organizationId;
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
+      throw new TurnkeyError(
+        "Organization ID must be provided to fetch user",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -2454,29 +2565,36 @@ export class TurnkeyClient {
    * @param params.publicKey - the P-256 public key to use for lookup and creation.
    * @param params.createParams.userName - optional username to assign if creating a new user (defaults to `"Public Key User"`).
    * @param params.createParams.apiKeyName - optional API key name to assign if creating a new API key (defaults to `public-key-user-${publicKey}`).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to the existing or newly created {@link v1User}.
    * @throws {TurnkeyError} If there is no active session, if the input is invalid, if user retrieval fails, or if user creation fails.
    */
-  fetchOrCreateP256ApiKeyUser = async (params: {
-    publicKey: string;
-    createParams?: {
-      apiKeyName?: string;
-      userName?: string;
-    };
-  }): Promise<v1User> => {
-    const { publicKey, createParams } = params;
+  fetchOrCreateP256ApiKeyUser = async (
+    params: FetchOrCreateP256ApiKeyUserParams,
+  ): Promise<v1User> => {
+    const {
+      publicKey,
+      createParams,
+      stampWith,
+      organizationId: organizationIdFromParams,
+    } = params;
 
     return withTurnkeyErrorHandling(
       async () => {
-        const session = await this.storageManager.getActiveSession();
-        if (!session) {
+        const session = await getActiveSessionOrThrowIfRequired(
+          stampWith,
+          this.storageManager.getActiveSession,
+        );
+
+        const organizationId =
+          organizationIdFromParams || session?.organizationId;
+        if (!organizationId) {
           throw new TurnkeyError(
-            "No active session found. Please log in first.",
-            TurnkeyErrorCodes.NO_SESSION_FOUND,
+            "Organization ID is required to fetch or create P-256 API key user.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
           );
         }
-
-        const organizationId = session.organizationId!;
 
         // we validate their input
         if (!publicKey?.trim()) {
@@ -2486,9 +2604,12 @@ export class TurnkeyClient {
           );
         }
 
-        const usersResponse = await this.httpClient.getUsers({
-          organizationId,
-        });
+        const usersResponse = await this.httpClient.getUsers(
+          {
+            organizationId,
+          },
+          stampWith,
+        );
         if (!usersResponse || !usersResponse.users) {
           throw new TurnkeyError(
             "No users found in the response",
@@ -2514,24 +2635,27 @@ export class TurnkeyClient {
         const apiKeyName =
           createParams?.apiKeyName?.trim() || `public-key-user-${publicKey}`;
 
-        const createUserResp = await this.httpClient.createUsers({
-          organizationId,
-          users: [
-            {
-              userName: userName,
-              userTags: [],
-              apiKeys: [
-                {
-                  apiKeyName: apiKeyName,
-                  curveType: "API_KEY_CURVE_P256",
-                  publicKey,
-                },
-              ],
-              authenticators: [],
-              oauthProviders: [],
-            },
-          ],
-        });
+        const createUserResp = await this.httpClient.createUsers(
+          {
+            organizationId,
+            users: [
+              {
+                userName: userName,
+                userTags: [],
+                apiKeys: [
+                  {
+                    apiKeyName: apiKeyName,
+                    curveType: "API_KEY_CURVE_P256",
+                    publicKey,
+                  },
+                ],
+                authenticators: [],
+                oauthProviders: [],
+              },
+            ],
+          },
+          stampWith,
+        );
 
         if (
           !createUserResp?.userIds ||
@@ -2549,6 +2673,7 @@ export class TurnkeyClient {
         return await this.fetchUser({
           organizationId,
           userId: newUserId,
+          stampWith,
         });
       },
       {
@@ -2567,6 +2692,8 @@ export class TurnkeyClient {
    *   - If it does not exist, it is created and returned with its new `policyId`.
    *
    * @param params.policies - the list of policies to fetch or create.
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @returns A promise that resolves to an array of objects, each containing:
    *          - `policyId`: the unique identifier of the policy.
    *          - `policyName`: human-readable name of the policy.
@@ -2577,20 +2704,17 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the input is invalid,
    *                        if fetching policies fails, or if creating policies fails.
    */
-  fetchOrCreatePolicies = async (params: {
-    policies: v1CreatePolicyIntentV3[];
-  }): Promise<({ policyId: string } & v1CreatePolicyIntentV3)[]> => {
-    const { policies } = params;
+  fetchOrCreatePolicies = async (
+    params: FetchOrCreatePoliciesParams,
+  ): Promise<FetchOrCreatePoliciesResult> => {
+    const { policies, stampWith } = params;
 
     return await withTurnkeyErrorHandling(
       async () => {
-        const session = await this.storageManager.getActiveSession();
-        if (!session) {
-          throw new TurnkeyError(
-            "No active session found. Please log in first.",
-            TurnkeyErrorCodes.NO_SESSION_FOUND,
-          );
-        }
+        const session = await getActiveSessionOrThrowIfRequired(
+          stampWith,
+          this.storageManager.getActiveSession,
+        );
 
         if (!Array.isArray(policies) || policies.length === 0) {
           throw new TurnkeyError(
@@ -2599,12 +2723,22 @@ export class TurnkeyClient {
           );
         }
 
-        const organizationId = session.organizationId!;
+        const organizationId =
+          params?.organizationId ?? session?.organizationId;
+        if (!organizationId) {
+          throw new TurnkeyError(
+            "Organization ID is required to fetch or create policies.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
 
         // we first fetch existing policies
-        const existingPoliciesResponse = await this.httpClient.getPolicies({
-          organizationId,
-        });
+        const existingPoliciesResponse = await this.httpClient.getPolicies(
+          {
+            organizationId,
+          },
+          stampWith,
+        );
         const existingPolicies = existingPoliciesResponse.policies || [];
 
         // we create a map of existing policies by their signature
@@ -2642,15 +2776,18 @@ export class TurnkeyClient {
         // at this point we know there is at least one missing policy.
         // so we create the missing policies and then return the full list
 
-        const createPoliciesResponse = await this.httpClient.createPolicies({
-          organizationId,
-          policies: missingPolicies,
-        });
+        const createPoliciesResponse = await this.httpClient.createPolicies(
+          {
+            organizationId,
+            policies: missingPolicies,
+          },
+          stampWith,
+        );
 
         // assign returned IDs back to the missing ones in order
         if (!createPoliciesResponse || !createPoliciesResponse.policyIds) {
           throw new TurnkeyError(
-            "Failed to create missing delegated access policies",
+            "Failed to create missing policies",
             TurnkeyErrorCodes.CREATE_POLICY_ERROR,
           );
         }
@@ -2668,7 +2805,7 @@ export class TurnkeyClient {
         return [...alreadyExistingPolicies, ...newlyCreatedPolicies];
       },
       {
-        errorMessage: "Failed to get or create delegated access policies",
+        errorMessage: "Failed to get or create policies",
         errorCode: TurnkeyErrorCodes.CREATE_USERS_ERROR,
       },
     );
@@ -2687,25 +2824,24 @@ export class TurnkeyClient {
    * @param params.verificationToken - verification token from OTP email verification (required if verifying the email).
    * @param params.userId - user ID to update a specific user's email (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @returns A promise that resolves to the userId of the updated user.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating or verifying the user email.
    */
-  updateUserEmail = async (params: {
-    email: string;
-    verificationToken?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const { verificationToken, email, stampWith } = params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  updateUserEmail = async (params: UpdateUserEmailParams): Promise<string> => {
+    const { verificationToken, email, stampWith, organizationId } = params;
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const userId = params?.userId || session?.userId;
+    if (!userId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "User ID must be provided to update user email",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
-
-    const userId = params?.userId || session.userId;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -2726,6 +2862,7 @@ export class TurnkeyClient {
             userId: userId,
             userEmail: email,
             ...(verificationToken && { verificationToken }),
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -2756,28 +2893,32 @@ export class TurnkeyClient {
    *
    * @param params.userId - user ID to remove a specific user's email address (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @returns A promise that resolves to the userId of the user whose email was removed.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the user email.
    */
-  removeUserEmail = async (params?: {
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const { stampWith } = params || {};
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
+  removeUserEmail = async (params?: RemoveUserEmailParams): Promise<string> => {
+    const { stampWith, organizationId } = params || {};
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
     return withTurnkeyErrorHandling(
       async () => {
-        const userId = params?.userId || session.userId;
+        const userId = params?.userId || session?.userId;
+        if (!userId) {
+          throw new TurnkeyError(
+            "User ID must be provided to remove user email",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
         const res = await this.httpClient.updateUserEmail(
           {
             userId: userId,
             userEmail: "",
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -2809,25 +2950,28 @@ export class TurnkeyClient {
    * @param params.verificationToken - verification token from OTP phone verification (required if verifying the phone number).
    * @param params.userId - user ID to update a specific user's phone number (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @returns A promise that resolves to the userId of the updated user.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating or verifying the user phone number.
    */
-  updateUserPhoneNumber = async (params: {
-    phoneNumber: string;
-    verificationToken?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const { verificationToken, phoneNumber, stampWith } = params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  updateUserPhoneNumber = async (
+    params: UpdateUserPhoneNumberParams,
+  ): Promise<string> => {
+    const { verificationToken, phoneNumber, stampWith, organizationId } =
+      params;
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const userId = params?.userId || session?.userId;
+    if (!userId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "User ID must be provided to update user phone number",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
 
-    const userId = params?.userId || session.userId;
     return withTurnkeyErrorHandling(
       async () => {
         const res = await this.httpClient.updateUserPhoneNumber(
@@ -2835,6 +2979,7 @@ export class TurnkeyClient {
             userId,
             userPhoneNumber: phoneNumber,
             ...(verificationToken && { verificationToken }),
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -2865,22 +3010,26 @@ export class TurnkeyClient {
    *
    * @param params.userId - user ID to remove a specific user's phone number (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @returns A promise that resolves to the userId of the user whose phone number was removed.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the user phone number.
    */
-  removeUserPhoneNumber = async (params?: {
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const { stampWith } = params || {};
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  removeUserPhoneNumber = async (
+    params?: RemoveUserPhoneNumberParams,
+  ): Promise<string> => {
+    const { stampWith, organizationId } = params || {};
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const userId = params?.userId || session?.userId;
+    if (!userId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "User ID must be provided to remove user phone number",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
-    const userId = params?.userId || session.userId;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -2888,6 +3037,7 @@ export class TurnkeyClient {
           {
             userId,
             userPhoneNumber: "",
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -2918,23 +3068,24 @@ export class TurnkeyClient {
    * @param params.userName - new name to set for the user.
    * @param params.userId - user ID to update a specific user's name (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @returns A promise that resolves to the userId of the updated user.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating the user name.
    */
-  updateUserName = async (params: {
-    userName: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const { userName, stampWith } = params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  updateUserName = async (params: UpdateUserNameParams): Promise<string> => {
+    const { userName, stampWith, organizationId } = params;
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const userId = params?.userId || session?.userId;
+    if (!userId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "User ID must be provided to update user name",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
-    const userId = params?.userId || session.userId;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -2942,6 +3093,7 @@ export class TurnkeyClient {
           {
             userId,
             userName,
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -2974,25 +3126,20 @@ export class TurnkeyClient {
    *
    * @param params.providerName - name of the OAuth provider to add (e.g., "Google", "Apple").
    * @param params.oidcToken - OIDC token for the OAuth provider.
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @param params.userId - user ID to add the provider for a specific user (defaults to current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an array of provider IDs associated with the user.
    * @throws {TurnkeyError} If there is no active session, if the account already exists, or if there is an error adding the OAuth provider.
    */
-  addOauthProvider = async (params: {
-    providerName: string;
-    oidcToken: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
+  addOauthProvider = async (
+    params: AddOauthProviderParams,
+  ): Promise<string[]> => {
     const { providerName, oidcToken, stampWith } = params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -3003,7 +3150,7 @@ export class TurnkeyClient {
 
         if (!accountRes) {
           throw new TurnkeyError(
-            `Account fetch failed}`,
+            `Account fetch failed`,
             TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
           );
         }
@@ -3015,16 +3162,33 @@ export class TurnkeyClient {
           );
         }
 
-        const userId = params?.userId || session.userId;
-        const { email: oidcEmail, iss } = jwtDecode<any>(oidcToken) || {}; // Parse the oidc token so we can get the email. Pass it in to updateUser then call createOauthProviders. This will be verified by Turnkey.
+        const userId = params?.userId || session?.userId;
+        if (!userId) {
+          throw new TurnkeyError(
+            "User ID must be provided to add OAuth provider",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        const organizationId =
+          params?.organizationId ?? session?.organizationId;
+        if (!organizationId) {
+          throw new TurnkeyError(
+            "Organization ID is required to add OAuth provider",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        // parse the oidc token so we can get the email. Pass it in to updateUser then call createOauthProviders. This will be verified by Turnkey.
+        const { email: oidcEmail, iss } = jwtDecode<any>(oidcToken) || {};
 
         if (iss === googleISS) {
           const verifiedSuborg = await this.httpClient.proxyGetAccount({
             filterType: "EMAIL",
             filterValue: oidcEmail,
           });
-          const isVerified =
-            verifiedSuborg.organizationId === session.organizationId;
+
+          const isVerified = verifiedSuborg.organizationId === organizationId;
 
           const user = await this.fetchUser({
             userId,
@@ -3081,29 +3245,34 @@ export class TurnkeyClient {
    * @param params.providerIds - IDs of the OAuth providers to remove.
    * @param params.userId - user ID to remove the provider for a specific user (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @returns A promise that resolves to an array of provider IDs that were removed.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the OAuth provider.
    */
-  removeOauthProviders = async (params: {
-    providerIds: string[];
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
-    const { providerIds, stampWith } = params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  removeOauthProviders = async (
+    params: RemoveOauthProvidersParams,
+  ): Promise<string[]> => {
+    const { providerIds, stampWith, organizationId } = params;
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const userId = params?.userId || session?.userId;
+    if (!userId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "User ID must be provided to remove OAuth provider",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
-    const userId = params?.userId || session.userId;
+
     return withTurnkeyErrorHandling(
       async () => {
         const res = await this.httpClient.deleteOauthProviders(
           {
             userId,
             providerIds,
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -3135,33 +3304,31 @@ export class TurnkeyClient {
    * @param params.displayName - display name of the passkey (defaults to the value of `name`).
    * @param params.userId - user ID to add the passkey for a specific user (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @returns A promise that resolves to an array of authenticator IDs for the newly added passkey(s).
    * @throws {TurnkeyError} If there is no active session, if passkey creation fails, or if there is an error adding the passkey.
    */
-  addPasskey = async (params?: {
-    name?: string;
-    displayName?: string;
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
-    const { stampWith } = params || {};
+  addPasskey = async (params?: AddPasskeyParams): Promise<string[]> => {
+    const { stampWith, organizationId } = params || {};
     const name = params?.name || `Turnkey Passkey-${Date.now()}`;
 
     return withTurnkeyErrorHandling(
       async () => {
-        const session = await this.storageManager.getActiveSession();
-        if (!session) {
+        const session = await getActiveSessionOrThrowIfRequired(
+          stampWith,
+          this.storageManager.getActiveSession,
+        );
+
+        const userId = params?.userId || session?.userId;
+        if (!userId) {
           throw new TurnkeyError(
-            "No active session found. Please log in first.",
-            TurnkeyErrorCodes.NO_SESSION_FOUND,
+            "User ID must be provided to add passkey",
+            TurnkeyErrorCodes.INVALID_REQUEST,
           );
         }
 
-        const userId = params?.userId || session.userId;
-
         const { encodedChallenge, attestation } = await this.createPasskey({
           name,
-          ...(stampWith && { stampWith }),
         });
 
         if (!attestation || !encodedChallenge) {
@@ -3181,6 +3348,7 @@ export class TurnkeyClient {
                 attestation,
               },
             ],
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -3206,23 +3374,25 @@ export class TurnkeyClient {
    * @param params.authenticatorIds - IDs of the authenticators (passkeys) to remove.
    * @param params.userId - user ID to remove the passkeys for a specific user (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @returns A promise that resolves to an array of authenticator IDs that were removed.
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the passkeys.
    */
-  removePasskeys = async (params: {
-    authenticatorIds: string[];
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
-    const { authenticatorIds, stampWith } = params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  removePasskeys = async (params: RemovePasskeyParams): Promise<string[]> => {
+    const { authenticatorIds, stampWith, organizationId } = params;
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const userId = params?.userId || session?.userId;
+    if (!userId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "User ID must be provided to remove passkey",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
-    const userId = params?.userId || session.userId;
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -3230,6 +3400,7 @@ export class TurnkeyClient {
           {
             userId,
             authenticatorIds,
+            ...(organizationId && { organizationId }),
           },
           stampWith,
         );
@@ -3267,20 +3438,25 @@ export class TurnkeyClient {
    * @returns A promise that resolves to the ID of the newly created wallet.
    * @throws {TurnkeyError} If there is no active session or if there is an error creating the wallet.
    */
-  createWallet = async (params: {
-    walletName: string;
-    accounts?: v1WalletAccountParams[] | v1AddressFormat[];
-    organizationId?: string;
-    mnemonicLength?: number;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const { walletName, accounts, organizationId, mnemonicLength, stampWith } =
-      params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  createWallet = async (params: CreateWalletParams): Promise<string> => {
+    const {
+      walletName,
+      accounts,
+      organizationId: organizationIdFromParams,
+      mnemonicLength,
+      stampWith,
+    } = params;
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "Organization ID must be provided to create wallet",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
 
@@ -3300,7 +3476,7 @@ export class TurnkeyClient {
       async () => {
         const res = await this.httpClient.createWallet(
           {
-            organizationId: organizationId || session.organizationId,
+            organizationId: organizationId,
             walletName,
             accounts: walletAccounts,
             mnemonicLength: mnemonicLength || 12,
@@ -3340,20 +3516,29 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an array of addresses for the newly created accounts.
    * @throws {TurnkeyError} If there is no active session, if the wallet does not exist, or if there is an error creating the wallet accounts.
    */
-  createWalletAccounts = async (params: {
-    accounts: v1WalletAccountParams[] | v1AddressFormat[];
-    walletId: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string[]> => {
-    const { accounts, walletId, organizationId, stampWith } = params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  createWalletAccounts = async (
+    params: CreateWalletAccountsParams,
+  ): Promise<string[]> => {
+    const {
+      accounts,
+      walletId,
+      organizationId: organizationIdFromParams,
+      stampWith,
+    } = params;
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "Organization ID must be provided to create wallet accounts",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
+
     return withTurnkeyErrorHandling(
       async () => {
         let walletAccounts: v1WalletAccountParams[] = [];
@@ -3363,7 +3548,7 @@ export class TurnkeyClient {
             await this.httpClient.getWalletAccounts(
               {
                 walletId,
-                organizationId: organizationId || session.organizationId,
+                organizationId: organizationId,
                 paginationOptions: { limit: "100" },
               },
               stampWith,
@@ -3378,7 +3563,7 @@ export class TurnkeyClient {
 
         const res = await this.httpClient.createWalletAccounts(
           {
-            organizationId: organizationId || session.organizationId,
+            organizationId: organizationId,
             walletId,
             accounts: walletAccounts,
           },
@@ -3417,27 +3602,34 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an `ExportBundle` object containing the encrypted wallet seed phrase and metadata.
    * @throws {TurnkeyError} If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the wallet.
    */
-  exportWallet = async (params: {
-    walletId: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<ExportBundle> => {
-    const { walletId, targetPublicKey, stampWith, organizationId } = params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  exportWallet = async (params: ExportWalletParams): Promise<ExportBundle> => {
+    const {
+      walletId,
+      targetPublicKey,
+      stampWith,
+      organizationId: organizationIdFromParams,
+    } = params;
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "Organization ID must be provided to export wallet",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
+
     return withTurnkeyErrorHandling(
       async () => {
         const res = await this.httpClient.exportWallet(
           {
             walletId,
             targetPublicKey,
-            organizationId: organizationId || session.organizationId,
+            organizationId: organizationId,
           },
           stampWith,
         );
@@ -3473,27 +3665,36 @@ export class TurnkeyClient {
    * @returns A promise that resolves to an `ExportBundle` object containing the encrypted private key and metadata.
    * @throws {TurnkeyError} If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the private key.
    */
-  exportPrivateKey = async (params: {
-    privateKeyId: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<ExportBundle> => {
-    const { privateKeyId, targetPublicKey, stampWith, organizationId } = params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  exportPrivateKey = async (
+    params: ExportPrivateKeyParams,
+  ): Promise<ExportBundle> => {
+    const {
+      privateKeyId,
+      targetPublicKey,
+      stampWith,
+      organizationId: organizationIdFromParams,
+    } = params;
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "Organization ID must be provided to export private key",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
+
     return withTurnkeyErrorHandling(
       async () => {
         const res = await this.httpClient.exportPrivateKey(
           {
             privateKeyId,
             targetPublicKey,
-            organizationId: organizationId || session.organizationId,
+            organizationId: organizationId,
           },
           stampWith,
         );
@@ -3529,27 +3730,36 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the targetPublicKey is missing, or if there is an error exporting the wallet account.
    *
    */
-  exportWalletAccount = async (params: {
-    address: string;
-    targetPublicKey: string;
-    organizationId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<ExportBundle> => {
-    const { address, targetPublicKey, stampWith, organizationId } = params;
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+  exportWalletAccount = async (
+    params: ExportWalletAccountParams,
+  ): Promise<ExportBundle> => {
+    const {
+      address,
+      targetPublicKey,
+      stampWith,
+      organizationId: organizationIdFromParams,
+    } = params;
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "Organization ID must be provided to export wallet account",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
+
     return withTurnkeyErrorHandling(
       async () => {
         const res = await this.httpClient.exportWalletAccount(
           {
             address,
             targetPublicKey,
-            organizationId: organizationId || session.organizationId,
+            organizationId: organizationId,
           },
           stampWith,
         );
@@ -3581,25 +3791,40 @@ export class TurnkeyClient {
    * @param params.encryptedBundle - encrypted bundle containing the wallet seed phrase and metadata.
    * @param params.walletName - name of the wallet to create upon import.
    * @param params.accounts - array of account parameters to create in the imported wallet (defaults to standard Ethereum and Solana accounts).
+   * @param params.organizationId - organization ID to import the wallet under a specific sub-organization (wallet will be associated with the sub-organization).
    * @param params.userId - user ID to import the wallet for a specific user (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to the ID of the imported wallet.
    * @throws {TurnkeyError} If there is no active session, if the encrypted bundle is invalid, or if there is an error importing the wallet.
    */
-  importWallet = async (params: {
-    encryptedBundle: string;
-    walletName: string;
-    accounts?: v1WalletAccountParams[];
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
-    const { encryptedBundle, accounts, walletName, userId, stampWith } = params;
+  importWallet = async (params: ImportWalletParams): Promise<string> => {
+    const {
+      encryptedBundle,
+      accounts,
+      walletName,
+      organizationId: organizationIdFromParams,
+      userId: userIdFromParams,
+      stampWith,
+    } = params;
 
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "Organization ID must be provided to import wallet",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+
+    const userId = userIdFromParams || session?.userId;
+    if (!userId) {
+      throw new TurnkeyError(
+        "User ID must be provided to import wallet",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
 
@@ -3607,8 +3832,8 @@ export class TurnkeyClient {
       async () => {
         const res = await this.httpClient.importWallet(
           {
-            organizationId: session.organizationId,
-            userId: userId || session.userId,
+            organizationId: organizationId,
+            userId: userId,
             encryptedBundle,
             walletName,
             accounts: accounts || [
@@ -3630,7 +3855,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to import wallet",
         errorCode: TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-        customErrorByMessages: {
+        customErrorsByMessages: {
           "invalid mnemonic": {
             message: "Invalid mnemonic input",
             code: TurnkeyErrorCodes.BAD_REQUEST,
@@ -3655,33 +3880,43 @@ export class TurnkeyClient {
    * @param params.privateKeyName - name of the private key to create upon import.
    * @param params.curve - the cryptographic curve used to generate a given private key
    * @param params.addressFormat - address format of the private key to import.
+   * @param params.organizationId - organization ID to import the private key under a specific sub-organization (private key will be associated with the sub-organization).
    * @param params.userId - user ID to import the wallet for a specific user (defaults to the current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to the ID of the imported wallet.
    * @throws {TurnkeyError} If there is no active session, if the encrypted bundle is invalid, or if there is an error importing the wallet.
    */
-  importPrivateKey = async (params: {
-    encryptedBundle: string;
-    privateKeyName: string;
-    curve: v1Curve;
-    addressFormats: v1AddressFormat[];
-    userId?: string;
-    stampWith?: StamperType | undefined;
-  }): Promise<string> => {
+  importPrivateKey = async (
+    params: ImportPrivateKeyParams,
+  ): Promise<string> => {
     const {
       encryptedBundle,
       privateKeyName,
       addressFormats,
       curve,
-      userId,
+      organizationId: organizationIdFromParams,
+      userId: userIdFromParams,
       stampWith,
     } = params;
 
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
       throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
+        "Organization ID must be provided to import private key",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+
+    const userId = userIdFromParams || session?.userId;
+    if (!userId) {
+      throw new TurnkeyError(
+        "User ID must be provided to import private key",
+        TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
 
@@ -3689,8 +3924,8 @@ export class TurnkeyClient {
       async () => {
         const res = await this.httpClient.importPrivateKey(
           {
-            organizationId: session.organizationId,
-            userId: userId || session.userId,
+            organizationId,
+            userId,
             encryptedBundle,
             privateKeyName,
             curve,
@@ -3710,7 +3945,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to import wallet",
         errorCode: TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
-        customErrorByMessages: {
+        customErrorsByMessages: {
           "invalid mnemonic": {
             message: "Invalid mnemonic input",
             code: TurnkeyErrorCodes.BAD_REQUEST,
@@ -3730,27 +3965,31 @@ export class TurnkeyClient {
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
    * @param params.deleteWithoutExport - flag to delete the sub-organization without requiring all wallets to be exported first (defaults to false).
+   * @param params.organizationId - organization ID to delete a specific sub-organization (defaults to the current session's organizationId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper.
    * @returns A promise that resolves to a `TDeleteSubOrganizationResponse` object containing the result of the deletion.
    * @throws {TurnkeyError} If there is no active session or if there is an error deleting the sub-organization.
    */
-  deleteSubOrganization = async (params?: {
-    deleteWithoutExport?: boolean;
-    stampWith?: StamperType | undefined;
-  }): Promise<TDeleteSubOrganizationResponse> => {
-    const { deleteWithoutExport = false, stampWith } = params || {};
-    const session = await this.storageManager.getActiveSession();
-    if (!session) {
-      throw new TurnkeyError(
-        "No active session found. Please log in first.",
-        TurnkeyErrorCodes.NO_SESSION_FOUND,
-      );
-    }
+  deleteSubOrganization = async (
+    params?: DeleteSubOrganizationParams,
+  ): Promise<TDeleteSubOrganizationResponse> => {
+    const {
+      deleteWithoutExport = false,
+      organizationId: organizationIdFromParams,
+      stampWith,
+    } = params || {};
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
 
     return withTurnkeyErrorHandling(
       async () => {
         return await this.httpClient.deleteSubOrganization(
-          { deleteWithoutExport },
+          { deleteWithoutExport, ...(organizationId && { organizationId }) },
           stampWith,
         );
       },
@@ -3775,10 +4014,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves when the session is successfully stored.
    * @throws {TurnkeyError} If there is an error storing the session or cleaning up key pairs.
    */
-  storeSession = async (params: {
-    sessionToken: string;
-    sessionKey?: string;
-  }): Promise<void> => {
+  storeSession = async (params: StoreSessionParams): Promise<void> => {
     const { sessionToken, sessionKey = SessionKey.DefaultSessionkey } = params;
     if (!sessionToken) return;
 
@@ -3808,7 +4044,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves when the session is successfully cleared.
    * @throws {TurnkeyError} If the session does not exist or if there is an error clearing the session.
    */
-  clearSession = async (params?: { sessionKey?: string }): Promise<void> => {
+  clearSession = async (params?: ClearSessionParams): Promise<void> => {
     const { sessionKey = SessionKey.DefaultSessionkey } = params || {};
     withTurnkeyErrorHandling(
       async () => {
@@ -3875,13 +4111,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a `TStampLoginResponse` object containing the refreshed session details.
    * @throws {TurnkeyError} If the session key does not exist, if there is no active session, or if there is an error refreshing the session.
    */
-  refreshSession = async (params?: {
-    expirationSeconds?: string;
-    publicKey?: string;
-    sessionKey?: string;
-    invalidateExisitng?: boolean;
-    stampWith?: StamperType | undefined;
-  }): Promise<TStampLoginResponse | undefined> => {
+  refreshSession = async (
+    params?: RefreshSessionParams,
+  ): Promise<TStampLoginResponse | undefined> => {
     const {
       sessionKey = await this.storageManager.getActiveSessionKey(),
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -3961,9 +4193,9 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a `Session` object containing the session details, or undefined if not found.
    * @throws {TurnkeyError} If there is an error retrieving the session from storage.
    */
-  getSession = async (params?: {
-    sessionKey?: string;
-  }): Promise<Session | undefined> => {
+  getSession = async (
+    params?: GetSessionParams,
+  ): Promise<Session | undefined> => {
     return withTurnkeyErrorHandling(
       async () => {
         const { sessionKey = await this.storageManager.getActiveSessionKey() } =
@@ -4023,7 +4255,7 @@ export class TurnkeyClient {
    * @returns A promise that resolves when the active session key is successfully set.
    * @throws {TurnkeyError} If the client is not initialized or if there is an error setting the active session key.
    */
-  setActiveSession = async (params: { sessionKey: string }): Promise<void> => {
+  setActiveSession = async (params: SetActiveSessionParams): Promise<void> => {
     const { sessionKey } = params;
     return withTurnkeyErrorHandling(
       async () => {
@@ -4122,10 +4354,9 @@ export class TurnkeyClient {
    * @returnparams.s A promise that resolves to the public key of the created or provided API key pair as a string.
    * @throws {TurnkeyError} If the API key stamper is not initialized or if there is an error during key pair creation or storage.
    */
-  createApiKeyPair = async (params?: {
-    externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string };
-    storeOverride?: boolean;
-  }): Promise<string> => {
+  createApiKeyPair = async (
+    params?: CreateApiKeyPairParams,
+  ): Promise<string> => {
     return withTurnkeyErrorHandling(
       async () => {
         const externalKeyPair = params?.externalKeyPair;
@@ -4182,6 +4413,76 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to get auth proxy config",
         errorCode: TurnkeyErrorCodes.GET_PROXY_AUTH_CONFIG_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Fetches the boot proof for a given app proof.
+   *
+   * - This function is idempotent: multiple calls with the same `app proof` will always return the boot proof.
+   * - Attempts to find the boot proof for the given app proof.
+   * - If a boot proof is found, it is returned as is.
+   * - If no boot proof is found, an error is thrown.
+   *
+   * @param params.appProof - the app proof for which the boot proof is being fetched.
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to the {@link v1BootProof} associated with the given app proof.
+   * @throws {TurnkeyError} If there is no active session, if the input is invalid, or if boot proof retrieval fails.
+   */
+  fetchBootProofForAppProof = async (
+    params: FetchBootProofForAppProofParams,
+  ): Promise<v1BootProof> => {
+    const {
+      appProof,
+      stampWith,
+      organizationId: organizationIdFromParams,
+    } = params;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const session = await getActiveSessionOrThrowIfRequired(
+          stampWith,
+          this.storageManager.getActiveSession,
+        );
+
+        const organizationId =
+          organizationIdFromParams || session?.organizationId;
+        if (!organizationId) {
+          throw new TurnkeyError(
+            "Organization ID is required to fetch a Boot Proof.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        // validate their input
+        if (appProof === null || appProof?.publicKey === null) {
+          throw new TurnkeyError(
+            "'appProof' is required and cannot be empty.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+        const ephemeralKey = appProof!.publicKey!;
+
+        const bootProofResponse = await this.httpClient.getBootProof(
+          {
+            organizationId,
+            ephemeralKey,
+          },
+          stampWith,
+        );
+        if (!bootProofResponse || !bootProofResponse.bootProof) {
+          throw new TurnkeyError(
+            "No boot proof found in the response",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+        return bootProofResponse.bootProof;
+      },
+      {
+        errorMessage: "Failed to get boot proof for app proof",
+        errorCode: TurnkeyErrorCodes.FETCH_BOOT_PROOF_ERROR,
       },
     );
   };

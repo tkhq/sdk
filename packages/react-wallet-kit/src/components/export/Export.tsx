@@ -32,8 +32,20 @@ export function ExportComponent(params: {
   targetPublicKey?: string;
   keyFormat?: KeyFormat | undefined;
   stampWith?: StamperType | undefined;
+  organizationId?: string;
+  onSuccess: () => void;
+  onError: (error: any) => void;
 }) {
-  const { exportType, targetPublicKey, keyFormat, stampWith, target } = params;
+  const {
+    exportType,
+    targetPublicKey,
+    keyFormat,
+    stampWith,
+    target,
+    organizationId,
+    onSuccess,
+    onError,
+  } = params;
   const { config } = useTurnkey();
 
   if (!config) {
@@ -84,10 +96,12 @@ export function ExportComponent(params: {
         });
         setExportIframeClient(newExportIframeClient);
       } catch (error) {
-        throw new TurnkeyError(
-          `Error initializing IframeStamper`,
-          TurnkeyErrorCodes.INITIALIZE_IFRAME_ERROR,
-          error,
+        onError(
+          new TurnkeyError(
+            `Error initializing IframeStamper`,
+            TurnkeyErrorCodes.INITIALIZE_IFRAME_ERROR,
+            error,
+          ),
         );
       }
     };
@@ -150,6 +164,8 @@ export function ExportComponent(params: {
           keyFormat={keyFormat}
           stampWith={stampWith}
           setExportIframeVisible={setExportIframeVisible}
+          organizationId={organizationId}
+          onError={onError}
         />
       )}
       <div
@@ -200,7 +216,10 @@ export function ExportComponent(params: {
         <div className="mt-4">
           <ActionButton
             name="export-done"
-            onClick={closeModal}
+            onClick={() => {
+              closeModal();
+              onSuccess();
+            }}
             spinnerClassName="text-primary-text-light dark:text-primary-text-dark"
             className="text-primary-text-light dark:text-primary-text-dark bg-primary-light dark:bg-primary-dark"
           >

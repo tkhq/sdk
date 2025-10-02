@@ -8,9 +8,10 @@ import {
   WalletProvider,
   WalletInterfaceType,
   Chain,
-} from "@types";
+} from "../../__types__";
 import { WalletConnectClient } from "../wallet-connect/client";
 import { WalletConnectWallet } from "../wallet-connect/base";
+import { withTimeout } from "@utils";
 
 export class WebWalletManager {
   // queue of async initialization functions
@@ -75,7 +76,18 @@ export class WebWalletManager {
 
       // add async init step to the initializer queue
       this.initializers.push(() =>
-        wcUnified.init({ ethereumNamespaces, solanaNamespaces }),
+        withTimeout(
+          wcUnified.init({ ethereumNamespaces, solanaNamespaces }),
+          5000,
+          "WalletConnect wallet",
+        ).catch((err) => {
+          // WalletConnect can be a bit unreliable, so instead of throwing an error
+          // we handle failures silently to avoid blocking the rest of the client
+          // from initializing. If setup fails, we also remove WalletConnect
+          // from the available wallets list
+          console.error("Failed to init WalletConnect wallet:", err);
+          this.removeWalletInterface(WalletInterfaceType.WalletConnect);
+        }),
       );
 
       // register WalletConnect as a wallet interface for each enabled chain
@@ -107,7 +119,16 @@ export class WebWalletManager {
    */
   async init(cfg: TWalletManagerConfig): Promise<void> {
     if (this.wcClient) {
-      await this.wcClient.init(cfg.walletConnect!);
+      try {
+        await this.wcClient.init(cfg.walletConnect!);
+      } catch (error) {
+        // WalletConnect can be a bit unreliable, so instead of throwing an error
+        // we handle failures silently to avoid blocking the rest of the client
+        // from initializing. If setup fails, we also remove WalletConnect
+        // from the available wallets list
+        console.error("Failed to initialize WalletConnect client", error);
+        this.removeWalletInterface(WalletInterfaceType.WalletConnect);
+      }
     }
 
     // we initialize the high-level WalletConnectWallet
@@ -166,4 +187,29 @@ export class WebWalletManager {
     if (!this.chainToInterfaces[chain]) this.chainToInterfaces[chain] = [];
     this.chainToInterfaces[chain]!.push(interfaceType);
   };
+
+  /**
+   * Removes a wallet interface from the manager.
+   *
+   * - Deletes the wallet instance from the wallets map.
+   * - Cleans up references to the wallet interface in chainToInterfaces.
+   * - Removes the chain entry entirely if no interfaces remain.
+   *
+   * @param type - The WalletInterfaceType to remove.
+   */
+  private removeWalletInterface(type: WalletInterfaceType) {
+    delete this.wallets[type];
+
+    for (const chain of Object.keys(this.chainToInterfaces) as Chain[]) {
+      const filtered = (this.chainToInterfaces[chain] ?? []).filter(
+        (interfaceType) => interfaceType !== type,
+      );
+
+      if (filtered.length > 0) {
+        this.chainToInterfaces[chain] = filtered;
+      } else {
+        delete this.chainToInterfaces[chain];
+      }
+    }
+  }
 }

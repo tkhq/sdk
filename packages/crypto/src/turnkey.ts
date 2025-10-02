@@ -10,6 +10,7 @@ import {
 
 import {
   PRODUCTION_NOTARIZER_SIGN_PUBLIC_KEY,
+  PRODUCTION_ON_RAMP_CREDENTIALS_ENCRYPTION_PUBLIC_KEY,
   PRODUCTION_SIGNER_SIGN_PUBLIC_KEY,
   PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
 } from "./constants";
@@ -503,16 +504,50 @@ export const encryptToEnclave = async (
  * when enabling authentication with an OAuth 2.0 provider
  *
  * @param client_secret The client secret issued by the OAuth 2.0 provider
+ * @param dangerouslyOverrideTlsFetcherPublicKey *(optional)* Hex-encoded
+ *              uncompressed P-256 public key to encrypt to (use only in
+ *              tests/dev environment).  Defaults to the production TLS Fetcher key.
  * @returns {Promise<string>} A hex encoded borsh serialized envelope with the encrypted client
  *                            secret meant to be passed to the CreateOauth2Credential Activity
  */
 export const encryptOauth2ClientSecret = async (
   client_secret: string,
+  dangerouslyOverrideTlsFetcherPublicKey?: string,
 ): Promise<string> => {
   return uint8ArrayToHexString(
     await encryptToEnclave(
-      PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
+      dangerouslyOverrideTlsFetcherPublicKey ??
+        PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
       client_secret,
     ),
+  );
+};
+
+/**
+ * Helper function used specifically to encrypt your on ramp private/secret api keys
+ * to the on ramp encryption public key. This is used before uploading your on ramp
+ * credentials to Turnkey via the CreateFiatOnRampCredential activity
+ *
+ * @param secret The private/secret api key issued by the on ramp provider
+ * @param dangerouslyOverrideOnRampEncryptionPublicKey *(optional)* Hex-encoded
+ *              uncompressed P-256 public key to encrypt to (use only in
+ *              tests/dev environment).  Defaults to the production on ramp encryption public key.
+ * @returns {Promise<string>} A base58check encoded borsh serialized envelope with the encrypted secret
+ *                            meant to be passed to the CreateFiatOnRampCredential activity
+ */
+export const encryptOnRampSecret = (
+  secret: string,
+  dangerouslyOverrideOnRampEncryptionPublicKey?: string,
+): string => {
+  return bs58check.encode(
+    hpkeEncrypt({
+      plainTextBuf: new TextEncoder().encode(secret),
+      targetKeyBuf: uncompressRawPublicKey(
+        uint8ArrayFromHexString(
+          dangerouslyOverrideOnRampEncryptionPublicKey ??
+            PRODUCTION_ON_RAMP_CREDENTIALS_ENCRYPTION_PUBLIC_KEY,
+        ),
+      ),
+    }),
   );
 };
