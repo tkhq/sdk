@@ -7,11 +7,56 @@ import { p256 } from "@noble/curves/p256";
 import { sha256 } from "@noble/hashes/sha2";
 import * as CBOR from "cbor-js";
 import * as x509 from "@peculiar/x509";
-import { Crypto as PeculiarCrypto } from "@peculiar/webcrypto";
-import { createHash, createPublicKey, createVerify } from "node:crypto";
 import { AWS_ROOT_CERT_PEM, AWS_ROOT_CERT_SHA256 } from "./constants";
 
-x509.cryptoProvider.set(new PeculiarCrypto());
+export const getCryptoInstance = async () => {
+  let cryptoInstance: Crypto;
+  // Use globalThis.crypto.subtle if available
+  if (typeof globalThis !== "undefined" && globalThis.crypto?.subtle) {
+    cryptoInstance = globalThis.crypto as Crypto;
+    x509.cryptoProvider.set(cryptoInstance);
+
+    return cryptoInstance;
+  }
+
+  try {
+    // Dynamic import to prevent bundling in environments that already have WebCrypto
+    const { Crypto: PeculiarCrypto } = await import("@peculiar/webcrypto");
+    cryptoInstance = new PeculiarCrypto();
+    x509.cryptoProvider.set(cryptoInstance);
+    return cryptoInstance;
+  } catch {
+    // Happens usually on React Native
+    throw new Error(
+      "No WebCrypto implementation found. " +
+        "In React Native, please polyfill `global.crypto.subtle` (e.g., with `react-native-webcrypto`) " +
+        "before calling verify().",
+    );
+  }
+};
+
+/**
+ * Utility: SHA-256 digest → hex (uppercase)
+ */
+async function sha256Hex(data: Uint8Array): Promise<string> {
+  const cryptoInstance = await getCryptoInstance();
+  const digest = await cryptoInstance.subtle.digest("SHA-256", data);
+  return uint8ArrayToHexString(new Uint8Array(digest)).toUpperCase();
+}
+
+/**
+ * Utility: Import SPKI public key for ECDSA verify
+ */
+async function importEcdsaPublicKey(spki: ArrayBuffer): Promise<CryptoKey> {
+  const cryptoInstance = await getCryptoInstance();
+  return cryptoInstance.subtle.importKey(
+    "spki",
+    spki,
+    { name: "ECDSA", namedCurve: "P-384" }, // AWS Nitro uses ES384
+    false,
+    ["verify"],
+  );
+}
 
 /**
  * verify goes through the following verification steps for an app proof & boot proof pair:
@@ -21,7 +66,7 @@ x509.cryptoProvider.set(new PeculiarCrypto());
  *    - Attestation doc's `user_data` is the hash of the qos manifest
  *  - Verify the connection between the app proof & boot proof i.e. that the ephemeral keys match
  *
- * For more information, check out https://whitepaper.turnkey.com/foundations
+ *  For more information, check out https://whitepaper.turnkey.com/foundations
  */
 export async function verify(
   appProof: v1AppProof,
@@ -42,7 +87,7 @@ export async function verify(
   const attestationDoc = CBOR.decode(new Uint8Array(payload).buffer);
 
   // Verify cose sign1 signature
-  verifyCoseSign1Sig(coseSign1, attestationDoc.certificate);
+  await verifyCoseSign1Sig(coseSign1, attestationDoc.certificate);
 
   // Verify certificate chain
   const appProofTimestampMs = parseInt(
@@ -81,16 +126,19 @@ export async function verify(
   }
 }
 
+/**
+ * Verify app proof signature with @noble/curves
+ */
 export function verifyAppProofSignature(appProof: v1AppProof): void {
   if (appProof.scheme !== "SIGNATURE_SCHEME_EPHEMERAL_KEY_P256") {
     throw new Error("Unsupported signature scheme");
   }
 
-  // Decode public key (130 bytes = 65 encryption key + 65 signing key)
+  // Decode public key
   let publicKeyBytes: Uint8Array;
   try {
     publicKeyBytes = uint8ArrayFromHexString(appProof.publicKey);
-  } catch (error) {
+  } catch {
     throw new Error("Failed to decode public key");
   }
 
@@ -100,10 +148,8 @@ export function verifyAppProofSignature(appProof: v1AppProof): void {
     );
   }
 
-  // Extract signing key (last 65 bytes)
+  // Extract signing key (last 65 bytes, uncompressed P-256 point)
   const signingKeyBytes = publicKeyBytes.slice(65);
-
-  // Validate signing key format (65 bytes, starts with 0x04 for uncompressed)
   if (signingKeyBytes.length !== 65 || signingKeyBytes[0] !== 0x04) {
     throw new Error(
       "Invalid signing key format: expected 65-byte uncompressed P-256 point (0x04||X||Y)",
@@ -121,10 +167,9 @@ export function verifyAppProofSignature(appProof: v1AppProof): void {
   let signatureBytes: Uint8Array;
   try {
     signatureBytes = uint8ArrayFromHexString(appProof.signature);
-  } catch (error) {
+  } catch {
     throw new Error("Failed to decode signature");
   }
-
   if (signatureBytes.length !== 64) {
     throw new Error(
       `Expected 64 bytes signature (r||s), got ${signatureBytes.length} bytes`,
@@ -152,10 +197,7 @@ export async function verifyCertificateChain(
     // Check root and assert fingerprint
     const rootX509 = new x509.X509Certificate(rootCertPem);
     const rootDer = new Uint8Array(rootX509.rawData);
-    const rootSha = createHash("sha256")
-      .update(rootDer)
-      .digest("hex")
-      .toUpperCase();
+    const rootSha = await sha256Hex(rootDer);
     if (rootSha !== AWS_ROOT_CERT_SHA256) {
       throw new Error(
         `Pinned AWS root fingerprint mismatch: expected=${AWS_ROOT_CERT_SHA256} actual=${rootSha}`,
@@ -175,19 +217,17 @@ export async function verifyCertificateChain(
       certificates: [rootX509, ...intermediatesX509],
     });
     const chain = await builder.build(leaf);
-    if (chain.length !== intermediatesX509.length + 2)
+    if (chain.length !== intermediatesX509.length + 2) {
       throw new Error(
         `Incorrect number of certs in X509 Chain. Expected ${intermediatesX509.length + 2}, got ${chain.length}`,
       );
+    }
 
-    // It appears `builder.build` does signature-only verification of the chain, but there's no commitement to that in the
-    // public api, so we loop through the chain and do (maybe redundant) signature verification
     const appProofDate = new Date(timestampMs);
     for (let i = 0; i < chain.length; i++) {
       const cert = chain[i];
       if (!cert) throw new Error("Invalid certificate in chain");
 
-      // Verify signature
       if (i === chain.length - 1) {
         // is root
         // Self-signature verification for root certificate
@@ -211,10 +251,11 @@ export async function verifyCertificateChain(
           signatureOnly: true,
           date: appProofDate,
         });
-        if (!ok)
+        if (!ok) {
           throw new Error(
-            `Signature check failed: ${cert.subject} not signed by ${issuer.subject}`,
+            `Signature check failed: ${cert.subject} not signed by ${issuer?.subject}`,
           );
+        }
       }
     }
   } catch (error) {
@@ -224,15 +265,10 @@ export async function verifyCertificateChain(
   }
 }
 
-function bytesEq(a: ArrayBuffer, b: ArrayBuffer) {
-  const A = new Uint8Array(a),
-    B = new Uint8Array(b);
-  if (A.length !== B.length) return false;
-  for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return false;
-  return true;
-}
-
-export function verifyCoseSign1Sig(coseSign1: any, leaf: Uint8Array): void {
+export async function verifyCoseSign1Sig(
+  coseSign1: any,
+  leaf: Uint8Array,
+): Promise<void> {
   const [protectedHeaders, , payload, signature] = coseSign1;
   const tbs = new Uint8Array(
     CBOR.encode([
@@ -244,14 +280,22 @@ export function verifyCoseSign1Sig(coseSign1: any, leaf: Uint8Array): void {
   );
 
   const leafCert = new x509.X509Certificate(leaf);
-  const pubKey = createPublicKey(leafCert.publicKey.toString("pem"));
+  const pubKey = await importEcdsaPublicKey(leafCert.publicKey.rawData);
 
-  const verify = createVerify("sha384");
-  verify.update(tbs);
-  verify.end();
-  const ok = verify.verify(
-    { key: pubKey, dsaEncoding: "ieee-p1363" as any },
+  const cryptoInstance = await getCryptoInstance();
+  const ok = await cryptoInstance.subtle.verify(
+    { name: "ECDSA", hash: { name: "SHA-384" } },
+    pubKey,
     new Uint8Array(signature),
+    tbs,
   );
   if (!ok) throw new Error("COSE_Sign1 ES384 verification failed");
+}
+
+function bytesEq(a: ArrayBuffer, b: ArrayBuffer) {
+  const A = new Uint8Array(a),
+    B = new Uint8Array(b);
+  if (A.length !== B.length) return false;
+  for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return false;
+  return true;
 }

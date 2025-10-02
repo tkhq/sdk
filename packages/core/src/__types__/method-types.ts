@@ -400,3 +400,9 @@ export type FetchBootProofForAppProofParams = {
   organizationId?: string;
   stampWith?: StamperType | undefined;
 };
+
+export type VerifyAppProofsParams = {
+  appProofs: v1AppProof[];
+  organizationId?: string;
+  stampWith?: StamperType | undefined;
+};

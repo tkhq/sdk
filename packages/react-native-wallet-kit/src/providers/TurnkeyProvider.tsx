@@ -71,6 +71,7 @@ import {
   type CreateHttpClientParams,
   type TurnkeySDKClientBase,
   type FetchBootProofForAppProofParams,
+  type VerifyAppProofsParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
@@ -2209,6 +2210,23 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks, fetchUser, masterConfig, session, user],
   );
 
+  const verifyAppProofs = useCallback(
+    async (params: VerifyAppProofsParams): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.verifyAppProofs(params),
+        () => logout(),
+        callbacks,
+        "Failed to verify app proofs",
+      );
+    },
+    [client, callbacks],
+  );
+
   const refreshWallets = useCallback(
     async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
       if (!masterConfig?.autoRefreshManagedState) return [];
@@ -3140,6 +3158,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         fetchWallets,
         fetchWalletAccounts,
         fetchPrivateKeys,
+        verifyAppProofs,
         refreshWallets,
         signMessage,
         signTransaction,
