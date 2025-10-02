@@ -1750,6 +1750,34 @@ export default function AuthPage() {
           </div>
         </div>
       )}
+      {authState === AuthState.Authenticated && (
+        <div>
+          <h2>On Ramp</h2>
+          <div className="flex flex-wrap gap-2 mb-2">
+            <button
+              data-testid="sign-sol-transaction"
+              onClick={() =>
+                turnkey.handleCoinbaseOnRamp({
+                  onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
+                  walletAddress: activeWalletAccount?.address!,
+                  cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
+                  network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
+                  paymentMethod: "FIAT_ON_RAMP_PAYMENT_METHOD_PAYPAL",
+                  sandboxMode: true,
+                })
+              }
+              style={{
+                backgroundColor: "pink",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "black",
+              }}
+            >
+              Coinbase On Ramp
+            </button>
+          </div>
+        </div>
+      )}
       <div>
         <h2>Otp Methods</h2>
         <div>
