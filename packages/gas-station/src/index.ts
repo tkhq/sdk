@@ -2,6 +2,20 @@
 export { GasStationClient } from "./gasStationClient";
 export { IntentBuilder } from "./intentBuilder";
 
+// Utility functions
+export {
+  buildTokenTransfer,
+  buildETHTransfer,
+  buildTokenApproval,
+  buildETHTransferFromEther,
+  buildContractCall,
+  packExecutionData,
+  packExecutionDataNoValue,
+} from "./gasStationUtils";
+
+// Type exports
+export type { ExecutionParams } from "./gasStationUtils";
+
 // Configuration and presets
 export {
   CHAIN_PRESETS,

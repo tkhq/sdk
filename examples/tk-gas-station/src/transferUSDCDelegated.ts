@@ -6,11 +6,8 @@ import { parseUnits, createWalletClient, http } from "viem";
 import { base, mainnet } from "viem/chains";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
-import {
-  GasStationClient,
-  buildTokenTransfer,
-  print,
-} from "@turnkey/gas-station";
+import { GasStationClient, buildTokenTransfer } from "@turnkey/gas-station";
+import { print } from "./utils";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
 

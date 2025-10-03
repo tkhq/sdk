@@ -81,7 +81,7 @@ const intent = await userClient
   .transferToken(
     "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
     recipientAddress,
-    parseUnits("10", 6)
+    parseUnits("10", 6),
   )
   .sign(nonce);
 
