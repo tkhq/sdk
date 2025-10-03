@@ -77,6 +77,8 @@ config.json
 !.env.example
 !config.json.example
 
+.cursor
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 
