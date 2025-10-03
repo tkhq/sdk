@@ -13,6 +13,8 @@
     "start-1559-sign-raw": "tsx src/eip1559/signRawTransaction.ts",
     "start-4844": "tsx src/eip4844/signTransaction.ts",
     "start-4844-sign-raw": "tsx src/eip4844/signRawTransaction.ts",
+    "start-7702": "tsx src/eip7702/signTransaction.ts",
+    "start-7702-sign-raw": "tsx src/eip7702/signRawTransaction.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -27,10 +29,9 @@
     "@zerodev/sdk": "^5.4.32",
     "dotenv": "^16.0.3",
     "fetch": "^1.1.0",
-    "kzg-wasm": "0.5.0",
     "prompts": "^2.4.2",
     "viem": "^2.24.2",
-    "zod": "^3.23.8"
+    "kzg-wasm": "0.5.0"
   },
   "devDependencies": {
     "@types/prompts": "^2.4.2",

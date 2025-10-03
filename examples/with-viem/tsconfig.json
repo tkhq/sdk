@@ -5,12 +5,5 @@
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
     "ignoreDeprecations": "5.0"
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.js",
-    "src/**/*.json",
-    "../tk-gas-station/src/transferUSDCDelegated.ts",
-    "../tk-gas-station/abi/combined_abi.ts",
-    "../tk-gas-station/abi/gasStationAbi.ts"
-  ]
+  "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
 }
