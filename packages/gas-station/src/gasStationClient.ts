@@ -7,12 +7,8 @@ import {
   type Chain,
   type Transport,
 } from "viem";
-import { gasStationAbi } from "../../abi/gas-station";
-import type {
-  GasStationConfig,
-  TransferParams,
-  ExecutionIntent,
-} from "./config";
+import { gasStationAbi } from "./abi/gas-station";
+import type { GasStationConfig, ExecutionIntent } from "./config";
 import {
   DEFAULT_DELEGATE_CONTRACT,
   DEFAULT_EXECUTION_CONTRACT,
@@ -123,7 +119,44 @@ export class GasStationClient {
     // Paymaster submits the transaction
     const result = await paymasterClient.submitAuthorization(authorization);
 
+    // Verify the delegation took effect by polling isDelegated
+    print("Verifying delegation...", "");
+    const maxRetries = 10;
+    let retries = 0;
+    while (retries < maxRetries) {
+      const delegated = await this.isDelegated();
+      if (delegated) {
+        print("✓ Delegation verified on-chain", "");
+        break;
+      }
+      retries++;
+      if (retries === maxRetries) {
+        throw new Error(
+          "Delegation verification failed - account code not set after authorization"
+        );
+      }
+      // Wait 1 second before retrying
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
     return result;
+  }
+
+  /**
+   * Check if an EOA has delegated control to the gas station contract
+   * If no address is provided, uses the signer's address
+   */
+  async isDelegated(eoaAddress?: `0x${string}`): Promise<boolean> {
+    const address = eoaAddress ?? this.walletClient.account.address;
+
+    const isDelegated = await this.publicClient.readContract({
+      address: this.executionContract,
+      abi: gasStationAbi,
+      functionName: "isDelegated",
+      args: [address],
+    });
+
+    return isDelegated as boolean;
   }
 
   /**

@@ -1,4 +1,4 @@
-import { parseGwei } from "viem";
+// Policy utilities for Turnkey gas station restrictions
 
 /**
  * Build a Turnkey policy to restrict what EIP-712 intents an EOA can sign

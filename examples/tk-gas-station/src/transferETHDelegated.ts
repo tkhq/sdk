@@ -2,11 +2,15 @@ import { resolve } from "path";
 import * as dotenv from "dotenv";
 import { z } from "zod";
 import { parseArgs } from "node:util";
-import { parseUnits, createWalletClient, http } from "viem";
+import { parseEther, createWalletClient, http } from "viem";
 import { base, mainnet } from "viem/chains";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
-import { GasStationClient, GasStationHelpers, print } from "../lib";
+import {
+  GasStationClient,
+  buildETHTransfer,
+  print,
+} from "@turnkey/gas-station";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
 
@@ -35,16 +39,14 @@ if (!validChains.includes(values.chain as ValidChain)) {
 
 const selectedChain = values.chain as ValidChain;
 
-// Chain and USDC address configuration
+// Chain configuration
 const chainConfig = {
   base: {
     chain: base,
-    usdcAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     explorerUrl: "https://basescan.org",
   },
   mainnet: {
     chain: mainnet,
-    usdcAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     explorerUrl: "https://etherscan.io",
   },
 } as const;
@@ -60,17 +62,13 @@ const envSchema = z.object({
   PAYMASTER: z.string().min(1),
   ETH_RPC_URL: z.string().url(),
   BASE_RPC_URL: z.string().url(),
-  SKIP_AUTHORIZATION: z
-    .string()
-    .optional()
-    .transform((val) => val === "true"),
 });
 
 const env = envSchema.parse(process.env);
 
 print(
   `🌐 Using ${selectedChain.toUpperCase()} network`,
-  `USDC: ${config.usdcAddress}`
+  `ETH transfers on ${config.chain.name}`
 );
 
 const turnkeyClient = new TurnkeyServerSDK({
@@ -81,7 +79,7 @@ const turnkeyClient = new TurnkeyServerSDK({
 });
 
 /**
- * Demonstrates USDC transfer using the Gas Station pattern with EIP-7702 authorization
+ * Demonstrates ETH transfer using the Gas Station pattern with EIP-7702 authorization
  *
  * This example shows the separation of concerns:
  * 1. End user client signs the authorization and creates signed intents
@@ -126,31 +124,30 @@ const main = async () => {
     explorerUrl: config.explorerUrl,
   });
 
-  // Step 1: Authorize the EOA via EIP-7702 (optional if already authorized)
-  if (!env.SKIP_AUTHORIZATION) {
+  // Step 1: Check if EOA is already delegated, authorize if needed
+  const isDelegated = await userClient.isDelegated();
+
+  if (!isDelegated) {
+    print("EOA not yet delegated", "Starting authorization...");
     await userClient.authorize(paymasterClient);
   } else {
-    print(
-      "===== Skipping EIP-7702 Authorization (SKIP_AUTHORIZATION=true) =====",
-      "Assuming EOA is already authorized"
-    );
+    print("✓ EOA already delegated", "Skipping authorization");
   }
 
-  // Step 2: Execute USDC transfer using the generic execute API with helpers
-  print("===== Starting USDC Transfer =====", "");
+  // Step 2: Execute ETH transfer using the generic execute API with helpers
+  print("===== Starting ETH Transfer =====", "");
 
-  const transferAmount = parseUnits("0.01", 6); // 1 penny in USDC (6 decimals)
+  const transferAmount = parseEther("0.0001"); // 0.0001 ETH
 
   // Build the execution parameters using the helper
-  const executionParams = GasStationHelpers.buildTokenTransfer(
-    config.usdcAddress as `0x${string}`,
-    env.PAYMASTER as `0x${string}`,
+  const executionParams = buildETHTransfer(
+    env.PAYMASTER as `0x${string}`, // transfer eth to paymaster from EOA
     transferAmount
   );
 
   print(
-    `Executing USDC transfer`,
-    `${transferAmount} units (0.01 USDC) to ${env.PAYMASTER}`
+    `Executing ETH transfer`,
+    `${transferAmount} wei (0.0001 ETH) to ${env.PAYMASTER}`
   );
 
   // Step 1: User gets their current nonce
@@ -170,9 +167,9 @@ const main = async () => {
   // Step 3: Paymaster executes the signed intent
   const result = await paymasterClient.execute(intent);
 
-  print("===== USDC Transfer Complete =====", "");
+  print("===== ETH Transfer Complete =====", "");
   print(
-    "✅ Successfully transferred 1 penny USDC from EOA to paymaster",
+    "✅ Successfully transferred 0.001 ETH from EOA to paymaster",
     `TX: ${config.explorerUrl}/tx/${result.txHash}`
   );
   print("Gas usage", `${result.gasUsed} gas units`);

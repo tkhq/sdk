@@ -76,89 +76,83 @@ export interface ExecutionParams {
 }
 
 /**
- * Helper utilities for building common execution parameters
- * These make it easy to construct the params for common operations
+ * Build parameters for an ERC20 token transfer
  */
-export class GasStationHelpers {
-  /**
-   * Build parameters for an ERC20 token transfer
-   */
-  static buildTokenTransfer(
-    token: Address,
-    to: Address,
-    amount: bigint
-  ): ExecutionParams {
-    return {
-      outputContract: token,
-      callData: encodeFunctionData({
-        abi: ERC20_ABI,
-        functionName: "transfer",
-        args: [to, amount],
-      }),
-      value: 0n,
-    };
-  }
+export function buildTokenTransfer(
+  token: Address,
+  to: Address,
+  amount: bigint
+): ExecutionParams {
+  return {
+    outputContract: token,
+    callData: encodeFunctionData({
+      abi: ERC20_ABI,
+      functionName: "transfer",
+      args: [to, amount],
+    }),
+    value: 0n,
+  };
+}
 
-  /**
-   * Build parameters for a native ETH transfer
-   */
-  static buildETHTransfer(to: Address, amount: bigint): ExecutionParams {
-    return {
-      outputContract: to,
-      callData: "0x",
-      value: amount,
-    };
-  }
+/**
+ * Build parameters for a native ETH transfer
+ */
+export function buildETHTransfer(to: Address, amount: bigint): ExecutionParams {
+  return {
+    outputContract: to,
+    callData: "0x",
+    value: amount,
+  };
+}
 
-  /**
-   * Build parameters for an ERC20 token approval
-   */
-  static buildTokenApproval(
-    token: Address,
-    spender: Address,
-    amount: bigint
-  ): ExecutionParams {
-    return {
-      outputContract: token,
-      callData: encodeFunctionData({
-        abi: ERC20_ABI,
-        functionName: "approve",
-        args: [spender, amount],
-      }),
-      value: 0n,
-    };
-  }
+/**
+ * Build parameters for an ERC20 token approval
+ */
+export function buildTokenApproval(
+  token: Address,
+  spender: Address,
+  amount: bigint
+): ExecutionParams {
+  return {
+    outputContract: token,
+    callData: encodeFunctionData({
+      abi: ERC20_ABI,
+      functionName: "approve",
+      args: [spender, amount],
+    }),
+    value: 0n,
+  };
+}
 
-  /**
-   * Build parameters for a generic contract call
-   */
-  static buildContractCall(params: {
-    contract: Address;
-    abi: readonly any[] | any[];
-    functionName: string;
-    args: any[];
-    value?: bigint;
-  }): ExecutionParams {
-    return {
-      outputContract: params.contract,
-      callData: encodeFunctionData({
-        abi: params.abi,
-        functionName: params.functionName,
-        args: params.args,
-      }),
-      value: params.value ?? 0n,
-    };
-  }
+/**
+ * Build parameters for a generic contract call
+ */
+export function buildContractCall(params: {
+  contract: Address;
+  abi: readonly any[] | any[];
+  functionName: string;
+  args: any[];
+  value?: bigint;
+}): ExecutionParams {
+  return {
+    outputContract: params.contract,
+    callData: encodeFunctionData({
+      abi: params.abi,
+      functionName: params.functionName,
+      args: params.args,
+    }),
+    value: params.value ?? 0n,
+  };
+}
 
-  /**
-   * Convenience: Build ETH transfer with ether string parsing
-   */
-  static buildETHTransferFromEther(
-    to: Address,
-    etherAmount: string
-  ): ExecutionParams {
-    return this.buildETHTransfer(to, parseEther(etherAmount));
-  }
+/**
+ * Convenience: Build ETH transfer with ether string parsing
+ */
+export function buildETHTransferFromEther(
+  to: Address,
+  etherAmount: string
+): ExecutionParams {
+  return buildETHTransfer(to, parseEther(etherAmount));
 }
 
 /**

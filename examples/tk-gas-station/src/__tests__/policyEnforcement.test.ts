@@ -10,9 +10,9 @@ import {
   buildIntentSigningPolicy,
   buildPaymasterExecutionPolicy,
   GasStationClient,
-  GasStationHelpers,
+  buildTokenTransfer,
   DEFAULT_EXECUTION_CONTRACT,
-} from "../lib";
+} from "@turnkey/gas-station";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
 
@@ -237,7 +237,7 @@ describe("Gas Station Policy Enforcement", () => {
   describe("Layer 1: EOA Intent Signing Policy", () => {
     it("should allow EOA to sign USDC transfer intent", async () => {
       const nonce = 0n;
-      const executionParams = GasStationHelpers.buildTokenTransfer(
+      const executionParams = buildTokenTransfer(
         USDC_ADDRESS as `0x${string}`,
         eoaWalletAddress,
         parseUnits("1", 6)
@@ -256,7 +256,7 @@ describe("Gas Station Policy Enforcement", () => {
 
     it("should block EOA from signing DAI transfer intent (not in policy)", async () => {
       const nonce = 1n;
-      const executionParams = GasStationHelpers.buildTokenTransfer(
+      const executionParams = buildTokenTransfer(
         DAI_ADDRESS as `0x${string}`,
         eoaWalletAddress,
         parseUnits("1", 18)
@@ -287,7 +287,7 @@ describe("Gas Station Policy Enforcement", () => {
 
       // Now sign DAI intent
       const nonce = 2n;
-      const executionParams = GasStationHelpers.buildTokenTransfer(
+      const executionParams = buildTokenTransfer(
         DAI_ADDRESS as `0x${string}`,
         eoaWalletAddress,
         parseUnits("1", 18)
@@ -311,7 +311,7 @@ describe("Gas Station Policy Enforcement", () => {
     beforeAll(async () => {
       // Create USDC intent
       const nonce1 = 0n;
-      const usdcParams = GasStationHelpers.buildTokenTransfer(
+      const usdcParams = buildTokenTransfer(
         USDC_ADDRESS as `0x${string}`,
         eoaWalletAddress,
         parseUnits("1", 6)
@@ -325,7 +325,7 @@ describe("Gas Station Policy Enforcement", () => {
 
       // Create DAI intent
       const nonce2 = 2n;
-      const daiParams = GasStationHelpers.buildTokenTransfer(
+      const daiParams = buildTokenTransfer(
         DAI_ADDRESS as `0x${string}`,
         eoaWalletAddress,
         parseUnits("1", 18)

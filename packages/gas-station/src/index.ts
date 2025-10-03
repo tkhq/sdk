@@ -1,7 +1,11 @@
 export { GasStationClient } from "./gasStationClient";
 export { IntentBuilder } from "./intentBuilder";
 export {
-  GasStationHelpers,
+  buildTokenTransfer,
+  buildETHTransfer,
+  buildTokenApproval,
+  buildContractCall,
+  buildETHTransferFromEther,
   print,
   ERC20_ABI,
   formatTransferDetails,
