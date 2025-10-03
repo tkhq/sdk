@@ -12,18 +12,23 @@ interface ExportProps {
   turnkeyBaseUrl: string;
   iframeDisplay: string;
   setIframeStamper: Dispatch<SetStateAction<IframeStamper | null>>;
+  showSigning?: boolean; // Only show signing UI for wallet accounts, not wallets
 }
 
 const containerStyles: React.CSSProperties = {
-  marginTop: 12,
+  marginTop: 16,
   display: "flex",
   flexDirection: "column",
-  gap: 12,
-  maxWidth: 520,
+  gap: 16,
+  width: "100%",
+  maxWidth: "100%",
   fontFamily:
     "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
-  maxHeight: "min(80vh, 700px)",
-  overflowY: "scroll",
+  maxHeight: "min(70vh, 600px)",
+  overflowY: "auto",
+  overflowX: "hidden",
+  padding: "0",
+  boxSizing: "border-box",
 };
 
 const cardStyles: React.CSSProperties = {
@@ -31,31 +36,47 @@ const cardStyles: React.CSSProperties = {
   borderRadius: 12,
   border: "1px solid rgba(216,219,227,1)",
   background: "#ffffff",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+  transition: "box-shadow 0.2s ease",
+  width: "100%",
+  boxSizing: "border-box",
+  overflowX: "hidden",
 };
 
 const monoBox: React.CSSProperties = {
   fontFamily: "monospace",
   fontSize: 13,
-  padding: 8,
+  padding: 12,
   borderRadius: 8,
-  background: "#fff7d6",
-  border: "1px solid #ffd966",
+  background: "#f8f9fa",
+  border: "1px solid #e0e3e7",
   wordBreak: "break-word",
   whiteSpace: "pre-wrap",
+  color: "#2b2f33",
+  maxHeight: "200px",
+  overflowY: "auto",
 };
 
 const iframeCss = `
   iframe {
     box-sizing: border-box;
-    width: 480px;
+    width: 100%;
+    max-width: 100%;
     height: 140px;
-    border-radius: 8px;
+    border-radius: 12px;
     border-width: 1px;
     border-style: solid;
     border-color: rgba(216, 219, 227, 1);
-    padding: 20px;
+    padding: 16px;
     background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    margin-bottom: 8px;
+  }
+
+  @media (min-width: 768px) {
+    iframe {
+      padding: 20px;
+    }
   }
 `;
 
@@ -185,7 +206,7 @@ export function Export(props: ExportProps) {
         <style>{iframeCss}</style>
       </div>
 
-      {iframeDisplay === "block" ? (
+      {iframeDisplay === "block" && props.showSigning ? (
         <div style={containerStyles}>
           {/* Message signing */}
           <div style={cardStyles}>

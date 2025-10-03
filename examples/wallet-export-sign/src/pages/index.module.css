@@ -150,28 +150,48 @@
   background-color: #050a0b;
   border: none;
   border-radius: 8px;
-  height: 40px;
+  height: 44px;
   cursor: pointer;
   outline: none;
   font-family: "Inter";
   border: 1px solid #050a0b;
   margin-bottom: 20px;
   color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.modalButton:hover,
+.longModalButton:hover {
+  background-color: #1a1f23;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .modalButton {
-  width: 90px;
+  width: 100%;
+  max-width: 200px;
+}
+
+@media (min-width: 768px) {
+  .modalButton {
+    width: auto;
+    min-width: 180px;
+    padding: 0 32px;
+  }
 }
 
 .longModalButton {
-  width: 250px;
+  width: 100%;
+  max-width: 300px;
 }
 
 .modalSpace {
-  display: inline-flex;
+  display: flex;
   justify-content: center;
   width: 100%;
-  padding: 20px;
+  padding: 20px 0;
 }
 
 .modalDetails {
@@ -179,24 +199,52 @@
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  padding: 0px 20px;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+@media (min-width: 768px) {
+  .modalDetails {
+    padding: 20px;
+  }
 }
 
 .modalDetails h2 {
   text-align: center;
   font-family: "Inter";
-  padding-top: 40px;
+  padding-top: 20px;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+  .modalDetails h2 {
+    padding-top: 40px;
+    font-size: 28px;
+  }
 }
 
 .modalDetails ul {
   margin-top: 0;
-  text-align: justify;
+  text-align: left;
 }
 
 .modalDetails p {
   font-family: "Inter";
   font-size: 14px;
   color: #555b64;
+  line-height: 1.6;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .modalDetails p {
+    font-size: 15px;
+  }
 }
 
 .modalOverlay {
@@ -213,23 +261,40 @@
 }
 
 .customModal {
-  background-color: rgba(255, 255, 255, 1); /* bg-white and bg-opacity-100 */
-  padding: 1.25rem; /* p-5 */
-  padding-left: 1.5rem; /* px-6 */
-  padding-right: 1.5rem; /* px-6 */
-  padding-top: 1rem; /* py-4 */
-  padding-bottom: 1rem; /* py-4 */
-  border-radius: 0.375rem; /* rounded */
+  background-color: rgba(255, 255, 255, 1);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
   box-shadow:
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-  width: 33.333333%; /* w-1/3 */
-  max-width: 32rem; /* max-w-2xl */
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .customModal {
+    width: 80%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .customModal {
+    width: 60%;
+    max-width: 700px;
+  }
 }
 
 .modalInner {
-  width: 100%; /* Equivalent to w-full */
-  min-height: 500px;
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .closeButton {
@@ -274,4 +339,104 @@
 
 .name {
   margin-bottom: 20px;
+}
+
+.warningContainer {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.warningIcon {
+  display: flex;
+  justify-content: center;
+  color: #f59e0b;
+  margin-bottom: 20px;
+}
+
+.warningIcon svg {
+  width: 40px;
+  height: 40px;
+}
+
+@media (min-width: 768px) {
+  .warningIcon svg {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.warningIntro {
+  font-weight: 500;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  .warningIntro {
+    font-size: 15px;
+  }
+}
+
+.warningList {
+  text-align: left;
+  padding-left: 20px;
+  padding-right: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.warningList li {
+  margin-bottom: 16px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+@media (min-width: 768px) {
+  .warningList {
+    padding-left: 24px;
+    padding-right: 0;
+  }
+
+  .warningList li {
+    margin-bottom: 20px;
+  }
+}
+
+.warningLink {
+  color: #050a0b;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.warningLink:hover {
+  color: #2b2f33;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  font-family: "Inter";
+  color: #6c727e;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #ebedf2;
+  border-top-color: #050a0b;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

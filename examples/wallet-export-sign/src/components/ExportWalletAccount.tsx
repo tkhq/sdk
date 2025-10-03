@@ -108,6 +108,7 @@ export function ExportWalletAccount(props: ExportWalletAccountProps) {
           iframeDisplay={iframeDisplay}
           iframeUrl={process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!}
           turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
+          showSigning={true}
         />
       </div>
     </div>
