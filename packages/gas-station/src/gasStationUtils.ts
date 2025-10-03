@@ -23,17 +23,6 @@ export function createPublicClientForChain(chain: Chain, rpcUrl: string) {
   });
 }
 
-export function formatTransferDetails(
-  amount: bigint,
-  decimals: number,
-  symbol: string,
-  from: string,
-  to: string,
-): string {
-  const formattedAmount = Number(amount) / Math.pow(10, decimals);
-  return `${formattedAmount} ${symbol} from ${from.slice(0, 10)}... to ${to.slice(0, 10)}...`;
-}
-
 // ERC20 ABI for token transfers
 export const ERC20_ABI = [
   {

@@ -53,10 +53,10 @@ ETH_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/...
 ### 3. Initialize and Use
 
 ```typescript
-import { GasStationClient, GasStationHelpers } from "./lib";
+import { GasStationClient } from "@turnkey/gas-station";
 import { Turnkey } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
-import { parseEther, createWalletClient, http } from "viem";
+import { parseEther, parseUnits, createWalletClient, http } from "viem";
 import { base } from "viem/chains";
 
 // Initialize Turnkey
@@ -122,7 +122,7 @@ const usdcIntent = await userClient
   .transferToken(
     "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
     "0xRecipient...",
-    parseUnits("10", 6),
+    parseUnits("10", 6)
   )
   .sign(nonce);
 await paymasterClient.execute(usdcIntent);
@@ -182,27 +182,6 @@ new GasStationClient({
 
 - Combined flow: user signs authorization, paymaster submits
 - One-time setup per EOA
-
-### GasStationHelpers
-
-Utility methods for building common execution parameters.
-
-**`buildETHTransfer(to: Address, amount: bigint): ExecutionParams`**
-
-- Build params for native ETH transfer
-
-**`buildTokenTransfer(token: Address, to: Address, amount: bigint): ExecutionParams`**
-
-- Build params for ERC20 token transfer
-
-**`buildTokenApproval(token: Address, spender: Address, amount: bigint): ExecutionParams`**
-
-- Build params for ERC20 token approval
-
-**`buildContractCall(params): ExecutionParams`**
-
-- Build params for any contract function call
-- Accepts `{ contract, abi, functionName, args, value? }`
 
 ### IntentBuilder
 
@@ -357,7 +336,8 @@ Available presets for quick setup:
 
 ```typescript
 // Chain presets are available for quick configuration
-import { CHAIN_PRESETS } from "./lib";
+import { CHAIN_PRESETS, GasStationClient } from "@turnkey/gas-station";
+import { createWalletClient, http } from "viem";
 
 const basePreset = CHAIN_PRESETS.BASE_MAINNET;
 const userWalletClient = createWalletClient({
@@ -388,8 +368,10 @@ Turnkey policies provide additional security layers by restricting what transact
 Restrict what EIP-712 intents the EOA can sign:
 
 ```typescript
+import { buildIntentSigningPolicy } from "@turnkey/gas-station";
+
 // USDC-only policy
-const eoaPolicy = GasStationClient.buildIntentSigningPolicy({
+const eoaPolicy = buildIntentSigningPolicy({
   organizationId: "your-org-id",
   eoaUserId: "user-id",
   restrictions: {
@@ -405,11 +387,17 @@ const eoaPolicy = GasStationClient.buildIntentSigningPolicy({
 Restrict what on-chain transactions the paymaster can submit:
 
 ```typescript
+import {
+  buildPaymasterExecutionPolicy,
+  DEFAULT_EXECUTION_CONTRACT,
+} from "@turnkey/gas-station";
+import { parseGwei } from "viem";
+
 // Paymaster protection policy
-const paymasterPolicy = GasStationClient.buildPaymasterExecutionPolicy({
+const paymasterPolicy = buildPaymasterExecutionPolicy({
   organizationId: "paymaster-org-id",
   paymasterUserId: "paymaster-user-id",
-  executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+  executionContractAddress: DEFAULT_EXECUTION_CONTRACT,
   restrictions: {
     allowedEOAs: ["0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"],
     allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
@@ -425,8 +413,15 @@ const paymasterPolicy = GasStationClient.buildPaymasterExecutionPolicy({
 Combine both policy types for maximum security:
 
 ```typescript
+import {
+  buildIntentSigningPolicy,
+  buildPaymasterExecutionPolicy,
+  DEFAULT_EXECUTION_CONTRACT,
+} from "@turnkey/gas-station";
+import { parseGwei } from "viem";
+
 // Layer 1: EOA can only sign USDC intents
-const eoaPolicy = GasStationClient.buildIntentSigningPolicy({
+const eoaPolicy = buildIntentSigningPolicy({
   organizationId: "user-org",
   eoaUserId: "user-id",
   restrictions: {
@@ -436,10 +431,10 @@ const eoaPolicy = GasStationClient.buildIntentSigningPolicy({
 });
 
 // Layer 2: Paymaster can only execute for specific users with gas limits
-const paymasterPolicy = GasStationClient.buildPaymasterExecutionPolicy({
+const paymasterPolicy = buildPaymasterExecutionPolicy({
   organizationId: "paymaster-org",
   paymasterUserId: "paymaster-user-id",
-  executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+  executionContractAddress: DEFAULT_EXECUTION_CONTRACT,
   restrictions: {
     allowedEOAs: ["0xUserAddress..."],
     allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
@@ -573,12 +568,16 @@ await turnkeyClient.apiClient().createPolicy(policy);
 For most cases, use the built-in helpers which handle the byte positions correctly:
 
 ```typescript
-import { buildPaymasterExecutionPolicy } from "./lib";
+import {
+  buildPaymasterExecutionPolicy,
+  DEFAULT_EXECUTION_CONTRACT,
+} from "@turnkey/gas-station";
+import { parseGwei } from "viem";
 
 const policy = buildPaymasterExecutionPolicy({
   organizationId: subOrgId,
   paymasterUserId: paymasterUserId,
-  executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+  executionContractAddress: DEFAULT_EXECUTION_CONTRACT,
   restrictions: {
     allowedContracts: [
       "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
