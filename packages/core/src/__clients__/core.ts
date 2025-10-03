@@ -18,6 +18,7 @@ import {
   type PasskeyAuthResult,
   type v1CreatePolicyIntentV3,
   type v1BootProof,
+  ProxyTSignupResponse,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -96,6 +97,7 @@ import {
   type CreateApiKeyPairParams,
   type FetchBootProofForAppProofParams,
   type CreateHttpClientParams,
+  type VerifyAppProofsParams,
 } from "../__types__";
 import {
   buildSignUpBody,
@@ -134,6 +136,7 @@ import {
 import { jwtDecode } from "jwt-decode";
 import { createWalletManager } from "../__wallet__/base";
 import { toUtf8Bytes } from "ethers";
+import { verify } from "@turnkey/crypto";
 
 /**
  * @internal
@@ -571,6 +574,7 @@ export class TurnkeyClient {
 
         return {
           sessionToken: sessionResponse.session,
+          appProofs: res.appProofs,
           credentialId: passkey.attestation.credentialId,
         };
       },
@@ -962,6 +966,7 @@ export class TurnkeyClient {
         // then switches to a Solana account within MetaMask? Will this flow break?
         return {
           sessionToken: sessionResponse.session,
+          appProofs: res.appProofs,
           address: addressFromPublicKey(
             walletProvider.chainInfo.namespace,
             publicKey,
@@ -1126,6 +1131,7 @@ export class TurnkeyClient {
         const subOrganizationId = accountRes.organizationId;
 
         // if there is no subOrganizationId, we create one
+        let signupRes: ProxyTSignupResponse | undefined;
         if (!subOrganizationId) {
           const signUpBody = buildSignUpBody({
             createSubOrgParams: {
@@ -1140,9 +1146,9 @@ export class TurnkeyClient {
             },
           });
 
-          const res = await this.httpClient.proxySignup(signUpBody);
+          signupRes = await this.httpClient.proxySignup(signUpBody);
 
-          if (!res) {
+          if (!signupRes) {
             throw new TurnkeyError(
               `Sign up failed`,
               TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
@@ -1190,6 +1196,7 @@ export class TurnkeyClient {
 
         return {
           sessionToken: sessionToken,
+          appProofs: signupRes?.appProofs,
           address: addressFromPublicKey(
             walletProvider.chainInfo.namespace,
             publicKey,
@@ -1451,21 +1458,26 @@ export class TurnkeyClient {
     return withTurnkeyErrorHandling(
       async () => {
         const generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
-        const res = await this.httpClient.proxySignup(signUpBody);
+        const signupRes = await this.httpClient.proxySignup(signUpBody);
 
-        if (!res) {
+        if (!signupRes) {
           throw new TurnkeyError(
             `Auth proxy OTP sign up failed`,
             TurnkeyErrorCodes.OTP_SIGNUP_ERROR,
           );
         }
 
-        return await this.loginWithOtp({
+        const otpRes = await this.loginWithOtp({
           verificationToken,
           publicKey: generatedPublicKey!,
           ...(invalidateExisting && { invalidateExisting }),
           ...(sessionKey && { sessionKey }),
         });
+
+        return {
+          ...otpRes,
+          appProofs: signupRes.appProofs,
+        };
       },
       {
         errorCode: TurnkeyErrorCodes.OTP_SIGNUP_ERROR,
@@ -1781,20 +1793,25 @@ export class TurnkeyClient {
           },
         });
 
-        const res = await this.httpClient.proxySignup(signUpBody);
+        const signupRes = await this.httpClient.proxySignup(signUpBody);
 
-        if (!res) {
+        if (!signupRes) {
           throw new TurnkeyError(
             `Auth proxy OAuth signup failed`,
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
 
-        return await this.loginWithOauth({
+        const oauthRes = await this.loginWithOauth({
           oidcToken,
           publicKey: publicKey!,
           ...(sessionKey && { sessionKey }),
         });
+
+        return {
+          ...oauthRes,
+          appProofs: signupRes.appProofs,
+        };
       },
       {
         errorMessage: "Failed to sign up with OAuth",
@@ -3548,7 +3565,6 @@ export class TurnkeyClient {
           },
           stampWith,
         );
-
         if (!res || !res.walletId) {
           throw new TurnkeyError(
             "No wallet found in the create wallet response",
@@ -4549,6 +4565,82 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to get boot proof for app proof",
         errorCode: TurnkeyErrorCodes.FETCH_BOOT_PROOF_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Verifies a list of app proofs against their corresponding boot proofs.
+   *
+   * - This function iterates through each provided app proof, fetches the corresponding boot proof, and verifies the app proof against the boot proof.
+   * - If any app proof fails verification, an error is thrown.
+   * @param params.appProofs - the app proofs to verify.
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves when all app proofs have been successfully verified.
+   * @throws {TurnkeyError} If there is no active session, if the input is invalid, or if verification fails.
+   */
+  verifyAppProofs = async (params: VerifyAppProofsParams): Promise<void> => {
+    const {
+      appProofs,
+      stampWith = this.config.defaultStamperType,
+      organizationId: organizationIdFromParams,
+    } = params;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const session = await getActiveSessionOrThrowIfRequired(
+          stampWith,
+          this.storageManager.getActiveSession,
+        );
+
+        const organizationId =
+          organizationIdFromParams || session?.organizationId;
+        if (!organizationId) {
+          throw new TurnkeyError(
+            "Organization ID is required to verify app proofs.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        if (!appProofs || appProofs.length === 0) {
+          throw new TurnkeyError(
+            "'appProofs' is required and cannot be empty.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        let lastPublicKey: string | undefined;
+        let lastBootProof: v1BootProof | undefined;
+
+        for (const appProof of appProofs) {
+          if (!appProof.publicKey) {
+            throw new TurnkeyError(
+              "App proof publicKey is missing.",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+
+          let bootProof: v1BootProof;
+          if (appProof.publicKey === lastPublicKey && lastBootProof) {
+            bootProof = lastBootProof;
+          } else {
+            bootProof = await this.fetchBootProofForAppProof({
+              appProof,
+              organizationId,
+              stampWith,
+            });
+
+            lastPublicKey = appProof.publicKey;
+            lastBootProof = bootProof;
+          }
+
+          await verify(appProof, bootProof); // throws if invalid
+        }
+      },
+      {
+        errorMessage: "Failed to verify app proofs",
+        errorCode: TurnkeyErrorCodes.VERIFY_APP_PROOFS_ERROR,
       },
     );
   };

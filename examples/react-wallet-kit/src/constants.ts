@@ -61,6 +61,7 @@ export const initialConfig: TurnkeyProviderConfig = {
       walletAuth: createSuborgParams,
       oauth: createSuborgParams,
     },
+    verifyWalletOnSignup: true,
   },
   ui: {
     darkMode: true,

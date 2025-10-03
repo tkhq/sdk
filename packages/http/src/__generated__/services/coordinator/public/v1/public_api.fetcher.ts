@@ -3188,6 +3188,58 @@ export const signDeleteUsers = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_wallet_accounts`
+ */
+export type TDeleteWalletAccountsResponse =
+  operations["PublicApiService_DeleteWalletAccounts"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_wallet_accounts`
+ */
+export type TDeleteWalletAccountsInput = { body: TDeleteWalletAccountsBody };
+
+/**
+ * `POST /public/v1/submit/delete_wallet_accounts`
+ */
+export type TDeleteWalletAccountsBody =
+  operations["PublicApiService_DeleteWalletAccounts"]["parameters"]["body"]["body"];
+
+/**
+ * Delete wallet accounts
+ *
+ * Delete wallet accounts for an organization.
+ *
+ * `POST /public/v1/submit/delete_wallet_accounts`
+ */
+export const deleteWalletAccounts = (input: TDeleteWalletAccountsInput) =>
+  request<
+    TDeleteWalletAccountsResponse,
+    TDeleteWalletAccountsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_wallet_accounts",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteWalletAccounts` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteWalletAccounts}
+ */
+export const signDeleteWalletAccounts = (
+  input: TDeleteWalletAccountsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteWalletAccountsBody, never, never>({
+    uri: "/public/v1/submit/delete_wallet_accounts",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_wallets`
  */
 export type TDeleteWalletsResponse =
