@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --mono-size: clamp(11px, 0.85vw, 14px);
 }
 
 @theme inline {
@@ -23,4 +24,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+html {
+  /* ~15px at small screens → ~18px on big desktops */
+  font-size: clamp(15px, 0.95vw, 18px);
 }

@@ -2,41 +2,52 @@
 
 This is a minimal **Next.js** app showing how to add a **Delegated Access (DA) API user** to an [embedded wallet](https://docs.turnkey.com/sdks/react/getting-started).
 
-### Features
+### What this demo shows
 
-- Login / sign-up into a sub-organization using [@turnkey/react-wallet-kit](https://www.npmjs.com/package/@turnkey/react-wallet-kit) and [Auth Proxy](https://docs.turnkey.com/sdks/react/getting-started#:~:text=1-,Enable%20Auth%20Proxy,-Navigate%20to%20the)
-- Display the **sub-organization ID** after login
-- List the sub-organization’s embedded wallet accounts
+A high-level summary of the user experience and what you can see on screen.
+
+1. Log in with [@turnkey/react-wallet-kit](https://www.npmjs.com/package/@turnkey/react-wallet-kit) and [Auth Proxy](https://docs.turnkey.com/sdks/react/getting-started#:~:text=1-,Enable%20Auth%20Proxy,-Navigate%20to%20the).
+
+2. After login, the dashboard is split into two panels:
+
+Setup Panel (left):
+
 - Create a **Delegated Access (DA) user** with a P-256 API key
 - Build and submit a Turnkey **policy** that restricts the DA user signing to a specific Ethereum recipient address
-- Test the policy by having the DA user attempt to sign both an allowed and a denied Ethereum transaction
+- **Validate** the policy by attempting two signatures: one expected to allow and one to deny.
+
+Live Sub-Org State (right):
+
+- View the **sub-organization ID**
+- View the **users**, **rootQuorum**, **policies**, **wallet accounts** as updated by the changes done in the left panel.
 
 ---
 
 ## How it works
 
-When you go through the demo:
+A step-by-step look under the hood:
 
-1. The end-user signs up using one of the supported auth methods.
-2. Through the Auth Proxy, a new **sub-organization** is created with:
-   - The user’s authentication data (email, passkey, OAuth, etc.)
-   - An embedded wallet with an Ethereum account
+1. **_User authentication_** via Auth Proxy::
+   - Creates a new **sub-organization** with the user’s chosen auth method (email, OAuth, passkey, etc.) and an **embedded wallet** with an Ethereum account.
+   - The authentication methods called by `handleLogin` are **idempotent** - existing users just log in.
 
-> **Note:**
->
-> - The Auth Proxy methods called by `handleLogin` are **idempotent**: if the user already exists, they’ll just log in instead of creating a new sub-org.
-> - You can use your own backend instead, but for simplicity we stick with the Auth Proxy. If you'd like to see how, check out this guide: [Advanced Backend Authentication](https://docs.turnkey.com/sdks/react/advanced-backend-authentication).
+> **Note:** You can use your own backend instead, but for simplicity we stick with the Auth Proxy. If you'd like to see how, check out this guide: [Advanced Backend Authentication](https://docs.turnkey.com/sdks/react/advanced-backend-authentication).
 
-3. Once authenticated, the dashboard shows:
-   - The sub-organization ID
-   - Its wallet accounts
-4. A Delegated Access User can be created via [`fetchOrCreateP256ApiKeyUser`](https://docs.turnkey.com/generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-p256-api-key-user).
+3. **Dashboard rendering**:
+   - Right panel shows the live organization object from Turnkey (`getOrganization`), including users, root quorum, policies, and wallets.
+
+4. **Delegated Access user creation:**
+   - Done with [`fetchOrCreateP256ApiKeyUser`](https://docs.turnkey.com/generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-p256-api-key-user).
 
 > **Note:** The DA user is non-root, so at this point any signing requests will be denied by the Turnkey policy engine until a policy is added.
 
-5. A policy is created (via [`fetchOrCreatePolicies`](https://docs.turnkey.com/generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-policies)) that allows the DA user to sign Ethereum transactions only to a specific recipient address.
+5. **Policy management:**
+   - Added via [`fetchOrCreatePolicies`](https://docs.turnkey.com/generated-docs/formatted/react-wallet-kit/client-context-type-fetch-or-create-policies)).
+   - Example policy: “DA user can only sign Ethereum transactions to NEXT_PUBLIC_RECIPIENT_ADDRESS.”
 
-6. The **Policy Validation (Demo)** section generates two raw unsigned Ethereum transactions, one to the allowed recipient (`NEXT_PUBLIC_RECIPIENT_ADDRESS`) and one to a denied recipient of your choice and then it submits them to Turnkey for signing. The results show whether the configured policies permit or block each transaction.
+6. **Policy Validation (Demo)**
+   - Generates two unsigned Ethereum txs (allow + deny).
+   - Submits them for signing, showing how the policy engine enforces your rules.
 
 ---
 
