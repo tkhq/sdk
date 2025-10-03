@@ -3,10 +3,14 @@ import * as dotenv from "dotenv";
 import { z } from "zod";
 import { parseArgs } from "node:util";
 import { parseEther, createWalletClient, http } from "viem";
-import { base, mainnet } from "viem/chains";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
-import { GasStationClient, buildETHTransfer } from "@turnkey/gas-station";
+import {
+  GasStationClient,
+  buildETHTransfer,
+  CHAIN_PRESETS,
+  type ChainPreset,
+} from "@turnkey/gas-station";
 import { print } from "./utils";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
@@ -29,26 +33,20 @@ type ValidChain = (typeof validChains)[number];
 
 if (!validChains.includes(values.chain as ValidChain)) {
   console.error(
-    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`,
+    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`
   );
   process.exit(1);
 }
 
 const selectedChain = values.chain as ValidChain;
 
-// Chain configuration
-const chainConfig = {
-  base: {
-    chain: base,
-    explorerUrl: "https://basescan.org",
-  },
-  mainnet: {
-    chain: mainnet,
-    explorerUrl: "https://etherscan.io",
-  },
-} as const;
+// Map chain selection to chain presets
+const chainPresetMap: Record<ValidChain, ChainPreset> = {
+  base: CHAIN_PRESETS.BASE_MAINNET,
+  mainnet: CHAIN_PRESETS.ETHEREUM_MAINNET,
+};
 
-const config = chainConfig[selectedChain];
+const preset = chainPresetMap[selectedChain];
 
 const envSchema = z.object({
   BASE_URL: z.string().url(),
@@ -65,7 +63,7 @@ const env = envSchema.parse(process.env);
 
 print(
   `🌐 Using ${selectedChain.toUpperCase()} network`,
-  `ETH transfers on ${config.chain.name}`,
+  `ETH transfers on ${preset.chain.name}`
 );
 
 const turnkeyClient = new TurnkeyServerSDK({
@@ -100,25 +98,25 @@ const main = async () => {
 
   const userWalletClient = createWalletClient({
     account: userAccount,
-    chain: config.chain,
+    chain: preset.chain,
     transport: http(rpcUrl),
   });
 
   const paymasterWalletClient = createWalletClient({
     account: paymasterAccount,
-    chain: config.chain,
+    chain: preset.chain,
     transport: http(rpcUrl),
   });
 
   // Create Gas Station clients with the viem wallet clients
   const userClient = new GasStationClient({
     walletClient: userWalletClient,
-    explorerUrl: config.explorerUrl,
+    explorerUrl: preset.explorerUrl,
   });
 
   const paymasterClient = new GasStationClient({
     walletClient: paymasterWalletClient,
-    explorerUrl: config.explorerUrl,
+    explorerUrl: preset.explorerUrl,
   });
 
   // Step 1: Check if EOA is already delegated, authorize if needed
@@ -139,12 +137,12 @@ const main = async () => {
   // Build the execution parameters using the helper
   const executionParams = buildETHTransfer(
     env.PAYMASTER as `0x${string}`, // transfer eth to paymaster from EOA
-    transferAmount,
+    transferAmount
   );
 
   print(
     `Executing ETH transfer`,
-    `${transferAmount} wei (0.0001 ETH) to ${env.PAYMASTER}`,
+    `${transferAmount} wei (0.0001 ETH) to ${env.PAYMASTER}`
   );
 
   // Step 1: User gets their current nonce
@@ -167,7 +165,7 @@ const main = async () => {
   print("===== ETH Transfer Complete =====", "");
   print(
     "✅ Successfully transferred 0.001 ETH from EOA to paymaster",
-    `TX: ${config.explorerUrl}/tx/${result.txHash}`,
+    `TX: ${preset.explorerUrl}/tx/${result.txHash}`
   );
   print("Gas usage", `${result.gasUsed} gas units`);
 };

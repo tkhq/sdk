@@ -3,10 +3,14 @@ import * as dotenv from "dotenv";
 import { z } from "zod";
 import { parseArgs } from "node:util";
 import { parseUnits, createWalletClient, http } from "viem";
-import { base, mainnet } from "viem/chains";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
-import { GasStationClient, buildTokenTransfer } from "@turnkey/gas-station";
+import {
+  GasStationClient,
+  buildTokenTransfer,
+  CHAIN_PRESETS,
+  type ChainPreset,
+} from "@turnkey/gas-station";
 import { print } from "./utils";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
@@ -29,28 +33,20 @@ type ValidChain = (typeof validChains)[number];
 
 if (!validChains.includes(values.chain as ValidChain)) {
   console.error(
-    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`,
+    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`
   );
   process.exit(1);
 }
 
 const selectedChain = values.chain as ValidChain;
 
-// Chain and USDC address configuration
-const chainConfig = {
-  base: {
-    chain: base,
-    usdcAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-    explorerUrl: "https://basescan.org",
-  },
-  mainnet: {
-    chain: mainnet,
-    usdcAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    explorerUrl: "https://etherscan.io",
-  },
-} as const;
+// Map chain selection to chain presets
+const chainPresetMap: Record<ValidChain, ChainPreset> = {
+  base: CHAIN_PRESETS.BASE_MAINNET,
+  mainnet: CHAIN_PRESETS.ETHEREUM_MAINNET,
+};
 
-const config = chainConfig[selectedChain];
+const preset = chainPresetMap[selectedChain];
 
 const envSchema = z.object({
   BASE_URL: z.string().url(),
@@ -67,7 +63,7 @@ const env = envSchema.parse(process.env);
 
 print(
   `🌐 Using ${selectedChain.toUpperCase()} network`,
-  `USDC: ${config.usdcAddress}`,
+  `USDC: ${preset.tokens?.USDC}`
 );
 
 const turnkeyClient = new TurnkeyServerSDK({
@@ -102,25 +98,25 @@ const main = async () => {
 
   const userWalletClient = createWalletClient({
     account: userAccount,
-    chain: config.chain,
+    chain: preset.chain,
     transport: http(rpcUrl),
   });
 
   const paymasterWalletClient = createWalletClient({
     account: paymasterAccount,
-    chain: config.chain,
+    chain: preset.chain,
     transport: http(rpcUrl),
   });
 
   // Create Gas Station clients with the viem wallet clients
   const userClient = new GasStationClient({
     walletClient: userWalletClient,
-    explorerUrl: config.explorerUrl,
+    explorerUrl: preset.explorerUrl,
   });
 
   const paymasterClient = new GasStationClient({
     walletClient: paymasterWalletClient,
-    explorerUrl: config.explorerUrl,
+    explorerUrl: preset.explorerUrl,
   });
 
   // Step 1: Check if EOA is already delegated, authorize if needed
@@ -138,16 +134,22 @@ const main = async () => {
 
   const transferAmount = parseUnits("0.01", 6); // 1 penny in USDC (6 decimals)
 
+  // Get USDC address from preset
+  const usdcAddress = preset.tokens?.USDC;
+  if (!usdcAddress) {
+    throw new Error(`USDC address not configured for ${selectedChain}`);
+  }
+
   // Build the execution parameters using the helper
   const executionParams = buildTokenTransfer(
-    config.usdcAddress as `0x${string}`,
+    usdcAddress,
     env.PAYMASTER as `0x${string}`,
-    transferAmount,
+    transferAmount
   );
 
   print(
     `Executing USDC transfer`,
-    `${transferAmount} units (0.01 USDC) to ${env.PAYMASTER}`,
+    `${transferAmount} units (0.01 USDC) to ${env.PAYMASTER}`
   );
 
   // Step 1: User gets their current nonce
@@ -170,7 +172,7 @@ const main = async () => {
   print("===== USDC Transfer Complete =====", "");
   print(
     "✅ Successfully transferred 1 penny USDC from EOA to paymaster",
-    `TX: ${config.explorerUrl}/tx/${result.txHash}`,
+    `TX: ${preset.explorerUrl}/tx/${result.txHash}`
   );
   print("Gas usage", `${result.gasUsed} gas units`);
 };
