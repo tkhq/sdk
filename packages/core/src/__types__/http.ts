@@ -1,9 +1,9 @@
-import {
+import type {
   v1ActivityResponse,
   v1ActivityStatus,
   v1AuthenticatorParamsV2,
 } from "@turnkey/sdk-types";
-import { TStamp } from "./auth";
+import type { TStamp } from "./auth";
 
 /** @internal */
 export type TActivityStatus = v1ActivityStatus;

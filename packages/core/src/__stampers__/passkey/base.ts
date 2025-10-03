@@ -4,6 +4,7 @@ import type {
   TStamp,
   TStamper,
   TPasskeyStamperConfig,
+  TurnkeyAuthenticatorParams,
 } from "../../__types__";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import {
