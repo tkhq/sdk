@@ -95,6 +95,8 @@ import {
   type FetchBootProofForAppProofParams,
   type TurnkeySDKClientBase,
   type CreateHttpClientParams,
+  BuildWalletLoginRequestParams,
+  BuildWalletLoginRequestResult,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -1508,6 +1510,30 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
       await client.switchWalletAccountChain({ ...params, walletProviders });
+    },
+    [client, callbacks],
+  );
+
+  const buildWalletLoginRequest = useCallback(
+    async (
+      params: BuildWalletLoginRequestParams,
+    ): Promise<BuildWalletLoginRequestResult> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      const expirationSeconds =
+        masterConfig?.auth?.sessionExpirationSeconds ??
+        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+      return await withTurnkeyErrorHandling(
+        () => client.buildWalletLoginRequest({ ...params, expirationSeconds }),
+        () => logout(),
+        callbacks,
+        "Failed to login with wallet",
+      );
     },
     [client, callbacks],
   );
@@ -5329,6 +5355,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         connectWalletAccount,
         disconnectWalletAccount,
         switchWalletAccountChain,
+        buildWalletLoginRequest,
         loginWithWallet,
         signUpWithWallet,
         loginOrSignupWithWallet,
