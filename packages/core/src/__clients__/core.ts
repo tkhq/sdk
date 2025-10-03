@@ -8,7 +8,6 @@ import {
   type v1User,
   TurnkeyError,
   TurnkeyErrorCodes,
-  TurnkeyNetworkError,
   type ProxyTGetWalletKitConfigResponse,
   type v1WalletAccountParams,
   type v1PrivateKey,
@@ -96,6 +95,8 @@ import {
   type CreateApiKeyPairParams,
   type FetchBootProofForAppProofParams,
   type CreateHttpClientParams,
+  type BuildWalletLoginRequestResult,
+  type BuildWalletLoginRequestParams,
 } from "../__types__";
 import {
   buildSignUpBody,
@@ -123,6 +124,7 @@ import {
   mapAccountsToWallet,
   getActiveSessionOrThrowIfRequired,
   fetchAllWalletAccountsWithCursor,
+  sendSignedRequest,
 } from "../utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -755,6 +757,133 @@ export class TurnkeyClient {
     );
   };
 
+  buildWalletLoginRequest = async (
+    params: BuildWalletLoginRequestParams,
+  ): Promise<BuildWalletLoginRequestResult> => {
+    const { walletProvider, publicKey: providedPublicKey } = params;
+    const expirationSeconds =
+      params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
+    let generatedPublicKey: string | undefined = undefined;
+    return withTurnkeyErrorHandling(
+      async () => {
+        if (!this.walletManager?.stamper) {
+          throw new TurnkeyError(
+            "Wallet stamper is not initialized",
+            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+          );
+        }
+
+        const futureSessionPublicKey =
+          providedPublicKey ??
+          (generatedPublicKey = await this.apiKeyStamper?.createKeyPair());
+
+        if (!futureSessionPublicKey) {
+          throw new TurnkeyError(
+            "Failed to find or generate a public key for building the wallet login request",
+            TurnkeyErrorCodes.WALLET_BUILD_LOGIN_REQUEST_ERROR,
+          );
+        }
+
+        this.walletManager.stamper.setProvider(
+          walletProvider.interfaceType,
+          walletProvider,
+        );
+
+        // here we sign the request with the wallet, but we don't send it to Turnkey yet
+        // this is because we need to check if the subOrg exists first, and create one if it doesn't
+        // once we have the subOrg for the publicKey, we then can send the request to Turnkey
+        const signedRequest = await withTurnkeyErrorHandling(
+          async () => {
+            return this.httpClient.stampStampLogin(
+              {
+                publicKey: futureSessionPublicKey,
+                organizationId: this.config.organizationId,
+                expirationSeconds,
+              },
+              StamperType.Wallet,
+            );
+          },
+          {
+            errorMessage: "Failed to create stamped request for wallet login",
+            errorCode: TurnkeyErrorCodes.WALLET_BUILD_LOGIN_REQUEST_ERROR,
+            customErrorsByMessages: {
+              "WalletConnect: The connection request has expired. Please scan the QR code again.":
+                {
+                  message:
+                    "Your WalletConnect session expired. Please scan the QR code again.",
+                  code: TurnkeyErrorCodes.WALLET_CONNECT_EXPIRED,
+                },
+              "Failed to sign the message": {
+                message: "Wallet auth was cancelled by the user.",
+                code: TurnkeyErrorCodes.CONNECT_WALLET_CANCELLED,
+              },
+            },
+          },
+        );
+
+        if (!signedRequest) {
+          throw new TurnkeyError(
+            "Failed to create stamped request for wallet login",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+
+        let publicKey: string | undefined;
+        switch (walletProvider.chainInfo.namespace) {
+          case Chain.Ethereum: {
+            // for Ethereum, there is no way to get the public key from the wallet address
+            // so we derive it from the signed request
+            publicKey = getPublicKeyFromStampHeader(
+              signedRequest.stamp.stampHeaderValue,
+            );
+            break;
+          }
+
+          case Chain.Solana: {
+            // for Solana, we can get the public key from the wallet address
+            // since the wallet address is the public key
+            // this doesn't require any action from the user as long as the wallet is connected
+            // which it has to be since they just called stampStampLogin()
+            publicKey = await this.walletManager.stamper.getPublicKey(
+              walletProvider.interfaceType,
+              walletProvider,
+            );
+            break;
+          }
+
+          default:
+            throw new TurnkeyError(
+              `Unsupported interface type: ${walletProvider.interfaceType}`,
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+        }
+
+        return {
+          signedRequest,
+          publicKey: publicKey,
+        };
+      },
+      {
+        errorCode: TurnkeyErrorCodes.WALLET_BUILD_LOGIN_REQUEST_ERROR,
+        errorMessage: "Failed to build wallet login request",
+        catchFn: async () => {
+          if (generatedPublicKey) {
+            try {
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
+            } catch (cleanupError) {
+              throw new TurnkeyError(
+                `Failed to clean up generated key pair`,
+                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+                cleanupError,
+              );
+            }
+          }
+        },
+      },
+    );
+  };
+
   /**
    * Logs in a user using the specified wallet provider.
    *
@@ -777,7 +906,7 @@ export class TurnkeyClient {
   loginWithWallet = async (
     params: LoginWithWalletParams,
   ): Promise<WalletAuthResult> => {
-    let publicKey =
+    const publicKey =
       params.publicKey || (await this.apiKeyStamper?.createKeyPair());
     return withTurnkeyErrorHandling(
       async () => {
@@ -1151,29 +1280,8 @@ export class TurnkeyClient {
         }
 
         // now we can send the stamped request to Turnkey
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-          [signedRequest.stamp.stampHeaderName]:
-            signedRequest.stamp.stampHeaderValue,
-        };
-
-        const res = await fetch(signedRequest.url, {
-          method: "POST",
-          headers,
-          body: signedRequest.body,
-        });
-
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new TurnkeyNetworkError(
-            `Stamped request failed`,
-            res.status,
-            TurnkeyErrorCodes.WALLET_LOGIN_AUTH_ERROR,
-            errorText,
-          );
-        }
-
-        const sessionResponse = await res.json();
+        const sessionResponse =
+          await sendSignedRequest<TStampLoginResponse>(signedRequest);
         const sessionToken =
           sessionResponse.activity.result.stampLoginResult?.session;
         if (!sessionToken) {

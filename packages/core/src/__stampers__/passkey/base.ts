@@ -4,19 +4,17 @@ import type {
   TStamp,
   TStamper,
   TPasskeyStamperConfig,
+  TurnkeyAuthenticatorParams,
 } from "../../__types__";
 import { WebauthnStamper } from "@turnkey/webauthn-stamper";
 import {
   base64StringToBase64UrlEncodedString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
-import { getWebAuthnAttestation, TurnkeyApiTypes } from "@turnkey/http";
+import { getWebAuthnAttestation } from "@turnkey/http";
 import { v4 as uuidv4 } from "uuid";
 
 let PasskeyStamperModule: typeof import("@turnkey/react-native-passkey-stamper");
-
-export type TurnkeyAuthenticatorParams =
-  TurnkeyApiTypes["v1AuthenticatorParamsV2"];
 
 export class CrossPlatformPasskeyStamper implements TStamper {
   private stamper!: TStamper;

@@ -14,4 +14,5 @@ export * from "./enums";
 export * from "./error";
 export * from "./export";
 export * from "./external-wallets";
+export * from "./http";
 export * from "./method-types";

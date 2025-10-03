@@ -17,6 +17,7 @@ import {
   ProxyTGetWalletKitConfigResponse,
   v1User,
   v1CreatePolicyIntentV3,
+  TurnkeyNetworkError,
 } from "@turnkey/sdk-types";
 import {
   type CreateSubOrgParams,
@@ -30,6 +31,7 @@ import {
   EmbeddedWallet,
   WalletSource,
   StamperType,
+  TSignedRequest,
 } from "./__types__";
 import { bs58 } from "@turnkey/encoding";
 
@@ -956,6 +958,43 @@ export async function getAuthProxyConfig(
 
   const data = await response.json();
   return data as ProxyTGetWalletKitConfigResponse;
+}
+
+/**
+ * Submits a signed request to Turnkey.
+ *
+ * You can pass in the SignedRequest returned by any of the SDK's
+ * stamping methods (stampStampLogin, stampGetPolicies, etc.).
+ *
+ * @param signedRequest A SignedRequest object returned by a stamping method.
+ * @returns The parsed JSON response from Turnkey.
+ * @throws TurnkeyNetworkError if the request fails.
+ */
+export async function sendSignedRequest<T = any>(
+  signedRequest: TSignedRequest,
+): Promise<T> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    [signedRequest.stamp.stampHeaderName]: signedRequest.stamp.stampHeaderValue,
+  };
+
+  const res = await fetch(signedRequest.url, {
+    method: "POST",
+    headers,
+    body: signedRequest.body,
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new TurnkeyNetworkError(
+      "Signed request failed",
+      res.status,
+      TurnkeyErrorCodes.BAD_RESPONSE,
+      errorText,
+    );
+  }
+
+  return res.json() as Promise<T>;
 }
 
 /**
