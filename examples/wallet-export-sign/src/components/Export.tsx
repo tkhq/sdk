@@ -170,7 +170,7 @@ export function Export(props: ExportProps) {
     }
 
     if (!txSerialized || txSerialized.trim() === "") {
-      alert("Please provide a base64 serialized versioned Solana transaction.");
+      alert("Please provide a Solana transaction.");
       return;
     }
 
@@ -218,7 +218,7 @@ export function Export(props: ExportProps) {
               }}
             >
               <strong>Sign arbitrary message</strong>
-              <small style={{ color: "#666" }}>ED25519 signature</small>
+              <small style={{ color: "#666" }}>ed25519 signature</small>
             </div>
 
             <textarea
@@ -260,7 +260,7 @@ export function Export(props: ExportProps) {
             {signature ? (
               <div style={{ marginTop: 12 }}>
                 <div style={{ fontSize: 13, color: "#444" }}>
-                  Signature (base64 / hex depending on backend)
+                  Signature (hex)
                 </div>
                 <div style={{ ...monoBox, marginTop: 8 }}>{signature}</div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
@@ -285,15 +285,13 @@ export function Export(props: ExportProps) {
               }}
             >
               <strong>Sign Solana transaction</strong>
-              <small style={{ color: "#666" }}>
-                Versioned transaction (base64)
-              </small>
+              <small style={{ color: "#666" }}>Hex-encoded transaction</small>
             </div>
 
             <textarea
               value={txSerialized}
               onChange={(e) => setTxSerialized(e.target.value)}
-              placeholder="Paste base64 serialized versioned transaction here"
+              placeholder="Paste hex-encoded transaction here"
               style={{
                 width: "100%",
                 height: 120,
@@ -330,7 +328,7 @@ export function Export(props: ExportProps) {
             {txSigned ? (
               <div style={{ marginTop: 12 }}>
                 <div style={{ fontSize: 13, color: "#444" }}>
-                  Signed transaction (base64)
+                  Signed transaction (hex)
                 </div>
                 <div style={{ ...monoBox, marginTop: 8 }}>{txSigned}</div>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>

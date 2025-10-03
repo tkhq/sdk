@@ -10,6 +10,7 @@ import { Export } from "@/components/Export";
 type ExportWalletAccountProps = {
   organizationId: string;
   walletAccountAddress: string;
+  addressFormat: string;
 };
 
 export function ExportWalletAccount(props: ExportWalletAccountProps) {
@@ -38,7 +39,7 @@ export function ExportWalletAccount(props: ExportWalletAccountProps) {
     let injected = await iframeStamper.injectKeyExportBundle(
       response.data["exportBundle"],
       props.organizationId,
-      KeyFormat.Solana,
+      KeyFormat.Hexadecimal,
     );
     if (injected !== true) {
       alert("Unexpected error while injecting export bundle.");
@@ -108,7 +109,7 @@ export function ExportWalletAccount(props: ExportWalletAccountProps) {
           iframeDisplay={iframeDisplay}
           iframeUrl={process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!}
           turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
-          showSigning={true}
+          showSigning={props.addressFormat === "ADDRESS_FORMAT_SOLANA"}
         />
       </div>
     </div>

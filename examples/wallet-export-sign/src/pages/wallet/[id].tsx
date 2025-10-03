@@ -22,9 +22,8 @@ export default function WalletDetailsPage() {
   const [wallet, setWallet] = useState<TWallet | null>(null);
   const [accounts, setAccounts] = useState<TWalletAccount[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedWalletAccount, setSelectedWalletAccount] = useState<
-    string | null
-  >(null);
+  const [selectedWalletAccount, setSelectedWalletAccount] =
+    useState<TWalletAccount | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Get wallet and accounts data
@@ -151,7 +150,7 @@ export default function WalletDetailsPage() {
                         <button
                           className={styles.exportButton}
                           onClick={() => {
-                            setSelectedWalletAccount(account.address);
+                            setSelectedWalletAccount(account);
                             setIsExportModalOpen(true);
                           }}
                         >
@@ -196,7 +195,8 @@ export default function WalletDetailsPage() {
         >
           <ExportWalletAccount
             organizationId={process.env.NEXT_PUBLIC_ORGANIZATION_ID!}
-            walletAccountAddress={selectedWalletAccount}
+            walletAccountAddress={selectedWalletAccount.address}
+            addressFormat={selectedWalletAccount.addressFormat}
           />
         </Modal>
       )}
