@@ -32,7 +32,7 @@ type ValidChain = (typeof validChains)[number];
 
 if (!validChains.includes(values.chain as ValidChain)) {
   console.error(
-    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`
+    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`,
   );
   process.exit(1);
 }
@@ -70,7 +70,7 @@ const env = envSchema.parse(process.env);
 
 print(
   `🌐 Using ${selectedChain.toUpperCase()} network`,
-  `USDC: ${config.usdcAddress}`
+  `USDC: ${config.usdcAddress}`,
 );
 
 const turnkeyClient = new TurnkeyServerSDK({
@@ -145,12 +145,12 @@ const main = async () => {
   const executionParams = buildTokenTransfer(
     config.usdcAddress as `0x${string}`,
     env.PAYMASTER as `0x${string}`,
-    transferAmount
+    transferAmount,
   );
 
   print(
     `Executing USDC transfer`,
-    `${transferAmount} units (0.01 USDC) to ${env.PAYMASTER}`
+    `${transferAmount} units (0.01 USDC) to ${env.PAYMASTER}`,
   );
 
   // Step 1: User gets their current nonce
@@ -173,7 +173,7 @@ const main = async () => {
   print("===== USDC Transfer Complete =====", "");
   print(
     "✅ Successfully transferred 1 penny USDC from EOA to paymaster",
-    `TX: ${config.explorerUrl}/tx/${result.txHash}`
+    `TX: ${config.explorerUrl}/tx/${result.txHash}`,
   );
   print("Gas usage", `${result.gasUsed} gas units`);
 };

@@ -32,7 +32,7 @@ type ValidChain = (typeof validChains)[number];
 
 if (!validChains.includes(values.chain as ValidChain)) {
   console.error(
-    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`
+    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`,
   );
   process.exit(1);
 }
@@ -68,7 +68,7 @@ const env = envSchema.parse(process.env);
 
 print(
   `🌐 Using ${selectedChain.toUpperCase()} network`,
-  `ETH transfers on ${config.chain.name}`
+  `ETH transfers on ${config.chain.name}`,
 );
 
 const turnkeyClient = new TurnkeyServerSDK({
@@ -142,12 +142,12 @@ const main = async () => {
   // Build the execution parameters using the helper
   const executionParams = buildETHTransfer(
     env.PAYMASTER as `0x${string}`, // transfer eth to paymaster from EOA
-    transferAmount
+    transferAmount,
   );
 
   print(
     `Executing ETH transfer`,
-    `${transferAmount} wei (0.0001 ETH) to ${env.PAYMASTER}`
+    `${transferAmount} wei (0.0001 ETH) to ${env.PAYMASTER}`,
   );
 
   // Step 1: User gets their current nonce
@@ -170,7 +170,7 @@ const main = async () => {
   print("===== ETH Transfer Complete =====", "");
   print(
     "✅ Successfully transferred 0.001 ETH from EOA to paymaster",
-    `TX: ${config.explorerUrl}/tx/${result.txHash}`
+    `TX: ${config.explorerUrl}/tx/${result.txHash}`,
   );
   print("Gas usage", `${result.gasUsed} gas units`);
 };

@@ -28,7 +28,7 @@ export function formatTransferDetails(
   decimals: number,
   symbol: string,
   from: string,
-  to: string
+  to: string,
 ): string {
   const formattedAmount = Number(amount) / Math.pow(10, decimals);
   return `${formattedAmount} ${symbol} from ${from.slice(0, 10)}... to ${to.slice(0, 10)}...`;
@@ -81,7 +81,7 @@ export interface ExecutionParams {
 export function buildTokenTransfer(
   token: Address,
   to: Address,
-  amount: bigint
+  amount: bigint,
 ): ExecutionParams {
   return {
     outputContract: token,
@@ -111,7 +111,7 @@ export function buildETHTransfer(to: Address, amount: bigint): ExecutionParams {
 export function buildTokenApproval(
   token: Address,
   spender: Address,
-  amount: bigint
+  amount: bigint,
 ): ExecutionParams {
   return {
     outputContract: token,
@@ -150,7 +150,7 @@ export function buildContractCall(params: {
  */
 export function buildETHTransferFromEther(
   to: Address,
-  etherAmount: string
+  etherAmount: string,
 ): ExecutionParams {
   return buildETHTransfer(to, parseEther(etherAmount));
 }
@@ -171,7 +171,7 @@ export function packExecutionData(
   nonce: bigint,
   to: Address,
   value: bigint,
-  arguments_: Hex
+  arguments_: Hex,
 ): Hex {
   return concat([
     signature, // 65 bytes
@@ -196,7 +196,7 @@ export function packExecutionDataNoValue(
   signature: Hex,
   nonce: bigint,
   to: Address,
-  arguments_: Hex
+  arguments_: Hex,
 ): Hex {
   return concat([
     signature, // 65 bytes

@@ -32,7 +32,7 @@ export class GasStationClient {
     this.walletClient = config.walletClient;
     this.publicClient = createPublicClientForChain(
       config.walletClient.chain,
-      config.walletClient.transport.url!
+      config.walletClient.transport.url!,
     );
     this.delegateContract =
       config.delegateContract ?? DEFAULT_DELEGATE_CONTRACT;
@@ -66,7 +66,7 @@ export class GasStationClient {
    * The paymaster pays for the gas
    */
   async submitAuthorization(
-    authorization: SignedAuthorization
+    authorization: SignedAuthorization,
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
     print("Submitting authorization transaction...", "");
 
@@ -81,7 +81,7 @@ export class GasStationClient {
 
     print(
       "Authorization transaction sent",
-      `${this.explorerUrl}/tx/${authTxHash}`
+      `${this.explorerUrl}/tx/${authTxHash}`,
     );
     print("Waiting for confirmation...", "");
 
@@ -93,7 +93,7 @@ export class GasStationClient {
       print("✅ Authorization SUCCEEDED", "");
       print(
         "Confirmed",
-        `Block: ${receipt.blockNumber}, Gas: ${receipt.gasUsed}`
+        `Block: ${receipt.blockNumber}, Gas: ${receipt.gasUsed}`,
       );
     } else {
       print("❌ Authorization FAILED", "");
@@ -109,7 +109,7 @@ export class GasStationClient {
    * For separate flows, use signAuthorization() and submitAuthorization() directly
    */
   async authorize(
-    paymasterClient: GasStationClient
+    paymasterClient: GasStationClient,
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
     print("===== Starting EIP-7702 Authorization =====", "");
 
@@ -132,7 +132,7 @@ export class GasStationClient {
       retries++;
       if (retries === maxRetries) {
         throw new Error(
-          "Delegation verification failed - account code not set after authorization"
+          "Delegation verification failed - account code not set after authorization",
         );
       }
       // Wait 1 second before retrying
@@ -183,7 +183,7 @@ export class GasStationClient {
   createIntent(): IntentBuilder {
     if (!this.walletClient.account?.address) {
       throw new Error(
-        `Wallet client account is not properly configured. Account: ${JSON.stringify(this.walletClient.account)}`
+        `Wallet client account is not properly configured. Account: ${JSON.stringify(this.walletClient.account)}`,
       );
     }
     return IntentBuilder.create({
@@ -211,13 +211,13 @@ export class GasStationClient {
             intent.nonce,
             intent.outputContract,
             intent.ethAmount,
-            intent.callData
+            intent.callData,
           )
         : packExecutionDataNoValue(
             intent.signature,
             intent.nonce,
             intent.outputContract,
-            intent.callData
+            intent.callData,
           );
 
     // Determine which function to call based on ETH amount
@@ -255,7 +255,7 @@ export class GasStationClient {
    * Call this with a paymaster client to submit and pay for the transaction.
    */
   async execute(
-    intent: ExecutionIntent
+    intent: ExecutionIntent,
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint; gasUsed: bigint }> {
     print("Executing intent via gas station...", "");
 
@@ -267,13 +267,13 @@ export class GasStationClient {
             intent.nonce,
             intent.outputContract,
             intent.ethAmount,
-            intent.callData
+            intent.callData,
           )
         : packExecutionDataNoValue(
             intent.signature,
             intent.nonce,
             intent.outputContract,
-            intent.callData
+            intent.callData,
           );
 
     // Determine which function to call based on ETH amount
@@ -301,7 +301,7 @@ export class GasStationClient {
       print("✅ Execution SUCCEEDED", "");
       print(
         "Confirmed",
-        `Block: ${receipt.blockNumber}, Gas: ${receipt.gasUsed}`
+        `Block: ${receipt.blockNumber}, Gas: ${receipt.gasUsed}`,
       );
     } else {
       print("❌ Execution FAILED", "");

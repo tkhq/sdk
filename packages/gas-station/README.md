@@ -100,4 +100,3 @@ Pre-configured settings for popular chains:
 ## License
 
 MIT
-

@@ -92,7 +92,7 @@ export class IntentBuilder {
   approveToken(
     token: `0x${string}`,
     spender: `0x${string}`,
-    amount: bigint
+    amount: bigint,
   ): this {
     return this.callContract({
       contract: token,
@@ -119,7 +119,7 @@ export class IntentBuilder {
   async sign(currentNonce: bigint): Promise<ExecutionIntent> {
     if (!this.outputContract) {
       throw new Error(
-        "No target contract set. Use setTarget() or callContract()"
+        "No target contract set. Use setTarget() or callContract()",
       );
     }
 

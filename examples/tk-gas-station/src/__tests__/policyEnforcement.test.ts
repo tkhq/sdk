@@ -240,7 +240,7 @@ describe("Gas Station Policy Enforcement", () => {
       const executionParams = buildTokenTransfer(
         USDC_ADDRESS as `0x${string}`,
         eoaWalletAddress,
-        parseUnits("1", 6)
+        parseUnits("1", 6),
       );
       const builder = gasStationClient.createIntent();
       const intent = await builder
@@ -259,7 +259,7 @@ describe("Gas Station Policy Enforcement", () => {
       const executionParams = buildTokenTransfer(
         DAI_ADDRESS as `0x${string}`,
         eoaWalletAddress,
-        parseUnits("1", 18)
+        parseUnits("1", 18),
       );
       const builder = gasStationClient.createIntent();
 
@@ -268,7 +268,7 @@ describe("Gas Station Policy Enforcement", () => {
           .setTarget(executionParams.outputContract)
           .withValue(executionParams.value ?? 0n)
           .withCallData(executionParams.callData)
-          .sign(nonce)
+          .sign(nonce),
       ).rejects.toThrow();
     });
 
@@ -290,7 +290,7 @@ describe("Gas Station Policy Enforcement", () => {
       const executionParams = buildTokenTransfer(
         DAI_ADDRESS as `0x${string}`,
         eoaWalletAddress,
-        parseUnits("1", 18)
+        parseUnits("1", 18),
       );
       const builder = gasStationClient.createIntent();
       const intent = await builder
@@ -314,7 +314,7 @@ describe("Gas Station Policy Enforcement", () => {
       const usdcParams = buildTokenTransfer(
         USDC_ADDRESS as `0x${string}`,
         eoaWalletAddress,
-        parseUnits("1", 6)
+        parseUnits("1", 6),
       );
       const builder1 = gasStationClient.createIntent();
       usdcIntent = await builder1
@@ -328,7 +328,7 @@ describe("Gas Station Policy Enforcement", () => {
       const daiParams = buildTokenTransfer(
         DAI_ADDRESS as `0x${string}`,
         eoaWalletAddress,
-        parseUnits("1", 18)
+        parseUnits("1", 18),
       );
       const builder2 = gasStationClient.createIntent();
       daiIntent = await builder2
@@ -348,7 +348,7 @@ describe("Gas Station Policy Enforcement", () => {
 
     it("should block paymaster from signing DAI execution (not in policy)", async () => {
       await expect(
-        paymasterGasStationClient.signExecution(daiIntent)
+        paymasterGasStationClient.signExecution(daiIntent),
       ).rejects.toThrow(/permission/i);
     });
   });
