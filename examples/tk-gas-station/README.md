@@ -101,7 +101,7 @@ const intent = await userClient
   .transferToken(
     usdcAddress,
     recipientAddress,
-    parseUnits("10", 6) // 10 USDC
+    parseUnits("10", 6), // 10 USDC
   )
   .sign(nonce);
 
