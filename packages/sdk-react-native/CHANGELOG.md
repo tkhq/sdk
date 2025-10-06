@@ -1,5 +1,12 @@
 # @turnkey/sdk-react-native
 
+## 1.5.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.8.1
+
 ## 1.5.3
 
 ### Patch Changes

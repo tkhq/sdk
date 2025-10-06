@@ -1,5 +1,23 @@
 # @turnkey/react-wallet-kit
 
+## 1.3.0
+
+### Minor Changes
+
+- [#986](https://github.com/tkhq/sdk/pull/986) [`6ceb06e`](https://github.com/tkhq/sdk/commit/6ceb06ebdbb11b017ed97e81a7e0dcb862813bfa) Author [@amircheikh](https://github.com/amircheikh) - - Added `defaultStamperType` param to the configuration. This will force the underlying `httpClient` to default to a specific stamper for all requests
+  - Added `createHttpClient` function. This allows a duplicate instance of `TurnkeySDKClientBase` to be created and returned. Custom configuration can be passed in to create an entirely new client with a unique config. This is useful for creating different HTTP clients with different default stampers to be used in our helper packages (`@turnkey/viem`, `@turnkey/ethers`, etc)
+
+- [#993](https://github.com/tkhq/sdk/pull/993) [`68631c4`](https://github.com/tkhq/sdk/commit/68631c4008387f845dfe4f1a139981011727f6c9) Author [@moeodeh3](https://github.com/moeodeh3) - - Added `sendSignedRequest()` to execute any `TSignedRequest` returned by SDK stamping methods.
+  - Added `buildWalletLoginRequest()` method, which prepares and signs a wallet login request without sending it to Turnkey, returning the `stampLogin` signed request alongside the wallet’s public key used for login.
+
+### Patch Changes
+
+- [#989](https://github.com/tkhq/sdk/pull/989) [`9ca7b8b`](https://github.com/tkhq/sdk/commit/9ca7b8bdf7cb897948d377d544b85b69a98b7a29) Author [@amircheikh](https://github.com/amircheikh) - Padding and margin styles are now only forced under `.tk-modal`
+
+- Updated dependencies [[`68631c4`](https://github.com/tkhq/sdk/commit/68631c4008387f845dfe4f1a139981011727f6c9), [`6ceb06e`](https://github.com/tkhq/sdk/commit/6ceb06ebdbb11b017ed97e81a7e0dcb862813bfa), [`68631c4`](https://github.com/tkhq/sdk/commit/68631c4008387f845dfe4f1a139981011727f6c9)]:
+  - @turnkey/sdk-types@0.6.1
+  - @turnkey/core@1.4.0
+
 ## 1.2.0
 
 ### Minor Changes
