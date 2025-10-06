@@ -230,7 +230,6 @@ export class GasStationClient {
       eoaWalletClient: this.walletClient,
       chainId: this.walletClient.chain.id,
       eoaAddress: this.walletClient.account.address,
-      nonceType: "uint128",
     });
   }
 

@@ -12,7 +12,6 @@ interface IntentBuilderConfig {
   eoaWalletClient: WalletClient<Transport, Chain, Account>;
   chainId: number;
   eoaAddress: `0x${string}`;
-  nonceType: "uint128" | "uint256";
 }
 
 export class IntentBuilder {
@@ -135,7 +134,7 @@ export class IntentBuilder {
 
     const types = {
       Execution: [
-        { name: "nonce", type: this.config.nonceType },
+        { name: "nonce", type: "uint128" },
         { name: "outputContract", type: "address" },
         { name: "ethAmount", type: "uint256" },
         { name: "arguments", type: "bytes" },
