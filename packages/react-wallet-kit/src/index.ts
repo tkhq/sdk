@@ -18,4 +18,10 @@ export type * from "@turnkey/core/dist/__types__/export";
 /** @internal */
 export type * from "@turnkey/core/dist/__types__/external-wallets";
 /** @internal */
+export type * from "@turnkey/core/dist/__types__/http";
+/** @internal */
 export type * from "@turnkey/core/dist/__types__/method-types";
+
+// bubble up util functions from core
+/** @internal */
+export { sendSignedRequest } from "@turnkey/core/dist/utils";
