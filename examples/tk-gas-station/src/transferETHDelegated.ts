@@ -145,7 +145,7 @@ const main = async () => {
   // Step 2: Execute ETH transfer using the generic execute API with helpers
   print("===== Starting ETH Transfer =====", "");
 
-  const transferAmount = parseEther("0.0001"); // 0.0001 ETH
+  const transferAmount = parseEther("0.00001"); // 0.0001 ETH
 
   // Build the execution parameters using the helper
   const executionParams = buildETHTransfer(

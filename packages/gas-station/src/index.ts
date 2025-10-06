@@ -10,7 +10,6 @@ export {
   buildETHTransferFromEther,
   buildContractCall,
   packExecutionData,
-  packExecutionDataNoValue,
 } from "./gasStationUtils";
 
 // Type exports

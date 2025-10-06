@@ -17,7 +17,6 @@ import { IntentBuilder } from "./intentBuilder";
 import {
   createPublicClientForChain,
   packExecutionData,
-  packExecutionDataNoValue,
 } from "./gasStationUtils";
 
 export class GasStationClient {
@@ -241,21 +240,13 @@ export class GasStationClient {
    */
   async signExecution(intent: ExecutionIntent): Promise<`0x${string}`> {
     // Pack the execution data based on whether we're sending ETH
-    const packedData =
-      intent.ethAmount > 0n
-        ? packExecutionData(
-            intent.signature,
-            intent.nonce,
-            intent.outputContract,
-            intent.ethAmount,
-            intent.callData,
-          )
-        : packExecutionDataNoValue(
-            intent.signature,
-            intent.nonce,
-            intent.outputContract,
-            intent.callData,
-          );
+    const packedData = packExecutionData({
+      signature: intent.signature,
+      nonce: intent.nonce,
+      to: intent.outputContract,
+      ...(intent.ethAmount > 0n && { value: intent.ethAmount }),
+      arguments: intent.callData,
+    });
 
     // Determine which function to call based on ETH amount
     const functionName = intent.ethAmount > 0n ? "execute" : "executeNoValue";
@@ -290,21 +281,13 @@ export class GasStationClient {
     intent: ExecutionIntent,
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint; gasUsed: bigint }> {
     // Pack the execution data based on whether we're sending ETH
-    const packedData =
-      intent.ethAmount > 0n
-        ? packExecutionData(
-            intent.signature,
-            intent.nonce,
-            intent.outputContract,
-            intent.ethAmount,
-            intent.callData,
-          )
-        : packExecutionDataNoValue(
-            intent.signature,
-            intent.nonce,
-            intent.outputContract,
-            intent.callData,
-          );
+    const packedData = packExecutionData({
+      signature: intent.signature,
+      nonce: intent.nonce,
+      to: intent.outputContract,
+      value: intent.ethAmount,
+      arguments: intent.callData,
+    });
 
     // Determine which function to call based on ETH amount
     const functionName = intent.ethAmount > 0n ? "execute" : "executeNoValue";
