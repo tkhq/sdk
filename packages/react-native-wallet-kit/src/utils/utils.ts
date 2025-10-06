@@ -1,16 +1,11 @@
 import  {
-  type AuthAction,
-  BaseAuthResult,
   Session,
   TurnkeyError,
   TurnkeyErrorCodes,
 } from "@turnkey/sdk-types";
-import type { TurnkeyCallbacks } from "../types/base";
-import { useCallback, useRef, useState, useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCallback, useRef } from "react";
 import { sha256 } from "@noble/hashes/sha256";
 import { stringToBase64urlString } from "@turnkey/encoding";
-import { WalletInterfaceType, type WalletProvider } from "@turnkey/core";
 
 export const DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize";
 export const X_AUTH_URL = "https://x.com/i/oauth2/authorize";
@@ -46,12 +41,6 @@ export const authErrors = {
   // OAuth-related errors
   oauth: {
     loginFailed: "Failed to login with OAuth provider",
-  },
-
-  // Wallet-related errors
-  wallet: {
-    loginFailed: "Failed to login with wallet",
-    noPublicKey: "No public key found",
   },
 
   // Sub-organization-related errors
@@ -265,141 +254,5 @@ export async function generateChallengePair(): Promise<{
     }
   
     return await response.json();
-  }
-  
-  export async function handleFacebookPKCEFlow({
-    code,
-    publicKey,
-    openModal,
-    clientId,
-    redirectURI,
-    callbacks,
-    completeOauth,
-    onPushPage,
-  }: {
-    code: string;
-    publicKey: string;
-    openModal?: string | null;
-    clientId: string;
-    redirectURI: string;
-    callbacks?: TurnkeyCallbacks | undefined;
-    completeOauth: (params: {
-      oidcToken: string;
-      publicKey: string;
-    }) => Promise<BaseAuthResult & { action: AuthAction }>;
-    onPushPage: (idToken: string) => Promise<void>;
-  }): Promise<void> {
-    // Retrieve the verifier stored during OAuth initiation
-    const verifier = await AsyncStorage.getItem("facebook_verifier");
-    if (!verifier) {
-      throw new TurnkeyError(
-        "Missing PKCE verifier for Facebook authentication",
-        TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-      );
-    }
-  
-    try {
-      // Exchange the code for a token
-      const tokenData = await exchangeCodeForToken(
-        clientId,
-        redirectURI,
-        code,
-        verifier,
-      );
-  
-      // Clean up the verifier as it's no longer needed
-      await AsyncStorage.removeItem("facebook_verifier");
-  
-      // Handle different UI flows based on openModal parameter
-      if (openModal === "true") {
-        await onPushPage(tokenData.id_token);
-      } else if (callbacks?.onOauthRedirect) {
-        callbacks.onOauthRedirect({
-          idToken: tokenData.id_token,
-          publicKey,
-        });
-      } else {
-        await completeOauth({
-          oidcToken: tokenData.id_token,
-          publicKey,
-        });
-      }
-  
-      // Clean up the URL after processing
-      window.history.replaceState(null, document.title, window.location.pathname);
-  
-      return;
-    } catch (error) {
-      console.error("Error exchanging Facebook code for token:", error);
-      throw new TurnkeyError(
-        "Failed to complete Facebook authentication",
-        TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-        error,
-      );
-    }
-  }
-  
-  // Custom hook to get the current screen size
-  export function useScreenSize() {
-    const [width, setWidth] = useState(
-      typeof window !== "undefined" ? window.innerWidth : 1024,
-    );
-  
-    useEffect(() => {
-      const handleResize = () => setWidth(window.innerWidth);
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-  
-    return {
-      width,
-  
-      // I have no idea why but, Tailwind's responsive design breakpoints do not work. Throughout the modal components, you will see conditional styling using this `isMobile` variable.
-      // This is fine since we only need to style for 2 screen sizes: mobile and desktop. If anyone can figure out why Tailwind's responsive design breakpoints do not work, please fix it and restyle the components accordingly, changing the `isMobile` to the Tailwind stuff when applicable.
-      isMobile: width < 640,
-    };
-  }
-  
-  export function isWalletConnect(wallet: WalletProvider): boolean {
-    return wallet.interfaceType == WalletInterfaceType.WalletConnect;
-  }
-  
-  export function useWalletProviderState(initialState: WalletProvider[] = []) {
-    const [walletProviders, setWalletProviders] =
-      useState<WalletProvider[]>(initialState);
-    const prevProvidersRef = useRef<WalletProvider[]>(initialState);
-  
-    function isSameWalletProvider(a: WalletProvider[], b: WalletProvider[]) {
-      if (a.length !== b.length) return false;
-  
-      const key = (provider: WalletProvider) => {
-        const name = provider.info.name;
-        const namespace = provider.chainInfo.namespace;
-        const interfaceType = provider.interfaceType;
-        const connectedAddresses = [...provider.connectedAddresses]
-          .map((x) => x.toLowerCase())
-          .sort()
-          .join(",");
-        return `${namespace}|${interfaceType}|${name}|${connectedAddresses}`;
-      };
-  
-      const A = a.map(key).sort();
-      const B = b.map(key).sort();
-      for (let i = 0; i < A.length; i++) if (A[i] !== B[i]) return false;
-      return true;
-    }
-  
-    const updateWalletProviders = useCallback(
-      (newProviders: WalletProvider[]) => {
-        if (!isSameWalletProvider(prevProvidersRef.current, newProviders)) {
-          prevProvidersRef.current = newProviders;
-          setWalletProviders(newProviders);
-        }
-        // we do nothing if the wallet providers are the same
-      },
-      [],
-    );
-  
-    return [walletProviders, updateWalletProviders] as const;
   }
   

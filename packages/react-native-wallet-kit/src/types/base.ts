@@ -77,8 +77,6 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
     };
     /** passkey enablement and options */
     passkey?: boolean | { passkeyName?: string };
-    /** wallet auth enablement */
-    wallet?: boolean;
     /** parameters for creating a sub-organization for each authentication method. */
     createSuborgParams?: {
       /** parameters for email OTP authentication. */
@@ -87,8 +85,6 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
       smsOtpAuth?: CreateSubOrgParams;
       /** parameters for passkey authentication. */
       passkeyAuth?: CreateSubOrgParams & { passkeyName?: string };
-      /** parameters for wallet authentication. */
-      walletAuth?: CreateSubOrgParams;
       /** parameters for OAuth authentication. */
       oauth?: CreateSubOrgParams;
     };

@@ -1,37 +1,28 @@
 "use client";
 
-
 import {
   isValidSession,
   SESSION_WARNING_THRESHOLD_MS,
-  useDebouncedCallback,
-  useWalletProviderState,
   withTurnkeyErrorHandling,
   TURNKEY_OAUTH_ORIGIN_URL,
   TURNKEY_OAUTH_REDIRECT_URL,
   DISCORD_AUTH_URL,
   X_AUTH_URL,
-  FACEBOOK_AUTH_URL,
   generateChallengePair,
   exchangeCodeForToken,
-} from "../utils/utils";
-import {
   type TimerMap,
   clearKey,
   clearAll,
   setCappedTimeoutInMap,
   setTimeoutInMap,
   clearKeys,
-} from "../utils/timers";
+} from "../utils";
+
 import {
   getAuthProxyConfig,
-  Chain,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   OtpType,
   TurnkeyClient,
-  WalletInterfaceType,
-  WalletProvider,
-  WalletSource,
   type AddOauthProviderParams,
   type AddPasskeyParams,
   type ClearSessionParams,
@@ -58,11 +49,9 @@ import {
   type ImportPrivateKeyParams,
   type ImportWalletParams,
   type InitOtpParams,
-  type LoginOrSignupWithWalletParams,
   type LoginWithOauthParams,
   type LoginWithOtpParams,
   type LoginWithPasskeyParams,
-  type LoginWithWalletParams,
   type LogoutParams,
   type RefreshSessionParams,
   type RemoveOauthProvidersParams,
@@ -76,9 +65,7 @@ import {
   type SignUpWithOauthParams,
   type SignUpWithOtpParams,
   type SignUpWithPasskeyParams,
-  type SignUpWithWalletParams,
   type StoreSessionParams,
-  type SwitchWalletAccountChainParams,
   type UpdateUserEmailParams,
   type UpdateUserNameParams,
   type UpdateUserPhoneNumberParams,
@@ -86,9 +73,6 @@ import {
   type Wallet,
   type WalletAccount,
   type VerifyOtpResult,
-  type ConnectedWallet,
-  StamperType,
-  OAuthProviders,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
@@ -109,11 +93,8 @@ import {
   type v1User,
   type v1PrivateKey,
   type BaseAuthResult,
-  type WalletAuthResult,
   AuthAction,
   type PasskeyAuthResult,
-  v1HashFunction,
-  v1PayloadEncoding,
 } from "@turnkey/sdk-types";
 
 import {
@@ -128,13 +109,8 @@ import {
 import type {
   HandleAppleOauthParams,
   HandleDiscordOauthParams,
-  HandleExportPrivateKeyParams,
-  HandleExportWalletAccountParams,
-  HandleExportWalletParams,
   HandleFacebookOauthParams,
   HandleGoogleOauthParams,
-  HandleRemoveOauthProviderParams,
-  HandleRemovePasskeyParams,
   HandleXOauthParams,
   RefreshUserParams,
   RefreshWalletsParams,
@@ -164,7 +140,6 @@ interface TurnkeyProviderProps {
  * - Session management: creation, expiration scheduling, refresh, and clearing.
  * - Wallet management: fetch, connect, import, export, account management.
  * - User profile management: email, phone, name, OAuth provider, and passkey linking/removal.
- * - Modal-driven UI flows for authentication, wallet connecting, and profile updates.
  * - Error handling and callback integration for custom error and event responses.
  *
  * Usage:
@@ -193,10 +168,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     AuthState.Unauthenticated,
   );
 
-  // we use this custom hook to only update the state if the value is different
-  // this is so our useEffect that calls `initializeWalletProviderListeners()` only runs when it needs to
-  const [walletProviders, setWalletProviders] = useWalletProviderState();
-
   const expiryTimeoutsRef = useRef<TimerMap>({});
   const proxyAuthConfigRef = useRef<ProxyTGetWalletKitConfigResponse | null>(
     null,
@@ -205,10 +176,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
   >(undefined);
-
-  const completeRedirectOauth = async () => {
-    // @TODO: Implement for react-native if applicable
-  };
 
   const buildConfig = (
     proxyAuthConfig?: ProxyTGetWalletKitConfigResponse | undefined,
@@ -221,10 +188,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     const smsOtpEnabled =
       config.auth?.otp?.sms ??
       (proxyAuthConfig?.enabledProviders.includes("sms") ?? false);
-
-    // Resolve wallet enablement (defaults to true if not specified anywhere)
-    const walletEnabledCandidate =
-      config.auth?.wallet ?? proxyAuthConfig?.enabledProviders.includes("wallet");
 
     // Resolve shared redirect; do NOT attach scheme here. We'll attach in handler on demand.
     const appScheme = config.auth?.oauth?.appScheme ?? undefined;
@@ -289,11 +252,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         ...config.walletConfig,
         features: {
           ...config.walletConfig?.features,
-          auth:
-            // If wallet is not set, default to true. Wallet auth can be enabled/disabled in the dashboard or by explicitly changing auth.wallet / walletConfig auth feature.
-            (walletEnabledCandidate ??
-            config.walletConfig?.features?.auth ??
-            true),
+          auth: false,
           connecting: config.walletConfig?.features?.connecting ?? true, // Default connecting to true if not set. We don't care about auth settings here.
         },
         chains: {
@@ -466,153 +425,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       }
     }
   };
-
-  /**
-   * @internal
-   * Attach listeners for connected wallet providers so we can refresh state on changes.
-   *
-   * - Ethereum: listens for disconnect and chain/account changes to trigger a refresh.
-   * - Solana: listens for disconnect via Wallet Standard `change` events to trigger a refresh.
-   * - WalletConnect:
-   *    - listens for disconnect and other state changes via its unified `change` event
-   *    - additionally listens for `pairingExpired` events (proposal expiration), in which
-   *      case we re-fetch providers to refresh the pairing URI for the UI.
-   *
-   * Notes:
-   * - Only connected providers are bound, except WalletConnect which must always register
-   *   to handle proposal expiration even if no active session exists.
-   * - Since all WalletConnect providers share the same session, we only attach to one.
-   *
-   * @param walletProviders - Discovered providers; only connected ones are bound.
-   * @param onUpdateState - Invoked when a relevant provider event occurs.
-   * @returns Cleanup function that removes all listeners registered by this call.
-   */
-  async function initializeWalletProviderListeners(
-    walletProviders: WalletProvider[],
-    onUpdateState: () => Promise<void>,
-  ): Promise<() => void> {
-    if (walletProviders.length === 0) return () => {};
-
-    const cleanups: Array<() => void> = [];
-
-    // we only want to initialize these listeners for connected walletProviders
-    const nativeOnly = (provider: WalletProvider) =>
-      provider.interfaceType !== WalletInterfaceType.WalletConnect;
-
-    const ethProviders = masterConfig?.walletConfig?.chains.ethereum?.native
-      ? walletProviders.filter(
-          (provider) =>
-            provider.chainInfo.namespace === Chain.Ethereum &&
-            nativeOnly(provider) &&
-            provider.connectedAddresses.length > 0,
-        )
-      : [];
-
-    const solProviders = masterConfig?.walletConfig?.chains.solana?.native
-      ? walletProviders.filter(
-          (provider) =>
-            provider.chainInfo.namespace === Chain.Solana &&
-            nativeOnly(provider) &&
-            provider.connectedAddresses.length > 0,
-        )
-      : [];
-
-    // WalletConnect is excluded from native event wiring. Instead,
-    // it uses a unified `change` event exposed by our custom wrapper
-    //
-    // unlike native providers, we register listeners for WalletConnect
-    // even if it's not currently "connected". This is required so we
-    // can detect proposal expiration events and display the new regenerated
-    // URI for the UI
-    const wcProviders = walletProviders.filter(
-      (p) => p.interfaceType === WalletInterfaceType.WalletConnect,
-    );
-
-    // since all WalletConnect providers share the same underlying session
-    // and emit identical events, we only attach listeners to a single provider
-    const wcProvider = wcProviders.find(
-      (p) => p.interfaceType === WalletInterfaceType.WalletConnect,
-    );
-
-    function attachEthereumListeners(
-      provider: any,
-      onUpdateState: () => Promise<void>,
-    ) {
-      if (typeof provider.on !== "function") return;
-
-      const handleChainChanged = async (_chainId: string) => onUpdateState();
-      const handleAccountsChanged = async (accounts: string[]) => {
-        if (accounts.length === 0) onUpdateState();
-      };
-      const handleDisconnect = () => onUpdateState();
-
-      provider.on("chainChanged", handleChainChanged);
-      provider.on("accountsChanged", handleAccountsChanged);
-      provider.on("disconnect", handleDisconnect);
-
-      return () => {
-        provider.removeListener("chainChanged", handleChainChanged);
-        provider.removeListener("accountsChanged", handleAccountsChanged);
-        provider.removeListener("disconnect", handleDisconnect);
-      };
-    }
-
-    function attachSolanaListeners(
-      provider: any,
-      onUpdateState: () => Promise<void>,
-    ) {
-      const cleanups: Array<() => void> = [];
-
-      const walletEvents = provider?.features?.["standard:events"];
-      if (walletEvents?.on) {
-        const offChange = walletEvents.on("change", async (_evt: any) => {
-          await onUpdateState();
-        });
-        cleanups.push(offChange);
-      }
-
-      return () => cleanups.forEach((fn) => fn());
-    }
-
-    ethProviders.forEach((p) => {
-      const cleanup = attachEthereumListeners(
-        (p as any).provider,
-        onUpdateState,
-      );
-      if (cleanup) cleanups.push(cleanup);
-    });
-
-    solProviders.forEach((p) => {
-      const cleanup = attachSolanaListeners((p as any).provider, onUpdateState);
-      if (cleanup) cleanups.push(cleanup);
-    });
-
-    if (wcProvider) {
-      const standardEvents = (wcProvider.provider as any)?.features?.[
-        "standard:events"
-      ];
-      if (standardEvents?.on) {
-        if (standardEvents?.on) {
-          const unsubscribe = standardEvents.on("change", async (evt: any) => {
-            // if the event is a proposalExpired, we want to re-fetch the providers
-            // to refresh the uri, there is no need to refresh the wallets state
-            if (evt?.type === "pairingExpired") {
-              debouncedFetchWalletProviders();
-            }
-
-            // any other event (disconnect, chain switch, accounts changed)
-            // we refresh the wallets state
-            await onUpdateState();
-          });
-          cleanups.push(unsubscribe);
-        }
-      }
-    }
-
-    return () => {
-      cleanups.forEach((remove) => remove());
-    };
-  }
 
   /**
    * @internal
@@ -1019,220 +831,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks],
   );
 
-  const fetchWalletProviders = useCallback(
-    async (chain?: Chain): Promise<WalletProvider[]> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      const newProviders = await client.fetchWalletProviders(chain);
-
-      // we update state with the latest providers
-      // we keep this state so that initializeWalletProviderListeners() re-runs
-      // whenever the list of connected providers changes
-      // this ensures we attach disconnect listeners for each connected provider
-      setWalletProviders(newProviders);
-
-      return newProviders;
-    },
-    [client, callbacks],
-  );
-
-  const connectWalletAccount = useCallback(
-    async (walletProvider: WalletProvider): Promise<WalletAccount> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      const address = await client.connectWalletAccount(walletProvider);
-
-      let wallets: Wallet[];
-
-      const s = await getSession();
-      if (s) {
-        // this will update our walletProvider state
-        wallets = await refreshWallets();
-      } else {
-        wallets = await fetchWallets({ connectedOnly: true });
-      }
-
-      // we narrow to only connected wallets
-      // because we know the account must come from one of them
-      const connectedWallets = wallets.filter(
-        (w): w is ConnectedWallet => w.source === WalletSource.Connected,
-      );
-
-      // find the matching account
-      const matchedAccount = connectedWallets
-        .flatMap((w) => w.accounts)
-        .find((a) => a.address === address);
-
-      if (!matchedAccount) {
-        throw new TurnkeyError(
-          `No connected wallet account found for address: ${address}`,
-          TurnkeyErrorCodes.NO_WALLET_FOUND,
-        );
-      }
-
-      return matchedAccount;
-    },
-
-    [client, callbacks],
-  );
-
-  const disconnectWalletAccount = useCallback(
-    async (walletProvider: WalletProvider): Promise<void> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      await client.disconnectWalletAccount(walletProvider);
-
-      // no need here to call `refreshWallets()` because the provider emits a disconnect event which
-      // will trigger a refresh via the listener we set up in `initializeWalletProviderListeners()`
-    },
-    [client, callbacks],
-  );
-
-  const switchWalletAccountChain = useCallback(
-    async (params: SwitchWalletAccountChainParams): Promise<void> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      await client.switchWalletAccountChain({ ...params, walletProviders });
-    },
-    [client, callbacks],
-  );
-
-  const loginWithWallet = useCallback(
-    async (params: LoginWithWalletParams): Promise<WalletAuthResult> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-
-      const expirationSeconds =
-        masterConfig?.auth?.sessionExpirationSeconds ??
-        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
-      const res = await withTurnkeyErrorHandling(
-        () => client.loginWithWallet({ ...params, expirationSeconds }),
-        () => logout(),
-        callbacks,
-        "Failed to login with wallet",
-      );
-      if (res) {
-        await handlePostAuth({
-          method: AuthMethod.Wallet,
-          action: AuthAction.LOGIN,
-          identifier: res.address,
-        });
-      }
-      return res;
-    },
-    [client, callbacks],
-  );
-
-  const signUpWithWallet = useCallback(
-    async (params: SignUpWithWalletParams): Promise<WalletAuthResult> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      if (!masterConfig) {
-        throw new TurnkeyError(
-          "Config is not ready yet!",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-      // If createSubOrgParams is not provided, use the default from masterConfig
-      let createSubOrgParams =
-        params.createSubOrgParams ??
-        masterConfig.auth?.createSuborgParams?.walletAuth;
-      params =
-        createSubOrgParams !== undefined
-          ? { ...params, createSubOrgParams }
-          : { ...params };
-
-      const expirationSeconds =
-        masterConfig?.auth?.sessionExpirationSeconds ??
-        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
-      const res = await withTurnkeyErrorHandling(
-        () => client.signUpWithWallet({ ...params, expirationSeconds }),
-        () => logout(),
-        callbacks,
-        "Failed to sign up with wallet",
-      );
-      if (res) {
-        await handlePostAuth({
-          method: AuthMethod.Wallet,
-          action: AuthAction.SIGNUP,
-          identifier: res.address,
-        });
-      }
-      return res;
-    },
-    [client, callbacks, masterConfig],
-  );
-
-  const loginOrSignupWithWallet = useCallback(
-    async (
-      params: LoginOrSignupWithWalletParams,
-    ): Promise<WalletAuthResult & { action: AuthAction }> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      if (!masterConfig) {
-        throw new TurnkeyError(
-          "Config is not ready yet!",
-          TurnkeyErrorCodes.INVALID_CONFIGURATION,
-        );
-      }
-      // If createSubOrgParams is not provided, use the default from masterConfig
-      let createSubOrgParams =
-        params.createSubOrgParams ??
-        masterConfig.auth?.createSuborgParams?.walletAuth;
-      params =
-        createSubOrgParams !== undefined
-          ? { ...params, createSubOrgParams }
-          : { ...params };
-
-      const expirationSeconds =
-        masterConfig?.auth?.sessionExpirationSeconds ??
-        DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
-      const res = await withTurnkeyErrorHandling(
-        () => client.loginOrSignupWithWallet({ ...params, expirationSeconds }),
-        () => logout(),
-        callbacks,
-        "Failed to login or sign up with wallet",
-      );
-      if (res) {
-        await handlePostAuth({
-          method: AuthMethod.Wallet,
-          action: res.action,
-          identifier: res.address,
-        });
-      }
-      return res;
-    },
-    [client, callbacks, masterConfig],
-  );
-
   const initOtp = useCallback(
     async (params: InitOtpParams): Promise<string> => {
       if (!client) {
@@ -1579,29 +1177,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks],
   );
 
-  const handleSignMessage = useCallback(
-    async (params: {
-      message: string;
-      walletAccount: WalletAccount;
-      encoding?: v1PayloadEncoding;
-      hashFunction?: v1HashFunction;
-      addEthereumPrefix?: boolean;
-      subText?: string;
-      successPageDuration?: number | undefined;
-      stampWith?: StamperType | undefined;
-    }): Promise<v1SignRawPayloadResult> => {
-      // Execute signing directly without modal
-      return signMessage({
-        message: params.message,
-        walletAccount: params.walletAccount,
-        ...(params.encoding && { encoding: params.encoding }),
-        ...(params.hashFunction && { hashFunction: params.hashFunction }),
-        ...(params.addEthereumPrefix !== undefined && { addEthereumPrefix: params.addEthereumPrefix }),
-        ...(params.stampWith && { stampWith: params.stampWith }),
-      });
-    },
-    [client, callbacks],
-  );
 
   const signTransaction = useCallback(
     async (params: SignTransactionParams): Promise<string> => {
@@ -2408,18 +1983,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      const walletProviders = await withTurnkeyErrorHandling(
-        () => fetchWalletProviders(),
-        () => logout(),
-        callbacks,
-        "Failed to refresh wallets",
-      );
 
       const wallets = await withTurnkeyErrorHandling(
         () =>
           fetchWallets({
             stampWith,
-            walletProviders,
             ...(organizationId && { organizationId }),
             ...(userId && { userId }),
           }),
@@ -2436,7 +2004,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [
       client,
       callbacks,
-      fetchWalletProviders,
       fetchWallets,
       masterConfig,
       session,
@@ -2470,7 +2037,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
-        //@todo remove this, not needed for discord oauth
+
         if (!scheme) {
           throw new TurnkeyError(
             "Missing appScheme. Please set auth.oauth.appScheme.",
@@ -3185,135 +2752,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks, masterConfig, session, user],
   );
 
-  const handleLogin = useCallback(
-    async () => {
-      return Promise.resolve();
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleExportWallet = useCallback(
-    async (_params: HandleExportWalletParams): Promise<void> => {
-      return Promise.resolve();
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleExportPrivateKey = useCallback(
-    async (_params: HandleExportPrivateKeyParams): Promise<void> => {
-      return Promise.resolve();
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleExportWalletAccount = useCallback(
-    async (_params: HandleExportWalletAccountParams): Promise<void> => {
-    
-      return Promise.resolve();
-      
-    },
-    [masterConfig, client, session, user],
-  );
-
-  const handleImportWallet = useCallback(
-    async (): Promise<string> => {
-      return Promise.resolve("");
-    },
-    [masterConfig, client, session, user],
-  );
-
-  const handleImportPrivateKey = useCallback(
-    async (): Promise<string> => {
-      
-      return Promise.resolve("");
-    },
-    [masterConfig, client, session, user],
-  );
-
-  const handleUpdateUserName = useCallback(
-    async (): Promise<string> => {
-      return Promise.resolve("");
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleUpdateUserPhoneNumber = useCallback(
-    async (): Promise<string> => {
-      return Promise.resolve("");
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleUpdateUserEmail = useCallback(
-    async (): Promise<string> => {
-      return Promise.resolve("");
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleAddEmail = useCallback(
-    async (): Promise<string> => {
-      return Promise.resolve("");
-    },
-    [ client, session, user],
-  );
-
-  const handleAddPhoneNumber = useCallback(
-    async (): Promise<string> => {
-      return Promise.resolve("");
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleRemovePasskey = useCallback(
-    async (_params: HandleRemovePasskeyParams): Promise<string[]> => {
-      return Promise.resolve([]);
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleAddPasskey = useCallback(
-    async (): Promise<string[]> => {
-      return Promise.resolve([]);
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleRemoveOauthProvider = useCallback(
-    async (_params: HandleRemoveOauthProviderParams): Promise<string[]> => {
-      return Promise.resolve([]);
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleAddOauthProvider = useCallback(
-    async (_params: { providerName: OAuthProviders; stampWith?: StamperType | undefined }): Promise<void> => {
-      return Promise.resolve();
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleConnectExternalWallet = useCallback(
-    async (): Promise<void> => {
-      return Promise.resolve();
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleRemoveUserEmail = useCallback(
-    async (): Promise<string> => {
-      return Promise.resolve("");
-    },
-    [ masterConfig, client, session, user],
-  );
-
-  const handleRemoveUserPhoneNumber = useCallback(
-    async (): Promise<string> => {
-      return Promise.resolve("");
-    },
-    [ masterConfig, client, session, user],
-  );
-
   useEffect(() => {
     if (proxyAuthConfigRef.current) return;
 
@@ -3363,43 +2801,40 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
    * listeners in `initializeWalletProviderListeners` share the same instance, instead of creating
    * a new one on every render.
    */
-  const debouncedRefreshWallets = useDebouncedCallback(refreshWallets, 100);
-  const debouncedFetchWalletProviders = useDebouncedCallback(
-    fetchWalletProviders,
-    100,
-  );
+  // const debouncedRefreshWallets = useDebouncedCallback(refreshWallets, 100);
+  // const debouncedFetchWalletProviders = useDebouncedCallback(
+  //   fetchWalletProviders,
+  //   100,
+  // );
 
-  useEffect(() => {
-    if (!client) return;
+  // useEffect(() => {
+  //   if (!client) return;
 
-    const handleUpdateState = async () => {
-      // we only refresh the wallets if there is an active session
-      // this is needed because a disconnect event can occur
-      // while the user is unauthenticated
-      //
-      // WalletProviders state is updated regardless of session state
-      if (session) {
-        // this updates both the wallets and walletProviders state
-        await debouncedRefreshWallets();
-      } else {
-        // this updates only the walletProviders state
-        await debouncedFetchWalletProviders();
-      }
-    };
+  //   const handleUpdateState = async () => {
+  //     // we only refresh the wallets if there is an active session
+  //     // this is needed because a disconnect event can occur
+  //     // while the user is unauthenticated
+  //     //
+  //     // WalletProviders state is updated regardless of session state
+  //     if (session) {
+  //       // this updates both the wallets and walletProviders state
+  //       await debouncedRefreshWallets();
+  //     }
+  //   };
 
-    let cleanup = () => {};
-    initializeWalletProviderListeners(walletProviders, handleUpdateState)
-      .then((fn) => {
-        cleanup = fn;
-      })
-      .catch((err) => {
-        console.error("Failed to init providers:", err);
-      });
+  //   let cleanup = () => {};
+  //   initializeWalletProviderListeners(walletProviders, handleUpdateState)
+  //     .then((fn) => {
+  //       cleanup = fn;
+  //     })
+  //     .catch((err) => {
+  //       console.error("Failed to init providers:", err);
+  //     });
 
-    return () => {
-      cleanup();
-    };
-  }, [client, walletProviders, session]);
+  //   return () => {
+  //     cleanup();
+  //   };
+  // }, [client, walletProviders, session]);
 
   useEffect(() => {
     // authState must be consistent with session state. We found during testing that there are cases where the session and authState can be out of sync in very rare edge cases.
@@ -3411,31 +2846,31 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     }
   }, [session]);
 
-  useEffect(() => {
-    // This will handle any redirect based oAuth. It then initializes the session. This is the last step before client is considered "ready"
-    if (!client || !masterConfig) return;
-    completeRedirectOauth().finally(() => {
-      clearSessionTimeouts();
+  // useEffect(() => {
+  //   // This will handle any redirect based oAuth. It then initializes the session. This is the last step before client is considered "ready"
+  //   if (!client || !masterConfig) return;
+  //   completeRedirectOauth().finally(() => {
+  //     clearSessionTimeouts();
 
-      // if auth or wallet connecting features are enabled, we want to fetch
-      // the wallet providers to set the state
-      if (
-        masterConfig.walletConfig?.features?.auth ||
-        masterConfig.walletConfig?.features?.connecting
-      ) {
-        fetchWalletProviders();
-      }
+  //     // if auth or wallet connecting features are enabled, we want to fetch
+  //     // the wallet providers to set the state
+  //     if (
+  //       masterConfig.walletConfig?.features?.auth ||
+  //       masterConfig.walletConfig?.features?.connecting
+  //     ) {
+  //       fetchWalletProviders();
+  //     }
 
-      initializeSessions().finally(() => {
-        // Set the client state to ready only after all initializations are done.
-        setClientState(ClientState.Ready);
-      });
-    });
+  //     initializeSessions().finally(() => {
+  //       // Set the client state to ready only after all initializations are done.
+  //       setClientState(ClientState.Ready);
+  //     });
+  //   });
 
-    return () => {
-      clearSessionTimeouts();
-    };
-  }, [client]);
+  //   return () => {
+  //     clearSessionTimeouts();
+  //   };
+  // }, [client]);
 
   return (
     <ClientContext.Provider
@@ -3446,20 +2881,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         authState,
         user,
         wallets,
-        walletProviders,
         config: masterConfig,
         httpClient: client?.httpClient,
         createPasskey,
         logout,
         loginWithPasskey,
         signUpWithPasskey,
-        fetchWalletProviders,
-        connectWalletAccount,
-        disconnectWalletAccount,
-        switchWalletAccountChain,
-        loginWithWallet,
-        signUpWithWallet,
-        loginOrSignupWithWallet,
         initOtp,
         verifyOtp,
         loginWithOtp,
@@ -3507,30 +2934,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         getActiveSessionKey,
         createApiKeyPair,
         getProxyAuthConfig,
-        handleLogin,
         handleGoogleOauth,
         handleXOauth,
         handleDiscordOauth,
         handleAppleOauth,
         handleFacebookOauth,
-        handleConnectExternalWallet,
-        handleExportWallet,
-        handleExportPrivateKey,
-        handleExportWalletAccount,
-        handleImportWallet,
-        handleImportPrivateKey,
-        handleUpdateUserEmail,
-        handleUpdateUserPhoneNumber,
-        handleUpdateUserName,
-        handleAddOauthProvider,
-        handleRemoveOauthProvider,
-        handleAddPasskey,
-        handleRemovePasskey,
-        handleAddEmail,
-        handleAddPhoneNumber,
-        handleSignMessage,
-        handleRemoveUserEmail,
-        handleRemoveUserPhoneNumber,
       }}
     >
       {children}
