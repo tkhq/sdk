@@ -1,23 +1,84 @@
 "use client";
 
-import { useState } from "react";
-import {
-  useTurnkey,
-  Wallet,
-  WalletAccount,
-} from "@turnkey/react-wallet-kit";
+import { useEffect, useState } from "react";
+import { useTurnkey, WalletAccount } from "@turnkey/react-wallet-kit";
 import { VersionedTransaction, PublicKey } from "@solana/web3.js";
 import { TurnkeySigner } from "@turnkey/solana";
-import { createUltraOrder, executeUltraOrder } from "../actions/jupiter";
+import {
+  createUltraOrder,
+  executeUltraOrder,
+  getUltraBalances,
+  getUltraQuote,
+} from "../actions/jupiter";
 
 const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 const SOL_MINT = "So11111111111111111111111111111111111111112";
 
-export default function JupiterSwapPage() {
-  const [activeWalletAccount, setActiveWalletAccount] = useState<WalletAccount | null>(null);
-  const [status, setStatus] = useState<string>("");
+function SolIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 256 256"
+    >
+      <linearGradient
+        id="a"
+        x1="44.9"
+        x2="211.4"
+        y1="43.8"
+        y2="214.8"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" stopColor="#00FFA3" />
+        <stop offset="1" stopColor="#DC1FFF" />
+      </linearGradient>
+      <path
+        fill="url(#a)"
+        d="M64.2 163.6a4.5 4.5 0 0 1 3.2-1.3h159.4a2.5 2.5 0 0 1 1.8 4.2l-36.5 38.3a4.5 4.5 0 0 1-3.2 1.3H29.5a2.5 2.5 0 0 1-1.8-4.2zm0-109.2A4.5 4.5 0 0 1 67.4 53h159.4a2.5 2.5 0 0 1 1.8 4.2l-36.5 38.3a4.5 4.5 0 0 1-3.2 1.3H29.5a2.5 2.5 0 0 1-1.8-4.2zm0 54.6a4.5 4.5 0 0 1 3.2-1.3h159.4a2.5 2.5 0 0 1 1.8 4.2l-36.5 38.3a4.5 4.5 0 0 1-3.2 1.3H29.5a2.5 2.5 0 0 1-1.8-4.2z"
+      />
+    </svg>
+  );
+}
 
+function LoginButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full mt-6 bg-black hover:bg-gray-800 text-white font-semibold py-4 rounded-xl transition-all active:scale-98"
+    >
+      Login / Sign Up
+    </button>
+  );
+}
+
+function LogoutButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full mt-6 bg-red-500 hover:bg-red-400 text-white font-semibold py-4 rounded-xl transition-all active:scale-98"
+    >
+      Log out
+    </button>
+  );
+}
+
+export default function JupiterSwapPage() {
   const { wallets, httpClient, handleLogin, logout, session } = useTurnkey();
+  const [activeWalletAccount, setActiveWalletAccount] =
+    useState<WalletAccount | null>(null);
+  const [fromAmount, setFromAmount] = useState("");
+  const [toAmount, setToAmount] = useState("");
+  const [fromToken, setFromToken] = useState<"USDC" | "SOL">("USDC");
+  const [toToken, setToToken] = useState<"USDC" | "SOL">("SOL");
+  const [swapping, setSwapping] = useState(false);
+  const [swapModalOpen, setSwapModalOpen] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [swapHash, setSwapHash] = useState("");
+  const [balances, setBalances] = useState<{ SOL: number; USDC: number }>({
+    SOL: 0,
+    USDC: 0,
+  });
 
   const turnkeySigner = activeWalletAccount
     ? new TurnkeySigner({
@@ -26,135 +87,317 @@ export default function JupiterSwapPage() {
       })
     : null;
 
+  const solAccounts =
+    wallets
+      ?.flatMap((w) => w.accounts)
+      .filter((a) => {
+        try {
+          new PublicKey(a.address);
+          return true;
+        } catch {
+          return false;
+        }
+      }) || [];
+
+  useEffect(() => {
+    if (!activeWalletAccount && solAccounts.length > 0) {
+      setActiveWalletAccount(solAccounts[0]);
+    }
+  }, [wallets]);
+
+  const fetchBalances = async () => {
+    const taker = new PublicKey(activeWalletAccount!.address).toBase58();
+    const data = await getUltraBalances(taker);
+    setBalances({
+      SOL: data["SOL"]?.uiAmount || 0,
+      USDC: data[USDC_MINT]?.uiAmount || 0,
+    });
+  };
+
+  useEffect(() => {
+    if (!activeWalletAccount) return;
+    fetchBalances();
+  }, [activeWalletAccount]);
+
   const handleLogout = () => {
     setActiveWalletAccount(null);
     logout();
-    setStatus("");
   };
 
-  const handleUltraSwap = async (fromMint: string, toMint: string, amount: number) => {
+  const handleFlip = () => {
+    setFromToken(toToken);
+    setToToken(fromToken);
+    setFromAmount(toAmount);
+    setToAmount(fromAmount);
+  };
+
+  const handleFromAmountChange = async (value: string) => {
+    setFromAmount(value);
+    if (!value) {
+      setToAmount("");
+      return;
+    }
     try {
-      if (!activeWalletAccount || !turnkeySigner) {
-        setStatus("❌ No active account selected");
-        return;
-      }
-
-      let taker: string;
-      try {
-        taker = new PublicKey(activeWalletAccount.address).toBase58();
-      } catch {
-        throw new Error("❌ Active account is not a valid Solana address");
-      }
-
-      setStatus("Creating Ultra order…");
-      const orderResp = await createUltraOrder({
-        inputMint: fromMint,
-        outputMint: toMint,
+      const inputMint = fromToken === "USDC" ? USDC_MINT : SOL_MINT;
+      const outputMint = toToken === "USDC" ? USDC_MINT : SOL_MINT;
+      const amount = parseFloat(value) * (fromToken === "USDC" ? 1e6 : 1e9);
+      const data = await getUltraQuote({
+        inputMint,
+        outputMint,
         amount,
+        slippageBps: 50,
+      });
+      const outAmt =
+        fromToken === "USDC" ? data.outAmount / 1e9 : data.outAmount / 1e6;
+      setToAmount(outAmt.toFixed(4));
+    } catch {
+      setToAmount("");
+    }
+  };
+
+  const handleUltraSwap = async () => {
+    if (!activeWalletAccount || !turnkeySigner) {
+      setStatusMessage("❌ Please login and select an account");
+      return;
+    }
+
+    try {
+      setSwapping(true);
+      setSwapModalOpen(true);
+      const taker = new PublicKey(activeWalletAccount.address).toBase58();
+      const orderResp = await createUltraOrder({
+        inputMint: fromToken === "USDC" ? USDC_MINT : SOL_MINT,
+        outputMint: fromToken === "USDC" ? SOL_MINT : USDC_MINT,
+        amount:
+          fromToken === "USDC"
+            ? Math.floor(parseFloat(fromAmount) * 1e6)
+            : Math.floor(parseFloat(fromAmount) * 1e9),
         slippageBps: 50,
         taker,
       });
-
       const { requestId, transaction: unsignedBase64 } = orderResp;
-      if (!requestId || !unsignedBase64) {
+      if (!requestId || !unsignedBase64)
         throw new Error("Ultra order missing fields");
-      }
-
-      // Deserialize unsigned tx
-      const rawBytes = Uint8Array.from(atob(unsignedBase64), (c) => c.charCodeAt(0));
-      const tx = VersionedTransaction.deserialize(rawBytes);
-
-      // Sign
-      await turnkeySigner.addSignature(tx, activeWalletAccount.address);
-
-      // Serialize back to base64
-      const signedBase64 = Buffer.from(tx.serialize()).toString("base64");
-
-      setStatus("Executing Ultra order…");
-      const execResp = await executeUltraOrder({ requestId, signedTransaction: signedBase64 });
-
-      const txid = execResp.signature;
-      setStatus(
-        `✅ Swap broadcasted. <a href="https://solscan.io/tx/${txid}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">${txid}</a>`
+      const rawBytes = Uint8Array.from(atob(unsignedBase64), (c) =>
+        c.charCodeAt(0),
       );
+      const tx = VersionedTransaction.deserialize(rawBytes);
+      await turnkeySigner.addSignature(tx, activeWalletAccount.address);
+      const signedBase64 = Buffer.from(tx.serialize()).toString("base64");
+      const execResp = await executeUltraOrder({
+        requestId,
+        signedTransaction: signedBase64,
+      });
+      const txid = execResp.signature;
+      setSwapHash(txid);
+      setStatusMessage(`✅ Swap successful`);
     } catch (err: any) {
-      console.error(err);
-      setStatus(`❌ Error: ${err.message}`);
+      setStatusMessage(`❌ Error: ${err.message}`);
+    } finally {
+      setSwapping(false);
+
+      setTimeout(() => setSwapModalOpen(false), 5000);
+      fetchBalances();
     }
   };
 
   return (
-    <main className="min-h-screen flex flex-col items-center p-4 gap-4 pt-40">
-      <div className="flex items-center relative mb-4">
-        <h1 className="w-full text-center text-lg">
-          Turnkey x Jupiter Ultra Swap Demo
-        </h1>
-      </div>
-
-      <div className="flex gap-2">
-        {session && (
-          <div>
-            <button
-              onClick={() => handleUltraSwap(USDC_MINT, SOL_MINT, 100_000)}
-              className="bg-green-600 text-white px-4 py-2 rounded"
-            >
-              Swap 0.1 USDC → SOL
-            </button>
-            <button
-              onClick={() => handleUltraSwap(SOL_MINT, USDC_MINT, 100_000)}
-              className="bg-blue-600 text-white px-4 py-2 rounded ml-2"
-            >
-              Swap 0.0001 SOL → USDC
-            </button>
-          </div>
+    <main className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md flex flex-col gap-4">
+        {!session ? (
+          <LoginButton onClick={handleLogin} />
+        ) : (
+          <LogoutButton onClick={handleLogout} />
         )}
-      </div>
 
-      {status && (
-        <p
-          className="text-sm mt-2"
-          dangerouslySetInnerHTML={{ __html: status }}
-        />
-      )}
-
-      <div className="flex flex-col items-center">
-        {wallets && wallets.length > 0 && (
+        {session && solAccounts.length > 0 && (
           <>
-            <h3 className="mb-2">Select Wallet Account</h3>
-            {wallets.map((w: Wallet) =>
-              w.accounts.map((acct: WalletAccount) => (
+            <div className="flex flex-col gap-2 mb-4">
+              <label className="text-sm text-gray-600 font-medium">
+                Select Wallet Account
+              </label>
+              <select
+                value={activeWalletAccount?.address || ""}
+                onChange={(e) => {
+                  const selected = solAccounts.find(
+                    (a) => a.address === e.target.value,
+                  );
+                  setActiveWalletAccount(selected || null);
+                }}
+                className="border border-gray-300 rounded-xl px-3 py-2 text-black outline-none"
+              >
+                <option value="" disabled>
+                  -- Select a SOL account --
+                </option>
+                {solAccounts.map((account) => (
+                  <option key={account.address} value={account.address}>
+                    {account.address.slice(0, 6) +
+                      "…" +
+                      account.address.slice(-4)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+              <h1 className="text-2xl font-bold text-black mb-6">Swap</h1>
+
+              <div className="flex justify-between mb-3 text-sm text-gray-600">
+                <span>
+                  Balance: {balances[fromToken].toFixed(4)} {fromToken}
+                </span>
+                <span>
+                  Balance: {balances[toToken].toFixed(4)} {toToken}
+                </span>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600">You pay</span>
+                  {activeWalletAccount && (
+                    <span className="text-sm text-gray-600 truncate max-w-[180px]">
+                      {activeWalletAccount.address.slice(0, 6)}…
+                      {activeWalletAccount.address.slice(-4)}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <input
+                    type="number"
+                    value={fromAmount}
+                    onChange={(e) => handleFromAmountChange(e.target.value)}
+                    placeholder="0.00"
+                    className="bg-transparent text-3xl font-semibold text-black outline-none flex-1 placeholder:text-gray-300 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 border border-gray-200">
+                    <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
+                      {fromToken === "USDC" ? "$" : <SolIcon />}
+                    </div>
+                    <span className="text-black font-semibold">
+                      {fromToken}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-center -my-3 relative z-10">
                 <button
-                  key={acct.address}
-                  onClick={() => setActiveWalletAccount(acct)}
-                  className={`block w-[500px] text-left px-2 py-1 border rounded mt-1 ${
-                    activeWalletAccount?.address === acct.address ? "bg-gray-200" : ""
-                  }`}
+                  onClick={handleFlip}
+                  className="bg-white hover:bg-gray-50 border-4 border-white rounded-xl p-2 transition-all hover:scale-110 active:scale-95 shadow-sm ring-1 ring-gray-200"
                 >
-                  {acct.address}
+                  <svg
+                    className="w-5 h-5 text-black"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"
+                    />
+                  </svg>
                 </button>
-              ))
-            )}
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm text-gray-600">You receive</span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <input
+                    type="text"
+                    value={toAmount}
+                    readOnly
+                    placeholder="0.00"
+                    className="bg-transparent text-3xl font-semibold text-black outline-none flex-1 placeholder:text-gray-300"
+                  />
+                  <div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 border border-gray-200">
+                    <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
+                      {toToken === "USDC" ? "$" : <SolIcon />}
+                    </div>
+                    <span className="text-black font-semibold">{toToken}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={handleUltraSwap}
+                disabled={swapping}
+                className="w-full mt-6 bg-black hover:bg-gray-800 text-white font-semibold py-4 rounded-xl transition-all active:scale-98"
+              >
+                {swapping ? "Swapping…" : "Swap"}
+              </button>
+
+              {statusMessage && (
+                <p className="text-center text-sm mt-4 text-gray-700">
+                  {statusMessage}
+                </p>
+              )}
+            </div>
           </>
         )}
-
-        {!wallets?.length && <p>No wallets available. Log in first.</p>}
-
-        {session ? (
-          <button
-            onClick={handleLogout}
-            className="bg-purple-600 text-white px-4 py-2 rounded mt-2"
-          >
-            Log out of Turnkey
-          </button>
-        ) : (
-          <button
-            onClick={() => handleLogin()}
-            className="bg-purple-600 text-white px-4 py-2 rounded mt-2"
-          >
-            Login with Turnkey
-          </button>
-        )}
       </div>
+
+      {swapModalOpen && (
+        <div className="absolute inset-0 bg-white bg-opacity-95 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50">
+          <div className="flex flex-col items-center gap-6 p-8">
+            {swapping ? (
+              <>
+                <div className="relative w-16 h-16">
+                  <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
+                  <div className="absolute inset-0 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-black mb-1">
+                    Sending transaction...
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Please wait while your swap is confirmed
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="relative w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-10 h-10 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-black mb-1">
+                    Swap successful
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Your transaction has been completed
+                  </p>
+                  {swapHash && (
+                    <a
+                      href={`https://solscan.io/tx/${swapHash}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600"
+                    >
+                      View on Solscan
+                    </a>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

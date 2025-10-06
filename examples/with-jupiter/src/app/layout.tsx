@@ -38,7 +38,7 @@ function RootLayout({ children }: RootLayoutProps) {
             authProxyUrl: process.env.NEXT_PUBLIC_AUTH_PROXY_URL!,
             auth: {
               createSuborgParams: {
-                passkeyAuth: createSuborgParams
+                passkeyAuth: createSuborgParams,
               },
               methods: {
                 smsOtpAuthEnabled: false,
@@ -53,7 +53,6 @@ function RootLayout({ children }: RootLayoutProps) {
               },
               autoRefreshSession: true,
             },
-            
           }}
         >
           {children}
