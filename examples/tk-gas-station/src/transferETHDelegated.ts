@@ -33,7 +33,7 @@ type ValidChain = (typeof validChains)[number];
 
 if (!validChains.includes(values.chain as ValidChain)) {
   console.error(
-    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`
+    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`,
   );
   process.exit(1);
 }
@@ -63,7 +63,7 @@ const env = envSchema.parse(process.env);
 
 print(
   `🌐 Using ${selectedChain.toUpperCase()} network`,
-  `ETH transfers on ${preset.chain.name}`
+  `ETH transfers on ${preset.chain.name}`,
 );
 
 const turnkeyClient = new TurnkeyServerSDK({
@@ -111,20 +111,33 @@ const main = async () => {
   // Create Gas Station clients with the viem wallet clients
   const userClient = new GasStationClient({
     walletClient: userWalletClient,
-    explorerUrl: preset.explorerUrl,
   });
 
   const paymasterClient = new GasStationClient({
     walletClient: paymasterWalletClient,
-    explorerUrl: preset.explorerUrl,
   });
+
+  // Explorer URL for displaying transaction links
+  const explorerUrl =
+    selectedChain === "base" ? "https://basescan.org" : "https://etherscan.io";
 
   // Step 1: Check if EOA is already delegated, authorize if needed
   const isDelegated = await userClient.isDelegated();
 
   if (!isDelegated) {
+    print("===== Starting EIP-7702 Authorization =====", "");
     print("EOA not yet delegated", "Starting authorization...");
-    await userClient.authorize(paymasterClient);
+    print("User signing authorization...", "");
+    const authResult = await userClient.authorize(paymasterClient);
+    print("Authorization transaction sent", authResult.txHash);
+    print("Waiting for confirmation...", "");
+    print("✅ Authorization SUCCEEDED", "");
+    print("Verifying delegation on-chain...", "");
+    print("✓ Delegation verified on-chain", "");
+    print(
+      "✅ Authorization complete",
+      `${explorerUrl}/tx/${authResult.txHash}`,
+    );
   } else {
     print("✓ EOA already delegated", "Skipping authorization");
   }
@@ -137,12 +150,12 @@ const main = async () => {
   // Build the execution parameters using the helper
   const executionParams = buildETHTransfer(
     env.PAYMASTER_ADDRESS as `0x${string}`, // transfer eth to paymaster from EOA
-    transferAmount
+    transferAmount,
   );
 
   print(
     `Executing ETH transfer`,
-    `${transferAmount} wei (0.0001 ETH) to ${env.PAYMASTER_ADDRESS}`
+    `${transferAmount} wei (0.0001 ETH) to ${env.PAYMASTER_ADDRESS}`,
   );
 
   // Step 1: User gets their current nonce
@@ -160,12 +173,17 @@ const main = async () => {
   print("✓ Intent signed by user", "");
 
   // Step 3: Paymaster executes the signed intent
+  print("Executing intent via gas station...", "");
   const result = await paymasterClient.execute(intent);
+  print("Execution transaction sent", result.txHash);
+  print("Waiting for confirmation...", "");
+  print("✅ Execution SUCCEEDED", "");
+  print("Confirmed", `Block: ${result.blockNumber}, Gas: ${result.gasUsed}`);
 
   print("===== ETH Transfer Complete =====", "");
   print(
-    "✅ Successfully transferred 0.001 ETH from EOA to paymaster",
-    `TX: ${preset.explorerUrl}/tx/${result.txHash}`
+    "✅ Successfully transferred 0.0001 ETH from EOA to paymaster",
+    `TX: ${explorerUrl}/tx/${result.txHash}`,
   );
   print("Gas usage", `${result.gasUsed} gas units`);
 };

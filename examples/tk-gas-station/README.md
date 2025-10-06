@@ -87,6 +87,7 @@ const intent = await userClient
 // Paymaster executes and pays for gas
 const result = await paymasterClient.execute(intent);
 console.log(`✅ Transaction: ${result.txHash}`);
+console.log(`🔗 Explorer: https://basescan.org/tx/${result.txHash}`);
 ```
 
 ### USDC Transfer (`src/transferUSDCDelegated.ts`)
@@ -100,7 +101,7 @@ const intent = await userClient
   .transferToken(
     usdcAddress,
     recipientAddress,
-    parseUnits("10", 6) // 10 USDC
+    parseUnits("10", 6), // 10 USDC
   )
   .sign(nonce);
 

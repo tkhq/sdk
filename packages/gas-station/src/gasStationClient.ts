@@ -15,7 +15,6 @@ import {
 } from "./config";
 import { IntentBuilder } from "./intentBuilder";
 import {
-  print,
   createPublicClientForChain,
   packExecutionData,
   packExecutionDataNoValue,
@@ -26,7 +25,6 @@ export class GasStationClient {
   private publicClient: PublicClient;
   private delegateContract: `0x${string}`;
   private executionContract: `0x${string}`;
-  private explorerUrl: string;
 
   constructor(config: GasStationConfig) {
     this.walletClient = config.walletClient;
@@ -38,7 +36,6 @@ export class GasStationClient {
       config.delegateContract ?? DEFAULT_DELEGATE_CONTRACT;
     this.executionContract =
       config.executionContract ?? DEFAULT_EXECUTION_CONTRACT;
-    this.explorerUrl = config.explorerUrl;
   }
 
   /**
@@ -47,15 +44,11 @@ export class GasStationClient {
    * The authorization can then be submitted by the paymaster using submitAuthorization()
    */
   async signAuthorization(): Promise<SignedAuthorization> {
-    print("Signing EIP-7702 authorization...", "");
-
     const authorization = await this.walletClient.signAuthorization({
       contractAddress: this.delegateContract,
       account: this.walletClient.account,
       chainId: 0, // 0 means valid on any EIP-7702 compatible chain
     });
-
-    print("✓ Authorization signed", "");
 
     return authorization as SignedAuthorization;
   }
@@ -68,8 +61,6 @@ export class GasStationClient {
   async submitAuthorization(
     authorization: SignedAuthorization,
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
-    print("Submitting authorization transaction...", "");
-
     const authTxHash = await this.walletClient.sendTransaction({
       from: "0x0000000000000000000000000000000000000000",
       gas: BigInt(200000),
@@ -79,25 +70,18 @@ export class GasStationClient {
       account: this.walletClient.account,
     });
 
-    print(
-      "Authorization transaction sent",
-      `${this.explorerUrl}/tx/${authTxHash}`,
-    );
-    print("Waiting for confirmation...", "");
-
     const receipt = await this.publicClient.waitForTransactionReceipt({
       hash: authTxHash,
     });
 
-    if (receipt.status === "success") {
-      print("✅ Authorization SUCCEEDED", "");
-      print(
-        "Confirmed",
-        `Block: ${receipt.blockNumber}, Gas: ${receipt.gasUsed}`,
+    if (receipt.status !== "success") {
+      // Try to get the revert reason if available
+      const revertReason = await this.getRevertReason(authTxHash);
+      throw new Error(
+        `Authorization failed: ${revertReason || "Transaction reverted"}. ` +
+          `Gas used: ${receipt.gasUsed}/${receipt.cumulativeGasUsed}. ` +
+          `Transaction hash: ${authTxHash}`,
       );
-    } else {
-      print("❌ Authorization FAILED", "");
-      throw new Error("Authorization failed - cannot proceed");
     }
 
     return { txHash: authTxHash, blockNumber: receipt.blockNumber };
@@ -111,8 +95,6 @@ export class GasStationClient {
   async authorize(
     paymasterClient: GasStationClient,
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
-    print("===== Starting EIP-7702 Authorization =====", "");
-
     // End user signs the authorization
     const authorization = await this.signAuthorization();
 
@@ -120,13 +102,11 @@ export class GasStationClient {
     const result = await paymasterClient.submitAuthorization(authorization);
 
     // Verify the delegation took effect by polling isDelegated
-    print("Verifying delegation...", "");
     const maxRetries = 10;
     let retries = 0;
     while (retries < maxRetries) {
       const delegated = await this.isDelegated();
       if (delegated) {
-        print("✓ Delegation verified on-chain", "");
         break;
       }
       retries++;
@@ -177,6 +157,66 @@ export class GasStationClient {
   }
 
   /**
+   * Attempts to get the revert reason from a failed transaction.
+   * Replays the transaction via eth_call to extract detailed error information.
+   *
+   * This helps surface on-chain failure reasons such as:
+   * - Out of gas errors
+   * - Revert with reason strings
+   * - Custom error selectors
+   * - Insufficient balance errors
+   */
+  private async getRevertReason(txHash: `0x${string}`): Promise<string | null> {
+    try {
+      const tx = await this.publicClient.getTransaction({ hash: txHash });
+
+      // Replay the transaction via eth_call to trigger the revert and get the reason
+      await this.publicClient.call({
+        to: tx.to,
+        data: tx.input,
+        gas: tx.gas,
+        value: tx.value,
+      });
+
+      // If call succeeds, we don't have a revert reason (shouldn't happen for failed tx)
+      return null;
+    } catch (error: any) {
+      // Extract revert reason from error message
+      if (error?.details) {
+        return error.details;
+      }
+      if (error?.message) {
+        // Check for out of gas errors
+        const outOfGasMatch = error.message.match(/out of gas/i);
+        if (outOfGasMatch) {
+          return "Out of gas";
+        }
+
+        // Check for standard revert with reason string
+        const revertMatch = error.message.match(
+          /reverted with reason string '([^']+)'/,
+        );
+        if (revertMatch) {
+          return revertMatch[1];
+        }
+
+        // Check for custom errors (Solidity 0.8.4+)
+        const customErrorMatch = error.message.match(
+          /reverted with the following \(custom\) error:\s*([^\n]+)/,
+        );
+        if (customErrorMatch) {
+          return customErrorMatch[1];
+        }
+
+        // Return the full error message if no specific pattern matches
+        return error.message;
+      }
+
+      return null;
+    }
+  }
+
+  /**
    * Create an intent builder for composing complex transactions
    * Call this with an end-user client to create intents for signing
    */
@@ -201,8 +241,6 @@ export class GasStationClient {
    * Call this with a paymaster client to test if the paymaster can sign the execution.
    */
   async signExecution(intent: ExecutionIntent): Promise<`0x${string}`> {
-    print("Paymaster signing execution transaction...", "");
-
     // Pack the execution data based on whether we're sending ETH
     const packedData =
       intent.ethAmount > 0n
@@ -230,20 +268,15 @@ export class GasStationClient {
       args: [intent.eoaAddress, packedData],
     });
 
-    // Get current gas price for the transaction
-    const gasPrice = await this.publicClient.getGasPrice();
-
     // Sign the transaction without sending it
     const signedTx = await this.walletClient.signTransaction({
       to: this.executionContract,
       data: callData,
       gas: BigInt(200000),
-      gasPrice, // Add gas price for legacy transaction type
+      type: "eip1559",
       account: this.walletClient.account,
       chain: this.walletClient.chain,
     });
-
-    print("✓ Paymaster signed execution transaction", "");
 
     return signedTx;
   }
@@ -257,8 +290,6 @@ export class GasStationClient {
   async execute(
     intent: ExecutionIntent,
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint; gasUsed: bigint }> {
-    print("Executing intent via gas station...", "");
-
     // Pack the execution data based on whether we're sending ETH
     const packedData =
       intent.ethAmount > 0n
@@ -290,22 +321,18 @@ export class GasStationClient {
       account: this.walletClient.account,
     });
 
-    print("Execution transaction sent", `${this.explorerUrl}/tx/${txHash}`);
-    print("Waiting for confirmation...", "");
-
     const receipt = await this.publicClient.waitForTransactionReceipt({
       hash: txHash,
     });
 
-    if (receipt.status === "success") {
-      print("✅ Execution SUCCEEDED", "");
-      print(
-        "Confirmed",
-        `Block: ${receipt.blockNumber}, Gas: ${receipt.gasUsed}`,
+    if (receipt.status !== "success") {
+      // Try to get the revert reason if available
+      const revertReason = await this.getRevertReason(txHash);
+      throw new Error(
+        `Execution failed: ${revertReason || "Transaction reverted"}. ` +
+          `Gas used: ${receipt.gasUsed}/${receipt.cumulativeGasUsed}. ` +
+          `Transaction hash: ${txHash}`,
       );
-    } else {
-      print("❌ Execution FAILED", "");
-      throw new Error("Execution failed");
     }
 
     return {

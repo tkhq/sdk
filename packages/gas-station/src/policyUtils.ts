@@ -6,7 +6,9 @@
  *
  * @param config - Policy configuration
  * @param config.organizationId - Turnkey organization ID
- * @param config.eoaUserId - Turnkey user ID for the EOA
+ * @param config.eoaUserId - Turnkey user ID for the EOA (primary approver)
+ * @param config.additionalApprovers - Optional additional user IDs that can approve (creates OR condition)
+ * @param config.customConsensus - Optional custom consensus expression (overrides eoaUserId and additionalApprovers)
  * @param config.restrictions - Signing restrictions
  * @param config.restrictions.allowedContracts - Whitelist of contract addresses EOA can sign intents for
  * @param config.restrictions.maxEthAmount - Maximum ETH value allowed in signed intents
@@ -14,7 +16,7 @@
  * @returns Policy object ready to submit to Turnkey createPolicy API
  *
  * @example
- * ```typescript
+ * // Simple: single user approval
  * const policy = buildIntentSigningPolicy({
  *   organizationId: "org-123",
  *   eoaUserId: "user-456",
@@ -25,12 +27,31 @@
  *   policyName: "Stablecoin Only",
  * });
  *
+ * @example
+ * // Multi-user: EOA or backup user can approve
+ * const policy = buildIntentSigningPolicy({
+ *   organizationId: "org-123",
+ *   eoaUserId: "user-456",
+ *   additionalApprovers: ["backup-user-789"],
+ *   restrictions: { ... },
+ * });
+ *
+ * @example
+ * // Advanced: custom consensus expression
+ * const policy = buildIntentSigningPolicy({
+ *   organizationId: "org-123",
+ *   eoaUserId: "user-456",
+ *   customConsensus: "approvers.count() >= 2",
+ *   restrictions: { ... },
+ * });
+ *
  * await turnkeyClient.apiClient().createPolicy(policy);
- * ```
  */
 export function buildIntentSigningPolicy(config: {
   organizationId: string;
   eoaUserId: string;
+  additionalApprovers?: string[];
+  customConsensus?: string;
   restrictions: {
     allowedContracts?: `0x${string}`[];
     maxEthAmount?: bigint;
@@ -63,11 +84,29 @@ export function buildIntentSigningPolicy(config: {
     );
   }
 
+  // Build consensus expression
+  let consensus: string;
+  if (config.customConsensus) {
+    // Use custom consensus if provided
+    consensus = config.customConsensus;
+  } else if (
+    config.additionalApprovers &&
+    config.additionalApprovers.length > 0
+  ) {
+    // Build multi-user OR condition: any of eoaUserId or additionalApprovers can approve
+    const allUserIds = [config.eoaUserId, ...config.additionalApprovers];
+    const userIdList = allUserIds.map((id) => `'${id}'`).join(", ");
+    consensus = `approvers.any(user, user.id in [${userIdList}])`;
+  } else {
+    // Default: only eoaUserId can approve
+    consensus = `approvers.any(user, user.id == '${config.eoaUserId}')`;
+  }
+
   return {
     organizationId: config.organizationId,
     policyName: config.policyName || "Gas Station Intent Signing Policy",
     effect: "EFFECT_ALLOW" as const,
-    consensus: `approvers.any(user, user.id == '${config.eoaUserId}')`,
+    consensus,
     condition: conditions.join(" && "),
     notes:
       "Restricts which EIP-712 intents the EOA can sign for gas station execution",
@@ -82,7 +121,9 @@ export function buildIntentSigningPolicy(config: {
  *
  * @param config - Policy configuration
  * @param config.organizationId - Turnkey organization ID
- * @param config.paymasterUserId - Turnkey user ID for the paymaster
+ * @param config.paymasterUserId - Turnkey user ID for the paymaster (primary approver)
+ * @param config.additionalApprovers - Optional additional user IDs that can approve (creates OR condition)
+ * @param config.customConsensus - Optional custom consensus expression (overrides paymasterUserId and additionalApprovers)
  * @param config.executionContractAddress - Gas station execution contract address
  * @param config.restrictions - Execution restrictions
  * @param config.restrictions.allowedEOAs - Whitelist of EOA addresses paymaster can execute for
@@ -93,7 +134,7 @@ export function buildIntentSigningPolicy(config: {
  * @returns Policy object ready to submit to Turnkey createPolicy API
  *
  * @example
- * ```typescript
+ * // Simple: single paymaster approval
  * const policy = buildPaymasterExecutionPolicy({
  *   organizationId: "org-paymaster",
  *   paymasterUserId: "paymaster-user-123",
@@ -107,12 +148,33 @@ export function buildIntentSigningPolicy(config: {
  *   policyName: "Paymaster Protection",
  * });
  *
+ * @example
+ * // Multi-user: primary paymaster or backup can approve
+ * const policy = buildPaymasterExecutionPolicy({
+ *   organizationId: "org-paymaster",
+ *   paymasterUserId: "paymaster-user-123",
+ *   additionalApprovers: ["backup-paymaster-456"],
+ *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+ *   restrictions: { ... },
+ * });
+ *
+ * @example
+ * // Advanced: require multiple approvals
+ * const policy = buildPaymasterExecutionPolicy({
+ *   organizationId: "org-paymaster",
+ *   paymasterUserId: "paymaster-user-123",
+ *   customConsensus: "approvers.count() >= 2",
+ *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+ *   restrictions: { ... },
+ * });
+ *
  * await turnkeyClient.apiClient().createPolicy(policy);
- * ```
  */
 export function buildPaymasterExecutionPolicy(config: {
   organizationId: string;
   paymasterUserId: string;
+  additionalApprovers?: string[];
+  customConsensus?: string;
   executionContractAddress: `0x${string}`;
   restrictions?: {
     allowedEOAs?: `0x${string}`[];
@@ -177,11 +239,29 @@ export function buildPaymasterExecutionPolicy(config: {
     conditions.push(`eth.tx.gas <= ${config.restrictions.maxGasLimit}`);
   }
 
+  // Build consensus expression
+  let consensus: string;
+  if (config.customConsensus) {
+    // Use custom consensus if provided
+    consensus = config.customConsensus;
+  } else if (
+    config.additionalApprovers &&
+    config.additionalApprovers.length > 0
+  ) {
+    // Build multi-user OR condition: any of paymasterUserId or additionalApprovers can approve
+    const allUserIds = [config.paymasterUserId, ...config.additionalApprovers];
+    const userIdList = allUserIds.map((id) => `'${id}'`).join(", ");
+    consensus = `approvers.any(user, user.id in [${userIdList}])`;
+  } else {
+    // Default: only paymasterUserId can approve
+    consensus = `approvers.any(user, user.id == '${config.paymasterUserId}')`;
+  }
+
   return {
     organizationId: config.organizationId,
     policyName: config.policyName || "Gas Station Paymaster Execution Policy",
     effect: "EFFECT_ALLOW" as const,
-    consensus: `approvers.any(user, user.id == '${config.paymasterUserId}')`,
+    consensus,
     condition: conditions.join(" && "),
     notes:
       "Restricts which execute() transactions the paymaster can submit on-chain",

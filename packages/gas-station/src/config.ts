@@ -12,13 +12,11 @@ export interface GasStationConfig {
   walletClient: WalletClient<Transport, Chain, Account>;
   delegateContract?: `0x${string}`;
   executionContract?: `0x${string}`;
-  explorerUrl: string;
 }
 
 export interface ChainPreset {
   chain: Chain;
   rpcUrl: string;
-  explorerUrl: string;
   delegateContract?: `0x${string}`;
   executionContract?: `0x${string}`;
   tokens?: {
@@ -49,7 +47,6 @@ export const CHAIN_PRESETS: Record<string, ChainPreset> = {
   BASE_MAINNET: {
     chain: base,
     rpcUrl: process.env.BASE_RPC_URL || "",
-    explorerUrl: "https://basescan.org",
     tokens: {
       USDC: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     },
@@ -57,7 +54,6 @@ export const CHAIN_PRESETS: Record<string, ChainPreset> = {
   ETHEREUM_MAINNET: {
     chain: mainnet,
     rpcUrl: process.env.ETH_RPC_URL || "",
-    explorerUrl: "https://etherscan.io",
     tokens: {
       USDC: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
     },
@@ -65,7 +61,6 @@ export const CHAIN_PRESETS: Record<string, ChainPreset> = {
   SEPOLIA: {
     chain: sepolia,
     rpcUrl: process.env.SEPOLIA_RPC_URL || "",
-    explorerUrl: "https://sepolia.etherscan.io",
   },
 };
 

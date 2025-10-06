@@ -105,12 +105,10 @@ const paymasterWalletClient = createWalletClient({
 // Create Gas Station clients
 const userClient = new GasStationClient({
   walletClient: userWalletClient,
-  explorerUrl: "https://basescan.org",
 });
 
 const paymasterClient = new GasStationClient({
   walletClient: paymasterWalletClient,
-  explorerUrl: "https://basescan.org",
 });
 
 // One-time: Authorize the EOA to use gas station
@@ -131,7 +129,7 @@ const usdcIntent = await userClient
   .transferToken(
     "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
     "0xRecipient...",
-    parseUnits("10", 6)
+    parseUnits("10", 6),
   )
   .sign(nonce);
 await paymasterClient.execute(usdcIntent);
@@ -148,7 +146,6 @@ Main client for gas station operations. Each client instance wraps a viem wallet
 ```typescript
 new GasStationClient({
   walletClient: WalletClient,          // Viem wallet client (e.g., with Turnkey account)
-  explorerUrl: string,                 // Block explorer URL for transaction links
   delegateContract?: `0x${string}`,    // Optional: defaults to deterministic address
   executionContract?: `0x${string}`,   // Optional: defaults to deterministic address
 })
@@ -286,7 +283,6 @@ async function onboardUser(userAddress: string) {
   // Create Gas Station clients
   const userClient = new GasStationClient({
     walletClient: userWalletClient,
-    explorerUrl: "https://basescan.org",
   });
 
   // Authorize user (paymaster pays)
@@ -357,7 +353,6 @@ const userWalletClient = createWalletClient({
 
 const userClient = new GasStationClient({
   walletClient: userWalletClient,
-  explorerUrl: basePreset.explorerUrl,
 });
 ```
 

@@ -192,7 +192,6 @@ describe("Gas Station Policy Enforcement", () => {
 
     gasStationClient = new GasStationClient({
       walletClient: eoaWalletClient,
-      explorerUrl: "https://basescan.org",
     });
 
     // Setup Paymaster client
@@ -217,7 +216,6 @@ describe("Gas Station Policy Enforcement", () => {
 
     paymasterGasStationClient = new GasStationClient({
       walletClient: paymasterWalletClient,
-      explorerUrl: "https://basescan.org",
     });
 
     // Create paymaster policy with correct execution contract
