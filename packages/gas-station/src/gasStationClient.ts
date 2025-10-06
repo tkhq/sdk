@@ -30,7 +30,7 @@ export class GasStationClient {
     this.walletClient = config.walletClient;
     this.publicClient = createPublicClientForChain(
       config.walletClient.chain,
-      config.walletClient.transport.url!,
+      config.walletClient.transport.url!
     );
     this.delegateContract =
       config.delegateContract ?? DEFAULT_DELEGATE_CONTRACT;
@@ -59,7 +59,7 @@ export class GasStationClient {
    * The paymaster pays for the gas
    */
   async submitAuthorization(
-    authorization: SignedAuthorization,
+    authorization: SignedAuthorization
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
     const authTxHash = await this.walletClient.sendTransaction({
       from: "0x0000000000000000000000000000000000000000",
@@ -80,7 +80,7 @@ export class GasStationClient {
       throw new Error(
         `Authorization failed: ${revertReason || "Transaction reverted"}. ` +
           `Gas used: ${receipt.gasUsed}/${receipt.cumulativeGasUsed}. ` +
-          `Transaction hash: ${authTxHash}`,
+          `Transaction hash: ${authTxHash}`
       );
     }
 
@@ -93,7 +93,7 @@ export class GasStationClient {
    * For separate flows, use signAuthorization() and submitAuthorization() directly
    */
   async authorize(
-    paymasterClient: GasStationClient,
+    paymasterClient: GasStationClient
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
     // End user signs the authorization
     const authorization = await this.signAuthorization();
@@ -112,7 +112,7 @@ export class GasStationClient {
       retries++;
       if (retries === maxRetries) {
         throw new Error(
-          "Delegation verification failed - account code not set after authorization",
+          "Delegation verification failed - account code not set after authorization"
         );
       }
       // Wait 1 second before retrying
@@ -194,7 +194,7 @@ export class GasStationClient {
 
         // Check for standard revert with reason string
         const revertMatch = error.message.match(
-          /reverted with reason string '([^']+)'/,
+          /reverted with reason string '([^']+)'/
         );
         if (revertMatch) {
           return revertMatch[1];
@@ -202,7 +202,7 @@ export class GasStationClient {
 
         // Check for custom errors (Solidity 0.8.4+)
         const customErrorMatch = error.message.match(
-          /reverted with the following \(custom\) error:\s*([^\n]+)/,
+          /reverted with the following \(custom\) error:\s*([^\n]+)/
         );
         if (customErrorMatch) {
           return customErrorMatch[1];
@@ -223,7 +223,7 @@ export class GasStationClient {
   createIntent(): IntentBuilder {
     if (!this.walletClient.account?.address) {
       throw new Error(
-        `Wallet client account is not properly configured. Account: ${JSON.stringify(this.walletClient.account)}`,
+        `Wallet client account is not properly configured. Account: ${JSON.stringify(this.walletClient.account)}`
       );
     }
     return IntentBuilder.create({
@@ -249,13 +249,13 @@ export class GasStationClient {
             intent.nonce,
             intent.outputContract,
             intent.ethAmount,
-            intent.callData,
+            intent.callData
           )
         : packExecutionDataNoValue(
             intent.signature,
             intent.nonce,
             intent.outputContract,
-            intent.callData,
+            intent.callData
           );
 
     // Determine which function to call based on ETH amount
@@ -288,7 +288,7 @@ export class GasStationClient {
    * Call this with a paymaster client to submit and pay for the transaction.
    */
   async execute(
-    intent: ExecutionIntent,
+    intent: ExecutionIntent
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint; gasUsed: bigint }> {
     // Pack the execution data based on whether we're sending ETH
     const packedData =
@@ -298,13 +298,13 @@ export class GasStationClient {
             intent.nonce,
             intent.outputContract,
             intent.ethAmount,
-            intent.callData,
+            intent.callData
           )
         : packExecutionDataNoValue(
             intent.signature,
             intent.nonce,
             intent.outputContract,
-            intent.callData,
+            intent.callData
           );
 
     // Determine which function to call based on ETH amount
@@ -331,7 +331,7 @@ export class GasStationClient {
       throw new Error(
         `Execution failed: ${revertReason || "Transaction reverted"}. ` +
           `Gas used: ${receipt.gasUsed}/${receipt.cumulativeGasUsed}. ` +
-          `Transaction hash: ${txHash}`,
+          `Transaction hash: ${txHash}`
       );
     }
 

@@ -82,12 +82,12 @@ export function createCustomPreset(config: ChainPreset): ChainPreset {
  */
 export function getPreset(
   presetName: keyof typeof CHAIN_PRESETS,
-  overrides?: Partial<ChainPreset>,
+  overrides?: Partial<ChainPreset>
 ): ChainPreset {
   const preset = CHAIN_PRESETS[presetName];
   if (!preset) {
     throw new Error(
-      `Unknown preset: ${presetName}. Available: ${Object.keys(CHAIN_PRESETS).join(", ")}`,
+      `Unknown preset: ${presetName}. Available: ${Object.keys(CHAIN_PRESETS).join(", ")}`
     );
   }
   return { ...preset, ...overrides };

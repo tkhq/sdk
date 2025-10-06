@@ -72,7 +72,7 @@ export function buildIntentSigningPolicy(config: {
     // Convert to lowercase for case-insensitive comparison
     const contractConditions = config.restrictions.allowedContracts
       .map(
-        (c) => `eth.eip_712.message['outputContract'] == '${c.toLowerCase()}'`,
+        (c) => `eth.eip_712.message['outputContract'] == '${c.toLowerCase()}'`
       )
       .join(" || ");
     conditions.push(`(${contractConditions})`);
@@ -80,7 +80,7 @@ export function buildIntentSigningPolicy(config: {
 
   if (config.restrictions?.maxEthAmount !== undefined) {
     conditions.push(
-      `eth.eip_712.message['ethAmount'] <= ${config.restrictions.maxEthAmount}`,
+      `eth.eip_712.message['ethAmount'] <= ${config.restrictions.maxEthAmount}`
     );
   }
 
