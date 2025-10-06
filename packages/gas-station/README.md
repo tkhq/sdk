@@ -380,7 +380,7 @@ const eoaPolicy = buildIntentSigningPolicy({
   eoaUserId: "user-id",
   restrictions: {
     allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"], // USDC on Base
-    maxEthAmount: 0, // Max 0 ETH per transaction
+    disAllowEthTransfer: false, // Disallow ETH transfers
   },
   policyName: "USDC Only Policy",
 });
@@ -430,7 +430,7 @@ const eoaPolicy = buildIntentSigningPolicy({
   eoaUserId: "user-id",
   restrictions: {
     allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
-    maxEthAmount: 0n, // No ETH transfers
+    allowEthTransfer: false, // No ETH transfers
   },
 });
 

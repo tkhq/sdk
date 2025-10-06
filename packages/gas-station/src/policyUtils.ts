@@ -7,33 +7,36 @@
  * @param config - Policy configuration
  * @param config.organizationId - Turnkey organization ID
  * @param config.eoaUserId - Turnkey user ID for the EOA (primary approver)
- * @param config.additionalApprovers - Optional additional user IDs that can approve (creates OR condition)
+ * @param config.additionalApprovers - Optional additional user IDs that must also approve (creates AND condition)
  * @param config.customConsensus - Optional custom consensus expression (overrides eoaUserId and additionalApprovers)
  * @param config.restrictions - Signing restrictions
  * @param config.restrictions.allowedContracts - Whitelist of contract addresses EOA can sign intents for
- * @param config.restrictions.maxEthAmount - Maximum ETH value allowed in signed intents
+ * @param config.restrictions.disallowEthTransfer - Whether to disallow ETH transfers (if true, ethAmount must be 0)
  * @param config.policyName - Optional policy name
  * @returns Policy object ready to submit to Turnkey createPolicy API
  *
  * @example
- * // Simple: single user approval
+ * // Simple: single user approval, token-only transfers
  * const policy = buildIntentSigningPolicy({
  *   organizationId: "org-123",
  *   eoaUserId: "user-456",
  *   restrictions: {
  *     allowedContracts: [USDC_ADDRESS, DAI_ADDRESS],
- *     maxEthAmount: parseEther("0.01"),
+ *     allowEthTransfer: false,
  *   },
  *   policyName: "Stablecoin Only",
  * });
  *
  * @example
- * // Multi-user: EOA or backup user can approve
+ * // Multi-approval: EOA AND backup user must both approve
  * const policy = buildIntentSigningPolicy({
  *   organizationId: "org-123",
  *   eoaUserId: "user-456",
  *   additionalApprovers: ["backup-user-789"],
- *   restrictions: { ... },
+ *   restrictions: {
+ *     allowedContracts: [USDC_ADDRESS],
+ *     allowEthTransfer: false,
+ *   },
  * });
  *
  * @example
@@ -42,7 +45,9 @@
  *   organizationId: "org-123",
  *   eoaUserId: "user-456",
  *   customConsensus: "approvers.count() >= 2",
- *   restrictions: { ... },
+ *   restrictions: {
+ *     allowEthTransfer: true,
+ *   },
  * });
  *
  * await turnkeyClient.apiClient().createPolicy(policy);
@@ -52,9 +57,9 @@ export function buildIntentSigningPolicy(config: {
   eoaUserId: string;
   additionalApprovers?: string[];
   customConsensus?: string;
-  restrictions: {
+  restrictions?: {
     allowedContracts?: `0x${string}`[];
-    maxEthAmount?: bigint;
+    disallowEthTransfer?: boolean;
   };
   policyName?: string;
 }) {
@@ -72,16 +77,14 @@ export function buildIntentSigningPolicy(config: {
     // Convert to lowercase for case-insensitive comparison
     const contractConditions = config.restrictions.allowedContracts
       .map(
-        (c) => `eth.eip_712.message['outputContract'] == '${c.toLowerCase()}'`
+        (c) => `eth.eip_712.message['outputContract'] == '${c.toLowerCase()}'`,
       )
       .join(" || ");
     conditions.push(`(${contractConditions})`);
   }
 
-  if (config.restrictions?.maxEthAmount !== undefined) {
-    conditions.push(
-      `eth.eip_712.message['ethAmount'] <= ${config.restrictions.maxEthAmount}`
-    );
+  if (!!config.restrictions?.disallowEthTransfer) {
+    conditions.push(`eth.eip_712.message['ethAmount'] == '0'`);
   }
 
   // Build consensus expression
@@ -93,10 +96,14 @@ export function buildIntentSigningPolicy(config: {
     config.additionalApprovers &&
     config.additionalApprovers.length > 0
   ) {
-    // Build multi-user OR condition: any of eoaUserId or additionalApprovers can approve
-    const allUserIds = [config.eoaUserId, ...config.additionalApprovers];
-    const userIdList = allUserIds.map((id) => `'${id}'`).join(", ");
-    consensus = `approvers.any(user, user.id in [${userIdList}])`;
+    // Build multi-user AND condition: eoaUserId AND all additionalApprovers must approve
+    const approverConditions = [
+      `approvers.any(user, user.id == '${config.eoaUserId}')`,
+      ...config.additionalApprovers.map(
+        (id) => `approvers.any(user, user.id == '${id}')`,
+      ),
+    ];
+    consensus = approverConditions.join(" && ");
   } else {
     // Default: only eoaUserId can approve
     consensus = `approvers.any(user, user.id == '${config.eoaUserId}')`;
@@ -248,10 +255,14 @@ export function buildPaymasterExecutionPolicy(config: {
     config.additionalApprovers &&
     config.additionalApprovers.length > 0
   ) {
-    // Build multi-user OR condition: any of paymasterUserId or additionalApprovers can approve
-    const allUserIds = [config.paymasterUserId, ...config.additionalApprovers];
-    const userIdList = allUserIds.map((id) => `'${id}'`).join(", ");
-    consensus = `approvers.any(user, user.id in [${userIdList}])`;
+    // Build multi-user AND condition: paymasterUserId AND all additionalApprovers must approve
+    const approverConditions = [
+      `approvers.any(user, user.id == '${config.paymasterUserId}')`,
+      ...config.additionalApprovers.map(
+        (id) => `approvers.any(user, user.id == '${id}')`,
+      ),
+    ];
+    consensus = approverConditions.join(" && ");
   } else {
     // Default: only paymasterUserId can approve
     consensus = `approvers.any(user, user.id == '${config.paymasterUserId}')`;

@@ -350,4 +350,208 @@ describe("Gas Station Policy Enforcement", () => {
       ).rejects.toThrow(/permission/i);
     });
   });
+
+  describe("Layer 3: Multi-Approval Consensus", () => {
+    let multiApprovalSubOrgId: string;
+    let multiApprovalEoaUserId: string;
+    let multiApprovalEoaWalletAddress: `0x${string}`;
+    let multiApprovalEoaClient: GasStationClient;
+    let multiApprovalPaymasterUserId: string;
+    let multiApprovalPaymasterWalletAddress: `0x${string}`;
+    let multiApprovalPaymasterTurnkeyClient: TurnkeyServerSDK;
+
+    beforeAll(async () => {
+      // Create a new sub-organization for multi-approval tests
+      const result = await turnkeyClient.apiClient().createSubOrganization({
+        organizationId: env.ORGANIZATION_ID,
+        subOrganizationName: `Gas Station Multi-Approval Test - ${Date.now()}`,
+        rootUsers: [
+          {
+            userName: "Admin User",
+            userEmail: "admin@example.com",
+            apiKeys: [
+              {
+                apiKeyName: "Admin API Key",
+                publicKey: env.API_PUBLIC_KEY,
+                curveType: "API_KEY_CURVE_P256" as const,
+              },
+            ],
+            authenticators: [],
+            oauthProviders: [],
+          },
+          {
+            userName: "Multi-Approval EOA User",
+            userEmail: "multi-approval-eoa@example.com",
+            apiKeys: [
+              {
+                apiKeyName: "Multi-Approval EOA API Key",
+                publicKey: eoaPublicKey,
+                curveType: "API_KEY_CURVE_P256" as const,
+              },
+            ],
+            authenticators: [],
+            oauthProviders: [],
+          },
+          {
+            userName: "Multi-Approval Paymaster User",
+            userEmail: "multi-approval-paymaster@example.com",
+            apiKeys: [
+              {
+                apiKeyName: "Multi-Approval Paymaster API Key",
+                publicKey: paymasterPublicKey,
+                curveType: "API_KEY_CURVE_P256" as const,
+              },
+            ],
+            authenticators: [],
+            oauthProviders: [],
+          },
+        ],
+        rootQuorumThreshold: 1,
+        wallet: {
+          walletName: "Multi-Approval EOA Wallet",
+          accounts: [
+            {
+              curve: "CURVE_SECP256K1" as const,
+              pathFormat: "PATH_FORMAT_BIP32" as const,
+              path: "m/44'/60'/0'/0/0",
+              addressFormat: "ADDRESS_FORMAT_ETHEREUM" as const,
+            },
+          ],
+        },
+        disableEmailRecovery: false,
+        disableEmailAuth: false,
+      });
+
+      const multiApprovalSubOrgResult =
+        result.activity.result.createSubOrganizationResultV7;
+      multiApprovalSubOrgId = multiApprovalSubOrgResult?.subOrganizationId!;
+      const adminUserId = multiApprovalSubOrgResult?.rootUserIds?.[0]!;
+      multiApprovalEoaUserId = multiApprovalSubOrgResult?.rootUserIds?.[1]!;
+      multiApprovalPaymasterUserId =
+        multiApprovalSubOrgResult?.rootUserIds?.[2]!;
+      multiApprovalEoaWalletAddress = multiApprovalSubOrgResult?.wallet
+        ?.addresses?.[0]! as `0x${string}`;
+
+      // Create paymaster wallet
+      const paymasterWalletResult = await turnkeyClient
+        .apiClient()
+        .createWallet({
+          organizationId: multiApprovalSubOrgId,
+          walletName: "Multi-Approval Paymaster Wallet",
+          accounts: [
+            {
+              curve: "CURVE_SECP256K1",
+              pathFormat: "PATH_FORMAT_BIP32",
+              path: "m/44'/60'/0'/0/1",
+              addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+            },
+          ],
+        });
+
+      multiApprovalPaymasterWalletAddress = paymasterWalletResult.activity
+        .result.createWalletResult?.addresses?.[0]! as `0x${string}`;
+
+      // Create multi-approval policy requiring both EOA and Paymaster to approve
+      const multiApprovalPolicy = buildIntentSigningPolicy({
+        organizationId: multiApprovalSubOrgId,
+        eoaUserId: multiApprovalEoaUserId,
+        additionalApprovers: [multiApprovalPaymasterUserId],
+        restrictions: {
+          allowedContracts: [USDC_ADDRESS.toLowerCase() as `0x${string}`],
+          disallowEthTransfer: true,
+        },
+        policyName: "Multi-Approval Intent Signing Policy",
+      });
+
+      await turnkeyClient.apiClient().createPolicy(multiApprovalPolicy);
+
+      // Update root quorum (remove EOA and Paymaster users from root quorum)
+      await turnkeyClient.apiClient().updateRootQuorum({
+        organizationId: multiApprovalSubOrgId,
+        threshold: 1,
+        userIds: [adminUserId],
+      });
+
+      // Initialize clients
+      const multiApprovalEoaTurnkeyClient = new TurnkeyServerSDK({
+        apiBaseUrl: env.BASE_URL,
+        apiPrivateKey: eoaPrivateKey,
+        apiPublicKey: eoaPublicKey,
+        defaultOrganizationId: multiApprovalSubOrgId,
+      });
+
+      multiApprovalPaymasterTurnkeyClient = new TurnkeyServerSDK({
+        apiBaseUrl: env.BASE_URL,
+        apiPrivateKey: paymasterPrivateKey,
+        apiPublicKey: paymasterPublicKey,
+        defaultOrganizationId: multiApprovalSubOrgId,
+      });
+
+      const multiApprovalEoaAccount = await createAccount({
+        client: multiApprovalEoaTurnkeyClient.apiClient(),
+        organizationId: multiApprovalSubOrgId,
+        signWith: multiApprovalEoaWalletAddress,
+      });
+
+      const multiApprovalEoaWalletClient = createWalletClient({
+        account: multiApprovalEoaAccount,
+        chain: base,
+        transport: http(),
+      });
+
+      multiApprovalEoaClient = new GasStationClient({
+        walletClient: multiApprovalEoaWalletClient,
+      });
+    }, 60000);
+
+    it("should require 2 approvals for signing intent", async () => {
+      // Create USDC transfer intent
+      const executionParams = buildTokenTransfer(
+        USDC_ADDRESS as `0x${string}`,
+        multiApprovalPaymasterWalletAddress,
+        parseUnits("1", 6)
+      );
+
+      const nonce = 0n;
+
+      // Step 1: First approval (EOA user tries to sign) - should throw consensus needed error
+      let activityId: string;
+      try {
+        await multiApprovalEoaClient
+          .createIntent()
+          .setTarget(executionParams.outputContract)
+          .withValue(executionParams.value ?? 0n)
+          .withCallData(executionParams.callData)
+          .sign(nonce);
+
+        throw new Error("Expected TurnkeyConsensusNeededError but got success");
+      } catch (error: any) {
+        expect(error.name).toBe("TurnkeyConsensusNeededError");
+        expect(error.activityStatus).toBe("ACTIVITY_STATUS_CONSENSUS_NEEDED");
+        activityId = error.activityId;
+      }
+
+      // Get the pending activity
+      const activityResult = await turnkeyClient.apiClient().getActivity({
+        organizationId: multiApprovalSubOrgId,
+        activityId,
+      });
+
+      expect(activityResult.activity.status).toBe(
+        "ACTIVITY_STATUS_CONSENSUS_NEEDED"
+      );
+
+      // Step 2: Second approval from paymaster user
+      const secondApprovalResult = await multiApprovalPaymasterTurnkeyClient
+        .apiClient()
+        .approveActivity({
+          fingerprint: activityResult.activity.fingerprint,
+        });
+
+      // Verify second approval completes the activity
+      expect(secondApprovalResult.activity.status).toBe(
+        "ACTIVITY_STATUS_COMPLETED"
+      );
+    });
+  });
 });
