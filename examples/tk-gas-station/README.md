@@ -25,7 +25,7 @@ Perfect for building dApps where users don't need ETH for gas, enabling seamless
 ### 1. Install Dependencies
 
 ```bash
-npm install @turnkey/sdk-server @turnkey/viem viem
+pnpm install @turnkey/sdk-server @turnkey/viem viem
 ```
 
 ### 2. Set Up Environment
@@ -40,15 +40,24 @@ API_PUBLIC_KEY=your_turnkey_api_public_key
 ORGANIZATION_ID=your_turnkey_organization_id
 
 # Wallet Addresses
-EOA_ADDRESS=0x...                    # User's wallet address
-PAYMASTER=0x...                      # Your paymaster address
+EOA_ADDRESS=0x...                            # User's wallet address
+PAYMASTER_ADDRESS=0x...                      # Your paymaster address
 
 # RPC Configuration
 BASE_RPC_URL=https://mainnet.base.org
 ETH_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/...
+
+# Gas Station Contracts (Optional - defaults to deterministic addresses)
+DELEGATE_CONTRACT=0x33619C1BfB3956a00DDA34FdbF7c3138B6244Aa2    # EIP-7702 delegate contract
+EXECUTION_CONTRACT=0xe511AD0a281C10b8408381E2Ab8525abE587827b   # Gas Sponsorship entrypoint contract which calls the delegate.
 ```
 
-**Note**: The gas station contracts are deployed at deterministic addresses across all chains and are built into the SDK. You don't need to specify them unless using custom deployments.
+**Note**: The gas station contracts are currently deployed at deterministic addresses on the following chains:
+
+- **Ethereum Mainnet**
+- **Base Mainnet**
+
+These addresses are built into the SDK, so you don't need to specify them unless you are using custom deployments.
 
 ### 3. Initialize and Use
 
@@ -122,7 +131,7 @@ const usdcIntent = await userClient
   .transferToken(
     "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC on Base
     "0xRecipient...",
-    parseUnits("10", 6),
+    parseUnits("10", 6)
   )
   .sign(nonce);
 await paymasterClient.execute(usdcIntent);
@@ -292,10 +301,10 @@ async function onboardUser(userAddress: string) {
 
 ```bash
 # ETH transfer on Base
-npm run eth-transfer -- --chain base
+pnpm run eth-transfer -- --chain base
 
 # USDC transfer on Base
-npm run usdc-transfer -- --chain base
+pnpm run usdc-transfer -- --chain base
 ```
 
 ## Architecture

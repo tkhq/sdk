@@ -33,7 +33,7 @@ type ValidChain = (typeof validChains)[number];
 
 if (!validChains.includes(values.chain as ValidChain)) {
   console.error(
-    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`,
+    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`
   );
   process.exit(1);
 }
@@ -54,7 +54,7 @@ const envSchema = z.object({
   API_PUBLIC_KEY: z.string().min(1),
   ORGANIZATION_ID: z.string().min(1),
   EOA_ADDRESS: z.string().min(1),
-  PAYMASTER: z.string().min(1),
+  PAYMASTER_ADDRESS: z.string().min(1),
   ETH_RPC_URL: z.string().url(),
   BASE_RPC_URL: z.string().url(),
 });
@@ -63,7 +63,7 @@ const env = envSchema.parse(process.env);
 
 print(
   `🌐 Using ${selectedChain.toUpperCase()} network`,
-  `USDC: ${preset.tokens?.USDC}`,
+  `USDC: ${preset.tokens?.USDC}`
 );
 
 const turnkeyClient = new TurnkeyServerSDK({
@@ -93,7 +93,7 @@ const main = async () => {
   const paymasterAccount = await createAccount({
     client: turnkeyClient.apiClient(),
     organizationId: env.ORGANIZATION_ID,
-    signWith: env.PAYMASTER as `0x${string}`,
+    signWith: env.PAYMASTER_ADDRESS as `0x${string}`,
   });
 
   const userWalletClient = createWalletClient({
@@ -143,13 +143,13 @@ const main = async () => {
   // Build the execution parameters using the helper
   const executionParams = buildTokenTransfer(
     usdcAddress,
-    env.PAYMASTER as `0x${string}`,
-    transferAmount,
+    env.PAYMASTER_ADDRESS as `0x${string}`,
+    transferAmount
   );
 
   print(
     `Executing USDC transfer`,
-    `${transferAmount} units (0.01 USDC) to ${env.PAYMASTER}`,
+    `${transferAmount} units (0.01 USDC) to ${env.PAYMASTER_ADDRESS}`
   );
 
   // Step 1: User gets their current nonce
@@ -172,7 +172,7 @@ const main = async () => {
   print("===== USDC Transfer Complete =====", "");
   print(
     "✅ Successfully transferred 1 penny USDC from EOA to paymaster",
-    `TX: ${preset.explorerUrl}/tx/${result.txHash}`,
+    `TX: ${preset.explorerUrl}/tx/${result.txHash}`
   );
   print("Gas usage", `${result.gasUsed} gas units`);
 };
