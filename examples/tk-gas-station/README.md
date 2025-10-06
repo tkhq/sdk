@@ -101,7 +101,7 @@ const intent = await userClient
   .transferToken(
     usdcAddress,
     recipientAddress,
-    parseUnits("10", 6), // 10 USDC
+    parseUnits("10", 6) // 10 USDC
   )
   .sign(nonce);
 
@@ -159,11 +159,6 @@ This example works on:
 - Confirm the EOA is authorized (run authorization step first)
 - Check that nonce hasn't been reused
 - Verify the user wallet has sufficient token balance
-
-### "Invalid signature"
-
-- Ensure you're using the correct chain ID
-- Verify the EOA address matches the signer
 
 ## Learn More
 
