@@ -95,6 +95,7 @@ export type SignUpWithWalletParams = {
 
 export type LoginOrSignupWithWalletParams = {
   walletProvider: WalletProvider;
+  publicKey?: string;
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
   expirationSeconds?: string;
