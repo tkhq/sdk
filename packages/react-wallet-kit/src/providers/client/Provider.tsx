@@ -3057,6 +3057,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         const oidcToken = resp.oidcToken;
                         if (params?.onOauthSuccess) {
                           params.onOauthSuccess({
+                            publicKey,
                             oidcToken,
                             providerName: "discord",
                             ...(sessionKey && { sessionKey }),
@@ -3251,6 +3252,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         const oidcToken = resp.oidcToken;
                         if (params?.onOauthSuccess) {
                           params.onOauthSuccess({
+                            publicKey,
                             oidcToken,
                             providerName: "twitter",
                             ...(sessionKey && { sessionKey }),
@@ -3417,6 +3419,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
                     if (params?.onOauthSuccess) {
                       params.onOauthSuccess({
+                        publicKey,
                         oidcToken: idToken,
                         providerName: "google",
                         ...(sessionKey && { sessionKey }),
@@ -3577,6 +3580,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
                     if (params?.onOauthSuccess) {
                       params.onOauthSuccess({
+                        publicKey,
                         oidcToken: idToken,
                         providerName: "apple",
                         ...(sessionKey && { sessionKey }),
@@ -3765,6 +3769,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
                         if (params?.onOauthSuccess) {
                           params.onOauthSuccess({
+                            publicKey,
                             oidcToken: tokenData.id_token,
                             providerName: "facebook",
                             ...(sessionKey && { sessionKey }),
