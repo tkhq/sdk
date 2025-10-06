@@ -17,30 +17,33 @@ export class MobileStorageManager implements StorageBase {
   private static ALL_SESSION_KEYS = "@turnkey/all-session-keys";
   private static ACTIVE_SESSION_KEY = "@turnkey/active-session-key";
 
-  async getStorageValue(sessionKey: string): Promise<any> {
+  getStorageValue = async (sessionKey: string): Promise<any> => {
     const item = await AsyncStorage.getItem(sessionKey);
     return item ? JSON.parse(item) : undefined;
-  }
+  };
 
-  async setStorageValue(sessionKey: string, storageValue: any): Promise<void> {
+  setStorageValue = async (
+    sessionKey: string,
+    storageValue: any,
+  ): Promise<void> => {
     await AsyncStorage.setItem(sessionKey, JSON.stringify(storageValue));
-  }
+  };
 
-  async setActiveSessionKey(sessionKey: string): Promise<void> {
+  setActiveSessionKey = async (sessionKey: string): Promise<void> => {
     await AsyncStorage.setItem(
       MobileStorageManager.ACTIVE_SESSION_KEY,
       sessionKey,
     );
-  }
+  };
 
-  async removeStorageValue(sessionKey: string): Promise<void> {
+  removeStorageValue = async (sessionKey: string): Promise<void> => {
     await AsyncStorage.removeItem(sessionKey);
-  }
+  };
 
-  async storeSession(
+  storeSession = async (
     session: string,
     sessionKey: string = SessionKey.DefaultSessionkey,
-  ): Promise<void> {
+  ): Promise<void> => {
     const sessionWithMetadata = parseSession(session);
     await this.setStorageValue(sessionKey, sessionWithMetadata);
 
@@ -57,31 +60,31 @@ export class MobileStorageManager implements StorageBase {
       MobileStorageManager.ACTIVE_SESSION_KEY,
       sessionKey,
     );
-  }
+  };
 
-  async getSession(
+  getSession = async (
     sessionKey: string = SessionKey.DefaultSessionkey,
-  ): Promise<Session | undefined> {
+  ): Promise<Session | undefined> => {
     return this.getStorageValue(sessionKey);
-  }
+  };
 
-  async getActiveSessionKey(): Promise<string | undefined> {
+  getActiveSessionKey = async (): Promise<string | undefined> => {
     return this.getStorageValue(MobileStorageManager.ACTIVE_SESSION_KEY);
-  }
+  };
 
-  async getActiveSession(): Promise<Session | undefined> {
+  getActiveSession = async (): Promise<Session | undefined> => {
     const key = await this.getActiveSessionKey();
     return key ? this.getSession(key) : undefined;
-  }
+  };
 
-  async listSessionKeys(): Promise<string[]> {
+  listSessionKeys = async (): Promise<string[]> => {
     const raw = await this.getStorageValue(
       MobileStorageManager.ALL_SESSION_KEYS,
     );
     return Array.isArray(raw) ? raw : [];
-  }
+  };
 
-  async clearSession(sessionKey: string): Promise<void> {
+  clearSession = async (sessionKey: string): Promise<void> => {
     await this.removeStorageValue(sessionKey);
 
     const keys = await this.listSessionKeys();
@@ -92,12 +95,12 @@ export class MobileStorageManager implements StorageBase {
     if (active === sessionKey) {
       await this.removeStorageValue(MobileStorageManager.ACTIVE_SESSION_KEY);
     }
-  }
+  };
 
-  async clearAllSessions(): Promise<void> {
+  clearAllSessions = async (): Promise<void> => {
     const keys = await this.listSessionKeys();
     await Promise.all(keys.map((k) => AsyncStorage.removeItem(k)));
     await this.removeStorageValue(MobileStorageManager.ALL_SESSION_KEYS);
     await this.removeStorageValue(MobileStorageManager.ACTIVE_SESSION_KEY);
-  }
+  };
 }
