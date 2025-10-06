@@ -1,6 +1,6 @@
 {
   "name": "with-react-native-wallet-kit",
-  "main": "expo-router/entry",
+  "main": "index.js",
   "version": "1.0.0",
   "scripts": {
     "start": "npx expo prebuild && npx expo run:ios",
@@ -16,7 +16,7 @@
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.17",
-    "@turnkey/react-native-wallet-kit": "https://pkg.csb.dev/tkhq/sdk/commit/68f8d9c9/@turnkey/react-native-wallet-kit",
+    "@turnkey/react-native-wallet-kit": "https://pkg.csb.dev/tkhq/sdk/commit/85b0442b/@turnkey/react-native-wallet-kit",
     "@walletconnect/react-native-compat": "2.21.9",
     "expo": "~54.0.7",
     "expo-constants": "~18.0.8",
@@ -37,7 +37,7 @@
     "react-native-get-random-values": "^1.11.0",
     "react-native-keychain": "^10.0.0",
     "react-native-otp-entry": "^1.8.5",
-    "react-native-passkey": "^3.1.0",
+    "react-native-passkey": "github:f-23/react-native-passkey",
     "react-native-reanimated": "~4.1.0",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",

@@ -3,24 +3,6 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
-// Track property-level changes
-const wrapCrypto = (c: any) =>
-  new Proxy(c, {
-    set(target, prop, value) {
-      if (prop === 'getRandomValues') {
-        console.log('[probe] crypto.getRandomValues overridden:', typeof value);
-      }
-      // log any wholesale replacement of methods you care about
-      return Reflect.set(target, prop, value);
-    },
-  });
-
-if (globalThis.crypto) {
-  // triggers your setter and logs if crypto is replaced;
-  // also proxies property writes like getRandomValues = undefined
-  (globalThis as any).crypto = wrapCrypto(globalThis.crypto);
-}
-
 // Polyfills must be early to satisfy crypto/random usage across dependencies
 import 'react-native-get-random-values';
 import 'react-native-url-polyfill/auto';

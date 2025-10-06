@@ -10,7 +10,7 @@ import type {
  * - organizationId: Your Turnkey organization ID
  * - apiBaseUrl: Optional; defaults to Turnkey prod API
  * - authProxyUrl, authProxyConfigId: If using Auth Proxy, provide both
- * - auth.oauthConfig: Provide redirect URI and any client IDs you plan to enable
+ * - auth.oauth: Provide redirect URI/appScheme and any client IDs you plan to enable
  * - walletConfig: Enable native chains you plan to support
  */
 export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
@@ -21,31 +21,32 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
     rpId: "passkeyapp.tkhqlabs.xyz",
   },
   auth: {
-    methods: {
-      // Enable/disable the methods you want available
-      passkeyAuthEnabled: true,
-      walletAuthEnabled: false,
-      emailOtpAuthEnabled: true,
-      smsOtpAuthEnabled: false,
-      // Disable OAuth initially on RN until native flows are wired
-      googleOauthEnabled: false,
-      appleOauthEnabled: false,
-      facebookOauthEnabled: false,
-      xOauthEnabled: false,
-      discordOauthEnabled: false,
+    otp: {
+      email: true,
+      sms: false,
+      // Optional proxy-controlled values if not using Auth Proxy
+      // alphanumeric: true,
+      // length: "6",
     },
-    oauthOrder: ["google", "apple", "x", "discord", "facebook"],
-    oauthConfig: {
-      oauthRedirectUri: "https://oauth-redirect.turnkey.com",
-      // @ts-expect-error: appScheme is available in source; dist types will include it after build
+    passkey: true,
+    wallet: false,
+    oauth: {
       appScheme: "withreactnativewalletkit",
-      googleClientId: "GOOGLE_CLIENT_ID",
-      appleClientId: "APPLE_CLIENT_ID",
-      facebookClientId: "FACEBOOK_CLIENT_ID",
-      xClientId: "X_CLIENT_ID",
-      discordClientId: "DISCORD_CLIENT_ID",
-      // Always true on mobile; RN does not use web popups
-      openOauthInPage: true,
+      google: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID
+        ? { clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID }
+        : false,
+      apple: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID
+        ? { clientId: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID, redirectUri: "https://e9e96c6ec876.ngrok-free.app/"}
+        : false,
+      facebook: process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_ID
+        ? { clientId: process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_ID, redirectUri: "https://e9e96c6ec876.ngrok-free.app/" }
+        : false,
+      x: process.env.EXPO_PUBLIC_X_CLIENT_ID
+        ? { clientId: process.env.EXPO_PUBLIC_X_CLIENT_ID, redirectUri: "withreactnativewalletkit://"}
+        : false,
+      discord: process.env.EXPO_PUBLIC_DISCORD_CLIENT_ID
+        ? { clientId: process.env.EXPO_PUBLIC_DISCORD_CLIENT_ID, redirectUri: "withreactnativewalletkit://" }
+        : false,
     },
     // Optional: override default session expiration
     // sessionExpirationSeconds: "86400",

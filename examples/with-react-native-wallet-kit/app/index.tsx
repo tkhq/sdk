@@ -33,7 +33,7 @@ const customWallet = {
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { initOtp, completeOtp, signUpWithPasskey, loginWithPasskey, handleGoogleOauth, httpClient, authState, session } = useTurnkey();
+  const { initOtp, signUpWithPasskey, loginWithPasskey, handleGoogleOauth, handleXOauth, handleDiscordOauth, handleFacebookOauth, handleAppleOauth, httpClient, authState, session } = useTurnkey();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
@@ -120,15 +120,67 @@ export default function LoginScreen() {
   const handleGoogleOauthPress = async () => {
     try {
       setLoading(true);
-      const utils = require('@noble/hashes/utils');
-const nodeCrypto = (() => { try { return require('crypto'); } catch { return undefined; } })();
-console.log('[probe] noble utils randomBytes exists:', typeof utils.randomBytes);
-console.log('[probe] node crypto present:', !!nodeCrypto, 'randomBytes:', !!nodeCrypto?.randomBytes, 'webcrypto:', !!nodeCrypto?.webcrypto);
-console.log('[probe] global crypto:', !!globalThis.crypto, 'getRandomValues:', !!globalThis.crypto?.getRandomValues);
+
       await handleGoogleOauth();
       router.replace('/(main)');
     } catch (error) {
       console.error('Error signing in with Google', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleXOauthPress = async () => {
+    try {
+      setLoading(true);
+      console.log('signing in with X');
+      await handleXOauth();
+      router.replace('/(main)');
+    } catch (error) {
+      console.error('Error signing in with X', error);
+      Alert.alert('Error', `Failed to sign in with X: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDiscordOauthPress = async () => {
+    try {
+      setLoading(true);
+      console.log('signing in with Discord');
+      await handleDiscordOauth();
+      router.replace('/(main)');
+    } catch (error) {
+      console.error('Error signing in with Discord', error);
+      Alert.alert('Error', `Failed to sign in with Discord: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFacebookOauthPress = async () => {
+    try {
+      setLoading(true);
+      console.log('signing in with Facebook');
+      await handleFacebookOauth();
+      router.replace('/(main)');
+    } catch (error) {
+      console.error('Error signing in with Facebook', error);
+      Alert.alert('Error', `Failed to sign in with Facebook: ${error}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAppleOauthPress = async () => {
+    try {
+      setLoading(true);
+      console.log('signing in with Apple');
+      await handleAppleOauth();
+      router.replace('/(main)');
+    } catch (error) {
+      console.error('Error signing in with Apple', error);
+      Alert.alert('Error', `Failed to sign in with Apple: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -200,6 +252,66 @@ console.log('[probe] global crypto:', !!globalThis.crypto, 'getRandomValues:', !
               </View>
             </TouchableOpacity>
 
+            {/* X OAuth Button */}
+            <TouchableOpacity
+              style={[styles.xButton]}
+              onPress={handleXOauthPress}
+              activeOpacity={0.8}
+              disabled={loading}
+            >
+              <View style={styles.xButtonContent}>
+                <Text style={styles.xIcon}>𝕏</Text>
+                <Text style={styles.xButtonText}>
+                  Continue with X
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Discord OAuth Button */}
+            <TouchableOpacity
+              style={[styles.discordButton]}
+              onPress={handleDiscordOauthPress}
+              activeOpacity={0.8}
+              disabled={loading}
+            >
+              <View style={styles.discordButtonContent}>
+                <Text style={styles.discordIcon}>D</Text>
+                <Text style={styles.discordButtonText}>
+                  Continue with Discord
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Facebook OAuth Button */}
+            <TouchableOpacity
+              style={[styles.facebookButton]}
+              onPress={handleFacebookOauthPress}
+              activeOpacity={0.8}
+              disabled={loading}
+            >
+              <View style={styles.facebookButtonContent}>
+                <Text style={styles.facebookIcon}>f</Text>
+                <Text style={styles.facebookButtonText}>
+                  Continue with Facebook
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Apple OAuth Button */}
+            <TouchableOpacity
+              style={[styles.appleButton]}
+              onPress={handleAppleOauthPress}
+              activeOpacity={0.8}
+              disabled={loading}
+            >
+              <View style={styles.appleButtonContent}>
+                <Text style={styles.appleIcon}></Text>
+                <Text style={styles.appleButtonText}>
+                  Continue with Apple
+                </Text>
+              </View>
+            </TouchableOpacity>
+
             {/* Email Button */}
             <SecondaryButton
               onPress={handleEmailSubmit}
@@ -208,20 +320,6 @@ console.log('[probe] global crypto:', !!globalThis.crypto, 'getRandomValues:', !
             >
               Continue with email
             </SecondaryButton>
-
-            {/* OR Divider (Placeholder for OAuth) */}
-            <View style={styles.dividerContainer}>
-              <View style={[styles.divider, { backgroundColor: colors.inputBorder }]} />
-              <Text style={[styles.dividerText, { color: colors.secondaryText }]}>
-                OR
-              </Text>
-              <View style={[styles.divider, { backgroundColor: colors.inputBorder }]} />
-            </View>
-
-            {/* Additional OAuth Buttons Placeholder */}
-            <Text style={[styles.placeholderText, { color: colors.secondaryText }]}>
-              Apple and Facebook buttons coming soon
-            </Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -313,6 +411,110 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     color: '#3C4043',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  xButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 8,
+    backgroundColor: '#000000',
+    borderWidth: 1,
+    borderColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  xButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  xIcon: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  xButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  discordButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 8,
+    backgroundColor: '#5865F2',
+    borderWidth: 1,
+    borderColor: '#5865F2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  discordButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  discordIcon: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  discordButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  facebookButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 8,
+    backgroundColor: '#1877F2',
+    borderWidth: 1,
+    borderColor: '#1877F2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  facebookButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  facebookIcon: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  facebookButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  appleButton: {
+    width: '100%',
+    paddingVertical: 16,
+    borderRadius: 8,
+    backgroundColor: '#000000',
+    borderWidth: 1,
+    borderColor: '#000000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  appleButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  appleIcon: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  appleButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
