@@ -2,7 +2,7 @@
 
 This example demonstrates how to implement gasless transactions using the Turnkey Gas Station SDK with EIP-7702 authorization. Users can execute on-chain transactions without holding ETH for gas - your paymaster covers the cost.
 
-For complete API documentation, architecture details, and security best practices, see the **[@turnkey/gas-station package README](../../packages/gas-station/README.md)**.
+For complete API documentation, architecture details, and security best practices, see the **[@turnkey/gas-station package README](https://github.com/tkhq/sdk/tree/main/packages/gas-station)**.
 
 ## What This Example Shows
 
@@ -101,7 +101,7 @@ const intent = await userClient
   .transferToken(
     usdcAddress,
     recipientAddress,
-    parseUnits("10", 6), // 10 USDC
+    parseUnits("10", 6) // 10 USDC
   )
   .sign(nonce);
 
@@ -162,7 +162,7 @@ This example works on:
 
 ## Learn More
 
-- **Full Documentation**: See the [@turnkey/gas-station README](../../packages/gas-station/README.md)
+- **Full Documentation**: See the [@turnkey/gas-station README](https://github.com/tkhq/sdk/tree/main/packages/gas-station)
 - **API Reference**: Complete method documentation in the package README
 - **Security Policies**: Learn how to write custom Turnkey policies
 - **Advanced Use Cases**: Token swaps, NFT minting, and more
