@@ -36,7 +36,7 @@ type ValidChain = (typeof validChains)[number];
 
 if (!validChains.includes(values.chain as ValidChain)) {
   console.error(
-    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`
+    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`,
   );
   process.exit(1);
 }
@@ -66,7 +66,7 @@ const env = envSchema.parse(process.env);
 
 print(
   `🌐 Using ${selectedChain.toUpperCase()} network`,
-  `USDC: ${preset.tokens?.USDC}`
+  `USDC: ${preset.tokens?.USDC}`,
 );
 
 const turnkeyClient = new TurnkeyServerSDK({
@@ -139,7 +139,7 @@ const main = async () => {
     print("✓ Delegation verified on-chain", "");
     print(
       "✅ Authorization complete",
-      `${explorerUrl}/tx/${authResult.txHash}`
+      `${explorerUrl}/tx/${authResult.txHash}`,
     );
   } else {
     print("✓ EOA already delegated", "Skipping authorization");
@@ -160,12 +160,12 @@ const main = async () => {
   const executionParams = buildTokenTransfer(
     usdcAddress,
     env.PAYMASTER_ADDRESS as `0x${string}`,
-    transferAmount
+    transferAmount,
   );
 
   print(
     `Executing USDC transfer`,
-    `${transferAmount} units (${USDC_AMOUNT} USDC) to ${env.PAYMASTER_ADDRESS}`
+    `${transferAmount} units (${USDC_AMOUNT} USDC) to ${env.PAYMASTER_ADDRESS}`,
   );
 
   // Step 1: User gets their current nonce
@@ -193,7 +193,7 @@ const main = async () => {
   print("===== USDC Transfer Complete =====", "");
   print(
     "✅ Successfully transferred 0.01 USDC from EOA to paymaster",
-    `TX: ${explorerUrl}/tx/${result.txHash}`
+    `TX: ${explorerUrl}/tx/${result.txHash}`,
   );
   print("Gas usage", `${result.gasUsed} gas units`);
 };
