@@ -148,8 +148,7 @@ const main = async () => {
       `${explorerUrl}/tx/${authResult.txHash}`,
     );
 
-    // Wait for 2 seconds before proceeding to the next step.
-    // This can help avoid rate limits or ensure proper sequencing of on-chain state.
+    // This delay helps ensure proper sequencing of on-chain state after authorization.
     await new Promise((resolve) => setTimeout(resolve, 2000));
   } else {
     print("✓ EOA already authorized", "Skipping authorization");
