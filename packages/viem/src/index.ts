@@ -390,11 +390,13 @@ export async function signAuthorization(
       address,
       chainId,
       nonce,
-      ...(signature as TSignature),
-      yParity: (signature as TSignature).v,
-    } as any;
+      r: `0x${(signature as TSignature).r}`,
+      s: `0x${(signature as TSignature).s}`,
+      v: BigInt((signature as TSignature).v),
+      yParity: Number((signature as TSignature).v),
+    } as SignAuthorizationReturnType;
 
-  return signature as any;
+  return signature as SignAuthorizationReturnType;
 }
 
 export async function signMessage(
