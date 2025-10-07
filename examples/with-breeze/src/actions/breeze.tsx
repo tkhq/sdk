@@ -1,5 +1,5 @@
 "use server";
-
+// @ts-ignore
 import { BreezeSDK } from "@breezebaby/breeze-sdk";
 
 const breeze = new BreezeSDK({

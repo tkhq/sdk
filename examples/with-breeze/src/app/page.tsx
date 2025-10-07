@@ -78,12 +78,14 @@ export default function BreezeStakingPage() {
 
   const fetchUserInfo = () => {
     if (!activeWalletAccount) return;
-    startTransition(async () => {
-      const { balances, yieldInfo } = await getUserData(
-        activeWalletAccount.address,
-      );
-      setBalances(balances);
-      setYieldInfo(yieldInfo);
+    startTransition(() => {
+      (async () => {
+        const { balances, yieldInfo } = await getUserData(
+          activeWalletAccount.address,
+        );
+        setBalances(balances);
+        setYieldInfo(yieldInfo);
+      })();
     });
   };
 

@@ -61,7 +61,6 @@ This project shows how to:
    ```
 
 4. Open [http://localhost:3000](http://localhost:3000) and log in with Turnkey.
-
    - Select a Solana wallet account
    - Deposit or withdraw 1 USDC via Breeze
    - View balances and yield in real time
