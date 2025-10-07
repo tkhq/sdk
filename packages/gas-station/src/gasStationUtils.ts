@@ -167,13 +167,13 @@ export function packExecutionData({
   nonce,
   to,
   value,
-  arguments: arguments_,
+  args,
 }: {
   signature: Hex;
   nonce: bigint;
   to: Address;
   value?: bigint;
-  arguments: Hex;
+  args: Hex;
 }): Hex {
   const baseData = [
     signature, // 65 bytes
@@ -186,12 +186,12 @@ export function packExecutionData({
     return concat([
       ...baseData,
       pad(toHex(value), { size: 32 }), // 32 bytes (uint256)
-      arguments_, // variable length
+      args, // variable length
     ]);
   }
 
   return concat([
     ...baseData,
-    arguments_, // variable length
+    args, // variable length,
   ]);
 }

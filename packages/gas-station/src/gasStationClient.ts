@@ -245,7 +245,7 @@ export class GasStationClient {
       nonce: intent.nonce,
       to: intent.outputContract,
       ...(intent.ethAmount > 0n && { value: intent.ethAmount }),
-      arguments: intent.callData,
+      args: intent.callData,
     });
 
     // Determine which function to call based on ETH amount
@@ -286,7 +286,7 @@ export class GasStationClient {
       nonce: intent.nonce,
       to: intent.outputContract,
       value: intent.ethAmount,
-      arguments: intent.callData,
+      args: intent.callData,
     });
 
     // Determine which function to call based on ETH amount

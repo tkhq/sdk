@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-gassy-station",
+  "name": "@turnkey/example-tk-gas-station",
   "version": "0.1.0",
   "private": true,
   "description": "Example demonstrating paymaster functionality with Turnkey SDK",

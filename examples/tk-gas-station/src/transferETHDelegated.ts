@@ -15,6 +15,9 @@ import { print } from "./utils";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
 
+// Transfer amount configuration
+const ETH_AMOUNT = "0.00001";
+
 // Parse command line arguments
 const { values } = parseArgs({
   args: process.argv.slice(2),
@@ -33,7 +36,7 @@ type ValidChain = (typeof validChains)[number];
 
 if (!validChains.includes(values.chain as ValidChain)) {
   console.error(
-    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`,
+    `Invalid chain: ${values.chain}. Valid options: ${validChains.join(", ")}`
   );
   process.exit(1);
 }
@@ -63,7 +66,7 @@ const env = envSchema.parse(process.env);
 
 print(
   `🌐 Using ${selectedChain.toUpperCase()} network`,
-  `ETH transfers on ${preset.chain.name}`,
+  `ETH transfers on ${preset.chain.name}`
 );
 
 const turnkeyClient = new TurnkeyServerSDK({
@@ -136,7 +139,7 @@ const main = async () => {
     print("✓ Delegation verified on-chain", "");
     print(
       "✅ Authorization complete",
-      `${explorerUrl}/tx/${authResult.txHash}`,
+      `${explorerUrl}/tx/${authResult.txHash}`
     );
   } else {
     print("✓ EOA already delegated", "Skipping authorization");
@@ -145,17 +148,17 @@ const main = async () => {
   // Step 2: Execute ETH transfer using the generic execute API with helpers
   print("===== Starting ETH Transfer =====", "");
 
-  const transferAmount = parseEther("0.00001"); // 0.0001 ETH
+  const transferAmount = parseEther(ETH_AMOUNT);
 
   // Build the execution parameters using the helper
   const executionParams = buildETHTransfer(
     env.PAYMASTER_ADDRESS as `0x${string}`, // transfer eth to paymaster from EOA
-    transferAmount,
+    transferAmount
   );
 
   print(
     `Executing ETH transfer`,
-    `${transferAmount} wei (0.0001 ETH) to ${env.PAYMASTER_ADDRESS}`,
+    `${transferAmount} wei (${ETH_AMOUNT} ETH) to ${env.PAYMASTER_ADDRESS}`
   );
 
   // Step 1: User gets their current nonce
@@ -183,7 +186,7 @@ const main = async () => {
   print("===== ETH Transfer Complete =====", "");
   print(
     "✅ Successfully transferred 0.0001 ETH from EOA to paymaster",
-    `TX: ${explorerUrl}/tx/${result.txHash}`,
+    `TX: ${explorerUrl}/tx/${result.txHash}`
   );
   print("Gas usage", `${result.gasUsed} gas units`);
 };
