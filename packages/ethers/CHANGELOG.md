@@ -1,5 +1,12 @@
 # @turnkey/ethers
 
+## 1.3.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.11.3
+
 ## 1.3.4
 
 ### Patch Changes

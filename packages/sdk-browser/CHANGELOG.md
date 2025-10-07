@@ -1,5 +1,12 @@
 # @turnkey/sdk-browser
 
+## 5.11.3
+
+### Patch Changes
+
+- Updated dependencies [[`e76d2bf`](https://github.com/tkhq/sdk/commit/e76d2bfbe3fb481aedac9b992260c50217823e8a)]:
+  - @turnkey/iframe-stamper@2.7.0
+
 ## 5.11.2
 
 ### Patch Changes

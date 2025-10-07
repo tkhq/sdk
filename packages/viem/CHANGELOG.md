@@ -1,5 +1,14 @@
 # @turnkey/viem
 
+## 0.14.5
+
+### Patch Changes
+
+- [#995](https://github.com/tkhq/sdk/pull/995) [`9fbcbba`](https://github.com/tkhq/sdk/commit/9fbcbbafb824a24c4f99b54966920ba78e924025) Author [@ethankonk](https://github.com/ethankonk) - Fixed the signAuthorization return type to match viem's signAuthorization return
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.11.3
+
 ## 0.14.4
 
 ### Patch Changes
