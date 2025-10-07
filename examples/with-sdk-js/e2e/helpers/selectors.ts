@@ -5,6 +5,8 @@ export const withSdkJsSelectors = {
   },
   createMethods: {
     createWallet: "create-wallet",
+    createETHWallet: "create-eth-wallet",
+    createSOLWallet: "create-sol-wallet",
   },
   modals: {
     authModal: "show-auth-modal",
@@ -36,6 +38,7 @@ export const withSdkJsSelectors = {
   },
   fetchMethods: {
     getWhoami: "get-whoami",
+    getWhoamiTempClient: "get-whoami-temp-client",
     getActiveSession: "get-active-session",
     fetchUser: "fetch-user",
     fetchWallets: "fetch-wallets",

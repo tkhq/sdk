@@ -23,6 +23,7 @@ export * from "./__types__/enums";
 export * from "./__types__/error";
 export * from "./__types__/export";
 export * from "./__types__/external-wallets";
+export * from "./__types__/http";
 export * from "./__types__/method-types";
 
 /**@internal */
@@ -31,6 +32,7 @@ export {
   isEthereumProvider,
   isSolanaProvider,
   getAuthProxyConfig,
+  sendSignedRequest,
   addressFormatConfig,
 } from "./utils";
 

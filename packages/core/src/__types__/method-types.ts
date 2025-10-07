@@ -18,7 +18,16 @@ import type {
   WalletAccount,
   WalletProvider,
   Wallet,
+  TSignedRequest,
 } from "./index";
+
+export type CreateHttpClientParams = {
+  apiBaseUrl?: string | undefined;
+  organizationId?: string | undefined;
+  authProxyUrl?: string | undefined;
+  authProxyConfigId?: string | undefined;
+  defaultStamperType?: StamperType | undefined;
+};
 
 export type CreatePasskeyParams = {
   name?: string;
@@ -58,6 +67,17 @@ export type SwitchWalletAccountChainParams = {
   walletProviders?: WalletProvider[] | undefined;
 };
 
+export type BuildWalletLoginRequestParams = {
+  walletProvider: WalletProvider;
+  publicKey?: string;
+  expirationSeconds?: string;
+};
+
+export type BuildWalletLoginRequestResult = {
+  publicKey: string;
+  signedRequest: TSignedRequest;
+};
+
 export type LoginWithWalletParams = {
   walletProvider: WalletProvider;
   publicKey?: string;
@@ -75,6 +95,7 @@ export type SignUpWithWalletParams = {
 
 export type LoginOrSignupWithWalletParams = {
   walletProvider: WalletProvider;
+  publicKey?: string;
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
   expirationSeconds?: string;

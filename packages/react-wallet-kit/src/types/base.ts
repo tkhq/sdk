@@ -1,4 +1,8 @@
-import type { CreateSubOrgParams, TurnkeySDKClientConfig } from "@turnkey/core";
+import type {
+  CreateSubOrgParams,
+  StamperType,
+  TurnkeySDKClientConfig,
+} from "@turnkey/core";
 import type {
   AuthAction,
   Session,
@@ -100,6 +104,10 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   };
   /** whether to automatically refresh managed state variables */
   autoRefreshManagedState?: boolean;
+
+  /** default stamper type to use for requests that require stamping. */
+  defaultStamperType?: StamperType;
+
   /** UI configuration. */
   ui?: {
     /** logo for the auth component */

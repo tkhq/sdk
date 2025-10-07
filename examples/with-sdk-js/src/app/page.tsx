@@ -131,6 +131,24 @@ export default function AuthPage() {
     }
   };
 
+  const getWhoamiWithTempClient = async () => {
+    const tempClient = turnkey.createHttpClient({
+      defaultStamperType: StamperType.Passkey,
+    });
+
+    console.log(
+      "tempPasskeyClient",
+      `StamperType:${tempClient.defaultStamperType}`,
+      await tempClient.getWhoami(),
+    );
+
+    console.log(
+      "notTempApiKeyClient",
+      `StamperType:${httpClient?.defaultStamperType}`,
+      await httpClient?.getWhoami(),
+    );
+  };
+
   const signWithViem = async () => {
     const turnkeyAccount = await createAccount({
       client: httpClient!,
@@ -321,8 +339,8 @@ export default function AuthPage() {
               data-testid="create-wallet"
               onClick={async () => {
                 const allAddressFormats: v1AddressFormat[] = [
-                  "ADDRESS_FORMAT_ETHEREUM",
                   "ADDRESS_FORMAT_SOLANA",
+                  "ADDRESS_FORMAT_ETHEREUM",
                 ];
 
                 console.log(
@@ -340,6 +358,52 @@ export default function AuthPage() {
               }}
             >
               Create Wallet
+            </button>
+            <button
+              data-testid="create-eth-wallet"
+              onClick={async () => {
+                const allAddressFormats: v1AddressFormat[] = [
+                  "ADDRESS_FORMAT_ETHEREUM",
+                ];
+
+                console.log(
+                  await turnkey.createWallet({
+                    walletName: `My Wallet ${new Date().toISOString()}`,
+                    accounts: allAddressFormats,
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "yellowgreen",
+                borderRadius: "8px",
+                padding: "4px 16px",
+                color: "black",
+              }}
+            >
+              Create ETH Wallet
+            </button>
+            <button
+              data-testid="create-sol-wallet"
+              onClick={async () => {
+                const allAddressFormats: v1AddressFormat[] = [
+                  "ADDRESS_FORMAT_SOLANA",
+                ];
+
+                console.log(
+                  await turnkey.createWallet({
+                    walletName: `My Wallet ${new Date().toISOString()}`,
+                    accounts: allAddressFormats,
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "yellowgreen",
+                borderRadius: "8px",
+                padding: "4px 16px",
+                color: "black",
+              }}
+            >
+              Create SOL Wallet
             </button>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -974,6 +1038,19 @@ export default function AuthPage() {
               }}
             >
               GetWhoami with IndexedDB
+            </button>
+
+            <button
+              data-testid="get-whoami-temp-client"
+              onClick={async () => await getWhoamiWithTempClient()}
+              style={{
+                backgroundColor: "green",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              GetWhoami with Temporary Passkey Client
             </button>
 
             <button

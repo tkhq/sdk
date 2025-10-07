@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.6.1
+
+### Patch Changes
+
+- [#993](https://github.com/tkhq/sdk/pull/993) [`68631c4`](https://github.com/tkhq/sdk/commit/68631c4008387f845dfe4f1a139981011727f6c9) Author [@moeodeh3](https://github.com/moeodeh3) - Added a new error code `WALLET_BUILD_LOGIN_REQUEST_ERROR` in `TurnkeyErrorCodes`
+
 ## 0.6.0
 
 ### Minor Changes

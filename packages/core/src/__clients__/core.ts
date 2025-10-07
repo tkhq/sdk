@@ -8,7 +8,6 @@ import {
   type v1User,
   TurnkeyError,
   TurnkeyErrorCodes,
-  TurnkeyNetworkError,
   type ProxyTGetWalletKitConfigResponse,
   type v1WalletAccountParams,
   type v1PrivateKey,
@@ -95,6 +94,9 @@ import {
   type SetActiveSessionParams,
   type CreateApiKeyPairParams,
   type FetchBootProofForAppProofParams,
+  type CreateHttpClientParams,
+  type BuildWalletLoginRequestResult,
+  type BuildWalletLoginRequestParams,
 } from "../__types__";
 import {
   buildSignUpBody,
@@ -122,6 +124,7 @@ import {
   mapAccountsToWallet,
   getActiveSessionOrThrowIfRequired,
   fetchAllWalletAccountsWithCursor,
+  sendSignedRequest,
 } from "../utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -201,22 +204,53 @@ export class TurnkeyClient {
       this.walletManager = await createWalletManager(this.config.walletConfig);
     }
 
-    // We can comfortably default to the prod urls here
-    const apiBaseUrl = this.config.apiBaseUrl || "https://api.turnkey.com";
-    const authProxyUrl =
-      this.config.authProxyUrl || "https://authproxy.turnkey.com";
-
     // Initialize the HTTP client with the appropriate stampers
-    this.httpClient = new TurnkeySDKClientBase({
+    // Note: not passing anything here since we want to use the configured stampers and this.config
+    this.httpClient = this.createHttpClient();
+  }
+
+  /**
+   * Creates a new TurnkeySDKClientBase instance with the provided configuration.
+   * This method is used internally to create the HTTP client for making API requests,
+   * but can also be used to create an additional client with different configurations if needed.
+   * By default, it uses the configuration provided during the TurnkeyClient initialization.
+   *
+   * @param params - Optional configuration parameters to override the default client configuration.
+   * @param params.apiBaseUrl - The base URL of the Turnkey API (defaults to `https://api.turnkey.com` if not provided).
+   * @param params.organizationId - The organization ID to associate requests with.
+   * @param params.authProxyUrl - The base URL of the Auth Proxy (defaults to `https://authproxy.turnkey.com` if not provided).
+   * @param params.authProxyConfigId - The configuration ID to use when making Auth Proxy requests.
+   * @param params.defaultStamperType - The default stamper type to use for signing requests
+   *   (overrides automatic detection of ApiKey, Passkey, or Wallet stampers).
+   *
+   * @returns A new instance of {@link TurnkeySDKClientBase} configured with the provided parameters.
+   */
+  createHttpClient = (
+    params?: CreateHttpClientParams,
+  ): TurnkeySDKClientBase => {
+    // We can comfortably default to the prod urls here
+    const apiBaseUrl =
+      params?.apiBaseUrl || this.config.apiBaseUrl || "https://api.turnkey.com";
+    const authProxyUrl =
+      params?.authProxyUrl ||
+      this.config.authProxyUrl ||
+      "https://authproxy.turnkey.com";
+
+    const organizationId = params?.organizationId || this.config.organizationId;
+
+    return new TurnkeySDKClientBase({
       ...this.config,
+      ...params,
+
       apiBaseUrl,
       authProxyUrl,
+      organizationId,
       apiKeyStamper: this.apiKeyStamper,
       passkeyStamper: this.passkeyStamper,
       walletStamper: this.walletManager?.stamper,
       storageManager: this.storageManager,
     });
-  }
+  };
 
   /**
    * Creates a new passkey authenticator for the user.
@@ -724,6 +758,154 @@ export class TurnkeyClient {
   };
 
   /**
+   * Builds and signs a wallet login request without submitting it to Turnkey.
+   *
+   * - This function prepares a signed request for wallet authentication, which can later be used
+   *   to log in or sign up a user with Turnkey.
+   * - It initializes the wallet stamper, ensures a valid session public key (generating one if needed),
+   *   and signs the login intent with the connected wallet.
+   * - For Ethereum wallets, derives the public key from the stamped request header.
+   * - For Solana wallets, retrieves the public key directly from the connected wallet.
+   * - The signed request is not sent to Turnkey immediately; it is meant to be used in a subsequent flow
+   *   (e.g., `loginOrSignupWithWallet`) where sub-organization existence is verified or created first.
+   *
+   * @param params.walletProvider - the wallet provider used for authentication and signing.
+   * @param params.publicKey - optional pre-generated session public key (auto-generated if not provided).
+   * @param params.expirationSeconds - optional session expiration time in seconds (defaults to the configured default).
+   * @returns A promise resolving to an object containing:
+   *          - `signedRequest`: the signed wallet login request.
+   *          - `publicKey`: the public key associated with the signed request.
+   * @throws {TurnkeyError} If the wallet stamper is not initialized, the signing process fails,
+   *                        or the public key cannot be derived or generated.
+   */
+  buildWalletLoginRequest = async (
+    params: BuildWalletLoginRequestParams,
+  ): Promise<BuildWalletLoginRequestResult> => {
+    const { walletProvider, publicKey: providedPublicKey } = params;
+    const expirationSeconds =
+      params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
+
+    let generatedPublicKey: string | undefined = undefined;
+    return withTurnkeyErrorHandling(
+      async () => {
+        if (!this.walletManager?.stamper) {
+          throw new TurnkeyError(
+            "Wallet stamper is not initialized",
+            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+          );
+        }
+
+        const futureSessionPublicKey =
+          providedPublicKey ??
+          (generatedPublicKey = await this.apiKeyStamper?.createKeyPair());
+
+        if (!futureSessionPublicKey) {
+          throw new TurnkeyError(
+            "Failed to find or generate a public key for building the wallet login request",
+            TurnkeyErrorCodes.WALLET_BUILD_LOGIN_REQUEST_ERROR,
+          );
+        }
+
+        this.walletManager.stamper.setProvider(
+          walletProvider.interfaceType,
+          walletProvider,
+        );
+
+        // here we sign the request with the wallet, but we don't send it to Turnkey yet
+        // this is because we need to check if the subOrg exists first, and create one if it doesn't
+        // once we have the subOrg for the publicKey, we then can send the request to Turnkey
+        const signedRequest = await withTurnkeyErrorHandling(
+          async () => {
+            return this.httpClient.stampStampLogin(
+              {
+                publicKey: futureSessionPublicKey,
+                organizationId: this.config.organizationId,
+                expirationSeconds,
+              },
+              StamperType.Wallet,
+            );
+          },
+          {
+            errorMessage: "Failed to create stamped request for wallet login",
+            errorCode: TurnkeyErrorCodes.WALLET_BUILD_LOGIN_REQUEST_ERROR,
+            customErrorsByMessages: {
+              "WalletConnect: The connection request has expired. Please scan the QR code again.":
+                {
+                  message:
+                    "Your WalletConnect session expired. Please scan the QR code again.",
+                  code: TurnkeyErrorCodes.WALLET_CONNECT_EXPIRED,
+                },
+              "Failed to sign the message": {
+                message: "Wallet auth was cancelled by the user.",
+                code: TurnkeyErrorCodes.CONNECT_WALLET_CANCELLED,
+              },
+            },
+          },
+        );
+
+        if (!signedRequest) {
+          throw new TurnkeyError(
+            "Failed to create stamped request for wallet login",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
+
+        let publicKey: string | undefined;
+        switch (walletProvider.chainInfo.namespace) {
+          case Chain.Ethereum: {
+            // for Ethereum, there is no way to get the public key from the wallet address
+            // so we derive it from the signed request
+            publicKey = getPublicKeyFromStampHeader(
+              signedRequest.stamp.stampHeaderValue,
+            );
+            break;
+          }
+
+          case Chain.Solana: {
+            // for Solana, we can get the public key from the wallet address
+            // since the wallet address is the public key
+            // this doesn't require any action from the user as long as the wallet is connected
+            // which it has to be since they just called stampStampLogin()
+            publicKey = await this.walletManager.stamper.getPublicKey(
+              walletProvider.interfaceType,
+              walletProvider,
+            );
+            break;
+          }
+
+          default:
+            throw new TurnkeyError(
+              `Unsupported interface type: ${walletProvider.interfaceType}`,
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+        }
+
+        return {
+          signedRequest,
+          publicKey: publicKey,
+        };
+      },
+      {
+        errorCode: TurnkeyErrorCodes.WALLET_BUILD_LOGIN_REQUEST_ERROR,
+        errorMessage: "Failed to build wallet login request",
+        catchFn: async () => {
+          if (generatedPublicKey) {
+            try {
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
+            } catch (cleanupError) {
+              throw new TurnkeyError(
+                `Failed to clean up generated key pair`,
+                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+                cleanupError,
+              );
+            }
+          }
+        },
+      },
+    );
+  };
+
+  /**
    * Logs in a user using the specified wallet provider.
    *
    * - This function logs in a user by authenticating with the provided wallet provider via a wallet-based signature.
@@ -745,7 +927,7 @@ export class TurnkeyClient {
   loginWithWallet = async (
     params: LoginWithWalletParams,
   ): Promise<WalletAuthResult> => {
-    let publicKey =
+    const publicKey =
       params.publicKey || (await this.apiKeyStamper?.createKeyPair());
     return withTurnkeyErrorHandling(
       async () => {
@@ -971,6 +1153,7 @@ export class TurnkeyClient {
    * - Stores the resulting session token under the specified session key, or the default session key if not provided.
    *
    * @param params.walletProvider - wallet provider to use for authentication.
+   * @param params.publicKey - optional public key to associate with the session (generated if not provided).
    * @param params.createSubOrgParams - optional parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
@@ -987,94 +1170,12 @@ export class TurnkeyClient {
     const createSubOrgParams = params.createSubOrgParams;
     const sessionKey = params.sessionKey || SessionKey.DefaultSessionkey;
     const walletProvider = params.walletProvider;
-    const expirationSeconds =
-      params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
     let generatedPublicKey: string | undefined = undefined;
     return withTurnkeyErrorHandling(
       async () => {
-        if (!this.walletManager?.stamper) {
-          throw new TurnkeyError(
-            "Wallet stamper is not initialized",
-            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
-          );
-        }
-        generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
-
-        this.walletManager.stamper.setProvider(
-          walletProvider.interfaceType,
-          walletProvider,
-        );
-
-        // here we sign the request with the wallet, but we don't send it to Turnkey yet
-        // this is because we need to check if the subOrg exists first, and create one if it doesn't
-        // once we have the subOrg for the publicKey, we then can send the request to Turnkey
-        const signedRequest = await withTurnkeyErrorHandling(
-          async () => {
-            return this.httpClient.stampStampLogin(
-              {
-                publicKey: generatedPublicKey!,
-                organizationId: this.config.organizationId,
-                expirationSeconds,
-              },
-              StamperType.Wallet,
-            );
-          },
-          {
-            errorMessage: "Failed to create stamped request for wallet login",
-            errorCode: TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
-            customErrorsByMessages: {
-              "WalletConnect: The connection request has expired. Please scan the QR code again.":
-                {
-                  message:
-                    "Your WalletConnect session expired. Please scan the QR code again.",
-                  code: TurnkeyErrorCodes.WALLET_CONNECT_EXPIRED,
-                },
-              "Failed to sign the message": {
-                message: "Wallet auth was cancelled by the user.",
-                code: TurnkeyErrorCodes.CONNECT_WALLET_CANCELLED,
-              },
-            },
-          },
-        );
-
-        if (!signedRequest) {
-          throw new TurnkeyError(
-            "Failed to create stamped request for wallet login",
-            TurnkeyErrorCodes.BAD_RESPONSE,
-          );
-        }
-
-        let publicKey: string | undefined;
-        switch (walletProvider.chainInfo.namespace) {
-          case Chain.Ethereum: {
-            // for Ethereum, there is no way to get the public key from the wallet address
-            // so we derive it from the signed request
-            publicKey = getPublicKeyFromStampHeader(
-              signedRequest.stamp.stampHeaderValue,
-            );
-
-            break;
-          }
-
-          case Chain.Solana: {
-            // for Solana, we can get the public key from the wallet address
-            // since the wallet address is the public key
-            // this doesn't require any action from the user as long as the wallet is connected
-            // which it has to be since they just called stampStampLogin()
-            publicKey = await this.walletManager.stamper.getPublicKey(
-              walletProvider.interfaceType,
-              walletProvider,
-            );
-            break;
-          }
-
-          default:
-            throw new TurnkeyError(
-              `Unsupported interface type: ${walletProvider.interfaceType}`,
-              TurnkeyErrorCodes.INVALID_REQUEST,
-            );
-        }
+        const { signedRequest, publicKey } =
+          await this.buildWalletLoginRequest(params);
 
         // here we check if the subOrg exists and create one
         // then we send off the stamped request to Turnkey
@@ -1119,29 +1220,8 @@ export class TurnkeyClient {
         }
 
         // now we can send the stamped request to Turnkey
-        const headers: Record<string, string> = {
-          "Content-Type": "application/json",
-          [signedRequest.stamp.stampHeaderName]:
-            signedRequest.stamp.stampHeaderValue,
-        };
-
-        const res = await fetch(signedRequest.url, {
-          method: "POST",
-          headers,
-          body: signedRequest.body,
-        });
-
-        if (!res.ok) {
-          const errorText = await res.text();
-          throw new TurnkeyNetworkError(
-            `Stamped request failed`,
-            res.status,
-            TurnkeyErrorCodes.WALLET_LOGIN_AUTH_ERROR,
-            errorText,
-          );
-        }
-
-        const sessionResponse = await res.json();
+        const sessionResponse =
+          await sendSignedRequest<TStampLoginResponse>(signedRequest);
         const sessionToken =
           sessionResponse.activity.result.stampLoginResult?.session;
         if (!sessionToken) {
@@ -1794,7 +1874,7 @@ export class TurnkeyClient {
       organizationId: organizationIdFromParams,
       userId: userIdFromParams,
       connectedOnly,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params || {};
     const session = await this.storageManager.getActiveSession();
     if (!session && !connectedOnly) {
@@ -1949,7 +2029,12 @@ export class TurnkeyClient {
   fetchWalletAccounts = async (
     params: FetchWalletAccountsParams,
   ): Promise<WalletAccount[]> => {
-    const { wallet, stampWith, walletProviders, paginationOptions } = params;
+    const {
+      wallet,
+      stampWith = this.config.defaultStamperType,
+      walletProviders,
+      paginationOptions,
+    } = params;
     const session = await this.storageManager.getActiveSession();
 
     const organizationId = params?.organizationId || session?.organizationId;
@@ -2135,7 +2220,7 @@ export class TurnkeyClient {
   fetchPrivateKeys = async (
     params?: FetchPrivateKeysParams,
   ): Promise<v1PrivateKey[]> => {
-    const { stampWith } = params || {};
+    const { stampWith = this.config.defaultStamperType } = params || {};
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -2217,7 +2302,7 @@ export class TurnkeyClient {
     const {
       message,
       walletAccount,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       addEthereumPrefix,
       organizationId,
     } = params;
@@ -2325,7 +2410,7 @@ export class TurnkeyClient {
       walletAccount,
       unsignedTransaction,
       transactionType,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId,
     } = params;
 
@@ -2409,7 +2494,7 @@ export class TurnkeyClient {
       unsignedTransaction,
       transactionType,
       rpcUrl,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId,
     } = params;
 
@@ -2508,7 +2593,7 @@ export class TurnkeyClient {
     const {
       organizationId: organizationIdFromParams,
       userId: userIdFromParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params || {};
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -2576,7 +2661,7 @@ export class TurnkeyClient {
     const {
       publicKey,
       createParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId: organizationIdFromParams,
     } = params;
 
@@ -2707,7 +2792,7 @@ export class TurnkeyClient {
   fetchOrCreatePolicies = async (
     params: FetchOrCreatePoliciesParams,
   ): Promise<FetchOrCreatePoliciesResult> => {
-    const { policies, stampWith } = params;
+    const { policies, stampWith = this.config.defaultStamperType } = params;
 
     return await withTurnkeyErrorHandling(
       async () => {
@@ -2829,7 +2914,12 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating or verifying the user email.
    */
   updateUserEmail = async (params: UpdateUserEmailParams): Promise<string> => {
-    const { verificationToken, email, stampWith, organizationId } = params;
+    const {
+      verificationToken,
+      email,
+      stampWith = this.config.defaultStamperType,
+      organizationId,
+    } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -2898,7 +2988,8 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the user email.
    */
   removeUserEmail = async (params?: RemoveUserEmailParams): Promise<string> => {
-    const { stampWith, organizationId } = params || {};
+    const { stampWith = this.config.defaultStamperType, organizationId } =
+      params || {};
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -2957,8 +3048,12 @@ export class TurnkeyClient {
   updateUserPhoneNumber = async (
     params: UpdateUserPhoneNumberParams,
   ): Promise<string> => {
-    const { verificationToken, phoneNumber, stampWith, organizationId } =
-      params;
+    const {
+      verificationToken,
+      phoneNumber,
+      stampWith = this.config.defaultStamperType,
+      organizationId,
+    } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3017,7 +3112,8 @@ export class TurnkeyClient {
   removeUserPhoneNumber = async (
     params?: RemoveUserPhoneNumberParams,
   ): Promise<string> => {
-    const { stampWith, organizationId } = params || {};
+    const { stampWith = this.config.defaultStamperType, organizationId } =
+      params || {};
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3073,7 +3169,11 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error updating the user name.
    */
   updateUserName = async (params: UpdateUserNameParams): Promise<string> => {
-    const { userName, stampWith, organizationId } = params;
+    const {
+      userName,
+      stampWith = this.config.defaultStamperType,
+      organizationId,
+    } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3135,7 +3235,11 @@ export class TurnkeyClient {
   addOauthProvider = async (
     params: AddOauthProviderParams,
   ): Promise<string[]> => {
-    const { providerName, oidcToken, stampWith } = params;
+    const {
+      providerName,
+      oidcToken,
+      stampWith = this.config.defaultStamperType,
+    } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3252,7 +3356,11 @@ export class TurnkeyClient {
   removeOauthProviders = async (
     params: RemoveOauthProvidersParams,
   ): Promise<string[]> => {
-    const { providerIds, stampWith, organizationId } = params;
+    const {
+      providerIds,
+      stampWith = this.config.defaultStamperType,
+      organizationId,
+    } = params;
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3309,7 +3417,8 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if passkey creation fails, or if there is an error adding the passkey.
    */
   addPasskey = async (params?: AddPasskeyParams): Promise<string[]> => {
-    const { stampWith, organizationId } = params || {};
+    const { stampWith = this.config.defaultStamperType, organizationId } =
+      params || {};
     const name = params?.name || `Turnkey Passkey-${Date.now()}`;
 
     return withTurnkeyErrorHandling(
@@ -3379,7 +3488,11 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session, if the userId is missing, or if there is an error removing the passkeys.
    */
   removePasskeys = async (params: RemovePasskeyParams): Promise<string[]> => {
-    const { authenticatorIds, stampWith, organizationId } = params;
+    const {
+      authenticatorIds,
+      stampWith = this.config.defaultStamperType,
+      organizationId,
+    } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -3444,7 +3557,7 @@ export class TurnkeyClient {
       accounts,
       organizationId: organizationIdFromParams,
       mnemonicLength,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -3523,7 +3636,7 @@ export class TurnkeyClient {
       accounts,
       walletId,
       organizationId: organizationIdFromParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -3606,7 +3719,7 @@ export class TurnkeyClient {
     const {
       walletId,
       targetPublicKey,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId: organizationIdFromParams,
     } = params;
 
@@ -3671,7 +3784,7 @@ export class TurnkeyClient {
     const {
       privateKeyId,
       targetPublicKey,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId: organizationIdFromParams,
     } = params;
 
@@ -3736,7 +3849,7 @@ export class TurnkeyClient {
     const {
       address,
       targetPublicKey,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId: organizationIdFromParams,
     } = params;
 
@@ -3804,7 +3917,7 @@ export class TurnkeyClient {
       walletName,
       organizationId: organizationIdFromParams,
       userId: userIdFromParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -3896,7 +4009,7 @@ export class TurnkeyClient {
       curve,
       organizationId: organizationIdFromParams,
       userId: userIdFromParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -3976,7 +4089,7 @@ export class TurnkeyClient {
     const {
       deleteWithoutExport = false,
       organizationId: organizationIdFromParams,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
     } = params || {};
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -4118,6 +4231,7 @@ export class TurnkeyClient {
       sessionKey = await this.storageManager.getActiveSessionKey(),
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       publicKey,
+      stampWith = this.config.defaultStamperType,
       invalidateExisitng = false,
     } = params || {};
     if (!sessionKey) {
@@ -4159,7 +4273,7 @@ export class TurnkeyClient {
             expirationSeconds,
             invalidateExisting: invalidateExisitng,
           },
-          params?.stampWith,
+          stampWith,
         );
 
         if (!res || !res.session) {
@@ -4436,7 +4550,7 @@ export class TurnkeyClient {
   ): Promise<v1BootProof> => {
     const {
       appProof,
-      stampWith,
+      stampWith = this.config.defaultStamperType,
       organizationId: organizationIdFromParams,
     } = params;
 
