@@ -1,11 +1,11 @@
 # Example: `wallet-import-export`
 
-This example shows how to import, export, and get wallets. It contains a NextJS app with:
+This example shows how to export wallets and wallet accounts, the latter of which can then be used for signing. It contains a NextJS app with:
 
 - a frontend application
 - a backend application
 
-This example includes API stubs to get whomai and your wallets as well as import and export your wallet using a mnemonic phrase. The creation of the iframe is abstracted by our `@turnkey/iframe-stamper` package.
+This example includes API stubs to make `whoami` requests and export wallets and wallet accounts. The creation of the iframe is abstracted by our `@turnkey/iframe-stamper` package.
 
 <p style="text-align:center">
     <img src="./img/demo.png" width="2000"/>
@@ -46,7 +46,7 @@ Now open `.env.local` and add the missing environment variables:
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
 - `NEXT_PUBLIC_EXPORT_IFRAME_URL`
-- `NEXT_PUBLIC_IMPORT_IFRAME_URL`
+- `NEXT_PUBLIC_EXPORT_SIGN_FRAME_URL`
 
 ### 3/ Running the app
 
@@ -54,4 +54,4 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm run dev
 ```
 
-This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to export a private key.
+This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to export a wallet, and export + sign using a (Solana) wallet account.

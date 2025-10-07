@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import styles from "./index.module.css";
 import { Modal } from "@/components/Modal";
 import { ExportWallet } from "@/components/ExportWallet";
-import { ImportWallet } from "@/components/ImportWallet";
 import { WalletsTable } from "@/components/WalletsTable";
 
 // We can pull this import from @turnkey/sdk-browser, @turnkey/sdk-server, or @turnkey/http.
@@ -67,34 +66,12 @@ export default function ExportPage() {
       {/* Wallets Table and Action Buttons */}
       {userId && (
         <div>
-          <div className={styles.buttons}>
-            <button
-              className={styles.button}
-              onClick={() => setIsImportModalOpen(true)}
-            >
-              Import Wallet
-            </button>
-          </div>
           <WalletsTable
             wallets={wallets}
             setSelectedWallet={setSelectedWallet}
             setIsExportModalOpen={setIsExportModalOpen}
           />
         </div>
-      )}
-
-      {/* Import Modal */}
-      {userId && (
-        <Modal
-          show={isImportModalOpen}
-          onClose={() => setIsImportModalOpen(false)}
-        >
-          <ImportWallet
-            organizationId={process.env.NEXT_PUBLIC_ORGANIZATION_ID!}
-            userId={userId}
-            getWallets={getWallets}
-          />
-        </Modal>
       )}
 
       {/* Export Modal */}

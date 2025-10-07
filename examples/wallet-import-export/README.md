@@ -1,11 +1,11 @@
 # Example: `wallet-import-export`
 
-This example shows how to import, export, and get wallets. It contains a NextJS app with:
+This example shows how to import, export, and get wallets and wallet accounts. It contains a NextJS app with:
 
 - a frontend application
 - a backend application
 
-This example includes API stubs to get whomai and your wallets as well as import and export your wallet using a mnemonic phrase. The creation of the iframe is abstracted by our `@turnkey/iframe-stamper` package.
+This example includes API stubs to make a `whoami` request, fetch your wallets, as well as import and export wallets using a mnemonic phrase. The creation of the iframe is abstracted by our `@turnkey/iframe-stamper` package.
 
 <p style="text-align:center">
     <img src="./img/demo.png" width="2000"/>

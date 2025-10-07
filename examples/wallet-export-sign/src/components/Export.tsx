@@ -146,6 +146,7 @@ export function Export(props: ExportProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.setIframeStamper, iframeStamper]);
 
+  // For the sake of demonstration, only allow signing one message at a time (embedded private key will be cleared after signature)
   const signMessage = () => {
     if (iframeStamper === null) {
       alert("Iframe not ready — reveal private key first.");
@@ -161,8 +162,15 @@ export function Export(props: ExportProps) {
         console.error("Error signing message:", error);
         alert("Error signing message: " + error.message);
       });
+
+    // now clear the embedded private key from iframe's memory
+    iframeStamper.clearEmbeddedPrivateKey().catch((error: Error) => {
+      console.error("Error clearing embedded private key:", error);
+      alert("Error clearing embedded private key: " + error.message);
+    });
   };
 
+  // For the sake of demonstration, only allow signing one message at a time (embedded private key will be cleared after signature)
   const signTransaction = () => {
     if (iframeStamper === null) {
       alert("Iframe not ready — reveal private key first.");
@@ -186,6 +194,12 @@ export function Export(props: ExportProps) {
         console.error("Error signing transaction:", error);
         alert("Error signing transaction: " + error.message);
       });
+
+    // now clear the embedded private key from iframe's memory
+    iframeStamper.clearEmbeddedPrivateKey().catch((error: Error) => {
+      console.error("Error clearing embedded private key:", error);
+      alert("Error clearing embedded private key: " + error.message);
+    });
   };
 
   const copyToClipboard = async (text: string) => {

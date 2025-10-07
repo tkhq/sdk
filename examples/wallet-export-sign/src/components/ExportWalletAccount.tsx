@@ -107,7 +107,7 @@ export function ExportWalletAccount(props: ExportWalletAccountProps) {
         <Export
           setIframeStamper={setIframeStamper}
           iframeDisplay={iframeDisplay}
-          iframeUrl={process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL!}
+          iframeUrl={process.env.NEXT_PUBLIC_EXPORT_SIGN_IFRAME_URL!}
           turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
           showSigning={props.addressFormat === "ADDRESS_FORMAT_SOLANA"}
         />
