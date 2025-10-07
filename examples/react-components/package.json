@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@coinbase/onchainkit": "^0.38.13",
+    "@coinbase/onchainkit": "0.38.13",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@hello-pangea/dnd": "^17.0.0",
