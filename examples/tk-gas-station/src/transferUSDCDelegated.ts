@@ -130,13 +130,19 @@ const main = async () => {
   if (!isDelegated) {
     print("===== Starting EIP-7702 Authorization =====", "");
     print("EOA not yet delegated", "Starting authorization...");
+
+    // Step 1: User signs the authorization
     print("User signing authorization...", "");
-    const authResult = await userClient.authorize(paymasterClient);
+    const authorization = await userClient.signAuthorization();
+
+    // Step 2: Paymaster submits the authorization transaction
+    const authResult = await paymasterClient.submitAuthorizations([
+      authorization,
+    ]);
+
     print("Authorization transaction sent", authResult.txHash);
     print("Waiting for confirmation...", "");
     print("✅ Authorization SUCCEEDED", "");
-    print("Verifying delegation on-chain...", "");
-    print("✓ Delegation verified on-chain", "");
     print(
       "✅ Authorization complete",
       `${explorerUrl}/tx/${authResult.txHash}`,

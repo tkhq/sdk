@@ -63,6 +63,53 @@ pnpm run usdc-transfer -- --chain base
 pnpm run test:policies
 ```
 
+### Example Output
+
+Here's what a successful USDC transfer looks like:
+
+```
+> pnpm run usdc-transfer -- --chain base
+
+🌐 Using BASE network
+        USDC: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+
+✓ EOA already delegated
+        Skipping authorization
+
+===== Starting USDC Transfer =====
+
+Executing USDC transfer
+        10000 units (0.01 USDC) to 0x30E9...
+
+Current nonce: 29
+
+Signing EIP-712 execution intent...
+
+✓ Intent signed: 0xdccca0c7f553c5b7b0...
+
+✓ Intent signed by user
+
+Executing intent via gas station...
+
+Execution transaction sent
+        0xb3eb...
+
+Waiting for confirmation...
+
+✅ Execution SUCCEEDED
+
+Confirmed
+        Block: 36529242, Gas: 68572
+
+===== USDC Transfer Complete =====
+
+✅ Successfully transferred 0.01 USDC from EOA to paymaster
+        TX: https://basescan.org/tx/0xb3ebc...
+
+Gas usage
+        68572 gas units
+```
+
 ## Example Code Walkthrough
 
 ### ETH Transfer (`src/transferETHDelegated.ts`)

@@ -53,17 +53,21 @@ export class GasStationClient {
   }
 
   /**
-   * Submit a signed EIP-7702 authorization transaction
+   * Submit signed EIP-7702 authorization transaction(s)
+   * Supports authorizing multiple EOAs in a single transaction
    * Call this with a paymaster client to broadcast the authorization transaction
    * The paymaster pays for the gas
    */
-  async submitAuthorization(
-    authorization: SignedAuthorization,
+  async submitAuthorizations(
+    authorizations: SignedAuthorization[],
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
+    if (authorizations.length === 0) {
+      throw new Error("Authorization list cannot be empty");
+    }
+
     const authTxHash = await this.walletClient.sendTransaction({
       from: "0x0000000000000000000000000000000000000000",
-      gas: BigInt(200000),
-      authorizationList: [authorization],
+      authorizationList: authorizations,
       to: "0x0000000000000000000000000000000000000000",
       type: "eip7702",
       account: this.walletClient.account,
@@ -84,41 +88,6 @@ export class GasStationClient {
     }
 
     return { txHash: authTxHash, blockNumber: receipt.blockNumber };
-  }
-
-  /**
-   * Convenience method that combines signAuthorization and submitAuthorization
-   * This requires the caller to have access to both the end-user and paymaster clients
-   * For separate flows, use signAuthorization() and submitAuthorization() directly
-   */
-  async authorize(
-    paymasterClient: GasStationClient,
-  ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
-    // End user signs the authorization
-    const authorization = await this.signAuthorization();
-
-    // Paymaster submits the transaction
-    const result = await paymasterClient.submitAuthorization(authorization);
-
-    // Verify the delegation took effect by polling isDelegated
-    const maxRetries = 10;
-    let retries = 0;
-    while (retries < maxRetries) {
-      const delegated = await this.isDelegated();
-      if (delegated) {
-        break;
-      }
-      retries++;
-      if (retries === maxRetries) {
-        throw new Error(
-          "Delegation verification failed - account code not set after authorization",
-        );
-      }
-      // Wait 1 second before retrying
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-
-    return result;
   }
 
   /**

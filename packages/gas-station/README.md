@@ -112,7 +112,8 @@ const paymasterClient = new GasStationClient({
 });
 
 // One-time: Authorize the EOA to use gas station
-await userClient.authorize(paymasterClient);
+const authorization = await userClient.signAuthorization();
+await paymasterClient.submitAuthorizations([authorization]);
 
 // Execute a gasless ETH transfer
 let nonce = await userClient.getNonce();
@@ -172,22 +173,16 @@ new GasStationClient({
 
 **Paymaster Methods** (call with paymaster client):
 
-**`submitAuthorization(auth: SignedAuthorization): Promise<{ txHash, blockNumber }>`**
+**`submitAuthorizations(authorizations: SignedAuthorization[]): Promise<{ txHash, blockNumber }>`**
 
-- Submit a signed EIP-7702 authorization transaction
+- Submit signed EIP-7702 authorization transaction(s)
+- Supports authorizing multiple EOAs in a single transaction
 - Paymaster pays for gas
 
 **`execute(intent: ExecutionIntent): Promise<{ txHash, blockNumber, gasUsed }>`**
 
 - Execute a signed intent through the gas station
 - Paymaster pays for gas
-
-**Convenience Methods** (require both clients):
-
-**`authorize(paymasterClient: GasStationClient): Promise<{ txHash, blockNumber }>`**
-
-- Combined flow: user signs authorization, paymaster submits
-- One-time setup per EOA
 
 ### IntentBuilder
 
@@ -286,7 +281,8 @@ async function onboardUser(userAddress: string) {
   });
 
   // Authorize user (paymaster pays)
-  await userClient.authorize(paymasterClient);
+  const authorization = await userClient.signAuthorization();
+  await paymasterClient.submitAuthorizations([authorization]);
 
   // User can now execute transactions without ETH
   console.log("✅ User ready for gasless transactions!");
@@ -614,7 +610,7 @@ The helper functions automatically:
 
 ### Execution Failed
 
-- Confirm EOA is authorized (`gasStation.authorize()`)
+- Confirm EOA is authorized (check with `isDelegated()`)
 - Verify execution contract address matches deployment
 - Check nonce hasn't been reused
 - Ensure target contract call is valid
