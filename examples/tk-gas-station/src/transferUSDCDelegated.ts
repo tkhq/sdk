@@ -147,7 +147,7 @@ const main = async () => {
       "✅ Authorization complete",
       `${explorerUrl}/tx/${authResult.txHash}`,
     );
-    
+
     // This delay helps ensure proper sequencing of on-chain state after authorization.
     await new Promise((resolve) => setTimeout(resolve, 2000));
   } else {
