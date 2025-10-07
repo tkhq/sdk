@@ -3,9 +3,9 @@ import { base, mainnet, sepolia } from "viem/chains";
 
 // Default contract addresses (deterministically deployed across all chains)
 export const DEFAULT_DELEGATE_CONTRACT: `0x${string}` =
-  "0xb8417Ce59d8031f2BA87b764Cf0c522Db2dD70Eb";
+  "0x60700A0EbBd4266Af68AF7965eEdB654c7B335bD";
 export const DEFAULT_EXECUTION_CONTRACT: `0x${string}` =
-  "0xF327388AA0f545Ff9B2f636a9701563cc07eFe22";
+  "0x4069Ad699E366E5581c7D8BcCBeAFa391aCB3f45";
 
 // Type definitions
 export interface GasStationConfig {
