@@ -1,42 +1,55 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import {
-  useTurnkey,
-  Wallet,
-  WalletAccount,
-} from "@turnkey/react-wallet-kit";
-import { Connection, VersionedTransaction } from "@solana/web3.js";
-import { BreezeSDK } from "@breezebaby/breeze-sdk";
+import { useEffect, useState, useTransition } from "react";
+import { useTurnkey, WalletAccount } from "@turnkey/react-wallet-kit";
+import { Connection, PublicKey, VersionedTransaction } from "@solana/web3.js";
 import { TurnkeySigner } from "@turnkey/solana";
+import {
+  createDepositTx,
+  createWithdrawTx,
+  getUserData,
+} from "../actions/breeze";
 
-// Choose a public RPC (can be mainnet or devnet depending on Breeze env)
 const connection = new Connection(
   "https://solana-rpc.publicnode.com",
-  "confirmed"
+  "confirmed",
 );
-
-// Breeze setup
-const breeze = new BreezeSDK({
-  apiKey: process.env.NEXT_PUBLIC_BREEZE_API_KEY!,
-  baseUrl: "https://api.breeze.baby",
-  timeout: 30000,
-});
-
 const USDC_MINT = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 
-export default function AuthPage() {
+function LoginButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full mt-6 bg-black hover:bg-gray-800 text-white font-semibold py-4 rounded-xl transition-all active:scale-98"
+    >
+      Login / Sign Up
+    </button>
+  );
+}
+
+function LogoutButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full mt-6 bg-red-500 hover:bg-red-400 text-white font-semibold py-4 rounded-xl transition-all active:scale-98"
+    >
+      Log out
+    </button>
+  );
+}
+
+export default function BreezeStakingPage() {
+  const { wallets, httpClient, handleLogin, logout, session } = useTurnkey();
   const [activeWalletAccount, setActiveWalletAccount] =
     useState<WalletAccount | null>(null);
-  const [status, setStatus] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
   const [balances, setBalances] = useState<any[]>([]);
   const [yieldInfo, setYieldInfo] = useState<any[]>([]);
+  const [processing, setProcessing] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [txid, setTxid] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  // hook provides session + wallet context
-  const { wallets, httpClient, handleLogin, logout } = useTurnkey();
-
-  // Create a signer bound to current Turnkey org/session
   const turnkeySigner = activeWalletAccount
     ? new TurnkeySigner({
         organizationId: activeWalletAccount.organizationId,
@@ -44,257 +57,297 @@ export default function AuthPage() {
       })
     : null;
 
-    useEffect(() => {
-      if (activeWalletAccount) {
-        fetchUserInfo()
-      }
-    }, [activeWalletAccount]);
+  // Filter only Solana accounts
+  const solAccounts =
+    wallets
+      ?.flatMap((w) => w.accounts)
+      .filter((a) => {
+        try {
+          new PublicKey(a.address);
+          return true;
+        } catch {
+          return false;
+        }
+      }) || [];
 
-
-// Breeze deposit flow
-const handleDeposit = async () => {
-  try {
-    if (!activeWalletAccount || !turnkeySigner) {
-      setStatus("❌ No active account selected");
-      return;
+  useEffect(() => {
+    if (!activeWalletAccount && solAccounts.length > 0) {
+      setActiveWalletAccount(solAccounts[0]);
     }
+  }, [wallets]);
 
-    setStatus("Creating deposit transaction…");
-
-    const depositTxB64 = await breeze.createDepositTransaction({
-      payerKey: activeWalletAccount.address,
-      fundId: process.env.NEXT_PUBLIC_FUND_ID!,
-      userKey: activeWalletAccount.address,
-      amount: 1_000_000, // 1 USDC (6 decimals)
-      mint: USDC_MINT,
-    });
-
-    const rawBytes = Uint8Array.from(atob(depositTxB64), (c) =>
-      c.charCodeAt(0)
-    );
-    const transaction = VersionedTransaction.deserialize(rawBytes);
-
-    await turnkeySigner.addSignature(transaction, activeWalletAccount.address);
-
-    const allSigsPresent = transaction.signatures.every(
-      (sig) => sig !== null && sig.length > 0
-    );
-    if (!allSigsPresent) {
-      throw new Error("Signature verification failed");
-    }
-
-    const txid = await connection.sendRawTransaction(transaction.serialize(), {
-      skipPreflight: false,
-      maxRetries: 3,
-    });
-    await connection.confirmTransaction(txid, "confirmed");
-
-    setStatus(`✅ Deposit broadcasted. Transaction ID: ${txid}`);
-
-    // 🔑 refresh Breeze balances/yield after deposit
-    await fetchUserInfo();
-  } catch (err: any) {
-    console.error(err);
-    setStatus(`❌ Error: ${err.message}`);
-  }
-};
-
-// Breeze withdraw flow
-const handleWithdraw = async () => {
-  try {
-    if (!activeWalletAccount || !turnkeySigner) {
-      setStatus("❌ No active account selected");
-      return;
-    }
-
-    setStatus("Creating withdraw transaction…");
-
-    const withdrawTxB64 = await breeze.createWithdrawTransaction({
-      payerKey: activeWalletAccount.address,
-      fundId: process.env.NEXT_PUBLIC_FUND_ID!,
-      userKey: activeWalletAccount.address,
-      amount: 1_000_000, // 1 USDC
-    });
-
-    const rawBytes = Uint8Array.from(atob(withdrawTxB64), (c) =>
-      c.charCodeAt(0)
-    );
-    const transaction = VersionedTransaction.deserialize(rawBytes);
-
-    await turnkeySigner.addSignature(transaction, activeWalletAccount.address);
-
-    const allSigsPresent = transaction.signatures.every(
-      (sig) => sig !== null && sig.length > 0
-    );
-    if (!allSigsPresent) {
-      throw new Error("Signature verification failed");
-    }
-
-    const txid = await connection.sendRawTransaction(transaction.serialize(), {
-      skipPreflight: false,
-      maxRetries: 3,
-    });
-    await connection.confirmTransaction(txid, "confirmed");
-
-    setStatus(`✅ Withdrawal broadcasted. Transaction ID: ${txid}`);
-
-    // 🔑 refresh Breeze balances/yield after withdraw
-    await fetchUserInfo();
-  } catch (err: any) {
-    console.error(err);
-    setStatus(`❌ Error: ${err.message}`);
-  }
-};
-
-
-  // Fetch balances + yield
-  const fetchUserInfo = async () => {
+  const fetchUserInfo = () => {
     if (!activeWalletAccount) return;
-    try {
-      const userId = activeWalletAccount.address; // can also use Breeze userId if different
-      const userBalances = await breeze.getUserBalances({ userId });
-      const userYield = await breeze.getUserYield({ userId });
-      console.log(userBalances.data)
-      setBalances(userYield.data || []);
-      setYieldInfo(userYield.data || []);
-    } catch (err) {
-      console.error("Error fetching user info", err);
-    }
+    startTransition(async () => {
+      const { balances, yieldInfo } = await getUserData(
+        activeWalletAccount.address,
+      );
+      setBalances(balances);
+      setYieldInfo(yieldInfo);
+    });
   };
 
   useEffect(() => {
-    if (activeWalletAccount) {
-      fetchUserInfo();
-    }
+    if (activeWalletAccount) fetchUserInfo();
   }, [activeWalletAccount]);
 
+  const handleTransaction = async (type: "deposit" | "withdraw") => {
+    try {
+      if (!activeWalletAccount || !turnkeySigner) {
+        setStatusMessage("❌ Please login and select an account");
+        return;
+      }
+
+      setProcessing(true);
+      setModalOpen(true);
+      setTxid(null);
+      setStatusMessage(
+        `${type === "deposit" ? "Depositing" : "Withdrawing"} 1 USDC...`,
+      );
+
+      const txBase64 =
+        type === "deposit"
+          ? await createDepositTx({
+              payerKey: activeWalletAccount.address,
+              userKey: activeWalletAccount.address,
+              fundId: process.env.NEXT_PUBLIC_FUND_ID!,
+              amount: 1_000_000,
+              mint: USDC_MINT,
+            })
+          : await createWithdrawTx({
+              payerKey: activeWalletAccount.address,
+              userKey: activeWalletAccount.address,
+              fundId: process.env.NEXT_PUBLIC_FUND_ID!,
+              amount: 1_000_000,
+            });
+
+      const rawBytes = Uint8Array.from(atob(txBase64), (c) => c.charCodeAt(0));
+      const transaction = VersionedTransaction.deserialize(rawBytes);
+      await turnkeySigner.addSignature(
+        transaction,
+        activeWalletAccount.address,
+      );
+
+      const txidLocal = await connection.sendRawTransaction(
+        transaction.serialize(),
+        {
+          skipPreflight: false,
+          maxRetries: 3,
+        },
+      );
+      await connection.confirmTransaction(txidLocal, "confirmed");
+
+      setTxid(txidLocal);
+      setStatusMessage(
+        `✅ ${type === "deposit" ? "Deposit" : "Withdrawal"} successful`,
+      );
+      fetchUserInfo();
+    } catch (err: any) {
+      setStatusMessage(`❌ Error: ${err.message}`);
+    } finally {
+      setProcessing(false);
+      setTimeout(() => setModalOpen(false), 5000);
+    }
+  };
+
+  const handleLogout = () => {
+    setActiveWalletAccount(null);
+    logout();
+  };
+
   return (
-    <main className="p-4 flex flex-col gap-4">
-      <div className="flex items-center relative mb-4">
-        <a
-          href="https://www.turnkey.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="absolute top-1/2 -translate-y-1/2"
-        >
-          <Image
-            src="/logo.svg"
-            alt="Turnkey Logo"
-            width={100}
-            height={24}
-            priority
-          />
-        </a>
-        <h1 className="w-full text-center text-lg">
-          Turnkey + Breeze Staking Playground
-        </h1>
-      </div>
-
-      <div>
-        <h2>Breeze Actions</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={handleDeposit}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-          >
-            Deposit 1 USDC
-          </button>
-          <button
-            onClick={handleWithdraw}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            Withdraw 1 USDC
-          </button>
-          <button
-            onClick={fetchUserInfo}
-            className="bg-gray-600 text-white px-4 py-2 rounded"
-          >
-            Refresh Balances/Yield
-          </button>
-        </div>
-        {status && (
-          <p className="text-sm mt-2">
-            {status.includes("Transaction ID") ? (
-              <span>
-                {status.split("Transaction ID:")[0]}
-                <a
-                  href={`https://solscan.io/tx/${status.split("Transaction ID:")[1].trim()}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  {status.split("Transaction ID:")[1].trim()}
-                </a>
-              </span>
-            ) : (
-              status
-            )}
-          </p>
-        )}
-      </div>
-
-      <div>
-        <h2 className="font-bold">User Balances</h2>
-        {balances.length > 0 ? (
-          <ul className="list-disc ml-5">
-            {balances.map((bal: any) => (
-              <li key={bal.fund_id}>
-                {bal.position_value / 1_000_000} {bal.base_asset}{" "}
-              </li>
-            ))}
-          </ul>
+    <main className="min-h-screen bg-white flex items-center justify-center p-4">
+      <div className="w-full max-w-md flex flex-col gap-4">
+        {!session ? (
+          <LoginButton onClick={handleLogin} />
         ) : (
-          <p>No balances available.</p>
+          <LogoutButton onClick={handleLogout} />
         )}
 
-        <h2 className="font-bold mt-4">User Yield</h2>
-        {yieldInfo.length > 0 ? (
-          <ul className="list-disc ml-5">
-            {yieldInfo.map((y: any) => (
-              <li key={y.funx_id}>
-                {y.yield_earned / 1_000_000} {y.base_asset}{" "}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No yield info available.</p>
-        )}
-      </div>
-
-      <div>
-        <h3>Select Wallet Account</h3>
-        {wallets && wallets.length > 0 ? (
-          wallets.map((w: Wallet) =>
-            w.accounts.map((acct: WalletAccount) => (
-              <button
-                key={acct.address}
-                onClick={() => setActiveWalletAccount(acct)}
-                className={`block w-full text-left px-2 py-1 border rounded mt-1 ${
-                  activeWalletAccount?.address === acct.address
-                    ? "bg-gray-200"
-                    : ""
-                }`}
+        {session && solAccounts.length > 0 && (
+          <>
+            {/* Wallet selector */}
+            <div className="flex flex-col gap-2 mb-4">
+              <label className="text-sm text-gray-600 font-medium">
+                Select Wallet Account
+              </label>
+              <select
+                value={activeWalletAccount?.address || ""}
+                onChange={(e) => {
+                  const selected = solAccounts.find(
+                    (a) => a.address === e.target.value,
+                  );
+                  setActiveWalletAccount(selected || null);
+                }}
+                className="border border-gray-300 rounded-xl px-3 py-2 text-black outline-none"
               >
-                {acct.address}
+                <option value="" disabled>
+                  -- Select a SOL account --
+                </option>
+                {solAccounts.map((account) => (
+                  <option key={account.address} value={account.address}>
+                    {account.address.slice(0, 6)}…{account.address.slice(-4)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Card */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+              <h1 className="text-2xl font-bold text-black mb-6">Staking</h1>
+
+              {/* Balances */}
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 mb-3">
+                <h2 className="text-sm font-semibold text-gray-700 mb-2">
+                  Staked USDC Balance
+                </h2>
+                {balances.length > 0 ? (
+                  (() => {
+                    const usdc = balances.find(
+                      (b) => b.token_address === USDC_MINT,
+                    );
+                    if (!usdc)
+                      return (
+                        <p className="text-gray-500 text-sm">No USDC found.</p>
+                      );
+                    const usdcBalance =
+                      usdc.total_balance / 10 ** usdc.decimals;
+                    return (
+                      <p className="text-black font-semibold">
+                        {usdcBalance.toFixed(2)} USDC
+                      </p>
+                    );
+                  })()
+                ) : (
+                  <p className="text-gray-500 text-sm">
+                    No balances available.
+                  </p>
+                )}
+              </div>
+
+              {/* Yield */}
+              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <h2 className="text-sm font-semibold text-gray-700 mb-2">
+                  USDC Yield
+                </h2>
+                {yieldInfo.length > 0 ? (
+                  (() => {
+                    const usdcYield = yieldInfo.find(
+                      (y) => y.base_asset === "USDC",
+                    );
+                    if (!usdcYield)
+                      return (
+                        <p className="text-gray-500 text-sm">
+                          No USDC yield found.
+                        </p>
+                      );
+                    const earned = usdcYield.yield_earned / 1_000_000;
+                    const apy = usdcYield.apy?.toFixed(2);
+                    return (
+                      <div className="text-black space-y-1">
+                        <p>
+                          <span className="font-semibold">
+                            {earned.toFixed(4)} USDC
+                          </span>{" "}
+                          earned
+                        </p>
+                        <p className="text-gray-600">APY: {apy}%</p>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <p className="text-gray-500 text-sm">
+                    No yield info available.
+                  </p>
+                )}
+              </div>
+
+              {/* Actions */}
+              <button
+                onClick={() => handleTransaction("deposit")}
+                disabled={processing}
+                className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-xl transition-all active:scale-98"
+              >
+                {processing ? "Processing..." : "Deposit 1 USDC"}
               </button>
-            ))
-          )
-        ) : (
-          <p>No wallets available. Log in first.</p>
+
+              <button
+                onClick={() => handleTransaction("withdraw")}
+                disabled={processing}
+                className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl transition-all active:scale-98"
+              >
+                {processing ? "Processing..." : "Withdraw 1 USDC"}
+              </button>
+
+              {statusMessage && (
+                <p className="text-center text-sm mt-4 text-gray-700">
+                  {statusMessage}
+                </p>
+              )}
+            </div>
+          </>
         )}
-        <button
-          onClick={() => handleLogin()}
-          className="bg-purple-600 text-white px-4 py-2 rounded mt-2"
-        >
-          Login with Turnkey
-        </button>
-                <button
-          onClick={() => logout()}
-          className="bg-purple-600 text-white px-4 py-2 rounded mt-2"
-        >
-          Log out of Turnkey
-        </button>
       </div>
+
+      {/* Modal */}
+      {modalOpen && (
+        <div className="absolute inset-0 bg-white bg-opacity-95 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50">
+          <div className="flex flex-col items-center gap-6 p-8">
+            {processing ? (
+              <>
+                <div className="relative w-16 h-16">
+                  <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
+                  <div className="absolute inset-0 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-black mb-1">
+                    Processing transaction...
+                  </h2>
+                  <p className="text-sm text-gray-600">
+                    Please wait while your staking transaction is confirmed
+                  </p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="relative w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
+                  <svg
+                    className="w-10 h-10 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold text-black mb-1">
+                    Transaction complete
+                  </h2>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Your staking action has been completed successfully.
+                  </p>
+                  {txid && (
+                    <a
+                      href={`https://solscan.io/tx/${txid}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      View on Solscan
+                    </a>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
