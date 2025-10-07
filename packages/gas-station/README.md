@@ -430,12 +430,10 @@ const paymasterPolicy = buildPaymasterExecutionPolicy({
 //   condition: "activity.resource == 'PRIVATE_KEY' && " +
 //              "activity.action == 'SIGN' && " +
 //              "eth.tx.to == '0xe511ad0a281c10b8408381e2ab8525abe587827b' && " +
-//              "(eth.fn_selector(eth.tx.data) == eth.fn_selector('execute(address,bytes)') || " +
-//              "eth.fn_selector(eth.tx.data) == eth.fn_selector('executeNoValue(address,bytes)')) && " +
-//              "(eth.tx.data[4:24] == '0x742d35cc6634c0532925a3b844bc9e7595f0beb') && " +
-//              "(eth.tx.data[89:109] == '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913') && " +
-//              "eth.tx.gas_price <= '50000000000' && " +
-//              "eth.tx.gas_limit <= '500000'",
+//              "(eth.tx.data[98..138] == '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913') && " +
+//              "(eth.tx.data[10..74] == '0x742d35cc6634c0532925a3b844bc9e7595f0beb') && " +
+//              "eth.tx.gasPrice <= 50000000000 && " +
+//              "eth.tx.gas <= 500000",
 //   notes: "Restricts which transactions the paymaster can execute on the gas station"
 // }
 ```

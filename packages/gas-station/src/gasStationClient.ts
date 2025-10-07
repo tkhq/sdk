@@ -218,13 +218,17 @@ export class GasStationClient {
     });
 
     // Determine which function to call based on ETH amount
-    const functionName = intent.ethAmount > 0n ? "execute" : "executeNoValue";
 
     // Encode the function call data
     const callData = encodeFunctionData({
       abi: gasStationAbi,
-      functionName,
-      args: [intent.eoaAddress, packedData],
+      functionName: "execute",
+      args: [
+        intent.eoaAddress,
+        intent.outputContract,
+        intent.ethAmount,
+        packedData,
+      ],
     });
 
     // Sign the transaction without sending it

@@ -6,9 +6,22 @@ export const gasStationAbi = [
     stateMutability: "nonpayable",
     type: "constructor",
   },
+  { inputs: [], name: "InvalidFunctionSelector", type: "error" },
   { inputs: [], name: "NoEthAllowed", type: "error" },
   { inputs: [], name: "NotDelegated", type: "error" },
-  { stateMutability: "nonpayable", type: "fallback" },
+  {
+    inputs: [
+      { internalType: "address", name: "_targetEoA", type: "address" },
+      { internalType: "bytes", name: "_data", type: "bytes" },
+    ],
+    name: "approveThenExecute",
+    outputs: [
+      { internalType: "bool", name: "", type: "bool" },
+      { internalType: "bytes", name: "", type: "bytes" },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
   {
     inputs: [
       { internalType: "address", name: "_targetEoA", type: "address" },
@@ -23,6 +36,21 @@ export const gasStationAbi = [
   {
     inputs: [
       { internalType: "address", name: "_targetEoA", type: "address" },
+      { internalType: "bytes", name: "_data", type: "bytes" },
+    ],
+    name: "execute",
+    outputs: [
+      { internalType: "bool", name: "", type: "bool" },
+      { internalType: "bytes", name: "", type: "bytes" },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "address", name: "_targetEoA", type: "address" },
+      { internalType: "address", name: "_to", type: "address" },
+      { internalType: "uint256", name: "ethAmount", type: "uint256" },
       { internalType: "bytes", name: "_data", type: "bytes" },
     ],
     name: "execute",
