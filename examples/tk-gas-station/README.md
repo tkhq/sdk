@@ -73,7 +73,7 @@ Here's what a successful USDC transfer looks like:
 🌐 Using BASE network
         USDC: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
 
-✓ EOA already delegated
+✓ EOA already authorized
         Skipping authorization
 
 ===== Starting USDC Transfer =====

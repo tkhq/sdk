@@ -376,10 +376,24 @@ const eoaPolicy = buildIntentSigningPolicy({
   eoaUserId: "user-id",
   restrictions: {
     allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"], // USDC on Base
-    disAllowEthTransfer: false, // Disallow ETH transfers
+    disallowEthTransfer: true, // Disallow ETH transfers
   },
   policyName: "USDC Only Policy",
 });
+
+// Resulting policy restricts signing to USDC transfers only:
+// {
+//   organizationId: "your-org-id",
+//   policyName: "USDC Only Policy",
+//   effect: "EFFECT_ALLOW",
+//   consensus: "approvers.any(user, user.id == 'user-id')",
+//   condition: "activity.resource == 'PRIVATE_KEY' && " +
+//              "activity.action == 'SIGN' && " +
+//              "eth.eip_712.primary_type == 'Execution' && " +
+//              "(eth.eip_712.message['outputContract'] == '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913') && " +
+//              "eth.eip_712.message['ethAmount'] == '0'",
+//   notes: "Restricts which EIP-712 intents the EOA can sign for gas station execution"
+// }
 ```
 
 #### Paymaster Execution Policies
@@ -406,6 +420,24 @@ const paymasterPolicy = buildPaymasterExecutionPolicy({
   },
   policyName: "Paymaster Protection",
 });
+
+// Resulting policy restricts paymaster to specific EOAs, contracts, and gas limits:
+// {
+//   organizationId: "paymaster-org-id",
+//   policyName: "Paymaster Protection",
+//   effect: "EFFECT_ALLOW",
+//   consensus: "approvers.any(user, user.id == 'paymaster-user-id')",
+//   condition: "activity.resource == 'PRIVATE_KEY' && " +
+//              "activity.action == 'SIGN' && " +
+//              "eth.tx.to == '0xe511ad0a281c10b8408381e2ab8525abe587827b' && " +
+//              "(eth.fn_selector(eth.tx.data) == eth.fn_selector('execute(address,bytes)') || " +
+//              "eth.fn_selector(eth.tx.data) == eth.fn_selector('executeNoValue(address,bytes)')) && " +
+//              "(eth.tx.data[4:24] == '0x742d35cc6634c0532925a3b844bc9e7595f0beb') && " +
+//              "(eth.tx.data[89:109] == '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913') && " +
+//              "eth.tx.gas_price <= '50000000000' && " +
+//              "eth.tx.gas_limit <= '500000'",
+//   notes: "Restricts which transactions the paymaster can execute on the gas station"
+// }
 ```
 
 #### Defense in Depth
@@ -610,7 +642,7 @@ The helper functions automatically:
 
 ### Execution Failed
 
-- Confirm EOA is authorized (check with `isDelegated()`)
+- Confirm EOA is authorized (check with `isAuthorized()`)
 - Verify execution contract address matches deployment
 - Check nonce hasn't been reused
 - Ensure target contract call is valid

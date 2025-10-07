@@ -91,20 +91,20 @@ export class GasStationClient {
   }
 
   /**
-   * Check if an EOA has delegated control to the gas station contract
+   * Check if an EOA is delegated to the gas station contract
    * If no address is provided, uses the signer's address
    */
-  async isDelegated(eoaAddress?: `0x${string}`): Promise<boolean> {
+  async isAuthorized(eoaAddress?: `0x${string}`): Promise<boolean> {
     const address = eoaAddress ?? this.walletClient.account.address;
 
-    const isDelegated = await this.publicClient.readContract({
+    const isAuthorized = await this.publicClient.readContract({
       address: this.executionContract,
       abi: gasStationAbi,
       functionName: "isDelegated",
       args: [address],
     });
 
-    return isDelegated as boolean;
+    return isAuthorized as boolean;
   }
 
   /**

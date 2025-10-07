@@ -21,11 +21,25 @@
  *   organizationId: "org-123",
  *   eoaUserId: "user-456",
  *   restrictions: {
- *     allowedContracts: [USDC_ADDRESS, DAI_ADDRESS],
- *     allowEthTransfer: false,
+ *     allowedContracts: ["0x833...USDC", "0x6B1...DAI"],
+ *     disallowEthTransfer: true,
  *   },
  *   policyName: "Stablecoin Only",
  * });
+ *
+ * // Resulting policy:
+ * {
+ *   organizationId: "org-123",
+ *   policyName: "Stablecoin Only",
+ *   effect: "EFFECT_ALLOW",
+ *   consensus: "approvers.any(user, user.id == 'user-456')",
+ *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
+ *              "eth.eip_712.primary_type == 'Execution' && " +
+ *              "(eth.eip_712.message['outputContract'] == '0x833...usdc' || " +
+ *              "eth.eip_712.message['outputContract'] == '0x6b1...dai') && " +
+ *              "eth.eip_712.message['ethAmount'] == '0'",
+ *   notes: "Restricts which EIP-712 intents the EOA can sign for gas station execution"
+ * }
  *
  * @example
  * // Multi-approval: EOA AND backup user must both approve
@@ -34,10 +48,24 @@
  *   eoaUserId: "user-456",
  *   additionalApprovers: ["backup-user-789"],
  *   restrictions: {
- *     allowedContracts: [USDC_ADDRESS],
- *     allowEthTransfer: false,
+ *     allowedContracts: ["0x833...USDC"],
+ *     disallowEthTransfer: true,
  *   },
  * });
+ *
+ * // Resulting policy:
+ * {
+ *   organizationId: "org-123",
+ *   policyName: "Gas Station Intent Signing Policy",
+ *   effect: "EFFECT_ALLOW",
+ *   consensus: "approvers.any(user, user.id == 'user-456') && " +
+ *              "approvers.any(user, user.id == 'backup-user-789')",
+ *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
+ *              "eth.eip_712.primary_type == 'Execution' && " +
+ *              "(eth.eip_712.message['outputContract'] == '0x833...usdc') && " +
+ *              "eth.eip_712.message['ethAmount'] == '0'",
+ *   notes: "Restricts which EIP-712 intents the EOA can sign for gas station execution"
+ * }
  *
  * @example
  * // Advanced: custom consensus expression
@@ -46,7 +74,7 @@
  *   eoaUserId: "user-456",
  *   customConsensus: "approvers.count() >= 2",
  *   restrictions: {
- *     allowEthTransfer: true,
+ *     disallowEthTransfer: false,
  *   },
  * });
  *
@@ -147,23 +175,58 @@ export function buildIntentSigningPolicy(config: {
  *   paymasterUserId: "paymaster-user-123",
  *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
  *   restrictions: {
- *     allowedEOAs: ["0xAlice...", "0xBob..."],
- *     allowedContracts: [USDC_ADDRESS, DAI_ADDRESS],
+ *     allowedEOAs: ["0xAli...ce", "0xBob...by"],
+ *     allowedContracts: ["0x833...USDC", "0x6B1...DAI"],
  *     maxGasPrice: parseGwei("50"),
  *     maxGasLimit: 500000n,
  *   },
  *   policyName: "Paymaster Protection",
  * });
  *
+ * // Resulting policy:
+ * {
+ *   organizationId: "org-paymaster",
+ *   policyName: "Paymaster Protection",
+ *   effect: "EFFECT_ALLOW",
+ *   consensus: "approvers.any(user, user.id == 'paymaster-user-123')",
+ *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
+ *              "eth.tx.to == '0x576a...481f' && " +
+ *              "(eth.fn_selector(eth.tx.data) == eth.fn_selector('execute(address,bytes)') || " +
+ *              "eth.fn_selector(eth.tx.data) == eth.fn_selector('executeNoValue(address,bytes)')) && " +
+ *              "(eth.tx.data[4:24] == '0xali...ce' || eth.tx.data[4:24] == '0xbob...by') && " +
+ *              "(eth.tx.data[89:109] == '0x833...usdc' || eth.tx.data[89:109] == '0x6b1...dai') && " +
+ *              "eth.tx.gas_price <= '50000000000' && eth.tx.gas_limit <= '500000'",
+ *   notes: "Restricts which transactions the paymaster can execute on the gas station"
+ * }
+ *
  * @example
- * // Multi-user: primary paymaster or backup can approve
+ * // Multi-user: primary paymaster OR backup can approve
  * const policy = buildPaymasterExecutionPolicy({
  *   organizationId: "org-paymaster",
  *   paymasterUserId: "paymaster-user-123",
  *   additionalApprovers: ["backup-paymaster-456"],
  *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
- *   restrictions: { ... },
+ *   restrictions: {
+ *     allowedEOAs: ["0xAli...ce"],
+ *     maxGasPrice: parseGwei("100"),
+ *   },
  * });
+ *
+ * // Resulting policy:
+ * {
+ *   organizationId: "org-paymaster",
+ *   policyName: "Gas Station Paymaster Execution Policy",
+ *   effect: "EFFECT_ALLOW",
+ *   consensus: "approvers.any(user, user.id == 'paymaster-user-123' || " +
+ *              "user.id == 'backup-paymaster-456')",
+ *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
+ *              "eth.tx.to == '0x576a...481f' && " +
+ *              "(eth.fn_selector(eth.tx.data) == eth.fn_selector('execute(address,bytes)') || " +
+ *              "eth.fn_selector(eth.tx.data) == eth.fn_selector('executeNoValue(address,bytes)')) && " +
+ *              "(eth.tx.data[4:24] == '0xali...ce') && " +
+ *              "eth.tx.gas_price <= '100000000000'",
+ *   notes: "Restricts which transactions the paymaster can execute on the gas station"
+ * }
  *
  * @example
  * // Advanced: require multiple approvals

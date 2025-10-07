@@ -124,12 +124,12 @@ const main = async () => {
   const explorerUrl =
     selectedChain === "base" ? "https://basescan.org" : "https://etherscan.io";
 
-  // Step 1: Check if EOA is already delegated, authorize if needed
-  const isDelegated = await userClient.isDelegated();
+  // Step 1: Check if EOA is already authorized, authorize if needed
+  const isAuthorized = await userClient.isAuthorized();
 
-  if (!isDelegated) {
+  if (!isAuthorized) {
     print("===== Starting EIP-7702 Authorization =====", "");
-    print("EOA not yet delegated", "Starting authorization...");
+    print("EOA not yet authorized", "Starting authorization...");
 
     // Step 1: User signs the authorization
     print("User signing authorization...", "");
@@ -147,8 +147,12 @@ const main = async () => {
       "✅ Authorization complete",
       `${explorerUrl}/tx/${authResult.txHash}`,
     );
+
+    // Wait for 1 second before proceeding to the next step.
+    // This can help avoid rate limits or ensure proper sequencing of on-chain state.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   } else {
-    print("✓ EOA already delegated", "Skipping authorization");
+    print("✓ EOA already authorized", "Skipping authorization");
   }
 
   // Step 2: Execute ETH transfer using the generic execute API with helpers
