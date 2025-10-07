@@ -12,6 +12,7 @@ import {
   GasStationClient,
   buildTokenTransfer,
   DEFAULT_EXECUTION_CONTRACT,
+  ensureGasStationInterface,
 } from "@turnkey/gas-station";
 
 dotenv.config({ path: resolve(process.cwd(), ".env.local") });
@@ -218,13 +219,23 @@ describe("Gas Station Policy Enforcement", () => {
       walletClient: paymasterWalletClient,
     });
 
-    // Create paymaster policy with correct execution contract
+    // Ensure Gas Station ABI is uploaded to Turnkey (enables ABI-based policies)
+    await ensureGasStationInterface(
+      turnkeyClient.apiClient(),
+      subOrgId,
+      DEFAULT_EXECUTION_CONTRACT,
+      undefined,
+      "Base Sepolia",
+    );
+
+    // Create paymaster policy with correct execution contract and ETH amount limit
     const paymasterPolicy = buildPaymasterExecutionPolicy({
       organizationId: subOrgId,
       paymasterUserId: paymasterUserId,
       executionContractAddress: DEFAULT_EXECUTION_CONTRACT,
       restrictions: {
         allowedContracts: [USDC_ADDRESS.toLowerCase() as `0x${string}`],
+        maxEthAmount: parseUnits("1", 18), // Max 1 ETH per transaction
       },
       policyName: `Paymaster USDC Policy - ${Date.now()}`,
     });
@@ -347,6 +358,27 @@ describe("Gas Station Policy Enforcement", () => {
     it("should block paymaster from signing DAI execution (not in policy)", async () => {
       await expect(
         paymasterGasStationClient.signExecution(daiIntent),
+      ).rejects.toThrow(/permission/i);
+    });
+
+    it("should block paymaster from signing USDC execution with 2 ETH (exceeds 1 ETH limit)", async () => {
+      // Create a USDC intent that also sends 2 ETH (exceeds the 1 ETH policy limit)
+      const nonce3 = 3n;
+      const usdcWithEthParams = buildTokenTransfer(
+        USDC_ADDRESS as `0x${string}`,
+        eoaWalletAddress,
+        parseUnits("1", 6),
+      );
+      const builder3 = gasStationClient.createIntent();
+      const usdcWithEthIntent = await builder3
+        .setTarget(usdcWithEthParams.outputContract)
+        .withValue(parseUnits("2", 18)) // 2 ETH - exceeds the 1 ETH policy limit
+        .withCallData(usdcWithEthParams.callData)
+        .sign(nonce3);
+
+      // This should be blocked because 2 ETH > 1 ETH policy limit
+      await expect(
+        paymasterGasStationClient.signExecution(usdcWithEthIntent),
       ).rejects.toThrow(/permission/i);
     });
   });

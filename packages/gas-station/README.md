@@ -404,10 +404,20 @@ Restrict what on-chain transactions the paymaster can submit:
 import {
   buildPaymasterExecutionPolicy,
   DEFAULT_EXECUTION_CONTRACT,
+  ensureGasStationInterface,
 } from "@turnkey/gas-station";
-import { parseGwei } from "viem";
+import { parseGwei, parseEther } from "viem";
 
-// Paymaster protection policy
+// First, ensure the Gas Station ABI is uploaded (enables ABI-based policies)
+await ensureGasStationInterface(
+  turnkeyClient.apiClient(),
+  "your-org-id",
+  DEFAULT_EXECUTION_CONTRACT,
+  undefined,
+  "Base Mainnet",
+);
+
+// Paymaster protection policy with ETH amount limit
 const paymasterPolicy = buildPaymasterExecutionPolicy({
   organizationId: "paymaster-org-id",
   paymasterUserId: "paymaster-user-id",
@@ -415,13 +425,14 @@ const paymasterPolicy = buildPaymasterExecutionPolicy({
   restrictions: {
     allowedEOAs: ["0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"],
     allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
+    maxEthAmount: parseEther("0.1"), // Max 0.1 ETH per transaction
     maxGasPrice: parseGwei("50"), // Max 50 gwei gas price
     maxGasLimit: 500000n, // Max 500k gas limit
   },
   policyName: "Paymaster Protection",
 });
 
-// Resulting policy restricts paymaster to specific EOAs, contracts, and gas limits:
+// Resulting policy uses ABI parsing for direct argument access:
 // {
 //   organizationId: "paymaster-org-id",
 //   policyName: "Paymaster Protection",
@@ -430,13 +441,16 @@ const paymasterPolicy = buildPaymasterExecutionPolicy({
 //   condition: "activity.resource == 'PRIVATE_KEY' && " +
 //              "activity.action == 'SIGN' && " +
 //              "eth.tx.to == '0xe511ad0a281c10b8408381e2ab8525abe587827b' && " +
-//              "(eth.tx.data[98..138] == '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913') && " +
-//              "(eth.tx.data[10..74] == '0x742d35cc6634c0532925a3b844bc9e7595f0beb') && " +
+//              "(eth.tx.contract_call_args['_to'] == '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913') && " +
+//              "(eth.tx.contract_call_args['_targetEoA'] == '0x742d35cc6634c0532925a3b844bc9e7595f0beb') && " +
+//              "eth.tx.contract_call_args['ethAmount'] <= 100000000000000000 && " +
 //              "eth.tx.gasPrice <= 50000000000 && " +
 //              "eth.tx.gas <= 500000",
 //   notes: "Restricts which transactions the paymaster can execute on the gas station"
 // }
 ```
+
+**Note:** The `ensureGasStationInterface()` function uploads the Gas Station ABI to Turnkey's Smart Contract Interface feature. This enables Turnkey's policy engine to parse the ABI-encoded transaction data and directly compare the `ethAmount` parameter as a uint256 value, rather than raw bytes. The function checks if the ABI already exists before uploading to avoid duplicates.
 
 #### Defense in Depth
 

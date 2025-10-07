@@ -30,6 +30,13 @@ export {
   buildPaymasterExecutionPolicy,
 } from "./policyUtils";
 
+// Smart Contract Interface management
+export {
+  ensureGasStationInterface,
+  uploadGasStationInterface,
+  getSmartContractInterface,
+} from "./smartContractInterface";
+
 // Type exports
 export type {
   GasStationConfig,

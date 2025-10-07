@@ -152,7 +152,10 @@ export function buildIntentSigningPolicy(config: {
  * Build a Turnkey policy to restrict what the paymaster can execute on-chain.
  * This protects at the execution layer - paymaster cannot submit transactions outside policy.
  *
- * The policy checks the ABI-encoded parameters in execute(address _targetEoA, address _to, uint256 ethAmount, bytes _data).
+ * This function uses Turnkey's Smart Contract Interface feature to parse the
+ * execute(address _targetEoA, address _to, uint256 ethAmount, bytes _data) ABI.
+ * Before using this function, ensure the Gas Station ABI is uploaded via
+ * ensureGasStationInterface() - this is typically handled automatically.
  *
  * @param config - Policy configuration
  * @param config.organizationId - Turnkey organization ID
@@ -163,13 +166,14 @@ export function buildIntentSigningPolicy(config: {
  * @param config.restrictions - Execution restrictions
  * @param config.restrictions.allowedEOAs - Whitelist of EOA addresses paymaster can execute for
  * @param config.restrictions.allowedContracts - Whitelist of output contract addresses (target contracts)
+ * @param config.restrictions.maxEthAmount - Maximum ETH amount in wei that can be transferred
  * @param config.restrictions.maxGasPrice - Maximum gas price in wei
  * @param config.restrictions.maxGasLimit - Maximum gas limit
  * @param config.policyName - Optional policy name
  * @returns Policy object ready to submit to Turnkey createPolicy API
  *
  * @example
- * // Simple: single paymaster approval
+ * // Simple: single paymaster approval with ETH amount limit
  * const policy = buildPaymasterExecutionPolicy({
  *   organizationId: "org-paymaster",
  *   paymasterUserId: "paymaster-user-123",
@@ -177,13 +181,14 @@ export function buildIntentSigningPolicy(config: {
  *   restrictions: {
  *     allowedEOAs: ["0xAli...ce", "0xBob...by"],
  *     allowedContracts: ["0x833...USDC", "0x6B1...DAI"],
+ *     maxEthAmount: parseEther("0.1"), // Max 0.1 ETH per transaction
  *     maxGasPrice: parseGwei("50"),
  *     maxGasLimit: 500000n,
  *   },
  *   policyName: "Paymaster Protection",
  * });
  *
- * // Resulting policy:
+ * // Resulting policy (uses ABI parsing):
  * {
  *   organizationId: "org-paymaster",
  *   policyName: "Paymaster Protection",
@@ -191,8 +196,11 @@ export function buildIntentSigningPolicy(config: {
  *   consensus: "approvers.any(user, user.id == 'paymaster-user-123')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
  *              "eth.tx.to == '0x576a...481f' && " +
- *              "(eth.tx.data[98..138] == '0x833...usdc' || eth.tx.data[98..138] == '0x6b1...dai') && " +
- *              "(eth.tx.data[10..74] == '0xali...ce' || eth.tx.data[10..74] == '0xbob...by') && " +
+ *              "(eth.tx.contract_call_args['_to'] == '0x833...usdc' || " +
+ *              "eth.tx.contract_call_args['_to'] == '0x6b1...dai') && " +
+ *              "(eth.tx.contract_call_args['_targetEoA'] == '0xali...ce' || " +
+ *              "eth.tx.contract_call_args['_targetEoA'] == '0xbob...by') && " +
+ *              "eth.tx.contract_call_args['ethAmount'] <= 100000000000000000 && " +
  *              "eth.tx.gasPrice <= 50000000000 && eth.tx.gas <= 500000",
  *   notes: "Restricts which execute() transactions the paymaster can submit on-chain"
  * }
@@ -206,11 +214,12 @@ export function buildIntentSigningPolicy(config: {
  *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
  *   restrictions: {
  *     allowedEOAs: ["0xAli...ce"],
+ *     maxEthAmount: parseEther("1"), // Max 1 ETH
  *     maxGasPrice: parseGwei("100"),
  *   },
  * });
  *
- * // Resulting policy:
+ * // Resulting policy (uses ABI parsing):
  * {
  *   organizationId: "org-paymaster",
  *   policyName: "Gas Station Paymaster Execution Policy",
@@ -219,7 +228,8 @@ export function buildIntentSigningPolicy(config: {
  *              "user.id == 'backup-paymaster-456')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
  *              "eth.tx.to == '0x576a...481f' && " +
- *              "(eth.tx.data[10..74] == '0xali...ce') && " +
+ *              "(eth.tx.contract_call_args['_targetEoA'] == '0xali...ce') && " +
+ *              "eth.tx.contract_call_args['ethAmount'] <= 1000000000000000000 && " +
  *              "eth.tx.gasPrice <= 100000000000",
  *   notes: "Restricts which execute() transactions the paymaster can submit on-chain"
  * }
@@ -245,6 +255,7 @@ export function buildPaymasterExecutionPolicy(config: {
   restrictions?: {
     allowedEOAs?: `0x${string}`[];
     allowedContracts?: `0x${string}`[];
+    maxEthAmount?: bigint;
     maxGasPrice?: bigint;
     maxGasLimit?: bigint;
   };
@@ -256,49 +267,41 @@ export function buildPaymasterExecutionPolicy(config: {
     `eth.tx.to == '${config.executionContractAddress.toLowerCase()}'`,
   ];
 
-  // Check output contract address (passed as second parameter to execute())
-  // In ABI encoding for execute(address _targetEoA, address _to, uint256 ethAmount, bytes _data):
-  //   - Function selector: 4 bytes (0-3)
-  //   - _targetEoA: 32 bytes (4-35)
-  //   - _to: 32 bytes (36-67) <- output contract address
-  //   - ethAmount: 32 bytes (68-99)
-  //   - _data: dynamic bytes starting at 100
-  //
-  // Addresses are padded to 32 bytes (64 hex chars), actual address is last 20 bytes (40 hex chars)
-  // NOTE: eth.tx.data includes the "0x" prefix, so add 2 to all char positions
+  // Check output contract address using ABI parsing
+  // Turnkey parses execute(address _targetEoA, address _to, uint256 ethAmount, bytes _data)
+  // and exposes arguments via eth.tx.contract_call_args
   if (
     config.restrictions?.allowedContracts &&
     config.restrictions.allowedContracts.length > 0
   ) {
     const contracts = config.restrictions.allowedContracts
       .map((addr) => {
-        // Remove 0x prefix and pad to 40 hex chars (20 bytes)
-        const cleanAddr = addr.slice(2).toLowerCase().padStart(40, "0");
-        // Second parameter starts at byte 36, padded to 32 bytes
-        // Position 48 in raw hex = position 50 in eth.tx.data (with 0x prefix)
-        // Address occupies last 40 chars of the 64-char (32-byte) slot
-        return `eth.tx.data[98..138] == '${cleanAddr}'`;
+        const cleanAddr = addr.toLowerCase();
+        return `eth.tx.contract_call_args['_to'] == '${cleanAddr}'`;
       })
       .join(" || ");
     conditions.push(`(${contracts})`);
   }
 
-  // Check EOA address (passed as first parameter to execute())
-  // In ABI encoding: bytes 4-35 (after 4-byte function selector)
-  // NOTE: eth.tx.data includes the "0x" prefix, so add 2 to all char positions
+  // Check EOA address using ABI parsing
   if (
     config.restrictions?.allowedEOAs &&
     config.restrictions.allowedEOAs.length > 0
   ) {
     const eoas = config.restrictions.allowedEOAs
       .map((addr) => {
-        // Remove 0x prefix, convert to lowercase, pad to 64 hex chars (32 bytes)
-        const cleanAddr = addr.slice(2).toLowerCase().padStart(64, "0");
-        // Position 8 in raw hex = position 10 in eth.tx.data (with 0x prefix)
-        return `eth.tx.data[10..74] == '${cleanAddr}'`;
+        const cleanAddr = addr.toLowerCase();
+        return `eth.tx.contract_call_args['_targetEoA'] == '${cleanAddr}'`;
       })
       .join(" || ");
     conditions.push(`(${eoas})`);
+  }
+
+  // Check ETH amount using ABI parsing (direct uint256 comparison)
+  if (config.restrictions?.maxEthAmount !== undefined) {
+    conditions.push(
+      `eth.tx.contract_call_args['ethAmount'] <= ${config.restrictions.maxEthAmount}`,
+    );
   }
 
   if (config.restrictions?.maxGasPrice !== undefined) {
