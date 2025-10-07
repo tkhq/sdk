@@ -8,7 +8,7 @@ interface RootLayoutProps {
   children: React.ReactNode;
 }
 
-export const createSuborgParams: CreateSubOrgParams = {
+const createSuborgParams: CreateSubOrgParams = {
   customWallet: {
     walletName: "Wallet 1",
     walletAccounts: [
