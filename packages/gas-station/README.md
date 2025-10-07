@@ -48,8 +48,8 @@ BASE_RPC_URL=https://mainnet.base.org
 ETH_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/...
 
 # Gas Station Contracts (Optional - defaults to deterministic addresses)
-DELEGATE_CONTRACT=0x33619C1BfB3956a00DDA34FdbF7c3138B6244Aa2    # EIP-7702 delegate contract
-EXECUTION_CONTRACT=0xe511AD0a281C10b8408381E2Ab8525abE587827b   # Gas Sponsorship entrypoint contract which calls the delegate.
+DELEGATE_CONTRACT=0x...    # EIP-7702 delegate contract
+EXECUTION_CONTRACT=0x...   # Gas Sponsorship entrypoint contract which calls the delegate.
 ```
 
 **Note**: The gas station contracts are currently deployed at deterministic addresses on the following chains:

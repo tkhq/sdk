@@ -220,13 +220,11 @@ describe("Gas Station Policy Enforcement", () => {
     });
 
     // Ensure Gas Station ABI is uploaded to Turnkey (enables ABI-based policies)
-    await ensureGasStationInterface(
-      turnkeyClient.apiClient(),
-      subOrgId,
-      DEFAULT_EXECUTION_CONTRACT,
-      undefined,
-      "Base Sepolia",
-    );
+    await ensureGasStationInterface({
+      client: turnkeyClient.apiClient(),
+      organizationId: subOrgId,
+      contractAddress: DEFAULT_EXECUTION_CONTRACT,
+    });
 
     // Create paymaster policy with correct execution contract and ETH amount limit
     const paymasterPolicy = buildPaymasterExecutionPolicy({

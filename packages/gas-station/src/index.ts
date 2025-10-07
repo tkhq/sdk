@@ -28,14 +28,10 @@ export {
 export {
   buildIntentSigningPolicy,
   buildPaymasterExecutionPolicy,
-} from "./policyUtils";
-
-// Smart Contract Interface management
-export {
   ensureGasStationInterface,
   uploadGasStationInterface,
   getSmartContractInterface,
-} from "./smartContractInterface";
+} from "./policyUtils";
 
 // Type exports
 export type {
