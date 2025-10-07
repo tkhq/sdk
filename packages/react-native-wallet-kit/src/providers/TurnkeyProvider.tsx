@@ -248,27 +248,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         autoRefreshSession: config.auth?.autoRefreshSession ?? true,
       },
       autoRefreshManagedState: config.autoRefreshManagedState ?? true,
-      walletConfig: {
-        ...config.walletConfig,
-        features: {
-          ...config.walletConfig?.features,
-          auth: false,
-          connecting: config.walletConfig?.features?.connecting ?? true, // Default connecting to true if not set. We don't care about auth settings here.
-        },
-        chains: {
-          ...config.walletConfig?.chains,
-          ethereum: {
-            ...config.walletConfig?.chains?.ethereum,
-            // keep user's value if provided; default only when undefined
-            native: config.walletConfig?.chains?.ethereum?.native ?? true,
-          },
-          solana: {
-            ...config.walletConfig?.chains?.solana,
-            // keep user's value if provided; default only when undefined
-            native: config.walletConfig?.chains?.solana?.native ?? true,
-          },
-        },
-      },
       importIframeUrl: config.importIframeUrl ?? "https://import.turnkey.com",
       exportIframeUrl: config.exportIframeUrl ?? "https://export.turnkey.com",
     } as TurnkeyProviderConfig;
@@ -294,13 +273,16 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       providerObjectConfig?.clientId ??
       (proxyClientIds ? proxyClientIds[provider] : undefined);
 
+    const appScheme = oauth?.appScheme;
+
+    // For Discord and X, default to scheme-based deep link if not explicitly provided.
     const redirectUri =
       providerObjectConfig?.redirectUri ??
-      oauth?.redirectUri ??
-      proxyAuthConfigRef.current?.oauthRedirectUrl ??
-      TURNKEY_OAUTH_REDIRECT_URL;
-
-    const appScheme = oauth?.appScheme;
+      ((provider === "discord" || provider === "x") && appScheme
+        ? `${appScheme}://`
+        : (oauth?.redirectUri ??
+          proxyAuthConfigRef.current?.oauthRedirectUrl ??
+          TURNKEY_OAUTH_REDIRECT_URL));
 
     return { clientId, redirectUri, appScheme } as const;
   };
@@ -331,15 +313,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             masterConfig.passkeyConfig?.userVerification || "preferred",
           allowCredentials: masterConfig.passkeyConfig?.allowCredentials || [],
         },
-        walletConfig: {
-          features: {
-            ...masterConfig.walletConfig?.features,
-          },
-          chains: { ...masterConfig.walletConfig?.chains },
-          ...(masterConfig.walletConfig?.walletConnect && {
-            walletConnect: masterConfig.walletConfig.walletConnect,
-          }),
-        },
       });
 
       await turnkeyClient.init();
@@ -358,67 +331,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           new TurnkeyError(
             `Failed to initialize Turnkey client`,
             TurnkeyErrorCodes.INITIALIZE_CLIENT_ERROR,
-            error,
-          ),
-        );
-      }
-    }
-  };
-
-  /**
-   * Initializes the user sessions by fetching all active sessions and setting up their state.
-   * @internal
-   */
-  const initializeSessions = async () => {
-    setSession(undefined);
-    setAllSessions(undefined);
-    try {
-      const allLocalStorageSessions = await getAllSessions();
-      if (!allLocalStorageSessions) return;
-
-      await Promise.all(
-        Object.keys(allLocalStorageSessions).map(async (sessionKey) => {
-          const session = allLocalStorageSessions?.[sessionKey];
-          if (!isValidSession(session)) {
-            await clearSession({ sessionKey });
-            if (sessionKey === (await getActiveSessionKey())) {
-              setSession(undefined);
-            }
-            delete allLocalStorageSessions[sessionKey];
-            return;
-          }
-
-          scheduleSessionExpiration({
-            sessionKey,
-            expiry: session!.expiry,
-          });
-        }),
-      );
-
-      setAllSessions(allLocalStorageSessions || undefined);
-      const activeSessionKey = await client?.getActiveSessionKey();
-      if (activeSessionKey) {
-        // If we have an active session key, set
-        if (!allLocalStorageSessions[activeSessionKey]) {
-          return;
-        }
-        setSession(allLocalStorageSessions[activeSessionKey]);
-        await refreshUser();
-        await refreshWallets();
-
-        return;
-      }
-    } catch (error) {
-      if (
-        error instanceof TurnkeyError ||
-        error instanceof TurnkeyNetworkError
-      ) {
-        callbacks?.onError?.(error);
-      } else {
-        callbacks?.onError?.(
-          new TurnkeyError(
-            `Failed to initialize sessions`,
-            TurnkeyErrorCodes.INITIALIZE_SESSION_ERROR,
             error,
           ),
         );

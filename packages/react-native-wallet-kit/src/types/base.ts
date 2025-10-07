@@ -41,7 +41,7 @@ export interface TurnkeyCallbacks {
  * @interface TurnkeyProviderConfig
  * @extends {TurnkeySDKClientConfig}
  */
-export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
+export interface TurnkeyProviderConfig extends Omit<TurnkeySDKClientConfig, "walletConfig"> {
   // All other optional urls are part of the TurnkeySDKClientConfig interface.
   // We add them here directly since the core js package does not use iframes at all!
   /** URL for the export iframe. */
