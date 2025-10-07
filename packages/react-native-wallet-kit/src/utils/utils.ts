@@ -16,9 +16,9 @@ export const APPLE_AUTH_SCRIPT_URL =
 export const FACEBOOK_AUTH_URL = "https://www.facebook.com/v23.0/dialog/oauth";
 export const FACEBOOK_GRAPH_URL =
   "https://graph.facebook.com/v23.0/oauth/access_token";
-//@todo remove, local testing only
-export const TURNKEY_OAUTH_ORIGIN_URL =  "http://localhost:61384" // "https://oauth-origin.preprod.turnkey.engineering" //"https://oauth-origin.turnkey.com";
-export const TURNKEY_OAUTH_REDIRECT_URL = "https://oauth-redirect.preprod.turnkey.engineering"; //"https:// oauth-redirect.turnkey.com";
+
+export const TURNKEY_OAUTH_ORIGIN_URL =  "https://oauth-origin.turnkey.com";
+export const TURNKEY_OAUTH_REDIRECT_URL = "https:// oauth-redirect.turnkey.com";
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
 

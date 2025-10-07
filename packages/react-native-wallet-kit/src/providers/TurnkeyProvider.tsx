@@ -2085,7 +2085,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
-        console.log("discordAuthUrl", discordAuthUrl);
 
         const result = await InAppBrowser.openAuth(discordAuthUrl, scheme, {
           dismissButtonStyle: "cancel",
@@ -2238,7 +2237,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           `&code_challenge_method=S256` +
           `&scope=${encodeURIComponent("tweet.read users.read")}` +
           `&state=${encodeURIComponent(state)}`;
-        console.log("twitterAuthUrl", twitterAuthUrl);
+
         if (!(await InAppBrowser.isAvailable())) {
           throw new TurnkeyError(
             "InAppBrowser is not available",
@@ -2520,7 +2519,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
           `&nonce=${encodeURIComponent(nonce)}` +
           `&state=${encodeURIComponent(state)}`;
-        console.log("oauthUrl", oauthUrl);
+
         if (!(await InAppBrowser.isAvailable())) {
           throw new TurnkeyError(
             "InAppBrowser is not available",
@@ -2546,7 +2545,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
-        console.log("result.url", result.url);
+
         // Extract params from deep link
         const qsIndex = result.url.indexOf("?");
         const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
@@ -2660,7 +2659,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.INVALID_CONFIGURATION,
           );
         }
-        console.log("facebookAuthUrl", facebookAuthUrl);
+
         const result = await InAppBrowser.openAuth(facebookAuthUrl, scheme, {
           dismissButtonStyle: "cancel",
           animated: true,
@@ -2679,7 +2678,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
-        console.log("facebook result.url", result.url);
+
         // Extract params from deep link
         const qsIndex = result.url.indexOf("?");
         const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
@@ -2705,12 +2704,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
-        console.log("exchangeCodeForToken", {
-          clientId,
-            finalRedirectUri,
-            authCode,
-            storedVerifier,
-        });
+
         try {
           const tokenData = await exchangeCodeForToken(
             clientId,
@@ -2791,51 +2785,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
   }, [config, proxyAuthConfigRef.current]);
 
-  /**
-   * @internal
-   * We create `debouncedRefreshWallets()` so that multiple rapid wallet events
-   * (for example, on Solana a single disconnect can emit several events we listen for)
-   * only trigger `refreshWallets()` once.
-   *
-   * Defining the debounced function outside of the `useEffect` ensures all event
-   * listeners in `initializeWalletProviderListeners` share the same instance, instead of creating
-   * a new one on every render.
-   */
-  // const debouncedRefreshWallets = useDebouncedCallback(refreshWallets, 100);
-  // const debouncedFetchWalletProviders = useDebouncedCallback(
-  //   fetchWalletProviders,
-  //   100,
-  // );
-
-  // useEffect(() => {
-  //   if (!client) return;
-
-  //   const handleUpdateState = async () => {
-  //     // we only refresh the wallets if there is an active session
-  //     // this is needed because a disconnect event can occur
-  //     // while the user is unauthenticated
-  //     //
-  //     // WalletProviders state is updated regardless of session state
-  //     if (session) {
-  //       // this updates both the wallets and walletProviders state
-  //       await debouncedRefreshWallets();
-  //     }
-  //   };
-
-  //   let cleanup = () => {};
-  //   initializeWalletProviderListeners(walletProviders, handleUpdateState)
-  //     .then((fn) => {
-  //       cleanup = fn;
-  //     })
-  //     .catch((err) => {
-  //       console.error("Failed to init providers:", err);
-  //     });
-
-  //   return () => {
-  //     cleanup();
-  //   };
-  // }, [client, walletProviders, session]);
-
   useEffect(() => {
     // authState must be consistent with session state. We found during testing that there are cases where the session and authState can be out of sync in very rare edge cases.
     // This will ensure that they are always in sync and remove the need to setAuthState manually in other places.
@@ -2845,32 +2794,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setAuthState(AuthState.Unauthenticated);
     }
   }, [session]);
-
-  // useEffect(() => {
-  //   // This will handle any redirect based oAuth. It then initializes the session. This is the last step before client is considered "ready"
-  //   if (!client || !masterConfig) return;
-  //   completeRedirectOauth().finally(() => {
-  //     clearSessionTimeouts();
-
-  //     // if auth or wallet connecting features are enabled, we want to fetch
-  //     // the wallet providers to set the state
-  //     if (
-  //       masterConfig.walletConfig?.features?.auth ||
-  //       masterConfig.walletConfig?.features?.connecting
-  //     ) {
-  //       fetchWalletProviders();
-  //     }
-
-  //     initializeSessions().finally(() => {
-  //       // Set the client state to ready only after all initializations are done.
-  //       setClientState(ClientState.Ready);
-  //     });
-  //   });
-
-  //   return () => {
-  //     clearSessionTimeouts();
-  //   };
-  // }, [client]);
 
   return (
     <ClientContext.Provider
