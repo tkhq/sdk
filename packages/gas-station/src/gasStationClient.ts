@@ -208,12 +208,10 @@ export class GasStationClient {
    * Call this with a paymaster client to test if the paymaster can sign the execution.
    */
   async signExecution(intent: ExecutionIntent): Promise<`0x${string}`> {
-    // Pack the execution data based on whether we're sending ETH
+    // Pack the execution data (signature, nonce, args only)
     const packedData = packExecutionData({
       signature: intent.signature,
       nonce: intent.nonce,
-      to: intent.outputContract,
-      ...(intent.ethAmount > 0n && { value: intent.ethAmount }),
       args: intent.callData,
     });
 
@@ -253,24 +251,25 @@ export class GasStationClient {
   async execute(
     intent: ExecutionIntent,
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint; gasUsed: bigint }> {
-    // Pack the execution data based on whether we're sending ETH
+    // Pack the execution data (signature, nonce, args only)
     const packedData = packExecutionData({
       signature: intent.signature,
       nonce: intent.nonce,
-      to: intent.outputContract,
-      value: intent.ethAmount,
       args: intent.callData,
     });
 
-    // Determine which function to call based on ETH amount
-    const functionName = intent.ethAmount > 0n ? "execute" : "executeNoValue";
-
+    // Call the unified execute function with explicit parameters
     const txHash = await this.walletClient.sendTransaction({
       to: this.executionContract,
       data: encodeFunctionData({
         abi: gasStationAbi,
-        functionName,
-        args: [intent.eoaAddress, packedData],
+        functionName: "execute",
+        args: [
+          intent.eoaAddress,
+          intent.outputContract,
+          intent.ethAmount,
+          packedData,
+        ],
       }),
       gas: BigInt(200000),
       account: this.walletClient.account,

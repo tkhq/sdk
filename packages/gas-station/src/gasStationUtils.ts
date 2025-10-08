@@ -145,53 +145,29 @@ export function buildETHTransferFromEther(
 }
 
 /**
- * Packs execution data for the delegate contract's execute or executeNoValue function.
+ * Packs execution data for the gas station delegate contract.
+ * Only packs signature, nonce, and calldata args.
+ * The output contract address and ETH amount are now explicit parameters
+ * in the execute() function signature, not part of the packed bytes.
  *
- * When value is provided (and > 0):
- * Layout: [signature(65)][nonce(16)][address(20)][value(32)][arguments]
- * - signature: bytes 0-65
- * - nonce: bytes 65-81 (uint128)
- * - address (to): bytes 81-101 (20 bytes)
- * - value: bytes 101-133 (uint256, 32 bytes)
- * - arguments: bytes 133 onwards
- *
- * When value is omitted or 0:
- * Layout: [signature(65)][nonce(16)][address(20)][arguments]
- * - signature: bytes 0-65
- * - nonce: bytes 65-81 (uint128)
- * - address (to): bytes 81-101 (20 bytes)
- * - arguments: bytes 101 onwards
+ * Packed data format:
+ * Layout: [signature(65)][nonce(16)][arguments(variable)]
+ * - signature: bytes 0-65 (65 bytes)
+ * - nonce: bytes 65-81 (16 bytes, uint128)
+ * - arguments: bytes 81 onwards (variable length)
  */
 export function packExecutionData({
   signature,
   nonce,
-  to,
-  value,
   args,
 }: {
   signature: Hex;
   nonce: bigint;
-  to: Address;
-  value?: bigint;
   args: Hex;
 }): Hex {
-  const baseData = [
+  return concat([
     signature, // 65 bytes
     pad(toHex(nonce), { size: 16 }), // 16 bytes (uint128)
-    to, // 20 bytes
-  ];
-
-  // Include value bytes only when value is provided and > 0
-  if (value !== undefined && value > 0n) {
-    return concat([
-      ...baseData,
-      pad(toHex(value), { size: 32 }), // 32 bytes (uint256)
-      args, // variable length
-    ]);
-  }
-
-  return concat([
-    ...baseData,
-    args, // variable length,
+    args, // variable length
   ]);
 }
