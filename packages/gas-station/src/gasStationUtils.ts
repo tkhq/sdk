@@ -152,9 +152,9 @@ export function buildETHTransferFromEther(
  *
  * Packed data format:
  * Layout: [signature(65)][nonce(16)][deadline(4)][arguments(variable)]
- * - signature: bytes 0-65 (65 bytes)
- * - nonce: bytes 65-81 (16 bytes, uint128)
- * - deadline: bytes 81-85 (4 bytes, uint32)
+ * - signature: bytes 0-64 (65 bytes)
+ * - nonce: bytes 65-80 (16 bytes, uint128)
+ * - deadline: bytes 81-84 (4 bytes, uint32)
  * - arguments: bytes 85 onwards (variable length)
  */
 export function packExecutionData({
