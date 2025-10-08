@@ -192,20 +192,6 @@ This example works on:
 
 - **Base Mainnet** (default in examples)
 - **Ethereum Mainnet**
-- Any EVM chain where the gas station contracts are deployed
-
-## Troubleshooting
-
-### "Authorization failed"
-
-- Ensure your paymaster wallet has ETH for gas
-- Verify the delegate contract address is correct
-
-### "Execution failed"
-
-- Confirm the EOA is authorized (run authorization step first)
-- Check that nonce hasn't been reused
-- Verify the user wallet has sufficient token balance
 
 ## Learn More
 
