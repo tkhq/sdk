@@ -31,7 +31,7 @@ import { createContext } from "react";
  */
 
 export interface ClientContextType
-  extends Omit<TurnkeyClientMethods, "connectWalletAccount" | "fetchWalletProviders" | "disconnectWalletAccount" | "switchWalletAccountChain" | "loginWithWallet" | "signUpWithWallet" | "loginOrSignupWithWallet"> {
+  extends Omit<TurnkeyClientMethods, "connectWalletAccount" | "fetchWalletProviders" | "disconnectWalletAccount" | "switchWalletAccountChain" | "loginWithWallet" | "signUpWithWallet" | "loginOrSignupWithWallet" | "buildWalletLoginRequest"> {
   /** @internal */
   httpClient: TurnkeySDKClientBase | undefined;
   /** @internal */

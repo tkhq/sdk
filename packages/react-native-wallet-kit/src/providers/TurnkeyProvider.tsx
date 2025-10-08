@@ -73,6 +73,9 @@ import {
   type Wallet,
   type WalletAccount,
   type VerifyOtpResult,
+  type CreateHttpClientParams,
+  type TurnkeySDKClientBase,
+  type FetchBootProofForAppProofParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
@@ -95,6 +98,7 @@ import {
   type BaseAuthResult,
   AuthAction,
   type PasskeyAuthResult,
+  v1BootProof,
 } from "@turnkey/sdk-types";
 
 import {
@@ -303,6 +307,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         authProxyUrl: masterConfig.authProxyUrl,
         authProxyConfigId: masterConfig.authProxyConfigId,
         organizationId: masterConfig.organizationId,
+        defaultStamperType: masterConfig.defaultStamperType,
 
         // Define passkey and wallet config here. If we don't pass it into the client, Mr. Client will assume that we don't want to use passkeys/wallets and not create the stamper!
         passkeyConfig: {
@@ -614,6 +619,19 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       );
     },
     [client, callbacks],
+  );
+
+  const createHttpClient = useCallback(
+    (params?: CreateHttpClientParams): TurnkeySDKClientBase => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.createHttpClient(params);
+    },
+    [client],
   );
 
   const logout: (params?: LogoutParams) => Promise<void> = useCallback(
@@ -1066,6 +1084,25 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         () => logout(),
         callbacks,
         "Failed to fetch private keys",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const fetchBootProofForAppProof = useCallback(
+    async (
+      params: FetchBootProofForAppProofParams,
+    ): Promise<v1BootProof> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.fetchBootProofForAppProof(params),
+        () => logout(),
+        callbacks,
+        "Failed to fetch or create delegated access user",
       );
     },
     [client, callbacks],
@@ -2063,7 +2100,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           }
 
           if (params?.onOauthSuccess) {
-            params.onOauthSuccess({ oidcToken, providerName: "discord", ...(sessionKey && { sessionKey }) });
+            params.onOauthSuccess({ oidcToken, providerName: "discord", publicKey, ...(sessionKey && { sessionKey }) });
             return;
           }
 
@@ -2221,7 +2258,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           }
 
           if (params?.onOauthSuccess) {
-            params.onOauthSuccess({ oidcToken, providerName: "twitter", ...(sessionKey && { sessionKey }) });
+            params.onOauthSuccess({ oidcToken, providerName: "twitter", publicKey, ...(sessionKey && { sessionKey }) });
             return;
           }
 
@@ -2339,7 +2376,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
 
         if (params?.onOauthSuccess) {
-          params.onOauthSuccess({ oidcToken: idToken, providerName: "google" });
+          params.onOauthSuccess({ oidcToken: idToken, providerName: "google", publicKey, ...(sessionKey && { sessionKey }) });
           return;
         }
 
@@ -2476,7 +2513,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
 
         if (params?.onOauthSuccess) {
-          params.onOauthSuccess({ oidcToken: idToken, providerName: "apple", ...(sessionKey && { sessionKey }) });
+          params.onOauthSuccess({ oidcToken: idToken, providerName: "apple", publicKey, ...(sessionKey && { sessionKey }) });
           return;
         }
 
@@ -2635,7 +2672,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           }
 
           if (params?.onOauthSuccess) {
-            params.onOauthSuccess({ oidcToken: idToken, providerName: "facebook", ...(sessionKey && { sessionKey }) });
+            params.onOauthSuccess({ oidcToken: idToken, providerName: "facebook", publicKey, ...(sessionKey && { sessionKey }) });
             return;
           }
 
@@ -2717,6 +2754,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         wallets,
         config: masterConfig,
         httpClient: client?.httpClient,
+        createHttpClient,
         createPasskey,
         logout,
         loginWithPasskey,
@@ -2773,6 +2811,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         handleDiscordOauth,
         handleAppleOauth,
         handleFacebookOauth,
+        fetchBootProofForAppProof,
       }}
     >
       {children}
