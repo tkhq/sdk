@@ -3,9 +3,9 @@ import { base, mainnet, sepolia } from "viem/chains";
 
 // Default contract addresses (deterministically deployed across all chains)
 export const DEFAULT_DELEGATE_CONTRACT: `0x${string}` =
-  "0x88Ece3d9A0a3D81c2534422Cd56A726e0f198Dce";
+  "0xb68eB4B38Eda7eEa1275c9c781ED257013fa934f";
 export const DEFAULT_EXECUTION_CONTRACT: `0x${string}` =
-  "0xa7a8F177aaeDc838669eE4A1eE85f89A153203d3";
+  "0xed641b43dd57CBA9e0c14bD02DD7eF320762a201";
 
 // Type definitions
 export interface GasStationConfig {
@@ -35,6 +35,7 @@ export interface ContractCallParams {
 
 export interface ExecutionIntent {
   nonce: bigint;
+  deadline: number;
   outputContract: `0x${string}`;
   ethAmount: bigint; // amount of ETH to transfer in wei
   callData: `0x${string}`;

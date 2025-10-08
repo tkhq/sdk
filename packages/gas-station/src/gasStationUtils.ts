@@ -146,28 +146,32 @@ export function buildETHTransferFromEther(
 
 /**
  * Packs execution data for the gas station delegate contract.
- * Only packs signature, nonce, and calldata args.
- * The output contract address and ETH amount are now explicit parameters
+ * Packs signature, nonce, deadline, and calldata args.
+ * The output contract address and ETH amount are explicit parameters
  * in the execute() function signature, not part of the packed bytes.
  *
  * Packed data format:
- * Layout: [signature(65)][nonce(16)][arguments(variable)]
+ * Layout: [signature(65)][nonce(16)][deadline(4)][arguments(variable)]
  * - signature: bytes 0-65 (65 bytes)
  * - nonce: bytes 65-81 (16 bytes, uint128)
- * - arguments: bytes 81 onwards (variable length)
+ * - deadline: bytes 81-85 (4 bytes, uint32)
+ * - arguments: bytes 85 onwards (variable length)
  */
 export function packExecutionData({
   signature,
   nonce,
+  deadline,
   args,
 }: {
   signature: Hex;
   nonce: bigint;
+  deadline: number;
   args: Hex;
 }): Hex {
   return concat([
     signature, // 65 bytes
     pad(toHex(nonce), { size: 16 }), // 16 bytes (uint128)
+    pad(toHex(deadline), { size: 4 }), // 4 bytes (uint32)
     args, // variable length
   ]);
 }

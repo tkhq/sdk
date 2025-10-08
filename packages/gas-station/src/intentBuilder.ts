@@ -20,6 +20,7 @@ export class IntentBuilder {
   private callData: `0x${string}` = "0x";
   private ethAmount: bigint = 0n;
   private nonce?: bigint;
+  private deadline?: number;
 
   constructor(config: IntentBuilderConfig) {
     this.config = config;
@@ -46,6 +47,15 @@ export class IntentBuilder {
    */
   withNonce(nonce: bigint): this {
     this.nonce = nonce;
+    return this;
+  }
+
+  /**
+   * Set an expiration deadline (unix timestamp in seconds)
+   * If not set, defaults to 1 hour from now
+   */
+  withDeadline(deadline: number): this {
+    this.deadline = deadline;
     return this;
   }
 
@@ -123,6 +133,9 @@ export class IntentBuilder {
     }
 
     const nonce = this.nonce ?? currentNonce;
+    // Default deadline: 1 hour from now
+    const deadline =
+      this.deadline ?? Math.floor(Date.now() / 1000) + 60 * 60;
 
     // EIP-712 domain and types for gas station execution
     const domain = {
@@ -132,9 +145,11 @@ export class IntentBuilder {
       verifyingContract: this.config.eoaAddress,
     };
 
+    // Original: keccak256("Execution(uint128 nonce,uint32 deadline,address outputContract,uint256 ethAmount,bytes arguments)")
     const types = {
       Execution: [
         { name: "nonce", type: "uint128" },
+        { name: "deadline", type: "uint32" },
         { name: "outputContract", type: "address" },
         { name: "ethAmount", type: "uint256" },
         { name: "arguments", type: "bytes" },
@@ -143,6 +158,7 @@ export class IntentBuilder {
 
     const message = {
       nonce,
+      deadline,
       outputContract: this.outputContract,
       ethAmount: this.ethAmount,
       arguments: this.callData,
@@ -162,6 +178,7 @@ export class IntentBuilder {
 
     return {
       nonce,
+      deadline,
       outputContract: this.outputContract,
       ethAmount: this.ethAmount,
       callData: this.callData,

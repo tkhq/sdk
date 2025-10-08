@@ -208,10 +208,11 @@ export class GasStationClient {
    * Call this with a paymaster client to test if the paymaster can sign the execution.
    */
   async signExecution(intent: ExecutionIntent): Promise<`0x${string}`> {
-    // Pack the execution data (signature, nonce, args only)
+    // Pack the execution data (signature, nonce, deadline, args)
     const packedData = packExecutionData({
       signature: intent.signature,
       nonce: intent.nonce,
+      deadline: intent.deadline,
       args: intent.callData,
     });
 
@@ -251,10 +252,11 @@ export class GasStationClient {
   async execute(
     intent: ExecutionIntent,
   ): Promise<{ txHash: `0x${string}`; blockNumber: bigint; gasUsed: bigint }> {
-    // Pack the execution data (signature, nonce, args only)
+    // Pack the execution data (signature, nonce, deadline, args)
     const packedData = packExecutionData({
       signature: intent.signature,
       nonce: intent.nonce,
+      deadline: intent.deadline,
       args: intent.callData,
     });
 
