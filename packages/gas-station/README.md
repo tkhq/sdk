@@ -1,5 +1,7 @@
 # Turnkey Gas Station SDK
 
+> **⚠️ BETA WARNING**: This SDK is currently in beta. The underlying smart contracts are **unaudited** and should not be used in production environments. Use at your own risk.
+
 A reusable SDK for implementing gasless transactions using EIP-7702, Turnkey wallet management, and your own paymaster. This package provides clean abstractions and utility methods to quickly integrate with Turnkey's contracts for sponsored transaction execution.
 
 ## What is This?

@@ -184,7 +184,6 @@ Target Contract (Transfer ETH/USDC/etc)
 - **No ETH Required**: Users don't need ETH to execute transactions
 - **Secure**: All keys managed by Turnkey, signatures validated on-chain
 - **Flexible**: Works with any contract call, not just transfers
-- **Production-Ready**: Includes policy enforcement and security best practices
 
 ## Chain Support
 
