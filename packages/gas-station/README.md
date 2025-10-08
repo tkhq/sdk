@@ -289,16 +289,6 @@ async function onboardUser(userAddress: string) {
 }
 ```
 
-## Running Examples
-
-```bash
-# ETH transfer on Base
-pnpm run eth-transfer -- --chain base
-
-# USDC transfer on Base
-pnpm run usdc-transfer -- --chain base
-```
-
 ## Architecture
 
 ### Gas Station Pattern
@@ -333,7 +323,6 @@ Available presets for quick setup:
 
 - **BASE_MAINNET** - Base mainnet (includes USDC address)
 - **ETHEREUM_MAINNET** - Ethereum mainnet (includes USDC address)
-- **SEPOLIA** - Sepolia testnet
 
 ```typescript
 // Chain presets are available for quick configuration
@@ -355,8 +344,8 @@ const userClient = new GasStationClient({
 ## Security
 
 - **EIP-712 Signed Intents**: All executions require valid typed signatures
-- **Nonce Management**: Prevents replay attacks via on-chain nonce tracking
 - **EIP-7702 Scoping**: Authorization is per-EOA and can be revoked
+- **Deadline Enforcement**: Each transaction includes a deadline (Unix timestamp) to prevent replay attacks; signatures expire after this time
 - **Turnkey Integration**: Private keys never leave Turnkey's secure infrastructure
 
 ### Security Policies
@@ -425,7 +414,7 @@ const paymasterPolicy = buildPaymasterExecutionPolicy({
   restrictions: {
     allowedEOAs: ["0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"],
     allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
-    maxEthAmount: parseEther("0.1"), // Max 0.1 ETH per transaction
+    maxEthAmount: parseEther("0.1"), // Max 0.1 ETH per EOA transaction
     maxGasPrice: parseGwei("50"), // Max 50 gwei gas price
     maxGasLimit: 500000n, // Max 500k gas limit
   },
@@ -488,33 +477,30 @@ const paymasterPolicy = buildPaymasterExecutionPolicy({
 });
 ```
 
-**Best Practices:**
-
-- Start with restrictive policies and relax as needed
-- Use gas limits to prevent DoS attacks
-- Monitor policy violations in Turnkey activity logs
-- Test policies thoroughly before production deployment
-
 ### Advanced: Writing Custom Paymaster Policies
 
 When using `buildPaymasterExecutionPolicy`, the SDK creates Turnkey policies that parse the transaction calldata to enforce restrictions. Understanding the transaction structure allows you to write custom policies for advanced use cases.
 
 #### Transaction Data Structure
 
-When the paymaster signs an execution transaction calling `executeNoValue(address eoaAddress, bytes memory packedData)`, the transaction data (`eth.tx.data`) has the following structure:
+When the paymaster signs an execution transaction calling `execute(address _target, address _to, uint256 _ethAmount, bytes _data)`, the transaction data (`eth.tx.data`) has the following structure:
 
-| Position in eth.tx.data | Length    | Content              | Example                                          |
-| ----------------------- | --------- | -------------------- | ------------------------------------------------ |
-| `[2..10]`               | 8 chars   | Function selector    | `6c5c2ed9`                                       |
-| `[10..74]`              | 64 chars  | EOA address (padded) | `0000...742d35cc6634c0532925a3b844bc9e7595f0beb` |
-| `[74..138]`             | 64 chars  | Offset to bytes      | `0000...0040`                                    |
-| `[138..202]`            | 64 chars  | Packed data length   | `0000...00a9`                                    |
-| `[202..332]`            | 130 chars | Signature (65 bytes) | EIP-712 signature from EOA                       |
-| `[332..364]`            | 32 chars  | Nonce (16 bytes)     | `00000000000000000000000000000000`               |
-| `[364..404]`            | 40 chars  | **Output contract**  | `833589fcd6edb6e08f4c7c32d4f71b54bda02913`       |
-| `[404+]`                | Variable  | Call data            | Encoded function call                            |
+| Position in eth.tx.data | Length    | Content                | Example                                           |
+| ----------------------- | --------- | ---------------------- | ------------------------------------------------- |
+| `[2..10]`               | 8 chars   | Function selector      | `6c5c2ed9` (execute)                              |
+| `[10..74]`              | 64 chars  | \_target (EOA, padded) | `0000...742d35cc6634c0532925a3b844bc9e7595f0beb`  |
+| `[74..138]`             | 64 chars  | \_to (output contract) | `0000...833589fcd6edb6e08f4c7c32d4f71b54bda02913` |
+| `[138..202]`            | 64 chars  | \_ethAmount (uint256)  | `0000...0000` (0 ETH) or amount in wei            |
+| `[202..266]`            | 64 chars  | Offset to \_data bytes | `0000...0080` (128 bytes)                         |
+| `[266..330]`            | 64 chars  | Packed data length     | `0000...0055` (85 bytes: 65+16+4)                 |
+| `[330..460]`            | 130 chars | Signature (65 bytes)   | EIP-712 signature from EOA                        |
+| `[460..492]`            | 32 chars  | Nonce (16 bytes)       | `00000000000000000000000000000000`                |
+| `[492..500]`            | 8 chars   | Deadline (4 bytes)     | `6ac7d340` (Unix timestamp)                       |
+| `[500+]`                | Variable  | Call data              | Encoded function call for target contract         |
 
 **Important:** Turnkey's `eth.tx.data` includes the `0x` prefix, so positions start at index 2 (after `0x`).
+
+**Note:** The deadline is a Unix timestamp that prevents replay attacks by expiring signatures after a specified time. The SDK defaults to 1 hour, customizable with `withDeadline()`.
 
 #### Policy Conditions Reference
 
@@ -533,7 +519,13 @@ eth.tx.data[10..74] == '0000000000000000000000742d35cc6634c0532925a3b844bc9e7595
 **Check target contract (output contract):**
 
 ```typescript
-eth.tx.data[364..404] == '833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+eth.tx.data[74..138] == '0000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913'
+```
+
+**Check ETH amount:**
+
+```typescript
+eth.tx.data[138..202].hex_to_uint() <= 100000000000000000; // Max 0.1 ETH in wei
 ```
 
 **Check gas price:**
@@ -563,7 +555,7 @@ const policy = {
     "activity.action == 'SIGN'",
     "eth.tx.to == '0x576a4d741b96996cc93b4919a04c16545734481f'",
     // Allow USDC or DAI
-    "(eth.tx.data[364..404] == '833589fcd6edb6e08f4c7c32d4f71b54bda02913' || eth.tx.data[364..404] == '50c5725949a6f0c72e6c4a641f24049a917db0cb')",
+    "(eth.tx.data[74..138] == '0000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913' || eth.tx.data[74..138] == '00000000000000000000006b175474e89094c44da98b954eedeac495271d0f')",
     // Gas limits
     "eth.tx.gasPrice <= 100000000000",
     "eth.tx.gas <= 500000",

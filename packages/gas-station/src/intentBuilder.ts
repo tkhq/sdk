@@ -134,8 +134,7 @@ export class IntentBuilder {
 
     const nonce = this.nonce ?? currentNonce;
     // Default deadline: 1 hour from now
-    const deadline =
-      this.deadline ?? Math.floor(Date.now() / 1000) + 60 * 60;
+    const deadline = this.deadline ?? Math.floor(Date.now() / 1000) + 60 * 60;
 
     // EIP-712 domain and types for gas station execution
     const domain = {
