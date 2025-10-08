@@ -26,7 +26,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-       "package": "xyz.tkhqlabs.passkeyapp"
+      "package": "xyz.tkhqlabs.passkeyapp"
     },
     "web": {
       "output": "static",

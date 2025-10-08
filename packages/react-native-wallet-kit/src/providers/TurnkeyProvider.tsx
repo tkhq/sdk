@@ -109,7 +109,6 @@ import {
   ClientState,
 } from "../types";
 
-
 import type {
   HandleAppleOauthParams,
   HandleDiscordOauthParams,
@@ -189,10 +188,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     // Resolve OTP enablement
     const emailOtpEnabled =
       config.auth?.otp?.email ??
-      (proxyAuthConfig?.enabledProviders.includes("email") ?? false);
+      proxyAuthConfig?.enabledProviders.includes("email") ??
+      false;
     const smsOtpEnabled =
       config.auth?.otp?.sms ??
-      (proxyAuthConfig?.enabledProviders.includes("sms") ?? false);
+      proxyAuthConfig?.enabledProviders.includes("sms") ??
+      false;
 
     // Resolve shared redirect; do NOT attach scheme here. We'll attach in handler on demand.
     const appScheme = config.auth?.oauth?.appScheme ?? undefined;
@@ -233,15 +234,15 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       auth: {
         ...config.auth,
         // Proxy-controlled settings
-        sessionExpirationSeconds: authProxyOnlySettings.sessionExpirationSeconds,
+        sessionExpirationSeconds:
+          authProxyOnlySettings.sessionExpirationSeconds,
         otp: {
           ...config.auth?.otp,
           // Enablement flags
           email: emailOtpEnabled,
           sms: smsOtpEnabled,
           // Proxy-only settings
-          alphanumeric:
-            authProxyOnlySettings.otp.alphanumeric,
+          alphanumeric: authProxyOnlySettings.otp.alphanumeric,
           length: authProxyOnlySettings.otp.length,
         },
         // OAuth shared settings
@@ -260,9 +261,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     provider: "google" | "apple" | "facebook" | "x" | "discord",
   ) => {
     const oauth = masterConfig?.auth?.oauth;
-    const providerConfig = oauth
-      ? (oauth as any)[provider]
-      : undefined;
+    const providerConfig = oauth ? (oauth as any)[provider] : undefined;
     const providerObjectConfig =
       providerConfig && typeof providerConfig === "object"
         ? (providerConfig as { clientId?: string; redirectUri?: string })
@@ -718,9 +717,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         masterConfig?.auth?.sessionExpirationSeconds ??
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
-      const websiteName = Platform.OS === 'web' && typeof window !== 'undefined'
-        ? window.location.hostname
-        : DeviceInfo.getApplicationName() || DeviceInfo.getBundleId() || 'mobile-app';
+      const websiteName =
+        Platform.OS === "web" && typeof window !== "undefined"
+          ? window.location.hostname
+          : DeviceInfo.getApplicationName() ||
+            DeviceInfo.getBundleId() ||
+            "mobile-app";
       const timestamp =
         new Date().toLocaleDateString() +
         "-" +
@@ -1090,9 +1092,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   );
 
   const fetchBootProofForAppProof = useCallback(
-    async (
-      params: FetchBootProofForAppProofParams,
-    ): Promise<v1BootProof> => {
+    async (params: FetchBootProofForAppProofParams): Promise<v1BootProof> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1124,7 +1124,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     },
     [client, callbacks],
   );
-
 
   const signTransaction = useCallback(
     async (params: SignTransactionParams): Promise<string> => {
@@ -1949,21 +1948,17 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
       return wallets;
     },
-    [
-      client,
-      callbacks,
-      fetchWallets,
-      masterConfig,
-      session,
-      user,
-    ],
+    [client, callbacks, fetchWallets, masterConfig, session, user],
   );
 
   const handleDiscordOauth = useCallback(
     async (params?: HandleDiscordOauthParams): Promise<void> => {
       const { additionalState: additionalParameters } = params || {};
-      const { clientId, redirectUri, appScheme: scheme } =
-        getOauthProviderSettings("discord");
+      const {
+        clientId,
+        redirectUri,
+        appScheme: scheme,
+      } = getOauthProviderSettings("discord");
       try {
         if (!masterConfig) {
           throw new TurnkeyError(
@@ -2011,7 +2006,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         let state = `provider=discord&flow=redirect&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}`;
         if (additionalParameters) {
           const extra = Object.entries(additionalParameters)
-            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .map(
+              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+            )
             .join("&");
           if (extra) state += `&${extra}`;
         }
@@ -2055,7 +2052,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         // Extract params from deep link
         const qsIndex = result.url.indexOf("?");
-        const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
+        const queryString =
+          qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
         const urlParams = new URLSearchParams(queryString);
         const authCode = urlParams.get("code");
         const stateParam = urlParams.get("state");
@@ -2089,7 +2087,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
             nonce,
           });
 
-            await AsyncStorage.removeItem("discord_verifier");
+          await AsyncStorage.removeItem("discord_verifier");
 
           const oidcToken = resp?.oidcToken as string;
           if (!oidcToken) {
@@ -2100,16 +2098,30 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           }
 
           if (params?.onOauthSuccess) {
-            params.onOauthSuccess({ oidcToken, providerName: "discord", publicKey, ...(sessionKey && { sessionKey }) });
+            params.onOauthSuccess({
+              oidcToken,
+              providerName: "discord",
+              publicKey,
+              ...(sessionKey && { sessionKey }),
+            });
             return;
           }
 
           if (callbacks?.onOauthRedirect) {
-            callbacks.onOauthRedirect({ idToken: oidcToken, publicKey, ...(sessionKey && { sessionKey }) });
+            callbacks.onOauthRedirect({
+              idToken: oidcToken,
+              publicKey,
+              ...(sessionKey && { sessionKey }),
+            });
             return;
           }
 
-        	await completeOauth({ oidcToken, publicKey, providerName: "discord", ...(sessionKey && { sessionKey }) });
+          await completeOauth({
+            oidcToken,
+            publicKey,
+            providerName: "discord",
+            ...(sessionKey && { sessionKey }),
+          });
           return;
         } finally {
           // Ensure cleanup even on error
@@ -2122,12 +2134,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks, masterConfig, session, user],
   );
 
-
   const handleXOauth = useCallback(
     async (params?: HandleXOauthParams): Promise<void> => {
       const { additionalState: additionalParameters } = params || {};
-      const { clientId, redirectUri, appScheme: scheme } =
-        getOauthProviderSettings("x");
+      const {
+        clientId,
+        redirectUri,
+        appScheme: scheme,
+      } = getOauthProviderSettings("x");
       try {
         if (!masterConfig) {
           throw new TurnkeyError(
@@ -2172,7 +2186,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         let state = `provider=twitter&flow=redirect&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}`;
         if (additionalParameters) {
           const extra = Object.entries(additionalParameters)
-            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .map(
+              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+            )
             .join("&");
           if (extra) state += `&${extra}`;
         }
@@ -2213,7 +2229,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
 
         const qsIndex = result.url.indexOf("?");
-        const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
+        const queryString =
+          qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
         const urlParams = new URLSearchParams(queryString);
         const authCode = urlParams.get("code");
         const stateParam = urlParams.get("state");
@@ -2258,16 +2275,30 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           }
 
           if (params?.onOauthSuccess) {
-            params.onOauthSuccess({ oidcToken, providerName: "twitter", publicKey, ...(sessionKey && { sessionKey }) });
+            params.onOauthSuccess({
+              oidcToken,
+              providerName: "twitter",
+              publicKey,
+              ...(sessionKey && { sessionKey }),
+            });
             return;
           }
 
           if (callbacks?.onOauthRedirect) {
-            callbacks.onOauthRedirect({ idToken: oidcToken, publicKey, ...(sessionKey && { sessionKey }) });
+            callbacks.onOauthRedirect({
+              idToken: oidcToken,
+              publicKey,
+              ...(sessionKey && { sessionKey }),
+            });
             return;
           }
 
-          await completeOauth({ oidcToken, publicKey, providerName: "twitter", ...(sessionKey && { sessionKey }) });
+          await completeOauth({
+            oidcToken,
+            publicKey,
+            providerName: "twitter",
+            ...(sessionKey && { sessionKey }),
+          });
           return;
         } finally {
           // Ensure cleanup even on error
@@ -2283,8 +2314,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const handleGoogleOauth = useCallback(
     async (params?: HandleGoogleOauthParams): Promise<void> => {
       const {} = params || {};
-      const { clientId, redirectUri, appScheme: scheme } =
-        getOauthProviderSettings("google");
+      const {
+        clientId,
+        redirectUri,
+        appScheme: scheme,
+      } = getOauthProviderSettings("google");
 
       try {
         if (!masterConfig) {
@@ -2363,7 +2397,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         // result.url is expected to be like: <scheme>://?id_token=...&state=... (from oauth-redirect)
         const qsIndex = result.url.indexOf("?");
-        const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
+        const queryString =
+          qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
         const urlParams = new URLSearchParams(queryString);
         const idToken = urlParams.get("id_token");
         const sessionKey = urlParams.get("sessionKey") || undefined;
@@ -2376,7 +2411,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
 
         if (params?.onOauthSuccess) {
-          params.onOauthSuccess({ oidcToken: idToken, providerName: "google", publicKey, ...(sessionKey && { sessionKey }) });
+          params.onOauthSuccess({
+            oidcToken: idToken,
+            providerName: "google",
+            publicKey,
+            ...(sessionKey && { sessionKey }),
+          });
           return;
         }
 
@@ -2406,8 +2446,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const handleAppleOauth = useCallback(
     async (params?: HandleAppleOauthParams): Promise<void> => {
       const { additionalState: additionalParameters } = params || {};
-      const { clientId, redirectUri, appScheme: scheme } =
-        getOauthProviderSettings("apple");
+      const {
+        clientId,
+        redirectUri,
+        appScheme: scheme,
+      } = getOauthProviderSettings("apple");
 
       try {
         if (!masterConfig) {
@@ -2454,7 +2497,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         let state = `provider=apple&flow=redirect&publicKey=${encodeURIComponent(publicKey)}`;
         if (additionalParameters) {
           const extra = Object.entries(additionalParameters)
-            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .map(
+              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+            )
             .join("&");
           if (extra) state += `&${extra}`;
         }
@@ -2496,7 +2541,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         // Extract params from deep link
         const qsIndex = result.url.indexOf("?");
-        const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
+        const queryString =
+          qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
         const urlParams = new URLSearchParams(queryString);
         const idToken = urlParams.get("id_token");
         const stateParam = urlParams.get("state");
@@ -2513,16 +2559,30 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
 
         if (params?.onOauthSuccess) {
-          params.onOauthSuccess({ oidcToken: idToken, providerName: "apple", publicKey, ...(sessionKey && { sessionKey }) });
+          params.onOauthSuccess({
+            oidcToken: idToken,
+            providerName: "apple",
+            publicKey,
+            ...(sessionKey && { sessionKey }),
+          });
           return;
         }
 
         if (callbacks?.onOauthRedirect) {
-          callbacks.onOauthRedirect({ idToken, publicKey, ...(sessionKey && { sessionKey }) });
+          callbacks.onOauthRedirect({
+            idToken,
+            publicKey,
+            ...(sessionKey && { sessionKey }),
+          });
           return;
         }
 
-        await completeOauth({ oidcToken: idToken, publicKey, providerName: "apple", ...(sessionKey && { sessionKey }) });
+        await completeOauth({
+          oidcToken: idToken,
+          publicKey,
+          providerName: "apple",
+          ...(sessionKey && { sessionKey }),
+        });
         return;
       } catch (error) {
         throw error;
@@ -2534,8 +2594,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const handleFacebookOauth = useCallback(
     async (params?: HandleFacebookOauthParams): Promise<void> => {
       const { additionalState: additionalParameters } = params || {};
-      const { clientId, redirectUri, appScheme: scheme } =
-        getOauthProviderSettings("facebook");
+      const {
+        clientId,
+        redirectUri,
+        appScheme: scheme,
+      } = getOauthProviderSettings("facebook");
 
       try {
         if (!masterConfig) {
@@ -2586,7 +2649,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         let state = `provider=facebook&flow=redirect&publicKey=${encodeURIComponent(publicKey)}`;
         if (additionalParameters) {
           const extra = Object.entries(additionalParameters)
-            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .map(
+              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+            )
             .join("&");
           if (extra) state += `&${extra}`;
         }
@@ -2629,7 +2694,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         // Extract params from deep link
         const qsIndex = result.url.indexOf("?");
-        const queryString = qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
+        const queryString =
+          qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
         const urlParams = new URLSearchParams(queryString);
         const authCode = urlParams.get("code");
         const stateParam = urlParams.get("state");
@@ -2672,16 +2738,30 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           }
 
           if (params?.onOauthSuccess) {
-            params.onOauthSuccess({ oidcToken: idToken, providerName: "facebook", publicKey, ...(sessionKey && { sessionKey }) });
+            params.onOauthSuccess({
+              oidcToken: idToken,
+              providerName: "facebook",
+              publicKey,
+              ...(sessionKey && { sessionKey }),
+            });
             return;
           }
 
           if (callbacks?.onOauthRedirect) {
-            callbacks.onOauthRedirect({ idToken, publicKey, ...(sessionKey && { sessionKey }) });
+            callbacks.onOauthRedirect({
+              idToken,
+              publicKey,
+              ...(sessionKey && { sessionKey }),
+            });
             return;
           }
 
-          await completeOauth({ oidcToken: idToken, publicKey, providerName: "facebook", ...(sessionKey && { sessionKey }) });
+          await completeOauth({
+            oidcToken: idToken,
+            publicKey,
+            providerName: "facebook",
+            ...(sessionKey && { sessionKey }),
+          });
           return;
         } finally {
           // Ensure cleanup even on error

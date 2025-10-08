@@ -1,8 +1,7 @@
-
-import { View, StyleSheet } from 'react-native';
-import { OtpInput } from 'react-native-otp-entry';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { View, StyleSheet } from "react-native";
+import { OtpInput } from "react-native-otp-entry";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 interface OtpVerificationProps {
   onTextChange: (text: string) => void;
@@ -16,7 +15,7 @@ export const OtpVerification: React.FC<OtpVerificationProps> = ({
   value,
 }) => {
   const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const colors = Colors[colorScheme ?? "light"];
 
   return (
     <View style={styles.container}>
@@ -40,7 +39,7 @@ export const OtpVerification: React.FC<OtpVerificationProps> = ({
           pinCodeTextStyle: {
             fontSize: 24,
             color: colors.primaryText,
-            fontWeight: '600',
+            fontWeight: "600",
           },
           focusedPinCodeContainerStyle: {
             borderColor: colors.primary,
@@ -57,11 +56,11 @@ export const OtpVerification: React.FC<OtpVerificationProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
   },
   otpContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: 8,
   },
 });

@@ -77,5 +77,3 @@ export const TURNKEY_CALLBACKS: TurnkeyCallbacks = {
     console.error("[Turnkey] Error:", error);
   },
 };
-
-

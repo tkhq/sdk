@@ -1,4 +1,8 @@
-import type { CreateSubOrgParams, StamperType, TurnkeySDKClientConfig } from "@turnkey/core";
+import type {
+  CreateSubOrgParams,
+  StamperType,
+  TurnkeySDKClientConfig,
+} from "@turnkey/core";
 import type {
   AuthAction,
   Session,
@@ -39,8 +43,8 @@ export interface TurnkeyCallbacks {
  * @interface TurnkeyProviderConfig
  * @extends {TurnkeySDKClientConfig}
  */
-export interface TurnkeyProviderConfig extends Omit<TurnkeySDKClientConfig, "walletConfig"> {
-
+export interface TurnkeyProviderConfig
+  extends Omit<TurnkeySDKClientConfig, "walletConfig"> {
   /** configuration for authentication methods. */
   auth?: {
     /** one-time password (OTP) settings and enablement */

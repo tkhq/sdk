@@ -17,7 +17,7 @@
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.17",
     "@turnkey/crypto": "^2.8.1",
-    "@turnkey/react-native-wallet-kit": "https://pkg.csb.dev/tkhq/sdk/commit/55dbe1b9/@turnkey/react-native-wallet-kit",
+    "@turnkey/react-native-wallet-kit": "https://pkg.csb.dev/tkhq/sdk/commit/ae61661a/@turnkey/react-native-wallet-kit",
     "@walletconnect/react-native-compat": "2.21.9",
     "expo": "~54.0.7",
     "expo-constants": "~18.0.8",

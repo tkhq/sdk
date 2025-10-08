@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
   View,
   Text,
@@ -9,23 +9,26 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { OtpVerification } from '@/components/auth/otp-verification';
-import { OtpType } from '@/types/types';
-import { useTurnkey } from '@turnkey/react-native-wallet-kit';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { OtpVerification } from "@/components/auth/otp-verification";
+import { OtpType } from "@/types/types";
+import { useTurnkey } from "@turnkey/react-native-wallet-kit";
 
 export default function OtpScreen() {
   const router = useRouter();
   const { completeOtp } = useTurnkey();
-  const { email, otpId } = useLocalSearchParams<{ email: string; otpId: string }>();
+  const { email, otpId } = useLocalSearchParams<{
+    email: string;
+    otpId: string;
+  }>();
   const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const colors = Colors[colorScheme ?? "light"];
 
-  const [otpCode, setOtpCode] = useState('');
+  const [otpCode, setOtpCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
 
@@ -38,43 +41,43 @@ export default function OtpScreen() {
   };
 
   const handleVerify = async (code?: string) => {
-
     const codeToVerify = code || otpCode;
 
     if (codeToVerify.length !== 6) {
-      Alert.alert('Invalid Code', 'Please enter a 6-digit verification code');
+      Alert.alert("Invalid Code", "Please enter a 6-digit verification code");
       return;
     }
 
     if (!otpId) {
-      Alert.alert('Missing OTP', 'We could not find your OTP session. Please try again.');
+      Alert.alert(
+        "Missing OTP",
+        "We could not find your OTP session. Please try again.",
+      );
       return;
     }
 
     setLoading(true);
-    console.log('completeOtp', {
+    console.log("completeOtp", {
       otpId,
       otpCode: codeToVerify,
       contact: email,
       otpType: OtpType.Email,
-      });
+    });
     try {
-    await completeOtp({
-      otpId,
-      otpCode: codeToVerify,
-      contact: email,
-      otpType: OtpType.Email,
+      await completeOtp({
+        otpId,
+        otpCode: codeToVerify,
+        contact: email,
+        otpType: OtpType.Email,
       });
-      router.replace('/(main)');
+      router.replace("/(main)");
     } catch (error) {
-      console.error('Error verifying OTP', error);
-      Alert.alert('Error', 'Failed to verify OTP');
+      console.error("Error verifying OTP", error);
+      Alert.alert("Error", "Failed to verify OTP");
       return;
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
-
   };
 
   const handleResendCode = async () => {
@@ -83,7 +86,10 @@ export default function OtpScreen() {
     // Mock resend
     setTimeout(() => {
       setResendLoading(false);
-      Alert.alert('Code Sent', 'A new verification code has been sent to your email');
+      Alert.alert(
+        "Code Sent",
+        "A new verification code has been sent to your email",
+      );
     }, 1000);
   };
 
@@ -91,14 +97,16 @@ export default function OtpScreen() {
     router.back();
   };
 
-  const maskedEmail = email ?
-    email.replace(/(.{2})(.*)(@.*)/, '$1***$3') :
-    'your email';
+  const maskedEmail = email
+    ? email.replace(/(.{2})(.*)(@.*)/, "$1***$3")
+    : "your email";
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <ScrollView
@@ -113,7 +121,9 @@ export default function OtpScreen() {
               onPress={handleBack}
               activeOpacity={0.7}
             >
-              <Text style={[styles.backButtonText, { color: colors.secondaryText }]}>
+              <Text
+                style={[styles.backButtonText, { color: colors.secondaryText }]}
+              >
                 ← Back
               </Text>
             </TouchableOpacity>
@@ -164,8 +174,8 @@ export default function OtpScreen() {
                 styles.verifyButton,
                 {
                   backgroundColor: colors.primary,
-                  opacity: otpCode.length < 6 || loading ? 0.5 : 1
-                }
+                  opacity: otpCode.length < 6 || loading ? 0.5 : 1,
+                },
               ]}
               onPress={() => handleVerify()}
               disabled={otpCode.length < 6 || loading}
@@ -174,9 +184,7 @@ export default function OtpScreen() {
               {loading ? (
                 <ActivityIndicator size="small" color="#FFFFFF" />
               ) : (
-                <Text style={styles.verifyButtonText}>
-                  Verify
-                </Text>
+                <Text style={styles.verifyButtonText}>Verify</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -200,10 +208,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     paddingTop: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   backButton: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     marginBottom: 20,
     padding: 8,
   },
@@ -212,23 +220,23 @@ const styles = StyleSheet.create({
   },
   logo: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 40,
   },
   title: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
     marginBottom: 32,
-    textAlign: 'center',
+    textAlign: "center",
     paddingHorizontal: 20,
   },
   otpContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: 24,
   },
   resendButton: {
@@ -237,18 +245,18 @@ const styles = StyleSheet.create({
   },
   resendText: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   verifyButton: {
-    width: '100%',
+    width: "100%",
     paddingVertical: 16,
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   verifyButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

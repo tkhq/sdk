@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,15 +8,15 @@ import {
   Platform,
   TouchableOpacity,
   Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { EmailInput, validateEmail } from '@/components/auth/email-input';
-import { SecondaryButton } from '@/components/ui/secondary-button';
-import { AuthState, useTurnkey } from '@turnkey/react-native-wallet-kit';
-import { OtpType } from '@/types/types';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { EmailInput, validateEmail } from "@/components/auth/email-input";
+import { SecondaryButton } from "@/components/ui/secondary-button";
+import { AuthState, useTurnkey } from "@turnkey/react-native-wallet-kit";
+import { OtpType } from "@/types/types";
 
 const customWallet = {
   walletName: "Default Wallet",
@@ -28,33 +28,42 @@ const customWallet = {
       addressFormat: "ADDRESS_FORMAT_ETHEREUM" as const,
     },
   ],
-}
-
+};
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { initOtp, signUpWithPasskey, loginWithPasskey, handleGoogleOauth, handleXOauth, handleDiscordOauth, handleFacebookOauth, handleAppleOauth, httpClient, authState, session } = useTurnkey();
+  const {
+    initOtp,
+    signUpWithPasskey,
+    loginWithPasskey,
+    handleGoogleOauth,
+    handleXOauth,
+    handleDiscordOauth,
+    handleFacebookOauth,
+    handleAppleOauth,
+    httpClient,
+    authState,
+    session,
+  } = useTurnkey();
   const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const colors = Colors[colorScheme ?? "light"];
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [loading, setLoading] = useState(false);
 
-
-
   useEffect(() => {
-    console.log('authState', authState === AuthState.Authenticated);
-    console.log('session', session);
+    console.log("authState", authState === AuthState.Authenticated);
+    console.log("session", session);
     if (authState === AuthState.Authenticated) {
-      router.replace('/(main)');
+      router.replace("/(main)");
     }
   }, [authState, router]);
 
   const handleEmailSubmit = async () => {
     if (!validateEmail(email)) {
       setEmailError(true);
-      Alert.alert('Invalid Email', 'Please enter a valid email address');
+      Alert.alert("Invalid Email", "Please enter a valid email address");
       return;
     }
 
@@ -66,15 +75,15 @@ export default function LoginScreen() {
     });
 
     if (!otpId) {
-      Alert.alert('Error', 'Failed to initialize OTP');
+      Alert.alert("Error", "Failed to initialize OTP");
       return;
     }
 
     setEmailError(false);
     setLoading(false);
-    console.log('otpId', otpId, 'email', email);
+    console.log("otpId", otpId, "email", email);
     router.push({
-      pathname: '/otp',
+      pathname: "/otp",
       params: { email, otpId },
     });
   };
@@ -88,19 +97,18 @@ export default function LoginScreen() {
 
   const handleSignUpWithPasskeyPress = async () => {
     try {
-    setLoading(true);
-      console.log('signing up with passkey');
-    await signUpWithPasskey({
-      passkeyDisplayName: 'DefaultPasskey',
-      createSubOrgParams: {
-        customWallet,
+      setLoading(true);
+      console.log("signing up with passkey");
+      await signUpWithPasskey({
+        passkeyDisplayName: "DefaultPasskey",
+        createSubOrgParams: {
+          customWallet,
         },
       });
-      router.replace('/(main)');
+      router.replace("/(main)");
     } catch (error) {
-      console.error('Error signing up with passkey', error);
-    }
-    finally {
+      console.error("Error signing up with passkey", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -109,9 +117,9 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       await loginWithPasskey();
-      router.replace('/(main)');
+      router.replace("/(main)");
     } catch (error) {
-      console.error('Error logging in with passkey', error);
+      console.error("Error logging in with passkey", error);
     } finally {
       setLoading(false);
     }
@@ -122,9 +130,9 @@ export default function LoginScreen() {
       setLoading(true);
 
       await handleGoogleOauth();
-      router.replace('/(main)');
+      router.replace("/(main)");
     } catch (error) {
-      console.error('Error signing in with Google', error);
+      console.error("Error signing in with Google", error);
     } finally {
       setLoading(false);
     }
@@ -133,12 +141,12 @@ export default function LoginScreen() {
   const handleXOauthPress = async () => {
     try {
       setLoading(true);
-      console.log('signing in with X');
+      console.log("signing in with X");
       await handleXOauth();
-      router.replace('/(main)');
+      router.replace("/(main)");
     } catch (error) {
-      console.error('Error signing in with X', error);
-      Alert.alert('Error', `Failed to sign in with X: ${error}`);
+      console.error("Error signing in with X", error);
+      Alert.alert("Error", `Failed to sign in with X: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -147,12 +155,12 @@ export default function LoginScreen() {
   const handleDiscordOauthPress = async () => {
     try {
       setLoading(true);
-      console.log('signing in with Discord');
+      console.log("signing in with Discord");
       await handleDiscordOauth();
-      router.replace('/(main)');
+      router.replace("/(main)");
     } catch (error) {
-      console.error('Error signing in with Discord', error);
-      Alert.alert('Error', `Failed to sign in with Discord: ${error}`);
+      console.error("Error signing in with Discord", error);
+      Alert.alert("Error", `Failed to sign in with Discord: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -161,12 +169,12 @@ export default function LoginScreen() {
   const handleFacebookOauthPress = async () => {
     try {
       setLoading(true);
-      console.log('signing in with Facebook');
+      console.log("signing in with Facebook");
       await handleFacebookOauth();
-      router.replace('/(main)');
+      router.replace("/(main)");
     } catch (error) {
-      console.error('Error signing in with Facebook', error);
-      Alert.alert('Error', `Failed to sign in with Facebook: ${error}`);
+      console.error("Error signing in with Facebook", error);
+      Alert.alert("Error", `Failed to sign in with Facebook: ${error}`);
     } finally {
       setLoading(false);
     }
@@ -175,21 +183,23 @@ export default function LoginScreen() {
   const handleAppleOauthPress = async () => {
     try {
       setLoading(true);
-      console.log('signing in with Apple');
+      console.log("signing in with Apple");
       await handleAppleOauth();
-      router.replace('/(main)');
+      router.replace("/(main)");
     } catch (error) {
-      console.error('Error signing in with Apple', error);
-      Alert.alert('Error', `Failed to sign in with Apple: ${error}`);
+      console.error("Error signing in with Apple", error);
+      Alert.alert("Error", `Failed to sign in with Apple: ${error}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <ScrollView
@@ -220,13 +230,14 @@ export default function LoginScreen() {
 
             {/* Passkey Button (Placeholder) */}
             <TouchableOpacity
-              style={[styles.passkeyButton, { backgroundColor: colors.primary }]}
+              style={[
+                styles.passkeyButton,
+                { backgroundColor: colors.primary },
+              ]}
               onPress={handleLoginWithPasskeyPress}
               activeOpacity={0.8}
             >
-              <Text style={styles.passkeyButtonText}>
-                Login with passkey
-              </Text>
+              <Text style={styles.passkeyButtonText}>Login with passkey</Text>
             </TouchableOpacity>
             {/* Sign up with passkey Button */}
             <SecondaryButton
@@ -261,9 +272,7 @@ export default function LoginScreen() {
             >
               <View style={styles.xButtonContent}>
                 <Text style={styles.xIcon}>𝕏</Text>
-                <Text style={styles.xButtonText}>
-                  Continue with X
-                </Text>
+                <Text style={styles.xButtonText}>Continue with X</Text>
               </View>
             </TouchableOpacity>
 
@@ -306,9 +315,7 @@ export default function LoginScreen() {
             >
               <View style={styles.appleButtonContent}>
                 <Text style={styles.appleIcon}></Text>
-                <Text style={styles.appleButtonText}>
-                  Continue with Apple
-                </Text>
+                <Text style={styles.appleButtonText}>Continue with Apple</Text>
               </View>
             </TouchableOpacity>
 
@@ -341,39 +348,39 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     paddingTop: 60,
-    alignItems: 'center',
+    alignItems: "center",
   },
   logo: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 40,
   },
   title: {
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 32,
   },
   inputContainer: {
-    width: '100%',
+    width: "100%",
     marginBottom: 16,
   },
   passkeyButton: {
-    width: '100%',
+    width: "100%",
     paddingVertical: 16,
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   passkeyButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
     marginVertical: 24,
   },
   divider: {
@@ -386,136 +393,136 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
   },
   googleButton: {
-    width: '100%',
+    width: "100%",
     paddingVertical: 16,
     borderRadius: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: '#E5E5E5',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#E5E5E5",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   googleButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
   },
   googleIcon: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#4285F4',
+    fontWeight: "bold",
+    color: "#4285F4",
   },
   googleButtonText: {
-    color: '#3C4043',
+    color: "#3C4043",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   xButton: {
-    width: '100%',
+    width: "100%",
     paddingVertical: 16,
     borderRadius: 8,
-    backgroundColor: '#000000',
+    backgroundColor: "#000000",
     borderWidth: 1,
-    borderColor: '#000000',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#000000",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   xButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
   },
   xIcon: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
   xButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   discordButton: {
-    width: '100%',
+    width: "100%",
     paddingVertical: 16,
     borderRadius: 8,
-    backgroundColor: '#5865F2',
+    backgroundColor: "#5865F2",
     borderWidth: 1,
-    borderColor: '#5865F2',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#5865F2",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   discordButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
   },
   discordIcon: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
   discordButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   facebookButton: {
-    width: '100%',
+    width: "100%",
     paddingVertical: 16,
     borderRadius: 8,
-    backgroundColor: '#1877F2',
+    backgroundColor: "#1877F2",
     borderWidth: 1,
-    borderColor: '#1877F2',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#1877F2",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   facebookButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
   },
   facebookIcon: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
   facebookButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   appleButton: {
-    width: '100%',
+    width: "100%",
     paddingVertical: 16,
     borderRadius: 8,
-    backgroundColor: '#000000',
+    backgroundColor: "#000000",
     borderWidth: 1,
-    borderColor: '#000000',
-    alignItems: 'center',
-    justifyContent: 'center',
+    borderColor: "#000000",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 8,
   },
   appleButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 12,
   },
   appleIcon: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
   },
   appleButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });

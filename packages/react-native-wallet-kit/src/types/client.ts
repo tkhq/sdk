@@ -6,10 +6,7 @@ import type {
   Wallet,
   StamperType,
 } from "@turnkey/core";
-import type {
-  Session,
-  v1User,
-} from "@turnkey/sdk-types";
+import type { Session, v1User } from "@turnkey/sdk-types";
 import type {
   TurnkeyProviderConfig,
   AuthState,
@@ -31,7 +28,17 @@ import { createContext } from "react";
  */
 
 export interface ClientContextType
-  extends Omit<TurnkeyClientMethods, "connectWalletAccount" | "fetchWalletProviders" | "disconnectWalletAccount" | "switchWalletAccountChain" | "loginWithWallet" | "signUpWithWallet" | "loginOrSignupWithWallet" | "buildWalletLoginRequest"> {
+  extends Omit<
+    TurnkeyClientMethods,
+    | "connectWalletAccount"
+    | "fetchWalletProviders"
+    | "disconnectWalletAccount"
+    | "switchWalletAccountChain"
+    | "loginWithWallet"
+    | "signUpWithWallet"
+    | "loginOrSignupWithWallet"
+    | "buildWalletLoginRequest"
+  > {
   /** @internal */
   httpClient: TurnkeySDKClientBase | undefined;
   /** @internal */
@@ -251,7 +258,6 @@ export interface ClientContextType
       providerName: string;
     }) => any;
   }) => Promise<void>;
-
 }
 
 /** @internal */

@@ -1,15 +1,14 @@
-
 import {
   TextInput,
   StyleSheet,
   View,
   TextInputProps,
   Platform,
-} from 'react-native';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+} from "react-native";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
-interface EmailInputProps extends Omit<TextInputProps, 'style'> {
+interface EmailInputProps extends Omit<TextInputProps, "style"> {
   value: string;
   onChangeText: (text: string) => void;
   error?: boolean;
@@ -22,7 +21,7 @@ export const EmailInput: React.FC<EmailInputProps> = ({
   ...props
 }) => {
   const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const colors = Colors[colorScheme ?? "light"];
 
   return (
     <View style={styles.container}>
@@ -30,7 +29,7 @@ export const EmailInput: React.FC<EmailInputProps> = ({
         style={[
           styles.input,
           {
-            borderColor: error ? '#ef4444' : colors.inputBorder,
+            borderColor: error ? "#ef4444" : colors.inputBorder,
             color: colors.primaryText,
             backgroundColor: colors.background,
           },
@@ -51,7 +50,7 @@ export const EmailInput: React.FC<EmailInputProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
   },
   input: {
     height: 48,
