@@ -1,5 +1,12 @@
 # @turnkey/solana
 
+## 1.1.5
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.11.3
+
 ## 1.1.4
 
 ### Patch Changes

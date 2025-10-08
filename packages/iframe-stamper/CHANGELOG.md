@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 2.7.0
+
+### Minor Changes
+
+- [#945](https://github.com/tkhq/sdk/pull/945) [`e76d2bf`](https://github.com/tkhq/sdk/commit/e76d2bfbe3fb481aedac9b992260c50217823e8a) Author [@andrewkmin](https://github.com/andrewkmin) - Pressure-test and add the following functionality: `signMessage`, `signTransaction`, `clearEmbeddedPrivateKey`. Each of these are to be used in very specific scenarios where we want to perform operations with a decrypted key living in an iframe.
+
 ## 2.6.0
 
 ## 2.6.0-beta.0
