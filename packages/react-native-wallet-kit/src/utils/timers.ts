@@ -60,7 +60,7 @@ export function setCappedTimeout(
   delayMs: number,
 ): TimerController {
   const target = Date.now() + toIntMs(delayMs);
-  let handle: number | undefined;
+  let handle: ReturnType<typeof setTimeout> | undefined;
 
   const tick = () => {
     const remaining = target - Date.now();
@@ -68,7 +68,7 @@ export function setCappedTimeout(
       cb();
       return;
     }
-    handle = window.setTimeout(tick, Math.min(MAX_DELAY_MS, remaining));
+    handle = setTimeout(tick, Math.min(MAX_DELAY_MS, remaining));
   };
 
   tick();
@@ -76,7 +76,7 @@ export function setCappedTimeout(
   return {
     clear() {
       if (handle !== undefined) {
-        window.clearTimeout(handle);
+        clearTimeout(handle);
         handle = undefined;
       }
     },
@@ -89,8 +89,8 @@ export function setTimeoutController(
   delayMs: number,
 ): TimerController {
   const ms = toIntMs(delayMs);
-  let id = window.setTimeout(cb, ms);
-  return { clear: () => window.clearTimeout(id) };
+  const id = setTimeout(cb, ms);
+  return { clear: () => clearTimeout(id) };
 }
 
 /** @internal Replace any existing timer for `key` with `controller`. */

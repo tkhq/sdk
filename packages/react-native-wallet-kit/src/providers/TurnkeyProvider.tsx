@@ -128,17 +128,18 @@ interface TurnkeyProviderProps {
 
 /**
  * Provides Turnkey client authentication, session management, wallet operations, and user profile management
- * for the React Wallet Kit SDK. This context provider encapsulates all core authentication flows (Passkey, Wallet, OTP, OAuth),
- * session lifecycle (creation, expiration, refresh), wallet connecting/import/export, and user profile updates (email, phone, name).
+ * for the React Native Wallet Kit SDK. This context provider encapsulates all core authentication flows (Passkey, OTP, OAuth),
+ * session lifecycle (creation, expiration, refresh), wallet import/export, and user profile updates (email, phone, name).
  *
  * The provider automatically initializes the Turnkey client, fetches configuration (including proxy auth config if needed),
  * and synchronizes session and authentication state. It exposes a comprehensive set of methods for authentication flows,
  * wallet management, and user profile operations, as well as UI handlers for modal-driven flows.
  *
  * Features:
- * - Passkey, Wallet, OTP (Email/SMS), and OAuth (Google, Apple, Facebook) authentication and sign-up flows.
+ * - Passkey, OTP (Email/SMS), and OAuth (Google, Apple, Facebook, Discord, X) authentication and sign-up flows.
+ * - React Native-specific OAuth: opens an in-app browser (Custom Tabs/Safari View Controller) and deep-links back via the configured app scheme.
  * - Session management: creation, expiration scheduling, refresh, and clearing.
- * - Wallet management: fetch, connect, import, export, account management.
+ * - Wallet management: fetch, import, export, account management.
  * - User profile management: email, phone, name, OAuth provider, and passkey linking/removal.
  * - Error handling and callback integration for custom error and event responses.
  *
@@ -248,8 +249,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         autoRefreshSession: config.auth?.autoRefreshSession ?? true,
       },
       autoRefreshManagedState: config.autoRefreshManagedState ?? true,
-      importIframeUrl: config.importIframeUrl ?? "https://import.turnkey.com",
-      exportIframeUrl: config.exportIframeUrl ?? "https://export.turnkey.com",
     } as TurnkeyProviderConfig;
   };
 

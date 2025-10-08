@@ -6,8 +6,6 @@ import type {
   TurnkeyNetworkError,
 } from "@turnkey/sdk-types";
 
-export type { KeyFormat  } from "@turnkey/iframe-stamper";
-
 // New OAuth provider config union: boolean enables; object configures and enables
 export type OauthProviderConfig =
   | boolean
@@ -42,12 +40,6 @@ export interface TurnkeyCallbacks {
  * @extends {TurnkeySDKClientConfig}
  */
 export interface TurnkeyProviderConfig extends Omit<TurnkeySDKClientConfig, "walletConfig"> {
-  // All other optional urls are part of the TurnkeySDKClientConfig interface.
-  // We add them here directly since the core js package does not use iframes at all!
-  /** URL for the export iframe. */
-  exportIframeUrl?: string | undefined;
-  /** URL for the import iframe. */
-  importIframeUrl?: string | undefined;
 
   /** configuration for authentication methods. */
   auth?: {

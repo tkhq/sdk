@@ -90,20 +90,18 @@ export interface ClientContextType
   /**
    * Handles the Discord OAuth 2.0 flow.
    *
-   * - This function initiates the OAuth 2.0 PKCE flow with Discord by redirecting the user to the Discord authorization page or opening it in a popup window.
-   * - It supports both "popup" and "redirect" flows, determined by the `openInPage` parameter.
+   * - This function initiates the OAuth 2.0 PKCE flow with Discord by opening the in-app browser and deep-linking back to the app.
+   * - On React Native, the flow always uses the in-app browser.
    * - Generates a new ephemeral API key pair and uses its public key as part of the state and a cryptographic nonce to bind the OAuth session.
-   * - Creates a PKCE verifier/challenge pair, storing the verifier in `sessionStorage` for later use in the token exchange.
+   * - Creates a PKCE verifier/challenge pair, storing the verifier in `AsyncStorage` for later use in the token exchange.
    * - Constructs the Discord OAuth URL with all required parameters, including client ID, redirect URI, response type, scope, PKCE code challenge, nonce, and state.
    * - The `state` parameter encodes the provider name, flow type, ephemeral public key, and any additional key-value pairs provided in `additionalState`.
-   * - If `openInPage` is true, the current page is redirected to the OAuth URL and the function returns a promise that resolves on redirect or rejects after 5 minutes if no redirect occurs.
-   * - If `openInPage` is false, a popup window is opened for the OAuth flow, and the function returns a promise that resolves when the OAuth code is captured or rejects if the popup is closed or times out.
+   * - The flow resolves when the app is deep-linked back; it rejects if the in-app browser is closed or times out.
    * - On receiving an authorization code, the function exchanges it for an OIDC token via the Turnkey proxy (`proxyOAuth2Authenticate`) using the PKCE verifier, redirect URI, and nonce.
    * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
-   * - Handles error cases such as missing configuration, popup failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
+   * - Handles error cases such as missing configuration, in-app browser failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
    *
    * @param params.clientId - The Discord Client ID to use (defaults to the client ID from configuration).
-   * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
    *
@@ -117,7 +115,6 @@ export interface ClientContextType
   handleDiscordOauth: (params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
-    openInPage?: boolean;
     onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
@@ -127,20 +124,18 @@ export interface ClientContextType
   /**
    * Handles the Twitter (X) OAuth 2.0 flow.
    *
-   * - This function initiates the OAuth 2.0 PKCE flow with Twitter (X) by redirecting the user to the X authorization page or opening it in a popup window.
-   * - It supports both "popup" and "redirect" flows, determined by the `openInPage` parameter.
+   * - This function initiates the OAuth 2.0 PKCE flow with Twitter (X) by opening the in-app browser and deep-linking back to the app.
+   * - On React Native, the flow always uses the in-app browser.
    * - Generates a new ephemeral API key pair and uses its public key as part of the state and a cryptographic nonce to bind the OAuth session.
-   * - Creates a PKCE verifier/challenge pair, storing the verifier in `sessionStorage` for later use in the token exchange.
+   * - Creates a PKCE verifier/challenge pair, storing the verifier in `AsyncStorage` for later use in the token exchange.
    * - Constructs the Twitter (X) OAuth URL with all required parameters, including client ID, redirect URI, response type, scope, PKCE code challenge, nonce, and state.
    * - The `state` parameter encodes the provider name, flow type, ephemeral public key, and any additional key-value pairs provided in `additionalState`.
-   * - If `openInPage` is true, the current page is redirected to the OAuth URL and the function returns a promise that resolves on redirect or rejects after 5 minutes if no redirect occurs.
-   * - If `openInPage` is false, a popup window is opened for the OAuth flow, and the function returns a promise that resolves when the OAuth code is captured or rejects if the popup is closed or times out.
+   * - The flow resolves when the app is deep-linked back; it rejects if the in-app browser is closed or times out.
    * - On receiving an authorization code, the function exchanges it for an OIDC token via the Turnkey proxy (`proxyOAuth2Authenticate`) using the PKCE verifier, redirect URI, and nonce.
    * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
-   * - Handles error cases such as missing configuration, popup failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
+   * - Handles error cases such as missing configuration, in-app browser failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
    *
    * @param params.clientId - The Twitter (X) Client ID to use (defaults to the client ID from configuration).
-   * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
    *
@@ -154,7 +149,6 @@ export interface ClientContextType
   handleXOauth: (params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
-    openInPage?: boolean;
     onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
@@ -164,18 +158,16 @@ export interface ClientContextType
   /**
    * Handles the Google OAuth flow.
    *
-   * - This function initiates the Google OAuth flow by redirecting the user to the Google authorization page or opening it in a popup window.
-   * - It supports both "popup" and "redirect" flows, determined by the `openInPage` parameter.
+   * - This function initiates the Google OAuth flow by opening the in-app browser and deep-linking back to the app.
+   * - On React Native, the flow always uses the in-app browser.
    * - Generates a new ephemeral API key pair and uses its public key as the nonce for the OAuth request, ensuring cryptographic binding of the session.
    * - Constructs the Google OAuth URL with all required parameters, including client ID, redirect URI, response type, scope, nonce, and state.
    * - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
-   * - If `openInPage` is true, the current page is redirected to the Google OAuth URL and the function returns a promise that resolves on redirect or times out after 5 minutes.
-   * - If `openInPage` is false, a popup window is opened for the OAuth flow, and the function returns a promise that resolves when the flow completes or rejects if the window is closed or times out.
+   * - The flow resolves when the app is deep-linked back; it rejects if the in-app browser is closed or times out.
    * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
-   * - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
+   * - Handles all error cases, including missing configuration, in-app browser failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
    *
    * @param params.clientId - The Google Client ID to use (defaults to the client ID from configuration).
-   * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
    *
@@ -189,7 +181,6 @@ export interface ClientContextType
   handleGoogleOauth: (params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
-    openInPage?: boolean;
     onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
@@ -199,18 +190,16 @@ export interface ClientContextType
   /**
    * Handles the Apple OAuth flow.
    *
-   * - This function initiates the Apple OAuth flow by either redirecting the user to the Apple authorization page or opening it in a popup window.
-   * - The flow type is determined by the `openInPage` parameter: if true, the current page is redirected; if false (default), a popup window is used.
+   * - This function initiates the Apple OAuth flow by opening the in-app browser and deep-linking back to the app.
+   * - On React Native, the flow always uses the in-app browser.
    * - Generates a new ephemeral API key pair and uses its public key as the nonce for the OAuth request, ensuring cryptographic binding of the session.
    * - Constructs the Apple OAuth URL with all required parameters, including client ID, redirect URI, response type, response mode, nonce, and state.
    * - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
-   * - If `openInPage` is true, the function redirects and returns a promise that resolves on redirect or times out after 5 minutes.
-   * - If `openInPage` is false, a popup window is opened and the function returns a promise that resolves when the flow completes, or rejects if the window is closed or times out.
+   * - The flow resolves when the app is deep-linked back; it rejects if the in-app browser is closed or times out.
    * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
-   * - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
+   * - Handles all error cases, including missing configuration, in-app browser failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
    *
    * @param params.clientId - The Apple Client ID to use (defaults to the client ID from configuration).
-   * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
    *
@@ -224,7 +213,6 @@ export interface ClientContextType
   handleAppleOauth: (params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
-    openInPage?: boolean;
     onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
@@ -234,19 +222,17 @@ export interface ClientContextType
   /**
    * Handles the Facebook OAuth flow.
    *
-   * - This function initiates the Facebook OAuth flow by either redirecting the user to the Facebook authorization page or opening it in a popup window.
-   * - The flow type is determined by the `openInPage` parameter: if true, the current page is redirected; if false (default), a popup window is used.
+   * - This function initiates the Facebook OAuth flow by opening the in-app browser and deep-linking back to the app.
+   * - On React Native, the flow always uses the in-app browser.
    * - Generates a new ephemeral API key pair and uses its public key as the nonce for the OAuth request, ensuring cryptographic binding of the session.
    * - Uses PKCE (Proof Key for Code Exchange) for enhanced security, generating a code verifier and challenge for the Facebook OAuth flow.
    * - Constructs the Facebook OAuth URL with all required parameters, including client ID, redirect URI, response type, code challenge, nonce, and state.
    * - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
-   * - If `openInPage` is true, the function redirects and returns a promise that resolves on redirect or times out after 5 minutes.
-   * - If `openInPage` is false, a popup window is opened and the function returns a promise that resolves when the flow completes, or rejects if the window is closed or times out.
+   * - The flow resolves when the app is deep-linked back; it rejects if the in-app browser is closed or times out.
    * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
-   * - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
+   * - Handles all error cases, including missing configuration, in-app browser failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
    *
    * @param params.clientId - The Facebook Client ID to use (defaults to the client ID from configuration).
-   * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
    *
@@ -260,7 +246,6 @@ export interface ClientContextType
   handleFacebookOauth: (params?: {
     clientId?: string;
     additionalState?: Record<string, string>;
-    openInPage?: boolean;
     onOauthSuccess?: (params: {
       oidcToken: string;
       providerName: string;
