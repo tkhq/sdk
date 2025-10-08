@@ -39,7 +39,7 @@
   },
   "peerDependencies": {
     "viem": "^2.24.0",
-    "@turnkey/sdk-server": "^1.0.0"
+    "@turnkey/sdk-server": "workspace:*"
   },
   "publishConfig": {
     "access": "public"
