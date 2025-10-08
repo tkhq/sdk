@@ -294,7 +294,7 @@ export function buildPaymasterExecutionPolicy(config: {
     const eoas = config.restrictions.allowedEOAs
       .map((addr) => {
         const cleanAddr = addr.toLowerCase();
-        return `eth.tx.contract_call_args['_targetEoA'] == '${cleanAddr}'`;
+        return `eth.tx.contract_call_args['_target'] == '${cleanAddr}'`;
       })
       .join(" || ");
     conditions.push(`(${eoas})`);
@@ -303,7 +303,7 @@ export function buildPaymasterExecutionPolicy(config: {
   // Check ETH amount using ABI parsing (direct uint256 comparison)
   if (config.restrictions?.maxEthAmount !== undefined) {
     conditions.push(
-      `eth.tx.contract_call_args['ethAmount'] <= ${config.restrictions.maxEthAmount}`,
+      `eth.tx.contract_call_args['_ethAmount'] <= ${config.restrictions.maxEthAmount}`,
     );
   }
 
