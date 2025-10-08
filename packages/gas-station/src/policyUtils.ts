@@ -348,16 +348,6 @@ export function buildPaymasterExecutionPolicy(config: {
   };
 }
 
-// In-memory cache to avoid repeated API calls within the same session
-const interfaceCache = new Map<string, string>();
-
-/**
- * Generates a cache key for a smart contract interface lookup.
- */
-function getCacheKey(organizationId: string, contractAddress: string): string {
-  return `${organizationId}:${contractAddress.toLowerCase()}`;
-}
-
 /**
  * Retrieves an existing smart contract interface for the given contract address.
  * Returns the interface ID if found, undefined otherwise.
@@ -371,13 +361,6 @@ export async function getSmartContractInterface({
   organizationId: string;
   contractAddress: `0x${string}`;
 }): Promise<string | undefined> {
-  const cacheKey = getCacheKey(organizationId, contractAddress);
-
-  // Check cache first
-  if (interfaceCache.has(cacheKey)) {
-    return interfaceCache.get(cacheKey);
-  }
-
   // Query Turnkey for existing interfaces
   const response = await client.getSmartContractInterfaces({
     organizationId,
@@ -393,9 +376,7 @@ export async function getSmartContractInterface({
   );
 
   if (existingInterface) {
-    const interfaceId = existingInterface.smartContractInterfaceId;
-    interfaceCache.set(cacheKey, interfaceId);
-    return interfaceId;
+    return existingInterface.smartContractInterfaceId;
   }
 
   return undefined;
@@ -440,10 +421,6 @@ export async function uploadGasStationInterface({
       "Failed to create smart contract interface: no interface ID returned",
     );
   }
-
-  // Cache the result
-  const cacheKey = getCacheKey(organizationId, contractAddress);
-  interfaceCache.set(cacheKey, interfaceId);
 
   return interfaceId;
 }
