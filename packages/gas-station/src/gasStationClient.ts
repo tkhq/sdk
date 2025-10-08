@@ -216,8 +216,6 @@ export class GasStationClient {
       args: intent.callData,
     });
 
-    // Determine which function to call based on ETH amount
-
     // Encode the function call data
     const callData = encodeFunctionData({
       abi: gasStationAbi,
