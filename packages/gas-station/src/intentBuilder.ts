@@ -6,7 +6,7 @@ import {
   type Transport,
 } from "viem";
 import type { ContractCallParams, ExecutionIntent } from "./config";
-import { ERC20_ABI, print } from "./gasStationUtils";
+import { ERC20_ABI } from "./gasStationUtils";
 
 interface IntentBuilderConfig {
   eoaWalletClient: WalletClient<Transport, Chain, Account>;
@@ -163,8 +163,6 @@ export class IntentBuilder {
       arguments: this.callData,
     };
 
-    print("Signing EIP-712 execution intent...", "");
-
     const signature = await this.config.eoaWalletClient.signTypedData({
       account: this.config.eoaWalletClient.account,
       domain,
@@ -172,8 +170,6 @@ export class IntentBuilder {
       primaryType: "Execution",
       message,
     });
-
-    print(`✓ Intent signed: ${signature.slice(0, 20)}...`, "");
 
     return {
       nonce,
