@@ -29,23 +29,22 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
       // length: "6",
     },
     passkey: true,
-    wallet: false,
     oauth: {
       appScheme: "withreactnativewalletkit",
       google: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID
         ? { clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID }
         : false,
       apple: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID
-        ? { clientId: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID, redirectUri: "https://e9e96c6ec876.ngrok-free.app/"}
+        ? { clientId: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID }
         : false,
       facebook: process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_ID
-        ? { clientId: process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_ID, redirectUri: "https://e9e96c6ec876.ngrok-free.app/" }
+        ? { clientId: process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_ID }
         : false,
       x: process.env.EXPO_PUBLIC_X_CLIENT_ID
-        ? { clientId: process.env.EXPO_PUBLIC_X_CLIENT_ID, redirectUri: "withreactnativewalletkit://"}
+        ? { clientId: process.env.EXPO_PUBLIC_X_CLIENT_ID }
         : false,
       discord: process.env.EXPO_PUBLIC_DISCORD_CLIENT_ID
-        ? { clientId: process.env.EXPO_PUBLIC_DISCORD_CLIENT_ID, redirectUri: "withreactnativewalletkit://" }
+        ? { clientId: process.env.EXPO_PUBLIC_DISCORD_CLIENT_ID }
         : false,
     },
     // Optional: override default session expiration

@@ -1,20 +1,21 @@
-import { Platform, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { Platform, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 
 import { HelloWave } from '@/components/hello-wave';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Link, router } from 'expo-router';
 import { AuthState, useTurnkey } from '@turnkey/react-native-wallet-kit';
+import { decryptCredentialBundle, decryptExportBundle, generateP256KeyPair } from '@turnkey/crypto';
 import { useEffect } from 'react';
 
 export default function HomeScreen() {
-  const { logout, session, user, authState, wallets, createWallet, createWalletAccounts, refreshWallets } = useTurnkey();
+  const { logout, session, user, authState, wallets, createWallet, createWalletAccounts, refreshWallets, signMessage, exportWallet, exportWalletAccount } = useTurnkey();
 
-  console.log('logout', logout);
-  console.log('session', session);
-  console.log('authState', authState);
-  console.log('user', user);
-  console.log('wallets', wallets);
+  // console.log('logout', logout);
+  // console.log('session', session);
+  // console.log('authState', authState);
+  // console.log('user', user);
+  // console.log('wallets', wallets);
 
   const handleLogout = async () => {
     await logout();
@@ -49,6 +50,65 @@ export default function HomeScreen() {
       await refreshWallets();
     } catch (error) {
       console.error('Error creating account:', error);
+    }
+  };
+
+  const handleSignMessage = async (account: any) => {
+    try {
+      const message = "Hello, Turnkey!";
+      const signature = await signMessage({
+        walletAccount: account,
+        message
+      });
+      console.log('Message signed:', signature);
+      Alert.alert(
+        'Success',
+        `Message signed successfully!\n\nSignature: ${signature.r}...`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Error signing message:', error);
+      Alert.alert('Error', 'Failed to sign message');
+    }
+  };
+
+  const handleExportWallet = async (walletId: string) => {
+    try {
+      const { publicKey, privateKey, publicKeyUncompressed } = generateP256KeyPair();
+      console.log('Key pair:', publicKey, privateKey, publicKeyUncompressed);
+      const targetPublicKey = publicKeyUncompressed;
+      const bundle = await exportWallet({ walletId, targetPublicKey });
+      console.log('Wallet exported:', bundle);
+      const exportedWalletMnemonic = await decryptExportBundle({ exportBundle: bundle, embeddedKey: privateKey, organizationId: session?.organizationId!, returnMnemonic: true, keyFormat: "HEXADECIMAL" });
+      console.log('Decrypted bundle:', exportedWalletMnemonic);
+      Alert.alert(
+        'Success',
+        'Wallet exported successfully!\n\nBundle saved to console.\n\nMnemonic: ' + exportedWalletMnemonic,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Error exporting wallet:', error);
+      Alert.alert('Error', 'Failed to export wallet');
+    }
+  };
+
+  const handleExportAccount = async (address: string) => {
+    try {
+      const { publicKey, privateKey, publicKeyUncompressed } = generateP256KeyPair();
+      console.log('Key pair:', publicKey, privateKey, publicKeyUncompressed);
+      const targetPublicKey = publicKeyUncompressed;
+      const bundle = await exportWalletAccount({ address, targetPublicKey });
+      console.log('Account exported:', bundle);
+      const exportedAccountPrivateKey = await decryptExportBundle({ exportBundle: bundle, embeddedKey: privateKey, organizationId: session?.organizationId!, returnMnemonic: false, keyFormat: "HEXADECIMAL" });
+      console.log('Decrypted bundle:', exportedAccountPrivateKey);
+      Alert.alert(
+        'Success',  
+        'Account exported successfully!\n\nBundle saved to console.\n\nPrivate Key: ' + exportedAccountPrivateKey,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Error exporting account:', error);
+      Alert.alert('Error', 'Failed to export account');
     }
   };
 
@@ -118,18 +178,50 @@ export default function HomeScreen() {
             <ThemedView style={styles.walletsList}>
               {wallets.map((wallet) => (
                 <ThemedView key={wallet.walletId} style={styles.walletItem}>
-                  <ThemedText type="defaultSemiBold">{wallet.walletName || 'Unnamed Wallet'}</ThemedText>
-                  <ThemedText style={styles.walletId}>ID: {wallet.walletId}</ThemedText>
+                  {/* Wallet Header with Export Button */}
+                  <ThemedView style={styles.walletHeader}>
+                    <ThemedView style={styles.walletInfo}>
+                      <ThemedText type="defaultSemiBold">{wallet.walletName || 'Unnamed Wallet'}</ThemedText>
+                      <ThemedText style={styles.walletId}>ID: {wallet.walletId}</ThemedText>
+                    </ThemedView>
+                    <TouchableOpacity
+                      style={styles.walletExportButton}
+                      onPress={() => handleExportWallet(wallet.walletId)}
+                    >
+                      <ThemedText style={styles.exportButtonText}>Export</ThemedText>
+                    </TouchableOpacity>
+                  </ThemedView>
 
                   {/* Wallet Accounts */}
                   {wallet.accounts && wallet.accounts.length > 0 && (
                     <ThemedView style={styles.accountsList}>
                       <ThemedText style={styles.accountsHeader}>Accounts:</ThemedText>
-                      {wallet.accounts.map((account, index) => (
-                        <ThemedText key={index} style={styles.accountItem}>
-                          • {account.addressFormat}: {account.address.slice(0, 10)}...{account.address.slice(-8)}
-                        </ThemedText>
-                      ))}
+                      {wallet.accounts.map((account, index) => {
+                        // Format address format for display (remove ADDRESS_FORMAT_ prefix)
+                        const formatType = account.addressFormat.replace('ADDRESS_FORMAT_', '');
+
+                        return (
+                          <ThemedView key={index} style={styles.accountCard}>
+                            <ThemedText style={styles.accountAddress}>
+                              {account.address.slice(0, 12)}...{account.address.slice(-10)}
+                            </ThemedText>
+                            <ThemedView style={styles.accountButtons}>
+                              <TouchableOpacity
+                                style={styles.signButton}
+                                onPress={() => handleSignMessage(account)}
+                              >
+                                <ThemedText style={styles.signButtonText}>Sign</ThemedText>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                style={styles.exportButton}
+                                onPress={() => handleExportAccount(account.address)}
+                              >
+                                <ThemedText style={styles.exportButtonText}>Export</ThemedText>
+                              </TouchableOpacity>
+                            </ThemedView>
+                          </ThemedView>
+                        );
+                      })}
                     </ThemedView>
                   )}
                 </ThemedView>
@@ -219,26 +311,80 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     gap: 4,
   },
+  walletHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  walletInfo: {
+    flex: 1,
+  },
   walletId: {
     fontSize: 12,
     opacity: 0.7,
+    marginTop: 2,
+  },
+  walletExportButton: {
+    backgroundColor: '#10b981',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 6,
   },
   accountsList: {
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.1)',
+    gap: 12,
   },
   accountsHeader: {
     fontSize: 12,
     fontWeight: '600',
     marginBottom: 4,
   },
-  accountItem: {
-    fontSize: 11,
-    marginLeft: 8,
-    marginTop: 2,
+  accountCard: {
+    backgroundColor: 'rgba(0,0,0,0.03)',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.08)',
+  },
+  accountAddress: {
+    fontSize: 13,
     fontFamily: 'monospace',
+    marginBottom: 10,
+    color: '#333',
+  },
+  accountButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  signButton: {
+    flex: 1,
+    backgroundColor: '#3b82f6',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  signButtonText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  exportButton: {
+    flex: 1,
+    backgroundColor: '#10b981',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  exportButtonText: {
+    color: '#ffffff',
+    fontSize: 13,
+    fontWeight: 'bold',
   },
   noWallets: {
     textAlign: 'center',
