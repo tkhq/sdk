@@ -288,13 +288,25 @@ export default function Dashboard() {
         setOrgMetaLoading(true);
         setOrgMetaError(null);
 
-        const { organizationData } = await httpClient.getOrganization({
-          organizationId: session.organizationId,
-        });
+        const orgId = session.organizationId;
 
-        setOrgUsers(organizationData?.users ?? []);
-        setOrgPolicies(organizationData?.policies ?? []);
-        setOrgRootQuorum(organizationData?.rootQuorum ?? null);
+        // Fetch in parallel
+        const [usersRes, policiesRes, configsRes] = await Promise.all([
+          httpClient.getUsers({ organizationId: orgId }),
+          httpClient.getPolicies({ organizationId: orgId }),
+          httpClient.getOrganizationConfigs({ organizationId: orgId }),
+        ]);
+
+        // Users
+        setOrgUsers((usersRes as any)?.users ?? []);
+
+        // Policies
+        setOrgPolicies((policiesRes as any)?.policies ?? []);
+
+        // Root quorum (in configs -> quorum)
+        const quorum = (configsRes as any)?.configs?.quorum ?? null;
+
+        setOrgRootQuorum(quorum);
       } catch (e: any) {
         setOrgMetaError(e?.message ?? "Failed to load sub-organization data.");
       } finally {
