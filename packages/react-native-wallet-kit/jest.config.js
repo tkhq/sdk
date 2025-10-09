@@ -1,16 +1,11 @@
-module.exports = {
-  preset: "react-native",
-  moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-  testMatch: ["**/__tests__/**/*.(ts|tsx|js)", "**/*.(test|spec).(ts|tsx|js)"],
+/** @type {import("@jest/types").Config.InitialOptions} */
+const config = {
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
+    "\\.[jt]sx?$": "@turnkey/jest-config/transformer.js",
   },
-  collectCoverageFrom: [
-    "src/**/*.{ts,tsx}",
-    "!src/**/*.d.ts",
-    "!src/**/__tests__/**",
-    "!src/**/*.test.*",
-  ],
-  setupFilesAfterEnv: ["<rootDir>/src/__tests__/setup.ts"],
-  testEnvironment: "jsdom",
+  testMatch: ["**/__tests__/**/*-(spec|test).[jt]s?(x)"],
+  testPathIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/node_modules/"],
+  testTimeout: 30 * 1000, // For slow CI machines
 };
+
+module.exports = config;
