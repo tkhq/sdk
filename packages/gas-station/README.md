@@ -27,7 +27,7 @@ Perfect for building dApps where users don't need ETH for gas, enabling seamless
 ### 1. Install Dependencies
 
 ```bash
-pnpm install @turnkey/sdk-server @turnkey/viem viem
+pnpm install @turnkey/gas-station @turnkey/sdk-server @turnkey/viem viem
 ```
 
 ### 2. Set Up Environment
@@ -88,7 +88,7 @@ const userAccount = await createAccount({
 const paymasterAccount = await createAccount({
   client: turnkeyClient.apiClient(),
   organizationId: process.env.ORGANIZATION_ID!,
-  signWith: process.env.PAYMASTER as `0x${string}`,
+  signWith: process.env.PAYMASTER_ADDRESS as `0x${string}`,
 });
 
 // Create viem wallet clients
@@ -163,7 +163,7 @@ new GasStationClient({
 - Sign an EIP-7702 authorization for the gas station contract
 - Returns authorization that can be submitted by paymaster
 
-**`createIntent(): Promise<IntentBuilder>`**
+**`createIntent(): IntentBuilder`**
 
 - Create a builder for composing transactions
 - Intent must be signed before execution
@@ -240,24 +240,6 @@ const swapIntent = await userClient
   })
   .sign(nonce);
 await paymasterClient.execute(swapIntent);
-```
-
-### NFT Minting
-
-```typescript
-const nonce = await userClient.getNonce();
-const mintIntent = await userClient
-  .createIntent()
-  .callContract({
-    contract: nftContract,
-    abi: NFT_ABI,
-    functionName: "mint",
-    args: [tokenId],
-    value: parseEther("0.1"), // Optional ETH to send
-  })
-  .sign(nonce);
-
-await paymasterClient.execute(mintIntent);
 ```
 
 ### User Onboarding
@@ -461,7 +443,7 @@ const eoaPolicy = buildIntentSigningPolicy({
   eoaUserId: "user-id",
   restrictions: {
     allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
-    allowEthTransfer: false, // No ETH transfers
+    disallowEthTransfer: true, // No ETH transfers
   },
 });
 
@@ -644,7 +626,6 @@ The helper functions automatically:
 
 - Ensure paymaster has ETH for gas
 - Verify delegate contract address is correct
-- Check EOA hasn't already been authorized
 
 ### Execution Failed
 
@@ -664,62 +645,12 @@ The helper functions automatically:
 - Ensure chain ID matches the network
 - Check intent was signed with correct nonce
 
-## Advanced: Custom Contract Integration
-
-For contracts beyond standard transfers:
-
-```typescript
-// Define your contract ABI
-const MY_CONTRACT_ABI = [
-  {
-    name: "customFunction",
-    type: "function",
-    inputs: [
-      { name: "param1", type: "uint256" },
-      { name: "param2", type: "address" },
-    ],
-    outputs: [],
-  },
-];
-
-// Build and execute
-const nonce = await userClient.getNonce();
-const intent = await userClient
-  .createIntent()
-  .callContract({
-    contract: myContractAddress,
-    abi: MY_CONTRACT_ABI,
-    functionName: "customFunction",
-    args: [12345, recipientAddress],
-  })
-  .sign(nonce);
-
-// Execute gaslessly
-await paymasterClient.execute(intent);
-```
-
-## Contract Deployment
-
-You need to deploy two contracts:
-
-1. **Delegate Contract** - Slim contract authorized via EIP-7702
-2. **Execution Contract** - Contains `execute()` function and nonce storage
-
-The execution contract should implement:
-
-- `execute(address eoaAddress, uint128 nonce, address outputContract, uint256 ethAmount, bytes callData, bytes signature)`
-- `getNonce(address eoaAddress) returns (uint128)`
-
-See `abi/gas-station.ts` for the expected interface.
-
 ## Best Practices
 
 1. **Client Separation**: Create separate client instances for users and paymasters
 2. **Authorization**: Only call `authorize()` once per EOA
 3. **Nonce Management**: Always fetch fresh nonce before creating intents
-4. **Error Handling**: Wrap executions in try/catch for robust error handling
-5. **Rate Limiting**: Implement paymaster rate limits to prevent abuse
-6. **Monitoring**: Track gas costs and failed transactions for optimization
+4. **Rate Limiting**: Implement paymaster rate limits to prevent abuse
 
 ## License
 
