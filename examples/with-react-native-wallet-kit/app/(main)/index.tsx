@@ -33,15 +33,8 @@ export default function HomeScreen() {
     exportWalletAccount,
   } = useTurnkey();
 
-  // console.log('logout', logout);
-  // console.log('session', session);
-  // console.log('authState', authState);
-  // console.log('user', user);
-  // console.log('wallets', wallets);
-
   const handleLogout = async () => {
     await logout();
-    router.replace("/");
   };
 
   const handleCreateWallet = async () => {

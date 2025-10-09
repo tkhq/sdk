@@ -20,8 +20,8 @@ import { useTurnkey } from "@turnkey/react-native-wallet-kit";
 
 export default function OtpScreen() {
   const router = useRouter();
-  const { completeOtp } = useTurnkey();
-  const { email, otpId } = useLocalSearchParams<{
+  const { completeOtp, initOtp } = useTurnkey();
+  const { email, otpId: otpIdParam } = useLocalSearchParams<{
     email: string;
     otpId: string;
   }>();
@@ -29,6 +29,7 @@ export default function OtpScreen() {
   const colors = Colors[colorScheme ?? "light"];
 
   const [otpCode, setOtpCode] = useState("");
+  const [otpId, setOtpId] = useState(otpIdParam);
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
 
@@ -82,6 +83,18 @@ export default function OtpScreen() {
 
   const handleResendCode = async () => {
     setResendLoading(true);
+
+    const newOtpId = await initOtp({
+      otpType: OtpType.Email,
+      contact: email,
+    });
+
+    if (!newOtpId) {
+      Alert.alert("Error", "Failed to initialize OTP");
+      return;
+    }
+
+    setOtpId(newOtpId);
 
     // Mock resend
     setTimeout(() => {

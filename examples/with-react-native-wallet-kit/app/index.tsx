@@ -52,14 +52,6 @@ export default function LoginScreen() {
   const [emailError, setEmailError] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    console.log("authState", authState === AuthState.Authenticated);
-    console.log("session", session);
-    if (authState === AuthState.Authenticated) {
-      router.replace("/(main)");
-    }
-  }, [authState, router]);
-
   const handleEmailSubmit = async () => {
     if (!validateEmail(email)) {
       setEmailError(true);
@@ -81,7 +73,7 @@ export default function LoginScreen() {
 
     setEmailError(false);
     setLoading(false);
-    console.log("otpId", otpId, "email", email);
+
     router.push({
       pathname: "/otp",
       params: { email, otpId },
@@ -105,7 +97,7 @@ export default function LoginScreen() {
           customWallet,
         },
       });
-      router.replace("/(main)");
+
     } catch (error) {
       console.error("Error signing up with passkey", error);
     } finally {
@@ -117,7 +109,7 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       await loginWithPasskey();
-      router.replace("/(main)");
+
     } catch (error) {
       console.error("Error logging in with passkey", error);
     } finally {
@@ -130,7 +122,7 @@ export default function LoginScreen() {
       setLoading(true);
 
       await handleGoogleOauth();
-      router.replace("/(main)");
+
     } catch (error) {
       console.error("Error signing in with Google", error);
     } finally {
@@ -143,7 +135,7 @@ export default function LoginScreen() {
       setLoading(true);
       console.log("signing in with X");
       await handleXOauth();
-      router.replace("/(main)");
+
     } catch (error) {
       console.error("Error signing in with X", error);
       Alert.alert("Error", `Failed to sign in with X: ${error}`);
@@ -157,7 +149,7 @@ export default function LoginScreen() {
       setLoading(true);
       console.log("signing in with Discord");
       await handleDiscordOauth();
-      router.replace("/(main)");
+
     } catch (error) {
       console.error("Error signing in with Discord", error);
       Alert.alert("Error", `Failed to sign in with Discord: ${error}`);
@@ -171,7 +163,7 @@ export default function LoginScreen() {
       setLoading(true);
       console.log("signing in with Facebook");
       await handleFacebookOauth();
-      router.replace("/(main)");
+
     } catch (error) {
       console.error("Error signing in with Facebook", error);
       Alert.alert("Error", `Failed to sign in with Facebook: ${error}`);
@@ -185,7 +177,7 @@ export default function LoginScreen() {
       setLoading(true);
       console.log("signing in with Apple");
       await handleAppleOauth();
-      router.replace("/(main)");
+
     } catch (error) {
       console.error("Error signing in with Apple", error);
       Alert.alert("Error", `Failed to sign in with Apple: ${error}`);

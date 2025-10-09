@@ -50,14 +50,7 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
     // Optional: override default session expiration
     // sessionExpirationSeconds: "86400",
     autoRefreshSession: true,
-  },
-  walletConfig: {
-    features: {
-      auth: false,
-      connecting: false,
-    },
-    chains: {},
-  },
+  }
 };
 
 /**

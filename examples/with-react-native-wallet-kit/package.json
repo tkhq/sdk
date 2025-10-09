@@ -3,11 +3,13 @@
   "main": "index.js",
   "version": "1.0.0",
   "scripts": {
-    "start": "npx expo prebuild && npx expo run:ios",
-    "reset-project": "node ./scripts/reset-project.js",
+    "start": "expo start",
+    "prebuild": "expo prebuild",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "clean:npm": "rm -rf node_modules && npm install",
+    "clean:app": "rm -rf ios android",
     "lint": "expo lint"
   },
   "dependencies": {
@@ -18,7 +20,6 @@
     "@react-navigation/native": "^7.1.17",
     "@turnkey/crypto": "^2.8.1",
     "@turnkey/react-native-wallet-kit": "https://pkg.csb.dev/tkhq/sdk/commit/ae61661a/@turnkey/react-native-wallet-kit",
-    "@walletconnect/react-native-compat": "2.21.9",
     "expo": "~54.0.7",
     "expo-constants": "~18.0.8",
     "expo-font": "~14.0.8",
@@ -38,12 +39,11 @@
     "react-native-get-random-values": "^1.11.0",
     "react-native-keychain": "^10.0.0",
     "react-native-otp-entry": "^1.8.5",
-    "react-native-passkey": "github:f-23/react-native-passkey",
+    "react-native-passkey": "^3.3.1",
     "react-native-reanimated": "~4.1.0",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
-    "react-native-url-polyfill": "2.0.0",
     "react-native-web": "~0.21.0",
     "react-native-worklets": "0.5.1"
   },
