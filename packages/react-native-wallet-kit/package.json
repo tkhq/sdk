@@ -20,8 +20,7 @@
     "build": "rollup -c",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc -p tsconfig.typecheck.json",
-    "prepublishOnly": "pnpm run clean && pnpm run build",
-    "test": "jest"
+    "prepublishOnly": "pnpm run clean && pnpm run build"
   },
   "keywords": [
     "turnkey",
