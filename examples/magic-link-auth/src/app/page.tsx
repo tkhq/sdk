@@ -76,6 +76,9 @@ function LoginPage() {
 
     const session = await completeAuth({ otpId, otpCode, publicKey });
     await storeSession({ sessionToken: session });
+
+    // remove the otpId from local storage since we don't need it anymore
+    window.localStorage.removeItem("turnkey_otp_id");
   };
 
   return (
