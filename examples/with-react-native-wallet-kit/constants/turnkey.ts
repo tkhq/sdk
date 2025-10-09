@@ -18,7 +18,8 @@ const ORGANIZATION_ID =
   "cd473579-efee-4cb1-8a23-734bd1b4be31";
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_TURNKEY_API_BASE_URL || "https://api.turnkey.com";
-const AUTH_PROXY_CONFIG_ID = process.env.EXPO_PUBLIC_TURNKEY_AUTH_PROXY_CONFIG_ID;
+const AUTH_PROXY_CONFIG_ID =
+  process.env.EXPO_PUBLIC_TURNKEY_AUTH_PROXY_CONFIG_ID;
 const PASSKEY_RP_ID =
   process.env.EXPO_PUBLIC_TURNKEY_RPID || "passkeyapp.tkhqlabs.xyz";
 const APP_SCHEME =
@@ -61,7 +62,7 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
     // Optional: override default session expiration
     // sessionExpirationSeconds: "86400",
     autoRefreshSession: true,
-  }
+  },
 };
 
 /**

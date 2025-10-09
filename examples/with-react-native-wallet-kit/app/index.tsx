@@ -95,7 +95,6 @@ export default function LoginScreen() {
           customWallet,
         },
       });
-
     } catch (error) {
       console.error("Error signing up with passkey", error);
     } finally {
@@ -107,7 +106,6 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       await loginWithPasskey();
-
     } catch (error) {
       console.error("Error logging in with passkey", error);
     } finally {
@@ -120,7 +118,6 @@ export default function LoginScreen() {
       setLoading(true);
 
       await handleGoogleOauth();
-
     } catch (error) {
       console.error("Error signing in with Google", error);
     } finally {
@@ -133,7 +130,6 @@ export default function LoginScreen() {
       setLoading(true);
       console.log("signing in with X");
       await handleXOauth();
-
     } catch (error) {
       console.error("Error signing in with X", error);
       Alert.alert("Error", `Failed to sign in with X: ${error}`);
@@ -147,7 +143,6 @@ export default function LoginScreen() {
       setLoading(true);
       console.log("signing in with Discord");
       await handleDiscordOauth();
-
     } catch (error) {
       console.error("Error signing in with Discord", error);
       Alert.alert("Error", `Failed to sign in with Discord: ${error}`);
@@ -161,7 +156,6 @@ export default function LoginScreen() {
       setLoading(true);
       console.log("signing in with Facebook");
       await handleFacebookOauth();
-
     } catch (error) {
       console.error("Error signing in with Facebook", error);
       Alert.alert("Error", `Failed to sign in with Facebook: ${error}`);
@@ -175,7 +169,6 @@ export default function LoginScreen() {
       setLoading(true);
       console.log("signing in with Apple");
       await handleAppleOauth();
-
     } catch (error) {
       console.error("Error signing in with Apple", error);
       Alert.alert("Error", `Failed to sign in with Apple: ${error}`);

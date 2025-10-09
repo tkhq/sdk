@@ -19,7 +19,10 @@ function AuthGate() {
     <Stack>
       <Stack.Protected guard={isLoggedIn}>
         <Stack.Screen name="(main)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: "modal", title: "Modal" }} />
+        <Stack.Screen
+          name="modal"
+          options={{ presentation: "modal", title: "Modal" }}
+        />
       </Stack.Protected>
 
       <Stack.Protected guard={!isLoggedIn}>

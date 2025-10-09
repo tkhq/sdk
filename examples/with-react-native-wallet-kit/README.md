@@ -9,18 +9,21 @@ This demo app illustrates how to integrate Turnkey's embedded wallet kit into a 
 ## ✨ Features
 
 ### Authentication & Session Management
+
 - User authentication with Turnkey
-    - Email OTP
-    - Passkey
-    - OAuth (Discord, Facebook, Google, X, Apple)
+  - Email OTP
+  - Passkey
+  - OAuth (Discord, Facebook, Google, X, Apple)
 - Session persistence and expiry tracking
 - Secure logout functionality
 
 ### Wallet Operations
+
 - **Create Wallets**: Generate new HD wallets with multiple blockchain support
 - **Manage Accounts**: Create additional accounts for existing wallets
 
 ### Cryptographic Operations
+
 - **Message Signing**: Sign messages with wallet accounts
 - **Export Wallets**: Securely export encrypted wallet bundles
 - **Export Accounts**: Export individual account private keys with encryption
@@ -52,23 +55,36 @@ npm install
 
 ### 3. Configure Environment Variables
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root or run `cp .env.example .env` to copy the example file:
 
 ```env
 # Turnkey Configuration
-TURNKEY_ORGANIZATION_ID=your_organization_id
-TURNKEY_API_BASE_URL=https://api.turnkey.com
+EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID=your_organization_id
+EXPO_PUBLIC_TURNKEY_API_BASE_URL=https://api.turnkey.com
+# Optional if using Auth Proxy
+EXPO_PUBLIC_TURNKEY_AUTH_PROXY_CONFIG_ID=your_auth_proxy_config_id
+# Passkey relying party ID (domain)
+EXPO_PUBLIC_TURNKEY_RPID=passkeyapp.tkhqlabs.xyz
+# App scheme for OAuth and deep links
+EXPO_PUBLIC_APP_SCHEME=withreactnativewalletkit
 
 # OAuth Configuration (Optional)
-GOOGLE_CLIENT_ID=your_google_client_id
-APPLE_CLIENT_ID=your_apple_client_id
-FACEBOOK_CLIENT_ID=your_facebook_client_id
+EXPO_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
+EXPO_PUBLIC_APPLE_CLIENT_ID=your_apple_client_id
+EXPO_PUBLIC_FACEBOOK_CLIENT_ID=your_facebook_client_id
+EXPO_PUBLIC_X_CLIENT_ID=your_x_client_id
+EXPO_PUBLIC_DISCORD_CLIENT_ID=your_discord_client_id
 ```
 
 ### 4. Configure Turnkey
 
 You'll need to set up a Turnkey organization and obtain your organization ID. Visit [Turnkey Dashboard](https://app.turnkey.com) to create an account and organization.
 
+Set `EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID` to your organization ID, and adjust other variables above as needed.
+
+### Polyfills
+
+This example applies `react-native-get-random-values` in `index.js` to support Web Crypto usage across dependencies. Keep this import at the app entrypoint.
 ## 📱 Running the App
 
 ### Development Mode
@@ -86,10 +102,11 @@ You'll need to set up a Turnkey organization and obtain your organization ID. Vi
 Start the Expo development server:
 
 ```bash
-npx expo start
+npm run ios
 ```
 
 This will open the Expo Developer Tools. From here you can:
+
 - Press `i` to open in iOS Simulator
 - Press `a` to open in Android Emulator
 - Scan the QR code with Expo Go app on your phone
