@@ -1,5 +1,11 @@
 # @turnkey/react-wallet-kit
 
+## 1.3.1
+
+### Patch Changes
+
+- [#997](https://github.com/tkhq/sdk/pull/997) [`b6f9675`](https://github.com/tkhq/sdk/commit/b6f96757356c8b35563e4147d73a99a95e522a64) Author [@moeodeh3](https://github.com/moeodeh3) - Added missing `publicKey` field to the `onOauthSuccess` callback in OAuth handler functions
+
 ## 1.3.0
 
 ### Minor Changes
