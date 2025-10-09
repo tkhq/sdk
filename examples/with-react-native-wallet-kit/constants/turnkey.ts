@@ -13,12 +13,23 @@ import type {
  * - auth.oauth: Provide redirect URI/appScheme and any client IDs you plan to enable
  * - walletConfig: Enable native chains you plan to support
  */
+const ORGANIZATION_ID =
+  process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID ||
+  "cd473579-efee-4cb1-8a23-734bd1b4be31";
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_TURNKEY_API_BASE_URL || "https://api.turnkey.com";
+const AUTH_PROXY_CONFIG_ID = process.env.EXPO_PUBLIC_TURNKEY_AUTH_PROXY_CONFIG_ID;
+const PASSKEY_RP_ID =
+  process.env.EXPO_PUBLIC_TURNKEY_RPID || "passkeyapp.tkhqlabs.xyz";
+const APP_SCHEME =
+  process.env.EXPO_PUBLIC_APP_SCHEME || "withreactnativewalletkit";
+
 export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
-  organizationId: "cd473579-efee-4cb1-8a23-734bd1b4be31",
-  apiBaseUrl: "https://api.turnkey.com",
-  authProxyConfigId: "544e423d-f5c9-4dfb-947e-8cf726e3922e",
+  organizationId: ORGANIZATION_ID,
+  apiBaseUrl: API_BASE_URL,
+  ...(AUTH_PROXY_CONFIG_ID ? { authProxyConfigId: AUTH_PROXY_CONFIG_ID } : {}),
   passkeyConfig: {
-    rpId: "passkeyapp.tkhqlabs.xyz",
+    rpId: PASSKEY_RP_ID,
   },
   auth: {
     otp: {
@@ -30,7 +41,7 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
     },
     passkey: true,
     oauth: {
-      appScheme: "withreactnativewalletkit",
+      appScheme: APP_SCHEME,
       google: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID
         ? { clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID }
         : false,

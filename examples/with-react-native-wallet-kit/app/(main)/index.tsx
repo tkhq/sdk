@@ -1,22 +1,10 @@
-import {
-  Platform,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 
 import { HelloWave } from "@/components/hello-wave";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { Link, router } from "expo-router";
-import { AuthState, useTurnkey } from "@turnkey/react-native-wallet-kit";
-import {
-  decryptCredentialBundle,
-  decryptExportBundle,
-  generateP256KeyPair,
-} from "@turnkey/crypto";
-import { useEffect } from "react";
+import { useTurnkey } from "@turnkey/react-native-wallet-kit";
+import { decryptExportBundle, generateP256KeyPair } from "@turnkey/crypto";
 
 export default function HomeScreen() {
   const {
@@ -253,12 +241,7 @@ export default function HomeScreen() {
                         Accounts:
                       </ThemedText>
                       {wallet.accounts.map((account, index) => {
-                        // Format address format for display (remove ADDRESS_FORMAT_ prefix)
-                        const formatType = account.addressFormat.replace(
-                          "ADDRESS_FORMAT_",
-                          "",
-                        );
-
+                        // Truncate account address for display
                         return (
                           <ThemedView key={index} style={styles.accountCard}>
                             <ThemedText style={styles.accountAddress}>

@@ -41,9 +41,7 @@ export default function LoginScreen() {
     handleDiscordOauth,
     handleFacebookOauth,
     handleAppleOauth,
-    httpClient,
     authState,
-    session,
   } = useTurnkey();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
