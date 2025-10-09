@@ -6,6 +6,7 @@ import {
   type Account,
   type Chain,
   type Transport,
+  type Hex,
 } from "viem";
 import { gasStationAbi } from "./abi/gas-station";
 import type { GasStationConfig, ExecutionIntent } from "./config";
@@ -22,8 +23,8 @@ import {
 export class GasStationClient {
   private walletClient: WalletClient<Transport, Chain, Account>;
   private publicClient: PublicClient;
-  private delegateContract: `0x${string}`;
-  private executionContract: `0x${string}`;
+  private delegateContract: Hex;
+  private executionContract: Hex;
 
   constructor(config: GasStationConfig) {
     this.walletClient = config.walletClient;
@@ -42,11 +43,11 @@ export class GasStationClient {
    * Call this with an end-user client to get a signed authorization
    * The authorization can then be submitted by the paymaster using submitAuthorization()
    */
-  async signAuthorization(): Promise<SignedAuthorization> {
+  async signAuthorization(chainId?: number): Promise<SignedAuthorization> {
     const authorization = await this.walletClient.signAuthorization({
       contractAddress: this.delegateContract,
       account: this.walletClient.account,
-      chainId: 0, // 0 means valid on any EIP-7702 compatible chain
+      chainId: chainId ?? 0, // 0 means valid on any EIP-7702 compatible chain
     });
 
     return authorization as SignedAuthorization;
@@ -60,7 +61,7 @@ export class GasStationClient {
    */
   async submitAuthorizations(
     authorizations: SignedAuthorization[],
-  ): Promise<{ txHash: `0x${string}`; blockNumber: bigint }> {
+  ): Promise<{ txHash: Hex; blockNumber: bigint }> {
     if (authorizations.length === 0) {
       throw new Error("Authorization list cannot be empty");
     }
@@ -94,7 +95,7 @@ export class GasStationClient {
    * Check if an EOA is delegated to the gas station contract
    * If no address is provided, uses the signer's address
    */
-  async isAuthorized(eoaAddress?: `0x${string}`): Promise<boolean> {
+  async isAuthorized(eoaAddress?: Hex): Promise<boolean> {
     const address = eoaAddress ?? this.walletClient.account.address;
 
     const isAuthorized = await this.publicClient.readContract({
@@ -111,7 +112,7 @@ export class GasStationClient {
    * Get the current nonce for an EOA address from the gas station contract
    * If no address is provided, uses the signer's address
    */
-  async getNonce(eoaAddress?: `0x${string}`): Promise<bigint> {
+  async getNonce(eoaAddress?: Hex): Promise<bigint> {
     const address = eoaAddress ?? this.walletClient.account.address;
 
     const nonce = await this.publicClient.readContract({
@@ -134,7 +135,7 @@ export class GasStationClient {
    * - Custom error selectors
    * - Insufficient balance errors
    */
-  private async getRevertReason(txHash: `0x${string}`): Promise<string | null> {
+  private async getRevertReason(txHash: Hex): Promise<string | null> {
     try {
       const tx = await this.publicClient.getTransaction({ hash: txHash });
 
@@ -207,7 +208,7 @@ export class GasStationClient {
    * but doesn't actually broadcast it to the network.
    * Call this with a paymaster client to test if the paymaster can sign the execution.
    */
-  async signExecution(intent: ExecutionIntent): Promise<`0x${string}`> {
+  async signExecution(intent: ExecutionIntent): Promise<Hex> {
     // Pack the execution data (signature, nonce, deadline, args)
     const packedData = packExecutionData({
       signature: intent.signature,
@@ -249,7 +250,7 @@ export class GasStationClient {
    */
   async execute(
     intent: ExecutionIntent,
-  ): Promise<{ txHash: `0x${string}`; blockNumber: bigint; gasUsed: bigint }> {
+  ): Promise<{ txHash: Hex; blockNumber: bigint; gasUsed: bigint }> {
     // Pack the execution data (signature, nonce, deadline, args)
     const packedData = packExecutionData({
       signature: intent.signature,

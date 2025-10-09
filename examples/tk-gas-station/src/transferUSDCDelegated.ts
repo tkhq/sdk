@@ -2,7 +2,7 @@ import { resolve } from "path";
 import * as dotenv from "dotenv";
 import { z } from "zod";
 import { parseArgs } from "node:util";
-import { parseUnits, createWalletClient, http } from "viem";
+import { parseUnits, createWalletClient, http, type Hex } from "viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
 import {
@@ -90,13 +90,13 @@ const main = async () => {
   const userAccount = await createAccount({
     client: turnkeyClient.apiClient(),
     organizationId: env.ORGANIZATION_ID,
-    signWith: env.EOA_ADDRESS as `0x${string}`,
+    signWith: env.EOA_ADDRESS as Hex,
   });
 
   const paymasterAccount = await createAccount({
     client: turnkeyClient.apiClient(),
     organizationId: env.ORGANIZATION_ID,
-    signWith: env.PAYMASTER_ADDRESS as `0x${string}`,
+    signWith: env.PAYMASTER_ADDRESS as Hex,
   });
 
   const userWalletClient = createWalletClient({
@@ -168,7 +168,7 @@ const main = async () => {
   // Build the execution parameters using the helper
   const executionParams = buildTokenTransfer(
     usdcAddress,
-    env.PAYMASTER_ADDRESS as `0x${string}`,
+    env.PAYMASTER_ADDRESS as Hex,
     transferAmount,
   );
 
