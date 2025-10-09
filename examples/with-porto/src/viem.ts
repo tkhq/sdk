@@ -2,7 +2,7 @@ import * as path from "path";
 import * as dotenv from "dotenv";
 import { createClient, http, parseEther, formatEther } from "viem";
 import { baseSepolia } from "viem/chains";
-import { RelayActions, Key, Account } from "porto/viem";
+import { RelayActions, Account } from "porto/viem";
 
 import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
