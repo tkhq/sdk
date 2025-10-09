@@ -626,7 +626,6 @@ The helper functions automatically:
 
 - Ensure paymaster has ETH for gas
 - Verify delegate contract address is correct
-- Check EOA hasn't already been authorized
 
 ### Execution Failed
 
@@ -646,62 +645,12 @@ The helper functions automatically:
 - Ensure chain ID matches the network
 - Check intent was signed with correct nonce
 
-## Advanced: Custom Contract Integration
-
-For contracts beyond standard transfers:
-
-```typescript
-// Define your contract ABI
-const MY_CONTRACT_ABI = [
-  {
-    name: "customFunction",
-    type: "function",
-    inputs: [
-      { name: "param1", type: "uint256" },
-      { name: "param2", type: "address" },
-    ],
-    outputs: [],
-  },
-];
-
-// Build and execute
-const nonce = await userClient.getNonce();
-const intent = await userClient
-  .createIntent()
-  .callContract({
-    contract: myContractAddress,
-    abi: MY_CONTRACT_ABI,
-    functionName: "customFunction",
-    args: [12345, recipientAddress],
-  })
-  .sign(nonce);
-
-// Execute gaslessly
-await paymasterClient.execute(intent);
-```
-
-## Contract Deployment
-
-You need to deploy two contracts:
-
-1. **Delegate Contract** - Slim contract authorized via EIP-7702
-2. **Execution Contract** - Contains `execute()` function and nonce storage
-
-The execution contract should implement:
-
-- `execute(address _target, address _to, uint256 _ethAmount, bytes _data)`
-- `getNonce(address _targetEoA) returns (uint128)`
-
-See `abi/gas-station.ts` for the expected interface.
-
 ## Best Practices
 
 1. **Client Separation**: Create separate client instances for users and paymasters
 2. **Authorization**: Only call `authorize()` once per EOA
 3. **Nonce Management**: Always fetch fresh nonce before creating intents
-4. **Error Handling**: Wrap executions in try/catch for robust error handling
-5. **Rate Limiting**: Implement paymaster rate limits to prevent abuse
-6. **Monitoring**: Track gas costs and failed transactions for optimization
+4. **Rate Limiting**: Implement paymaster rate limits to prevent abuse
 
 ## License
 
