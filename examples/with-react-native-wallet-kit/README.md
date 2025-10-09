@@ -85,6 +85,7 @@ Set `EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID` to your organization ID, and adjust ot
 ### Polyfills
 
 This example applies `react-native-get-random-values` in `index.js` to support Web Crypto usage across dependencies. Keep this import at the app entrypoint.
+
 ## 📱 Running the App
 
 ### Development Mode
