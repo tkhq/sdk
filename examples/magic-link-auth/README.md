@@ -28,7 +28,7 @@ A step-by-step look under the hood:
      },
      ```
 
-   - The `%s` placeholder in the template will be replaced by Turnkey with both the **`otpId`** and **`otpCode`** when the email is sent, producing a fully functional magic link.
+   - The `%s` placeholder in the template will be replaced by Turnkey with the **`otpCode`** when the email is sent, producing a fully functional magic link.
 
    - The response returns an `otpId` that will be required later when the user clicks the link. We store this `otpId` in `localStorage` for use after redirection.
 

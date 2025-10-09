@@ -15,8 +15,8 @@ export async function completeAuth({
 }: CompleteAuthParams) {
   const turnkeyClient = new Turnkey({
     apiBaseUrl: "https://api.turnkey.com",
-    apiPrivateKey: process.env.TURNKEY_DA_PRIVATE_KEY!,
-    apiPublicKey: process.env.TURNKEY_DA_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
     defaultOrganizationId: process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
   }).apiClient();
 
