@@ -385,15 +385,15 @@ export default function BridgePage() {
                 </span>
               )}
             </div>
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
               <input
                 type="number"
                 value={fromAmount}
                 onChange={(e) => handleFromAmountChange(e.target.value)}
                 placeholder="0.00"
-                className="bg-transparent text-3xl font-semibold text-black outline-none flex-1 placeholder:text-gray-300 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="bg-transparent text-3xl font-semibold text-black outline-none flex-1 min-w-0 placeholder:text-gray-300"
               />
-              <div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 border border-gray-200">
+              <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gray-200 flex-shrink-0">
                 <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
                   {fromToken === "SOL" ? <SolIcon /> : <EthIcon />}
                 </div>
@@ -438,15 +438,15 @@ export default function BridgePage() {
                 </span>
               )}
             </div>
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
               <input
                 type="text"
                 value={toAmount}
                 readOnly
                 placeholder="0.00"
-                className="bg-transparent text-3xl font-semibold text-black outline-none flex-1 placeholder:text-gray-300"
+                className="bg-transparent text-3xl font-semibold text-black outline-none flex-1 min-w-0 placeholder:text-gray-300"
               />
-              <div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 border border-gray-200">
+              <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gray-200 flex-shrink-0">
                 <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
                   {toToken === "SOL" ? <SolIcon /> : <EthIcon />}
                 </div>
