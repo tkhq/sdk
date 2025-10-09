@@ -1,12 +1,12 @@
-# Example: `with-0x`
+# Example: `with-lifi`
 
-This demo application demonstrates EVM swapping with Turnkey and 0x between ETH and USDC.
+This demo application demonstrates EVM and SVM bridging with Turnkey and Li.Fi between ETH and SOL.
 
-This example contains uses `@turnkey/react-wallet-kit` and `@turnkey/viem`, to handle authentication and signing with Turnkey wallets. To streamline authentication this example uses the Turnkey [Auth Proxy](https://docs.turnkey.com/reference/auth-proxy) to serve as the backend for authentication purposes. To obtain prices/quotes for the swap as well as building the swap transaction the server queries `0x`. This example also uses `viem` and `wagmi` to obtain wallet balances, set approvals on ERC-20 tokens; just USDC in this case, and broadcast transactions.
+This example contains uses `@turnkey/react-wallet-kit`, `@turnkey/viem`, and `@turnkey/solana` to handle authentication and signing with Turnkey wallets. To streamline authentication this example uses the Turnkey [Auth Proxy](https://docs.turnkey.com/reference/auth-proxy) to serve as the backend for authentication purposes. To obtain prices/quotes for the swap as well as building the swap transaction the server queries `LiFi`. This example also uses `viem`, `wagmi`, and `@solana/web3.js` to obtain wallet balances, and broadcast transactions.
 
-This example loosely follows this 0x guide: https://0x.org/docs/0x-swap-api/guides/swap-tokens-with-0x-swap-api.
+This example loosely follows this LiFi guide: https://docs.li.fi/introduction/user-flows-and-examples/end-to-end-example.
 
-Note: To utilize this example fund your Turnkey wallet with a reasonable amount of ETH, ~$5 USD, to cover gas fees and swap into USDC.
+Note: To utilize this example fund your Turnkey wallet with a reasonable amount of ETH or SOL, ~$5 USD, to cover gas fees and swap into the opposite token.
 
 ## Getting started
 
@@ -20,7 +20,7 @@ $ cd sdk/
 $ corepack enable  # Install `pnpm`
 $ pnpm install -r  # Install dependencies
 $ pnpm run build-all  # Compile source code
-$ cd examples/with-0x/
+$ cd examples/with-lifi/
 ```
 
 ### 2/ Setting up Turnkey
@@ -47,11 +47,11 @@ Now open `.env.local` and add the missing environment variables:
 - `NEXT_PUBLIC_AUTH_PROXY_CONFIG_ID`
 - `NEXT_PUBLIC_API_BASE_URL`
 - `NEXT_PUBLIC_AUTH_PROXY_BASE_URL`
-- `ZEROX_API_KEY` (should not be prefixed with `NEXT_PUBLIC`)
+- `LIFI_API_KEY` (should not be prefixed with `NEXT_PUBLIC`)
 
-### 3/ Setting up 0x
+### 3/ Setting up LiFi
 
-Navigate to https://dashboard.0x.org/ and sign-up/login and obtain your API key. Store your API key in the `ZEROX_API_KEY` environment variable in your `.env.local` file.
+Navigate to https://portal.li.fi/login and sign-up/login and obtain your API key. Store your API key in the `LIFI_API_KEY` environment variable in your `.env.local` file.
 
 ### 4/ Running the app
 
