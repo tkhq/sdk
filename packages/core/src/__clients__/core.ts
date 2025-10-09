@@ -655,6 +655,18 @@ export class TurnkeyClient {
       {
         errorMessage: "Unable to connect wallet account",
         errorCode: TurnkeyErrorCodes.CONNECT_WALLET_ACCOUNT_ERROR,
+        customErrorsByMessages: {
+          "WalletConnect: The connection request has expired. Please scan the QR code again.":
+            {
+              message:
+                "Your WalletConnect session expired. Please scan the QR code again.",
+              code: TurnkeyErrorCodes.WALLET_CONNECT_EXPIRED,
+            },
+          "User rejected the request": {
+            message: "Connect wallet was cancelled by the user.",
+            code: TurnkeyErrorCodes.CONNECT_WALLET_CANCELLED,
+          },
+        },
       },
     );
   };

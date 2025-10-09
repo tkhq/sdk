@@ -1045,6 +1045,16 @@ export async function withTurnkeyErrorHandling<T>(
     return await fn();
   } catch (error) {
     await catchFn?.();
+
+    // some things throw plain objects (not Error instances), which would stringify as `[object Object]`
+    // we normalize here to always produce a readable error message before wrapping it in TurnkeyError.
+    const normalizedMessage =
+      error instanceof Error && typeof error.message === "string"
+        ? error.message
+        : typeof (error as any)?.message === "string"
+          ? (error as any).message
+          : JSON.stringify(error);
+
     if (error instanceof TurnkeyError) {
       const customCodeMessage = customErrorsByCodes?.[error.code!];
       if (customCodeMessage) {
@@ -1058,18 +1068,18 @@ export async function withTurnkeyErrorHandling<T>(
 
       throw error;
     } else if (error instanceof TurnkeyRequestError) {
-      throwMatchingMessage(error.message, customErrorsByMessages, error);
+      throwMatchingMessage(normalizedMessage, customErrorsByMessages, error);
 
       throw new TurnkeyError(errorMessage, errorCode, error);
     } else if (error instanceof Error) {
-      throwMatchingMessage(error.message, customErrorsByMessages, error);
+      throwMatchingMessage(normalizedMessage, customErrorsByMessages, error);
 
       // Wrap other errors in a TurnkeyError
       throw new TurnkeyError(errorMessage, errorCode, error);
     } else {
-      throwMatchingMessage(String(error), customErrorsByMessages, error);
+      throwMatchingMessage(normalizedMessage, customErrorsByMessages, error);
       // Handle non-Error exceptions
-      throw new TurnkeyError(String(error), errorCode, error);
+      throw new TurnkeyError(normalizedMessage, errorCode, error);
     }
   } finally {
     await finallyFn?.();

@@ -19,10 +19,9 @@ interface ConnectWalletModalProps {
   providers: WalletProvider[];
   successPageDuration?: number | undefined;
   onSuccess: (type: "connect" | "disconnect", account: WalletAccount) => void;
-  onError: (error: any) => void;
 }
 export function ConnectWalletModal(props: ConnectWalletModalProps) {
-  const { providers, successPageDuration, onSuccess, onError } = props;
+  const { providers, successPageDuration, onSuccess } = props;
   const { pushPage, closeModal } = useModal();
   const { wallets, connectWalletAccount, disconnectWalletAccount } =
     useTurnkey();
@@ -60,27 +59,23 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
           }
           closeOnComplete={false}
           action={async () => {
-            try {
-              const account = await connectWalletAccount(provider);
-              onSuccess("connect", account);
-              if (successPageDuration && successPageDuration > 0) {
-                pushPage({
-                  key: "Connecting Success",
-                  content: (
-                    <SuccessPage
-                      text="Successfully connected wallet!"
-                      onComplete={() => closeModal()}
-                      duration={successPageDuration}
-                    />
-                  ),
-                  preventBack: true,
-                  showTitle: false,
-                });
-              } else {
-                closeModal();
-              }
-            } catch (error) {
-              onError(error);
+            const account = await connectWalletAccount(provider);
+            onSuccess("connect", account);
+            if (successPageDuration && successPageDuration > 0) {
+              pushPage({
+                key: "Connecting Success",
+                content: (
+                  <SuccessPage
+                    text="Successfully connected wallet!"
+                    onComplete={() => closeModal()}
+                    duration={successPageDuration}
+                  />
+                ),
+                preventBack: true,
+                showTitle: false,
+              });
+            } else {
+              closeModal();
             }
           }}
         />

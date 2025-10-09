@@ -5088,9 +5088,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               ) => {
                 resolve({ type, account });
               }}
-              onError={(error) => {
-                reject(error);
-              }}
             />
           ),
           onClose: () =>
