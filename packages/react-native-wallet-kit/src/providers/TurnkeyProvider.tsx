@@ -35,9 +35,6 @@ import {
   type CreateWalletParams,
   type DeleteSubOrganizationParams,
   type ExportBundle,
-  type ExportPrivateKeyParams,
-  type ExportWalletAccountParams,
-  type ExportWalletParams,
   type FetchOrCreateP256ApiKeyUserParams,
   type FetchOrCreatePoliciesParams,
   type FetchOrCreatePoliciesResult,
@@ -46,8 +43,6 @@ import {
   type FetchWalletAccountsParams,
   type FetchWalletsParams,
   type GetSessionParams,
-  type ImportPrivateKeyParams,
-  type ImportWalletParams,
   type InitOtpParams,
   type LoginWithOauthParams,
   type LoginWithOtpParams,
@@ -117,8 +112,18 @@ import type {
   HandleXOauthParams,
   RefreshUserParams,
   RefreshWalletsParams,
+  ExportWalletParams,
+  ExportPrivateKeyParams,
+  ExportWalletAccountParams,
+  ImportWalletParams,
+  ImportPrivateKeyParams,
 } from "../types/methods";
 import { ClientContext } from "../types";
+import { decryptExportBundle, generateP256KeyPair } from "@turnkey/crypto";
+import {
+  encryptWalletToBundle,
+  encryptPrivateKeyToBundle,
+} from "@turnkey/crypto";
 
 /**
  * @inline
@@ -1499,71 +1504,231 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   );
 
   const exportWallet = useCallback(
-    async (params: ExportWalletParams): Promise<ExportBundle> => {
+    async (params: ExportWalletParams): Promise<ExportBundle | string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      const res = await withTurnkeyErrorHandling(
-        () => client.exportWallet(params),
-        () => logout(),
-        callbacks,
-        "Failed to export wallet",
-      );
-      const s = await getSession();
-      if (res && s)
-        await refreshWallets({
-          stampWith: params?.stampWith,
-          ...(params?.organizationId && {
+
+      // Default path: behave like core (return encrypted bundle)
+      const shouldDecrypt = Boolean(params?.decrypt);
+
+      if (!shouldDecrypt) {
+        const res = await withTurnkeyErrorHandling(
+          () =>
+            client.exportWallet({
+              walletId: params.walletId,
+              targetPublicKey: params.targetPublicKey!,
+              ...(params.organizationId && {
+                organizationId: params.organizationId,
+              }),
+              ...(params.stampWith && { stampWith: params.stampWith }),
+            }),
+          () => logout(),
+          callbacks,
+          "Failed to export wallet",
+        );
+        const s = await getSession();
+        if (res && s)
+          await refreshWallets({
+            stampWith: params?.stampWith,
+            ...(params?.organizationId && {
+              organizationId: params.organizationId,
+            }),
+          });
+        return res;
+      }
+
+      // Decrypting path: generate P-256 keypair, export, then decrypt to mnemonic
+      try {
+        const { privateKey, publicKeyUncompressed } = generateP256KeyPair();
+        const targetPublicKey = publicKeyUncompressed;
+
+        const exportParams = {
+          walletId: params.walletId,
+          targetPublicKey,
+          ...(params.organizationId && {
             organizationId: params.organizationId,
           }),
+          ...(params.stampWith && { stampWith: params.stampWith }),
+        };
+
+        const bundle = await withTurnkeyErrorHandling(
+          () => client.exportWallet(exportParams),
+          () => logout(),
+          callbacks,
+          "Failed to export wallet",
+        );
+
+        const session = await getSession();
+
+        const orgId = session?.organizationId;
+        if (!orgId) {
+          throw new TurnkeyError(
+            "Missing organizationId in session for decryption",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        const mnemonic = await decryptExportBundle({
+          exportBundle: bundle as string,
+          embeddedKey: privateKey,
+          organizationId: orgId,
+          returnMnemonic: true,
+          keyFormat: "HEXADECIMAL",
         });
-      return res;
+
+        return mnemonic;
+      } catch (error) {
+        throw error;
+      }
     },
     [client, session, callbacks],
   );
 
   const exportPrivateKey = useCallback(
-    async (params: ExportPrivateKeyParams): Promise<ExportBundle> => {
+    async (params: ExportPrivateKeyParams): Promise<ExportBundle | string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      const res = await withTurnkeyErrorHandling(
-        () => client.exportPrivateKey(params),
-        () => logout(),
-        callbacks,
-        "Failed to export private key",
-      );
-      return res;
+
+      const shouldDecrypt = Boolean(params?.decrypt);
+      if (!shouldDecrypt) {
+        const res = await withTurnkeyErrorHandling(
+          () =>
+            client.exportPrivateKey({
+              privateKeyId: params.privateKeyId,
+              targetPublicKey: params.targetPublicKey!,
+              ...(params.organizationId && {
+                organizationId: params.organizationId,
+              }),
+              ...(params.stampWith && { stampWith: params.stampWith }),
+            }),
+          () => logout(),
+          callbacks,
+          "Failed to export private key",
+        );
+        return res;
+      }
+
+      try {
+        const { privateKey, publicKeyUncompressed } = generateP256KeyPair();
+        const targetPublicKey = publicKeyUncompressed;
+
+        const exportParams = {
+          privateKeyId: params.privateKeyId,
+          targetPublicKey,
+          ...(params.organizationId && {
+            organizationId: params.organizationId,
+          }),
+          ...(params.stampWith && { stampWith: params.stampWith }),
+        };
+
+        const bundle = await withTurnkeyErrorHandling(
+          () => client.exportPrivateKey(exportParams),
+          () => logout(),
+          callbacks,
+          "Failed to export private key",
+        );
+
+        const session = await getSession();
+        const orgId = session?.organizationId;
+        if (!orgId) {
+          throw new TurnkeyError(
+            "Missing organizationId in session for decryption",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        const rawPrivateKey = await decryptExportBundle({
+          exportBundle: bundle as string,
+          embeddedKey: privateKey,
+          organizationId: orgId,
+          returnMnemonic: false,
+          keyFormat: "HEXADECIMAL",
+        });
+
+        return rawPrivateKey;
+      } catch (error) {
+        throw error;
+      }
     },
     [client, callbacks],
   );
 
   const exportWalletAccount = useCallback(
-    async (params: ExportWalletAccountParams): Promise<ExportBundle> => {
+    async (
+      params: ExportWalletAccountParams,
+    ): Promise<ExportBundle | string> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      const res = await withTurnkeyErrorHandling(
-        () => client.exportWalletAccount(params),
-        () => logout(),
-        callbacks,
-        "Failed to export wallet accounts",
-      );
-      const s = await getSession();
-      if (res && s)
-        await refreshWallets({
-          stampWith: params?.stampWith,
-          ...(params?.organizationId && {
+
+      const shouldDecrypt = Boolean(params?.decrypt);
+      if (!shouldDecrypt) {
+        const res = await withTurnkeyErrorHandling(
+          () =>
+            client.exportWalletAccount({
+              address: params.address,
+              targetPublicKey: params.targetPublicKey!,
+              ...(params.organizationId && {
+                organizationId: params.organizationId,
+              }),
+              ...(params.stampWith && { stampWith: params.stampWith }),
+            }),
+          () => logout(),
+          callbacks,
+          "Failed to export wallet accounts",
+        );
+        return res;
+      }
+
+      try {
+        const { privateKey, publicKeyUncompressed } = generateP256KeyPair();
+        const targetPublicKey = publicKeyUncompressed;
+
+        const exportParams = {
+          address: params.address,
+          targetPublicKey,
+          ...(params.organizationId && {
             organizationId: params.organizationId,
           }),
+          ...(params.stampWith && { stampWith: params.stampWith }),
+        };
+
+        const bundle = await withTurnkeyErrorHandling(
+          () => client.exportWalletAccount(exportParams),
+          () => logout(),
+          callbacks,
+          "Failed to export wallet accounts",
+        );
+
+        const session = await getSession();
+        const orgId = session?.organizationId;
+        if (!orgId) {
+          throw new TurnkeyError(
+            "Missing organizationId in session for decryption",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        const decryptedKey = await decryptExportBundle({
+          exportBundle: bundle as string,
+          embeddedKey: privateKey,
+          organizationId: orgId,
+          returnMnemonic: false,
+          keyFormat: "HEXADECIMAL",
         });
-      return res;
+
+        return decryptedKey;
+      } catch (error) {
+        throw error;
+      }
     },
     [client, callbacks, masterConfig, session, user],
   );
@@ -1575,20 +1740,80 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
+
+      const {
+        mnemonic,
+        walletName,
+        accounts,
+        organizationId,
+        userId,
+        stampWith,
+      } = params;
+
+      // Resolve org/user from params or current session
+      const currentSession = await getSession();
+      const effectiveOrgId = organizationId ?? currentSession?.organizationId;
+      const effectiveUserId = userId ?? currentSession?.userId;
+      if (!effectiveOrgId || !effectiveUserId) {
+        throw new TurnkeyError(
+          "Missing organizationId or userId for wallet import",
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
+      }
+
+      // Step 1: init import to obtain importBundle
+      const initRes = await withTurnkeyErrorHandling(
+        () =>
+          client.httpClient?.initImportWallet(
+            {
+              organizationId: effectiveOrgId,
+              userId: effectiveUserId,
+            },
+            stampWith,
+          ),
+        () => logout(),
+        callbacks,
+        "Failed to init wallet import",
+      );
+
+      const importBundle = initRes?.importBundle;
+      if (!importBundle) {
+        throw new TurnkeyError(
+          "Failed to retrieve import bundle",
+          TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+        );
+      }
+
+      // Step 2: encrypt mnemonic to encryptedBundle
+      const encryptedBundle = await encryptWalletToBundle({
+        mnemonic,
+        importBundle,
+        userId: effectiveUserId,
+        organizationId: effectiveOrgId,
+      });
+
+      // Step 3: call importWallet with encrypted bundle
       const res = await withTurnkeyErrorHandling(
-        () => client.importWallet(params),
+        () =>
+          client.importWallet({
+            encryptedBundle,
+            walletName,
+            ...(accounts && { accounts }),
+            organizationId: effectiveOrgId,
+            userId: effectiveUserId,
+            ...(stampWith && { stampWith }),
+          }),
         () => logout(),
         callbacks,
         "Failed to import wallet",
       );
-      const s = await getSession();
-      if (res && s)
+
+      // Refresh state after import
+      if (res)
         await refreshWallets({
-          stampWith: params?.stampWith,
-          ...(params?.organizationId && {
-            organizationId: params.organizationId,
-          }),
-          ...(params?.userId && { userId: params.userId }),
+          ...(stampWith && { stampWith }),
+          organizationId: effectiveOrgId,
+          userId: effectiveUserId,
         });
       return res;
     },
@@ -1602,8 +1827,73 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
+
+      const {
+        privateKey,
+        privateKeyName,
+        addressFormats,
+        curve,
+        keyFormat = "HEXADECIMAL",
+        organizationId,
+        userId,
+        stampWith,
+      } = params;
+
+      // Resolve org/user
+      const currentSession = await getSession();
+      const effectiveOrgId = organizationId ?? currentSession?.organizationId;
+      const effectiveUserId = userId ?? currentSession?.userId;
+      if (!effectiveOrgId || !effectiveUserId) {
+        throw new TurnkeyError(
+          "Missing organizationId or userId for private key import",
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
+      }
+
+      // Init import to get bundle
+      const initRes = await withTurnkeyErrorHandling(
+        () =>
+          client.httpClient?.initImportPrivateKey(
+            {
+              organizationId: effectiveOrgId,
+              userId: effectiveUserId,
+            },
+            stampWith,
+          ),
+        () => logout(),
+        callbacks,
+        "Failed to init private key import",
+      );
+
+      const importBundle = initRes?.importBundle;
+      if (!importBundle) {
+        throw new TurnkeyError(
+          "Failed to retrieve import bundle",
+          TurnkeyErrorCodes.IMPORT_WALLET_ERROR,
+        );
+      }
+
+      // Encrypt provided private key to bundle
+      const encryptedBundle = await encryptPrivateKeyToBundle({
+        privateKey,
+        keyFormat,
+        importBundle,
+        userId: effectiveUserId,
+        organizationId: effectiveOrgId,
+      });
+
+      // Import
       const res = await withTurnkeyErrorHandling(
-        () => client.importPrivateKey(params),
+        () =>
+          client.importPrivateKey({
+            encryptedBundle,
+            privateKeyName,
+            addressFormats,
+            curve: curve ?? "CURVE_SECP256K1",
+            organizationId: effectiveOrgId,
+            userId: effectiveUserId,
+            ...(stampWith && { stampWith }),
+          }),
         () => logout(),
         callbacks,
         "Failed to import private key",

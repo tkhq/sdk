@@ -32,6 +32,7 @@
   "dependencies": {
     "@noble/hashes": "^1.8.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@turnkey/crypto": "workspace:*",
     "@turnkey/core": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/react-native-passkey-stamper": "workspace:*",

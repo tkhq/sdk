@@ -5,6 +5,7 @@ import type {
   TurnkeyClientMethods,
   Wallet,
   StamperType,
+  ExportBundle,
 } from "@turnkey/core";
 import type { Session, v1User } from "@turnkey/sdk-types";
 import type {
@@ -13,6 +14,13 @@ import type {
   ClientState,
 } from "../types/base";
 import { createContext } from "react";
+import type {
+  ExportWalletParams,
+  ExportPrivateKeyParams,
+  ExportWalletAccountParams,
+  ImportWalletParams,
+  ImportPrivateKeyParams,
+} from "./methods";
 
 /*
  * In order for jsdocs params to show up properly you must redeclare the core client method here using FUNCTION SIGNATURE. ex:
@@ -37,6 +45,11 @@ export interface ClientContextType
     | "loginWithWallet"
     | "signUpWithWallet"
     | "loginOrSignupWithWallet"
+    | "exportWallet"
+    | "exportPrivateKey"
+    | "exportWalletAccount"
+    | "importWallet"
+    | "importPrivateKey"
     | "buildWalletLoginRequest"
   > {
   /** @internal */
@@ -55,6 +68,91 @@ export interface ClientContextType
   user: v1User | undefined;
   /** @internal */
   wallets: Wallet[];
+
+  /**
+   * Export a wallet. Optionally decrypt and return the mnemonic directly.
+   *
+   * - By default, returns the encrypted export bundle (same behavior as Core).
+   * - If `decrypt` is set to true, this function generates a P-256 keypair internally,
+   *   exports the wallet encrypted to the generated public key, then decrypts the bundle
+   *   using the generated private key and returns the mnemonic string.
+   * - When `decrypt` is true, the provided `targetPublicKey` (if any) is ignored.
+   *
+   * @param params.walletId - The wallet ID to export.
+   * @param params.targetPublicKey - Optional; used only when `decrypt` is not set.
+   * @param params.organizationId - Optional organization ID override.
+   * @param params.stampWith - Optional stamper override.
+   * @param params.decrypt - When true, returns mnemonic instead of encrypted bundle.
+   */
+  exportWallet(params: ExportWalletParams): Promise<ExportBundle>;
+
+  /**
+   * Export a private key. Optionally decrypt and return the raw private key.
+   *
+   * - By default, returns the encrypted export bundle string.
+   * - If `decrypt` is true, the provider generates a P-256 keypair, exports to the generated public key,
+   *   decrypts locally, and returns the raw private key (hex for EVM, or base58 for Solana when `keyFormat` is "SOLANA").
+   *
+   * @param params.privateKeyId - The private key ID to export.
+   * @param params.targetPublicKey - Optional; used only when `decrypt` is not set.
+   * @param params.organizationId - Optional organization ID override.
+   * @param params.stampWith - Optional stamper override.
+   * @param params.decrypt - When true, returns raw private key instead of encrypted bundle.
+   * @returns Encrypted export bundle string.
+   */
+  exportPrivateKey(params: ExportPrivateKeyParams): Promise<ExportBundle>;
+
+  /**
+   * Export a wallet account. Optionally decrypt and return the raw private key.
+   *
+   * - By default, returns the encrypted export bundle string.
+   * - If `decrypt` is true, the provider generates a P-256 keypair, exports to the generated public key,
+   *   decrypts locally, and returns the raw private key (hex for EVM, or base58 for Solana when `keyFormat` is "SOLANA").
+   *
+   * @param params.address - The account address to export.
+   * @param params.targetPublicKey - Optional; used only when `decrypt` is not set.
+   * @param params.organizationId - Optional organization ID override.
+   * @param params.stampWith - Optional stamper override.
+   * @param params.decrypt - When true, returns raw private key instead of encrypted bundle.
+   * @returns Encrypted export bundle string.
+   */
+  exportWalletAccount(params: ExportWalletAccountParams): Promise<ExportBundle>;
+
+  /**
+   * Import a wallet using a mnemonic.
+   *
+   * - The provider internally calls `initImportWallet` to retrieve an import bundle.
+   * - It encrypts the provided `mnemonic` to that bundle using HPKE and calls `client.importWallet`.
+   * - Optionally accepts `accounts` to pre-create wallet accounts; otherwise defaults may apply.
+   *
+   * @param params.mnemonic - Mnemonic phrase to import.
+   * @param params.walletName - Name for the new wallet.
+   * @param params.accounts - Optional accounts to pre-create.
+   * @param params.organizationId - Optional organization ID.
+   * @param params.userId - Optional user ID.
+   * @param params.stampWith - Optional stamper override.
+   * @returns The new wallet ID.
+   */
+  importWallet(params: ImportWalletParams): Promise<string>;
+
+  /**
+   * Import a private key by encrypting it to an import bundle internally.
+   *
+   * - The provider internally calls `initImportPrivateKey` to retrieve an import bundle.
+   * - It encrypts the provided `privateKey` to that bundle using HPKE and calls `client.importPrivateKey`.
+   * - `addressFormats` is required and determines the curve by default; `curve` can be provided to override.
+   *
+   * @param params.privateKey - The private key material to import (hex for EVM; base58 for Solana when `keyFormat` is "SOLANA").
+   * @param params.privateKeyName - A display name for the imported key.
+   * @param params.addressFormats - Address formats to derive and register.
+   * @param params.curve - Optional curve override.
+   * @param params.keyFormat - Optional source key encoding (default "HEXADECIMAL").
+   * @param params.organizationId - Optional organization ID.
+   * @param params.userId - Optional user ID.
+   * @param params.stampWith - Optional stamper override.
+   * @returns The new private key ID.
+   */
+  importPrivateKey(params: ImportPrivateKeyParams): Promise<string>;
 
   /**
    * Refreshes the user details.

@@ -86,6 +86,73 @@ Set `EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID` to your organization ID, and adjust ot
 
 This example applies `react-native-get-random-values` in `index.js` to support Web Crypto usage across dependencies. Keep this import at the app entrypoint.
 
+## Passkey Setup
+
+To enable passkeys, configure your app’s associated domains and RP ID.
+
+### 1. Update `app.json` with associated domains and deep link scheme
+
+The example already includes sane defaults tailored to this demo:
+
+```json
+{
+  "expo": {
+    "scheme": "withreactnativewalletkit",
+    "ios": {
+      "bundleIdentifier": "xyz.tkhqlabs.passkeyapp",
+      "associatedDomains": ["webcredentials:passkeyapp.tkhqlabs.xyz"]
+    },
+    "android": {
+      "package": "xyz.tkhqlabs.passkeyapp"
+    }
+  }
+}
+```
+
+If you use a different domain or bundle IDs, update:
+
+- iOS `associatedDomains` to `webcredentials:<your_domain>`
+- iOS `bundleIdentifier` and Android `package`
+- `EXPO_PUBLIC_APP_SCHEME` to your app scheme
+
+For Apple Associated Domains, see Apple docs. For Android Digital Asset Links, create an `assetlinks.json` on your domain to verify association.
+
+### 2. Set the RP ID (relying party ID)
+
+Ensure your `.env` includes the passkey RP ID:
+
+```ini
+EXPO_PUBLIC_TURNKEY_RPID="<your_rpid_domain>"
+```
+
+This should match the domain configured in associated domains (e.g. `passkeyapp.tkhqlabs.xyz`).
+
+## OAuth Setup
+
+Turnkey’s OAuth flows use a fixed origin and redirect service. Configure your provider client IDs and ensure the redirect URI’s `scheme` matches your app.
+
+### 1. Create a Google Web Client ID
+
+- Go to Google Cloud Console and create an OAuth client.
+- Authorized redirect URI (use your app scheme):
+
+```
+https://oauth-redirect.turnkey.com?scheme=withreactnativewalletkit
+```
+
+If you change the scheme, update both `app.json` (`expo.scheme`) and `EXPO_PUBLIC_APP_SCHEME` in `.env`.
+
+### 2. Set your client IDs in `.env`
+
+```ini
+EXPO_PUBLIC_GOOGLE_CLIENT_ID="<your_google_web_client_id>"
+# Optional: other providers
+EXPO_PUBLIC_APPLE_CLIENT_ID="<your_apple_client_id>"
+EXPO_PUBLIC_FACEBOOK_CLIENT_ID="<your_facebook_client_id>"
+EXPO_PUBLIC_X_CLIENT_ID="<your_x_client_id>"
+EXPO_PUBLIC_DISCORD_CLIENT_ID="<your_discord_client_id>"
+```
+
 ## 📱 Running the App
 
 ### Development Mode

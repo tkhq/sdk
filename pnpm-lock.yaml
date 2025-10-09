@@ -2890,6 +2890,9 @@ importers:
       '@turnkey/core':
         specifier: workspace:*
         version: link:../core
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../crypto
       '@turnkey/encoding':
         specifier: workspace:*
         version: link:../encoding
