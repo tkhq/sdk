@@ -1,5 +1,11 @@
 # @turnkey/gas-station
 
+## 0.3.0
+
+### Minor Changes
+
+- [#1003](https://github.com/tkhq/sdk/pull/1003) [`574abcf`](https://github.com/tkhq/sdk/commit/574abcfba169603a64775f9db813faed0b4c915b) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Replace `0x{string}` using with viem Hex + make chain_id configurable on signAuthorizations
+
 ## 0.2.0
 
 ### Minor Changes
