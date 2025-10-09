@@ -4,6 +4,7 @@ import {
   type Account,
   type Chain,
   type Transport,
+  type Hex,
 } from "viem";
 import type { ContractCallParams, ExecutionIntent } from "./config";
 import { ERC20_ABI } from "./gasStationUtils";
@@ -11,13 +12,13 @@ import { ERC20_ABI } from "./gasStationUtils";
 interface IntentBuilderConfig {
   eoaWalletClient: WalletClient<Transport, Chain, Account>;
   chainId: number;
-  eoaAddress: `0x${string}`;
+  eoaAddress: Hex;
 }
 
 export class IntentBuilder {
   private config: IntentBuilderConfig;
-  private outputContract?: `0x${string}`;
-  private callData: `0x${string}` = "0x";
+  private outputContract?: Hex;
+  private callData: Hex = "0x";
   private ethAmount: bigint = 0n;
   private nonce?: bigint;
   private deadline?: number;
@@ -29,7 +30,7 @@ export class IntentBuilder {
   /**
    * Set the target contract for this intent execution
    */
-  setTarget(contract: `0x${string}`): this {
+  setTarget(contract: Hex): this {
     this.outputContract = contract;
     return this;
   }
@@ -62,7 +63,7 @@ export class IntentBuilder {
   /**
    * Set the call data directly (for pre-encoded function calls)
    */
-  withCallData(callData: `0x${string}`): this {
+  withCallData(callData: Hex): this {
     this.callData = callData;
     return this;
   }
@@ -86,7 +87,7 @@ export class IntentBuilder {
   /**
    * Convenience method for ERC20 transfers
    */
-  transferToken(token: `0x${string}`, to: `0x${string}`, amount: bigint): this {
+  transferToken(token: Hex, to: Hex, amount: bigint): this {
     return this.callContract({
       contract: token,
       abi: ERC20_ABI,
@@ -98,11 +99,7 @@ export class IntentBuilder {
   /**
    * Convenience method for ERC20 approvals
    */
-  approveToken(
-    token: `0x${string}`,
-    spender: `0x${string}`,
-    amount: bigint,
-  ): this {
+  approveToken(token: Hex, spender: Hex, amount: bigint): this {
     return this.callContract({
       contract: token,
       abi: ERC20_ABI,
@@ -114,7 +111,7 @@ export class IntentBuilder {
   /**
    * Convenience method for native ETH transfers
    */
-  transferETH(to: `0x${string}`, amount: bigint): this {
+  transferETH(to: Hex, amount: bigint): this {
     this.outputContract = to;
     this.callData = "0x";
     this.ethAmount = amount;

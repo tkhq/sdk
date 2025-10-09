@@ -59,8 +59,8 @@ export const ERC20_ABI = [
  * Maps directly to the gas station contract's execute function
  */
 export interface ExecutionParams {
-  outputContract: `0x${string}`;
-  callData: `0x${string}`;
+  outputContract: Hex;
+  callData: Hex;
   value?: bigint;
 }
 

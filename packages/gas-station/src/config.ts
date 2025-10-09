@@ -1,32 +1,33 @@
-import type { Chain, WalletClient, Account, Transport } from "viem";
+import type { Chain, WalletClient, Account, Transport, Hex } from "viem";
+
 import { base, mainnet, sepolia } from "viem/chains";
 
 // Default contract addresses (deterministically deployed across all chains)
-export const DEFAULT_DELEGATE_CONTRACT: `0x${string}` =
+export const DEFAULT_DELEGATE_CONTRACT: Hex =
   "0xC2a37Ee08cAc3778d9d05FF0a93FD5B553C77E3a";
-export const DEFAULT_EXECUTION_CONTRACT: `0x${string}` =
+export const DEFAULT_EXECUTION_CONTRACT: Hex =
   "0x4ece92b06C7d2d99d87f052E0Fca47Fb180c3348";
 
 // Type definitions
 export interface GasStationConfig {
   walletClient: WalletClient<Transport, Chain, Account>;
-  delegateContract?: `0x${string}`;
-  executionContract?: `0x${string}`;
+  delegateContract?: Hex;
+  executionContract?: Hex;
 }
 
 export interface ChainPreset {
   chain: Chain;
   rpcUrl: string;
-  delegateContract?: `0x${string}`;
-  executionContract?: `0x${string}`;
+  delegateContract?: Hex;
+  executionContract?: Hex;
   tokens?: {
-    USDC?: `0x${string}`;
-    [key: string]: `0x${string}` | undefined;
+    USDC?: Hex;
+    [key: string]: Hex | undefined;
   };
 }
 
 export interface ContractCallParams {
-  contract: `0x${string}`;
+  contract: Hex;
   abi: readonly any[] | any[];
   functionName: string;
   args: any[];
@@ -36,11 +37,11 @@ export interface ContractCallParams {
 export interface ExecutionIntent {
   nonce: bigint;
   deadline: number;
-  outputContract: `0x${string}`;
+  outputContract: Hex;
   ethAmount: bigint; // amount of ETH to transfer in wei
-  callData: `0x${string}`;
-  signature: `0x${string}`;
-  eoaAddress: `0x${string}`;
+  callData: Hex;
+  signature: Hex;
+  eoaAddress: Hex;
 }
 
 // Chain preset configurations

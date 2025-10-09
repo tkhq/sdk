@@ -2,6 +2,7 @@
 
 import type { TurnkeyApiClient } from "@turnkey/sdk-server";
 import { gasStationAbi } from "./abi/gas-station";
+import type { Hex } from "viem";
 
 /**
  * Build a Turnkey policy to restrict what EIP-712 intents an EOA can sign
@@ -89,7 +90,7 @@ export function buildIntentSigningPolicy(config: {
   additionalApprovers?: string[];
   customConsensus?: string;
   restrictions?: {
-    allowedContracts?: `0x${string}`[];
+    allowedContracts?: Hex[];
     disallowEthTransfer?: boolean;
   };
   policyName?: string;
@@ -254,10 +255,10 @@ export function buildPaymasterExecutionPolicy(config: {
   paymasterUserId: string;
   additionalApprovers?: string[];
   customConsensus?: string;
-  executionContractAddress: `0x${string}`;
+  executionContractAddress: Hex;
   restrictions?: {
-    allowedEOAs?: `0x${string}`[];
-    allowedContracts?: `0x${string}`[];
+    allowedEOAs?: Hex[];
+    allowedContracts?: Hex[];
     maxEthAmount?: bigint;
     maxGasPrice?: bigint;
     maxGasLimit?: bigint;
@@ -359,7 +360,7 @@ export async function getSmartContractInterface({
 }: {
   client: TurnkeyApiClient;
   organizationId: string;
-  contractAddress: `0x${string}`;
+  contractAddress: Hex;
 }): Promise<string | undefined> {
   // Query Turnkey for existing interfaces
   const response = await client.getSmartContractInterfaces({
@@ -395,7 +396,7 @@ export async function uploadGasStationInterface({
 }: {
   client: TurnkeyApiClient;
   organizationId: string;
-  contractAddress: `0x${string}`;
+  contractAddress: Hex;
   label?: string;
   chainName?: string;
 }): Promise<string> {
@@ -458,7 +459,7 @@ export async function ensureGasStationInterface({
 }: {
   client: TurnkeyApiClient;
   organizationId: string;
-  contractAddress: `0x${string}`;
+  contractAddress: Hex;
   label?: string;
   chainName?: string;
 }): Promise<string> {

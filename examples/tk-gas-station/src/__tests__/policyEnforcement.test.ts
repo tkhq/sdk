@@ -1,7 +1,7 @@
 import { resolve } from "path";
 import * as dotenv from "dotenv";
 import { z } from "zod";
-import { parseUnits, createWalletClient, http } from "viem";
+import { parseUnits, createWalletClient, http, type Hex } from "viem";
 import { base } from "viem/chains";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
@@ -30,17 +30,15 @@ const env = envSchema.parse(process.env);
 
 // Default to Base mainnet addresses if not specified
 const USDC_ADDRESS =
-  (env.USDC_ADDRESS as `0x${string}`) ||
-  "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+  (env.USDC_ADDRESS as Hex) || "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const DAI_ADDRESS =
-  (env.DAI_ADDRESS as `0x${string}`) ||
-  "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb";
+  (env.DAI_ADDRESS as Hex) || "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb";
 
 describe("Gas Station Policy Enforcement", () => {
   let turnkeyClient: TurnkeyServerSDK;
   let subOrgId: string;
-  let eoaWalletAddress: `0x${string}`;
-  let paymasterWalletAddress: `0x${string}`;
+  let eoaWalletAddress: Hex;
+  let paymasterWalletAddress: Hex;
   let eoaUserId: string;
   let paymasterUserId: string;
   let eoaPrivateKey: string;
@@ -133,7 +131,7 @@ describe("Gas Station Policy Enforcement", () => {
     const adminUserId = subOrgResult?.rootUserIds?.[0]!;
     eoaUserId = subOrgResult?.rootUserIds?.[1]!;
     paymasterUserId = subOrgResult?.rootUserIds?.[2]!;
-    eoaWalletAddress = subOrgResult?.wallet?.addresses?.[0]! as `0x${string}`;
+    eoaWalletAddress = subOrgResult?.wallet?.addresses?.[0]! as Hex;
 
     // Create paymaster wallet
     const walletResult = await turnkeyClient.apiClient().createWallet({
@@ -150,7 +148,7 @@ describe("Gas Station Policy Enforcement", () => {
     });
 
     paymasterWalletAddress = walletResult.activity.result.createWalletResult
-      ?.addresses?.[0]! as `0x${string}`;
+      ?.addresses?.[0]! as Hex;
 
     // Create EOA USDC policy
     const eoaPolicy = buildIntentSigningPolicy({
@@ -232,7 +230,7 @@ describe("Gas Station Policy Enforcement", () => {
       paymasterUserId: paymasterUserId,
       executionContractAddress: DEFAULT_EXECUTION_CONTRACT,
       restrictions: {
-        allowedContracts: [USDC_ADDRESS.toLowerCase() as `0x${string}`],
+        allowedContracts: [USDC_ADDRESS.toLowerCase() as Hex],
         maxEthAmount: parseUnits("1", 18), // Max 1 ETH per transaction
       },
       policyName: `Paymaster USDC Policy - ${Date.now()}`,
@@ -245,7 +243,7 @@ describe("Gas Station Policy Enforcement", () => {
     it("should allow EOA to sign USDC transfer intent", async () => {
       const nonce = 0n;
       const executionParams = buildTokenTransfer(
-        USDC_ADDRESS as `0x${string}`,
+        USDC_ADDRESS as Hex,
         eoaWalletAddress,
         parseUnits("1", 6),
       );
@@ -264,7 +262,7 @@ describe("Gas Station Policy Enforcement", () => {
     it("should block EOA from signing DAI transfer intent (not in policy)", async () => {
       const nonce = 1n;
       const executionParams = buildTokenTransfer(
-        DAI_ADDRESS as `0x${string}`,
+        DAI_ADDRESS as Hex,
         eoaWalletAddress,
         parseUnits("1", 18),
       );
@@ -285,7 +283,7 @@ describe("Gas Station Policy Enforcement", () => {
         organizationId: subOrgId,
         eoaUserId: eoaUserId,
         restrictions: {
-          allowedContracts: [DAI_ADDRESS.toLowerCase() as `0x${string}`],
+          allowedContracts: [DAI_ADDRESS.toLowerCase() as Hex],
         },
         policyName: `EOA DAI Policy - ${Date.now()}`,
       });
@@ -295,7 +293,7 @@ describe("Gas Station Policy Enforcement", () => {
       // Now sign DAI intent
       const nonce = 2n;
       const executionParams = buildTokenTransfer(
-        DAI_ADDRESS as `0x${string}`,
+        DAI_ADDRESS as Hex,
         eoaWalletAddress,
         parseUnits("1", 18),
       );
@@ -319,7 +317,7 @@ describe("Gas Station Policy Enforcement", () => {
       // Create USDC intent
       const nonce1 = 0n;
       const usdcParams = buildTokenTransfer(
-        USDC_ADDRESS as `0x${string}`,
+        USDC_ADDRESS as Hex,
         eoaWalletAddress,
         parseUnits("1", 6),
       );
@@ -333,7 +331,7 @@ describe("Gas Station Policy Enforcement", () => {
       // Create DAI intent
       const nonce2 = 2n;
       const daiParams = buildTokenTransfer(
-        DAI_ADDRESS as `0x${string}`,
+        DAI_ADDRESS as Hex,
         eoaWalletAddress,
         parseUnits("1", 18),
       );
@@ -363,7 +361,7 @@ describe("Gas Station Policy Enforcement", () => {
       // Create a USDC intent that also sends 2 ETH (exceeds the 1 ETH policy limit)
       const nonce3 = 3n;
       const usdcWithEthParams = buildTokenTransfer(
-        USDC_ADDRESS as `0x${string}`,
+        USDC_ADDRESS as Hex,
         eoaWalletAddress,
         parseUnits("1", 6),
       );
@@ -384,10 +382,10 @@ describe("Gas Station Policy Enforcement", () => {
   describe("Layer 3: Multi-Approval Consensus", () => {
     let multiApprovalSubOrgId: string;
     let multiApprovalEoaUserId: string;
-    let multiApprovalEoaWalletAddress: `0x${string}`;
+    let multiApprovalEoaWalletAddress: Hex;
     let multiApprovalEoaClient: GasStationClient;
     let multiApprovalPaymasterUserId: string;
-    let multiApprovalPaymasterWalletAddress: `0x${string}`;
+    let multiApprovalPaymasterWalletAddress: Hex;
     let multiApprovalPaymasterTurnkeyClient: TurnkeyServerSDK;
 
     beforeAll(async () => {
@@ -460,7 +458,7 @@ describe("Gas Station Policy Enforcement", () => {
       multiApprovalPaymasterUserId =
         multiApprovalSubOrgResult?.rootUserIds?.[2]!;
       multiApprovalEoaWalletAddress = multiApprovalSubOrgResult?.wallet
-        ?.addresses?.[0]! as `0x${string}`;
+        ?.addresses?.[0]! as Hex;
 
       // Create paymaster wallet
       const paymasterWalletResult = await turnkeyClient
@@ -479,7 +477,7 @@ describe("Gas Station Policy Enforcement", () => {
         });
 
       multiApprovalPaymasterWalletAddress = paymasterWalletResult.activity
-        .result.createWalletResult?.addresses?.[0]! as `0x${string}`;
+        .result.createWalletResult?.addresses?.[0]! as Hex;
 
       // Create multi-approval policy requiring both EOA and Paymaster to approve
       const multiApprovalPolicy = buildIntentSigningPolicy({
@@ -487,7 +485,7 @@ describe("Gas Station Policy Enforcement", () => {
         eoaUserId: multiApprovalEoaUserId,
         additionalApprovers: [multiApprovalPaymasterUserId],
         restrictions: {
-          allowedContracts: [USDC_ADDRESS.toLowerCase() as `0x${string}`],
+          allowedContracts: [USDC_ADDRESS.toLowerCase() as Hex],
           disallowEthTransfer: true,
         },
         policyName: "Multi-Approval Intent Signing Policy",
@@ -537,7 +535,7 @@ describe("Gas Station Policy Enforcement", () => {
     it("should require 2 approvals for signing intent", async () => {
       // Create USDC transfer intent
       const executionParams = buildTokenTransfer(
-        USDC_ADDRESS as `0x${string}`,
+        USDC_ADDRESS as Hex,
         multiApprovalPaymasterWalletAddress,
         parseUnits("1", 6),
       );
