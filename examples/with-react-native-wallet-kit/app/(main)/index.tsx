@@ -4,7 +4,6 @@ import { HelloWave } from "@/components/hello-wave";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useTurnkey } from "@turnkey/react-native-wallet-kit";
-import { decryptExportBundle, generateP256KeyPair } from "@turnkey/crypto";
 
 export default function HomeScreen() {
   const {
@@ -77,24 +76,13 @@ export default function HomeScreen() {
 
   const handleExportWallet = async (walletId: string) => {
     try {
-      const { publicKey, privateKey, publicKeyUncompressed } =
-        generateP256KeyPair();
-      console.log("Key pair:", publicKey, privateKey, publicKeyUncompressed);
-      const targetPublicKey = publicKeyUncompressed;
-      const bundle = await exportWallet({ walletId, targetPublicKey });
-      console.log("Wallet exported:", bundle);
-      const exportedWalletMnemonic = await decryptExportBundle({
-        exportBundle: bundle,
-        embeddedKey: privateKey,
-        organizationId: session?.organizationId!,
-        returnMnemonic: true,
-        keyFormat: "HEXADECIMAL",
+      const exportedWalletMnemonic = await exportWallet({
+        walletId,
       });
-      console.log("Decrypted bundle:", exportedWalletMnemonic);
+      console.log("Wallet mnemonic:", exportedWalletMnemonic);
       Alert.alert(
         "Success",
-        "Wallet exported successfully!\n\nBundle saved to console.\n\nMnemonic: " +
-          exportedWalletMnemonic,
+        "Wallet exported successfully!\n\nMnemonic: " + exportedWalletMnemonic,
         [{ text: "OK" }],
       );
     } catch (error) {
@@ -105,23 +93,13 @@ export default function HomeScreen() {
 
   const handleExportAccount = async (address: string) => {
     try {
-      const { publicKey, privateKey, publicKeyUncompressed } =
-        generateP256KeyPair();
-      console.log("Key pair:", publicKey, privateKey, publicKeyUncompressed);
-      const targetPublicKey = publicKeyUncompressed;
-      const bundle = await exportWalletAccount({ address, targetPublicKey });
-      console.log("Account exported:", bundle);
-      const exportedAccountPrivateKey = await decryptExportBundle({
-        exportBundle: bundle,
-        embeddedKey: privateKey,
-        organizationId: session?.organizationId!,
-        returnMnemonic: false,
-        keyFormat: "HEXADECIMAL",
+      const exportedAccountPrivateKey = await exportWalletAccount({
+        address,
       });
-      console.log("Decrypted bundle:", exportedAccountPrivateKey);
+      console.log("Exported account private key:", exportedAccountPrivateKey);
       Alert.alert(
         "Success",
-        "Account exported successfully!\n\nBundle saved to console.\n\nPrivate Key: " +
+        "Account exported successfully!\n\nPrivate Key: " +
           exportedAccountPrivateKey,
         [{ text: "OK" }],
       );

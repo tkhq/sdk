@@ -3,27 +3,12 @@ import type {
   TurnkeyCallbacks,
 } from "@turnkey/react-native-wallet-kit";
 
-/**
- * TurnkeyProvider configuration
- *
- * Replace all placeholder values with your real credentials/config:
- * - organizationId: Your Turnkey organization ID
- * - apiBaseUrl: Optional; defaults to Turnkey prod API
- * - authProxyUrl, authProxyConfigId: If using Auth Proxy, provide both
- * - auth.oauth: Provide redirect URI/appScheme and any client IDs you plan to enable
- * - walletConfig: Enable native chains you plan to support
- */
-const ORGANIZATION_ID =
-  process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID ||
-  "cd473579-efee-4cb1-8a23-734bd1b4be31";
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_TURNKEY_API_BASE_URL || "https://api.turnkey.com";
+const ORGANIZATION_ID = process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID || "";
+const API_BASE_URL = process.env.EXPO_PUBLIC_TURNKEY_API_BASE_URL || "";
 const AUTH_PROXY_CONFIG_ID =
   process.env.EXPO_PUBLIC_TURNKEY_AUTH_PROXY_CONFIG_ID;
-const PASSKEY_RP_ID =
-  process.env.EXPO_PUBLIC_TURNKEY_RPID || "passkeyapp.tkhqlabs.xyz";
-const APP_SCHEME =
-  process.env.EXPO_PUBLIC_APP_SCHEME || "withreactnativewalletkit";
+const PASSKEY_RP_ID = process.env.EXPO_PUBLIC_TURNKEY_RPID || "";
+const APP_SCHEME = process.env.EXPO_PUBLIC_APP_SCHEME || "";
 
 export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
   organizationId: ORGANIZATION_ID,
