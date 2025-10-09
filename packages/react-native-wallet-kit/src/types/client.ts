@@ -72,8 +72,9 @@ export interface ClientContextType
   /**
    * Export a wallet. Optionally decrypt and return the mnemonic directly.
    *
-   * - By default, returns the encrypted export bundle (same behavior as Core).
-   * - If `decrypt` is set to true, this function generates a P-256 keypair internally,
+   * - By default, this function DECRYPTS and returns the mnemonic for convenience.
+   * - If `decrypt` is set to false, it returns the encrypted export bundle string instead.
+   * - When decrypting, this function generates a P-256 keypair internally,
    *   exports the wallet encrypted to the generated public key, then decrypts the bundle
    *   using the generated private key and returns the mnemonic string.
    * - When `decrypt` is true, the provided `targetPublicKey` (if any) is ignored.
@@ -82,39 +83,41 @@ export interface ClientContextType
    * @param params.targetPublicKey - Optional; used only when `decrypt` is not set.
    * @param params.organizationId - Optional organization ID override.
    * @param params.stampWith - Optional stamper override.
-   * @param params.decrypt - When true, returns mnemonic instead of encrypted bundle.
+   * @param params.decrypt - Defaults to true. Set to false to receive the encrypted bundle.
    */
   exportWallet(params: ExportWalletParams): Promise<ExportBundle>;
 
   /**
    * Export a private key. Optionally decrypt and return the raw private key.
    *
-   * - By default, returns the encrypted export bundle string.
-   * - If `decrypt` is true, the provider generates a P-256 keypair, exports to the generated public key,
+   * - By default, this function DECRYPTS and returns the raw private key (hex for EVM, base58 for Solana when `keyFormat` is "SOLANA").
+   * - If `decrypt` is false, the provider returns the encrypted export bundle string.
+   * - When decrypting, the provider generates a P-256 keypair, exports to the generated public key,
    *   decrypts locally, and returns the raw private key (hex for EVM, or base58 for Solana when `keyFormat` is "SOLANA").
    *
    * @param params.privateKeyId - The private key ID to export.
    * @param params.targetPublicKey - Optional; used only when `decrypt` is not set.
    * @param params.organizationId - Optional organization ID override.
    * @param params.stampWith - Optional stamper override.
-   * @param params.decrypt - When true, returns raw private key instead of encrypted bundle.
-   * @returns Encrypted export bundle string.
+   * @param params.decrypt - Defaults to true. Set to false to receive the encrypted bundle.
+   * @returns Raw private key (default) or encrypted bundle (when decrypt is false).
    */
   exportPrivateKey(params: ExportPrivateKeyParams): Promise<ExportBundle>;
 
   /**
    * Export a wallet account. Optionally decrypt and return the raw private key.
    *
-   * - By default, returns the encrypted export bundle string.
-   * - If `decrypt` is true, the provider generates a P-256 keypair, exports to the generated public key,
+   * - By default, this function DECRYPTS and returns the raw private key (hex for EVM, base58 for Solana when `keyFormat` is "SOLANA").
+   * - If `decrypt` is false, the provider returns the encrypted export bundle string.
+   * - When decrypting, the provider generates a P-256 keypair, exports to the generated public key,
    *   decrypts locally, and returns the raw private key (hex for EVM, or base58 for Solana when `keyFormat` is "SOLANA").
    *
    * @param params.address - The account address to export.
    * @param params.targetPublicKey - Optional; used only when `decrypt` is not set.
    * @param params.organizationId - Optional organization ID override.
    * @param params.stampWith - Optional stamper override.
-   * @param params.decrypt - When true, returns raw private key instead of encrypted bundle.
-   * @returns Encrypted export bundle string.
+   * @param params.decrypt - Defaults to true. Set to false to receive the encrypted bundle.
+   * @returns Raw private key (default) or encrypted bundle (when decrypt is false).
    */
   exportWalletAccount(params: ExportWalletAccountParams): Promise<ExportBundle>;
 

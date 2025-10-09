@@ -1511,8 +1511,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
 
-      // Default path: behave like core (return encrypted bundle)
-      const shouldDecrypt = Boolean(params?.decrypt);
+      // Default: decrypt unless explicitly disabled
+      const shouldDecrypt = params?.decrypt !== false;
 
       if (!shouldDecrypt) {
         const res = await withTurnkeyErrorHandling(
@@ -1595,7 +1595,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
 
-      const shouldDecrypt = Boolean(params?.decrypt);
+      const shouldDecrypt = params?.decrypt !== false;
       if (!shouldDecrypt) {
         const res = await withTurnkeyErrorHandling(
           () =>
@@ -1669,7 +1669,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
 
-      const shouldDecrypt = Boolean(params?.decrypt);
+      const shouldDecrypt = params?.decrypt !== false;
       if (!shouldDecrypt) {
         const res = await withTurnkeyErrorHandling(
           () =>
