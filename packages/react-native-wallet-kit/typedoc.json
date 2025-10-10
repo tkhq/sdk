@@ -1,0 +1,9 @@
+{
+  "extends": ["../../typedoc.base.json"],
+  "entryPoints": ["src/index.ts"],
+  "out": "documents/api",
+  "name": "@turnkey/react-native-wallet-kit",
+  "includeVersion": true,
+  "readme": "README.md",
+  "exclude": ["src/**/__tests__/**/*", "src/**/*.test.*", "src/**/*.spec.*"]
+}
