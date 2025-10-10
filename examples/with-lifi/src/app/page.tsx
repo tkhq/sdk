@@ -2,24 +2,24 @@
 import { useTurnkey } from "@turnkey/react-wallet-kit";
 import { useEffect, useState } from "react";
 import { useBalance } from "wagmi";
+import {
+  Connection,
+  PublicKey,
+  LAMPORTS_PER_SOL,
+  VersionedTransaction,
+} from "@solana/web3.js";
 import { createAccount } from "@turnkey/viem";
+import { TurnkeySigner } from "@turnkey/solana";
 import {
   Account,
-  createPublicClient,
   createWalletClient,
-  erc20Abi,
   formatEther,
-  formatUnits,
-  getContract,
   http,
-  maxUint256,
   parseEther,
-  parseUnits,
-  PublicClient,
   WalletClient,
 } from "viem";
 import { mainnet } from "viem/chains";
-import { getChains, getPrice, getQuote, PriceParams } from "./actions/0x";
+import { getQuote, getStatus, QuoteParams, StatusParams } from "./actions/lifi";
 
 function LoginButton() {
   const { handleLogin } = useTurnkey();
@@ -51,19 +51,74 @@ function LogoutButton() {
   );
 }
 
-export default function SwapPage() {
+function SolIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 256 256"
+    >
+      <linearGradient
+        id="a"
+        x1="44.9"
+        x2="211.4"
+        y1="43.8"
+        y2="214.8"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" stopColor="#00FFA3" />
+        <stop offset="1" stopColor="#DC1FFF" />
+      </linearGradient>
+      <path
+        fill="url(#a)"
+        d="M64.2 163.6a4.5 4.5 0 0 1 3.2-1.3h159.4a2.5 2.5 0 0 1 1.8 4.2l-36.5 38.3a4.5 4.5 0 0 1-3.2 1.3H29.5a2.5 2.5 0 0 1-1.8-4.2zm0-109.2A4.5 4.5 0 0 1 67.4 53h159.4a2.5 2.5 0 0 1 1.8 4.2l-36.5 38.3a4.5 4.5 0 0 1-3.2 1.3H29.5a2.5 2.5 0 0 1-1.8-4.2zm0 54.6a4.5 4.5 0 0 1 3.2-1.3h159.4a2.5 2.5 0 0 1 1.8 4.2l-36.5 38.3a4.5 4.5 0 0 1-3.2 1.3H29.5a2.5 2.5 0 0 1-1.8-4.2z"
+      />
+    </svg>
+  );
+}
+
+function EthIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 256 256"
+    >
+      <linearGradient
+        id="ethGradient"
+        x1="44.9"
+        x2="211.4"
+        y1="43.8"
+        y2="214.8"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0" stopColor="#627EEA" />
+        <stop offset="1" stopColor="#8A92B2" />
+      </linearGradient>
+      <g fill="url(#ethGradient)">
+        <path fillOpacity="0.6" d="M128 20L50 128l78 46.5L206 128z" />
+        <path fillOpacity="0.8" d="M128 20v94.5L206 128z" />
+        <path fillOpacity="0.6" d="M128 184.5L50 138.5 128 236z" />
+        <path d="M128 236l78-97.5-78 46z" />
+      </g>
+    </svg>
+  );
+}
+
+export default function BridgePage() {
   const { httpClient, session, fetchWalletAccounts, wallets } = useTurnkey();
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToAmount] = useState("");
-  const [fromToken, setFromToken] = useState<"USDC" | "ETH">("ETH");
-  const [toToken, setToToken] = useState<"USDC" | "ETH">("USDC");
-  const [address, setAddress] = useState<string | undefined>(undefined);
+  const [fromToken, setFromToken] = useState<"SOL" | "ETH">("ETH");
+  const [toToken, setToToken] = useState<"SOL" | "ETH">("SOL");
+  const [ethAddress, setEthAddress] = useState<string | undefined>(undefined);
+  const [solAddress, setSolAddress] = useState<string | undefined>(undefined);
+  const [solBalance, setSolBalance] = useState<number>(0);
   const [swapButtonText, setSwapButtonText] = useState("Please login");
   const [viemWalletClient, setViemWalletClient] = useState<
     WalletClient | undefined
-  >(undefined);
-  const [viemPublicClient, setViemPublicClient] = useState<
-    PublicClient | undefined
   >(undefined);
   const [swapButtonDisabled, setSwapButtonDisabled] = useState(true);
   const [viemAccount, setViemAccount] = useState<Account | undefined>(
@@ -71,18 +126,23 @@ export default function SwapPage() {
   );
   const [swapModalOpen, setSwapModalOpen] = useState(false);
   const [swapping, setSwapping] = useState(false);
-  const [swapHash, setSwapHash] = useState("");
+  const [ethSwapHash, setEthSwapHash] = useState("");
+  const [solSwapHash, setSolSwapHash] = useState("");
+  const [transactionRequest, setTransactionRequest] = useState<
+    any | undefined
+  >();
+  const [turnkeySolanaSigner, setTurnkeySolanaSigner] = useState<
+    TurnkeySigner | undefined
+  >(undefined);
 
-  const ETH_TOKEN_ADDRESS = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
-  const USDC_MAINNET_TOKEN_ADDRESS =
-    "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
+  // public providers, you might want to use a dedicated provider like alchemy or infura in production
+  const ETH_MAINNET_RPC_PROVIDER = "https://ethereum-rpc.publicnode.com";
+  const SOL_MAINNET_RPC_PROVIDER = "https://solana-rpc.publicnode.com";
+
+  // "fake" addresses to be used as the receiving address, so that quotes can be received without having to log in
   const USDC_SEPOLIA_TOKEN_ADDRESS =
     "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
-  // public provider, you might want to use a dedicated provider like alchemy or infura in production
-  const MAINNET_RPC_PROVIDER = "https://ethereum-rpc.publicnode.com";
-  // the allowance holder contract address more here: https://0x.org/docs/0x-swap-api/advanced-topics/how-to-set-your-token-allowances
-  const MAINNET_0X_ALLOWANCE_HOLDER_ADDRESS =
-    "0x0000000000001fF3684f28c67538d4D072C22734";
+  const SOL_USDC_TOKEN_ADDRESS = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v";
 
   useEffect(() => {
     const getWalletAccounts = async () => {
@@ -95,7 +155,8 @@ export default function SwapPage() {
         const walletAccountResponse = await fetchWalletAccounts({
           wallet: wallets[0],
         });
-        setAddress(walletAccountResponse[0].address);
+        setEthAddress(walletAccountResponse[0].address);
+        setSolAddress(walletAccountResponse[1].address);
 
         // create a viem account with the turnkey wallet
         const turnkeyAccount = await createAccount({
@@ -111,44 +172,51 @@ export default function SwapPage() {
           createWalletClient({
             account: turnkeyAccount as Account,
             chain: mainnet,
-            transport: http(MAINNET_RPC_PROVIDER),
+            transport: http(ETH_MAINNET_RPC_PROVIDER),
           }),
         );
 
-        // create a public client for querying the blockchain without signing
-        setViemPublicClient(
-          createPublicClient({
-            chain: mainnet,
-            transport: http(MAINNET_RPC_PROVIDER),
-          }),
-        );
+        // create a Turnkey Solana signer
+        const turnkeySolSigner = new TurnkeySigner({
+          organizationId: walletAccountResponse[0].organizationId,
+          client: httpClient!,
+        });
+
+        setTurnkeySolanaSigner(turnkeySolSigner);
 
         setSwapButtonDisabled(false);
         setSwapButtonText("Swap");
       } catch (e: any) {
-        setAddress(undefined);
+        setEthAddress(undefined);
+        setSolAddress(undefined);
         setViemWalletClient(undefined);
-        setViemPublicClient(undefined);
       }
     };
 
     getWalletAccounts();
   }, [wallets, session]);
 
-  // get the users USDC balance with wagmi
-  const usdcBalance = useBalance({
-    address: address as `0x${string}`,
-    token: USDC_MAINNET_TOKEN_ADDRESS,
-    query: {
-      enabled: !!address,
-    },
-  });
+  // get the users SOL balance with @solana/web3.js
+  useEffect(() => {
+    const getBalance = async () => {
+      if (!solAddress) return;
+
+      const connection = new Connection(SOL_MAINNET_RPC_PROVIDER);
+      const publicKey = new PublicKey(solAddress);
+
+      const balanceInLamports = await connection.getBalance(publicKey);
+
+      setSolBalance(balanceInLamports);
+    };
+
+    getBalance();
+  }, [solAddress, fromToken, swapping]);
 
   // get the users ETH balance with wagmi
   const ethBalance = useBalance({
-    address: address as `0x${string}`,
+    address: ethAddress as `0x${string}`,
     query: {
-      enabled: !!address,
+      enabled: !!ethAddress,
     },
   });
 
@@ -159,21 +227,27 @@ export default function SwapPage() {
     setToAmount(fromAmount);
   };
 
+  function solToLamports(sol: string | number): number {
+    return Math.floor(Number(sol) * LAMPORTS_PER_SOL);
+  }
+
+  function lamportsToSol(lamports: number): number {
+    return lamports / LAMPORTS_PER_SOL;
+  }
+
   const handleFromAmountChange = async (value: string) => {
     setFromAmount(value);
 
     try {
       if (
-        usdcBalance?.data &&
+        solBalance &&
         ethBalance?.data &&
-        (fromToken === "ETH" ? parseEther(value) : parseUnits(value, 6)) >
-          (fromToken === "ETH"
-            ? ethBalance?.data.value
-            : usdcBalance?.data?.value)
+        (fromToken === "ETH" ? parseEther(value) : solToLamports(value)) >
+          (fromToken === "ETH" ? ethBalance?.data.value : solBalance)
       ) {
         setSwapButtonText("Insufficient Balance");
         setSwapButtonDisabled(true);
-      } else if (!usdcBalance?.data) {
+      } else if (!solBalance) {
         setSwapButtonText("Please log in");
         setSwapButtonDisabled(false);
       } else {
@@ -182,28 +256,41 @@ export default function SwapPage() {
       }
 
       // get an initial price to display to the user
-      const priceParams: PriceParams = {
-        chainId: mainnet.id.toString(),
-        sellToken:
-          fromToken === "ETH" ? ETH_TOKEN_ADDRESS : USDC_MAINNET_TOKEN_ADDRESS,
-        buyToken:
-          fromToken === "ETH" ? USDC_MAINNET_TOKEN_ADDRESS : ETH_TOKEN_ADDRESS,
-        sellAmount:
+      const quoteParams: QuoteParams = {
+        fromChain: fromToken === "ETH" ? "ETH" : "SOL",
+        toChain: toToken === "ETH" ? "ETH" : "SOL",
+        fromToken: fromToken === "ETH" ? "ETH" : "SOL",
+        toToken: toToken === "ETH" ? "ETH" : "SOL",
+        fromAmount:
           fromToken === "ETH"
             ? parseEther(value).toString()
-            : parseUnits(value, 6).toString(),
-        taker: address
-          ? (address as `0x${string}`)
-          : USDC_SEPOLIA_TOKEN_ADDRESS, // use a random address as the taker just so the price can be seen without logging in
+            : solToLamports(value).toString(),
+        fromAddress:
+          fromToken === "ETH"
+            ? ethAddress
+              ? ethAddress
+              : USDC_SEPOLIA_TOKEN_ADDRESS // use a random address as the fromAddress just so the price can be seen without logging in
+            : solAddress
+              ? solAddress
+              : SOL_USDC_TOKEN_ADDRESS, // use a random address as the fromAddress just so the price can be seen without logging in
+        toAddress:
+          toToken === "ETH"
+            ? ethAddress
+              ? ethAddress
+              : USDC_SEPOLIA_TOKEN_ADDRESS // use a random address as the toAddress just so the price can be seen without logging in
+            : solAddress
+              ? solAddress
+              : SOL_USDC_TOKEN_ADDRESS, // use a random address as the toAddress just so the price can be seen without logging in
       };
 
-      const getPriceResponse = await getPrice(priceParams);
+      const getPriceResponse = await getQuote(quoteParams);
+
+      setTransactionRequest(getPriceResponse.transactionRequest);
       setToAmount(
         toToken === "ETH"
-          ? formatEther(getPriceResponse.buyAmount)
-          : formatUnits(getPriceResponse.buyAmount, 6),
+          ? formatEther(getPriceResponse.estimate.toAmount)
+          : lamportsToSol(getPriceResponse.estimate.toAmount).toString(),
       );
-      // setConversionRate(fromToken === 'ETH' ? Number(parseUnits(formatUnits(resp.buyAmount, 0), 0) / parseEther(value)) : Number(parseUnits(value, 6) / resp.buyAmount as bigint));
     } catch (e: any) {
       setToAmount("0.0");
     }
@@ -214,71 +301,66 @@ export default function SwapPage() {
     setSwapping(true);
     setToAmount("");
     setFromAmount("");
-    // handle approval for USDC contract: https://0x.org/docs/0x-swap-api/advanced-topics/how-to-set-your-token-allowances
-    if (fromToken === "USDC") {
-      const currentAllowance = await viemPublicClient?.readContract({
-        address: USDC_MAINNET_TOKEN_ADDRESS,
-        abi: erc20Abi,
-        functionName: "allowance",
-        args: [address as `0x${string}`, MAINNET_0X_ALLOWANCE_HOLDER_ADDRESS],
-      });
 
-      // check if allowance is greater than the requested swap amount
-      if (!currentAllowance || currentAllowance < parseUnits(fromAmount, 6)) {
-        // update allowance if its too little
-        const approveAllowanceHash = await viemWalletClient?.writeContract({
-          address: USDC_MAINNET_TOKEN_ADDRESS,
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [MAINNET_0X_ALLOWANCE_HOLDER_ADDRESS, maxUint256], //setting the allowance to max int, but can set it to parseUnits(fromAmount, 6) to approve exactly the desired amount for this transaction
-          chain: mainnet,
-          account: viemAccount!,
-        });
-
-        // wait for the approval to be successful
-        const receipt = await viemPublicClient!.waitForTransactionReceipt({
-          hash: approveAllowanceHash!,
-        });
-      }
-    }
-
-    // request a firm quote
-    const quoteParams: PriceParams = {
-      chainId: mainnet.id.toString(),
-      sellToken:
-        fromToken === "ETH" ? ETH_TOKEN_ADDRESS : USDC_MAINNET_TOKEN_ADDRESS,
-      buyToken:
-        fromToken === "ETH" ? USDC_MAINNET_TOKEN_ADDRESS : ETH_TOKEN_ADDRESS,
-      sellAmount:
-        fromToken === "ETH"
-          ? parseEther(fromAmount).toString()
-          : parseUnits(fromAmount, 6).toString(),
-      taker: address as `0x${string}`,
+    let statusParams: StatusParams = {
+      txHash: "",
     };
 
-    const getQuoteResponse = await getQuote(quoteParams);
+    if (fromToken === "ETH") {
+      // construct the ETH transaction to send for the bridge
+      const sendTransactionResponse = await viemWalletClient?.sendTransaction({
+        to: transactionRequest.to,
+        value: transactionRequest.value,
+        data: transactionRequest.data,
+        chain: mainnet,
+        account: viemAccount!,
+      });
 
-    // sign/submit swap transaction with viemWalletClient
-    const sendTransactionResponse = await viemWalletClient?.sendTransaction({
-      to: getQuoteResponse?.transaction.to,
-      data: getQuoteResponse?.transaction.data,
-      value: getQuoteResponse?.transaction.value
-        ? BigInt(getQuoteResponse.transaction.value)
-        : undefined,
-      account: viemAccount!,
-      chain: mainnet,
-    });
-    setSwapHash(sendTransactionResponse!);
+      setEthSwapHash(sendTransactionResponse!);
+      statusParams.txHash = sendTransactionResponse as string;
+    } else if (fromToken === "SOL") {
+      // construct the SOL transaction to send for the bridge
+      const txBuffer = Buffer.from(transactionRequest.data, "base64");
+      const hexTransaction = VersionedTransaction.deserialize(
+        new Uint8Array(txBuffer),
+      );
 
-    const receipt = await viemPublicClient!.waitForTransactionReceipt({
-      hash: sendTransactionResponse!,
-    });
-    setSwapping(false);
+      await turnkeySolanaSigner?.addSignature(hexTransaction, solAddress!);
 
-    // allow the successful modal to stay visible for 5 seconds
-    const timer = setTimeout(() => {
-      setSwapModalOpen(false);
-    }, 5000);
+      const connection = new Connection(SOL_MAINNET_RPC_PROVIDER);
+      const signature = await connection.sendTransaction(hexTransaction, {
+        skipPreflight: true,
+      });
+
+      setSolSwapHash(signature);
+      statusParams.txHash = signature;
+    } else {
+      return;
+    }
+
+    // poll the status of the bridge with LiFi
+    while (true) {
+      const getStatusResponse = await getStatus(statusParams);
+
+      if (getStatusResponse.status == "DONE") {
+        if (fromToken === "ETH") {
+          setSolSwapHash(getStatusResponse.receiving.txHash);
+          console.log(getStatusResponse.receiving.txHash);
+        } else if (fromToken === "SOL") {
+          setEthSwapHash(getStatusResponse.receiving.txHash);
+        }
+        setSwapping(false);
+
+        // stay on the success page containing links to the confirmed transactions for 5 seconds
+        const timer = setTimeout(() => {
+          setSwapModalOpen(false);
+        }, 5000);
+        break;
+      }
+
+      // sleep for 2 seconds before re-checking the status of the bridge
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
   };
 
   return (
@@ -293,11 +375,11 @@ export default function SwapPage() {
           <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">You pay</span>
-              {session && usdcBalance?.data && ethBalance?.data && (
+              {session && solBalance && ethBalance?.data && (
                 <span className="text-sm text-gray-600">
                   Balance:{" "}
-                  {fromToken === "USDC"
-                    ? usdcBalance?.data.formatted
+                  {fromToken === "SOL"
+                    ? lamportsToSol(solBalance).toString()
                     : ethBalance.data?.formatted}{" "}
                   {fromToken}
                 </span>
@@ -313,7 +395,7 @@ export default function SwapPage() {
               />
               <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gray-200 flex-shrink-0">
                 <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
-                  {fromToken === "USDC" ? "$" : "Ξ"}
+                  {fromToken === "SOL" ? <SolIcon /> : <EthIcon />}
                 </div>
                 <span className="text-black font-semibold">{fromToken}</span>
               </div>
@@ -346,11 +428,11 @@ export default function SwapPage() {
           <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-gray-600">You receive</span>
-              {session && usdcBalance?.data && ethBalance?.data && (
+              {session && solBalance && ethBalance?.data && (
                 <span className="text-sm text-gray-600">
                   Balance:{" "}
-                  {toToken === "USDC"
-                    ? usdcBalance?.data.formatted
+                  {toToken === "SOL"
+                    ? lamportsToSol(solBalance).toString()
                     : ethBalance.data?.formatted}{" "}
                   {toToken}
                 </span>
@@ -366,7 +448,7 @@ export default function SwapPage() {
               />
               <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 border border-gray-200 flex-shrink-0">
                 <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
-                  {toToken === "USDC" ? "$" : "Ξ"}
+                  {toToken === "SOL" ? <SolIcon /> : <EthIcon />}
                 </div>
                 <span className="text-black font-semibold">{toToken}</span>
               </div>
@@ -401,7 +483,7 @@ export default function SwapPage() {
                     Sending transaction...
                   </h2>
                   <p className="text-sm text-gray-600">
-                    Please wait while your swap is confirmed
+                    Please wait while your bridge is confirmed
                   </p>
                 </div>
               </>
@@ -426,17 +508,25 @@ export default function SwapPage() {
                 {/* Success Text */}
                 <div className="text-center">
                   <h2 className="text-xl font-semibold text-black mb-1">
-                    Swap successful
+                    Bridge successful
                   </h2>
                   <p className="text-sm text-gray-600">
                     Your transaction has been completed
                   </p>
                   <a
-                    href={`https://etherscan.io/tx/${swapHash}`}
+                    href={`https://etherscan.io/tx/${ethSwapHash}`}
                     target="_blank"
                     className="text-sm text-blue-600"
                   >
-                    Confirmation
+                    ETH Confirmation
+                  </a>
+                  <br />
+                  <a
+                    href={`https://solscan.io/tx/${solSwapHash}`}
+                    target="_blank"
+                    className="text-sm text-blue-600"
+                  >
+                    SOL Confirmation
                   </a>
                 </div>
               </>

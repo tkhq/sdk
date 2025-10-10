@@ -6,19 +6,27 @@ import {
   CreateSubOrgParams,
 } from "@turnkey/react-wallet-kit";
 import { createConfig, http, WagmiProvider } from "wagmi";
-import { mainnet, sepolia } from "wagmi/chains";
+import { mainnet } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // ensure users created by the auth proxy are created with this wallet
 const createSubOrgParams: CreateSubOrgParams = {
   customWallet: {
-    walletName: "ETH Wallet ",
+    walletName: "Bridge Wallet",
     walletAccounts: [
+      // ETH address
       {
         addressFormat: "ADDRESS_FORMAT_ETHEREUM",
         curve: "CURVE_SECP256K1",
         pathFormat: "PATH_FORMAT_BIP32",
         path: "m/44'/60'/0'/0/0",
+      },
+      // SOL address
+      {
+        addressFormat: "ADDRESS_FORMAT_SOLANA",
+        curve: "CURVE_ED25519",
+        pathFormat: "PATH_FORMAT_BIP32",
+        path: "m/44'/501'/0'/0/0",
       },
     ],
   },
@@ -41,10 +49,8 @@ const turnkeyConfig: TurnkeyProviderConfig = {
 };
 
 const wagmiConfig = createConfig({
-  //   chains: [sepolia],
   chains: [mainnet],
   transports: {
-    // [sepolia.id]: http(),
     [mainnet.id]: http(),
   },
 });
