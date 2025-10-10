@@ -57,7 +57,7 @@
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
     "buffer": "6.0.3",
-    "react-native-passkey": "3.0.0",
+    "react-native-passkey": "3.3.1",
     "sha256-uint8array": "0.10.7"
   },
   "devDependencies": {
