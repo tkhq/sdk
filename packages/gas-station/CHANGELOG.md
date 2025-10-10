@@ -1,5 +1,11 @@
 # @turnkey/gas-station
 
+## 0.3.1
+
+### Patch Changes
+
+- [#1011](https://github.com/tkhq/sdk/pull/1011) [`921bf1e`](https://github.com/tkhq/sdk/commit/921bf1ed4fa276ade0872146b6659db881b92c99) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - update readme with correct install command
+
 ## 0.3.0
 
 ### Minor Changes

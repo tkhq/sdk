@@ -1,5 +1,12 @@
 # @turnkey/core
 
+## 1.4.1
+
+### Patch Changes
+
+- [#1010](https://github.com/tkhq/sdk/pull/1010) [`e5b9c5c`](https://github.com/tkhq/sdk/commit/e5b9c5c5694b1f4d60c0b8606822bcd6d61da4a3) Author [@moeodeh3](https://github.com/moeodeh3) - - Fixed errors not being deserialized in `withTurnkeyErrorHandling()`, which previously caused them to stringify as `[object Object]`
+  - Improved error messages surfaced by `connectWalletAccount()`
+
 ## 1.4.0
 
 ### Minor Changes
