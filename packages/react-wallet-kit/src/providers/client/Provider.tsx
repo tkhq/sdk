@@ -1509,9 +1509,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       }
+
       await client.switchWalletAccountChain({ ...params, walletProviders });
     },
-    [client, callbacks],
+    [client, callbacks, walletProviders],
   );
 
   const buildWalletLoginRequest = useCallback(

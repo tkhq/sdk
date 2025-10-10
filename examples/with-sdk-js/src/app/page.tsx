@@ -39,6 +39,7 @@ export default function AuthPage() {
   const [newUserName, setNewUserName] = useState<string>("");
   const [organizationId, setOrganizationId] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
+  const [connectedWallets, setConnectedWallets] = useState<Wallet[]>([]);
 
   const [activeSessionKey, setActiveSessionKey] = useState<string | null>(null);
   const [sessionKey, setSessionKey] = useState<string>("");
@@ -63,6 +64,17 @@ export default function AuthPage() {
   //   process.env.NEXT_PUBLIC_HELIUS_BASE_URL! +
   //   process.env.NEXT_PUBLIC_HELIUS_API_KEY!;
   // const solanaConnection = new Connection(heliusEndpoint);
+
+  useEffect(() => {
+    if (clientState !== ClientState.Ready) return;
+
+    const handleGetConnectedWallets = async () => {
+      const wallets = await turnkey.fetchWallets({ connectedOnly: true });
+      setConnectedWallets(wallets);
+    };
+
+    handleGetConnectedWallets();
+  }, [wallets, turnkey, clientState]);
 
   useEffect(() => {
     console.log("wallets:", wallets);
@@ -1377,8 +1389,8 @@ export default function AuthPage() {
         <div>
           <h3>Connected Wallets</h3>
           <div className="flex flex-wrap gap-2 mb-2">
-            {wallets && wallets.length > 0
-              ? wallets.map((wallet: Wallet) => {
+            {connectedWallets && connectedWallets.length > 0
+              ? connectedWallets.map((wallet: Wallet) => {
                   if (wallet.source === WalletSource.Connected)
                     return (
                       <div
