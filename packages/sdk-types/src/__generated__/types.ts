@@ -302,7 +302,9 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL"
   | "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL"
   | "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"
-  | "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE";
+  | "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
+  | "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS"
+  | "ACTIVITY_TYPE_DELETE_POLICIES";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1089,6 +1091,8 @@ export type v1CreateWalletAccountsIntent = {
   walletId: string;
   /** A list of wallet Accounts. */
   accounts: v1WalletAccountParams[];
+  /** Indicates if the wallet accounts should be persisted. This is helpful if you'd like to see the addresses of different derivation paths without actually creating the accounts. Defaults to true. */
+  persist?: boolean;
 };
 
 export type v1CreateWalletAccountsRequest = {
@@ -1259,6 +1263,25 @@ export type v1DeleteOrganizationResult = {
   organizationId: string;
 };
 
+export type v1DeletePoliciesIntent = {
+  /** List of unique identifiers for policies within an organization */
+  policyIds: string[];
+};
+
+export type v1DeletePoliciesRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1DeletePoliciesIntent;
+};
+
+export type v1DeletePoliciesResult = {
+  /** A list of unique identifiers for the deleted policies. */
+  policyIds: string[];
+};
+
 export type v1DeletePolicyIntent = {
   /** Unique identifier for a given Policy. */
   policyId: string;
@@ -1396,6 +1419,27 @@ export type v1DeleteUsersRequest = {
 export type v1DeleteUsersResult = {
   /** A list of User IDs. */
   userIds: string[];
+};
+
+export type v1DeleteWalletAccountsIntent = {
+  /** List of unique identifiers for wallet accounts within an organization */
+  walletAccountIds: string[];
+  /** Optional parameter for deleting the wallet accounts, even if any have not been previously exported. If they have been exported, this field is ignored. */
+  deleteWithoutExport?: boolean;
+};
+
+export type v1DeleteWalletAccountsRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1DeleteWalletAccountsIntent;
+};
+
+export type v1DeleteWalletAccountsResult = {
+  /** A list of wallet account unique identifiers that were removed */
+  walletAccountIds: string[];
 };
 
 export type v1DeleteWalletsIntent = {
@@ -2385,6 +2429,8 @@ export type v1Intent = {
   updateOauth2CredentialIntent?: v1UpdateOauth2CredentialIntent;
   deleteOauth2CredentialIntent?: v1DeleteOauth2CredentialIntent;
   oauth2AuthenticateIntent?: v1Oauth2AuthenticateIntent;
+  deleteWalletAccountsIntent?: v1DeleteWalletAccountsIntent;
+  deletePoliciesIntent?: v1DeletePoliciesIntent;
 };
 
 export type v1Invitation = {
@@ -2908,6 +2954,8 @@ export type v1Result = {
   updateOauth2CredentialResult?: v1UpdateOauth2CredentialResult;
   deleteOauth2CredentialResult?: v1DeleteOauth2CredentialResult;
   oauth2AuthenticateResult?: v1Oauth2AuthenticateResult;
+  deleteWalletAccountsResult?: v1DeleteWalletAccountsResult;
+  deletePoliciesResult?: v1DeletePoliciesResult;
 };
 
 export type v1RootUserParams = {
@@ -3168,7 +3216,8 @@ export type v1TestRateLimitsResponse = {};
 export type v1TransactionType =
   | "TRANSACTION_TYPE_ETHEREUM"
   | "TRANSACTION_TYPE_SOLANA"
-  | "TRANSACTION_TYPE_TRON";
+  | "TRANSACTION_TYPE_TRON"
+  | "TRANSACTION_TYPE_BITCOIN";
 
 export type v1UpdateAllowedOriginsIntent = {
   /** Additional origins requests are allowed from besides Turnkey origins */
@@ -3205,6 +3254,10 @@ export type v1UpdateAuthProxyConfigIntent = {
   otpAlphanumeric?: boolean;
   /** Desired OTP code length (6–9). */
   otpLength?: number;
+  /** Custom 'from' email sender for auth-related emails. */
+  sendFromEmailSenderName?: string;
+  /** Verification token required for get account with PII (email/phone number). Default false. */
+  verificationTokenRequiredForGetAccountPii?: boolean;
 };
 
 export type v1UpdateAuthProxyConfigResult = {
@@ -4468,6 +4521,8 @@ export type TCreateWalletAccountsBody = {
   walletId: string;
   /** A list of wallet Accounts. */
   accounts: v1WalletAccountParams[];
+  /** Indicates if the wallet accounts should be persisted. This is helpful if you'd like to see the addresses of different derivation paths without actually creating the accounts. Defaults to true. */
+  persist?: boolean;
 };
 
 export type TCreateWalletAccountsInput = { body: TCreateWalletAccountsBody };
@@ -4554,6 +4609,21 @@ export type TDeleteOauthProvidersBody = {
 };
 
 export type TDeleteOauthProvidersInput = { body: TDeleteOauthProvidersBody };
+
+export type TDeletePoliciesResponse = {
+  activity: v1Activity;
+  /** A list of unique identifiers for the deleted policies. */
+  policyIds: string[];
+};
+
+export type TDeletePoliciesBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** List of unique identifiers for policies within an organization */
+  policyIds: string[];
+};
+
+export type TDeletePoliciesInput = { body: TDeletePoliciesBody };
 
 export type TDeletePolicyResponse = {
   activity: v1Activity;
@@ -4667,6 +4737,23 @@ export type TDeleteUsersBody = {
 };
 
 export type TDeleteUsersInput = { body: TDeleteUsersBody };
+
+export type TDeleteWalletAccountsResponse = {
+  activity: v1Activity;
+  /** A list of wallet account unique identifiers that were removed */
+  walletAccountIds: string[];
+};
+
+export type TDeleteWalletAccountsBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** List of unique identifiers for wallet accounts within an organization */
+  walletAccountIds: string[];
+  /** Optional parameter for deleting the wallet accounts, even if any have not been previously exported. If they have been exported, this field is ignored. */
+  deleteWithoutExport?: boolean;
+};
+
+export type TDeleteWalletAccountsInput = { body: TDeleteWalletAccountsBody };
 
 export type TDeleteWalletsResponse = {
   activity: v1Activity;
@@ -5493,7 +5580,7 @@ export type TTestRateLimitsBody = {
 export type TTestRateLimitsInput = { body: TTestRateLimitsBody };
 
 export type ProxyTGetAccountResponse = {
-  organizationId: string;
+  organizationId?: string;
 };
 
 export type ProxyTGetAccountBody = {
@@ -5501,6 +5588,8 @@ export type ProxyTGetAccountBody = {
   filterType: string;
   /** The value of the filter to apply for the specified type. For example, a specific email or name string. */
   filterValue: string;
+  /** Signed JWT containing a unique id, expiry, verification type, contact. Used to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'. */
+  verificationToken?: string;
 };
 
 export type ProxyTGetAccountInput = { body: ProxyTGetAccountBody };
@@ -5603,6 +5692,8 @@ export type ProxyTSignupResponse = {
   wallet?: v1WalletResult;
   /** Root user ID created for this sub-organization */
   userId: string;
+  /** A list of app proofs generated by enclaves during activity execution, providing verifiable attestations of performed operations. */
+  appProofs?: v1AppProof[];
 };
 
 export type ProxyTSignupBody = {

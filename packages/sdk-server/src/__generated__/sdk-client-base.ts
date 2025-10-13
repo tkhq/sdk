@@ -1767,6 +1767,39 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  deletePolicies = async (
+    input: SdkApiTypes.TDeletePoliciesBody,
+  ): Promise<SdkApiTypes.TDeletePoliciesResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_policies",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_POLICIES",
+      },
+      "deletePoliciesResult",
+    );
+  };
+
+  stampDeletePolicies = async (
+    input: SdkApiTypes.TDeletePoliciesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_policies";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   deletePolicy = async (
     input: SdkApiTypes.TDeletePolicyBody,
   ): Promise<SdkApiTypes.TDeletePolicyResponse> => {
@@ -1988,6 +2021,39 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_users";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteWalletAccounts = async (
+    input: SdkApiTypes.TDeleteWalletAccountsBody,
+  ): Promise<SdkApiTypes.TDeleteWalletAccountsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_wallet_accounts",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
+      },
+      "deleteWalletAccountsResult",
+    );
+  };
+
+  stampDeleteWalletAccounts = async (
+    input: SdkApiTypes.TDeleteWalletAccountsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_wallet_accounts";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

@@ -2838,6 +2838,52 @@ export const signDeleteOauthProviders = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_policies`
+ */
+export type TDeletePoliciesResponse =
+  operations["PublicApiService_DeletePolicies"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_policies`
+ */
+export type TDeletePoliciesInput = { body: TDeletePoliciesBody };
+
+/**
+ * `POST /public/v1/submit/delete_policies`
+ */
+export type TDeletePoliciesBody =
+  operations["PublicApiService_DeletePolicies"]["parameters"]["body"]["body"];
+
+/**
+ * Delete policies
+ *
+ * Delete existing policies.
+ *
+ * `POST /public/v1/submit/delete_policies`
+ */
+export const deletePolicies = (input: TDeletePoliciesInput) =>
+  request<TDeletePoliciesResponse, TDeletePoliciesBody, never, never, never>({
+    uri: "/public/v1/submit/delete_policies",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeletePolicies` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeletePolicies}
+ */
+export const signDeletePolicies = (
+  input: TDeletePoliciesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeletePoliciesBody, never, never>({
+    uri: "/public/v1/submit/delete_policies",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_policy`
  */
 export type TDeletePolicyResponse =
@@ -3183,6 +3229,58 @@ export const signDeleteUsers = (
 ) =>
   signedRequest<TDeleteUsersBody, never, never>({
     uri: "/public/v1/submit/delete_users",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_wallet_accounts`
+ */
+export type TDeleteWalletAccountsResponse =
+  operations["PublicApiService_DeleteWalletAccounts"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_wallet_accounts`
+ */
+export type TDeleteWalletAccountsInput = { body: TDeleteWalletAccountsBody };
+
+/**
+ * `POST /public/v1/submit/delete_wallet_accounts`
+ */
+export type TDeleteWalletAccountsBody =
+  operations["PublicApiService_DeleteWalletAccounts"]["parameters"]["body"]["body"];
+
+/**
+ * Delete wallet accounts
+ *
+ * Delete wallet accounts for an organization.
+ *
+ * `POST /public/v1/submit/delete_wallet_accounts`
+ */
+export const deleteWalletAccounts = (input: TDeleteWalletAccountsInput) =>
+  request<
+    TDeleteWalletAccountsResponse,
+    TDeleteWalletAccountsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_wallet_accounts",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteWalletAccounts` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteWalletAccounts}
+ */
+export const signDeleteWalletAccounts = (
+  input: TDeleteWalletAccountsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteWalletAccountsBody, never, never>({
+    uri: "/public/v1/submit/delete_wallet_accounts",
     body: input.body,
     options,
   });
