@@ -1892,6 +1892,38 @@
         "tags": ["User Auth"]
       }
     },
+    "/public/v1/submit/delete_policies": {
+      "post": {
+        "summary": "Delete policies",
+        "description": "Delete existing policies.",
+        "operationId": "PublicApiService_DeletePolicies",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeletePoliciesRequest"
+            }
+          }
+        ],
+        "tags": ["Policies"]
+      }
+    },
     "/public/v1/submit/delete_policy": {
       "post": {
         "summary": "Delete policy",
@@ -2114,6 +2146,38 @@
           }
         ],
         "tags": ["Users"]
+      }
+    },
+    "/public/v1/submit/delete_wallet_accounts": {
+      "post": {
+        "summary": "Delete wallet accounts",
+        "description": "Delete wallet accounts for an organization.",
+        "operationId": "PublicApiService_DeleteWalletAccounts",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteWalletAccountsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
       }
     },
     "/public/v1/submit/delete_wallets": {
@@ -3909,7 +3973,9 @@
         "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL",
         "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL",
         "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
-        "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
+        "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
+        "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
+        "ACTIVITY_TYPE_DELETE_POLICIES"
       ]
     },
     "v1AddressFormat": {
@@ -5772,6 +5838,10 @@
             "$ref": "#/definitions/v1WalletAccountParams"
           },
           "description": "A list of wallet Accounts."
+        },
+        "persist": {
+          "type": "boolean",
+          "description": "Indicates if the wallet accounts should be persisted. This is helpful if you'd like to see the addresses of different derivation paths without actually creating the accounts. Defaults to true."
         }
       },
       "required": ["walletId", "accounts"]
@@ -6154,6 +6224,53 @@
       },
       "required": ["organizationId"]
     },
+    "v1DeletePoliciesIntent": {
+      "type": "object",
+      "properties": {
+        "policyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of unique identifiers for policies within an organization"
+        }
+      },
+      "required": ["policyIds"]
+    },
+    "v1DeletePoliciesRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_POLICIES"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeletePoliciesIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeletePoliciesResult": {
+      "type": "object",
+      "properties": {
+        "policyIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of unique identifiers for the deleted policies."
+        }
+      },
+      "required": ["policyIds"]
+    },
     "v1DeletePolicyIntent": {
       "type": "object",
       "properties": {
@@ -6481,6 +6598,57 @@
         }
       },
       "required": ["userIds"]
+    },
+    "v1DeleteWalletAccountsIntent": {
+      "type": "object",
+      "properties": {
+        "walletAccountIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of unique identifiers for wallet accounts within an organization"
+        },
+        "deleteWithoutExport": {
+          "type": "boolean",
+          "description": "Optional parameter for deleting the wallet accounts, even if any have not been previously exported. If they have been exported, this field is ignored."
+        }
+      },
+      "required": ["walletAccountIds"]
+    },
+    "v1DeleteWalletAccountsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteWalletAccountsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteWalletAccountsResult": {
+      "type": "object",
+      "properties": {
+        "walletAccountIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of wallet account unique identifiers that were removed"
+        }
+      },
+      "required": ["walletAccountIds"]
     },
     "v1DeleteWalletsIntent": {
       "type": "object",
@@ -8634,6 +8802,12 @@
         },
         "oauth2AuthenticateIntent": {
           "$ref": "#/definitions/v1Oauth2AuthenticateIntent"
+        },
+        "deleteWalletAccountsIntent": {
+          "$ref": "#/definitions/v1DeleteWalletAccountsIntent"
+        },
+        "deletePoliciesIntent": {
+          "$ref": "#/definitions/v1DeletePoliciesIntent"
         }
       }
     },
@@ -9928,6 +10102,12 @@
         },
         "oauth2AuthenticateResult": {
           "$ref": "#/definitions/v1Oauth2AuthenticateResult"
+        },
+        "deleteWalletAccountsResult": {
+          "$ref": "#/definitions/v1DeleteWalletAccountsResult"
+        },
+        "deletePoliciesResult": {
+          "$ref": "#/definitions/v1DeletePoliciesResult"
         }
       }
     },
@@ -10542,7 +10722,8 @@
       "enum": [
         "TRANSACTION_TYPE_ETHEREUM",
         "TRANSACTION_TYPE_SOLANA",
-        "TRANSACTION_TYPE_TRON"
+        "TRANSACTION_TYPE_TRON",
+        "TRANSACTION_TYPE_BITCOIN"
       ]
     },
     "v1UpdateAllowedOriginsIntent": {
@@ -10629,6 +10810,14 @@
           "type": "integer",
           "format": "int32",
           "description": "Desired OTP code length (6–9)."
+        },
+        "sendFromEmailSenderName": {
+          "type": "string",
+          "description": "Custom 'from' email sender for auth-related emails."
+        },
+        "verificationTokenRequiredForGetAccountPii": {
+          "type": "boolean",
+          "description": "Verification token required for get account with PII (email/phone number). Default false."
         }
       }
     },

@@ -2996,6 +2996,58 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  deletePolicies = async (
+    input: SdkTypes.TDeletePoliciesBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TDeletePoliciesResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/delete_policies",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_POLICIES",
+      },
+      "deletePoliciesResult",
+      stampWith,
+    );
+  };
+
+  stampDeletePolicies = async (
+    input: SdkTypes.TDeletePoliciesBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_policies";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_POLICIES",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   deletePolicy = async (
     input: SdkTypes.TDeletePolicyBody,
     stampWith?: StamperType,
@@ -3348,6 +3400,58 @@ export class TurnkeySDKClientBase {
       organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_USERS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteWalletAccounts = async (
+    input: SdkTypes.TDeleteWalletAccountsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TDeleteWalletAccountsResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/delete_wallet_accounts",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
+      },
+      "deleteWalletAccountsResult",
+      stampWith,
+    );
+  };
+
+  stampDeleteWalletAccounts = async (
+    input: SdkTypes.TDeleteWalletAccountsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_wallet_accounts";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

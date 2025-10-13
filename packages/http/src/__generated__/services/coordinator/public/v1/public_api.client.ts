@@ -220,6 +220,10 @@ import type {
   TDeleteOauthProvidersResponse,
 } from "./public_api.fetcher";
 import type {
+  TDeletePoliciesBody,
+  TDeletePoliciesResponse,
+} from "./public_api.fetcher";
+import type {
   TDeletePolicyBody,
   TDeletePolicyResponse,
 } from "./public_api.fetcher";
@@ -246,6 +250,10 @@ import type {
 import type {
   TDeleteUsersBody,
   TDeleteUsersResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteWalletAccountsBody,
+  TDeleteWalletAccountsResponse,
 } from "./public_api.fetcher";
 import type {
   TDeleteWalletsBody,
@@ -2196,6 +2204,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * Delete existing policies.
+   *
+   * Sign the provided `TDeletePoliciesBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_policies).
+   *
+   * See also {@link stampDeletePolicies}.
+   */
+  deletePolicies = async (
+    input: TDeletePoliciesBody,
+  ): Promise<TDeletePoliciesResponse> => {
+    return this.request("/public/v1/submit/delete_policies", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeletePoliciesBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeletePolicies}.
+   */
+  stampDeletePolicies = async (
+    input: TDeletePoliciesBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_policies";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Delete an existing policy.
    *
    * Sign the provided `TDeletePolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_policy).
@@ -2410,6 +2449,38 @@ export class TurnkeyClient {
     input: TDeleteUsersBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_users";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Delete wallet accounts for an organization.
+   *
+   * Sign the provided `TDeleteWalletAccountsBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_wallet_accounts).
+   *
+   * See also {@link stampDeleteWalletAccounts}.
+   */
+  deleteWalletAccounts = async (
+    input: TDeleteWalletAccountsBody,
+  ): Promise<TDeleteWalletAccountsResponse> => {
+    return this.request("/public/v1/submit/delete_wallet_accounts", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteWalletAccountsBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteWalletAccounts}.
+   */
+  stampDeleteWalletAccounts = async (
+    input: TDeleteWalletAccountsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_wallet_accounts";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
