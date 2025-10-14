@@ -2462,7 +2462,9 @@ export class TurnkeyClient {
           stampWith,
         );
 
-        return signTransaction.signedTransaction;
+        return transactionType === "TRANSACTION_TYPE_ETHEREUM"
+          ? `0x${signTransaction.signedTransaction}`
+          : signTransaction.signedTransaction;
       },
       {
         errorMessage: "Failed to sign transaction",
@@ -2569,7 +2571,10 @@ export class TurnkeyClient {
           stampWith,
         );
 
-        const signedTx = signTransactionResponse.signedTransaction;
+        const signedTx =
+          transactionType === "TRANSACTION_TYPE_ETHEREUM"
+            ? `0x${signTransactionResponse.signedTransaction}`
+            : signTransactionResponse.signedTransaction;
 
         const txHash = await broadcastTransaction({
           signedTransaction: signedTx,
