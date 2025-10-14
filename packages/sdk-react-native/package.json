@@ -58,10 +58,10 @@
   "peerDependencies": {
     "@types/react": ">=16.8.0 <20",
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
-    "react-native": "0.76.5",
-    "react-native-keychain": "8.1.0",
-    "react-native-inappbrowser-reborn": "3.7.0",
-    "react-native-passkey": "3.0.0"
+    "react-native": "^0.76.5",
+    "react-native-keychain": "^8.1.0",
+    "react-native-inappbrowser-reborn": "^3.7.0",
+    "react-native-passkey": "^3.3.0"
   },
   "peerDependenciesMeta": {
     "@types/react": {
