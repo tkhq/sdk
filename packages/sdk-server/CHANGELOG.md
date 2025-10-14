@@ -1,5 +1,15 @@
 # @turnkey/sdk-server
 
+## 4.10.3
+
+### Patch Changes
+
+- [#1016](https://github.com/tkhq/sdk/pull/1016) [`9df42ad`](https://github.com/tkhq/sdk/commit/9df42adc02c7ff77afba3b938536e79b57882ef1) Author [@amircheikh](https://github.com/amircheikh) - Synced API as per mono v2025.10.2
+
+- Updated dependencies [[`9df42ad`](https://github.com/tkhq/sdk/commit/9df42adc02c7ff77afba3b938536e79b57882ef1)]:
+  - @turnkey/http@3.13.1
+  - @turnkey/wallet-stamper@1.1.4
+
 ## 4.10.2
 
 ### Patch Changes

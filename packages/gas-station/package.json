@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/gas-station",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Turnkey Gas Station SDK for EIP-7702 delegated execution",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
