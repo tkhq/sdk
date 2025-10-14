@@ -626,6 +626,16 @@ export type TDeleteOauthProvidersBody =
   operations["PublicApiService_DeleteOauthProviders"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDeletePoliciesResponse =
+  operations["PublicApiService_DeletePolicies"]["responses"]["200"]["schema"]["activity"]["result"]["deletePoliciesResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeletePoliciesInput = { body: TDeletePoliciesBody };
+
+export type TDeletePoliciesBody =
+  operations["PublicApiService_DeletePolicies"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TDeletePolicyResponse =
   operations["PublicApiService_DeletePolicy"]["responses"]["200"]["schema"]["activity"]["result"]["deletePolicyResult"] &
     definitions["v1ActivityResponse"];
@@ -696,6 +706,16 @@ export type TDeleteUsersInput = { body: TDeleteUsersBody };
 
 export type TDeleteUsersBody =
   operations["PublicApiService_DeleteUsers"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TDeleteWalletAccountsResponse =
+  operations["PublicApiService_DeleteWalletAccounts"]["responses"]["200"]["schema"]["activity"]["result"]["deleteWalletAccountsResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteWalletAccountsInput = { body: TDeleteWalletAccountsBody };
+
+export type TDeleteWalletAccountsBody =
+  operations["PublicApiService_DeleteWalletAccounts"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TDeleteWalletsResponse =

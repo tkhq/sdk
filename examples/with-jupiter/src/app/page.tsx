@@ -254,26 +254,21 @@ export default function JupiterSwapPage() {
               <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-600">You pay</span>
-                  {activeWalletAccount && (
-                    <span className="text-sm text-gray-600 truncate max-w-[180px]">
-                      {activeWalletAccount.address.slice(0, 6)}…
-                      {activeWalletAccount.address.slice(-4)}
-                    </span>
-                  )}
                 </div>
-                <div className="flex items-center justify-between gap-3">
+                <div className="relative flex items-center bg-gray-50">
                   <input
                     type="number"
                     value={fromAmount}
                     onChange={(e) => handleFromAmountChange(e.target.value)}
                     placeholder="0.00"
-                    className="bg-transparent text-3xl font-semibold text-black outline-none flex-1 placeholder:text-gray-300 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                    className="bg-transparent text-3xl font-semibold text-black outline-none flex-1 placeholder:text-gray-300 pr-16 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                   />
-                  <div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 border border-gray-200">
-                    <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
+
+                  <div className="absolute right-3 flex items-center gap-2 bg-white rounded-lg px-4 py-2 border border-gray-200">
+                    <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
                       {fromToken === "USDC" ? "$" : <SolIcon />}
                     </div>
-                    <span className="text-black font-semibold">
+                    <span className="text-black font-semibold text-base">
                       {fromToken}
                     </span>
                   </div>
@@ -305,19 +300,21 @@ export default function JupiterSwapPage() {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-gray-600">You receive</span>
                 </div>
-                <div className="flex items-center justify-between gap-3">
+                <div className="relative flex items-center bg-gray-50">
                   <input
-                    type="text"
+                    type="number"
                     value={toAmount}
-                    readOnly
                     placeholder="0.00"
-                    className="bg-transparent text-3xl font-semibold text-black outline-none flex-1 placeholder:text-gray-300"
+                    className="bg-transparent text-3xl font-semibold text-black outline-none flex-1 placeholder:text-gray-300 pr-16 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
                   />
-                  <div className="flex items-center gap-2 bg-white rounded-lg px-4 py-2 border border-gray-200">
-                    <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
+
+                  <div className="absolute right-3 flex items-center gap-2 bg-white rounded-lg px-4 py-2 border border-gray-200">
+                    <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center text-white text-xs font-bold">
                       {toToken === "USDC" ? "$" : <SolIcon />}
                     </div>
-                    <span className="text-black font-semibold">{toToken}</span>
+                    <span className="text-black font-semibold text-base">
+                      {toToken}
+                    </span>
                   </div>
                 </div>
               </div>

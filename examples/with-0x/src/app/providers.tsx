@@ -12,13 +12,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // ensure users created by the auth proxy are created with this wallet
 const createSubOrgParams: CreateSubOrgParams = {
   customWallet: {
-    walletName: "Wallet 1",
+    walletName: "ETH Wallet ",
     walletAccounts: [
       {
         addressFormat: "ADDRESS_FORMAT_ETHEREUM",
         curve: "CURVE_SECP256K1",
         pathFormat: "PATH_FORMAT_BIP32",
-        path: "m/44'/501'/0'/0/0",
+        path: "m/44'/60'/0'/0/0",
       },
     ],
   },

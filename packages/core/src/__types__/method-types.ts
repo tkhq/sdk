@@ -114,7 +114,7 @@ export type VerifyOtpParams = {
 };
 
 export type VerifyOtpResult = {
-  subOrganizationId: string;
+  subOrganizationId: string | undefined;
   verificationToken: string;
 };
 
