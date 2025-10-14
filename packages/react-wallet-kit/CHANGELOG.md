@@ -1,5 +1,15 @@
 # @turnkey/react-wallet-kit
 
+## 1.3.3
+
+### Patch Changes
+
+- [#1012](https://github.com/tkhq/sdk/pull/1012) [`9e123eb`](https://github.com/tkhq/sdk/commit/9e123eb154df7183bef002c7f94c57a72c6ef81b) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `switchWalletAccountChain` referencing stale `walletProvider` state
+
+- Updated dependencies [[`9df42ad`](https://github.com/tkhq/sdk/commit/9df42adc02c7ff77afba3b938536e79b57882ef1)]:
+  - @turnkey/sdk-types@0.6.2
+  - @turnkey/core@1.4.2
+
 ## 1.3.2
 
 ### Patch Changes

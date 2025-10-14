@@ -1,5 +1,17 @@
 # @turnkey/core
 
+## 1.4.2
+
+### Patch Changes
+
+- [#1016](https://github.com/tkhq/sdk/pull/1016) [`9df42ad`](https://github.com/tkhq/sdk/commit/9df42adc02c7ff77afba3b938536e79b57882ef1) Author [@amircheikh](https://github.com/amircheikh) - Synced API as per mono v2025.10.2
+
+- Updated dependencies [[`9df42ad`](https://github.com/tkhq/sdk/commit/9df42adc02c7ff77afba3b938536e79b57882ef1), [`429e4c4`](https://github.com/tkhq/sdk/commit/429e4c4b5d897a7233584d4ec429b21bba7a1f2b)]:
+  - @turnkey/sdk-types@0.6.2
+  - @turnkey/http@3.13.1
+  - @turnkey/react-native-passkey-stamper@1.2.3
+  - @turnkey/crypto@2.8.2
+
 ## 1.4.1
 
 ### Patch Changes

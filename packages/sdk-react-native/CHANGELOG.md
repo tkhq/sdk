@@ -1,5 +1,16 @@
 # @turnkey/sdk-react-native
 
+## 1.5.5
+
+### Patch Changes
+
+- [#1015](https://github.com/tkhq/sdk/pull/1015) [`429e4c4`](https://github.com/tkhq/sdk/commit/429e4c4b5d897a7233584d4ec429b21bba7a1f2b) Author [@moeodeh3](https://github.com/moeodeh3) - Update react-native-passkey to the latest version for Expo 54 compatibility
+
+- Updated dependencies [[`9df42ad`](https://github.com/tkhq/sdk/commit/9df42adc02c7ff77afba3b938536e79b57882ef1), [`429e4c4`](https://github.com/tkhq/sdk/commit/429e4c4b5d897a7233584d4ec429b21bba7a1f2b)]:
+  - @turnkey/http@3.13.1
+  - @turnkey/react-native-passkey-stamper@1.2.3
+  - @turnkey/crypto@2.8.2
+
 ## 1.5.4
 
 ### Patch Changes
