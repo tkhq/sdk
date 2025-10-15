@@ -1145,7 +1145,7 @@ importers:
   examples/with-bitcoin:
     dependencies:
       '@turnkey/crypto':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../packages/crypto
       '@turnkey/http':
         specifier: workspace:*

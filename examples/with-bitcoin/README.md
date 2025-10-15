@@ -103,6 +103,41 @@ Fetching UTXOs...
 
 ([link to onchain tx](https://mempool.space/testnet/tx/6bcd8e6f7a88a26d6da28ce426c8cde628ce13408ca53a576be6304920d62cbf))
 
+
+### 4/ Running the policy-enabled Bitcoin transaction signing example
+
+```bash
+$ pnpm with-policy
+```
+
+Documentation on our Bitcoin policy engine, and policy-enabled Bitcoin transaction signing can be found here: https://docs.turnkey.com/networks/bitcoin#policy-enabled-bitcoin-transaction-signing
+
+To use our policy-enabled Bitcoin transaction signing flow, this example will use the `SIGN_TRANSACTION` endpoint with the transaction type `TRANSACTION_TYPE_BITCOIN`, and will pass in a hex serialized PSBT (Partially Signed Bitcoin Transaction).
+
+The script shares code with our other signing flow described in the section above, and will perform the same validation and prompting as above to create the Bitcoin transaction. 
+
+Following that it will perform the following actions: 
+1. Policy creation: script will prompt the user to enter an address to allowlist as a receiving address, which it will then use to create a policy in the organization being used. 
+2. Non-root user creation: script will create a non-root user to apply policies to 
+3. Policy enabled transaction signing: script will ATTEMPT to sign the transaction using the policy enabled endpoint as described above. If the address that was used to create the allowlist policy is the SAME as the receiving address you entered while creating the transaction, signing will SUCCEED, if not it will FAIL.
+
+```
+✔ Enter receiving address to ALLOW signing via policy (to test failure case, enter something other than the receiving address that you entered while creating your PSBT): … tb1pdfxxeq5z7r2amexl7wj4e9jeng5u2p3ekv23x2m3qc2p3sqkducqfms7nm
+New policy created!
+- Name: Bitcoin allow transfer to 'tb1pdfxxeq5z7r2amexl7wj4e9jeng5u2p3ekv23x2m3qc2p3sqkducqfms7nm'
+- Policy ID: 852725d1-15a9-4af1-8ea5-66f24f1bb666
+- Effect: EFFECT_ALLOW
+- Consensus: approvers.count() == 1
+- Condition: bitcoin.tx.outputs.count() == 2 && bitcoin.tx.outputs.all(o, o.address in ['tb1pdfxxeq5z7r2amexl7wj4e9jeng5u2p3ekv23x2m3qc2p3sqkducqfms7nm','tb1qeln8v9chnchymmmgmad374z3qz598y3mahz7ws'])
+
+New user created!
+- Name: new-bitcoin-user
+- User ID: 61eec25f-78be-4e6b-9fe3-5f73af2218e1
+
+✅ Transaction signed! To broadcast it, copy and paste the hex payload to https://mempool.space/testnet/tx/push
+0200000000010103a36b6f950ad4b77e8d6a5d4fa08adc7e509c3858d936af38bf9a3350a610b70000000000ffffffff02cf070000000000002251206a4c6c8282f0d5dde4dff3a55c96599a29c50639b315132b71061418c0166f308a99020000000000160014cfe67617179e2e4def68df5b1f545100a853923b02473044022050b3a21d8f6aeb5842f16dfe757c14f7d315067571d5e1d424c24279ffa2d14e022046b332141f4ae2e153edb80025e54da29730f96700ae4eeb4ab8f717a9b9369d012102c0a83fe6de4965f39b6c3e200d0054b29e3ebeeb9c1c5bb4c6ca8e9cf7c33db600000000
+```
+
 ### Other
 
 Remaining TODOs:
