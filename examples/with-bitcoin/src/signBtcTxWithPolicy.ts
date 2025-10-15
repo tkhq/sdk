@@ -4,7 +4,7 @@ import * as path from "path";
 import { generateP256KeyPair } from "@turnkey/crypto";
 import * as bitcoin from "bitcoinjs-lib";
 import prompts, { PromptType } from "prompts";
-import { isMainnet } from "./util"; 
+import { isMainnet } from "./util";
 
 import createPolicy from "./requests/createPolicy";
 import createUser from "./requests/createUser";

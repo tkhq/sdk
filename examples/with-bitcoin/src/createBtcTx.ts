@@ -255,6 +255,5 @@ if (require.main === module) {
     });
 }
 
-  export { createUnsignedPsbt };
-  export type { PSBTCreationResult };
-  
+export { createUnsignedPsbt };
+export type { PSBTCreationResult };
