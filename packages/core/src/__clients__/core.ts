@@ -2407,6 +2407,9 @@ export class TurnkeyClient {
    *   - Delegates signing to the Turnkey API, which returns the signed transaction.
    *   - Supports all Turnkey-supported transaction types (e.g., Ethereum, Solana, Tron).
    *   - Optionally allows stamping with a specific stamper (`StamperType.Passkey`, `StamperType.ApiKey`, or `StamperType.Wallet`).
+   *   - Note: For embedded Ethereum wallets, the returned signature doesn’t include the `0x` prefix. You should add `0x` before
+   *     broadcasting if it’s missing. It’s a good idea to check whether the signature already starts with `0x` before adding it,
+   *     since we plan to include the prefix by default in a future breaking change.
    *
    * @param params.walletAccount - wallet account to use for signing.
    * @param params.unsignedTransaction - unsigned transaction data as a serialized
@@ -2462,9 +2465,9 @@ export class TurnkeyClient {
           stampWith,
         );
 
-        return transactionType === "TRANSACTION_TYPE_ETHEREUM"
-          ? `0x${signTransaction.signedTransaction}`
-          : signTransaction.signedTransaction;
+        // TODO (breaking change): eventually we should append a `0x` prefix for ethereum signatures here
+        // then we should remove the note in the comment header
+        return signTransaction.signedTransaction;
       },
       {
         errorMessage: "Failed to sign transaction",
