@@ -1,11 +1,35 @@
 # Example: `oauth`
 
-This example shows a complete Oauth flow with google. It contains a NextJS app with:
+This is a minimal Next.js app showing how to implement **OAuth login (Google)** with Turnkey using the `@turnkey/react-wallet-kit`, wired up to **your own backend** via Next.js Server Actions (see: [Advanced backend authentication](https://docs.turnkey.com/sdks/react/advanced-backend-authentication)).
 
-- a frontend application
-- a backend application
+### What this demo shows
 
-This example contains an example auth page as well as a stub API endpoint for "your business" (where the contact is resolved into an organization ID). It relies on the `indexedDbClient` to stamp the requests. For more information on oauth, [check out our documentation](https://docs.turnkey.com/features/oauth).
+A high-level summary of the user experience and what appears on screen.
+
+After visiting the app, the user can:
+
+- Log in with Google OAuth (via `@react-oauth/google`)
+- Authenticate with Turnkey by exchanging the user’s Google credential through your own backend, implemented here using Next.js Server Actions.
+- Automatically create or access a Turnkey sub-organization / embedded wallet.
+
+Once logged in, the dashboard is split into two main panels:
+
+- Left side: sign a message and a simple EIP-1559 Ethereum transaction
+- Right side: display the sub-organization embedded wallets
+
+## How it works
+
+1. Client creates an ephemeral / session API keypair with `createApiKeyPair()` (securely stored in IndexedDB).
+2. The Google button is rendered with a `nonce = sha256(publicKey)`.
+3. After Google returns an OIDC token, the client calls your Server Actions to:
+
+- Find (`getSubOrgIds`) or create (`createSubOrganization`) a Turnkey sub-organization with an Ethereum wallet bound to that OIDC identity.
+- Create a Turnkey read-write session jwt (`oauthLogin`) bound to the indexedDb keypair (see: [Sessions](https://docs.turnkey.com/authentication/sessions#read-write-sessions)).
+
+4. Use the user session in the dashboard to load the sub-org embedded wallets, sign a message (`signRawPayload`) and sign a transaction (`signTransaction`).
+
+> Why the `nonce = sha256(publicKey)`?
+> It cryptographically binds the Google OIDC token to the same keypair, that prevents OIDC tokens from being used against multiple public keys.
 
 ## Getting started
 
