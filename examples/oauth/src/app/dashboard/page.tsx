@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useTurnkey,
   AuthState,
-  ClientState,
   WalletSource,
   type Wallet,
   type WalletAccount,
@@ -25,67 +24,15 @@ function safeStringify(x: unknown) {
 }
 
 export default function Dashboard() {
-  const {
-    httpClient,
-    authState,
-    clientState,
-    logout,
-    session,
-    wallets,
-    refreshWallets,
-  } = useTurnkey();
+  const { httpClient, authState, logout, session, wallets } = useTurnkey();
   const router = useRouter();
 
   const turnkey = useTurnkey();
-
-  // Track logout-in-progress to prevent refresh races
-  const isLoggingOut = useRef(false);
 
   // Guard unauthenticated users
   useEffect(() => {
     if (authState === AuthState.Unauthenticated) router.replace("/");
   }, [authState, router]);
-
-  // Auto-refresh wallets once the SDK is ready and authenticated
-  useEffect(() => {
-    if (isLoggingOut.current) return;
-    if (authState !== AuthState.Authenticated) return;
-    if (clientState !== ClientState.Ready) return;
-    if (!session?.organizationId) return;
-
-    (async () => {
-      try {
-        await refreshWallets();
-      } catch (e: any) {
-        // Ignore the brief race when session is being torn down
-        const msg = e?.message || "";
-        if (!/No active session found/i.test(msg)) {
-          console.error("refreshWallets failed:", e);
-        }
-      }
-    })();
-  }, [authState, clientState, session?.organizationId, refreshWallets]);
-
-  // Also auto-refresh when the tab regains focus
-  useEffect(() => {
-    if (authState !== AuthState.Authenticated) return;
-    if (clientState !== ClientState.Ready) return;
-
-    const onFocus = async () => {
-      if (isLoggingOut.current) return;
-      try {
-        await refreshWallets();
-      } catch (e: any) {
-        const msg = e?.message || "";
-        if (!/No active session found/i.test(msg)) {
-          console.error("refreshWallets (focus) failed:", e);
-        }
-      }
-    };
-
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
-  }, [authState, clientState, refreshWallets]);
 
   // --- Sign Message ---
   const [message, setMessage] = useState("Hello from Turnkey 👋");
@@ -186,7 +133,6 @@ export default function Dashboard() {
 
       const unsignedHex = serializeTransaction(demoTxObject);
 
-      //
       const res = await turnkey.signTransaction({
         organizationId: session.organizationId,
         walletAccount: firstEmbeddedAccount,
@@ -209,16 +155,10 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     try {
-      isLoggingOut.current = true; // block refresh during logout
       await logout();
       router.replace("/");
     } catch (e) {
       console.error("Logout failed:", e);
-    } finally {
-      // small delay: let navigation finish before re-enabling
-      setTimeout(() => {
-        isLoggingOut.current = false;
-      }, 500);
     }
   };
 
