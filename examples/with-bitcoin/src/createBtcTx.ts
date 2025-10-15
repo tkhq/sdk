@@ -15,8 +15,17 @@ import { getNetwork, isMainnet, parseAddressAgainstPublicKey } from "./util";
 import { estimateFees } from "./fees";
 
 bitcoin.initEccLib(ecc);
+interface PSBTCreationResult {
+  turnkeyClient: TurnkeyServerSDK;
+  bitcoinAddress: string;
+  pair: any;
+  utxosToSpend: any[];
+  psbt: bitcoin.Psbt;
+  addressType: string;
+  network: bitcoin.Network;
+}
 
-async function main() {
+async function createUnsignedPsbt(): Promise<PSBTCreationResult> {
   const publicKeyCompressed = process.env.SOURCE_COMPRESSED_PUBLIC_KEY!;
   const bitcoinAddress = process.env.SOURCE_BITCOIN_ADDRESS!;
 
@@ -166,6 +175,30 @@ async function main() {
     });
   }
 
+  return {
+    turnkeyClient,
+    bitcoinAddress,
+    pair,
+    utxosToSpend,
+    psbt,
+    addressType,
+    network,
+  };
+}
+
+async function main() {
+  // Create PSBT
+  const result = await createUnsignedPsbt();
+  const {
+    turnkeyClient,
+    bitcoinAddress,
+    pair,
+    utxosToSpend,
+    psbt,
+    addressType,
+    network,
+  } = result;
+
   var signer: TurnkeySigner;
   if (addressType === "MainnetP2TR" || addressType === "TestnetP2TR") {
     // For taproot public key needs to be the decoded address, in order to match the output's "public key" (tweaked)
@@ -211,11 +244,16 @@ async function getUTXOs(address: string, network: bitcoin.Network) {
   }
 }
 
-main()
-  .then((res) => {
-    console.log(res);
-  })
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+if (require.main === module) {
+  main()
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
+}
+
+export { createUnsignedPsbt };
+export type { PSBTCreationResult };
