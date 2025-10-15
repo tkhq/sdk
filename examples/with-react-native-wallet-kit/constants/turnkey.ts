@@ -5,6 +5,7 @@ import type {
 
 const ORGANIZATION_ID = process.env.EXPO_PUBLIC_TURNKEY_ORGANIZATION_ID || "";
 const API_BASE_URL = process.env.EXPO_PUBLIC_TURNKEY_API_BASE_URL || "";
+const AUTH_PROXY_URL = process.env.EXPO_PUBLIC_TURNKEY_AUTH_PROXY_URL || "";
 const AUTH_PROXY_CONFIG_ID =
   process.env.EXPO_PUBLIC_TURNKEY_AUTH_PROXY_CONFIG_ID;
 const PASSKEY_RP_ID = process.env.EXPO_PUBLIC_TURNKEY_RPID || "";
@@ -13,6 +14,7 @@ const APP_SCHEME = process.env.EXPO_PUBLIC_APP_SCHEME || "";
 export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
   organizationId: ORGANIZATION_ID,
   apiBaseUrl: API_BASE_URL,
+  authProxyUrl: AUTH_PROXY_URL,
   ...(AUTH_PROXY_CONFIG_ID ? { authProxyConfigId: AUTH_PROXY_CONFIG_ID } : {}),
   passkeyConfig: {
     rpId: PASSKEY_RP_ID,
