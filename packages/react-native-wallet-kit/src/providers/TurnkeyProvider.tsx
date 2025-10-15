@@ -505,6 +505,65 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   }
 
   /**
+   * Initializes the user sessions by fetching all active sessions and setting up their state.
+   * @internal
+   */
+  const initializeSessions = async () => {
+    setSession(undefined);
+    setAllSessions(undefined);
+    try {
+      const allLocalStorageSessions = await getAllSessions();
+      if (!allLocalStorageSessions) return;
+
+      await Promise.all(
+        Object.keys(allLocalStorageSessions).map(async (sessionKey) => {
+          const s = allLocalStorageSessions?.[sessionKey];
+          if (!isValidSession(s)) {
+            await clearSession({ sessionKey });
+            if (sessionKey === (await getActiveSessionKey())) {
+              setSession(undefined);
+            }
+            delete allLocalStorageSessions[sessionKey];
+            return;
+          }
+
+          await scheduleSessionExpiration({
+            sessionKey,
+            expiry: s!.expiry,
+          });
+        }),
+      );
+
+      setAllSessions(allLocalStorageSessions || undefined);
+      const activeSessionKey = await client?.getActiveSessionKey();
+      if (activeSessionKey) {
+        if (!allLocalStorageSessions[activeSessionKey]) {
+          return;
+        }
+        setSession(allLocalStorageSessions[activeSessionKey]);
+        await refreshUser();
+        await refreshWallets();
+        return;
+      }
+    } catch (error) {
+      if (
+        error instanceof TurnkeyError ||
+        error instanceof TurnkeyNetworkError
+      ) {
+        callbacks?.onError?.(error);
+      } else {
+        callbacks?.onError?.(
+          new TurnkeyError(
+            `Failed to initialize sessions`,
+            TurnkeyErrorCodes.INITIALIZE_SESSION_ERROR,
+            error,
+          ),
+        );
+      }
+    }
+  };
+
+  /**
    * @internal
    * Handles the post-authentication flow.
    *
@@ -3112,6 +3171,21 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setAuthState(AuthState.Unauthenticated);
     }
   }, [session]);
+
+  useEffect(() => {
+    // After client and config are ready, initialize sessions then mark client ready.
+    if (!client || !masterConfig) return;
+
+    clearSessionTimeouts();
+
+    initializeSessions().finally(() => {
+      setClientState(ClientState.Ready);
+    });
+
+    return () => {
+      clearSessionTimeouts();
+    };
+  }, [client]);
 
   return (
     <ClientContext.Provider
