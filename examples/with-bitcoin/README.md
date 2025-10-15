@@ -103,7 +103,6 @@ Fetching UTXOs...
 
 ([link to onchain tx](https://mempool.space/testnet/tx/6bcd8e6f7a88a26d6da28ce426c8cde628ce13408ca53a576be6304920d62cbf))
 
-
 ### 4/ Running the policy-enabled Bitcoin transaction signing example
 
 ```bash
@@ -114,11 +113,12 @@ Documentation on our Bitcoin policy engine, and policy-enabled Bitcoin transacti
 
 To use our policy-enabled Bitcoin transaction signing flow, this example will use the `SIGN_TRANSACTION` endpoint with the transaction type `TRANSACTION_TYPE_BITCOIN`, and will pass in a hex serialized PSBT (Partially Signed Bitcoin Transaction).
 
-The script shares code with our other signing flow described in the section above, and will perform the same validation and prompting as above to create the Bitcoin transaction. 
+The script shares code with our other signing flow described in the section above, and will perform the same validation and prompting as above to create the Bitcoin transaction.
 
-Following that it will perform the following actions: 
-1. Policy creation: script will prompt the user to enter an address to allowlist as a receiving address, which it will then use to create a policy in the organization being used. 
-2. Non-root user creation: script will create a non-root user to apply policies to 
+Following that it will perform the following actions:
+
+1. Policy creation: script will prompt the user to enter an address to allowlist as a receiving address, which it will then use to create a policy in the organization being used.
+2. Non-root user creation: script will create a non-root user to apply policies to
 3. Policy enabled transaction signing: script will ATTEMPT to sign the transaction using the policy enabled endpoint as described above. If the address that was used to create the allowlist policy is the SAME as the receiving address you entered while creating the transaction, signing will SUCCEED, if not it will FAIL.
 
 ```
