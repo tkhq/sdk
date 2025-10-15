@@ -1,16 +1,22 @@
 import { Turnkey } from "@turnkey/sdk-server";
-import { TronWeb } from "tronweb";
 import * as dotenv from "dotenv";
 import * as path from "path";
 import { generateP256KeyPair } from "@turnkey/crypto";
+import * as bitcoin from "bitcoinjs-lib";
+import prompts, { PromptType } from "prompts";
+import { isMainnet } from "./util"; 
 
 import createPolicy from "./requests/createPolicy";
 import createUser from "./requests/createUser";
+import { createUnsignedPsbt } from "./createBtcTx";
 
 // load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
+  const psbtCreateInfo = await createUnsignedPsbt();
+  const unsignedPsbtHex = psbtCreateInfo.psbt.toHex();
+
   // initialize Turnkey client
   const turnkeyClient = new Turnkey({
     apiBaseUrl: "https://api.turnkey.com",
@@ -21,10 +27,17 @@ async function main() {
 
   const sendingAddress = process.env.SOURCE_BITCOIN_ADDRESS;
 
-  // contract address of usdt on Nile testnet, its different on mainnet!
-  const receivingTestnetBTCAddress = "tb1qeln8v9chnchymmmgmad374z3qz598y3mahz7ws";
+  let { receivingTestnetBTCAddress } = await prompts([
+    {
+      type: "text" as PromptType,
+      name: "receivingTestnetBTCAddress",
+      message:
+        "Enter receiving address to ALLOW signing via policy (to test failure case, enter something other than the receiving address that you entered while creating your PSBT):",
+    },
+  ]);
+  receivingTestnetBTCAddress = receivingTestnetBTCAddress.trim();
 
-  // create a policy allowing for tether transfer
+  // create a policy allowing for transfer to a particular receiving address
   const policyName = `Bitcoin allow transfer to '${receivingTestnetBTCAddress}'`;
   const effect = "EFFECT_ALLOW";
   const consensus = `approvers.count() == 1`;
@@ -33,7 +46,6 @@ async function main() {
     - One going being the allowlisted receiving address 
     - One being the sending address (change going back to sender)
   */
-  //const condition = `bitcoin.tx.outputs.count() == 2 && bitcoin.tx.outputs[0].address == '${receivingTestnetBTCAddress}' && bitcoin.tx.outputs[1].address == '${sendingAddress}'`;
   const condition = `bitcoin.tx.outputs.count() == 2 && bitcoin.tx.outputs.all(o, o.address in ['${receivingTestnetBTCAddress}','${sendingAddress}'])`;
   const notes = "This policy only allows sending btc to new ";
 
@@ -66,84 +78,36 @@ async function main() {
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
   });
 
-  // initialize TronWeb without a private key
-  const tronWeb = new TronWeb({
-    fullHost: "https://nile.trongrid.io/", // testnet
-  });
-
-  const turnkeyAddress = process.env.TRON_ADDRESS!;
-  // use an invalid address protected by the policy for the tether contract address
-  const fakeUsdtContractAddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-  const recipientAddress = "TY1jfzP3s94oSzYECC89EFn17iA8S4imVZ";
-  const amount = "100";
-  const options = {
-    from: turnkeyAddress,
-    txLocal: true,
-  };
-  const parameters = [
-    { type: "address", value: recipientAddress },
-    { type: "uint256", value: amount },
-  ];
-
-  // create the TriggerSmartContract transaction
-  const failureTriggerSmartContractTx =
-    await tronWeb.transactionBuilder.triggerSmartContract(
-      fakeUsdtContractAddress,
-      "transfer(address,uint256)",
-      options,
-      parameters,
-      options.from,
-    );
-
-  console.log("Expecting to fail signing transaction...");
-  console.log();
-
-  try {
-    // attempt to sign the transaction with the new unprivileged user
-    await newUserTurnkeyClient.apiClient().signTransaction({
-      signWith: turnkeyAddress,
-      unsignedTransaction:
-        failureTriggerSmartContractTx.transaction.raw_data_hex,
-      type: "TRANSACTION_TYPE_TRON",
-    });
-  } catch (e: any) {
-    // this sign transaction activity will fail because the contract address is not the correct usdt contract address specified in the policy
-    console.log("Failed to sign transaction:", e.message, "\n");
-  }
-
-  // create the new transaction with the proper usdt contract address
-  const triggerSmartContractTx =
-    await tronWeb.transactionBuilder.triggerSmartContract(
-      usdtContractAddressNile,
-      "transfer(address,uint256)",
-      options,
-      parameters,
-      options.from,
-    );
-
-  console.log("Expecting to succeed signing transaction...\n");
-
   try {
     // sign the transaction with the new unprivileged user and an allowed amount
     const signedTx = await newUserTurnkeyClient.apiClient().signTransaction({
-      signWith: turnkeyAddress,
-      unsignedTransaction: triggerSmartContractTx.transaction.raw_data_hex,
+      signWith: sendingAddress!,
+      unsignedTransaction: unsignedPsbtHex,
       type: "TRANSACTION_TYPE_BITCOIN",
     });
 
-    // broadcast the transaction
-    const result = await tronWeb.trx.sendHexTransaction(
-      signedTx.signedTransaction,
-    );
+    // parse the signed transaction return value into a psbt object
+    const signedPsbt = bitcoin.Psbt.fromHex(signedTx.signedTransaction);
+    const finalSignedTx = signedPsbt.finalizeAllInputs().extractTransaction();
 
-    console.log("New transaction sent! ID:", result.txid);
-    console.log("https://nile.tronscan.org/#/transaction/" + result.txid);
-  } catch (e: any) {
-    console.log("Failed to sign transaction:", e.message);
+    // To broadcast it: https://mempool.space/tx/push
+    const broadcastUrl = isMainnet(psbtCreateInfo.network)
+      ? "https://mempool.space/tx/push"
+      : "https://mempool.space/testnet/tx/push";
+    console.log(
+      `✅ Transaction signed! To broadcast it, copy and paste the hex payload to ${broadcastUrl}`,
+    );
+    return finalSignedTx.toHex();
+  } catch (error) {
+    throw error;
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main()
+  .then((res) => {
+    console.log(res);
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

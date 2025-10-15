@@ -244,14 +244,16 @@ async function getUTXOs(address: string, network: bitcoin.Network) {
   }
 }
 
-main()
-  .then((res) => {
-    console.log(res);
-  })
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+if (require.main === module) {
+  main()
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
+}
 
   export { createUnsignedPsbt };
   export type { PSBTCreationResult };
