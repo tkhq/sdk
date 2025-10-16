@@ -20,6 +20,11 @@ import type {
   ExportWalletAccountParams,
   ImportWalletParams,
   ImportPrivateKeyParams,
+  HandleDiscordOauthParams,
+  HandleXOauthParams,
+  HandleGoogleOauthParams,
+  HandleAppleOauthParams,
+  HandleFacebookOauthParams,
 } from "./methods";
 
 /*
@@ -211,23 +216,17 @@ export interface ClientContextType
    *
    * @param params.clientId - The Discord Client ID to use (defaults to the client ID from configuration).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
-   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * onOauthSuccess params:
    * - oidcToken: The OIDC token issued by Turnkey after exchanging the auth code.
    * - providerName: The name of the OAuth provider ("discord").
+   * - publicKey: The public key used for the OAuth flow.
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleDiscordOauth: (params?: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }) => Promise<void>;
+  handleDiscordOauth: (params?: HandleDiscordOauthParams) => Promise<void>;
 
   /**
    * Handles the Twitter (X) OAuth 2.0 flow.
@@ -245,23 +244,17 @@ export interface ClientContextType
    *
    * @param params.clientId - The Twitter (X) Client ID to use (defaults to the client ID from configuration).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
-   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * onOauthSuccess params:
    * - oidcToken: The OIDC token issued by Turnkey after exchanging the auth code.
    * - providerName: The name of the OAuth provider ("twitter").
+   * - publicKey: The public key used for the OAuth flow.
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleXOauth: (params?: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }) => Promise<void>;
+  handleXOauth: (params?: HandleXOauthParams) => Promise<void>;
 
   /**
    * Handles the Google OAuth flow.
@@ -277,23 +270,17 @@ export interface ClientContextType
    *
    * @param params.clientId - The Google Client ID to use (defaults to the client ID from configuration).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
-   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * onOauthSuccess params:
    * - oidcToken: The OIDC token received from the OAuth flow.
    * - providerName: The name of the OAuth provider ("google").
+   * - publicKey: The public key used for the OAuth flow.
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleGoogleOauth: (params?: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }) => Promise<void>;
+  handleGoogleOauth: (params?: HandleGoogleOauthParams) => Promise<void>;
 
   /**
    * Handles the Apple OAuth flow.
@@ -309,23 +296,17 @@ export interface ClientContextType
    *
    * @param params.clientId - The Apple Client ID to use (defaults to the client ID from configuration).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
-   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * onOauthSuccess params:
    * - oidcToken: The OIDC token received from the OAuth flow.
    * - providerName: The name of the OAuth provider ("apple").
+   * - publicKey: The public key used for the OAuth flow.
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleAppleOauth: (params?: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }) => Promise<void>;
+  handleAppleOauth: (params?: HandleAppleOauthParams) => Promise<void>;
 
   /**
    * Handles the Facebook OAuth flow.
@@ -342,23 +323,17 @@ export interface ClientContextType
    *
    * @param params.clientId - The Facebook Client ID to use (defaults to the client ID from configuration).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
-   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * onOauthSuccess params:
    * - oidcToken: The OIDC token received from the OAuth flow.
    * - providerName: The name of the OAuth provider ("facebook").
+   * - publicKey: The public key used for the OAuth flow.
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
    * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
-  handleFacebookOauth: (params?: {
-    clientId?: string;
-    additionalState?: Record<string, string>;
-    onOauthSuccess?: (params: {
-      oidcToken: string;
-      providerName: string;
-    }) => any;
-  }) => Promise<void>;
+  handleFacebookOauth: (params?: HandleFacebookOauthParams) => Promise<void>;
 }
 
 /** @internal */

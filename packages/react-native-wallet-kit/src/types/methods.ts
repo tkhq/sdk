@@ -25,7 +25,7 @@ export type HandleDiscordOauthParams = {
     providerName: string;
     publicKey?: string;
     sessionKey?: string;
-  }) => any;
+  }) => void;
 };
 
 export type HandleXOauthParams = {
@@ -36,7 +36,7 @@ export type HandleXOauthParams = {
     providerName: string;
     publicKey?: string;
     sessionKey?: string;
-  }) => any;
+  }) => void;
 };
 
 export type HandleGoogleOauthParams = {
@@ -47,7 +47,7 @@ export type HandleGoogleOauthParams = {
     providerName: string;
     publicKey?: string;
     sessionKey?: string;
-  }) => any;
+  }) => void;
 };
 
 export type HandleAppleOauthParams = {
@@ -58,7 +58,7 @@ export type HandleAppleOauthParams = {
     providerName: string;
     publicKey?: string;
     sessionKey?: string;
-  }) => any;
+  }) => void;
 };
 
 export type HandleFacebookOauthParams = {
@@ -69,7 +69,7 @@ export type HandleFacebookOauthParams = {
     providerName: string;
     publicKey?: string;
     sessionKey?: string;
-  }) => any;
+  }) => void;
 };
 
 // Export helpers
