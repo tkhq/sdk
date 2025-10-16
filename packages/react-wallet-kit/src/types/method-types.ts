@@ -2,6 +2,7 @@ import type {
   OAuthProviders,
   StamperType,
   v1AddressFormat,
+  v1AppProof,
   v1Curve,
   v1HashFunction,
   v1PayloadEncoding,
@@ -246,4 +247,11 @@ export type HandleRemoveUserPhoneNumberParams = {
   successPageDuration?: number | undefined;
   stampWith?: StamperType | undefined;
   organizationId?: string;
+};
+
+export type HandleVerifyAppProofsParams = {
+  appProofs: v1AppProof[];
+  organizationId?: string;
+  stampWith?: StamperType | undefined;
+  successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
 };

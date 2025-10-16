@@ -7,6 +7,7 @@ export type ModalPage = {
   key: string;
   content: ReactNode;
   showTitle?: boolean;
+  showTurnkeyBranding?: boolean;
   preventBack?: boolean;
   onClose?: () => void;
 };

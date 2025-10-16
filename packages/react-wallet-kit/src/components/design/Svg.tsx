@@ -6,8 +6,6 @@ interface SVGProps {
 export function TurnkeyLogo(props: SVGProps) {
   return (
     <svg
-      width="60"
-      height="11"
       viewBox="0 0 60 11"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
