@@ -196,7 +196,10 @@ export default function HomeScreen() {
           {/* Wallet Actions */}
           <ThemedView style={styles.walletActions}>
             <TouchableOpacity
-              style={[styles.createButton, !isClientReady && styles.buttonDisabled]}
+              style={[
+                styles.createButton,
+                !isClientReady && styles.buttonDisabled,
+              ]}
               disabled={!isClientReady}
               onPress={handleCreateWallet}
             >
@@ -205,7 +208,10 @@ export default function HomeScreen() {
               </ThemedText>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.createButton, !isClientReady && styles.buttonDisabled]}
+              style={[
+                styles.createButton,
+                !isClientReady && styles.buttonDisabled,
+              ]}
               disabled={!isClientReady}
               onPress={handleCreateAccount}
             >
@@ -231,7 +237,10 @@ export default function HomeScreen() {
                       </ThemedText>
                     </ThemedView>
                     <TouchableOpacity
-                      style={[styles.walletExportButton, !isClientReady && styles.buttonDisabled]}
+                      style={[
+                        styles.walletExportButton,
+                        !isClientReady && styles.buttonDisabled,
+                      ]}
                       disabled={!isClientReady}
                       onPress={() => handleExportWallet(wallet.walletId)}
                     >
@@ -257,7 +266,10 @@ export default function HomeScreen() {
                             </ThemedText>
                             <ThemedView style={styles.accountButtons}>
                               <TouchableOpacity
-                                style={[styles.signButton, !isClientReady && styles.buttonDisabled]}
+                                style={[
+                                  styles.signButton,
+                                  !isClientReady && styles.buttonDisabled,
+                                ]}
                                 disabled={!isClientReady}
                                 onPress={() => handleSignMessage(account)}
                               >
@@ -266,7 +278,10 @@ export default function HomeScreen() {
                                 </ThemedText>
                               </TouchableOpacity>
                               <TouchableOpacity
-                                style={[styles.exportButton, !isClientReady && styles.buttonDisabled]}
+                                style={[
+                                  styles.exportButton,
+                                  !isClientReady && styles.buttonDisabled,
+                                ]}
                                 disabled={!isClientReady}
                                 onPress={() =>
                                   handleExportAccount(account.address)
