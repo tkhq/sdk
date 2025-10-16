@@ -1,5 +1,21 @@
 # @turnkey/react-native-wallet-kit
 
+## 1.1.0
+
+### Minor Changes
+
+- [#992](https://github.com/tkhq/sdk/pull/992) [`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186) Author [@amircheikh](https://github.com/amircheikh) - - Added `verifyAppProofs` function. Used alongside activities that return app proofs, this function will fetch the corresponding boot proof for a list of app proofs and securely verify them on the client. Learn more about Turnkey Verified [here](https://docs.turnkey.com/security/turnkey-verified)
+  - All auth methods that make signup requests now optionally return a list of `appProofs`
+
+### Patch Changes
+
+- [#1024](https://github.com/tkhq/sdk/pull/1024) [`45e7967`](https://github.com/tkhq/sdk/commit/45e7967e30efd87eaa3f7bf4e732e95b44a8505d) Author [@moeodeh3](https://github.com/moeodeh3) - Removed unintended space from TURNKEY_OAUTH_REDIRECT_URL
+
+- Updated dependencies [[`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186), [`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186), [`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186), [`001d822`](https://github.com/tkhq/sdk/commit/001d8225202500e53aa399d6aee0c8f48f6060e0)]:
+  - @turnkey/crypto@2.8.3
+  - @turnkey/core@1.5.0
+  - @turnkey/sdk-types@0.6.3
+
 ## 1.0.1
 
 ### Patch Changes
