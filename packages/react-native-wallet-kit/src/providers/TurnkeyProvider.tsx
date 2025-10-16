@@ -190,6 +190,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     proxyAuthConfig?: ProxyTGetWalletKitConfigResponse | undefined,
   ) => {
     // Juggle the local overrides with the values set in the dashboard (proxyAuthConfig).
+    // Normalize potentially empty string values coming from the app-level config
+    const sanitizedAuthProxyUrl =
+      config.authProxyUrl && config.authProxyUrl.trim()
+        ? config.authProxyUrl
+        : undefined;
     // Resolve OTP enablement
     const emailOtpEnabled =
       config.auth?.otp?.email ??
@@ -234,6 +239,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
     return {
       ...config,
+      // Ensure empty strings are not forwarded as URLs
+      authProxyUrl: sanitizedAuthProxyUrl,
 
       // Overrides:
       auth: {
@@ -3132,9 +3139,13 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         let proxyAuthConfig: ProxyTGetWalletKitConfigResponse | undefined;
         if (config.authProxyConfigId) {
           // Only fetch the proxy auth config if we have an authProxyId. This is a way for devs to explicitly disable the proxy auth.
+          const sanitizedAuthProxyUrl =
+            config.authProxyUrl && config.authProxyUrl.trim()
+              ? config.authProxyUrl
+              : undefined;
           proxyAuthConfig = await getAuthProxyConfig(
             config.authProxyConfigId,
-            config.authProxyUrl,
+            sanitizedAuthProxyUrl,
           );
           proxyAuthConfigRef.current = proxyAuthConfig;
         }
