@@ -14,7 +14,6 @@ const APP_SCHEME = process.env.EXPO_PUBLIC_APP_SCHEME || "";
 export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
   organizationId: ORGANIZATION_ID,
   apiBaseUrl: API_BASE_URL,
-  authProxyUrl: AUTH_PROXY_URL,
   ...(AUTH_PROXY_CONFIG_ID ? { authProxyConfigId: AUTH_PROXY_CONFIG_ID } : {}),
   passkeyConfig: {
     rpId: PASSKEY_RP_ID,
