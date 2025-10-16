@@ -1,5 +1,12 @@
 # @turnkey/gas-station
 
+## 0.3.3
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@4.10.4
+
 ## 0.3.2
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @turnkey/sdk-react
 
+## 5.4.7
+
+### Patch Changes
+
+- Updated dependencies [[`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186), [`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186)]:
+  - @turnkey/crypto@2.8.3
+  - @turnkey/sdk-types@0.6.3
+  - @turnkey/sdk-browser@5.11.5
+  - @turnkey/wallet-stamper@1.1.5
+  - @turnkey/sdk-server@4.10.4
+
 ## 5.4.6
 
 ### Patch Changes

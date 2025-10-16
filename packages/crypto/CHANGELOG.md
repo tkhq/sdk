@@ -1,5 +1,14 @@
 # @turnkey/crypto
 
+## 2.8.3
+
+### Patch Changes
+
+- [#992](https://github.com/tkhq/sdk/pull/992) [`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186) Author [@amircheikh](https://github.com/amircheikh) - - `verify` function is now exposed and supports web platforms
+
+- Updated dependencies [[`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186)]:
+  - @turnkey/sdk-types@0.6.3
+
 ## 2.8.2
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @turnkey/core
 
+## 1.5.0
+
+### Minor Changes
+
+- [#992](https://github.com/tkhq/sdk/pull/992) [`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186) Author [@amircheikh](https://github.com/amircheikh) - - Added `verifyAppProofs` function. Used alongside activities that return app proofs, this function will fetch the corresponding boot proof for a list of app proofs and securely verify them on the client. Learn more about Turnkey Verified [here](https://docs.turnkey.com/security/turnkey-verified)
+  - All auth methods that make signup requests now optionally return a list of `appProofs`
+
+### Patch Changes
+
+- [#1020](https://github.com/tkhq/sdk/pull/1020) [`001d822`](https://github.com/tkhq/sdk/commit/001d8225202500e53aa399d6aee0c8f48f6060e0) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed an issue in `signAndSendTransaction` where Ethereum embedded wallet transactions failed during broadcast due to missing `0x` prefixes
+
+- Updated dependencies [[`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186), [`5c4495b`](https://github.com/tkhq/sdk/commit/5c4495bff1b0abfe3c427ead1b8e1a8d510c8186)]:
+  - @turnkey/crypto@2.8.3
+  - @turnkey/sdk-types@0.6.3
+
 ## 1.4.2
 
 ### Patch Changes
