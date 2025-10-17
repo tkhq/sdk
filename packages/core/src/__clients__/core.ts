@@ -939,7 +939,7 @@ export class TurnkeyClient {
   loginWithWallet = async (
     params: LoginWithWalletParams,
   ): Promise<WalletAuthResult> => {
-    const publicKey =
+    let generatedPublicKey =
       params.publicKey || (await this.apiKeyStamper?.createKeyPair());
     return withTurnkeyErrorHandling(
       async () => {
@@ -955,7 +955,7 @@ export class TurnkeyClient {
         const expirationSeconds =
           params?.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
-        if (!publicKey) {
+        if (!generatedPublicKey) {
           throw new TurnkeyError(
             "A publickey could not be found or generated.",
             TurnkeyErrorCodes.INTERNAL_ERROR,
@@ -969,7 +969,7 @@ export class TurnkeyClient {
 
         const sessionResponse = await this.httpClient.stampLogin(
           {
-            publicKey,
+            publicKey: generatedPublicKey,
             organizationId:
               params?.organizationId ?? this.config.organizationId,
             expirationSeconds,
@@ -984,12 +984,15 @@ export class TurnkeyClient {
 
         // TODO (Moe): What happens if a user connects to MetaMask on Ethereum,
         // then switches to a Solana account within MetaMask? Will this flow break?
+        const address = addressFromPublicKey(
+          walletProvider.chainInfo.namespace,
+          generatedPublicKey,
+        );
+
+        generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
         return {
           sessionToken: sessionResponse.session,
-          address: addressFromPublicKey(
-            walletProvider.chainInfo.namespace,
-            publicKey,
-          ),
+          address,
         };
       },
       {
@@ -1000,9 +1003,9 @@ export class TurnkeyClient {
         finallyFn: async () => {
           // Clean up the generated key pair if it wasn't successfully used
           this.apiKeyStamper?.clearTemporaryPublicKey();
-          if (publicKey) {
+          if (generatedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(publicKey);
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
             } catch (cleanupError) {
               throw new TurnkeyError(
                 "Failed to clean up generated key pair",

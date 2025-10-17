@@ -1509,7 +1509,7 @@ export default function AuthPage() {
               const provider = await turnkey.fetchWalletProviders(Chain.Solana);
               console.log("Injected Solana Provider:", provider);
               await turnkey.loginWithWallet({
-                walletProvider: provider[1],
+                walletProvider: provider[0],
               });
             }}
             style={{
@@ -1528,7 +1528,7 @@ export default function AuthPage() {
               const provider = await turnkey.fetchWalletProviders(Chain.Solana);
               console.log("Injected Solana Provider:", provider);
               await turnkey.loginOrSignupWithWallet({
-                walletProvider: provider[1],
+                walletProvider: provider[0],
               });
             }}
             style={{
