@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/react-native-wallet-kit",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "The easiest and most powerful way to integrate Turnkey's Embedded Wallets into your React Native applications.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

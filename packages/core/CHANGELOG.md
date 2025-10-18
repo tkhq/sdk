@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 1.5.1
+
+### Patch Changes
+
+- [#1031](https://github.com/tkhq/sdk/pull/1031) [`886f319`](https://github.com/tkhq/sdk/commit/886f319fab8b0ba560d040e34598436f3beceff0) Author [@ethankonk](https://github.com/ethankonk) - Fixed session token getting cleared when using loginWithWallet
+
 ## 1.5.0
 
 ### Minor Changes
