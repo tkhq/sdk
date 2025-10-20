@@ -12,7 +12,7 @@ Experimental [Turnkey](https://turnkey.com) Cosmos Signer for [`CosmJS`](https:/
 
 If you need a lower-level, fully typed HTTP client for interacting with Turnkey API, check out [`@turnkey/http`](https://www.npmjs.com/package/@turnkey/http).
 
-API Docs: https://docs.turnkey.com/
+See more documentation at https://docs.turnkey.com/.
 
 ## Getting started
 
