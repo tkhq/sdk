@@ -1,5 +1,11 @@
 # @turnkey/react-native-wallet-kit
 
+## 1.1.2
+
+### Patch Changes
+
+- [#1025](https://github.com/tkhq/sdk/pull/1025) [`4bfcc1b`](https://github.com/tkhq/sdk/commit/4bfcc1b7eaea3f50bc1f7f7cab851d46f711e671) Author [@taylorjdawson](https://github.com/taylorjdawson) - Fixes clientState initialization and oauth function types
+
 ## 1.1.1
 
 ### Patch Changes
