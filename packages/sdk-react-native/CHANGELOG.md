@@ -1,5 +1,11 @@
 # @turnkey/sdk-react-native
 
+## 1.5.7
+
+### Patch Changes
+
+- [#1027](https://github.com/tkhq/sdk/pull/1027) [`6e25b17`](https://github.com/tkhq/sdk/commit/6e25b171365707a2653dcf171dd4b14d4291838e) Author [@moeodeh3](https://github.com/moeodeh3) - Expand peer dependency range to include newer versions of `react-native-keychain`
+
 ## 1.5.6
 
 ### Patch Changes
