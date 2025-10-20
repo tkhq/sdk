@@ -1,9 +1,10 @@
 import { StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { useEffect } from "react";
 
 import { HelloWave } from "@/components/hello-wave";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { useTurnkey } from "@turnkey/react-native-wallet-kit";
+import { useTurnkey, ClientState } from "@turnkey/react-native-wallet-kit";
 
 export default function HomeScreen() {
   const {
@@ -18,7 +19,15 @@ export default function HomeScreen() {
     signMessage,
     exportWallet,
     exportWalletAccount,
+    clientState,
   } = useTurnkey();
+
+  const isClientReady = clientState === ClientState.Ready;
+
+  useEffect(() => {
+    // Log client state transitions for debugging the provider readiness
+    console.log("[with-rn-wallet-kit] clientState ->", clientState);
+  }, [clientState]);
 
   const handleLogout = async () => {
     await logout();
@@ -126,6 +135,23 @@ export default function HomeScreen() {
           <HelloWave />
         </ThemedView>
 
+        {/* SDK Status */}
+        <ThemedView style={styles.statusContainer}>
+          <ThemedText style={styles.statusLabel}>SDK Status:</ThemedText>
+          <ThemedView
+            style={[
+              styles.statusPill,
+              clientState === ClientState.Ready && styles.statusReady,
+              clientState === ClientState.Loading && styles.statusLoading,
+              clientState === ClientState.Error && styles.statusError,
+            ]}
+          >
+            <ThemedText style={styles.statusPillText}>
+              {clientState ?? "Unknown"}
+            </ThemedText>
+          </ThemedView>
+        </ThemedView>
+
         {/* Session Details Section */}
         {session && (
           <ThemedView style={styles.sessionContainer}>
@@ -170,7 +196,11 @@ export default function HomeScreen() {
           {/* Wallet Actions */}
           <ThemedView style={styles.walletActions}>
             <TouchableOpacity
-              style={styles.createButton}
+              style={[
+                styles.createButton,
+                !isClientReady && styles.buttonDisabled,
+              ]}
+              disabled={!isClientReady}
               onPress={handleCreateWallet}
             >
               <ThemedText style={styles.createButtonText}>
@@ -178,7 +208,11 @@ export default function HomeScreen() {
               </ThemedText>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.createButton}
+              style={[
+                styles.createButton,
+                !isClientReady && styles.buttonDisabled,
+              ]}
+              disabled={!isClientReady}
               onPress={handleCreateAccount}
             >
               <ThemedText style={styles.createButtonText}>
@@ -203,7 +237,11 @@ export default function HomeScreen() {
                       </ThemedText>
                     </ThemedView>
                     <TouchableOpacity
-                      style={styles.walletExportButton}
+                      style={[
+                        styles.walletExportButton,
+                        !isClientReady && styles.buttonDisabled,
+                      ]}
+                      disabled={!isClientReady}
                       onPress={() => handleExportWallet(wallet.walletId)}
                     >
                       <ThemedText style={styles.exportButtonText}>
@@ -228,7 +266,11 @@ export default function HomeScreen() {
                             </ThemedText>
                             <ThemedView style={styles.accountButtons}>
                               <TouchableOpacity
-                                style={styles.signButton}
+                                style={[
+                                  styles.signButton,
+                                  !isClientReady && styles.buttonDisabled,
+                                ]}
+                                disabled={!isClientReady}
                                 onPress={() => handleSignMessage(account)}
                               >
                                 <ThemedText style={styles.signButtonText}>
@@ -236,7 +278,11 @@ export default function HomeScreen() {
                                 </ThemedText>
                               </TouchableOpacity>
                               <TouchableOpacity
-                                style={styles.exportButton}
+                                style={[
+                                  styles.exportButton,
+                                  !isClientReady && styles.buttonDisabled,
+                                ]}
+                                disabled={!isClientReady}
                                 onPress={() =>
                                   handleExportAccount(account.address)
                                 }
@@ -289,6 +335,35 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 20,
     gap: 12,
+  },
+  statusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+  },
+  statusLabel: {
+    fontSize: 12,
+    opacity: 0.8,
+  },
+  statusPill: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: "#e5e7eb",
+  },
+  statusPillText: {
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  statusReady: {
+    backgroundColor: "#bbf7d0",
+  },
+  statusLoading: {
+    backgroundColor: "#fde68a",
+  },
+  statusError: {
+    backgroundColor: "#fecaca",
   },
   sessionInfo: {
     gap: 8,
@@ -358,6 +433,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 6,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   accountsList: {
     marginTop: 8,
