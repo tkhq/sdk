@@ -1,5 +1,11 @@
 # @turnkey/viem
 
+## 0.14.10
+
+### Patch Changes
+
+- [#1030](https://github.com/tkhq/sdk/pull/1030) [`a177cd5`](https://github.com/tkhq/sdk/commit/a177cd5ba4bcb52d7d2121871e50a21f75622667) Author [@Serdnad](https://github.com/Serdnad) - Fix object returned by signAuthorization to not include duplicate 0x prefixes.
+
 ## 0.14.9
 
 ### Patch Changes
