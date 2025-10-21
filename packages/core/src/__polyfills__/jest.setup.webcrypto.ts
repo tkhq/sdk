@@ -140,9 +140,16 @@ const subtle = {
   },
 };
 
-// Attach global `crypto` with subtle + getRandomValues
-globalThis.crypto = globalThis.crypto || {};
-// @ts-expect-error test polyfill
-globalThis.crypto.subtle = subtle;
-// @ts-expect-error test polyfill
-globalThis.crypto.getRandomValues = (arr: Uint8Array) => fillRandom(arr);
+// Attach global `crypto` with subtle + getRandomValues.
+// Use Object.defineProperty since crypto.subtle is read-only (and thus can't be modified in place)
+Object.defineProperty(globalThis.crypto, "subtle", {
+  value: subtle,
+  writable: true,
+  configurable: true,
+});
+
+Object.defineProperty(globalThis.crypto, "getRandomValues", {
+  value: (arr: Uint8Array) => fillRandom(arr),
+  writable: true,
+  configurable: true,
+});
