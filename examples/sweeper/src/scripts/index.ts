@@ -6,13 +6,15 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { ethers } from "ethers";
 import type { Token } from "@uniswap/sdk-core";
-import { toReadableAmount } from "../utils";
+// import { toReadableAmount } from "../utils";
 import { getProvider, getTurnkeySigner } from "../provider";
 import {
   ERC20_ABI,
   UNI_TOKEN_GOERLI,
   USDC_TOKEN_GOERLI,
   WETH_TOKEN_GOERLI,
+  USDC_TOKEN_SEPOLIA,
+  toReadableAmount
 } from "../utils";
 
 import prompts from "prompts";
@@ -31,7 +33,7 @@ async function main() {
   const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0n;
   const address = await connectedSigner.getAddress();
   const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
-  const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
+  const destinationAddress = "<enter destination address>";
 
   print("Network:", `${network.name} (chain ID ${chainId})`);
   print("Address:", address);
@@ -49,11 +51,12 @@ async function main() {
     return;
   }
 
-  if (network.name === "goerli") {
+  if (network.name === "sepolia") {
     const tokens: Token[] = [
-      UNI_TOKEN_GOERLI,
-      USDC_TOKEN_GOERLI,
-      WETH_TOKEN_GOERLI,
+      // UNI_TOKEN_GOERLI,
+      // USDC_TOKEN_GOERLI,
+      // WETH_TOKEN_GOERLI,
+      USDC_TOKEN_SEPOLIA,
     ];
 
     await sweepTokens(

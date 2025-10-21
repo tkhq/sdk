@@ -11,15 +11,15 @@ import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { Environment } from "./utils";
 
 const DEFAULT_INFURA_COMMUNITY_KEY = "84842078b09946638c03157f83405213";
-const DEFAULT_ENV = Environment.GOERLI;
+const DEFAULT_ENV = Environment.SEPOLIA;
 
 let provider = new ethers.InfuraProvider(
   DEFAULT_ENV,
   process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY,
 );
 
-export function getProvider(env = Environment.GOERLI): ethers.Provider {
-  if (env !== Environment.GOERLI) {
+export function getProvider(env = Environment.SEPOLIA): ethers.Provider {
+  if (env !== Environment.SEPOLIA) {
     provider = new ethers.InfuraProvider(
       env,
       process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY,

@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "pnpm -w run build-all && tsx src/scripts/index.ts",
+    "sweep": "tsx src/scripts/index.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },

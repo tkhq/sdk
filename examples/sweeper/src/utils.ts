@@ -6,6 +6,7 @@ import { ChainId, Token } from "@uniswap/sdk-core";
 export enum Environment {
   GOERLI = "goerli",
   MAINNET = "mainnet",
+  SEPOLIA = "sepolia"
 }
 
 // Currencies and Tokens
@@ -37,6 +38,14 @@ export const USDC_TOKEN_MAINNET = new Token(
 export const USDC_TOKEN_GOERLI = new Token(
   ChainId.GOERLI,
   "0x07865c6E87B9F70255377e024ace6630C1Eaa37F",
+  6,
+  "USDC",
+  "USD//C",
+);
+
+export const USDC_TOKEN_SEPOLIA = new Token(
+  ChainId.SEPOLIA,
+  "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
   6,
   "USDC",
   "USD//C",
