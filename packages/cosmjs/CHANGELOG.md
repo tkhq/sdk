@@ -1,5 +1,11 @@
 # @turnkey/cosmjs
 
+## 0.8.10
+
+### Patch Changes
+
+- [#1036](https://github.com/tkhq/sdk/pull/1036) [`13de561`](https://github.com/tkhq/sdk/commit/13de561bfe7e8a8ce26e4a5308d05be450868535) Author [@andrewkmin](https://github.com/andrewkmin) - noop: readme update
+
 ## 0.8.9
 
 ### Patch Changes
