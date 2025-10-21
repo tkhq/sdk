@@ -7,12 +7,16 @@ runs:
   steps:
     # https://github.com/actions/setup-node
     - name: Install Node.js
-      uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
+      uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
       with:
         node-version-file: ".nvmrc"
 
+    - name: Use recent version of npm
+      run: npm install -g npm@11.5.1
+      shell: bash
+
     - name: Use corepack to activate pnpm
-      run: npm i -g corepack@0.31.0 && corepack enable
+      run: npm i -g corepack@0.34.1 && corepack enable
       shell: bash
 
     - name: Audit dependencies (before installing anything)
@@ -28,7 +32,7 @@ runs:
 
     # https://github.com/actions/cache
     - name: Setup pnpm store cache
-      uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
         path: ${{ steps.pnpm-cache-dir.outputs.dir }}
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
