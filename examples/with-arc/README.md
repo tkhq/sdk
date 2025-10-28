@@ -46,7 +46,7 @@ different values.
 
 ### 3/ Running the scripts
 
- The following is the default:
+The following is the default:
 
 ```bash
 $ pnpm start
