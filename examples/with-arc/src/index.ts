@@ -161,7 +161,7 @@ async function main() {
 
         const { retry } = await prompts([
           {
-            type: "text" as PromptType,
+            type: "text",
             name: "retry",
             message: "Consensus reached? y/n",
             initial: "y",
