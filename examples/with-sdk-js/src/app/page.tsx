@@ -103,7 +103,7 @@ export default function AuthPage() {
     if (authState === AuthState.Authenticated) {
       handleGetActiveSessionKey();
     }
-  }, [authState, session]);
+  }, [authState, session, turnkey]);
 
   useEffect(() => {
     console.log("Client state", clientState);
@@ -1482,6 +1482,26 @@ export default function AuthPage() {
             }}
           >
             Connect A Wallet
+          </button>
+
+          <button
+            onClick={async () => {
+              const walletProviders = await turnkey.fetchWalletProviders();
+              const request = await turnkey.buildWalletLoginRequest({
+                walletProvider: walletProviders[0],
+                expirationSeconds: "123",
+              });
+
+              console.log("Built Wallet Login Request:", { request });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Build Login with Wallet Request
           </button>
 
           <button

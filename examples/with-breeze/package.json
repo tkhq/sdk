@@ -49,7 +49,6 @@
     "install": "^0.13.0",
     "next": "^14.2.25",
     "npm": "^9.9.4",
-    "playwright-core": "^1.55.0",
     "postcss": "^8.5.6",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -59,6 +58,6 @@
     "viem": "2.34.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "^1.55.1"
   }
 }
