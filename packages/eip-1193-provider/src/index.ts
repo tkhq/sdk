@@ -180,7 +180,7 @@ export const createEIP1193Provider = async (
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
-          
+
           return signedMessage;
         }
         case "eth_signTransaction": {
