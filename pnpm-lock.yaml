@@ -1261,9 +1261,6 @@ importers:
       npm:
         specifier: ^9.9.4
         version: 9.9.4
-      playwright-core:
-        specifier: ^1.55.0
-        version: 1.55.0
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -1853,9 +1850,6 @@ importers:
       npm:
         specifier: ^9.9.4
         version: 9.9.4
-      playwright-core:
-        specifier: ^1.55.0
-        version: 1.55.0
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -2131,9 +2125,12 @@ importers:
       npm:
         specifier: ^9.7.2
         version: 9.9.4
+<<<<<<< HEAD
       playwright-core:
         specifier: ^1.55.1
         version: 1.55.1
+=======
+>>>>>>> f1834709 (fix playwright version conflicts)
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -2157,7 +2154,14 @@ importers:
         version: 2.34.0(bufferutil@4.0.9)(typescript@5.1.3)(utf-8-validate@5.0.10)(zod@3.25.76)
     devDependencies:
       '@playwright/test':
+<<<<<<< HEAD
         specifier: ^1.55.1
+=======
+        specifier: ^1.55.0
+        version: 1.55.0
+      playwright-core:
+        specifier: ^1.55.0
+>>>>>>> f1834709 (fix playwright version conflicts)
         version: 1.56.1
 
   examples/with-sdk-server:
@@ -12946,13 +12950,13 @@ packages:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
 
-  playwright-core@1.55.0:
-    resolution: {integrity: sha512-GvZs4vU3U5ro2nZpeiwyb0zuFaqb9sUiAJuyrWpcGouD8y9/HLgGbNRjIph7zU9D3hnPaisMl9zG9CgFi/biIg==}
+  playwright-core@1.55.1:
+    resolution: {integrity: sha512-Z6Mh9mkwX+zxSlHqdr5AOcJnfp+xUWLCt9uKV18fhzA8eyxUd8NUWzAjxUh55RZKSYwDGX0cfaySdhZJGMoJ+w==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright-core@1.55.1:
-    resolution: {integrity: sha512-Z6Mh9mkwX+zxSlHqdr5AOcJnfp+xUWLCt9uKV18fhzA8eyxUd8NUWzAjxUh55RZKSYwDGX0cfaySdhZJGMoJ+w==}
+  playwright-core@1.56.1:
+    resolution: {integrity: sha512-hutraynyn31F+Bifme+Ps9Vq59hKuUCz7H1kDOcBs+2oGguKkWTU50bBWrtz34OUWmIwpBTWDxaRPXrIXkgvmQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -31582,9 +31586,9 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
-  playwright-core@1.55.0: {}
-
   playwright-core@1.55.1: {}
+
+  playwright-core@1.56.1: {}
 
   playwright@1.55.1:
     dependencies:
