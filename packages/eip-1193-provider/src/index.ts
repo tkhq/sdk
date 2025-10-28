@@ -116,9 +116,19 @@ export const createEIP1193Provider = async (
             organizationId,
             walletId,
           });
-          walletAccounts.accounts.map(({ address }: { address: string }) => {
-            accounts.add(address as Address);
-          });
+          walletAccounts.accounts.map(
+            ({
+              address,
+              addressFormat,
+            }: {
+              address: string;
+              addressFormat: string;
+            }) => {
+              if (addressFormat === "ADDRESS_FORMAT_ETHEREUM") {
+                accounts.add(address as Address);
+              }
+            },
+          );
           setConnected(true, { chainId: activeChain.chainId });
           return [...accounts];
         }
@@ -170,6 +180,7 @@ export const createEIP1193Provider = async (
             client: turnkeyClient,
           });
           setConnected(true, { chainId: activeChain.chainId });
+          
           return signedMessage;
         }
         case "eth_signTransaction": {
@@ -206,23 +217,27 @@ export const createEIP1193Provider = async (
             throw new ChainIdMismatchError(chain.chainId as Hex, rpcChainId);
           }
 
-          addedChains.push({ ...chain, connected: true });
+          // Only add if it hasn't been added already
+          if (!addedChains.some((c) => c.chainId === rpcChainId)) {
+            addedChains.push({ ...chain, connected: true });
+          }
 
           return null;
         }
 
         case "wallet_switchEthereumChain": {
-          const [targetChainId] = params as [string];
-          const targetChain = addedChains.find(
-            (chain) => chain.chainId === targetChainId,
-          );
+          const [targetChainId] = params as [{ chainId: string }];
+          const targetChain = addedChains.find((chain) => {
+            return chain.chainId === targetChainId.chainId;
+          });
 
           if (!targetChain) {
-            throw new UnrecognizedChainError(targetChainId);
+            throw new UnrecognizedChainError(targetChainId.chainId);
           }
 
           activeChain = targetChain;
           eventEmitter.emit("chainChanged", { chainId: activeChain.chainId });
+
           return null;
         }
         // @ts-expect-error fall through expected
