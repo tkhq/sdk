@@ -1,5 +1,11 @@
 # @turnkey/crypto
 
+## 2.8.4
+
+### Patch Changes
+
+- [#1050](https://github.com/tkhq/sdk/pull/1050) [`c745646`](https://github.com/tkhq/sdk/commit/c745646ae4b2a275e116abca07c6e108f89beb04) Author [@amircheikh](https://github.com/amircheikh) - - Removed `@peculiar/webcrypto` dependancy. This will fix build errors in environments where `webcrypto` is not defined but will still require a polyfill if you use a function where `webcrypto` is required.
+
 ## 2.8.3
 
 ### Patch Changes
