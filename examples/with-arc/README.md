@@ -2,13 +2,11 @@
 
 This example shows how to construct and broadcast a transaction on the Arc testnet using Turnkey.
 
-If you want to see a similar EVM demo with passkeys, head to the example [`with-ethers-and-passkeys`](../with-ethers-and-passkeys/).
-
 ## Getting started
 
 ### 1/ Cloning the example
 
-Make sure you have `Node.js` installed locally; we recommend using Node v18+.
+Make sure you have `Node.js` installed locally; we recommend using Node v20+.
 
 ```bash
 $ git clone https://github.com/tkhq/sdk
