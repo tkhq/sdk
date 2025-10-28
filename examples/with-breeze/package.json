@@ -58,6 +58,6 @@
     "viem": "2.34.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "^1.55.1"
   }
 }
