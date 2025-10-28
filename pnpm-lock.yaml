@@ -2897,9 +2897,6 @@ importers:
       '@noble/hashes':
         specifier: 1.8.0
         version: 1.8.0
-      '@peculiar/webcrypto':
-        specifier: 1.5.0
-        version: 1.5.0
       '@peculiar/x509':
         specifier: 1.12.3
         version: 1.12.3
