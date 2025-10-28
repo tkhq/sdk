@@ -17,20 +17,9 @@ export const getCryptoInstance = async () => {
     x509.cryptoProvider.set(cryptoInstance);
 
     return cryptoInstance;
-  }
-
-  try {
-    // Dynamic import to prevent bundling in environments that already have WebCrypto
-    const { Crypto: PeculiarCrypto } = await import("@peculiar/webcrypto");
-    cryptoInstance = new PeculiarCrypto();
-    x509.cryptoProvider.set(cryptoInstance);
-    return cryptoInstance;
-  } catch {
-    // Happens usually on React Native
+  } else {
     throw new Error(
-      "No WebCrypto implementation found. " +
-        "In React Native, please polyfill `global.crypto.subtle` (e.g., with `react-native-webcrypto`) " +
-        "before calling verify().",
+      "Web Crypto API is not available in this environment. You may need to polyfill it.",
     );
   }
 };
