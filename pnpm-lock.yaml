@@ -2125,12 +2125,6 @@ importers:
       npm:
         specifier: ^9.7.2
         version: 9.9.4
-<<<<<<< HEAD
-      playwright-core:
-        specifier: ^1.55.1
-        version: 1.55.1
-=======
->>>>>>> f1834709 (fix playwright version conflicts)
       postcss:
         specifier: ^8.5.6
         version: 8.5.6
@@ -2154,14 +2148,10 @@ importers:
         version: 2.34.0(bufferutil@4.0.9)(typescript@5.1.3)(utf-8-validate@5.0.10)(zod@3.25.76)
     devDependencies:
       '@playwright/test':
-<<<<<<< HEAD
-        specifier: ^1.55.1
-=======
         specifier: ^1.55.0
-        version: 1.55.0
+        version: 1.56.1
       playwright-core:
         specifier: ^1.55.0
->>>>>>> f1834709 (fix playwright version conflicts)
         version: 1.56.1
 
   examples/with-sdk-server:
