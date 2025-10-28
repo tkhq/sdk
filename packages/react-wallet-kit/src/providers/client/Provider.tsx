@@ -1348,6 +1348,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
 
       const expirationSeconds =
+        params?.expirationSeconds ??
         masterConfig?.auth?.sessionExpirationSeconds ??
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
@@ -1393,6 +1394,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           : { ...params };
 
       const expirationSeconds =
+        params?.expirationSeconds ??
         masterConfig?.auth?.sessionExpirationSeconds ??
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
@@ -1544,6 +1546,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
 
       const expirationSeconds =
+        params?.expirationSeconds ??
         masterConfig?.auth?.sessionExpirationSeconds ??
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       return await withTurnkeyErrorHandling(
@@ -1566,6 +1569,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
 
       const expirationSeconds =
+        params?.expirationSeconds ??
         masterConfig?.auth?.sessionExpirationSeconds ??
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
@@ -1611,6 +1615,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           : { ...params };
 
       const expirationSeconds =
+        params?.expirationSeconds ??
         masterConfig?.auth?.sessionExpirationSeconds ??
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
@@ -1658,6 +1663,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           : { ...params };
 
       const expirationSeconds =
+        params?.expirationSeconds ??
         masterConfig?.auth?.sessionExpirationSeconds ??
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
