@@ -1,0 +1,31 @@
+{
+  "name": "@turnkey/wallet-auth",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@noble/hashes": "1.4.0",
+    "@tailwindcss/postcss": "4.1.13",
+    "@turnkey/core": "workspace:*",
+    "@turnkey/react-wallet-kit": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "@types/node": "20.3.1",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
+    "ethers": "^6.15.0",
+    "next": "15.5.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-hook-form": "7.45.1",
+    "tailwindcss": "4.1.13",
+    "typescript": "5.4.3",
+    "viem": "2.34.0"
+  },
+  "packageManager": "pnpm@10.6.3+sha512.bb45e34d50a9a76e858a95837301bfb6bd6d35aea2c5d52094fa497a467c43f5c440103ce2511e9e0a2f89c3d6071baac3358fc68ac6fb75e2ceb3d2736065e6"
+}
