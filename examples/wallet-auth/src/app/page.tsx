@@ -124,6 +124,7 @@ export default function AuthPage() {
             width={100}
             height={24}
             priority
+            style={{ height: "24px", width: "auto" }}
           />
         </a>
       </header>
