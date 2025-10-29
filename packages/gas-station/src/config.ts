@@ -13,6 +13,7 @@ export interface GasStationConfig {
   walletClient: WalletClient<Transport, Chain, Account>;
   delegateContract?: Hex;
   executionContract?: Hex;
+  defaultGasLimit?: bigint;
 }
 
 export interface ChainPreset {
@@ -42,6 +43,12 @@ export interface ExecutionIntent {
   callData: Hex;
   signature: Hex;
   eoaAddress: Hex;
+}
+
+export interface ApprovalExecutionIntent extends ExecutionIntent {
+  erc20Address: Hex; // The ERC20 token to approve
+  spender: Hex; // The address to approve for spending
+  approveAmount: bigint; // The amount to approve
 }
 
 // Chain preset configurations

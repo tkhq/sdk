@@ -6,7 +6,11 @@ import {
   type Transport,
   type Hex,
 } from "viem";
-import type { ContractCallParams, ExecutionIntent } from "./config";
+import type {
+  ContractCallParams,
+  ExecutionIntent,
+  ApprovalExecutionIntent,
+} from "./config";
 import { ERC20_ABI } from "./gasStationUtils";
 
 interface IntentBuilderConfig {
@@ -176,6 +180,83 @@ export class IntentBuilder {
       callData: this.callData,
       signature,
       eoaAddress: this.config.eoaAddress,
+    };
+  }
+
+  /**
+   * Signs an approval then execution intent using EIP-712
+   * This allows atomic approval of an ERC20 token followed by execution
+   * Returns a complete ApprovalExecutionIntent ready for execution
+   */
+  async signApprovalExecution(
+    currentNonce: bigint,
+    erc20Address: Hex,
+    spender: Hex,
+    approveAmount: bigint,
+  ): Promise<ApprovalExecutionIntent> {
+    if (!this.outputContract) {
+      throw new Error(
+        "No target contract set. Use setTarget() or callContract()",
+      );
+    }
+
+    const nonce = this.nonce ?? currentNonce;
+    // Default deadline: 1 hour from now
+    const deadline = this.deadline ?? Math.floor(Date.now() / 1000) + 60 * 60;
+
+    // EIP-712 domain and types for approve then execute
+    const domain = {
+      name: "TKGasDelegate",
+      version: "1",
+      chainId: this.config.chainId,
+      verifyingContract: this.config.eoaAddress,
+    };
+
+    // Based on hashApproveThenExecute from the contract
+    // keccak256("ApproveThenExecute(uint128 nonce,uint32 deadline,address erc20Contract,address spender,uint256 approveAmount,address outputContract,uint256 ethAmount,bytes arguments)")
+    const types = {
+      ApproveThenExecute: [
+        { name: "nonce", type: "uint128" },
+        { name: "deadline", type: "uint32" },
+        { name: "erc20Contract", type: "address" },
+        { name: "spender", type: "address" },
+        { name: "approveAmount", type: "uint256" },
+        { name: "outputContract", type: "address" },
+        { name: "ethAmount", type: "uint256" },
+        { name: "arguments", type: "bytes" },
+      ],
+    };
+
+    const message = {
+      nonce,
+      deadline,
+      erc20Contract: erc20Address,
+      spender,
+      approveAmount,
+      outputContract: this.outputContract,
+      ethAmount: this.ethAmount,
+      arguments: this.callData,
+    };
+
+    const signature = await this.config.eoaWalletClient.signTypedData({
+      account: this.config.eoaWalletClient.account,
+      domain,
+      types,
+      primaryType: "ApproveThenExecute",
+      message,
+    });
+
+    return {
+      nonce,
+      deadline,
+      outputContract: this.outputContract,
+      ethAmount: this.ethAmount,
+      callData: this.callData,
+      signature,
+      eoaAddress: this.config.eoaAddress,
+      erc20Address,
+      spender,
+      approveAmount,
     };
   }
 

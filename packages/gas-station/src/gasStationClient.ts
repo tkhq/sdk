@@ -9,7 +9,11 @@ import {
   type Hex,
 } from "viem";
 import { gasStationAbi } from "./abi/gas-station";
-import type { GasStationConfig, ExecutionIntent } from "./config";
+import type {
+  GasStationConfig,
+  ExecutionIntent,
+  ApprovalExecutionIntent,
+} from "./config";
 import {
   DEFAULT_DELEGATE_CONTRACT,
   DEFAULT_EXECUTION_CONTRACT,
@@ -285,6 +289,110 @@ export class GasStationClient {
       const revertReason = await this.getRevertReason(txHash);
       throw new Error(
         `Execution failed: ${revertReason || "Transaction reverted"}. ` +
+          `Gas used: ${receipt.gasUsed}/${receipt.cumulativeGasUsed}. ` +
+          `Transaction hash: ${txHash}`,
+      );
+    }
+
+    return {
+      txHash,
+      blockNumber: receipt.blockNumber,
+      gasUsed: receipt.gasUsed,
+    };
+  }
+
+  /**
+   * Sign an approval then execution transaction for a signed intent (paymaster signs, doesn't send)
+   * This is useful for testing policies - the paymaster attempts to sign the execution
+   * but doesn't actually broadcast it to the network.
+   * Call this with a paymaster client to test if the paymaster can sign the execution.
+   */
+  async signApproveThenExecution(
+    intent: ApprovalExecutionIntent,
+  ): Promise<Hex> {
+    // Pack the execution data (signature, nonce, deadline, args)
+    const packedData = packExecutionData({
+      signature: intent.signature,
+      nonce: intent.nonce,
+      deadline: intent.deadline,
+      args: intent.callData,
+    });
+
+    // Encode the function call data
+    const callData = encodeFunctionData({
+      abi: gasStationAbi,
+      functionName: "approveThenExecute",
+      args: [
+        intent.eoaAddress,
+        intent.outputContract,
+        intent.ethAmount,
+        intent.erc20Address,
+        intent.spender,
+        intent.approveAmount,
+        packedData,
+      ],
+    });
+
+    // Sign the transaction without sending it
+    const signedTx = await this.walletClient.signTransaction({
+      to: this.executionContract,
+      data: callData,
+      gas: BigInt(300000),
+      type: "eip1559",
+      account: this.walletClient.account,
+      chain: this.walletClient.chain,
+    });
+
+    return signedTx;
+  }
+
+  /**
+   * Execute an approval then execution through the gas station contract.
+   * Atomically approves an ERC20 token and executes a transaction in a single call.
+   * Packs the execution data according to the delegate contract's expected format and
+   * submits it via the execution contract's approveThenExecute function.
+   * Call this with a paymaster client to submit and pay for the transaction.
+   */
+  async approveThenExecute(
+    intent: ApprovalExecutionIntent,
+  ): Promise<{ txHash: Hex; blockNumber: bigint; gasUsed: bigint }> {
+    // Pack the execution data (signature, nonce, deadline, args)
+    const packedData = packExecutionData({
+      signature: intent.signature,
+      nonce: intent.nonce,
+      deadline: intent.deadline,
+      args: intent.callData,
+    });
+
+    // Call the approveThenExecute function with all parameters
+    const txHash = await this.walletClient.sendTransaction({
+      to: this.executionContract,
+      data: encodeFunctionData({
+        abi: gasStationAbi,
+        functionName: "approveThenExecute",
+        args: [
+          intent.eoaAddress,
+          intent.outputContract,
+          intent.ethAmount,
+          intent.erc20Address,
+          intent.spender,
+          intent.approveAmount,
+          packedData,
+        ],
+      }),
+      gas: BigInt(300000),
+      account: this.walletClient.account,
+    });
+
+    const receipt = await this.publicClient.waitForTransactionReceipt({
+      hash: txHash,
+    });
+
+    if (receipt.status !== "success") {
+      // Try to get the revert reason if available
+      const revertReason = await this.getRevertReason(txHash);
+      throw new Error(
+        `Approve then execute failed: ${revertReason || "Transaction reverted"}. ` +
           `Gas used: ${receipt.gasUsed}/${receipt.cumulativeGasUsed}. ` +
           `Transaction hash: ${txHash}`,
       );
