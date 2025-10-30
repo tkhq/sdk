@@ -1,5 +1,19 @@
 # @turnkey/core
 
+## 1.6.0
+
+### Minor Changes
+
+- [#1058](https://github.com/tkhq/sdk/pull/1058) [`9fbd5c4`](https://github.com/tkhq/sdk/commit/9fbd5c459782dc3721dd0935d0a4458babce258b) Author [@moeodeh3](https://github.com/moeodeh3) - Update per mono release `v2025.10.10-hotfix.2`
+
+### Patch Changes
+
+- Updated dependencies [[`9fbd5c4`](https://github.com/tkhq/sdk/commit/9fbd5c459782dc3721dd0935d0a4458babce258b)]:
+  - @turnkey/sdk-types@0.7.0
+  - @turnkey/http@3.14.0
+  - @turnkey/crypto@2.8.5
+  - @turnkey/react-native-passkey-stamper@1.2.4
+
 ## 1.5.2
 
 ### Patch Changes
