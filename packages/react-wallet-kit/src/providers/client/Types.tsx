@@ -34,6 +34,7 @@ import type {
   HandleImportPrivateKeyParams,
   HandleImportWalletParams,
   HandleLoginParams,
+  HandleOnRampParams,
   HandleRemoveOauthProviderParams,
   HandleRemovePasskeyParams,
   HandleRemoveUserEmailParams,
@@ -741,8 +742,33 @@ export type ClientContextType = Override<
     handleVerifyAppProofs: (
       params: HandleVerifyAppProofsParams,
     ) => Promise<void>;
+
+    /**
+     * Handles the fiat on-ramp process for converting fiat currency into crypto and funding a wallet.
+     *
+     * - This function initializes a fiat on-ramp transaction with a specified provider (e.g., Coinbase),
+     *   opens the provider flow in a new window, and monitors the transaction status via polling.
+     * - A modal is displayed to show the progress and success state of the on-ramp flow.
+     * - Supports both sandbox and production modes.
+     *
+     * @param params.walletAddress - the wallet address to fund.
+     * @param params.network - the blockchain network to use.
+     * @param params.cryptoCurrencyCode - the crypto asset to receive.
+     * @param params.fiatCurrencyAmount - the fiat amount to convert.
+     * @param params.onrampProvider - the fiat on-ramp provider (defaults to Coinbase).
+     * @param params.sandboxMode - whether to use sandbox mode (default: true).
+     * @param params.organizationId - optional organization ID to target.
+     * @param params.userId - optional user ID to target.
+     * @param params.stampWith - optional stamper type.
+     * @param params.successPageDuration - duration (in ms) for the success page after completion (default: 5000).
+     * @returns A promise that resolves when the on-ramp flow completes successfully.
+     * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.
+     */
+    handleOnRamp: (params: HandleOnRampParams) => Promise<void>;
+
   }
 >;
+
 
 /** @internal */
 export const ClientContext = createContext<ClientContextType | undefined>(

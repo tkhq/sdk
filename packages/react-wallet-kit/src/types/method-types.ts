@@ -4,6 +4,9 @@ import type {
   v1AddressFormat,
   v1AppProof,
   v1Curve,
+  v1FiatOnRampBlockchainNetwork,
+  v1FiatOnRampCryptoCurrency,
+  v1FiatOnRampProvider,
   v1HashFunction,
   v1PayloadEncoding,
   v1WalletAccountParams,
@@ -252,6 +255,19 @@ export type HandleRemoveUserPhoneNumberParams = {
 export type HandleVerifyAppProofsParams = {
   appProofs: v1AppProof[];
   organizationId?: string;
+  stampWith?: StamperType | undefined;
+  successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+};
+
+export type HandleOnRampParams = {
+  walletAddress: string;
+  network: v1FiatOnRampBlockchainNetwork;
+  cryptoCurrencyCode: v1FiatOnRampCryptoCurrency;
+  fiatCurrencyAmount: string;
+  onrampProvider?: v1FiatOnRampProvider;
+  sandboxMode?: boolean;
+  organizationId?: string;
+  userId?: string;
   stampWith?: StamperType | undefined;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
 };
