@@ -875,7 +875,7 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
-  examples/wallet-auth:
+  examples/wallet-auth/with-backend:
     dependencies:
       '@noble/hashes':
         specifier: 1.4.0
@@ -883,15 +883,12 @@ importers:
       '@tailwindcss/postcss':
         specifier: 4.1.13
         version: 4.1.13
-      '@turnkey/core':
-        specifier: workspace:*
-        version: link:../../packages/core
       '@turnkey/react-wallet-kit':
         specifier: workspace:*
-        version: link:../../packages/react-wallet-kit
+        version: link:../../../packages/react-wallet-kit
       '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../packages/sdk-server
+        version: link:../../../packages/sdk-server
       '@types/node':
         specifier: 20.3.1
         version: 20.3.1
