@@ -2,8 +2,7 @@
 
 This is a minimal Next.js app showing how to implement [external wallets authentication](https://docs.turnkey.com/sdks/react/using-external-wallets/overview) (e.g. MetaMask, Phantom, etc) with Turnkey using the [@turnkey/react-wallet-kit](https://docs.turnkey.com/sdks/react), wired up to **your own backend** via Next.js Server Actions (see: [Advanced backend authentication](https://docs.turnkey.com/sdks/react/advanced-backend-authentication)).
 
->Using your own backend is **optional** — it’s an alternative to the Turnkey [Auth Proxy](https://docs.turnkey.com/reference/auth-proxy) for teams that prefer to manage authentication themselves.
-
+> Using your own backend is **optional** — it’s an alternative to the Turnkey [Auth Proxy](https://docs.turnkey.com/reference/auth-proxy) for teams that prefer to manage authentication themselves.
 
 ### What this demo shows
 
@@ -25,8 +24,8 @@ Once logged in, access a dashboard with two panels:
 - For **Ethereum wallets**, the public key cannot be derived from the wallet address alone — it’s extracted from the signature included in the stamped login request.
 - For **Solana wallets**, the wallet address itself is the public key, so it’s retrieved directly from the connected wallet.
 - Returns both:
-> `publicKey` — the derived or extracted wallet public key.
-> `signedRequest` — the signed login request, used later by your backend to find or create the sub-organization associated with that public key.
+  > `publicKey` — the derived or extracted wallet public key.
+  > `signedRequest` — the signed login request, used later by your backend to find or create the sub-organization associated with that public key.
 
 2. Find or create a sub-organization for the connected wallet:
 

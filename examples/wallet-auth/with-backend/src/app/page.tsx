@@ -3,16 +3,24 @@
 import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useTurnkey, AuthState, type WalletProvider } from "@turnkey/react-wallet-kit";
-import { sendSignedRequest } from "@turnkey/core/dist/utils";
+import {
+  useTurnkey,
+  AuthState,
+  type WalletProvider,
+  sendSignedRequest,
+} from "@turnkey/react-wallet-kit";
 import { getSuborgsAction, createSuborgAction } from "@/server/actions/turnkey";
 
 type CurveType = "API_KEY_CURVE_ED25519" | "API_KEY_CURVE_SECP256K1";
 
 export default function AuthPage() {
   const router = useRouter();
-  const { fetchWalletProviders, buildWalletLoginRequest, storeSession, authState } =
-    useTurnkey();
+  const {
+    fetchWalletProviders,
+    buildWalletLoginRequest,
+    storeSession,
+    authState,
+  } = useTurnkey();
 
   // UI state
   const [err, setErr] = useState<string | null>(null);
@@ -26,7 +34,7 @@ export default function AuthPage() {
     null,
   );
 
-   // If already authenticated, go to dashboard.
+  // If already authenticated, go to dashboard.
   useEffect(() => {
     if (authState === AuthState.Authenticated) {
       router.push("/dashboard");
@@ -110,9 +118,8 @@ export default function AuthPage() {
       if (!sessionToken)
         throw new Error("Session token not found in the response.");
 
-    await storeSession({ sessionToken });
-    window.location.replace("/dashboard");
-
+      await storeSession({ sessionToken });
+      window.location.replace("/dashboard");
     } catch (e: any) {
       console.error(e);
       setErr(e?.message || "Login failed.");
