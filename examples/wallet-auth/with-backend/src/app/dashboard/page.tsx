@@ -24,13 +24,7 @@ function safeStringify(x: unknown) {
 }
 
 export default function Dashboard() {
-  const {
-    httpClient,
-    authState,
-    logout,
-    session,
-    wallets
-  } = useTurnkey();
+  const { httpClient, authState, logout, session, wallets } = useTurnkey();
   const router = useRouter();
 
   const turnkey = useTurnkey();
@@ -126,7 +120,6 @@ export default function Dashboard() {
 
   const onSignDemoTx = async () => {
     try {
-     
       if (!httpClient) throw new Error("HTTP client not ready.");
       if (!session?.organizationId) throw new Error("Missing organization id.");
       if (!firstEmbeddedAccount) throw new Error("No EVM account found.");
