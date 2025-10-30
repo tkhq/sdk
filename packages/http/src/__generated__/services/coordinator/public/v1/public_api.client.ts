@@ -261,6 +261,10 @@ import type {
 } from "./public_api.fetcher";
 import type { TEmailAuthBody, TEmailAuthResponse } from "./public_api.fetcher";
 import type {
+  TEthSendRawTransactionBody,
+  TEthSendRawTransactionResponse,
+} from "./public_api.fetcher";
+import type {
   TExportPrivateKeyBody,
   TExportPrivateKeyResponse,
 } from "./public_api.fetcher";
@@ -2539,6 +2543,38 @@ export class TurnkeyClient {
    */
   stampEmailAuth = async (input: TEmailAuthBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/email_auth";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Submit a raw transaction (serialized and signed) for broadcasting to the network.
+   *
+   * Sign the provided `TEthSendRawTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/eth_send_raw_transaction).
+   *
+   * See also {@link stampEthSendRawTransaction}.
+   */
+  ethSendRawTransaction = async (
+    input: TEthSendRawTransactionBody,
+  ): Promise<TEthSendRawTransactionResponse> => {
+    return this.request("/public/v1/submit/eth_send_raw_transaction", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEthSendRawTransactionBody` by using the client's `stamp` function.
+   *
+   * See also {@link EthSendRawTransaction}.
+   */
+  stampEthSendRawTransaction = async (
+    input: TEthSendRawTransactionBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/eth_send_raw_transaction";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
