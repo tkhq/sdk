@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   useTurnkey,
   AuthState,
-  ClientState,
   WalletSource,
   type Wallet,
   type WalletAccount,
@@ -30,9 +29,7 @@ export default function Dashboard() {
     authState,
     logout,
     session,
-    wallets,
-    clientState,
-    refreshWallets,
+    wallets
   } = useTurnkey();
   const router = useRouter();
 
@@ -42,30 +39,6 @@ export default function Dashboard() {
   useEffect(() => {
     if (authState === AuthState.Unauthenticated) router.replace("/");
   }, [authState, router]);
-
-  // Proactively fetch wallets once ready + when tab regains focus
-  useEffect(() => {
-    if (authState !== AuthState.Authenticated) return;
-    if (clientState !== ClientState.Ready) return;
-
-    (async () => {
-      try {
-        await refreshWallets();
-      } catch (e) {
-        console.error("refreshWallets failed:", e);
-      }
-    })();
-
-    const onFocus = async () => {
-      try {
-        await refreshWallets();
-      } catch (e) {
-        console.error("refreshWallets (focus) failed:", e);
-      }
-    };
-    window.addEventListener("focus", onFocus);
-    return () => window.removeEventListener("focus", onFocus);
-  }, [authState, clientState, refreshWallets]);
 
   // --- Sign Message ---
   const [message, setMessage] = useState("Hello from Turnkey 👋");
@@ -153,11 +126,7 @@ export default function Dashboard() {
 
   const onSignDemoTx = async () => {
     try {
-      setTxErr(null);
-      setSignedTx(null);
-
-      if (authState !== AuthState.Authenticated)
-        throw new Error("Not authenticated.");
+     
       if (!httpClient) throw new Error("HTTP client not ready.");
       if (!session?.organizationId) throw new Error("Missing organization id.");
       if (!firstEmbeddedAccount) throw new Error("No EVM account found.");
@@ -306,7 +275,7 @@ export default function Dashboard() {
               Wallets (Embedded + Connected)
             </h2>
 
-            {/* Show everything for debugging */}
+            {/* Show embedded and connected wallets */}
             <div className="p-3 rounded border bg-gray-50 text-left overflow-x-auto">
               <pre className="font-mono text-[11px] leading-snug min-w-[60ch]">
                 {JSON.stringify(wallets ?? [], null, 2)}
