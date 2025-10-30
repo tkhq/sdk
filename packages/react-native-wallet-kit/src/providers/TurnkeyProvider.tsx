@@ -742,6 +742,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       }
 
       const expirationSeconds =
+        params?.expirationSeconds ??
         masterConfig?.auth?.sessionExpirationSeconds ??
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
@@ -786,6 +787,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           : { ...params };
 
       const expirationSeconds =
+        params.expirationSeconds ??
         masterConfig?.auth?.sessionExpirationSeconds ??
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
@@ -2014,7 +2016,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
       setSession(session);
       setAllSessions(allSessions);
-      return;
+
+      await refreshWallets();
+      await refreshUser();
     },
     [client, callbacks, masterConfig, session, user],
   );
