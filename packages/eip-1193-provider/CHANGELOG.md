@@ -1,5 +1,15 @@
 # @turnkey/eip-1193-provider
 
+## 3.4.10
+
+### Patch Changes
+
+- [#1044](https://github.com/tkhq/sdk/pull/1044) [`c0fa69c`](https://github.com/tkhq/sdk/commit/c0fa69cbf9de55d681c5bd67d8cbcb8cdcd4fd5b) Author [@andrewkmin](https://github.com/andrewkmin) - Only use relevant (Ethereum) wallet accounts, and better handle multiple chain IDs
+
+- Updated dependencies []:
+  - @turnkey/core@1.5.2
+  - @turnkey/sdk-browser@5.11.6
+
 ## 3.4.9
 
 ### Patch Changes

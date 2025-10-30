@@ -1,10 +1,23 @@
 {
   "name": "@turnkey/core",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "A core JavaScript web and React Native package for interfacing with Turnkey's infrastructure.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "dist/index.d.ts",
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkhq/sdk.git",
+    "directory": "packages/core"
+  },
   "files": [
     "dist",
     "README.md"

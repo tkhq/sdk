@@ -738,6 +738,16 @@ export type TEmailAuthBody =
   operations["PublicApiService_EmailAuth"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TEthSendRawTransactionResponse =
+  operations["PublicApiService_EthSendRawTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendRawTransactionResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEthSendRawTransactionInput = { body: TEthSendRawTransactionBody };
+
+export type TEthSendRawTransactionBody =
+  operations["PublicApiService_EthSendRawTransaction"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TExportPrivateKeyResponse =
   operations["PublicApiService_ExportPrivateKey"]["responses"]["200"]["schema"]["activity"]["result"]["exportPrivateKeyResult"] &
     definitions["v1ActivityResponse"];

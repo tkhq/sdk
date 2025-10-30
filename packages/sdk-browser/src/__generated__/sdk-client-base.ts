@@ -2512,6 +2512,45 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  ethSendRawTransaction = async (
+    input: SdkApiTypes.TEthSendRawTransactionBody,
+  ): Promise<SdkApiTypes.TEthSendRawTransactionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+
+    return this.command(
+      "/public/v1/submit/eth_send_raw_transaction",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION",
+      },
+      "ethSendRawTransactionResult",
+    );
+  };
+
+  stampEthSendRawTransaction = async (
+    input: SdkApiTypes.TEthSendRawTransactionBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/eth_send_raw_transaction";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   exportPrivateKey = async (
     input: SdkApiTypes.TExportPrivateKeyBody,
   ): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {

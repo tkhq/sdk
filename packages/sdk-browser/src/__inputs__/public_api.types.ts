@@ -276,6 +276,10 @@ export type paths = {
     /** Authenticate a user via email. */
     post: operations["PublicApiService_EmailAuth"];
   };
+  "/public/v1/submit/eth_send_raw_transaction": {
+    /** Submit a raw transaction (serialized and signed) for broadcasting to the network. */
+    post: operations["PublicApiService_EthSendRawTransaction"];
+  };
   "/public/v1/submit/export_private_key": {
     /** Export a private key. */
     post: operations["PublicApiService_ExportPrivateKey"];
@@ -707,7 +711,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"
     | "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
     | "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS"
-    | "ACTIVITY_TYPE_DELETE_POLICIES";
+    | "ACTIVITY_TYPE_DELETE_POLICIES"
+    | "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1872,6 +1877,28 @@ export type definitions = {
     /** @description A User ID with permission to initiate authentication. */
     userId: string;
   };
+  v1EthSendRawTransactionIntent: {
+    /** @description The raw, signed transaction to be sent. */
+    signedTransaction: string;
+    /**
+     * @description The CAIP-2 chain ID.
+     * @enum {string}
+     */
+    chainId: "eip155:1" | "eip155:11155111" | "eip155:8453" | "eip155:84532";
+  };
+  v1EthSendRawTransactionRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1EthSendRawTransactionIntent"];
+  };
+  v1EthSendRawTransactionResult: {
+    /** @description The transaction hash of the sent transaction */
+    transactionHash: string;
+  };
   v1ExportPrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
@@ -2558,6 +2585,12 @@ export type definitions = {
     expirationSeconds?: string;
     /** @description Optional parameters for customizing emails. If not provided, the default email will be used. */
     emailCustomization?: definitions["v1EmailCustomizationParams"];
+    /** @description Optional custom email address from which to send the OTP email */
+    sendFromEmailAddress?: string;
+    /** @description Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+    sendFromEmailSenderName?: string;
+    /** @description Optional custom email address to use as reply-to */
+    replyToEmailAddress?: string;
   };
   v1InitUserEmailRecoveryRequest: {
     /** @enum {string} */
@@ -2676,6 +2709,7 @@ export type definitions = {
     oauth2AuthenticateIntent?: definitions["v1Oauth2AuthenticateIntent"];
     deleteWalletAccountsIntent?: definitions["v1DeleteWalletAccountsIntent"];
     deletePoliciesIntent?: definitions["v1DeletePoliciesIntent"];
+    ethSendRawTransactionIntent?: definitions["v1EthSendRawTransactionIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -3168,6 +3202,7 @@ export type definitions = {
     oauth2AuthenticateResult?: definitions["v1Oauth2AuthenticateResult"];
     deleteWalletAccountsResult?: definitions["v1DeleteWalletAccountsResult"];
     deletePoliciesResult?: definitions["v1DeletePoliciesResult"];
+    ethSendRawTransactionResult?: definitions["v1EthSendRawTransactionResult"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -5112,6 +5147,24 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1EmailAuthRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Submit a raw transaction (serialized and signed) for broadcasting to the network. */
+  PublicApiService_EthSendRawTransaction: {
+    parameters: {
+      body: {
+        body: definitions["v1EthSendRawTransactionRequest"];
       };
     };
     responses: {

@@ -1,6 +1,6 @@
 {
   "name": "@turnkey/gas-station",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Turnkey Gas Station SDK for EIP-7702 delegated execution",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -11,6 +11,19 @@
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
+  },
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkhq/sdk.git",
+    "directory": "packages/gas-station"
   },
   "files": [
     "dist"

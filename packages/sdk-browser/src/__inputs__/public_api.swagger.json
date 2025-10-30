@@ -2244,6 +2244,38 @@
         "tags": ["User Auth"]
       }
     },
+    "/public/v1/submit/eth_send_raw_transaction": {
+      "post": {
+        "summary": "Submit a raw transaction for broadcasting.",
+        "description": "Submit a raw transaction (serialized and signed) for broadcasting to the network.",
+        "operationId": "PublicApiService_EthSendRawTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EthSendRawTransactionRequest"
+            }
+          }
+        ],
+        "tags": ["Broadcasting"]
+      }
+    },
     "/public/v1/submit/export_private_key": {
       "post": {
         "summary": "Export private key",
@@ -3975,7 +4007,8 @@
         "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
         "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
         "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
-        "ACTIVITY_TYPE_DELETE_POLICIES"
+        "ACTIVITY_TYPE_DELETE_POLICIES",
+        "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION"
       ]
     },
     "v1AddressFormat": {
@@ -6888,6 +6921,57 @@
       },
       "required": ["userId"]
     },
+    "v1EthSendRawTransactionIntent": {
+      "type": "object",
+      "properties": {
+        "signedTransaction": {
+          "type": "string",
+          "description": "The raw, signed transaction to be sent."
+        },
+        "chainId": {
+          "type": "string",
+          "enum": [
+            "eip155:1",
+            "eip155:11155111",
+            "eip155:8453",
+            "eip155:84532"
+          ],
+          "description": "The CAIP-2 chain ID."
+        }
+      },
+      "required": ["signedTransaction", "chainId"]
+    },
+    "v1EthSendRawTransactionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1EthSendRawTransactionIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1EthSendRawTransactionResult": {
+      "type": "object",
+      "properties": {
+        "transactionHash": {
+          "type": "string",
+          "description": "The transaction hash of the sent transaction"
+        }
+      },
+      "required": ["transactionHash"]
+    },
     "v1ExportPrivateKeyIntent": {
       "type": "object",
       "properties": {
@@ -8462,6 +8546,18 @@
         "emailCustomization": {
           "$ref": "#/definitions/v1EmailCustomizationParams",
           "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
+        },
+        "sendFromEmailAddress": {
+          "type": "string",
+          "description": "Optional custom email address from which to send the OTP email"
+        },
+        "sendFromEmailSenderName": {
+          "type": "string",
+          "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
+        },
+        "replyToEmailAddress": {
+          "type": "string",
+          "description": "Optional custom email address to use as reply-to"
         }
       },
       "required": ["email", "targetPublicKey"]
@@ -8808,6 +8904,9 @@
         },
         "deletePoliciesIntent": {
           "$ref": "#/definitions/v1DeletePoliciesIntent"
+        },
+        "ethSendRawTransactionIntent": {
+          "$ref": "#/definitions/v1EthSendRawTransactionIntent"
         }
       }
     },
@@ -10108,6 +10207,9 @@
         },
         "deletePoliciesResult": {
           "$ref": "#/definitions/v1DeletePoliciesResult"
+        },
+        "ethSendRawTransactionResult": {
+          "$ref": "#/definitions/v1EthSendRawTransactionResult"
         }
       }
     },

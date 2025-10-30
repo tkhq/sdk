@@ -292,7 +292,6 @@ jobs:
           pnpm publish -r --no-git-checks --report-summary || echo "Publish failed, checking logs..."
           echo "npm publish summary:"
           cat publish-summary.json || echo "No NPM publish summary generated"
-        continue-on-error: true
 
       - name: Set up NPM config for GitHub Packages
         run: |
@@ -317,4 +316,3 @@ jobs:
           rm .npmrc
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        continue-on-error: true

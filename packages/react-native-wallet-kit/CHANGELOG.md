@@ -1,5 +1,13 @@
 # @turnkey/react-native-wallet-kit
 
+## 1.1.3
+
+### Patch Changes
+
+- Updated dependencies [[`c745646`](https://github.com/tkhq/sdk/commit/c745646ae4b2a275e116abca07c6e108f89beb04)]:
+  - @turnkey/crypto@2.8.4
+  - @turnkey/core@1.5.2
+
 ## 1.1.2
 
 ### Patch Changes

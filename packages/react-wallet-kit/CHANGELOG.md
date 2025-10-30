@@ -1,5 +1,16 @@
 # @turnkey/react-wallet-kit
 
+## 1.4.2
+
+### Patch Changes
+
+- [#1049](https://github.com/tkhq/sdk/pull/1049) [`4ea9649`](https://github.com/tkhq/sdk/commit/4ea9649f458b7f24f68bc2b64264128928bfc89b) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `userId` param being ignored in handleUpdateUserName and handleAddPhoneNumber
+
+- [#1049](https://github.com/tkhq/sdk/pull/1049) [`c9f29a4`](https://github.com/tkhq/sdk/commit/c9f29a4bb19a4f7ded7ecc8dc7e53994aa45be63) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `expirationSeconds` param being ignored in auth functions
+
+- Updated dependencies []:
+  - @turnkey/core@1.5.2
+
 ## 1.4.1
 
 ### Patch Changes
