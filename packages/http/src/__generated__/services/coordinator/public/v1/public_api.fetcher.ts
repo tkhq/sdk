@@ -3378,6 +3378,58 @@ export const signEmailAuth = (
   });
 
 /**
+ * `POST /public/v1/submit/eth_send_raw_transaction`
+ */
+export type TEthSendRawTransactionResponse =
+  operations["PublicApiService_EthSendRawTransaction"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/eth_send_raw_transaction`
+ */
+export type TEthSendRawTransactionInput = { body: TEthSendRawTransactionBody };
+
+/**
+ * `POST /public/v1/submit/eth_send_raw_transaction`
+ */
+export type TEthSendRawTransactionBody =
+  operations["PublicApiService_EthSendRawTransaction"]["parameters"]["body"]["body"];
+
+/**
+ * Submit a raw transaction for broadcasting.
+ *
+ * Submit a raw transaction (serialized and signed) for broadcasting to the network.
+ *
+ * `POST /public/v1/submit/eth_send_raw_transaction`
+ */
+export const ethSendRawTransaction = (input: TEthSendRawTransactionInput) =>
+  request<
+    TEthSendRawTransactionResponse,
+    TEthSendRawTransactionBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/eth_send_raw_transaction",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `EthSendRawTransaction` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link EthSendRawTransaction}
+ */
+export const signEthSendRawTransaction = (
+  input: TEthSendRawTransactionInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TEthSendRawTransactionBody, never, never>({
+    uri: "/public/v1/submit/eth_send_raw_transaction",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/export_private_key`
  */
 export type TExportPrivateKeyResponse =

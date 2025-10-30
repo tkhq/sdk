@@ -304,7 +304,8 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL"
   | "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
   | "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS"
-  | "ACTIVITY_TYPE_DELETE_POLICIES";
+  | "ACTIVITY_TYPE_DELETE_POLICIES"
+  | "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1554,6 +1555,27 @@ export type v1EnableAuthProxyResult = {
   userId: string;
 };
 
+export type v1EthSendRawTransactionIntent = {
+  /** The raw, signed transaction to be sent. */
+  signedTransaction: string;
+  /** The CAIP-2 chain ID. */
+  chainId: string;
+};
+
+export type v1EthSendRawTransactionRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1EthSendRawTransactionIntent;
+};
+
+export type v1EthSendRawTransactionResult = {
+  /** The transaction hash of the sent transaction */
+  transactionHash: string;
+};
+
 export type v1ExportPrivateKeyIntent = {
   /** Unique identifier for a given Private Key. */
   privateKeyId: string;
@@ -2311,6 +2333,12 @@ export type v1InitUserEmailRecoveryIntent = {
   expirationSeconds?: string;
   /** Optional parameters for customizing emails. If not provided, the default email will be used. */
   emailCustomization?: v1EmailCustomizationParams;
+  /** Optional custom email address from which to send the OTP email */
+  sendFromEmailAddress?: string;
+  /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+  sendFromEmailSenderName?: string;
+  /** Optional custom email address to use as reply-to */
+  replyToEmailAddress?: string;
 };
 
 export type v1InitUserEmailRecoveryRequest = {
@@ -2431,6 +2459,7 @@ export type v1Intent = {
   oauth2AuthenticateIntent?: v1Oauth2AuthenticateIntent;
   deleteWalletAccountsIntent?: v1DeleteWalletAccountsIntent;
   deletePoliciesIntent?: v1DeletePoliciesIntent;
+  ethSendRawTransactionIntent?: v1EthSendRawTransactionIntent;
 };
 
 export type v1Invitation = {
@@ -2956,6 +2985,7 @@ export type v1Result = {
   oauth2AuthenticateResult?: v1Oauth2AuthenticateResult;
   deleteWalletAccountsResult?: v1DeleteWalletAccountsResult;
   deletePoliciesResult?: v1DeletePoliciesResult;
+  ethSendRawTransactionResult?: v1EthSendRawTransactionResult;
 };
 
 export type v1RootUserParams = {
@@ -4805,6 +4835,23 @@ export type TEmailAuthBody = {
 
 export type TEmailAuthInput = { body: TEmailAuthBody };
 
+export type TEthSendRawTransactionResponse = {
+  activity: v1Activity;
+  /** The transaction hash of the sent transaction */
+  transactionHash: string;
+};
+
+export type TEthSendRawTransactionBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** The raw, signed transaction to be sent. */
+  signedTransaction: string;
+  /** The CAIP-2 chain ID. */
+  chainId: string;
+};
+
+export type TEthSendRawTransactionInput = { body: TEthSendRawTransactionBody };
+
 export type TExportPrivateKeyResponse = {
   activity: v1Activity;
   /** Unique identifier for a given Private Key. */
@@ -5066,6 +5113,12 @@ export type TInitUserEmailRecoveryBody = {
   expirationSeconds?: string;
   /** Optional parameters for customizing emails. If not provided, the default email will be used. */
   emailCustomization?: v1EmailCustomizationParams;
+  /** Optional custom email address from which to send the OTP email */
+  sendFromEmailAddress?: string;
+  /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+  sendFromEmailSenderName?: string;
+  /** Optional custom email address to use as reply-to */
+  replyToEmailAddress?: string;
 };
 
 export type TInitUserEmailRecoveryInput = { body: TInitUserEmailRecoveryBody };

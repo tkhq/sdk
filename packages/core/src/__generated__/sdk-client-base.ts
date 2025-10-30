@@ -3565,6 +3565,58 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  ethSendRawTransaction = async (
+    input: SdkTypes.TEthSendRawTransactionBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEthSendRawTransactionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/eth_send_raw_transaction",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION",
+      },
+      "ethSendRawTransactionResult",
+      stampWith,
+    );
+  };
+
+  stampEthSendRawTransaction = async (
+    input: SdkTypes.TEthSendRawTransactionBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/eth_send_raw_transaction";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   exportPrivateKey = async (
     input: SdkTypes.TExportPrivateKeyBody,
     stampWith?: StamperType,
