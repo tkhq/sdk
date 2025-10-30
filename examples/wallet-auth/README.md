@@ -1,15 +1,16 @@
 # Example: `wallet-auth`
 
-This example shows how to implement [external wallet authentication](https://docs.turnkey.com/sdks/react/using-external-wallets/overview) (e.g. MetaMask, Phantom, etc) with Turnkey using the [@turnkey/react-wallet-kit](https://docs.turnkey.com/sdks/react). 
+This example shows how to implement [external wallet authentication](https://docs.turnkey.com/sdks/react/using-external-wallets/overview) (e.g. MetaMask, Phantom, etc) with Turnkey using the [@turnkey/react-wallet-kit](https://docs.turnkey.com/sdks/react).
 
 It contains two separate implementations:
+
 - **without-backend** - Uses Turnkey’s managed [Auth Proxy](https://docs.turnkey.com/reference/auth-proxy) to securely handle sign-up and login flows with origin enforcement and centralized configuration — no backend required. Your frontend interacts directly with the Auth Proxy endpoints.
 - **with-backend** - Demonstrates how to run the same authentication flow through **your own backend**, giving you full control over how sub-organizations, sessions, and credentials are managed.
-
 
 # Choosing the right approach
 
 Both achieve the same end goal — authenticating users and creating or accessing their sub-organizations — but differ in control, complexity, and deployment model.
+
 - Choose **Auth Proxy** if you want simplicity, speed, and a fully managed authentication layer with minimal operational overhead.
 - Choose a **custom backend** if you need advanced control, custom data handling, or co-signing capabilities as part of your workflow.
 
