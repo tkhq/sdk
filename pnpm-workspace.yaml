@@ -1,5 +1,5 @@
 packages:
   - "packages/*"
   - "internal/*"
-  - "examples/*"
+  - "examples/**"
   - "!examples/with-react-native-wallet-kit/**"

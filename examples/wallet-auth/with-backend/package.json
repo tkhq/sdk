@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/wallet-auth",
+  "name": "@turnkey/wallet-auth-with-backend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,7 +12,6 @@
   "dependencies": {
     "@noble/hashes": "1.4.0",
     "@tailwindcss/postcss": "4.1.13",
-    "@turnkey/core": "workspace:*",
     "@turnkey/react-wallet-kit": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@types/node": "20.3.1",
