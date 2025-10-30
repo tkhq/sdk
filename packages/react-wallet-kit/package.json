@@ -13,6 +13,19 @@
     },
     "./styles.css": "./dist/styles.css"
   },
+  "author": {
+    "name": "Turnkey",
+    "url": "https://turnkey.com/"
+  },
+  "homepage": "https://github.com/tkhq/sdk",
+  "bugs": {
+    "url": "https://github.com/tkhq/sdk/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkhq/sdk.git",
+    "directory": "packages/react-wallet-kit"
+  },
   "files": [
     "dist",
     "README.md"
