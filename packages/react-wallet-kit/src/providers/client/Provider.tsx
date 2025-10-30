@@ -2621,7 +2621,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       setSession(session);
       setAllSessions(allSessions);
-      return;
+
+      await refreshWallets();
+      await refreshUser();
     },
     [client, callbacks, masterConfig, session, user],
   );
