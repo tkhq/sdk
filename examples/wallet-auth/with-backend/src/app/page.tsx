@@ -37,7 +37,7 @@ export default function AuthPage() {
   // If already authenticated, go to dashboard.
   useEffect(() => {
     if (authState === AuthState.Authenticated) {
-      router.push("/dashboard");
+      router.replace("/dashboard");
     }
   }, [authState, router]);
 
@@ -119,7 +119,7 @@ export default function AuthPage() {
         throw new Error("Session token not found in the response.");
 
       await storeSession({ sessionToken });
-      window.location.replace("/dashboard");
+      router.replace("/dashboard");
     } catch (e: any) {
       console.error(e);
       setErr(e?.message || "Login failed.");
