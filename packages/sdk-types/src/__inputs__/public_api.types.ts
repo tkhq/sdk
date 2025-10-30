@@ -2293,6 +2293,7 @@ export type definitions = {
   v1GetOnRampTransactionStatusRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
+<<<<<<< HEAD
     /** @description The unique identifier for the fiat on ramp transaction. */
     transactionId: string;
     /** @description Optional flag to specify if the transaction status should be refreshed from the fiat on ramp provider. Default = false. */
@@ -2300,6 +2301,15 @@ export type definitions = {
   };
   v1GetOnRampTransactionStatusResponse: {
     /** @description The status of the fiat on ramp transaction. */
+=======
+    /** @description The unique identifier for the fiat on-ramp transaction. */
+    transactionId: string;
+    /** @description Optional flag to specify if the transaction status should be refreshed from the fiat on-ramp provider. Default = false. */
+    refresh?: boolean;
+  };
+  v1GetOnRampTransactionStatusResponse: {
+    /** @description The status of the fiat on-ramp transaction. */
+>>>>>>> ab0e08e73 (on ramp handler working)
     transactionStatus: string;
   };
   v1GetOrganizationConfigsRequest: {

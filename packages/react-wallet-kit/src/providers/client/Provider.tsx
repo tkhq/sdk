@@ -169,6 +169,7 @@ import type {
   HandleImportPrivateKeyParams,
   HandleImportWalletParams,
   HandleLoginParams,
+  HandleOnRampParams,
   HandleRemoveOauthProviderParams,
   HandleRemovePasskeyParams,
   HandleRemoveUserEmailParams,
@@ -183,6 +184,7 @@ import type {
   RefreshWalletsParams,
 } from "../../types/method-types";
 import { VerifyPage } from "../../components/verify/Verify";
+import { OnRampPage } from "../../components/onramp/OnRamp";
 
 /**
  * @inline
@@ -5262,6 +5264,69 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [pushPage, masterConfig, client, session, user],
   );
 
+const handleOnRamp = useCallback(
+  async (params: HandleOnRampParams): Promise<void> => {
+    const {
+      walletAddress,
+      fiatCurrencyAmount,
+      cryptoCurrencyCode,
+      network,
+      onrampProvider = "FIAT_ON_RAMP_PROVIDER_COINBASE",
+      sandboxMode = true,
+      successPageDuration = 5000,
+    } = params;
+
+    const s = await getSession();
+    const organizationId = params?.organizationId || s?.organizationId;
+    if (!organizationId) {
+      throw new TurnkeyError(
+        "A session or passed in organization ID is required.",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+
+    try {
+      return new Promise((resolve, reject) => {
+        pushPage({
+          key: "Fiat On-Ramp",
+          content: (
+            <OnRampPage
+              walletAddress={walletAddress}
+              fiatCurrencyAmount={fiatCurrencyAmount}
+              cryptoCurrencyCode={cryptoCurrencyCode}
+              network={network}
+              onrampProvider={onrampProvider}
+              sandboxMode={sandboxMode}
+              successPageDuration={successPageDuration}
+              onSuccess={() => resolve()}
+              onError={(error: unknown) => reject(error)}
+            />
+          ),
+          showTitle: false,
+          preventBack: true,
+          onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User canceled the on-ramp process.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
+        });
+      });
+    } catch (error) {
+      if (error instanceof TurnkeyError) throw error;
+      throw new TurnkeyError(
+        "Failed to start fiat on-ramp flow.",
+        TurnkeyErrorCodes.ONRAMP_ERROR,
+        error,
+      );
+    }
+  },
+  [pushPage, client],
+);
+
+
+
   const handleVerifyAppProofs = useCallback(
     async (params: HandleVerifyAppProofsParams): Promise<void> => {
       const { appProofs, successPageDuration = 3000, stampWith } = params || {};
@@ -5540,6 +5605,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleRemoveUserEmail,
         handleRemoveUserPhoneNumber,
         handleVerifyAppProofs,
+        handleOnRamp,
       }}
     >
       {children}
