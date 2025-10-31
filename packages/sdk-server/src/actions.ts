@@ -255,8 +255,8 @@ export async function createSuborg(
       rootQuorumThreshold: 1,
       rootUsers: [
         {
-          userName: request.email ?? "",
-          userEmail: request.email ?? "",
+          userName: request.email ?? `suborg-user-${String(Date.now())}`,
+          ...(request.email ? { userEmail: request.email } : {}),
           ...(request.phoneNumber
             ? { userPhoneNumber: request.phoneNumber }
             : {}),
