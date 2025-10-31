@@ -1,5 +1,19 @@
 # @turnkey/sdk-server
 
+## 4.11.0
+
+### Minor Changes
+
+- [#1063](https://github.com/tkhq/sdk/pull/1063) [`71cdca3`](https://github.com/tkhq/sdk/commit/71cdca3b97ba520dc5327410a1e82cf9ad85fb0e) Author [@zkharit](https://github.com/zkharit) - Omit optional email parameter if not set
+
+- [#1058](https://github.com/tkhq/sdk/pull/1058) [`9fbd5c4`](https://github.com/tkhq/sdk/commit/9fbd5c459782dc3721dd0935d0a4458babce258b) Author [@moeodeh3](https://github.com/moeodeh3) - Update per mono release `v2025.10.10-hotfix.2`
+
+### Patch Changes
+
+- Updated dependencies [[`9fbd5c4`](https://github.com/tkhq/sdk/commit/9fbd5c459782dc3721dd0935d0a4458babce258b)]:
+  - @turnkey/http@3.14.0
+  - @turnkey/wallet-stamper@1.1.6
+
 ## 4.10.5
 
 ### Patch Changes
