@@ -1,5 +1,18 @@
 # @turnkey/react-native-wallet-kit
 
+## 1.1.4
+
+### Patch Changes
+
+- [#1059](https://github.com/tkhq/sdk/pull/1059) [`046544f`](https://github.com/tkhq/sdk/commit/046544fa4243f31b28068f5b82917e54b8442be5) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `storeSession` not updating wallet and user state
+
+- [#1059](https://github.com/tkhq/sdk/pull/1059) [`046544f`](https://github.com/tkhq/sdk/commit/046544fa4243f31b28068f5b82917e54b8442be5) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed `expirationSeconds` param being ignored in auth functions
+
+- Updated dependencies [[`9fbd5c4`](https://github.com/tkhq/sdk/commit/9fbd5c459782dc3721dd0935d0a4458babce258b)]:
+  - @turnkey/core@1.6.0
+  - @turnkey/crypto@2.8.4
+  - @turnkey/react-native-passkey-stamper@1.2.4
+
 ## 1.1.3
 
 ### Patch Changes
