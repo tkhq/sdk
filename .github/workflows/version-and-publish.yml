@@ -292,7 +292,7 @@ jobs:
           pnpm publish -r --no-git-checks --report-summary || {
             echo "❌ Publish failed. Check logs above.";
             exit 1;
-          }"
+          }
           echo "npm publish summary:"
           cat publish-summary.json || echo "No NPM publish summary generated"
 
