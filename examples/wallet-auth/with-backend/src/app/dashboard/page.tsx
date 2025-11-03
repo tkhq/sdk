@@ -13,8 +13,20 @@ import {
   serializeTransaction,
   parseGwei,
   type TransactionSerializableEIP1559,
+  createPublicClient,
+  http,
 } from "viem";
+import { sepolia } from "viem/chains";
+import {
+  Connection,
+  SystemProgram,
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction,
+  clusterApiUrl,
+} from "@solana/web3.js";
 
+// ---------- Utils ----------
 function safeStringify(x: unknown) {
   return JSON.stringify(
     x,
@@ -23,62 +35,163 @@ function safeStringify(x: unknown) {
   );
 }
 
+// Uint8Array -> hex
+function toHex(u8: Uint8Array) {
+  return Array.from(u8)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+// Build a Solana v0 unsigned transaction and return HEX
+async function buildUnsignedSolanaTxHex(fromAddress: string, rpcUrl?: string) {
+  const connection = new Connection(
+    rpcUrl || clusterApiUrl("devnet"),
+    "confirmed",
+  );
+  const from = new PublicKey(fromAddress);
+  const { blockhash } = await connection.getLatestBlockhash("finalized");
+
+  const ix = SystemProgram.transfer({
+    fromPubkey: from,
+    toPubkey: from, // self-transfer
+    lamports: 0,
+  });
+
+  // v0 message
+  const msgV0 = new TransactionMessage({
+    payerKey: from,
+    recentBlockhash: blockhash,
+    instructions: [ix],
+  }).compileToV0Message();
+
+  // Create an unsigned VersionedTransaction
+  const unsignedTx = new VersionedTransaction(msgV0);
+
+  // Serialize without requiring signatures; then hex-encode
+  const bytes = unsignedTx.serialize();
+  return toHex(bytes);
+}
+
+// Build an EVM demo tx (send-to-self, 0 value) with a fresh nonce
+async function buildEvmDemoTx(params: {
+  address: `0x${string}`;
+  rpcUrl?: string;
+}): Promise<TransactionSerializableEIP1559> {
+  const client = createPublicClient({
+    chain: sepolia,
+    transport: http(params.rpcUrl || sepolia.rpcUrls.default.http[0]),
+  });
+
+  const nonce = await client.getTransactionCount({ address: params.address });
+
+  return {
+    type: "eip1559",
+    chainId: 11155111, // Sepolia
+    nonce,
+    gas: 21000n,
+    maxFeePerGas: parseGwei("1"),
+    maxPriorityFeePerGas: parseGwei("1"),
+    to: params.address,
+    value: 0n,
+    data: "0x",
+  };
+}
+
 export default function Dashboard() {
-  const { httpClient, authState, logout, session, wallets } = useTurnkey();
+  const {
+    authState,
+    logout,
+    session,
+    wallets,
+    signMessage,
+    signAndSendTransaction,
+  } = useTurnkey();
+
   const router = useRouter();
 
-  const turnkey = useTurnkey();
-
-  // Guard unauthenticated users
+  // Redirect unauthenticated users
   useEffect(() => {
     if (authState === AuthState.Unauthenticated) router.replace("/");
   }, [authState, router]);
 
-  // --- Sign Message ---
+  // Wallet selector
+  const allAccounts = useMemo(() => {
+    return (wallets ?? []).flatMap((w: Wallet) =>
+      (w.accounts ?? []).map((a) => ({
+        walletName: w.walletName,
+        address: a.address,
+        source: w.source,
+        account: a,
+        addressFormat: a.addressFormat as string,
+      })),
+    );
+  }, [wallets]);
+
+  const [selectedAccount, setSelectedAccount] = useState<WalletAccount | null>(
+    null,
+  );
+  const selectedMeta = useMemo(() => {
+    if (!selectedAccount) return null;
+    return (
+      allAccounts.find((x) => x.address === selectedAccount.address) ?? null
+    );
+  }, [allAccounts, selectedAccount]);
+
+  useEffect(() => {
+    if (!selectedAccount && allAccounts.length > 0) {
+      setSelectedAccount(allAccounts[0].account);
+    }
+  }, [allAccounts, selectedAccount]);
+
+  // Chain detection
+  const fmt = selectedMeta?.addressFormat ?? "";
+  const isEvm =
+    fmt.includes("ETHEREUM") ||
+    (selectedMeta?.address?.startsWith("0x") ?? false);
+  const isSol =
+    fmt.includes("SOLANA") ||
+    (!isEvm &&
+      /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(selectedMeta?.address ?? ""));
+  const isEmbedded = selectedMeta?.source === WalletSource.Embedded;
+
+  // RPCs: ETH only for embedded; SOL required for both
+  const ETH_RPC = process.env.NEXT_PUBLIC_RPC_ETH;
+  const SOL_RPC = process.env.NEXT_PUBLIC_RPC_SOL;
+
+  // ---- Live EVM nonce (for preview) ----
+  const [evmNonce, setEvmNonce] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchNonce() {
+      if (!isEvm || !selectedAccount?.address) {
+        setEvmNonce(null);
+        return;
+      }
+      try {
+        const client = createPublicClient({
+          chain: sepolia,
+          transport: http(ETH_RPC || sepolia.rpcUrls.default.http[0]),
+        });
+        const n = await client.getTransactionCount({
+          address: selectedAccount.address as `0x${string}`,
+        });
+        if (!cancelled) setEvmNonce(n);
+      } catch (e) {
+        console.error("Failed to fetch nonce", e);
+        if (!cancelled) setEvmNonce(null);
+      }
+    }
+    fetchNonce();
+    return () => {
+      cancelled = true;
+    };
+  }, [isEvm, selectedAccount?.address, ETH_RPC]);
+
+  // ---- Sign Message ----
   const [message, setMessage] = useState("Hello from Turnkey 👋");
   const [signing, setSigning] = useState(false);
   const [signature, setSignature] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
-
-  // --- Sign Transaction ---
-  const [txSigning, setTxSigning] = useState(false);
-  const [signedTx, setSignedTx] = useState<string | null>(null);
-  const [txErr, setTxErr] = useState<string | null>(null);
-
-  // Get the first embedded Ethereum acccount which will be used for signing
-  const embeddedWallets = useMemo(
-    () =>
-      ((wallets ?? []) as Wallet[]).filter(
-        (w) => w.source === WalletSource.Embedded,
-      ),
-    [wallets],
-  );
-
-  const firstEmbeddedAccount = useMemo<WalletAccount | undefined>(() => {
-    for (const w of embeddedWallets) {
-      const accounts = (w as any)?.accounts as WalletAccount[] | undefined;
-      const evm = accounts?.find(
-        (a: any) =>
-          a?.addressFormat === "ADDRESS_FORMAT_ETHEREUM" && a?.address,
-      );
-      if (evm) return evm;
-    }
-    return undefined;
-  }, [embeddedWallets]);
-
-  const firstEmbeddedEvmAddress = firstEmbeddedAccount?.address;
-
-  const demoTxObject: TransactionSerializableEIP1559 = {
-    type: "eip1559",
-    chainId: 11155111, // Sepolia
-    nonce: 0,
-    gas: 21000n,
-    maxFeePerGas: parseGwei("1"),
-    maxPriorityFeePerGas: parseGwei("1"),
-    to: "0x0000000000000000000000000000000000000000",
-    value: 0n,
-    data: "0x",
-  };
 
   const onSignMessage = async () => {
     try {
@@ -87,29 +200,35 @@ export default function Dashboard() {
 
       if (authState !== AuthState.Authenticated)
         throw new Error("Not authenticated.");
-      if (!httpClient) throw new Error("HTTP client not ready.");
       if (!session?.organizationId) throw new Error("Missing organization id.");
-      if (!firstEmbeddedEvmAddress) throw new Error("No EVM account found.");
+      if (!selectedAccount) throw new Error("No account selected.");
       if (!message) throw new Error("Message cannot be empty.");
 
       setSigning(true);
 
-      // You could also use signMessage() https://docs.turnkey.com/generated-docs/formatted/react-wallet-kit/client-context-type-sign-message
-      // But showing here how to use `httpClient` and access the advanced API requests https://docs.turnkey.com/sdks/react/advanced-api-requests
-      const res = await httpClient.signRawPayload({
-        organizationId: session.organizationId,
-        signWith: firstEmbeddedEvmAddress,
-        payload: message,
-        encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
-        hashFunction: "HASH_FUNCTION_SHA256",
+      const res = await signMessage({
+        walletAccount: selectedAccount,
+        addEthereumPrefix: !!isEvm, // EIP-191 "\x19Ethereum Signed Message:\n{len}"
+        message,
       });
 
-      const activity = (res as any)?.activity;
-      const r = activity?.result?.signRawPayloadResult?.r;
-      const s = activity?.result?.signRawPayloadResult?.s;
-      const v = activity?.result?.signRawPayloadResult?.v;
-      const sig = r && s && v ? `0x${r}${s}${v}` : undefined;
-      setSignature(sig ?? "(no signature returned)");
+      let out: string | undefined;
+      if (
+        res &&
+        typeof res === "object" &&
+        "r" in res &&
+        "s" in res &&
+        "v" in res
+      ) {
+        const { r, s, v } = res as any;
+        out = r && s && v ? `0x${r}${s}${v}` : undefined; // EVM r||s||v
+      } else if (typeof res === "string") {
+        out = res; // SOL base64 string
+      } else if (res && typeof res === "object" && "signature" in res) {
+        out = (res as any).signature; // SOL { signature: base64 }
+      }
+
+      setSignature(out ?? "(no signature returned)");
     } catch (e: any) {
       console.error(e);
       setErr(e?.message ?? "Failed to sign message.");
@@ -118,31 +237,110 @@ export default function Dashboard() {
     }
   };
 
-  const onSignDemoTx = async () => {
+  // ---- Sign & Send Transaction ----
+  const [txSigning, setTxSigning] = useState(false);
+  const [signedTx, setSignedTx] = useState<string | null>(null);
+  const [txErr, setTxErr] = useState<string | null>(null);
+
+  // Preview objects (EVM shows live nonce)
+  const evmPreview = useMemo(
+    () =>
+      isEvm
+        ? {
+            type: "eip1559",
+            chainId: 11155111,
+            nonce: evmNonce ?? "(loading…)",
+            gas: "21000",
+            maxFeePerGas: "1 gwei",
+            maxPriorityFeePerGas: "1 gwei",
+            to: selectedAccount?.address ?? "—",
+            value: "0",
+            data: "0x",
+          }
+        : null,
+    [isEvm, selectedAccount?.address, evmNonce],
+  );
+
+  // Solana preview (unsigned hex v0 tx)
+  const [solPreviewHex, setSolPreviewHex] = useState<string | null>(null);
+  const [solPreviewStatus, setSolPreviewStatus] = useState<
+    "idle" | "building" | "error"
+  >("idle");
+
+  useEffect(() => {
+    if (!isSol || !selectedAccount?.address) {
+      setSolPreviewHex(null);
+      setSolPreviewStatus("idle");
+      return;
+    }
+    setSolPreviewStatus("building");
+    const solRpc = SOL_RPC || clusterApiUrl("devnet");
+    buildUnsignedSolanaTxHex(selectedAccount.address, solRpc)
+      .then((hex) => {
+        setSolPreviewHex(hex);
+        setSolPreviewStatus("idle");
+      })
+      .catch(() => {
+        setSolPreviewHex(null);
+        setSolPreviewStatus("error");
+      });
+  }, [isSol, selectedAccount?.address, SOL_RPC]);
+
+  const onSignAndSendTx = async () => {
     try {
-      if (!httpClient) throw new Error("HTTP client not ready.");
+      setTxErr(null);
+      setSignedTx(null);
+
       if (!session?.organizationId) throw new Error("Missing organization id.");
-      if (!firstEmbeddedAccount) throw new Error("No EVM account found.");
+      if (!selectedAccount || !selectedMeta)
+        throw new Error("No account selected.");
 
       setTxSigning(true);
 
-      const unsignedHex = serializeTransaction(demoTxObject);
+      let unsignedTransaction: string;
+      let transactionType:
+        | "TRANSACTION_TYPE_ETHEREUM"
+        | "TRANSACTION_TYPE_SOLANA";
+      let rpcUrl: string | undefined;
 
-      const res = await turnkey.signTransaction({
-        organizationId: session.organizationId,
-        walletAccount: firstEmbeddedAccount,
-        unsignedTransaction: unsignedHex,
-        transactionType: "TRANSACTION_TYPE_ETHEREUM",
+      if (isEvm) {
+        // Build with a fresh nonce at submit time
+        const tx = await buildEvmDemoTx({
+          address: selectedAccount.address as `0x${string}`,
+          rpcUrl: ETH_RPC,
+        });
+        const unsignedHex = serializeTransaction(tx);
+        unsignedTransaction = unsignedHex.startsWith("0x")
+          ? unsignedHex
+          : `0x${unsignedHex}`;
+        transactionType = "TRANSACTION_TYPE_ETHEREUM";
+        rpcUrl = isEmbedded ? ETH_RPC : undefined; // embedded needs RPC
+      } else if (isSol) {
+        // Rebuild to ensure fresh blockhash
+        const solRpc = SOL_RPC || clusterApiUrl("devnet");
+        unsignedTransaction = await buildUnsignedSolanaTxHex(
+          selectedAccount.address,
+          solRpc,
+        );
+        transactionType = "TRANSACTION_TYPE_SOLANA";
+        rpcUrl = solRpc; // required for both connected & embedded Solana
+      } else {
+        throw new Error(
+          `Unsupported address format: ${selectedMeta.addressFormat}`,
+        );
+      }
+
+      const txSigOrHash = await signAndSendTransaction({
+        walletAccount: selectedAccount,
+        transactionType,
+        unsignedTransaction,
+        ...(rpcUrl ? { rpcUrl } : {}),
       });
 
-      const hex =
-        (res as any)?.signedTransaction ??
-        (typeof res === "string" ? res : "(no signed transaction)");
-
-      setSignedTx(hex?.startsWith("0x") ? hex : `0x${hex}`);
+      setSignedTx(txSigOrHash ?? "(no signed transaction)");
     } catch (e: any) {
       console.error(e);
-      setTxErr(e?.message ?? "Failed to sign transaction.");
+      setTxErr(e?.message ?? "Failed to sign & send transaction.");
     } finally {
       setTxSigning(false);
     }
@@ -174,6 +372,41 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* LEFT: Sign Message + Tx */}
           <section className="lg:col-span-5 rounded-xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm space-y-6">
+            {/* Wallet selector */}
+            <div>
+              <label className="block text-sm font-medium text-gray-800">
+                Select Wallet Account
+              </label>
+              <select
+                className="mt-1 w-full rounded border px-3 py-2 text-sm"
+                value={selectedAccount?.address ?? ""}
+                onChange={(e) => {
+                  const found = allAccounts.find(
+                    (a) => a.address === e.target.value,
+                  );
+                  if (found) setSelectedAccount(found.account);
+                }}
+              >
+                {allAccounts.map((a) => (
+                  <option key={a.address} value={a.address}>
+                    {a.walletName} ({a.source}) — {a.address.slice(0, 8)}…
+                  </option>
+                ))}
+              </select>
+
+              {isEmbedded && (
+                <p className="mt-2 text-[11px] text-gray-500">
+                  Embedded account selected. For tx broadcast set{" "}
+                  {isEvm
+                    ? "NEXT_PUBLIC_RPC_ETH"
+                    : isSol
+                      ? "NEXT_PUBLIC_RPC_SOL"
+                      : "RPC"}
+                  .
+                </p>
+              )}
+            </div>
+
             {/* Sign Message */}
             <div className="space-y-4">
               <h2 className="text-base font-semibold text-gray-800">
@@ -182,8 +415,7 @@ export default function Dashboard() {
               <div className="text-xs text-gray-600">
                 Sign with:&nbsp;
                 <span className="font-mono">
-                  {firstEmbeddedEvmAddress ??
-                    "(no embedded EVM account detected)"}
+                  {selectedAccount?.address ?? "—"}
                 </span>
               </div>
               <label className="block text-sm font-medium text-gray-800">
@@ -204,7 +436,7 @@ export default function Dashboard() {
 
               <button
                 onClick={onSignMessage}
-                disabled={signing || !firstEmbeddedEvmAddress}
+                disabled={signing || !selectedAccount}
                 className="rounded bg-blue-600 px-4 py-2 text-white text-sm hover:bg-blue-700 disabled:opacity-50"
               >
                 {signing ? "Signing…" : "Sign Message"}
@@ -220,18 +452,36 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* Sign Tx */}
+            {/* Sign & Send Tx */}
             <div className="space-y-3">
               <h3 className="text-sm font-semibold text-gray-800">
-                Sign Demo ETH Tx
+                {isEvm
+                  ? "Sign & Send Demo Ethereum Tx"
+                  : isSol
+                    ? "Sign & Send Demo Solana Tx"
+                    : "Sign & Send Demo Tx"}
               </h3>
 
               <div className="rounded border bg-gray-50 p-3">
                 <div className="mb-1 text-xs text-gray-500">
-                  Transaction Object
+                  Transaction Preview
                 </div>
                 <pre className="overflow-x-auto text-[11px] font-mono leading-snug">
-                  {safeStringify(demoTxObject)}
+                  {isEvm
+                    ? safeStringify(evmPreview)
+                    : isSol
+                      ? solPreviewStatus === "building"
+                        ? "(building Solana v0 tx …)"
+                        : solPreviewStatus === "error"
+                          ? "(failed to build Solana preview)"
+                          : safeStringify({
+                              payer: selectedAccount?.address ?? "—",
+                              to: selectedAccount?.address ?? "—",
+                              lamports: 0,
+                              format: "v0 transaction (unsigned, hex)",
+                              hex: solPreviewHex,
+                            })
+                      : "(pick an EVM or Solana account)"}
                 </pre>
               </div>
 
@@ -242,17 +492,17 @@ export default function Dashboard() {
               )}
 
               <button
-                onClick={onSignDemoTx}
-                disabled={txSigning || !firstEmbeddedAccount}
+                onClick={onSignAndSendTx}
+                disabled={txSigning || !selectedAccount || (!isEvm && !isSol)}
                 className="rounded bg-purple-700 px-4 py-2 text-sm text-white hover:bg-purple-800 disabled:opacity-50"
               >
-                {txSigning ? "Signing…" : "Sign Tx"}
+                {txSigning ? "Submitting…" : "Sign & Send Tx"}
               </button>
 
               {signedTx && (
                 <div className="rounded border bg-gray-50 p-3 max-h-48 overflow-auto">
                   <div className="mb-1 text-xs text-gray-500">
-                    Signed Raw Tx
+                    Tx Signature / Hash
                   </div>
                   <pre className="overflow-x-auto text-[11px] font-mono break-all whitespace-pre-wrap">
                     {signedTx}
@@ -262,14 +512,13 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* RIGHT: Wallets + Suborg */}
+          {/* RIGHT: Wallets + Suborg (debug) */}
           <section className="lg:col-span-7 rounded-xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
             <h2 className="text-base font-semibold text-gray-800">
               Wallets (Embedded + Connected)
             </h2>
 
-            {/* Show embedded and connected wallets */}
-            <div className="p-3 rounded border bg-gray-50 text-left overflow-x-auto">
+            <div className="p-3 rounded border bg-gray-50 overflow-x-auto">
               <pre className="font-mono text-[11px] leading-snug min-w-[60ch]">
                 {JSON.stringify(wallets ?? [], null, 2)}
               </pre>

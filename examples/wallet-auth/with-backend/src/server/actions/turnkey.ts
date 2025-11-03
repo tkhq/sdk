@@ -4,6 +4,7 @@
 import {
   Turnkey as TurnkeyServerSDK,
   DEFAULT_ETHEREUM_ACCOUNTS,
+  DEFAULT_SOLANA_ACCOUNTS,
 } from "@turnkey/sdk-server";
 
 const turnkey = new TurnkeyServerSDK({
@@ -49,8 +50,8 @@ export async function createSuborgAction(params: {
       },
     ],
     wallet: {
-      walletName: "Default ETH Wallet",
-      accounts: DEFAULT_ETHEREUM_ACCOUNTS,
+      walletName: "Default Wallet",
+      accounts: [...DEFAULT_ETHEREUM_ACCOUNTS, ...DEFAULT_SOLANA_ACCOUNTS],
     },
   });
 }

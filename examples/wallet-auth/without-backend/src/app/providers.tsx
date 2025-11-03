@@ -22,8 +22,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
           {
             curve: "CURVE_SECP256K1",
             pathFormat: "PATH_FORMAT_BIP32",
-            path: "m/44'/60'/0'/0/0",
+            path: `m/44'/60'/0'/0/0`,
             addressFormat: "ADDRESS_FORMAT_ETHEREUM",
+          },
+          {
+            curve: "CURVE_ED25519",
+            pathFormat: "PATH_FORMAT_BIP32",
+            path: `m/44'/501'/0'/0'`,
+            addressFormat: "ADDRESS_FORMAT_SOLANA",
           },
         ],
       },

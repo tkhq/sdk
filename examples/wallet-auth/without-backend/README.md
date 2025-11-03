@@ -13,14 +13,26 @@ A high-level summary of the user experience and what appears on screen:
 
 Once logged in, access a dashboard with two panels:
 
-- **Left:** sign a message and a simple EIP-1559 Ethereum transaction using the **embedded wallet** inside your sub-organization. The external wallet you used to log in acts as a stamper, signing the authentication requests sent to Turnkey.
-- **Right:** view all **embedded and connected wallets** from the sub-organization.
+**Left:** sign messages and simple demo transactions for both Ethereum and Solana using the **selected** embedded **or** connected wallet. The signing and broadcasting behavior differs slightly depending on wallet type:
+
+- **Connected wallets**
+  - Ethereum: delegates to the wallet’s native `signAndSendTransaction` method. Does not require an rpcUrl (the wallet handles broadcasting).
+  - Solana: signs locally with the connected wallet but requires an rpcUrl for broadcasting.
+
+- **Embedded wallets**
+  - Signs transactions via the Turnkey API.
+  - Requires an rpcUrl to broadcast (since Turnkey does not broadcast directly).
+  - Broadcasting uses a standard JSON-RPC client and returns the resulting transaction hash or signature.
+
+> Note: in this demo, you can configure these URLs using `NEXT_PUBLIC_RPC_ETH` and `NEXT_PUBLIC_RPC_SOL`.
+
+**Right:** view all the sub-organization embedded and connected wallets.
 
 ## How it works
 
 1. Wrap your app with the [TurnkeyProvider](https://docs.turnkey.com/sdks/react/getting-started#provider) component. Configure it for this example by:
 
-- [Sub-organization customization](https://docs.turnkey.com/sdks/react/sub-organization-customization#customization) - Add an Ethereum embedded wallet at creation time.
+- [Sub-organization customization](https://docs.turnkey.com/sdks/react/sub-organization-customization#customization) - Add one Ethereum and one Solana embedded wallet at creation time.
 - **Auth methods** - Disable everything except wallet authentication (`walletAuthEnabled`). You can toggle methods in the [Dashboard](https://app.turnkey.com/dashboard/walletKit) or in your `app/providers.tsx` wrapper (which takes precedence over Dashboard settings).
 - [Chains](https://docs.turnkey.com/sdks/react/using-external-wallets/authentication#setting-up-wallet-authentication) Allow Ethereum and Solana for external wallet auth.
 
@@ -30,7 +42,7 @@ Once logged in, access a dashboard with two panels:
 
 3. Session is stored and used automatically. After login, the SDK persists a Turnkey session and exposes it via useTurnkey(). The dashboard can now:
 
-- Sign messages and sign EIP-1559 transactions using the embedded wallet in the sub-org (the external wallet is only used to authenticate / stamp login).
+- Sign messages and transactions using the choosen embedded or connected wallet in the sub-org.
 - List wallets (embedded + any connected wallets) through the wallets array.
 
 ## Getting started
