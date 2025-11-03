@@ -203,7 +203,7 @@ const main = async () => {
   // Sign the approval execution intent
   const intent = await intentBuilder.signApprovalExecution(
     nonce,
-    usdcAddress, 
+    usdcAddress,
     spenderAddress, // Address to approve (in real scenario might be a DEX)
     approveAmount, // Amount to approve
   );
