@@ -76,6 +76,8 @@ Now open `.env.local` and add the missing environment variables:
 - `NEXT_PUBLIC_BASE_URL`
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_AUTH_PROXY_CONFIG_ID`
+- `NEXT_PUBLIC_RPC_SOL`
+- `NEXT_PUBLIC_RPC_ETH`
 
 ### 3/ Running the app
 
