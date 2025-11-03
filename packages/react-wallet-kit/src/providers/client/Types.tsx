@@ -752,7 +752,7 @@ export type ClientContextType = Override<
      * - Supports both sandbox and production modes.
      *
      * @param params.walletAddress - the wallet address to fund.
-     * @param params.network - the blockchain network to use.
+     * @param params.network - optional blockchain network to use - will default to the network associated with the wallet address.
      * @param params.cryptoCurrencyCode - the crypto asset to receive.
      * @param params.fiatCurrencyAmount - the fiat amount to convert.
      * @param params.onrampProvider - the fiat on-ramp provider (defaults to Coinbase).

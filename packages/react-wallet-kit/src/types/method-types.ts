@@ -261,7 +261,7 @@ export type HandleVerifyAppProofsParams = {
 
 export type HandleOnRampParams = {
   walletAddress: string;
-  network: v1FiatOnRampBlockchainNetwork;
+  network?: v1FiatOnRampBlockchainNetwork;
   cryptoCurrencyCode: v1FiatOnRampCryptoCurrency;
   fiatCurrencyAmount: string;
   onrampProvider?: v1FiatOnRampProvider;

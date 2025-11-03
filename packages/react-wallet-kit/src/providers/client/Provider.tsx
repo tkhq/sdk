@@ -5271,7 +5271,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         walletAddress,
         fiatCurrencyAmount,
         cryptoCurrencyCode,
-        network,
         onrampProvider = "FIAT_ON_RAMP_PROVIDER_COINBASE",
         sandboxMode = true,
         successPageDuration = 5000,
@@ -5286,7 +5285,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      // Return a promise tied to modal lifecycle
+      const network =
+        params.network ||
+        (walletAddress?.startsWith("0x")
+          ? "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM"
+          : "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA");
+
       return new Promise((resolve, reject) => {
         const OnRampContainer = () => {
           const [completed, setCompleted] = React.useState(false);
@@ -5301,6 +5305,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
           const action = async () => {
             try {
+              const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(
+                navigator.userAgent,
+              );
+              let onRampWindow: Window | null = null;
+              if (isMobile) {
+                onRampWindow = window.open("", "_blank");
+                if (!onRampWindow)
+                  throw new Error("Failed to open On Ramp tab.");
+              }
+
               const result = await client?.httpClient?.initFiatOnRamp({
                 onrampProvider,
                 walletAddress,
@@ -5312,20 +5326,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
               if (!result?.onRampUrl) throw new Error("Missing onRampUrl");
 
-              const popupWidth = 500;
-              const popupHeight = 600;
-              const left =
-                window.screenX + (window.innerWidth - popupWidth) / 2;
-              const top =
-                window.screenY + (window.innerHeight - popupHeight) / 2;
-
-              const onRampWindow = window.open(
-                result.onRampUrl.toString(),
-                "_blank",
-                `width=${popupWidth},height=${popupHeight},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-              );
-              if (!onRampWindow)
-                throw new Error("Failed to open On Ramp window.");
+              if (isMobile && onRampWindow) {
+                onRampWindow.location.href = result.onRampUrl.toString();
+              } else {
+                const popupWidth = 500;
+                const popupHeight = 600;
+                const left =
+                  window.screenX + (window.innerWidth - popupWidth) / 2;
+                const top =
+                  window.screenY + (window.innerHeight - popupHeight) / 2;
+                onRampWindow = window.open(
+                  result.onRampUrl.toString(),
+                  "_blank",
+                  `width=${popupWidth},height=${popupHeight},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+                );
+                if (!onRampWindow)
+                  throw new Error("Failed to open On Ramp window.");
+              }
 
               const onRampTransactionId = result.onRampTransactionId;
               if (!onRampTransactionId)
@@ -5336,7 +5353,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   try {
                     if (
                       onrampProvider === "FIAT_ON_RAMP_PROVIDER_COINBASE" &&
-                      onRampWindow.closed
+                      onRampWindow?.closed
                     ) {
                       cleanup();
                       rejectAction(new Error("On-ramp popup closed by user"));
@@ -5345,7 +5362,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
                     let currentUrl = "";
                     try {
-                      currentUrl = onRampWindow.location.href || "";
+                      currentUrl = onRampWindow?.location.href || "";
                     } catch {}
 
                     if (
@@ -5353,7 +5370,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       currentUrl.startsWith(window.location.origin)
                     ) {
                       cleanup();
-                      onRampWindow.close();
+                      onRampWindow?.close();
                       setCompleted(true);
                       resolveAction();
                       return;
@@ -5373,7 +5390,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     ) {
                       cleanup();
                       try {
-                        onRampWindow.close();
+                        onRampWindow?.close();
                       } catch {}
                       setCompleted(true);
                       resolveAction();
