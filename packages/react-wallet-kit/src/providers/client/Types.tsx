@@ -765,10 +765,8 @@ export type ClientContextType = Override<
      * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.
      */
     handleOnRamp: (params: HandleOnRampParams) => Promise<void>;
-
   }
 >;
-
 
 /** @internal */
 export const ClientContext = createContext<ClientContextType | undefined>(

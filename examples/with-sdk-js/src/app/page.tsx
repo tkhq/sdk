@@ -161,29 +161,24 @@ export default function AuthPage() {
     );
   };
 
-const handleOnRamp = async () => {
-  try {
-    if (!wallets.length || !wallets[0].accounts?.length) {
-      console.error("No wallets available for on-ramp");
-      return;
+  const handleOnRamp = async () => {
+    try {
+      if (!wallets.length || !wallets[0].accounts?.length) {
+        console.error("No wallets available for on-ramp");
+        return;
+      }
+      await turnkey.handleOnRamp({
+        onrampProvider: "FIAT_ON_RAMP_PROVIDER_COINBASE",
+        walletAddress: wallets[0].accounts[1].address,
+        network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
+        cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
+        fiatCurrencyAmount: "1",
+        sandboxMode: true,
+      });
+    } catch (err) {
+      console.error("Fiat On-Ramp failed:", err);
     }
-
-    const result = await turnkey.handleOnRamp({
-      onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
-      walletAddress: wallets[0].accounts[1].address,
-      network: "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
-      cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
-      fiatCurrencyAmount: "1", 
-      sandboxMode: true,
-    });
-
-    console.log("Fiat On-Ramp Handler Result:", result);
-  } catch (err) {
-    console.error("Fiat On-Ramp failed:", err);
-  }
-};
-
-
+  };
 
   const signWithViem = async () => {
     const turnkeyAccount = await createAccount({
@@ -1031,6 +1026,19 @@ const handleOnRamp = async () => {
               >
                 Remove OAuth Provider
               </button>
+
+              <button
+                data-testid="show-facebook-oauth-modal"
+                onClick={handleOnRamp}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Onramp
+              </button>
             </>
           )}
         </div>
@@ -1803,20 +1811,6 @@ const handleOnRamp = async () => {
             >
               Sign With Viem
             </button>
-
-            <button
-              data-testid="on-ramp"
-              onClick={handleOnRamp}
-              style={{
-                backgroundColor: "pink",
-                borderRadius: "8px",
-                padding: "8px 16px",
-                color: "black",
-              }}
-            >
-              On Ramp
-            </button>
-
           </div>
         </div>
       )}

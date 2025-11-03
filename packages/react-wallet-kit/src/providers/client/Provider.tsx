@@ -185,7 +185,8 @@ import type {
 } from "../../types/method-types";
 import { VerifyPage } from "../../components/verify/Verify";
 import { OnRampPage } from "../../components/onramp/OnRamp";
-
+import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
+import React from "react";
 /**
  * @inline
  */
@@ -5264,44 +5265,152 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [pushPage, masterConfig, client, session, user],
   );
 
-const handleOnRamp = useCallback(
-  async (params: HandleOnRampParams): Promise<void> => {
-    const {
-      walletAddress,
-      fiatCurrencyAmount,
-      cryptoCurrencyCode,
-      network,
-      onrampProvider = "FIAT_ON_RAMP_PROVIDER_COINBASE",
-      sandboxMode = true,
-      successPageDuration = 5000,
-    } = params;
+  const handleOnRamp = useCallback(
+    async (params: HandleOnRampParams): Promise<void> => {
+      const {
+        walletAddress,
+        fiatCurrencyAmount,
+        cryptoCurrencyCode,
+        network,
+        onrampProvider = "FIAT_ON_RAMP_PROVIDER_COINBASE",
+        sandboxMode = true,
+        successPageDuration = 5000,
+      } = params;
 
-    const s = await getSession();
-    const organizationId = params?.organizationId || s?.organizationId;
-    if (!organizationId) {
-      throw new TurnkeyError(
-        "A session or passed in organization ID is required.",
-        TurnkeyErrorCodes.INVALID_REQUEST,
-      );
-    }
+      const s = await getSession();
+      const organizationId = params?.organizationId || s?.organizationId;
+      if (!organizationId) {
+        throw new TurnkeyError(
+          "A session or passed in organization ID is required.",
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
+      }
 
-    try {
+      // Return a promise tied to modal lifecycle
       return new Promise((resolve, reject) => {
-        pushPage({
-          key: "Fiat On-Ramp",
-          content: (
+        const OnRampContainer = () => {
+          const [completed, setCompleted] = React.useState(false);
+          const pollingRef = React.useRef<NodeJS.Timeout | null>(null);
+
+          const cleanup = () => {
+            if (pollingRef.current) {
+              clearInterval(pollingRef.current);
+              pollingRef.current = null;
+            }
+          };
+
+          const action = async () => {
+            try {
+              const result = await client?.httpClient?.initFiatOnRamp({
+                onrampProvider,
+                walletAddress,
+                network,
+                cryptoCurrencyCode,
+                fiatCurrencyAmount,
+                sandboxMode,
+              });
+
+              if (!result?.onRampUrl) throw new Error("Missing onRampUrl");
+
+              const popupWidth = 500;
+              const popupHeight = 600;
+              const left =
+                window.screenX + (window.innerWidth - popupWidth) / 2;
+              const top =
+                window.screenY + (window.innerHeight - popupHeight) / 2;
+
+              const onRampWindow = window.open(
+                result.onRampUrl.toString(),
+                "_blank",
+                `width=${popupWidth},height=${popupHeight},top=${top},left=${left},scrollbars=yes,resizable=yes`,
+              );
+              if (!onRampWindow)
+                throw new Error("Failed to open On Ramp window.");
+
+              const onRampTransactionId = result.onRampTransactionId;
+              if (!onRampTransactionId)
+                throw new Error("No onRampTransactionId returned");
+
+              return new Promise<void>((resolveAction, rejectAction) => {
+                pollingRef.current = setInterval(async () => {
+                  try {
+                    if (
+                      onrampProvider === "FIAT_ON_RAMP_PROVIDER_COINBASE" &&
+                      onRampWindow.closed
+                    ) {
+                      cleanup();
+                      rejectAction(new Error("On-ramp popup closed by user"));
+                      return;
+                    }
+
+                    let currentUrl = "";
+                    try {
+                      currentUrl = onRampWindow.location.href || "";
+                    } catch {}
+
+                    if (
+                      currentUrl &&
+                      currentUrl.startsWith(window.location.origin)
+                    ) {
+                      cleanup();
+                      onRampWindow.close();
+                      setCompleted(true);
+                      resolveAction();
+                      return;
+                    }
+
+                    const resp =
+                      await client?.httpClient?.getOnRampTransactionStatus({
+                        transactionId: onRampTransactionId,
+                        refresh: true,
+                      });
+
+                    const status = resp?.transactionStatus;
+                    if (
+                      ["COMPLETED", "FAILED", "CANCELLED"].includes(
+                        status ?? "",
+                      )
+                    ) {
+                      cleanup();
+                      try {
+                        onRampWindow.close();
+                      } catch {}
+                      setCompleted(true);
+                      resolveAction();
+                    }
+                  } catch (error) {
+                    console.warn("Polling error (ignored):", error);
+                  }
+                }, 3000);
+              });
+            } catch (err) {
+              cleanup();
+              throw err;
+            }
+          };
+
+          return (
             <OnRampPage
-              walletAddress={walletAddress}
-              fiatCurrencyAmount={fiatCurrencyAmount}
-              cryptoCurrencyCode={cryptoCurrencyCode}
-              network={network}
+              icon={
+                onrampProvider === "FIAT_ON_RAMP_PROVIDER_COINBASE" ? (
+                  <CoinbaseLogo className="w-12 h-12" />
+                ) : (
+                  <MoonPayLogo className="w-12 h-12" />
+                )
+              }
               onrampProvider={onrampProvider}
-              sandboxMode={sandboxMode}
+              action={action}
+              completed={completed}
               successPageDuration={successPageDuration}
               onSuccess={() => resolve()}
-              onError={(error: unknown) => reject(error)}
+              onError={(err) => reject(err)}
             />
-          ),
+          );
+        };
+
+        pushPage({
+          key: "Fiat On-Ramp",
+          content: <OnRampContainer />,
           showTitle: false,
           preventBack: true,
           onClose: () =>
@@ -5313,19 +5422,9 @@ const handleOnRamp = useCallback(
             ),
         });
       });
-    } catch (error) {
-      if (error instanceof TurnkeyError) throw error;
-      throw new TurnkeyError(
-        "Failed to start fiat on-ramp flow.",
-        TurnkeyErrorCodes.ONRAMP_ERROR,
-        error,
-      );
-    }
-  },
-  [pushPage, client],
-);
-
-
+    },
+    [pushPage, client],
+  );
 
   const handleVerifyAppProofs = useCallback(
     async (params: HandleVerifyAppProofsParams): Promise<void> => {
