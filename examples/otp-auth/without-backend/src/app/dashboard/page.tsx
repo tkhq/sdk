@@ -64,10 +64,7 @@ async function buildUnsignedSolanaTxHex(fromAddress: string, rpcUrl?: string) {
   }).compileToV0Message();
 
   const unsignedTx = new VersionedTransaction(msgV0);
-  const bytes = unsignedTx.serialize({
-    requireAllSignatures: false,
-    verifySignatures: false,
-  });
+  const bytes = unsignedTx.serialize();
   return toHex(bytes);
 }
 
@@ -86,7 +83,7 @@ async function buildEvmDemoTx(params: {
   return {
     type: "eip1559",
     chainId: 11155111, // Sepolia
-    nonce, // number (viem expects number here)
+    nonce,
     gas: 21_000n,
     maxFeePerGas: parseGwei("1"),
     maxPriorityFeePerGas: parseGwei("1"),
@@ -96,7 +93,6 @@ async function buildEvmDemoTx(params: {
   };
 }
 
-/** ---------- Component ---------- */
 export default function Dashboard() {
   const {
     authState,
@@ -113,7 +109,7 @@ export default function Dashboard() {
     if (authState === AuthState.Unauthenticated) router.replace("/");
   }, [authState, router]);
 
-  // Only EMBEDDED wallets/accounts
+  // Only embedded wallets/accounts
   const embeddedAccounts = useMemo(() => {
     return (wallets ?? [])
       .filter((w: Wallet) => w.source === WalletSource.Embedded)
@@ -145,7 +141,7 @@ export default function Dashboard() {
     }
   }, [embeddedAccounts, selectedAccount]);
 
-  // Chain detection (embedded only)
+  // Chain detection
   const fmt = selectedMeta?.addressFormat ?? "";
   const isEvm =
     fmt.includes("ETHEREUM") ||
@@ -238,7 +234,7 @@ export default function Dashboard() {
     }
   };
 
-  /** ---- Sign & Send Transaction (embedded) ---- */
+  /** ---- Sign & Send Transaction ---- */
   const [txSigning, setTxSigning] = useState(false);
   const [sentHash, setSentHash] = useState<string | null>(null);
   const [txErr, setTxErr] = useState<string | null>(null);
@@ -316,7 +312,7 @@ export default function Dashboard() {
           ? unsignedHex
           : `0x${unsignedHex}`;
         transactionType = "TRANSACTION_TYPE_ETHEREUM";
-        rpcUrl = ETH_RPC; // required for embedded broadcast
+        rpcUrl = ETH_RPC;
       } else if (isSol) {
         const solRpc = SOL_RPC || clusterApiUrl("devnet");
         unsignedTransaction = await buildUnsignedSolanaTxHex(
@@ -324,7 +320,7 @@ export default function Dashboard() {
           solRpc,
         );
         transactionType = "TRANSACTION_TYPE_SOLANA";
-        rpcUrl = solRpc; // required for embedded broadcast
+        rpcUrl = solRpc;
       } else {
         throw new Error(
           `Unsupported address format: ${selectedMeta.addressFormat}`,
@@ -513,7 +509,7 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* RIGHT: Wallets + Suborg (debug) */}
+          {/* RIGHT: Wallets + Suborg */}
           <section className="lg:col-span-7 rounded-xl border border-gray-200 bg-white p-5 sm:p-6 shadow-sm space-y-4">
             <h2 className="text-base font-semibold text-gray-800">
               Embedded Wallets
