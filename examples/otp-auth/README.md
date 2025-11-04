@@ -1,52 +1,23 @@
 # Example: `otp-auth`
 
-This example shows a complete OTP auth flow. It contains a NextJS app with:
+This example shows how to implement [email OTP authentication](https://docs.turnkey.com/authentication/email) with Turnkey using the [@turnkey/react-wallet-kit](https://docs.turnkey.com/sdks/react).
 
-- a frontend application
-- a backend application
+It contains two separate implementations:
 
-This example contains an example auth page as well as a stub API endpoint for "your business" (where the contact is resolved into an organization ID). It relies on the `indexedDbClient` to stamp the requests. For more information on OTP auth, [check out our documentation](https://docs.turnkey.com/features/otp-auth).
+- **without-backend** - Uses Turnkey’s managed [Auth Proxy](https://docs.turnkey.com/reference/auth-proxy) to securely handle sign-up and login flows with origin enforcement and centralized configuration — no backend required. Your frontend interacts directly with Turnkey.
+- **with-backend** - Demonstrates how to run the same authentication flow through **your own backend**.
 
-## Getting started
+**Auth Proxy Highlights**
 
-### 1/ Cloning the example
+- **Simplified setup:** No need to host or maintain your own authentication backend. The Auth Proxy is a managed, multi-tenant service that handles signing and forwarding authentication requests.
+- **Built-in security:** Proxy keys are HPKE-encrypted inside Turnkey’s enclave and decrypted only in memory per request. Includes strict origin validation and CORS enforcement.
+- **Centralized configuration:** Manage allowed origins, session lifetimes, email/SMS templates, and OAuth settings directly from the Turnkey Dashboard.
+- **Faster development:** The frontend calls Auth Proxy endpoints directly — no backend endpoints needed for OTP, OAuth, or signup flows.
 
-Make sure you have `node` installed locally; we recommend using Node v18+.
+**Custom Backend Highlights**
 
-```bash
-$ git clone https://github.com/tkhq/sdk
-$ cd sdk/
-$ corepack enable  # Install `pnpm`
-$ pnpm install -r  # Install dependencies
-$ pnpm run build-all  # Compile source code
-$ cd examples/otp-auth/
-```
+You could:
 
-### 2/ Setting up Turnkey
-
-The first step is to set up your Turnkey organization and account. By following the [Quickstart](https://docs.turnkey.com/getting-started/quickstart) guide, you should have:
-
-- A public/private API key pair for Turnkey
-- An organization ID
-- A user with an email and permissions to create a wallet (your root user will have full permissions by default)
-
-Once you've gathered these values, add them to a new `.env.local` file. Notice that your API private key should be securely managed and **_never_** be committed to git.
-
-```bash
-$ cp .env.local.example .env.local
-```
-
-Now open `.env.local` and add the missing environment variables:
-
-- `API_PUBLIC_KEY`
-- `API_PRIVATE_KEY`
-- `NEXT_PUBLIC_ORGANIZATION_ID`
-- `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
-
-### 3/ Running the app
-
-```bash
-$ pnpm run dev
-```
-
-This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to start an OTP auth.
+- **User data:** Store and retrieve user data associated with Turnkey sub-organizations.
+- **Metrics and monitoring:** Add custom validations, rate limiting, and logging.
+- **Co-signing capabilities:** Enable 2/2 signing patterns where your application is a co-signer.
