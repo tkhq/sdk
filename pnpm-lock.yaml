@@ -4474,7 +4474,6 @@ packages:
 
   '@cosmjs/crypto@0.33.1':
     resolution: {integrity: sha512-U4kGIj/SNBzlb2FGgA0sMR0MapVgJUg8N+oIAiN5+vl4GZ3aefmoL1RDyTrFS/7HrB+M+MtHsxC0tvEu4ic/zA==}
-    deprecated: This uses elliptic for cryptographic operations, which contains several security-relevant bugs. To what degree this affects your application is something you need to carefully investigate. See https://github.com/cosmos/cosmjs/issues/1708 for further pointers. Starting with version 0.34.0 the cryptographic library has been replaced. However, private keys might still be at risk.
 
   '@cosmjs/encoding@0.33.1':
     resolution: {integrity: sha512-nuNxf29fUcQE14+1p//VVQDwd1iau5lhaW/7uMz7V2AH3GJbFJoJVaKvVyZvdFk+Cnu+s3wCqgq4gJkhRCJfKw==}
@@ -8670,7 +8669,6 @@ packages:
   '@uniswap/swap-router-contracts@1.3.1':
     resolution: {integrity: sha512-mh/YNbwKb7Mut96VuEtL+Z5bRe0xVIbjjiryn+iMMrK2sFKhR4duk/86mEz0UO5gSx4pQIw9G5276P5heY/7Rg==}
     engines: {node: '>=10'}
-    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   '@uniswap/v2-core@1.0.1':
     resolution: {integrity: sha512-MtybtkUPSyysqLY2U210NBDeCHX+ltHt3oADGdjqoThZaFRDKwM6k1Nb3F0A3hk5hwuQvytFWhrWHOEq6nVJ8Q==}
@@ -8916,23 +8914,18 @@ packages:
 
   '@walletconnect/sign-client@2.19.0':
     resolution: {integrity: sha512-+GkuJzPK9SPq+RZgdKHNOvgRagxh/hhYWFHOeSiGh3DyAQofWuFTq4UrN/MPjKOYswSSBKfIa+iqKYsi4t8zLQ==}
-    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/sign-client@2.19.1':
     resolution: {integrity: sha512-OgBHRPo423S02ceN3lAzcZ3MYb1XuLyTTkKqLmKp/icYZCyRzm3/ynqJDKndiBLJ5LTic0y07LiZilnliYqlvw==}
-    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/sign-client@2.21.0':
     resolution: {integrity: sha512-z7h+PeLa5Au2R591d/8ZlziE0stJvdzP9jNFzFolf2RG/OiXulgFKum8PrIyXy+Rg2q95U9nRVUF9fWcn78yBA==}
-    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/sign-client@2.21.1':
     resolution: {integrity: sha512-QaXzmPsMnKGV6tc4UcdnQVNOz4zyXgarvdIQibJ4L3EmLat73r5ZVl4c0cCOcoaV7rgM9Wbphgu5E/7jNcd3Zg==}
-    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/sign-client@2.21.8':
     resolution: {integrity: sha512-lTcUbMjQ0YUZ5wzCLhpBeS9OkWYgLLly6BddEp2+pm4QxiwCCU2Nao0nBJXgzKbZYQOgrEGqtdm/7ze67gjzRA==}
-    deprecated: 'Reliability and performance improvements. See: https://github.com/WalletConnect/walletconnect-monorepo/releases'
 
   '@walletconnect/solana-adapter@0.0.8':
     resolution: {integrity: sha512-Qb7MT8SdkeBldfUCmF+rYW6vL98mxPuT1yAwww5X2vpx7xEPZvFCoAKnyT5fXu0v56rMxhW3MGejnHyyYdDY7Q==}
