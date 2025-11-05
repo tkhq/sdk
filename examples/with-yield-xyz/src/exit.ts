@@ -32,7 +32,7 @@ async function main() {
   const provider = new ethers.JsonRpcProvider(process.env.RPC_URL!);
   const connectedSigner = turnkeySigner.connect(provider);
   const exitPayload = {
-    yieldId: process.env.YIELD_ID,
+    yieldId: process.env.YIELD_ID!,
     address: turnkeyAccount.address,
     arguments: { amount: "0.1" },
   };
