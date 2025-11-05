@@ -12,12 +12,12 @@
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
-    "dotenv": "^16.0.3",
-    "ethers": "^6.10.0",
-    "prompts": "^2.4.2",
-    "viem": "^2.38.4"
+    "ethers": "6.10.0",
+    "dotenv": "16.0.3",
+    "prompts": "2.4.2",
+    "viem": "2.37.11"
   },
   "devDependencies": {
-    "@types/prompts": "^2.4.2"
+    "@types/prompts": "2.4.2"
   }
 }
