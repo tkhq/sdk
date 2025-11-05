@@ -42,9 +42,9 @@ Now open `.env.local` and add the missing environment variables:
 
 - `TURNKEY_API_PUBLIC_KEY`
 - `TURNKEY_API_PRIVATE_KEY`
-- `TURNKEY_ORG_ID`
+- `TURNKEY_ORGANIZATION_ID`
 - `TURNKEY_BASE_URL`
-- `TURNKEY_WALLET_ADDRESS`
+- `SIGN_WITH`
 - `YIELD_ID`
 - `YIELD_API_KEY`
 - `RPC_URL`

@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 const turnkeyAccount = {
-  address: process.env.TURNKEY_WALLET_ADDRESS!,
+  address: process.env.SIGN_WITH!,
 };
 console.log(turnkeyAccount);
 

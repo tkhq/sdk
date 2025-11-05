@@ -19,12 +19,12 @@ async function main() {
   );
 
   const turnkeyAccount = {
-    address: process.env.TURNKEY_WALLET_ADDRESS!,
+    address: process.env.SIGN_WITH!,
   };
 
   const turnkeySigner = new TurnkeySigner({
     client: turnkeyClient,
-    organizationId: process.env.TURNKEY_ORG_ID!,
+    organizationId: process.env.TURNKEY_ORGANIZATION_ID!,
     signWith: turnkeyAccount.address,
   });
 
