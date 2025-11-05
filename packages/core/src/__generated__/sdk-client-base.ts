@@ -705,6 +705,52 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getOnRampTransactionStatus = async (
+    input: SdkTypes.TGetOnRampTransactionStatusBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetOnRampTransactionStatusResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_onramp_transaction_status",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetOnRampTransactionStatus = async (
+    input: SdkTypes.TGetOnRampTransactionStatusBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_onramp_transaction_status";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_ON_RAMP_TRANSACTION_STATUS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getOrganization = async (
     input: SdkTypes.TGetOrganizationBody = {},
     stampWith?: StamperType,
@@ -1194,6 +1240,52 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId,
       type: "ACTIVITY_TYPE_GET_APP_PROOFS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listFiatOnRampCredentials = async (
+    input: SdkTypes.TListFiatOnRampCredentialsBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TListFiatOnRampCredentialsResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/list_fiat_on_ramp_credentials",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampListFiatOnRampCredentials = async (
+    input: SdkTypes.TListFiatOnRampCredentialsBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_LIST_FIAT_ON_RAMP_CREDENTIALS",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -1947,6 +2039,59 @@ export class TurnkeySDKClientBase {
       organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createFiatOnRampCredential = async (
+    input: SdkTypes.TCreateFiatOnRampCredentialBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TCreateFiatOnRampCredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/create_fiat_on_ramp_credential",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
+      },
+      "createFiatOnRampCredentialResult",
+      stampWith,
+    );
+  };
+
+  stampCreateFiatOnRampCredential = async (
+    input: SdkTypes.TCreateFiatOnRampCredentialBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/create_fiat_on_ramp_credential";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2840,6 +2985,59 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  deleteFiatOnRampCredential = async (
+    input: SdkTypes.TDeleteFiatOnRampCredentialBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TDeleteFiatOnRampCredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/delete_fiat_on_ramp_credential",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL",
+      },
+      "deleteFiatOnRampCredentialResult",
+      stampWith,
+    );
+  };
+
+  stampDeleteFiatOnRampCredential = async (
+    input: SdkTypes.TDeleteFiatOnRampCredentialBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/delete_fiat_on_ramp_credential";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   deleteInvitation = async (
     input: SdkTypes.TDeleteInvitationBody,
     stampWith?: StamperType,
@@ -3606,6 +3804,58 @@ export class TurnkeySDKClientBase {
       organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  ethSendTransaction = async (
+    input: SdkTypes.TEthSendTransactionBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TEthSendTransactionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/eth_send_transaction",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
+      },
+      "ethSendTransactionResult",
+      stampWith,
+    );
+  };
+
+  stampEthSendTransaction = async (
+    input: SdkTypes.TEthSendTransactionBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/eth_send_transaction";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4842,6 +5092,59 @@ export class TurnkeySDKClientBase {
       organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_STAMP_LOGIN",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  updateFiatOnRampCredential = async (
+    input: SdkTypes.TUpdateFiatOnRampCredentialBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TUpdateFiatOnRampCredentialResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/update_fiat_on_ramp_credential",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL",
+      },
+      "updateFiatOnRampCredentialResult",
+      stampWith,
+    );
+  };
+
+  stampUpdateFiatOnRampCredential = async (
+    input: SdkTypes.TUpdateFiatOnRampCredentialBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl =
+      this.config.apiBaseUrl +
+      "/public/v1/submit/update_fiat_on_ramp_credential";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

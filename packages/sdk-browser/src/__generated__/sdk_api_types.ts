@@ -119,6 +119,19 @@ export type TGetOauthProvidersBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetOnRampTransactionStatusResponse =
+  operations["PublicApiService_GetOnRampTransactionStatus"]["responses"]["200"]["schema"];
+
+export type TGetOnRampTransactionStatusInput = {
+  body: TGetOnRampTransactionStatusBody;
+};
+
+export type TGetOnRampTransactionStatusBody = Omit<
+  operations["PublicApiService_GetOnRampTransactionStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetOrganizationResponse =
   operations["PublicApiService_GetOrganization"]["responses"]["200"]["schema"];
 
@@ -240,6 +253,19 @@ export type TGetAppProofsInput = { body: TGetAppProofsBody };
 
 export type TGetAppProofsBody = Omit<
   operations["PublicApiService_GetAppProofs"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListFiatOnRampCredentialsResponse =
+  operations["PublicApiService_ListFiatOnRampCredentials"]["responses"]["200"]["schema"];
+
+export type TListFiatOnRampCredentialsInput = {
+  body: TListFiatOnRampCredentialsBody;
+};
+
+export type TListFiatOnRampCredentialsBody = Omit<
+  operations["PublicApiService_ListFiatOnRampCredentials"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -418,6 +444,18 @@ export type TCreateAuthenticatorsBody =
   operations["PublicApiService_CreateAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateFiatOnRampCredentialResponse =
+  operations["PublicApiService_CreateFiatOnRampCredential"]["responses"]["200"]["schema"]["activity"]["result"]["createFiatOnRampCredentialResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateFiatOnRampCredentialInput = {
+  body: TCreateFiatOnRampCredentialBody;
+};
+
+export type TCreateFiatOnRampCredentialBody =
+  operations["PublicApiService_CreateFiatOnRampCredential"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TCreateInvitationsResponse =
   operations["PublicApiService_CreateInvitations"]["responses"]["200"]["schema"]["activity"]["result"]["createInvitationsResult"] &
     definitions["v1ActivityResponse"];
@@ -594,6 +632,18 @@ export type TDeleteAuthenticatorsBody =
   operations["PublicApiService_DeleteAuthenticators"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TDeleteFiatOnRampCredentialResponse =
+  operations["PublicApiService_DeleteFiatOnRampCredential"]["responses"]["200"]["schema"]["activity"]["result"]["deleteFiatOnRampCredentialResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteFiatOnRampCredentialInput = {
+  body: TDeleteFiatOnRampCredentialBody;
+};
+
+export type TDeleteFiatOnRampCredentialBody =
+  operations["PublicApiService_DeleteFiatOnRampCredential"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TDeleteInvitationResponse =
   operations["PublicApiService_DeleteInvitation"]["responses"]["200"]["schema"]["activity"]["result"]["deleteInvitationResult"] &
     definitions["v1ActivityResponse"];
@@ -746,6 +796,16 @@ export type TEthSendRawTransactionInput = { body: TEthSendRawTransactionBody };
 
 export type TEthSendRawTransactionBody =
   operations["PublicApiService_EthSendRawTransaction"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TEthSendTransactionResponse =
+  operations["PublicApiService_EthSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendTransactionResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TEthSendTransactionInput = { body: TEthSendTransactionBody };
+
+export type TEthSendTransactionBody =
+  operations["PublicApiService_EthSendTransaction"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TExportPrivateKeyResponse =
@@ -990,6 +1050,18 @@ export type TStampLoginInput = { body: TStampLoginBody };
 
 export type TStampLoginBody =
   operations["PublicApiService_StampLogin"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateFiatOnRampCredentialResponse =
+  operations["PublicApiService_UpdateFiatOnRampCredential"]["responses"]["200"]["schema"]["activity"]["result"]["updateFiatOnRampCredentialResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateFiatOnRampCredentialInput = {
+  body: TUpdateFiatOnRampCredentialBody;
+};
+
+export type TUpdateFiatOnRampCredentialBody =
+  operations["PublicApiService_UpdateFiatOnRampCredential"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TUpdateOauth2CredentialResponse =

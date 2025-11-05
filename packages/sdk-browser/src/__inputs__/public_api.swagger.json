@@ -388,6 +388,38 @@
         "tags": ["User Auth"]
       }
     },
+    "/public/v1/query/get_onramp_transaction_status": {
+      "post": {
+        "summary": "Get On Ramp transaction status",
+        "description": "Get the status of an on ramp transaction.",
+        "operationId": "PublicApiService_GetOnRampTransactionStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetOnRampTransactionStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetOnRampTransactionStatusRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
+      }
+    },
     "/public/v1/query/get_organization": {
       "post": {
         "summary": "Get organization",
@@ -710,8 +742,8 @@
     },
     "/public/v1/query/list_app_proofs": {
       "post": {
-        "summary": "List app proofs for an activity",
-        "description": "List the app proofs for the given activity.",
+        "summary": "List App Proofs for an activity",
+        "description": "List the App Proofs for the given activity.",
         "operationId": "PublicApiService_GetAppProofs",
         "responses": {
           "200": {
@@ -738,6 +770,38 @@
           }
         ],
         "tags": ["App Proof"]
+      }
+    },
+    "/public/v1/query/list_fiat_on_ramp_credentials": {
+      "post": {
+        "summary": "List Fiat On Ramp Credentials",
+        "description": "List all fiat on ramp provider credentials within an organization.",
+        "operationId": "PublicApiService_ListFiatOnRampCredentials",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListFiatOnRampCredentialsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListFiatOnRampCredentialsRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
       }
     },
     "/public/v1/query/list_oauth2_credentials": {
@@ -1250,6 +1314,38 @@
           }
         ],
         "tags": ["Authenticators"]
+      }
+    },
+    "/public/v1/submit/create_fiat_on_ramp_credential": {
+      "post": {
+        "summary": "Create a Fiat On Ramp Credential",
+        "description": "Create a fiat on ramp provider credential",
+        "operationId": "PublicApiService_CreateFiatOnRampCredential",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateFiatOnRampCredentialRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
       }
     },
     "/public/v1/submit/create_invitations": {
@@ -1796,6 +1892,38 @@
         "tags": ["Authenticators"]
       }
     },
+    "/public/v1/submit/delete_fiat_on_ramp_credential": {
+      "post": {
+        "summary": "Delete a Fiat On Ramp Credential",
+        "description": "Delete a fiat on ramp provider credential",
+        "operationId": "PublicApiService_DeleteFiatOnRampCredential",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteFiatOnRampCredentialRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
+      }
+    },
     "/public/v1/submit/delete_invitation": {
       "post": {
         "summary": "Delete invitation",
@@ -2270,6 +2398,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1EthSendRawTransactionRequest"
+            }
+          }
+        ],
+        "tags": ["Broadcasting"]
+      }
+    },
+    "/public/v1/submit/eth_send_transaction": {
+      "post": {
+        "summary": "Submit a transaction intent for broadcasting.",
+        "description": "Submit a transaction intent describing a transaction you would like to broadcast.",
+        "operationId": "PublicApiService_EthSendTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EthSendTransactionRequest"
             }
           }
         ],
@@ -3042,6 +3202,38 @@
           }
         ],
         "tags": ["Sessions"]
+      }
+    },
+    "/public/v1/submit/update_fiat_on_ramp_credential": {
+      "post": {
+        "summary": "Update a Fiat On Ramp Credential",
+        "description": "Update a fiat on ramp provider credential",
+        "operationId": "PublicApiService_UpdateFiatOnRampCredential",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateFiatOnRampCredentialRequest"
+            }
+          }
+        ],
+        "tags": ["On Ramp"]
       }
     },
     "/public/v1/submit/update_oauth2_credential": {
@@ -3843,7 +4035,7 @@
             "type": "object",
             "$ref": "#/definitions/v1AppProof"
           },
-          "description": "A list of app proofs generated by enclaves during activity execution, providing verifiable attestations of performed operations."
+          "description": "A list of App Proofs generated by enclaves during activity execution, providing verifiable attestations of performed operations."
         },
         "fingerprint": {
           "type": "string",
@@ -4008,7 +4200,11 @@
         "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
         "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
         "ACTIVITY_TYPE_DELETE_POLICIES",
-        "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION"
+        "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION",
+        "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
+        "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
+        "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL",
+        "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL"
       ]
     },
     "v1AddressFormat": {
@@ -4615,6 +4811,71 @@
         }
       },
       "required": ["authenticatorIds"]
+    },
+    "v1CreateFiatOnRampCredentialIntent": {
+      "type": "object",
+      "properties": {
+        "onrampProvider": {
+          "$ref": "#/definitions/v1FiatOnRampProvider",
+          "description": "The fiat on-ramp provider"
+        },
+        "projectId": {
+          "type": "string",
+          "description": "Project ID for the on-ramp provider. Some providers, like Coinbase, require this additional identifier"
+        },
+        "publishableApiKey": {
+          "type": "string",
+          "description": "Publishable API key for the on-ramp provider"
+        },
+        "encryptedSecretApiKey": {
+          "type": "string",
+          "description": "Secret API key for the on-ramp provider encrypted to our on-ramp encryption public key"
+        },
+        "encryptedPrivateApiKey": {
+          "type": "string",
+          "description": "Private API key for the on-ramp provider encrypted to our on-ramp encryption public key. Some providers, like Coinbase, require this additional key."
+        },
+        "sandboxMode": {
+          "type": "boolean",
+          "description": "If the on-ramp credential is a sandbox credential"
+        }
+      },
+      "required": [
+        "onrampProvider",
+        "publishableApiKey",
+        "encryptedSecretApiKey"
+      ]
+    },
+    "v1CreateFiatOnRampCredentialRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateFiatOnRampCredentialIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateFiatOnRampCredentialResult": {
+      "type": "object",
+      "properties": {
+        "fiatOnRampCredentialId": {
+          "type": "string",
+          "description": "Unique identifier of the Fiat On-Ramp credential that was created"
+        }
+      },
+      "required": ["fiatOnRampCredentialId"]
     },
     "v1CreateInvitationsIntent": {
       "type": "object",
@@ -6104,6 +6365,47 @@
       },
       "required": ["authenticatorIds"]
     },
+    "v1DeleteFiatOnRampCredentialIntent": {
+      "type": "object",
+      "properties": {
+        "fiatOnrampCredentialId": {
+          "type": "string",
+          "description": "The ID of the fiat on-ramp credential to delete"
+        }
+      },
+      "required": ["fiatOnrampCredentialId"]
+    },
+    "v1DeleteFiatOnRampCredentialRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteFiatOnRampCredentialIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteFiatOnRampCredentialResult": {
+      "type": "object",
+      "properties": {
+        "fiatOnRampCredentialId": {
+          "type": "string",
+          "description": "Unique identifier of the Fiat On-Ramp credential that was deleted"
+        }
+      },
+      "required": ["fiatOnRampCredentialId"]
+    },
     "v1DeleteInvitationIntent": {
       "type": "object",
       "properties": {
@@ -6928,7 +7230,7 @@
           "type": "string",
           "description": "The raw, signed transaction to be sent."
         },
-        "chainId": {
+        "caip2": {
           "type": "string",
           "enum": [
             "eip155:1",
@@ -6936,10 +7238,10 @@
             "eip155:8453",
             "eip155:84532"
           ],
-          "description": "The CAIP-2 chain ID."
+          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         }
       },
-      "required": ["signedTransaction", "chainId"]
+      "required": ["signedTransaction", "caip2"]
     },
     "v1EthSendRawTransactionRequest": {
       "type": "object",
@@ -6963,6 +7265,101 @@
       "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1EthSendRawTransactionResult": {
+      "type": "object",
+      "properties": {
+        "transactionHash": {
+          "type": "string",
+          "description": "The transaction hash of the sent transaction"
+        }
+      },
+      "required": ["transactionHash"]
+    },
+    "v1EthSendTransactionIntent": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "A wallet or private key address to sign with. This does not support private key IDs."
+        },
+        "sponsor": {
+          "type": "boolean",
+          "description": "Whether to sponsor this transaction via Gas Station."
+        },
+        "caip2": {
+          "type": "string",
+          "enum": [
+            "eip155:1",
+            "eip155:11155111",
+            "eip155:8453",
+            "eip155:84532"
+          ],
+          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
+        },
+        "to": {
+          "type": "string",
+          "description": "Recipient address as a hex string with 0x prefix."
+        },
+        "value": {
+          "type": "string",
+          "description": "Amount of native asset to send in wei."
+        },
+        "data": {
+          "type": "string",
+          "description": "Hex-encoded call data for contract interactions."
+        },
+        "nonce": {
+          "type": "string",
+          "description": "Transaction nonce."
+        },
+        "gasLimit": {
+          "type": "string",
+          "description": "Maximum amount of gas to use for this transaction."
+        },
+        "maxFeePerGas": {
+          "type": "string",
+          "description": "Maximum total fee per gas unit (base fee + priority fee) in wei, for EIP-1559 transactions."
+        },
+        "maxPriorityFeePerGas": {
+          "type": "string",
+          "description": "Maximum priority fee (tip) per gas unit in wei, for EIP-1559 transactions."
+        },
+        "deadline": {
+          "type": "string",
+          "description": "Unix timestamp after which the Gas Station meta-transaction is no longer valid. Only used when sponsor=true."
+        }
+      },
+      "required": [
+        "from",
+        "caip2",
+        "to",
+        "nonce",
+        "gasLimit",
+        "maxFeePerGas",
+        "maxPriorityFeePerGas"
+      ]
+    },
+    "v1EthSendTransactionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_ETH_SEND_TRANSACTION"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1EthSendTransactionIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1EthSendTransactionResult": {
       "type": "object",
       "properties": {
         "transactionHash": {
@@ -7154,6 +7551,58 @@
         "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM",
         "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA",
         "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_BASE"
+      ]
+    },
+    "v1FiatOnRampCredential": {
+      "type": "object",
+      "properties": {
+        "fiatOnrampCredentialId": {
+          "type": "string",
+          "description": "Unique identifier for a given Fiat On-Ramp Credential."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for an Organization."
+        },
+        "onrampProvider": {
+          "$ref": "#/definitions/v1FiatOnRampProvider",
+          "description": "The fiat on-ramp provider."
+        },
+        "projectId": {
+          "type": "string",
+          "description": "Project ID for the on-ramp provider. Some providers, like Coinbase, require this additional identifier."
+        },
+        "publishableApiKey": {
+          "type": "string",
+          "description": "Publishable API key for the on-ramp provider."
+        },
+        "encryptedSecretApiKey": {
+          "type": "string",
+          "description": "Secret API key for the on-ramp provider encrypted to our on-ramp encryption public key."
+        },
+        "encryptedPrivateApiKey": {
+          "type": "string",
+          "description": "Private API key for the on-ramp provider encrypted to our on-ramp encryption public key. Some providers, like Coinbase, require this additional key."
+        },
+        "sandboxMode": {
+          "type": "boolean",
+          "description": "If the on-ramp credential is a sandbox credential."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "fiatOnrampCredentialId",
+        "organizationId",
+        "onrampProvider",
+        "publishableApiKey",
+        "encryptedSecretApiKey",
+        "createdAt",
+        "updatedAt"
       ]
     },
     "v1FiatOnRampCryptoCurrency": {
@@ -7519,6 +7968,34 @@
         }
       },
       "required": ["oauthProviders"]
+    },
+    "v1GetOnRampTransactionStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "transactionId": {
+          "type": "string",
+          "description": "The unique identifier for the fiat on ramp transaction."
+        },
+        "refresh": {
+          "type": "boolean",
+          "description": "Optional flag to specify if the transaction status should be refreshed from the fiat on ramp provider. Default = false."
+        }
+      },
+      "required": ["organizationId", "transactionId"]
+    },
+    "v1GetOnRampTransactionStatusResponse": {
+      "type": "object",
+      "properties": {
+        "transactionStatus": {
+          "type": "string",
+          "description": "The status of the fiat on ramp transaction."
+        }
+      },
+      "required": ["transactionStatus"]
     },
     "v1GetOrganizationConfigsRequest": {
       "type": "object",
@@ -8907,6 +9384,18 @@
         },
         "ethSendRawTransactionIntent": {
           "$ref": "#/definitions/v1EthSendRawTransactionIntent"
+        },
+        "ethSendTransactionIntent": {
+          "$ref": "#/definitions/v1EthSendTransactionIntent"
+        },
+        "createFiatOnRampCredentialIntent": {
+          "$ref": "#/definitions/v1CreateFiatOnRampCredentialIntent"
+        },
+        "updateFiatOnRampCredentialIntent": {
+          "$ref": "#/definitions/v1UpdateFiatOnRampCredentialIntent"
+        },
+        "deleteFiatOnRampCredentialIntent": {
+          "$ref": "#/definitions/v1DeleteFiatOnRampCredentialIntent"
         }
       }
     },
@@ -9005,6 +9494,29 @@
         "INVITATION_STATUS_ACCEPTED",
         "INVITATION_STATUS_REVOKED"
       ]
+    },
+    "v1ListFiatOnRampCredentialsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1ListFiatOnRampCredentialsResponse": {
+      "type": "object",
+      "properties": {
+        "fiatOnRampCredentials": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1FiatOnRampCredential"
+          }
+        }
+      },
+      "required": ["fiatOnRampCredentials"]
     },
     "v1ListOauth2CredentialsRequest": {
       "type": "object",
@@ -10210,6 +10722,18 @@
         },
         "ethSendRawTransactionResult": {
           "$ref": "#/definitions/v1EthSendRawTransactionResult"
+        },
+        "createFiatOnRampCredentialResult": {
+          "$ref": "#/definitions/v1CreateFiatOnRampCredentialResult"
+        },
+        "updateFiatOnRampCredentialResult": {
+          "$ref": "#/definitions/v1UpdateFiatOnRampCredentialResult"
+        },
+        "deleteFiatOnRampCredentialResult": {
+          "$ref": "#/definitions/v1DeleteFiatOnRampCredentialResult"
+        },
+        "ethSendTransactionResult": {
+          "$ref": "#/definitions/v1EthSendTransactionResult"
         }
       }
     },
@@ -10931,6 +11455,72 @@
           "description": "Unique identifier for a given User. (representing the turnkey signer user id)"
         }
       }
+    },
+    "v1UpdateFiatOnRampCredentialIntent": {
+      "type": "object",
+      "properties": {
+        "fiatOnrampCredentialId": {
+          "type": "string",
+          "description": "The ID of the fiat on-ramp credential to update"
+        },
+        "onrampProvider": {
+          "$ref": "#/definitions/v1FiatOnRampProvider",
+          "description": "The fiat on-ramp provider"
+        },
+        "projectId": {
+          "type": "string",
+          "description": "Project ID for the on-ramp provider. Some providers, like Coinbase, require this additional identifier."
+        },
+        "publishableApiKey": {
+          "type": "string",
+          "description": "Publishable API key for the on-ramp provider"
+        },
+        "encryptedSecretApiKey": {
+          "type": "string",
+          "description": "Secret API key for the on-ramp provider encrypted to our on-ramp encryption public key"
+        },
+        "encryptedPrivateApiKey": {
+          "type": "string",
+          "description": "Private API key for the on-ramp provider encrypted to our on-ramp encryption public key. Some providers, like Coinbase, require this additional key."
+        }
+      },
+      "required": [
+        "fiatOnrampCredentialId",
+        "onrampProvider",
+        "publishableApiKey",
+        "encryptedSecretApiKey"
+      ]
+    },
+    "v1UpdateFiatOnRampCredentialRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateFiatOnRampCredentialIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateFiatOnRampCredentialResult": {
+      "type": "object",
+      "properties": {
+        "fiatOnRampCredentialId": {
+          "type": "string",
+          "description": "Unique identifier of the Fiat On-Ramp credential that was updated"
+        }
+      },
+      "required": ["fiatOnRampCredentialId"]
     },
     "v1UpdateOauth2CredentialIntent": {
       "type": "object",
