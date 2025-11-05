@@ -47,6 +47,10 @@ import type {
   TGetOauthProvidersResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetOnRampTransactionStatusBody,
+  TGetOnRampTransactionStatusResponse,
+} from "./public_api.fetcher";
+import type {
   TGetOrganizationBody,
   TGetOrganizationResponse,
 } from "./public_api.fetcher";
@@ -80,6 +84,10 @@ import type {
 import type {
   TGetAppProofsBody,
   TGetAppProofsResponse,
+} from "./public_api.fetcher";
+import type {
+  TListFiatOnRampCredentialsBody,
+  TListFiatOnRampCredentialsResponse,
 } from "./public_api.fetcher";
 import type {
   TListOauth2CredentialsBody,
@@ -138,6 +146,10 @@ import type {
 import type {
   TCreateAuthenticatorsBody,
   TCreateAuthenticatorsResponse,
+} from "./public_api.fetcher";
+import type {
+  TCreateFiatOnRampCredentialBody,
+  TCreateFiatOnRampCredentialResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateInvitationsBody,
@@ -208,6 +220,10 @@ import type {
   TDeleteAuthenticatorsResponse,
 } from "./public_api.fetcher";
 import type {
+  TDeleteFiatOnRampCredentialBody,
+  TDeleteFiatOnRampCredentialResponse,
+} from "./public_api.fetcher";
+import type {
   TDeleteInvitationBody,
   TDeleteInvitationResponse,
 } from "./public_api.fetcher";
@@ -263,6 +279,10 @@ import type { TEmailAuthBody, TEmailAuthResponse } from "./public_api.fetcher";
 import type {
   TEthSendRawTransactionBody,
   TEthSendRawTransactionResponse,
+} from "./public_api.fetcher";
+import type {
+  TEthSendTransactionBody,
+  TEthSendTransactionResponse,
 } from "./public_api.fetcher";
 import type {
   TExportPrivateKeyBody,
@@ -347,6 +367,10 @@ import type {
 import type {
   TStampLoginBody,
   TStampLoginResponse,
+} from "./public_api.fetcher";
+import type {
+  TUpdateFiatOnRampCredentialBody,
+  TUpdateFiatOnRampCredentialResponse,
 } from "./public_api.fetcher";
 import type {
   TUpdateOauth2CredentialBody,
@@ -746,6 +770,41 @@ export class TurnkeyClient {
   };
 
   /**
+   * Get the status of an on ramp transaction.
+   *
+   * Sign the provided `TGetOnRampTransactionStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_onramp_transaction_status).
+   *
+   * See also {@link stampGetOnRampTransactionStatus}.
+   */
+  getOnRampTransactionStatus = async (
+    input: TGetOnRampTransactionStatusBody,
+  ): Promise<TGetOnRampTransactionStatusResponse> => {
+    return this.request(
+      "/public/v1/query/get_onramp_transaction_status",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetOnRampTransactionStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetOnRampTransactionStatus}.
+   */
+  stampGetOnRampTransactionStatus = async (
+    input: TGetOnRampTransactionStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_onramp_transaction_status";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Get details about an organization.
    *
    * Sign the provided `TGetOrganizationBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_organization).
@@ -1047,7 +1106,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List the app proofs for the given activity.
+   * List the App Proofs for the given activity.
    *
    * Sign the provided `TGetAppProofsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_app_proofs).
    *
@@ -1068,6 +1127,41 @@ export class TurnkeyClient {
     input: TGetAppProofsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_app_proofs";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List all fiat on ramp provider credentials within an organization.
+   *
+   * Sign the provided `TListFiatOnRampCredentialsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_fiat_on_ramp_credentials).
+   *
+   * See also {@link stampListFiatOnRampCredentials}.
+   */
+  listFiatOnRampCredentials = async (
+    input: TListFiatOnRampCredentialsBody,
+  ): Promise<TListFiatOnRampCredentialsResponse> => {
+    return this.request(
+      "/public/v1/query/list_fiat_on_ramp_credentials",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListFiatOnRampCredentialsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListFiatOnRampCredentials}.
+   */
+  stampListFiatOnRampCredentials = async (
+    input: TListFiatOnRampCredentialsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1562,6 +1656,41 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_authenticators";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create a fiat on ramp provider credential
+   *
+   * Sign the provided `TCreateFiatOnRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_fiat_on_ramp_credential).
+   *
+   * See also {@link stampCreateFiatOnRampCredential}.
+   */
+  createFiatOnRampCredential = async (
+    input: TCreateFiatOnRampCredentialBody,
+  ): Promise<TCreateFiatOnRampCredentialResponse> => {
+    return this.request(
+      "/public/v1/submit/create_fiat_on_ramp_credential",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateFiatOnRampCredentialBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateFiatOnRampCredential}.
+   */
+  stampCreateFiatOnRampCredential = async (
+    input: TCreateFiatOnRampCredentialBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_fiat_on_ramp_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2113,6 +2242,41 @@ export class TurnkeyClient {
   };
 
   /**
+   * Delete a fiat on ramp provider credential
+   *
+   * Sign the provided `TDeleteFiatOnRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_fiat_on_ramp_credential).
+   *
+   * See also {@link stampDeleteFiatOnRampCredential}.
+   */
+  deleteFiatOnRampCredential = async (
+    input: TDeleteFiatOnRampCredentialBody,
+  ): Promise<TDeleteFiatOnRampCredentialResponse> => {
+    return this.request(
+      "/public/v1/submit/delete_fiat_on_ramp_credential",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteFiatOnRampCredentialBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteFiatOnRampCredential}.
+   */
+  stampDeleteFiatOnRampCredential = async (
+    input: TDeleteFiatOnRampCredentialBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_fiat_on_ramp_credential";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Delete an existing invitation.
    *
    * Sign the provided `TDeleteInvitationBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_invitation).
@@ -2575,6 +2739,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/eth_send_raw_transaction";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Submit a transaction intent describing a transaction you would like to broadcast.
+   *
+   * Sign the provided `TEthSendTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/eth_send_transaction).
+   *
+   * See also {@link stampEthSendTransaction}.
+   */
+  ethSendTransaction = async (
+    input: TEthSendTransactionBody,
+  ): Promise<TEthSendTransactionResponse> => {
+    return this.request("/public/v1/submit/eth_send_transaction", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TEthSendTransactionBody` by using the client's `stamp` function.
+   *
+   * See also {@link EthSendTransaction}.
+   */
+  stampEthSendTransaction = async (
+    input: TEthSendTransactionBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/eth_send_transaction";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -3304,6 +3500,41 @@ export class TurnkeyClient {
    */
   stampStampLogin = async (input: TStampLoginBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/stamp_login";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update a fiat on ramp provider credential
+   *
+   * Sign the provided `TUpdateFiatOnRampCredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_fiat_on_ramp_credential).
+   *
+   * See also {@link stampUpdateFiatOnRampCredential}.
+   */
+  updateFiatOnRampCredential = async (
+    input: TUpdateFiatOnRampCredentialBody,
+  ): Promise<TUpdateFiatOnRampCredentialResponse> => {
+    return this.request(
+      "/public/v1/submit/update_fiat_on_ramp_credential",
+      input,
+    );
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateFiatOnRampCredentialBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateFiatOnRampCredential}.
+   */
+  stampUpdateFiatOnRampCredential = async (
+    input: TUpdateFiatOnRampCredentialBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/update_fiat_on_ramp_credential";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
