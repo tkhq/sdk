@@ -167,8 +167,8 @@ export default function AuthPage() {
         return;
       }
 
-      const evmAccount = wallets[0].accounts.find((a) =>
-        a.address?.startsWith("0x"),
+      const evmAccount: WalletAccount | undefined = wallets[0].accounts.find(
+        (a) => a.addressFormat === "ADDRESS_FORMAT_ETHEREUM",
       );
 
       if (!evmAccount) {
@@ -178,9 +178,9 @@ export default function AuthPage() {
 
       await turnkey.handleOnRamp({
         onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
-        walletAddress: evmAccount.address,
+        walletAccount: evmAccount,
+        openInNewTab: true,
         cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
-        fiatCurrencyAmount: "1",
         sandboxMode: true,
       });
     } catch (err) {
@@ -1036,7 +1036,7 @@ export default function AuthPage() {
               </button>
 
               <button
-                data-testid="show-facebook-oauth-modal"
+                data-testid="show-onramp-modal"
                 onClick={handleOnRamp}
                 style={{
                   backgroundColor: "purple",

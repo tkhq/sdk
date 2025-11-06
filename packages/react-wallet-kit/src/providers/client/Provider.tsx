@@ -118,6 +118,8 @@ import {
   type PasskeyAuthResult,
   type v1BootProof,
   type v1AppProof,
+  FiatOnRampCryptoCurrency,
+  FiatOnRampBlockchainNetwork,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -186,7 +188,7 @@ import type {
 import { VerifyPage } from "../../components/verify/Verify";
 import { OnRampPage } from "../../components/onramp/OnRamp";
 import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
-import React from "react";
+
 /**
  * @inline
  */
@@ -5268,12 +5270,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleOnRamp = useCallback(
     async (params: HandleOnRampParams): Promise<void> => {
       const {
-        walletAddress,
+        walletAccount,
         fiatCurrencyAmount,
-        cryptoCurrencyCode,
-        onrampProvider = "FIAT_ON_RAMP_PROVIDER_COINBASE",
+        fiatCurrencyCode,
+        paymentMethod,
+        countrySubdivisionCode,
+        urlForSignature,
+        countryCode,
+        onrampProvider = "FIAT_ON_RAMP_PROVIDER_MOONPAY",
         sandboxMode = true,
         successPageDuration = 5000,
+        openInNewTab = false,
       } = params;
 
       const s = await getSession();
@@ -5285,16 +5292,38 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      const network =
-        params.network ||
-        (walletAddress?.startsWith("0x")
-          ? "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM"
-          : "FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_SOLANA");
+      let cryptoCurrencyCode;
+      let network;
+
+      switch (true) {
+        case walletAccount.addressFormat === "ADDRESS_FORMAT_ETHEREUM":
+          cryptoCurrencyCode = FiatOnRampCryptoCurrency.ETHEREUM;
+          network = FiatOnRampBlockchainNetwork.ETHEREUM;
+          break;
+
+        case walletAccount.addressFormat?.includes("ADDRESS_FORMAT_BITCOIN"):
+          cryptoCurrencyCode = FiatOnRampCryptoCurrency.BITCOIN;
+          network = FiatOnRampBlockchainNetwork.BITCOIN;
+          break;
+
+        case walletAccount.addressFormat === "ADDRESS_FORMAT_SOLANA":
+          cryptoCurrencyCode = FiatOnRampCryptoCurrency.SOLANA;
+          network = FiatOnRampBlockchainNetwork.SOLANA;
+          break;
+
+        default:
+          cryptoCurrencyCode = FiatOnRampCryptoCurrency.ETHEREUM;
+          network = FiatOnRampBlockchainNetwork.ETHEREUM;
+          break;
+      }
+      const openNewTab = openInNewTab || isMobile;
+      cryptoCurrencyCode = params.cryptoCurrencyCode || cryptoCurrencyCode;
+      network = params.network || network;
 
       return new Promise((resolve, reject) => {
         const OnRampContainer = () => {
-          const [completed, setCompleted] = React.useState(false);
-          const pollingRef = React.useRef<NodeJS.Timeout | null>(null);
+          const [completed, setCompleted] = useState(false);
+          const pollingRef = useRef<NodeJS.Timeout | null>(null);
 
           const cleanup = () => {
             if (pollingRef.current) {
@@ -5305,11 +5334,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
           const action = async () => {
             try {
-              const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(
-                navigator.userAgent,
-              );
               let onRampWindow: Window | null = null;
-              if (isMobile) {
+              if (openNewTab) {
                 onRampWindow = window.open("", "_blank");
                 if (!onRampWindow)
                   throw new Error("Failed to open On Ramp tab.");
@@ -5317,16 +5343,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
               const result = await client?.httpClient?.initFiatOnRamp({
                 onrampProvider,
-                walletAddress,
+                walletAddress: walletAccount.address,
                 network,
                 cryptoCurrencyCode,
-                fiatCurrencyAmount,
                 sandboxMode,
+                organizationId,
+                ...(fiatCurrencyCode ? { fiatCurrencyCode } : {}),
+                ...(fiatCurrencyAmount ? { fiatCurrencyAmount } : {}),
+                ...(paymentMethod ? { paymentMethod } : {}),
+                ...(countryCode ? { countryCode } : {}),
+                ...(countrySubdivisionCode ? { countrySubdivisionCode } : {}),
+                ...(sandboxMode !== undefined ? { sandboxMode } : {}),
+                ...(urlForSignature ? { urlForSignature } : {}),
               });
 
               if (!result?.onRampUrl) throw new Error("Missing onRampUrl");
 
-              if (isMobile && onRampWindow) {
+              if (openNewTab && onRampWindow) {
                 onRampWindow.location.href = result.onRampUrl.toString();
               } else {
                 const popupWidth = 500;
