@@ -46,7 +46,7 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
         );
       }
     } catch (error) {
-      console.error("Failed to init Coinbase on-ramp:", error);
+      console.error("Failed to init Coinbase onramp:", error);
     }
   };
 
@@ -74,7 +74,7 @@ export const OnRamp = ({ ethAddress }: OnRampProps) => {
         );
       }
     } catch (error) {
-      console.error("Failed to init MoonPay on-ramp:", error);
+      console.error("Failed to init MoonPay onramp:", error);
     }
   };
 

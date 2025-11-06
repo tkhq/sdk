@@ -277,5 +277,5 @@ export type HandleOnRampParams = {
   userId?: string; // Optional end user ID
   stampWith?: StamperType; // Stamper type (passkey, api key, wallet, etc.)
   successPageDuration?: number; // Duration for success page in ms (0 disables it)
-  openInNewTab?: boolean; // Whether to open the on-ramp URL in a new browser tab or popup
+  openInNewTab?: boolean; // Whether to open the onramp URL in a new browser tab or popup
 };

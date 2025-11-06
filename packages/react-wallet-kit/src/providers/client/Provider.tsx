@@ -5331,7 +5331,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               pollingRef.current = null;
             }
           };
-
+          useEffect(() => {
+            return () => {
+              cleanup();
+            };
+          }, []);
           const action = async () => {
             try {
               let onRampWindow: Window | null = null;
@@ -5460,14 +5464,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         };
 
         pushPage({
-          key: "Fiat On-Ramp",
+          key: "Fiat OnRamp",
           content: <OnRampContainer />,
           showTitle: false,
           preventBack: true,
           onClose: () =>
             reject(
               new TurnkeyError(
-                "User canceled the on-ramp process.",
+                "User canceled the onramp process.",
                 TurnkeyErrorCodes.USER_CANCELED,
               ),
             ),
