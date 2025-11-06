@@ -179,7 +179,6 @@ export default function AuthPage() {
       await turnkey.handleOnRamp({
         onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
         walletAccount: evmAccount,
-        openInNewTab: true,
         cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
         sandboxMode: true,
       });

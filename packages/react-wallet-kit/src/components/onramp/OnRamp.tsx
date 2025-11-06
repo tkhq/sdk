@@ -9,6 +9,7 @@ type OnRampPageProps = {
   action: () => Promise<void>;
   completed: boolean;
   successPageDuration?: number;
+  sandboxMode?: boolean;
   onSuccess?: () => void;
   onError?: (error: any) => void;
 };
@@ -19,6 +20,7 @@ export function OnRampPage({
   action,
   completed,
   successPageDuration = 2000,
+  sandboxMode = false,
   onSuccess,
   onError,
 }: OnRampPageProps) {
@@ -69,6 +71,11 @@ export function OnRampPage({
           ? "Use the Coinbase popup to finish funding your account."
           : "Use the MoonPay popup to finish funding your account."}
       </div>
+      {sandboxMode && (
+        <div className="mt-2 text-xs text-blue-500 dark:text-blue-400">
+          Sandbox mode — no real funds will be used.
+        </div>
+      )}
     </div>
   );
 }

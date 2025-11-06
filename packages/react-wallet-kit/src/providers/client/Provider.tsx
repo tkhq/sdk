@@ -5279,7 +5279,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         countryCode,
         onrampProvider = "FIAT_ON_RAMP_PROVIDER_MOONPAY",
         sandboxMode = true,
-        successPageDuration = 5000,
+        successPageDuration = 2000,
         openInNewTab = false,
       } = params;
 
@@ -5450,6 +5450,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               }
               onrampProvider={onrampProvider}
               action={action}
+              sandboxMode={sandboxMode}
               completed={completed}
               successPageDuration={successPageDuration}
               onSuccess={() => resolve()}
