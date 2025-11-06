@@ -5331,7 +5331,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               pollingRef.current = null;
             }
           };
-
+          useEffect(() => {
+            return () => {
+              cleanup();
+            };
+          }, []);
           const action = async () => {
             try {
               let onRampWindow: Window | null = null;
