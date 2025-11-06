@@ -13,10 +13,10 @@ A high-level summary of the user experience and what appears on screen:
 
 Once logged in, access a dashboard with two panels:
 
-**Left:** sign messages and simple demo transactions for both Ethereum and Solana using the **selected** embedded **or** connected wallet. The signing and broadcasting behavior differs slightly depending on wallet type:
+**Left:** sign messages and simple testnet demo transactions for both Ethereum (Sepolia testnet) and Solana (Devnet) using the **selected** embedded **or** connected wallet. The signing and broadcasting behavior differs slightly depending on wallet type:
 
 - **Connected wallets**
-  - Ethereum: delegates to the wallet’s native `signAndSendTransaction` method. Does not require an rpcUrl (the wallet handles broadcasting).
+  - Ethereum: delegates to the wallet’s native `signAndSendTransaction` method. Does not require an rpcUrl (the external wallet provider handles broadcasting).
   - Solana: signs locally with the connected wallet but requires an rpcUrl for broadcasting.
 
 - **Embedded wallets**
@@ -76,6 +76,7 @@ Now open `.env.local` and add the missing environment variables:
 - `NEXT_PUBLIC_BASE_URL`
 - `NEXT_PUBLIC_ORGANIZATION_ID`
 - `NEXT_PUBLIC_AUTH_PROXY_CONFIG_ID`
+- `NEXT_PUBLIC_AUTH_PROXY_BASE_URL`
 - `NEXT_PUBLIC_RPC_SOL`
 - `NEXT_PUBLIC_RPC_ETH`
 

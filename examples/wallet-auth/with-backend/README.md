@@ -13,10 +13,10 @@ A high-level summary of the user experience and what appears on screen:
 
 Once logged in, access a dashboard with two panels:
 
-**Left:** sign messages and simple demo transactions for both Ethereum and Solana using the **selected** embedded **or** connected wallet. The signing and broadcasting behavior differs slightly depending on wallet type:
+**Left:** sign messages and simple demo testnet transactions for both Ethereum (Sepolia testnet) and Solana (Devnet) using the **selected** embedded **or** connected wallet. The signing and broadcasting behavior differs slightly depending on wallet type:
 
 - **Connected wallets**
-  - Ethereum: delegates to the wallet’s native `signAndSendTransaction` method. Does not require an rpcUrl (the wallet handles broadcasting).
+  - Ethereum: delegates to the wallet’s native `signAndSendTransaction` method. Does not require an rpcUrl (the external wallet provider handles broadcasting).
   - Solana: signs locally with the connected wallet but requires an rpcUrl for broadcasting.
 
 - **Embedded wallets**
@@ -27,7 +27,7 @@ Once logged in, access a dashboard with two panels:
 Notes:
 
 > In this demo, you can configure these URLs using `NEXT_PUBLIC_RPC_ETH` and `NEXT_PUBLIC_RPC_SOL`.
-> Both Ethereum and Solana demo transactions are send-to-self transfers with zero value, purely for demonstration purposes.
+> Both Ethereum and Solana demo testnet transactions are send-to-self transfers with zero value, purely for demonstration purposes.
 
 **Right:** view all the sub-organization embedded and connected wallets.
 
@@ -35,7 +35,8 @@ Notes:
 
 1. Build and sign a wallet login request **without submitting it to Turnkey** using [buildWalletLoginRequest()](https://github.com/tkhq/sdk/blob/fa54063a394bfef7ead9f64b72a093c5e696a401/packages/core/src/__clients__/core.ts#L797). This function performs the following:
 
-- Initializes the wallet stamper, ensures a valid session public key (generating one if needed), and signs the login intent with the connected wallet.
+- Generates a new key pair to serve as the session key and has the connected wallet sign a login intent containing the public key. This resulting stamped request can then be sent to Turnkey to register that key pair as a session key pair.
+
 - For **Ethereum wallets**, the public key cannot be derived from the wallet address alone — it’s extracted from the signature included in the stamped login request.
 - For **Solana wallets**, the wallet address itself is the public key, so it’s retrieved directly from the connected wallet.
 - Returns both:
