@@ -25,6 +25,7 @@ import {
   VersionedTransaction,
   clusterApiUrl,
 } from "@solana/web3.js";
+import { uint8ArrayToHexString } from "@turnkey/encoding";
 
 /** ---------- Utils ---------- */
 function safeStringify(x: unknown) {
@@ -33,13 +34,6 @@ function safeStringify(x: unknown) {
     (_k, v) => (typeof v === "bigint" ? v.toString() : v),
     2,
   );
-}
-
-// Uint8Array -> hex
-function toHex(u8: Uint8Array) {
-  return Array.from(u8)
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
 }
 
 // Build a Solana v0 **unsigned** tx and return HEX (Turnkey expects hex for SOL)
@@ -65,7 +59,7 @@ async function buildUnsignedSolanaTxHex(fromAddress: string, rpcUrl?: string) {
 
   const unsignedTx = new VersionedTransaction(msgV0);
   const bytes = unsignedTx.serialize();
-  return toHex(bytes);
+  return uint8ArrayToHexString(bytes);
 }
 
 // Build an EVM demo tx (send-to-self, 0 value) with a fresh nonce
