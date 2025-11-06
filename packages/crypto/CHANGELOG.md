@@ -1,5 +1,14 @@
 # @turnkey/crypto
 
+## 2.8.5
+
+### Patch Changes
+
+- [#1068](https://github.com/tkhq/sdk/pull/1068) [`5f829c6`](https://github.com/tkhq/sdk/commit/5f829c67af03bb85c3806acd202b2debf8274e78) Author [@moeodeh3](https://github.com/moeodeh3) - - Updated dependencies [[`9fbd5c4`](https://github.com/tkhq/sdk/commit/9fbd5c459782dc3721dd0935d0a4458babce258b):
+  - @turnkey/sdk-types@0.7.0
+- Updated dependencies [[`084acce`](https://github.com/tkhq/sdk/commit/084acce85fe7c15513a025e77c1571012ac82e4b), [`67b03a5`](https://github.com/tkhq/sdk/commit/67b03a5d9ab1b6eabfb0b41938ac91365b5dcd9b)]:
+  - @turnkey/sdk-types@0.8.0
+
 ## 2.8.4
 
 ### Patch Changes
