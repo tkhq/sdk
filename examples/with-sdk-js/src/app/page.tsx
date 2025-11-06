@@ -160,6 +160,32 @@ export default function AuthPage() {
       await httpClient?.getWhoami(),
     );
   };
+  const handleOnRamp = async () => {
+    try {
+      if (!wallets.length || !wallets[0].accounts?.length) {
+        console.error("No wallets available for on-ramp");
+        return;
+      }
+
+      const evmAccount: WalletAccount | undefined = wallets[0].accounts.find(
+        (a) => a.addressFormat === "ADDRESS_FORMAT_ETHEREUM",
+      );
+
+      if (!evmAccount) {
+        console.error("No EVM-compatible account found for on-ramp");
+        return;
+      }
+
+      await turnkey.handleOnRamp({
+        onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
+        walletAccount: evmAccount,
+        cryptoCurrencyCode: "FIAT_ON_RAMP_CRYPTO_CURRENCY_ETH",
+        sandboxMode: true,
+      });
+    } catch (err) {
+      console.error("Fiat On-Ramp failed:", err);
+    }
+  };
 
   const signWithViem = async () => {
     const turnkeyAccount = await createAccount({
@@ -1006,6 +1032,19 @@ export default function AuthPage() {
                 }}
               >
                 Remove OAuth Provider
+              </button>
+
+              <button
+                data-testid="show-onramp-modal"
+                onClick={handleOnRamp}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Onramp
               </button>
             </>
           )}
