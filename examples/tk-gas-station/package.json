@@ -10,6 +10,7 @@
     "start-7702-usdc": "tsx src/eip7702/transferUSDCDelegated.ts",
     "eth-transfer": "tsx src/transferETHDelegated.ts",
     "usdc-transfer": "tsx src/transferUSDCDelegated.ts",
+    "approve-then-execute": "tsx src/approveThenExecuteDemo.ts",
     "test:policies": "jest policyEnforcement",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"

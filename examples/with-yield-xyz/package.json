@@ -1,0 +1,21 @@
+{
+  "name": "@turnkey/with-yield",
+  "version": "0.0.1",
+  "private": "true",
+  "scripts": {
+    "build": "pnpm -w run build-all",
+    "enter": "tsx src/enter.ts",
+    "exit": "tsx src/exit.ts",
+    "balance": "tsx src/balance.ts",
+    "discover": "tsx src/discover.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/api-key-stamper": "workspace:*",
+    "@turnkey/ethers": "workspace:*",
+    "@turnkey/http": "workspace:*",
+    "dotenv": "^16.0.3",
+    "ethers": "^6.10.0"
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-otp-auth",
+  "name": "@turnkey/otp-auth-without-backend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,22 +10,21 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@noble/hashes": "1.4.0",
+    "@solana/web3.js": "1.98.4",
+    "@tailwindcss/postcss": "4.1.13",
+    "@turnkey/react-wallet-kit": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
-    "@turnkey/sdk-react": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
-    "axios": "^1.8.2",
-    "encoding": "^0.1.13",
-    "eslint": "8.56.0",
-    "eslint-config-next": "14.2.25",
-    "esm": "^3.2.25",
-    "install": "^0.13.0",
-    "next": "^15.5.2",
-    "npm": "^9.7.2",
+    "next": "15.5.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "react-hook-form": "^7.45.1",
-    "typescript": "5.4.3"
+    "react-hook-form": "7.45.1",
+    "tailwindcss": "4.1.13",
+    "typescript": "5.4.3",
+    "viem": "2.34.0"
   }
 }

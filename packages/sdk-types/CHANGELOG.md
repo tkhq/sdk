@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.7.0
+
+### Minor Changes
+
+- [#1058](https://github.com/tkhq/sdk/pull/1058) [`9fbd5c4`](https://github.com/tkhq/sdk/commit/9fbd5c459782dc3721dd0935d0a4458babce258b) Author [@moeodeh3](https://github.com/moeodeh3) - Update per mono release `v2025.10.10-hotfix.2`
+
 ## 0.6.3
 
 ### Patch Changes

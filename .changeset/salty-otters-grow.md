@@ -6,4 +6,4 @@
 "@turnkey/http": minor
 ---
 
-Update per mono release `v2025.10.10-hotfix.2`
+Bump packages as per mono v2025.11.0
