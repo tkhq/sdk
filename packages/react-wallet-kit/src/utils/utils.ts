@@ -210,7 +210,7 @@ export function parseOAuthRedirect(hash: string): {
   }
 }
 
-// Function to generate PKCE challenge pair for Facebook OAuth
+// Function to generate PKCE challenge pair
 export async function generateChallengePair(): Promise<{
   verifier: string;
   codeChallenge: string;

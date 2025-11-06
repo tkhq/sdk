@@ -58,6 +58,9 @@ export type SignUpWithPasskeyParams = {
   passkeyDisplayName?: string;
   expirationSeconds?: string;
   challenge?: string;
+
+  // TODO: (breaking change): remove organizationId from here, there is literally
+  // no reason to have it
   organizationId?: string;
 };
 
@@ -109,6 +112,10 @@ export type InitOtpParams = {
 export type VerifyOtpParams = {
   otpId: string;
   otpCode: string;
+
+  // TODO (breaking change): we should be able to remove these and make verifyOtp()
+  // purely about verifying and not also finding an `organizationId`. That should
+  // be the responsibility of completeOtp()
   contact: string;
   otpType: OtpType;
 };
@@ -158,6 +165,7 @@ export type CompleteOauthParams = {
 export type LoginWithOauthParams = {
   oidcToken: string;
   publicKey: string;
+  organizationId?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
 };
@@ -165,7 +173,8 @@ export type LoginWithOauthParams = {
 export type SignUpWithOauthParams = {
   oidcToken: string;
   publicKey: string;
-  providerName: string;
+  providerName?: string;
+  invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
 };
