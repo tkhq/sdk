@@ -1,5 +1,17 @@
 # @turnkey/sdk-server
 
+## 4.12.0
+
+### Minor Changes
+
+- [#1072](https://github.com/tkhq/sdk/pull/1072) [`67b03a5`](https://github.com/tkhq/sdk/commit/67b03a5d9ab1b6eabfb0b41938ac91365b5dcd9b) Thanks [@moe-dev](https://github.com/moe-dev)! - Bump packages as per mono v2025.11.0
+
+### Patch Changes
+
+- Updated dependencies [[`67b03a5`](https://github.com/tkhq/sdk/commit/67b03a5d9ab1b6eabfb0b41938ac91365b5dcd9b)]:
+  - @turnkey/http@3.15.0
+  - @turnkey/wallet-stamper@1.1.7
+
 ## 4.11.0
 
 ### Minor Changes

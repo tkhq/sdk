@@ -1,5 +1,22 @@
 # @turnkey/react-wallet-kit
 
+## 1.5.0
+
+### Minor Changes
+
+- [#1062](https://github.com/tkhq/sdk/pull/1062) [`084acce`](https://github.com/tkhq/sdk/commit/084acce85fe7c15513a025e77c1571012ac82e4b) Thanks [@moe-dev](https://github.com/moe-dev)! - - **Added `handleOnRamp()` helper** to simplify fiat-to-crypto on-ramping flows directly from the SDK.
+  - Supports overriding defaults through optional parameters:
+    - `network` (e.g., `FiatOnRampBlockchainNetwork.ETHEREUM`)
+    - `cryptoCurrencyCode` (e.g., `FiatOnRampCryptoCurrency.ETHEREUM`)
+    - `fiatCurrencyAmount`, `fiatCurrencyCode`, `paymentMethod`, and `onrampProvider`.
+  - Integrates seamlessly with the `client.httpClient.initFiatOnRamp()` method to open a provider popup (Coinbase, MoonPay, etc.) and monitor transaction completion.
+
+### Patch Changes
+
+- Updated dependencies [[`beee465`](https://github.com/tkhq/sdk/commit/beee465a13f64abeb71c5c00519f7abab9942607), [`084acce`](https://github.com/tkhq/sdk/commit/084acce85fe7c15513a025e77c1571012ac82e4b), [`67b03a5`](https://github.com/tkhq/sdk/commit/67b03a5d9ab1b6eabfb0b41938ac91365b5dcd9b)]:
+  - @turnkey/core@1.7.0
+  - @turnkey/sdk-types@0.8.0
+
 ## 1.4.3
 
 ### Patch Changes

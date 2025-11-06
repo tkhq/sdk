@@ -1,5 +1,13 @@
 # with-0x
 
+## 0.1.9
+
+### Patch Changes
+
+- Updated dependencies [[`084acce`](https://github.com/tkhq/sdk/commit/084acce85fe7c15513a025e77c1571012ac82e4b)]:
+  - @turnkey/react-wallet-kit@1.5.0
+  - @turnkey/viem@0.14.12
+
 ## 0.1.8
 
 ### Patch Changes
