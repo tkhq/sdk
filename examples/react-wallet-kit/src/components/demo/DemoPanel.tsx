@@ -53,6 +53,7 @@ export default function DemoPanel() {
     handleImportWallet,
     handleConnectExternalWallet,
     fetchWalletProviders,
+    handleOnRamp,
   } = useTurnkey();
 
   const { pushPage } = useModal();
@@ -111,6 +112,18 @@ export default function DemoPanel() {
       setConnectedWallets(undefined);
     }
   }, [wallets]);
+
+  const handleAddFunds = async () => {
+    try {
+      await handleOnRamp({
+        onrampProvider: "FIAT_ON_RAMP_PROVIDER_MOONPAY",
+        walletAccount: selectedWalletAccount!,
+        sandboxMode: true,
+      });
+    } catch (error) {
+      handleError(error);
+    }
+  };
 
   function truncateAddress(address: string) {
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
@@ -384,6 +397,13 @@ export default function DemoPanel() {
             className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
           >
             Sign Message
+          </Button>
+
+          <Button
+            className="bg-primary-light dark:bg-primary-dark text-primary-text-light dark:text-primary-text-dark rounded-lg px-4 py-2 active:scale-95 transition-transform cursor-pointer"
+            onClick={handleAddFunds}
+          >
+            Add Funds
           </Button>
           {selectedWallet?.source === WalletSource.Embedded && (
             <>
