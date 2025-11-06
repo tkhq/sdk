@@ -13,10 +13,10 @@ A high-level summary of the user experience and what appears on screen:
 
 Once logged in, access a dashboard with two panels:
 
-**Left:** sign messages and simple demo transactions for both Ethereum and Solana using the **selected** embedded eallet account. Broadcasting uses a standard JSON-RPC client and returns the resulting transaction hash or signature.
+**Left:** sign messages and simple demo transactions for both Ethereum (Sepolia testnet) and Solana (Devnet) using the **selected** embedded wallet account. Broadcasting uses a standard JSON-RPC client and returns the resulting transaction hash or signature.
 
 > Broadcasting requires a rpcUrl, you can configure these URLs using `NEXT_PUBLIC_RPC_ETH` and `NEXT_PUBLIC_RPC_SOL`.
-> Both Ethereum and Solana demo transactions are send-to-self transfers with zero value, purely for demonstration purposes.
+> Both Ethereum and Solana demo testnet transactions are send-to-self transfers with zero value, purely for demonstration purposes.
 
 **Right:** view all the sub-organization embedded and connected wallets.
 
