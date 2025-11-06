@@ -484,10 +484,10 @@ export class TurnkeyClient {
    * - Stores the resulting session token and manages cleanup of unused key pairs.
    *
    * @param params.passkeyDisplayName - display name for the passkey (defaults to a generated name based on the current timestamp).
+   * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
+   * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
-   * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
-   * @param params.challenge - challenge string to use for passkey registration. If not provided, a new challenge will be generated.
    * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @returns A promise that resolves to a {@link PasskeyAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
@@ -498,10 +498,11 @@ export class TurnkeyClient {
     params?: SignUpWithPasskeyParams,
   ): Promise<PasskeyAuthResult> => {
     const {
-      createSubOrgParams,
       passkeyDisplayName,
-      sessionKey = SessionKey.DefaultSessionkey,
+      challenge,
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+      createSubOrgParams,
+      sessionKey = SessionKey.DefaultSessionkey,
       organizationId,
     } = params || {};
 
@@ -514,7 +515,7 @@ export class TurnkeyClient {
         // A passkey will be created automatically when you call this function. The name is passed in
         const passkey = await this.createPasskey({
           name: passkeyName,
-          ...(params?.challenge && { challenge: params.challenge }),
+          ...(challenge && { challenge }),
         });
 
         if (!passkey) {
@@ -1653,9 +1654,10 @@ export class TurnkeyClient {
    * @param params.oidcToken - OIDC token received after successful authentication with the OAuth provider.
    * @param params.publicKey - public key to use for authentication. Must be generated prior to calling this function, this is because the OIDC nonce has to be set to `sha256(publicKey)`.
    * @param params.providerName - name of the OAuth provider (defaults to a generated name with a timestamp).
-   * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
-   * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
+   * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
+   * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
+   *
    * @returns A promise that resolves to an object containing:
    *          - `sessionToken`: the signed JWT session token.
    *          - `action`: whether the flow resulted in a login or signup ({@link AuthAction}).
@@ -1667,10 +1669,10 @@ export class TurnkeyClient {
     const {
       oidcToken,
       publicKey,
+      providerName,
       createSubOrgParams,
-      providerName = "OpenID Connect Provider" + " " + Date.now(),
-      sessionKey = SessionKey.DefaultSessionkey,
-      invalidateExisting = false,
+      invalidateExisting,
+      sessionKey,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -1692,8 +1694,8 @@ export class TurnkeyClient {
           const loginRes = await this.loginWithOauth({
             oidcToken,
             publicKey,
-            invalidateExisting,
-            sessionKey,
+            ...(invalidateExisting && { invalidateExisting }),
+            ...(sessionKey && { sessionKey }),
           });
 
           return {
@@ -1704,11 +1706,14 @@ export class TurnkeyClient {
           const signUpRes = await this.signUpWithOauth({
             oidcToken,
             publicKey,
-            providerName,
-            sessionKey,
+            ...(providerName && {
+              providerName,
+            }),
             ...(createSubOrgParams && {
               createSubOrgParams,
             }),
+            ...(invalidateExisting && { invalidateExisting }),
+            ...(sessionKey && { sessionKey }),
           });
 
           return {
@@ -1733,7 +1738,10 @@ export class TurnkeyClient {
    * - Handles cleanup of unused key pairs if login fails.
    *
    * @param params.oidcToken - OIDC token received after successful authentication with the OAuth provider.
-   * @param params.publicKey - public key to use for authentication. Must be generated prior to calling this function.
+   * @param params.publicKey - The public key bound to the login session. This key is required because it is directly
+   *                           tied to the nonce used during OIDC token generation and must match the value
+   *                           encoded in the token.
+   * @param params.organizationId - ID of the organization to target when creating the session.
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
@@ -1745,8 +1753,9 @@ export class TurnkeyClient {
   ): Promise<BaseAuthResult> => {
     const {
       oidcToken,
-      invalidateExisting = false,
       publicKey,
+      organizationId,
+      invalidateExisting = false,
       sessionKey = SessionKey.DefaultSessionkey,
     } = params;
 
@@ -1763,6 +1772,7 @@ export class TurnkeyClient {
           oidcToken,
           publicKey,
           invalidateExisting,
+          ...(organizationId && { organizationId }),
         });
 
         if (!loginRes) {
@@ -1837,7 +1847,7 @@ export class TurnkeyClient {
     const {
       oidcToken,
       publicKey,
-      providerName,
+      providerName = "OpenID Connect Provider" + " " + Date.now(),
       createSubOrgParams,
       sessionKey,
     } = params;
