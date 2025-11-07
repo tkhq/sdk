@@ -57,7 +57,7 @@
   },
   "dependencies": {
     "@noble/curves": "1.8.0",
-    "@openzeppelin/contracts": "^4.9.0",
+    "@openzeppelin/contracts": "^5.0.2",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/http": "workspace:*",
     "@turnkey/sdk-browser": "workspace:*",
