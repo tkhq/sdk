@@ -1,5 +1,16 @@
 # @turnkey/gas-station
 
+## 2.0.0
+
+### Minor Changes
+
+- [#1045](https://github.com/tkhq/sdk/pull/1045) [`1815d04`](https://github.com/tkhq/sdk/commit/1815d044ecc0720d128acd00b21c79669eadba28) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - add approveThenExecute functionality to gas station
+
+### Patch Changes
+
+- Updated dependencies [[`67b03a5`](https://github.com/tkhq/sdk/commit/67b03a5d9ab1b6eabfb0b41938ac91365b5dcd9b)]:
+  - @turnkey/sdk-server@4.12.0
+
 ## 1.0.0
 
 ### Patch Changes

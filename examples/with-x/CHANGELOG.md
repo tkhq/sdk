@@ -1,5 +1,14 @@
 # with-x
 
+## 0.1.11
+
+### Patch Changes
+
+- Updated dependencies [[`5f829c6`](https://github.com/tkhq/sdk/commit/5f829c67af03bb85c3806acd202b2debf8274e78), [`67b03a5`](https://github.com/tkhq/sdk/commit/67b03a5d9ab1b6eabfb0b41938ac91365b5dcd9b)]:
+  - @turnkey/crypto@2.8.5
+  - @turnkey/sdk-server@4.12.0
+  - @turnkey/sdk-react@5.4.10
+
 ## 0.1.10
 
 ### Patch Changes

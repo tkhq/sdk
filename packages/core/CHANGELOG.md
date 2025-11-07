@@ -1,5 +1,22 @@
 # @turnkey/core
 
+## 1.7.0
+
+### Minor Changes
+
+- [#1072](https://github.com/tkhq/sdk/pull/1072) [`67b03a5`](https://github.com/tkhq/sdk/commit/67b03a5d9ab1b6eabfb0b41938ac91365b5dcd9b) Thanks [@moe-dev](https://github.com/moe-dev)! - Bump packages as per mono v2025.11.0
+
+### Patch Changes
+
+- [#1074](https://github.com/tkhq/sdk/pull/1074) [`beee465`](https://github.com/tkhq/sdk/commit/beee465a13f64abeb71c5c00519f7abab9942607) Author [@moeodeh3](https://github.com/moeodeh3) - - added optional `organizationId` to `loginWithOAuth()`
+  - added optional `invalidateExisting` to `signUpWithOAuth()`
+  - fixed `invalidateExisting` being ignored in `completeOAuth()` during signup
+- Updated dependencies [[`5f829c6`](https://github.com/tkhq/sdk/commit/5f829c67af03bb85c3806acd202b2debf8274e78), [`084acce`](https://github.com/tkhq/sdk/commit/084acce85fe7c15513a025e77c1571012ac82e4b), [`67b03a5`](https://github.com/tkhq/sdk/commit/67b03a5d9ab1b6eabfb0b41938ac91365b5dcd9b)]:
+  - @turnkey/crypto@2.8.5
+  - @turnkey/sdk-types@0.8.0
+  - @turnkey/http@3.15.0
+  - @turnkey/react-native-passkey-stamper@1.2.5
+
 ## 1.6.0
 
 ### Minor Changes
