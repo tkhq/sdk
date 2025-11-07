@@ -100,6 +100,8 @@ export type TIframeStamperConfig = {
   iframeUrl: string;
   iframeElementId: string;
   iframeContainer: HTMLElement | null | undefined;
+  // If true, the iframe will clear the clipboard when pasting into it. Defaults to true.
+  clearClipboardOnPaste?: boolean | undefined;
 };
 
 export type TIframeStyles = {
@@ -207,6 +209,10 @@ export class IframeStamper {
 
     iframe.id = config.iframeElementId;
     iframe.src = config.iframeUrl;
+
+    if (config.clearClipboardOnPaste ?? true) {
+      iframe.allow = "clipboard-write"; // Clipboard will clear when pasting in the iframe
+    }
 
     this.iframe = iframe;
     const iframeUrl = new URL(config.iframeUrl);

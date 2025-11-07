@@ -39,6 +39,7 @@ export function ImportComponent(props: {
   onError: (error: TurnkeyError) => void;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
+  clearClipboardOnPaste?: boolean | undefined;
   name?: string;
   organizationId?: string;
   userId?: string;
@@ -51,6 +52,7 @@ export function ImportComponent(props: {
     onError,
     defaultWalletAccounts,
     successPageDuration,
+    clearClipboardOnPaste,
     stampWith,
     name,
   } = props;
@@ -121,6 +123,7 @@ export function ImportComponent(props: {
           iframeContainer: document.getElementById(
             TurnkeyImportIframeContainerId,
           ),
+          clearClipboardOnPaste,
         });
         await newImportIframeClient.init();
         await newImportIframeClient.applySettings({

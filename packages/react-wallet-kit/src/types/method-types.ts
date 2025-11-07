@@ -122,6 +122,7 @@ export type HandleImportWalletParams = {
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
   walletName?: string;
+  clearClipboardOnPaste?: boolean | undefined; // If true, the clipboard will be cleared when pasting into the import iframe. Defaults to true.
   organizationId?: string;
   userId?: string;
 };
@@ -132,6 +133,7 @@ export type HandleImportPrivateKeyParams = {
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   stampWith?: StamperType | undefined;
   keyName?: string;
+  clearClipboardOnPaste?: boolean | undefined; // If true, the clipboard will be cleared when pasting into the import iframe. Defaults to true.
   organizationId?: string;
   userId?: string;
 };
