@@ -44,30 +44,41 @@ Now open `.env.local` and add the missing environment variables:
 - `TURNKEY_API_PRIVATE_KEY`
 - `TURNKEY_ORGANIZATION_ID`
 - `TURNKEY_BASE_URL`
+- `NONROOT_USER_ID`
+- `NONROOT_API_PUBLIC_KEY`
+- `NONROOT_API_PRIVATE_KEY`
 - `SIGN_WITH`
 - `YIELD_ID`
 - `YIELD_API_KEY`
 - `RPC_URL`
+- `USDC_ADDRESS`
+- `gtUSDCf_VAULT_ADDRESS`
 
-### 3/ Discover a yield (with metadata)
+### 3/ Setting up the policies for the non-root user
+
+```bash
+pnpm createPolicies
+```
+
+### 4/ Discover a yield (with metadata)
 
 ```bash
 pnpm discover
 ```
 
-### 4/ Enter the yield (deposit via Yield.xyz)
+### 5/ Enter the yield (deposit via Yield.xyz)
 
 ```bash
 pnpm enter
 ```
 
-### 5/ Check user balance
+### 6/ Check user balance
 
 ```bash
 pnpm balance
 ```
 
-### 6/ Exit the yield (withdraw funds)
+### 7/ Exit the yield (withdraw funds)
 
 ```bash
 pnpm exit
