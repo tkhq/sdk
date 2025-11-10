@@ -28,7 +28,7 @@ async function main() {
   const exitPayload = {
     yieldId: process.env.YIELD_ID,
     address: process.env.SIGN_WITH!,
-    arguments: { amount: "0.0001" },
+    arguments: { amount: "0.1" },
   };
   // Prepare withdrawal via Yield.xyz
   const exitRes = await fetch("https://api.yield.xyz/v1/actions/exit", {
