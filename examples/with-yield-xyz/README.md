@@ -8,6 +8,13 @@ This example shows how to sign transactions to Yield.xyz vaults on Base Mainnet 
 - `balance.ts` is checking your balance in any yield and fetches current yield stats.
 - `exit.ts` is withdrawing an amount from the yield.
 
+On top of it we showcase the power of the Turnkey policy engine by allowing a non-root Turnkey user to sign only the specific transactions required to interact with Yield.xyz’s Base USDC vault (which internally supplies to Morpho):
+
+- `createPolicies.ts` uses an organization root user (RootQuorum) to create precise policy conditions for a non-root user, restricting their signing permissions to:
+  - the USDC contract (`USDC_ADDRESS`), and
+  - Yield.xyz’s Base USDC vault (`gtUSDCf_VAULT_ADDRESS`), which corresponds to Yield.xyz’s identifier for Morpho’s Base USDC vault (`base-usdc-gtusdcf-0x236919f11ff9ea9550a4287696c2fc9e18e6e890-4626-vault`).
+  - Each policy uses the `eth.tx.data` field to identify which smart contract function is being called. The first four bytes of this field represent the function selector. For the `approve` function, the selector is `0x095ea7b3`; for deposit it is `0x6e553f65`; and for `withdraw`, it’s `0xba087652`. This allows the policies to precisely restrict the non-root user to only those permitted contract calls.
+
 ## Getting started
 
 ### 1/ Cloning the example
@@ -30,7 +37,9 @@ The first step is to set up your Turnkey organization and account. By following 
 - A root user with a public/private API key pair within the Turnkey parent organization
 - An organization ID
 
-Make sure you have a [wallet](https://app.turnkey.com/dashboard/wallets) with an Ethereum wallet account created within this organization and have it funded with some ETH and USDC on Base Mainnet.
+The next step is to create another user within the organization with a different API key and remove it from the root quorum. You can do this from the Turnkey [dashboard](https://app.turnkey.com/dashboard/security/updateRootQuorum) or [API](https://docs.turnkey.com/api-reference/activities/update-root-quorum). Here's a simple [script](https://github.com/tkhq/sdk/blob/main/examples/kitchen-sink/src/sdk-server/updateRootQuorum.ts) that shows how to update the root quorum using `@turnkey/sdk-server`.
+
+Finally, make sure you have a [wallet](https://app.turnkey.com/dashboard/wallets) with an Ethereum wallet account created within this organization and have it funded with some ETH and USDC on Base Mainnet.
 
 Once you've gathered these values, add them to a new `.env.local` file. Notice that your private key should be securely managed and **_never_** be committed to git.
 
@@ -44,30 +53,41 @@ Now open `.env.local` and add the missing environment variables:
 - `TURNKEY_API_PRIVATE_KEY`
 - `TURNKEY_ORGANIZATION_ID`
 - `TURNKEY_BASE_URL`
+- `NONROOT_USER_ID`
+- `NONROOT_API_PUBLIC_KEY`
+- `NONROOT_API_PRIVATE_KEY`
 - `SIGN_WITH`
 - `YIELD_ID`
 - `YIELD_API_KEY`
 - `RPC_URL`
+- `USDC_ADDRESS`
+- `gtUSDCf_VAULT_ADDRESS`
 
-### 3/ Discover a yield (with metadata)
+### 3/ Setting up the policies for the non-root user
+
+```bash
+pnpm createPolicies
+```
+
+### 4/ Discover a yield (with metadata)
 
 ```bash
 pnpm discover
 ```
 
-### 4/ Enter the yield (deposit via Yield.xyz)
+### 5/ Enter the yield (deposit via Yield.xyz)
 
 ```bash
 pnpm enter
 ```
 
-### 5/ Check user balance
+### 6/ Check user balance
 
 ```bash
 pnpm balance
 ```
 
-### 6/ Exit the yield (withdraw funds)
+### 7/ Exit the yield (withdraw funds)
 
 ```bash
 pnpm exit

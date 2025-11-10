@@ -2,41 +2,35 @@ import * as path from "path";
 import * as dotenv from "dotenv";
 import { ethers } from "ethers";
 import { TurnkeySigner } from "@turnkey/ethers";
-import { TurnkeyClient } from "@turnkey/http";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 async function main() {
-  // Initialize Turnkey client and signer
-  const turnkeyClient = new TurnkeyClient(
-    { baseUrl: process.env.TURNKEY_BASE_URL! },
-    new ApiKeyStamper({
-      apiPublicKey: process.env.TURNKEY_API_PUBLIC_KEY!,
-      apiPrivateKey: process.env.TURNKEY_API_PRIVATE_KEY!,
-    }),
-  );
+  // Initialize the Turnkey client
+  const turnkeyClient = new TurnkeyServerSDK({
+    apiBaseUrl: "https://api.turnkey.com",
+    apiPublicKey: process.env.NONROOT_API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.NONROOT_API_PRIVATE_KEY!,
+    defaultOrganizationId: process.env.TURNKEY_ORGANIZATION_ID!,
+  });
 
-  // Replace with your wallet address or fetched wallet from Turnkey
-  const turnkeyAccount = {
-    address: process.env.SIGN_WITH!,
-  };
-
+  // Initialize the Turnkey Signer
   const turnkeySigner = new TurnkeySigner({
-    client: turnkeyClient,
+    client: turnkeyClient.apiClient(),
     organizationId: process.env.TURNKEY_ORGANIZATION_ID!,
-    signWith: turnkeyAccount.address,
+    signWith: process.env.SIGN_WITH!,
   });
 
   const provider = new ethers.JsonRpcProvider(process.env.RPC_URL!);
   const connectedSigner = turnkeySigner.connect(provider);
   const exitPayload = {
-    yieldId: process.env.YIELD_ID!,
-    address: turnkeyAccount.address,
+    yieldId: process.env.YIELD_ID,
+    address: process.env.SIGN_WITH!,
     arguments: { amount: "0.1" },
   };
-
+  // Prepare withdrawal via Yield.xyz
   const exitRes = await fetch("https://api.yield.xyz/v1/actions/exit", {
     method: "POST",
     headers: {
@@ -46,6 +40,7 @@ async function main() {
     body: JSON.stringify(exitPayload),
   });
   const exitAction = await exitRes.json();
+  console.log("Yield API response:", JSON.stringify(exitAction, null, 2));
 
   for (const tx of exitAction.transactions) {
     const unsignedTx = JSON.parse(tx.unsignedTransaction);

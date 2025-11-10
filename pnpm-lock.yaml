@@ -2886,15 +2886,12 @@ importers:
 
   examples/with-yield-xyz:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../../packages/api-key-stamper
       '@turnkey/ethers':
         specifier: workspace:*
         version: link:../../packages/ethers
-      '@turnkey/http':
+      '@turnkey/sdk-server':
         specifier: workspace:*
-        version: link:../../packages/http
+        version: link:../../packages/sdk-server
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
@@ -16021,7 +16018,7 @@ snapshots:
   '@babel/helper-member-expression-to-functions@7.27.1':
     dependencies:
       '@babel/traverse': 7.28.4
-      '@babel/types': 7.28.4
+      '@babel/types': 7.28.5
     transitivePeerDependencies:
       - supports-color
 
@@ -16059,7 +16056,7 @@ snapshots:
 
   '@babel/helper-optimise-call-expression@7.27.1':
     dependencies:
-      '@babel/types': 7.28.4
+      '@babel/types': 7.28.5
 
   '@babel/helper-plugin-utils@7.27.1': {}
 
@@ -16118,7 +16115,7 @@ snapshots:
     dependencies:
       '@babel/template': 7.27.2
       '@babel/traverse': 7.28.4
-      '@babel/types': 7.28.4
+      '@babel/types': 7.28.5
     transitivePeerDependencies:
       - supports-color
 
