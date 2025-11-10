@@ -12,7 +12,8 @@ On top of it we showcase the power of the Turnkey policy engine by allowing a no
 
 - `createPolicies.ts` uses an organization root user (RootQuorum) to create precise policy conditions for a non-root user, restricting their signing permissions to:
   - the USDC contract (`USDC_ADDRESS`), and
-  - Yield.xyz’s Base USDC vault (`gtUSDCf_VAULT_ADDRESS`), which corresponds to Yield.xyz’s identifier for Morpho’s Base USDC vault (base-usdc-gtusdcf-0x236919f11ff9ea9550a4287696c2fc9e18e6e890-4626-vault).
+  - Yield.xyz’s Base USDC vault (`gtUSDCf_VAULT_ADDRESS`), which corresponds to Yield.xyz’s identifier for Morpho’s Base USDC vault (`base-usdc-gtusdcf-0x236919f11ff9ea9550a4287696c2fc9e18e6e890-4626-vault`).
+  - Each policy uses the `eth.tx.data` field to identify which smart contract function is being called. The first four bytes of this field represent the function selector. For the `approve` function, the selector is `0x095ea7b3`; for deposit it is `0x6e553f65`; and for `withdraw`, it’s `0xba087652`. This allows the policies to precisely restrict the non-root user to only those permitted contract calls.
 
 ## Getting started
 
