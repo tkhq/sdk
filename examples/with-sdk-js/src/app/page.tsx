@@ -163,7 +163,7 @@ export default function AuthPage() {
   const handleOnRamp = async () => {
     try {
       if (!wallets.length || !wallets[0].accounts?.length) {
-        console.error("No wallets available for on-ramp");
+        console.error("No wallets available for onramp");
         return;
       }
 
@@ -172,7 +172,7 @@ export default function AuthPage() {
       );
 
       if (!evmAccount) {
-        console.error("No EVM-compatible account found for on-ramp");
+        console.error("No EVM-compatible account found for onramp");
         return;
       }
 
@@ -183,7 +183,7 @@ export default function AuthPage() {
         sandboxMode: true,
       });
     } catch (err) {
-      console.error("Fiat On-Ramp failed:", err);
+      console.error("Fiat OnRamp failed:", err);
     }
   };
 

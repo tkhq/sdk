@@ -54,7 +54,7 @@ export function OnRampPage({
       )}
     >
       <ActionPage
-        title="Initiating On-Ramp"
+        title="Initiating OnRamp"
         icon={icon}
         action={async () => {
           try {
@@ -72,7 +72,7 @@ export function OnRampPage({
           : "Use the MoonPay popup to finish funding your account."}
       </div>
       {sandboxMode && (
-        <div className="mt-2 text-xs text-blue-500 dark:text-blue-400">
+        <div className="mt-2 text-xs text-primary-light dark:text-primary-dark">
           Sandbox mode — no real funds will be used.
         </div>
       )}

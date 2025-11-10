@@ -5464,14 +5464,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         };
 
         pushPage({
-          key: "Fiat On-Ramp",
+          key: "Fiat OnRamp",
           content: <OnRampContainer />,
           showTitle: false,
           preventBack: true,
           onClose: () =>
             reject(
               new TurnkeyError(
-                "User canceled the on-ramp process.",
+                "User canceled the onramp process.",
                 TurnkeyErrorCodes.USER_CANCELED,
               ),
             ),
