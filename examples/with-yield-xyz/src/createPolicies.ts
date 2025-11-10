@@ -79,7 +79,6 @@ async function main() {
     notes: "",
   };
 
-  // Create policy
   const { policyId: withdrawPolicyId } =
     await turnkeyClient.createPolicy(withdrawPolicy);
 
