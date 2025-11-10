@@ -17,7 +17,6 @@ async function main() {
   const userId = process.env.NONROOT_USER_ID!;
 
   //approval policy
-
   const approvalPolicy = {
     policyName:
       "Allow API key user to call the approve function on the USDC_ADDRESS",
@@ -43,7 +42,6 @@ async function main() {
   );
 
   //deposit policy
-
   const depositPolicy = {
     policyName:
       "Allow API key user to call the deposit function on the gtUSDCf_VAULT_ADDRESS",
@@ -69,7 +67,6 @@ async function main() {
   );
 
   //withdraw policy
-
   const withdrawPolicy = {
     policyName:
       "Allow API key user to call the withdraw function on the gtUSDCf_VAULT_ADDRESS",
