@@ -108,9 +108,7 @@ export function buildIntentSigningPolicy(config: {
     // Build OR conditions for each allowed contract
     // Convert to lowercase for case-insensitive comparison
     const contractConditions = config.restrictions.allowedContracts
-      .map(
-        (c) => `eth.eip_712.message['to'] == '${c.toLowerCase()}'`,
-      )
+      .map((c) => `eth.eip_712.message['to'] == '${c.toLowerCase()}'`)
       .join(" || ");
     conditions.push(`(${contractConditions})`);
   }
