@@ -1,7 +1,5 @@
 # Turnkey Gas Station SDK
 
-> **⚠️ BETA WARNING**: This SDK is currently in beta. The underlying smart contracts are **unaudited** and should not be used in production environments. Use at your own risk.
-
 A reusable SDK for implementing gasless transactions using EIP-7702, Turnkey wallet management, and your own paymaster. This package provides clean abstractions and utility methods to quickly integrate with Turnkey's contracts for sponsored transaction execution.
 
 ## What is This?
@@ -363,8 +361,8 @@ const eoaPolicy = buildIntentSigningPolicy({
 //   condition: "activity.resource == 'PRIVATE_KEY' && " +
 //              "activity.action == 'SIGN' && " +
 //              "eth.eip_712.primary_type == 'Execution' && " +
-//              "(eth.eip_712.message['outputContract'] == '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913') && " +
-//              "eth.eip_712.message['ethAmount'] == '0'",
+//              "(eth.eip_712.message['to'] == '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913') && " +
+//              "eth.eip_712.message['value'] == '0'",
 //   notes: "Restricts which EIP-712 intents the EOA can sign for gas station execution"
 // }
 ```
@@ -491,7 +489,7 @@ When the paymaster signs an execution transaction calling `execute(address _targ
 **Check execution contract address:**
 
 ```typescript
-eth.tx.to == "0x576a4d741b96996cc93b4919a04c16545734481f";
+eth.tx.to == "0x00000000008c57a1ce37836a5e9d36759d070d8c";
 ```
 
 **Check which EOA is executing:**
@@ -537,7 +535,7 @@ const policy = {
   condition: [
     "activity.resource == 'PRIVATE_KEY'",
     "activity.action == 'SIGN'",
-    "eth.tx.to == '0x576a4d741b96996cc93b4919a04c16545734481f'",
+    "eth.tx.to == '0x00000000008c57a1ce37836a5e9d36759d070d8c'",
     // Allow USDC or DAI
     "(eth.tx.data[74..138] == '0000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913' || eth.tx.data[74..138] == '00000000000000000000006b175474e89094c44da98b954eedeac495271d0f')",
     // Gas limits
@@ -575,7 +573,7 @@ const policy = {
   condition: [
     "activity.resource == 'PRIVATE_KEY'",
     "activity.action == 'SIGN'",
-    "eth.tx.to == '0x576a4d741b96996cc93b4919a04c16545734481f'",
+    "eth.tx.to == '0x00000000008c57a1ce37836a5e9d36759d070d8c'",
     `(${eoaConditions})`,
   ].join(" && "),
 };

@@ -181,7 +181,7 @@ export function buildIntentSigningPolicy(config: {
  * const policy = buildPaymasterExecutionPolicy({
  *   organizationId: "org-paymaster",
  *   paymasterUserId: "paymaster-user-123",
- *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+ *   executionContractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
  *   restrictions: {
  *     allowedEOAs: ["0xAli...ce", "0xBob...by"],
  *     allowedContracts: ["0x833...USDC", "0x6B1...DAI"],
@@ -199,7 +199,7 @@ export function buildIntentSigningPolicy(config: {
  *   effect: "EFFECT_ALLOW",
  *   consensus: "approvers.any(user, user.id == 'paymaster-user-123')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
- *              "eth.tx.to == '0x576a...481f' && " +
+ *              "eth.tx.to == '0x00000000008c57a1ce37836a5e9d36759d070d8c' && " +
  *              "(eth.tx.contract_call_args['_to'] == '0x833...usdc' || " +
  *              "eth.tx.contract_call_args['_to'] == '0x6b1...dai') && " +
  *              "(eth.tx.contract_call_args['_targetEoA'] == '0xali...ce' || " +
@@ -215,7 +215,7 @@ export function buildIntentSigningPolicy(config: {
  *   organizationId: "org-paymaster",
  *   paymasterUserId: "paymaster-user-123",
  *   additionalApprovers: ["backup-paymaster-456"],
- *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+ *   executionContractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
  *   restrictions: {
  *     allowedEOAs: ["0xAli...ce"],
  *     maxEthAmount: parseEther("1"), // Max 1 ETH
@@ -231,7 +231,7 @@ export function buildIntentSigningPolicy(config: {
  *   consensus: "approvers.any(user, user.id == 'paymaster-user-123' || " +
  *              "user.id == 'backup-paymaster-456')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
- *              "eth.tx.to == '0x576a...481f' && " +
+ *              "eth.tx.to == '0x00000000008c57a1ce37836a5e9d36759d070d8c' && " +
  *              "(eth.tx.contract_call_args['_targetEoA'] == '0xali...ce') && " +
  *              "eth.tx.contract_call_args['ethAmount'] <= 1000000000000000000 && " +
  *              "eth.tx.gasPrice <= 100000000000",
@@ -244,7 +244,7 @@ export function buildIntentSigningPolicy(config: {
  *   organizationId: "org-paymaster",
  *   paymasterUserId: "paymaster-user-123",
  *   customConsensus: "approvers.count() >= 2",
- *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+ *   executionContractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
  *   restrictions: { ... },
  * });
  *
