@@ -145,23 +145,23 @@ export class IntentBuilder {
       verifyingContract: this.config.eoaAddress,
     };
 
-    // Original: keccak256("Execution(uint128 nonce,uint32 deadline,address outputContract,uint256 ethAmount,bytes arguments)")
+    // keccak256("Execution(uint128 nonce,uint32 deadline,address to,uint256 value,bytes data)")
     const types = {
       Execution: [
         { name: "nonce", type: "uint128" },
         { name: "deadline", type: "uint32" },
-        { name: "outputContract", type: "address" },
-        { name: "ethAmount", type: "uint256" },
-        { name: "arguments", type: "bytes" },
+        { name: "to", type: "address" },
+        { name: "value", type: "uint256" },
+        { name: "data", type: "bytes" },
       ],
     };
 
     const message = {
       nonce,
       deadline,
-      outputContract: this.outputContract,
-      ethAmount: this.ethAmount,
-      arguments: this.callData,
+      to: this.outputContract,
+      value: this.ethAmount,
+      data: this.callData,
     };
 
     const signature = await this.config.eoaWalletClient.signTypedData({
@@ -213,7 +213,7 @@ export class IntentBuilder {
     };
 
     // Based on hashApproveThenExecute from the contract
-    // keccak256("ApproveThenExecute(uint128 nonce,uint32 deadline,address erc20Contract,address spender,uint256 approveAmount,address outputContract,uint256 ethAmount,bytes arguments)")
+    // keccak256("ApproveThenExecute(uint128 nonce,uint32 deadline,address erc20Contract,address spender,uint256 approveAmount,address to,uint256 value,bytes data)")
     const types = {
       ApproveThenExecute: [
         { name: "nonce", type: "uint128" },
@@ -221,9 +221,9 @@ export class IntentBuilder {
         { name: "erc20Contract", type: "address" },
         { name: "spender", type: "address" },
         { name: "approveAmount", type: "uint256" },
-        { name: "outputContract", type: "address" },
-        { name: "ethAmount", type: "uint256" },
-        { name: "arguments", type: "bytes" },
+        { name: "to", type: "address" },
+        { name: "value", type: "uint256" },
+        { name: "data", type: "bytes" },
       ],
     };
 
@@ -233,9 +233,9 @@ export class IntentBuilder {
       erc20Contract: erc20Address,
       spender,
       approveAmount,
-      outputContract: this.outputContract,
-      ethAmount: this.ethAmount,
-      arguments: this.callData,
+      to: this.outputContract,
+      value: this.ethAmount,
+      data: this.callData,
     };
 
     const signature = await this.config.eoaWalletClient.signTypedData({

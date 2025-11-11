@@ -15,7 +15,7 @@ import type { Hex } from "viem";
  * @param config.customConsensus - Optional custom consensus expression (overrides eoaUserId and additionalApprovers)
  * @param config.restrictions - Signing restrictions
  * @param config.restrictions.allowedContracts - Whitelist of contract addresses EOA can sign intents for
- * @param config.restrictions.disallowEthTransfer - Whether to disallow ETH transfers (if true, ethAmount must be 0)
+ * @param config.restrictions.disallowEthTransfer - Whether to disallow ETH transfers (if true, value must be 0)
  * @param config.policyName - Optional policy name
  * @returns Policy object ready to submit to Turnkey createPolicy API
  *
@@ -39,9 +39,9 @@ import type { Hex } from "viem";
  *   consensus: "approvers.any(user, user.id == 'user-456')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
  *              "eth.eip_712.primary_type == 'Execution' && " +
- *              "(eth.eip_712.message['outputContract'] == '0x833...usdc' || " +
- *              "eth.eip_712.message['outputContract'] == '0x6b1...dai') && " +
- *              "eth.eip_712.message['ethAmount'] == '0'",
+ *              "(eth.eip_712.message['to'] == '0x833...usdc' || " +
+ *              "eth.eip_712.message['to'] == '0x6b1...dai') && " +
+ *              "eth.eip_712.message['value'] == '0'",
  *   notes: "Restricts which EIP-712 intents the EOA can sign for gas station execution"
  * }
  *
@@ -66,8 +66,8 @@ import type { Hex } from "viem";
  *              "approvers.any(user, user.id == 'backup-user-789')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
  *              "eth.eip_712.primary_type == 'Execution' && " +
- *              "(eth.eip_712.message['outputContract'] == '0x833...usdc') && " +
- *              "eth.eip_712.message['ethAmount'] == '0'",
+ *              "(eth.eip_712.message['to'] == '0x833...usdc') && " +
+ *              "eth.eip_712.message['value'] == '0'",
  *   notes: "Restricts which EIP-712 intents the EOA can sign for gas station execution"
  * }
  *
@@ -109,14 +109,14 @@ export function buildIntentSigningPolicy(config: {
     // Convert to lowercase for case-insensitive comparison
     const contractConditions = config.restrictions.allowedContracts
       .map(
-        (c) => `eth.eip_712.message['outputContract'] == '${c.toLowerCase()}'`,
+        (c) => `eth.eip_712.message['to'] == '${c.toLowerCase()}'`,
       )
       .join(" || ");
     conditions.push(`(${contractConditions})`);
   }
 
   if (!!config.restrictions?.disallowEthTransfer) {
-    conditions.push(`eth.eip_712.message['ethAmount'] == '0'`);
+    conditions.push(`eth.eip_712.message['value'] == '0'`);
   }
 
   // Build consensus expression

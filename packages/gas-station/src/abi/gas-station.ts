@@ -8,9 +8,15 @@ export const gasStationAbi = [
   },
   { inputs: [], name: "ExecutionFailed", type: "error" },
   { inputs: [], name: "InvalidFunctionSelector", type: "error" },
-  { inputs: [], name: "NoEthAllowed", type: "error" },
   { inputs: [], name: "NotDelegated", type: "error" },
   { stateMutability: "nonpayable", type: "fallback" },
+  {
+    inputs: [],
+    name: "TK_GAS_DELEGATE",
+    outputs: [{ internalType: "address", name: "", type: "address" }],
+    stateMutability: "view",
+    type: "function",
+  },
   {
     inputs: [
       { internalType: "address", name: "_target", type: "address" },
@@ -156,26 +162,6 @@ export const gasStationAbi = [
     inputs: [
       { internalType: "address", name: "_targetEoA", type: "address" },
       { internalType: "uint128", name: "_nonce", type: "uint128" },
-      {
-        components: [
-          { internalType: "address", name: "to", type: "address" },
-          { internalType: "uint256", name: "value", type: "uint256" },
-          { internalType: "bytes", name: "data", type: "bytes" },
-        ],
-        internalType: "struct IBatchExecution.Call[]",
-        name: "_calls",
-        type: "tuple[]",
-      },
-    ],
-    name: "hashBatchExecution",
-    outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "_targetEoA", type: "address" },
-      { internalType: "uint128", name: "_nonce", type: "uint128" },
       { internalType: "uint32", name: "_deadline", type: "uint32" },
       {
         components: [
@@ -207,7 +193,6 @@ export const gasStationAbi = [
     inputs: [
       { internalType: "address", name: "_targetEoA", type: "address" },
       { internalType: "uint128", name: "_counter", type: "uint128" },
-      { internalType: "address", name: "_sender", type: "address" },
     ],
     name: "hashBurnSessionCounter",
     outputs: [{ internalType: "bytes32", name: "", type: "bytes32" }],
@@ -249,13 +234,6 @@ export const gasStationAbi = [
     type: "function",
   },
   {
-    inputs: [],
-    name: "tkGasDelegate",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
     inputs: [
       { internalType: "address", name: "_targetEoA", type: "address" },
       { internalType: "bytes32", name: "_hash", type: "bytes32" },
@@ -266,5 +244,4 @@ export const gasStationAbi = [
     stateMutability: "view",
     type: "function",
   },
-  { stateMutability: "payable", type: "receive" },
 ] as const;
