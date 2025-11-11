@@ -3996,6 +3996,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         successPageDuration = 2000,
         stampWith,
         walletName,
+        clearClipboardOnPaste,
         organizationId,
         userId,
       } = params || {};
@@ -4017,6 +4018,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     })}
                     {...(successPageDuration !== undefined && {
                       successPageDuration,
+                    })}
+                    {...(clearClipboardOnPaste !== undefined && {
+                      clearClipboardOnPaste, // Note: This is defaulted to true in the IframeStamper
                     })}
                     {...(stampWith !== undefined && { stampWith })}
                     {...(walletName !== undefined && { name: walletName })}
@@ -4050,6 +4054,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         successPageDuration = 2000,
         stampWith,
         keyName,
+        clearClipboardOnPaste,
         organizationId,
       } = params || {};
       try {
@@ -4069,6 +4074,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     onSuccess={(privateKeyId: string) => resolve(privateKeyId)}
                     {...(successPageDuration !== undefined && {
                       successPageDuration,
+                    })}
+                    {...(clearClipboardOnPaste !== undefined && {
+                      clearClipboardOnPaste, // Note: This is defaulted to true in the IframeStamper
                     })}
                     {...(stampWith !== undefined && { stampWith })}
                     {...(keyName !== undefined && { name: keyName })}

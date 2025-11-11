@@ -380,6 +380,7 @@ export type ClientContextType = Override<
      * @param params.successPageDuration - duration (in ms) for the success page after import (default: 0, no success page).
      * @param params.stampWith - parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
      * @param params.walletName - name for the imported wallet, if not provided, an input box will be shown for the name.
+     * @param params.clearClipboardOnPaste - whether to clear the clipboard after pasting the import bundle (default: true).
      * @param params.organizationId - The organization ID to target (defaults to the session's organization ID or the parent organization ID).
      * @param params.userId - The user ID to target (defaults to the session's user ID).
      *
@@ -402,6 +403,7 @@ export type ClientContextType = Override<
      * @param params.successPageDuration - duration (in ms) for the success page after import (default: 0, no success page).
      * @param params.stampWith - parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
      * @param params.keyName - name for the imported private key, if not provided, an input box will be shown for the name.
+     * @param params.clearClipboardOnPaste - whether to clear the clipboard after pasting the import bundle (default: true).
      * @param params.organizationId - The organization ID to target (defaults to the session's organization ID or the parent organization ID).
      * @param params.userId - The user ID to target (defaults to the session's user ID).
      *
