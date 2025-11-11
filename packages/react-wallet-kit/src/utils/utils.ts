@@ -84,7 +84,7 @@ export const isValidSession = (session?: Session | undefined): boolean => {
 
 export async function withTurnkeyErrorHandling<T>(
   fn: () => Promise<T>,
-  sessionExpireFn: () => Promise<void>,
+  sessionExpireFn?: () => Promise<void>,
   callbacks?: { onError?: (error: TurnkeyError) => void },
   fallbackMessage = "An unknown error occurred",
   fallbackCode = TurnkeyErrorCodes.UNKNOWN,
@@ -98,7 +98,21 @@ export async function withTurnkeyErrorHandling<T>(
       tkError = error;
 
       if (tkError.code === TurnkeyErrorCodes.SESSION_EXPIRED) {
-        await sessionExpireFn();
+        if (sessionExpireFn) {
+          await sessionExpireFn();
+        } else {
+          // this should never happen. If it does, it means an SDK function is making
+          // a session-based API call without providing a `sessionExpireFn()` for handling
+          // SESSION_EXPIRED errors in `withTurnkeyErrorHandling()`
+          console.error(
+            "SESSION_EXPIRED encountered but no sessionExpireFn provided. Contact Turnkey support.",
+          );
+          throw new TurnkeyError(
+            "SESSION_EXPIRED received without sessionExpireFn handler",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+            error,
+          );
+        }
       }
 
       // skip onError for WalletConnect expired errors
