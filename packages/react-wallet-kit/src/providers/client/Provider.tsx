@@ -843,8 +843,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           return;
         }
         setSession(allLocalStorageSessions[activeSessionKey]);
-        await refreshUser();
-        await refreshWallets();
+        await Promise.all([refreshUser(), refreshWallets()]);
 
         return;
       }
@@ -1014,131 +1013,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }
 
   /**
-   * @internal
-   * Schedules a session expiration and warning timer for the given session key.
-   *
-   * - Sets up two timers: one for warning before expiry and one for actual expiry.
-   * - Uses capped timeouts under the hood so delays > 24.8 days are safe (see utils/timers.ts).
-   *
-   * @param params.sessionKey - The key of the session to schedule expiration for.
-   * @param params.expiry - The expiration time in seconds since epoch.
-   * @throws {TurnkeyError} If an error occurs while scheduling the session expiration.
-   */
-  async function scheduleSessionExpiration(params: {
-    sessionKey: string;
-    expiry: number; // seconds since epoch
-  }) {
-    const { sessionKey, expiry } = params;
-
-    try {
-      const warnKey = `${sessionKey}-warning`;
-
-      // Replace any prior timers for this session
-      clearKey(expiryTimeoutsRef.current, sessionKey);
-      clearKey(expiryTimeoutsRef.current, warnKey);
-
-      const now = Date.now();
-      const expiryMs = expiry * 1000;
-      const timeUntilExpiry = expiryMs - now;
-
-      const beforeExpiry = async () => {
-        const activeSession = await getSession();
-
-        if (!activeSession && expiryTimeoutsRef.current[warnKey]) {
-          // Keep nudging until session materializes (short 10s timer is fine)
-          setTimeoutInMap(
-            expiryTimeoutsRef.current,
-            warnKey,
-            beforeExpiry,
-            10_000,
-          );
-          return;
-        }
-
-        const session = await getSession({ sessionKey });
-        if (!session) return;
-
-        callbacks?.beforeSessionExpiry?.({ sessionKey });
-
-        if (masterConfig?.auth?.autoRefreshSession) {
-          await refreshSession({
-            expirationSeconds: session.expirationSeconds!,
-            sessionKey,
-          });
-        }
-      };
-
-      const expireSession = async () => {
-        const expiredSession = await getSession({ sessionKey });
-        if (!expiredSession) return;
-
-        callbacks?.onSessionExpired?.({ sessionKey });
-
-        if ((await getActiveSessionKey()) === sessionKey) {
-          setSession(undefined);
-        }
-
-        setAllSessions((prev) => {
-          if (!prev) return prev;
-          const next = { ...prev };
-          delete next[sessionKey];
-          return next;
-        });
-
-        await clearSession({ sessionKey });
-
-        // Remove timers for this session
-        clearKey(expiryTimeoutsRef.current, sessionKey);
-        clearKey(expiryTimeoutsRef.current, warnKey);
-
-        await logout();
-      };
-
-      // Already expired → expire immediately
-      if (timeUntilExpiry <= 0) {
-        await expireSession();
-        return;
-      }
-
-      // Warning timer (if threshold is in the future)
-      const warnAt = expiryMs - SESSION_WARNING_THRESHOLD_MS;
-      if (warnAt <= now) {
-        void beforeExpiry(); // fire-and-forget is fine
-      } else {
-        setCappedTimeoutInMap(
-          expiryTimeoutsRef.current,
-          warnKey,
-          beforeExpiry,
-          warnAt - now,
-        );
-      }
-
-      // Actual expiry timer (safe for long delays)
-      setCappedTimeoutInMap(
-        expiryTimeoutsRef.current,
-        sessionKey,
-        expireSession,
-        timeUntilExpiry,
-      );
-    } catch (error) {
-      if (
-        error instanceof TurnkeyError ||
-        error instanceof TurnkeyNetworkError
-      ) {
-        callbacks?.onError?.(error);
-      } else {
-        callbacks?.onError?.(
-          new TurnkeyError(
-            `Failed to schedule session expiration for ${sessionKey}`,
-            TurnkeyErrorCodes.SCHEDULE_SESSION_EXPIRY_ERROR,
-            error,
-          ),
-        );
-      }
-    }
-  }
-
-  /**
    * Clears all scheduled session timers (warning + expiry).
    *
    * - Removes all active timers managed by this client.
@@ -1207,8 +1081,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      await refreshWallets();
-      await refreshUser();
+      await Promise.all([refreshWallets(), refreshUser()]);
 
       if (
         masterConfig?.auth?.verifyWalletOnSignup === true &&
@@ -1298,23 +1171,21 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client],
   );
 
-  const createPasskey = useCallback(
-    async (params?: CreatePasskeyParams): Promise<CreatePasskeyResult> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      return withTurnkeyErrorHandling(
-        () => client.createPasskey({ ...params }),
-        () => logout(),
-        callbacks,
-        "Failed to create passkey",
+  const getActiveSessionKey = useCallback(async (): Promise<
+    string | undefined
+  > => {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
-    },
-    [client, callbacks],
-  );
+    return withTurnkeyErrorHandling(
+      () => client.getActiveSessionKey(),
+      undefined,
+      callbacks,
+      "Failed to get active session key",
+    );
+  }, [client, callbacks]);
 
   const logout: (params?: LogoutParams) => Promise<void> = useCallback(
     async (params?: { sessionKey?: string }): Promise<void> => {
@@ -1333,14 +1204,423 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           // We only handle post logout if the sessionKey is defined since that means we actually logged out of a session.
           if (sessionKey) handlePostLogout(sessionKey);
         },
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to logout",
       );
 
       return;
     },
+    [client, callbacks, getActiveSessionKey],
+  );
+
+  const getSession = useCallback(
+    async (params?: GetSessionParams): Promise<Session | undefined> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.getSession(params),
+        undefined,
+        callbacks,
+        "Failed to get session",
+      );
+    },
     [client, callbacks],
+  );
+
+  const getAllSessions = useCallback(async (): Promise<
+    Record<string, Session> | undefined
+  > => {
+    if (!client)
+      throw new TurnkeyError(
+        "Client is not initialized.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    return withTurnkeyErrorHandling(
+      () => client.getAllSessions(),
+      undefined,
+      callbacks,
+      "Failed to get all sessions",
+    );
+  }, [client, callbacks]);
+
+  const createPasskey = useCallback(
+    async (params?: CreatePasskeyParams): Promise<CreatePasskeyResult> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        () => client.createPasskey({ ...params }),
+        undefined,
+        callbacks,
+        "Failed to create passkey",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const fetchUser = useCallback(
+    async (params?: FetchUserParams): Promise<v1User> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.fetchUser(params),
+        () => logout(),
+        callbacks,
+        "Failed to fetch user",
+      );
+    },
+    [client, callbacks, logout],
+  );
+
+  const fetchWalletProviders = useCallback(
+    async (chain?: Chain): Promise<WalletProvider[]> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        async () => {
+          const newProviders = await client.fetchWalletProviders(chain);
+
+          // we update state with the latest providers
+          // we keep this state so that initializeWalletProviderListeners() re-runs
+          // whenever the list of connected providers changes
+          // this ensures we attach disconnect listeners for each connected provider
+          setWalletProviders(newProviders);
+
+          return newProviders;
+        },
+        undefined,
+        callbacks,
+        "Failed to fetch wallet providers",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const fetchWallets = useCallback(
+    async (params?: FetchWalletsParams): Promise<Wallet[]> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return withTurnkeyErrorHandling(
+        () => client.fetchWallets(params),
+        () => logout(),
+        callbacks,
+        "Failed to fetch wallets",
+      );
+    },
+    [client, callbacks, logout],
+  );
+
+  const refreshUser = useCallback(
+    async (params?: RefreshUserParams): Promise<void> => {
+      if (!masterConfig?.autoRefreshManagedState) return;
+      const { stampWith, organizationId, userId } = params || {};
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const user = await withTurnkeyErrorHandling(
+        () =>
+          fetchUser({
+            stampWith,
+            ...(organizationId && { organizationId }),
+            ...(userId && { userId }),
+          }),
+        () => logout(),
+        callbacks,
+        "Failed to refresh user",
+      );
+      if (user) {
+        setUser(user);
+      }
+    },
+    [client, callbacks, fetchUser, logout, masterConfig],
+  );
+
+  const refreshWallets = useCallback(
+    async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
+      if (!masterConfig?.autoRefreshManagedState) return [];
+
+      const { stampWith, organizationId, userId } = params || {};
+
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      const walletProviders = await withTurnkeyErrorHandling(
+        () => fetchWalletProviders(),
+        undefined,
+        callbacks,
+        "Failed to refresh wallets",
+      );
+
+      const wallets = await withTurnkeyErrorHandling(
+        () =>
+          fetchWallets({
+            stampWith,
+            walletProviders,
+            ...(organizationId && { organizationId }),
+            ...(userId && { userId }),
+          }),
+        () => logout(),
+        callbacks,
+        "Failed to refresh wallets",
+      );
+      if (wallets) {
+        setWallets(wallets);
+      }
+
+      return wallets;
+    },
+    [
+      client,
+      callbacks,
+      fetchWalletProviders,
+      fetchWallets,
+      logout,
+      masterConfig,
+    ],
+  );
+
+  const clearSession = useCallback(
+    async (params?: ClearSessionParams): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      await withTurnkeyErrorHandling(
+        async () => client.clearSession(params),
+        undefined,
+        callbacks,
+        "Failed to clear session",
+      );
+      const sessionKey = params?.sessionKey ?? (await getActiveSessionKey());
+      if (!sessionKey) return;
+      if (!params?.sessionKey) {
+        setSession(undefined);
+      }
+      clearSessionTimeouts([sessionKey]);
+      // clear only the cleared session from allSessions
+      const newAllSessions = { ...allSessions };
+      if (newAllSessions) {
+        delete newAllSessions[sessionKey];
+      }
+      setAllSessions(newAllSessions);
+      return;
+    },
+    [client, callbacks, getActiveSessionKey, allSessions],
+  );
+
+  /**
+   * @internal
+   * Schedules a session expiration and warning timer for the given session key.
+   *
+   * - Sets up two timers: one for warning before expiry and one for actual expiry.
+   * - Uses capped timeouts under the hood so delays > 24.8 days are safe (see utils/timers.ts).
+   *
+   * @param params.sessionKey - The key of the session to schedule expiration for.
+   * @param params.expiry - The expiration time in seconds since epoch.
+   * @throws {TurnkeyError} If an error occurs while scheduling the session expiration.
+   */
+  const scheduleSessionExpiration = useCallback(
+    async (params: {
+      sessionKey: string;
+      expiry: number; // seconds since epoch
+    }) => {
+      const { sessionKey, expiry } = params;
+
+      try {
+        const warnKey = `${sessionKey}-warning`;
+
+        // Replace any prior timers for this session
+        clearKey(expiryTimeoutsRef.current, sessionKey);
+        clearKey(expiryTimeoutsRef.current, warnKey);
+
+        const now = Date.now();
+        const expiryMs = expiry * 1000;
+        const timeUntilExpiry = expiryMs - now;
+
+        const runRefresh = async () => {
+          const activeSession = await getSession();
+
+          if (!activeSession && expiryTimeoutsRef.current[warnKey]) {
+            // Keep nudging until session materializes (short 10s timer is fine)
+            setTimeoutInMap(
+              expiryTimeoutsRef.current,
+              warnKey,
+              runRefresh,
+              10_000,
+            );
+            return;
+          }
+
+          const session = await getSession({ sessionKey });
+          if (!session) return;
+
+          callbacks?.beforeSessionExpiry?.({ sessionKey });
+
+          if (masterConfig?.auth?.autoRefreshSession) {
+            await refreshSession({
+              expirationSeconds: session.expirationSeconds!,
+              sessionKey,
+            });
+          }
+        };
+
+        const expireSession = async () => {
+          const expiredSession = await getSession({ sessionKey });
+          if (!expiredSession) return;
+
+          callbacks?.onSessionExpired?.({ sessionKey });
+
+          if ((await getActiveSessionKey()) === sessionKey) {
+            setSession(undefined);
+          }
+
+          setAllSessions((prev) => {
+            if (!prev) return prev;
+            const next = { ...prev };
+            delete next[sessionKey];
+            return next;
+          });
+
+          await clearSession({ sessionKey });
+
+          // Remove timers for this session
+          clearKey(expiryTimeoutsRef.current, sessionKey);
+          clearKey(expiryTimeoutsRef.current, warnKey);
+
+          await logout();
+        };
+
+        // Already expired → expire immediately
+        if (timeUntilExpiry <= 0) {
+          await expireSession();
+          return;
+        }
+
+        // Warning timer (if threshold is in the future)
+        const warnAt = expiryMs - SESSION_WARNING_THRESHOLD_MS;
+        if (warnAt <= now) {
+          void runRefresh(); // fire-and-forget is fine
+        } else {
+          setCappedTimeoutInMap(
+            expiryTimeoutsRef.current,
+            warnKey,
+            runRefresh,
+            warnAt - now,
+          );
+        }
+
+        // Actual expiry timer (safe for long delays)
+        setCappedTimeoutInMap(
+          expiryTimeoutsRef.current,
+          sessionKey,
+          expireSession,
+          timeUntilExpiry,
+        );
+      } catch (error) {
+        if (
+          error instanceof TurnkeyError ||
+          error instanceof TurnkeyNetworkError
+        ) {
+          callbacks?.onError?.(error);
+        } else {
+          callbacks?.onError?.(
+            new TurnkeyError(
+              `Failed to schedule session expiration for ${sessionKey}`,
+              TurnkeyErrorCodes.SCHEDULE_SESSION_EXPIRY_ERROR,
+              error,
+            ),
+          );
+        }
+      }
+    },
+    // Note: `refreshSession()` is intentionally NOT in the dependency array even though
+    // it's called in runRefresh. This is because: `refreshSession()` itself calls `scheduleSessionExpiration()`,
+    // creating a circular dependency that would cause infinite re-renders
+    //
+    // this is fine because `refreshSession()` reference is stable enough for this use case (session
+    // expiration timers are long-lived and don't need to re-subscribe on every `refreshSession()` change)
+    [
+      callbacks,
+      masterConfig,
+      getSession,
+      getActiveSessionKey,
+      clearSession,
+      logout,
+    ],
+  );
+
+  const refreshSession = useCallback(
+    async (
+      params?: RefreshSessionParams,
+    ): Promise<TStampLoginResponse | undefined> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+
+      const activeSessionKey = await client.getActiveSessionKey();
+      if (!activeSessionKey) {
+        throw new TurnkeyError(
+          "No active session found.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+
+      const sessionKey = params?.sessionKey ?? activeSessionKey;
+
+      const res = await withTurnkeyErrorHandling(
+        () => client.refreshSession({ ...params }),
+        () => logout(),
+        callbacks,
+        "Failed to refresh session",
+      );
+      const session = await getSession({ sessionKey });
+
+      if (session && sessionKey) {
+        await scheduleSessionExpiration({
+          sessionKey,
+          expiry: session.expiry,
+        });
+      }
+
+      const allSessions = await getAllSessions();
+      setSession(session);
+      setAllSessions(allSessions);
+      return res;
+    },
+    [
+      client,
+      callbacks,
+      logout,
+      getSession,
+      scheduleSessionExpiration,
+      getAllSessions,
+    ],
   );
 
   const loginWithPasskey = useCallback(
@@ -1372,7 +1652,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig, logout, handlePostAuth],
   );
 
   const signUpWithPasskey = useCallback(
@@ -1441,28 +1721,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks],
-  );
-
-  const fetchWalletProviders = useCallback(
-    async (chain?: Chain): Promise<WalletProvider[]> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      const newProviders = await client.fetchWalletProviders(chain);
-
-      // we update state with the latest providers
-      // we keep this state so that initializeWalletProviderListeners() re-runs
-      // whenever the list of connected providers changes
-      // this ensures we attach disconnect listeners for each connected provider
-      setWalletProviders(newProviders);
-
-      return newProviders;
-    },
-    [client, callbacks],
+    [client, callbacks, logout, handlePostAuth, masterConfig],
   );
 
   const connectWalletAccount = useCallback(
@@ -1473,40 +1732,48 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       }
-      const address = await client.connectWalletAccount(walletProvider);
 
-      let wallets: Wallet[];
+      return withTurnkeyErrorHandling(
+        async () => {
+          const address = await client.connectWalletAccount(walletProvider);
 
-      const s = await getSession();
-      if (s) {
-        // this will update our walletProvider state
-        wallets = await refreshWallets();
-      } else {
-        wallets = await fetchWallets({ connectedOnly: true });
-      }
+          let wallets: Wallet[];
 
-      // we narrow to only connected wallets
-      // because we know the account must come from one of them
-      const connectedWallets = wallets.filter(
-        (w): w is ConnectedWallet => w.source === WalletSource.Connected,
+          const s = await getSession();
+          if (s) {
+            // this will update our walletProvider state
+            wallets = await refreshWallets();
+          } else {
+            wallets = await fetchWallets({ connectedOnly: true });
+          }
+
+          // we narrow to only connected wallets
+          // because we know the account must come from one of them
+          const connectedWallets = wallets.filter(
+            (w): w is ConnectedWallet => w.source === WalletSource.Connected,
+          );
+
+          // find the matching account
+          const matchedAccount = connectedWallets
+            .flatMap((w) => w.accounts)
+            .find((a) => a.address === address);
+
+          if (!matchedAccount) {
+            throw new TurnkeyError(
+              `No connected wallet account found for address: ${address}`,
+              TurnkeyErrorCodes.NO_WALLET_FOUND,
+            );
+          }
+
+          return matchedAccount;
+        },
+        () => logout(),
+        callbacks,
+        "Failed to connect wallet account",
       );
-
-      // find the matching account
-      const matchedAccount = connectedWallets
-        .flatMap((w) => w.accounts)
-        .find((a) => a.address === address);
-
-      if (!matchedAccount) {
-        throw new TurnkeyError(
-          `No connected wallet account found for address: ${address}`,
-          TurnkeyErrorCodes.NO_WALLET_FOUND,
-        );
-      }
-
-      return matchedAccount;
     },
 
-    [client, callbacks],
+    [client, callbacks, getSession, logout, refreshWallets, fetchWallets],
   );
 
   const disconnectWalletAccount = useCallback(
@@ -1517,10 +1784,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       }
-      await client.disconnectWalletAccount(walletProvider);
 
-      // no need here to call `refreshWallets()` because the provider emits a disconnect event which
-      // will trigger a refresh via the listener we set up in `initializeWalletProviderListeners()`
+      await withTurnkeyErrorHandling(
+        async () => {
+          await client.disconnectWalletAccount(walletProvider);
+
+          // no need here to call `refreshWallets()` because the provider emits a disconnect event which
+          // will trigger a refresh via the listener we set up in `initializeWalletProviderListeners()`
+        },
+        undefined,
+        callbacks,
+        "Failed to disconnect wallet account",
+      );
     },
     [client, callbacks],
   );
@@ -1534,9 +1809,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      await client.switchWalletAccountChain({ ...params, walletProviders });
+      await withTurnkeyErrorHandling(
+        async () => {
+          await client.switchWalletAccountChain({ ...params, walletProviders });
+        },
+        undefined,
+        callbacks,
+        "Failed to switch wallet account chain",
+      );
     },
-    [client, callbacks, walletProviders],
+    [client, walletProviders, callbacks],
   );
 
   const buildWalletLoginRequest = useCallback(
@@ -1556,12 +1838,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       return await withTurnkeyErrorHandling(
         () => client.buildWalletLoginRequest({ ...params, expirationSeconds }),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to login with wallet",
       );
     },
-    [client, callbacks],
+    [client, callbacks, masterConfig],
   );
 
   const loginWithWallet = useCallback(
@@ -1579,7 +1861,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
         () => client.loginWithWallet({ ...params, expirationSeconds }),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to login with wallet",
       );
@@ -1593,7 +1875,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, handlePostAuth, masterConfig],
   );
 
   const signUpWithWallet = useCallback(
@@ -1625,7 +1907,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
         () => client.signUpWithWallet({ ...params, expirationSeconds }),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to sign up with wallet",
       );
@@ -1639,7 +1921,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks, masterConfig],
+    [client, callbacks, handlePostAuth, masterConfig],
   );
 
   const loginOrSignupWithWallet = useCallback(
@@ -1673,7 +1955,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
       const res = await withTurnkeyErrorHandling(
         () => client.loginOrSignupWithWallet({ ...params, expirationSeconds }),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to login or sign up with wallet",
       );
@@ -1687,7 +1969,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks, masterConfig],
+    [client, callbacks, handlePostAuth, masterConfig],
   );
 
   const initOtp = useCallback(
@@ -1700,7 +1982,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return withTurnkeyErrorHandling(
         () => client.initOtp(params),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to initialize OTP",
       );
@@ -1718,7 +2000,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return withTurnkeyErrorHandling(
         () => client.verifyOtp(params),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to verify OTP",
       );
@@ -1737,7 +2019,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.loginWithOtp(params),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to login with OTP",
       );
@@ -1751,7 +2033,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, handlePostAuth],
   );
 
   const signUpWithOtp = useCallback(
@@ -1785,7 +2067,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.signUpWithOtp(params),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to sign up with OTP",
       );
@@ -1799,7 +2081,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks, masterConfig],
+    [client, callbacks, masterConfig, handlePostAuth],
   );
 
   const completeOtp = useCallback(
@@ -1838,7 +2120,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.completeOtp(params),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to complete OTP",
       );
@@ -1852,7 +2134,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks, masterConfig],
+    [client, callbacks, handlePostAuth, masterConfig],
   );
 
   const loginWithOauth = useCallback(
@@ -1866,7 +2148,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.loginWithOauth(params),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to login with OAuth",
       );
@@ -1880,7 +2162,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, handlePostAuth],
   );
 
   const signUpWithOauth = useCallback(
@@ -1908,7 +2190,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.signUpWithOauth(params),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to sign up with OAuth",
       );
@@ -1922,7 +2204,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks, masterConfig],
+    [client, callbacks, handlePostAuth, masterConfig],
   );
 
   const completeOauth = useCallback(
@@ -1954,7 +2236,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       const res = await withTurnkeyErrorHandling(
         () => client.completeOauth(params),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to complete OAuth",
       );
@@ -1968,25 +2250,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
       return res;
     },
-    [client, callbacks, masterConfig],
-  );
-
-  const fetchWallets = useCallback(
-    async (params?: FetchWalletsParams): Promise<Wallet[]> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      return withTurnkeyErrorHandling(
-        () => client.fetchWallets(params),
-        () => logout(),
-        callbacks,
-        "Failed to fetch wallets",
-      );
-    },
-    [client, callbacks],
+    [client, callbacks, masterConfig, handlePostAuth],
   );
 
   const fetchWalletAccounts = useCallback(
@@ -2004,7 +2268,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to fetch wallet accounts",
       );
     },
-    [client, callbacks],
+    [client, callbacks, logout],
   );
 
   const fetchPrivateKeys = useCallback(
@@ -2022,7 +2286,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to fetch private keys",
       );
     },
-    [client, callbacks],
+    [client, callbacks, logout],
   );
 
   const signMessage = useCallback(
@@ -2039,7 +2303,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign message",
       );
     },
-    [client, callbacks],
+    [client, callbacks, logout],
   );
 
   const handleSignMessage = useCallback(
@@ -2091,7 +2355,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       });
     },
-    [client, callbacks],
+    [client, callbacks, pushPage],
   );
 
   const signTransaction = useCallback(
@@ -2108,7 +2372,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign transaction",
       );
     },
-    [client, callbacks],
+    [client, callbacks, logout],
   );
 
   const signAndSendTransaction = useCallback(
@@ -2125,24 +2389,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to sign transaction",
       );
     },
-    [client, callbacks],
-  );
-
-  const fetchUser = useCallback(
-    async (params?: FetchUserParams): Promise<v1User> => {
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      return withTurnkeyErrorHandling(
-        () => client.fetchUser(params),
-        () => logout(),
-        callbacks,
-        "Failed to fetch user",
-      );
-    },
-    [client, callbacks],
+    [client, callbacks, logout],
   );
 
   const fetchOrCreateP256ApiKeyUser = useCallback(
@@ -2159,7 +2406,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to fetch or create delegated access user",
       );
     },
-    [client, callbacks],
+    [client, callbacks, logout],
   );
 
   const fetchOrCreatePolicies = useCallback(
@@ -2178,7 +2425,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to fetch or create delegated access user",
       );
     },
-    [client, callbacks],
+    [client, callbacks, logout],
   );
 
   const updateUserEmail = useCallback(
@@ -2204,7 +2451,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, logout, refreshUser],
   );
 
   const removeUserEmail = useCallback(
@@ -2230,7 +2477,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, logout, refreshUser],
   );
 
   const updateUserPhoneNumber = useCallback(
@@ -2256,7 +2503,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, logout, refreshUser],
   );
 
   const removeUserPhoneNumber = useCallback(
@@ -2282,7 +2529,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, logout, refreshUser],
   );
 
   const updateUserName = useCallback(
@@ -2308,7 +2555,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, logout, refreshUser],
   );
 
   const addOauthProvider = useCallback(
@@ -2334,7 +2581,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, logout, refreshUser],
   );
 
   const removeOauthProviders = useCallback(
@@ -2360,7 +2607,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, logout, refreshUser],
   );
 
   const addPasskey = useCallback(
@@ -2386,7 +2633,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, logout, refreshUser],
   );
 
   const removePasskeys = useCallback(
@@ -2412,7 +2659,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, logout, refreshUser],
   );
 
   const createWallet = useCallback(
@@ -2438,7 +2685,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, session, callbacks],
+    [client, session, callbacks, logout, refreshWallets, getSession],
   );
 
   const createWalletAccounts = useCallback(
@@ -2464,7 +2711,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, session, callbacks],
+    [client, session, callbacks, logout, getSession, refreshWallets],
   );
 
   const exportWallet = useCallback(
@@ -2490,7 +2737,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, session, callbacks],
+    [client, session, callbacks, logout, getSession, refreshWallets],
   );
 
   const exportPrivateKey = useCallback(
@@ -2508,7 +2755,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       return res;
     },
-    [client, callbacks],
+    [client, callbacks, logout],
   );
 
   const exportWalletAccount = useCallback(
@@ -2534,7 +2781,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, masterConfig, session, user],
+    [client, callbacks, logout, getSession, refreshWallets],
   );
 
   const importWallet = useCallback(
@@ -2561,7 +2808,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, masterConfig, session, user],
+    [client, callbacks, logout, getSession, refreshWallets],
   );
 
   const importPrivateKey = useCallback(
@@ -2579,7 +2826,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       return res;
     },
-    [client, callbacks, masterConfig, session, user],
+    [client, callbacks, logout],
   );
 
   const deleteSubOrganization = useCallback(
@@ -2598,7 +2845,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to delete sub-organization",
       );
     },
-    [client, callbacks, masterConfig, session, user],
+    [client, callbacks, logout],
   );
 
   const storeSession = useCallback(
@@ -2627,40 +2874,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      await refreshWallets();
-      await refreshUser();
+      await Promise.all([refreshWallets(), refreshUser()]);
     },
-    [client, callbacks, masterConfig, session, user],
-  );
-
-  const clearSession = useCallback(
-    async (params?: ClearSessionParams): Promise<void> => {
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      await withTurnkeyErrorHandling(
-        async () => client.clearSession(params),
-        () => logout(),
-        callbacks,
-        "Failed to clear session",
-      );
-      const sessionKey = params?.sessionKey ?? (await getActiveSessionKey());
-      if (!sessionKey) return;
-      if (!params?.sessionKey) {
-        setSession(undefined);
-      }
-      clearSessionTimeouts([sessionKey]);
-      // clear only the cleared session from allSessions
-      const newAllSessions = { ...allSessions };
-      if (newAllSessions) {
-        delete newAllSessions[sessionKey];
-      }
-      setAllSessions(newAllSessions);
-      return;
-    },
-    [client, callbacks, session, user, masterConfig],
+    [
+      client,
+      callbacks,
+      logout,
+      getActiveSessionKey,
+      getSession,
+      scheduleSessionExpiration,
+      getAllSessions,
+      refreshWallets,
+      refreshUser,
+    ],
   );
 
   const clearAllSessions = useCallback(async (): Promise<void> => {
@@ -2678,84 +2904,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       callbacks,
       "Failed to clear all sessions",
     );
-  }, [client, callbacks, session, user, masterConfig]);
-
-  const refreshSession = useCallback(
-    async (
-      params?: RefreshSessionParams,
-    ): Promise<TStampLoginResponse | undefined> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-
-      const activeSessionKey = await client.getActiveSessionKey();
-      if (!activeSessionKey) {
-        throw new TurnkeyError(
-          "No active session found.",
-          TurnkeyErrorCodes.NO_SESSION_FOUND,
-        );
-      }
-
-      const sessionKey = params?.sessionKey ?? activeSessionKey;
-
-      const res = await withTurnkeyErrorHandling(
-        () => client.refreshSession({ ...params }),
-        () => logout(),
-        callbacks,
-        "Failed to refresh session",
-      );
-      const session = await getSession({ sessionKey });
-
-      if (session && sessionKey) {
-        await scheduleSessionExpiration({
-          sessionKey,
-          expiry: session.expiry,
-        });
-      }
-
-      const allSessions = await getAllSessions();
-      setSession(session);
-      setAllSessions(allSessions);
-      return res;
-    },
-    [client, callbacks, scheduleSessionExpiration, session, user, masterConfig],
-  );
-
-  const getSession = useCallback(
-    async (params?: GetSessionParams): Promise<Session | undefined> => {
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      return withTurnkeyErrorHandling(
-        () => client.getSession(params),
-        () => logout(),
-        callbacks,
-        "Failed to get session",
-      );
-    },
-    [client, callbacks, masterConfig, session, user],
-  );
-
-  const getAllSessions = useCallback(async (): Promise<
-    Record<string, Session> | undefined
-  > => {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    return withTurnkeyErrorHandling(
-      () => client.getAllSessions(),
-      () => logout(),
-      callbacks,
-      "Failed to get all sessions",
-    );
-  }, [client, callbacks, masterConfig, session, user]);
+  }, [client, callbacks, logout, clearSessionTimeouts]);
 
   const setActiveSession = useCallback(
     async (params: SetActiveSessionParams): Promise<void> => {
@@ -2786,8 +2935,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setSession(session);
       await withTurnkeyErrorHandling(
         async () => {
-          await refreshWallets();
-          await refreshUser();
+          await Promise.all([refreshWallets(), refreshUser()]);
         },
         () => logout(),
         callbacks,
@@ -2795,24 +2943,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       return;
     },
-    [client, callbacks, session, user, masterConfig],
+    [client, callbacks, logout, getSession, refreshWallets, refreshUser],
   );
-
-  const getActiveSessionKey = useCallback(async (): Promise<
-    string | undefined
-  > => {
-    if (!client)
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    return withTurnkeyErrorHandling(
-      () => client.getActiveSessionKey(),
-      () => logout(),
-      callbacks,
-      "Failed to get active session key",
-    );
-  }, [client, callbacks, masterConfig, session, user]);
 
   const clearUnusedKeyPairs = useCallback(async (): Promise<void> => {
     if (!client)
@@ -2822,11 +2954,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     return withTurnkeyErrorHandling(
       () => client.clearUnusedKeyPairs(),
-      () => logout(),
+      undefined,
       callbacks,
       "Failed to clear unused key pairs",
     );
-  }, [client, callbacks, masterConfig, session, user]);
+  }, [client, callbacks]);
 
   const createApiKeyPair = useCallback(
     async (params?: CreateApiKeyPairParams): Promise<string> => {
@@ -2837,12 +2969,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.createApiKeyPair(params),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to create API key pair",
       );
     },
-    [client, callbacks, session, user, masterConfig],
+    [client, callbacks],
   );
 
   const getProxyAuthConfig =
@@ -2854,38 +2986,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.getProxyAuthConfig(),
-        () => logout(),
+        undefined,
         callbacks,
         "Failed to get proxy auth config",
       );
-    }, [client, callbacks, masterConfig, session, user]);
-
-  const refreshUser = useCallback(
-    async (params?: RefreshUserParams): Promise<void> => {
-      if (!masterConfig?.autoRefreshManagedState) return;
-      const { stampWith, organizationId, userId } = params || {};
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      const user = await withTurnkeyErrorHandling(
-        () =>
-          fetchUser({
-            stampWith,
-            ...(organizationId && { organizationId }),
-            ...(userId && { userId }),
-          }),
-        () => logout(),
-        callbacks,
-        "Failed to refresh user",
-      );
-      if (user) {
-        setUser(user);
-      }
-    },
-    [client, callbacks, fetchUser, masterConfig, session, user],
-  );
+    }, [client, callbacks]);
 
   const fetchBootProofForAppProof = useCallback(
     async (params: FetchBootProofForAppProofParams): Promise<v1BootProof> => {
@@ -2901,7 +3006,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to fetch or create delegated access user",
       );
     },
-    [client, callbacks],
+    [client, callbacks, logout],
   );
 
   const verifyAppProofs = useCallback(
@@ -2918,54 +3023,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to verify app proofs",
       );
     },
-    [client, callbacks],
-  );
-
-  const refreshWallets = useCallback(
-    async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
-      if (!masterConfig?.autoRefreshManagedState) return [];
-
-      const { stampWith, organizationId, userId } = params || {};
-
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      const walletProviders = await withTurnkeyErrorHandling(
-        () => fetchWalletProviders(),
-        () => logout(),
-        callbacks,
-        "Failed to refresh wallets",
-      );
-
-      const wallets = await withTurnkeyErrorHandling(
-        () =>
-          fetchWallets({
-            stampWith,
-            walletProviders,
-            ...(organizationId && { organizationId }),
-            ...(userId && { userId }),
-          }),
-        () => logout(),
-        callbacks,
-        "Failed to refresh wallets",
-      );
-      if (wallets) {
-        setWallets(wallets);
-      }
-
-      return wallets;
-    },
-    [
-      client,
-      callbacks,
-      fetchWalletProviders,
-      fetchWallets,
-      masterConfig,
-      session,
-      user,
-    ],
+    [client, callbacks, logout],
   );
 
   const handleDiscordOauth = useCallback(
@@ -3152,15 +3210,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
     },
-    [
-      client,
-      callbacks,
-      completeOauth,
-      createApiKeyPair,
-      masterConfig,
-      session,
-      user,
-    ],
+    [client, callbacks, completeOauth, createApiKeyPair, masterConfig],
   );
 
   const handleXOauth = useCallback(
@@ -3347,7 +3397,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
     },
-    [client, callbacks, masterConfig, session, user],
+    [client, callbacks, completeOauth, createApiKeyPair, masterConfig],
   );
 
   const handleGoogleOauth = useCallback(
@@ -3512,7 +3562,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
     },
-    [client, callbacks, masterConfig, session, user],
+    [callbacks, completeOauth, createApiKeyPair, masterConfig],
   );
 
   const handleAppleOauth = useCallback(
@@ -3673,7 +3723,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
     },
-    [client, callbacks, masterConfig, session, user],
+    [callbacks, completeOauth, createApiKeyPair, masterConfig],
   );
 
   const handleFacebookOauth = useCallback(
@@ -3864,7 +3914,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw error;
       }
     },
-    [client, callbacks, masterConfig, client, session, user],
+    [callbacks, completeOauth, createApiKeyPair, masterConfig],
   );
 
   const handleLogin = useCallback(
@@ -3885,7 +3935,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         showTitle: logo ? false : true,
       });
     },
-    [pushPage, masterConfig, client, session, user],
+    [pushPage, masterConfig],
   );
 
   const handleExportWallet = useCallback(
@@ -3916,7 +3966,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }),
       );
     },
-    [pushPage, masterConfig, client, session, user],
+    [pushPage],
   );
 
   const handleExportPrivateKey = useCallback(
@@ -3953,7 +4003,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }),
       );
     },
-    [pushPage, masterConfig, client, session, user],
+    [pushPage],
   );
 
   const handleExportWalletAccount = useCallback(
@@ -3986,7 +4036,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }),
       );
     },
-    [pushPage, masterConfig, client, session, user],
+    [pushPage],
   );
 
   const handleImportWallet = useCallback(
@@ -4043,7 +4093,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, masterConfig, client, session, user],
+    [pushPage, logout],
   );
 
   const handleImportPrivateKey = useCallback(
@@ -4098,7 +4148,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, masterConfig, client, session, user],
+    [pushPage, logout],
   );
 
   const handleUpdateUserName = useCallback(
@@ -4199,7 +4249,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, masterConfig, client, session, user],
+    [client, getSession, user, pushPage, closeModal, updateUserName, logout],
   );
 
   const handleUpdateUserPhoneNumber = useCallback(
@@ -4359,7 +4409,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, masterConfig, client, session, user],
+    [
+      client,
+      masterConfig,
+      getSession,
+      pushPage,
+      closeModal,
+      logout,
+      initOtp,
+      verifyOtp,
+      updateUserPhoneNumber,
+      user,
+      callbacks,
+    ],
   );
 
   const handleUpdateUserEmail = useCallback(
@@ -4504,7 +4566,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, masterConfig, client, session, user],
+    [
+      client,
+      getSession,
+      pushPage,
+      closeModal,
+      logout,
+      initOtp,
+      masterConfig,
+      verifyOtp,
+      updateUserEmail,
+      user,
+      callbacks,
+    ],
   );
 
   const handleAddEmail = useCallback(
@@ -4651,7 +4725,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, client, session, user],
+    [
+      client,
+      getSession,
+      pushPage,
+      closeModal,
+      user,
+      logout,
+      initOtp,
+      masterConfig,
+      verifyOtp,
+      updateUserEmail,
+      callbacks,
+    ],
   );
 
   const handleAddPhoneNumber = useCallback(
@@ -4819,7 +4905,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, masterConfig, client, session, user],
+    [
+      client,
+      masterConfig,
+      getSession,
+      pushPage,
+      closeModal,
+      user,
+      logout,
+      callbacks,
+      initOtp,
+      verifyOtp,
+      updateUserPhoneNumber,
+    ],
   );
 
   const handleRemovePasskey = useCallback(
@@ -4879,7 +4977,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to remove passkey",
       );
     },
-    [pushPage, masterConfig, client, session, user],
+    [client, getSession, pushPage, logout, callbacks],
   );
 
   const handleAddPasskey = useCallback(
@@ -4948,7 +5046,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, masterConfig, client, session, user],
+    [client, getSession, addPasskey, pushPage, closeModal],
   );
 
   const handleRemoveOauthProvider = useCallback(
@@ -5016,7 +5114,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, masterConfig, client, session, user],
+    [client, getSession, pushPage],
   );
 
   const handleAddOauthProvider = useCallback(
@@ -5115,7 +5213,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
       });
     },
-    [pushPage, masterConfig, client, session, user],
+    [
+      client,
+      getSession,
+      addOauthProvider,
+      pushPage,
+      closeModal,
+      handleDiscordOauth,
+      handleXOauth,
+      handleGoogleOauth,
+      handleAppleOauth,
+      handleFacebookOauth,
+    ],
   );
 
   const handleConnectExternalWallet = useCallback(
@@ -5162,7 +5271,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       });
     },
-    [pushPage, masterConfig, client, session, user],
+    [client, masterConfig, fetchWalletProviders, pushPage],
   );
 
   const handleRemoveUserEmail = useCallback(
@@ -5217,7 +5326,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, masterConfig, client, session, user],
+    [getSession, pushPage],
   );
 
   const handleRemoveUserPhoneNumber = useCallback(
@@ -5272,7 +5381,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, masterConfig, client, session, user],
+    [getSession, pushPage],
   );
 
   const handleOnRamp = useCallback(
@@ -5486,7 +5595,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       });
     },
-    [pushPage, client],
+    [getSession, client, pushPage],
   );
 
   const handleVerifyAppProofs = useCallback(
@@ -5542,7 +5651,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
     },
-    [pushPage, client],
+    [getSession, pushPage],
   );
 
   useEffect(() => {
@@ -5609,7 +5718,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       // while the user is unauthenticated
       //
       // WalletProviders state is updated regardless of session state
-      if (session) {
+      const currentSession = await getSession();
+      if (currentSession) {
         // this updates both the wallets and walletProviders state
         await debouncedRefreshWallets();
       } else {
@@ -5630,7 +5740,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     return () => {
       cleanup();
     };
-  }, [client, walletProviders, session]);
+  }, [
+    client,
+    walletProviders,
+    getSession,
+    debouncedRefreshWallets,
+    debouncedFetchWalletProviders,
+  ]);
 
   useEffect(() => {
     // authState must be consistent with session state. We found during testing that there are cases where the session and authState can be out of sync in very rare edge cases.
