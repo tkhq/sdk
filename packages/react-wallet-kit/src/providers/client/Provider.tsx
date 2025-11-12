@@ -996,6 +996,39 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             // to refresh the uri, there is no need to refresh the wallets state
             if (evt?.type === "pairingExpired") {
               debouncedFetchWalletProviders();
+              return;
+            }
+
+            // if WalletConnect initialization failed, refresh providers
+            // (the failed provider will be removed from the list)
+            if (evt?.type === "failed") {
+              console.error("WalletConnect initialization failed:", evt.error);
+              debouncedFetchWalletProviders();
+              return;
+            }
+
+            if (evt?.type === "initialized") {
+              // this updates our walletProvider state
+              const providers = await debouncedFetchWalletProviders();
+
+              // if we have an active session, we need to restore any possibly connected
+              // WalletConnect wallets since its now initialized
+              if (session) {
+                const wcProviders = providers.filter(
+                  (p) => p.interfaceType === WalletInterfaceType.WalletConnect,
+                );
+
+                const wcWallets = await fetchWallets({
+                  walletProviders: wcProviders,
+                  connectedOnly: true,
+                });
+
+                if (wcWallets.length > 0) {
+                  setWallets((prev) => [...prev, ...wcWallets]);
+                }
+              }
+
+              return;
             }
 
             // any other event (disconnect, chain switch, accounts changed)

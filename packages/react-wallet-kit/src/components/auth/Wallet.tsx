@@ -64,7 +64,27 @@ export function ExternalWalletChainSelector(
   props: ExternalWalletSelectorProps,
 ) {
   const { providers, onSelect, onDisconnect } = props;
-  const { isMobile } = useModal();
+
+  const { walletProviders } = useTurnkey();
+  const { isMobile, closeModal } = useModal();
+
+  // we find matching providers in current state
+  const currentProviders = providers.map((inputProvider) =>
+    walletProviders.find(
+      (p) =>
+        p.interfaceType === inputProvider.interfaceType &&
+        p.chainInfo.namespace === inputProvider.chainInfo.namespace,
+    ),
+  ).filter((p): p is WalletProvider => p !== undefined);
+
+  // if no providers are found then that means that the user entered this screen
+  // while WalletConnect was still initializing, and then it failed to initialize
+  useEffect(() => {
+    if (currentProviders.length === 0) {
+      closeModal();
+    }
+  }, [currentProviders.length, closeModal]);
+
   const shouldShowDisconnect = onDisconnect !== undefined;
 
   const handleSelect = (provider: WalletProvider) => {
@@ -398,6 +418,43 @@ export function ConnectedIndicator(props: ConnectedIndicatorProps) {
     </div>
   );
 }
+interface QRCodeDisplayProps {
+  uri: string;
+  icon: string;
+  isBlurred?: boolean;
+  showOverlay?: boolean;
+}
+
+function QRCodeDisplay(props: QRCodeDisplayProps) {
+  const { uri, icon, isBlurred = false, showOverlay = false } = props;
+
+  return (
+    <div className="relative inline-block">
+      {/* @ts-expect-error: qrcode.react uses a different React type version */}
+      <QRCode
+        className={clsx(
+          "block border border-modal-background-dark/20 dark:border-modal-background-light/20",
+          "shadow-[0_0_42px] shadow-primary-light/50 dark:shadow-[0_0_42px] dark:shadow-primary-dark/50",
+          isBlurred && "blur-sm",
+        )}
+        value={uri}
+        imageSettings={{
+          src: icon,
+          width: 24,
+          height: 24,
+          excavate: true,
+        }}
+        size={200}
+      />
+      {showOverlay && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="animate-spin size-12 border-4 border-t-primary-light dark:border-t-primary-dark border-icon-background-dark/20 dark:border-icon-background-light/20 rounded-full" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export interface WalletConnectScreenProps {
   provider: WalletProvider;
   successPageDuration: number | undefined;
@@ -434,17 +491,22 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
       p.chainInfo.namespace === inputProvider.chainInfo.namespace,
   );
 
-  if (!provider) {
-    throw new Error("WalletConnect provider not found");
-  }
+  // if provider is not found then that means that the user entered this screen
+  // while WalletConnect was still initializing, and then it failed to initialize
+  useEffect(() => {
+    if (!provider) {
+      closeModal();
+    }
+  }, [provider, closeModal]);
 
-  const connectedAccount = provider.connectedAddresses?.[0] ?? null;
+    const connectedAccount = provider?.connectedAddresses?.[0] ?? null;
 
   // Initial connection effect
   useEffect(() => {
     if (provider) {
       latestProviderRef.current = provider;
-      if (!isConnecting) {
+      // we don't try to connect if WalletConnect is still initializing or we are already connecting
+      if (!isConnecting && !provider.isLoading) {
         runAction(provider);
       }
     }
@@ -480,7 +542,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
 
   const handleCopy = () => {
     setShowCopied(true);
-    navigator.clipboard.writeText(`${provider.uri}`);
+    navigator.clipboard.writeText(`${provider?.uri}`);
     setTimeout(() => {
       setShowCopied(false);
     }, 1500);
@@ -529,12 +591,12 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
               <div className="flex items-center justify-center">
                 <img
                   className="size-5"
-                  src={provider.info.icon}
+                  src={provider?.info.icon}
                   alt="Wallet connect logo"
                 />
                 <img
                   className="size-5 absolute animate-ping"
-                  src={provider.info.icon}
+                  src={provider?.info.icon}
                   alt="Wallet connect logo"
                 />
               </div>
@@ -588,6 +650,30 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             )}
           </div>
         </div>
+      ) : provider?.isLoading ? (
+        <div
+          className={clsx(
+            "mt-8 flex flex-col items-center gap-3",
+            isMobile ? "w-full" : "w-96",
+          )}
+        >
+          <QRCodeDisplay
+            uri="https://www.turnkey.com/"
+            icon={provider.info.icon ?? ""}
+            isBlurred
+            showOverlay
+          />
+
+          {/* this is a skeleton for the copy button to maintain layout */}
+          <div className="h-[40px]" />
+
+          <div className={clsx("text-2xl font-bold text-center")}>
+            Initializing WalletConnect...
+          </div>
+          <div className="text-icon-text-light dark:text-icon-text-dark text-center !p-0">
+            Preparing your connection. This will only take a moment
+          </div>
+        </div>
       ) : (
         <div
           className={clsx(
@@ -595,22 +681,11 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             isMobile ? "w-full" : "w-96",
           )}
         >
-          {provider.uri && (
+          {provider?.uri && (
             <>
-              {/* @ts-expect-error: qrcode.react uses a different React type version */}
-              <QRCode
-                className="    
-                  border border-modal-background-dark/20 dark:border-modal-background-light/20
-                  shadow-[0_0_42px] shadow-primary-light/50
-                  dark:shadow-[0_0_42px] dark:shadow-primary-dark/50"
-                value={provider.uri}
-                imageSettings={{
-                  src: provider.info.icon ?? "",
-                  width: 24,
-                  height: 24,
-                  excavate: true,
-                }}
-                size={200}
+              <QRCodeDisplay
+                uri={provider.uri}
+                icon={provider.info.icon ?? ""}
               />
               <BaseButton
                 onClick={handleCopy}

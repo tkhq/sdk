@@ -69,7 +69,10 @@ export interface WalletProvider {
   info: WalletProviderInfo;
   provider: WalletRpcProvider;
   connectedAddresses: string[];
+
+  // WalletConnect specific
   uri?: string;
+  isLoading?: boolean;
 }
 
 /** @internal */
