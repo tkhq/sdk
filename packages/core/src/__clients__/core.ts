@@ -191,21 +191,36 @@ export class TurnkeyClient {
 
     // Initialize the API key stamper
     this.apiKeyStamper = new CrossPlatformApiKeyStamper(this.storageManager);
-    await this.apiKeyStamper.init();
+
+    // we parallelize independent initializations:
+    // - API key stamper init
+    // - Passkey stamper creation and init (if configured)
+    // - Wallet manager creation (if configured)
+    const initTasks: Promise<void>[] = [this.apiKeyStamper.init()];
 
     if (this.config.passkeyConfig) {
-      this.passkeyStamper = new CrossPlatformPasskeyStamper(
+      const passkeyStamper = new CrossPlatformPasskeyStamper(
         this.config.passkeyConfig,
       );
-      await this.passkeyStamper.init();
+      initTasks.push(
+        passkeyStamper.init().then(() => {
+          this.passkeyStamper = passkeyStamper;
+        }),
+      );
     }
 
     if (
       this.config.walletConfig?.features?.auth ||
       this.config.walletConfig?.features?.connecting
     ) {
-      this.walletManager = await createWalletManager(this.config.walletConfig);
+      initTasks.push(
+        createWalletManager(this.config.walletConfig).then((manager) => {
+          this.walletManager = manager;
+        }),
+      );
     }
+
+    await Promise.all(initTasks);
 
     // Initialize the HTTP client with the appropriate stampers
     // Note: not passing anything here since we want to use the configured stampers and this.config

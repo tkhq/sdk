@@ -52,14 +52,15 @@ export class MobileWalletManager {
 
     if (cfg.walletConnect && enableWalletConnect) {
       this.wcClient = new WalletConnectClient();
-      const wcUnified = new WalletConnectWallet(this.wcClient);
+      const wcUnified = new WalletConnectWallet(this.wcClient, undefined, {
+        ethereumNamespaces,
+        solanaNamespaces,
+      });
 
       this.wallets[WalletInterfaceType.WalletConnect] = wcUnified;
 
       // add async init step to the initializer queue
-      this.initializers.push(() =>
-        wcUnified.init({ ethereumNamespaces, solanaNamespaces }),
-      );
+      this.initializers.push(() => wcUnified.init());
 
       // register WalletConnect as a wallet interface for each enabled chain
       if (enableWalletConnectEvm) {
