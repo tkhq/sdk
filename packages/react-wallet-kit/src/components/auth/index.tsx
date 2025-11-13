@@ -44,7 +44,6 @@ export function AuthComponent({
   const {
     config,
     clientState,
-    walletProviders,
     handleGoogleOauth,
     handleAppleOauth,
     handleFacebookOauth,
@@ -325,12 +324,7 @@ export function AuthComponent({
     try {
       pushPage({
         key: "Select wallet provider",
-        content: (
-          <ExternalWalletSelector
-            providers={walletProviders}
-            onSelect={handleSelect}
-          />
-        ),
+        content: <ExternalWalletSelector onSelect={handleSelect} />,
       });
     } catch (error) {
       throw new Error(`Error fetching wallet providers: ${error}`);

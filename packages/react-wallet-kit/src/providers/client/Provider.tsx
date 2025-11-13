@@ -843,7 +843,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           return;
         }
         setSession(allLocalStorageSessions[activeSessionKey]);
-        await Promise.all([refreshUser(), refreshWallets()]);
+
+        // we use `fetchWallets()` instead of `refreshWallets()` here to avoid a race condition
+        // specifically, if WalletConnect finishes initializing before this promise resolves,
+        // `refreshWallets()` could overwrite the WalletConnect wallet state with an outdated
+        // list of wallets that doesn’t yet include the WalletConnect wallets
+        const [, wallets] = await Promise.all([refreshUser(), fetchWallets()]);
+
+        // the prev wallets should only ever be WalletConnect wallets
+        if (wallets) {
+          setWallets((prev) => [...prev, ...wallets]);
+        }
+
+        console.log("finished fetching wallets inside initializeSessions");
 
         return;
       }
@@ -1013,8 +1025,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
               // if we have an active session, we need to restore any possibly connected
               // WalletConnect wallets since its now initialized
-              if (session) {
-                const wcProviders = providers.filter(
+              const currentSession = await getSession();
+              if (currentSession) {
+                const wcProviders = providers?.filter(
                   (p) => p.interfaceType === WalletInterfaceType.WalletConnect,
                 );
 
@@ -5277,14 +5290,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      const providers = await fetchWalletProviders();
-
       return new Promise((resolve, reject) => {
         pushPage({
           key: "Connect wallet",
           content: (
             <ConnectWalletModal
-              providers={providers}
               successPageDuration={successPageDuration}
               onSuccess={(
                 type: "connect" | "disconnect",

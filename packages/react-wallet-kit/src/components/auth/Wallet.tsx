@@ -60,8 +60,13 @@ const canDisconnect = (
   );
 };
 
+interface ExternalWalletChainSelectorProps {
+  providers: WalletProvider[];
+  onDisconnect?: ((provider: WalletProvider) => Promise<void>) | undefined;
+  onSelect: (provider: WalletProvider) => Promise<void>;
+}
 export function ExternalWalletChainSelector(
-  props: ExternalWalletSelectorProps,
+  props: ExternalWalletChainSelectorProps,
 ) {
   const { providers, onSelect, onDisconnect } = props;
 
@@ -69,13 +74,15 @@ export function ExternalWalletChainSelector(
   const { isMobile, closeModal } = useModal();
 
   // we find matching providers in current state
-  const currentProviders = providers.map((inputProvider) =>
-    walletProviders.find(
-      (p) =>
-        p.interfaceType === inputProvider.interfaceType &&
-        p.chainInfo.namespace === inputProvider.chainInfo.namespace,
-    ),
-  ).filter((p): p is WalletProvider => p !== undefined);
+  const currentProviders = providers
+    .map((inputProvider) =>
+      walletProviders.find(
+        (p) =>
+          p.interfaceType === inputProvider.interfaceType &&
+          p.chainInfo.namespace === inputProvider.chainInfo.namespace,
+      ),
+    )
+    .filter((p): p is WalletProvider => p !== undefined);
 
   // if no providers are found then that means that the user entered this screen
   // while WalletConnect was still initializing, and then it failed to initialize
@@ -182,18 +189,19 @@ export function ExternalWalletChainSelector(
 }
 
 interface ExternalWalletSelectorProps {
-  providers: WalletProvider[];
   onDisconnect?: ((provider: WalletProvider) => Promise<void>) | undefined;
   onSelect: (provider: WalletProvider) => Promise<void>;
 }
 export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
-  const { providers, onDisconnect, onSelect } = props;
+  const { onDisconnect, onSelect } = props;
+
   const { pushPage, popPage, isMobile } = useModal();
+  const { walletProviders } = useTurnkey();
 
   const shouldShowDisconnect = onDisconnect !== undefined;
 
   // Group providers by name
-  const grouped = providers.reduce<Record<string, WalletProvider[]>>(
+  const grouped = walletProviders.reduce<Record<string, WalletProvider[]>>(
     (acc, provider) => {
       const name = provider.info.name;
       if (!acc[name]) acc[name] = [];
@@ -430,7 +438,6 @@ function QRCodeDisplay(props: QRCodeDisplayProps) {
 
   return (
     <div className="relative inline-block">
-      {/* @ts-expect-error: qrcode.react uses a different React type version */}
       <QRCode
         className={clsx(
           "block border border-modal-background-dark/20 dark:border-modal-background-light/20",
@@ -499,7 +506,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
     }
   }, [provider, closeModal]);
 
-    const connectedAccount = provider?.connectedAddresses?.[0] ?? null;
+  const connectedAccount = provider?.connectedAddresses?.[0] ?? null;
 
   // Initial connection effect
   useEffect(() => {
