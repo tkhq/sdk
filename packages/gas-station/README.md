@@ -343,8 +343,8 @@ import { buildIntentSigningPolicy } from "@turnkey/gas-station";
 
 // USDC-only policy
 const eoaPolicy = buildIntentSigningPolicy({
-  organizationId: "your-org-id",
-  eoaUserId: "user-id",
+  organizationId: "a5b89e4f-1234-5678-9abc-def012345678",
+  eoaUserId: "3c7d6e8a-4b5c-6d7e-8f9a-0b1c2d3e4f5a",
   restrictions: {
     allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"], // USDC on Base
     disallowEthTransfer: true, // Disallow ETH transfers
@@ -354,10 +354,10 @@ const eoaPolicy = buildIntentSigningPolicy({
 
 // Resulting policy restricts signing to USDC transfers only:
 // {
-//   organizationId: "your-org-id",
+//   organizationId: "a5b89e4f-1234-5678-9abc-def012345678",
 //   policyName: "USDC Only Policy",
 //   effect: "EFFECT_ALLOW",
-//   consensus: "approvers.any(user, user.id == 'user-id')",
+//   consensus: "approvers.any(user, user.id == '3c7d6e8a-4b5c-6d7e-8f9a-0b1c2d3e4f5a')",
 //   condition: "activity.resource == 'PRIVATE_KEY' && " +
 //              "activity.action == 'SIGN' && " +
 //              "eth.eip_712.primary_type == 'Execution' && " +
@@ -390,8 +390,8 @@ await ensureGasStationInterface(
 
 // Paymaster protection policy with ETH amount limit
 const paymasterPolicy = buildPaymasterExecutionPolicy({
-  organizationId: "paymaster-org-id",
-  paymasterUserId: "paymaster-user-id",
+  organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
+  paymasterUserId: "8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
   executionContractAddress: DEFAULT_EXECUTION_CONTRACT,
   restrictions: {
     allowedEOAs: ["0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"],
@@ -405,23 +405,23 @@ const paymasterPolicy = buildPaymasterExecutionPolicy({
 
 // Resulting policy uses ABI parsing for direct argument access:
 // {
-//   organizationId: "paymaster-org-id",
+//   organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
 //   policyName: "Paymaster Protection",
 //   effect: "EFFECT_ALLOW",
-//   consensus: "approvers.any(user, user.id == 'paymaster-user-id')",
+//   consensus: "approvers.any(user, user.id == '8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c')",
 //   condition: "activity.resource == 'PRIVATE_KEY' && " +
 //              "activity.action == 'SIGN' && " +
-//              "eth.tx.to == '0xe511ad0a281c10b8408381e2ab8525abe587827b' && " +
+//              "eth.tx.to == '0x00000000008c57a1ce37836a5e9d36759d070d8c' && " +
 //              "(eth.tx.contract_call_args['_to'] == '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913') && " +
-//              "(eth.tx.contract_call_args['_targetEoA'] == '0x742d35cc6634c0532925a3b844bc9e7595f0beb') && " +
-//              "eth.tx.contract_call_args['ethAmount'] <= 100000000000000000 && " +
+//              "(eth.tx.contract_call_args['_target'] == '0x742d35cc6634c0532925a3b844bc9e7595f0beb') && " +
+//              "eth.tx.contract_call_args['_ethAmount'] <= 100000000000000000 && " +
 //              "eth.tx.gasPrice <= 50000000000 && " +
 //              "eth.tx.gas <= 500000",
 //   notes: "Restricts which transactions the paymaster can execute on the gas station"
 // }
 ```
 
-**Note:** The `ensureGasStationInterface()` function uploads the Gas Station ABI to Turnkey's Smart Contract Interface feature. This enables Turnkey's policy engine to parse the ABI-encoded transaction data and directly compare the `ethAmount` parameter as a uint256 value, rather than raw bytes. The function checks if the ABI already exists before uploading to avoid duplicates.
+**Note:** The `ensureGasStationInterface()` function uploads the Gas Station ABI to Turnkey's Smart Contract Interface feature. This enables Turnkey's policy engine to parse the ABI-encoded transaction data and directly compare the `_ethAmount` parameter as a uint256 value, rather than raw bytes. The function checks if the ABI already exists before uploading to avoid duplicates.
 
 #### Defense in Depth
 
@@ -437,8 +437,8 @@ import { parseGwei } from "viem";
 
 // Layer 1: EOA can only sign USDC intents
 const eoaPolicy = buildIntentSigningPolicy({
-  organizationId: "user-org",
-  eoaUserId: "user-id",
+  organizationId: "a5b89e4f-1234-5678-9abc-def012345678",
+  eoaUserId: "3c7d6e8a-4b5c-6d7e-8f9a-0b1c2d3e4f5a",
   restrictions: {
     allowedContracts: ["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"],
     disallowEthTransfer: true, // No ETH transfers
@@ -447,8 +447,8 @@ const eoaPolicy = buildIntentSigningPolicy({
 
 // Layer 2: Paymaster can only execute for specific users with gas limits
 const paymasterPolicy = buildPaymasterExecutionPolicy({
-  organizationId: "paymaster-org",
-  paymasterUserId: "paymaster-user-id",
+  organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
+  paymasterUserId: "8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
   executionContractAddress: DEFAULT_EXECUTION_CONTRACT,
   restrictions: {
     allowedEOAs: ["0xUserAddress..."],
@@ -528,7 +528,7 @@ Allow paymaster to execute for USDC or DAI only:
 
 ```typescript
 const policy = {
-  organizationId: "paymaster-org-id",
+  organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
   policyName: "Stablecoin Execution Policy",
   effect: "EFFECT_ALLOW",
   consensus: `approvers.any(user, user.id == '${paymasterUserId}')`,
@@ -566,7 +566,7 @@ const eoaConditions = approvedEOAs
   .join(" || ");
 
 const policy = {
-  organizationId: "paymaster-org-id",
+  organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
   policyName: "Approved Users Only",
   effect: "EFFECT_ALLOW",
   consensus: `approvers.any(user, user.id == '${paymasterUserId}')`,
