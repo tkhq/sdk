@@ -1,5 +1,16 @@
 # @turnkey/react-wallet-kit
 
+## 1.5.1
+
+### Patch Changes
+
+- [#1086](https://github.com/tkhq/sdk/pull/1086) [`2fd1d55`](https://github.com/tkhq/sdk/commit/2fd1d5555dd358a1c0210ca65fd6ca70ff172058) Author [@amircheikh](https://github.com/amircheikh) - Added optional `clearClipboardOnPaste` to `handleImportWallet` and `handleImportPrivateKey`. Defaulting to true, this will create the import iframe with `clipboard-write` permissions. Allows clipboard to be cleared after pasting in secrets to import.
+
+- [#1083](https://github.com/tkhq/sdk/pull/1083) [`658b89c`](https://github.com/tkhq/sdk/commit/658b89c9036f03ec52963ca0a4ea68d00f39e94e) Thanks [@moe-dev](https://github.com/moe-dev)! - Minor fixes - change on-ramp to onramp and change sandbox info text to match primary colour
+
+- Updated dependencies [[`2fd1d55`](https://github.com/tkhq/sdk/commit/2fd1d5555dd358a1c0210ca65fd6ca70ff172058)]:
+  - @turnkey/iframe-stamper@2.7.1
+
 ## 1.5.0
 
 ### Minor Changes

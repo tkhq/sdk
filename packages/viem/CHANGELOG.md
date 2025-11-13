@@ -1,5 +1,12 @@
 # @turnkey/viem
 
+## 0.14.13
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.13.1
+
 ## 0.14.12
 
 ### Patch Changes
