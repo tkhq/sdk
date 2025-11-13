@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 2.7.1
+
+### Patch Changes
+
+- [#1086](https://github.com/tkhq/sdk/pull/1086) [`2fd1d55`](https://github.com/tkhq/sdk/commit/2fd1d5555dd358a1c0210ca65fd6ca70ff172058) Author [@amircheikh](https://github.com/amircheikh) - Updated `TIframeStamperConfig` to include `clearClipboardOnPaste`. Defaulting to true, this will grant the iframe `clipboard-write` permissions. Allows clipboard to be cleared after pasting in secrets to import.
+
 ## 2.7.0
 
 ### Minor Changes

@@ -1,5 +1,12 @@
 # @turnkey/cosmjs
 
+## 0.8.14
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.13.1
+
 ## 0.8.13
 
 ### Patch Changes
