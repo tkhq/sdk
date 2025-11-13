@@ -15,15 +15,15 @@ import type { Hex } from "viem";
  * @param config.customConsensus - Optional custom consensus expression (overrides eoaUserId and additionalApprovers)
  * @param config.restrictions - Signing restrictions
  * @param config.restrictions.allowedContracts - Whitelist of contract addresses EOA can sign intents for
- * @param config.restrictions.disallowEthTransfer - Whether to disallow ETH transfers (if true, ethAmount must be 0)
+ * @param config.restrictions.disallowEthTransfer - Whether to disallow ETH transfers (if true, value must be 0)
  * @param config.policyName - Optional policy name
  * @returns Policy object ready to submit to Turnkey createPolicy API
  *
  * @example
  * // Simple: single user approval, token-only transfers
  * const policy = buildIntentSigningPolicy({
- *   organizationId: "org-123",
- *   eoaUserId: "user-456",
+ *   organizationId: "a5b89e4f-1234-5678-9abc-def012345678",
+ *   eoaUserId: "3c7d6e8a-4b5c-6d7e-8f9a-0b1c2d3e4f5a",
  *   restrictions: {
  *     allowedContracts: ["0x833...USDC", "0x6B1...DAI"],
  *     disallowEthTransfer: true,
@@ -33,24 +33,24 @@ import type { Hex } from "viem";
  *
  * // Resulting policy:
  * {
- *   organizationId: "org-123",
+ *   organizationId: "a5b89e4f-1234-5678-9abc-def012345678",
  *   policyName: "Stablecoin Only",
  *   effect: "EFFECT_ALLOW",
- *   consensus: "approvers.any(user, user.id == 'user-456')",
+ *   consensus: "approvers.any(user, user.id == '3c7d6e8a-4b5c-6d7e-8f9a-0b1c2d3e4f5a')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
  *              "eth.eip_712.primary_type == 'Execution' && " +
- *              "(eth.eip_712.message['outputContract'] == '0x833...usdc' || " +
- *              "eth.eip_712.message['outputContract'] == '0x6b1...dai') && " +
- *              "eth.eip_712.message['ethAmount'] == '0'",
+ *              "(eth.eip_712.message['to'] == '0x833...usdc' || " +
+ *              "eth.eip_712.message['to'] == '0x6b1...dai') && " +
+ *              "eth.eip_712.message['value'] == '0'",
  *   notes: "Restricts which EIP-712 intents the EOA can sign for gas station execution"
  * }
  *
  * @example
  * // Multi-approval: EOA AND backup user must both approve
  * const policy = buildIntentSigningPolicy({
- *   organizationId: "org-123",
- *   eoaUserId: "user-456",
- *   additionalApprovers: ["backup-user-789"],
+ *   organizationId: "a5b89e4f-1234-5678-9abc-def012345678",
+ *   eoaUserId: "3c7d6e8a-4b5c-6d7e-8f9a-0b1c2d3e4f5a",
+ *   additionalApprovers: ["9d4e2f5b-6c7d-8e9f-0a1b-2c3d4e5f6a7b"],
  *   restrictions: {
  *     allowedContracts: ["0x833...USDC"],
  *     disallowEthTransfer: true,
@@ -59,23 +59,23 @@ import type { Hex } from "viem";
  *
  * // Resulting policy:
  * {
- *   organizationId: "org-123",
+ *   organizationId: "a5b89e4f-1234-5678-9abc-def012345678",
  *   policyName: "Gas Station Intent Signing Policy",
  *   effect: "EFFECT_ALLOW",
- *   consensus: "approvers.any(user, user.id == 'user-456') && " +
- *              "approvers.any(user, user.id == 'backup-user-789')",
+ *   consensus: "approvers.any(user, user.id == '3c7d6e8a-4b5c-6d7e-8f9a-0b1c2d3e4f5a') && " +
+ *              "approvers.any(user, user.id == '9d4e2f5b-6c7d-8e9f-0a1b-2c3d4e5f6a7b')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
  *              "eth.eip_712.primary_type == 'Execution' && " +
- *              "(eth.eip_712.message['outputContract'] == '0x833...usdc') && " +
- *              "eth.eip_712.message['ethAmount'] == '0'",
+ *              "(eth.eip_712.message['to'] == '0x833...usdc') && " +
+ *              "eth.eip_712.message['value'] == '0'",
  *   notes: "Restricts which EIP-712 intents the EOA can sign for gas station execution"
  * }
  *
  * @example
  * // Advanced: custom consensus expression
  * const policy = buildIntentSigningPolicy({
- *   organizationId: "org-123",
- *   eoaUserId: "user-456",
+ *   organizationId: "a5b89e4f-1234-5678-9abc-def012345678",
+ *   eoaUserId: "3c7d6e8a-4b5c-6d7e-8f9a-0b1c2d3e4f5a",
  *   customConsensus: "approvers.count() >= 2",
  *   restrictions: {
  *     disallowEthTransfer: false,
@@ -109,14 +109,14 @@ export function buildIntentSigningPolicy(config: {
     // Convert to lowercase for case-insensitive comparison
     const contractConditions = config.restrictions.allowedContracts
       .map(
-        (c) => `eth.eip_712.message['outputContract'] == '${c.toLowerCase()}'`,
+        (c) => `eth.eip_712.message['to'] == '${c.toLowerCase()}'`,
       )
       .join(" || ");
     conditions.push(`(${contractConditions})`);
   }
 
   if (!!config.restrictions?.disallowEthTransfer) {
-    conditions.push(`eth.eip_712.message['ethAmount'] == '0'`);
+    conditions.push(`eth.eip_712.message['value'] == '0'`);
   }
 
   // Build consensus expression
@@ -179,9 +179,9 @@ export function buildIntentSigningPolicy(config: {
  * @example
  * // Simple: single paymaster approval with ETH amount limit
  * const policy = buildPaymasterExecutionPolicy({
- *   organizationId: "org-paymaster",
- *   paymasterUserId: "paymaster-user-123",
- *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+ *   organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
+ *   paymasterUserId: "8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
+ *   executionContractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
  *   restrictions: {
  *     allowedEOAs: ["0xAli...ce", "0xBob...by"],
  *     allowedContracts: ["0x833...USDC", "0x6B1...DAI"],
@@ -194,17 +194,17 @@ export function buildIntentSigningPolicy(config: {
  *
  * // Resulting policy (uses ABI parsing):
  * {
- *   organizationId: "org-paymaster",
+ *   organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
  *   policyName: "Paymaster Protection",
  *   effect: "EFFECT_ALLOW",
- *   consensus: "approvers.any(user, user.id == 'paymaster-user-123')",
+ *   consensus: "approvers.any(user, user.id == '8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
- *              "eth.tx.to == '0x576a...481f' && " +
+ *              "eth.tx.to == '0x00000000008c57a1ce37836a5e9d36759d070d8c' && " +
  *              "(eth.tx.contract_call_args['_to'] == '0x833...usdc' || " +
  *              "eth.tx.contract_call_args['_to'] == '0x6b1...dai') && " +
- *              "(eth.tx.contract_call_args['_targetEoA'] == '0xali...ce' || " +
- *              "eth.tx.contract_call_args['_targetEoA'] == '0xbob...by') && " +
- *              "eth.tx.contract_call_args['ethAmount'] <= 100000000000000000 && " +
+ *              "(eth.tx.contract_call_args['_target'] == '0xali...ce' || " +
+ *              "eth.tx.contract_call_args['_target'] == '0xbob...by') && " +
+ *              "eth.tx.contract_call_args['_ethAmount'] <= 100000000000000000 && " +
  *              "eth.tx.gasPrice <= 50000000000 && eth.tx.gas <= 500000",
  *   notes: "Restricts which execute() transactions the paymaster can submit on-chain"
  * }
@@ -212,10 +212,10 @@ export function buildIntentSigningPolicy(config: {
  * @example
  * // Multi-user: primary paymaster OR backup can approve
  * const policy = buildPaymasterExecutionPolicy({
- *   organizationId: "org-paymaster",
- *   paymasterUserId: "paymaster-user-123",
- *   additionalApprovers: ["backup-paymaster-456"],
- *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+ *   organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
+ *   paymasterUserId: "8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
+ *   additionalApprovers: ["2e4f6a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b"],
+ *   executionContractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
  *   restrictions: {
  *     allowedEOAs: ["0xAli...ce"],
  *     maxEthAmount: parseEther("1"), // Max 1 ETH
@@ -225,15 +225,15 @@ export function buildIntentSigningPolicy(config: {
  *
  * // Resulting policy (uses ABI parsing):
  * {
- *   organizationId: "org-paymaster",
+ *   organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
  *   policyName: "Gas Station Paymaster Execution Policy",
  *   effect: "EFFECT_ALLOW",
- *   consensus: "approvers.any(user, user.id == 'paymaster-user-123' || " +
- *              "user.id == 'backup-paymaster-456')",
+ *   consensus: "approvers.any(user, user.id == '8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c' || " +
+ *              "user.id == '2e4f6a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b')",
  *   condition: "activity.resource == 'PRIVATE_KEY' && activity.action == 'SIGN' && " +
- *              "eth.tx.to == '0x576a...481f' && " +
- *              "(eth.tx.contract_call_args['_targetEoA'] == '0xali...ce') && " +
- *              "eth.tx.contract_call_args['ethAmount'] <= 1000000000000000000 && " +
+ *              "eth.tx.to == '0x00000000008c57a1ce37836a5e9d36759d070d8c' && " +
+ *              "(eth.tx.contract_call_args['_target'] == '0xali...ce') && " +
+ *              "eth.tx.contract_call_args['_ethAmount'] <= 1000000000000000000 && " +
  *              "eth.tx.gasPrice <= 100000000000",
  *   notes: "Restricts which execute() transactions the paymaster can submit on-chain"
  * }
@@ -241,10 +241,10 @@ export function buildIntentSigningPolicy(config: {
  * @example
  * // Advanced: require multiple approvals
  * const policy = buildPaymasterExecutionPolicy({
- *   organizationId: "org-paymaster",
- *   paymasterUserId: "paymaster-user-123",
+ *   organizationId: "f8c3a5e7-9876-5432-1abc-def098765432",
+ *   paymasterUserId: "8f2a1b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c",
  *   customConsensus: "approvers.count() >= 2",
- *   executionContractAddress: "0x576A4D741b96996cc93B4919a04c16545734481f",
+ *   executionContractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
  *   restrictions: { ... },
  * });
  *
@@ -272,7 +272,7 @@ export function buildPaymasterExecutionPolicy(config: {
   ];
 
   // Check output contract address using ABI parsing
-  // Turnkey parses execute(address _targetEoA, address _to, uint256 ethAmount, bytes _data)
+  // Turnkey parses execute(address _target, address _to, uint256 _ethAmount, bytes _data)
   // and exposes arguments via eth.tx.contract_call_args
   if (
     config.restrictions?.allowedContracts &&
@@ -442,13 +442,12 @@ export async function uploadGasStationInterface({
  * @returns The smart contract interface ID
  *
  * @example
- * const interfaceId = await ensureGasStationInterface(
- *   turnkeyClient.apiClient(),
- *   "org-123",
- *   "0x576A4D741b96996cc93B4919a04c16545734481f",
- *   undefined,
- *   "Base Sepolia"
- * );
+ * const interfaceId = await ensureGasStationInterface({
+ *   client: turnkeyClient.apiClient(),
+ *   organizationId: "a5b89e4f-1234-5678-9abc-def012345678",
+ *   contractAddress: "0x00000000008c57a1CE37836a5e9d36759D070d8c",
+ *   chainName: "Base Sepolia"
+ * });
  */
 export async function ensureGasStationInterface({
   client,
