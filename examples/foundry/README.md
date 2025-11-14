@@ -19,6 +19,7 @@ $ foundryup --install nightly
 ```bash
 $ git clone https://github.com/tkhq/sdk
 $ cd sdk/examples/foundry/
+$ forge install foundry-rs/forge-std --no-git
 ```
 
 ### 2/ Setting up Turnkey
