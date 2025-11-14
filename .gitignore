@@ -135,8 +135,3 @@ turnkey.json
 
 # turborepo
 .turbo
-
-# Foundry
-out/
-cache/
-broadcast/
