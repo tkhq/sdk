@@ -194,6 +194,10 @@ export type FetchWalletAccountsParams = {
   stampWith?: StamperType | undefined;
   organizationId?: string;
   userId?: string;
+  authenticatorAddresses?: {
+    ethereum: string[];
+    solana: string[];
+  };
 };
 
 export type FetchPrivateKeysParams = {

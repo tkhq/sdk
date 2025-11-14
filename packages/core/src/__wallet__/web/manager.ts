@@ -70,24 +70,26 @@ export class WebWalletManager {
     // if WalletConnect is configured, set it up
     if (cfg.walletConnect && enableWalletConnect) {
       this.wcClient = new WalletConnectClient();
-      const wcUnified = new WalletConnectWallet(this.wcClient);
+      const wcUnified = new WalletConnectWallet(
+        this.wcClient,
+        () => this.ensureWalletConnectReady(),
+        { ethereumNamespaces, solanaNamespaces },
+      );
 
       this.wallets[WalletInterfaceType.WalletConnect] = wcUnified;
 
       // add async init step to the initializer queue
       this.initializers.push(() =>
-        withTimeout(
-          wcUnified.init({ ethereumNamespaces, solanaNamespaces }),
-          5000,
-          "WalletConnect wallet",
-        ).catch((err) => {
-          // WalletConnect can be a bit unreliable, so instead of throwing an error
-          // we handle failures silently to avoid blocking the rest of the client
-          // from initializing. If setup fails, we also remove WalletConnect
-          // from the available wallets list
-          console.error("Failed to init WalletConnect wallet:", err);
-          this.removeWalletInterface(WalletInterfaceType.WalletConnect);
-        }),
+        withTimeout(wcUnified.init(), 15000, "WalletConnect wallet").catch(
+          (err) => {
+            // WalletConnect can be a bit unreliable, so instead of throwing an error
+            // we handle failures silently to avoid blocking the rest of the client
+            // from initializing. If setup fails, we also remove WalletConnect
+            // from the available wallets list
+            console.error("Failed to init WalletConnect wallet:", err);
+            this.removeWalletInterface(WalletInterfaceType.WalletConnect);
+          },
+        ),
       );
 
       // register WalletConnect as a wallet interface for each enabled chain
@@ -109,31 +111,48 @@ export class WebWalletManager {
     }
   }
 
+  // promise that resolves when WalletConnect is fully initialized
+  private wcInitPromise?: Promise<void>;
+
   /**
    * Initializes WalletConnect components and any registered wallet interfaces.
    *
    * - Initializes the low-level WalletConnect client with the provided config.
    * - Runs any registered async wallet initializers (currently only `WalletConnectWallet`).
+   * - WalletConnect initialization happens in the background and does not block this method.
    *
    * @param cfg - Wallet manager configuration used for initializing the WalletConnect client.
    */
   async init(cfg: TWalletManagerConfig): Promise<void> {
     if (this.wcClient) {
-      try {
-        await this.wcClient.init(cfg.walletConnect!);
-      } catch (error) {
-        // WalletConnect can be a bit unreliable, so instead of throwing an error
-        // we handle failures silently to avoid blocking the rest of the client
-        // from initializing. If setup fails, we also remove WalletConnect
-        // from the available wallets list
-        console.error("Failed to initialize WalletConnect client", error);
-        this.removeWalletInterface(WalletInterfaceType.WalletConnect);
-      }
+      // we start WalletConnect initialization in the background (this is non-blocking)
+      this.wcInitPromise = (async () => {
+        try {
+          await this.wcClient!.init(cfg.walletConnect!);
+          // initialize the high-level WalletConnectWallet after client is ready
+          await Promise.all(this.initializers.map((fn) => fn()));
+        } catch (error) {
+          // WalletConnect can be a bit unreliable, so instead of throwing an error
+          // we handle failures silently to avoid blocking the rest of the client
+          // from initializing. If setup fails, we also remove WalletConnect
+          // from the available wallets list
+          console.error("Failed to initialize WalletConnect", error);
+          this.removeWalletInterface(WalletInterfaceType.WalletConnect);
+        }
+      })();
     }
+  }
 
-    // we initialize the high-level WalletConnectWallet
-    // we do this because we can't init this inside the constructor since it's async
-    await Promise.all(this.initializers.map((fn) => fn()));
+  /**
+   * Ensures WalletConnect is fully initialized before proceeding.
+   * This should be called before any WalletConnect operations.
+   *
+   * @returns A promise that resolves when WalletConnect is ready.
+   */
+  async ensureWalletConnectReady(): Promise<void> {
+    if (this.wcInitPromise) {
+      await this.wcInitPromise;
+    }
   }
 
   /**
@@ -141,6 +160,8 @@ export class WebWalletManager {
    *
    * - If a chain is specified, filters wallet interfaces that support that chain.
    * - Aggregates providers across all wallet interfaces and filters WalletConnect results accordingly.
+   * - Returns native wallet providers immediately without waiting for WalletConnect.
+   * - WalletConnect providers will only be included if WalletConnect has already initialized.
    *
    * @param chain - Optional chain to filter providers by (e.g., Ethereum, Solana).
    * @returns A promise that resolves to an array of `WalletProvider` objects.

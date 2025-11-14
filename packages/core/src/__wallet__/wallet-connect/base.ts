@@ -16,15 +16,17 @@ import {
   WalletConnectInterface,
   SwitchableChain,
 } from "../../__types__";
-import type { WalletConnectClient } from "./client";
 import type { SessionTypes } from "@walletconnect/types";
+import type { WalletConnectClient } from "./client";
 import { Transaction } from "ethers";
 
 type WalletConnectChangeEvent =
   | { type: "disconnect" }
   | { type: "chainChanged"; chainId?: string }
   | { type: "update" }
-  | { type: "proposalExpired" };
+  | { type: "proposalExpired" }
+  | { type: "initialized" }
+  | { type: "failed"; error?: unknown };
 
 export class WalletConnectWallet implements WalletConnectInterface {
   readonly interfaceType = WalletInterfaceType.WalletConnect;
@@ -37,6 +39,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
 
   private uri?: string;
   private isRegeneratingUri = false;
+  private isInitialized = false;
 
   private changeListeners = new Set<
     (event?: WalletConnectChangeEvent) => void
@@ -60,8 +63,29 @@ export class WalletConnectWallet implements WalletConnectInterface {
    *   updating `this.uri` so the UI can present a fresh QR/deeplink.
    *
    * @param client - The low-level WalletConnect client used for session/RPC.
+   * @param ensureReady - Optional callback to ensure WalletConnect is initialized before operations.
+   * @param namespaces - Optional namespace configuration to set up configured chains.
    */
-  constructor(private client: WalletConnectClient) {
+  constructor(
+    private client: WalletConnectClient,
+    private ensureReady?: () => Promise<void>,
+    namespaces?: {
+      ethereumNamespaces: string[];
+      solanaNamespaces: string[];
+    },
+  ) {
+    if (namespaces) {
+      this.ethereumNamespaces = namespaces.ethereumNamespaces;
+      if (this.ethereumNamespaces.length > 0) {
+        this.ethChain = this.ethereumNamespaces[0]!;
+      }
+
+      this.solanaNamespaces = namespaces.solanaNamespaces;
+      if (this.solanaNamespaces.length > 0) {
+        this.solChain = this.solanaNamespaces[0]!;
+      }
+    }
+
     // session updated (actual update to the session for example adding a chain to namespaces)
     this.client.onSessionUpdate(() => {
       this.notifyChange({ type: "update" });
@@ -112,52 +136,49 @@ export class WalletConnectWallet implements WalletConnectInterface {
   }
 
   /**
-   * Initializes WalletConnect pairing flow with the specified namespaces.
+   * Initializes WalletConnect pairing flow.
    *
-   * - Saves the requested chain namespaces (e.g., `["eip155:1", "eip155:137", "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"]`).
    * - If an active session already has connected accounts, pairing is skipped.
    * - Otherwise initiates a pairing and stores the resulting URI.
+   * - Namespaces should be set via constructor for this to work.
    *
-   * @param opts.ethereumNamespaces - List of EVM CAIP IDs (e.g., "eip155:1").
-   * @param opts.solanaNamespaces - List of Solana CAIP IDs (e.g., "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp").
-   * @throws {Error} If no namespaces are provided for either chain.
+   * @throws {Error} If no namespaces were configured in constructor.
    */
-  async init(opts: {
-    ethereumNamespaces: string[];
-    solanaNamespaces: string[];
-  }): Promise<void> {
-    this.ethereumNamespaces = opts.ethereumNamespaces;
-    if (this.ethereumNamespaces.length > 0) {
-      this.ethChain = this.ethereumNamespaces[0]!;
+  async init(): Promise<void> {
+    try {
+      if (
+        this.ethereumNamespaces.length === 0 &&
+        this.solanaNamespaces.length === 0
+      ) {
+        throw new Error(
+          "At least one namespace must be enabled for WalletConnect",
+        );
+      }
+
+      // we don't want to create more than one active session
+      // so we don't make a pair request if one is already active
+      // since pairing would mean initializing a new session
+      const session = this.client.getSession();
+      if (hasConnectedAccounts(session)) {
+        this.isInitialized = true;
+        // we notify that initialization is complete
+        this.notifyChange({ type: "initialized" });
+        return;
+      }
+
+      const namespaces = this.buildNamespaces();
+
+      await this.client.pair(namespaces).then((newUri) => {
+        this.uri = newUri;
+        this.isInitialized = true;
+        // we notify that initialization is complete
+        this.notifyChange({ type: "initialized" });
+      });
+    } catch (error) {
+      // we emit a failed event
+      this.notifyChange({ type: "failed", error });
+      throw error;
     }
-
-    this.solanaNamespaces = opts.solanaNamespaces;
-    if (this.solanaNamespaces.length > 0) {
-      this.solChain = this.solanaNamespaces[0]!;
-    }
-
-    if (
-      this.ethereumNamespaces.length === 0 &&
-      this.solanaNamespaces.length === 0
-    ) {
-      throw new Error(
-        "At least one namespace must be enabled for WalletConnect",
-      );
-    }
-
-    // we don't want to create more than one active session
-    // so we don't make a pair request if one is already active
-    // since pairing would mean initializing a new session
-    const session = this.client.getSession();
-    if (hasConnectedAccounts(session)) {
-      return;
-    }
-
-    const namespaces = this.buildNamespaces();
-
-    await this.client.pair(namespaces).then((newUri) => {
-      this.uri = newUri;
-    });
   }
 
   /**
@@ -165,6 +186,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
    *
    * - Builds an EVM provider (if Ethereum namespaces are enabled).
    * - Builds a Solana provider (if Solana namespaces are enabled).
+   * - Before initialization, returns placeholder providers with isLoading: true.
    *
    * @returns A promise resolving to an array of WalletProvider objects.
    */
@@ -194,12 +216,18 @@ export class WalletConnectWallet implements WalletConnectInterface {
    *
    * - Calls `approve()` on the underlying client when pairing is pending.
    * - Throws if the approved session contains no connected accounts.
+   * - Waits for WalletConnect initialization if still in progress.
    *
    * @param _provider - Unused (present for interface compatibility).
    * @returns A promise that resolves with the connected wallet's address.
    * @throws {Error} If the session contains no accounts.
    */
   async connectWalletAccount(provider: WalletProvider): Promise<string> {
+    // we ensure WalletConnect is fully initialized before connecting
+    if (this.ensureReady) {
+      await this.ensureReady();
+    }
+
     const session = await this.client.approve();
 
     let address: string | undefined;
@@ -222,7 +250,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
   }
 
   /**
-   * Switches the user’s WalletConnect session to a new EVM chain.
+   * Switches the user's WalletConnect session to a new EVM chain.
    *
    * - Ethereum-only: only supported for providers on the Ethereum namespace.
    * - No add-then-switch: WalletConnect cannot add chains mid-session. The target chain
@@ -230,6 +258,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
    *   you must include it in the walletConfig.
    * - Accepts a hex chain ID (e.g., "0x1"). If a `SwitchableChain` is passed, only its `id`
    *   (hex chain ID) is used; metadata is ignored for WalletConnect.
+   * - Waits for WalletConnect initialization if still in progress.
    *
    * @param provider - The WalletProvider returned by `getProviders()`.
    * @param chainOrId - Hex chain ID (e.g., "0x1") or a `SwitchableChain` (its `id` is used).
@@ -241,6 +270,11 @@ export class WalletConnectWallet implements WalletConnectInterface {
     provider: WalletProvider,
     chainOrId: string | SwitchableChain,
   ): Promise<void> {
+    // we ensure WalletConnect is fully initialized
+    if (this.ensureReady) {
+      await this.ensureReady();
+    }
+
     if (provider.chainInfo.namespace !== Chain.Ethereum) {
       throw new Error("Only EVM wallets support chain switching");
     }
@@ -408,12 +442,18 @@ export class WalletConnectWallet implements WalletConnectInterface {
    *
    * - Ethereum: signs a fixed challenge and recovers the compressed secp256k1 public key.
    * - Solana: decodes the base58-encoded address to raw bytes.
+   * - Waits for WalletConnect initialization if still in progress.
    *
    * @param provider - The WalletProvider to fetch the key from.
    * @returns A compressed public key as a hex string.
    * @throws {Error} If no account is available or the namespace is unsupported.
    */
   async getPublicKey(provider: WalletProvider): Promise<string> {
+    // we ensure WalletConnect is fully initialized
+    if (this.ensureReady) {
+      await this.ensureReady();
+    }
+
     const session = this.client.getSession();
 
     if (provider.chainInfo.namespace === Chain.Ethereum) {
@@ -547,6 +587,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
       provider: this.makeProvider(this.ethChain),
       connectedAddresses: address ? [address] : [],
       ...(this.uri && { uri: this.uri }),
+      isLoading: !this.isInitialized,
     };
   }
 
@@ -574,6 +615,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
       provider: this.makeProvider(this.solChain),
       connectedAddresses: address ? [address] : [],
       ...(this.uri && { uri: this.uri }),
+      isLoading: !this.isInitialized,
     };
   }
 
