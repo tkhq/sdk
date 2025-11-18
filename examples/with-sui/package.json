@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "start": "pnpm tsx src/index.ts",
+    "sendUsdc": "pnpm tsx src/sendUsdc.ts",
+    "parseUsdc": "pnpm tsx src/parseUsdc.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
