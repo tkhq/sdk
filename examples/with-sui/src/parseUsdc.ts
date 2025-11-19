@@ -6,9 +6,19 @@ import prompts from "prompts";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-const USDC_DECIMALS = 6;
+// Known coin decimals for offline parsing
+// Add more coin types as needed
+const KNOWN_COIN_DECIMALS: Record<string, number> = {
+  "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC": 6,
+  "0x2::sui::SUI": 9,
+  // Add other common tokens here
+};
 
-interface ParsedUsdcTransfer {
+function getCoinDecimals(coinType: string): number {
+  return KNOWN_COIN_DECIMALS[coinType] ?? 6; // Default to 6 if unknown
+}
+
+interface ParsedCoinTransfer {
   sender: string;
   recipient: string;
   amount: bigint;
@@ -103,9 +113,19 @@ class BcsParser {
   }
 }
 
-async function parseUsdcTransfer(
-  hexPayload: string
-): Promise<ParsedUsdcTransfer> {
+/**
+ * Parse a Sui coin transfer transaction
+ * @param hexPayload - The transaction bytes as hex string
+ * @param coinType - Optional coin type for decimal formatting. If not provided,
+ *                   the parser will attempt to infer it from the object IDs
+ *                   if a provider is given, otherwise amounts will be shown in base units.
+ * @param provider - Optional SuiClient to look up object types onchain
+ */
+async function parseCoinTransfer(
+  hexPayload: string,
+  coinType?: string,
+  provider?: { getObject: (params: any) => Promise<any> }
+): Promise<ParsedCoinTransfer> {
   // Remove 0x prefix if present
   const cleanHex = hexPayload.startsWith("0x")
     ? hexPayload.slice(2)
@@ -403,8 +423,38 @@ async function parseUsdcTransfer(
     }
   });
 
-  // Format amount
-  const amountFormatted = `${Number(amount) / 10 ** USDC_DECIMALS} USDC`;
+  // Infer coin type from object IDs if provider is available and coinType not provided
+  let inferredCoinType = coinType;
+  if (!inferredCoinType && provider && usdcCoins.length > 0) {
+    try {
+      console.log(`\nLooking up coin type for object ${usdcCoins[0].objectId}...`);
+      const objectData = await provider.getObject({
+        id: usdcCoins[0].objectId,
+        options: { showType: true },
+      });
+
+      if (objectData?.data?.type) {
+        // Extract coin type from "0x2::coin::Coin<COIN_TYPE>" format
+        const match = objectData.data.type.match(/0x2::coin::Coin<(.+)>/);
+        if (match && match[1]) {
+          inferredCoinType = match[1];
+          console.log(`Inferred coin type: ${inferredCoinType}`);
+        }
+      }
+    } catch (error) {
+      console.warn("Failed to look up coin type:", error);
+    }
+  }
+
+  // Format amount based on coin type (if provided or inferred)
+  // Note: Coin type cannot be extracted from transaction bytes alone since
+  // object IDs don't encode their type. It must be provided externally or
+  // looked up onchain using the object IDs.
+  const decimals = inferredCoinType ? getCoinDecimals(inferredCoinType) : 0;
+  const coinSymbol = inferredCoinType?.split("::").pop() || undefined;
+  const amountFormatted = decimals > 0 && coinSymbol
+    ? `${Number(amount) / 10 ** decimals} ${coinSymbol}`
+    : `${amount} base units`;
 
   return {
     sender,
@@ -424,7 +474,7 @@ async function parseUsdcTransfer(
 }
 
 async function main() {
-  console.log("=== USDC Transfer Parser for Sui ===\n");
+  console.log("=== Sui Coin Transfer Parser ===\n");
 
   // Get hex payload from user or use default example
   const { hexPayload } = await prompts([
@@ -438,9 +488,14 @@ async function main() {
   ]);
 
   try {
-    const parsed = await parseUsdcTransfer(hexPayload);
+    // For this example, we know it's USDC. In practice, you would need to:
+    // 1. Look up the object ID onchain to get its coin type, OR
+    // 2. Pass the coin type as a parameter if known from context
+    const knownCoinType =
+      "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC";
+    const parsed = await parseCoinTransfer(hexPayload, knownCoinType);
 
-    console.log("\n=== Parsed USDC Transfer ===");
+    console.log("\n=== Parsed Coin Transfer ===");
     console.log(`Sender: ${parsed.sender}`);
     console.log(`Recipient: ${parsed.recipient}`);
     console.log(
@@ -452,7 +507,7 @@ async function main() {
     console.log(`  Digest: ${parsed.gasPayment.digest}`);
     console.log(`  Price: ${parsed.gasPrice}`);
     console.log(`  Budget: ${parsed.gasBudget}`);
-    console.log(`\nUSDC Coins Used:`);
+    console.log(`\nCoins Used:`);
     parsed.usdcCoins.forEach((coin, idx) => {
       console.log(`  Coin ${idx + 1}:`);
       console.log(`    Object ID: ${coin.objectId}`);

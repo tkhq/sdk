@@ -41,6 +41,7 @@ async function main() {
 
   const suiAddress = process.env.SUI_ADDRESS!;
   const suiPublicKeyHex = process.env.SUI_PUBLIC_KEY!;
+  const usdcTreasuryCapId = process.env.USDC_TREASURY_CAP_ID;
 
   if (!suiAddress || !suiPublicKeyHex) {
     throw new Error(
@@ -48,7 +49,14 @@ async function main() {
     );
   }
 
+  if (!usdcTreasuryCapId) {
+    throw new Error(
+      "Please set USDC_TREASURY_CAP_ID in .env.local. This must reference the TreasuryCap<USDC> object you control."
+    );
+  }
+
   console.log(`Using Sui address: ${suiAddress}`);
+  console.log(`Using TreasuryCap object: ${usdcTreasuryCapId}`);
 
   const publicKey = new Ed25519PublicKey(Buffer.from(suiPublicKeyHex, "hex"));
   if (publicKey.toSuiAddress() !== suiAddress) {
@@ -57,7 +65,7 @@ async function main() {
 
   const provider = new SuiClient({ url: getFullnodeUrl("testnet") });
 
-  // Check if account exists and has SUI for gas
+  // Check SUI balance for gas
   try {
     const suiCoins = await provider.getCoins({
       owner: suiAddress,
@@ -66,13 +74,13 @@ async function main() {
 
     if (!suiCoins.data.length) {
       console.log(
-        `Your account has no SUI for gas. Please fund your address ${suiAddress} to proceed.`
+        `Your account has no SUI for gas. Please fund ${suiAddress} to proceed.`
       );
       process.exit(1);
     }
 
     console.log(
-      `SUI balance available for gas: ${suiCoins.data.length} coin(s)`
+      `SUI balance available for gas: ${suiCoins.data.length} coin object(s)`
     );
   } catch (error) {
     console.log(
@@ -81,67 +89,43 @@ async function main() {
     process.exit(1);
   }
 
-  // Check USDC balance
-  const usdcCoins = await provider.getCoins({
-    owner: suiAddress,
-    coinType: USDC_COIN_TYPE,
-  });
+  console.log("\nPreparing to mint USDC...");
 
-  if (!usdcCoins.data.length) {
-    console.log(
-      `\nYour account has no USDC. Please acquire USDC at ${suiAddress} to proceed.`
-    );
-    process.exit(1);
-  }
-
-  // Calculate total USDC balance
-  const totalUsdcBalance = usdcCoins.data.reduce(
-    (sum, coin) => sum + BigInt(coin.balance),
-    0n
-  );
-  console.log(
-    `\nTotal USDC balance: ${Number(totalUsdcBalance) / 10 ** USDC_DECIMALS} USDC (${totalUsdcBalance} base units)`
-  );
-
-  console.log("\nPreparing to send USDC...");
-
-  // Get recipient address and amount
   const { recipientAddress, usdcAmount } = await prompts([
     {
       type: "text",
       name: "recipientAddress",
-      message: "Recipient address:",
-      initial: "<recipient_sui_address>",
+      message: "Recipient address for minted USDC:",
+      initial: suiAddress,
     },
     {
       type: "text",
       name: "usdcAmount",
-      message: "Amount of USDC to send (in base units):",
-      initial: "100",
+      message: "Amount of USDC to mint (in base units):",
+      initial: "1000000",
     },
   ]);
 
-  const amount = BigInt(usdcAmount);
+  if (!usdcAmount || usdcAmount.trim() === "") {
+    throw new Error("USDC mint amount is required.");
+  }
 
-  // Validate amount
-  if (amount > totalUsdcBalance) {
-    console.error(
-      `\nInsufficient USDC balance. You have ${totalUsdcBalance} base units but trying to send ${amount} base units.`
-    );
-    process.exit(1);
+  const recipient = (recipientAddress ?? suiAddress).trim() || suiAddress;
+  const amount = BigInt(usdcAmount.trim());
+
+  if (amount <= 0n) {
+    throw new Error("Mint amount must be greater than zero.");
   }
 
   console.log(
-    `\nSending ${Number(amount) / 10 ** USDC_DECIMALS} USDC (${amount} base units) to ${recipientAddress}`
+    `\nMinting ${Number(amount) / 10 ** USDC_DECIMALS} USDC (${amount} base units) to ${recipient}`
   );
 
-  // Build the transaction
   const tx = new Transaction();
   tx.setSender(suiAddress);
   tx.setGasPrice(await provider.getReferenceGasPrice());
-  tx.setGasBudget(10_000_000n); // Higher gas budget for coin operations
+  tx.setGasBudget(10_000_000n);
 
-  // Get SUI coins for gas payment
   const suiCoinsForGas = await provider.getCoins({
     owner: suiAddress,
     coinType: "0x2::sui::SUI",
@@ -151,7 +135,6 @@ async function main() {
     throw new Error("No SUI coins available for gas");
   }
 
-  // Set gas payment (using a separate SUI coin from the USDC transfer)
   tx.setGasPayment([
     {
       objectId: suiCoinsForGas.data[0]!.coinObjectId,
@@ -160,23 +143,14 @@ async function main() {
     },
   ]);
 
-  // Merge all USDC coins if there are multiple
-  if (usdcCoins.data.length > 1) {
-    const primaryCoin = usdcCoins.data[0]!;
-    const coinsToMerge = usdcCoins.data
-      .slice(1)
-      .map((coin) => tx.object(coin.coinObjectId));
-    tx.mergeCoins(tx.object(primaryCoin.coinObjectId), coinsToMerge);
-  }
+  const mintedCoin = tx.moveCall({
+    target: "0x2::coin::mint",
+    arguments: [tx.object(usdcTreasuryCapId), tx.pure("u64", amount)],
+    typeArguments: [USDC_COIN_TYPE],
+  });
 
-  // Split the exact amount to send
-  const primaryUsdcCoin = tx.object(usdcCoins.data[0]!.coinObjectId);
-  const coinToSend = tx.splitCoins(primaryUsdcCoin, [amount]);
+  tx.transferObjects([mintedCoin], tx.pure.address(recipient));
 
-  // Transfer the split coin to recipient
-  tx.transferObjects([coinToSend], tx.pure.address(recipientAddress));
-
-  // Build the transaction bytes
   const txBytes = await tx.build({ client: provider });
   console.log("Transaction built successfully", txBytes);
   console.log("Transaction built successfully hex", bytesToHex(txBytes));
@@ -187,18 +161,13 @@ async function main() {
   const txJson = await tx.toJSON();
   console.log("Transaction JSON:", txJson);
 
-  // Create the signing message
   const intentMsg = messageWithIntent("TransactionData", txBytes);
   console.log("Signing message:", intentMsg);
   console.log("Signing message hex:", bytesToHex(intentMsg));
 
   const digest = blake2b(intentMsg, { dkLen: 32 });
-
   console.log("Signing message hex:", bytesToHex(digest));
 
-  // Sign the payload using Turnkey with HASH_FUNCTION_NOT_APPLICABLE
-  // Note: unlike ECDSA, EdDSA's API does not support signing raw digests (see RFC 8032).
-  // Turnkey's signer requires an explicit value to be passed here to minimize ambiguity.
   const txSignResult = await turnkeyClient.apiClient().signRawPayload({
     signWith: suiAddress,
     payload: bytesToHex(digest),
@@ -206,17 +175,12 @@ async function main() {
     hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
   });
 
-  // Extract r and s from the result
   const { r, s } = txSignResult;
 
-  // Ensure r and s are 64 hex characters (32 bytes)
   const rHex = r.padStart(64, "0");
   const sHex = s.padStart(64, "0");
-
-  // Concatenate r and s to form the signature
   const txSignatureHex = rHex + sHex;
 
-  // Validate signature length
   if (txSignatureHex.length !== 128) {
     throw new Error(
       "Invalid signature length for Ed25519. Expected 128 hex characters."
@@ -226,7 +190,6 @@ async function main() {
   const signature = Buffer.from(txSignatureHex, "hex");
   const serialized = toSerializedSignature({ signature, pubKey: publicKey });
 
-  // Submit the transaction
   console.log("\nSubmitting transaction...");
   const result = await provider.executeTransactionBlock({
     transactionBlock: Buffer.from(txBytes).toString("base64"),
@@ -240,9 +203,8 @@ async function main() {
     `View on explorer: https://suiscan.xyz/testnet/tx/${result.digest}`
   );
 
-  // Check transaction status
   if (result.effects?.status?.status === "success") {
-    console.log("Transaction confirmed successfully!");
+    console.log("Mint transaction confirmed successfully!");
   } else {
     console.log("Transaction status:", result.effects?.status);
   }
