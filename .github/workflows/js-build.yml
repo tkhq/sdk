@@ -90,7 +90,7 @@ jobs:
 
   test-pre-prod:
     runs-on: ubuntu-latest
-    needs: test-pre-prod
+    needs: test-prod
     steps:
       # https://github.com/actions/checkout
       - name: Checkout
