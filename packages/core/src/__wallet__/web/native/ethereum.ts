@@ -299,7 +299,7 @@ export class EthereumWallet extends BaseEthereumWallet {
 
         let txParams: EthereumTxParams;
 
-        if (txType === 0 || txType === 1) {
+        if (txType === undefined || txType === 0 || txType === 1) {
           // legacy or EIP-2930 (gasPrice-based)
           if (tx.gasPrice == null) {
             throw new Error("Legacy or EIP-2930 transaction missing gasPrice");
