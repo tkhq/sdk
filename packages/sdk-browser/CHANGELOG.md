@@ -1,5 +1,11 @@
 # @turnkey/sdk-browser
 
+## 5.13.2
+
+### Patch Changes
+
+- [#1097](https://github.com/tkhq/sdk/pull/1097) [`4d29af2`](https://github.com/tkhq/sdk/commit/4d29af2dd7c735916c650d697f18f66dd76c1b79) Thanks [@r-n-o](https://github.com/r-n-o)! - Update HPKE dependency
+
 ## 5.13.1
 
 ### Patch Changes
