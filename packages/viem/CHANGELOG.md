@@ -1,5 +1,12 @@
 # @turnkey/viem
 
+## 0.14.14
+
+### Patch Changes
+
+- Updated dependencies [[`4d29af2`](https://github.com/tkhq/sdk/commit/4d29af2dd7c735916c650d697f18f66dd76c1b79)]:
+  - @turnkey/sdk-browser@5.13.2
+
 ## 0.14.13
 
 ### Patch Changes
