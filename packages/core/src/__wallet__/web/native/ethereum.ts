@@ -9,7 +9,7 @@ import {
 import { Transaction } from "ethers";
 import { compressRawPublicKey } from "@turnkey/crypto";
 import {
-  BaseTransactionParams,
+  EvmTransactionParams,
   Chain,
   EthereumTxParams,
   EthereumWalletInterface,
@@ -284,7 +284,7 @@ export class EthereumWallet extends BaseEthereumWallet {
       case SignIntent.SignAndSendTransaction: {
         const tx = Transaction.from(payload);
 
-        const base: BaseTransactionParams = {
+        const base: EvmTransactionParams = {
           from: account,
           to: tx.to?.toString() as Hex,
           value: toHex(tx.value),
@@ -312,7 +312,9 @@ export class EthereumWallet extends BaseEthereumWallet {
         } else {
           // EIP-1559 or future fee-market types
           if (tx.maxFeePerGas == null || tx.maxPriorityFeePerGas == null) {
-            throw new Error("EIP-1559-style transaction missing maxFeePerGas or maxPriorityFeePerGas");
+            throw new Error(
+              "EIP-1559-style transaction missing maxFeePerGas or maxPriorityFeePerGas",
+            );
           }
 
           txParams = {
