@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- [#1097](https://github.com/tkhq/sdk/pull/1097) [`4d29af2`](https://github.com/tkhq/sdk/commit/4d29af2dd7c735916c650d697f18f66dd76c1b79) Thanks [@r-n-o](https://github.com/r-n-o)! - Update HPKE dependency
+- [#1097](https://github.com/tkhq/sdk/pull/1097) Bumping `hpke/core` to `1.7.5` to resolve https://github.com/dajiaji/hpke-js/security/advisories/GHSA-73g8-5h73-26h4. Thanks [@r-n-o](https://github.com/r-n-o) for the bump, and thank you to [@dajiaji](https://github.com/dajiaji) for the disclosure and the underlying fix!
 
 ## 5.13.1
 
