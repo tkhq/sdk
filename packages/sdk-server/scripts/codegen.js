@@ -32,6 +32,7 @@ const VERSIONED_ACTIVITY_TYPES = {
     "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
   ACTIVITY_TYPE_UPDATE_POLICY: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
   ACTIVITY_TYPE_INIT_OTP_AUTH: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
+  ACTIVITY_TYPE_INIT_OTP: "ACTIVITY_TYPE_INIT_OTP",
 };
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
@@ -55,6 +56,15 @@ const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
  */
 function joinPropertyList(input) {
   return input.filter(Boolean).join(",\n");
+}
+
+/**
+ * Convert a JSON Schema $ref to a TypeScript-friendly definition name used in
+ * the swagger `definitions` map. E.g. `#/definitions/v1CreateThingRequest` -> `v1CreateThingRequest`
+ * @param {string} ref
+ */
+function refToTs(ref) {
+  return ref.replace(/^#\/definitions\//, "");
 }
 
 /**
@@ -160,10 +170,90 @@ const generateApiTypesFromSwagger = async (swaggerSpec, targetPath) => {
 
     let responseValue = "void";
     if (methodType === "command") {
-      const resultKey = operationNameWithoutNamespace + "Result";
-      const versionedMethodName = latestVersions[resultKey].formattedKeyName;
+      // Handle versioned activity result types. We attempt to derive the
+      // correct result property name inside the activity.result object by
+      // inspecting the request body and the available definitions. This
+      // mirrors logic used in other codegen scripts to prefer exact mapped
+      // versions or the highest-V candidate when available.
+      const resultKeyBase = operationNameWithoutNamespace + "Result";
 
-      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${versionedMethodName}"] & definitions["v1ActivityResponse"]`;
+      // Default to the formatted name from latestVersions
+      let formattedResultProp = latestVersions[resultKeyBase]
+        ? latestVersions[resultKeyBase].formattedKeyName
+        : null;
+
+      // Try to detect a specific activity version from the request body
+      // schema (where `type.enum` contains the activity type key).
+      let versionSuffix = null;
+      const params = parameterList || [];
+      for (const p of params) {
+        if (
+          p.in === "body" &&
+          p.schema &&
+          p.schema.$ref &&
+          swaggerSpec.definitions[refToTs(p.schema.$ref)]
+        ) {
+          const reqDefName = refToTs(p.schema.$ref);
+          const reqDef = swaggerSpec.definitions[reqDefName];
+          if (
+            reqDef &&
+            reqDef.properties &&
+            reqDef.properties.type &&
+            reqDef.properties.type.enum &&
+            reqDef.properties.type.enum.length > 0
+          ) {
+            const activityTypeKey = reqDef.properties.type.enum[0];
+            const mapped = VERSIONED_ACTIVITY_TYPES[activityTypeKey];
+            if (mapped) {
+              const m = mapped.match(/(V\d+)$/);
+              versionSuffix = m ? m[1] : "";
+            }
+
+            // Attempt to find a candidate definition that matches the
+            // versionSuffix (or pick the highest-V candidate)
+            const baseActivity = reqDefName
+              .replace(/^v\d+/, "")
+              .replace(/Request(V\d+)?$/, "");
+            const prefixed = "v1" + baseActivity + "Result";
+            const candidates = Object.keys(swaggerSpec.definitions).filter(
+              (k) => k.startsWith(prefixed),
+            );
+
+            if (versionSuffix) {
+              const exact = candidates.find((k) => k.endsWith(versionSuffix));
+              if (exact) {
+                const short = exact.replace(/^v\d+/, "");
+                formattedResultProp =
+                  short.charAt(0).toLowerCase() + short.slice(1);
+              } else if (candidates.length > 0) {
+                // Pick the candidate with the highest numeric V suffix
+                const getV = (s) => {
+                  const mm = s.match(/V(\d+)$/);
+                  return mm ? parseInt(mm[1], 10) : 0;
+                };
+                candidates.sort((a, b) => getV(b) - getV(a));
+                const chosen = candidates[0];
+                const short = chosen.replace(/^v\d+/, "");
+                formattedResultProp =
+                  short.charAt(0).toLowerCase() + short.slice(1);
+              }
+            } else if (candidates.length > 0 && !formattedResultProp) {
+              const short = latestVersions[resultKeyBase].formattedKeyName;
+              formattedResultProp = short;
+            }
+
+            break;
+          }
+        }
+      }
+
+      // Fallback: if we still don't have a formatted prop name, use the
+      // latestVersions entry (if present). This keeps previous behavior.
+      if (!formattedResultProp && latestVersions[resultKeyBase]) {
+        formattedResultProp = latestVersions[resultKeyBase].formattedKeyName;
+      }
+
+      responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]["activity"]["result"]["${formattedResultProp}"] & definitions["v1ActivityResponse"]`;
     } else if (["noop", "query"].includes(methodType)) {
       responseValue = `operations["${operationId}"]["responses"]["200"]["schema"]`;
     } else if (methodType === "activityDecision") {

@@ -33,6 +33,7 @@ const VERSIONED_ACTIVITY_TYPES = {
     "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
   ACTIVITY_TYPE_UPDATE_POLICY: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
   ACTIVITY_TYPE_INIT_OTP_AUTH: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
+  ACTIVITY_TYPE_INIT_OTP: "ACTIVITY_TYPE_INIT_OTP",
 };
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
@@ -311,18 +312,36 @@ function generateApiTypes(swagger, prefix = "") {
             const resultBase = baseActivity + "Result";
             let resultKey = null;
             if (latestVersions[resultBase]) {
-              // If versionSuffix is present, use it to pick the correct version
+              // If versionSuffix is present, try to find an exact match first.
+              // If no exact match, pick the available candidate with the highest
+              // numeric V suffix (e.g. V3 > V2). If still not found, fall back
+              // to the latestVersions map.
               if (versionSuffix) {
-                const candidate = Object.keys(definitions).find(
+                const exact = Object.keys(definitions).find(
                   (k) =>
                     k.startsWith("v1" + baseActivity + "Result") &&
                     k.endsWith(versionSuffix),
                 );
-                if (candidate) {
-                  resultKey = candidate;
+                if (exact) {
+                  resultKey = exact;
+                } else {
+                  const candidates = Object.keys(definitions).filter((k) =>
+                    k.startsWith("v1" + baseActivity + "Result"),
+                  );
+                  if (candidates.length > 0) {
+                    const getVersionNumber = (s) => {
+                      const m = s.match(/V(\\d+)$/);
+                      return m ? parseInt(m[1], 10) : 0;
+                    };
+                    candidates.sort(
+                      (a, b) => getVersionNumber(b) - getVersionNumber(a),
+                    );
+                    resultKey = candidates[0];
+                  }
                 }
               }
-              // Fallback to latest version if not found
+
+              // Fallback to latest version if not found via candidates
               if (!resultKey) {
                 resultKey = latestVersions[resultBase].fullName;
               }
@@ -511,6 +530,17 @@ function main() {
   output += generateApiTypes(swaggerAuthProxy, "Proxy");
 
   fs.writeFileSync(outputPath, output);
+
+  // after successfully generating the consolidated types, remove the
+  // input `public_api.types.ts` since it's no longer needed
+  try {
+    fs.unlinkSync(typesPath);
+  } catch (err) {
+    console.warn(
+      `Could not remove input types file ${typesPath}:`,
+      err && err.message ? err.message : err,
+    );
+  }
 }
 
 main();
