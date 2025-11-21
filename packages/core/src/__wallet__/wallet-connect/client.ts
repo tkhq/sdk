@@ -202,6 +202,11 @@ export class WalletConnectClient {
    * @returns The most recent session, or `null` if none are active.
    */
   getSession(): SessionTypes.Struct | null {
+    // we return null if the client hasn't been initialized yet
+    if (!this.client?.session) {
+      return null;
+    }
+
     const sessions = this.client.session.getAll();
     return sessions.length ? sessions[sessions.length - 1]! : null;
   }
