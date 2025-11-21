@@ -369,7 +369,7 @@ const generateSDKClientFromSwagger = async (
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
-    // For query methods
+    // for query methods, we use flat body structure
     if (methodType === "query") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkTypes.${inputType}${
@@ -434,8 +434,38 @@ const generateSDKClientFromSwagger = async (
       VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
 
     // generate a stamping method for each method
-    codeBuffer.push(
-      `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
+
+    if (methodType === "noop") {
+      // we skip stamp method generation for noop methods
+      continue;
+    } else if (methodType === "query") {
+      // for query methods, we use flat body structure
+      codeBuffer.push(
+        `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
+    const body = {
+      ...input,
+      organizationId: input.organizationId
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  }`,
+      );
+    } else {
+      // for activity and activityDecision methods, use parameters wrapper and type field
+      codeBuffer.push(
+        `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
     if (!activeStamper) {
       return undefined;
@@ -454,7 +484,6 @@ const generateSDKClientFromSwagger = async (
       type: "${versionedActivityType ?? unversionedActivityType}"
     };
 
-
     const stringifiedBody = JSON.stringify(bodyWithType);
     const stamp = await activeStamper.stamp(stringifiedBody);
     return {
@@ -463,7 +492,8 @@ const generateSDKClientFromSwagger = async (
       url: fullUrl,
     };
   }`,
-    );
+      );
+    }
   }
 
   for (const endpointPath in authProxySwaggerSpec.paths) {

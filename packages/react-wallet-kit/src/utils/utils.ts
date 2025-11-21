@@ -104,9 +104,6 @@ export async function withTurnkeyErrorHandling<T>(
           // this should never happen. If it does, it means an SDK function is making
           // a session-based API call without providing a `sessionExpireFn()` for handling
           // SESSION_EXPIRED errors in `withTurnkeyErrorHandling()`
-          console.error(
-            "SESSION_EXPIRED encountered but no sessionExpireFn provided. Contact Turnkey support.",
-          );
           throw new TurnkeyError(
             "SESSION_EXPIRED received without sessionExpireFn handler",
             TurnkeyErrorCodes.INTERNAL_ERROR,

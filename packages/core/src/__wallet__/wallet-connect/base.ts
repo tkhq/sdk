@@ -40,6 +40,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
   private uri?: string;
   private isRegeneratingUri = false;
   private isInitialized = false;
+  private initAbortController: AbortController | undefined;
 
   private changeListeners = new Set<
     (event?: WalletConnectChangeEvent) => void
@@ -145,6 +146,11 @@ export class WalletConnectWallet implements WalletConnectInterface {
    * @throws {Error} If no namespaces were configured in constructor.
    */
   async init(): Promise<void> {
+    // we create a new abort controller for this initialization
+    // that way if the WalletManager wants to abort it (if this takes too long)
+    // then it can do so without leaving this init promise in the background
+    this.initAbortController = new AbortController();
+
     try {
       if (
         this.ethereumNamespaces.length === 0 &&
@@ -178,6 +184,26 @@ export class WalletConnectWallet implements WalletConnectInterface {
       // we emit a failed event
       this.notifyChange({ type: "failed", error });
       throw error;
+    } finally {
+      this.initAbortController = undefined;
+    }
+  }
+
+  /**
+   * Aborts the ongoing initialization if one is in progress.
+   * Emits a failed event with the abort error.
+   *
+   * @param error - Optional error to include in the failed event. Defaults to abort message.
+   */
+  abortInit(error?: unknown): void {
+    if (this.initAbortController) {
+      this.initAbortController.abort();
+
+      // we emit failed event so listeners are notified
+      this.notifyChange({
+        type: "failed",
+        error: error || new Error("WalletConnect initialization was aborted"),
+      });
     }
   }
 

@@ -82,11 +82,10 @@ export class WebWalletManager {
       this.initializers.push(() =>
         withTimeout(wcUnified.init(), 15000, "WalletConnect wallet").catch(
           (err) => {
-            // WalletConnect can be a bit unreliable, so instead of throwing an error
-            // we handle failures silently to avoid blocking the rest of the client
-            // from initializing. If setup fails, we also remove WalletConnect
-            // from the available wallets list
-            console.error("Failed to init WalletConnect wallet:", err);
+            // WalletConnect can be a bit unreliable, we don't want to load forever
+            // so we limit the initialization time to 15 seconds. After that we emit a
+            // failure event and remove WalletConnect from the available wallets
+            wcUnified.abortInit(err);
             this.removeWalletInterface(WalletInterfaceType.WalletConnect);
           },
         ),

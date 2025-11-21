@@ -1014,8 +1014,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             // if WalletConnect initialization failed, refresh providers
             // (the failed provider will be removed from the list)
             if (evt?.type === "failed") {
-              console.error("WalletConnect initialization failed:", evt.error);
               debouncedFetchWalletProviders();
+              callbacks?.onError?.(
+                new TurnkeyError(
+                  `WalletConnect initialization failed: ${evt.error || "Unknown error"}`,
+                  TurnkeyErrorCodes.WALLET_CONNECT_INITIALIZATION_ERROR,
+                  evt.error,
+                ),
+              );
+
               return;
             }
 

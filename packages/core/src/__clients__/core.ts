@@ -18,6 +18,8 @@ import {
   type v1CreatePolicyIntentV3,
   type v1BootProof,
   ProxyTSignupResponse,
+  TGetWalletsResponse,
+  TGetUserResponse,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -1966,11 +1968,22 @@ export class TurnkeyClient {
           | Promise<{ ethereum: string[]; solana: string[] }>
           | undefined;
         if (organizationId && userId && this.walletManager?.connector) {
-          userPromise = this.fetchUser({
-            userId,
-            organizationId,
+          const signedUserRequest = await this.httpClient.stampGetUser(
+            {
+              userId,
+              organizationId,
+            },
             stampWith,
-          }).then(getAuthenticatorAddresses);
+          );
+          if (!signedUserRequest) {
+            throw new TurnkeyError(
+              "Failed to stamp user request",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+          userPromise = sendSignedRequest<TGetUserResponse>(
+            signedUserRequest,
+          ).then((response) => getAuthenticatorAddresses(response.user));
         }
 
         // if connectedOnly is true, we skip fetching embedded wallets
@@ -1989,18 +2002,29 @@ export class TurnkeyClient {
             );
           }
 
+          // we stamp the wallet request first
+          // this is done to avoid concurrent passkey prompts
+          const signedWalletsRequest = await this.httpClient.stampGetWallets(
+            {
+              organizationId,
+            },
+            stampWith,
+          );
+
+          if (!signedWalletsRequest) {
+            throw new TurnkeyError(
+              "Failed to stamp wallet request",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+
           const [accounts, walletsRes] = await Promise.all([
             fetchAllWalletAccountsWithCursor(
               this.httpClient,
               organizationId,
               stampWith,
             ),
-            this.httpClient.getWallets(
-              {
-                organizationId,
-              },
-              stampWith,
-            ),
+            sendSignedRequest<TGetWalletsResponse>(signedWalletsRequest),
           ]);
 
           // create a map of walletId to EmbeddedWallet for easy lookup
@@ -2726,7 +2750,7 @@ export class TurnkeyClient {
           );
         }
 
-        return userResponse.user as v1User;
+        return userResponse.user;
       },
       {
         errorMessage: "Failed to fetch user",

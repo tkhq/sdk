@@ -1,5 +1,6 @@
 import { ActionButton, BaseButton } from "../design/Buttons";
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
+import { Spinner } from "../design/Spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheck,
@@ -71,7 +72,7 @@ export function ExternalWalletChainSelector(
   const { providers, onSelect, onDisconnect } = props;
 
   const { walletProviders } = useTurnkey();
-  const { isMobile, closeModal } = useModal();
+  const { isMobile, popPage } = useModal();
 
   // we find matching providers in current state
   const currentProviders = providers
@@ -88,9 +89,9 @@ export function ExternalWalletChainSelector(
   // while WalletConnect was still initializing, and then it failed to initialize
   useEffect(() => {
     if (currentProviders.length === 0) {
-      closeModal();
+      popPage();
     }
-  }, [currentProviders.length, closeModal]);
+  }, [currentProviders.length, popPage]);
 
   const shouldShowDisconnect = onDisconnect !== undefined;
 
@@ -429,12 +430,11 @@ export function ConnectedIndicator(props: ConnectedIndicatorProps) {
 interface QRCodeDisplayProps {
   uri: string;
   icon: string;
-  isBlurred?: boolean;
-  showOverlay?: boolean;
+  isLoading?: boolean;
 }
 
 function QRCodeDisplay(props: QRCodeDisplayProps) {
-  const { uri, icon, isBlurred = false, showOverlay = false } = props;
+  const { uri, icon, isLoading } = props;
 
   return (
     <div className="relative inline-block">
@@ -442,7 +442,7 @@ function QRCodeDisplay(props: QRCodeDisplayProps) {
         className={clsx(
           "block border border-modal-background-dark/20 dark:border-modal-background-light/20",
           "shadow-[0_0_42px] shadow-primary-light/50 dark:shadow-[0_0_42px] dark:shadow-primary-dark/50",
-          isBlurred && "blur-sm",
+          isLoading && "blur-sm",
         )}
         value={uri}
         imageSettings={{
@@ -453,9 +453,9 @@ function QRCodeDisplay(props: QRCodeDisplayProps) {
         }}
         size={200}
       />
-      {showOverlay && (
+      {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="animate-spin size-12 border-4 border-t-primary-light dark:border-t-primary-dark border-icon-background-dark/20 dark:border-icon-background-light/20 rounded-full" />
+          <Spinner className="size-12" strokeWidth={2} />
         </div>
       )}
     </div>
@@ -477,7 +477,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
     successPageDuration,
   } = props;
 
-  const { pushPage, closeModal, isMobile } = useModal();
+  const { pushPage, popPages, closeModal, isMobile } = useModal();
   const { walletProviders } = useTurnkey();
 
   const [isDisconnecting, setIsDisconnecting] = useState(false);
@@ -502,9 +502,11 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   // while WalletConnect was still initializing, and then it failed to initialize
   useEffect(() => {
     if (!provider) {
-      closeModal();
+      // we have to go back two pages here since thats the screen
+      // we get wallet providers from state
+      popPages(2);
     }
-  }, [provider, closeModal]);
+  }, [provider, popPages]);
 
   const connectedAccount = provider?.connectedAddresses?.[0] ?? null;
 
@@ -512,8 +514,10 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   useEffect(() => {
     if (provider) {
       latestProviderRef.current = provider;
+
       // we don't try to connect if WalletConnect is still initializing or we are already connecting
       if (!isConnecting && !provider.isLoading) {
+        setShowConnectedScreen(provider.connectedAddresses?.length > 0);
         runAction(provider);
       }
     }
@@ -657,30 +661,6 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             )}
           </div>
         </div>
-      ) : provider?.isLoading ? (
-        <div
-          className={clsx(
-            "mt-8 flex flex-col items-center gap-3",
-            isMobile ? "w-full" : "w-96",
-          )}
-        >
-          <QRCodeDisplay
-            uri="https://www.turnkey.com/"
-            icon={provider.info.icon ?? ""}
-            isBlurred
-            showOverlay
-          />
-
-          {/* this is a skeleton for the copy button to maintain layout */}
-          <div className="h-[40px]" />
-
-          <div className={clsx("text-2xl font-bold text-center")}>
-            Initializing WalletConnect...
-          </div>
-          <div className="text-icon-text-light dark:text-icon-text-dark text-center !p-0">
-            Preparing your connection. This will only take a moment
-          </div>
-        </div>
       ) : (
         <div
           className={clsx(
@@ -688,49 +668,55 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             isMobile ? "w-full" : "w-96",
           )}
         >
-          {provider?.uri && (
-            <>
-              <QRCodeDisplay
-                uri={provider.uri}
-                icon={provider.info.icon ?? ""}
-              />
-              <BaseButton
-                onClick={handleCopy}
-                className={clsx(
-                  "text-xs font-semibold bg-transparent border-none text-icon-text-light dark:text-icon-text-dark",
-                  "flex flex-row items-center gap-x-2 px-3 py-2 rounded-full transition-all",
-                  "hover:bg-icon-background-light dark:hover:bg-icon-background-dark active:scale-95",
-                )}
-              >
-                <span>Copy link</span>
+          <QRCodeDisplay
+            uri={
+              provider?.isLoading
+                ? "https://www.turnkey.com/"
+                : (provider?.uri ?? "")
+            }
+            icon={provider?.info.icon ?? ""}
+            isLoading={!!provider?.isLoading}
+          />
 
-                <div className="relative">
-                  <FontAwesomeIcon
-                    icon={showCopied ? faCheck : faCopy}
-                    className={clsx(
-                      "transition-colors",
-                      showCopied
-                        ? "text-success-light dark:text-success-dark"
-                        : "text-icon-text-light dark:text-icon-text-dark",
-                    )}
-                  />
-                  {showCopied && (
-                    <FontAwesomeIcon
-                      icon={faCheck}
-                      className="absolute inset-0 m-auto text-success-light dark:text-success-dark animate-ping"
-                    />
-                  )}
-                </div>
-              </BaseButton>
-            </>
-          )}
+          <BaseButton
+            onClick={handleCopy}
+            className={clsx(
+              "text-xs font-semibold bg-transparent border-none text-icon-text-light dark:text-icon-text-dark",
+              "flex flex-row items-center gap-x-2 px-3 py-2 rounded-full transition-all",
+              "hover:bg-icon-background-light dark:hover:bg-icon-background-dark active:scale-95",
+              provider?.isLoading && "invisible pointer-events-none",
+            )}
+          >
+            <span>Copy link</span>
+
+            <div className="relative">
+              <FontAwesomeIcon
+                icon={showCopied ? faCheck : faCopy}
+                className={clsx(
+                  "transition-colors",
+                  showCopied
+                    ? "text-success-light dark:text-success-dark"
+                    : "text-icon-text-light dark:text-icon-text-dark",
+                )}
+              />
+              {showCopied && (
+                <FontAwesomeIcon
+                  icon={faCheck}
+                  className="absolute inset-0 m-auto text-success-light dark:text-success-dark animate-ping"
+                />
+              )}
+            </div>
+          </BaseButton>
 
           <div className={clsx("text-2xl font-bold text-center")}>
-            Use your phone
+            {provider?.isLoading
+              ? "Initializing WalletConnect..."
+              : "Use your phone"}
           </div>
           <div className="text-icon-text-light dark:text-icon-text-dark text-center !p-0">
-            Scan this QR code with your WalletConnect-compatible wallet to
-            connect
+            {provider?.isLoading
+              ? "Preparing your connection. This will only take a moment."
+              : "Scan this QR code with your WalletConnect-compatible wallet to connect"}
           </div>
         </div>
       )}
