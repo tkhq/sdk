@@ -475,7 +475,7 @@ export function AuthComponent({
             developerMessages={[
               "You are using Turnkey's Auth Proxy, but no auth methods are enabled.",
               "To use this modal, you must enable auth methods within the Turnkey dashboard.",
-              "If you disabled all auth methods within the TurnkeyProvider config, you will also see this error.",
+              "If you disabled autoFetchWalletKitConfig in the TurnkeyProvider, please ensure that you are passing in the correct auth methods in the TurnkeyProvider's auth config.",
             ]}
             userMessages={["No authentication methods are available."]}
           />
