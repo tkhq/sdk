@@ -108,6 +108,9 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   /** whether to automatically refresh managed state variables */
   autoRefreshManagedState?: boolean;
 
+  /** whether to automatically fetch the wallet kit config on initialization. */
+  autoFetchWalletKitConfig?: boolean;
+
   /** default stamper type to use for requests that require stamping. */
   defaultStamperType?: StamperType;
 
