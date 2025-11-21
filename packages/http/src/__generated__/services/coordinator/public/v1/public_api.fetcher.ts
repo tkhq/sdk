@@ -806,6 +806,62 @@ export const signGetPrivateKey = (
   });
 
 /**
+ * `POST /public/v1/query/get_send_transaction_status`
+ */
+export type TGetSendTransactionStatusResponse =
+  operations["PublicApiService_GetSendTransactionStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_send_transaction_status`
+ */
+export type TGetSendTransactionStatusInput = {
+  body: TGetSendTransactionStatusBody;
+};
+
+/**
+ * `POST /public/v1/query/get_send_transaction_status`
+ */
+export type TGetSendTransactionStatusBody =
+  operations["PublicApiService_GetSendTransactionStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get send transaction status
+ *
+ * Get the status of a send transaction request.
+ *
+ * `POST /public/v1/query/get_send_transaction_status`
+ */
+export const getSendTransactionStatus = (
+  input: TGetSendTransactionStatusInput,
+) =>
+  request<
+    TGetSendTransactionStatusResponse,
+    TGetSendTransactionStatusBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_send_transaction_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetSendTransactionStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetSendTransactionStatus}
+ */
+export const signGetSendTransactionStatus = (
+  input: TGetSendTransactionStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetSendTransactionStatusBody, never, never>({
+    uri: "/public/v1/query/get_send_transaction_status",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_smart_contract_interface`
  */
 export type TGetSmartContractInterfaceResponse =

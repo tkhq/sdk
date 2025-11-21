@@ -641,6 +641,37 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getSendTransactionStatus = async (
+    input: SdkApiTypes.TGetSendTransactionStatusBody,
+  ): Promise<SdkApiTypes.TGetSendTransactionStatusResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+    return this.request("/public/v1/query/get_send_transaction_status", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetSendTransactionStatus = async (
+    input: SdkApiTypes.TGetSendTransactionStatusBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_send_transaction_status";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getSmartContractInterface = async (
     input: SdkApiTypes.TGetSmartContractInterfaceBody,
   ): Promise<SdkApiTypes.TGetSmartContractInterfaceResponse> => {

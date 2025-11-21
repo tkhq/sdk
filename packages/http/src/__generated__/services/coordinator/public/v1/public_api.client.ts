@@ -68,6 +68,10 @@ import type {
   TGetPrivateKeyResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetSendTransactionStatusBody,
+  TGetSendTransactionStatusResponse,
+} from "./public_api.fetcher";
+import type {
   TGetSmartContractInterfaceBody,
   TGetSmartContractInterfaceResponse,
 } from "./public_api.fetcher";
@@ -948,6 +952,38 @@ export class TurnkeyClient {
     input: TGetPrivateKeyBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_private_key";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get the status of a send transaction request.
+   *
+   * Sign the provided `TGetSendTransactionStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_send_transaction_status).
+   *
+   * See also {@link stampGetSendTransactionStatus}.
+   */
+  getSendTransactionStatus = async (
+    input: TGetSendTransactionStatusBody,
+  ): Promise<TGetSendTransactionStatusResponse> => {
+    return this.request("/public/v1/query/get_send_transaction_status", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetSendTransactionStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetSendTransactionStatus}.
+   */
+  stampGetSendTransactionStatus = async (
+    input: TGetSendTransactionStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_send_transaction_status";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

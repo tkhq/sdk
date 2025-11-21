@@ -189,6 +189,19 @@ export type TGetPrivateKeyBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetSendTransactionStatusResponse =
+  operations["PublicApiService_GetSendTransactionStatus"]["responses"]["200"]["schema"];
+
+export type TGetSendTransactionStatusInput = {
+  body: TGetSendTransactionStatusBody;
+};
+
+export type TGetSendTransactionStatusBody = Omit<
+  operations["PublicApiService_GetSendTransactionStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetSmartContractInterfaceResponse =
   operations["PublicApiService_GetSmartContractInterface"]["responses"]["200"]["schema"];
 
