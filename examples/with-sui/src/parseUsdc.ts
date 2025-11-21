@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
+import { Buffer } from "buffer";
 import { fromHex, toHex } from "@mysten/sui/utils";
 import { bcs } from "@mysten/sui/bcs";
 import prompts from "prompts";
@@ -13,6 +14,9 @@ const KNOWN_COIN_DECIMALS: Record<string, number> = {
   "0x2::sui::SUI": 9,
   // Add other common tokens here
 };
+
+// MOVECALL USDC send:
+// 00000000000301003e37572ca547a90d930a97b961217b58872e01c3bc4e30b9172f5c4f066668ecd111f82100000000201cce5a3fda1d4f58edc9ecc0fd9182e79f4e49e9eb0be62b7940e3c95acab2b60008660000000000000000208e4c7c4b16b18d944a70e38bb125e99afc64f4b03ed4b51e18b531ce9d00f98e020201000001010100000000000000000000000000000000000000000000000000000000000000000002087472616e736665720f7075626c69635f7472616e736665720107000000000000000000000000000000000000000000000000000000000000000204636f696e04436f696e0107a1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e290475736463045553444300020200000102000988ac6caff1e3e55b4fd8abec4247098d34bb857baeb3195c760873ab7c9fb90168de0552a1f80040e3d86549af55b29850bb90e304cd14f03ecf98c0a1593eafd111f821000000002050bd59c71b809a78a29b7b518e681ef8f4238c3abf0baf84e778ea0869021b1f0988ac6caff1e3e55b4fd8abec4247098d34bb857baeb3195c760873ab7c9fb9e803000000000000809698000000000000
 
 function getCoinDecimals(coinType: string): number {
   return KNOWN_COIN_DECIMALS[coinType] ?? 6; // Default to 6 if unknown
@@ -78,13 +82,36 @@ class BcsParser {
   }
 
   readVecLength(): number {
-    return this.readU8();
+    return this.readULEB128();
   }
 
   readU16(): number {
     const bytes = this.bytes.slice(this.offset, this.offset + 2);
     this.offset += 2;
     return bytes[0]! | (bytes[1]! << 8);
+  }
+
+  readULEB128(): number {
+    let value = 0;
+    let shift = 0;
+    while (true) {
+      const byte = this.readU8();
+      value |= (byte & 0x7f) << shift;
+      if ((byte & 0x80) === 0) {
+        break;
+      }
+      shift += 7;
+      if (shift > 35) {
+        throw new Error("ULEB128 value is too large");
+      }
+    }
+    return value;
+  }
+
+  readString(): string {
+    const len = this.readVecLength();
+    const bytes = this.readBytes(len);
+    return Buffer.from(bytes).toString("utf8");
   }
 
   readAddress(): string {
@@ -111,6 +138,71 @@ class BcsParser {
   peekByte(offsetAhead: number = 0): number | undefined {
     return this.bytes[this.offset + offsetAhead];
   }
+}
+
+function parseTypeTag(parser: BcsParser): string {
+  const tag = parser.readU8();
+  switch (tag) {
+    case 0:
+      return "bool";
+    case 1:
+      return "u8";
+    case 2:
+      return "u64";
+    case 3:
+      return "u128";
+    case 4:
+      return "address";
+    case 5:
+      return "signer";
+    case 6: {
+      const inner = parseTypeTag(parser);
+      return `vector<${inner}>`;
+    }
+    case 7: {
+      const address = parser.readAddress();
+      const module = parser.readString();
+      const name = parser.readString();
+      const typeArgsLen = parser.readVecLength();
+      const typeArgs: string[] = [];
+      for (let i = 0; i < typeArgsLen; i++) {
+        typeArgs.push(parseTypeTag(parser));
+      }
+      const generic = typeArgs.length ? `<${typeArgs.join(", ")}>` : "";
+      return `${address}::${module}::${name}${generic}`;
+    }
+    case 8:
+      return "u16";
+    case 9:
+      return "u32";
+    case 10:
+      return "u256";
+    default:
+      throw new Error(`Unsupported type tag: ${tag}`);
+  }
+}
+
+function parseArgument(
+  parser: BcsParser
+): { kind: string; index?: number; subIndex?: number } {
+  const argType = parser.readU8();
+  if (argType === 0) {
+    return { kind: "GasCoin" };
+  }
+  if (argType === 1) {
+    return { kind: "Input", index: parser.readU16() };
+  }
+  if (argType === 2) {
+    return { kind: "Result", index: parser.readU16() };
+  }
+  if (argType === 3) {
+    return {
+      kind: "NestedResult",
+      index: parser.readU16(),
+      subIndex: parser.readU16(),
+    };
+  }
+  throw new Error(`Unsupported argument type: ${argType}`);
 }
 
 /**
@@ -221,8 +313,37 @@ async function parseCoinTransfer(
     if (cmdTag === 0) {
       // MoveCall
       console.log(`  MoveCall command`);
-      // Skip: package, module, function, type_args, args
-      throw new Error("MoveCall parsing not implemented");
+      const packageId = parser.readAddress();
+      const moduleName = parser.readString();
+      const functionName = parser.readString();
+      console.log(
+        `    Target: ${packageId}::${moduleName}::${functionName}`
+      );
+
+      const typeArgsLen = parser.readVecLength();
+      console.log(`    Type arguments: ${typeArgsLen}`);
+      for (let j = 0; j < typeArgsLen; j++) {
+        const typeTag = parseTypeTag(parser);
+        console.log(`      Type arg ${j}: ${typeTag}`);
+      }
+
+      const argumentsLen = parser.readVecLength();
+      console.log(`    Arguments count: ${argumentsLen}`);
+      for (let j = 0; j < argumentsLen; j++) {
+        const arg = parseArgument(parser);
+        if (arg.kind === "GasCoin") {
+          console.log(`      Argument ${j}: GasCoin`);
+        } else if (arg.kind === "Input") {
+          console.log(`      Argument ${j}: Input ${arg.index}`);
+        } else if (arg.kind === "Result") {
+          console.log(`      Argument ${j}: Result ${arg.index}`);
+        } else {
+          const nestedSubIndex = arg.subIndex ?? 0;
+          console.log(
+            `      Argument ${j}: NestedResult (${arg.index}, ${nestedSubIndex})`
+          );
+        }
+      }
     } else if (cmdTag === 1) {
       // TransferObjects
       console.log(`  TransferObjects command`);

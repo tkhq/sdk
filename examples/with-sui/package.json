@@ -5,6 +5,7 @@
   "scripts": {
     "start": "pnpm tsx src/index.ts",
     "sendUsdc": "pnpm tsx src/sendUsdc.ts",
+    "sendUsdcMoveCall": "pnpm tsx src/sendUsdcMoveCall.ts",
     "mintUsdc": "pnpm tsx src/mintUsdc.ts",
     "burnUsdc": "pnpm tsx src/burnUsdc.ts",
     "parseUsdc": "pnpm tsx src/parseUsdc.ts",
