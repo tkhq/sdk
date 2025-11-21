@@ -866,14 +866,19 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         const [, wallets] = await Promise.all([
           maybeRefreshUser(),
           (() => {
-            if (!masterConfig?.autoRefreshManagedState) return [] as Wallet[];
+            if (!masterConfig?.autoRefreshManagedState) return [];
             return fetchWallets();
           })(),
         ]);
 
         // the prev wallets should only ever be WalletConnect wallets
         if (wallets) {
-          setWallets((prev) => [...prev, ...wallets]);
+          setWallets((prev) => {
+            // we only append new wallets
+            const existingWalletIds = new Set(prev.map(w => w.walletId));
+            const newWallets = wallets.filter(w => !existingWalletIds.has(w.walletId));
+            return [...prev, ...newWallets];
+          });
         }
 
         return;
@@ -1046,6 +1051,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             if (evt?.type === "initialized") {
+              console.log("WalletConnect initialized event received");
               // this updates our walletProvider state
               const providers = await debouncedFetchWalletProviders();
 
@@ -1063,7 +1069,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 });
 
                 if (wcWallets.length > 0) {
-                  setWallets((prev) => [...prev, ...wcWallets]);
+                  setWallets((prev) => {
+                    // we only append new wallets
+                    const existingWalletIds = new Set(prev.map(w => w.walletId));
+                    const newWallets = wcWallets.filter(w => !existingWalletIds.has(w.walletId));
+                    return [...prev, ...newWallets];
+                  });
                 }
               }
 
@@ -5803,8 +5814,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   useEffect(() => {
-    if (!client) return;
-
     const handleUpdateState = async () => {
       // we only refresh the wallets if there is an active session
       // this is needed because a disconnect event can occur
@@ -5834,7 +5843,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       cleanup();
     };
   }, [
-    client,
     walletProviders,
     getSession,
     debouncedRefreshWallets,
