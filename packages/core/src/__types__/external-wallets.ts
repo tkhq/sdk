@@ -218,3 +218,27 @@ export interface ConnectedWallet extends v1Wallet {
 
 /** @internal */
 export type Wallet = EmbeddedWallet | ConnectedWallet;
+
+export type EvmTransactionParams = {
+  from: `0x${string}`;
+  to: `0x${string}`;
+  value: `0x${string}`;
+  gas: `0x${string}`;
+  nonce: `0x${string}`;
+  chainId: `0x${string}`;
+  data: `0x${string}`;
+};
+
+export type EIP1559TransactionParams = EvmTransactionParams & {
+  maxFeePerGas: `0x${string}`;
+  maxPriorityFeePerGas: `0x${string}`;
+};
+
+export type LegacyEvmTransactionParams = EvmTransactionParams & {
+  gasPrice: `0x${string}`;
+};
+
+/** @internal */
+export type EthereumTxParams =
+  | EIP1559TransactionParams
+  | LegacyEvmTransactionParams;

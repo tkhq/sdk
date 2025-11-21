@@ -15,6 +15,8 @@ import {
   WalletConnectProvider,
   WalletConnectInterface,
   SwitchableChain,
+  EvmTransactionParams,
+  EthereumTxParams,
 } from "../../__types__";
 import type { WalletConnectClient } from "./client";
 import type { SessionTypes } from "@walletconnect/types";
@@ -320,19 +322,51 @@ export class WalletConnectWallet implements WalletConnectInterface {
             address,
           ])) as string;
         case SignIntent.SignAndSendTransaction:
-          const account = provider.connectedAddresses[0];
+          const account = provider.connectedAddresses[0] as Hex;
+          if (!account) throw new Error("no connected address");
           const tx = Transaction.from(payload);
-          const txParams = {
+
+          const base: EvmTransactionParams = {
             from: account,
             to: tx.to?.toString() as Hex,
             value: toHex(tx.value),
             gas: toHex(tx.gasLimit),
-            maxFeePerGas: toHex(tx.maxFeePerGas ?? 0n),
-            maxPriorityFeePerGas: toHex(tx.maxPriorityFeePerGas ?? 0n),
             nonce: toHex(tx.nonce),
             chainId: toHex(tx.chainId),
             data: (tx.data?.toString() as Hex) ?? "0x",
           };
+
+          // Some libs use undefined for legacy, so normalize
+          const txType = (tx as any).type ?? 0;
+
+          let txParams: EthereumTxParams;
+
+          if (txType === undefined || txType === 0 || txType === 1) {
+            // legacy or EIP-2930 (gasPrice-based)
+            if (tx.gasPrice == null) {
+              throw new Error(
+                "Legacy or EIP-2930 transaction missing gasPrice",
+              );
+            }
+
+            txParams = {
+              ...base,
+              gasPrice: toHex(tx.gasPrice),
+            };
+          } else {
+            // EIP-1559 or future fee-market types
+            if (tx.maxFeePerGas == null || tx.maxPriorityFeePerGas == null) {
+              throw new Error(
+                "EIP-1559-style transaction missing maxFeePerGas or maxPriorityFeePerGas",
+              );
+            }
+
+            txParams = {
+              ...base,
+              maxFeePerGas: toHex(tx.maxFeePerGas),
+              maxPriorityFeePerGas: toHex(tx.maxPriorityFeePerGas),
+            };
+          }
 
           return (await this.client.request(
             this.ethChain,
