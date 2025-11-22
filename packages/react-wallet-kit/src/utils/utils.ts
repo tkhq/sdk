@@ -7,7 +7,11 @@ import {
 } from "@turnkey/sdk-types";
 import type { TurnkeyCallbacks } from "../types/base";
 import { useCallback, useRef, useState, useEffect } from "react";
-import { WalletInterfaceType, WalletProvider } from "@turnkey/core";
+import {
+  type Wallet,
+  WalletProvider,
+  WalletInterfaceType,
+} from "@turnkey/core";
 
 export const DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize";
 export const X_AUTH_URL = "https://x.com/i/oauth2/authorize";
@@ -420,4 +424,15 @@ export function useWalletProviderState(initialState: WalletProvider[] = []) {
   );
 
   return [walletProviders, updateWalletProviders] as const;
+}
+
+export function mergeWalletsWithoutDuplicates(
+  existingWallets: Wallet[],
+  newWallets: Wallet[],
+): Wallet[] {
+  const existingWalletIds = new Set(existingWallets.map((w) => w.walletId));
+  const uniqueNewWallets = newWallets.filter(
+    (w) => !existingWalletIds.has(w.walletId),
+  );
+  return [...existingWallets, ...uniqueNewWallets];
 }
