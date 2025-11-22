@@ -191,7 +191,7 @@ export class IframeStamper {
 
     if (typeof MessageChannel === "undefined") {
       throw new Error(
-        "Cannot initialize iframe without MessageChannel support",
+        "Cannot initialize iframe without MessageChannel support"
       );
     }
 
@@ -202,7 +202,7 @@ export class IframeStamper {
 
     if (this.container.querySelector(`#${config.iframeElementId}`)) {
       throw new Error(
-        `Iframe element with ID ${config.iframeElementId} already exists`,
+        `Iframe element with ID ${config.iframeElementId} already exists`
       );
     }
 
@@ -288,7 +288,7 @@ export class IframeStamper {
    * @throws {Error} When contentWindow or contentWindow.postMessage does not exist
    */
   async init(
-    dangerouslyOverrideIframeKeyTtl?: number | undefined,
+    dangerouslyOverrideIframeKeyTtl?: number | undefined
   ): Promise<string> {
     return new Promise((resolve, reject) => {
       this.container.appendChild(this.iframe);
@@ -297,8 +297,8 @@ export class IframeStamper {
         if (!this.iframe.contentWindow?.postMessage) {
           reject(
             new Error(
-              "contentWindow or contentWindow.postMessage does not exist",
-            ),
+              "contentWindow or contentWindow.postMessage does not exist"
+            )
           );
           return;
         }
@@ -309,7 +309,7 @@ export class IframeStamper {
             dangerouslyOverrideIframeKeyTtl: dangerouslyOverrideIframeKeyTtl,
           },
           this.iframeOrigin,
-          [this.messageChannel.port2],
+          [this.messageChannel.port2]
         );
       });
 
@@ -352,7 +352,7 @@ export class IframeStamper {
    */
   async getEmbeddedPublicKey(): Promise<string | null> {
     const publicKey = await this.createRequest<string | null>(
-      IframeEventType.GetEmbeddedPublicKey,
+      IframeEventType.GetEmbeddedPublicKey
     );
     this.iframePublicKey = publicKey;
 
@@ -378,7 +378,7 @@ export class IframeStamper {
    */
   async initEmbeddedKey(): Promise<string | null> {
     const publicKey = await this.createRequest<string | null>(
-      IframeEventType.InitEmbeddedKey,
+      IframeEventType.InitEmbeddedKey
     );
     this.iframePublicKey = publicKey;
 
@@ -394,7 +394,7 @@ export class IframeStamper {
    */
   private createRequest<T>(
     type: IframeEventType,
-    payload: any = {},
+    payload: any = {}
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       const requestId = generateUUID();
@@ -435,15 +435,15 @@ export class IframeStamper {
    * This is used during the private key export flow.
    * @param {string} bundle - The encrypted export bundle to inject
    * @param {string} organizationId - The organization ID
-   * @param {KeyFormat} [keyFormat] - The key format (HEXADECIMAL or SOLANA). Defaults to HEXADECIMAL
-   * @param {string} [address] - Address corresponding to the key bundle (case sensitive)
+   * @param {KeyFormat} keyFormat - [Optional] The key format (HEXADECIMAL or SOLANA). Defaults to HEXADECIMAL
+   * @param {string} address - [Optional] Address corresponding to the key bundle (case sensitive)
    * @returns {Promise<boolean>} Returns true on successful injection
    */
   async injectKeyExportBundle(
     bundle: string,
     organizationId: string,
     keyFormat?: KeyFormat,
-    address?: string, // address corresponding to the key bundle. Note that this is case sensitive
+    address?: string
   ): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.InjectKeyExportBundle, {
       value: bundle,
@@ -464,14 +464,14 @@ export class IframeStamper {
    */
   async injectWalletExportBundle(
     bundle: string,
-    organizationId: string,
+    organizationId: string
   ): Promise<boolean> {
     return this.createRequest<boolean>(
       IframeEventType.InjectWalletExportBundle,
       {
         value: bundle,
         organizationId,
-      },
+      }
     );
   }
 
@@ -486,7 +486,7 @@ export class IframeStamper {
   async injectImportBundle(
     bundle: string,
     organizationId: string,
-    userId: string,
+    userId: string
   ): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.InjectImportBundle, {
       value: bundle,
@@ -504,7 +504,7 @@ export class IframeStamper {
    */
   async extractWalletEncryptedBundle(): Promise<string> {
     return this.createRequest<string>(
-      IframeEventType.ExtractWalletEncryptedBundle,
+      IframeEventType.ExtractWalletEncryptedBundle
     );
   }
 
@@ -520,7 +520,7 @@ export class IframeStamper {
   async extractKeyEncryptedBundle(keyFormat?: KeyFormat): Promise<string> {
     return this.createRequest<string>(
       IframeEventType.ExtractKeyEncryptedBundle,
-      { keyFormat },
+      { keyFormat }
     );
   }
 
@@ -545,7 +545,7 @@ export class IframeStamper {
   async stamp(payload: string): Promise<TStamp> {
     if (this.iframePublicKey === null) {
       throw new Error(
-        "null iframe public key. Have you called/awaited .init()?",
+        "null iframe public key. Have you called/awaited .init()?"
       );
     }
 
@@ -558,11 +558,16 @@ export class IframeStamper {
    * Function to sign a message using an embedded private key in-memory within an iframe
    * Returns the signed message string
    * @param {TSignableMessage} message - The message to sign with type (Ethereum or Solana)
+   * @param {string} address - [Optional] Address to sign with
    * @returns {Promise<string>} The signed message string
    */
-  async signMessage(message: TSignableMessage): Promise<string> {
+  async signMessage(
+    message: TSignableMessage,
+    address: string
+  ): Promise<string> {
     return this.createRequest<string>(IframeEventType.SignMessage, {
       value: JSON.stringify(message),
+      address,
     });
   }
 
@@ -570,11 +575,16 @@ export class IframeStamper {
    * Function to sign a transaction using an embedded private key in-memory within an iframe
    * Returns the signed, serialized transaction payload
    * @param {TSignableTransaction} transaction - The transaction to sign with type (Ethereum or Solana)
+   * @param {string} address - [Optional] Address to sign with
    * @returns {Promise<string>} The signed, serialized transaction payload
    */
-  async signTransaction(transaction: TSignableTransaction): Promise<string> {
+  async signTransaction(
+    transaction: TSignableTransaction,
+    address?: string
+  ): Promise<string> {
     return this.createRequest<string>(IframeEventType.SignTransaction, {
       value: JSON.stringify(transaction),
+      address,
     });
   }
 
