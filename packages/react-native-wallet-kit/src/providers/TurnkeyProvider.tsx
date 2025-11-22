@@ -187,6 +187,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     Record<string, Session> | undefined
   >(undefined);
 
+  const shouldFetchWalletKitConfig =
+    config.authProxyConfigId !== undefined &&
+    config.authProxyConfigId !== "" &&
+    (config.autoFetchWalletKitConfig === true ||
+      config.autoFetchWalletKitConfig === undefined);
+
   const buildConfig = (
     proxyAuthConfig?: ProxyTGetWalletKitConfigResponse | undefined,
   ) => {
@@ -214,27 +220,36 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       TURNKEY_OAUTH_REDIRECT_URL;
 
     // Warn if they are trying to set auth proxy only settings directly
-    if (config.auth?.sessionExpirationSeconds) {
+    if (config.auth?.sessionExpirationSeconds && shouldFetchWalletKitConfig) {
       console.warn(
         "Turnkey SDK warning. You have set sessionExpirationSeconds directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure session expiration in the Turnkey dashboard.",
       );
     }
-    if (config.auth?.otp?.alphanumeric !== undefined) {
+    if (
+      config.auth?.otp?.alphanumeric !== undefined &&
+      shouldFetchWalletKitConfig
+    ) {
       console.warn(
         "Turnkey SDK warning. You have set otpAlphanumeric directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
       );
     }
-    if (config.auth?.otp?.length) {
+    if (config.auth?.otp?.length && shouldFetchWalletKitConfig) {
       console.warn(
         "Turnkey SDK warning. You have set otpLength directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
       );
     }
     // These are settings that can only be set via the auth proxy config
-    const authProxyOnlySettings = {
-      sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
+    const authProxyPrioSettings = {
+      sessionExpirationSeconds: shouldFetchWalletKitConfig
+        ? proxyAuthConfig?.sessionExpirationSeconds
+        : config.auth?.sessionExpirationSeconds,
       otp: {
-        alphanumeric: proxyAuthConfig?.otpAlphanumeric ?? true, // This fallback will never be hit. This is purely for the tests to pass before mono is released
-        length: proxyAuthConfig?.otpLength ?? "6", // This fallback will never be hit. This is purely for the tests to pass before mono is released
+        alphanumeric: shouldFetchWalletKitConfig
+          ? proxyAuthConfig?.otpAlphanumeric
+          : (config.auth?.otp?.alphanumeric ?? true),
+        length: shouldFetchWalletKitConfig
+          ? proxyAuthConfig?.otpLength
+          : (config.auth?.otp?.length ?? "6"),
       },
     };
 
@@ -248,15 +263,15 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         ...config.auth,
         // Proxy-controlled settings
         sessionExpirationSeconds:
-          authProxyOnlySettings.sessionExpirationSeconds,
+          authProxyPrioSettings.sessionExpirationSeconds,
         otp: {
           ...config.auth?.otp,
           // Enablement flags
           email: emailOtpEnabled,
           sms: smsOtpEnabled,
           // Proxy-only settings
-          alphanumeric: authProxyOnlySettings.otp.alphanumeric,
-          length: authProxyOnlySettings.otp.length,
+          alphanumeric: authProxyPrioSettings.otp.alphanumeric,
+          length: authProxyPrioSettings.otp.length,
         },
         // OAuth shared settings
         oauth: {
@@ -549,8 +564,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           return;
         }
         setSession(allLocalStorageSessions[activeSessionKey]);
-        await refreshUser();
-        await refreshWallets();
+        await maybeRefreshUser();
+        await maybeRefreshWallets();
         return;
       }
     } catch (error) {
@@ -606,8 +621,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      await refreshWallets();
-      await refreshUser();
+      await maybeRefreshWallets();
+      await maybeRefreshUser();
 
       callbacks?.onAuthenticationSuccess?.({
         session,
@@ -1300,7 +1315,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         "Failed to update user email",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1326,7 +1341,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         "Failed to remove user email",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1352,7 +1367,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         "Failed to update user phone number",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1378,7 +1393,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         "Failed to remove user phone number",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1404,7 +1419,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         "Failed to update user name",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1430,7 +1445,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         "Failed to add OAuth provider",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1456,7 +1471,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         "Failed to remove OAuth providers",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1482,7 +1497,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         "Failed to add passkey",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1508,7 +1523,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         "Failed to remove passkeys",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1535,7 +1550,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       );
       const s = await getSession();
       if (res && s)
-        await refreshWallets({
+        await maybeRefreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1561,7 +1576,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       );
       const s = await getSession();
       if (res && s)
-        await refreshWallets({
+        await maybeRefreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -1600,7 +1615,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
         const s = await getSession();
         if (res && s)
-          await refreshWallets({
+          await maybeRefreshWallets({
             stampWith: params?.stampWith,
             ...(params?.organizationId && {
               organizationId: params.organizationId,
@@ -1879,7 +1894,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
       // Refresh state after import
       if (res)
-        await refreshWallets({
+        await maybeRefreshWallets({
           ...(stampWith && { stampWith }),
           organizationId: effectiveOrgId,
           userId: effectiveUserId,
@@ -2017,8 +2032,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      await refreshWallets();
-      await refreshUser();
+      await maybeRefreshWallets();
+      await maybeRefreshUser();
     },
     [client, callbacks, masterConfig, session, user],
   );
@@ -2179,8 +2194,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       setSession(session);
       await withTurnkeyErrorHandling(
         async () => {
-          await refreshWallets();
-          await refreshUser();
+          await maybeRefreshWallets();
+          await maybeRefreshUser();
         },
         () => logout(),
         callbacks,
@@ -2253,9 +2268,25 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       );
     }, [client, callbacks, masterConfig, session, user]);
 
+  const verifyAppProofs = useCallback(
+    async (params: VerifyAppProofsParams): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.verifyAppProofs(params),
+        () => logout(),
+        callbacks,
+        "Failed to verify app proofs",
+      );
+    },
+    [client, callbacks],
+  );
+
   const refreshUser = useCallback(
     async (params?: RefreshUserParams): Promise<void> => {
-      if (!masterConfig?.autoRefreshManagedState) return;
       const { stampWith, organizationId, userId } = params || {};
       if (!client)
         throw new TurnkeyError(
@@ -2277,30 +2308,20 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         setUser(user);
       }
     },
-    [client, callbacks, fetchUser, masterConfig, session, user],
+    [client, callbacks, fetchUser, session, user],
   );
 
-  const verifyAppProofs = useCallback(
-    async (params: VerifyAppProofsParams): Promise<void> => {
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      return withTurnkeyErrorHandling(
-        () => client.verifyAppProofs(params),
-        () => logout(),
-        callbacks,
-        "Failed to verify app proofs",
-      );
+  const maybeRefreshUser = useCallback(
+    // Auto-refresh user only if enabled in config. This is only used internally
+    async (params?: RefreshUserParams): Promise<void> => {
+      if (!masterConfig?.autoRefreshManagedState) return;
+      return refreshUser(params);
     },
-    [client, callbacks],
+    [masterConfig, refreshUser],
   );
 
   const refreshWallets = useCallback(
     async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
-      if (!masterConfig?.autoRefreshManagedState) return [];
-
       const { stampWith, organizationId, userId } = params || {};
 
       if (!client)
@@ -2326,7 +2347,16 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
       return wallets;
     },
-    [client, callbacks, fetchWallets, masterConfig, session, user],
+    [client, callbacks, fetchWallets, session, user],
+  );
+
+  const maybeRefreshWallets = useCallback(
+    // Auto-refresh wallets only if enabled in config. This is only used internally
+    async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
+      if (!masterConfig?.autoRefreshManagedState) return [];
+      return refreshWallets(params);
+    },
+    [masterConfig, refreshWallets],
   );
 
   const handleDiscordOauth = useCallback(
@@ -3159,14 +3189,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     const fetchProxyAuthConfig = async () => {
       try {
         let proxyAuthConfig: ProxyTGetWalletKitConfigResponse | undefined;
-        if (config.authProxyConfigId) {
-          // Only fetch the proxy auth config if we have an authProxyId. This is a way for devs to explicitly disable the proxy auth.
+        if (shouldFetchWalletKitConfig) {
+          // Only fetch the proxy auth config if we have an authProxyId and the autoFetchWalletKitConfig param is enabled or not passed in.
           const sanitizedAuthProxyUrl =
             config.authProxyUrl && config.authProxyUrl.trim()
               ? config.authProxyUrl
               : undefined;
           proxyAuthConfig = await getAuthProxyConfig(
-            config.authProxyConfigId,
+            config.authProxyConfigId!, // Can assert safely. See shouldFetchWalletKitConfig definition.
             sanitizedAuthProxyUrl,
           );
           proxyAuthConfigRef.current = proxyAuthConfig;
@@ -3190,7 +3220,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   useEffect(() => {
     // Handle changes to the passed in config prop -- update the master config
     // If the proxyAuthConfigRef is already set, we don't need to fetch it again. Rebuild the master config with the updated config and stored proxyAuthConfig
-    if (!proxyAuthConfigRef.current && config.authProxyConfigId) return;
+    if (!proxyAuthConfigRef.current && shouldFetchWalletKitConfig) return;
 
     setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
   }, [config, proxyAuthConfigRef.current]);

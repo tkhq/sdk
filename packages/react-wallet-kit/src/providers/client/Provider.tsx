@@ -11,6 +11,7 @@ import {
   GOOGLE_AUTH_URL,
   handleFacebookPKCEFlow,
   isValidSession,
+  mergeWalletsWithoutDuplicates,
   parseOAuthRedirect,
   popupHeight,
   popupWidth,
@@ -240,6 +241,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const [authState, setAuthState] = useState<AuthState>(
     AuthState.Unauthenticated,
   );
+
+  const shouldFetchWalletKitConfig =
+    config.authProxyConfigId !== undefined &&
+    config.authProxyConfigId !== "" &&
+    (config.autoFetchWalletKitConfig === true ||
+      config.autoFetchWalletKitConfig === undefined);
 
   // we use this custom hook to only update the state if the value is different
   // this is so our useEffect that calls `initializeWalletProviderListeners()` only runs when it needs to
@@ -668,26 +675,35 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       >);
 
     // Warn if they are trying to set auth proxy only settings directly
-    if (config.auth?.sessionExpirationSeconds) {
+    if (config.auth?.sessionExpirationSeconds && shouldFetchWalletKitConfig) {
       console.warn(
         "Turnkey SDK warning. You have set sessionExpirationSeconds directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure session expiration in the Turnkey dashboard.",
       );
     }
-    if (config.auth?.otpAlphanumeric !== undefined) {
+    if (
+      config.auth?.otpAlphanumeric !== undefined &&
+      shouldFetchWalletKitConfig
+    ) {
       console.warn(
         "Turnkey SDK warning. You have set otpAlphanumeric directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
       );
     }
-    if (config.auth?.otpLength) {
+    if (config.auth?.otpLength && shouldFetchWalletKitConfig) {
       console.warn(
         "Turnkey SDK warning. You have set otpLength directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
       );
     }
-    // These are settings that can only be set via the auth proxy config
-    const authProxyOnlySettings = {
-      sessionExpirationSeconds: proxyAuthConfig?.sessionExpirationSeconds,
-      otpAlphanumeric: proxyAuthConfig?.otpAlphanumeric ?? true, // This fallback will never be hit. This is purely for the tests to pass before mono is released
-      otpLength: proxyAuthConfig?.otpLength ?? "6", // This fallback will never be hit. This is purely for the tests to pass before mono is released
+    // These are settings that, if using the auth proxy, must be set in the dashboard. They override any local settings unless they are not using auth proxy or are not fetching the auth proxy config.
+    const authProxyPrioSettings = {
+      sessionExpirationSeconds: shouldFetchWalletKitConfig
+        ? proxyAuthConfig?.sessionExpirationSeconds
+        : config.auth?.sessionExpirationSeconds,
+      otpAlphanumeric: shouldFetchWalletKitConfig
+        ? proxyAuthConfig?.otpAlphanumeric
+        : (config.auth?.otpAlphanumeric ?? true),
+      otpLength: shouldFetchWalletKitConfig
+        ? proxyAuthConfig?.otpLength
+        : (config.auth?.otpLength ?? "6"),
     };
 
     return {
@@ -696,7 +712,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       // Overrides:
       auth: {
         ...config.auth,
-        ...authProxyOnlySettings,
+        ...authProxyPrioSettings,
         methods: resolvedMethods,
         oauthConfig: {
           ...config.auth?.oauthConfig,
@@ -844,18 +860,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
         setSession(allLocalStorageSessions[activeSessionKey]);
 
-        // we use `fetchWallets()` instead of `refreshWallets()` here to avoid a race condition
+        // we use `maybeFetchWallets()` instead of `maybeRefreshWallets()` here to avoid a race condition
         // specifically, if WalletConnect finishes initializing before this promise resolves,
-        // `refreshWallets()` could overwrite the WalletConnect wallet state with an outdated
+        // `maybeRefreshWallets()` could overwrite the WalletConnect wallet state with an outdated
         // list of wallets that doesn’t yet include the WalletConnect wallets
-        const [, wallets] = await Promise.all([refreshUser(), fetchWallets()]);
+        const [, wallets] = await Promise.all([
+          maybeRefreshUser(),
+          (() => {
+            if (!masterConfig?.autoRefreshManagedState) return [];
+            return fetchWallets();
+          })(),
+        ]);
 
         // the prev wallets should only ever be WalletConnect wallets
         if (wallets) {
-          setWallets((prev) => [...prev, ...wallets]);
+          setWallets((prev) => mergeWalletsWithoutDuplicates(prev, wallets));
         }
-
-        console.log("finished fetching wallets inside initializeSessions");
 
         return;
       }
@@ -1027,6 +1047,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             }
 
             if (evt?.type === "initialized") {
+              console.log("WalletConnect initialized event received");
               // this updates our walletProvider state
               const providers = await debouncedFetchWalletProviders();
 
@@ -1044,7 +1065,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 });
 
                 if (wcWallets.length > 0) {
-                  setWallets((prev) => [...prev, ...wcWallets]);
+                  setWallets((prev) =>
+                    mergeWalletsWithoutDuplicates(prev, wcWallets),
+                  );
                 }
               }
 
@@ -1134,7 +1157,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      await Promise.all([refreshWallets(), refreshUser()]);
+      await Promise.all([maybeRefreshWallets(), maybeRefreshUser()]);
 
       if (
         masterConfig?.auth?.verifyWalletOnSignup === true &&
@@ -1383,13 +1406,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   const refreshUser = useCallback(
     async (params?: RefreshUserParams): Promise<void> => {
-      if (!masterConfig?.autoRefreshManagedState) return;
       const { stampWith, organizationId, userId } = params || {};
+
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
+
       const user = await withTurnkeyErrorHandling(
         () =>
           fetchUser({
@@ -1401,17 +1425,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to refresh user",
       );
+
       if (user) {
         setUser(user);
       }
     },
-    [client, callbacks, fetchUser, logout, masterConfig],
+    [client, callbacks, fetchUser, logout],
+  );
+
+  const maybeRefreshUser = useCallback(
+    // Auto-refresh user only if enabled in config. This is only used internally
+    async (params?: RefreshUserParams): Promise<void> => {
+      if (!masterConfig?.autoRefreshManagedState) return;
+      return refreshUser(params);
+    },
+    [masterConfig, refreshUser],
   );
 
   const refreshWallets = useCallback(
     async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
-      if (!masterConfig?.autoRefreshManagedState) return [];
-
       const { stampWith, organizationId, userId } = params || {};
 
       if (!client)
@@ -1419,6 +1451,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
+
       const walletProviders = await withTurnkeyErrorHandling(
         () => fetchWalletProviders(),
         undefined,
@@ -1438,20 +1471,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         callbacks,
         "Failed to refresh wallets",
       );
+
       if (wallets) {
         setWallets(wallets);
       }
 
       return wallets;
     },
-    [
-      client,
-      callbacks,
-      fetchWalletProviders,
-      fetchWallets,
-      logout,
-      masterConfig,
-    ],
+    [client, callbacks, fetchWalletProviders, fetchWallets, logout],
+  );
+
+  const maybeRefreshWallets = useCallback(
+    // Auto-refresh wallets only if enabled in config. This is only used internally
+    async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
+      if (!masterConfig?.autoRefreshManagedState) return [];
+      return refreshWallets(params);
+    },
+    [masterConfig, refreshWallets],
   );
 
   const clearSession = useCallback(
@@ -1795,7 +1831,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           const s = await getSession();
           if (s) {
             // this will update our walletProvider state
-            wallets = await refreshWallets();
+            wallets = await maybeRefreshWallets();
           } else {
             wallets = await fetchWallets({ connectedOnly: true });
           }
@@ -1826,7 +1862,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     },
 
-    [client, callbacks, getSession, logout, refreshWallets, fetchWallets],
+    [client, callbacks, getSession, logout, maybeRefreshWallets, fetchWallets],
   );
 
   const disconnectWalletAccount = useCallback(
@@ -1842,7 +1878,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         async () => {
           await client.disconnectWalletAccount(walletProvider);
 
-          // no need here to call `refreshWallets()` because the provider emits a disconnect event which
+          // no need here to call `maybeRefreshWallets()` because the provider emits a disconnect event which
           // will trigger a refresh via the listener we set up in `initializeWalletProviderListeners()`
         },
         undefined,
@@ -2495,7 +2531,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to update user email",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2504,7 +2540,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, refreshUser],
+    [client, callbacks, logout, maybeRefreshUser],
   );
 
   const removeUserEmail = useCallback(
@@ -2521,7 +2557,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to remove user email",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2530,7 +2566,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, refreshUser],
+    [client, callbacks, logout, maybeRefreshUser],
   );
 
   const updateUserPhoneNumber = useCallback(
@@ -2547,7 +2583,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to update user phone number",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2556,7 +2592,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, refreshUser],
+    [client, callbacks, logout, maybeRefreshUser],
   );
 
   const removeUserPhoneNumber = useCallback(
@@ -2573,7 +2609,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to remove user phone number",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2582,7 +2618,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, refreshUser],
+    [client, callbacks, logout, maybeRefreshUser],
   );
 
   const updateUserName = useCallback(
@@ -2599,7 +2635,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to update user name",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2608,7 +2644,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, refreshUser],
+    [client, callbacks, logout, maybeRefreshUser],
   );
 
   const addOauthProvider = useCallback(
@@ -2625,7 +2661,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to add OAuth provider",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2634,7 +2670,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, refreshUser],
+    [client, callbacks, logout, maybeRefreshUser],
   );
 
   const removeOauthProviders = useCallback(
@@ -2651,7 +2687,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to remove OAuth providers",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2660,7 +2696,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, refreshUser],
+    [client, callbacks, logout, maybeRefreshUser],
   );
 
   const addPasskey = useCallback(
@@ -2677,7 +2713,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to add passkey",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2686,7 +2722,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, refreshUser],
+    [client, callbacks, logout, maybeRefreshUser],
   );
 
   const removePasskeys = useCallback(
@@ -2703,7 +2739,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         "Failed to remove passkeys",
       );
       if (res)
-        await refreshUser({
+        await maybeRefreshUser({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2712,7 +2748,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, refreshUser],
+    [client, callbacks, logout, maybeRefreshUser],
   );
 
   const createWallet = useCallback(
@@ -2730,7 +2766,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       const s = await getSession();
       if (res && s)
-        await refreshWallets({
+        await maybeRefreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2738,7 +2774,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, session, callbacks, logout, refreshWallets, getSession],
+    [client, session, callbacks, logout, maybeRefreshWallets, getSession],
   );
 
   const createWalletAccounts = useCallback(
@@ -2756,7 +2792,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       const s = await getSession();
       if (res && s)
-        await refreshWallets({
+        await maybeRefreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2764,7 +2800,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, session, callbacks, logout, getSession, refreshWallets],
+    [client, session, callbacks, logout, getSession, maybeRefreshWallets],
   );
 
   const exportWallet = useCallback(
@@ -2782,7 +2818,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       const s = await getSession();
       if (res && s)
-        await refreshWallets({
+        await maybeRefreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2790,7 +2826,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, session, callbacks, logout, getSession, refreshWallets],
+    [client, session, callbacks, logout, getSession, maybeRefreshWallets],
   );
 
   const exportPrivateKey = useCallback(
@@ -2826,7 +2862,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       const s = await getSession();
       if (res && s)
-        await refreshWallets({
+        await maybeRefreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2834,7 +2870,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, getSession, refreshWallets],
+    [client, callbacks, logout, getSession, maybeRefreshWallets],
   );
 
   const importWallet = useCallback(
@@ -2852,7 +2888,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       const s = await getSession();
       if (res && s)
-        await refreshWallets({
+        await maybeRefreshWallets({
           stampWith: params?.stampWith,
           ...(params?.organizationId && {
             organizationId: params.organizationId,
@@ -2861,7 +2897,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       return res;
     },
-    [client, callbacks, logout, getSession, refreshWallets],
+    [client, callbacks, logout, getSession, maybeRefreshWallets],
   );
 
   const importPrivateKey = useCallback(
@@ -2927,7 +2963,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setSession(session);
       setAllSessions(allSessions);
 
-      await Promise.all([refreshWallets(), refreshUser()]);
+      await Promise.all([maybeRefreshWallets(), maybeRefreshUser()]);
     },
     [
       client,
@@ -2937,8 +2973,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       getSession,
       scheduleSessionExpiration,
       getAllSessions,
-      refreshWallets,
-      refreshUser,
+      maybeRefreshWallets,
+      maybeRefreshUser,
     ],
   );
 
@@ -2988,7 +3024,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       setSession(session);
       await withTurnkeyErrorHandling(
         async () => {
-          await Promise.all([refreshWallets(), refreshUser()]);
+          await Promise.all([maybeRefreshWallets(), maybeRefreshUser()]);
         },
         () => logout(),
         callbacks,
@@ -2996,7 +3032,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
       return;
     },
-    [client, callbacks, logout, getSession, refreshWallets, refreshUser],
+    [
+      client,
+      callbacks,
+      logout,
+      getSession,
+      maybeRefreshWallets,
+      maybeRefreshUser,
+    ],
   );
 
   const clearUnusedKeyPairs = useCallback(async (): Promise<void> => {
@@ -5711,10 +5754,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     const fetchProxyAuthConfig = async () => {
       try {
         let proxyAuthConfig: ProxyTGetWalletKitConfigResponse | undefined;
-        if (config.authProxyConfigId) {
-          // Only fetch the proxy auth config if we have an authProxyId. This is a way for devs to explicitly disable the proxy auth.
+
+        if (shouldFetchWalletKitConfig) {
+          // Only fetch the proxy auth config if we have an authProxyId and the autoFetchWalletKitConfig param is enabled or not passed in.
           proxyAuthConfig = await getAuthProxyConfig(
-            config.authProxyConfigId,
+            config.authProxyConfigId!, // Can assert safely. See shouldFetchWalletKitConfig definition.
             config.authProxyUrl,
           );
           proxyAuthConfigRef.current = proxyAuthConfig;
@@ -5738,7 +5782,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   useEffect(() => {
     // Handle changes to the passed in config prop -- update the master config
     // If the proxyAuthConfigRef is already set, we don't need to fetch it again. Rebuild the master config with the updated config and stored proxyAuthConfig
-    if (!proxyAuthConfigRef.current && config.authProxyConfigId) return;
+    if (!proxyAuthConfigRef.current && shouldFetchWalletKitConfig) return;
 
     setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
   }, [config, proxyAuthConfigRef.current]);
@@ -5747,21 +5791,22 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
    * @internal
    * We create `debouncedRefreshWallets()` so that multiple rapid wallet events
    * (for example, on Solana a single disconnect can emit several events we listen for)
-   * only trigger `refreshWallets()` once.
+   * only trigger `maybeRefreshWallets()` once.
    *
    * Defining the debounced function outside of the `useEffect` ensures all event
    * listeners in `initializeWalletProviderListeners` share the same instance, instead of creating
    * a new one on every render.
    */
-  const debouncedRefreshWallets = useDebouncedCallback(refreshWallets, 100);
+  const debouncedRefreshWallets = useDebouncedCallback(
+    maybeRefreshWallets,
+    100,
+  );
   const debouncedFetchWalletProviders = useDebouncedCallback(
     fetchWalletProviders,
     100,
   );
 
   useEffect(() => {
-    if (!client) return;
-
     const handleUpdateState = async () => {
       // we only refresh the wallets if there is an active session
       // this is needed because a disconnect event can occur
@@ -5791,7 +5836,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       cleanup();
     };
   }, [
-    client,
     walletProviders,
     getSession,
     debouncedRefreshWallets,
