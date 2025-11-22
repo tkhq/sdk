@@ -11,6 +11,7 @@ import {
   GOOGLE_AUTH_URL,
   handleFacebookPKCEFlow,
   isValidSession,
+  mergeWalletsWithoutDuplicates,
   parseOAuthRedirect,
   popupHeight,
   popupWidth,
@@ -873,12 +874,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
         // the prev wallets should only ever be WalletConnect wallets
         if (wallets) {
-          setWallets((prev) => {
-            // we only append new wallets
-            const existingWalletIds = new Set(prev.map(w => w.walletId));
-            const newWallets = wallets.filter(w => !existingWalletIds.has(w.walletId));
-            return [...prev, ...newWallets];
-          });
+          setWallets((prev) => mergeWalletsWithoutDuplicates(prev, wallets));
         }
 
         return;
@@ -1069,12 +1065,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 });
 
                 if (wcWallets.length > 0) {
-                  setWallets((prev) => {
-                    // we only append new wallets
-                    const existingWalletIds = new Set(prev.map(w => w.walletId));
-                    const newWallets = wcWallets.filter(w => !existingWalletIds.has(w.walletId));
-                    return [...prev, ...newWallets];
-                  });
+                  setWallets((prev) =>
+                    mergeWalletsWithoutDuplicates(prev, wcWallets),
+                  );
                 }
               }
 
