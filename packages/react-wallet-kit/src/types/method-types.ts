@@ -281,3 +281,29 @@ export type HandleOnRampParams = {
   successPageDuration?: number; // Duration for success page in ms (0 disables it)
   openInNewTab?: boolean; // Whether to open the onramp URL in a new browser tab or popup
 };
+
+export type HandleSendTransactionParams = {
+  // Required Turnkey context
+  organizationId?: string;
+
+  // ETH send transaction intent fields
+  from: string;          // Wallet or private key address to sign with
+  to: string;            // Recipient address (0x-prefixed)
+  caip2: string;         // e.g. "eip155:1"
+  value?: string;        // Amount in wei
+  data?: string;         // Hex calldata
+  nonce?: string;        // EIP-1559 / Gas Station nonce
+  gasLimit?: string;     // EIP-1559 gas limit
+  maxFeePerGas?: string; // EIP-1559 max fee per gas
+  maxPriorityFeePerGas?: string; // EIP-1559 priority fee per gas
+
+  // Gas Station fields
+  sponsor?: boolean;       // Whether to sponsor via Gas Station
+  deadline?: string;       // Unix timestamp for sponsorship validity
+  gasStationNonce?: string; // Gas Station delegate contract nonce
+
+  // UI behavior
+  successPageDuration?: number; // ms — 0 disables success screen
+  icon?: React.ReactNode;       // optional icon (ETH, BASE, etc.)
+  stampWith?: StamperType;      // passkey, api key, wallet stamper, etc.
+};
