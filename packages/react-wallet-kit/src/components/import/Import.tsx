@@ -10,7 +10,7 @@ import {
   v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 import { ActionButton } from "../design/Buttons";
-import { Input } from "@headlessui/react";
+import { Checkbox, Input } from "@headlessui/react";
 import {
   type StamperType,
   generateWalletAccountsFromAddressFormat,
@@ -18,6 +18,8 @@ import {
 import { SuccessPage } from "../design/Success";
 import clsx from "clsx";
 import { ImportType } from "../../types/base";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
 
 const TurnkeyImportIframeContainerId = "turnkey-import-iframe-container-id";
 const TurnkeyIframeElementId = "turnkey-default-iframe-element-id";
@@ -43,6 +45,8 @@ export function ImportComponent(props: {
   name?: string;
   organizationId?: string;
   userId?: string;
+  enablePassphraseByDefault?: boolean | undefined;
+  enablePassphraseToggle?: boolean | undefined;
 }) {
   const {
     importType,
@@ -55,6 +59,8 @@ export function ImportComponent(props: {
     clearClipboardOnPaste,
     stampWith,
     name,
+    enablePassphraseByDefault,
+    enablePassphraseToggle,
   } = props;
 
   const { config, session, importWallet, importPrivateKey, httpClient } =
@@ -84,6 +90,9 @@ export function ImportComponent(props: {
 
   const [walletName, setWalletName] = useState<string>(name || "");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [enablePassphrase, setEnablePassphrase] = useState<boolean>(
+    enablePassphraseByDefault || false,
+  );
   const [error, setError] = useState<TurnkeyError | null>(null);
 
   const [shaking, setShaking] = useState(false);
@@ -138,6 +147,7 @@ export function ImportComponent(props: {
               ? config?.ui?.colors?.dark?.iconText || iconTextDark
               : config?.ui?.colors?.light?.iconText || iconTextLight,
           },
+          enablePassphrase: enablePassphrase,
         });
         setImportIframeClient(newImportIframeClient);
       } catch (error) {
@@ -177,10 +187,11 @@ export function ImportComponent(props: {
             ? config?.ui?.colors?.dark?.iconText || iconTextDark
             : config?.ui?.colors?.light?.iconText || iconTextLight,
         },
+        enablePassphrase: enablePassphrase,
       });
     };
     reapplyIframeStyles();
-  }, [config.ui]);
+  }, [config.ui, enablePassphrase]);
 
   function handleImportModalClose() {
     if (importIframeClient) {
@@ -395,12 +406,12 @@ export function ImportComponent(props: {
       <div
         id={TurnkeyImportIframeContainerId}
         style={{
-          height: "100%",
+          height: !enablePassphrase ? "100%" : "18rem",
           overflow: "hidden",
           display: "block",
           backgroundColor: config?.ui?.darkMode
-            ? config?.ui?.colors?.dark?.iconBackground || iconBackgroundDark
-            : config?.ui?.colors?.light?.iconBackground || iconBackgroundLight,
+              ? config?.ui?.colors?.dark?.iconBackground || iconBackgroundDark
+              : config?.ui?.colors?.light?.iconBackground || iconBackgroundLight,
           width: "100%",
           boxSizing: "border-box",
           padding: "5px",
@@ -413,6 +424,19 @@ export function ImportComponent(props: {
         }}
         className={`transition-all ${shaking ? "animate-shake" : ""}`}
       />
+     {enablePassphraseToggle && <div className="flex gap-2 items-center w-full my-2">
+        <label className="text-sm text-icon-text-light dark:text-icon-text-dark">
+          Passphrase
+        </label>
+        <Checkbox
+            checked={enablePassphrase}
+            onChange={(checked: boolean) => setEnablePassphrase(checked)}
+            className="group cursor-pointer flex items-center justify-center size-4 rounded border text-icon-background-light dark:text-icon-background-dark bg-icon-background-light dark:bg-icon-background-dark data-checked:text-primary-text-light dark:data-checked:text-primary-text-dark data-checked:bg-primary-light dark:data-checked:bg-primary-dark border-icon-text-light dark:border-icon-text-dark focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark transition-all"
+          >
+            {/* Checkmark icon */}
+            <FontAwesomeIcon icon={faCheck} />
+          </Checkbox>
+      </div>}
       {!name && (
         <Input
           type="text"

@@ -125,6 +125,8 @@ export type HandleImportWalletParams = {
   clearClipboardOnPaste?: boolean | undefined; // If true, the clipboard will be cleared when pasting into the import iframe. Defaults to true.
   organizationId?: string;
   userId?: string;
+  enablePassphraseByDefault?: boolean | undefined;
+  enablePassphraseToggle?: boolean | undefined;
 };
 
 export type HandleImportPrivateKeyParams = {

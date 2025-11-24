@@ -383,6 +383,8 @@ export type ClientContextType = Override<
      * @param params.clearClipboardOnPaste - whether to clear the clipboard after pasting the import bundle (default: true).
      * @param params.organizationId - The organization ID to target (defaults to the session's organization ID or the parent organization ID).
      * @param params.userId - The user ID to target (defaults to the session's user ID).
+     * @param params.enablePassphraseByDefault - whether to enable passphrase input by default in the import modal (default: false).
+     * @param params.enablePassphraseToggle - whether to show the passphrase toggle in the import modal (default: false).
      *
      * @returns A promise that resolves to the new wallet's ID.
      */

@@ -3999,8 +3999,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         clearClipboardOnPaste,
         organizationId,
         userId,
+        enablePassphraseByDefault,
+        enablePassphraseToggle,
       } = params || {};
       try {
+        console.log(enablePassphraseByDefault, enablePassphraseToggle);
         return withTurnkeyErrorHandling(
           () =>
             new Promise<string>((resolve, reject) =>
@@ -4026,6 +4029,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     {...(walletName !== undefined && { name: walletName })}
                     {...(organizationId !== undefined && { organizationId })}
                     {...(userId !== undefined && { userId })}
+                    enablePassphraseByDefault={enablePassphraseByDefault}
+                    enablePassphraseToggle={enablePassphraseToggle}
                   />
                 ),
               }),
