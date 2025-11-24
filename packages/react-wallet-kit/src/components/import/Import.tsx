@@ -410,8 +410,8 @@ export function ImportComponent(props: {
           overflow: "hidden",
           display: "block",
           backgroundColor: config?.ui?.darkMode
-              ? config?.ui?.colors?.dark?.iconBackground || iconBackgroundDark
-              : config?.ui?.colors?.light?.iconBackground || iconBackgroundLight,
+            ? config?.ui?.colors?.dark?.iconBackground || iconBackgroundDark
+            : config?.ui?.colors?.light?.iconBackground || iconBackgroundLight,
           width: "100%",
           boxSizing: "border-box",
           padding: "5px",
@@ -424,11 +424,12 @@ export function ImportComponent(props: {
         }}
         className={`transition-all ${shaking ? "animate-shake" : ""}`}
       />
-     {enablePassphraseToggle && <div className="flex gap-2 items-center w-full my-2">
-        <label className="text-sm text-icon-text-light dark:text-icon-text-dark">
-          Passphrase
-        </label>
-        <Checkbox
+      {enablePassphraseToggle && (
+        <div className="flex gap-2 items-center w-full my-2">
+          <label className="text-sm text-icon-text-light dark:text-icon-text-dark">
+            Passphrase
+          </label>
+          <Checkbox
             checked={enablePassphrase}
             onChange={(checked: boolean) => setEnablePassphrase(checked)}
             className="group cursor-pointer flex items-center justify-center size-4 rounded border text-icon-background-light dark:text-icon-background-dark bg-icon-background-light dark:bg-icon-background-dark data-checked:text-primary-text-light dark:data-checked:text-primary-text-dark data-checked:bg-primary-light dark:data-checked:bg-primary-dark border-icon-text-light dark:border-icon-text-dark focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark transition-all"
@@ -436,7 +437,8 @@ export function ImportComponent(props: {
             {/* Checkmark icon */}
             <FontAwesomeIcon icon={faCheck} />
           </Checkbox>
-      </div>}
+        </div>
+      )}
       {!name && (
         <Input
           type="text"
