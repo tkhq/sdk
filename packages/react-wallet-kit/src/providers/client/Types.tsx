@@ -39,6 +39,7 @@ import type {
   HandleRemovePasskeyParams,
   HandleRemoveUserEmailParams,
   HandleRemoveUserPhoneNumberParams,
+  HandleSendTransactionParams,
   HandleSignMessageParams,
   HandleUpdateUserEmailParams,
   HandleUpdateUserNameParams,
@@ -737,34 +738,65 @@ export interface ClientContextType
    */
   handleVerifyAppProofs: (params: HandleVerifyAppProofsParams) => Promise<void>;
 
-  /**
-   * Handles the fiat onramp process for converting fiat currency into crypto and funding a wallet.
-   *
-   * - Initializes a fiat onramp transaction with a specified provider (e.g., Coinbase or MoonPay).
-   * - Opens the provider flow in a new window and polls the transaction status until completion.
-   * - Displays a modal to show progress and success state.
-   * - Supports both sandbox and production modes.
-   *
-   * @param params.walletAccount - destination wallet account for the buy transaction.
-   * @param params.network - optional blockchain network, e.g., FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM, defaults to the network associated with the wallet address passed in.
-   * @param params.cryptoCurrencyCode - optional cryptocurrency to purchase, e.g., FIAT_ON_RAMP_CRYPTO_CURRENCY_BTC, defaults to the native currency associated with the network/wallet address passed in.
-   * @param params.fiatCurrencyCode - optional fiat currency to use, e.g., FIAT_ON_RAMP_CURRENCY_ETH.
-   * @param params.fiatCurrencyAmount - optional preset fiat amount, e.g., '100'.
-   * @param params.onrampProvider - optional onramp provider, e.g., FIAT_ON_RAMP_PROVIDER_COINBASE or FIAT_ON_RAMP_PROVIDER_MOONPAY, defaults to FIAT_ON_RAMP_PROVIDER_MOONPAY.
-   * @param params.paymentMethod - optional payment method, e.g., FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD.
-   * @param params.countryCode - optional ISO 3166-1 country code.
-   * @param params.countrySubdivisionCode - optional ISO 3166-2 subdivision code, e.g., NY.
-   * @param params.sandboxMode - optional flag to use sandbox (test) mode (default: true).
-   * @param params.urlForSignature - optional MoonPay Widget URL to sign.
-   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
-   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
-   * @param params.successPageDuration - optional duration (in ms) for the success page after connecting (default: 2000ms).
-   * @param params.openInNewTab: optional boolean on whether to open the onramp URL in a new browser tab or popup
-   * @returns A promise that resolves when the onramp flow completes successfully.
-   * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.
-   */
-  handleOnRamp: (params: HandleOnRampParams) => Promise<void>;
-}
+    /**
+     * Handles the fiat onramp process for converting fiat currency into crypto and funding a wallet.
+     *
+     * - Initializes a fiat onramp transaction with a specified provider (e.g., Coinbase or MoonPay).
+     * - Opens the provider flow in a new window and polls the transaction status until completion.
+     * - Displays a modal to show progress and success state.
+     * - Supports both sandbox and production modes.
+     *
+     * @param params.walletAccount - destination wallet account for the buy transaction.
+     * @param params.network - optional blockchain network, e.g., FIAT_ON_RAMP_BLOCKCHAIN_NETWORK_ETHEREUM, defaults to the network associated with the wallet address passed in.
+     * @param params.cryptoCurrencyCode - optional cryptocurrency to purchase, e.g., FIAT_ON_RAMP_CRYPTO_CURRENCY_BTC, defaults to the native currency associated with the network/wallet address passed in.
+     * @param params.fiatCurrencyCode - optional fiat currency to use, e.g., FIAT_ON_RAMP_CURRENCY_ETH.
+     * @param params.fiatCurrencyAmount - optional preset fiat amount, e.g., '100'.
+     * @param params.onrampProvider - optional onramp provider, e.g., FIAT_ON_RAMP_PROVIDER_COINBASE or FIAT_ON_RAMP_PROVIDER_MOONPAY, defaults to FIAT_ON_RAMP_PROVIDER_MOONPAY.
+     * @param params.paymentMethod - optional payment method, e.g., FIAT_ON_RAMP_PAYMENT_METHOD_CREDIT_DEBIT_CARD.
+     * @param params.countryCode - optional ISO 3166-1 country code.
+     * @param params.countrySubdivisionCode - optional ISO 3166-2 subdivision code, e.g., NY.
+     * @param params.sandboxMode - optional flag to use sandbox (test) mode (default: true).
+     * @param params.urlForSignature - optional MoonPay Widget URL to sign.
+     * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
+     * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+     * @param params.successPageDuration - optional duration (in ms) for the success page after connecting (default: 2000ms).
+     * @param params.openInNewTab: optional boolean on whether to open the onramp URL in a new browser tab or popup
+     * @returns A promise that resolves when the onramp flow completes successfully.
+     * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.
+     */
+    handleOnRamp: (params: HandleOnRampParams) => Promise<void>;
+
+        /**
+     * Handles sending an Ethereum transaction (EIP-1559 or Gas Station–sponsored).
+     *
+     * - Submits an `EthSendTransactionIntent` to Turnkey for signing and execution.
+     * - Automatically polls the send transaction status until it reaches a terminal state:
+     *   `COMPLETED`, `FAILED`, or `CANCELLED`.
+     * - Displays a modal showing progress and a success page upon completion.
+     * - Supports both standard EIP-1559 transactions and sponsored Gas Station meta-transactions.
+     *
+     * @param params.from - the wallet or private key address to sign with.
+     * @param params.to - the recipient address (0x-prefixed).
+     * @param params.caip2 - the CAIP-2 chain identifier (e.g., "eip155:1" for Ethereum mainnet).
+     * @param params.value - optional amount in wei to send.
+     * @param params.data - optional hex-encoded call data for contract interactions.
+     * @param params.nonce - optional transaction nonce (for both EIP-1559 & Gas Station).
+     * @param params.gasLimit - optional EIP-1559 gas limit.
+     * @param params.maxFeePerGas - optional EIP-1559 max fee per gas unit.
+     * @param params.maxPriorityFeePerGas - optional EIP-1559 priority fee (tip) per gas unit.
+     * @param params.sponsor - optional flag indicating whether to use the Gas Station (meta-transaction).
+     * @param params.deadline - optional Unix timestamp after which a sponsored tx becomes invalid.
+     * @param params.gasStationNonce - optional Gas Station delegate contract nonce.
+     * @param params.organizationId - optional Turnkey sub-organization ID (defaults to the active session).
+     * @param params.stampWith - optional stamper override (Passkey, ApiKey, Wallet).
+     * @param params.successPageDuration - optional success page duration in ms (default: 2000ms).
+     * @returns A promise that resolves when the transaction reaches a terminal state.
+     * @throws {TurnkeyError} If submission fails, polling fails, or the user cancels the process.
+     */
+    handleSendTransaction: (params: HandleSendTransactionParams) => Promise<void>;
+
+    
+  }
 
 /** @internal */
 export const ClientContext = createContext<ClientContextType | undefined>(

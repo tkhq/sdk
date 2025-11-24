@@ -177,6 +177,7 @@ import type {
   HandleRemovePasskeyParams,
   HandleRemoveUserEmailParams,
   HandleRemoveUserPhoneNumberParams,
+  HandleSendTransactionParams,
   HandleSignMessageParams,
   HandleUpdateUserEmailParams,
   HandleUpdateUserNameParams,
@@ -189,6 +190,7 @@ import type {
 import { VerifyPage } from "../../components/verify/Verify";
 import { OnRampPage } from "../../components/onramp/OnRamp";
 import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
+import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 
 /**
  * @inline
@@ -5491,6 +5493,136 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [getSession, pushPage],
   );
 
+  const handleSendTransaction = useCallback(
+  async (params: HandleSendTransactionParams): Promise<void> => {
+    const s = await getSession();
+    const organizationId = params.organizationId || s?.organizationId;
+    if (!organizationId) {
+      throw new TurnkeyError(
+        "A session or passed in organization ID is required.",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+
+    const {
+      from,
+      to,
+      value,
+      data,
+      caip2,
+      sponsor,
+      gasLimit,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      nonce,
+      deadline,
+      gasStationNonce,
+      successPageDuration = 2000,
+    } = params;
+
+    return new Promise((resolve, reject) => {
+      const SendTxContainer = () => {
+        const [completed, setCompleted] = useState(false);
+        const pollingRef = useRef<NodeJS.Timeout | null>(null);
+
+        const cleanup = () => {
+          if (pollingRef.current) {
+            clearInterval(pollingRef.current);
+            pollingRef.current = null;
+          }
+        };
+
+        useEffect(() => {
+          return () => cleanup();
+        }, []);
+
+        const action = async () => {
+          try {
+            const result = await client?.httpClient?.ethSendTransaction({
+              organizationId,
+                from,
+                to,
+                caip2,
+                ...(value ? { value } : {}),
+                ...(data ? { data } : {}),
+                ...(nonce ? { nonce } : {}),
+                ...(gasLimit ? { gas_limit: gasLimit } : {}),
+                ...(maxFeePerGas ? { max_fee_per_gas: maxFeePerGas } : {}),
+                ...(maxPriorityFeePerGas
+                  ? { max_priority_fee_per_gas: maxPriorityFeePerGas }
+                  : {}),
+                ...(sponsor !== undefined ? { sponsor } : {}),
+                ...(deadline ? { deadline } : {}),
+                ...(gasStationNonce
+                  ? { gas_station_nonce: gasStationNonce }
+                  : {}),
+              },
+            );
+
+            const sendTxStatusId = result?.sendTransactionStatusId;
+            if (!sendTxStatusId)
+              throw new Error("Missing sendTransactionStatusId");
+
+            return new Promise<void>((resolveAction) => {
+              pollingRef.current = setInterval(async () => {
+                try {
+                  const resp =
+                    await client?.httpClient.getSendTransactionStatus({
+                      organizationId,
+                      sendTransactionStatusId: sendTxStatusId,
+                    });
+
+                  const status = resp?.txStatus;
+                  if (
+                    ["COMPLETED", "FAILED", "CANCELLED"].includes(
+                      status ?? "",
+                    )
+                  ) {
+                    cleanup();
+                    setCompleted(true);
+                    resolveAction();
+                  }
+                } catch (err) {
+                  console.warn("Polling error (ignored):", err);
+                }
+              }, 3000);
+            });
+          } catch (err) {
+            cleanup();
+            throw err;
+          }
+        };
+
+        return (
+          <SendTransactionPage
+            action={action}
+            completed={completed}
+            successPageDuration={successPageDuration}
+            onSuccess={() => resolve()}
+            onError={(err) => reject(err)}
+          />
+        );
+      };
+
+      pushPage({
+        key: "Send Transaction",
+        content: <SendTxContainer />,
+        showTitle: false,
+        preventBack: true,
+        onClose: () =>
+          reject(
+            new TurnkeyError(
+              "User canceled the transaction.",
+              TurnkeyErrorCodes.USER_CANCELED,
+            ),
+          ),
+      });
+    });
+  },
+  [pushPage, client],
+);
+
+
   const handleOnRamp = useCallback(
     async (params: HandleOnRampParams): Promise<void> => {
       const {
@@ -5994,6 +6126,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleRemoveUserPhoneNumber,
         handleVerifyAppProofs,
         handleOnRamp,
+        handleSendTransaction,
       }}
     >
       {children}
