@@ -187,11 +187,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     Record<string, Session> | undefined
   >(undefined);
 
+  // if there is no authProxyConfigId or if autoFetchWalletKitConfig is specifically
+  // set to false, we don't need to fetch the config
   const shouldFetchWalletKitConfig =
-    config.authProxyConfigId !== undefined &&
+    config.authProxyConfigId != null &&
     config.authProxyConfigId !== "" &&
-    (config.autoFetchWalletKitConfig === true ||
-      config.autoFetchWalletKitConfig === undefined);
+    config.autoFetchWalletKitConfig !== false;
 
   const buildConfig = (
     proxyAuthConfig?: ProxyTGetWalletKitConfigResponse | undefined,
@@ -220,36 +221,38 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       TURNKEY_OAUTH_REDIRECT_URL;
 
     // Warn if they are trying to set auth proxy only settings directly
-    if (config.auth?.sessionExpirationSeconds && shouldFetchWalletKitConfig) {
-      console.warn(
-        "Turnkey SDK warning. You have set sessionExpirationSeconds directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure session expiration in the Turnkey dashboard.",
-      );
+    if (proxyAuthConfig) {
+      if (config.auth?.sessionExpirationSeconds) {
+        console.warn(
+          "Turnkey SDK warning. You have set sessionExpirationSeconds directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure session expiration in the Turnkey dashboard.",
+        );
+      }
+      if (
+        config.auth?.otp?.alphanumeric !== undefined &&
+        shouldFetchWalletKitConfig
+      ) {
+        console.warn(
+          "Turnkey SDK warning. You have set otpAlphanumeric directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
+        );
+      }
+      if (config.auth?.otp?.length && shouldFetchWalletKitConfig) {
+        console.warn(
+          "Turnkey SDK warning. You have set otpLength directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
+        );
+      }
     }
-    if (
-      config.auth?.otp?.alphanumeric !== undefined &&
-      shouldFetchWalletKitConfig
-    ) {
-      console.warn(
-        "Turnkey SDK warning. You have set otpAlphanumeric directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
-      );
-    }
-    if (config.auth?.otp?.length && shouldFetchWalletKitConfig) {
-      console.warn(
-        "Turnkey SDK warning. You have set otpLength directly in the TurnkeyProvider. This setting will be ignored because you are using an auth proxy. Please configure OTP settings in the Turnkey dashboard.",
-      );
-    }
+
     // These are settings that can only be set via the auth proxy config
     const authProxyPrioSettings = {
-      sessionExpirationSeconds: shouldFetchWalletKitConfig
-        ? proxyAuthConfig?.sessionExpirationSeconds
-        : config.auth?.sessionExpirationSeconds,
+      sessionExpirationSeconds:
+        proxyAuthConfig?.sessionExpirationSeconds ??
+        config.auth?.sessionExpirationSeconds,
       otp: {
-        alphanumeric: shouldFetchWalletKitConfig
-          ? proxyAuthConfig?.otpAlphanumeric
-          : (config.auth?.otp?.alphanumeric ?? true),
-        length: shouldFetchWalletKitConfig
-          ? proxyAuthConfig?.otpLength
-          : (config.auth?.otp?.length ?? "6"),
+        alphanumeric:
+          proxyAuthConfig?.otpAlphanumeric ??
+          config.auth?.otp?.alphanumeric ??
+          true,
+        length: proxyAuthConfig?.otpLength ?? config.auth?.otp?.length ?? "6",
       },
     };
 
@@ -2311,8 +2314,16 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks, fetchUser, session, user],
   );
 
+  /**
+   * @internal
+   * Auto-refresh user only if enabled in config. This is only used internally.
+   *
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
+   * @param params.userId - user ID to fetch specific user details (defaults to the current session's userId).
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves when the user is refreshed, or does nothing if auto-refresh is disabled
+   */
   const maybeRefreshUser = useCallback(
-    // Auto-refresh user only if enabled in config. This is only used internally
     async (params?: RefreshUserParams): Promise<void> => {
       if (!masterConfig?.autoRefreshManagedState) return;
       return refreshUser(params);
@@ -2350,8 +2361,16 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks, fetchWallets, session, user],
   );
 
+  /**
+   * @internal
+   * Auto-refresh wallets only if enabled in config. This is only used internally.
+   *
+   * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
+   * @param params.userId - user ID to fetch specific user details (defaults to the current session's userId).
+   * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
+   * @returns A promise that resolves to an array of wallets, or an empty array if auto-refresh is disabled
+   */
   const maybeRefreshWallets = useCallback(
-    // Auto-refresh wallets only if enabled in config. This is only used internally
     async (params?: RefreshWalletsParams): Promise<Wallet[]> => {
       if (!masterConfig?.autoRefreshManagedState) return [];
       return refreshWallets(params);
@@ -3219,7 +3238,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   useEffect(() => {
     // Handle changes to the passed in config prop -- update the master config
-    // If the proxyAuthConfigRef is already set, we don't need to fetch it again. Rebuild the master config with the updated config and stored proxyAuthConfig
+    // Rebuild the master config with the updated config and stored proxyAuthConfig
+    // If we don't have a stored proxyAuthConfig and we need to fetch it, we wait until that fetch is done in the other useEffect.
+    // If shouldFetchWalletKitConfig is false, we'll never have a proxyAuthConfig to build the master config with, so this useEffect should always run.
     if (!proxyAuthConfigRef.current && shouldFetchWalletKitConfig) return;
 
     setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
