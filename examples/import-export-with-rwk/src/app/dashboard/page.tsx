@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
 import {
   useTurnkey,
   AuthState,
   WalletSource,
   type Wallet,
   type WalletAccount,
-} from '@turnkey/react-wallet-kit';
-import type { v1AddressFormat, v1Curve } from '@turnkey/sdk-types';
-import { useRouter } from 'next/navigation';
+} from "@turnkey/react-wallet-kit";
+import type { v1AddressFormat, v1Curve } from "@turnkey/sdk-types";
+import { useRouter } from "next/navigation";
 
 type PrivateKeyAddress = {
   format: string;
@@ -38,7 +38,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (authState === AuthState.Unauthenticated) {
-      router.replace('/');
+      router.replace("/");
     }
   }, [authState, router]);
 
@@ -51,7 +51,7 @@ export default function Dashboard() {
   const embeddedWallets = useMemo(
     () =>
       (wallets ?? []).filter((w: Wallet) => w.source === WalletSource.Embedded),
-    [wallets]
+    [wallets],
   );
 
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null);
@@ -70,7 +70,7 @@ export default function Dashboard() {
     if (!accounts.length) return null;
 
     const byAddress = accounts.find(
-      (a) => a.address === selectedAccountAddress
+      (a) => a.address === selectedAccountAddress,
     );
     return byAddress ?? accounts[0] ?? null;
   }, [selectedWallet, selectedAccountAddress]);
@@ -94,7 +94,7 @@ export default function Dashboard() {
 
   const handleExportWallet = async () => {
     if (!selectedWallet) {
-      console.error('No wallet selected for export');
+      console.error("No wallet selected for export");
       return;
     }
     try {
@@ -102,36 +102,36 @@ export default function Dashboard() {
         walletId: selectedWallet.walletId,
       });
     } catch (e) {
-      console.error('handleExportWallet failed:', e);
+      console.error("handleExportWallet failed:", e);
     }
   };
 
   const handleExportWalletAccount = async () => {
     if (!selectedAccount?.address) {
-      console.error('No wallet account selected for export');
+      console.error("No wallet account selected for export");
       return;
     }
 
     const isSolana =
-      selectedAccount.addressFormat === 'ADDRESS_FORMAT_SOLANA' ||
-      selectedAccount.addressFormat?.includes('SOLANA');
+      selectedAccount.addressFormat === "ADDRESS_FORMAT_SOLANA" ||
+      selectedAccount.addressFormat?.includes("SOLANA");
 
     try {
       await turnkey.handleExportWalletAccount({
         address: selectedAccount.address,
         // Only override for Solana; Hex is the default.
-        ...(isSolana ? { keyFormat: 'Solana' as any } : {}),
+        ...(isSolana ? { keyFormat: "Solana" as any } : {}),
       });
     } catch (e) {
-      console.error('handleExportWalletAccount failed:', e);
+      console.error("handleExportWalletAccount failed:", e);
     }
   };
 
   const handleImportWallet = async () => {
     try {
       const defaultWalletAccounts: v1AddressFormat[] = [
-        'ADDRESS_FORMAT_ETHEREUM',
-        'ADDRESS_FORMAT_SOLANA',
+        "ADDRESS_FORMAT_ETHEREUM",
+        "ADDRESS_FORMAT_SOLANA",
       ];
 
       await turnkey.handleImportWallet({
@@ -139,7 +139,7 @@ export default function Dashboard() {
         successPageDuration: 5000,
       });
     } catch (e) {
-      console.error('handleImportWallet failed:', e);
+      console.error("handleImportWallet failed:", e);
     }
   };
 
@@ -153,16 +153,16 @@ export default function Dashboard() {
   const [pkError, setPkError] = useState<string | null>(null);
 
   // Import config (user-configurable)
-  const [pkCurve, setPkCurve] = useState<v1Curve>('CURVE_SECP256K1');
+  const [pkCurve, setPkCurve] = useState<v1Curve>("CURVE_SECP256K1");
   const [pkAddressFormatsInput, setPkAddressFormatsInput] = useState<string>(
-    'ADDRESS_FORMAT_ETHEREUM'
+    "ADDRESS_FORMAT_ETHEREUM",
   );
 
   const selectedPrivateKey = useMemo(
     () =>
       privateKeys.find((pk) => pk.privateKeyId === selectedPrivateKeyId) ??
       null,
-    [privateKeys, selectedPrivateKeyId]
+    [privateKeys, selectedPrivateKeyId],
   );
 
   // Load private keys when authenticated
@@ -190,9 +190,9 @@ export default function Dashboard() {
           }
         }
       } catch (e: any) {
-        console.error('Failed to fetch private keys', e);
+        console.error("Failed to fetch private keys", e);
         if (!cancelled) {
-          setPkError(e?.message ?? 'Failed to fetch private keys.');
+          setPkError(e?.message ?? "Failed to fetch private keys.");
         }
       } finally {
         if (!cancelled) setPkLoading(false);
@@ -209,20 +209,21 @@ export default function Dashboard() {
   const isSolanaPrivateKey = (pk: PrivateKey): boolean => {
     const addrs = pk.addresses ?? [];
     return addrs.some(
-      (a) => a.format === 'ADDRESS_FORMAT_SOLANA' || a.format.includes('SOLANA')
+      (a) =>
+        a.format === "ADDRESS_FORMAT_SOLANA" || a.format.includes("SOLANA"),
     );
   };
 
   const onExportPrivateKey = async () => {
     if (!selectedPrivateKeyId) {
-      setPkError('Select a private key first.');
+      setPkError("Select a private key first.");
       return;
     }
 
     const pk = privateKeys.find((k) => k.privateKeyId === selectedPrivateKeyId);
     const sol = pk ? isSolanaPrivateKey(pk) : false;
 
-    const keyFormat: 'Hexadecimal' | 'Solana' = sol ? 'Solana' : 'Hexadecimal';
+    const keyFormat: "Hexadecimal" | "Solana" = sol ? "Solana" : "Hexadecimal";
 
     try {
       setPkError(null);
@@ -231,8 +232,8 @@ export default function Dashboard() {
         keyFormat,
       } as any);
     } catch (e: any) {
-      console.error('Failed to export private key', e);
-      setPkError(e?.message ?? 'Failed to export private key.');
+      console.error("Failed to export private key", e);
+      setPkError(e?.message ?? "Failed to export private key.");
     }
   };
 
@@ -242,12 +243,12 @@ export default function Dashboard() {
       setPkError(null);
 
       const rawFormats = pkAddressFormatsInput
-        .split(',')
+        .split(",")
         .map((f) => f.trim())
         .filter(Boolean);
 
       if (rawFormats.length === 0) {
-        setPkError('Please specify at least one address format.');
+        setPkError("Please specify at least one address format.");
         return;
       }
 
@@ -270,8 +271,8 @@ export default function Dashboard() {
         }
       }
     } catch (e: any) {
-      console.error('Failed to import private key', e);
-      setPkError(e?.message ?? 'Failed to import private key.');
+      console.error("Failed to import private key", e);
+      setPkError(e?.message ?? "Failed to import private key.");
     }
   };
 
@@ -280,9 +281,9 @@ export default function Dashboard() {
   const handleLogout = async () => {
     try {
       await logout();
-      window.location.replace('/');
+      window.location.replace("/");
     } catch (e) {
-      console.error('Logout failed:', e);
+      console.error("Logout failed:", e);
     }
   };
 
@@ -330,24 +331,24 @@ export default function Dashboard() {
                           setSelectedWalletId(wallet.walletId);
                           const firstAccount = wallet.accounts?.[0];
                           setSelectedAccountAddress(
-                            firstAccount?.address ?? null
+                            firstAccount?.address ?? null,
                           );
                         }}
                         className={`w-full text-left rounded border px-3 py-2 text-xs transition ${
                           active
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200 bg-gray-50 hover:bg-gray-100"
                         }`}
                       >
                         <div className="font-medium text-gray-800">
-                          {wallet.walletName || 'Untitled Wallet'}
+                          {wallet.walletName || "Untitled Wallet"}
                         </div>
                         <div className="text-[10px] text-gray-500 break-all">
                           ID: {wallet.walletId}
                         </div>
                         <div className="mt-1 text-[10px] text-gray-500">
                           {wallet.accounts?.length ?? 0} account
-                          {(wallet.accounts?.length ?? 0) === 1 ? '' : 's'}
+                          {(wallet.accounts?.length ?? 0) === 1 ? "" : "s"}
                         </div>
                       </button>
                     );
@@ -360,15 +361,15 @@ export default function Dashboard() {
             <div className="lg:col-span-2 space-y-4">
               <div className="text-xs text-gray-600">
                 <div>
-                  <span className="font-semibold">Selected wallet:</span>{' '}
+                  <span className="font-semibold">Selected wallet:</span>{" "}
                   <span className="font-mono">
-                    {selectedWallet?.walletName ?? '—'}
+                    {selectedWallet?.walletName ?? "—"}
                   </span>
                 </div>
                 <div className="mt-1">
-                  <span className="font-semibold">Sub-org ID:</span>{' '}
+                  <span className="font-semibold">Sub-org ID:</span>{" "}
                   <span className="font-mono">
-                    {session?.organizationId ?? '—'}
+                    {session?.organizationId ?? "—"}
                   </span>
                 </div>
               </div>
@@ -392,8 +393,8 @@ export default function Dashboard() {
                         }
                         className={`w-full text-left rounded border px-3 py-2 text-[11px] transition ${
                           active
-                            ? 'border-indigo-500 bg-indigo-50'
-                            : 'border-gray-200 bg-white hover:bg-gray-100'
+                            ? "border-indigo-500 bg-indigo-50"
+                            : "border-gray-200 bg-white hover:bg-gray-100"
                         }`}
                       >
                         <div className="font-mono break-all">
@@ -472,12 +473,12 @@ export default function Dashboard() {
                         onClick={() => setSelectedPrivateKeyId(pk.privateKeyId)}
                         className={`w-full text-left rounded border px-3 py-2 text-xs transition ${
                           active
-                            ? 'border-purple-600 bg-purple-50'
-                            : 'border-gray-200 bg-gray-50 hover:bg-gray-100'
+                            ? "border-purple-600 bg-purple-50"
+                            : "border-gray-200 bg-gray-50 hover:bg-gray-100"
                         }`}
                       >
                         <div className="font-medium text-gray-800 truncate">
-                          {pk.privateKeyName ?? 'Private key'}
+                          {pk.privateKeyName ?? "Private key"}
                         </div>
                         <div className="text-[10px] text-gray-500 break-all">
                           ID: {pk.privateKeyId}
@@ -503,13 +504,13 @@ export default function Dashboard() {
                 ) : (
                   <div className="rounded border bg-gray-50 p-3 text-xs space-y-1">
                     <div>
-                      <span className="font-semibold">Name:</span>{' '}
+                      <span className="font-semibold">Name:</span>{" "}
                       <span>
-                        {selectedPrivateKey.privateKeyName ?? '(unnamed)'}
+                        {selectedPrivateKey.privateKeyName ?? "(unnamed)"}
                       </span>
                     </div>
                     <div className="break-all">
-                      <span className="font-semibold">Private Key ID:</span>{' '}
+                      <span className="font-semibold">Private Key ID:</span>{" "}
                       <span className="font-mono">
                         {selectedPrivateKey.privateKeyId}
                       </span>
@@ -518,11 +519,11 @@ export default function Dashboard() {
                     selectedPrivateKey.addresses.length > 0 ? (
                       <>
                         <div className="font-mono break-all">
-                          <span className="font-semibold">Address Format:</span>{' '}
+                          <span className="font-semibold">Address Format:</span>{" "}
                           {selectedPrivateKey.addresses[0].format}
                         </div>
                         <div className="font-mono break-all">
-                          <span className="font-semibold">Address:</span>{' '}
+                          <span className="font-semibold">Address:</span>{" "}
                           {selectedPrivateKey.addresses[0].address}
                         </div>
                       </>
@@ -548,7 +549,7 @@ export default function Dashboard() {
                   Import New Private Key
                 </div>
                 <p className="text-[11px] text-gray-500">
-                  Configure the <code className="font-mono">curve</code> and{' '}
+                  Configure the <code className="font-mono">curve</code> and{" "}
                   <code className="font-mono">addressFormats</code> for the new
                   key, then open the import modal.
                 </p>
@@ -594,19 +595,19 @@ export default function Dashboard() {
                 </button>
 
                 <p className="mt-1 text-[10px] text-gray-500">
-                  <code className="font-mono">handleImportPrivateKey</code>{' '}
-                  requires both a <code className="font-mono">curve</code> (e.g.{' '}
-                  <code className="font-mono">CURVE_SECP256K1</code>,{' '}
+                  <code className="font-mono">handleImportPrivateKey</code>{" "}
+                  requires both a <code className="font-mono">curve</code> (e.g.{" "}
+                  <code className="font-mono">CURVE_SECP256K1</code>,{" "}
                   <code className="font-mono">CURVE_ED25519</code>) and at least
-                  one <code className="font-mono">addressFormat</code> (e.g.{' '}
-                  <code className="font-mono">ADDRESS_FORMAT_ETHEREUM</code>,{' '}
-                  <code className="font-mono">ADDRESS_FORMAT_SOLANA</code>,{' '}
+                  one <code className="font-mono">addressFormat</code> (e.g.{" "}
+                  <code className="font-mono">ADDRESS_FORMAT_ETHEREUM</code>,{" "}
+                  <code className="font-mono">ADDRESS_FORMAT_SOLANA</code>,{" "}
                   <code className="font-mono">
                     ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH
                   </code>
                   ).
                   <br />
-                  See{' '}
+                  See{" "}
                   <a
                     href="https://docs.turnkey.com/concepts/wallets#address-formats-and-curves"
                     target="_blank"
@@ -614,7 +615,7 @@ export default function Dashboard() {
                     className="underline"
                   >
                     Turnkey Wallets — Address Formats & Curves
-                  </a>{' '}
+                  </a>{" "}
                   for more details.
                 </p>
               </div>
