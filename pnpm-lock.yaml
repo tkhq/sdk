@@ -296,6 +296,103 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
 
+  examples/import-export-with-iframe-stamper:
+    dependencies:
+      '@turnkey/iframe-stamper':
+        specifier: workspace:*
+        version: link:../../packages/iframe-stamper
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      axios:
+        specifier: '>1.12.0'
+        version: 1.12.1
+      classnames:
+        specifier: ^2.3.2
+        version: 2.5.1
+      encoding:
+        specifier: ^0.1.13
+        version: 0.1.13
+      eslint:
+        specifier: 8.56.0
+        version: 8.56.0
+      eslint-config-next:
+        specifier: 14.2.25
+        version: 14.2.25(eslint@8.56.0)(typescript@5.4.3)
+      esm:
+        specifier: ^3.2.25
+        version: 3.2.25
+      install:
+        specifier: ^0.13.0
+        version: 0.13.0
+      next:
+        specifier: 15.5.2
+        version: 15.5.2(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      npm:
+        specifier: ^9.7.2
+        version: 9.9.4
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-hook-form:
+        specifier: ^7.45.1
+        version: 7.45.1(react@18.3.1)
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+
+  examples/import-export-with-rwk:
+    dependencies:
+      '@tailwindcss/postcss':
+        specifier: 4.1.13
+        version: 4.1.13
+      '@turnkey/react-wallet-kit':
+        specifier: workspace:*
+        version: link:../../packages/react-wallet-kit
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../packages/sdk-types
+      '@types/node':
+        specifier: 20.3.1
+        version: 20.3.1
+      '@types/react':
+        specifier: 18.2.14
+        version: 18.2.14
+      '@types/react-dom':
+        specifier: 18.2.6
+        version: 18.2.6
+      next:
+        specifier: 15.5.2
+        version: 15.5.2(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-hook-form:
+        specifier: 7.45.1
+        version: 7.45.1(react@18.3.1)
+      tailwindcss:
+        specifier: 4.1.13
+        version: 4.1.13
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/import-in-node:
     dependencies:
       '@peculiar/webcrypto':
@@ -1028,64 +1125,6 @@ importers:
         version: 2.34.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@3.25.76)
 
   examples/wallet-export-sign:
-    dependencies:
-      '@turnkey/iframe-stamper':
-        specifier: workspace:*
-        version: link:../../packages/iframe-stamper
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../packages/sdk-server
-      axios:
-        specifier: '>1.12.0'
-        version: 1.12.1
-      classnames:
-        specifier: ^2.3.2
-        version: 2.5.1
-      encoding:
-        specifier: ^0.1.13
-        version: 0.1.13
-      eslint:
-        specifier: 8.56.0
-        version: 8.56.0
-      eslint-config-next:
-        specifier: 14.2.25
-        version: 14.2.25(eslint@8.56.0)(typescript@5.4.3)
-      esm:
-        specifier: ^3.2.25
-        version: 3.2.25
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
-      next:
-        specifier: ^14.2.32
-        version: 14.2.32(@babel/core@7.28.5)(@playwright/test@1.56.1)(babel-plugin-macros@3.1.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
-      npm:
-        specifier: ^9.7.2
-        version: 9.9.4
-      react:
-        specifier: 18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: 18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-hook-form:
-        specifier: ^7.45.1
-        version: 7.62.0(react@18.2.0)
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
-    devDependencies:
-      '@types/node':
-        specifier: 20.3.1
-        version: 20.3.1
-      '@types/react':
-        specifier: 18.2.14
-        version: 18.2.14
-      '@types/react-dom':
-        specifier: 18.2.6
-        version: 18.2.6
-
-  examples/wallet-import-export:
     dependencies:
       '@turnkey/iframe-stamper':
         specifier: workspace:*
@@ -19867,7 +19906,7 @@ snapshots:
 
   '@jest/source-map@29.6.3':
     dependencies:
-      '@jridgewell/trace-mapping': 0.3.30
+      '@jridgewell/trace-mapping': 0.3.31
       callsites: 3.1.0
       graceful-fs: 4.2.11
 
@@ -36882,7 +36921,7 @@ snapshots:
 
   v8-to-istanbul@9.3.0:
     dependencies:
-      '@jridgewell/trace-mapping': 0.3.30
+      '@jridgewell/trace-mapping': 0.3.31
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
 
