@@ -1619,6 +1619,63 @@ export default function AuthPage() {
                 console.error("No active wallet account selected");
                 return;
               }
+
+              await turnkey.handleSendTransaction({
+                from: activeWalletAccount.address,
+                to: activeWalletAccount.address, // self-transfer for testing
+                value: "0",
+                data: "0x",
+                caip2: "eip155:8453", // Base mainnet (example)
+                sponsor: true, // SPONSORED TX
+                successPageDuration: 3000,
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Send Sponsored ETH Transaction
+          </button>
+
+          <button
+            onClick={async () => {
+              if (!activeWalletAccount) {
+                console.error("No active wallet account selected");
+                return;
+              }
+
+              await turnkey.handleSendTransaction({
+                from: activeWalletAccount.address,
+                to: "0x000000000000000000000000000000000000dead",
+                value: "1", // 1 wei for example
+                data: "0x",
+                caip2: "eip155:8453", // Base mainnet
+                sponsor: false, // NON-SPONSORED
+                gasLimit: "21000",
+                maxFeePerGas: "1000000000",
+                maxPriorityFeePerGas: "1000000000",
+                successPageDuration: 3000,
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Send Non-Sponsored ETH Transaction
+          </button>
+
+          <button
+            onClick={async () => {
+              if (!activeWalletAccount) {
+                console.error("No active wallet account selected");
+                return;
+              }
               const tx = {
                 to: "0x0000000000000000000000000000000000000000",
                 value: parseEther("0.001"),
