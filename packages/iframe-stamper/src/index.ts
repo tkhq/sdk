@@ -563,7 +563,7 @@ export class IframeStamper {
    */
   async signMessage(
     message: TSignableMessage,
-    address: string,
+    address?: string,
   ): Promise<string> {
     return this.createRequest<string>(IframeEventType.SignMessage, {
       value: JSON.stringify(message),

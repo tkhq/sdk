@@ -26,20 +26,16 @@ export function ExportWalletAccount(props: ExportWalletAccountProps) {
 
   // Export the selected wallet account and set the iframe to be visible
   const exportWalletAccount = async () => {
-    console.log("ayo");
     if (iframeStamper === null) {
       alert("Cannot export wallet account without an iframe.");
       return;
     }
-    console.log("after");
 
     // Check to ensure there's an embedded key
     let embeddedKey = await iframeStamper.getEmbeddedPublicKey();
 
-    console.log("embedded key", embeddedKey);
-
     if (!embeddedKey) {
-      console.log(
+      console.warn(
         "Iframe not ready — embedded key not found. Creating a new one...",
       );
 

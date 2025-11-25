@@ -97,7 +97,7 @@ export function Export(props: ExportProps) {
   const [txSerialized, setTxSerialized] = useState<string>("");
   const [txSigned, setTxSigned] = useState<string>("");
 
-  const [initializing, setInitializing] = useState<boolean>(false);
+  const [_initializing, setInitializing] = useState<boolean>(false);
 
   useEffect(() => {
     setIframeDisplay(props.iframeDisplay);
@@ -146,26 +146,41 @@ export function Export(props: ExportProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.setIframeStamper, iframeStamper]);
 
-  const signMessage = () => {
+  const signMessage = async () => {
     if (iframeStamper === null) {
       alert("Iframe not ready — reveal private key first.");
       return;
     }
 
-    iframeStamper
-      .signMessage({ message, type: MessageType.Solana })
-      .then((sig: string) => {
-        setSignature(sig);
-      })
-      .catch((error: Error) => {
-        console.error("Error signing message:", error);
-        alert("Error signing message: " + error.message);
+    // Check to ensure there's an embedded key
+    const existingKey = await iframeStamper.getEmbeddedPublicKey();
+    if (!existingKey) {
+      alert("Iframe not ready — embedded key not found.");
+      return;
+    }
+
+    try {
+      const signedMessage = await iframeStamper.signMessage({
+        message,
+        type: MessageType.Solana,
       });
+      setSignature(signedMessage);
+    } catch (error: any) {
+      console.error("Error signing message:", error);
+      alert("Error signing message: " + error.message);
+    }
   };
 
-  const signTransaction = () => {
+  const signTransaction = async () => {
     if (iframeStamper === null) {
       alert("Iframe not ready — reveal private key first.");
+      return;
+    }
+
+    // Check to ensure there's an embedded key
+    const existingKey = await iframeStamper.getEmbeddedPublicKey();
+    if (!existingKey) {
+      alert("Iframe not ready — embedded key not found.");
       return;
     }
 
@@ -174,18 +189,17 @@ export function Export(props: ExportProps) {
       return;
     }
 
-    iframeStamper
-      .signTransaction({
+    try {
+      const signedTransaction = await iframeStamper.signTransaction({
         transaction: txSerialized,
         type: TransactionType.Solana,
-      })
-      .then((signed: string) => {
-        setTxSigned(signed);
-      })
-      .catch((error: Error) => {
-        console.error("Error signing transaction:", error);
-        alert("Error signing transaction: " + error.message);
       });
+
+      setTxSigned(signedTransaction);
+    } catch (error: any) {
+      console.error("Error signing transaction:", error);
+      alert("Error signing transaction: " + error.message);
+    }
   };
 
   const copyToClipboard = async (text: string) => {

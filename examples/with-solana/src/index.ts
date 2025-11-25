@@ -76,7 +76,7 @@ async function main() {
         `- Any online faucet (e.g. https://faucet.solana.com/)`,
         `\nTo check your balance: https://explorer.solana.com/address/${solAddress}?cluster=${network}`,
         `\n--------`,
-      ].join("\n")
+      ].join("\n"),
     );
     // Await user confirmation to continue
     await prompts([
@@ -120,14 +120,14 @@ async function main() {
 
         const { r, s } = getSignatureFromActivity(activity);
         return Buffer.from(`${r}${s}`, "hex");
-      }
+      },
     );
   }
 
   const isValidSignature = nacl.sign.detached.verify(
     messageAsUint8Array,
     signature,
-    bs58.decode(solAddress)
+    bs58.decode(solAddress),
   );
 
   if (!isValidSignature) {
@@ -179,21 +179,11 @@ async function main() {
     connection,
   });
 
-  console.log(
-    "unsigned transaction",
-    Buffer.from(
-      transaction.serialize({
-        requireAllSignatures: false,
-        verifySignatures: false,
-      })
-    ).toString("hex")
-  );
-
   let signedTransaction: Transaction | undefined = undefined; // legacy
   try {
     signedTransaction = (await turnkeySigner.signTransaction(
       transaction,
-      solAddress
+      solAddress,
     )) as Transaction;
   } catch (error: any) {
     await handleActivityError(turnkeyClient, error).then(
@@ -204,10 +194,10 @@ async function main() {
 
         const decodedTransaction = Buffer.from(
           getSignedTransactionFromActivity(activity),
-          "hex"
+          "hex",
         );
         signedTransaction = Transaction.from(decodedTransaction);
-      }
+      },
     );
   }
 
@@ -216,14 +206,6 @@ async function main() {
   if (!verified) {
     throw new Error("unable to verify transaction signatures");
   }
-
-  // return;
-  signedTransaction = Transaction.from(
-    Buffer.from(
-      "01fb953ea842e31b260dd118a018587cb096135f24c4de39bf8db74ae85a8a84d5a6828cc745901c2a904eaaa756a445729a009de8f0719b4575590a04a360670601000103e05271368f77a2c5fefe77ce50e2b2f93ceb671eee8b172734c8d4df9d9eddc10d42099a5e0aaeaad1d4ede263662787cb3f6291a6ede340c4aa7ca26249dbe3000000000000000000000000000000000000000000000000000000000000000062264c8f48f4d046e84fd3b8fb907bf7a850da1cdb151013d8f17f25a1eae5a901020200010c020000006400000000000000",
-      "hex"
-    )
-  );
 
   // 3. Broadcast the signed payload
   await solanaNetwork.broadcast(connection, signedTransaction!);
