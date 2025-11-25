@@ -23,9 +23,7 @@ async function main() {
       name: "payload",
       message: "Enter the signed transaction payload (hex or base64):",
       validate: (value) =>
-        value && value.trim().length > 0
-          ? true
-          : "Payload cannot be empty",
+        value && value.trim().length > 0 ? true : "Payload cannot be empty",
     },
   ]);
 
@@ -63,7 +61,9 @@ async function main() {
       }
     } catch (base64Error) {
       console.error("\nFailed to decode transaction payload.");
-      console.error("Please provide a valid hex or base64 encoded transaction.");
+      console.error(
+        "Please provide a valid hex or base64 encoded transaction.",
+      );
       process.exit(1);
     }
   }

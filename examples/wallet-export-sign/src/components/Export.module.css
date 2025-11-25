@@ -1,0 +1,269 @@
+.container {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+  max-width: 100%;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.card {
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  border-color: #d1d5db;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(to bottom, #fafbfc, #f8f9fa);
+  border-bottom: 1px solid #e5e7eb;
+  gap: 16px;
+}
+
+.cardTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.cardSubtitle {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.cardBody {
+  padding: 20px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 14px 16px;
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  resize: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+  background: #fafafa;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  background: #ffffff;
+}
+
+.textarea::placeholder {
+  color: #9ca3af;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.button {
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: Inter, system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.button:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonPrimary {
+  background: #050a0b;
+  color: #ffffff;
+  border-color: #050a0b;
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background: #1a1f23;
+  border-color: #1a1f23;
+}
+
+.outputSection {
+  margin-top: 24px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.outputLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 12px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.monoBox {
+  font-family:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  font-size: 12px;
+  padding: 14px 16px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  word-break: break-all;
+  white-space: pre-wrap;
+  color: #1f2937;
+  line-height: 1.7;
+  max-height: 140px;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.monoBox::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.monoBox::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 4px;
+}
+
+.monoBox::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+.monoBox::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+.copyButton {
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 12px;
+  letter-spacing: -0.01em;
+}
+
+.copyButton:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.copyButton:active {
+  transform: translateY(1px);
+}
+
+.iframeContainer {
+  margin-bottom: 20px;
+}
+
+@media (min-width: 640px) {
+  .cardBody {
+    padding: 24px;
+  }
+
+  .textarea {
+    min-height: 120px;
+  }
+}
+
+@media (min-width: 768px) {
+  .cardHeader {
+    padding: 24px 28px;
+  }
+
+  .cardBody {
+    padding: 28px;
+  }
+
+  .cardTitle {
+    font-size: 16px;
+  }
+
+  .textarea {
+    font-size: 14px;
+    padding: 16px 18px;
+    min-height: 130px;
+  }
+
+  .container {
+    gap: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .cardHeader {
+    padding: 24px 32px;
+  }
+
+  .cardBody {
+    padding: 32px;
+  }
+}
