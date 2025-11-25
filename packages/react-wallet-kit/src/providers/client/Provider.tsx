@@ -190,6 +190,7 @@ import { VerifyPage } from "../../components/verify/Verify";
 import { OnRampPage } from "../../components/onramp/OnRamp";
 import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
+import { DEFAULT_RPC_BY_CHAIN, getAutoDeadlineMs } from "../../components/send-transaction/helpers";
 
 /**
  * @inline
@@ -5277,7 +5278,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [pushPage, masterConfig, client, session, user],
   );
 
-  const handleSendTransaction = useCallback(
+const handleSendTransaction = useCallback(
   async (params: HandleSendTransactionParams): Promise<void> => {
     const s = await getSession();
     const organizationId = params.organizationId || s?.organizationId;
@@ -5298,11 +5299,33 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       gasLimit,
       maxFeePerGas,
       maxPriorityFeePerGas,
-      nonce,
-      deadline,
-      gasStationNonce,
+      nonce: providedNonce,
+      gasStationNonce: providedGasStationNonce,
+      deadline: providedDeadline,
       successPageDuration = 2000,
     } = params;
+
+    const rpcUrl =
+      DEFAULT_RPC_BY_CHAIN[caip2] ??
+      (() => {
+        throw new Error(`No RPC mapping found for chain '${caip2}'`);
+      })();
+
+    // fetch EOA nonce + gas station nonce if missing
+    const { nonce, gasStationNonce } = await generateNonces({
+      from,
+      caip2,
+      sponsor,
+      rpcUrl,
+      providedNonce,
+      providedGasStationNonce,
+    });
+
+    // auto deadline for sponsored tx
+    const deadline =
+      sponsor && !providedDeadline
+        ? getAutoDeadlineMs(1).toString()
+        : providedDeadline;
 
     return new Promise((resolve, reject) => {
       const SendTxContainer = () => {
@@ -5316,14 +5339,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           }
         };
 
-        useEffect(() => {
-          return () => cleanup();
-        }, []);
+        useEffect(() => cleanup, []);
 
         const action = async () => {
           try {
             const result = await client?.httpClient?.ethSendTransaction({
               organizationId,
+
                 from,
                 to,
                 caip2,
@@ -5340,12 +5362,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 ...(gasStationNonce
                   ? { gas_station_nonce: gasStationNonce }
                   : {}),
-              },
-            );
+              
+            });
 
             const sendTxStatusId = result?.sendTransactionStatusId;
-            if (!sendTxStatusId)
+            if (!sendTxStatusId) {
               throw new Error("Missing sendTransactionStatusId");
+            }
 
             return new Promise<void>((resolveAction) => {
               pollingRef.current = setInterval(async () => {
@@ -5356,7 +5379,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       sendTransactionStatusId: sendTxStatusId,
                     });
 
-                  const status = resp?.txStatus;
+                  const status = resp?.txStatus
                   if (
                     ["COMPLETED", "FAILED", "CANCELLED"].includes(
                       status ?? "",
@@ -5405,7 +5428,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   },
   [pushPage, client],
 );
-
 
   const handleOnRamp = useCallback(
     async (params: HandleOnRampParams): Promise<void> => {
@@ -5907,3 +5929,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     </ClientContext.Provider>
   );
 };
+function generateNonces(arg0: { from: string; caip2: string; sponsor: boolean | undefined; rpcUrl: any; providedNonce: string | undefined; providedGasStationNonce: string | undefined; }): { nonce: any; gasStationNonce: any; } | PromiseLike<{ nonce: any; gasStationNonce: any; }> {
+  throw new Error("Function not implemented.");
+}
+
