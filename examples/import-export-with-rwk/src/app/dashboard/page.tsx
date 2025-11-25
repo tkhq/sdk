@@ -7,27 +7,14 @@ import {
   WalletSource,
   type Wallet,
   type WalletAccount,
+  type HandleImportPrivateKeyParams,
 } from "@turnkey/react-wallet-kit";
-import type { v1AddressFormat, v1Curve } from "@turnkey/sdk-types";
+import type {
+  v1AddressFormat,
+  v1PrivateKey,
+  v1Curve,
+} from "@turnkey/sdk-types";
 import { useRouter } from "next/navigation";
-
-type PrivateKeyAddress = {
-  format: string;
-  address: string;
-};
-
-type PrivateKey = {
-  privateKeyId: string;
-  privateKeyName?: string;
-  publicKey?: string;
-  curve?: string;
-  addresses?: PrivateKeyAddress[];
-  privateKeyTags?: string[];
-  createdAt?: { seconds: string; nanos: string };
-  updatedAt?: unknown;
-  exported?: boolean;
-  imported?: boolean;
-};
 
 export default function Dashboard() {
   const turnkey = useTurnkey();
@@ -46,7 +33,7 @@ export default function Dashboard() {
     return <p className="p-6">Loading…</p>;
   }
 
-  /** ---------- Embedded wallets (Turnkey-generated) ---------- */
+  /** ---------- Embedded wallets ---------- */
 
   const embeddedWallets = useMemo(
     () =>
@@ -143,9 +130,9 @@ export default function Dashboard() {
     }
   };
 
-  /** ---------- Private keys (imported) ---------- */
+  /** ---------- Private keys ---------- */
 
-  const [privateKeys, setPrivateKeys] = useState<PrivateKey[]>([]);
+  const [privateKeys, setPrivateKeys] = useState<v1PrivateKey[]>([]);
   const [selectedPrivateKeyId, setSelectedPrivateKeyId] = useState<
     string | null
   >(null);
@@ -180,7 +167,7 @@ export default function Dashboard() {
       setPkError(null);
       try {
         const keys = (await turnkey.fetchPrivateKeys?.()) as
-          | PrivateKey[]
+          | v1PrivateKey[]
           | undefined;
         if (!cancelled && keys) {
           setPrivateKeys(keys);
@@ -206,11 +193,11 @@ export default function Dashboard() {
     };
   }, [authState, turnkey]);
 
-  const isSolanaPrivateKey = (pk: PrivateKey): boolean => {
+  const isSolanaPrivateKey = (pk: v1PrivateKey): boolean => {
     const addrs = pk.addresses ?? [];
     return addrs.some(
       (a) =>
-        a.format === "ADDRESS_FORMAT_SOLANA" || a.format.includes("SOLANA"),
+        a.format === "ADDRESS_FORMAT_SOLANA" || a.format?.includes("SOLANA"),
     );
   };
 
@@ -255,14 +242,16 @@ export default function Dashboard() {
       const addressFormats = rawFormats as v1AddressFormat[];
       const curve = pkCurve as v1Curve;
 
-      const newPrivateKeyId = await turnkey.handleImportPrivateKey({
+      const params: HandleImportPrivateKeyParams = {
         curve,
         addressFormats,
         successPageDuration: 4000,
-      } as any);
+      };
+
+      const newPrivateKeyId = await turnkey.handleImportPrivateKey(params);
 
       const keys = (await turnkey.fetchPrivateKeys?.()) as
-        | PrivateKey[]
+        | v1PrivateKey[]
         | undefined;
       if (keys) {
         setPrivateKeys(keys);
