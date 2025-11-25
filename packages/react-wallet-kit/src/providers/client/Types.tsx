@@ -766,7 +766,7 @@ export interface ClientContextType
      */
     handleOnRamp: (params: HandleOnRampParams) => Promise<void>;
 
-        /**
+    /**
      * Handles sending an Ethereum transaction (EIP-1559 or Gas Station–sponsored).
      *
      * - Submits an `EthSendTransactionIntent` to Turnkey for signing and execution.
@@ -793,9 +793,9 @@ export interface ClientContextType
      * @returns A promise that resolves when the transaction reaches a terminal state.
      * @throws {TurnkeyError} If submission fails, polling fails, or the user cancels the process.
      */
-    handleSendTransaction: (params: HandleSendTransactionParams) => Promise<void>;
-
-    
+    handleSendTransaction: (
+      params: HandleSendTransactionParams,
+    ) => Promise<void>;
   }
 
 /** @internal */

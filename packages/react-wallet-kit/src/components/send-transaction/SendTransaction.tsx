@@ -62,10 +62,6 @@ export function SendTransactionPage({
         }}
         closeOnComplete={false}
       />
-
-      <div className="text-icon-text-light text-sm dark:text-icon-text-dark text-center !p-0">
-        Complete the transaction in the popup window.
-      </div>
     </div>
   );
 }
