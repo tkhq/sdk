@@ -51,6 +51,7 @@ export function ExportWalletAccount(props: ExportWalletAccountProps) {
       response.data["exportBundle"],
       props.organizationId,
       KeyFormat.Hexadecimal,
+      props.walletAccountAddress,
     );
     if (injected !== true) {
       alert("Unexpected error while injecting export bundle.");
@@ -121,6 +122,7 @@ export function ExportWalletAccount(props: ExportWalletAccountProps) {
           iframeUrl={process.env.NEXT_PUBLIC_EXPORT_SIGN_IFRAME_URL!}
           turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
           showSigning={props.addressFormat === "ADDRESS_FORMAT_SOLANA"}
+          walletAccountAddress={props.walletAccountAddress}
         />
       </div>
     </div>

@@ -13,6 +13,7 @@ interface ExportProps {
   iframeDisplay: string;
   setIframeStamper: Dispatch<SetStateAction<IframeStamper | null>>;
   showSigning?: boolean; // Only show signing UI for wallet accounts, not wallets
+  walletAccountAddress?: string; // Address of the wallet account being exported
 }
 
 const containerStyles: React.CSSProperties = {
@@ -160,10 +161,13 @@ export function Export(props: ExportProps) {
     }
 
     try {
-      const signedMessage = await iframeStamper.signMessage({
-        message,
-        type: MessageType.Solana,
-      });
+      const signedMessage = await iframeStamper.signMessage(
+        {
+          message,
+          type: MessageType.Solana,
+        },
+        props.walletAccountAddress,
+      );
       setSignature(signedMessage);
     } catch (error: any) {
       console.error("Error signing message:", error);
@@ -190,10 +194,13 @@ export function Export(props: ExportProps) {
     }
 
     try {
-      const signedTransaction = await iframeStamper.signTransaction({
-        transaction: txSerialized,
-        type: TransactionType.Solana,
-      });
+      const signedTransaction = await iframeStamper.signTransaction(
+        {
+          transaction: txSerialized,
+          type: TransactionType.Solana,
+        },
+        props.walletAccountAddress,
+      );
 
       setTxSigned(signedTransaction);
     } catch (error: any) {
