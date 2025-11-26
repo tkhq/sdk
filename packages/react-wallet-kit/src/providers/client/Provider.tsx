@@ -245,9 +245,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   // if there is no authProxyConfigId or if autoFetchWalletKitConfig is specifically
   // set to false, we don't need to fetch the config
   const shouldFetchWalletKitConfig =
-    config.authProxyConfigId != null &&
-    config.authProxyConfigId !== "" &&
-    config.autoFetchWalletKitConfig !== false;
+    !!config.authProxyConfigId && (config.autoFetchWalletKitConfig ?? true);
 
   // we use this custom hook to only update the state if the value is different
   // this is so our useEffect that calls `initializeWalletProviderListeners()` only runs when it needs to
