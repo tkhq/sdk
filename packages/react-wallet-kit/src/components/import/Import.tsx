@@ -181,6 +181,7 @@ export function ImportComponent(props: {
     };
     reapplyIframeStyles();
   }, [config.ui]);
+
   function handleImportModalClose() {
     if (importIframeClient) {
       setImportIframeClient(null);
