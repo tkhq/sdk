@@ -195,6 +195,7 @@ import {
   DEFAULT_RPC_BY_CHAIN,
   generateNonces,
   getAutoDeadlineMs,
+  getChainLogo,
 } from "../../components/send-transaction/helpers";
 import type { Address } from "viem";
 
@@ -5499,162 +5500,166 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [getSession, pushPage],
   );
 
-const handleSendTransaction = useCallback(
-  async (params: HandleSendTransactionParams): Promise<void> => {
-    const s = await getSession();
-    const organizationId = params.organizationId || s?.organizationId;
-    if (!organizationId) {
-      throw new TurnkeyError(
-        "A session or passed in organization ID is required.",
-        TurnkeyErrorCodes.INVALID_REQUEST
-      );
-    }
-
-    const {
-      from,
-      to,
-      value,
-      data,
-      caip2,
-      sponsor,
-      gasLimit,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-      nonce: providedNonce,
-      deadline: providedDeadline,
-      successPageDuration = 2000,
-    } = params;
-
-    const rpcUrl = DEFAULT_RPC_BY_CHAIN[caip2];
-    if (!rpcUrl) {
-      throw new Error(`No RPC mapping found for chain '${caip2}'`);
-    }
-
-    const { nonce } = await generateNonces({
-      from: from as Address,
-      rpcUrl,
-      providedNonce,
-    });
-
-    const deadline =
-      sponsor && !providedDeadline
-        ? getAutoDeadlineMs(1)
-        : providedDeadline;
-
-    return new Promise((resolve, reject) => {
-      const SendTxContainer = () => {
-        const [completed, setCompleted] = useState(false);
-        const pollingRef = useRef<NodeJS.Timeout | null>(null);
-
-        const cleanup = () => {
-          if (pollingRef.current) {
-            clearInterval(pollingRef.current);
-            pollingRef.current = null;
-          }
-        };
-
-        useEffect(() => cleanup, []);
-
-        const cleanedData =
-          data && data !== "0x" && data !== "" ? data : undefined;
-
-        const action = async () => {
-          try {
-            let intent: any;
-
-            if (sponsor) {
-              intent = {
-                organizationId,
-                from,
-                to,
-                caip2,
-                sponsor: true,
-                ...(value ? { value } : {}),
-                ...(cleanedData ? { data: cleanedData } : {}),
-                ...(deadline ? { deadline } : {}),
-              };
-            } else {
-              intent = {
-                organizationId,
-                from,
-                to,
-                caip2,
-                ...(value ? { value } : {}),
-                ...(cleanedData ? { data: cleanedData } : {}),
-                ...(nonce ? { nonce } : {}),
-                ...(gasLimit ? { gas_limit: gasLimit } : {}),
-                ...(maxFeePerGas ? { max_fee_per_gas: maxFeePerGas } : {}),
-                ...(maxPriorityFeePerGas
-                  ? { max_priority_fee_per_gas: maxPriorityFeePerGas }
-                  : {}),
-              };
-            }
-
-            const result =
-              await client?.httpClient.ethSendTransaction(intent);
-
-            const sendTransactionStatusId = result?.sendTransactionStatusId;
-            if (!sendTransactionStatusId) {
-              throw new Error("Missing sendTransactionStatusId");
-            }
-
-            return new Promise<void>((resolveAction) => {
-              pollingRef.current = setInterval(async () => {
-                try {
-                  const resp =
-                    await client?.httpClient.getSendTransactionStatus({
-                      organizationId,
-                      sendTransactionStatusId,
-                    });
-
-                  if (
-                    ["COMPLETED", "FAILED", "CANCELLED"].includes(
-                      resp?.txStatus ?? ""
-                    )
-                  ) {
-                    cleanup();
-                    setCompleted(true);
-                    resolveAction();
-                  }
-                } catch {}
-              }, 3000);
-            });
-          } catch (err) {
-            cleanup();
-            throw err;
-          }
-        };
-
-        return (
-          <SendTransactionPage
-            action={action}
-            completed={completed}
-            successPageDuration={successPageDuration}
-            onSuccess={() => resolve()}
-            onError={(err) => reject(err)}
-          />
+  const handleSendTransaction = useCallback(
+    async (params: HandleSendTransactionParams): Promise<void> => {
+      const s = await getSession();
+      const organizationId = params.organizationId || s?.organizationId;
+      if (!organizationId) {
+        throw new TurnkeyError(
+          "A session or passed in organization ID is required.",
+          TurnkeyErrorCodes.INVALID_REQUEST,
         );
-      };
+      }
 
-      pushPage({
-        key: "Send Transaction",
-        content: <SendTxContainer />,
-        showTitle: false,
-        preventBack: true,
-        onClose: () =>
-          reject(
-            new TurnkeyError(
-              "User canceled the transaction.",
-              TurnkeyErrorCodes.USER_CANCELED
-            )
-          ),
+      const {
+        from,
+        to,
+        value,
+        data,
+        caip2,
+        sponsor,
+        gasLimit,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        nonce: providedNonce,
+        deadline: providedDeadline,
+        successPageDuration = 2000,
+      } = params;
+
+      const rpcUrl = DEFAULT_RPC_BY_CHAIN[caip2];
+      if (!rpcUrl) {
+        throw new Error(`No RPC mapping found for chain '${caip2}'`);
+      }
+
+      const { nonce } = await generateNonces({
+        from: from as Address,
+        rpcUrl,
+        providedNonce,
       });
-    });
-  },
-  [pushPage, client]
-);
 
+      const deadline =
+        sponsor && !providedDeadline ? getAutoDeadlineMs(1) : providedDeadline;
 
+      return new Promise((resolve, reject) => {
+        const SendTxContainer = () => {
+          const cleanedData =
+            data && data !== "0x" && data !== "" ? data : undefined;
+
+          const action = async () => {
+            try {
+              let intent: any;
+
+              if (sponsor) {
+                intent = {
+                  organizationId,
+                  from,
+                  to,
+                  caip2,
+                  sponsor: true,
+                  ...(value ? { value } : {}),
+                  ...(cleanedData ? { data: cleanedData } : {}),
+                  ...(deadline ? { deadline } : {}),
+                };
+              } else {
+                intent = {
+                  organizationId,
+                  from,
+                  to,
+                  caip2,
+                  ...(value ? { value } : {}),
+                  ...(cleanedData ? { data: cleanedData } : {}),
+                  ...(nonce ? { nonce } : {}),
+                  ...(gasLimit ? { gas_limit: gasLimit } : {}),
+                  ...(maxFeePerGas ? { max_fee_per_gas: maxFeePerGas } : {}),
+                  ...(maxPriorityFeePerGas
+                    ? { max_priority_fee_per_gas: maxPriorityFeePerGas }
+                    : {}),
+                };
+              }
+
+              const result =
+                await client?.httpClient.ethSendTransaction(intent);
+
+              const sendTransactionStatusId = result?.sendTransactionStatusId;
+              if (!sendTransactionStatusId) {
+                throw new Error("Missing sendTransactionStatusId");
+              }
+
+              return new Promise<{ txHash?: string }>(
+                (resolveAction, rejectAction) => {
+                  const pollingRef = setInterval(async () => {
+                    try {
+                      const statusResp =
+                        await client?.httpClient.getSendTransactionStatus({
+                          organizationId,
+                          sendTransactionStatusId,
+                        });
+
+                      const status = statusResp?.txStatus;
+                      const txHash = statusResp?.txHash;
+                      const txError = statusResp?.txError;
+
+                      if (!status) return;
+
+                      if (
+                        txError ||
+                        status === "FAILED" ||
+                        status === "CANCELLED"
+                      ) {
+                        clearInterval(pollingRef);
+                        rejectAction(txError || `Transaction ${status}`);
+                        return;
+                      }
+
+                      if (status === "COMPLETED" || status === "INCLUDED") {
+                        clearInterval(pollingRef);
+                        resolveAction({ txHash: txHash! });
+                      }
+                    } catch (err) {
+                      console.warn("polling error:", err);
+                    }
+                  }, 500);
+                },
+              );
+            } catch (err) {
+              throw err;
+            }
+          };
+
+          return (
+            <SendTransactionPage
+              icon={
+                <img
+                  src={getChainLogo(caip2)}
+                  className="h-10 w-10 rounded-full"
+                  alt="chain icon"
+                />
+              }
+              action={action}
+              caip2={caip2}
+              successPageDuration={successPageDuration}
+              onSuccess={() => resolve()}
+              onError={(err) => reject(err)}
+            />
+          );
+        };
+        pushPage({
+          key: "Send Transaction",
+          content: <SendTxContainer />,
+          showTitle: false,
+          preventBack: true,
+          onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User canceled the transaction.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
+        });
+      });
+    },
+    [pushPage, client],
+  );
 
   const handleOnRamp = useCallback(
     async (params: HandleOnRampParams): Promise<void> => {

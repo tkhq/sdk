@@ -1622,8 +1622,8 @@ export default function AuthPage() {
 
               await turnkey.handleSendTransaction({
                 from: activeWalletAccount.address,
-                to: activeWalletAccount.address, // self-transfer for testing
-                value: "0",
+                to: activeWalletAccount.address,
+                value: "1000",
                 data: "0x",
                 caip2: "eip155:8453", // Base mainnet (example)
                 sponsor: true, // SPONSORED TX
