@@ -17,6 +17,7 @@ export type ModalContextType = {
   openSheet: (page: ModalPage) => void;
   pushPage: (page: ModalPage) => void;
   popPage: () => void;
+  popPages: (count: number) => void;
   closeModal: () => void;
   closeSheet: () => void;
   modalStack: ModalPage[];
@@ -39,6 +40,8 @@ export function ModalProvider({ children }: { children: ReactNode }) {
   const pushPage = (page: ModalPage) =>
     setModalStack((prev) => [...prev, page]);
   const popPage = () => setModalStack((prev) => prev.slice(0, -1));
+  const popPages = (count: number) =>
+    setModalStack((prev) => prev.slice(0, Math.max(0, prev.length - count)));
   const closeModal = () => {
     setModalStack([]);
     setSheet(null);
@@ -52,6 +55,7 @@ export function ModalProvider({ children }: { children: ReactNode }) {
         openSheet,
         pushPage,
         popPage,
+        popPages,
         closeModal,
         closeSheet,
         modalStack,

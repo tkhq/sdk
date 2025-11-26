@@ -1,0 +1,16 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+
+[rpc_endpoints]
+base = "https://mainnet.base.org"
+baseSepolia = "https://sepolia.base.org"
+ethereum = "https://ethereum.publicnode.com"
+sepolia = "https://ethereum-sepolia-rpc.publicnode.com"
+polygon = "https://polygon-rpc.com"
+polygonAmoy = "https://rpc-amoy.polygon.technology"
+monadTestnet = "https://testnet-rpc.monad.xyz/"
+celo = "https://forno.celo.org"

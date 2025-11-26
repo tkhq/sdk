@@ -140,6 +140,8 @@ test.describe("auth with wallet", async () => {
     await page
       .getByTestId(walletKitSelectors.authComponent.walletAuthButton)
       .click();
-    await expect(page.getByText("Select wallet provider")).toBeVisible();
+    await expect(
+      page.getByText(/Select wallet provider|Select chain/),
+    ).toBeVisible();
   });
 });

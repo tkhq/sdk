@@ -1,5 +1,11 @@
 # @turnkey/sdk-browser
 
+## 5.13.2
+
+### Patch Changes
+
+- [#1097](https://github.com/tkhq/sdk/pull/1097) Bumping `hpke/core` to `1.7.5` to resolve https://github.com/dajiaji/hpke-js/security/advisories/GHSA-73g8-5h73-26h4. Thanks [@r-n-o](https://github.com/r-n-o) for the bump, and thank you to [@dajiaji](https://github.com/dajiaji) for the disclosure and the underlying fix!
+
 ## 5.13.1
 
 ### Patch Changes

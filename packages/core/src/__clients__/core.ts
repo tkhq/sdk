@@ -18,6 +18,8 @@ import {
   type v1CreatePolicyIntentV3,
   type v1BootProof,
   ProxyTSignupResponse,
+  TGetWalletsResponse,
+  TGetUserResponse,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -191,21 +193,36 @@ export class TurnkeyClient {
 
     // Initialize the API key stamper
     this.apiKeyStamper = new CrossPlatformApiKeyStamper(this.storageManager);
-    await this.apiKeyStamper.init();
+
+    // we parallelize independent initializations:
+    // - API key stamper init
+    // - Passkey stamper creation and init (if configured)
+    // - Wallet manager creation (if configured)
+    const initTasks: Promise<void>[] = [this.apiKeyStamper.init()];
 
     if (this.config.passkeyConfig) {
-      this.passkeyStamper = new CrossPlatformPasskeyStamper(
+      const passkeyStamper = new CrossPlatformPasskeyStamper(
         this.config.passkeyConfig,
       );
-      await this.passkeyStamper.init();
+      initTasks.push(
+        passkeyStamper.init().then(() => {
+          this.passkeyStamper = passkeyStamper;
+        }),
+      );
     }
 
     if (
       this.config.walletConfig?.features?.auth ||
       this.config.walletConfig?.features?.connecting
     ) {
-      this.walletManager = await createWalletManager(this.config.walletConfig);
+      initTasks.push(
+        createWalletManager(this.config.walletConfig).then((manager) => {
+          this.walletManager = manager;
+        }),
+      );
     }
+
+    await Promise.all(initTasks);
 
     // Initialize the HTTP client with the appropriate stampers
     // Note: not passing anything here since we want to use the configured stampers and this.config
@@ -566,12 +583,13 @@ export class TurnkeyClient {
           expirationSeconds,
         });
 
-        await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey!);
-
-        await this.storeSession({
-          sessionToken: sessionResponse.session,
-          sessionKey,
-        });
+        await Promise.all([
+          this.apiKeyStamper?.deleteKeyPair(generatedPublicKey!),
+          this.storeSession({
+            sessionToken: sessionResponse.session,
+            sessionKey,
+          }),
+        ]);
 
         generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
@@ -1119,12 +1137,13 @@ export class TurnkeyClient {
           expirationSeconds,
         });
 
-        await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey!);
-
-        await this.storeSession({
-          sessionToken: sessionResponse.session,
-          sessionKey,
-        });
+        await Promise.all([
+          this.apiKeyStamper?.deleteKeyPair(generatedPublicKey!),
+          this.storeSession({
+            sessionToken: sessionResponse.session,
+            sessionKey,
+          }),
+        ]);
 
         generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
 
@@ -1939,11 +1958,36 @@ export class TurnkeyClient {
       async () => {
         let embedded: EmbeddedWallet[] = [];
 
+        const organizationId =
+          organizationIdFromParams || session?.organizationId;
+        const userId = userIdFromParams || session?.userId;
+
+        // we start fetching user early if we have the required params (needed for connected wallets)
+        // this runs in parallel with the embedded wallet fetching below
+        let userPromise:
+          | Promise<{ ethereum: string[]; solana: string[] }>
+          | undefined;
+        if (organizationId && userId && this.walletManager?.connector) {
+          const signedUserRequest = await this.httpClient.stampGetUser(
+            {
+              userId,
+              organizationId,
+            },
+            stampWith,
+          );
+          if (!signedUserRequest) {
+            throw new TurnkeyError(
+              "Failed to stamp user request",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+          userPromise = sendSignedRequest<TGetUserResponse>(
+            signedUserRequest,
+          ).then((response) => getAuthenticatorAddresses(response.user));
+        }
+
         // if connectedOnly is true, we skip fetching embedded wallets
         if (!connectedOnly) {
-          const organizationId =
-            organizationIdFromParams || session?.organizationId;
-
           if (!organizationId) {
             throw new TurnkeyError(
               "No organization ID provided and no active session found. Please log in first or pass in an organization ID.",
@@ -1951,7 +1995,6 @@ export class TurnkeyClient {
             );
           }
 
-          const userId = userIdFromParams || session?.userId;
           if (!userId) {
             throw new TurnkeyError(
               "No user ID provided and no active session found. Please log in first or pass in a user ID.",
@@ -1959,18 +2002,30 @@ export class TurnkeyClient {
             );
           }
 
-          const accounts = await fetchAllWalletAccountsWithCursor(
-            this.httpClient,
-            organizationId,
-            stampWith,
-          );
-
-          const walletsRes = await this.httpClient.getWallets(
+          // we stamp the wallet request first
+          // this is done to avoid concurrent passkey prompts
+          const signedWalletsRequest = await this.httpClient.stampGetWallets(
             {
               organizationId,
             },
             stampWith,
           );
+
+          if (!signedWalletsRequest) {
+            throw new TurnkeyError(
+              "Failed to stamp wallet request",
+              TurnkeyErrorCodes.INVALID_REQUEST,
+            );
+          }
+
+          const [accounts, walletsRes] = await Promise.all([
+            fetchAllWalletAccountsWithCursor(
+              this.httpClient,
+              organizationId,
+              stampWith,
+            ),
+            sendSignedRequest<TGetWalletsResponse>(signedWalletsRequest),
+          ]);
 
           // create a map of walletId to EmbeddedWallet for easy lookup
           const walletMap: Map<string, EmbeddedWallet> = new Map(
@@ -2006,6 +2061,16 @@ export class TurnkeyClient {
           groupedProviders.set(walletId, group);
         }
 
+        // we fetch user once for all connected wallets to avoid duplicate `fetchUser` calls
+        // this is only done if we have `organizationId` and `userId`
+        // Note: this was started earlier in parallel with embedded wallet fetching for performance
+        let authenticatorAddresses:
+          | { ethereum: string[]; solana: string[] }
+          | undefined;
+        if (userPromise) {
+          authenticatorAddresses = await userPromise;
+        }
+
         // has to be done in a for of loop so we can await each fetchWalletAccounts call individually
         // otherwise await Promise.all would cause them all to fire at once breaking passkey only set ups
         // (multiple wallet fetches at once causing "OperationError: A request is already pending.")
@@ -2032,6 +2097,7 @@ export class TurnkeyClient {
               organizationId: organizationIdFromParams,
             }),
             ...(userIdFromParams !== undefined && { userId: userIdFromParams }),
+            ...(authenticatorAddresses && { authenticatorAddresses }),
           });
 
           wallet.accounts = accounts;
@@ -2064,6 +2130,7 @@ export class TurnkeyClient {
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.organizationId - organization ID to target (defaults to the session's organization ID).
    * @param params.userId - user ID to target (defaults to the session's user ID).
+   * @param params.authenticatorAddresses - optional authenticator addresses to avoid redundant user fetches (this is used for connected wallets to determine if a connected wallet is an authenticator)
    *
    * @returns A promise that resolves to an array of `v1WalletAccount` objects.
    * @throws {TurnkeyError} If no active session is found or if there is an error fetching wallet accounts.
@@ -2159,9 +2226,12 @@ export class TurnkeyClient {
         let ethereumAddresses: string[] = [];
         let solanaAddresses: string[] = [];
 
-        // we only fetch the user if we have to the organizationId and userId
-        // if not that means `isAuthenticator` will always be false
-        if (organizationId && userId) {
+        if (params.authenticatorAddresses) {
+          ({ ethereum: ethereumAddresses, solana: solanaAddresses } =
+            params.authenticatorAddresses);
+        } else if (organizationId && userId) {
+          // we only fetch the user if authenticator addresses aren't provided and we have the organizationId and userId
+          // if not, then that means `isAuthenticator` will always be false
           const user = await this.fetchUser({
             userId,
             organizationId,
@@ -2680,7 +2750,7 @@ export class TurnkeyClient {
           );
         }
 
-        return userResponse.user as v1User;
+        return userResponse.user;
       },
       {
         errorMessage: "Failed to fetch user",
@@ -4212,8 +4282,10 @@ export class TurnkeyClient {
       async () => {
         const session = await this.storageManager.getSession(sessionKey);
         if (session) {
-          await this.apiKeyStamper?.deleteKeyPair(session.publicKey!);
-          await this.storageManager.clearSession(sessionKey);
+          await Promise.all([
+            this.apiKeyStamper?.deleteKeyPair(session.publicKey!),
+            this.storageManager.clearSession(sessionKey),
+          ]);
         } else {
           throw new TurnkeyError(
             `No session found with key: ${sessionKey}`,

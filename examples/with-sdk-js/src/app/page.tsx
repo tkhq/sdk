@@ -1624,8 +1624,9 @@ export default function AuthPage() {
                 value: parseEther("0.001"),
                 nonce: 0,
                 gasLimit: BigInt("21000"),
-                maxFeePerGas: BigInt("1000000000"),
-                maxPriorityFeePerGas: BigInt("1000000000"),
+                gasPrice: BigInt("100000000000000"),
+                // maxFeePerGas: BigInt("1000000000"),
+                // maxPriorityFeePerGas: BigInt("1000000000"),
                 chainId: 1,
               };
 

@@ -84,7 +84,9 @@
       "sha.js": ">=2.4.12",
       "minimatch": "10.0.3",
       "hono": ">=4.10.2",
-      "playwright": "1.55.1"
+      "playwright": "1.55.1",
+      "@hpke/core": ">=1.7.5",
+      "glob": ">=10.5.0"
     }
   }
 }

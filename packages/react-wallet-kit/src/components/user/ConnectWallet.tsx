@@ -16,12 +16,11 @@ import {
 import { isWalletConnect } from "../../utils/utils";
 
 interface ConnectWalletModalProps {
-  providers: WalletProvider[];
   successPageDuration?: number | undefined;
   onSuccess: (type: "connect" | "disconnect", account: WalletAccount) => void;
 }
 export function ConnectWalletModal(props: ConnectWalletModalProps) {
-  const { providers, successPageDuration, onSuccess } = props;
+  const { successPageDuration, onSuccess } = props;
   const { pushPage, closeModal } = useModal();
   const { wallets, connectWalletAccount, disconnectWalletAccount } =
     useTurnkey();
@@ -132,7 +131,6 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
   };
   return (
     <ExternalWalletSelector
-      providers={providers}
       onSelect={handleConnectWallet}
       onDisconnect={handleDisconnectWallet}
     />

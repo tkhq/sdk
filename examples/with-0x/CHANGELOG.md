@@ -1,5 +1,12 @@
 # with-0x
 
+## 0.1.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/viem@0.14.14
+
 ## 0.1.10
 
 ### Patch Changes
