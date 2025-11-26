@@ -183,11 +183,7 @@ const main = async () => {
   // It's a general authorization for the reimbursable contract to interact with USDC
   const sessionSignature = await userClient
     .createIntent()
-    .signSessionForUSDCTransfer(
-      nonce,
-      usdcAddress,
-      reimbursableContract,
-    );
+    .signSessionForUSDCTransfer(nonce, usdcAddress, reimbursableContract);
 
   print(
     "✓ Session signature created",
@@ -229,13 +225,15 @@ const main = async () => {
     sessionSignature,
   };
 
-  print("✓ Reimbursable intent created", "Includes execution + session signatures");
+  print(
+    "✓ Reimbursable intent created",
+    "Includes execution + session signatures",
+  );
 
   // Step 4: Paymaster executes with reimbursement (EOA pays for gas in USDC)
   print("Executing intent via reimbursable gas station...", "");
-  const result = await paymasterClient.executeWithReimbursement(
-    reimbursableIntent,
-  );
+  const result =
+    await paymasterClient.executeWithReimbursement(reimbursableIntent);
 
   print("Execution transaction sent", result.txHash);
   print("Waiting for confirmation...", "");
@@ -247,7 +245,10 @@ const main = async () => {
     "✅ Successfully transferred 0.01 USDC from EOA to paymaster",
     `TX: ${explorerUrl}/tx/${result.txHash}`,
   );
-  print("Gas payment", `EOA deposited ${INITIAL_DEPOSIT_USDC} USDC for gas (excess refunded)`);
+  print(
+    "Gas payment",
+    `EOA deposited ${INITIAL_DEPOSIT_USDC} USDC for gas (excess refunded)`,
+  );
   print("Gas usage", `${result.gasUsed} gas units`);
 
   // Optional: Demonstrate cached session signature usage
@@ -259,4 +260,3 @@ const main = async () => {
 };
 
 main();
-

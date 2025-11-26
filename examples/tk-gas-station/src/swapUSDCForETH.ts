@@ -77,8 +77,18 @@ const envSchema = z.object({
   API_PRIVATE_KEY: z.string().min(1, "API_PRIVATE_KEY is required"),
   API_PUBLIC_KEY: z.string().min(1, "API_PUBLIC_KEY is required"),
   ORGANIZATION_ID: z.string().min(1, "ORGANIZATION_ID is required"),
-  EOA_ADDRESS: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "EOA_ADDRESS must be a valid Ethereum address"),
-  PAYMASTER_ADDRESS: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "PAYMASTER_ADDRESS must be a valid Ethereum address"),
+  EOA_ADDRESS: z
+    .string()
+    .regex(
+      /^0x[a-fA-F0-9]{40}$/,
+      "EOA_ADDRESS must be a valid Ethereum address",
+    ),
+  PAYMASTER_ADDRESS: z
+    .string()
+    .regex(
+      /^0x[a-fA-F0-9]{40}$/,
+      "PAYMASTER_ADDRESS must be a valid Ethereum address",
+    ),
   BASE_RPC_URL: z.string().url("BASE_RPC_URL must be a valid URL"),
 });
 
@@ -94,10 +104,17 @@ const EXPLORER_URL = "https://basescan.org";
 const USDC_ADDRESS: Hex = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const WETH_ADDRESS: Hex = "0x4200000000000000000000000000000000000006";
 const PERMIT2_ADDRESS: Hex = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
-const UNIVERSAL_ROUTER_ADDRESS: Hex = "0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD";
+const UNIVERSAL_ROUTER_ADDRESS: Hex =
+  "0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD";
 
 // Token definitions for amount parsing
-const USDC_TOKEN = new Token(BASE_CHAIN_ID, USDC_ADDRESS, 6, "USDC", "USD Coin");
+const USDC_TOKEN = new Token(
+  BASE_CHAIN_ID,
+  USDC_ADDRESS,
+  6,
+  "USDC",
+  "USD Coin",
+);
 
 // ============================================================================
 // Uniswap Encoding Helpers
@@ -114,7 +131,10 @@ const PERMIT2_APPROVE_SELECTOR: Hex = "0x87517c45";
  * Encodes the swap path for Uniswap V3 (tokenIn -> fee -> tokenOut)
  */
 function encodeV3SwapPath(tokenIn: Hex, fee: FeeAmount, tokenOut: Hex): Hex {
-  return encodePacked(["address", "uint24", "address"], [tokenIn, fee, tokenOut]);
+  return encodePacked(
+    ["address", "uint24", "address"],
+    [tokenIn, fee, tokenOut],
+  );
 }
 
 /**
@@ -164,7 +184,12 @@ function buildPermit2ApproveCalldata(
   expiration: number,
 ): Hex {
   const params = encodeAbiParameters(
-    [{ type: "address" }, { type: "address" }, { type: "uint160" }, { type: "uint48" }],
+    [
+      { type: "address" },
+      { type: "address" },
+      { type: "uint160" },
+      { type: "uint48" },
+    ],
     [token, spender, amount, expiration],
   );
   return concat([PERMIT2_APPROVE_SELECTOR, params]);
@@ -221,7 +246,9 @@ async function main(): Promise<void> {
 
   // Initialize Gas Station clients
   const userClient = new GasStationClient({ walletClient: userWalletClient });
-  const paymasterClient = new GasStationClient({ walletClient: paymasterWalletClient });
+  const paymasterClient = new GasStationClient({
+    walletClient: paymasterWalletClient,
+  });
 
   // ──────────────────────────────────────────────────────────────────────────
   // Step 1: EIP-7702 Authorization (if needed)
@@ -235,7 +262,9 @@ async function main(): Promise<void> {
     print("Status", "EOA not authorized, signing authorization...");
 
     const authorization = await userClient.signAuthorization();
-    const authResult = await paymasterClient.submitAuthorizations([authorization]);
+    const authResult = await paymasterClient.submitAuthorizations([
+      authorization,
+    ]);
 
     print("✅ Authorized", `${EXPLORER_URL}/tx/${authResult.txHash}`);
     await delay(2000);
@@ -250,7 +279,10 @@ async function main(): Promise<void> {
   // ──────────────────────────────────────────────────────────────────────────
 
   print("Step 2: Combined Approval", "");
-  print("Action", "ERC20 approve USDC→Permit2 + Permit2 approve for Universal Router");
+  print(
+    "Action",
+    "ERC20 approve USDC→Permit2 + Permit2 approve for Universal Router",
+  );
 
   const swapAmount = parseUnits(SWAP_AMOUNT_USDC, USDC_TOKEN.decimals);
   const approveNonce = await userClient.getNonce();
@@ -268,7 +300,9 @@ async function main(): Promise<void> {
   );
 
   // Max ERC20 approval for USDC→Permit2 (the "approve" part of approveThenExecute)
-  const maxErc20Approval = BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+  const maxErc20Approval = BigInt(
+    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  );
 
   // Sign combined approval intent
   const approvalIntent = await userClient
@@ -276,10 +310,16 @@ async function main(): Promise<void> {
     .setTarget(PERMIT2_ADDRESS)
     .withValue(0n)
     .withCallData(permit2ApproveCalldata)
-    .signApprovalExecution(approveNonce, USDC_ADDRESS, PERMIT2_ADDRESS, maxErc20Approval);
+    .signApprovalExecution(
+      approveNonce,
+      USDC_ADDRESS,
+      PERMIT2_ADDRESS,
+      maxErc20Approval,
+    );
 
   // Paymaster executes both approvals atomically
-  const approvalResult = await paymasterClient.approveThenExecute(approvalIntent);
+  const approvalResult =
+    await paymasterClient.approveThenExecute(approvalIntent);
 
   print("✅ Approved", `${EXPLORER_URL}/tx/${approvalResult.txHash}`);
   print("Gas Used", approvalResult.gasUsed.toString());
@@ -310,7 +350,11 @@ async function main(): Promise<void> {
 
   // Build Universal Router execute calldata
   const commands = toHex(new Uint8Array([V3_SWAP_EXACT_IN]));
-  const swapCalldata = buildUniversalRouterExecuteCalldata(commands, [swapParams], deadline);
+  const swapCalldata = buildUniversalRouterExecuteCalldata(
+    commands,
+    [swapParams],
+    deadline,
+  );
 
   // Sign and execute swap intent
   const swapIntent = await userClient
@@ -336,12 +380,21 @@ async function main(): Promise<void> {
   print("═══════════════════════════════════════════", "");
   print("✅ Swap Complete!", "");
   print("Amount", `${SWAP_AMOUNT_USDC} USDC → WETH`);
-  print("Total Gas", `${totalGas} (Approval: ${approvalResult.gasUsed} + Swap: ${swapResult.gasUsed})`);
-  print("Transactions", "2 (combined approvals into 1 tx using approveThenExecute)");
+  print(
+    "Total Gas",
+    `${totalGas} (Approval: ${approvalResult.gasUsed} + Swap: ${swapResult.gasUsed})`,
+  );
+  print(
+    "Transactions",
+    "2 (combined approvals into 1 tx using approveThenExecute)",
+  );
   print("Swap TX", `${EXPLORER_URL}/tx/${swapResult.txHash}`);
   print("═══════════════════════════════════════════", "");
   print("", "");
-  print("Note", "You received WETH. To get native ETH, an additional unwrap step is needed.");
+  print(
+    "Note",
+    "You received WETH. To get native ETH, an additional unwrap step is needed.",
+  );
 }
 
 function delay(ms: number): Promise<void> {

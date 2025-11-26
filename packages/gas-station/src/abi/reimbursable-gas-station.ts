@@ -345,7 +345,11 @@ export const reimbursableGasStationAbi = [
   },
   {
     inputs: [
-      { internalType: "uint256", name: "_initialDepositERC20", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "_initialDepositERC20",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "_transactionGasLimitWei",
@@ -371,7 +375,11 @@ export const reimbursableGasStationAbi = [
   },
   {
     inputs: [
-      { internalType: "uint256", name: "_initialDepositERC20", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "_initialDepositERC20",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "_transactionGasLimitWei",
@@ -397,7 +405,11 @@ export const reimbursableGasStationAbi = [
   },
   {
     inputs: [
-      { internalType: "uint256", name: "_initialDepositERC20", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "_initialDepositERC20",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "_transactionGasLimitWei",
@@ -419,7 +431,11 @@ export const reimbursableGasStationAbi = [
   },
   {
     inputs: [
-      { internalType: "uint256", name: "_initialDepositERC20", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "_initialDepositERC20",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "_transactionGasLimitWei",
@@ -458,7 +474,11 @@ export const reimbursableGasStationAbi = [
   },
   {
     inputs: [
-      { internalType: "uint256", name: "_initialDepositERC20", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "_initialDepositERC20",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "_transactionGasLimitWei",
@@ -481,7 +501,11 @@ export const reimbursableGasStationAbi = [
   },
   {
     inputs: [
-      { internalType: "uint256", name: "_initialDepositERC20", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "_initialDepositERC20",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "_transactionGasLimitWei",
@@ -512,7 +536,11 @@ export const reimbursableGasStationAbi = [
   },
   {
     inputs: [
-      { internalType: "uint256", name: "_initialDepositERC20", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "_initialDepositERC20",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "_transactionGasLimitWei",
@@ -543,7 +571,11 @@ export const reimbursableGasStationAbi = [
   },
   {
     inputs: [
-      { internalType: "uint256", name: "_initialDepositERC20", type: "uint256" },
+      {
+        internalType: "uint256",
+        name: "_initialDepositERC20",
+        type: "uint256",
+      },
       {
         internalType: "uint256",
         name: "_transactionGasLimitWei",
