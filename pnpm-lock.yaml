@@ -848,6 +848,15 @@ importers:
       '@turnkey/viem':
         specifier: workspace:*
         version: link:../../packages/viem
+      '@uniswap/sdk-core':
+        specifier: ^6.0.0
+        version: 6.1.1
+      '@uniswap/universal-router-sdk':
+        specifier: ^3.0.0
+        version: 3.4.0(bufferutil@4.0.9)(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+      '@uniswap/v3-sdk':
+        specifier: ^3.9.0
+        version: 3.25.2(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3
@@ -6456,6 +6465,9 @@ packages:
   '@openzeppelin/contracts@3.4.2-solc-0.7':
     resolution: {integrity: sha512-W6QmqgkADuFcTLzHL8vVoNBtkwjvQRpYIAom7KiUNoLKghyx3FgH0GBjt8NRvigV1ZmMOBllvE1By1C+bi8WpA==}
 
+  '@openzeppelin/contracts@4.7.0':
+    resolution: {integrity: sha512-52Qb+A1DdOss8QvJrijYYPSf32GUg2pGaG/yCxtaA3cu4jduouTdg4XZSMLW9op54m1jH7J8hoajhHKOPsoJFw==}
+
   '@openzeppelin/contracts@5.0.2':
     resolution: {integrity: sha512-ytPc6eLGcHHnapAZ9S+5qsdomhjo6QBHTDRRBFfTxXIpsicMhVPouPgmUPebZZZGX7vt9USA+Z+0M0dSVtSUEA==}
 
@@ -8874,13 +8886,31 @@ packages:
     resolution: {integrity: sha512-f6UIliwBbRsgVLxIaBANF6w09tYqc6Y/qXdsrbEmXHyFA7ILiKrIwRFXe1yOg8M3cksgVsO9N7yuL2DdCGQKBA==}
     engines: {node: '>=10'}
 
+  '@uniswap/permit2-sdk@1.4.0':
+    resolution: {integrity: sha512-l/aGhfhB93M76vXs4eB8QNwhELE6bs66kh7F1cyobaPtINaVpMmlJv+j3KmHeHwAZIsh7QXyYzhDxs07u0Pe4Q==}
+
+  '@uniswap/router-sdk@1.23.0':
+    resolution: {integrity: sha512-KkHoMauTZh2N44sOU0ZuYseNNn9nAvaU57HwyCWjtwZdA7HaXtACfIRJbQvnkNNuALJfzHNkuv2aFyPSjNNmMw==}
+
   '@uniswap/sdk-core@3.2.6':
     resolution: {integrity: sha512-MvH/3G0W0sM2g7XjaUy9qU7IabxL/KQp/ucU0AQGpVxiTaAhmVRtsjkkv9UDyzpIXVrmevl4kRgV7KKE29UuXA==}
     engines: {node: '>=10'}
     deprecated: breaking change required major version bump
 
+  '@uniswap/sdk-core@5.9.0':
+    resolution: {integrity: sha512-OME7WR6+5QwQs45A2079r+/FS0zU944+JCQwUX9GyIriCxqw2pGu4F9IEqmlwD+zSIMml0+MJnJJ47pFgSyWDw==}
+    engines: {node: '>=10'}
+
+  '@uniswap/sdk-core@6.1.1':
+    resolution: {integrity: sha512-S9D5NTn7vV+wYwXbKOmYVjJidgmKY6zUsG5KGlQO4fNvcIde1TtVgtMXJl06qv1JeJKbGnzkIAZG4R82lSVZCg==}
+    engines: {node: '>=10'}
+
   '@uniswap/sdk-core@7.7.2':
     resolution: {integrity: sha512-0KqXw+y0opBo6eoPAEoLHEkNpOu0NG9gEk7GAYIGok+SHX89WlykWsRYeJKTg9tOwhLpcG9oHg8xZgQ390iOrA==}
+    engines: {node: '>=10'}
+
+  '@uniswap/sdk-core@7.9.0':
+    resolution: {integrity: sha512-HHUFNK3LMi4KMQCAiHkdUyL62g/nrZLvNT44CY8RN4p8kWO6XYWzqdQt6OcjCsIbhMZ/Ifhe6Py5oOoccg/jUQ==}
     engines: {node: '>=10'}
 
   '@uniswap/swap-router-contracts@1.3.1':
@@ -8888,8 +8918,20 @@ packages:
     engines: {node: '>=10'}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
+  '@uniswap/universal-router-sdk@3.4.0':
+    resolution: {integrity: sha512-EB/NLIkuT2BCdKnh2wcXT0cmINjRoiskjibFclpheALHL49XSrB08H4k7KV3BP6+JNKLeTHekvTDdsMd9rs5TA==}
+    engines: {node: '>=14'}
+
+  '@uniswap/universal-router@2.0.0-beta.1':
+    resolution: {integrity: sha512-DdaMHaoDyJoCwpH+BiRKw/w2vjZtZS+ekpyrhmIeOBK1L2QEVFj977BNo6t24WzriZ9mSuIKF69RjHdXDUgHsQ==}
+    engines: {node: '>=14'}
+
   '@uniswap/v2-core@1.0.1':
     resolution: {integrity: sha512-MtybtkUPSyysqLY2U210NBDeCHX+ltHt3oADGdjqoThZaFRDKwM6k1Nb3F0A3hk5hwuQvytFWhrWHOEq6nVJ8Q==}
+    engines: {node: '>=10'}
+
+  '@uniswap/v2-sdk@4.16.0':
+    resolution: {integrity: sha512-USMm2qz1xhEX8R0dhd0mHzf6pz5aCLjbtud1ZyUBk+gshhUCFp6NW9UovH0L5hqrH03rTvmqQdfhHMW5m+Sosg==}
     engines: {node: '>=10'}
 
   '@uniswap/v3-core@1.0.0':
@@ -8908,10 +8950,18 @@ packages:
     resolution: {integrity: sha512-0oiyJNGjUVbc958uZmAr+m4XBCjV7PfMs/OUeBv+XDl33MEYF/eH86oBhvqGDM8S/cYaK55tCXzoWkmRUByrHg==}
     engines: {node: '>=10'}
 
+  '@uniswap/v3-sdk@3.26.0':
+    resolution: {integrity: sha512-bcoWNE7ntNNTHMOnDPscIqtIN67fUyrbBKr6eswI2gD2wm5b0YYFBDeh+Qc5Q3117o9i8S7QdftqrU8YSMQUfQ==}
+    engines: {node: '>=10'}
+
   '@uniswap/v3-staker@1.0.0':
     resolution: {integrity: sha512-JV0Qc46Px5alvg6YWd+UIaGH9lDuYG/Js7ngxPit1SPaIP30AlVer1UYB7BRYeUVVxE+byUyIeN5jeQ7LLDjIw==}
     engines: {node: '>=10'}
     deprecated: Please upgrade to 1.0.1
+
+  '@uniswap/v4-sdk@1.23.0':
+    resolution: {integrity: sha512-WpnkNacNTe/qL4kj3DVC2nHaivUeuzYsWIvon+olAWYZyy+Frsnzfon/ZlznDifMPoV+im+MqYFsNQke4Vz3LA==}
+    engines: {node: '>=14'}
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     resolution: {integrity: sha512-ppLRUgHVaGRWUx0R0Ut06Mjo9gBaBkg3v/8AxusGLhsIotbBLuRk51rAzqLC8gq6NyyAojEXglNjzf6R948DNw==}
@@ -18534,15 +18584,15 @@ snapshots:
 
   '@ethersproject/abi@5.7.0':
     dependencies:
-      '@ethersproject/address': 5.7.0
+      '@ethersproject/address': 5.8.0
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/constants': 5.7.0
       '@ethersproject/hash': 5.7.0
-      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/keccak256': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
-      '@ethersproject/strings': 5.7.0
+      '@ethersproject/strings': 5.8.0
 
   '@ethersproject/abi@5.8.0':
     dependencies:
@@ -18559,7 +18609,7 @@ snapshots:
   '@ethersproject/abstract-provider@5.7.0':
     dependencies:
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/networks': 5.7.1
       '@ethersproject/properties': 5.7.0
@@ -18580,7 +18630,7 @@ snapshots:
     dependencies:
       '@ethersproject/abstract-provider': 5.7.0
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
 
@@ -18595,8 +18645,8 @@ snapshots:
   '@ethersproject/address@5.7.0':
     dependencies:
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
-      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/keccak256': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/rlp': 5.7.0
 
@@ -18610,7 +18660,7 @@ snapshots:
 
   '@ethersproject/base64@5.7.0':
     dependencies:
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
 
   '@ethersproject/base64@5.8.0':
     dependencies:
@@ -18618,12 +18668,12 @@ snapshots:
 
   '@ethersproject/basex@5.7.0':
     dependencies:
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/properties': 5.7.0
 
   '@ethersproject/bignumber@5.7.0':
     dependencies:
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.7.0
       bn.js: 5.2.2
 
@@ -18651,12 +18701,12 @@ snapshots:
 
   '@ethersproject/contracts@5.7.0':
     dependencies:
-      '@ethersproject/abi': 5.7.0
+      '@ethersproject/abi': 5.8.0
       '@ethersproject/abstract-provider': 5.7.0
       '@ethersproject/abstract-signer': 5.7.0
-      '@ethersproject/address': 5.7.0
+      '@ethersproject/address': 5.8.0
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/constants': 5.7.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
@@ -18678,14 +18728,14 @@ snapshots:
   '@ethersproject/hash@5.7.0':
     dependencies:
       '@ethersproject/abstract-signer': 5.7.0
-      '@ethersproject/address': 5.7.0
+      '@ethersproject/address': 5.8.0
       '@ethersproject/base64': 5.7.0
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
-      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/keccak256': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
-      '@ethersproject/strings': 5.7.0
+      '@ethersproject/strings': 5.8.0
 
   '@ethersproject/hash@5.8.0':
     dependencies:
@@ -18704,28 +18754,28 @@ snapshots:
       '@ethersproject/abstract-signer': 5.7.0
       '@ethersproject/basex': 5.7.0
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/pbkdf2': 5.7.0
       '@ethersproject/properties': 5.7.0
       '@ethersproject/sha2': 5.7.0
       '@ethersproject/signing-key': 5.7.0
-      '@ethersproject/strings': 5.7.0
+      '@ethersproject/strings': 5.8.0
       '@ethersproject/transactions': 5.7.0
       '@ethersproject/wordlists': 5.7.0
 
   '@ethersproject/json-wallets@5.7.0':
     dependencies:
       '@ethersproject/abstract-signer': 5.7.0
-      '@ethersproject/address': 5.7.0
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/address': 5.8.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/hdnode': 5.7.0
-      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/keccak256': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/pbkdf2': 5.7.0
       '@ethersproject/properties': 5.7.0
       '@ethersproject/random': 5.7.0
-      '@ethersproject/strings': 5.7.0
+      '@ethersproject/strings': 5.8.0
       '@ethersproject/transactions': 5.7.0
       aes-js: 3.0.0
       scrypt-js: 3.0.1
@@ -18754,7 +18804,7 @@ snapshots:
 
   '@ethersproject/pbkdf2@5.7.0':
     dependencies:
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/sha2': 5.7.0
 
   '@ethersproject/properties@5.7.0':
@@ -18769,11 +18819,11 @@ snapshots:
     dependencies:
       '@ethersproject/abstract-provider': 5.7.0
       '@ethersproject/abstract-signer': 5.7.0
-      '@ethersproject/address': 5.7.0
+      '@ethersproject/address': 5.8.0
       '@ethersproject/base64': 5.7.0
       '@ethersproject/basex': 5.7.0
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/constants': 5.7.0
       '@ethersproject/hash': 5.7.0
       '@ethersproject/logger': 5.7.0
@@ -18782,7 +18832,7 @@ snapshots:
       '@ethersproject/random': 5.7.0
       '@ethersproject/rlp': 5.7.0
       '@ethersproject/sha2': 5.7.0
-      '@ethersproject/strings': 5.7.0
+      '@ethersproject/strings': 5.8.0
       '@ethersproject/transactions': 5.7.0
       '@ethersproject/web': 5.7.1
       bech32: 1.1.4
@@ -18793,12 +18843,12 @@ snapshots:
 
   '@ethersproject/random@5.7.0':
     dependencies:
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.7.0
 
   '@ethersproject/rlp@5.7.0':
     dependencies:
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.7.0
 
   '@ethersproject/rlp@5.8.0':
@@ -18808,7 +18858,7 @@ snapshots:
 
   '@ethersproject/sha2@5.7.0':
     dependencies:
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.7.0
       hash.js: 1.1.7
 
@@ -18820,7 +18870,7 @@ snapshots:
 
   '@ethersproject/signing-key@5.7.0':
     dependencies:
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
       bn.js: 5.2.2
@@ -18839,11 +18889,11 @@ snapshots:
   '@ethersproject/solidity@5.7.0':
     dependencies:
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
-      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/keccak256': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/sha2': 5.7.0
-      '@ethersproject/strings': 5.7.0
+      '@ethersproject/strings': 5.8.0
 
   '@ethersproject/solidity@5.8.0':
     dependencies:
@@ -18868,11 +18918,11 @@ snapshots:
 
   '@ethersproject/transactions@5.7.0':
     dependencies:
-      '@ethersproject/address': 5.7.0
+      '@ethersproject/address': 5.8.0
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/constants': 5.7.0
-      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/keccak256': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
       '@ethersproject/rlp': 5.7.0
@@ -18900,13 +18950,13 @@ snapshots:
     dependencies:
       '@ethersproject/abstract-provider': 5.7.0
       '@ethersproject/abstract-signer': 5.7.0
-      '@ethersproject/address': 5.7.0
+      '@ethersproject/address': 5.8.0
       '@ethersproject/bignumber': 5.7.0
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/hash': 5.7.0
       '@ethersproject/hdnode': 5.7.0
       '@ethersproject/json-wallets': 5.7.0
-      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/keccak256': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
       '@ethersproject/random': 5.7.0
@@ -18917,10 +18967,10 @@ snapshots:
   '@ethersproject/web@5.7.1':
     dependencies:
       '@ethersproject/base64': 5.7.0
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
-      '@ethersproject/strings': 5.7.0
+      '@ethersproject/strings': 5.8.0
 
   '@ethersproject/web@5.8.0':
     dependencies:
@@ -18932,11 +18982,11 @@ snapshots:
 
   '@ethersproject/wordlists@5.7.0':
     dependencies:
-      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/bytes': 5.8.0
       '@ethersproject/hash': 5.7.0
       '@ethersproject/logger': 5.7.0
       '@ethersproject/properties': 5.7.0
-      '@ethersproject/strings': 5.7.0
+      '@ethersproject/strings': 5.8.0
 
   '@farcaster/frame-core@0.0.26(typescript@5.4.3)':
     dependencies:
@@ -20491,6 +20541,8 @@ snapshots:
   '@openzeppelin/contracts@3.4.1-solc-0.7-2': {}
 
   '@openzeppelin/contracts@3.4.2-solc-0.7': {}
+
+  '@openzeppelin/contracts@4.7.0': {}
 
   '@openzeppelin/contracts@5.0.2': {}
 
@@ -25154,6 +25206,25 @@ snapshots:
 
   '@uniswap/lib@4.0.1-alpha': {}
 
+  '@uniswap/permit2-sdk@1.4.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)':
+    dependencies:
+      ethers: 5.7.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      tiny-invariant: 1.3.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@uniswap/router-sdk@1.23.0(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@ethersproject/abi': 5.8.0
+      '@uniswap/sdk-core': 7.7.2
+      '@uniswap/swap-router-contracts': 1.3.1(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+      '@uniswap/v2-sdk': 4.16.0
+      '@uniswap/v3-sdk': 3.25.2(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+      '@uniswap/v4-sdk': 1.23.0(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+    transitivePeerDependencies:
+      - hardhat
+
   '@uniswap/sdk-core@3.2.6':
     dependencies:
       '@ethersproject/address': 5.8.0
@@ -25163,7 +25234,43 @@ snapshots:
       tiny-invariant: 1.3.3
       toformat: 2.0.0
 
+  '@uniswap/sdk-core@5.9.0':
+    dependencies:
+      '@ethersproject/address': 5.8.0
+      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/strings': 5.7.0
+      big.js: 5.2.2
+      decimal.js-light: 2.5.1
+      jsbi: 3.2.5
+      tiny-invariant: 1.3.3
+      toformat: 2.0.0
+
+  '@uniswap/sdk-core@6.1.1':
+    dependencies:
+      '@ethersproject/address': 5.8.0
+      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/strings': 5.7.0
+      big.js: 5.2.2
+      decimal.js-light: 2.5.1
+      jsbi: 3.2.5
+      tiny-invariant: 1.3.3
+      toformat: 2.0.0
+
   '@uniswap/sdk-core@7.7.2':
+    dependencies:
+      '@ethersproject/address': 5.8.0
+      '@ethersproject/bytes': 5.8.0
+      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/strings': 5.7.0
+      big.js: 5.2.2
+      decimal.js-light: 2.5.1
+      jsbi: 3.2.5
+      tiny-invariant: 1.3.3
+      toformat: 2.0.0
+
+  '@uniswap/sdk-core@7.9.0':
     dependencies:
       '@ethersproject/address': 5.8.0
       '@ethersproject/bytes': 5.8.0
@@ -25186,7 +25293,40 @@ snapshots:
     transitivePeerDependencies:
       - hardhat
 
+  '@uniswap/universal-router-sdk@3.4.0(bufferutil@4.0.9)(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)':
+    dependencies:
+      '@openzeppelin/contracts': 4.7.0
+      '@uniswap/permit2-sdk': 1.4.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      '@uniswap/router-sdk': 1.23.0(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+      '@uniswap/sdk-core': 5.9.0
+      '@uniswap/universal-router': 2.0.0-beta.1
+      '@uniswap/v2-core': 1.0.1
+      '@uniswap/v2-sdk': 4.16.0
+      '@uniswap/v3-core': 1.0.0
+      '@uniswap/v3-sdk': 3.25.2(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+      '@uniswap/v4-sdk': 1.23.0(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+      bignumber.js: 9.3.1
+      ethers: 5.7.2(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+    transitivePeerDependencies:
+      - bufferutil
+      - hardhat
+      - utf-8-validate
+
+  '@uniswap/universal-router@2.0.0-beta.1':
+    dependencies:
+      '@openzeppelin/contracts': 5.0.2
+      '@uniswap/v2-core': 1.0.1
+      '@uniswap/v3-core': 1.0.0
+
   '@uniswap/v2-core@1.0.1': {}
+
+  '@uniswap/v2-sdk@4.16.0':
+    dependencies:
+      '@ethersproject/address': 5.8.0
+      '@ethersproject/solidity': 5.8.0
+      '@uniswap/sdk-core': 7.9.0
+      tiny-invariant: 1.3.3
+      tiny-warning: 1.0.3
 
   '@uniswap/v3-core@1.0.0': {}
 
@@ -25213,11 +25353,34 @@ snapshots:
     transitivePeerDependencies:
       - hardhat
 
+  '@uniswap/v3-sdk@3.26.0(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@ethersproject/abi': 5.8.0
+      '@ethersproject/solidity': 5.8.0
+      '@uniswap/sdk-core': 7.9.0
+      '@uniswap/swap-router-contracts': 1.3.1(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+      '@uniswap/v3-periphery': 1.4.4
+      '@uniswap/v3-staker': 1.0.0
+      tiny-invariant: 1.3.3
+      tiny-warning: 1.0.3
+    transitivePeerDependencies:
+      - hardhat
+
   '@uniswap/v3-staker@1.0.0':
     dependencies:
       '@openzeppelin/contracts': 3.4.1-solc-0.7-2
       '@uniswap/v3-core': 1.0.0
       '@uniswap/v3-periphery': 1.4.4
+
+  '@uniswap/v4-sdk@1.23.0(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@ethersproject/solidity': 5.8.0
+      '@uniswap/sdk-core': 7.9.0
+      '@uniswap/v3-sdk': 3.26.0(hardhat@2.26.3(bufferutil@4.0.9)(ts-node@10.9.2(@types/node@24.7.1)(typescript@5.4.3))(typescript@5.4.3)(utf-8-validate@5.0.10))
+      tiny-invariant: 1.3.3
+      tiny-warning: 1.0.3
+    transitivePeerDependencies:
+      - hardhat
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     optional: true

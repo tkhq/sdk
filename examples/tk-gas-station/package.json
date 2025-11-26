@@ -11,6 +11,7 @@
     "eth-transfer": "tsx src/transferETHDelegated.ts",
     "usdc-transfer": "tsx src/transferUSDCDelegated.ts",
     "approve-then-execute": "tsx src/approveThenExecuteDemo.ts",
+    "swap-usdc-eth": "tsx src/swapUSDCForETH.ts",
     "test:policies": "jest policyEnforcement",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
@@ -21,6 +22,9 @@
     "@turnkey/gas-station": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/viem": "workspace:*",
+    "@uniswap/sdk-core": "^6.0.0",
+    "@uniswap/universal-router-sdk": "^3.0.0",
+    "@uniswap/v3-sdk": "^3.9.0",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0",
     "prompts": "^2.4.2",
