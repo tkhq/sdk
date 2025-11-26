@@ -1,5 +1,24 @@
 # @turnkey/core
 
+## 1.8.0
+
+### Minor Changes
+
+- [#1090](https://github.com/tkhq/sdk/pull/1090) [`e1bd68f`](https://github.com/tkhq/sdk/commit/e1bd68f963d6bbd9c797b1a8f077efadccdec421) Author [@moeodeh3](https://github.com/moeodeh3) - - Fixed `stamp*` methods for query endpoints in `httpClient` incorrectly formatting request body
+  - Parallelized stamper and session initialization
+  - Separated WalletConnect initialization from client init
+  - Optimized `fetchWallet` by reducing redundant queries and running wallet/user fetches in parallel
+  - Added optional `authenticatorAddresses` param to `fetchWalletAccounts()`
+  - Updated to latest `@walletconnect/sign-client` for performance improvements
+
+### Patch Changes
+
+- [#1096](https://github.com/tkhq/sdk/pull/1096) [`fd2e031`](https://github.com/tkhq/sdk/commit/fd2e0318079de922512b1f5adb404b11921f77b7) Author [@ethankonk](https://github.com/ethankonk) - Fixed legacy transactions not working in `signAndSendTransaction()` for **EVM connected wallet**. This does not affect Turnkey's embedded wallet flow, previously, connected wallet transactions were all formatted into EIP-1559 transactions, updated to respect legacy + future formats passed in.
+
+- Updated dependencies [[`80ea306`](https://github.com/tkhq/sdk/commit/80ea306025a2161ff575a5e2b45794460eafdf1b)]:
+  - @turnkey/sdk-types@0.9.0
+  - @turnkey/crypto@2.8.6
+
 ## 1.7.0
 
 ### Minor Changes
