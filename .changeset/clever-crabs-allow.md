@@ -1,5 +1,4 @@
 ---
-"@turnkey/react-wallet-kit": minor
 "@turnkey/iframe-stamper": minor
 ---
 
