@@ -33,6 +33,7 @@ const VERSIONED_ACTIVITY_TYPES = {
     "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
   ACTIVITY_TYPE_UPDATE_POLICY: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
   ACTIVITY_TYPE_INIT_OTP_AUTH: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
+  ACTIVITY_TYPE_INIT_OTP: "ACTIVITY_TYPE_INIT_OTP",
 };
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
@@ -511,6 +512,17 @@ function main() {
   output += generateApiTypes(swaggerAuthProxy, "Proxy");
 
   fs.writeFileSync(outputPath, output);
+
+  // after successfully generating the consolidated types, remove the
+  // input `public_api.types.ts` since it's no longer needed
+  try {
+    fs.unlinkSync(typesPath);
+  } catch (err) {
+    console.warn(
+      `Could not remove input types file ${typesPath}:`,
+      err && err.message ? err.message : err,
+    );
+  }
 }
 
 main();
