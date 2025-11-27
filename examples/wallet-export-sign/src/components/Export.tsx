@@ -112,13 +112,8 @@ export function Export(props: ExportProps) {
       return;
     }
 
-    // Check to ensure there's an embedded key
-    const existingKey = await iframeStamper.getEmbeddedPublicKey();
-    if (!existingKey) {
-      alert("Iframe not ready — embedded key not found.");
-      return;
-    }
-
+    // At this point, we're relying on having the decrypted (Solana) private key in-memory within the iframe for signing
+    // Note that the embedded key has been wiped out at this point as it was used once to initially decrypt.
     try {
       const signedMessage = await iframeStamper.signMessage(
         {
@@ -140,18 +135,13 @@ export function Export(props: ExportProps) {
       return;
     }
 
-    // Check to ensure there's an embedded key
-    const existingKey = await iframeStamper.getEmbeddedPublicKey();
-    if (!existingKey) {
-      alert("Iframe not ready — embedded key not found.");
-      return;
-    }
-
     if (!txSerialized || txSerialized.trim() === "") {
       alert("Please provide a Solana transaction.");
       return;
     }
 
+    // At this point, we're relying on having the decrypted (Solana) private key in-memory within the iframe for signing
+    // Note that the embedded key has been wiped out at this point as it was used once to initially decrypt.
     try {
       const signedTransaction = await iframeStamper.signTransaction(
         {
