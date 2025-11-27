@@ -6,6 +6,7 @@ import {
   MessageType,
 } from "@turnkey/iframe-stamper";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import styles from "./Export.module.css";
 
 interface ExportProps {
   iframeUrl: string;
@@ -13,49 +14,8 @@ interface ExportProps {
   iframeDisplay: string;
   setIframeStamper: Dispatch<SetStateAction<IframeStamper | null>>;
   showSigning?: boolean; // Only show signing UI for wallet accounts, not wallets
+  walletAccountAddress?: string; // Address of the wallet account being exported
 }
-
-const containerStyles: React.CSSProperties = {
-  marginTop: 16,
-  display: "flex",
-  flexDirection: "column",
-  gap: 16,
-  width: "100%",
-  maxWidth: "100%",
-  fontFamily:
-    "Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
-  maxHeight: "min(70vh, 600px)",
-  overflowY: "auto",
-  overflowX: "hidden",
-  padding: "0",
-  boxSizing: "border-box",
-};
-
-const cardStyles: React.CSSProperties = {
-  padding: 16,
-  borderRadius: 12,
-  border: "1px solid rgba(216,219,227,1)",
-  background: "#ffffff",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
-  transition: "box-shadow 0.2s ease",
-  width: "100%",
-  boxSizing: "border-box",
-  overflowX: "hidden",
-};
-
-const monoBox: React.CSSProperties = {
-  fontFamily: "monospace",
-  fontSize: 13,
-  padding: 12,
-  borderRadius: 8,
-  background: "#f8f9fa",
-  border: "1px solid #e0e3e7",
-  wordBreak: "break-word",
-  whiteSpace: "pre-wrap",
-  color: "#2b2f33",
-  maxHeight: "200px",
-  overflowY: "auto",
-};
 
 const iframeCss = `
   iframe {
@@ -66,16 +26,16 @@ const iframeCss = `
     border-radius: 12px;
     border-width: 1px;
     border-style: solid;
-    border-color: rgba(216, 219, 227, 1);
-    padding: 16px;
+    border-color: #e5e7eb;
+    padding: 20px;
     background: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    margin-bottom: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 0;
   }
 
   @media (min-width: 768px) {
     iframe {
-      padding: 20px;
+      padding: 24px;
     }
   }
 `;
@@ -97,7 +57,7 @@ export function Export(props: ExportProps) {
   const [txSerialized, setTxSerialized] = useState<string>("");
   const [txSigned, setTxSigned] = useState<string>("");
 
-  const [initializing, setInitializing] = useState<boolean>(false);
+  const [_initializing, setInitializing] = useState<boolean>(false);
 
   useEffect(() => {
     setIframeDisplay(props.iframeDisplay);
@@ -146,32 +106,30 @@ export function Export(props: ExportProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.setIframeStamper, iframeStamper]);
 
-  // For the sake of demonstration, only allow signing one message at a time (embedded private key will be cleared after signature)
-  const signMessage = () => {
+  const signMessage = async () => {
     if (iframeStamper === null) {
       alert("Iframe not ready — reveal private key first.");
       return;
     }
 
-    iframeStamper
-      .signMessage({ message, type: MessageType.Solana })
-      .then((sig: string) => {
-        setSignature(sig);
-      })
-      .catch((error: Error) => {
-        console.error("Error signing message:", error);
-        alert("Error signing message: " + error.message);
-      });
-
-    // now clear the embedded private key from iframe's memory
-    iframeStamper.clearEmbeddedPrivateKey().catch((error: Error) => {
-      console.error("Error clearing embedded private key:", error);
-      alert("Error clearing embedded private key: " + error.message);
-    });
+    // At this point, we're relying on having the decrypted (Solana) private key in-memory within the iframe for signing
+    // Note that the embedded key has been wiped out at this point as it was used once to initially decrypt.
+    try {
+      const signedMessage = await iframeStamper.signMessage(
+        {
+          message,
+          type: MessageType.Solana,
+        },
+        props.walletAccountAddress,
+      );
+      setSignature(signedMessage);
+    } catch (error: any) {
+      console.error("Error signing message:", error);
+      alert("Error signing message: " + error.message);
+    }
   };
 
-  // For the sake of demonstration, only allow signing one message at a time (embedded private key will be cleared after signature)
-  const signTransaction = () => {
+  const signTransaction = async () => {
     if (iframeStamper === null) {
       alert("Iframe not ready — reveal private key first.");
       return;
@@ -182,24 +140,22 @@ export function Export(props: ExportProps) {
       return;
     }
 
-    iframeStamper
-      .signTransaction({
-        transaction: txSerialized,
-        type: TransactionType.Solana,
-      })
-      .then((signed: string) => {
-        setTxSigned(signed);
-      })
-      .catch((error: Error) => {
-        console.error("Error signing transaction:", error);
-        alert("Error signing transaction: " + error.message);
-      });
+    // At this point, we're relying on having the decrypted (Solana) private key in-memory within the iframe for signing
+    // Note that the embedded key has been wiped out at this point as it was used once to initially decrypt.
+    try {
+      const signedTransaction = await iframeStamper.signTransaction(
+        {
+          transaction: txSerialized,
+          type: TransactionType.Solana,
+        },
+        props.walletAccountAddress,
+      );
 
-    // now clear the embedded private key from iframe's memory
-    iframeStamper.clearEmbeddedPrivateKey().catch((error: Error) => {
-      console.error("Error clearing embedded private key:", error);
-      alert("Error clearing embedded private key: " + error.message);
-    });
+      setTxSigned(signedTransaction);
+    } catch (error: any) {
+      console.error("Error signing transaction:", error);
+      alert("Error signing transaction: " + error.message);
+    }
   };
 
   const copyToClipboard = async (text: string) => {
@@ -216,145 +172,116 @@ export function Export(props: ExportProps) {
   return (
     <div>
       {/* keep iframe mounted but visually controlled by parent */}
-      <div style={{ display: iframeDisplay }} id={TurnkeyIframeContainerId}>
+      <div
+        className={styles.iframeContainer}
+        style={{ display: iframeDisplay }}
+        id={TurnkeyIframeContainerId}
+      >
         <style>{iframeCss}</style>
       </div>
 
       {iframeDisplay === "block" && props.showSigning ? (
-        <div style={containerStyles}>
+        <div className={styles.container}>
           {/* Message signing */}
-          <div style={cardStyles}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <strong>Sign arbitrary message</strong>
-              <small style={{ color: "#666" }}>ed25519 signature</small>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>Sign arbitrary message</h3>
+              <span className={styles.cardSubtitle}>ed25519</span>
             </div>
 
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              style={{
-                width: "100%",
-                height: 88,
-                marginTop: 10,
-                padding: 10,
-                fontFamily: "monospace",
-                fontSize: 13,
-              }}
-            />
+            <div className={styles.cardBody}>
+              <textarea
+                className={styles.textarea}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
 
-            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <button
-                onClick={signMessage}
-                disabled={!iframeStamper}
-                style={{
-                  padding: "8px 12px",
-                  cursor: iframeStamper ? "pointer" : "not-allowed",
-                }}
-              >
-                Sign message
-              </button>
+              <div className={styles.buttonGroup}>
+                <button
+                  className={`${styles.button} ${styles.buttonPrimary}`}
+                  onClick={signMessage}
+                  disabled={!iframeStamper}
+                >
+                  Sign message
+                </button>
 
-              <button
-                onClick={() => {
-                  setMessage("");
-                  setSignature("");
-                }}
-                style={{ padding: "8px 12px" }}
-              >
-                Clear
-              </button>
-            </div>
+                <button
+                  className={styles.button}
+                  onClick={() => {
+                    setMessage("");
+                    setSignature("");
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
 
-            {signature ? (
-              <div style={{ marginTop: 12 }}>
-                <div style={{ fontSize: 13, color: "#444" }}>
-                  Signature (hex)
-                </div>
-                <div style={{ ...monoBox, marginTop: 8 }}>{signature}</div>
-                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              {signature ? (
+                <div className={styles.outputSection}>
+                  <div className={styles.outputLabel}>Signature (hex)</div>
+                  <div className={styles.monoBox}>{signature}</div>
                   <button
+                    className={styles.copyButton}
                     onClick={() => copyToClipboard(signature)}
-                    style={{ padding: "6px 10px" }}
                   >
                     Copy signature
                   </button>
                 </div>
-              </div>
-            ) : null}
+              ) : null}
+            </div>
           </div>
 
           {/* Transaction signing */}
-          <div style={cardStyles}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <strong>Sign Solana transaction</strong>
-              <small style={{ color: "#666" }}>Hex-encoded transaction</small>
+          <div className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h3 className={styles.cardTitle}>Sign Solana transaction</h3>
+              <span className={styles.cardSubtitle}>Hex-encoded</span>
             </div>
 
-            <textarea
-              value={txSerialized}
-              onChange={(e) => setTxSerialized(e.target.value)}
-              placeholder="Paste hex-encoded transaction here"
-              style={{
-                width: "100%",
-                height: 120,
-                marginTop: 10,
-                padding: 10,
-                fontFamily: "monospace",
-                fontSize: 13,
-              }}
-            />
+            <div className={styles.cardBody}>
+              <textarea
+                className={styles.textarea}
+                value={txSerialized}
+                onChange={(e) => setTxSerialized(e.target.value)}
+                placeholder="Paste hex-encoded transaction here"
+                style={{ minHeight: "120px" }}
+              />
 
-            <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <button
-                onClick={signTransaction}
-                disabled={!iframeStamper}
-                style={{
-                  padding: "8px 12px",
-                  cursor: iframeStamper ? "pointer" : "not-allowed",
-                }}
-              >
-                Sign transaction
-              </button>
+              <div className={styles.buttonGroup}>
+                <button
+                  className={`${styles.button} ${styles.buttonPrimary}`}
+                  onClick={signTransaction}
+                  disabled={!iframeStamper}
+                >
+                  Sign transaction
+                </button>
 
-              <button
-                onClick={() => {
-                  setTxSerialized("");
-                  setTxSigned("");
-                }}
-                style={{ padding: "8px 12px" }}
-              >
-                Clear
-              </button>
-            </div>
+                <button
+                  className={styles.button}
+                  onClick={() => {
+                    setTxSerialized("");
+                    setTxSigned("");
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
 
-            {txSigned ? (
-              <div style={{ marginTop: 12 }}>
-                <div style={{ fontSize: 13, color: "#444" }}>
-                  Signed transaction (hex)
-                </div>
-                <div style={{ ...monoBox, marginTop: 8 }}>{txSigned}</div>
-                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+              {txSigned ? (
+                <div className={styles.outputSection}>
+                  <div className={styles.outputLabel}>
+                    Signed transaction (hex)
+                  </div>
+                  <div className={styles.monoBox}>{txSigned}</div>
                   <button
+                    className={styles.copyButton}
                     onClick={() => copyToClipboard(txSigned)}
-                    style={{ padding: "6px 10px" }}
                   >
                     Copy signed tx
                   </button>
                 </div>
-              </div>
-            ) : null}
+              ) : null}
+            </div>
           </div>
         </div>
       ) : null}
