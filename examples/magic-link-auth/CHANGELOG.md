@@ -1,5 +1,12 @@
 # magic-link-auth
 
+## 0.1.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@1.6.1
+
 ## 0.1.10
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @turnkey/otp-auth-without-backend
 
+## 0.1.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@1.6.1
+
 ## 0.1.1
 
 ### Patch Changes
