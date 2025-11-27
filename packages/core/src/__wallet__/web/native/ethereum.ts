@@ -104,9 +104,17 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
           });
           if (Array.isArray(accounts)) connectedAddresses = accounts;
 
-          chainId = await (provider as any).request({
-            method: "eth_chainId",
-          });
+          // we only request the chainId if there is a connected account because:
+          //
+          // 1. if there are no connected accounts, the chainId is irrelevant
+          //
+          // 2. some non-Ethereum-native wallets (e.g., Cosmos-based wallets) veer off EIP-1193 standards and prompt
+          //    the user on chain-related RPC calls like `eth_chainId` because they enforce chain-level permissions
+          if (connectedAddresses.length > 0) {
+            chainId = await (provider as any).request({
+              method: "eth_chainId",
+            });
+          }
         } catch {
           // fail silently
         }
