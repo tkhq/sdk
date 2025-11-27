@@ -1,5 +1,12 @@
 # @turnkey/sdk-server
 
+## 4.12.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/wallet-stamper@1.1.8
+
 ## 4.12.0
 
 ### Minor Changes

@@ -1,5 +1,17 @@
 # @turnkey/react-native-wallet-kit
 
+## 1.1.6
+
+### Patch Changes
+
+- [#1102](https://github.com/tkhq/sdk/pull/1102) [`8ed182a`](https://github.com/tkhq/sdk/commit/8ed182aa95218b348d1f8e79c235ce86f418e0bf) Author [@amircheikh](https://github.com/amircheikh) - - Added `autoFetchWalletKitConfig` option to the `TurnkeyProvider` config. Setting this to false will disable the initial `walletKitConfig` fetch, saving on initialization time. If this is disabled and you want to use the `handleLogin` modal with Turnkey's Auth Proxy, you must pass in the enabled auth methods manually into the `TurnkeyProvider` config.
+  - Fixed `refreshWallets` and `refreshUser` not working when `autoRefreshManagedState` is disabled.
+
+- Updated dependencies [[`fd2e031`](https://github.com/tkhq/sdk/commit/fd2e0318079de922512b1f5adb404b11921f77b7), [`80ea306`](https://github.com/tkhq/sdk/commit/80ea306025a2161ff575a5e2b45794460eafdf1b), [`e1bd68f`](https://github.com/tkhq/sdk/commit/e1bd68f963d6bbd9c797b1a8f077efadccdec421)]:
+  - @turnkey/core@1.8.0
+  - @turnkey/sdk-types@0.9.0
+  - @turnkey/crypto@2.8.6
+
 ## 1.1.5
 
 ### Patch Changes
