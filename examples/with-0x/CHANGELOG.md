@@ -1,5 +1,13 @@
 # with-0x
 
+## 0.1.13
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@1.6.1
+  - @turnkey/viem@0.14.16
+
 ## 0.1.12
 
 ### Patch Changes
