@@ -175,3 +175,29 @@ export function packExecutionData({
     args, // variable length
   ]);
 }
+
+/**
+ * Packs session signature data for the reimbursable gas station.
+ * Used to authorize USDC transfers for gas payment.
+ *
+ * Packed data format:
+ * Layout: [signature(65)][nonce(16)][deadline(4)]
+ * - signature: bytes 0-64 (65 bytes)
+ * - nonce: bytes 65-80 (16 bytes, uint128)
+ * - deadline: bytes 81-84 (4 bytes, uint32)
+ */
+export function packSessionSignature({
+  signature,
+  nonce,
+  deadline,
+}: {
+  signature: Hex;
+  nonce: bigint;
+  deadline: number;
+}): Hex {
+  return concat([
+    signature, // 65 bytes
+    pad(toHex(nonce), { size: 16 }), // 16 bytes (uint128)
+    pad(toHex(deadline), { size: 4 }), // 4 bytes (uint32)
+  ]);
+}

@@ -7,12 +7,15 @@ export const DEFAULT_DELEGATE_CONTRACT: Hex =
   "0x000066a00056CD44008768E2aF00696e19A30084";
 export const DEFAULT_EXECUTION_CONTRACT: Hex =
   "0x00000000008c57a1CE37836a5e9d36759D070d8c";
+export const DEFAULT_REIMBURSABLE_USDC_CONTRACT: Hex =
+  "0x4c0a2998B4Dc7BAF418109b80E5dde7395703dcb";
 
 // Type definitions
 export interface GasStationConfig {
   walletClient: WalletClient<Transport, Chain, Account>;
   delegateContract?: Hex;
   executionContract?: Hex;
+  reimbursableContract?: Hex;
   defaultGasLimit?: bigint;
 }
 
@@ -49,6 +52,12 @@ export interface ApprovalExecutionIntent extends ExecutionIntent {
   erc20Address: Hex; // The ERC20 token to approve
   spender: Hex; // The address to approve for spending
   approveAmount: bigint; // The amount to approve
+}
+
+export interface ReimbursableExecutionIntent extends ExecutionIntent {
+  initialDepositUSDC: bigint; // Initial USDC deposit for gas (6 decimals), excess refunded
+  transactionGasLimitWei: bigint; // Gas limit in wei for the inner transaction
+  sessionSignature: Hex; // 85 bytes session signature
 }
 
 // Chain preset configurations
