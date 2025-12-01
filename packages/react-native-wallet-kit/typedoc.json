@@ -1,9 +1,23 @@
 {
-  "extends": ["../../typedoc.base.json"],
   "entryPoints": ["src/index.ts"],
   "out": "documents/api",
-  "name": "@turnkey/react-native-wallet-kit",
+  "name": "react-native-wallet-kit",
   "includeVersion": true,
+  "excludeInternal": true,
+  "gitRevision": "main",
+  "router": "structure-dir",
+  "alwaysCreateEntryPointModule": false,
   "readme": "README.md",
-  "exclude": ["src/**/__tests__/**/*", "src/**/*.test.*", "src/**/*.spec.*"]
+  "exclude": ["src/**/__tests__/**/*", "src/**/*.test.*", "src/**/*.spec.*"],
+  "validation": {
+    "notExported": false,
+    "notDocumented": false
+  },
+  "outputs": [
+    {
+      "name": "json",
+      "path": "./generated-docs/sdks",
+      "fileExtension": "json"
+    }
+  ]
 }
