@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 1.8.1
+
+### Patch Changes
+
+- [#1113](https://github.com/tkhq/sdk/pull/1113) [`d4768c7`](https://github.com/tkhq/sdk/commit/d4768c71b6796532c9800d546154116e5d36b255) Author [@moeodeh3](https://github.com/moeodeh3) - Prevented unnecessary permission prompts in non-Ethereum-native wallets (e.g., Cosmos-based wallets like Keplr) by avoiding chainId requests before accounts are connected
+
 ## 1.8.0
 
 ### Minor Changes

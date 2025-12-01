@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 2.8.0
+
+### Minor Changes
+
+- [#1103](https://github.com/tkhq/sdk/pull/1103) [`7ac558c`](https://github.com/tkhq/sdk/commit/7ac558c39c3fa0ddeb6e695182a49f03ee6d4f00) Author [@andrewkmin](https://github.com/andrewkmin) - Add optional address parameter for methods intended to be used within the export-and-sign iframe. Also improves documentation (TypeDocs)
+
 ## 2.7.1
 
 ### Patch Changes
