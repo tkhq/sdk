@@ -84,8 +84,7 @@ async function main() {
     account: account as Account,
     chain: tempo({ feeToken: TIP20_TOKEN }),
     transport: withFeePayer(
-      http(undefined, {
-      }),
+      http(undefined, {}),
       http("https://sponsor.testnet.tempo.xyz"),
     ),
   })
