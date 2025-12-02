@@ -68,6 +68,7 @@ import {
   type FetchPrivateKeysParams,
   type SignMessageParams,
   type SignTransactionParams,
+  type SignAndSendRawTransactionParams,
   type SignAndSendTransactionParams,
   type FetchUserParams,
   type FetchOrCreateP256ApiKeyUserParams,
@@ -101,6 +102,7 @@ import {
   type BuildWalletLoginRequestResult,
   type BuildWalletLoginRequestParams,
   type VerifyAppProofsParams,
+  PollTransactionStatusParams,
 } from "../__types__";
 import {
   buildSignUpBody,
@@ -2582,7 +2584,7 @@ export class TurnkeyClient {
    * Behavior differs depending on the type of wallet:
    *
    * - **Connected wallets**
-   *   - *Ethereum*: delegates to the wallet’s native `signAndSendTransaction` method.
+   *   - *Ethereum*: delegates to the wallet’s native `signAndSendRawTransaction` method.
    *     - Does **not** require an `rpcUrl` (the wallet handles broadcasting).
    *   - *Solana*: signs the transaction locally with the connected wallet, but requires an `rpcUrl` to broadcast it.
    *   - Other chains: not supported; will throw an error.
@@ -2603,8 +2605,8 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a transaction signature or hash.
    * @throws {TurnkeyError} If the wallet type is unsupported, or if signing/broadcasting fails.
    */
-  signAndSendTransaction = async (
-    params: SignAndSendTransactionParams,
+  signAndSendRawTransaction = async (
+    params: SignAndSendRawTransactionParams,
   ): Promise<string> => {
     const {
       walletAccount,
@@ -2693,6 +2695,167 @@ export class TurnkeyClient {
       },
     );
   };
+
+  /**
+   * Signs and submits an Ethereum transaction using a Turnkey-managed (embedded) wallet.
+   *
+   * Behavior:
+   *
+   * - **Connected wallets**
+   *   - Connected wallets are **not supported** by this method.
+   *   - They should instead use `signAndSendRawTransaction`, which handles raw transaction encoding.
+   *
+   * - **Embedded wallets**
+   *   - Builds an `eth_send_transaction` intent payload according to Turnkey’s API specification.
+   *   - Submits the intent to Turnkey, which performs signing and returns a `sendTransactionStatusId`.
+   *   - Does **not** broadcast via JSON-RPC; Turnkey handles authorization and transaction submission.
+   *   - Does **not** perform any polling — callers must use `pollTransactionStatus` to monitor execution.
+   *
+   * @param params.organizationId - Organization ID to execute the transaction under. Defaults to the session's organization.
+   * @param params.walletAccount - Wallet account that will be used for signing. Must be an embedded wallet.
+   * @param params.from - Ethereum address to sign with (0x-prefixed).
+   * @param params.to - Recipient address (0x-prefixed).
+   * @param params.caip2 - CAIP-2 chain identifier (e.g., `"eip155:1"` for Ethereum mainnet).
+   * @param params.sponsor - Whether this transaction should be sponsored via Turnkey Gas Station.
+   * @param params.value - Amount of native asset in wei (as a decimal string).
+   * @param params.data - Hex-encoded call data for contract interactions.
+   * @param params.nonce - Explicit nonce for non-sponsored EIP-1559 transactions.
+   * @param params.gasLimit - Maximum gas to allow for execution.
+   * @param params.maxFeePerGas - Max fee per gas (required for non-sponsored EIP-1559 transactions).
+   * @param params.maxPriorityFeePerGas - Max tip per gas (required for non-sponsored transactions).
+   *
+   * @returns A promise resolving to the `sendTransactionStatusId` returned by Turnkey.
+   *          This ID must be passed into `pollTransactionStatus` to obtain the final tx hash.
+   *
+   * @throws {TurnkeyError} If the wallet is unsupported or the Turnkey API rejects the transaction.
+   */
+
+  signAndSendTransaction = async (
+    params: SignAndSendTransactionParams,
+  ): Promise<string> => {
+    const {
+      organizationId,
+      from,
+      sponsor,
+      caip2,
+      to,
+      value,
+      data,
+      nonce,
+      gasLimit,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+    } = params;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const intent: any = {
+          from,
+          to,
+          caip2,
+          ...(value ? { value } : {}),
+          ...(data ? { data } : {}),
+        };
+
+        if (sponsor) {
+          intent.sponsor = true;
+        } else {
+          if (nonce) intent.nonce = nonce;
+          if (gasLimit) intent.gasLimit = gasLimit;
+          if (maxFeePerGas) intent.maxFeePerGas = maxFeePerGas;
+          if (maxPriorityFeePerGas)
+            intent.maxPriorityFeePerGas = maxPriorityFeePerGas;
+        }
+
+        const resp = await this.httpClient.ethSendTransaction({
+          ...intent,
+          ...(organizationId && { organizationId }),
+        });
+
+        const id = resp.sendTransactionStatusId;
+        if (!id) {
+          throw new TurnkeyError(
+            "Missing sendTransactionStatusId",
+            TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+          );
+        }
+
+        return id;
+      },
+      {
+        errorMessage: "Failed to sign and send Ethereum transaction",
+        errorCode: TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Polls Turnkey for the final result of a previously submitted Ethereum transaction.
+   *
+   * This function repeatedly calls `getSendTransactionStatus` until the transaction
+   * reaches a terminal state.
+   *
+   * Terminal states:
+   * - **COMPLETED** or **INCLUDED** → resolves with `{ txHash }`
+   * - **FAILED** or **CANCELLED** → rejects with an error
+   *
+   * Behavior:
+   *
+   * - Queries Turnkey every 500ms.
+   * - Stops polling automatically when a terminal state is reached.
+   * - Extracts the canonical on-chain hash via `resp.eth.txHash` when available.
+   *
+   * @param httpClient - The Turnkey HTTP client instance used to fetch transaction status.
+   * @param organizationId - Organization ID under which the transaction was submitted.
+   * @param sendTransactionStatusId - Status ID returned by `signAndSendTransaction` or `ethSendTransaction`.
+   *
+   * @returns A promise resolving to `{ txHash?: string }` if successful.
+   * @throws {Error | string} If the transaction fails or is cancelled.
+   */
+
+  pollTransactionStatus(
+    params: PollTransactionStatusParams,
+  ): Promise<{ status: string; txHash?: string }> {
+    const { httpClient, organizationId, sendTransactionStatusId } = params;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        return new Promise((resolve, reject) => {
+          const ref = setInterval(async () => {
+            try {
+              const resp = await httpClient.getSendTransactionStatus({
+                organizationId,
+                sendTransactionStatusId,
+              });
+
+              const status = resp?.txStatus;
+              const txHash = resp?.eth?.txHash;
+              const txError = resp?.txError;
+
+              if (!status) return;
+
+              if (txError || status === "FAILED" || status === "CANCELLED") {
+                clearInterval(ref);
+                reject(txError || `Transaction ${status}`);
+                return;
+              }
+
+              if (status === "COMPLETED" || status === "INCLUDED") {
+                clearInterval(ref);
+                resolve({ status, txHash });
+              }
+            } catch (e) {
+              console.warn("polling error:", e);
+            }
+          }, 500);
+        });
+      },
+      {
+        errorMessage: "Failed to poll transaction status",
+        errorCode: TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+      },
+    );
+  }
 
   /**
    * Fetches the user details for the current session or a specified user.

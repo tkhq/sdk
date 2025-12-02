@@ -98,7 +98,7 @@ export default function Dashboard() {
     session,
     wallets,
     signMessage,
-    signAndSendTransaction,
+    signAndSendRawTransaction,
   } = useTurnkey();
 
   const router = useRouter();
@@ -324,7 +324,7 @@ export default function Dashboard() {
         );
       }
 
-      const txSigOrHash = await signAndSendTransaction({
+      const txSigOrHash = await signAndSendRawTransaction({
         walletAccount: selectedAccount,
         transactionType,
         unsignedTransaction,

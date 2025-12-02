@@ -226,13 +226,33 @@ export type SignTransactionParams = {
   organizationId?: string;
 };
 
-export type SignAndSendTransactionParams = {
+export type SignAndSendRawTransactionParams = {
   unsignedTransaction: string;
   transactionType: v1TransactionType;
   walletAccount: WalletAccount;
   rpcUrl?: string;
   stampWith?: StamperType | undefined;
   organizationId?: string;
+};
+
+export type PollTransactionStatusParams = {
+  httpClient: any;
+  organizationId: string;
+  sendTransactionStatusId: string;
+};
+
+export type SignAndSendTransactionParams = {
+  organizationId?: string | undefined;
+  from: string;
+  sponsor?: boolean | undefined;
+  caip2: string;
+  to: string;
+  value?: string | undefined;
+  data?: string | undefined;
+  nonce?: string | undefined;
+  gasLimit?: string | undefined;
+  maxFeePerGas?: string | undefined;
+  maxPriorityFeePerGas?: string | undefined;
 };
 
 export type FetchUserParams = {
