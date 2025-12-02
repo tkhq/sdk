@@ -7,11 +7,11 @@ This example shows how to set up and broadcast a smart contract from a Turnkey w
 ### 0 / Foundry versioning
 
 Make sure you have [Foundry](https://getfoundry.sh/introduction/installation) installed locally.
-Until >v1.4.4 release, it is also necessary to use a Nightly build for the Turnkey flag to be enabled.
+Turnkey support was introduced with v1.5.0.
 
 ```bash
 $ curl -L https://foundry.paradigm.xyz | bash
-$ foundryup --install nightly
+$ foundryup
 ```
 
 ### 1/ Cloning the example
