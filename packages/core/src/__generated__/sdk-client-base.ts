@@ -5738,22 +5738,12 @@ export class TurnkeySDKClientBase {
     }
 
     const fullUrl = this.config.apiBaseUrl + "/tkhq/api/v1/test_rate_limits";
-<<<<<<< HEAD
     const body = {
       ...input,
       organizationId: input.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
-=======
-    const bodyWithType = {
-      parameters,
-      organizationId,
-      type: "ACTIVITY_TYPE_TEST_RATE_LIMITS",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
->>>>>>> 6c1e50c87 (init commit for send transaction abstraction)
     const stamp = await activeStamper.stamp(stringifiedBody);
     return {
       body: stringifiedBody,

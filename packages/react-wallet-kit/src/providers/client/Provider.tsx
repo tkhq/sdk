@@ -99,6 +99,8 @@ import {
   type BuildWalletLoginRequestParams,
   type BuildWalletLoginRequestResult,
   type VerifyAppProofsParams,
+  PollTransactionStatusParams,
+  SignAndSendRawTransactionParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -2501,6 +2503,41 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     },
     [client, callbacks, logout],
+  );
+
+  const signAndSendRawTransaction = useCallback(
+    async (params: SignAndSendRawTransactionParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.signAndSendRawTransaction(params),
+        () => logout(),
+        callbacks,
+        "Failed to sign and send raw transaction",
+      );
+    },
+    [client, callbacks, logout],
+  );
+  const pollTransactionStatus = useCallback(
+    async (
+      params: PollTransactionStatusParams,
+    ): Promise<{ status: string; txHash?: string }> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.pollTransactionStatus(params),
+        () => logout(),
+        callbacks,
+        "Failed to poll transaction status",
+      );
+    },
+    [client, callbacks],
   );
 
   const fetchOrCreateP256ApiKeyUser = useCallback(
@@ -5542,84 +5579,55 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
           const action = async () => {
             try {
-              let intent: any;
-
-              if (sponsor) {
-                intent = {
+              const sendTransactionStatusId =
+                await client?.signAndSendTransaction({
                   organizationId,
                   from,
                   to,
                   caip2,
-                  sponsor: true,
-                  ...(value ? { value } : {}),
-                  ...(cleanedData ? { data: cleanedData } : {}),
-                };
-              } else {
-                intent = {
-                  organizationId,
-                  from,
-                  to,
-                  caip2,
-                  ...(value ? { value } : {}),
-                  ...(cleanedData ? { data: cleanedData } : {}),
-                  ...(nonce ? { nonce } : {}),
-                  ...(gasLimit ? { gasLimit: gasLimit } : {}),
-                  ...(maxFeePerGas ? { maxFeePerGas: maxFeePerGas } : {}),
-                  ...(maxPriorityFeePerGas
-                    ? { maxPriorityFeePerGas: maxPriorityFeePerGas }
-                    : {}),
-                };
-              }
+                  sponsor,
+                  value,
+                  data: cleanedData,
+                  nonce,
+                  gasLimit,
+                  maxFeePerGas,
+                  maxPriorityFeePerGas,
+                });
 
-              const result =
-                await client?.httpClient.ethSendTransaction(intent);
-
-              const sendTransactionStatusId = result?.sendTransactionStatusId;
               if (!sendTransactionStatusId) {
-                throw new Error("Missing sendTransactionStatusId");
+                throw new TurnkeyError(
+                  "Missing sendTransactionStatusId",
+                  TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+                );
               }
 
-              return new Promise<{ txHash?: string }>(
-                (resolveAction, rejectAction) => {
-                  const pollingRef = setInterval(async () => {
-                    try {
-                      const statusResp =
-                        await client?.httpClient.getSendTransactionStatus({
-                          organizationId,
-                          sendTransactionStatusId,
-                        });
+              const pollResult = await client?.pollTransactionStatus({
+                httpClient: client.httpClient,
+                organizationId,
+                sendTransactionStatusId,
+              });
 
-                      const status = statusResp?.txStatus;
-                      const txHash = statusResp?.eth?.txHash;
-                      const txError = statusResp?.txError;
+              if (!pollResult) {
+                throw new TurnkeyError(
+                  "Polling returned no result",
+                  TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+                );
+              }
 
-                      if (!status) return;
+              const { txHash } = pollResult;
 
-                      if (
-                        txError ||
-                        status === "FAILED" ||
-                        status === "CANCELLED"
-                      ) {
-                        clearInterval(pollingRef);
-                        rejectAction(txError || `Transaction ${status}`);
-                        return;
-                      }
+              if (!txHash) {
+                throw new TurnkeyError(
+                  "Missing txHash in transaction result",
+                  TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+                );
+              }
 
-                      if (status === "COMPLETED" || status === "INCLUDED") {
-                        clearInterval(pollingRef);
-                        resolveAction({ txHash: txHash! });
-                      }
-                    } catch (err) {
-                      console.warn("polling error:", err);
-                    }
-                  }, 500);
-                },
-              );
+              return { txHash };
             } catch (err) {
               throw err;
             }
           };
-
           return (
             <SendTransactionPage
               icon={
@@ -5637,6 +5645,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             />
           );
         };
+
         pushPage({
           key: "Send Transaction",
           content: <SendTxContainer />,
@@ -6098,6 +6107,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         signMessage,
         signTransaction,
         signAndSendTransaction,
+        signAndSendRawTransaction,
+        pollTransactionStatus,
         fetchUser,
         fetchOrCreateP256ApiKeyUser,
         fetchOrCreatePolicies,
