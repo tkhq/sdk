@@ -35,6 +35,10 @@ import type {
   TGetBootProofResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetGasUsageBody,
+  TGetGasUsageResponse,
+} from "./public_api.fetcher";
+import type {
   TGetLatestBootProofBody,
   TGetLatestBootProofResponse,
 } from "./public_api.fetcher";
@@ -668,6 +672,37 @@ export class TurnkeyClient {
     input: TGetBootProofBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_boot_proof";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get gas usage and gas limits for either the parent organization or a sub-organization.
+   *
+   * Sign the provided `TGetGasUsageBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_gas_usage).
+   *
+   * See also {@link stampGetGasUsage}.
+   */
+  getGasUsage = async (
+    input: TGetGasUsageBody,
+  ): Promise<TGetGasUsageResponse> => {
+    return this.request("/public/v1/query/get_gas_usage", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetGasUsageBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetGasUsage}.
+   */
+  stampGetGasUsage = async (
+    input: TGetGasUsageBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_gas_usage";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

@@ -32,6 +32,10 @@ export type paths = {
     /** Get the boot proof for a given ephemeral key. */
     post: operations["PublicApiService_GetBootProof"];
   };
+  "/public/v1/query/get_gas_usage": {
+    /** Get gas usage and gas limits for either the parent organization or a sub-organization. */
+    post: operations["PublicApiService_GetGasUsage"];
+  };
   "/public/v1/query/get_latest_boot_proof": {
     /** Get the latest boot proof for a given enclave app name. */
     post: operations["PublicApiService_GetLatestBootProof"];
@@ -552,6 +556,26 @@ export type definitions = {
     /** @description Unique identifiers of quorum set members. */
     userIds: string[];
   };
+  /** @enum {string} */
+  externaldatav1SignatureScheme: "SIGNATURE_SCHEME_EPHEMERAL_KEY_P256";
+  externaldatav1SmartContractInterface: {
+    /** @description The Organization the Smart Contract Interface belongs to. */
+    organizationId: string;
+    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+    smartContractInterfaceId: string;
+    /** @description The address corresponding to the Smart Contract or Program. */
+    smartContractAddress: string;
+    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+    smartContractInterface: string;
+    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    type: string;
+    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    label: string;
+    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+    notes: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
   externaldatav1Timestamp: {
     seconds: string;
     nanos: string;
@@ -829,7 +853,7 @@ export type definitions = {
   };
   v1AppProof: {
     /** @description Scheme of signing key. */
-    scheme: definitions["v1SignatureScheme"];
+    scheme: definitions["externaldatav1SignatureScheme"];
     /** @description Ephemeral public key. */
     publicKey: string;
     /** @description JSON serialized AppProofPayload. */
@@ -849,6 +873,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1ApproveActivityIntent"];
+    generateAppProofs?: boolean;
   };
   v1Attestation: {
     /** @description The cbor encoded then base64 url encoded id of the credential. */
@@ -954,6 +979,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateApiKeysIntentV2"];
+    generateAppProofs?: boolean;
   };
   v1CreateApiKeysResult: {
     /** @description A list of API Key IDs. */
@@ -971,6 +997,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateApiOnlyUsersIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreateApiOnlyUsersResult: {
     /** @description A list of API-only User IDs. */
@@ -996,6 +1023,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateAuthenticatorsIntentV2"];
+    generateAppProofs?: boolean;
   };
   v1CreateAuthenticatorsResult: {
     /** @description A list of Authenticator IDs. */
@@ -1040,6 +1068,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateInvitationsIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreateInvitationsResult: {
     /** @description A list of Invitation IDs */
@@ -1061,6 +1090,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateOauth2CredentialIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreateOauth2CredentialResult: {
     /** @description Unique identifier of the OAuth 2.0 credential that was created */
@@ -1080,6 +1110,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateOauthProvidersIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreateOauthProvidersResult: {
     /** @description A list of unique identifiers for Oauth Providers */
@@ -1121,6 +1152,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreatePoliciesIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreatePoliciesResult: {
     /** @description A list of unique identifiers for the created policies. */
@@ -1163,6 +1195,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreatePolicyIntentV3"];
+    generateAppProofs?: boolean;
   };
   v1CreatePolicyResult: {
     /** @description Unique identifier for a given Policy. */
@@ -1182,6 +1215,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreatePrivateKeyTagIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreatePrivateKeyTagResult: {
     /** @description Unique identifier for a given Private Key Tag. */
@@ -1205,6 +1239,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreatePrivateKeysIntentV2"];
+    generateAppProofs?: boolean;
   };
   v1CreatePrivateKeysResult: {
     /** @description A list of Private Key IDs. */
@@ -1223,6 +1258,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateReadOnlySessionIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreateReadOnlySessionResult: {
     /** @description Unique identifier for a given Organization. If the request is being made by a user and their Sub-Organization ID is unknown, this can be the Parent Organization ID. However, using the Sub-Organization ID is preferred due to performance reasons. */
@@ -1271,6 +1307,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateReadWriteSessionIntentV2"];
+    generateAppProofs?: boolean;
   };
   v1CreateReadWriteSessionResult: {
     /** @description Unique identifier for a given Organization. If the request is being made by a user and their Sub-Organization ID is unknown, this can be the Parent Organization ID. However, using the Sub-Organization ID is preferred due to performance reasons. */
@@ -1319,6 +1356,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateSmartContractInterfaceIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreateSmartContractInterfaceResult: {
     /** @description The ID of the created Smart Contract Interface. */
@@ -1436,6 +1474,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateSubOrganizationIntentV7"];
+    generateAppProofs?: boolean;
   };
   v1CreateSubOrganizationResult: {
     subOrganizationId: string;
@@ -1481,6 +1520,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateUserTagIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreateUserTagResult: {
     /** @description Unique identifier for a given User Tag. */
@@ -1508,6 +1548,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateUsersIntentV3"];
+    generateAppProofs?: boolean;
   };
   v1CreateUsersResult: {
     /** @description A list of User IDs. */
@@ -1529,6 +1570,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateWalletAccountsIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreateWalletAccountsResult: {
     /** @description A list of derived addresses. */
@@ -1553,6 +1595,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateWalletIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreateWalletResult: {
     /** @description Unique identifier for a Wallet. */
@@ -1591,6 +1634,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteApiKeysIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteApiKeysResult: {
     /** @description A list of API Key IDs. */
@@ -1610,6 +1654,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteAuthenticatorsIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteAuthenticatorsResult: {
     /** @description Unique identifier for a given Authenticator. */
@@ -1644,6 +1689,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteInvitationIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteInvitationResult: {
     /** @description Unique identifier for a given Invitation. */
@@ -1661,6 +1707,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteOauth2CredentialIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteOauth2CredentialResult: {
     /** @description Unique identifier of the OAuth 2.0 credential that was deleted */
@@ -1680,6 +1727,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteOauthProvidersIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteOauthProvidersResult: {
     /** @description A list of unique identifiers for Oauth Providers */
@@ -1705,6 +1753,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeletePoliciesIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeletePoliciesResult: {
     /** @description A list of unique identifiers for the deleted policies. */
@@ -1722,6 +1771,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeletePolicyIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeletePolicyResult: {
     /** @description Unique identifier for a given Policy. */
@@ -1739,6 +1789,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeletePrivateKeyTagsIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeletePrivateKeyTagsResult: {
     /** @description A list of Private Key Tag IDs. */
@@ -1760,6 +1811,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeletePrivateKeysIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeletePrivateKeysResult: {
     /** @description A list of private key unique identifiers that were removed */
@@ -1777,6 +1829,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteSmartContractInterfaceIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteSmartContractInterfaceResult: {
     /** @description The ID of the deleted Smart Contract Interface. */
@@ -1794,6 +1847,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteSubOrganizationIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteSubOrganizationResult: {
     /** @description Unique identifier of the sub organization that was removed */
@@ -1811,6 +1865,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteUserTagsIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteUserTagsResult: {
     /** @description A list of User Tag IDs. */
@@ -1830,6 +1885,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteUsersIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteUsersResult: {
     /** @description A list of User IDs. */
@@ -1849,6 +1905,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteWalletAccountsIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteWalletAccountsResult: {
     /** @description A list of wallet account unique identifiers that were removed */
@@ -1868,6 +1925,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteWalletsIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteWalletsResult: {
     /** @description A list of wallet unique identifiers that were removed */
@@ -1955,6 +2013,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1EmailAuthIntentV3"];
+    generateAppProofs?: boolean;
   };
   v1EmailAuthResult: {
     /** @description Unique identifier for the authenticating User. */
@@ -1996,6 +2055,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1EthSendRawTransactionIntent"];
+    generateAppProofs?: boolean;
   };
   v1EthSendRawTransactionResult: {
     /** @description The transaction hash of the sent transaction */
@@ -2010,7 +2070,13 @@ export type definitions = {
      * @description CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
      * @enum {string}
      */
-    caip2: "eip155:1" | "eip155:11155111" | "eip155:8453" | "eip155:84532";
+    caip2:
+      | "eip155:1"
+      | "eip155:11155111"
+      | "eip155:8453"
+      | "eip155:84532"
+      | "eip155:137"
+      | "eip155:80002";
     /** @description Recipient address as a hex string with 0x prefix. */
     to: string;
     /** @description Amount of native asset to send in wei. */
@@ -2025,10 +2091,6 @@ export type definitions = {
     maxFeePerGas?: string;
     /** @description Maximum priority fee (tip) per gas unit in wei. Required for non-sponsored (EIP-1559) transactions. Not used for sponsored transactions. */
     maxPriorityFeePerGas?: string;
-    /** @description Unix timestamp after which the Gas Station meta-transaction is no longer valid. Only used when sponsor=true. */
-    deadline?: string;
-    /** @description The gas station delegate contract nonce. Only used when sponsor=true. */
-    gasStationNonce?: string;
   };
   v1EthSendTransactionRequest: {
     /** @enum {string} */
@@ -2042,6 +2104,10 @@ export type definitions = {
   v1EthSendTransactionResult: {
     /** @description The send_transaction_status ID associated with the transaction submission for sponsored transactions */
     sendTransactionStatusId: string;
+  };
+  v1EthSendTransactionStatus: {
+    /** @description The Ethereum transaction hash, if available. */
+    txHash?: string;
   };
   v1ExportPrivateKeyIntent: {
     /** @description Unique identifier for a given Private Key. */
@@ -2057,6 +2123,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1ExportPrivateKeyIntent"];
+    generateAppProofs?: boolean;
   };
   v1ExportPrivateKeyResult: {
     /** @description Unique identifier for a given Private Key. */
@@ -2078,6 +2145,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1ExportWalletAccountIntent"];
+    generateAppProofs?: boolean;
   };
   v1ExportWalletAccountResult: {
     /** @description Address to identify Wallet Account. */
@@ -2101,6 +2169,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1ExportWalletIntent"];
+    generateAppProofs?: boolean;
   };
   v1ExportWalletResult: {
     /** @description Unique identifier for a given Wallet. */
@@ -2297,6 +2366,21 @@ export type definitions = {
     /** @description Hex encoded ephemeral public key. */
     ephemeralKey: string;
   };
+  v1GetGasUsageRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+  };
+  v1GetGasUsageResponse: {
+    /**
+     * Format: int32
+     * @description The window duration (in minutes) for the organization or sub-organization.
+     */
+    windowDurationMinutes: number;
+    /** @description The window limit (in USD) for the organization or sub-organization. */
+    windowLimitUsd: string;
+    /** @description The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes` */
+    usageUsd: string;
+  };
   v1GetLatestBootProofRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -2404,8 +2488,8 @@ export type definitions = {
   v1GetSendTransactionStatusResponse: {
     /** @description The current status of the send transaction. */
     txStatus: string;
-    /** @description The blockchain transaction hash, if available. */
-    txHash?: string;
+    /** @description Ethereum-specific transaction status. */
+    eth?: definitions["v1EthSendTransactionStatus"];
     /** @description The error encountered when broadcasting or confirming the transaction, if any. */
     txError?: string;
   };
@@ -2417,7 +2501,7 @@ export type definitions = {
   };
   v1GetSmartContractInterfaceResponse: {
     /** @description Object to be used in conjunction with policies to guard transaction signing. */
-    smartContractInterface: definitions["v1SmartContractInterface"];
+    smartContractInterface: definitions["externaldatav1SmartContractInterface"];
   };
   v1GetSmartContractInterfacesRequest: {
     /** @description Unique identifier for a given organization. */
@@ -2425,7 +2509,7 @@ export type definitions = {
   };
   v1GetSmartContractInterfacesResponse: {
     /** @description A list of smart contract interfaces. */
-    smartContractInterfaces: definitions["v1SmartContractInterface"][];
+    smartContractInterfaces: definitions["externaldatav1SmartContractInterface"][];
   };
   v1GetSubOrgIdsRequest: {
     /** @description Unique identifier for the parent organization. This is used to find sub-organizations within it. */
@@ -2559,6 +2643,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1ImportPrivateKeyIntent"];
+    generateAppProofs?: boolean;
   };
   v1ImportPrivateKeyResult: {
     /** @description Unique identifier for a Private Key. */
@@ -2584,6 +2669,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1ImportWalletIntent"];
+    generateAppProofs?: boolean;
   };
   v1ImportWalletResult: {
     /** @description Unique identifier for a Wallet. */
@@ -2623,6 +2709,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1InitFiatOnRampIntent"];
+    generateAppProofs?: boolean;
   };
   v1InitFiatOnRampResult: {
     /** @description Unique URL for a given fiat on-ramp flow. */
@@ -2644,6 +2731,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1InitImportPrivateKeyIntent"];
+    generateAppProofs?: boolean;
   };
   v1InitImportPrivateKeyResult: {
     /** @description Import bundle containing a public key and signature to use for importing client data. */
@@ -2661,6 +2749,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1InitImportWalletIntent"];
+    generateAppProofs?: boolean;
   };
   v1InitImportWalletResult: {
     /** @description Import bundle containing a public key and signature to use for importing client data. */
@@ -2744,6 +2833,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1InitOtpAuthIntentV3"];
+    generateAppProofs?: boolean;
   };
   v1InitOtpAuthResult: {
     /** @description Unique identifier for an OTP authentication */
@@ -2817,6 +2907,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1InitOtpIntentV2"];
+    generateAppProofs?: boolean;
   };
   v1InitOtpResult: {
     /** @description Unique identifier for an OTP authentication */
@@ -2864,6 +2955,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1InitUserEmailRecoveryIntentV2"];
+    generateAppProofs?: boolean;
   };
   v1InitUserEmailRecoveryResult: {
     /** @description Unique identifier for the user being recovered. */
@@ -3084,6 +3176,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1Oauth2AuthenticateIntent"];
+    generateAppProofs?: boolean;
   };
   v1Oauth2AuthenticateResult: {
     /** @description Base64 encoded OIDC token issued by Turnkey to be used with the LoginWithOAuth activity */
@@ -3135,6 +3228,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1OauthLoginIntent"];
+    generateAppProofs?: boolean;
   };
   v1OauthLoginResult: {
     /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
@@ -3168,6 +3262,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1OauthIntent"];
+    generateAppProofs?: boolean;
   };
   v1OauthResult: {
     /** @description Unique identifier for the authenticating User. */
@@ -3225,6 +3320,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1OtpAuthIntent"];
+    generateAppProofs?: boolean;
   };
   v1OtpAuthResult: {
     /** @description Unique identifier for the authenticating User. */
@@ -3254,6 +3350,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1OtpLoginIntent"];
+    generateAppProofs?: boolean;
   };
   v1OtpLoginResult: {
     /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
@@ -3357,6 +3454,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1RecoverUserIntent"];
+    generateAppProofs?: boolean;
   };
   v1RecoverUserResult: {
     /** @description ID of the authenticator created. */
@@ -3374,6 +3472,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1RejectActivityIntent"];
+    generateAppProofs?: boolean;
   };
   v1RemoveOrganizationFeatureIntent: {
     /** @description Name of the feature to remove */
@@ -3387,6 +3486,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1RemoveOrganizationFeatureIntent"];
+    generateAppProofs?: boolean;
   };
   v1RemoveOrganizationFeatureResult: {
     /** @description Resulting list of organization features. */
@@ -3559,6 +3659,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1SetOrganizationFeatureIntent"];
+    generateAppProofs?: boolean;
   };
   v1SetOrganizationFeatureResult: {
     /** @description Resulting list of organization features. */
@@ -3592,6 +3693,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1SignRawPayloadIntentV2"];
+    generateAppProofs?: boolean;
   };
   v1SignRawPayloadResult: {
     /** @description Component of an ECSDA signature. */
@@ -3619,6 +3721,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1SignRawPayloadsIntent"];
+    generateAppProofs?: boolean;
   };
   v1SignRawPayloadsResult: {
     signatures?: definitions["v1SignRawPayloadResult"][];
@@ -3645,34 +3748,15 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1SignTransactionIntentV2"];
+    generateAppProofs?: boolean;
   };
   v1SignTransactionResult: {
     signedTransaction: string;
   };
-  /** @enum {string} */
-  v1SignatureScheme: "SIGNATURE_SCHEME_EPHEMERAL_KEY_P256";
   v1SimpleClientExtensionResults: {
     appid?: boolean;
     appidExclude?: boolean;
     credProps?: definitions["v1CredPropsAuthenticationExtensionsClientOutputs"];
-  };
-  v1SmartContractInterface: {
-    /** @description The Organization the Smart Contract Interface belongs to. */
-    organizationId: string;
-    /** @description Unique identifier for a given Smart Contract Interface (ABI or IDL). */
-    smartContractInterfaceId: string;
-    /** @description The address corresponding to the Smart Contract or Program. */
-    smartContractAddress: string;
-    /** @description The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
-    smartContractInterface: string;
-    /** @description The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    type: string;
-    /** @description The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    label: string;
-    /** @description The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-    notes: string;
-    createdAt: definitions["externaldatav1Timestamp"];
-    updatedAt: definitions["externaldatav1Timestamp"];
   };
   v1SmartContractInterfaceReference: {
     smartContractInterfaceId?: string;
@@ -3703,6 +3787,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1StampLoginIntent"];
+    generateAppProofs?: boolean;
   };
   v1StampLoginResult: {
     /** @description Signed JWT containing an expiry, public key, session type, user id, and organization id */
@@ -3828,6 +3913,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdateOauth2CredentialIntent"];
+    generateAppProofs?: boolean;
   };
   v1UpdateOauth2CredentialResult: {
     /** @description Unique identifier of the OAuth 2.0 credential that was updated */
@@ -3869,6 +3955,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdatePolicyIntentV2"];
+    generateAppProofs?: boolean;
   };
   v1UpdatePolicyResult: {
     /** @description Unique identifier for a given Policy. */
@@ -3896,6 +3983,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdatePrivateKeyTagIntent"];
+    generateAppProofs?: boolean;
   };
   v1UpdatePrivateKeyTagResult: {
     /** @description Unique identifier for a given Private Key Tag. */
@@ -3918,6 +4006,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdateRootQuorumIntent"];
+    generateAppProofs?: boolean;
   };
   v1UpdateRootQuorumResult: { [key: string]: unknown };
   v1UpdateUserEmailIntent: {
@@ -3936,6 +4025,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdateUserEmailIntent"];
+    generateAppProofs?: boolean;
   };
   v1UpdateUserEmailResult: {
     /** @description Unique identifier of the User whose email was updated. */
@@ -3967,6 +4057,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdateUserNameIntent"];
+    generateAppProofs?: boolean;
   };
   v1UpdateUserNameResult: {
     /** @description Unique identifier of the User whose name was updated. */
@@ -3988,6 +4079,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdateUserPhoneNumberIntent"];
+    generateAppProofs?: boolean;
   };
   v1UpdateUserPhoneNumberResult: {
     /** @description Unique identifier of the User whose phone number was updated. */
@@ -4001,6 +4093,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdateUserIntent"];
+    generateAppProofs?: boolean;
   };
   v1UpdateUserResult: {
     /** @description A User ID. */
@@ -4024,6 +4117,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdateUserTagIntent"];
+    generateAppProofs?: boolean;
   };
   v1UpdateUserTagResult: {
     /** @description Unique identifier for a given User Tag. */
@@ -4043,6 +4137,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdateWalletIntent"];
+    generateAppProofs?: boolean;
   };
   v1UpdateWalletResult: {
     /** @description A Wallet ID. */
@@ -4128,6 +4223,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1VerifyOtpIntent"];
+    generateAppProofs?: boolean;
   };
   v1VerifyOtpResult: {
     /** @description Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
@@ -4365,6 +4461,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1BootProofResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get gas usage and gas limits for either the parent organization or a sub-organization. */
+  PublicApiService_GetGasUsage: {
+    parameters: {
+      body: {
+        body: definitions["v1GetGasUsageRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetGasUsageResponse"];
       };
       /** An unexpected error response. */
       default: {
