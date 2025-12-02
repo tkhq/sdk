@@ -316,6 +316,31 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getGasUsage = async (
+    input: SdkApiTypes.TGetGasUsageBody,
+  ): Promise<SdkApiTypes.TGetGasUsageResponse> => {
+    return this.request("/public/v1/query/get_gas_usage", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetGasUsage = async (
+    input: SdkApiTypes.TGetGasUsageBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_gas_usage";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getLatestBootProof = async (
     input: SdkApiTypes.TGetLatestBootProofBody,
   ): Promise<SdkApiTypes.TGetLatestBootProofResponse> => {

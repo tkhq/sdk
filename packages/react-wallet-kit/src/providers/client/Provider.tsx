@@ -194,7 +194,6 @@ import { SendTransactionPage } from "../../components/send-transaction/SendTrans
 import {
   DEFAULT_RPC_BY_CHAIN,
   generateNonces,
-  getAutoDeadlineMs,
   getChainLogo,
 } from "../../components/send-transaction/helpers";
 import type { Address } from "viem";
@@ -5522,7 +5521,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         maxFeePerGas,
         maxPriorityFeePerGas,
         nonce: providedNonce,
-        deadline: providedDeadline,
         successPageDuration = 2000,
       } = params;
 
@@ -5536,9 +5534,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         rpcUrl,
         providedNonce,
       });
-
-      const deadline =
-        sponsor && !providedDeadline ? getAutoDeadlineMs(1) : providedDeadline;
 
       return new Promise((resolve, reject) => {
         const SendTxContainer = () => {
@@ -5558,7 +5553,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   sponsor: true,
                   ...(value ? { value } : {}),
                   ...(cleanedData ? { data: cleanedData } : {}),
-                  ...(deadline ? { deadline } : {}),
                 };
               } else {
                 intent = {
@@ -5569,10 +5563,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   ...(value ? { value } : {}),
                   ...(cleanedData ? { data: cleanedData } : {}),
                   ...(nonce ? { nonce } : {}),
-                  ...(gasLimit ? { gas_limit: gasLimit } : {}),
-                  ...(maxFeePerGas ? { max_fee_per_gas: maxFeePerGas } : {}),
+                  ...(gasLimit ? { gasLimit: gasLimit } : {}),
+                  ...(maxFeePerGas ? { maxFeePerGas: maxFeePerGas } : {}),
                   ...(maxPriorityFeePerGas
-                    ? { max_priority_fee_per_gas: maxPriorityFeePerGas }
+                    ? { maxPriorityFeePerGas: maxPriorityFeePerGas }
                     : {}),
                 };
               }
@@ -5596,7 +5590,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         });
 
                       const status = statusResp?.txStatus;
-                      const txHash = statusResp?.txHash;
+                      const txHash = statusResp?.eth?.txHash;
                       const txError = statusResp?.txError;
 
                       if (!status) return;

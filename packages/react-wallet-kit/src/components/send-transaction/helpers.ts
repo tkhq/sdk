@@ -22,10 +22,6 @@ export async function fetchEoaNonce({
   return nonce.toString();
 }
 
-export function getAutoDeadlineMs(hours = 1): string {
-  return (Math.floor(Date.now() / 1000) + hours * 3600).toString();
-}
-
 export async function generateNonces({
   from,
   rpcUrl,

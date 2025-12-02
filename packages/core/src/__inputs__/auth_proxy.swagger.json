@@ -270,6 +270,10 @@
     }
   },
   "definitions": {
+    "externaldatav1SignatureScheme": {
+      "type": "string",
+      "enum": ["SIGNATURE_SCHEME_EPHEMERAL_KEY_P256"]
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -373,7 +377,7 @@
       "type": "object",
       "properties": {
         "scheme": {
-          "$ref": "#/definitions/v1SignatureScheme",
+          "$ref": "#/definitions/externaldatav1SignatureScheme",
           "description": "Scheme of signing key."
         },
         "publicKey": {
@@ -688,10 +692,6 @@
     "v1PathFormat": {
       "type": "string",
       "enum": ["PATH_FORMAT_BIP32"]
-    },
-    "v1SignatureScheme": {
-      "type": "string",
-      "enum": ["SIGNATURE_SCHEME_EPHEMERAL_KEY_P256"]
     },
     "v1SignupRequest": {
       "type": "object",

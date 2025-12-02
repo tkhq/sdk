@@ -350,6 +350,52 @@ export const signGetBootProof = (
   });
 
 /**
+ * `POST /public/v1/query/get_gas_usage`
+ */
+export type TGetGasUsageResponse =
+  operations["PublicApiService_GetGasUsage"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_gas_usage`
+ */
+export type TGetGasUsageInput = { body: TGetGasUsageBody };
+
+/**
+ * `POST /public/v1/query/get_gas_usage`
+ */
+export type TGetGasUsageBody =
+  operations["PublicApiService_GetGasUsage"]["parameters"]["body"]["body"];
+
+/**
+ * Get gas usage and limits.
+ *
+ * Get gas usage and gas limits for either the parent organization or a sub-organization.
+ *
+ * `POST /public/v1/query/get_gas_usage`
+ */
+export const getGasUsage = (input: TGetGasUsageInput) =>
+  request<TGetGasUsageResponse, TGetGasUsageBody, never, never, never>({
+    uri: "/public/v1/query/get_gas_usage",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetGasUsage` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetGasUsage}
+ */
+export const signGetGasUsage = (
+  input: TGetGasUsageInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetGasUsageBody, never, never>({
+    uri: "/public/v1/query/get_gas_usage",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_latest_boot_proof`
  */
 export type TGetLatestBootProofResponse =
