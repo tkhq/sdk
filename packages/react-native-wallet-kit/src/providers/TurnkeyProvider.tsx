@@ -1,5 +1,3 @@
-"use client";
-
 import {
   isValidSession,
   SESSION_WARNING_THRESHOLD_MS,
@@ -103,7 +101,7 @@ import {
   AuthMethod,
   AuthState,
   ClientState,
-} from "../types";
+} from "../types/base";
 
 import type {
   HandleAppleOauthParams,
@@ -118,8 +116,8 @@ import type {
   ExportWalletAccountParams,
   ImportWalletParams,
   ImportPrivateKeyParams,
-} from "../types/methods";
-import { ClientContext } from "../types";
+} from "../types/method-types";
+import { ClientContext } from "./Types";
 import { decryptExportBundle, generateP256KeyPair } from "@turnkey/crypto";
 import {
   encryptWalletToBundle,

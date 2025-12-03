@@ -15,4 +15,5 @@ export * from "./error";
 export * from "./export";
 export * from "./external-wallets";
 export * from "./http";
-export * from "./method-types";
+export * from "./method-types/import-export-params";
+export * from "./method-types/shared";

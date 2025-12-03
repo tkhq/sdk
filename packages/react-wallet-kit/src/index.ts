@@ -46,4 +46,6 @@ export type * from "@turnkey/core/dist/__types__/external-wallets";
 /** @internal */
 export type * from "@turnkey/core/dist/__types__/http";
 /** @internal */
-export type * from "@turnkey/core/dist/__types__/method-types";
+export type * from "@turnkey/core/dist/__types__/method-types/import-export-params";
+/** @internal */
+export type * from "@turnkey/core/dist/__types__/method-types/shared";
