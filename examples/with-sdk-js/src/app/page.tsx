@@ -1623,7 +1623,7 @@ export default function AuthPage() {
               await turnkey.handleSendTransaction({
                 from: activeWalletAccount.address,
                 to: activeWalletAccount.address,
-                value: "1000",
+                value: "1", // 1 wei for example
                 data: "0x",
                 caip2: "eip155:8453", // Base mainnet (example)
                 sponsor: true, // SPONSORED TX

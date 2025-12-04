@@ -20,6 +20,8 @@ import {
   ProxyTSignupResponse,
   TGetWalletsResponse,
   TGetUserResponse,
+  TEthSendTransactionBody,
+  TGetSendTransactionStatusResponse,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -102,7 +104,7 @@ import {
   type BuildWalletLoginRequestResult,
   type BuildWalletLoginRequestParams,
   type VerifyAppProofsParams,
-  PollTransactionStatusParams,
+  type PollTransactionStatusParams,
 } from "../__types__";
 import {
   buildSignUpBody,
@@ -2697,6 +2699,8 @@ export class TurnkeyClient {
   };
 
   /**
+   * * **🔶 BETA — API subject to change**
+   *
    * Signs and submits an Ethereum transaction using a Turnkey-managed (embedded) wallet.
    *
    * Behavior:
@@ -2712,17 +2716,16 @@ export class TurnkeyClient {
    *   - Does **not** perform any polling — callers must use `pollTransactionStatus` to monitor execution.
    *
    * @param params.organizationId - Organization ID to execute the transaction under. Defaults to the session's organization.
-   * @param params.walletAccount - Wallet account that will be used for signing. Must be an embedded wallet.
    * @param params.from - Ethereum address to sign with (0x-prefixed).
    * @param params.to - Recipient address (0x-prefixed).
    * @param params.caip2 - CAIP-2 chain identifier (e.g., `"eip155:1"` for Ethereum mainnet).
-   * @param params.sponsor - Whether this transaction should be sponsored via Turnkey Gas Station.
-   * @param params.value - Amount of native asset in wei (as a decimal string).
-   * @param params.data - Hex-encoded call data for contract interactions.
+   * @param params.sponsor - Whether this transaction should be sponsored via Turnkey Gas Station. Can be omitted for non-sponsored
+   * @param params.value - Amount of native asset in wei (as a decimal string). Can be omitted if 0.
+   * @param params.data - Hex-encoded call data for contract interactions. Can be omitted if empty.
    * @param params.nonce - Explicit nonce for non-sponsored EIP-1559 transactions.
-   * @param params.gasLimit - Maximum gas to allow for execution.
-   * @param params.maxFeePerGas - Max fee per gas (required for non-sponsored EIP-1559 transactions).
-   * @param params.maxPriorityFeePerGas - Max tip per gas (required for non-sponsored transactions).
+   * @param params.gasLimit - Maximum gas to allow for execution. Gas fields will be rejected for non-sponsored transactions.
+   * @param params.maxFeePerGas - Max fee per gas (required for non-sponsored EIP-1559 transactions). Gas fields will be rejected for non-sponsored transactions.
+   * @param params.maxPriorityFeePerGas - Max tip per gas (required for non-sponsored transactions). Gas fields will be rejected for non-sponsored transactions.
    *
    * @returns A promise resolving to the `sendTransactionStatusId` returned by Turnkey.
    *          This ID must be passed into `pollTransactionStatus` to obtain the final tx hash.
@@ -2749,7 +2752,7 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const intent: any = {
+        const intent: TEthSendTransactionBody = {
           from,
           to,
           caip2,
@@ -2790,6 +2793,8 @@ export class TurnkeyClient {
   };
 
   /**
+   * * **🔶 BETA — API subject to change**
+   *
    * Polls Turnkey for the final result of a previously submitted Ethereum transaction.
    *
    * This function repeatedly calls `getSendTransactionStatus` until the transaction
@@ -2805,9 +2810,9 @@ export class TurnkeyClient {
    * - Stops polling automatically when a terminal state is reached.
    * - Extracts the canonical on-chain hash via `resp.eth.txHash` when available.
    *
-   * @param httpClient - The Turnkey HTTP client instance used to fetch transaction status.
    * @param organizationId - Organization ID under which the transaction was submitted.
    * @param sendTransactionStatusId - Status ID returned by `signAndSendTransaction` or `ethSendTransaction`.
+   * @param pollingIntervalMs - Optional polling interval in milliseconds (default: 500ms).
    *
    * @returns A promise resolving to `{ txHash?: string }` if successful.
    * @throws {Error | string} If the transaction fails or is cancelled.
@@ -2815,39 +2820,53 @@ export class TurnkeyClient {
 
   pollTransactionStatus(
     params: PollTransactionStatusParams,
-  ): Promise<{ status: string; txHash?: string }> {
-    const { httpClient, organizationId, sendTransactionStatusId } = params;
+  ): Promise<TGetSendTransactionStatusResponse> {
+    const { organizationId, sendTransactionStatusId, pollingIntervalMs } =
+      params;
 
     return withTurnkeyErrorHandling(
       async () => {
         return new Promise((resolve, reject) => {
+          const interval = pollingIntervalMs ?? 500;
+          const timeoutMs = 60_000; // 1 minute
+
           const ref = setInterval(async () => {
             try {
-              const resp = await httpClient.getSendTransactionStatus({
+              const resp = await this.httpClient.getSendTransactionStatus({
                 organizationId,
                 sendTransactionStatusId,
               });
 
-              const status = resp?.txStatus;
-              const txHash = resp?.eth?.txHash;
+              const txStatus = resp?.txStatus;
               const txError = resp?.txError;
 
-              if (!status) return;
+              if (!txStatus) return;
 
-              if (txError || status === "FAILED" || status === "CANCELLED") {
+              if (
+                txError ||
+                txStatus === "FAILED" ||
+                txStatus === "CANCELLED"
+              ) {
                 clearInterval(ref);
-                reject(txError || `Transaction ${status}`);
+                clearTimeout(timeoutRef);
+                reject(txError || `Transaction ${txStatus}`);
                 return;
               }
 
-              if (status === "COMPLETED" || status === "INCLUDED") {
+              if (txStatus === "COMPLETED" || txStatus === "INCLUDED") {
                 clearInterval(ref);
-                resolve({ status, txHash });
+                clearTimeout(timeoutRef);
+                resolve(resp);
               }
             } catch (e) {
               console.warn("polling error:", e);
             }
-          }, 500);
+          }, interval);
+
+          const timeoutRef = setTimeout(() => {
+            clearInterval(ref);
+            reject(new Error("Polling timed out after 1 minute"));
+          }, timeoutMs);
         });
       },
       {

@@ -236,9 +236,9 @@ export type SignAndSendRawTransactionParams = {
 };
 
 export type PollTransactionStatusParams = {
-  httpClient: any;
   organizationId: string;
   sendTransactionStatusId: string;
+  pollingIntervalMs?: number;
 };
 
 export type SignAndSendTransactionParams = {
