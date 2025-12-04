@@ -14,7 +14,7 @@
     "@turnkey/react-wallet-kit": "workspace:*",
     "@turnkey/solana": "workspace:*",
     "@turnkey/viem": "workspace:*",
-    "next": "15.5.4",
+    "next": "15.5.7",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "viem": "^2.37.11",
