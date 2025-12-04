@@ -30,8 +30,8 @@ jobs:
       - name: Check for pending releases
         run: |
           echo "Checking for pending changesets..."
-          git fetch origin moeO/serverPatch
-          CHANGES_STATUS=$(pnpm changeset status --verbose)
+          git fetch origin main moeO/serverPatch
+          CHANGES_STATUS=$(pnpm changeset status --verbose --since=origin/main)
           echo "$CHANGES_STATUS"
           if echo "$CHANGES_STATUS" | grep -qi "packages to be bumped"; then
             echo "Changesets found, continuing"
@@ -282,14 +282,14 @@ jobs:
 
       - name: Publish to NPM (dry run)
         run: |
-          pnpm publish -r --dry-run --no-git-checks --report-summary
+          pnpm --filter @turnkey/sdk-server publish --dry-run --no-git-checks --report-summary
           echo "npm publish dry run summary:"
           cat publish-summary.json || echo "No NPM dry run summary generated"
 
       - name: Publish packages to NPM
         run: |
-          echo "Publishing packages to NPM..."
-          pnpm publish -r --no-git-checks --report-summary || {
+          echo "Publishing @turnkey/sdk-server to NPM..."
+          pnpm --filter @turnkey/sdk-server publish --no-git-checks --report-summary || {
             echo "❌ Publish failed. Check logs above.";
             exit 1;
           }
@@ -304,7 +304,7 @@ jobs:
 
       - name: Publish to GitHub Packages (dry run)
         run: |
-          pnpm publish -r --dry-run --no-git-checks --report-summary
+          pnpm --filter @turnkey/sdk-server publish --dry-run --no-git-checks --report-summary
           echo "GitHub publish dry run summary:"
           cat publish-summary.json || echo "No GitHub publish dry run summary generated"
         env:
@@ -312,8 +312,8 @@ jobs:
 
       - name: Publish to GitHub Packages
         run: |
-          echo "Publishing packages to GitHub Packages..."
-          pnpm publish -r --no-git-checks --report-summary || echo "GitHub Packages publish failed"
+          echo "Publishing @turnkey/sdk-server to GitHub Packages..."
+          pnpm --filter @turnkey/sdk-server publish --no-git-checks --report-summary || echo "GitHub Packages publish failed"
           echo "GitHub publish summary:"
           cat publish-summary.json || echo "No GitHub publish summary generated"
           rm .npmrc
