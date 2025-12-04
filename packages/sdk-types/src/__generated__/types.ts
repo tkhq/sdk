@@ -105,6 +105,28 @@ export type externaldatav1Quorum = {
   userIds: string[];
 };
 
+export type externaldatav1SignatureScheme =
+  "SIGNATURE_SCHEME_EPHEMERAL_KEY_P256";
+
+export type externaldatav1SmartContractInterface = {
+  /** The Organization the Smart Contract Interface belongs to. */
+  organizationId: string;
+  /** Unique identifier for a given Smart Contract Interface (ABI or IDL). */
+  smartContractInterfaceId: string;
+  /** The address corresponding to the Smart Contract or Program. */
+  smartContractAddress: string;
+  /** The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
+  smartContractInterface: string;
+  /** The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  type: string;
+  /** The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  label: string;
+  /** The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
+  notes: string;
+  createdAt: externaldatav1Timestamp;
+  updatedAt: externaldatav1Timestamp;
+};
+
 export type externaldatav1Timestamp = {
   seconds: string;
   nanos: string;
@@ -309,7 +331,11 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_ETH_SEND_TRANSACTION"
   | "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL"
   | "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL"
-  | "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL";
+  | "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL"
+  | "ACTIVITY_TYPE_EMAIL_AUTH_V3"
+  | "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2"
+  | "ACTIVITY_TYPE_INIT_OTP_AUTH_V3"
+  | "ACTIVITY_TYPE_INIT_OTP_V2";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -391,7 +417,7 @@ export type v1ApiOnlyUserParams = {
 
 export type v1AppProof = {
   /** Scheme of signing key. */
-  scheme: v1SignatureScheme;
+  scheme: externaldatav1SignatureScheme;
   /** Ephemeral public key. */
   publicKey: string;
   /** JSON serialized AppProofPayload. */
@@ -412,6 +438,7 @@ export type v1ApproveActivityRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1ApproveActivityIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1Attestation = {
@@ -526,6 +553,7 @@ export type v1CreateApiKeysRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateApiKeysIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateApiKeysResult = {
@@ -545,6 +573,7 @@ export type v1CreateApiOnlyUsersRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateApiOnlyUsersIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateApiOnlyUsersResult = {
@@ -573,6 +602,7 @@ export type v1CreateAuthenticatorsRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateAuthenticatorsIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateAuthenticatorsResult = {
@@ -621,6 +651,7 @@ export type v1CreateInvitationsRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateInvitationsIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateInvitationsResult = {
@@ -644,6 +675,7 @@ export type v1CreateOauth2CredentialRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateOauth2CredentialIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateOauth2CredentialResult = {
@@ -665,6 +697,7 @@ export type v1CreateOauthProvidersRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateOauthProvidersIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateOauthProvidersResult = {
@@ -711,6 +744,7 @@ export type v1CreatePoliciesRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreatePoliciesIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreatePoliciesResult = {
@@ -757,6 +791,7 @@ export type v1CreatePolicyRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreatePolicyIntentV3;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreatePolicyResult = {
@@ -778,6 +813,7 @@ export type v1CreatePrivateKeyTagRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreatePrivateKeyTagIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreatePrivateKeyTagResult = {
@@ -804,6 +840,7 @@ export type v1CreatePrivateKeysRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreatePrivateKeysIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreatePrivateKeysResult = {
@@ -824,6 +861,7 @@ export type v1CreateReadOnlySessionRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateReadOnlySessionIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateReadOnlySessionResult = {
@@ -872,6 +910,7 @@ export type v1CreateReadWriteSessionRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateReadWriteSessionIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateReadWriteSessionResult = {
@@ -923,6 +962,7 @@ export type v1CreateSmartContractInterfaceRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateSmartContractInterfaceIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateSmartContractInterfaceResult = {
@@ -1030,6 +1070,7 @@ export type v1CreateSubOrganizationRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateSubOrganizationIntentV7;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateSubOrganizationResult = {
@@ -1082,6 +1123,7 @@ export type v1CreateUserTagRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateUserTagIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateUserTagResult = {
@@ -1113,6 +1155,7 @@ export type v1CreateUsersRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateUsersIntentV3;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateUsersResult = {
@@ -1136,6 +1179,7 @@ export type v1CreateWalletAccountsRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateWalletAccountsIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateWalletAccountsResult = {
@@ -1159,6 +1203,7 @@ export type v1CreateWalletRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateWalletIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateWalletResult = {
@@ -1200,6 +1245,7 @@ export type v1DeleteApiKeysRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteApiKeysIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteApiKeysResult = {
@@ -1221,6 +1267,7 @@ export type v1DeleteAuthenticatorsRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteAuthenticatorsIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteAuthenticatorsResult = {
@@ -1259,6 +1306,7 @@ export type v1DeleteInvitationRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteInvitationIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteInvitationResult = {
@@ -1278,6 +1326,7 @@ export type v1DeleteOauth2CredentialRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteOauth2CredentialIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteOauth2CredentialResult = {
@@ -1299,6 +1348,7 @@ export type v1DeleteOauthProvidersRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteOauthProvidersIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteOauthProvidersResult = {
@@ -1328,6 +1378,7 @@ export type v1DeletePoliciesRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeletePoliciesIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeletePoliciesResult = {
@@ -1347,6 +1398,7 @@ export type v1DeletePolicyRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeletePolicyIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeletePolicyResult = {
@@ -1366,6 +1418,7 @@ export type v1DeletePrivateKeyTagsRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeletePrivateKeyTagsIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeletePrivateKeyTagsResult = {
@@ -1389,6 +1442,7 @@ export type v1DeletePrivateKeysRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeletePrivateKeysIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeletePrivateKeysResult = {
@@ -1408,6 +1462,7 @@ export type v1DeleteSmartContractInterfaceRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteSmartContractInterfaceIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteSmartContractInterfaceResult = {
@@ -1427,6 +1482,7 @@ export type v1DeleteSubOrganizationRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteSubOrganizationIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteSubOrganizationResult = {
@@ -1446,6 +1502,7 @@ export type v1DeleteUserTagsRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteUserTagsIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteUserTagsResult = {
@@ -1467,6 +1524,7 @@ export type v1DeleteUsersRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteUsersIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteUsersResult = {
@@ -1488,6 +1546,7 @@ export type v1DeleteWalletAccountsRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteWalletAccountsIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteWalletAccountsResult = {
@@ -1509,6 +1568,7 @@ export type v1DeleteWalletsRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteWalletsIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteWalletsResult = {
@@ -1572,13 +1632,37 @@ export type v1EmailAuthIntentV2 = {
   replyToEmailAddress?: string;
 };
 
+export type v1EmailAuthIntentV3 = {
+  /** Email of the authenticating user. */
+  email: string;
+  /** Client-side public key generated by the user, to which the email auth bundle (credentials) will be encrypted. */
+  targetPublicKey: string;
+  /** The name of the application. */
+  appName: string;
+  /** Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp> */
+  apiKeyName?: string;
+  /** Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used. */
+  expirationSeconds?: string;
+  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
+  emailCustomization?: v1EmailCustomizationParams;
+  /** Invalidate all other previously generated Email Auth API keys */
+  invalidateExisting?: boolean;
+  /** Optional custom email address from which to send the email */
+  sendFromEmailAddress?: string;
+  /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+  sendFromEmailSenderName?: string;
+  /** Optional custom email address to use as reply-to */
+  replyToEmailAddress?: string;
+};
+
 export type v1EmailAuthRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1EmailAuthIntentV2;
+  parameters: v1EmailAuthIntentV3;
+  generateAppProofs?: boolean;
 };
 
 export type v1EmailAuthResult = {
@@ -1621,6 +1705,7 @@ export type v1EthSendRawTransactionRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1EthSendRawTransactionIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1EthSendRawTransactionResult = {
@@ -1641,16 +1726,14 @@ export type v1EthSendTransactionIntent = {
   value?: string;
   /** Hex-encoded call data for contract interactions. */
   data?: string;
-  /** Transaction nonce. */
-  nonce: string;
-  /** Maximum amount of gas to use for this transaction. */
-  gasLimit: string;
-  /** Maximum total fee per gas unit (base fee + priority fee) in wei, for EIP-1559 transactions. */
-  maxFeePerGas: string;
-  /** Maximum priority fee (tip) per gas unit in wei, for EIP-1559 transactions. */
-  maxPriorityFeePerGas: string;
-  /** Unix timestamp after which the Gas Station meta-transaction is no longer valid. Only used when sponsor=true. */
-  deadline?: string;
+  /** Transaction nonce, for EIP-1559 and Turnkey Gas Station authorizations. */
+  nonce?: string;
+  /** Maximum amount of gas to use for this transaction, for EIP-1559 transactions. */
+  gasLimit?: string;
+  /** Maximum total fee per gas unit (base fee + priority fee) in wei. Required for non-sponsored (EIP-1559) transactions. Not used for sponsored transactions. */
+  maxFeePerGas?: string;
+  /** Maximum priority fee (tip) per gas unit in wei. Required for non-sponsored (EIP-1559) transactions. Not used for sponsored transactions. */
+  maxPriorityFeePerGas?: string;
 };
 
 export type v1EthSendTransactionRequest = {
@@ -1663,8 +1746,13 @@ export type v1EthSendTransactionRequest = {
 };
 
 export type v1EthSendTransactionResult = {
-  /** The transaction hash of the sent transaction */
-  transactionHash: string;
+  /** The send_transaction_status ID associated with the transaction submission for sponsored transactions */
+  sendTransactionStatusId: string;
+};
+
+export type v1EthSendTransactionStatus = {
+  /** The Ethereum transaction hash, if available. */
+  txHash?: string;
 };
 
 export type v1ExportPrivateKeyIntent = {
@@ -1681,6 +1769,7 @@ export type v1ExportPrivateKeyRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1ExportPrivateKeyIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1ExportPrivateKeyResult = {
@@ -1704,6 +1793,7 @@ export type v1ExportWalletAccountRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1ExportWalletAccountIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1ExportWalletAccountResult = {
@@ -1729,6 +1819,7 @@ export type v1ExportWalletRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1ExportWalletIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1ExportWalletResult = {
@@ -1942,6 +2033,20 @@ export type v1GetBootProofRequest = {
   ephemeralKey: string;
 };
 
+export type v1GetGasUsageRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+};
+
+export type v1GetGasUsageResponse = {
+  /** The window duration (in minutes) for the organization or sub-organization. */
+  windowDurationMinutes: number;
+  /** The window limit (in USD) for the organization or sub-organization. */
+  windowLimitUsd: string;
+  /** The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes` */
+  usageUsd: string;
+};
+
 export type v1GetLatestBootProofRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
@@ -2061,6 +2166,22 @@ export type v1GetPrivateKeysResponse = {
   privateKeys: v1PrivateKey[];
 };
 
+export type v1GetSendTransactionStatusRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** The unique identifier of a send transaction request. */
+  sendTransactionStatusId: string;
+};
+
+export type v1GetSendTransactionStatusResponse = {
+  /** The current status of the send transaction. */
+  txStatus: string;
+  /** Ethereum-specific transaction status. */
+  eth?: v1EthSendTransactionStatus;
+  /** The error encountered when broadcasting or confirming the transaction, if any. */
+  txError?: string;
+};
+
 export type v1GetSmartContractInterfaceRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
@@ -2070,7 +2191,7 @@ export type v1GetSmartContractInterfaceRequest = {
 
 export type v1GetSmartContractInterfaceResponse = {
   /** Object to be used in conjunction with policies to guard transaction signing. */
-  smartContractInterface: v1SmartContractInterface;
+  smartContractInterface: externaldatav1SmartContractInterface;
 };
 
 export type v1GetSmartContractInterfacesRequest = {
@@ -2080,7 +2201,7 @@ export type v1GetSmartContractInterfacesRequest = {
 
 export type v1GetSmartContractInterfacesResponse = {
   /** A list of smart contract interfaces. */
-  smartContractInterfaces: v1SmartContractInterface[];
+  smartContractInterfaces: externaldatav1SmartContractInterface[];
 };
 
 export type v1GetSubOrgIdsRequest = {
@@ -2233,6 +2354,7 @@ export type v1ImportPrivateKeyRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1ImportPrivateKeyIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1ImportPrivateKeyResult = {
@@ -2260,6 +2382,7 @@ export type v1ImportWalletRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1ImportWalletIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1ImportWalletResult = {
@@ -2301,6 +2424,7 @@ export type v1InitFiatOnRampRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1InitFiatOnRampIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1InitFiatOnRampResult = {
@@ -2324,6 +2448,7 @@ export type v1InitImportPrivateKeyRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1InitImportPrivateKeyIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1InitImportPrivateKeyResult = {
@@ -2343,6 +2468,7 @@ export type v1InitImportWalletRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1InitImportWalletIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1InitImportWalletResult = {
@@ -2392,13 +2518,39 @@ export type v1InitOtpAuthIntentV2 = {
   replyToEmailAddress?: string;
 };
 
+export type v1InitOtpAuthIntentV3 = {
+  /** Enum to specifiy whether to send OTP via SMS or email */
+  otpType: string;
+  /** Email or phone number to send the OTP code to */
+  contact: string;
+  /** The name of the application. */
+  appName: string;
+  /** Optional length of the OTP code. Default = 9 */
+  otpLength?: number;
+  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
+  emailCustomization?: v1EmailCustomizationParams;
+  /** Optional parameters for customizing SMS message. If not provided, the default sms message will be used. */
+  smsCustomization?: v1SmsCustomizationParams;
+  /** Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
+  userIdentifier?: string;
+  /** Optional custom email address from which to send the OTP email */
+  sendFromEmailAddress?: string;
+  /** Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). Default = true */
+  alphanumeric?: boolean;
+  /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+  sendFromEmailSenderName?: string;
+  /** Optional custom email address to use as reply-to */
+  replyToEmailAddress?: string;
+};
+
 export type v1InitOtpAuthRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1InitOtpAuthIntentV2;
+  parameters: v1InitOtpAuthIntentV3;
+  generateAppProofs?: boolean;
 };
 
 export type v1InitOtpAuthResult = {
@@ -2436,13 +2588,41 @@ export type v1InitOtpIntent = {
   replyToEmailAddress?: string;
 };
 
+export type v1InitOtpIntentV2 = {
+  /** Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+  otpType: string;
+  /** Email or phone number to send the OTP code to */
+  contact: string;
+  /** The name of the application. */
+  appName: string;
+  /** Optional length of the OTP code. Default = 9 */
+  otpLength?: number;
+  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
+  emailCustomization?: v1EmailCustomizationParams;
+  /** Optional parameters for customizing SMS message. If not provided, the default sms message will be used. */
+  smsCustomization?: v1SmsCustomizationParams;
+  /** Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
+  userIdentifier?: string;
+  /** Optional custom email address from which to send the OTP email */
+  sendFromEmailAddress?: string;
+  /** Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). Default = true */
+  alphanumeric?: boolean;
+  /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+  sendFromEmailSenderName?: string;
+  /** Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes) */
+  expirationSeconds?: string;
+  /** Optional custom email address to use as reply-to */
+  replyToEmailAddress?: string;
+};
+
 export type v1InitOtpRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1InitOtpIntent;
+  parameters: v1InitOtpIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1InitOtpResult = {
@@ -2467,13 +2647,33 @@ export type v1InitUserEmailRecoveryIntent = {
   replyToEmailAddress?: string;
 };
 
+export type v1InitUserEmailRecoveryIntentV2 = {
+  /** Email of the user starting recovery */
+  email: string;
+  /** Client-side public key generated by the user, to which the recovery bundle will be encrypted. */
+  targetPublicKey: string;
+  /** The name of the application. */
+  appName: string;
+  /** Expiration window (in seconds) indicating how long the recovery credential is valid for. If not provided, a default of 15 minutes will be used. */
+  expirationSeconds?: string;
+  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
+  emailCustomization?: v1EmailCustomizationParams;
+  /** Optional custom email address from which to send the OTP email */
+  sendFromEmailAddress?: string;
+  /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+  sendFromEmailSenderName?: string;
+  /** Optional custom email address to use as reply-to */
+  replyToEmailAddress?: string;
+};
+
 export type v1InitUserEmailRecoveryRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1InitUserEmailRecoveryIntent;
+  parameters: v1InitUserEmailRecoveryIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1InitUserEmailRecoveryResult = {
@@ -2590,6 +2790,10 @@ export type v1Intent = {
   createFiatOnRampCredentialIntent?: v1CreateFiatOnRampCredentialIntent;
   updateFiatOnRampCredentialIntent?: v1UpdateFiatOnRampCredentialIntent;
   deleteFiatOnRampCredentialIntent?: v1DeleteFiatOnRampCredentialIntent;
+  emailAuthIntentV3?: v1EmailAuthIntentV3;
+  initUserEmailRecoveryIntentV2?: v1InitUserEmailRecoveryIntentV2;
+  initOtpIntentV2?: v1InitOtpIntentV2;
+  initOtpAuthIntentV3?: v1InitOtpAuthIntentV3;
 };
 
 export type v1Invitation = {
@@ -2704,6 +2908,7 @@ export type v1Oauth2AuthenticateRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1Oauth2AuthenticateIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1Oauth2AuthenticateResult = {
@@ -2759,6 +2964,7 @@ export type v1OauthLoginRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1OauthLoginIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1OauthLoginResult = {
@@ -2795,6 +3001,7 @@ export type v1OauthRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1OauthIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1OauthResult = {
@@ -2855,6 +3062,7 @@ export type v1OtpAuthRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1OtpAuthIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1OtpAuthResult = {
@@ -2886,6 +3094,7 @@ export type v1OtpLoginRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1OtpLoginIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1OtpLoginResult = {
@@ -2995,6 +3204,7 @@ export type v1RecoverUserRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1RecoverUserIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1RecoverUserResult = {
@@ -3014,6 +3224,7 @@ export type v1RejectActivityRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1RejectActivityIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1RemoveOrganizationFeatureIntent = {
@@ -3028,6 +3239,7 @@ export type v1RemoveOrganizationFeatureRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1RemoveOrganizationFeatureIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1RemoveOrganizationFeatureResult = {
@@ -3209,6 +3421,7 @@ export type v1SetOrganizationFeatureRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1SetOrganizationFeatureIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1SetOrganizationFeatureResult = {
@@ -3245,6 +3458,7 @@ export type v1SignRawPayloadRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1SignRawPayloadIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1SignRawPayloadResult = {
@@ -3274,6 +3488,7 @@ export type v1SignRawPayloadsRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1SignRawPayloadsIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1SignRawPayloadsResult = {
@@ -3303,37 +3518,17 @@ export type v1SignTransactionRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1SignTransactionIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1SignTransactionResult = {
   signedTransaction: string;
 };
 
-export type v1SignatureScheme = "SIGNATURE_SCHEME_EPHEMERAL_KEY_P256";
-
 export type v1SimpleClientExtensionResults = {
   appid?: boolean;
   appidExclude?: boolean;
   credProps?: v1CredPropsAuthenticationExtensionsClientOutputs;
-};
-
-export type v1SmartContractInterface = {
-  /** The Organization the Smart Contract Interface belongs to. */
-  organizationId: string;
-  /** Unique identifier for a given Smart Contract Interface (ABI or IDL). */
-  smartContractInterfaceId: string;
-  /** The address corresponding to the Smart Contract or Program. */
-  smartContractAddress: string;
-  /** The JSON corresponding to the Smart Contract Interface (ABI or IDL). */
-  smartContractInterface: string;
-  /** The type corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-  type: string;
-  /** The label corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-  label: string;
-  /** The notes corresponding to the Smart Contract Interface (either ETHEREUM or SOLANA). */
-  notes: string;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
 };
 
 export type v1SmartContractInterfaceReference = {
@@ -3367,6 +3562,7 @@ export type v1StampLoginRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1StampLoginIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1StampLoginResult = {
@@ -3411,7 +3607,7 @@ export type v1UpdateAuthProxyConfigIntent = {
   emailAuthTemplateId?: string;
   /** Template ID for OTP SMS messages. */
   otpTemplateId?: string;
-  /** Overrides for auth-related email content. */
+  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
   emailCustomizationParams?: v1EmailCustomizationParams;
   /** Overrides for auth-related SMS content. */
   smsCustomizationParams?: v1SmsCustomizationParams;
@@ -3485,6 +3681,7 @@ export type v1UpdateOauth2CredentialRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdateOauth2CredentialIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdateOauth2CredentialResult = {
@@ -3529,6 +3726,7 @@ export type v1UpdatePolicyRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdatePolicyIntentV2;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdatePolicyResult = {
@@ -3559,6 +3757,7 @@ export type v1UpdatePrivateKeyTagRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdatePrivateKeyTagIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdatePrivateKeyTagResult = {
@@ -3580,6 +3779,7 @@ export type v1UpdateRootQuorumRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdateRootQuorumIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdateRootQuorumResult = {};
@@ -3599,6 +3799,7 @@ export type v1UpdateUserEmailRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdateUserEmailIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdateUserEmailResult = {
@@ -3633,6 +3834,7 @@ export type v1UpdateUserNameRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdateUserNameIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdateUserNameResult = {
@@ -3656,6 +3858,7 @@ export type v1UpdateUserPhoneNumberRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdateUserPhoneNumberIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdateUserPhoneNumberResult = {
@@ -3670,6 +3873,7 @@ export type v1UpdateUserRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdateUserIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdateUserResult = {
@@ -3695,6 +3899,7 @@ export type v1UpdateUserTagRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdateUserTagIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdateUserTagResult = {
@@ -3716,6 +3921,7 @@ export type v1UpdateWalletRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdateWalletIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdateWalletResult = {
@@ -3807,6 +4013,7 @@ export type v1VerifyOtpRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1VerifyOtpIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1VerifyOtpResult = {
@@ -4012,6 +4219,21 @@ export type TGetBootProofBody = {
 
 export type TGetBootProofInput = { body: TGetBootProofBody };
 
+export type TGetGasUsageResponse = {
+  /** The window duration (in minutes) for the organization or sub-organization. */
+  windowDurationMinutes: number;
+  /** The window limit (in USD) for the organization or sub-organization. */
+  windowLimitUsd: string;
+  /** The total gas usage (in USD) of all sponsored transactions processed over the last `window_duration_minutes` */
+  usageUsd: string;
+};
+
+export type TGetGasUsageBody = {
+  organizationId?: string;
+};
+
+export type TGetGasUsageInput = { body: TGetGasUsageBody };
+
 export type TGetLatestBootProofResponse = {
   bootProof: v1BootProof;
 };
@@ -4128,9 +4350,28 @@ export type TGetPrivateKeyBody = {
 
 export type TGetPrivateKeyInput = { body: TGetPrivateKeyBody };
 
+export type TGetSendTransactionStatusResponse = {
+  /** The current status of the send transaction. */
+  txStatus: string;
+  /** Ethereum-specific transaction status. */
+  eth?: v1EthSendTransactionStatus;
+  /** The error encountered when broadcasting or confirming the transaction, if any. */
+  txError?: string;
+};
+
+export type TGetSendTransactionStatusBody = {
+  organizationId?: string;
+  /** The unique identifier of a send transaction request. */
+  sendTransactionStatusId: string;
+};
+
+export type TGetSendTransactionStatusInput = {
+  body: TGetSendTransactionStatusBody;
+};
+
 export type TGetSmartContractInterfaceResponse = {
   /** Object to be used in conjunction with policies to guard transaction signing. */
-  smartContractInterface: v1SmartContractInterface;
+  smartContractInterface: externaldatav1SmartContractInterface;
 };
 
 export type TGetSmartContractInterfaceBody = {
@@ -4272,7 +4513,7 @@ export type TGetPrivateKeysInput = { body: TGetPrivateKeysBody };
 
 export type TGetSmartContractInterfacesResponse = {
   /** A list of smart contract interfaces. */
-  smartContractInterfaces: v1SmartContractInterface[];
+  smartContractInterfaces: externaldatav1SmartContractInterface[];
 };
 
 export type TGetSmartContractInterfacesBody = {
@@ -5062,6 +5303,8 @@ export type TEmailAuthBody = {
   email: string;
   /** Client-side public key generated by the user, to which the email auth bundle (credentials) will be encrypted. */
   targetPublicKey: string;
+  /** The name of the application. */
+  appName: string;
   /** Optional human-readable name for an API Key. If none provided, default to Email Auth - <Timestamp> */
   apiKeyName?: string;
   /** Expiration window (in seconds) indicating how long the API key is valid for. If not provided, a default of 15 minutes will be used. */
@@ -5099,8 +5342,8 @@ export type TEthSendRawTransactionInput = { body: TEthSendRawTransactionBody };
 
 export type TEthSendTransactionResponse = {
   activity: v1Activity;
-  /** The transaction hash of the sent transaction */
-  transactionHash: string;
+  /** The send_transaction_status ID associated with the transaction submission for sponsored transactions */
+  sendTransactionStatusId: string;
 };
 
 export type TEthSendTransactionBody = {
@@ -5118,16 +5361,14 @@ export type TEthSendTransactionBody = {
   value?: string;
   /** Hex-encoded call data for contract interactions. */
   data?: string;
-  /** Transaction nonce. */
-  nonce: string;
-  /** Maximum amount of gas to use for this transaction. */
-  gasLimit: string;
-  /** Maximum total fee per gas unit (base fee + priority fee) in wei, for EIP-1559 transactions. */
-  maxFeePerGas: string;
-  /** Maximum priority fee (tip) per gas unit in wei, for EIP-1559 transactions. */
-  maxPriorityFeePerGas: string;
-  /** Unix timestamp after which the Gas Station meta-transaction is no longer valid. Only used when sponsor=true. */
-  deadline?: string;
+  /** Transaction nonce, for EIP-1559 and Turnkey Gas Station authorizations. */
+  nonce?: string;
+  /** Maximum amount of gas to use for this transaction, for EIP-1559 transactions. */
+  gasLimit?: string;
+  /** Maximum total fee per gas unit (base fee + priority fee) in wei. Required for non-sponsored (EIP-1559) transactions. Not used for sponsored transactions. */
+  maxFeePerGas?: string;
+  /** Maximum priority fee (tip) per gas unit in wei. Required for non-sponsored (EIP-1559) transactions. Not used for sponsored transactions. */
+  maxPriorityFeePerGas?: string;
 };
 
 export type TEthSendTransactionInput = { body: TEthSendTransactionBody };
@@ -5321,6 +5562,8 @@ export type TInitOtpBody = {
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
+  /** The name of the application. */
+  appName: string;
   /** Optional length of the OTP code. Default = 9 */
   otpLength?: number;
   /** Optional parameters for customizing emails. If not provided, the default email will be used. */
@@ -5356,6 +5599,8 @@ export type TInitOtpAuthBody = {
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
+  /** The name of the application. */
+  appName: string;
   /** Optional length of the OTP code. Default = 9 */
   otpLength?: number;
   /** Optional parameters for customizing emails. If not provided, the default email will be used. */
@@ -5389,6 +5634,8 @@ export type TInitUserEmailRecoveryBody = {
   email: string;
   /** Client-side public key generated by the user, to which the recovery bundle will be encrypted. */
   targetPublicKey: string;
+  /** The name of the application. */
+  appName: string;
   /** Expiration window (in seconds) indicating how long the recovery credential is valid for. If not provided, a default of 15 minutes will be used. */
   expirationSeconds?: string;
   /** Optional parameters for customizing emails. If not provided, the default email will be used. */

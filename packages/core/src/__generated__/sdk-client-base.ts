@@ -546,6 +546,51 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getGasUsage = async (
+    input: SdkTypes.TGetGasUsageBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetGasUsageResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_gas_usage",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetGasUsage = async (
+    input: SdkTypes.TGetGasUsageBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, ...parameters } = input;
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_gas_usage";
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_GAS_USAGE",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getLatestBootProof = async (
     input: SdkTypes.TGetLatestBootProofBody,
     stampWith?: StamperType,
@@ -931,6 +976,49 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getSendTransactionStatus = async (
+    input: SdkTypes.TGetSendTransactionStatusBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetSendTransactionStatusResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_send_transaction_status",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetSendTransactionStatus = async (
+    input: SdkTypes.TGetSendTransactionStatusBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
+    const body = {
+      ...input,
+      organizationId: input.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getSmartContractInterface = async (
     input: SdkTypes.TGetSmartContractInterfaceBody,
     stampWith?: StamperType,
@@ -958,14 +1046,17 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const { organizationId, ...parameters } = input;
+
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
-    const body = {
-      ...input,
-      organizationId: input.organizationId,
+    const bodyWithType = {
+      parameters,
+      organizationId,
+      type: "ACTIVITY_TYPE_GET_SMART_CONTRACT_INTERFACE",
     };
 
-    const stringifiedBody = JSON.stringify(body);
+    const stringifiedBody = JSON.stringify(bodyWithType);
     const stamp = await activeStamper.stamp(stringifiedBody);
     return {
       body: stringifiedBody,

@@ -86,6 +86,17 @@ export type TGetBootProofBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetGasUsageResponse =
+  operations["PublicApiService_GetGasUsage"]["responses"]["200"]["schema"];
+
+export type TGetGasUsageInput = { body: TGetGasUsageBody };
+
+export type TGetGasUsageBody = Omit<
+  operations["PublicApiService_GetGasUsage"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetLatestBootProofResponse =
   operations["PublicApiService_GetLatestBootProof"]["responses"]["200"]["schema"];
 
@@ -185,6 +196,19 @@ export type TGetPrivateKeyInput = { body: TGetPrivateKeyBody };
 
 export type TGetPrivateKeyBody = Omit<
   operations["PublicApiService_GetPrivateKey"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TGetSendTransactionStatusResponse =
+  operations["PublicApiService_GetSendTransactionStatus"]["responses"]["200"]["schema"];
+
+export type TGetSendTransactionStatusInput = {
+  body: TGetSendTransactionStatusBody;
+};
+
+export type TGetSendTransactionStatusBody = Omit<
+  operations["PublicApiService_GetSendTransactionStatus"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
