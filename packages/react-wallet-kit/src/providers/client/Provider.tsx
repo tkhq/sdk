@@ -99,8 +99,8 @@ import {
   type BuildWalletLoginRequestParams,
   type BuildWalletLoginRequestResult,
   type VerifyAppProofsParams,
-  PollTransactionStatusParams,
-  SignAndSendRawTransactionParams,
+  type PollTransactionStatusParams,
+  type SignAndSendRawTransactionParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -123,6 +123,7 @@ import {
   type v1AppProof,
   FiatOnRampCryptoCurrency,
   FiatOnRampBlockchainNetwork,
+  TGetSendTransactionStatusResponse,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -2524,7 +2525,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const pollTransactionStatus = useCallback(
     async (
       params: PollTransactionStatusParams,
-    ): Promise<{ status: string; txHash?: string }> => {
+    ): Promise<TGetSendTransactionStatusResponse> => {
       if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -5602,7 +5603,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               }
 
               const pollResult = await client?.pollTransactionStatus({
-                httpClient: client.httpClient,
                 organizationId,
                 sendTransactionStatusId,
               });
@@ -5614,8 +5614,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 );
               }
 
-              const { txHash } = pollResult;
-
+              const { eth } = pollResult;
+              const txHash = eth?.txHash;
               if (!txHash) {
                 throw new TurnkeyError(
                   "Missing txHash in transaction result",
@@ -5630,13 +5630,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           };
           return (
             <SendTransactionPage
-              icon={
-                <img
-                  src={getChainLogo(caip2)}
-                  className="h-10 w-10 rounded-full"
-                  alt="chain icon"
-                />
-              }
+              icon={getChainLogo(caip2)}
               action={action}
               caip2={caip2}
               successPageDuration={successPageDuration}

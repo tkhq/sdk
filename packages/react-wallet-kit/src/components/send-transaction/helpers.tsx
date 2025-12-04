@@ -1,5 +1,5 @@
 import { Address, createPublicClient, http } from "viem";
-
+import { EthereumLogo, SolanaLogo } from "../design/Svg";
 export const DEFAULT_RPC_BY_CHAIN: Record<string, string> = {
   "eip155:8453": "https://mainnet.base.org",
   "eip155:84532": "https://sepolia.base.org",
@@ -58,14 +58,8 @@ export function getExplorerUrl(txHash: string, caip2: string): string {
   }
 }
 
-export function getChainLogo(caip2: string): string {
-  if (caip2.startsWith("eip155:")) {
-    return "https://cryptologos.cc/logos/ethereum-eth-logo.svg";
-  }
+export function getChainLogo(caip2: string): React.ReactNode {
+  const Logo = caip2.startsWith("solana:") ? SolanaLogo : EthereumLogo;
 
-  if (caip2.startsWith("solana:")) {
-    return "https://cryptologos.cc/logos/solana-sol-logo.svg";
-  }
-
-  return "https://cryptologos.cc/logos/ethereum-eth-logo.svg";
+  return <Logo className="h-10 w-10 rounded-full" />;
 }
