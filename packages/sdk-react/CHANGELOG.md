@@ -1,5 +1,12 @@
 # @turnkey/sdk-react
 
+## 4.2.7
+
+### Patch Changes
+
+- Updated dependencies [13fe134]
+  - @turnkey/sdk-server@3.3.1
+
 ## 4.2.6
 
 ### Patch Changes

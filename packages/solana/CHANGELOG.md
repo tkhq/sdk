@@ -1,5 +1,12 @@
 # @turnkey/solana
 
+## 1.0.25
+
+### Patch Changes
+
+- Updated dependencies [13fe134]
+  - @turnkey/sdk-server@3.3.1
+
 ## 1.0.24
 
 ### Patch Changes

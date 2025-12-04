@@ -1,5 +1,12 @@
 # @turnkey/cosmjs
 
+## 0.7.9
+
+### Patch Changes
+
+- Updated dependencies [13fe134]
+  - @turnkey/sdk-server@3.3.1
+
 ## 0.7.8
 
 ### Patch Changes
