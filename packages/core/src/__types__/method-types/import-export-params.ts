@@ -1,11 +1,11 @@
-// These types are separated from `method-types.ts` to avoid export conflicts.
+// These types are separated from `shared.ts` to avoid export conflicts.
 //
-// On mobile there's no XSS risk, so react-native-wallet-kit can perform import/export
+// On mobile the XSS risk is minimal, so react-native-wallet-kit can perform import/export
 // directly without UI, reusing the same param names. It redefines these types with
 // additional fields, so it skips re-exporting this file and uses its own definitions
 //
 // On web, import/export must use iframes for security (to prevent XSS attacks). This means
-// the methods are UI-driven and have a "Handle"  prefix (our convention for UI methods). So
+// the methods are UI-driven and have a "Handle" prefix (our convention for UI methods). So
 // react-wallet-kit doesn't have this conflict and re-exports this file normally
 
 import type {
