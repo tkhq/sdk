@@ -79,7 +79,12 @@ import DeviceInfo from "react-native-device-info";
 import { InAppBrowser } from "react-native-inappbrowser-reborn";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorageModule from "@react-native-async-storage/async-storage";
+
+// some bundlers wrap the module as { default: AsyncStorage } instead of
+// returning AsyncStorage directly. This handles both cases
+const AsyncStorage = (AsyncStorageModule as any).default ?? AsyncStorageModule;
+
 import {
   TurnkeyError,
   TurnkeyErrorCodes,
