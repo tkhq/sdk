@@ -6,7 +6,7 @@ import prompts from "prompts";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { tempo } from "tempo.ts/chains";
-import { tempoActions, Actions } from "tempo.ts/viem";
+import { tempoActions, Actions, withFeePayer } from "tempo.ts/viem";
 import {
   Account,
   createClient,
@@ -17,13 +17,10 @@ import {
   formatUnits,
   serializeTransaction,
 } from "viem";
-import {
-  createAccount,
-} from "@turnkey/viem";
+import { createAccount } from "@turnkey/viem";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
 import { print } from "./util";
-
 
 async function main() {
   if (!process.env.SIGN_WITH) {
@@ -55,38 +52,48 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  const credentials = `${process.env['TEMPO_USERNAME']}:${process.env['TEMPO_PASSWORD']}`;
+  const credentials = `${process.env["TEMPO_USERNAME"]}:${process.env["TEMPO_PASSWORD"]}`;
   // AlphaUSD TIP-20 token address
-  const tip20TokenAddress = "0x20c0000000000000000000000000000000000001" as `0x${string}`;
+  const tip20TokenAddress =
+    "0x20c0000000000000000000000000000000000001" as `0x${string}`;
   const client = createClient({
     account: turnkeyAccount as Account,
     chain: tempo({ feeToken: tip20TokenAddress }),
-    transport: http(undefined, {
-      fetchOptions: {
-        headers: {
-          Authorization: `Basic ${btoa(credentials)}`,
+    transport: withFeePayer(
+      http(undefined, {
+        fetchOptions: {
+          headers: {
+            Authorization: `Basic ${btoa(credentials)}`,
+          },
         },
-      },
-    }),
+      }),
+      http("https://sponsor.testnet.tempo.xyz")
+    ),
   })
-  .extend(publicActions)
-  .extend(walletActions)
-  .extend(tempoActions())
-  
+    .extend(publicActions)
+    .extend(walletActions)
+    .extend(tempoActions());
 
   const chainId = client.chain.id;
   const address = client.account.address;
   const transactionCount = await client.getTransactionCount({ address });
-  
+
   // Check TIP-20 token balance using tempo.ts token actions
   let balance = await Actions.token.getBalance(client, {
     token: tip20TokenAddress,
     account: address,
   });
 
+  const metadata = await Actions.token.getMetadata(client, {
+    token: tip20TokenAddress,
+  });
+
   print("Network:", `${client.chain.name} (chain ID ${chainId})`);
   print("Address:", address);
-  print("TIP-20 Balance:", `${formatUnits(balance, 6)} tokens`);
+  print(
+    `${metadata.name} Balance:`,
+    `${formatUnits(balance, metadata.decimals)}`
+  );
   print("Transaction count:", `${transactionCount}`);
 
   // create a simple send transaction
@@ -104,27 +111,33 @@ async function main() {
       initial: address,
     },
   ]);
-  while (balance === 0n) {
-    console.log(
-      [
-        `\nYour TIP-20 token balance is at 0! To continue this demo you'll need testnet tokens!`,
-        `\n--------`,
-      ].join("\n"),
+
+  if (balance === 0n) {
+    print(
+      `Your ${metadata.name} balance is 0! Funding your account...`,
+      "See https://docs.tempo.xyz/guide/quickstart/faucet"
     );
 
-    await prompts([
-      {
-        type: "text",
-        name: "continue",
-        message: "Ready to continue? y/n",
-        initial: "y",
-      },
-    ]);
+    const receipts = await Actions.faucet.fundSync(client, {
+      account: address,
+    });
 
     balance = await Actions.token.getBalance(client, {
       token: tip20TokenAddress,
       account: address,
     });
+    print(
+      `${metadata.name} Balance:`,
+      `${formatUnits(balance, metadata.decimals)}`
+    );
+    print(
+      "Receipts:",
+      `${receipts
+        .map(
+          (receipt) => `https://explore.tempo.xyz/tx/${receipt.transactionHash}`
+        )
+        .join("\n")}`
+    );
   }
 
   // Convert amount string to token units (6 decimals for Tempo stablecoins)
@@ -172,7 +185,7 @@ async function main() {
 
   print(
     `Sent ${amount} TIP-20 tokens to ${destination}:`,
-    `https://explore.tempo.xyz/tx/${txHash}`,
+    `https://explore.tempo.xyz/tx/${txHash}`
   );
 }
 
