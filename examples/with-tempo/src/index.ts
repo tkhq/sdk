@@ -1,12 +1,12 @@
-import * as path from "path";
-import * as dotenv from "dotenv";
-import prompts from "prompts";
+import * as path from 'path';
+import * as dotenv from 'dotenv';
+import prompts from 'prompts';
 
 // Load environment variables from `.env.local`
-dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
-import { tempo } from "tempo.ts/chains";
-import { tempoActions, Actions, withFeePayer } from "tempo.ts/viem";
+import { tempo } from 'tempo.ts/chains';
+import { tempoActions, Actions, withFeePayer } from 'tempo.ts/viem';
 import {
   Account,
   createClient,
@@ -16,11 +16,11 @@ import {
   parseUnits,
   formatUnits,
   serializeTransaction,
-} from "viem";
-import { createAccount } from "@turnkey/viem";
-import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import { createNewWallet } from "./createNewWallet";
-import { print } from "./util";
+} from 'viem';
+import { createAccount } from '@turnkey/viem';
+import { Turnkey as TurnkeyServerSDK } from '@turnkey/sdk-server';
+import { createNewWallet } from './createNewWallet';
+import { print } from './util';
 
 async function main() {
   if (!process.env.SIGN_WITH) {
@@ -52,10 +52,10 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  const credentials = `${process.env["TEMPO_USERNAME"]}:${process.env["TEMPO_PASSWORD"]}`;
+  const credentials = `${process.env['TEMPO_USERNAME']}:${process.env['TEMPO_PASSWORD']}`;
   // AlphaUSD TIP-20 token address
   const tip20TokenAddress =
-    "0x20c0000000000000000000000000000000000001" as `0x${string}`;
+    '0x20c0000000000000000000000000000000000001' as `0x${string}`;
   const client = createClient({
     account: turnkeyAccount as Account,
     chain: tempo({ feeToken: tip20TokenAddress }),
@@ -67,7 +67,7 @@ async function main() {
           },
         },
       }),
-      http("https://sponsor.testnet.tempo.xyz")
+      http('https://sponsor.testnet.tempo.xyz'),
     ),
   })
     .extend(publicActions)
@@ -88,26 +88,26 @@ async function main() {
     token: tip20TokenAddress,
   });
 
-  print("Network:", `${client.chain.name} (chain ID ${chainId})`);
-  print("Address:", address);
+  print('Network:', `${client.chain.name} (chain ID ${chainId})`);
+  print('Address:', address);
   print(
     `${metadata.name} Balance:`,
-    `${formatUnits(balance, metadata.decimals)}`
+    `${formatUnits(balance, metadata.decimals)}`,
   );
-  print("Transaction count:", `${transactionCount}`);
+  print('Transaction count:', `${transactionCount}`);
 
   // create a simple send transaction
   const { amount, destination } = await prompts([
     {
-      type: "text",
-      name: "amount",
-      message: "Amount to send  (default is 1 )",
-      initial: "1",
+      type: 'text',
+      name: 'amount',
+      message: 'Amount to send  (default is 1 )',
+      initial: '1',
     },
     {
-      type: "text",
-      name: "destination",
-      message: "Destination address (default is yourself)",
+      type: 'text',
+      name: 'destination',
+      message: 'Destination address (default is yourself)',
       initial: address,
     },
   ]);
@@ -115,7 +115,7 @@ async function main() {
   if (balance === 0n) {
     print(
       `Your ${metadata.name} balance is 0! Funding your account...`,
-      "See https://docs.tempo.xyz/guide/quickstart/faucet"
+      'See https://docs.tempo.xyz/guide/quickstart/faucet',
     );
 
     const receipts = await Actions.faucet.fundSync(client, {
@@ -128,15 +128,16 @@ async function main() {
     });
     print(
       `${metadata.name} Balance:`,
-      `${formatUnits(balance, metadata.decimals)}`
+      `${formatUnits(balance, metadata.decimals)}`,
     );
     print(
-      "Receipts:",
+      'Receipts:',
       `${receipts
         .map(
-          (receipt) => `https://explore.tempo.xyz/tx/${receipt.transactionHash}`
+          (receipt) =>
+            `https://explore.tempo.xyz/tx/${receipt.transactionHash}`,
         )
-        .join("\n")}`
+        .join('\n')}`,
     );
   }
 
@@ -167,8 +168,8 @@ async function main() {
   const { r, s, v } = await turnkeyClient.apiClient().signRawPayload({
     signWith: process.env.SIGN_WITH!,
     payload: serializedUnsignedTx,
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_KECCAK256",
+    encoding: 'PAYLOAD_ENCODING_HEXADECIMAL',
+    hashFunction: 'HASH_FUNCTION_KECCAK256',
   });
 
   // Combine signature with transaction
@@ -185,7 +186,7 @@ async function main() {
 
   print(
     `Sent ${amount} TIP-20 tokens to ${destination}:`,
-    `https://explore.tempo.xyz/tx/${txHash}`
+    `https://explore.tempo.xyz/tx/${txHash}`,
   );
 }
 
