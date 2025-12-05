@@ -4256,6 +4256,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         successPageDuration = 2000,
         stampWith,
         keyName,
+        keyFormat,
         clearClipboardOnPaste,
         organizationId,
       } = params || {};
@@ -4270,6 +4271,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     importType={ImportType.PrivateKey}
                     curve={curve}
                     addressFormats={addressFormats}
+                    keyFormat={keyFormat}
                     onError={(error: unknown) => {
                       reject(error);
                     }}

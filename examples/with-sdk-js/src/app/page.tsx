@@ -11,6 +11,7 @@ import {
   AuthState,
   Chain,
   ClientState,
+  KeyFormat,
   OtpType,
   useTurnkey,
   Wallet,
@@ -638,6 +639,29 @@ export default function AuthPage() {
                 Show Export Wallet Modal
               </button>
               <button
+                onClick={async () => {
+                  const res = await turnkey.httpClient?.getPrivateKeys();
+
+                  if (!res || res.privateKeys.length === 0) {
+                    console.error("No private keys found to export");
+                    return;
+                  }
+
+                  await turnkey.handleExportPrivateKey({
+                    privateKeyId: res.privateKeys[0].privateKeyId,
+                    keyFormat: KeyFormat.BitcoinTestNetWIF,
+                  });
+                }}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Show Export Private Key Modal
+              </button>
+              <button
                 data-testid="show-export-wallet-account-modal"
                 onClick={async () => {
                   if (!activeWalletAccount) {
@@ -681,6 +705,27 @@ export default function AuthPage() {
                 }}
               >
                 Show Import Wallet Modal
+              </button>
+
+              <button
+                onClick={async () =>
+                  console.log(
+                    await turnkey.handleImportPrivateKey({
+                      curve: "CURVE_SECP256K1",
+                      keyFormat: KeyFormat.BitcoinTestNetWIF,
+                      addressFormats: ["ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"],
+                      successPageDuration: 5000,
+                    }),
+                  )
+                }
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Show Import Private Key Modal
               </button>
 
               <button
@@ -1156,6 +1201,52 @@ export default function AuthPage() {
               }}
             >
               Fetch Wallets
+            </button>
+
+            <button
+              data-testid="fetch-private-keys"
+              onClick={async () => {
+                console.log(
+                  "Successfully called getPrivateKeys",
+                  await turnkey.httpClient?.getPrivateKeys(),
+                );
+              }}
+              style={{
+                backgroundColor: "green",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              Fetch Private Keys
+            </button>
+
+            <button
+              onClick={async () => {
+                const res = await turnkey.httpClient?.getPrivateKeys();
+                if (!res?.privateKeys || res.privateKeys.length === 0) {
+                  console.error("No private keys found to sign with");
+                  return;
+                }
+
+                console.log(
+                  "Successfully signed message",
+                  await turnkey.httpClient?.signRawPayload({
+                    signWith: res.privateKeys[0].privateKeyId,
+                    payload: "Hello, Turnkey!",
+                    encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+                    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "green",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              Sign Message With Private Key
             </button>
 
             <button
