@@ -6,7 +6,7 @@ import prompts from 'prompts';
 dotenv.config({ path: path.resolve(process.cwd(), '.env.local') });
 
 import { tempo } from 'tempo.ts/chains';
-import { tempoActions, Actions, withFeePayer } from 'tempo.ts/viem';
+import { tempoActions, Actions } from 'tempo.ts/viem';
 import {
   Account,
   createClient,
@@ -59,16 +59,13 @@ async function main() {
   const client = createClient({
     account: turnkeyAccount as Account,
     chain: tempo({ feeToken: tip20TokenAddress }),
-    transport: withFeePayer(
-      http(undefined, {
-        fetchOptions: {
-          headers: {
-            Authorization: `Basic ${btoa(credentials)}`,
-          },
+    transport: http(undefined, {
+      fetchOptions: {
+        headers: {
+          Authorization: `Basic ${btoa(credentials)}`,
         },
-      }),
-      http('https://sponsor.testnet.tempo.xyz'),
-    ),
+      },
+    }),
   })
     .extend(publicActions)
     .extend(walletActions)
@@ -142,7 +139,7 @@ async function main() {
   }
 
   // Convert amount string to token units (6 decimals for Tempo stablecoins)
-  const amountInUnits = parseUnits(amount, 6);
+  const amountInUnits = parseUnits(amount, metadata.decimals);
 
   // Get the transfer call data using tempo.ts token actions
   const transferCall = Actions.token.transfer.call({
@@ -185,7 +182,7 @@ async function main() {
   });
 
   print(
-    `Sent ${amount} TIP-20 tokens to ${destination}:`,
+    `Sent ${amount} ${metadata.name} to ${destination}:`,
     `https://explore.tempo.xyz/tx/${txHash}`,
   );
 }
