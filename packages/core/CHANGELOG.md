@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 1.8.2
+
+### Patch Changes
+
+- [#1127](https://github.com/tkhq/sdk/pull/1127) [`3c23fc2`](https://github.com/tkhq/sdk/commit/3c23fc27eda5325a90e79afff4cc3a16f682e1d9) Author [@moeodeh3](https://github.com/moeodeh3) - Fix duplicate providers returned by `fetchWalletProviders()` when external wallet providers announce multiple EIP-1193 providers (e.g., Backpack)
+
 ## 1.8.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @turnkey/wallet-auth-without-backend
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@1.6.2
+
 ## 0.1.3
 
 ### Patch Changes
