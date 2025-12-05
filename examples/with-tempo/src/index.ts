@@ -6,7 +6,12 @@ import prompts from "prompts";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { tempo } from "tempo.ts/chains";
-import { tempoActions, Actions } from "tempo.ts/viem";
+import {
+  tempoActions,
+  Actions,
+  withFeePayer,
+  Transaction,
+} from "tempo.ts/viem";
 import {
   Account,
   createClient,
@@ -59,13 +64,16 @@ async function main() {
   const client = createClient({
     account: turnkeyAccount as Account,
     chain: tempo({ feeToken: tip20TokenAddress }),
-    transport: http(undefined, {
-      fetchOptions: {
-        headers: {
-          Authorization: `Basic ${btoa(credentials)}`,
+    transport: withFeePayer(
+      http(undefined, {
+        fetchOptions: {
+          headers: {
+            Authorization: `Basic ${btoa(credentials)}`,
+          },
         },
-      },
-    }),
+      }),
+      http("https://sponsor.testnet.tempo.xyz"),
+    ),
   })
     .extend(publicActions)
     .extend(walletActions)
@@ -169,8 +177,12 @@ async function main() {
     hashFunction: "HASH_FUNCTION_KECCAK256",
   });
 
+  console.log("rsv", { r, s, v });
+  const sponsoredTx = { ...serializableRequest, feePayer: true };
+  console.log("sponsoredTx", sponsoredTx);
+
   // Combine signature with transaction
-  const serializedTx = serializeTransaction(serializableRequest, {
+  const serializedTx = await Transaction.serialize(sponsoredTx, {
     r: r as `0x${string}`,
     s: s as `0x${string}`,
     v: BigInt(v),
