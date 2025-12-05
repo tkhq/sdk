@@ -89,6 +89,10 @@ export enum KeyFormat {
   Hexadecimal = "HEXADECIMAL",
   // Key format used by Phantom and Solflare for Solana keys
   Solana = "SOLANA",
+  // Wallet Import Format used by Bitcoin wallets like Electrum and Bitcoin Core
+  BitcoinWIF = "BITCOIN_WIF",
+  // Bech32 format used by modern Bitcoin wallets & Sui wallets
+  SuiBech32 = "SUI_BECH32",
 }
 
 type TStamp = {
