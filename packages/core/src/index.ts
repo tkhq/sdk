@@ -24,7 +24,8 @@ export * from "./__types__/error";
 export * from "./__types__/export";
 export * from "./__types__/external-wallets";
 export * from "./__types__/http";
-export * from "./__types__/method-types";
+export * from "./__types__/method-types/import-export-params";
+export * from "./__types__/method-types/shared";
 
 /**@internal */
 export {

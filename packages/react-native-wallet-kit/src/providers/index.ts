@@ -1,1 +1,3 @@
-export { TurnkeyProvider } from "./TurnkeyProvider";
+export { useTurnkey } from "../hooks/use-turnkey";
+export * from "./TurnkeyProvider";
+export type { ClientContextType } from "./Types";
