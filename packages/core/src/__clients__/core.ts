@@ -2737,7 +2737,8 @@ export class TurnkeyClient {
     params: SignAndSendTransactionParams,
   ): Promise<string> => {
     const {
-      organizationId,
+      organizationId: organizationIdFromParams,
+      stampWith = this.config.defaultStamperType,
       from,
       sponsor,
       caip2,
@@ -2749,6 +2750,19 @@ export class TurnkeyClient {
       maxFeePerGas,
       maxPriorityFeePerGas,
     } = params;
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
+      throw new TurnkeyError(
+        "Organization ID must be provided to fetch user",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -2818,12 +2832,28 @@ export class TurnkeyClient {
    * @throws {Error | string} If the transaction fails or is cancelled.
    */
 
-  pollTransactionStatus(
+  async pollTransactionStatus(
     params: PollTransactionStatusParams,
   ): Promise<TGetSendTransactionStatusResponse> {
-    const { organizationId, sendTransactionStatusId, pollingIntervalMs } =
-      params;
+    const {
+      organizationId: organizationIdFromParams,
+      stampWith = this.config.defaultStamperType,
+      sendTransactionStatusId,
+      pollingIntervalMs,
+    } = params;
 
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
+      throw new TurnkeyError(
+        "Organization ID must be provided to fetch user",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
     return withTurnkeyErrorHandling(
       async () => {
         return new Promise((resolve, reject) => {
