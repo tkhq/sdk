@@ -138,16 +138,52 @@ async function main() {
     );
   }
 
-  // @ts-expect-error
-  const { receipt } = await client.token.transferSync({
+  // Convert amount string to token units (6 decimals for Tempo stablecoins)
+  const amountInUnits = parseUnits(amount, metadata.decimals);
+
+  // Get the transfer call data using tempo.ts token actions
+  const transferCall = Actions.token.transfer.call({
     token: tip20TokenAddress,
     to: destination as `0x${string}`,
-    amount: parseUnits(amount, metadata.decimals),
+    amount: amountInUnits,
+  });
+
+  // Prepare the transaction request
+  const request = await client.prepareTransactionRequest({
+    ...transferCall,
+    value: 0n, // Tempo requires value to be 0
+    account: turnkeyAccount as Account,
+  });
+
+  // Extract only the serializable transaction fields (remove Tempo-specific fields)
+  const { account, feeToken, ...serializableRequest } = request as any;
+
+  // Get the serialized unsigned transaction
+  const serializedUnsignedTx = serializeTransaction(serializableRequest);
+
+  // Sign the transaction with Turnkey
+  const { r, s, v } = await turnkeyClient.apiClient().signRawPayload({
+    signWith: process.env.SIGN_WITH!,
+    payload: serializedUnsignedTx,
+    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+    hashFunction: "HASH_FUNCTION_KECCAK256",
+  });
+
+  // Combine signature with transaction
+  const serializedTx = serializeTransaction(serializableRequest, {
+    r: r as `0x${string}`,
+    s: s as `0x${string}`,
+    v: BigInt(v),
+  });
+
+  // Send the raw signed transaction
+  const txHash = await client.sendRawTransaction({
+    serializedTransaction: serializedTx,
   });
 
   print(
     `Sent ${amount} ${metadata.name} to ${destination}:`,
-    `https://explore.tempo.xyz/tx/${receipt.transactionHash}`,
+    `https://explore.tempo.xyz/tx/${txHash}`,
   );
 }
 
