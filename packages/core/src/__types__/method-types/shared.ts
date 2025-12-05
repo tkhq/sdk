@@ -236,13 +236,15 @@ export type SignAndSendRawTransactionParams = {
 };
 
 export type PollTransactionStatusParams = {
-  organizationId: string;
+  organizationId?: string;
+  stampWith?: StamperType | undefined;
   sendTransactionStatusId: string;
   pollingIntervalMs?: number;
 };
 
 export type SignAndSendTransactionParams = {
   organizationId?: string | undefined;
+  stampWith?: StamperType | undefined;
   from: string;
   sponsor?: boolean | undefined;
   caip2: string;
