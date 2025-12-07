@@ -20,6 +20,52 @@ import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { createAccount, createNewWallet } from "./turnkey";
 import { print } from "./util";
 
+async function checkAndFundBalance(
+  client: ReturnType<typeof createClient>,
+  tokenAddress: `0x${string}`,
+  accountAddress: `0x${string}`,
+  metadata: { name: string; decimals: number },
+) {
+  const balance = await Actions.token.getBalance(client, {
+    token: tokenAddress,
+    account: accountAddress,
+  });
+
+  const printBalance = (balance: bigint) => {
+    print(
+      `${accountAddress} ${metadata.name} Balance:`,
+      `${formatUnits(balance, metadata.decimals)}`,
+    );
+  }
+
+  if (balance === 0n) {
+    print(
+      `${accountAddress} ${metadata.name} balance is 0! Funding account...`,
+      "Learn more at https://docs.tempo.xyz/guide/quickstart/faucet",
+    );
+
+    const receipts = await Actions.faucet.fundSync(client, {
+      account: accountAddress,
+    });
+
+    printBalance(await Actions.token.getBalance(client, {
+      token: tokenAddress,
+      account: accountAddress,
+    }));
+    print(
+      "Receipts:",
+      `${receipts
+        .map(
+          (receipt) =>
+            `https://explore.tempo.xyz/tx/${receipt.transactionHash}`,
+        )
+        .join("\t\n")}`,
+    );
+  } else {
+    printBalance(balance);
+  }
+}
+
 async function main() {
   if (!process.env.SIGN_WITH) {
     // If you don't specify a `SIGN_WITH`, we'll create a new wallet for you via calling the Turnkey API.
@@ -64,22 +110,12 @@ async function main() {
   const address = client.account.address;
   const transactionCount = await client.getTransactionCount({ address });
 
-  // Check TIP-20 token balance using tempo.ts token actions
-  let balance = await Actions.token.getBalance(client, {
-    token: tip20TokenAddress,
-    account: address,
-  });
-
   const metadata = await Actions.token.getMetadata(client, {
     token: tip20TokenAddress,
   });
 
   print("Network:", `${client.chain.name} (chain ID ${chainId})`);
   print("Address:", address);
-  print(
-    `${metadata.name} Balance:`,
-    `${formatUnits(balance, metadata.decimals)}`,
-  );
   print("Transaction count:", `${transactionCount}`);
 
   // create a simple send transaction
@@ -109,32 +145,15 @@ async function main() {
     },
   ]);
 
-  if (balance === 0n) {
-    print(
-      `Your ${metadata.name} balance is 0! Funding your account...`,
-      "Learn more at https://docs.tempo.xyz/guide/quickstart/faucet",
-    );
+  // Check balances and fund if needed
+  await checkAndFundBalance(client, tip20TokenAddress, address, metadata);
 
-    const receipts = await Actions.faucet.fundSync(client, {
-      account: address,
-    });
-
-    balance = await Actions.token.getBalance(client, {
-      token: tip20TokenAddress,
-      account: address,
-    });
-    print(
-      `${metadata.name} Balance:`,
-      `${formatUnits(balance, metadata.decimals)}`,
-    );
-    print(
-      "Receipts:",
-      `${receipts
-        .map(
-          (receipt) =>
-            `https://explore.tempo.xyz/tx/${receipt.transactionHash}`,
-        )
-        .join("\n")}`,
+  if (useSponsor && process.env.SPONSOR_WITH) {
+    await checkAndFundBalance(
+      client,
+      tip20TokenAddress,
+      process.env.SPONSOR_WITH as `0x${string}`,
+      metadata,
     );
   }
 
