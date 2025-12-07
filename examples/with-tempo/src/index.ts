@@ -36,7 +36,7 @@ async function checkAndFundBalance(
       `${accountAddress} ${metadata.name} Balance:`,
       `${formatUnits(balance, metadata.decimals)}`,
     );
-  }
+  };
 
   if (balance === 0n) {
     print(
@@ -48,10 +48,12 @@ async function checkAndFundBalance(
       account: accountAddress,
     });
 
-    printBalance(await Actions.token.getBalance(client, {
-      token: tokenAddress,
-      account: accountAddress,
-    }));
+    printBalance(
+      await Actions.token.getBalance(client, {
+        token: tokenAddress,
+        account: accountAddress,
+      }),
+    );
     print(
       "Receipts:",
       `${receipts
@@ -138,9 +140,11 @@ async function main() {
     {
       type: "confirm",
       name: "useSponsor",
-      message: process.env.SPONSOR_WITH
-        ? `Use sponsor wallet (${process.env.SPONSOR_WITH}) to pay fees?`
-        : "Use public sponsor endpoint (sponsor.testnet.tempo.xyz) to pay fees?",
+      message: `${
+        process.env.SPONSOR_WITH
+          ? `Use sponsor wallet (${process.env.SPONSOR_WITH}) to pay fees?`
+          : "Use public sponsor endpoint (sponsor.testnet.tempo.xyz) to pay fees?"
+      } (default is yes)`,
       initial: true,
     },
   ]);
@@ -163,8 +167,8 @@ async function main() {
     token: tip20TokenAddress,
     to: destination as `0x${string}`,
     feePayer: useSponsor
-      // sponsor with a Turnkey account or Tempo testnet public sponsor
-      ? process.env.SPONSOR_WITH
+      ? // sponsor with a Turnkey account or Tempo testnet public sponsor
+        process.env.SPONSOR_WITH
         ? await createAccount({
             client: sdk.apiClient(),
             organizationId: process.env.ORGANIZATION_ID!,
@@ -175,8 +179,13 @@ async function main() {
   });
 
   print(
-    `Sent ${amount} ${metadata.name} to ${destination}:`,
-    `https://explore.tempo.xyz/tx/${receipt.transactionHash}`,
+    "Receipt:",
+    `https://explore.tempo.xyz/receipt/${receipt.transactionHash}`,
+  );
+
+  print(
+    `Congrats! You've sent ${amount} ${metadata.name} to ${destination}`,
+    "Learn more about gasless Tempo transactions at https://docs.tempo.xyz/guide/payments/sponsor-user-fees",
   );
 }
 
