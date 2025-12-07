@@ -126,7 +126,7 @@ async function main() {
   }
 
   // Get the transfer call data using tempo.ts token actions
-  const receipt = await client.token.transferSync({
+  const { receipt } = await client.token.transferSync({
     amount: parseUnits(amount, 6),
     token: tip20TokenAddress,
     to: destination as `0x${string}`,
