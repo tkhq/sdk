@@ -98,6 +98,17 @@ async function main() {
     },
   ]);
 
+  const { useSponsor } = await prompts([
+    {
+      type: "confirm",
+      name: "useSponsor",
+      message: process.env.SPONSOR_WITH
+        ? `Use sponsor wallet (${process.env.SPONSOR_WITH}) to pay fees?`
+        : "Use public sponsor endpoint (sponsor.testnet.tempo.xyz) to pay fees?",
+      initial: true,
+    },
+  ]);
+
   if (balance === 0n) {
     print(
       `Your ${metadata.name} balance is 0! Funding your account...`,
@@ -132,7 +143,16 @@ async function main() {
     amount: parseUnits(amount, 6),
     token: tip20TokenAddress,
     to: destination as `0x${string}`,
-    feePayer: true,
+    feePayer: useSponsor
+      // sponsor with a Turnkey account or Tempo testnet public sponsor
+      ? process.env.SPONSOR_WITH
+        ? await createAccount({
+            client: sdk.apiClient(),
+            organizationId: process.env.ORGANIZATION_ID!,
+            signWith: process.env.SPONSOR_WITH,
+          })
+        : true
+      : undefined,
   });
 
   print(

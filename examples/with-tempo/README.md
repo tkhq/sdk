@@ -38,6 +38,7 @@ Now open `.env.local` and add the missing environment variables:
 - `BASE_URL`
 - `ORGANIZATION_ID`
 - `SIGN_WITH` -- a Turnkey wallet account address, private key address, or private key ID. If you leave this blank, we'll create a wallet for you.
+- `SPONSOR_WITH` -- (optional) a Turnkey wallet address to sponsor transaction fees. If not set, the public sponsor endpoint will be used when sponsoring is enabled.
 
 
 ### 3/ Running the scripts
