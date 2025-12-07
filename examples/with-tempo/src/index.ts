@@ -15,7 +15,6 @@ import {
   walletActions,
   parseUnits,
   formatUnits,
-  serializeTransaction,
 } from "viem";
 import {
   createAccount,
@@ -55,16 +54,15 @@ async function main() {
     signWith: process.env.SIGN_WITH!,
   });
 
-  const credentials = `${process.env['TEMPO_USERNAME']}:${process.env['TEMPO_PASSWORD']}`;
   // AlphaUSD TIP-20 token address
-  const tip20TokenAddress = "0x20c0000000000000000000000000000000000001" as `0x${string}`;
+  const tip20TokenAddress = "0x20c0000000000000000000000000000000000001";
   const client = createClient({
     account: turnkeyAccount as Account,
     chain: tempo({ feeToken: tip20TokenAddress }),
     transport: http(undefined, {
       fetchOptions: {
         headers: {
-          Authorization: `Basic ${btoa(credentials)}`,
+          Authorization: `Basic ${btoa(`${process.env['TEMPO_USERNAME']}:${process.env['TEMPO_PASSWORD']}`)}`,
         },
       },
     }),
@@ -127,52 +125,16 @@ async function main() {
     });
   }
 
-  // Convert amount string to token units (6 decimals for Tempo stablecoins)
-  const amountInUnits = parseUnits(amount, 6);
-
   // Get the transfer call data using tempo.ts token actions
-  const transferCall = Actions.token.transfer.call({
+  const receipt = await client.token.transferSync({
+    amount: parseUnits(amount, 6),
     token: tip20TokenAddress,
     to: destination as `0x${string}`,
-    amount: amountInUnits,
-  });
-
-  // Prepare the transaction request
-  const request = await client.prepareTransactionRequest({
-    ...transferCall,
-    value: 0n, // Tempo requires value to be 0
-    account: turnkeyAccount as Account,
-  });
-
-  // Extract only the serializable transaction fields (remove Tempo-specific fields)
-  const { account, feeToken, ...serializableRequest } = request as any;
-
-  // Get the serialized unsigned transaction
-  const serializedUnsignedTx = serializeTransaction(serializableRequest);
-
-  // Sign the transaction with Turnkey
-  const { r, s, v } = await turnkeyClient.apiClient().signRawPayload({
-    signWith: process.env.SIGN_WITH!,
-    payload: serializedUnsignedTx,
-    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
-    hashFunction: "HASH_FUNCTION_KECCAK256",
-  });
-
-  // Combine signature with transaction
-  const serializedTx = serializeTransaction(serializableRequest, {
-    r: r as `0x${string}`,
-    s: s as `0x${string}`,
-    v: BigInt(v),
-  });
-
-  // Send the raw signed transaction
-  const txHash = await client.sendRawTransaction({
-    serializedTransaction: serializedTx,
   });
 
   print(
     `Sent ${amount} TIP-20 tokens to ${destination}:`,
-    `https://explore.tempo.xyz/tx/${txHash}`,
+    `https://explore.tempo.xyz/tx/${receipt.transactionHash}`,
   );
 }
 

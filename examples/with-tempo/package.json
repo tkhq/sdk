@@ -14,8 +14,8 @@
     "@turnkey/sdk-server": "workspace:*",
     "dotenv": "^16.0.3",
     "prompts": "^2.4.2",
-    "tempo.ts": "^0.7.5",
-    "viem": "2.38.0"
+    "tempo.ts": "^0.10.1",
+    "viem": "^2.41.2"
   },
   "devDependencies": {
     "@types/prompts": "^2.4.2"
