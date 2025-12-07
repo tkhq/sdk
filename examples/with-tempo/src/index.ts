@@ -16,13 +16,9 @@ import {
   parseUnits,
   formatUnits,
 } from "viem";
-import {
-  createAccount,
-} from "@turnkey/viem";
-import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
-import { createNewWallet } from "./createNewWallet";
+import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
+import { createAccount, createNewWallet } from "./turnkey";
 import { print } from "./util";
-
 
 async function main() {
   if (!process.env.SIGN_WITH) {
@@ -31,25 +27,15 @@ async function main() {
     return;
   }
 
-  const turnkeyClient = new TurnkeyServerSDK({
+  const sdk = new TurnkeySDKServer({
     apiBaseUrl: process.env.BASE_URL!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
-    // The following config is useful in contexts where an activity requires consensus.
-    // By default, if the activity is not initially successful, it will poll a maximum
-    // of 3 times with an interval of 1000 milliseconds. Otherwise, use the values below.
-    //
-    // -----
-    //
-    // activityPoller: {
-    //   intervalMs: 5_000,
-    //   numRetries: 10,
-    // },
   });
 
-  const turnkeyAccount = await createAccount({
-    client: turnkeyClient.apiClient(),
+  const account = await createAccount({
+    client: sdk.apiClient(),
     organizationId: process.env.ORGANIZATION_ID!,
     signWith: process.env.SIGN_WITH!,
   });
@@ -57,25 +43,24 @@ async function main() {
   // AlphaUSD TIP-20 token address
   const tip20TokenAddress = "0x20c0000000000000000000000000000000000001";
   const client = createClient({
-    account: turnkeyAccount as Account,
+    account: account as Account,
     chain: tempo({ feeToken: tip20TokenAddress }),
     transport: http(undefined, {
       fetchOptions: {
         headers: {
-          Authorization: `Basic ${btoa(`${process.env['TEMPO_USERNAME']}:${process.env['TEMPO_PASSWORD']}`)}`,
+          Authorization: `Basic ${btoa(`${process.env["TEMPO_USERNAME"]}:${process.env["TEMPO_PASSWORD"]}`)}`,
         },
       },
     }),
   })
-  .extend(publicActions)
-  .extend(walletActions)
-  .extend(tempoActions())
-  
+    .extend(publicActions)
+    .extend(walletActions)
+    .extend(tempoActions());
 
   const chainId = client.chain.id;
   const address = client.account.address;
   const transactionCount = await client.getTransactionCount({ address });
-  
+
   // Check TIP-20 token balance using tempo.ts token actions
   let balance = await Actions.token.getBalance(client, {
     token: tip20TokenAddress,
