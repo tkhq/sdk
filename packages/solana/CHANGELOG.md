@@ -1,5 +1,12 @@
 # @turnkey/solana
 
+## 1.1.17
+
+### Patch Changes
+
+- Updated dependencies [[`3c23fc2`](https://github.com/tkhq/sdk/commit/3c23fc27eda5325a90e79afff4cc3a16f682e1d9)]:
+  - @turnkey/core@1.8.2
+
 ## 1.1.16
 
 ### Patch Changes

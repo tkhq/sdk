@@ -1,5 +1,18 @@
 # @turnkey/react-native-wallet-kit
 
+## 1.2.0
+
+### Minor Changes
+
+- [#1119](https://github.com/tkhq/sdk/pull/1119) [`ea9885b`](https://github.com/tkhq/sdk/commit/ea9885bd0c69f0dd2e1b3c695639d90184194019) Author [@moeodeh3](https://github.com/moeodeh3) - Export shared types from `@turnkey/core`
+
+### Patch Changes
+
+- [#1123](https://github.com/tkhq/sdk/pull/1123) [`3d743df`](https://github.com/tkhq/sdk/commit/3d743df46f029afb8664e495934fd7811d415597) Author [@moeodeh3](https://github.com/moeodeh3) - Fix AsyncStorage import for OAuth 2.0 flows (Discord, X) to support bundlers with non-standard CJS/ESM interop
+
+- Updated dependencies [[`3c23fc2`](https://github.com/tkhq/sdk/commit/3c23fc27eda5325a90e79afff4cc3a16f682e1d9)]:
+  - @turnkey/core@1.8.2
+
 ## 1.1.7
 
 ### Patch Changes
