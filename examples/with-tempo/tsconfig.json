@@ -3,8 +3,8 @@
   "compilerOptions": {
     "noEmit": true,
     "tsBuildInfoFile": "./.cache/.tsbuildinfo",
-    "moduleResolution": "node16",
-    "module": "NodeNext"
+    "moduleResolution": "bundler",
+    "module": "ESNext"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
 }
