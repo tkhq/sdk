@@ -115,6 +115,7 @@ export type TIframeStyles = {
   fontWeight?: string;
   fontFamily?: string;
   color?: string;
+  labelColor?: string;
   backgroundColor?: string;
   width?: string;
   height?: string;
@@ -130,6 +131,8 @@ export type TIframeStyles = {
 
 export type TIframeSettings = {
   styles?: TIframeStyles;
+  passphraseStyles?: TIframeStyles;
+  enablePassphrase?: boolean;
 };
 
 export enum MessageType {
