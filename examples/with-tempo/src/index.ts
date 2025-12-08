@@ -152,11 +152,17 @@ async function main() {
   // Check balances and fund if needed
   await checkAndFundBalance(client, tip20TokenAddress, address, metadata);
 
-  if (useSponsor && process.env.SPONSOR_WITH) {
+  const sponsorAccount = (useSponsor && process.env.SPONSOR_WITH) ? await createAccount({
+    client: sdk.apiClient(),
+    organizationId: process.env.ORGANIZATION_ID!,
+    signWith: process.env.SPONSOR_WITH,
+  }) : undefined;
+
+  if (sponsorAccount) {
     await checkAndFundBalance(
       client,
       tip20TokenAddress,
-      process.env.SPONSOR_WITH as `0x${string}`,
+      sponsorAccount.address as `0x${string}`,
       metadata,
     );
   }
@@ -169,11 +175,7 @@ async function main() {
     feePayer: useSponsor
       ? // sponsor with a Turnkey account or Tempo testnet public sponsor
         process.env.SPONSOR_WITH
-        ? await createAccount({
-            client: sdk.apiClient(),
-            organizationId: process.env.ORGANIZATION_ID!,
-            signWith: process.env.SPONSOR_WITH,
-          })
+        ? sponsorAccount
         : true
       : undefined,
   });
