@@ -6,7 +6,15 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { tempo } from "tempo.ts/chains";
 import { tempoActions, Actions, withFeePayer } from "tempo.ts/viem";
-import { Account, createClient, http, publicActions, walletActions, parseUnits, formatUnits } from "viem";
+import {
+  Account,
+  createClient,
+  http,
+  publicActions,
+  walletActions,
+  parseUnits,
+  formatUnits,
+} from "viem";
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { createAccount, createNewWallet } from "./turnkey";
 import { print } from "./util";
@@ -18,19 +26,39 @@ async function ensureFunded(
   address: `0x${string}`,
   token: { address: `0x${string}`; name: string; decimals: number },
 ) {
-  const balance = await Actions.token.getBalance(client, { token: token.address, account: address });
+  const balance = await Actions.token.getBalance(client, {
+    token: token.address,
+    account: address,
+  });
 
   if (balance > 0n) {
-    print(`${address} ${token.name} Balance:`, formatUnits(balance, token.decimals));
+    print(
+      `${address} ${token.name} Balance:`,
+      formatUnits(balance, token.decimals),
+    );
     return;
   }
 
-  print(`${address} ${token.name} balance is 0! Funding...`, "https://docs.tempo.xyz/guide/quickstart/faucet");
+  print(
+    `${address} ${token.name} balance is 0! Funding...`,
+    "https://docs.tempo.xyz/guide/quickstart/faucet",
+  );
   const receipts = await Actions.faucet.fundSync(client, { account: address });
-  const newBalance = await Actions.token.getBalance(client, { token: token.address, account: address });
+  const newBalance = await Actions.token.getBalance(client, {
+    token: token.address,
+    account: address,
+  });
 
-  print(`${address} ${token.name} Balance:`, formatUnits(newBalance, token.decimals));
-  print("Receipts:", receipts.map((r) => `https://explore.tempo.xyz/tx/${r.transactionHash}`).join("\n\t"));
+  print(
+    `${address} ${token.name} Balance:`,
+    formatUnits(newBalance, token.decimals),
+  );
+  print(
+    "Receipts:",
+    receipts
+      .map((r) => `https://explore.tempo.xyz/tx/${r.transactionHash}`)
+      .join("\n\t"),
+  );
 }
 
 async function main() {
@@ -58,7 +86,9 @@ async function main() {
     transport: withFeePayer(
       http(undefined, {
         fetchOptions: {
-          headers: { Authorization: `Basic ${btoa(`${process.env.TEMPO_USERNAME}:${process.env.TEMPO_PASSWORD}`)}` },
+          headers: {
+            Authorization: `Basic ${btoa(`${process.env.TEMPO_USERNAME}:${process.env.TEMPO_PASSWORD}`)}`,
+          },
         },
       }),
       http("https://sponsor.testnet.tempo.xyz"),
@@ -68,16 +98,26 @@ async function main() {
     .extend(walletActions)
     .extend(tempoActions());
 
-  const { name, decimals } = await Actions.token.getMetadata(client, { token: TIP20_TOKEN });
+  const { name, decimals } = await Actions.token.getMetadata(client, {
+    token: TIP20_TOKEN,
+  });
   const token = { address: TIP20_TOKEN, name, decimals };
 
   print("Network:", `${client.chain.name} (chain ID ${client.chain.id})`);
   print("Address:", client.account.address);
-  print("Nonce:", `${await client.getTransactionCount({ address: client.account.address })}`);
+  print(
+    "Nonce:",
+    `${await client.getTransactionCount({ address: client.account.address })}`,
+  );
 
   const { amount, destination, useSponsor } = await prompts([
     { type: "text", name: "amount", message: "Amount to send", initial: "1" },
-    { type: "text", name: "destination", message: "Destination address", initial: client.account.address },
+    {
+      type: "text",
+      name: "destination",
+      message: "Destination address",
+      initial: client.account.address,
+    },
     {
       type: "confirm",
       name: "useSponsor",
@@ -114,7 +154,10 @@ async function main() {
   });
 
   print("Receipt:", `https://explore.tempo.xyz/tx/${receipt.transactionHash}`);
-  print(`Sent ${amount} ${name} to ${destination}!`, "https://docs.tempo.xyz/guide/payments/sponsor-user-fees");
+  print(
+    `Sent ${amount} ${name} to ${destination}!`,
+    "https://docs.tempo.xyz/guide/payments/sponsor-user-fees",
+  );
 }
 
 main().catch((e) => {
