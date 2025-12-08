@@ -438,7 +438,7 @@ export async function signTransaction<
       ? { ...transaction, sidecars: false }
       : transaction;
 
-  const serializedTx = serializer(signableTransaction);
+  const serializedTx = await serializer(signableTransaction);
   const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
   const signedTx = await signTransactionWithErrorWrapping(
     client,
