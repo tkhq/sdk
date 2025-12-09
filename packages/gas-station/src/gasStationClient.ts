@@ -9,14 +9,17 @@ import {
   type Hex,
 } from "viem";
 import { gasStationAbi } from "./abi/gas-station";
+import { reimbursableGasStationAbi } from "./abi/reimbursable-gas-station";
 import type {
   GasStationConfig,
   ExecutionIntent,
   ApprovalExecutionIntent,
+  ReimbursableExecutionIntent,
 } from "./config";
 import {
   DEFAULT_DELEGATE_CONTRACT,
   DEFAULT_EXECUTION_CONTRACT,
+  DEFAULT_REIMBURSABLE_USDC_CONTRACT,
 } from "./config";
 import { IntentBuilder } from "./intentBuilder";
 import {
@@ -29,6 +32,7 @@ export class GasStationClient {
   private publicClient: PublicClient;
   private delegateContract: Hex;
   private executionContract: Hex;
+  private reimbursableContract: Hex;
 
   constructor(config: GasStationConfig) {
     this.walletClient = config.walletClient;
@@ -40,6 +44,8 @@ export class GasStationClient {
       config.delegateContract ?? DEFAULT_DELEGATE_CONTRACT;
     this.executionContract =
       config.executionContract ?? DEFAULT_EXECUTION_CONTRACT;
+    this.reimbursableContract =
+      config.reimbursableContract ?? DEFAULT_REIMBURSABLE_USDC_CONTRACT;
   }
 
   /**
@@ -393,6 +399,107 @@ export class GasStationClient {
       const revertReason = await this.getRevertReason(txHash);
       throw new Error(
         `Approve then execute failed: ${revertReason || "Transaction reverted"}. ` +
+          `Gas used: ${receipt.gasUsed}/${receipt.cumulativeGasUsed}. ` +
+          `Transaction hash: ${txHash}`,
+      );
+    }
+
+    return {
+      txHash,
+      blockNumber: receipt.blockNumber,
+      gasUsed: receipt.gasUsed,
+    };
+  }
+
+  /**
+   * Sign a reimbursable execution transaction (paymaster signs, doesn't send).
+   * This is useful for testing policies - the paymaster attempts to sign the execution
+   * but doesn't actually broadcast it to the network.
+   * Call this with a paymaster client to test if the paymaster can sign the execution.
+   */
+  async signReimbursableExecution(
+    intent: ReimbursableExecutionIntent,
+  ): Promise<Hex> {
+    // Pack the execution data (signature, nonce, deadline, args)
+    const packedExecutionData = packExecutionData({
+      signature: intent.signature,
+      nonce: intent.nonce,
+      deadline: intent.deadline,
+      args: intent.callData,
+    });
+
+    const callData = encodeFunctionData({
+      abi: reimbursableGasStationAbi,
+      functionName: "executeReturns",
+      args: [
+        intent.initialDepositUSDC,
+        intent.transactionGasLimitWei,
+        intent.sessionSignature,
+        intent.eoaAddress,
+        intent.outputContract,
+        intent.ethAmount,
+        packedExecutionData,
+      ],
+    });
+
+    const signedTx = await this.walletClient.signTransaction({
+      to: this.reimbursableContract,
+      data: callData,
+      gas: BigInt(300000),
+      type: "eip1559",
+      account: this.walletClient.account,
+      chain: this.walletClient.chain,
+    });
+
+    return signedTx;
+  }
+
+  /**
+   * Execute with reimbursement through the reimbursable gas station contract.
+   * The EOA pays for gas in USDC rather than the paymaster covering the cost.
+   * The contract pulls initialDepositUSDC from the EOA, executes the transaction
+   * with a gas limit of transactionGasLimitWei, and refunds any unused USDC.
+   * Call this with a paymaster client to submit the transaction (paymaster only pays initial gas).
+   */
+  async executeWithReimbursement(
+    intent: ReimbursableExecutionIntent,
+  ): Promise<{ txHash: Hex; blockNumber: bigint; gasUsed: bigint }> {
+    // Pack the execution data (signature, nonce, deadline, args)
+    const packedExecutionData = packExecutionData({
+      signature: intent.signature,
+      nonce: intent.nonce,
+      deadline: intent.deadline,
+      args: intent.callData,
+    });
+
+    const txHash = await this.walletClient.sendTransaction({
+      to: this.reimbursableContract,
+      data: encodeFunctionData({
+        abi: reimbursableGasStationAbi,
+        functionName: "executeReturns",
+        args: [
+          intent.initialDepositUSDC,
+          intent.transactionGasLimitWei,
+          intent.sessionSignature,
+          intent.eoaAddress,
+          intent.outputContract,
+          intent.ethAmount,
+          packedExecutionData,
+        ],
+      }),
+      gas: BigInt(300000),
+      account: this.walletClient.account,
+    });
+
+    const receipt = await this.publicClient.waitForTransactionReceipt({
+      hash: txHash,
+    });
+
+    if (receipt.status !== "success") {
+      // Try to get the revert reason if available
+      const revertReason = await this.getRevertReason(txHash);
+      throw new Error(
+        `Reimbursable execution failed: ${revertReason || "Transaction reverted"}. ` +
           `Gas used: ${receipt.gasUsed}/${receipt.cumulativeGasUsed}. ` +
           `Transaction hash: ${txHash}`,
       );

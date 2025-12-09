@@ -11,7 +11,7 @@ import type {
   ExecutionIntent,
   ApprovalExecutionIntent,
 } from "./config";
-import { ERC20_ABI } from "./gasStationUtils";
+import { ERC20_ABI, packSessionSignature } from "./gasStationUtils";
 
 interface IntentBuilderConfig {
   eoaWalletClient: WalletClient<Transport, Chain, Account>;
@@ -258,6 +258,60 @@ export class IntentBuilder {
       spender,
       approveAmount,
     };
+  }
+
+  /**
+   * Signs a session signature for USDC transfer authorization in the reimbursable gas station.
+   * This authorizes the reimbursable contract to interact with the USDC contract on behalf of the EOA.
+   * The session signature does NOT commit to a specific amount - amounts are specified at execution time.
+   * This allows the same session signature to be cached and reused for multiple transactions.
+   * Returns an 85-byte packed signature that can be passed to executeWithReimbursement().
+   */
+  async signSessionForUSDCTransfer(
+    currentNonce: bigint,
+    usdcAddress: Hex,
+    reimbursableContract: Hex,
+    sessionDeadline?: number,
+  ): Promise<Hex> {
+    const nonce = this.nonce ?? currentNonce;
+    // Default deadline: 1 hour from now
+    const deadline = sessionDeadline ?? Math.floor(Date.now() / 1000) + 60 * 60;
+
+    // EIP-712 domain and types for session execution
+    const domain = {
+      name: "TKGasDelegate",
+      version: "1",
+      chainId: this.config.chainId,
+      verifyingContract: this.config.eoaAddress,
+    };
+
+    // Based on hashSessionExecution from the delegate contract
+    // keccak256("SessionExecution(uint128 counter,uint32 deadline,address sender,address to)")
+    const types = {
+      SessionExecution: [
+        { name: "counter", type: "uint128" },
+        { name: "deadline", type: "uint32" },
+        { name: "sender", type: "address" },
+        { name: "to", type: "address" },
+      ],
+    };
+
+    const message = {
+      counter: nonce,
+      deadline,
+      sender: reimbursableContract,
+      to: usdcAddress,
+    };
+
+    const signature = await this.config.eoaWalletClient.signTypedData({
+      account: this.config.eoaWalletClient.account,
+      domain,
+      types,
+      primaryType: "SessionExecution",
+      message,
+    });
+
+    return packSessionSignature({ signature, nonce, deadline });
   }
 
   // Static factory method for quick intent creation
