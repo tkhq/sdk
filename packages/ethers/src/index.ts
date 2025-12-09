@@ -272,7 +272,7 @@ export class TurnkeySigner extends AbstractSigner implements ethers.Signer {
       const { activity, r, s, v } = await this.client.signRawPayload({
         signWith: this.signWith,
         payload: message,
-        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+        encoding: payloadEncoding,
         hashFunction: "HASH_FUNCTION_NO_OP",
       });
 
