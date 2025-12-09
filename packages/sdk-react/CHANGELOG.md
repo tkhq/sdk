@@ -1,5 +1,29 @@
 # @turnkey/sdk-react
 
+## 5.4.15
+
+### Patch Changes
+
+- [#1120](https://github.com/tkhq/sdk/pull/1120) [`84a9689`](https://github.com/tkhq/sdk/commit/84a96893bd2a0c73496d934499e1645ba4a33b41) Author [@moeodeh3](https://github.com/moeodeh3) - Bump `Next.js` dependency to `15.5.7` to address [Next.js RCE vulnerability in React flight protocol](https://github.com/advisories/GHSA-9qr9-h5gf-34mp)
+
+## 5.4.14
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-browser@5.13.4
+
+## 5.4.13
+
+### Patch Changes
+
+- Updated dependencies [[`80ea306`](https://github.com/tkhq/sdk/commit/80ea306025a2161ff575a5e2b45794460eafdf1b)]:
+  - @turnkey/sdk-types@0.9.0
+  - @turnkey/crypto@2.8.6
+  - @turnkey/sdk-browser@5.13.3
+  - @turnkey/wallet-stamper@1.1.8
+  - @turnkey/sdk-server@4.12.1
+
 ## 5.4.12
 
 ### Patch Changes

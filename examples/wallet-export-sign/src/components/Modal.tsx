@@ -33,21 +33,23 @@ export function Modal(props: ModalProps) {
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.customModal}>
-        <button
-          type="button"
-          onClick={props.onClose}
-          className={styles.closeButton}
-        >
-          <span className={styles.srOnly}>Close menu</span>
-          <Image
-            className={`inline-block`}
-            src="/close.svg"
-            alt="Close"
-            width={20}
-            height={20}
-            priority
-          />
-        </button>
+        <div className={styles.modalHeader}>
+          <button
+            type="button"
+            onClick={props.onClose}
+            className={styles.closeButton}
+          >
+            <span className={styles.srOnly}>Close menu</span>
+            <Image
+              className={`inline-block`}
+              src="/close.svg"
+              alt="Close"
+              width={20}
+              height={20}
+              priority
+            />
+          </button>
+        </div>
         {props.children}
       </div>
     </div>

@@ -1,5 +1,36 @@
 # @turnkey/react-wallet-kit
 
+## 1.6.2
+
+### Patch Changes
+
+- Updated dependencies [[`3c23fc2`](https://github.com/tkhq/sdk/commit/3c23fc27eda5325a90e79afff4cc3a16f682e1d9)]:
+  - @turnkey/core@1.8.2
+
+## 1.6.1
+
+### Patch Changes
+
+- Updated dependencies [[`d4768c7`](https://github.com/tkhq/sdk/commit/d4768c71b6796532c9800d546154116e5d36b255), [`7ac558c`](https://github.com/tkhq/sdk/commit/7ac558c39c3fa0ddeb6e695182a49f03ee6d4f00)]:
+  - @turnkey/core@1.8.1
+  - @turnkey/iframe-stamper@2.8.0
+
+## 1.6.0
+
+### Minor Changes
+
+- [#1090](https://github.com/tkhq/sdk/pull/1090) [`e1bd68f`](https://github.com/tkhq/sdk/commit/e1bd68f963d6bbd9c797b1a8f077efadccdec421) Author [@moeodeh3](https://github.com/moeodeh3) - - Fixed unnecessary re-renders by ensuring all `useCallback` hooks include only direct dependencies
+  - ConnectWallet and Auth model updated to show WalletConnect loading state during initialization
+
+### Patch Changes
+
+- [#1102](https://github.com/tkhq/sdk/pull/1102) [`8ed182a`](https://github.com/tkhq/sdk/commit/8ed182aa95218b348d1f8e79c235ce86f418e0bf) Author [@amircheikh](https://github.com/amircheikh) - - Added `autoFetchWalletKitConfig` option to the `TurnkeyProvider` config. Setting this to false will disable the initial `walletKitConfig` fetch, saving on initialization time. If this is disabled and you want to use the `handleLogin` modal with Turnkey's Auth Proxy, you must pass in the enabled auth methods manually into the `TurnkeyProvider` config.
+  - Fixed `refreshWallets` and `refreshUser` not working when `autoRefreshManagedState` is disabled.
+
+- Updated dependencies [[`fd2e031`](https://github.com/tkhq/sdk/commit/fd2e0318079de922512b1f5adb404b11921f77b7), [`80ea306`](https://github.com/tkhq/sdk/commit/80ea306025a2161ff575a5e2b45794460eafdf1b), [`e1bd68f`](https://github.com/tkhq/sdk/commit/e1bd68f963d6bbd9c797b1a8f077efadccdec421)]:
+  - @turnkey/core@1.8.0
+  - @turnkey/sdk-types@0.9.0
+
 ## 1.5.1
 
 ### Patch Changes

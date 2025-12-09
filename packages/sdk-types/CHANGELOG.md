@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.9.0
+
+### Minor Changes
+
+- [#1090](https://github.com/tkhq/sdk/pull/1090) [`80ea306`](https://github.com/tkhq/sdk/commit/80ea306025a2161ff575a5e2b45794460eafdf1b) Author [@moeodeh3](https://github.com/moeodeh3) - Added `WALLET_CONNECT_INITIALIZATION_ERROR` error code
+
 ## 0.8.0
 
 ### Minor Changes

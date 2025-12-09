@@ -60,7 +60,7 @@ export enum IframeEventType {
   // Value: MessageChannel port
   TurnkeyInitMessageChannel = "TURNKEY_INIT_MESSAGE_CHANNEL",
   // Event sent by the parent to get the iframe target embedded key's public key.
-  // Value: none
+  // Value: the iframe public key
   GetEmbeddedPublicKey = "GET_EMBEDDED_PUBLIC_KEY",
   // Event sent by the parent to clear the iframe's embedded key.
   // Value: none
@@ -115,6 +115,7 @@ export type TIframeStyles = {
   fontWeight?: string;
   fontFamily?: string;
   color?: string;
+  labelColor?: string;
   backgroundColor?: string;
   width?: string;
   height?: string;
@@ -130,6 +131,8 @@ export type TIframeStyles = {
 
 export type TIframeSettings = {
   styles?: TIframeStyles;
+  passphraseStyles?: TIframeStyles;
+  enablePassphrase?: boolean;
 };
 
 export enum MessageType {
@@ -178,6 +181,11 @@ export class IframeStamper {
   /**
    * Creates a new iframe stamper. This function _does not_ insert the iframe in the DOM.
    * Call `.init()` to insert the iframe element in the DOM.
+   * @param {TIframeStamperConfig} config - Configuration object for the iframe stamper
+   * @throws {Error} When running in non-browser environment
+   * @throws {Error} When MessageChannel is not supported
+   * @throws {Error} When iframeContainer is not provided
+   * @throws {Error} When iframe element with the same ID already exists
    */
   constructor(config: TIframeStamperConfig) {
     if (typeof window === "undefined") {
@@ -232,6 +240,11 @@ export class IframeStamper {
     this.pendingRequests = new Map();
   }
 
+  /**
+   * Handles incoming messages from the iframe via MessageChannel
+   * @param {MessageEvent} event - Message event from the iframe
+   * @returns {void}
+   */
   onMessageHandler(event: MessageEvent): void {
     const { type, value, requestId } = event.data || {};
 
@@ -273,7 +286,9 @@ export class IframeStamper {
 
   /**
    * Inserts the iframe on the page and returns a promise resolving to the iframe's public key
-   * @param dangerouslyOverrideIframeKeyTtl Optional TTL override for the iframe's embedded key (default 48 hours). Only use this if you are intentional about the security implications.
+   * @param {number} [dangerouslyOverrideIframeKeyTtl] - Optional TTL override for the iframe's embedded key (default 48 hours). Only use this if you are intentional about the security implications.
+   * @returns {Promise<string>} The iframe's public key
+   * @throws {Error} When contentWindow or contentWindow.postMessage does not exist
    */
   async init(
     dangerouslyOverrideIframeKeyTtl?: number | undefined,
@@ -315,7 +330,8 @@ export class IframeStamper {
   }
 
   /**
-   * Removes the iframe from the DOM
+   * Removes the iframe from the DOM and cleans up all resources
+   * @returns {void}
    */
   clear() {
     this.messageChannel?.port1?.close();
@@ -326,6 +342,7 @@ export class IframeStamper {
 
   /**
    * Returns the public key, or `null` if the underlying iframe isn't properly initialized.
+   * @returns {string | null} The iframe's public key or null
    */
   publicKey(): string | null {
     return this.iframePublicKey;
@@ -334,6 +351,7 @@ export class IframeStamper {
   /**
    * Returns the public key, or `null` if the underlying iframe isn't properly initialized.
    * This differs from the above in that it reaches out to the live iframe to see if an embedded key exists.
+   * @returns {Promise<string | null>} The embedded public key or null
    */
   async getEmbeddedPublicKey(): Promise<string | null> {
     const publicKey = await this.createRequest<string | null>(
@@ -346,6 +364,7 @@ export class IframeStamper {
 
   /**
    * Clears the embedded key within an iframe.
+   * @returns {Promise<null>} Returns null on success
    */
   async clearEmbeddedKey(): Promise<null> {
     await this.createRequest<null>(IframeEventType.ClearEmbeddedKey);
@@ -358,7 +377,7 @@ export class IframeStamper {
    * Creates a new embedded key within an iframe. If an embedded key already exists, this will return it.
    * This is primarily to be used in conjunction with `clearEmbeddedKey()`: after an embedded key is cleared,
    * this can be used to create a new one.
-   * @return {string | null} the newly created embedded public key.
+   * @returns {Promise<string | null>} The newly created embedded public key
    */
   async initEmbeddedKey(): Promise<string | null> {
     const publicKey = await this.createRequest<string | null>(
@@ -371,9 +390,10 @@ export class IframeStamper {
 
   /**
    * Generic function to abstract away request creation
-   * @param type
-   * @param payload
-   * @returns expected shape <T>
+   * @template T
+   * @param {IframeEventType} type - The type of iframe event to send
+   * @param {any} [payload={}] - Optional payload data to send with the request
+   * @returns {Promise<T>} Promise resolving to the expected response shape
    */
   private createRequest<T>(
     type: IframeEventType,
@@ -401,6 +421,8 @@ export class IframeStamper {
    * The bundle should be encrypted to the iframe's initial public key
    * Encryption should be performed with HPKE (RFC 9180).
    * This is used during recovery and auth flows.
+   * @param {string} bundle - The encrypted credential bundle to inject
+   * @returns {Promise<boolean>} Returns true on successful injection
    */
   async injectCredentialBundle(bundle: string): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.InjectCredentialBundle, {
@@ -414,16 +436,23 @@ export class IframeStamper {
    * Encryption should be performed with HPKE (RFC 9180).
    * The key format to encode the private key in after it's exported and decrypted: HEXADECIMAL or SOLANA. Defaults to HEXADECIMAL.
    * This is used during the private key export flow.
+   * @param {string} bundle - The encrypted export bundle to inject
+   * @param {string} organizationId - The organization ID
+   * @param {KeyFormat} keyFormat - [Optional] The key format (HEXADECIMAL or SOLANA). Defaults to HEXADECIMAL
+   * @param {string} address - [Optional] Address corresponding to the key bundle (case sensitive)
+   * @returns {Promise<boolean>} Returns true on successful injection
    */
   async injectKeyExportBundle(
     bundle: string,
     organizationId: string,
     keyFormat?: KeyFormat,
+    address?: string,
   ): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.InjectKeyExportBundle, {
       value: bundle,
       keyFormat,
       organizationId,
+      address,
     });
   }
 
@@ -432,6 +461,9 @@ export class IframeStamper {
    * The bundle should be encrypted to the iframe's initial public key
    * Encryption should be performed with HPKE (RFC 9180).
    * This is used during the wallet export flow.
+   * @param {string} bundle - The encrypted wallet export bundle to inject
+   * @param {string} organizationId - The organization ID
+   * @returns {Promise<boolean>} Returns true on successful injection
    */
   async injectWalletExportBundle(
     bundle: string,
@@ -449,6 +481,10 @@ export class IframeStamper {
   /**
    * Function to inject an import bundle into the iframe
    * This is used to initiate either the wallet import flow or the private key import flow.
+   * @param {string} bundle - The import bundle to inject
+   * @param {string} organizationId - The organization ID
+   * @param {string} userId - The user ID
+   * @returns {Promise<boolean>} Returns true on successful injection
    */
   async injectImportBundle(
     bundle: string,
@@ -467,6 +503,7 @@ export class IframeStamper {
    * The bundle should be encrypted to Turnkey's Signer enclave's initial public key
    * Encryption should be performed with HPKE (RFC 9180).
    * This is used during the wallet import flow.
+   * @returns {Promise<string>} The encrypted wallet bundle
    */
   async extractWalletEncryptedBundle(): Promise<string> {
     return this.createRequest<string>(
@@ -480,6 +517,8 @@ export class IframeStamper {
    * Encryption should be performed with HPKE (RFC 9180).
    * The key format to encode the private key in before it's encrypted and imported: HEXADECIMAL or SOLANA. Defaults to HEXADECIMAL.
    * This is used during the private key import flow.
+   * @param {KeyFormat} [keyFormat] - The key format (HEXADECIMAL or SOLANA). Defaults to HEXADECIMAL
+   * @returns {Promise<string>} The encrypted key bundle
    */
   async extractKeyEncryptedBundle(keyFormat?: KeyFormat): Promise<string> {
     return this.createRequest<string>(
@@ -491,6 +530,8 @@ export class IframeStamper {
   /**
    * Function to apply settings on allowed parameters in the iframe
    * This is used to style the HTML element used for plaintext in wallet and private key import.
+   * @param {TIframeSettings} settings - The settings object containing styles to apply
+   * @returns {Promise<boolean>} Returns true on successful application
    */
   async applySettings(settings: TIframeSettings): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.ApplySettings, {
@@ -500,6 +541,9 @@ export class IframeStamper {
 
   /**
    * Function to sign a payload with the underlying iframe
+   * @param {string} payload - The payload to sign
+   * @returns {Promise<TStamp>} Object containing stamp header name and value
+   * @throws {Error} When iframe public key is null (init() not called/awaited)
    */
   async stamp(payload: string): Promise<TStamp> {
     if (this.iframePublicKey === null) {
@@ -514,28 +558,42 @@ export class IframeStamper {
   }
 
   /**
-   * Function to sign a transaction using an embedded private key in-memory within an iframe
+   * Function to sign a message using an embedded private key in-memory within an iframe
    * Returns the signed message string
+   * @param {TSignableMessage} message - The message to sign with type (Ethereum or Solana)
+   * @param {string} address - [Optional] Address to sign with
+   * @returns {Promise<string>} The signed message string
    */
-  async signMessage(message: TSignableMessage): Promise<string> {
+  async signMessage(
+    message: TSignableMessage,
+    address?: string,
+  ): Promise<string> {
     return this.createRequest<string>(IframeEventType.SignMessage, {
       value: JSON.stringify(message),
+      address,
     });
   }
 
   /**
-   * Function to sign a message using an embedded private key in-memory within an iframe
+   * Function to sign a transaction using an embedded private key in-memory within an iframe
    * Returns the signed, serialized transaction payload
+   * @param {TSignableTransaction} transaction - The transaction to sign with type (Ethereum or Solana)
+   * @param {string} address - [Optional] Address to sign with
+   * @returns {Promise<string>} The signed, serialized transaction payload
    */
-  async signTransaction(transaction: TSignableTransaction): Promise<string> {
+  async signTransaction(
+    transaction: TSignableTransaction,
+    address?: string,
+  ): Promise<string> {
     return this.createRequest<string>(IframeEventType.SignTransaction, {
       value: JSON.stringify(transaction),
+      address,
     });
   }
 
   /**
    * Function to clear the iframe's in-memory embedded private key. For now, we assume that there will be only one private key at most.
-   * Returns boolean
+   * @returns {Promise<boolean>} Returns true on successful clearing
    */
   async clearEmbeddedPrivateKey(): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.clearEmbeddedPrivateKey);

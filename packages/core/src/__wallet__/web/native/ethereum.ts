@@ -81,6 +81,7 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
    */
   getProviders = async (): Promise<WalletProvider[]> => {
     const discovered: WalletProvider[] = [];
+    const seenRdns = new Set<string>();
 
     type AnnounceEvent = CustomEvent<{
       info: WalletProviderInfo;
@@ -91,6 +92,17 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
 
     const handler = (ev: AnnounceEvent): void => {
       const { provider, info } = ev.detail;
+
+      // some wallets (e.g., Backpack) announce multiple providers. They do this to expose providers
+      // that extend EIP-1193 capabilities with additional methods. Since every provider we receive
+      // is EIP-1193 compliant, it doesn't matter which one we take. Here we just take the first
+      // one to avoid duplicates
+      if (info.rdns && seenRdns.has(info.rdns)) {
+        return;
+      }
+      if (info.rdns) {
+        seenRdns.add(info.rdns);
+      }
 
       const promise = (async () => {
         let connectedAddresses: string[] = [];
@@ -104,9 +116,17 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
           });
           if (Array.isArray(accounts)) connectedAddresses = accounts;
 
-          chainId = await (provider as any).request({
-            method: "eth_chainId",
-          });
+          // we only request the chainId if there is a connected account because:
+          //
+          // 1. if there are no connected accounts, the chainId is irrelevant
+          //
+          // 2. some non-Ethereum-native wallets (e.g., Cosmos-based wallets) veer off EIP-1193 standards and prompt
+          //    the user on chain-related RPC calls like `eth_chainId` because they enforce chain-level permissions
+          if (connectedAddresses.length > 0) {
+            chainId = await (provider as any).request({
+              method: "eth_chainId",
+            });
+          }
         } catch {
           // fail silently
         }

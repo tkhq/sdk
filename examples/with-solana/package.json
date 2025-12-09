@@ -11,6 +11,7 @@
     "jupiter-swap": "pnpm tsx src/jupiterSwap.ts",
     "with-fee-payer": "pnpm tsx src/withFeePayer.ts",
     "add-signature": "pnpm tsx src/addSignature.ts",
+    "broadcast": "pnpm tsx src/broadcast.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },

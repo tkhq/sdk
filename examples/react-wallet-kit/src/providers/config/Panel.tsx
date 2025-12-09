@@ -45,6 +45,8 @@ const omitKeys = [
   "createSuborgParams",
   "autoRefreshSession",
   "oauthConfig",
+  "autoFetchWalletKitConfig",
+  "autoRefreshManagedState",
 ];
 
 interface AuthMethod {

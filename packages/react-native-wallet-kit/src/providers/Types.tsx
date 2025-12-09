@@ -1,5 +1,3 @@
-"use client";
-
 import type {
   TurnkeySDKClientBase,
   TurnkeyClientMethods,
@@ -25,7 +23,7 @@ import type {
   HandleGoogleOauthParams,
   HandleAppleOauthParams,
   HandleFacebookOauthParams,
-} from "./methods";
+} from "../types/method-types";
 
 /*
  * In order for jsdocs params to show up properly you must redeclare the core client method here using FUNCTION SIGNATURE. ex:

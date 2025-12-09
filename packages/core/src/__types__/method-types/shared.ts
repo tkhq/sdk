@@ -1,8 +1,11 @@
+/**
+ * Shared method param types for core, react-wallet-kit, and react-native-wallet-kit
+ */
+
 import type {
   v1AddressFormat,
   v1Attestation,
   v1CreatePolicyIntentV3,
-  v1Curve,
   v1HashFunction,
   v1Pagination,
   v1PayloadEncoding,
@@ -19,7 +22,7 @@ import type {
   WalletProvider,
   Wallet,
   TSignedRequest,
-} from "./index";
+} from "../index";
 
 export type CreateHttpClientParams = {
   apiBaseUrl?: string | undefined;
@@ -335,46 +338,6 @@ export type CreateWalletAccountsParams = {
   accounts: v1WalletAccountParams[] | v1AddressFormat[];
   walletId: string;
   organizationId?: string;
-  stampWith?: StamperType | undefined;
-};
-
-export type ExportWalletParams = {
-  walletId: string;
-  targetPublicKey: string;
-  organizationId?: string;
-  stampWith?: StamperType | undefined;
-};
-
-export type ExportPrivateKeyParams = {
-  privateKeyId: string;
-  targetPublicKey: string;
-  organizationId?: string;
-  stampWith?: StamperType | undefined;
-};
-
-export type ExportWalletAccountParams = {
-  address: string;
-  targetPublicKey: string;
-  organizationId?: string;
-  stampWith?: StamperType | undefined;
-};
-
-export type ImportWalletParams = {
-  encryptedBundle: string;
-  walletName: string;
-  accounts?: v1WalletAccountParams[];
-  organizationId?: string;
-  userId?: string;
-  stampWith?: StamperType | undefined;
-};
-
-export type ImportPrivateKeyParams = {
-  encryptedBundle: string;
-  privateKeyName: string;
-  curve: v1Curve;
-  addressFormats: v1AddressFormat[];
-  organizationId?: string;
-  userId?: string;
   stampWith?: StamperType | undefined;
 };
 

@@ -31,15 +31,27 @@ export function ExportWalletAccount(props: ExportWalletAccountProps) {
       return;
     }
 
+    // Check to ensure there's an embedded key
+    let embeddedKey = await iframeStamper.getEmbeddedPublicKey();
+
+    if (!embeddedKey) {
+      console.warn(
+        "Iframe not ready — embedded key not found. Creating a new one...",
+      );
+
+      embeddedKey = await iframeStamper.initEmbeddedKey();
+    }
+
     const response = await axios.post("/api/exportWalletAccount", {
       walletAccountAddress: props.walletAccountAddress,
-      targetPublicKey: iframeStamper.publicKey(),
+      targetPublicKey: embeddedKey,
     });
 
     let injected = await iframeStamper.injectKeyExportBundle(
       response.data["exportBundle"],
       props.organizationId,
       KeyFormat.Hexadecimal,
+      props.walletAccountAddress,
     );
     if (injected !== true) {
       alert("Unexpected error while injecting export bundle.");
@@ -110,6 +122,7 @@ export function ExportWalletAccount(props: ExportWalletAccountProps) {
           iframeUrl={process.env.NEXT_PUBLIC_EXPORT_SIGN_IFRAME_URL!}
           turnkeyBaseUrl={process.env.NEXT_PUBLIC_BASE_URL!}
           showSigning={props.addressFormat === "ADDRESS_FORMAT_SOLANA"}
+          walletAccountAddress={props.walletAccountAddress}
         />
       </div>
     </div>

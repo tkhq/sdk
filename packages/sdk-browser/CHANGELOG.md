@@ -1,5 +1,21 @@
 # @turnkey/sdk-browser
 
+## 5.13.4
+
+### Patch Changes
+
+- Updated dependencies [[`7ac558c`](https://github.com/tkhq/sdk/commit/7ac558c39c3fa0ddeb6e695182a49f03ee6d4f00)]:
+  - @turnkey/iframe-stamper@2.8.0
+
+## 5.13.3
+
+### Patch Changes
+
+- Updated dependencies [[`80ea306`](https://github.com/tkhq/sdk/commit/80ea306025a2161ff575a5e2b45794460eafdf1b)]:
+  - @turnkey/sdk-types@0.9.0
+  - @turnkey/crypto@2.8.6
+  - @turnkey/wallet-stamper@1.1.8
+
 ## 5.13.2
 
 ### Patch Changes

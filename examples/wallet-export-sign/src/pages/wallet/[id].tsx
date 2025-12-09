@@ -136,7 +136,6 @@ export default function WalletDetailsPage() {
                   className={styles.tableHeaderCell}
                   style={{ width: "55px" }}
                 ></th>
-                <th className={styles.tableHeaderCell}>Account Name</th>
                 <th className={styles.tableHeaderCell}>Address</th>
                 <th className={styles.tableHeaderCell}>Path</th>
               </tr>
@@ -162,9 +161,6 @@ export default function WalletDetailsPage() {
                             priority
                           />
                         </button>
-                      </td>
-                      <td className={styles.cell}>
-                        <p>{account.walletAccountId}</p>
                       </td>
                       <td className={styles.cell}>
                         <p className={styles.addressCell}>{account.address}</p>
