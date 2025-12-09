@@ -85,11 +85,6 @@ async function main() {
     chain: tempo({ feeToken: TIP20_TOKEN }),
     transport: withFeePayer(
       http(undefined, {
-        fetchOptions: {
-          headers: {
-            Authorization: `Basic ${btoa(`${process.env.TEMPO_USERNAME}:${process.env.TEMPO_PASSWORD}`)}`,
-          },
-        },
       }),
       http("https://sponsor.testnet.tempo.xyz"),
     ),
