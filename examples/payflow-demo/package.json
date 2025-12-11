@@ -1,0 +1,28 @@
+{
+  "name": "@turnkey/example-payflow-demo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "demo": "tsx src/index.ts",
+    "demo:build": "pnpm -w run build-all && tsx src/index.ts",
+    "verify": "tsx src/verify-transaction.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/ethers": "workspace:*",
+    "@turnkey/api-key-stamper": "workspace:*",
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.3",
+    "dotenv": "^16.0.3",
+    "ethers": "^6.10.0",
+    "ora": "^5.4.1",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2",
+    "typescript": "5.4.3"
+  }
+}
+
