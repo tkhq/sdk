@@ -1,5 +1,11 @@
 # @turnkey/core
 
+## 1.8.3
+
+### Patch Changes
+
+- [#1136](https://github.com/tkhq/sdk/pull/1136) [`7185545`](https://github.com/tkhq/sdk/commit/7185545ea1fc05eb738af09de5a594455f2e08f3) Author [@moeodeh3](https://github.com/moeodeh3) - Fixed missing `X-Client-Version` header in `sendSignedRequest()`
+
 ## 1.8.2
 
 ### Patch Changes

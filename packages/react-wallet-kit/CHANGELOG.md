@@ -1,5 +1,13 @@
 # @turnkey/react-wallet-kit
 
+## 1.6.3
+
+### Patch Changes
+
+- Updated dependencies [[`850a3ee`](https://github.com/tkhq/sdk/commit/850a3ee5dbb5e2cc46bda50348c917c555e55f73), [`7185545`](https://github.com/tkhq/sdk/commit/7185545ea1fc05eb738af09de5a594455f2e08f3)]:
+  - @turnkey/iframe-stamper@2.9.0
+  - @turnkey/core@1.8.3
+
 ## 1.6.2
 
 ### Patch Changes

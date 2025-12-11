@@ -1,5 +1,12 @@
 # with-delegated
 
+## 0.1.14
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@1.6.3
+
 ## 0.1.13
 
 ### Patch Changes
