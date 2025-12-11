@@ -79,6 +79,7 @@ import {
 } from "@turnkey/encoding";
 import { keccak256, toUtf8String } from "ethers";
 import type { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
+import { VERSION } from "./__generated__/version";
 
 type AddressFormatConfig = {
   encoding: v1PayloadEncoding;
@@ -975,6 +976,7 @@ export async function sendSignedRequest<T = any>(
 ): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    "X-Client-Version": VERSION,
     [signedRequest.stamp.stampHeaderName]: signedRequest.stamp.stampHeaderValue,
   };
 
