@@ -1024,8 +1024,6 @@ export class TurnkeyClient {
       },
       {
         finallyFn: async () => {
-          // Clean up the generated key pair if it wasn't successfully used
-          this.apiKeyStamper?.clearTemporaryPublicKey();
           if (generatedPublicKey) {
             try {
               await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
@@ -1164,7 +1162,6 @@ export class TurnkeyClient {
       },
       {
         finallyFn: async () => {
-          // Clean up the generated key pair if it wasn't successfully used
           this.apiKeyStamper?.clearTemporaryPublicKey();
           if (generatedPublicKey) {
             try {
@@ -4586,7 +4583,7 @@ export class TurnkeyClient {
    *
    * @param params.externalKeyPair - An externally generated key pair (either a CryptoKeyPair or an object with publicKey/privateKey strings) to use instead of generating a new one.
    * @param params.storeOverride - If true, sets the generated or provided public key as the override key in the API key stamper (defaults to false).
-   * @returnparams.s A promise that resolves to the public key of the created or provided API key pair as a string.
+   * @return A promise that resolves to the public key of the created or provided API key pair as a string.
    * @throws {TurnkeyError} If the API key stamper is not initialized or if there is an error during key pair creation or storage.
    */
   createApiKeyPair = async (
@@ -4608,7 +4605,7 @@ export class TurnkeyClient {
         );
 
         if (storeOverride && publicKey) {
-          await this.apiKeyStamper.setTemporaryPublicKey(publicKey);
+          this.apiKeyStamper.setTemporaryPublicKey(publicKey);
         }
 
         return publicKey;
