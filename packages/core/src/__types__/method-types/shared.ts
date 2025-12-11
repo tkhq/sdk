@@ -115,6 +115,7 @@ export type InitOtpParams = {
 export type VerifyOtpParams = {
   otpId: string;
   otpCode: string;
+  publicKey?: string;
 
   // TODO (breaking change): we should be able to remove these and make verifyOtp()
   // purely about verifying and not also finding an `organizationId`. That should
@@ -142,6 +143,7 @@ export type SignUpWithOtpParams = {
   otpType: OtpType;
   createSubOrgParams?: CreateSubOrgParams;
   invalidateExisting?: boolean;
+  publicKey?: string;
   sessionKey?: string;
 };
 

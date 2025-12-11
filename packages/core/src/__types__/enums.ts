@@ -65,3 +65,9 @@ export enum SignIntent {
   SignTransaction = "sign_transaction",
   SignAndSendTransaction = "sign_and_send",
 }
+
+/** @internal */
+export enum SignatureFormat {
+  Der = "der",
+  Raw = "raw",
+}

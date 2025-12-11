@@ -10,13 +10,17 @@ import {
   type v1AuthenticatorParamsV2,
   type v1WalletAccountParams,
   type v1WalletAccount,
+  type v1LoginUsage,
+  type v1TokenUsage,
+  type v1OauthProviderParams,
+  type v1SignupUsage,
+  type v1SignRawPayloadResult,
+  type v1TransactionType,
+  type ProxyTGetWalletKitConfigResponse,
+  type v1User,
+  type v1CreatePolicyIntentV3,
   TurnkeyError,
   TurnkeyErrorCodes,
-  v1SignRawPayloadResult,
-  v1TransactionType,
-  ProxyTGetWalletKitConfigResponse,
-  v1User,
-  v1CreatePolicyIntentV3,
   TurnkeyNetworkError,
 } from "@turnkey/sdk-types";
 import {
@@ -1322,4 +1326,100 @@ export async function fetchAllWalletAccountsWithCursor(
   }
 
   return accounts;
+}
+
+export function decodeVerificationToken(verificationToken: string) {
+  return JSON.parse(atob(verificationToken.split(".")[1]!));
+}
+
+export function getClientSignatureForLogin({
+  verificationToken,
+  sessionPublicKey = undefined,
+}: {
+  verificationToken: string;
+  sessionPublicKey?: string;
+}) {
+  try {
+    const decoded = decodeVerificationToken(verificationToken);
+
+    if (!decoded.public_key)
+      throw new TurnkeyError(
+        "Invalid verification token: missing publicKey",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+
+    const verificationPublicKey = decoded.public_key as string;
+
+    // if a session public key is provided, we use it instead
+    const resolvedSessionPublicKey = sessionPublicKey || verificationPublicKey;
+
+    const usage: v1LoginUsage = { publicKey: resolvedSessionPublicKey };
+    const payload: v1TokenUsage = {
+      login: usage,
+      tokenId: decoded.id as string,
+      type: "USAGE_TYPE_LOGIN",
+    };
+
+    const json = JSON.stringify(payload);
+
+    return { message: json, publicKey: verificationPublicKey };
+  } catch (error) {
+    throw new TurnkeyError(
+      "Failed to create client signature bundle for login",
+      TurnkeyErrorCodes.UNKNOWN,
+      error,
+    );
+  }
+}
+
+export function getClientSignatureForSignup({
+  verificationToken,
+  email,
+  phoneNumber,
+  apiKeys,
+  authenticators,
+  oauthProviders,
+}: {
+  verificationToken: string;
+  email?: string;
+  phoneNumber?: string;
+  apiKeys?: v1ApiKeyParamsV2[];
+  authenticators?: v1AuthenticatorParamsV2[];
+  oauthProviders?: v1OauthProviderParams[];
+}) {
+  try {
+    const decoded = decodeVerificationToken(verificationToken);
+
+    if (!decoded.public_key)
+      throw new TurnkeyError(
+        "Invalid verification token: missing publicKey",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+
+    const verificationPublicKey = decoded.public_key as string;
+
+    const usage: v1SignupUsage = {
+      ...(apiKeys ? { apiKeys } : {}),
+      ...(authenticators ? { authenticators } : {}),
+      ...(oauthProviders ? { oauthProviders } : {}),
+      ...(email ? { email } : {}),
+      ...(phoneNumber ? { phoneNumber } : {}),
+    };
+
+    const payload: v1TokenUsage = {
+      signup: usage,
+      tokenId: decoded.id as string,
+      type: "USAGE_TYPE_SIGNUP",
+    };
+
+    const json = JSON.stringify(payload);
+
+    return { message: json, publicKey: verificationPublicKey };
+  } catch (error) {
+    throw new TurnkeyError(
+      "Failed to create client signature bundle for signup",
+      TurnkeyErrorCodes.UNKNOWN,
+      error,
+    );
+  }
 }
