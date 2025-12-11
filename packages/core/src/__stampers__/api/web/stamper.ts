@@ -3,7 +3,11 @@ import {
   stringToBase64urlString,
   pointEncode,
 } from "@turnkey/encoding";
-import type { TStamp, ApiKeyStamperBase } from "../../../__types__";
+import {
+  type TStamp,
+  type ApiKeyStamperBase,
+  SignatureFormat,
+} from "../../../__types__";
 import { assertValidP256ECDSAKeyPair } from "@utils";
 
 const DB_NAME = "TurnkeyStamperDB";
@@ -204,7 +208,11 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
     });
   }
 
-  private async sign(payload: string, publicKeyHex: string): Promise<string> {
+  async sign(
+    payload: string,
+    publicKeyHex: string,
+    format: SignatureFormat = SignatureFormat.Der,
+  ): Promise<string> {
     const privateKey = await this.getPrivateKey(publicKeyHex);
     if (!privateKey) {
       throw new Error("Key not found for publicKey: " + publicKeyHex);
@@ -215,10 +223,13 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
       privateKey,
       encodedPayload,
     );
-    const signatureDer = convertEcdsaIeee1363ToDer(
-      new Uint8Array(signatureIeee1363),
-    );
-    return uint8ArrayToHexString(signatureDer);
+    if (format === SignatureFormat.Raw) {
+      return uint8ArrayToHexString(new Uint8Array(signatureIeee1363));
+    } else {
+      return uint8ArrayToHexString(
+        convertEcdsaIeee1363ToDer(new Uint8Array(signatureIeee1363)),
+      );
+    }
   }
 
   async stamp(payload: string, publicKeyHex: string): Promise<TStamp> {

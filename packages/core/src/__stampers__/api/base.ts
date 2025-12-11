@@ -5,6 +5,7 @@ import type {
   TStamper,
   StorageBase,
   ApiKeyStamperBase,
+  SignatureFormat,
 } from "../../__types__";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
@@ -121,5 +122,27 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     }
 
     return this.stamper.stamp(payload, publicKeyHex);
+  }
+
+  async sign(payload: string, format?: SignatureFormat): Promise<string> {
+    if (!this.stamper) {
+      throw new TurnkeyError(
+        "Stamper is not initialized. Please call .init() before calling this method.",
+        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+      );
+    }
+    let publicKeyHex = this.temporaryPublicKey;
+    if (!publicKeyHex) {
+      const session = await this.storageManager.getActiveSession();
+      if (!session) {
+        throw new TurnkeyError(
+          "No active session or token available.",
+          TurnkeyErrorCodes.NO_SESSION_FOUND,
+        );
+      }
+      publicKeyHex = session.publicKey!;
+    }
+
+    return this.stamper.sign(payload, publicKeyHex, format);
   }
 }

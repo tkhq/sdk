@@ -4,6 +4,7 @@ import type {
   v1OauthProviderParams,
   v1WalletAccountParams,
 } from "@turnkey/sdk-types";
+import type { SignatureFormat } from "./enums";
 
 /** @internal */
 export const DEFAULT_SESSION_EXPIRATION_IN_SECONDS = "900"; // 15 minutes
@@ -28,6 +29,11 @@ export interface ApiKeyStamperBase {
   deleteKeyPair(publicKeyHex: string): Promise<void>;
   clearKeyPairs(): Promise<void>;
   stamp(payload: string, publicKeyHex: string): Promise<TStamp>;
+  sign(
+    payload: string,
+    publicKeyHex: string,
+    format?: SignatureFormat,
+  ): Promise<string>;
 }
 
 /** @internal */

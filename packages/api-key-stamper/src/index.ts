@@ -102,6 +102,17 @@ export class ApiKeyStamper {
       stampHeaderValue: stringToBase64urlString(JSON.stringify(stamp)),
     };
   }
+
+  async sign(payload: string) {
+    return signWithApiKey(
+      {
+        publicKey: this.apiPublicKey,
+        privateKey: this.apiPrivateKey,
+        content: payload,
+      },
+      this.runtimeOverride,
+    );
+  }
 }
 
 export { pointDecode } from "./tink/elliptic_curves";
