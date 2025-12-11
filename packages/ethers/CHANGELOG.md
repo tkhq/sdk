@@ -1,5 +1,15 @@
 # @turnkey/ethers
 
+## 1.3.18
+
+### Patch Changes
+
+- [#1133](https://github.com/tkhq/sdk/pull/1133) [`4bd1183`](https://github.com/tkhq/sdk/commit/4bd1183418ec88e2ab0995f042fafff427ccbe90) Author [@zkharit](https://github.com/zkharit) - Fix a bug where the payload encoding parameter is not used with non Turnkey http clients
+
+- Updated dependencies [[`7185545`](https://github.com/tkhq/sdk/commit/7185545ea1fc05eb738af09de5a594455f2e08f3)]:
+  - @turnkey/core@1.8.3
+  - @turnkey/sdk-browser@5.13.5
+
 ## 1.3.17
 
 ### Patch Changes

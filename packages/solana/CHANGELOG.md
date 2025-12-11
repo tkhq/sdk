@@ -1,5 +1,13 @@
 # @turnkey/solana
 
+## 1.1.18
+
+### Patch Changes
+
+- Updated dependencies [[`7185545`](https://github.com/tkhq/sdk/commit/7185545ea1fc05eb738af09de5a594455f2e08f3)]:
+  - @turnkey/core@1.8.3
+  - @turnkey/sdk-browser@5.13.5
+
 ## 1.1.17
 
 ### Patch Changes

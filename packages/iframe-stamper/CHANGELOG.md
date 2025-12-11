@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 2.9.0
+
+### Minor Changes
+
+- [#1104](https://github.com/tkhq/sdk/pull/1104) [`850a3ee`](https://github.com/tkhq/sdk/commit/850a3ee5dbb5e2cc46bda50348c917c555e55f73) Author [@ethankonk](https://github.com/ethankonk) - Added ability to toggle passphrase input for the import iframe
+
 ## 2.8.0
 
 ### Minor Changes

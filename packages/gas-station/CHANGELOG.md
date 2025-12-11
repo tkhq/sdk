@@ -1,5 +1,11 @@
 # @turnkey/gas-station
 
+## 3.1.0
+
+### Minor Changes
+
+- [#1108](https://github.com/tkhq/sdk/pull/1108) [`46e398e`](https://github.com/tkhq/sdk/commit/46e398e42c5eba8e38a56a41d34bf2358b20e383) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Add USDC swap example with approveThenExecute and reimbursable gas station support
+
 ## 3.0.1
 
 ### Patch Changes
