@@ -1,10 +1,10 @@
+import type { SignatureFormat } from "@turnkey/api-key-stamper";
 import type {
   v1ApiKeyCurve,
   v1Attestation,
   v1OauthProviderParams,
   v1WalletAccountParams,
 } from "@turnkey/sdk-types";
-import type { SignatureFormat } from "./enums";
 
 /** @internal */
 export const DEFAULT_SESSION_EXPIRATION_IN_SECONDS = "900"; // 15 minutes
@@ -148,4 +148,13 @@ export type SignUpBody = {
       }
     | undefined;
   oauthProviders?: v1OauthProviderParams[] | undefined;
+};
+
+/** @internal */
+export type VerificationToken = {
+  contact: string;
+  exp: number;
+  id: string;
+  public_key?: string;
+  verification_type: string;
 };

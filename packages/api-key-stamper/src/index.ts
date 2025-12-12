@@ -1,5 +1,6 @@
 /// <reference lib="dom" />
 import { stringToBase64urlString } from "@turnkey/encoding";
+import { convertDerSignatureToRawEcdsa } from "./utils";
 
 // Header name for an API key stamp
 const stampHeaderName = "X-Stamp";
@@ -11,6 +12,11 @@ export type TApiKeyStamperConfig = {
   apiPrivateKey: string;
   runtimeOverride?: Runtime | undefined;
 };
+
+export enum SignatureFormat {
+  Der = "der",
+  Raw = "raw",
+}
 
 // `window.document` ensures that we're in a browser context
 // and `crypto.subtle` ensures that it supports the web crypto APIs
@@ -103,15 +109,27 @@ export class ApiKeyStamper {
     };
   }
 
-  async sign(payload: string) {
-    return signWithApiKey(
-      {
-        publicKey: this.apiPublicKey,
-        privateKey: this.apiPrivateKey,
-        content: payload,
-      },
-      this.runtimeOverride,
-    );
+  async sign(payload: string, format: SignatureFormat) {
+    if (format === SignatureFormat.Raw) {
+      const derSignature = await signWithApiKey(
+        {
+          publicKey: this.apiPublicKey,
+          privateKey: this.apiPrivateKey,
+          content: payload,
+        },
+        this.runtimeOverride,
+      );
+      return convertDerSignatureToRawEcdsa(derSignature);
+    } else {
+      return signWithApiKey(
+        {
+          publicKey: this.apiPublicKey,
+          privateKey: this.apiPrivateKey,
+          content: payload,
+        },
+        this.runtimeOverride,
+      );
+    }
   }
 }
 

@@ -12,6 +12,9 @@ export {
   isEthereumProvider,
   isSolanaProvider,
   sendSignedRequest,
+  decodeVerificationToken,
+  getClientSignatureMessageForLogin,
+  getClientSignatureMessageForSignup,
 } from "@turnkey/core";
 
 // Re-export all types from @turnkey/core

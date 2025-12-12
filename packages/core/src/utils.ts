@@ -26,6 +26,7 @@ import {
 import {
   type CreateSubOrgParams,
   type WalletProvider,
+  type VerificationToken,
   Chain,
   GrpcStatus,
   TurnkeyRequestError,
@@ -1326,11 +1327,19 @@ export async function fetchAllWalletAccountsWithCursor(
   return accounts;
 }
 
-export function decodeVerificationToken(verificationToken: string) {
-  return JSON.parse(atob(verificationToken.split(".")[1]!));
+export function decodeVerificationToken(
+  verificationToken: string,
+): VerificationToken {
+  const [, payloadB64] = verificationToken.split(".");
+
+  if (!payloadB64) {
+    throw new Error("Invalid token: missing payload");
+  }
+  const json = atob(payloadB64);
+  return JSON.parse(json) as VerificationToken;
 }
 
-export function getClientSignatureForLogin({
+export function getClientSignatureMessageForLogin({
   verificationToken,
   sessionPublicKey = undefined,
 }: {
@@ -1338,7 +1347,8 @@ export function getClientSignatureForLogin({
   sessionPublicKey?: string;
 }) {
   try {
-    const decoded = decodeVerificationToken(verificationToken);
+    const decoded: VerificationToken =
+      decodeVerificationToken(verificationToken);
 
     if (!decoded.public_key)
       throw new TurnkeyError(
@@ -1346,7 +1356,7 @@ export function getClientSignatureForLogin({
         TurnkeyErrorCodes.INVALID_REQUEST,
       );
 
-    const verificationPublicKey = decoded.public_key as string;
+    const verificationPublicKey = decoded.public_key;
 
     // if a session public key is provided, we use it instead
     const resolvedSessionPublicKey = sessionPublicKey || verificationPublicKey;
@@ -1354,7 +1364,7 @@ export function getClientSignatureForLogin({
     const usage: v1LoginUsage = { publicKey: resolvedSessionPublicKey };
     const payload: v1TokenUsage = {
       login: usage,
-      tokenId: decoded.id as string,
+      tokenId: decoded.id,
       type: "USAGE_TYPE_LOGIN",
     };
 
@@ -1370,7 +1380,7 @@ export function getClientSignatureForLogin({
   }
 }
 
-export function getClientSignatureForSignup({
+export function getClientSignatureMessageForSignup({
   verificationToken,
   email,
   phoneNumber,
