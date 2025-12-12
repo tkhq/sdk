@@ -15,7 +15,7 @@
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
     "dotenv": "16.0.3",
-    "next": "15.5.7",
+    "next": "15.5.8",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "tailwindcss": "4.1.13",
