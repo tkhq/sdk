@@ -16,7 +16,7 @@ Once logged in, access a dashboard with two panels:
 **Left:** sign messages and simple testnet demo transactions for both Ethereum (Sepolia testnet) and Solana (Devnet) using the **selected** embedded **or** connected wallet. The signing and broadcasting behavior differs slightly depending on wallet type:
 
 - **Connected wallets**
-  - Ethereum: delegates to the wallet’s native `signAndSendTransaction` method. Does not require an rpcUrl (the external wallet provider handles broadcasting).
+  - Ethereum: delegates to the wallet’s native `signAndSendRawTransaction` method. Does not require an rpcUrl (the external wallet provider handles broadcasting).
   - Solana: signs locally with the connected wallet but requires an rpcUrl for broadcasting.
 
 - **Embedded wallets**

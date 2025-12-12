@@ -41,6 +41,7 @@ export type {
   RemoveUserEmailParams,
   RemoveUserPhoneNumberParams,
   SetActiveSessionParams,
+  SignAndSendRawTransactionParams,
   SignAndSendTransactionParams,
   SignMessageParams,
   SignTransactionParams,

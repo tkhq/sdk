@@ -350,6 +350,52 @@ export const signGetBootProof = (
   });
 
 /**
+ * `POST /public/v1/query/get_gas_usage`
+ */
+export type TGetGasUsageResponse =
+  operations["PublicApiService_GetGasUsage"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_gas_usage`
+ */
+export type TGetGasUsageInput = { body: TGetGasUsageBody };
+
+/**
+ * `POST /public/v1/query/get_gas_usage`
+ */
+export type TGetGasUsageBody =
+  operations["PublicApiService_GetGasUsage"]["parameters"]["body"]["body"];
+
+/**
+ * Get gas usage and limits.
+ *
+ * Get gas usage and gas limits for either the parent organization or a sub-organization.
+ *
+ * `POST /public/v1/query/get_gas_usage`
+ */
+export const getGasUsage = (input: TGetGasUsageInput) =>
+  request<TGetGasUsageResponse, TGetGasUsageBody, never, never, never>({
+    uri: "/public/v1/query/get_gas_usage",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetGasUsage` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetGasUsage}
+ */
+export const signGetGasUsage = (
+  input: TGetGasUsageInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetGasUsageBody, never, never>({
+    uri: "/public/v1/query/get_gas_usage",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_latest_boot_proof`
  */
 export type TGetLatestBootProofResponse =
@@ -397,6 +443,52 @@ export const signGetLatestBootProof = (
 ) =>
   signedRequest<TGetLatestBootProofBody, never, never>({
     uri: "/public/v1/query/get_latest_boot_proof",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_nonces`
+ */
+export type TGetNoncesResponse =
+  operations["PublicApiService_GetNonces"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_nonces`
+ */
+export type TGetNoncesInput = { body: TGetNoncesBody };
+
+/**
+ * `POST /public/v1/query/get_nonces`
+ */
+export type TGetNoncesBody =
+  operations["PublicApiService_GetNonces"]["parameters"]["body"]["body"];
+
+/**
+ * Get nonces for an address.
+ *
+ * Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions.
+ *
+ * `POST /public/v1/query/get_nonces`
+ */
+export const getNonces = (input: TGetNoncesInput) =>
+  request<TGetNoncesResponse, TGetNoncesBody, never, never, never>({
+    uri: "/public/v1/query/get_nonces",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetNonces` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetNonces}
+ */
+export const signGetNonces = (
+  input: TGetNoncesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetNoncesBody, never, never>({
+    uri: "/public/v1/query/get_nonces",
     body: input.body,
     options,
   });
@@ -801,6 +893,62 @@ export const signGetPrivateKey = (
 ) =>
   signedRequest<TGetPrivateKeyBody, never, never>({
     uri: "/public/v1/query/get_private_key",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_send_transaction_status`
+ */
+export type TGetSendTransactionStatusResponse =
+  operations["PublicApiService_GetSendTransactionStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_send_transaction_status`
+ */
+export type TGetSendTransactionStatusInput = {
+  body: TGetSendTransactionStatusBody;
+};
+
+/**
+ * `POST /public/v1/query/get_send_transaction_status`
+ */
+export type TGetSendTransactionStatusBody =
+  operations["PublicApiService_GetSendTransactionStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get send transaction status
+ *
+ * Get the status of a send transaction request.
+ *
+ * `POST /public/v1/query/get_send_transaction_status`
+ */
+export const getSendTransactionStatus = (
+  input: TGetSendTransactionStatusInput,
+) =>
+  request<
+    TGetSendTransactionStatusResponse,
+    TGetSendTransactionStatusBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_send_transaction_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetSendTransactionStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetSendTransactionStatus}
+ */
+export const signGetSendTransactionStatus = (
+  input: TGetSendTransactionStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetSendTransactionStatusBody, never, never>({
+    uri: "/public/v1/query/get_send_transaction_status",
     body: input.body,
     options,
   });
