@@ -34,6 +34,9 @@ export {
   isSolanaProvider,
   getAuthProxyConfig,
   sendSignedRequest,
+  decodeVerificationToken,
+  getClientSignatureMessageForLogin,
+  getClientSignatureMessageForSignup,
   addressFormatConfig,
 } from "./utils";
 
