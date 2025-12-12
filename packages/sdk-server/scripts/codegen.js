@@ -456,8 +456,16 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_${operationNameWithoutNamespace
+          .replace(/([a-z])([A-Z])/g, "$1_$2")
+          .toUpperCase()}"
+      });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
