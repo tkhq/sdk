@@ -40,6 +40,10 @@ export type paths = {
     /** Get the latest boot proof for a given enclave app name. */
     post: operations["PublicApiService_GetLatestBootProof"];
   };
+  "/public/v1/query/get_nonces": {
+    /** Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions. */
+    post: operations["PublicApiService_GetNonces"];
+  };
   "/public/v1/query/get_oauth2_credential": {
     /** Get details about an OAuth 2.0 credential. */
     post: operations["PublicApiService_GetOauth2Credential"];
@@ -955,6 +959,18 @@ export type definitions = {
   v1BootProofResponse: {
     bootProof: definitions["v1BootProof"];
   };
+  v1ClientSignature: {
+    /** @description The public component of a cryptographic key pair used to create the signature. */
+    publicKey: string;
+    /** @description The signature scheme used to generate the client signature. */
+    scheme: definitions["v1ClientSignatureScheme"];
+    /** @description The message that was signed. */
+    message: string;
+    /** @description The cryptographic signature over the message. */
+    signature: string;
+  };
+  /** @enum {string} */
+  v1ClientSignatureScheme: "CLIENT_SIGNATURE_SCHEME_API_P256";
   v1Config: {
     features?: definitions["v1Feature"][];
     quorum?: definitions["externaldatav1Quorum"];
@@ -1051,6 +1067,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1CreateFiatOnRampCredentialIntent"];
+    generateAppProofs?: boolean;
   };
   v1CreateFiatOnRampCredentialResult: {
     /** @description Unique identifier of the Fiat On-Ramp credential that was created */
@@ -1340,7 +1357,7 @@ export type definitions = {
   v1CreateSmartContractInterfaceIntent: {
     /** @description Corresponding contract address or program ID */
     smartContractAddress: string;
-    /** @description ABI/IDL as a JSON string */
+    /** @description ABI/IDL as a JSON string. Limited to 400kb */
     smartContractInterface: string;
     type: definitions["v1SmartContractInterfaceType"];
     /** @description Human-readable name for a Smart Contract Interface. */
@@ -1465,6 +1482,8 @@ export type definitions = {
     disableOtpEmailAuth?: boolean;
     /** @description Signed JWT containing a unique id, expiry, verification type, contact */
     verificationToken?: string;
+    /** @description Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
+    clientSignature?: definitions["v1ClientSignature"];
   };
   v1CreateSubOrganizationRequest: {
     /** @enum {string} */
@@ -1672,6 +1691,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1DeleteFiatOnRampCredentialIntent"];
+    generateAppProofs?: boolean;
   };
   v1DeleteFiatOnRampCredentialResult: {
     /** @description Unique identifier of the Fiat On-Ramp credential that was deleted */
@@ -2091,6 +2111,8 @@ export type definitions = {
     maxFeePerGas?: string;
     /** @description Maximum priority fee (tip) per gas unit in wei. Required for non-sponsored (EIP-1559) transactions. Not used for sponsored transactions. */
     maxPriorityFeePerGas?: string;
+    /** @description The gas station delegate contract nonce. Only used when sponsor=true. Include this if you want maximal security posture. */
+    gasStationNonce?: string;
   };
   v1EthSendTransactionRequest: {
     /** @enum {string} */
@@ -2100,6 +2122,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1EthSendTransactionIntent"];
+    generateAppProofs?: boolean;
   };
   v1EthSendTransactionResult: {
     /** @description The send_transaction_status ID associated with the transaction submission for sponsored transactions */
@@ -2386,6 +2409,30 @@ export type definitions = {
     organizationId: string;
     /** @description Name of enclave app. */
     appName: string;
+  };
+  v1GetNoncesRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The Ethereum address to query nonces for. */
+    address: string;
+    /** @description The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+    caip2: string;
+    /** @description Whether to fetch the standard on-chain nonce. */
+    nonce?: boolean;
+    /** @description Whether to fetch the gas station nonce used for sponsored transactions. */
+    gasStationNonce?: boolean;
+  };
+  v1GetNoncesResponse: {
+    /**
+     * Format: uint64
+     * @description The standard on-chain nonce for the address, if requested.
+     */
+    nonce?: string;
+    /**
+     * Format: uint64
+     * @description The gas station nonce for sponsored transactions, if requested.
+     */
+    gasStationNonce?: string;
   };
   v1GetOauth2CredentialRequest: {
     /** @description Unique identifier for a given Organization. */
@@ -3140,6 +3187,10 @@ export type definitions = {
     /** @description A list of user tags. */
     userTags: definitions["datav1Tag"][];
   };
+  v1LoginUsage: {
+    /** @description Public key for authentication */
+    publicKey: string;
+  };
   /** @enum {string} */
   v1MnemonicLanguage:
     | "MNEMONIC_LANGUAGE_ENGLISH"
@@ -3153,6 +3204,7 @@ export type definitions = {
     | "MNEMONIC_LANGUAGE_SPANISH";
   v1NOOPCodegenAnchorResponse: {
     stamp: definitions["v1WebAuthnStamp"];
+    tokenUsage?: definitions["v1TokenUsage"];
   };
   v1Oauth2AuthenticateIntent: {
     /** @description The OAuth 2.0 credential id whose client_id and client_secret will be used in the OAuth 2.0 flow */
@@ -3339,8 +3391,8 @@ export type definitions = {
     expirationSeconds?: string;
     /** @description Invalidate all other previously generated Login API keys */
     invalidateExisting?: boolean;
-    /** @description Optional signature associated with the public key passed into the verification step. This must be a hex-encoded ECDSA signature over the verification token. Only required if a public key was provided during the verification step. */
-    clientSignature?: string;
+    /** @description Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
+    clientSignature?: definitions["v1ClientSignature"];
   };
   v1OtpLoginRequest: {
     /** @enum {string} */
@@ -3753,6 +3805,13 @@ export type definitions = {
   v1SignTransactionResult: {
     signedTransaction: string;
   };
+  v1SignupUsage: {
+    email?: string;
+    phoneNumber?: string;
+    apiKeys?: definitions["v1ApiKeyParamsV2"][];
+    authenticators?: definitions["v1AuthenticatorParamsV2"][];
+    oauthProviders?: definitions["v1OauthProviderParams"][];
+  };
   v1SimpleClientExtensionResults: {
     appid?: boolean;
     appidExclude?: boolean;
@@ -3807,6 +3866,14 @@ export type definitions = {
     limit: number;
   };
   v1TestRateLimitsResponse: { [key: string]: unknown };
+  v1TokenUsage: {
+    /** @description Type of token usage */
+    type: definitions["v1UsageType"];
+    /** @description Unique identifier for the verification token */
+    tokenId: string;
+    signup?: definitions["v1SignupUsage"];
+    login?: definitions["v1LoginUsage"];
+  };
   /** @enum {string} */
   v1TransactionType:
     | "TRANSACTION_TYPE_ETHEREUM"
@@ -3890,6 +3957,7 @@ export type definitions = {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
     parameters: definitions["v1UpdateFiatOnRampCredentialIntent"];
+    generateAppProofs?: boolean;
   };
   v1UpdateFiatOnRampCredentialResult: {
     /** @description Unique identifier of the Fiat On-Ramp credential that was updated */
@@ -4143,6 +4211,8 @@ export type definitions = {
     /** @description A Wallet ID. */
     walletId: string;
   };
+  /** @enum {string} */
+  v1UsageType: "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";
   v1User: {
     /** @description Unique identifier for a given User. */
     userId: string;
@@ -4497,6 +4567,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1BootProofResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions. */
+  PublicApiService_GetNonces: {
+    parameters: {
+      body: {
+        body: definitions["v1GetNoncesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetNoncesResponse"];
       };
       /** An unexpected error response. */
       default: {

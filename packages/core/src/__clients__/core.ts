@@ -2766,6 +2766,21 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
+        let gasStationNonce;
+        let fetchedNonce;
+
+        if (!nonce || sponsor) {
+          const nonceResp = await this.httpClient.getNonces({
+            ...(organizationId && { organizationId }),
+            address: from,
+            caip2,
+            nonce: sponsor ? false : true,
+            gasStationNonce: sponsor ? true : false,
+          });
+          gasStationNonce = nonceResp.gasStationNonce;
+          fetchedNonce = nonceResp.nonce;
+        }
+
         const intent: TEthSendTransactionBody = {
           from,
           to,
@@ -2773,11 +2788,14 @@ export class TurnkeyClient {
           ...(value ? { value } : {}),
           ...(data ? { data } : {}),
         };
-
+        const finalNonce = nonce ?? fetchedNonce;
         if (sponsor) {
           intent.sponsor = true;
+          if (gasStationNonce) intent.gasStationNonce = gasStationNonce;
         } else {
-          if (nonce) intent.nonce = nonce;
+          if (finalNonce !== undefined) {
+            intent.nonce = finalNonce;
+          }
           if (gasLimit) intent.gasLimit = gasLimit;
           if (maxFeePerGas) intent.maxFeePerGas = maxFeePerGas;
           if (maxPriorityFeePerGas)

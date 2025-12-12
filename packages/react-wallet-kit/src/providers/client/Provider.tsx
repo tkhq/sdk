@@ -196,10 +196,8 @@ import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 import {
   DEFAULT_RPC_BY_CHAIN,
-  generateNonces,
   getChainLogo,
 } from "../../components/send-transaction/helpers";
-import type { Address } from "viem";
 
 /**
  * @inline
@@ -5558,7 +5556,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         gasLimit,
         maxFeePerGas,
         maxPriorityFeePerGas,
-        nonce: providedNonce,
+        nonce,
         successPageDuration = 2000,
       } = params;
 
@@ -5566,12 +5564,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       if (!rpcUrl) {
         throw new Error(`No RPC mapping found for chain '${caip2}'`);
       }
-
-      const { nonce } = await generateNonces({
-        from: from as Address,
-        rpcUrl,
-        providedNonce,
-      });
 
       return new Promise((resolve, reject) => {
         const SendTxContainer = () => {

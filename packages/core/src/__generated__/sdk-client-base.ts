@@ -573,16 +573,13 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_gas_usage";
-    const bodyWithType = {
-      parameters,
-      organizationId,
-      type: "ACTIVITY_TYPE_GET_GAS_USAGE",
+    const body = {
+      ...input,
+      organizationId: input.organizationId,
     };
 
-    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stringifiedBody = JSON.stringify(body);
     const stamp = await activeStamper.stamp(stringifiedBody);
     return {
       body: stringifiedBody,
@@ -620,6 +617,48 @@ export class TurnkeySDKClientBase {
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
+    const body = {
+      ...input,
+      organizationId: input.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getNonces = async (
+    input: SdkTypes.TGetNoncesBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetNoncesResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_nonces",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetNonces = async (
+    input: SdkTypes.TGetNoncesBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_nonces";
     const body = {
       ...input,
       organizationId: input.organizationId,
@@ -1004,7 +1043,7 @@ export class TurnkeySDKClientBase {
     }
 
     const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
+      this.config.apiBaseUrl + "/public/v1/query/get_send_transaction_status";
     const body = {
       ...input,
       organizationId: input.organizationId,
@@ -1046,17 +1085,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
-    const bodyWithType = {
-      parameters,
-      organizationId,
-      type: "ACTIVITY_TYPE_GET_SMART_CONTRACT_INTERFACE",
+    const body = {
+      ...input,
+      organizationId: input.organizationId,
     };
 
-    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stringifiedBody = JSON.stringify(body);
     const stamp = await activeStamper.stamp(stringifiedBody);
     return {
       body: stringifiedBody,

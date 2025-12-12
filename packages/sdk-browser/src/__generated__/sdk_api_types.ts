@@ -108,6 +108,17 @@ export type TGetLatestBootProofBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetNoncesResponse =
+  operations["PublicApiService_GetNonces"]["responses"]["200"]["schema"];
+
+export type TGetNoncesInput = { body: TGetNoncesBody };
+
+export type TGetNoncesBody = Omit<
+  operations["PublicApiService_GetNonces"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetOauth2CredentialResponse =
   operations["PublicApiService_GetOauth2Credential"]["responses"]["200"]["schema"];
 

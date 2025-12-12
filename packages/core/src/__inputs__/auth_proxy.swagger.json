@@ -453,6 +453,32 @@
         "AUTHENTICATOR_TRANSPORT_HYBRID"
       ]
     },
+    "v1ClientSignature": {
+      "type": "object",
+      "properties": {
+        "publicKey": {
+          "type": "string",
+          "description": "The public component of a cryptographic key pair used to create the signature."
+        },
+        "scheme": {
+          "$ref": "#/definitions/v1ClientSignatureScheme",
+          "description": "The signature scheme used to generate the client signature."
+        },
+        "message": {
+          "type": "string",
+          "description": "The message that was signed."
+        },
+        "signature": {
+          "type": "string",
+          "description": "The cryptographic signature over the message."
+        }
+      },
+      "required": ["publicKey", "scheme", "message", "signature"]
+    },
+    "v1ClientSignatureScheme": {
+      "type": "string",
+      "enum": ["CLIENT_SIGNATURE_SCHEME_API_P256"]
+    },
     "v1Curve": {
       "type": "string",
       "enum": ["CURVE_SECP256K1", "CURVE_ED25519"]
@@ -673,8 +699,8 @@
           "description": "Unique identifier for a given Organization. If provided, this organization id will be used directly. If omitted, uses the verification token to look up the verified sub-organization based on the contact and verification type."
         },
         "clientSignature": {
-          "type": "string",
-          "description": "Optional signature associated with the public key passed into the verification step. This must be a hex-encoded ECDSA signature over the verification token. Only required if a public key was provided during the verification step."
+          "$ref": "#/definitions/v1ClientSignature",
+          "description": "Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step."
         }
       },
       "required": ["verificationToken", "publicKey"]
@@ -741,6 +767,10 @@
         "wallet": {
           "$ref": "#/definitions/v1WalletParams",
           "description": "The wallet to create for the sub-organization"
+        },
+        "clientSignature": {
+          "$ref": "#/definitions/v1ClientSignature",
+          "description": "Optional signature proving authorization for this signup. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step."
         }
       },
       "required": ["apiKeys", "authenticators", "oauthProviders"]

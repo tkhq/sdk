@@ -527,6 +527,19 @@ export type v1BootProofResponse = {
   bootProof: v1BootProof;
 };
 
+export type v1ClientSignature = {
+  /** The public component of a cryptographic key pair used to create the signature. */
+  publicKey: string;
+  /** The signature scheme used to generate the client signature. */
+  scheme: v1ClientSignatureScheme;
+  /** The message that was signed. */
+  message: string;
+  /** The cryptographic signature over the message. */
+  signature: string;
+};
+
+export type v1ClientSignatureScheme = "CLIENT_SIGNATURE_SCHEME_API_P256";
+
 export type v1Config = {
   features?: v1Feature[];
   quorum?: externaldatav1Quorum;
@@ -632,6 +645,7 @@ export type v1CreateFiatOnRampCredentialRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1CreateFiatOnRampCredentialIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateFiatOnRampCredentialResult = {
@@ -946,7 +960,7 @@ export type v1CreateReadWriteSessionResultV2 = {
 export type v1CreateSmartContractInterfaceIntent = {
   /** Corresponding contract address or program ID */
   smartContractAddress: string;
-  /** ABI/IDL as a JSON string */
+  /** ABI/IDL as a JSON string. Limited to 400kb */
   smartContractInterface: string;
   type: v1SmartContractInterfaceType;
   /** Human-readable name for a Smart Contract Interface. */
@@ -1061,6 +1075,8 @@ export type v1CreateSubOrganizationIntentV7 = {
   disableOtpEmailAuth?: boolean;
   /** Signed JWT containing a unique id, expiry, verification type, contact */
   verificationToken?: string;
+  /** Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
 };
 
 export type v1CreateSubOrganizationRequest = {
@@ -1287,6 +1303,7 @@ export type v1DeleteFiatOnRampCredentialRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1DeleteFiatOnRampCredentialIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1DeleteFiatOnRampCredentialResult = {
@@ -1734,6 +1751,8 @@ export type v1EthSendTransactionIntent = {
   maxFeePerGas?: string;
   /** Maximum priority fee (tip) per gas unit in wei. Required for non-sponsored (EIP-1559) transactions. Not used for sponsored transactions. */
   maxPriorityFeePerGas?: string;
+  /** The gas station delegate contract nonce. Only used when sponsor=true. Include this if you want maximal security posture. */
+  gasStationNonce?: string;
 };
 
 export type v1EthSendTransactionRequest = {
@@ -1743,6 +1762,7 @@ export type v1EthSendTransactionRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1EthSendTransactionIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1EthSendTransactionResult = {
@@ -2052,6 +2072,26 @@ export type v1GetLatestBootProofRequest = {
   organizationId: string;
   /** Name of enclave app. */
   appName: string;
+};
+
+export type v1GetNoncesRequest = {
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  /** The Ethereum address to query nonces for. */
+  address: string;
+  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2: string;
+  /** Whether to fetch the standard on-chain nonce. */
+  nonce?: boolean;
+  /** Whether to fetch the gas station nonce used for sponsored transactions. */
+  gasStationNonce?: boolean;
+};
+
+export type v1GetNoncesResponse = {
+  /** The standard on-chain nonce for the address, if requested. */
+  nonce?: string;
+  /** The gas station nonce for sponsored transactions, if requested. */
+  gasStationNonce?: string;
 };
 
 export type v1GetOauth2CredentialRequest = {
@@ -2871,6 +2911,11 @@ export type v1ListUserTagsResponse = {
   userTags: datav1Tag[];
 };
 
+export type v1LoginUsage = {
+  /** Public key for authentication */
+  publicKey: string;
+};
+
 export type v1MnemonicLanguage =
   | "MNEMONIC_LANGUAGE_ENGLISH"
   | "MNEMONIC_LANGUAGE_SIMPLIFIED_CHINESE"
@@ -2884,6 +2929,7 @@ export type v1MnemonicLanguage =
 
 export type v1NOOPCodegenAnchorResponse = {
   stamp: v1WebAuthnStamp;
+  tokenUsage?: v1TokenUsage;
 };
 
 export type v1Oauth2AuthenticateIntent = {
@@ -3083,8 +3129,8 @@ export type v1OtpLoginIntent = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
-  /** Optional signature associated with the public key passed into the verification step. This must be a hex-encoded ECDSA signature over the verification token. Only required if a public key was provided during the verification step. */
-  clientSignature?: string;
+  /** Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
 };
 
 export type v1OtpLoginRequest = {
@@ -3525,6 +3571,14 @@ export type v1SignTransactionResult = {
   signedTransaction: string;
 };
 
+export type v1SignupUsage = {
+  email?: string;
+  phoneNumber?: string;
+  apiKeys?: v1ApiKeyParamsV2[];
+  authenticators?: v1AuthenticatorParamsV2[];
+  oauthProviders?: v1OauthProviderParams[];
+};
+
 export type v1SimpleClientExtensionResults = {
   appid?: boolean;
   appidExclude?: boolean;
@@ -3582,6 +3636,15 @@ export type v1TestRateLimitsRequest = {
 };
 
 export type v1TestRateLimitsResponse = {};
+export type v1TokenUsage = {
+  /** Type of token usage */
+  type: v1UsageType;
+  /** Unique identifier for the verification token */
+  tokenId: string;
+  signup?: v1SignupUsage;
+  login?: v1LoginUsage;
+};
+
 export type v1TransactionType =
   | "TRANSACTION_TYPE_ETHEREUM"
   | "TRANSACTION_TYPE_SOLANA"
@@ -3656,6 +3719,7 @@ export type v1UpdateFiatOnRampCredentialRequest = {
   /** Unique identifier for a given Organization. */
   organizationId: string;
   parameters: v1UpdateFiatOnRampCredentialIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1UpdateFiatOnRampCredentialResult = {
@@ -3928,6 +3992,8 @@ export type v1UpdateWalletResult = {
   /** A Wallet ID. */
   walletId: string;
 };
+
+export type v1UsageType = "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";
 
 export type v1User = {
   /** Unique identifier for a given User. */
@@ -4245,6 +4311,27 @@ export type TGetLatestBootProofBody = {
 };
 
 export type TGetLatestBootProofInput = { body: TGetLatestBootProofBody };
+
+export type TGetNoncesResponse = {
+  /** The standard on-chain nonce for the address, if requested. */
+  nonce?: string;
+  /** The gas station nonce for sponsored transactions, if requested. */
+  gasStationNonce?: string;
+};
+
+export type TGetNoncesBody = {
+  organizationId?: string;
+  /** The Ethereum address to query nonces for. */
+  address: string;
+  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2: string;
+  /** Whether to fetch the standard on-chain nonce. */
+  nonce?: boolean;
+  /** Whether to fetch the gas station nonce used for sponsored transactions. */
+  gasStationNonce?: boolean;
+};
+
+export type TGetNoncesInput = { body: TGetNoncesBody };
 
 export type TGetOauth2CredentialResponse = {
   oauth2Credential: v1Oauth2Credential;
@@ -4907,7 +4994,7 @@ export type TCreateSmartContractInterfaceBody = {
   organizationId?: string;
   /** Corresponding contract address or program ID */
   smartContractAddress: string;
-  /** ABI/IDL as a JSON string */
+  /** ABI/IDL as a JSON string. Limited to 400kb */
   smartContractInterface: string;
   type: v1SmartContractInterfaceType;
   /** Human-readable name for a Smart Contract Interface. */
@@ -4948,6 +5035,8 @@ export type TCreateSubOrganizationBody = {
   disableOtpEmailAuth?: boolean;
   /** Signed JWT containing a unique id, expiry, verification type, contact */
   verificationToken?: string;
+  /** Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
 };
 
 export type TCreateSubOrganizationInput = { body: TCreateSubOrganizationBody };
@@ -5369,6 +5458,8 @@ export type TEthSendTransactionBody = {
   maxFeePerGas?: string;
   /** Maximum priority fee (tip) per gas unit in wei. Required for non-sponsored (EIP-1559) transactions. Not used for sponsored transactions. */
   maxPriorityFeePerGas?: string;
+  /** The gas station delegate contract nonce. Only used when sponsor=true. Include this if you want maximal security posture. */
+  gasStationNonce?: string;
 };
 
 export type TEthSendTransactionInput = { body: TEthSendTransactionBody };
@@ -5769,8 +5860,8 @@ export type TOtpLoginBody = {
   expirationSeconds?: string;
   /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
-  /** Optional signature associated with the public key passed into the verification step. This must be a hex-encoded ECDSA signature over the verification token. Only required if a public key was provided during the verification step. */
-  clientSignature?: string;
+  /** Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
 };
 
 export type TOtpLoginInput = { body: TOtpLoginBody };
@@ -6271,8 +6362,8 @@ export type ProxyTOtpLoginBody = {
   invalidateExisting?: boolean;
   /** Unique identifier for a given Organization. If provided, this organization id will be used directly. If omitted, uses the verification token to look up the verified sub-organization based on the contact and verification type. */
   organizationId?: string;
-  /** Optional signature associated with the public key passed into the verification step. This must be a hex-encoded ECDSA signature over the verification token. Only required if a public key was provided during the verification step. */
-  clientSignature?: string;
+  /** Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
 };
 
 export type ProxyTOtpLoginInput = { body: ProxyTOtpLoginBody };
@@ -6318,6 +6409,8 @@ export type ProxyTSignupBody = {
   oauthProviders: v1OauthProviderParams[];
   /** The wallet to create for the sub-organization */
   wallet?: v1WalletParams;
+  /** Optional signature proving authorization for this signup. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
 };
 
 export type ProxyTSignupInput = { body: ProxyTSignupBody };

@@ -42,6 +42,7 @@ import type {
   TGetLatestBootProofBody,
   TGetLatestBootProofResponse,
 } from "./public_api.fetcher";
+import type { TGetNoncesBody, TGetNoncesResponse } from "./public_api.fetcher";
 import type {
   TGetOauth2CredentialBody,
   TGetOauth2CredentialResponse,
@@ -735,6 +736,33 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/get_latest_boot_proof";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions.
+   *
+   * Sign the provided `TGetNoncesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_nonces).
+   *
+   * See also {@link stampGetNonces}.
+   */
+  getNonces = async (input: TGetNoncesBody): Promise<TGetNoncesResponse> => {
+    return this.request("/public/v1/query/get_nonces", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetNoncesBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetNonces}.
+   */
+  stampGetNonces = async (input: TGetNoncesBody): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_nonces";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

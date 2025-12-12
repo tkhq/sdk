@@ -448,6 +448,52 @@ export const signGetLatestBootProof = (
   });
 
 /**
+ * `POST /public/v1/query/get_nonces`
+ */
+export type TGetNoncesResponse =
+  operations["PublicApiService_GetNonces"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_nonces`
+ */
+export type TGetNoncesInput = { body: TGetNoncesBody };
+
+/**
+ * `POST /public/v1/query/get_nonces`
+ */
+export type TGetNoncesBody =
+  operations["PublicApiService_GetNonces"]["parameters"]["body"]["body"];
+
+/**
+ * Get nonces for an address.
+ *
+ * Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions.
+ *
+ * `POST /public/v1/query/get_nonces`
+ */
+export const getNonces = (input: TGetNoncesInput) =>
+  request<TGetNoncesResponse, TGetNoncesBody, never, never, never>({
+    uri: "/public/v1/query/get_nonces",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetNonces` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetNonces}
+ */
+export const signGetNonces = (
+  input: TGetNoncesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetNoncesBody, never, never>({
+    uri: "/public/v1/query/get_nonces",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_oauth2_credential`
  */
 export type TGetOauth2CredentialResponse =

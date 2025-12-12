@@ -425,6 +425,36 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getNonces = async (
+    input: SdkApiTypes.TGetNoncesBody,
+  ): Promise<SdkApiTypes.TGetNoncesResponse> => {
+    let session = await getStorageValue(StorageKeys.Session);
+    session = parseSession(session!);
+    return this.request("/public/v1/query/get_nonces", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetNonces = async (
+    input: SdkApiTypes.TGetNoncesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_nonces";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getOauth2Credential = async (
     input: SdkApiTypes.TGetOauth2CredentialBody,
   ): Promise<SdkApiTypes.TGetOauth2CredentialResponse> => {
