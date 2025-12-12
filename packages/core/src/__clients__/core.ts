@@ -106,7 +106,6 @@ import {
   type BuildWalletLoginRequestParams,
   type VerifyAppProofsParams,
   type PollTransactionStatusParams,
-  SignatureFormat,
 } from "../__types__";
 import {
   buildSignUpBody,
@@ -135,8 +134,8 @@ import {
   getActiveSessionOrThrowIfRequired,
   fetchAllWalletAccountsWithCursor,
   sendSignedRequest,
-  getClientSignatureForLogin,
-  getClientSignatureForSignup,
+  getClientSignatureMessageForLogin,
+  getClientSignatureMessageForSignup,
 } from "../utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -149,6 +148,7 @@ import { jwtDecode } from "jwt-decode";
 import { createWalletManager } from "../__wallet__/base";
 import { toUtf8Bytes } from "ethers";
 import { verify } from "@turnkey/crypto";
+import { SignatureFormat } from "@turnkey/api-key-stamper";
 
 /**
  * @internal
@@ -1367,7 +1367,7 @@ export class TurnkeyClient {
    * @param params.otpCode - OTP code entered by the user.
    * @param params.contact - contact information for the user (e.g., email address or phone number).
    * @param params.otpType - type of OTP being verified (OtpType.Email or OtpType.Sms).
-   * @param params.publicKey - public key the verification token is bound to for ownership verification (client signature verification during login/signup).
+   * @param params.publicKey - public key the verification token is bound to for ownership verification (client signature verification during login/signup). This public key is optional; if not provided, a new key pair will be generated.
    * @returns A promise that resolves to an object containing:
    *   - subOrganizationId: sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
    *   - verificationToken: verification token to be used for login or sign-up.
@@ -1376,14 +1376,14 @@ export class TurnkeyClient {
   verifyOtp = async (params: VerifyOtpParams): Promise<VerifyOtpResult> => {
     const { otpId, otpCode, contact, otpType } = params;
     const resolvedPublicKey =
-      params.publicKey || (await this.apiKeyStamper?.createKeyPair());
+      params.publicKey ?? (await this.apiKeyStamper?.createKeyPair());
 
     return withTurnkeyErrorHandling(
       async () => {
         const verifyOtpRes = await this.httpClient.proxyVerifyOtp({
           otpId: otpId,
           otpCode: otpCode,
-          ...(resolvedPublicKey && { publicKey: resolvedPublicKey }),
+          publicKey: resolvedPublicKey!,
         });
 
         if (!verifyOtpRes) {
@@ -1454,14 +1454,15 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const clientSignatureBundle = getClientSignatureForLogin({
-          verificationToken,
-          sessionPublicKey: publicKey!,
-        });
+        const { message, publicKey: clientSignaturePublicKey } =
+          getClientSignatureMessageForLogin({
+            verificationToken,
+            sessionPublicKey: publicKey!,
+          });
 
         this.apiKeyStamper?.setTemporaryPublicKey(publicKey!);
         const signature = await this.apiKeyStamper?.sign(
-          clientSignatureBundle.message,
+          message,
           SignatureFormat.Raw,
         );
 
@@ -1473,8 +1474,8 @@ export class TurnkeyClient {
         }
 
         const clientSignature: v1ClientSignature = {
-          message: clientSignatureBundle.message,
-          publicKey: clientSignatureBundle.publicKey,
+          message: message,
+          publicKey: clientSignaturePublicKey,
           scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
           signature: signature,
         };
@@ -1529,6 +1530,11 @@ export class TurnkeyClient {
           }
         },
       },
+      {
+        finallyFn: async () => {
+          this.apiKeyStamper?.clearTemporaryPublicKey();
+        },
+      },
     );
   };
 
@@ -1561,7 +1567,7 @@ export class TurnkeyClient {
       createSubOrgParams,
       invalidateExisting,
       sessionKey,
-      publicKey,
+      publicKey = await this.apiKeyStamper?.createKeyPair(),
     } = params;
 
     // build sign up body without client signature first
@@ -1577,22 +1583,21 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const clientSignatureBundle = getClientSignatureForSignup({
-          verificationToken,
-          ...(signUpBody.userEmail && { email: signUpBody.userEmail }),
-          ...(signUpBody.userPhoneNumber && {
-            phoneNumber: signUpBody.userPhoneNumber,
-          }),
-          apiKeys: signUpBody.apiKeys,
-          authenticators: signUpBody.authenticators,
-          oauthProviders: signUpBody.oauthProviders,
-        });
+        const { message, publicKey: clientSignaturePublicKey } =
+          getClientSignatureMessageForSignup({
+            verificationToken,
+            ...(signUpBody.userEmail && { email: signUpBody.userEmail }),
+            ...(signUpBody.userPhoneNumber && {
+              phoneNumber: signUpBody.userPhoneNumber,
+            }),
+            apiKeys: signUpBody.apiKeys,
+            authenticators: signUpBody.authenticators,
+            oauthProviders: signUpBody.oauthProviders,
+          });
 
-        const sessionPublicKey =
-          publicKey ?? (await this.apiKeyStamper?.createKeyPair());
-        this.apiKeyStamper?.setTemporaryPublicKey(sessionPublicKey!);
+        this.apiKeyStamper?.setTemporaryPublicKey(publicKey!);
         const signature = await this.apiKeyStamper?.sign(
-          clientSignatureBundle.message,
+          message,
           SignatureFormat.Raw,
         );
 
@@ -1604,8 +1609,8 @@ export class TurnkeyClient {
         }
 
         const clientSignature: v1ClientSignature = {
-          message: clientSignatureBundle.message,
-          publicKey: clientSignatureBundle.publicKey,
+          message: message,
+          publicKey: clientSignaturePublicKey,
           scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
           signature: signature,
         };
@@ -1624,7 +1629,7 @@ export class TurnkeyClient {
 
         const otpRes = await this.loginWithOtp({
           verificationToken,
-          publicKey: sessionPublicKey!,
+          publicKey: publicKey!,
           ...(invalidateExisting && { invalidateExisting }),
           ...(sessionKey && { sessionKey }),
         });
@@ -1635,8 +1640,27 @@ export class TurnkeyClient {
         };
       },
       {
+        catchFn: async () => {
+          // Clean up the generated key pair if it wasn't successfully used
+          if (publicKey) {
+            try {
+              await this.apiKeyStamper?.deleteKeyPair(publicKey);
+            } catch (cleanupError) {
+              throw new TurnkeyError(
+                `Failed to clean up generated key pair`,
+                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+                cleanupError,
+              );
+            }
+          }
+        },
         errorCode: TurnkeyErrorCodes.OTP_SIGNUP_ERROR,
         errorMessage: "Failed to sign up with OTP",
+      },
+      {
+        finallyFn: async () => {
+          this.apiKeyStamper?.clearTemporaryPublicKey();
+        },
       },
     );
   };
@@ -1716,7 +1740,7 @@ export class TurnkeyClient {
         } else {
           const loginRes = await this.loginWithOtp({
             verificationToken,
-            ...(publicKey && { publicKey }),
+            publicKey: publicKey!,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
           });

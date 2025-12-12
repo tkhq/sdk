@@ -5,9 +5,9 @@ import type {
   TStamper,
   StorageBase,
   ApiKeyStamperBase,
-  SignatureFormat,
 } from "../../__types__";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
+import type { SignatureFormat } from "@turnkey/api-key-stamper";
 
 /**
  * Cross-platform API key stamper.
@@ -73,6 +73,10 @@ export class CrossPlatformApiKeyStamper implements TStamper {
         "Stamper is not initialized. Please call .init() before calling this method.",
         TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
       );
+    }
+    // If the deleted key pair is the temporary one, clear it.
+    if (this.temporaryPublicKey === publicKeyHex) {
+      this.temporaryPublicKey = undefined;
     }
     return this.stamper.deleteKeyPair(publicKeyHex);
   }
