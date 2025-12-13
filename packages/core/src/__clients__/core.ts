@@ -1383,6 +1383,7 @@ export class TurnkeyClient {
         const accountRes = await this.httpClient.proxyGetAccount({
           filterType: OtpTypeToFilterTypeMap[otpType],
           filterValue: contact,
+          verificationToken: verifyOtpRes.verificationToken,
         });
 
         if (!accountRes) {
