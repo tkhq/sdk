@@ -172,8 +172,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_activity";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_ACTIVITY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -202,8 +208,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_api_key";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_API_KEY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -232,8 +244,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_api_keys";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_API_KEYS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -262,8 +280,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_attestation";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_ATTESTATION_DOCUMENT",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -292,9 +316,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_authenticator";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_AUTHENTICATOR",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -323,9 +353,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_authenticators";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_AUTHENTICATORS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -354,8 +390,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_boot_proof";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_BOOT_PROOF",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -384,9 +426,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_LATEST_BOOT_PROOF",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -415,9 +463,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_oauth2_credential";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_OAUTH2CREDENTIAL",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -446,9 +500,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_oauth_providers";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_OAUTH_PROVIDERS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -477,9 +537,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_onramp_transaction_status";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_ON_RAMP_TRANSACTION_STATUS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -508,9 +574,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_organization";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_ORGANIZATION",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -539,9 +611,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_organization_configs";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_ORGANIZATION_CONFIGS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -570,8 +648,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_policy";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_POLICY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -600,9 +684,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_policy_evaluations";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_POLICY_EVALUATIONS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -631,8 +721,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_private_key";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_PRIVATE_KEY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -661,9 +757,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_SMART_CONTRACT_INTERFACE",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -692,8 +794,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_user";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_USER",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -722,8 +830,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_wallet";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_WALLET",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -752,9 +866,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_wallet_account";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_WALLET_ACCOUNT",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -783,8 +903,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_activities";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_ACTIVITIES",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -813,8 +939,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_app_proofs";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_APP_PROOFS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -843,9 +975,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_LIST_FIAT_ON_RAMP_CREDENTIALS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -874,9 +1012,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_oauth2_credentials";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_LIST_OAUTH2CREDENTIALS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -905,8 +1049,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_policies";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_POLICIES",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -935,9 +1085,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_key_tags";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_LIST_PRIVATE_KEY_TAGS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -966,9 +1122,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_keys";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_PRIVATE_KEYS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -997,10 +1159,16 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/query/list_smart_contract_interfaces";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_SMART_CONTRACT_INTERFACES",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1029,8 +1197,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_suborgs";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_SUB_ORG_IDS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1059,8 +1233,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_user_tags";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_LIST_USER_TAGS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1089,8 +1269,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_users";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_USERS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1119,9 +1305,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_verified_suborgs";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_VERIFIED_SUB_ORG_IDS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1150,9 +1342,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_wallet_accounts";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_WALLET_ACCOUNTS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1181,8 +1379,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_wallets";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_WALLETS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1211,8 +1415,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/whoami";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_GET_WHOAMI",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1242,9 +1452,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/approve_activity";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_APPROVE_ACTIVITY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1281,9 +1497,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_api_keys";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_API_KEYS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1320,9 +1542,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_api_only_users";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1359,9 +1587,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_authenticators";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1398,10 +1632,16 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/create_fiat_on_ramp_credential";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1438,9 +1678,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_invitations";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_INVITATIONS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1477,9 +1723,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_oauth2_credential";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_OAUTH2CREDENTIAL",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1516,9 +1768,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_oauth_providers";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1555,9 +1813,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_policies";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_POLICIES",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1594,8 +1858,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_policy";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_POLICY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1632,9 +1902,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_private_key_tag";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1671,9 +1947,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_private_keys";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1710,9 +1992,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_read_only_session";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1749,9 +2037,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_read_write_session";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1788,10 +2082,16 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/create_smart_contract_interface";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1828,9 +2128,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_sub_organization";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1867,9 +2173,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_user_tag";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_USER_TAG",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1906,8 +2218,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_users";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_USERS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1944,8 +2262,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_wallet";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_WALLET",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -1982,9 +2306,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_wallet_accounts";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2021,9 +2351,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_api_keys";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_API_KEYS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2060,9 +2396,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_authenticators";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2099,10 +2441,16 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/delete_fiat_on_ramp_credential";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2139,9 +2487,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_invitation";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_INVITATION",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2178,9 +2532,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_oauth2_credential";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_OAUTH2CREDENTIAL",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2217,9 +2577,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_oauth_providers";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2256,9 +2622,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_policies";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_POLICIES",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2295,8 +2667,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_policy";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_POLICY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2333,9 +2711,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_key_tags";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2372,9 +2756,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_keys";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2411,10 +2801,16 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/delete_smart_contract_interface";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2451,9 +2847,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_sub_organization";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2490,9 +2892,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_user_tags";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_USER_TAGS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2529,8 +2937,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_users";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_USERS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2567,9 +2981,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_wallet_accounts";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2606,8 +3026,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_wallets";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_WALLETS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2644,8 +3070,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/email_auth";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EMAIL_AUTH",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2682,9 +3114,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/eth_send_raw_transaction";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2721,9 +3159,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/eth_send_transaction";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2760,9 +3204,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/export_private_key";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2799,8 +3249,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/export_wallet";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EXPORT_WALLET",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2837,9 +3293,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/export_wallet_account";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2876,9 +3338,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/import_private_key";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2915,8 +3383,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/import_wallet";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_IMPORT_WALLET",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2953,9 +3427,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_fiat_on_ramp";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -2992,9 +3472,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_import_private_key";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3031,9 +3517,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_import_wallet";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3070,8 +3562,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_OTP",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3108,8 +3606,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp_auth";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_OTP_AUTH",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3146,9 +3650,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_user_email_recovery";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3185,8 +3695,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_OAUTH",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3223,9 +3739,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/oauth2_authenticate";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_OAUTH2AUTHENTICATE",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3262,8 +3784,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth_login";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_OAUTH_LOGIN",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3300,8 +3828,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_auth";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_OTP_AUTH",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3338,8 +3872,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_login";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_OTP_LOGIN",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3376,8 +3916,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/recover_user";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_RECOVER_USER",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3407,9 +3953,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/reject_activity";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_REJECT_ACTIVITY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3446,9 +3998,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/remove_organization_feature";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3485,9 +4043,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/set_organization_feature";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3524,9 +4088,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payload";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3563,9 +4133,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payloads";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3602,9 +4178,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_transaction";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SIGN_TRANSACTION",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3641,8 +4223,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/stamp_login";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_STAMP_LOGIN",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3679,10 +4267,16 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/update_fiat_on_ramp_credential";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3719,9 +4313,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_oauth2_credential";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_OAUTH2CREDENTIAL",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3758,8 +4358,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_policy";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_POLICY",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3796,9 +4402,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_private_key_tag";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3835,9 +4447,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_root_quorum";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3874,8 +4492,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_USER",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3912,9 +4536,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_email";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3951,9 +4581,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_name";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_USER_NAME",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -3990,9 +4626,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_phone_number";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -4029,9 +4671,15 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_tag";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_USER_TAG",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -4068,8 +4716,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_wallet";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_WALLET",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -4106,8 +4760,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/verify_otp";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_VERIFY_OTP",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
@@ -4136,8 +4796,14 @@ export class TurnkeySDKClientBase {
     if (!this.stamper) {
       return undefined;
     }
+    const { organizationId, timestampMs, ...rest } = input;
     const fullUrl = this.config.apiBaseUrl + "/tkhq/api/v1/test_rate_limits";
-    const body = JSON.stringify(input);
+    const body = JSON.stringify({
+      parameters: rest,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_TEST_RATE_LIMITS",
+    });
     const stamp = await this.stamper.stamp(body);
     return {
       body: body,
