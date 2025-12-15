@@ -369,6 +369,12 @@ const generateSDKClientFromSwagger = async (
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
+    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
+      .replace(/([a-z])([A-Z])/g, "$1_$2")
+      .toUpperCase()}`;
+    const versionedActivityType =
+      VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
+
     // for query methods, we use flat body structure
     if (methodType === "query") {
       codeBuffer.push(
@@ -386,12 +392,6 @@ const generateSDKClientFromSwagger = async (
       );
     } else if (methodType === "activity") {
       // For activity methods
-      const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-        .replace(/([a-z])([A-Z])/g, "$1_$2")
-        .toUpperCase()}`;
-      const versionedActivityType =
-        VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
-
       const resultKey = operationNameWithoutNamespace + "Result";
       const versionedMethodName = latestVersions[resultKey].formattedKeyName;
 
@@ -426,12 +426,6 @@ const generateSDKClientFromSwagger = async (
     }`,
       );
     }
-
-    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-      .replace(/([a-z])([A-Z])/g, "$1_$2")
-      .toUpperCase()}`;
-    const versionedActivityType =
-      VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
 
     // generate a stamping method for each method
 

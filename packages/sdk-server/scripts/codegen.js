@@ -400,6 +400,12 @@ export class TurnkeySDKClientBase {
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
+    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
+      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+      .toUpperCase()}`;
+    const versionedActivityType =
+      VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
+
     if (methodType === "query") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}${
@@ -414,12 +420,6 @@ export class TurnkeySDKClientBase {
   }`,
       );
     } else if (methodType === "command") {
-      const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-        .toUpperCase()}`;
-      const versionedActivityType =
-        VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
-
       const resultKey = operationNameWithoutNamespace + "Result";
       const versionedMethodName = latestVersions[resultKey].formattedKeyName;
 
@@ -450,12 +450,6 @@ export class TurnkeySDKClientBase {
   }`,
       );
     }
-
-    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-      .toUpperCase()}`;
-    const versionedActivityType =
-      VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
 
     // generate a stamping method for each method
     if (methodType === "noop") {
