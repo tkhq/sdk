@@ -79,7 +79,7 @@ export class ReactNativeKeychainStamper implements ApiKeyStamperBase {
   async sign(
     payload: string,
     publicKeyHex: string,
-    format: SignatureFormat = SignatureFormat.Der,
+    format: SignatureFormat,
   ): Promise<string> {
     const privateKey = await this.getPrivateKey(publicKeyHex);
     if (!privateKey) {
@@ -95,8 +95,9 @@ export class ReactNativeKeychainStamper implements ApiKeyStamperBase {
         return stamper.sign(payload, SignatureFormat.Raw);
       }
       case SignatureFormat.Der:
-      default:
         return stamper.sign(payload, SignatureFormat.Der);
+      default:
+        throw new Error(`Unsupported signature format: ${format}`);
     }
   }
 }

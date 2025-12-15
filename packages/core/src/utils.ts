@@ -19,6 +19,7 @@ import {
   type ProxyTGetWalletKitConfigResponse,
   type v1User,
   type v1CreatePolicyIntentV3,
+  type VerificationToken,
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
@@ -26,7 +27,6 @@ import {
 import {
   type CreateSubOrgParams,
   type WalletProvider,
-  type VerificationToken,
   Chain,
   GrpcStatus,
   TurnkeyRequestError,

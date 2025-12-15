@@ -208,7 +208,7 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
   async sign(
     payload: string,
     publicKeyHex: string,
-    format: SignatureFormat = SignatureFormat.Der,
+    format: SignatureFormat,
   ): Promise<string> {
     const privateKey = await this.getPrivateKey(publicKeyHex);
     if (!privateKey) {
@@ -230,7 +230,11 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
   }
 
   async stamp(payload: string, publicKeyHex: string): Promise<TStamp> {
-    const signature = await this.sign(payload, publicKeyHex);
+    const signature = await this.sign(
+      payload,
+      publicKeyHex,
+      SignatureFormat.Der,
+    );
     const stamp = {
       publicKey: publicKeyHex,
       scheme: "SIGNATURE_SCHEME_TK_API_P256",

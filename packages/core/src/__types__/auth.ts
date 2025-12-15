@@ -149,12 +149,3 @@ export type SignUpBody = {
     | undefined;
   oauthProviders?: v1OauthProviderParams[] | undefined;
 };
-
-/** @internal */
-export type VerificationToken = {
-  contact: string;
-  exp: number;
-  id: string;
-  public_key?: string;
-  verification_type: string;
-};

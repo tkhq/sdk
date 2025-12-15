@@ -259,4 +259,12 @@ export enum OAuthProviders {
   X = "X",
 }
 
+export type VerificationToken = {
+  contact: string;
+  exp: number;
+  id: string;
+  public_key?: string;
+  verification_type: string;
+};
+
 export * from "./__generated__/types";

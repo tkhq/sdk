@@ -1,6 +1,9 @@
 /// <reference lib="dom" />
-import { stringToBase64urlString } from "@turnkey/encoding";
-import { convertDerSignatureToRawEcdsa } from "./utils";
+import {
+  stringToBase64urlString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
+import { fromDerSignature } from "@turnkey/crypto";
 
 // Header name for an API key stamp
 const stampHeaderName = "X-Stamp";
@@ -110,25 +113,31 @@ export class ApiKeyStamper {
   }
 
   async sign(payload: string, format: SignatureFormat) {
-    if (format === SignatureFormat.Raw) {
-      const derSignature = await signWithApiKey(
-        {
-          publicKey: this.apiPublicKey,
-          privateKey: this.apiPrivateKey,
-          content: payload,
-        },
-        this.runtimeOverride,
-      );
-      return convertDerSignatureToRawEcdsa(derSignature);
-    } else {
-      return signWithApiKey(
-        {
-          publicKey: this.apiPublicKey,
-          privateKey: this.apiPrivateKey,
-          content: payload,
-        },
-        this.runtimeOverride,
-      );
+    switch (format) {
+      case SignatureFormat.Raw: {
+        const derSignature = await signWithApiKey(
+          {
+            publicKey: this.apiPublicKey,
+            privateKey: this.apiPrivateKey,
+            content: payload,
+          },
+          this.runtimeOverride,
+        );
+        const raw = fromDerSignature(derSignature);
+        return uint8ArrayToHexString(raw);
+      }
+      case SignatureFormat.Der: {
+        return signWithApiKey(
+          {
+            publicKey: this.apiPublicKey,
+            privateKey: this.apiPrivateKey,
+            content: payload,
+          },
+          this.runtimeOverride,
+        );
+      }
+      default:
+        throw new Error(`Unsupported signature format: ${format}`);
     }
   }
 }

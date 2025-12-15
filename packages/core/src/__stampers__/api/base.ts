@@ -7,7 +7,7 @@ import type {
   ApiKeyStamperBase,
 } from "../../__types__";
 import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
-import type { SignatureFormat } from "@turnkey/api-key-stamper";
+import { SignatureFormat } from "@turnkey/api-key-stamper";
 
 /**
  * Cross-platform API key stamper.
@@ -128,7 +128,10 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     return this.stamper.stamp(payload, publicKeyHex);
   }
 
-  async sign(payload: string, format?: SignatureFormat): Promise<string> {
+  async sign(
+    payload: string,
+    format: SignatureFormat = SignatureFormat.Der,
+  ): Promise<string> {
     if (!this.stamper) {
       throw new TurnkeyError(
         "Stamper is not initialized. Please call .init() before calling this method.",
