@@ -447,10 +447,11 @@ const generateSDKClientFromSwagger = async (
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
     const body = {
       ...input,
-      organizationId: input.organizationId
+      organizationId: input.organizationId ?? session?.organizationId ?? this.config.organizationId
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -463,7 +464,7 @@ const generateSDKClientFromSwagger = async (
   }`,
       );
     } else {
-      // for activity and activityDecision methods, use parameters wrapper and type field
+      // for activity and activityDecision methods, both use the same stamp structure
       codeBuffer.push(
         `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
@@ -471,16 +472,14 @@ const generateSDKClientFromSwagger = async (
       return undefined;
     }
 
-    const { organizationId${methodType === "activity" || methodType === "activityDecision" ? ", timestampMs" : ""}, ...parameters } = input;
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
     const bodyWithType = {
       parameters,
-      organizationId,${
-        methodType === "activity" || methodType === "activityDecision"
-          ? "\n      timestampMs: timestampMs ?? String(Date.now()),"
-          : ""
-      }
+      organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
+      timestampMs: timestampMs ?? String(Date.now()),
       type: "${versionedActivityType ?? unversionedActivityType}"
     };
 

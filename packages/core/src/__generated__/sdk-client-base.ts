@@ -277,10 +277,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_activity";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -319,10 +323,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_api_key";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -361,10 +369,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_api_keys";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -403,10 +415,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_attestation";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -445,11 +461,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_authenticator";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -488,11 +508,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_authenticators";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -531,10 +555,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_boot_proof";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -573,11 +601,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -616,11 +648,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_oauth2_credential";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -659,11 +695,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_oauth_providers";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -702,11 +742,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_onramp_transaction_status";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -745,11 +789,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_organization";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -788,11 +836,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_organization_configs";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -831,10 +883,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_policy";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -873,11 +929,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_policy_evaluations";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -916,10 +976,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_private_key";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -958,11 +1022,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1001,10 +1069,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_user";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1043,10 +1115,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_wallet";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1085,11 +1161,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_wallet_account";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1128,10 +1208,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_activities";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1170,10 +1254,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_app_proofs";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1212,11 +1300,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1255,11 +1347,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_oauth2_credentials";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1298,10 +1394,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_policies";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1340,11 +1440,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_key_tags";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1383,11 +1487,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_keys";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1426,12 +1534,16 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/query/list_smart_contract_interfaces";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1470,10 +1582,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_suborgs";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1512,10 +1628,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_user_tags";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1554,10 +1674,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_users";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1596,11 +1720,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_verified_suborgs";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1639,11 +1767,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_wallet_accounts";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1682,10 +1814,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_wallets";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1724,10 +1860,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/whoami";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1770,12 +1910,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/approve_activity";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_APPROVE_ACTIVITY",
     };
@@ -1822,12 +1964,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_api_keys";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
     };
@@ -1874,12 +2018,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_api_only_users";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
     };
@@ -1926,12 +2072,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_authenticators";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_AUTHENTICATORS_V2",
     };
@@ -1978,13 +2126,15 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/create_fiat_on_ramp_credential";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_FIAT_ON_RAMP_CREDENTIAL",
     };
@@ -2031,12 +2181,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_invitations";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_INVITATIONS",
     };
@@ -2083,12 +2235,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_oauth2_credential";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_OAUTH2CREDENTIAL",
     };
@@ -2135,12 +2289,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_oauth_providers";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
     };
@@ -2187,12 +2343,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_policies";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_POLICIES",
     };
@@ -2239,11 +2397,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_policy";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_POLICY_V3",
     };
@@ -2290,12 +2450,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_private_key_tag";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEY_TAG",
     };
@@ -2342,12 +2504,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_private_keys";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
     };
@@ -2394,12 +2558,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_read_only_session";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_READ_ONLY_SESSION",
     };
@@ -2446,12 +2612,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_read_write_session";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
     };
@@ -2498,13 +2666,15 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/create_smart_contract_interface";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_SMART_CONTRACT_INTERFACE",
     };
@@ -2551,12 +2721,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_sub_organization";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
     };
@@ -2603,12 +2775,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_user_tag";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_USER_TAG",
     };
@@ -2655,11 +2829,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_users";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_USERS_V3",
     };
@@ -2706,11 +2882,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_wallet";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_WALLET",
     };
@@ -2757,12 +2935,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_wallet_accounts";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
     };
@@ -2809,12 +2989,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_api_keys";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_API_KEYS",
     };
@@ -2861,12 +3043,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_authenticators";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_AUTHENTICATORS",
     };
@@ -2913,13 +3097,15 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/delete_fiat_on_ramp_credential";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_FIAT_ON_RAMP_CREDENTIAL",
     };
@@ -2966,12 +3152,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_invitation";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_INVITATION",
     };
@@ -3018,12 +3206,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_oauth2_credential";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_OAUTH2CREDENTIAL",
     };
@@ -3070,12 +3260,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_oauth_providers";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_OAUTH_PROVIDERS",
     };
@@ -3122,12 +3314,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_policies";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_POLICIES",
     };
@@ -3174,11 +3368,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_policy";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_POLICY",
     };
@@ -3225,12 +3421,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_key_tags";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEY_TAGS",
     };
@@ -3277,12 +3475,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_keys";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_PRIVATE_KEYS",
     };
@@ -3329,13 +3529,15 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/delete_smart_contract_interface";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_SMART_CONTRACT_INTERFACE",
     };
@@ -3382,12 +3584,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_sub_organization";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_SUB_ORGANIZATION",
     };
@@ -3434,12 +3638,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_user_tags";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_USER_TAGS",
     };
@@ -3486,11 +3692,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_users";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_USERS",
     };
@@ -3537,12 +3745,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_wallet_accounts";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_WALLET_ACCOUNTS",
     };
@@ -3589,11 +3799,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_wallets";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_WALLETS",
     };
@@ -3640,11 +3852,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/email_auth";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
     };
@@ -3691,12 +3905,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/eth_send_raw_transaction";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION",
     };
@@ -3743,12 +3959,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/eth_send_transaction";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
     };
@@ -3795,12 +4013,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/export_private_key";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_EXPORT_PRIVATE_KEY",
     };
@@ -3847,11 +4067,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/export_wallet";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_EXPORT_WALLET",
     };
@@ -3898,12 +4120,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/export_wallet_account";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_EXPORT_WALLET_ACCOUNT",
     };
@@ -3950,12 +4174,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/import_private_key";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_IMPORT_PRIVATE_KEY",
     };
@@ -4002,11 +4228,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/import_wallet";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_IMPORT_WALLET",
     };
@@ -4053,12 +4281,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_fiat_on_ramp";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_FIAT_ON_RAMP",
     };
@@ -4105,12 +4335,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_import_private_key";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_IMPORT_PRIVATE_KEY",
     };
@@ -4157,12 +4389,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_import_wallet";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_IMPORT_WALLET",
     };
@@ -4209,11 +4443,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_OTP",
     };
@@ -4260,11 +4496,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp_auth";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
     };
@@ -4311,12 +4549,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_user_email_recovery";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
     };
@@ -4363,11 +4603,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_OAUTH",
     };
@@ -4414,12 +4656,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/oauth2_authenticate";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_OAUTH2AUTHENTICATE",
     };
@@ -4466,11 +4710,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth_login";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_OAUTH_LOGIN",
     };
@@ -4517,11 +4763,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_auth";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_OTP_AUTH",
     };
@@ -4568,11 +4816,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_login";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_OTP_LOGIN",
     };
@@ -4619,11 +4869,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/recover_user";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_RECOVER_USER",
     };
@@ -4668,12 +4920,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/reject_activity";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_REJECT_ACTIVITY",
     };
@@ -4720,12 +4974,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/remove_organization_feature";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_REMOVE_ORGANIZATION_FEATURE",
     };
@@ -4772,12 +5028,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/set_organization_feature";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_SET_ORGANIZATION_FEATURE",
     };
@@ -4824,12 +5082,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payload";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2",
     };
@@ -4876,12 +5136,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payloads";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_SIGN_RAW_PAYLOADS",
     };
@@ -4928,12 +5190,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_transaction";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_SIGN_TRANSACTION_V2",
     };
@@ -4980,11 +5244,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/stamp_login";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_STAMP_LOGIN",
     };
@@ -5031,13 +5297,15 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/update_fiat_on_ramp_credential";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL",
     };
@@ -5084,12 +5352,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_oauth2_credential";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_OAUTH2CREDENTIAL",
     };
@@ -5136,11 +5406,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_policy";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
     };
@@ -5187,12 +5459,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_private_key_tag";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_PRIVATE_KEY_TAG",
     };
@@ -5239,12 +5513,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_root_quorum";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_ROOT_QUORUM",
     };
@@ -5291,11 +5567,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_USER",
     };
@@ -5342,12 +5620,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_email";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_USER_EMAIL",
     };
@@ -5394,12 +5674,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_name";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_USER_NAME",
     };
@@ -5446,12 +5728,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_phone_number";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_USER_PHONE_NUMBER",
     };
@@ -5498,12 +5782,14 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_tag";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_USER_TAG",
     };
@@ -5550,11 +5836,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_wallet";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_WALLET",
     };
@@ -5601,11 +5889,13 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/verify_otp";
     const bodyWithType = {
       parameters,
-      organizationId,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_VERIFY_OTP",
     };
@@ -5646,10 +5936,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/tkhq/api/v1/test_rate_limits";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
