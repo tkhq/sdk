@@ -20,8 +20,8 @@ import {
   ProxyTSignupResponse,
   TGetWalletsResponse,
   TGetUserResponse,
-  TEthSendTransactionBody,
-  TGetSendTransactionStatusResponse,
+  type TEthSendTransactionBody,
+  type TGetSendTransactionStatusResponse,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -2703,53 +2703,68 @@ export class TurnkeyClient {
    *
    * Signs and submits an Ethereum transaction using a Turnkey-managed (embedded) wallet.
    *
+   * This method performs **authorization and signing**, and submits the transaction
+   * to Turnkey’s coordinator. It **does not perform any polling** — callers must use
+   * `pollTransactionStatus` to obtain the final on-chain result.
+   *
    * Behavior:
    *
    * - **Connected wallets**
    *   - Connected wallets are **not supported** by this method.
-   *   - They should instead use `signAndSendRawTransaction`, which handles raw transaction encoding.
+   *   - They must instead use `signAndSendRawTransaction`.
    *
    * - **Embedded wallets**
-   *   - Builds an `eth_send_transaction` intent payload according to Turnkey’s API specification.
-   *   - Submits the intent to Turnkey, which performs signing and returns a `sendTransactionStatusId`.
-   *   - Does **not** broadcast via JSON-RPC; Turnkey handles authorization and transaction submission.
-   *   - Does **not** perform any polling — callers must use `pollTransactionStatus` to monitor execution.
+   *   - Constructs the payload for Turnkey's `eth_send_transaction` endpoint.
+   *   - Fetches nonces automatically when needed (normal nonce or Gas Station nonce).
+   *   - Signs and submits the transaction through Turnkey.
+   *   - Returns a `sendTransactionStatusId`, which the caller must pass to
+   *     `pollTransactionStatus` to obtain the final result (tx hash + status).
    *
-   * @param params.organizationId - Organization ID to execute the transaction under. Defaults to the session's organization.
-   * @param params.from - Ethereum address to sign with (0x-prefixed).
-   * @param params.to - Recipient address (0x-prefixed).
-   * @param params.caip2 - CAIP-2 chain identifier (e.g., `"eip155:1"` for Ethereum mainnet).
-   * @param params.sponsor - Whether this transaction should be sponsored via Turnkey Gas Station. Can be omitted for non-sponsored
-   * @param params.value - Amount of native asset in wei (as a decimal string). Can be omitted if 0.
-   * @param params.data - Hex-encoded call data for contract interactions. Can be omitted if empty.
-   * @param params.nonce - Explicit nonce for non-sponsored EIP-1559 transactions.
-   * @param params.gasLimit - Maximum gas to allow for execution. Gas fields will be rejected for non-sponsored transactions.
-   * @param params.maxFeePerGas - Max fee per gas (required for non-sponsored EIP-1559 transactions). Gas fields will be rejected for non-sponsored transactions.
-   * @param params.maxPriorityFeePerGas - Max tip per gas (required for non-sponsored transactions). Gas fields will be rejected for non-sponsored transactions.
+   * @param params.organizationId - Organization ID to execute the transaction under.
+   *                                Defaults to the active session's organization.
    *
-   * @returns A promise resolving to the `sendTransactionStatusId` returned by Turnkey.
-   *          This ID must be passed into `pollTransactionStatus` to obtain the final tx hash.
+   * @param params.stampWith - Optional stamper to authorize signing (e.g., passkey).
    *
-   * @throws {TurnkeyError} If the wallet is unsupported or the Turnkey API rejects the transaction.
+   * @param params.transaction - The Ethereum transaction details.
+   *   @param params.transaction.from - Ethereum address to sign with.
+   *   @param params.transaction.to - Recipient address.
+   *   @param params.transaction.caip2 - CAIP-2 chain identifier (e.g. `"eip155:1"`).
+   *   @param params.transaction.value - Native value in wei.
+   *   @param params.transaction.data - Hex-encoded call data.
+   *   @param params.transaction.nonce - Explicit nonce (non-sponsored transactions).
+   *   @param params.transaction.gasLimit - Gas limit (non-sponsored only).
+   *   @param params.transaction.maxFeePerGas - Max fee (non-sponsored only).
+   *   @param params.transaction.maxPriorityFeePerGas - Max priority fee.
+   *   @param params.transaction.sponsor - Whether to use Turnkey Gas Station.
+   *   @param params.transaction.deadline - Optional sponsorship deadline.
+   *   @param params.transaction.gasStationNonce - Optional Gas Station nonce.
+   *
+   * @returns A promise resolving to the `sendTransactionStatusId`.
+   *          This ID must be passed to `pollTransactionStatus`.
+   *
+   * @throws {TurnkeyError} If the transaction is invalid or Turnkey rejects it.
    */
-
   signAndSendTransaction = async (
     params: SignAndSendTransactionParams,
   ): Promise<string> => {
     const {
       organizationId: organizationIdFromParams,
       stampWith = this.config.defaultStamperType,
+      transaction,
+    } = params;
+
+    const {
       from,
-      sponsor,
-      caip2,
       to,
+      caip2,
       value,
       data,
       nonce,
       gasLimit,
       maxFeePerGas,
       maxPriorityFeePerGas,
-    } = params;
+      sponsor,
+    } = transaction;
 
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
@@ -2759,7 +2774,7 @@ export class TurnkeyClient {
     const organizationId = organizationIdFromParams || session?.organizationId;
     if (!organizationId) {
       throw new TurnkeyError(
-        "Organization ID must be provided to fetch user",
+        "Organization ID must be provided to send a transaction",
         TurnkeyErrorCodes.INVALID_REQUEST,
       );
     }
@@ -2769,18 +2784,29 @@ export class TurnkeyClient {
         let gasStationNonce;
         let fetchedNonce;
 
+        //
+        // Fetch nonce(s) when needed:
+        // - sponsored: Gas Station nonce
+        // - non-sponsored: regular EIP-1559 nonce
+        //
         if (!nonce || sponsor) {
           const nonceResp = await this.httpClient.getNonces({
-            ...(organizationId && { organizationId }),
+            organizationId,
             address: from,
             caip2,
             nonce: sponsor ? false : true,
             gasStationNonce: sponsor ? true : false,
           });
+
           gasStationNonce = nonceResp.gasStationNonce;
           fetchedNonce = nonceResp.nonce;
         }
 
+        const finalNonce = nonce ?? fetchedNonce;
+
+        //
+        // Build Turnkey intent
+        //
         const intent: TEthSendTransactionBody = {
           from,
           to,
@@ -2788,23 +2814,24 @@ export class TurnkeyClient {
           ...(value ? { value } : {}),
           ...(data ? { data } : {}),
         };
-        const finalNonce = nonce ?? fetchedNonce;
+
         if (sponsor) {
           intent.sponsor = true;
           if (gasStationNonce) intent.gasStationNonce = gasStationNonce;
         } else {
-          if (finalNonce !== undefined) {
-            intent.nonce = finalNonce;
-          }
+          if (finalNonce !== undefined) intent.nonce = finalNonce;
           if (gasLimit) intent.gasLimit = gasLimit;
           if (maxFeePerGas) intent.maxFeePerGas = maxFeePerGas;
           if (maxPriorityFeePerGas)
             intent.maxPriorityFeePerGas = maxPriorityFeePerGas;
         }
 
+        //
+        // Submit to Turnkey
+        //
         const resp = await this.httpClient.ethSendTransaction({
           ...intent,
-          ...(organizationId && { organizationId }),
+          organizationId,
         });
 
         const id = resp.sendTransactionStatusId;
@@ -2879,35 +2906,27 @@ export class TurnkeyClient {
           const timeoutMs = 60_000; // 1 minute
 
           const ref = setInterval(async () => {
-            try {
-              const resp = await this.httpClient.getSendTransactionStatus({
-                organizationId,
-                sendTransactionStatusId,
-              });
+            const resp = await this.httpClient.getSendTransactionStatus({
+              organizationId,
+              sendTransactionStatusId,
+            });
 
-              const txStatus = resp?.txStatus;
-              const txError = resp?.txError;
+            const txStatus = resp?.txStatus;
+            const txError = resp?.txError;
 
-              if (!txStatus) return;
+            if (!txStatus) return;
 
-              if (
-                txError ||
-                txStatus === "FAILED" ||
-                txStatus === "CANCELLED"
-              ) {
-                clearInterval(ref);
-                clearTimeout(timeoutRef);
-                reject(txError || `Transaction ${txStatus}`);
-                return;
-              }
+            if (txError || txStatus === "FAILED" || txStatus === "CANCELLED") {
+              clearInterval(ref);
+              clearTimeout(timeoutRef);
+              reject(txError || `Transaction ${txStatus}`);
+              return;
+            }
 
-              if (txStatus === "COMPLETED" || txStatus === "INCLUDED") {
-                clearInterval(ref);
-                clearTimeout(timeoutRef);
-                resolve(resp);
-              }
-            } catch (e) {
-              console.warn("polling error:", e);
+            if (txStatus === "COMPLETED" || txStatus === "INCLUDED") {
+              clearInterval(ref);
+              clearTimeout(timeoutRef);
+              resolve(resp);
             }
           }, interval);
 

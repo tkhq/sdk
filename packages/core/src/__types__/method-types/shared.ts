@@ -242,19 +242,27 @@ export type PollTransactionStatusParams = {
   pollingIntervalMs?: number;
 };
 
-export type SignAndSendTransactionParams = {
-  organizationId?: string | undefined;
-  stampWith?: StamperType | undefined;
+export type EthTransaction = {
   from: string;
-  sponsor?: boolean | undefined;
-  caip2: string;
   to: string;
-  value?: string | undefined;
-  data?: string | undefined;
-  nonce?: string | undefined;
-  gasLimit?: string | undefined;
-  maxFeePerGas?: string | undefined;
-  maxPriorityFeePerGas?: string | undefined;
+  caip2: string;
+
+  value?: string;
+  data?: string;
+  nonce?: string;
+  gasLimit?: string;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
+
+  sponsor?: boolean;
+  deadline?: string;
+  gasStationNonce?: string;
+};
+
+export type SignAndSendTransactionParams = {
+  organizationId?: string;
+  stampWith?: StamperType | undefined;
+  transaction: EthTransaction;
 };
 
 export type FetchUserParams = {

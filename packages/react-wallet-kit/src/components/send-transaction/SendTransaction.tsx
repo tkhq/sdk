@@ -28,7 +28,7 @@ export function SendTransactionPage({
     return (
       <div
         className={clsx(
-          "flex flex-col items-center justify-center py-5 transition-all duration-300 text-center gap-2",
+          "flex flex-col items-center justify-center py-5 text-center gap-2",
           isMobile ? "w-full" : "w-72",
         )}
       >
@@ -46,7 +46,7 @@ export function SendTransactionPage({
             href={getExplorerUrl(storedTxHash, caip2)}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-500 underline text-sm mt-2"
+            className="text-primary-light dark:text-primary-dark underline text-sm mt-2"
           >
             View on Explorer
           </a>
@@ -58,7 +58,7 @@ export function SendTransactionPage({
   return (
     <div
       className={clsx(
-        "flex flex-col items-center justify-center py-5 transition-all duration-300 text-center",
+        "flex flex-col items-center justify-center py-5 text-center",
         isMobile ? "w-full" : "w-72",
       )}
     >

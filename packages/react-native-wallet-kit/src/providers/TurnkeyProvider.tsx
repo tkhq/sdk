@@ -70,6 +70,8 @@ import {
   type TurnkeySDKClientBase,
   type FetchBootProofForAppProofParams,
   type VerifyAppProofsParams,
+  type SignAndSendRawTransactionParams,
+  type PollTransactionStatusParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
@@ -98,6 +100,7 @@ import {
   AuthAction,
   type PasskeyAuthResult,
   v1BootProof,
+  TGetSendTransactionStatusResponse,
 } from "@turnkey/sdk-types";
 
 import {
@@ -1249,6 +1252,42 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         () => logout(),
         callbacks,
         "Failed to sign transaction",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const signAndSendRawTransaction = useCallback(
+    async (params: SignAndSendRawTransactionParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.signAndSendRawTransaction(params),
+        () => logout(),
+        callbacks,
+        "Failed to sign and send raw transaction",
+      );
+    },
+    [client, callbacks, logout],
+  );
+
+  const pollTransactionStatus = useCallback(
+    async (
+      params: PollTransactionStatusParams,
+    ): Promise<TGetSendTransactionStatusResponse> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.pollTransactionStatus(params),
+        () => logout(),
+        callbacks,
+        "Failed to poll transaction status",
       );
     },
     [client, callbacks],
@@ -3306,6 +3345,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         signMessage,
         signTransaction,
         signAndSendTransaction,
+        signAndSendRawTransaction,
+        pollTransactionStatus,
         fetchUser,
         fetchOrCreateP256ApiKeyUser,
         fetchOrCreatePolicies,

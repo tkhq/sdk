@@ -316,31 +316,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  getGasUsage = async (
-    input: SdkApiTypes.TGetGasUsageBody,
-  ): Promise<SdkApiTypes.TGetGasUsageResponse> => {
-    return this.request("/public/v1/query/get_gas_usage", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampGetGasUsage = async (
-    input: SdkApiTypes.TGetGasUsageBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_gas_usage";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   getLatestBootProof = async (
     input: SdkApiTypes.TGetLatestBootProofBody,
   ): Promise<SdkApiTypes.TGetLatestBootProofResponse> => {
@@ -358,31 +333,6 @@ export class TurnkeySDKClientBase {
     }
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  getNonces = async (
-    input: SdkApiTypes.TGetNoncesBody,
-  ): Promise<SdkApiTypes.TGetNoncesResponse> => {
-    return this.request("/public/v1/query/get_nonces", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampGetNonces = async (
-    input: SdkApiTypes.TGetNoncesBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_nonces";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -589,32 +539,6 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_private_key";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  getSendTransactionStatus = async (
-    input: SdkApiTypes.TGetSendTransactionStatusBody,
-  ): Promise<SdkApiTypes.TGetSendTransactionStatusResponse> => {
-    return this.request("/public/v1/query/get_send_transaction_status", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampGetSendTransactionStatus = async (
-    input: SdkApiTypes.TGetSendTransactionStatusBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_send_transaction_status";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

@@ -35,14 +35,9 @@ import type {
   TGetBootProofResponse,
 } from "./public_api.fetcher";
 import type {
-  TGetGasUsageBody,
-  TGetGasUsageResponse,
-} from "./public_api.fetcher";
-import type {
   TGetLatestBootProofBody,
   TGetLatestBootProofResponse,
 } from "./public_api.fetcher";
-import type { TGetNoncesBody, TGetNoncesResponse } from "./public_api.fetcher";
 import type {
   TGetOauth2CredentialBody,
   TGetOauth2CredentialResponse,
@@ -71,10 +66,6 @@ import type {
 import type {
   TGetPrivateKeyBody,
   TGetPrivateKeyResponse,
-} from "./public_api.fetcher";
-import type {
-  TGetSendTransactionStatusBody,
-  TGetSendTransactionStatusResponse,
 } from "./public_api.fetcher";
 import type {
   TGetSmartContractInterfaceBody,
@@ -683,37 +674,6 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get gas usage and gas limits for either the parent organization or a sub-organization.
-   *
-   * Sign the provided `TGetGasUsageBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_gas_usage).
-   *
-   * See also {@link stampGetGasUsage}.
-   */
-  getGasUsage = async (
-    input: TGetGasUsageBody,
-  ): Promise<TGetGasUsageResponse> => {
-    return this.request("/public/v1/query/get_gas_usage", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetGasUsageBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetGasUsage}.
-   */
-  stampGetGasUsage = async (
-    input: TGetGasUsageBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl = this.config.baseUrl + "/public/v1/query/get_gas_usage";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
    * Get the latest boot proof for a given enclave app name.
    *
    * Sign the provided `TGetLatestBootProofBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_latest_boot_proof).
@@ -736,33 +696,6 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/get_latest_boot_proof";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions.
-   *
-   * Sign the provided `TGetNoncesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_nonces).
-   *
-   * See also {@link stampGetNonces}.
-   */
-  getNonces = async (input: TGetNoncesBody): Promise<TGetNoncesResponse> => {
-    return this.request("/public/v1/query/get_nonces", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetNoncesBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetNonces}.
-   */
-  stampGetNonces = async (input: TGetNoncesBody): Promise<TSignedRequest> => {
-    const fullUrl = this.config.baseUrl + "/public/v1/query/get_nonces";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1015,38 +948,6 @@ export class TurnkeyClient {
     input: TGetPrivateKeyBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_private_key";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
-    return {
-      body: body,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  /**
-   * Get the status of a send transaction request.
-   *
-   * Sign the provided `TGetSendTransactionStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_send_transaction_status).
-   *
-   * See also {@link stampGetSendTransactionStatus}.
-   */
-  getSendTransactionStatus = async (
-    input: TGetSendTransactionStatusBody,
-  ): Promise<TGetSendTransactionStatusResponse> => {
-    return this.request("/public/v1/query/get_send_transaction_status", input);
-  };
-
-  /**
-   * Produce a `SignedRequest` from `TGetSendTransactionStatusBody` by using the client's `stamp` function.
-   *
-   * See also {@link GetSendTransactionStatus}.
-   */
-  stampGetSendTransactionStatus = async (
-    input: TGetSendTransactionStatusBody,
-  ): Promise<TSignedRequest> => {
-    const fullUrl =
-      this.config.baseUrl + "/public/v1/query/get_send_transaction_status";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

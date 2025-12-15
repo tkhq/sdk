@@ -1621,13 +1621,14 @@ export default function AuthPage() {
               }
 
               await turnkey.handleSendTransaction({
-                from: activeWalletAccount.address,
-                to: activeWalletAccount.address,
-                value: "1", // 1 wei for example
-                data: "0x",
-                caip2: "eip155:8453", // Base mainnet (example)
-                sponsor: true, // SPONSORED TX
-                successPageDuration: 3000,
+                transaction: {
+                  from: activeWalletAccount.address,
+                  to: activeWalletAccount.address,
+                  value: "1", // 1 wei for example
+                  data: "0x",
+                  caip2: "eip155:8453", // Base mainnet (example)
+                  sponsor: true, // SPONSORED TX
+                },
               });
             }}
             style={{
@@ -1648,16 +1649,17 @@ export default function AuthPage() {
               }
 
               await turnkey.handleSendTransaction({
-                from: activeWalletAccount.address,
-                to: "0x000000000000000000000000000000000000dead",
-                value: "1", // 1 wei for example
-                data: "0x",
-                caip2: "eip155:8453", // Base mainnet
-                sponsor: false, // NON-SPONSORED
-                gasLimit: "21000",
-                maxFeePerGas: "1000000000",
-                maxPriorityFeePerGas: "1000000000",
-                successPageDuration: 3000,
+                transaction: {
+                  from: activeWalletAccount.address,
+                  to: "0x000000000000000000000000000000000000dead",
+                  value: "1", // 1 wei for example
+                  data: "0x",
+                  caip2: "eip155:8453", // Base mainnet
+                  sponsor: false, // NON-SPONSORED
+                  gasLimit: "21000",
+                  maxFeePerGas: "1000000000",
+                  maxPriorityFeePerGas: "1000000000",
+                },
               });
             }}
             style={{

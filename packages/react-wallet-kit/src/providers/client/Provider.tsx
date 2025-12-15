@@ -101,6 +101,7 @@ import {
   type VerifyAppProofsParams,
   type PollTransactionStatusParams,
   type SignAndSendRawTransactionParams,
+  type EthTransaction,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -5537,8 +5538,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   const handleSendTransaction = useCallback(
     async (params: HandleSendTransactionParams): Promise<void> => {
-      const s = await getSession();
-      const organizationId = params.organizationId || s?.organizationId;
+      const session = await getSession();
+      const organizationId = params.organizationId || session?.organizationId;
+
       if (!organizationId) {
         throw new TurnkeyError(
           "A session or passed in organization ID is required.",
@@ -5547,94 +5549,79 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
 
       const {
+        transaction,
+        icon,
+        stampWith,
+        successPageDuration = 2000,
+      } = params;
+
+      const {
         from,
         to,
+        caip2,
         value,
         data,
-        caip2,
-        sponsor,
+        nonce,
         gasLimit,
         maxFeePerGas,
         maxPriorityFeePerGas,
-        nonce,
-        successPageDuration = 2000,
-      } = params;
+        sponsor,
+      } = transaction;
 
       const rpcUrl = DEFAULT_RPC_BY_CHAIN[caip2];
       if (!rpcUrl) {
         throw new Error(`No RPC mapping found for chain '${caip2}'`);
       }
 
+      const cleanedData =
+        data && data !== "0x" && data !== "" ? data : undefined;
+
       return new Promise((resolve, reject) => {
-        const SendTxContainer = () => {
-          const cleanedData =
-            data && data !== "0x" && data !== "" ? data : undefined;
-
-          const action = async () => {
-            try {
-              const sendTransactionStatusId =
-                await client?.signAndSendTransaction({
-                  organizationId,
-                  from,
-                  to,
-                  caip2,
-                  sponsor,
-                  value,
-                  data: cleanedData,
-                  nonce,
-                  gasLimit,
-                  maxFeePerGas,
-                  maxPriorityFeePerGas,
-                });
-
-              if (!sendTransactionStatusId) {
-                throw new TurnkeyError(
-                  "Missing sendTransactionStatusId",
-                  TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
-                );
-              }
-
-              const pollResult = await client?.pollTransactionStatus({
-                organizationId,
-                sendTransactionStatusId,
-              });
-
-              if (!pollResult) {
-                throw new TurnkeyError(
-                  "Polling returned no result",
-                  TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
-                );
-              }
-
-              const { eth } = pollResult;
-              const txHash = eth?.txHash;
-              if (!txHash) {
-                throw new TurnkeyError(
-                  "Missing txHash in transaction result",
-                  TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
-                );
-              }
-
-              return { txHash };
-            } catch (err) {
-              throw err;
-            }
+        const action = async () => {
+          const tx: EthTransaction = {
+            from,
+            to,
+            caip2,
+            sponsor: sponsor ?? false,
+            ...(value ? { value } : {}),
+            ...(cleanedData ? { data: cleanedData } : {}),
+            ...(nonce ? { nonce } : {}),
+            ...(gasLimit ? { gasLimit } : {}),
+            ...(maxFeePerGas ? { maxFeePerGas } : {}),
+            ...(maxPriorityFeePerGas ? { maxPriorityFeePerGas } : {}),
           };
-          return (
-            <SendTransactionPage
-              icon={getChainLogo(caip2)}
-              action={action}
-              caip2={caip2}
-              successPageDuration={successPageDuration}
-              onSuccess={() => resolve()}
-              onError={(err) => reject(err)}
-            />
-          );
+
+          const sendTransactionStatusId = await signAndSendTransaction({
+            organizationId,
+            transaction: tx,
+            stampWith,
+          });
+
+          if (!sendTransactionStatusId) {
+            throw new TurnkeyError(
+              "Missing sendTransactionStatusId",
+              TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+            );
+          }
+
+          const pollResult = await pollTransactionStatus({
+            organizationId,
+            sendTransactionStatusId,
+          });
+
+          const txHash = pollResult?.eth?.txHash;
+          if (!txHash) {
+            throw new TurnkeyError(
+              "Missing txHash in transaction result",
+              TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+            );
+          }
+
+          return { txHash };
         };
 
         pushPage({
           key: "Send Transaction",
-          content: <SendTxContainer />,
           showTitle: false,
           preventBack: true,
           onClose: () =>
@@ -5644,6 +5631,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 TurnkeyErrorCodes.USER_CANCELED,
               ),
             ),
+          content: (
+            <SendTransactionPage
+              icon={icon ?? getChainLogo(caip2)}
+              action={action}
+              caip2={caip2}
+              successPageDuration={successPageDuration}
+              onSuccess={() => resolve()}
+              onError={(err) => reject(err)}
+            />
+          ),
         });
       });
     },
