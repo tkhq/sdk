@@ -3293,16 +3293,19 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const existingUser = await this.httpClient.proxyGetAccount({
-          filterType: FilterType.Email,
-          filterValue: email,
-        });
+        if (verificationToken) {
+          const existingUser = await this.httpClient.proxyGetAccount({
+            filterType: FilterType.Email,
+            filterValue: email,
+            verificationToken,
+          });
 
-        if (existingUser.organizationId) {
-          throw new TurnkeyError(
-            `Email ${email} is already associated with another user.`,
-            TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
-          );
+          if (existingUser.organizationId) {
+            throw new TurnkeyError(
+              `Email ${email} is already associated with another user.`,
+              TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
+            );
+          }
         }
 
         const res = await this.httpClient.updateUserEmail(
@@ -3427,6 +3430,21 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
+        if (verificationToken) {
+          const existingUser = await this.httpClient.proxyGetAccount({
+            filterType: FilterType.Sms,
+            filterValue: phoneNumber,
+            verificationToken,
+          });
+
+          if (existingUser.organizationId) {
+            throw new TurnkeyError(
+              `Phone number ${phoneNumber} is already associated with another user.`,
+              TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
+            );
+          }
+        }
+
         const res = await this.httpClient.updateUserPhoneNumber(
           {
             userId,
@@ -3648,6 +3666,7 @@ export class TurnkeyClient {
           const verifiedSuborg = await this.httpClient.proxyGetAccount({
             filterType: "EMAIL",
             filterValue: oidcEmail,
+            oidcToken: oidcToken,
           });
 
           const isVerified = verifiedSuborg.organizationId === organizationId;
@@ -3657,12 +3676,34 @@ export class TurnkeyClient {
             stampWith,
           });
 
+          // this block's pupose is for social linking, it's important that we update the email BEFORE we call createOauthProviders
+          // since for social linking createOauthProviders will mark the email as verified as long as it's the same one that lives in the
+          // OIDC token.
           if (!user?.userEmail && !isVerified) {
-            await this.updateUserEmail({
-              email: oidcEmail,
-              userId,
-              stampWith,
+            // we cannot use our sugared updateUserEmail here since we need to pass in the oidcToken in case Require Verification Token On Account Lookup is enabled
+            // in the dashboard
+            const existingUser = await this.httpClient.proxyGetAccount({
+              filterType: FilterType.Email,
+              filterValue: oidcEmail,
+              oidcToken: oidcToken,
             });
+
+            if (existingUser.organizationId) {
+              throw new TurnkeyError(
+                `Email ${oidcEmail} is already associated with another user.`,
+                TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
+              );
+            }
+
+            // update and verify their email since we got it from a verified OIDC token
+            await this.httpClient.updateUserEmail(
+              {
+                userId,
+                userEmail: oidcEmail,
+                organizationId,
+              },
+              stampWith,
+            );
           }
         }
 
