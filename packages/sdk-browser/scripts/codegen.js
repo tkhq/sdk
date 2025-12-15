@@ -275,9 +275,17 @@ export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
 
   stamper?: TStamper | undefined;
+  /**
+   * Difference between overridden timestamp and local time.
+   */
+  timestampDiff: number;
 
   constructor(config: TurnkeySDKClientConfig) {
     this.config = config;
+    this.timestampDiff =
+      config.timestampOverride !== undefined
+        ? config.timestampOverride - Date.now()
+        : 0;
     if (config.stamper) {
       this.stamper = config.stamper;
     }
@@ -446,7 +454,7 @@ export class TurnkeySDKClientBase {
     return this.command("${endpointPath}", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
-      timestampMs: timestampMs ?? String(Date.now()),
+      timestampMs: timestampMs ?? String(this.timestampDiff + Date.now()),
       type: "${versionedActivityType ?? unversionedActivityType}"
     }, "${versionedMethodName}");
   }`,

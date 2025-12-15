@@ -72,6 +72,10 @@ export type TActivityPollerConfig = {
 interface BaseSDKClientConfig {
   apiBaseUrl: string;
   organizationId: string;
+  /**
+   * Override timestamp in milliseconds for all requests.
+   */
+  timestampOverride?: number;
   activityPoller?: TActivityPollerConfig | undefined;
 }
 
