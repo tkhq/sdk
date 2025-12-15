@@ -1,5 +1,12 @@
 # with-x
 
+## 0.1.19
+
+### Patch Changes
+
+- Updated dependencies [[`e8bc3d3`](https://github.com/tkhq/sdk/commit/e8bc3d381734dbf12cac1e6317e1a251a9600114)]:
+  - @turnkey/sdk-react@5.4.18
+
 ## 0.1.18
 
 ### Patch Changes

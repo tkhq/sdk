@@ -1,5 +1,11 @@
 # @turnkey/sdk-react
 
+## 5.4.18
+
+### Patch Changes
+
+- [#1142](https://github.com/tkhq/sdk/pull/1142) [`e8bc3d3`](https://github.com/tkhq/sdk/commit/e8bc3d381734dbf12cac1e6317e1a251a9600114) Author [@andrewkmin](https://github.com/andrewkmin) - Bump `NextJS` to 15.5.9 to address https://github.com/advisories/GHSA-5j59-xgg2-r9c4
+
 ## 5.4.17
 
 ### Patch Changes
