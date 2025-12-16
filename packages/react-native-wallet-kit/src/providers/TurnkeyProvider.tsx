@@ -52,7 +52,7 @@ import {
   type RemoveUserEmailParams,
   type RemoveUserPhoneNumberParams,
   type SetActiveSessionParams,
-  type SignAndSendTransactionParams,
+  type EthSendTransactionParams,
   type SignMessageParams,
   type SignTransactionParams,
   type SignUpWithOauthParams,
@@ -70,6 +70,8 @@ import {
   type TurnkeySDKClientBase,
   type FetchBootProofForAppProofParams,
   type VerifyAppProofsParams,
+  type SignAndSendTransactionParams,
+  type PollTransactionStatusParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
@@ -98,6 +100,7 @@ import {
   AuthAction,
   type PasskeyAuthResult,
   v1BootProof,
+  TGetSendTransactionStatusResponse,
 } from "@turnkey/sdk-types";
 
 import {
@@ -1237,6 +1240,23 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks],
   );
 
+  const ethSendTransaction = useCallback(
+    async (params: EthSendTransactionParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.ethSendTransaction(params),
+        () => logout(),
+        callbacks,
+        "Failed to send eth transaction",
+      );
+    },
+    [client, callbacks],
+  );
+
   const signAndSendTransaction = useCallback(
     async (params: SignAndSendTransactionParams): Promise<string> => {
       if (!client)
@@ -1248,7 +1268,26 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         () => client.signAndSendTransaction(params),
         () => logout(),
         callbacks,
-        "Failed to sign transaction",
+        "Failed to sign and send raw transaction",
+      );
+    },
+    [client, callbacks, logout],
+  );
+
+  const pollTransactionStatus = useCallback(
+    async (
+      params: PollTransactionStatusParams,
+    ): Promise<TGetSendTransactionStatusResponse> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.pollTransactionStatus(params),
+        () => logout(),
+        callbacks,
+        "Failed to poll transaction status",
       );
     },
     [client, callbacks],
@@ -3306,6 +3345,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         signMessage,
         signTransaction,
         signAndSendTransaction,
+        ethSendTransaction,
+        pollTransactionStatus,
         fetchUser,
         fetchOrCreateP256ApiKeyUser,
         fetchOrCreatePolicies,

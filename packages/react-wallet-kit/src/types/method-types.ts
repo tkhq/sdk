@@ -1,4 +1,5 @@
 import type {
+  EthTransaction,
   OAuthProviders,
   StamperType,
   v1AddressFormat,
@@ -280,4 +281,17 @@ export type HandleOnRampParams = {
   stampWith?: StamperType; // Stamper type (passkey, api key, wallet, etc.)
   successPageDuration?: number; // Duration for success page in ms (0 disables it)
   openInNewTab?: boolean; // Whether to open the onramp URL in a new browser tab or popup
+};
+
+export type HandleSendTransactionParams = {
+  // Required Turnkey context
+  organizationId?: string;
+
+  // ETH transaction
+  transaction: EthTransaction;
+
+  // UI behavior
+  successPageDuration?: number;
+  icon?: React.ReactNode;
+  stampWith?: StamperType;
 };

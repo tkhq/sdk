@@ -39,6 +39,7 @@ import type {
   HandleRemovePasskeyParams,
   HandleRemoveUserEmailParams,
   HandleRemoveUserPhoneNumberParams,
+  HandleSendTransactionParams,
   HandleSignMessageParams,
   HandleUpdateUserEmailParams,
   HandleUpdateUserNameParams,
@@ -764,6 +765,28 @@ export interface ClientContextType
    * @throws {TurnkeyError} If initialization fails, polling fails, or the user cancels the process.
    */
   handleOnRamp: (params: HandleOnRampParams) => Promise<void>;
+
+  /**
+   * Handles signing and sending an Ethereum transaction (EIP-1559 or Gas Station–sponsored).
+   *
+   * - Submits an Ethereum send-transaction intent to Turnkey for signing and execution.
+   * - Automatically polls the transaction status until it reaches a terminal state
+   *   (`INCLUDED` or `FAILED`).
+   * - Displays a modal showing progress and a success page upon completion.
+   * - Supports both standard EIP-1559 transactions and sponsored Gas Station meta-transactions.
+   *
+   * @param params.transaction - The Ethereum transaction to sign and send.
+   * @param params.organizationId - Optional Turnkey organization or sub-organization ID
+   *   (defaults to the active session).
+   * @param params.stampWith - Optional stamper override (e.g. Passkey, API key, Wallet).
+   * @param params.successPageDuration - Optional duration (in ms) to display the success page
+   *   after completion (default: 2000ms).
+   * @param params.icon - Optional icon to display in the transaction modal.
+   *
+   * @returns A promise that resolves when the transaction reaches a terminal state.
+   * @throws {TurnkeyError} If submission fails, polling fails, or the user cancels the flow.
+   */
+  handleSendTransaction: (params: HandleSendTransactionParams) => Promise<void>;
 }
 
 /** @internal */

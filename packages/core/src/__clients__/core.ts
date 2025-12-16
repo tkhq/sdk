@@ -20,6 +20,8 @@ import {
   ProxyTSignupResponse,
   TGetWalletsResponse,
   TGetUserResponse,
+  type TEthSendTransactionBody,
+  type TGetSendTransactionStatusResponse,
 } from "@turnkey/sdk-types";
 import {
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
@@ -69,6 +71,7 @@ import {
   type SignMessageParams,
   type SignTransactionParams,
   type SignAndSendTransactionParams,
+  type EthSendTransactionParams,
   type FetchUserParams,
   type FetchOrCreateP256ApiKeyUserParams,
   type FetchOrCreatePoliciesParams,
@@ -101,6 +104,7 @@ import {
   type BuildWalletLoginRequestResult,
   type BuildWalletLoginRequestParams,
   type VerifyAppProofsParams,
+  type PollTransactionStatusParams,
 } from "../__types__";
 import {
   buildSignUpBody,
@@ -2690,6 +2694,242 @@ export class TurnkeyClient {
       },
     );
   };
+
+  /**
+   * @beta
+   * * **API subject to change**
+   *
+   * Signs and submits an Ethereum transaction using a Turnkey-managed (embedded) wallet.
+   *
+   * This method performs **authorization and signing**, and submits the transaction
+   * to Turnkey’s coordinator. It **does not perform any polling** — callers must use
+   * `pollTransactionStatus` to obtain the final on-chain result.
+   *
+   * Behavior:
+   *
+   * - **Connected wallets**
+   *   - Connected wallets are **not supported** by this method.
+   *   - They must instead use `signAndSendTransaction`.
+   *
+   * - **Embedded wallets**
+   *   - Constructs the payload for Turnkey's `eth_send_transaction` endpoint.
+   *   - Fetches nonces automatically when needed (normal nonce or Gas Station nonce).
+   *   - Signs and submits the transaction through Turnkey.
+   *   - Returns a `sendTransactionStatusId`, which the caller must pass to
+   *     `pollTransactionStatus` to obtain the final result (tx hash + status).
+   *
+   * @param params.organizationId - Organization ID to execute the transaction under.
+   *                                Defaults to the active session's organization.
+   *
+   * @param params.stampWith - Optional stamper to authorize signing (e.g., passkey).
+   *
+   * @param params.transaction - The Ethereum transaction details.
+   * @returns A promise resolving to the `sendTransactionStatusId`.
+   *          This ID must be passed to `pollTransactionStatus`.
+   *
+   * @throws {TurnkeyError} If the transaction is invalid or Turnkey rejects it.
+   */
+  ethSendTransaction = async (
+    params: EthSendTransactionParams,
+  ): Promise<string> => {
+    const {
+      organizationId: organizationIdFromParams,
+      stampWith = this.config.defaultStamperType,
+      transaction,
+    } = params;
+
+    const {
+      from,
+      to,
+      caip2,
+      value,
+      data,
+      nonce,
+      gasLimit,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      sponsor,
+    } = transaction;
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
+      throw new TurnkeyError(
+        "Organization ID must be provided to send a transaction",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        let gasStationNonce;
+        let fetchedNonce;
+
+        //
+        // Fetch nonce(s) when needed:
+        // - sponsored: Gas Station nonce
+        // - non-sponsored: regular EIP-1559 nonce
+        //
+        if (!nonce || sponsor) {
+          const nonceResp = await this.httpClient.getNonces({
+            organizationId,
+            address: from,
+            caip2,
+            nonce: sponsor ? false : true,
+            gasStationNonce: sponsor ? true : false,
+          });
+
+          gasStationNonce = nonceResp.gasStationNonce;
+          fetchedNonce = nonceResp.nonce;
+        }
+
+        const finalNonce = nonce ?? fetchedNonce;
+
+        //
+        // Build Turnkey intent
+        //
+        const intent: TEthSendTransactionBody = {
+          from,
+          to,
+          caip2,
+          ...(value ? { value } : {}),
+          ...(data ? { data } : {}),
+        };
+
+        if (sponsor) {
+          intent.sponsor = true;
+          if (gasStationNonce) intent.gasStationNonce = gasStationNonce;
+        } else {
+          if (finalNonce !== undefined) intent.nonce = finalNonce;
+          if (gasLimit) intent.gasLimit = gasLimit;
+          if (maxFeePerGas) intent.maxFeePerGas = maxFeePerGas;
+          if (maxPriorityFeePerGas)
+            intent.maxPriorityFeePerGas = maxPriorityFeePerGas;
+        }
+
+        //
+        // Submit to Turnkey
+        //
+        const resp = await this.httpClient.ethSendTransaction({
+          ...intent,
+          organizationId,
+        });
+
+        const id = resp.sendTransactionStatusId;
+        if (!id) {
+          throw new TurnkeyError(
+            "Missing sendTransactionStatusId",
+            TurnkeyErrorCodes.ETH_SEND_TRANSACTION_ERROR,
+          );
+        }
+
+        return id;
+      },
+      {
+        errorMessage: "Failed to sign and send Ethereum transaction",
+        errorCode: TurnkeyErrorCodes.ETH_SEND_TRANSACTION_ERROR,
+      },
+    );
+  };
+
+  /**
+   * @beta
+   * **API subject to change**
+   *
+   * Polls Turnkey for the final result of a previously submitted Ethereum transaction.
+   *
+   * This function repeatedly calls `getSendTransactionStatus` until the transaction
+   * reaches a terminal state.
+   *
+   * Terminal states:
+   * - **COMPLETED** or **INCLUDED** → resolves with `{ txHash }`
+   * - **FAILED** rejects with an error
+   *
+   * Behavior:
+   *
+   * - Queries Turnkey every 500ms.
+   * - Stops polling automatically when a terminal state is reached.
+   * - Extracts the canonical on-chain hash via `resp.eth.txHash` when available.
+   *
+   * @param organizationId - Organization ID under which the transaction was submitted.
+   * @param sendTransactionStatusId - Status ID returned by `ethSendTransaction.
+   * @param pollingIntervalMs - Optional polling interval in milliseconds (default: 500ms).
+   *
+   * @returns A promise resolving to `{ txHash?: string }` if successful.
+   * @throws {Error | string} If the transaction fails or is cancelled.
+   */
+
+  async pollTransactionStatus(
+    params: PollTransactionStatusParams,
+  ): Promise<TGetSendTransactionStatusResponse> {
+    const {
+      organizationId: organizationIdFromParams,
+      stampWith = this.config.defaultStamperType,
+      sendTransactionStatusId,
+      pollingIntervalMs,
+    } = params;
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
+      throw new TurnkeyError(
+        "Organization ID must be provided to fetch user",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+    return withTurnkeyErrorHandling(
+      async () => {
+        return new Promise((resolve, reject) => {
+          const interval = pollingIntervalMs ?? 500;
+          const timeoutMs = 60_000; // 1 minute
+
+          const ref = setInterval(async () => {
+            const resp = await this.httpClient.getSendTransactionStatus({
+              organizationId,
+              sendTransactionStatusId,
+            });
+
+            const txStatus = resp?.txStatus;
+            const txError = resp?.txError;
+
+            if (!txStatus) return;
+
+            if (txError || txStatus === "FAILED" || txStatus === "CANCELLED") {
+              // TODO: use API enum in the future
+              clearInterval(ref);
+              clearTimeout(timeoutRef);
+              reject(txError || `Transaction ${txStatus}`);
+              return;
+            }
+
+            if (txStatus === "COMPLETED" || txStatus === "INCLUDED") {
+              // TODO: use API enum in the future
+              clearInterval(ref);
+              clearTimeout(timeoutRef);
+              resolve(resp);
+            }
+          }, interval);
+
+          const timeoutRef = setTimeout(() => {
+            clearInterval(ref);
+            reject(new Error("Polling timed out after 1 minute"));
+          }, timeoutMs);
+        });
+      },
+      {
+        errorMessage: "Failed to poll transaction status",
+        errorCode: TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
+      },
+    );
+  }
 
   /**
    * Fetches the user details for the current session or a specified user.

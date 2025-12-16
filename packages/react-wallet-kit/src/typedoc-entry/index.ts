@@ -42,6 +42,8 @@ export type {
   RemoveUserPhoneNumberParams,
   SetActiveSessionParams,
   SignAndSendTransactionParams,
+  EthSendTransactionParams,
+  PollTransactionStatusParams,
   SignMessageParams,
   SignTransactionParams,
   SignUpWithOauthParams,

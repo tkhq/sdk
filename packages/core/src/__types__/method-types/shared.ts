@@ -235,6 +235,36 @@ export type SignAndSendTransactionParams = {
   organizationId?: string;
 };
 
+export type PollTransactionStatusParams = {
+  organizationId?: string;
+  stampWith?: StamperType | undefined;
+  sendTransactionStatusId: string;
+  pollingIntervalMs?: number;
+};
+
+export type EthTransaction = {
+  from: string;
+  to: string;
+  caip2: string;
+
+  value?: string;
+  data?: string;
+  nonce?: string;
+  gasLimit?: string;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
+
+  sponsor?: boolean;
+  deadline?: string;
+  gasStationNonce?: string;
+};
+
+export type EthSendTransactionParams = {
+  organizationId?: string;
+  stampWith?: StamperType | undefined;
+  transaction: EthTransaction;
+};
+
 export type FetchUserParams = {
   organizationId?: string;
   userId?: string;

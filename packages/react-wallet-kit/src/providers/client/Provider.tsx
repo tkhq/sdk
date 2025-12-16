@@ -76,7 +76,7 @@ import {
   type RemoveUserEmailParams,
   type RemoveUserPhoneNumberParams,
   type SetActiveSessionParams,
-  type SignAndSendTransactionParams,
+  type EthSendTransactionParams,
   type SignMessageParams,
   type SignTransactionParams,
   type SignUpWithOauthParams,
@@ -99,6 +99,9 @@ import {
   type BuildWalletLoginRequestParams,
   type BuildWalletLoginRequestResult,
   type VerifyAppProofsParams,
+  type PollTransactionStatusParams,
+  type SignAndSendTransactionParams,
+  type EthTransaction,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -121,6 +124,7 @@ import {
   type v1AppProof,
   FiatOnRampCryptoCurrency,
   FiatOnRampBlockchainNetwork,
+  TGetSendTransactionStatusResponse,
 } from "@turnkey/sdk-types";
 import { useModal } from "../modal/Hook";
 import {
@@ -177,6 +181,7 @@ import type {
   HandleRemovePasskeyParams,
   HandleRemoveUserEmailParams,
   HandleRemoveUserPhoneNumberParams,
+  HandleSendTransactionParams,
   HandleSignMessageParams,
   HandleUpdateUserEmailParams,
   HandleUpdateUserNameParams,
@@ -189,6 +194,8 @@ import type {
 import { VerifyPage } from "../../components/verify/Verify";
 import { OnRampPage } from "../../components/onramp/OnRamp";
 import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
+import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
+import { getChainLogo } from "../../components/send-transaction/helpers";
 
 /**
  * @inline
@@ -2478,6 +2485,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks, logout],
   );
 
+  const ethSendTransaction = useCallback(
+    async (params: EthSendTransactionParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.ethSendTransaction(params),
+        () => logout(),
+        callbacks,
+        "Failed to send eth transaction",
+      );
+    },
+    [client, callbacks, logout],
+  );
+
   const signAndSendTransaction = useCallback(
     async (params: SignAndSendTransactionParams): Promise<string> => {
       if (!client)
@@ -2489,10 +2513,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         () => client.signAndSendTransaction(params),
         () => logout(),
         callbacks,
-        "Failed to sign transaction",
+        "Failed to sign and send transaction",
       );
     },
     [client, callbacks, logout],
+  );
+  const pollTransactionStatus = useCallback(
+    async (
+      params: PollTransactionStatusParams,
+    ): Promise<TGetSendTransactionStatusResponse> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.pollTransactionStatus(params),
+        () => logout(),
+        callbacks,
+        "Failed to poll transaction status",
+      );
+    },
+    [client, callbacks],
   );
 
   const fetchOrCreateP256ApiKeyUser = useCallback(
@@ -5491,6 +5533,112 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [getSession, pushPage],
   );
 
+  const handleSendTransaction = useCallback(
+    async (params: HandleSendTransactionParams): Promise<void> => {
+      const session = await getSession();
+      const organizationId = params.organizationId || session?.organizationId;
+
+      if (!organizationId) {
+        throw new TurnkeyError(
+          "A session or passed in organization ID is required.",
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
+      }
+
+      const {
+        transaction,
+        icon,
+        stampWith,
+        successPageDuration = 2000,
+      } = params;
+
+      const {
+        from,
+        to,
+        caip2,
+        value,
+        data,
+        nonce,
+        gasLimit,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+        sponsor,
+      } = transaction;
+
+      const cleanedData =
+        data && data !== "0x" && data !== "" ? data : undefined;
+
+      return new Promise((resolve, reject) => {
+        const action = async () => {
+          const tx: EthTransaction = {
+            from,
+            to,
+            caip2,
+            sponsor: sponsor ?? false,
+            ...(value ? { value } : {}),
+            ...(cleanedData ? { data: cleanedData } : {}),
+            ...(nonce ? { nonce } : {}),
+            ...(gasLimit ? { gasLimit } : {}),
+            ...(maxFeePerGas ? { maxFeePerGas } : {}),
+            ...(maxPriorityFeePerGas ? { maxPriorityFeePerGas } : {}),
+          };
+
+          const sendTransactionStatusId = await ethSendTransaction({
+            organizationId,
+            transaction: tx,
+            stampWith,
+          });
+
+          if (!sendTransactionStatusId) {
+            throw new TurnkeyError(
+              "Missing sendTransactionStatusId",
+              TurnkeyErrorCodes.ETH_SEND_TRANSACTION_ERROR,
+            );
+          }
+
+          const pollResult = await pollTransactionStatus({
+            organizationId,
+            sendTransactionStatusId,
+          });
+
+          const txHash = pollResult?.eth?.txHash;
+          if (!txHash) {
+            throw new TurnkeyError(
+              "Missing txHash in transaction result",
+              TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
+            );
+          }
+
+          return { txHash };
+        };
+
+        pushPage({
+          key: "Send Transaction",
+          showTitle: false,
+          preventBack: true,
+          onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User canceled the transaction.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
+          content: (
+            <SendTransactionPage
+              icon={icon ?? getChainLogo(caip2)}
+              action={action}
+              caip2={caip2}
+              successPageDuration={successPageDuration}
+              onSuccess={() => resolve()}
+              onError={(err) => reject(err)}
+            />
+          ),
+        });
+      });
+    },
+    [pushPage, client],
+  );
+
   const handleOnRamp = useCallback(
     async (params: HandleOnRampParams): Promise<void> => {
       const {
@@ -5933,7 +6081,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         refreshWallets,
         signMessage,
         signTransaction,
+        ethSendTransaction,
         signAndSendTransaction,
+        pollTransactionStatus,
         fetchUser,
         fetchOrCreateP256ApiKeyUser,
         fetchOrCreatePolicies,
@@ -5994,6 +6144,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleRemoveUserPhoneNumber,
         handleVerifyAppProofs,
         handleOnRamp,
+        handleSendTransaction,
       }}
     >
       {children}
