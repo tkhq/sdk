@@ -155,8 +155,8 @@ export class TurnkeySDKClientBase {
   getActivity = async (
     input: SdkApiTypes.TGetActivityBody,
   ): Promise<SdkApiTypes.TGetActivityResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_activity", {
       ...input,
       organizationId:
@@ -173,8 +173,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_activity";
     const body = {
       ...input,
@@ -196,8 +196,8 @@ export class TurnkeySDKClientBase {
   getApiKey = async (
     input: SdkApiTypes.TGetApiKeyBody,
   ): Promise<SdkApiTypes.TGetApiKeyResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_api_key", {
       ...input,
       organizationId:
@@ -214,8 +214,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_api_key";
     const body = {
       ...input,
@@ -237,8 +237,8 @@ export class TurnkeySDKClientBase {
   getApiKeys = async (
     input: SdkApiTypes.TGetApiKeysBody = {},
   ): Promise<SdkApiTypes.TGetApiKeysResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_api_keys", {
       ...input,
       organizationId:
@@ -255,8 +255,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_api_keys";
     const body = {
       ...input,
@@ -278,8 +278,8 @@ export class TurnkeySDKClientBase {
   getAttestationDocument = async (
     input: SdkApiTypes.TGetAttestationDocumentBody,
   ): Promise<SdkApiTypes.TGetAttestationDocumentResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_attestation", {
       ...input,
       organizationId:
@@ -296,8 +296,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_attestation";
     const body = {
       ...input,
@@ -319,8 +319,8 @@ export class TurnkeySDKClientBase {
   getAuthenticator = async (
     input: SdkApiTypes.TGetAuthenticatorBody,
   ): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_authenticator", {
       ...input,
       organizationId:
@@ -337,8 +337,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_authenticator";
     const body = {
@@ -361,8 +361,8 @@ export class TurnkeySDKClientBase {
   getAuthenticators = async (
     input: SdkApiTypes.TGetAuthenticatorsBody,
   ): Promise<SdkApiTypes.TGetAuthenticatorsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_authenticators", {
       ...input,
       organizationId:
@@ -379,8 +379,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_authenticators";
     const body = {
@@ -403,8 +403,8 @@ export class TurnkeySDKClientBase {
   getBootProof = async (
     input: SdkApiTypes.TGetBootProofBody,
   ): Promise<SdkApiTypes.TGetBootProofResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_boot_proof", {
       ...input,
       organizationId:
@@ -421,8 +421,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_boot_proof";
     const body = {
       ...input,
@@ -444,8 +444,8 @@ export class TurnkeySDKClientBase {
   getLatestBootProof = async (
     input: SdkApiTypes.TGetLatestBootProofBody,
   ): Promise<SdkApiTypes.TGetLatestBootProofResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_latest_boot_proof", {
       ...input,
       organizationId:
@@ -462,8 +462,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
     const body = {
@@ -486,8 +486,8 @@ export class TurnkeySDKClientBase {
   getOauth2Credential = async (
     input: SdkApiTypes.TGetOauth2CredentialBody,
   ): Promise<SdkApiTypes.TGetOauth2CredentialResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_oauth2_credential", {
       ...input,
       organizationId:
@@ -504,8 +504,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_oauth2_credential";
     const body = {
@@ -528,8 +528,8 @@ export class TurnkeySDKClientBase {
   getOauthProviders = async (
     input: SdkApiTypes.TGetOauthProvidersBody,
   ): Promise<SdkApiTypes.TGetOauthProvidersResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_oauth_providers", {
       ...input,
       organizationId:
@@ -546,8 +546,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_oauth_providers";
     const body = {
@@ -570,8 +570,8 @@ export class TurnkeySDKClientBase {
   getOnRampTransactionStatus = async (
     input: SdkApiTypes.TGetOnRampTransactionStatusBody,
   ): Promise<SdkApiTypes.TGetOnRampTransactionStatusResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_onramp_transaction_status", {
       ...input,
       organizationId:
@@ -588,8 +588,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_onramp_transaction_status";
     const body = {
@@ -612,8 +612,8 @@ export class TurnkeySDKClientBase {
   getOrganization = async (
     input: SdkApiTypes.TGetOrganizationBody = {},
   ): Promise<SdkApiTypes.TGetOrganizationResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_organization", {
       ...input,
       organizationId:
@@ -630,8 +630,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_organization";
     const body = {
@@ -654,8 +654,8 @@ export class TurnkeySDKClientBase {
   getOrganizationConfigs = async (
     input: SdkApiTypes.TGetOrganizationConfigsBody,
   ): Promise<SdkApiTypes.TGetOrganizationConfigsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_organization_configs", {
       ...input,
       organizationId:
@@ -672,8 +672,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_organization_configs";
     const body = {
@@ -696,8 +696,8 @@ export class TurnkeySDKClientBase {
   getPolicy = async (
     input: SdkApiTypes.TGetPolicyBody,
   ): Promise<SdkApiTypes.TGetPolicyResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_policy", {
       ...input,
       organizationId:
@@ -714,8 +714,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_policy";
     const body = {
       ...input,
@@ -737,8 +737,8 @@ export class TurnkeySDKClientBase {
   getPolicyEvaluations = async (
     input: SdkApiTypes.TGetPolicyEvaluationsBody,
   ): Promise<SdkApiTypes.TGetPolicyEvaluationsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_policy_evaluations", {
       ...input,
       organizationId:
@@ -755,8 +755,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_policy_evaluations";
     const body = {
@@ -779,8 +779,8 @@ export class TurnkeySDKClientBase {
   getPrivateKey = async (
     input: SdkApiTypes.TGetPrivateKeyBody,
   ): Promise<SdkApiTypes.TGetPrivateKeyResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_private_key", {
       ...input,
       organizationId:
@@ -797,8 +797,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_private_key";
     const body = {
       ...input,
@@ -820,8 +820,8 @@ export class TurnkeySDKClientBase {
   getSmartContractInterface = async (
     input: SdkApiTypes.TGetSmartContractInterfaceBody,
   ): Promise<SdkApiTypes.TGetSmartContractInterfaceResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_smart_contract_interface", {
       ...input,
       organizationId:
@@ -838,8 +838,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_smart_contract_interface";
     const body = {
@@ -862,8 +862,8 @@ export class TurnkeySDKClientBase {
   getUser = async (
     input: SdkApiTypes.TGetUserBody,
   ): Promise<SdkApiTypes.TGetUserResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_user", {
       ...input,
       organizationId:
@@ -880,8 +880,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_user";
     const body = {
       ...input,
@@ -903,8 +903,8 @@ export class TurnkeySDKClientBase {
   getWallet = async (
     input: SdkApiTypes.TGetWalletBody,
   ): Promise<SdkApiTypes.TGetWalletResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_wallet", {
       ...input,
       organizationId:
@@ -921,8 +921,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_wallet";
     const body = {
       ...input,
@@ -944,8 +944,8 @@ export class TurnkeySDKClientBase {
   getWalletAccount = async (
     input: SdkApiTypes.TGetWalletAccountBody,
   ): Promise<SdkApiTypes.TGetWalletAccountResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_wallet_account", {
       ...input,
       organizationId:
@@ -962,8 +962,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_wallet_account";
     const body = {
@@ -986,8 +986,8 @@ export class TurnkeySDKClientBase {
   getActivities = async (
     input: SdkApiTypes.TGetActivitiesBody = {},
   ): Promise<SdkApiTypes.TGetActivitiesResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_activities", {
       ...input,
       organizationId:
@@ -1004,8 +1004,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_activities";
     const body = {
       ...input,
@@ -1027,8 +1027,8 @@ export class TurnkeySDKClientBase {
   getAppProofs = async (
     input: SdkApiTypes.TGetAppProofsBody,
   ): Promise<SdkApiTypes.TGetAppProofsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_app_proofs", {
       ...input,
       organizationId:
@@ -1045,8 +1045,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_app_proofs";
     const body = {
       ...input,
@@ -1068,8 +1068,8 @@ export class TurnkeySDKClientBase {
   listFiatOnRampCredentials = async (
     input: SdkApiTypes.TListFiatOnRampCredentialsBody,
   ): Promise<SdkApiTypes.TListFiatOnRampCredentialsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_fiat_on_ramp_credentials", {
       ...input,
       organizationId:
@@ -1086,8 +1086,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_fiat_on_ramp_credentials";
     const body = {
@@ -1110,8 +1110,8 @@ export class TurnkeySDKClientBase {
   listOauth2Credentials = async (
     input: SdkApiTypes.TListOauth2CredentialsBody,
   ): Promise<SdkApiTypes.TListOauth2CredentialsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_oauth2_credentials", {
       ...input,
       organizationId:
@@ -1128,8 +1128,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_oauth2_credentials";
     const body = {
@@ -1152,8 +1152,8 @@ export class TurnkeySDKClientBase {
   getPolicies = async (
     input: SdkApiTypes.TGetPoliciesBody = {},
   ): Promise<SdkApiTypes.TGetPoliciesResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_policies", {
       ...input,
       organizationId:
@@ -1170,8 +1170,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_policies";
     const body = {
       ...input,
@@ -1193,8 +1193,8 @@ export class TurnkeySDKClientBase {
   listPrivateKeyTags = async (
     input: SdkApiTypes.TListPrivateKeyTagsBody,
   ): Promise<SdkApiTypes.TListPrivateKeyTagsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_private_key_tags", {
       ...input,
       organizationId:
@@ -1211,8 +1211,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_key_tags";
     const body = {
@@ -1235,8 +1235,8 @@ export class TurnkeySDKClientBase {
   getPrivateKeys = async (
     input: SdkApiTypes.TGetPrivateKeysBody = {},
   ): Promise<SdkApiTypes.TGetPrivateKeysResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_private_keys", {
       ...input,
       organizationId:
@@ -1253,8 +1253,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_private_keys";
     const body = {
@@ -1277,8 +1277,8 @@ export class TurnkeySDKClientBase {
   getSmartContractInterfaces = async (
     input: SdkApiTypes.TGetSmartContractInterfacesBody,
   ): Promise<SdkApiTypes.TGetSmartContractInterfacesResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_smart_contract_interfaces", {
       ...input,
       organizationId:
@@ -1295,8 +1295,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/query/list_smart_contract_interfaces";
@@ -1320,8 +1320,8 @@ export class TurnkeySDKClientBase {
   getSubOrgIds = async (
     input: SdkApiTypes.TGetSubOrgIdsBody = {},
   ): Promise<SdkApiTypes.TGetSubOrgIdsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_suborgs", {
       ...input,
       organizationId:
@@ -1338,8 +1338,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_suborgs";
     const body = {
       ...input,
@@ -1361,8 +1361,8 @@ export class TurnkeySDKClientBase {
   listUserTags = async (
     input: SdkApiTypes.TListUserTagsBody = {},
   ): Promise<SdkApiTypes.TListUserTagsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_user_tags", {
       ...input,
       organizationId:
@@ -1379,8 +1379,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_user_tags";
     const body = {
       ...input,
@@ -1402,8 +1402,8 @@ export class TurnkeySDKClientBase {
   getUsers = async (
     input: SdkApiTypes.TGetUsersBody = {},
   ): Promise<SdkApiTypes.TGetUsersResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_users", {
       ...input,
       organizationId:
@@ -1420,8 +1420,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_users";
     const body = {
       ...input,
@@ -1443,8 +1443,8 @@ export class TurnkeySDKClientBase {
   getVerifiedSubOrgIds = async (
     input: SdkApiTypes.TGetVerifiedSubOrgIdsBody,
   ): Promise<SdkApiTypes.TGetVerifiedSubOrgIdsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_verified_suborgs", {
       ...input,
       organizationId:
@@ -1461,8 +1461,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_verified_suborgs";
     const body = {
@@ -1485,8 +1485,8 @@ export class TurnkeySDKClientBase {
   getWalletAccounts = async (
     input: SdkApiTypes.TGetWalletAccountsBody,
   ): Promise<SdkApiTypes.TGetWalletAccountsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_wallet_accounts", {
       ...input,
       organizationId:
@@ -1503,8 +1503,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/list_wallet_accounts";
     const body = {
@@ -1527,8 +1527,8 @@ export class TurnkeySDKClientBase {
   getWallets = async (
     input: SdkApiTypes.TGetWalletsBody = {},
   ): Promise<SdkApiTypes.TGetWalletsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/list_wallets", {
       ...input,
       organizationId:
@@ -1545,8 +1545,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_wallets";
     const body = {
       ...input,
@@ -1568,8 +1568,8 @@ export class TurnkeySDKClientBase {
   getWhoami = async (
     input: SdkApiTypes.TGetWhoamiBody = {},
   ): Promise<SdkApiTypes.TGetWhoamiResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/whoami", {
       ...input,
       organizationId:
@@ -1586,8 +1586,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/whoami";
     const body = {
       ...input,
@@ -1609,9 +1609,10 @@ export class TurnkeySDKClientBase {
   approveActivity = async (
     input: SdkApiTypes.TApproveActivityBody,
   ): Promise<SdkApiTypes.TApproveActivityResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
     return this.activityDecision("/public/v1/submit/approve_activity", {
       parameters: rest,
       organizationId:
@@ -1628,10 +1629,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/approve_activity";
     const bodyWithType = {
@@ -1654,10 +1655,10 @@ export class TurnkeySDKClientBase {
   createApiKeys = async (
     input: SdkApiTypes.TCreateApiKeysBody,
   ): Promise<SdkApiTypes.TCreateApiKeysResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_api_keys",
       {
@@ -1680,10 +1681,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_api_keys";
     const bodyWithType = {
@@ -1706,10 +1707,10 @@ export class TurnkeySDKClientBase {
   createApiOnlyUsers = async (
     input: SdkApiTypes.TCreateApiOnlyUsersBody,
   ): Promise<SdkApiTypes.TCreateApiOnlyUsersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_api_only_users",
       {
@@ -1732,10 +1733,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_api_only_users";
     const bodyWithType = {
@@ -1758,10 +1759,10 @@ export class TurnkeySDKClientBase {
   createAuthenticators = async (
     input: SdkApiTypes.TCreateAuthenticatorsBody,
   ): Promise<SdkApiTypes.TCreateAuthenticatorsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_authenticators",
       {
@@ -1784,10 +1785,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_authenticators";
     const bodyWithType = {
@@ -1810,10 +1811,10 @@ export class TurnkeySDKClientBase {
   createFiatOnRampCredential = async (
     input: SdkApiTypes.TCreateFiatOnRampCredentialBody,
   ): Promise<SdkApiTypes.TCreateFiatOnRampCredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_fiat_on_ramp_credential",
       {
@@ -1836,10 +1837,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/create_fiat_on_ramp_credential";
@@ -1863,10 +1864,10 @@ export class TurnkeySDKClientBase {
   createInvitations = async (
     input: SdkApiTypes.TCreateInvitationsBody,
   ): Promise<SdkApiTypes.TCreateInvitationsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_invitations",
       {
@@ -1889,10 +1890,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_invitations";
     const bodyWithType = {
@@ -1915,10 +1916,10 @@ export class TurnkeySDKClientBase {
   createOauth2Credential = async (
     input: SdkApiTypes.TCreateOauth2CredentialBody,
   ): Promise<SdkApiTypes.TCreateOauth2CredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_oauth2_credential",
       {
@@ -1941,10 +1942,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_oauth2_credential";
     const bodyWithType = {
@@ -1967,10 +1968,10 @@ export class TurnkeySDKClientBase {
   createOauthProviders = async (
     input: SdkApiTypes.TCreateOauthProvidersBody,
   ): Promise<SdkApiTypes.TCreateOauthProvidersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_oauth_providers",
       {
@@ -1993,10 +1994,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_oauth_providers";
     const bodyWithType = {
@@ -2019,10 +2020,10 @@ export class TurnkeySDKClientBase {
   createPolicies = async (
     input: SdkApiTypes.TCreatePoliciesBody,
   ): Promise<SdkApiTypes.TCreatePoliciesResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_policies",
       {
@@ -2045,10 +2046,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_policies";
     const bodyWithType = {
@@ -2071,10 +2072,10 @@ export class TurnkeySDKClientBase {
   createPolicy = async (
     input: SdkApiTypes.TCreatePolicyBody,
   ): Promise<SdkApiTypes.TCreatePolicyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_policy",
       {
@@ -2097,10 +2098,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_policy";
     const bodyWithType = {
       parameters,
@@ -2122,10 +2123,10 @@ export class TurnkeySDKClientBase {
   createPrivateKeyTag = async (
     input: SdkApiTypes.TCreatePrivateKeyTagBody,
   ): Promise<SdkApiTypes.TCreatePrivateKeyTagResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_private_key_tag",
       {
@@ -2148,10 +2149,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_private_key_tag";
     const bodyWithType = {
@@ -2174,10 +2175,10 @@ export class TurnkeySDKClientBase {
   createPrivateKeys = async (
     input: SdkApiTypes.TCreatePrivateKeysBody,
   ): Promise<SdkApiTypes.TCreatePrivateKeysResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_private_keys",
       {
@@ -2200,10 +2201,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_private_keys";
     const bodyWithType = {
@@ -2226,10 +2227,10 @@ export class TurnkeySDKClientBase {
   createReadOnlySession = async (
     input: SdkApiTypes.TCreateReadOnlySessionBody,
   ): Promise<SdkApiTypes.TCreateReadOnlySessionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_read_only_session",
       {
@@ -2252,10 +2253,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_read_only_session";
     const bodyWithType = {
@@ -2278,10 +2279,10 @@ export class TurnkeySDKClientBase {
   createReadWriteSession = async (
     input: SdkApiTypes.TCreateReadWriteSessionBody,
   ): Promise<SdkApiTypes.TCreateReadWriteSessionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_read_write_session",
       {
@@ -2304,10 +2305,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_read_write_session";
     const bodyWithType = {
@@ -2330,10 +2331,10 @@ export class TurnkeySDKClientBase {
   createSmartContractInterface = async (
     input: SdkApiTypes.TCreateSmartContractInterfaceBody,
   ): Promise<SdkApiTypes.TCreateSmartContractInterfaceResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_smart_contract_interface",
       {
@@ -2356,10 +2357,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/create_smart_contract_interface";
@@ -2383,10 +2384,10 @@ export class TurnkeySDKClientBase {
   createSubOrganization = async (
     input: SdkApiTypes.TCreateSubOrganizationBody,
   ): Promise<SdkApiTypes.TCreateSubOrganizationResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_sub_organization",
       {
@@ -2409,10 +2410,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_sub_organization";
     const bodyWithType = {
@@ -2435,10 +2436,10 @@ export class TurnkeySDKClientBase {
   createUserTag = async (
     input: SdkApiTypes.TCreateUserTagBody,
   ): Promise<SdkApiTypes.TCreateUserTagResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_user_tag",
       {
@@ -2461,10 +2462,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_user_tag";
     const bodyWithType = {
@@ -2487,10 +2488,10 @@ export class TurnkeySDKClientBase {
   createUsers = async (
     input: SdkApiTypes.TCreateUsersBody,
   ): Promise<SdkApiTypes.TCreateUsersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_users",
       {
@@ -2513,10 +2514,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_users";
     const bodyWithType = {
       parameters,
@@ -2538,10 +2539,10 @@ export class TurnkeySDKClientBase {
   createWallet = async (
     input: SdkApiTypes.TCreateWalletBody,
   ): Promise<SdkApiTypes.TCreateWalletResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_wallet",
       {
@@ -2564,10 +2565,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_wallet";
     const bodyWithType = {
       parameters,
@@ -2589,10 +2590,10 @@ export class TurnkeySDKClientBase {
   createWalletAccounts = async (
     input: SdkApiTypes.TCreateWalletAccountsBody,
   ): Promise<SdkApiTypes.TCreateWalletAccountsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/create_wallet_accounts",
       {
@@ -2615,10 +2616,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_wallet_accounts";
     const bodyWithType = {
@@ -2641,10 +2642,10 @@ export class TurnkeySDKClientBase {
   deleteApiKeys = async (
     input: SdkApiTypes.TDeleteApiKeysBody,
   ): Promise<SdkApiTypes.TDeleteApiKeysResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_api_keys",
       {
@@ -2667,10 +2668,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_api_keys";
     const bodyWithType = {
@@ -2693,10 +2694,10 @@ export class TurnkeySDKClientBase {
   deleteAuthenticators = async (
     input: SdkApiTypes.TDeleteAuthenticatorsBody,
   ): Promise<SdkApiTypes.TDeleteAuthenticatorsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_authenticators",
       {
@@ -2719,10 +2720,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_authenticators";
     const bodyWithType = {
@@ -2745,10 +2746,10 @@ export class TurnkeySDKClientBase {
   deleteFiatOnRampCredential = async (
     input: SdkApiTypes.TDeleteFiatOnRampCredentialBody,
   ): Promise<SdkApiTypes.TDeleteFiatOnRampCredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_fiat_on_ramp_credential",
       {
@@ -2771,10 +2772,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/delete_fiat_on_ramp_credential";
@@ -2798,10 +2799,10 @@ export class TurnkeySDKClientBase {
   deleteInvitation = async (
     input: SdkApiTypes.TDeleteInvitationBody,
   ): Promise<SdkApiTypes.TDeleteInvitationResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_invitation",
       {
@@ -2824,10 +2825,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_invitation";
     const bodyWithType = {
@@ -2850,10 +2851,10 @@ export class TurnkeySDKClientBase {
   deleteOauth2Credential = async (
     input: SdkApiTypes.TDeleteOauth2CredentialBody,
   ): Promise<SdkApiTypes.TDeleteOauth2CredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_oauth2_credential",
       {
@@ -2876,10 +2877,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_oauth2_credential";
     const bodyWithType = {
@@ -2902,10 +2903,10 @@ export class TurnkeySDKClientBase {
   deleteOauthProviders = async (
     input: SdkApiTypes.TDeleteOauthProvidersBody,
   ): Promise<SdkApiTypes.TDeleteOauthProvidersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_oauth_providers",
       {
@@ -2928,10 +2929,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_oauth_providers";
     const bodyWithType = {
@@ -2954,10 +2955,10 @@ export class TurnkeySDKClientBase {
   deletePolicies = async (
     input: SdkApiTypes.TDeletePoliciesBody,
   ): Promise<SdkApiTypes.TDeletePoliciesResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_policies",
       {
@@ -2980,10 +2981,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_policies";
     const bodyWithType = {
@@ -3006,10 +3007,10 @@ export class TurnkeySDKClientBase {
   deletePolicy = async (
     input: SdkApiTypes.TDeletePolicyBody,
   ): Promise<SdkApiTypes.TDeletePolicyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_policy",
       {
@@ -3032,10 +3033,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_policy";
     const bodyWithType = {
       parameters,
@@ -3057,10 +3058,10 @@ export class TurnkeySDKClientBase {
   deletePrivateKeyTags = async (
     input: SdkApiTypes.TDeletePrivateKeyTagsBody,
   ): Promise<SdkApiTypes.TDeletePrivateKeyTagsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_private_key_tags",
       {
@@ -3083,10 +3084,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_key_tags";
     const bodyWithType = {
@@ -3109,10 +3110,10 @@ export class TurnkeySDKClientBase {
   deletePrivateKeys = async (
     input: SdkApiTypes.TDeletePrivateKeysBody,
   ): Promise<SdkApiTypes.TDeletePrivateKeysResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_private_keys",
       {
@@ -3135,10 +3136,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_keys";
     const bodyWithType = {
@@ -3161,10 +3162,10 @@ export class TurnkeySDKClientBase {
   deleteSmartContractInterface = async (
     input: SdkApiTypes.TDeleteSmartContractInterfaceBody,
   ): Promise<SdkApiTypes.TDeleteSmartContractInterfaceResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_smart_contract_interface",
       {
@@ -3187,10 +3188,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/delete_smart_contract_interface";
@@ -3214,10 +3215,10 @@ export class TurnkeySDKClientBase {
   deleteSubOrganization = async (
     input: SdkApiTypes.TDeleteSubOrganizationBody,
   ): Promise<SdkApiTypes.TDeleteSubOrganizationResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_sub_organization",
       {
@@ -3240,10 +3241,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_sub_organization";
     const bodyWithType = {
@@ -3266,10 +3267,10 @@ export class TurnkeySDKClientBase {
   deleteUserTags = async (
     input: SdkApiTypes.TDeleteUserTagsBody,
   ): Promise<SdkApiTypes.TDeleteUserTagsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_user_tags",
       {
@@ -3292,10 +3293,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_user_tags";
     const bodyWithType = {
@@ -3318,10 +3319,10 @@ export class TurnkeySDKClientBase {
   deleteUsers = async (
     input: SdkApiTypes.TDeleteUsersBody,
   ): Promise<SdkApiTypes.TDeleteUsersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_users",
       {
@@ -3344,10 +3345,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_users";
     const bodyWithType = {
       parameters,
@@ -3369,10 +3370,10 @@ export class TurnkeySDKClientBase {
   deleteWalletAccounts = async (
     input: SdkApiTypes.TDeleteWalletAccountsBody,
   ): Promise<SdkApiTypes.TDeleteWalletAccountsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_wallet_accounts",
       {
@@ -3395,10 +3396,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_wallet_accounts";
     const bodyWithType = {
@@ -3421,10 +3422,10 @@ export class TurnkeySDKClientBase {
   deleteWallets = async (
     input: SdkApiTypes.TDeleteWalletsBody,
   ): Promise<SdkApiTypes.TDeleteWalletsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/delete_wallets",
       {
@@ -3447,10 +3448,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_wallets";
     const bodyWithType = {
       parameters,
@@ -3472,10 +3473,10 @@ export class TurnkeySDKClientBase {
   emailAuth = async (
     input: SdkApiTypes.TEmailAuthBody,
   ): Promise<SdkApiTypes.TEmailAuthResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/email_auth",
       {
@@ -3498,10 +3499,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/email_auth";
     const bodyWithType = {
       parameters,
@@ -3523,10 +3524,10 @@ export class TurnkeySDKClientBase {
   ethSendRawTransaction = async (
     input: SdkApiTypes.TEthSendRawTransactionBody,
   ): Promise<SdkApiTypes.TEthSendRawTransactionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/eth_send_raw_transaction",
       {
@@ -3549,10 +3550,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/eth_send_raw_transaction";
     const bodyWithType = {
@@ -3575,10 +3576,10 @@ export class TurnkeySDKClientBase {
   ethSendTransaction = async (
     input: SdkApiTypes.TEthSendTransactionBody,
   ): Promise<SdkApiTypes.TEthSendTransactionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/eth_send_transaction",
       {
@@ -3601,10 +3602,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/eth_send_transaction";
     const bodyWithType = {
@@ -3627,10 +3628,10 @@ export class TurnkeySDKClientBase {
   exportPrivateKey = async (
     input: SdkApiTypes.TExportPrivateKeyBody,
   ): Promise<SdkApiTypes.TExportPrivateKeyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/export_private_key",
       {
@@ -3653,10 +3654,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/export_private_key";
     const bodyWithType = {
@@ -3679,10 +3680,10 @@ export class TurnkeySDKClientBase {
   exportWallet = async (
     input: SdkApiTypes.TExportWalletBody,
   ): Promise<SdkApiTypes.TExportWalletResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/export_wallet",
       {
@@ -3705,10 +3706,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/export_wallet";
     const bodyWithType = {
       parameters,
@@ -3730,10 +3731,10 @@ export class TurnkeySDKClientBase {
   exportWalletAccount = async (
     input: SdkApiTypes.TExportWalletAccountBody,
   ): Promise<SdkApiTypes.TExportWalletAccountResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/export_wallet_account",
       {
@@ -3756,10 +3757,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/export_wallet_account";
     const bodyWithType = {
@@ -3782,10 +3783,10 @@ export class TurnkeySDKClientBase {
   importPrivateKey = async (
     input: SdkApiTypes.TImportPrivateKeyBody,
   ): Promise<SdkApiTypes.TImportPrivateKeyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/import_private_key",
       {
@@ -3808,10 +3809,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/import_private_key";
     const bodyWithType = {
@@ -3834,10 +3835,10 @@ export class TurnkeySDKClientBase {
   importWallet = async (
     input: SdkApiTypes.TImportWalletBody,
   ): Promise<SdkApiTypes.TImportWalletResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/import_wallet",
       {
@@ -3860,10 +3861,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/import_wallet";
     const bodyWithType = {
       parameters,
@@ -3885,10 +3886,10 @@ export class TurnkeySDKClientBase {
   initFiatOnRamp = async (
     input: SdkApiTypes.TInitFiatOnRampBody,
   ): Promise<SdkApiTypes.TInitFiatOnRampResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/init_fiat_on_ramp",
       {
@@ -3911,10 +3912,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_fiat_on_ramp";
     const bodyWithType = {
@@ -3937,10 +3938,10 @@ export class TurnkeySDKClientBase {
   initImportPrivateKey = async (
     input: SdkApiTypes.TInitImportPrivateKeyBody,
   ): Promise<SdkApiTypes.TInitImportPrivateKeyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/init_import_private_key",
       {
@@ -3963,10 +3964,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_import_private_key";
     const bodyWithType = {
@@ -3989,10 +3990,10 @@ export class TurnkeySDKClientBase {
   initImportWallet = async (
     input: SdkApiTypes.TInitImportWalletBody,
   ): Promise<SdkApiTypes.TInitImportWalletResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/init_import_wallet",
       {
@@ -4015,10 +4016,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_import_wallet";
     const bodyWithType = {
@@ -4041,10 +4042,10 @@ export class TurnkeySDKClientBase {
   initOtp = async (
     input: SdkApiTypes.TInitOtpBody,
   ): Promise<SdkApiTypes.TInitOtpResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/init_otp",
       {
@@ -4067,10 +4068,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp";
     const bodyWithType = {
       parameters,
@@ -4092,10 +4093,10 @@ export class TurnkeySDKClientBase {
   initOtpAuth = async (
     input: SdkApiTypes.TInitOtpAuthBody,
   ): Promise<SdkApiTypes.TInitOtpAuthResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/init_otp_auth",
       {
@@ -4118,10 +4119,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp_auth";
     const bodyWithType = {
       parameters,
@@ -4143,10 +4144,10 @@ export class TurnkeySDKClientBase {
   initUserEmailRecovery = async (
     input: SdkApiTypes.TInitUserEmailRecoveryBody,
   ): Promise<SdkApiTypes.TInitUserEmailRecoveryResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/init_user_email_recovery",
       {
@@ -4169,10 +4170,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_user_email_recovery";
     const bodyWithType = {
@@ -4195,10 +4196,10 @@ export class TurnkeySDKClientBase {
   oauth = async (
     input: SdkApiTypes.TOauthBody,
   ): Promise<SdkApiTypes.TOauthResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/oauth",
       {
@@ -4221,10 +4222,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth";
     const bodyWithType = {
       parameters,
@@ -4246,10 +4247,10 @@ export class TurnkeySDKClientBase {
   oauth2Authenticate = async (
     input: SdkApiTypes.TOauth2AuthenticateBody,
   ): Promise<SdkApiTypes.TOauth2AuthenticateResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/oauth2_authenticate",
       {
@@ -4272,10 +4273,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/oauth2_authenticate";
     const bodyWithType = {
@@ -4298,10 +4299,10 @@ export class TurnkeySDKClientBase {
   oauthLogin = async (
     input: SdkApiTypes.TOauthLoginBody,
   ): Promise<SdkApiTypes.TOauthLoginResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/oauth_login",
       {
@@ -4324,10 +4325,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth_login";
     const bodyWithType = {
       parameters,
@@ -4349,10 +4350,10 @@ export class TurnkeySDKClientBase {
   otpAuth = async (
     input: SdkApiTypes.TOtpAuthBody,
   ): Promise<SdkApiTypes.TOtpAuthResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/otp_auth",
       {
@@ -4375,10 +4376,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_auth";
     const bodyWithType = {
       parameters,
@@ -4400,10 +4401,10 @@ export class TurnkeySDKClientBase {
   otpLogin = async (
     input: SdkApiTypes.TOtpLoginBody,
   ): Promise<SdkApiTypes.TOtpLoginResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/otp_login",
       {
@@ -4426,10 +4427,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_login";
     const bodyWithType = {
       parameters,
@@ -4451,10 +4452,10 @@ export class TurnkeySDKClientBase {
   recoverUser = async (
     input: SdkApiTypes.TRecoverUserBody,
   ): Promise<SdkApiTypes.TRecoverUserResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/recover_user",
       {
@@ -4477,10 +4478,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/recover_user";
     const bodyWithType = {
       parameters,
@@ -4502,9 +4503,10 @@ export class TurnkeySDKClientBase {
   rejectActivity = async (
     input: SdkApiTypes.TRejectActivityBody,
   ): Promise<SdkApiTypes.TRejectActivityResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
     return this.activityDecision("/public/v1/submit/reject_activity", {
       parameters: rest,
       organizationId:
@@ -4521,10 +4523,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/reject_activity";
     const bodyWithType = {
@@ -4547,10 +4549,10 @@ export class TurnkeySDKClientBase {
   removeOrganizationFeature = async (
     input: SdkApiTypes.TRemoveOrganizationFeatureBody,
   ): Promise<SdkApiTypes.TRemoveOrganizationFeatureResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/remove_organization_feature",
       {
@@ -4573,10 +4575,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/remove_organization_feature";
     const bodyWithType = {
@@ -4599,10 +4601,10 @@ export class TurnkeySDKClientBase {
   setOrganizationFeature = async (
     input: SdkApiTypes.TSetOrganizationFeatureBody,
   ): Promise<SdkApiTypes.TSetOrganizationFeatureResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/set_organization_feature",
       {
@@ -4625,10 +4627,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/set_organization_feature";
     const bodyWithType = {
@@ -4651,10 +4653,10 @@ export class TurnkeySDKClientBase {
   signRawPayload = async (
     input: SdkApiTypes.TSignRawPayloadBody,
   ): Promise<SdkApiTypes.TSignRawPayloadResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/sign_raw_payload",
       {
@@ -4677,10 +4679,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payload";
     const bodyWithType = {
@@ -4703,10 +4705,10 @@ export class TurnkeySDKClientBase {
   signRawPayloads = async (
     input: SdkApiTypes.TSignRawPayloadsBody,
   ): Promise<SdkApiTypes.TSignRawPayloadsResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/sign_raw_payloads",
       {
@@ -4729,10 +4731,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payloads";
     const bodyWithType = {
@@ -4755,10 +4757,10 @@ export class TurnkeySDKClientBase {
   signTransaction = async (
     input: SdkApiTypes.TSignTransactionBody,
   ): Promise<SdkApiTypes.TSignTransactionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/sign_transaction",
       {
@@ -4781,10 +4783,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_transaction";
     const bodyWithType = {
@@ -4807,10 +4809,10 @@ export class TurnkeySDKClientBase {
   stampLogin = async (
     input: SdkApiTypes.TStampLoginBody,
   ): Promise<SdkApiTypes.TStampLoginResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/stamp_login",
       {
@@ -4833,10 +4835,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/stamp_login";
     const bodyWithType = {
       parameters,
@@ -4858,10 +4860,10 @@ export class TurnkeySDKClientBase {
   updateFiatOnRampCredential = async (
     input: SdkApiTypes.TUpdateFiatOnRampCredentialBody,
   ): Promise<SdkApiTypes.TUpdateFiatOnRampCredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_fiat_on_ramp_credential",
       {
@@ -4884,10 +4886,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/update_fiat_on_ramp_credential";
@@ -4911,10 +4913,10 @@ export class TurnkeySDKClientBase {
   updateOauth2Credential = async (
     input: SdkApiTypes.TUpdateOauth2CredentialBody,
   ): Promise<SdkApiTypes.TUpdateOauth2CredentialResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_oauth2_credential",
       {
@@ -4937,10 +4939,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_oauth2_credential";
     const bodyWithType = {
@@ -4963,10 +4965,10 @@ export class TurnkeySDKClientBase {
   updatePolicy = async (
     input: SdkApiTypes.TUpdatePolicyBody,
   ): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_policy",
       {
@@ -4989,10 +4991,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_policy";
     const bodyWithType = {
       parameters,
@@ -5014,10 +5016,10 @@ export class TurnkeySDKClientBase {
   updatePrivateKeyTag = async (
     input: SdkApiTypes.TUpdatePrivateKeyTagBody,
   ): Promise<SdkApiTypes.TUpdatePrivateKeyTagResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_private_key_tag",
       {
@@ -5040,10 +5042,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_private_key_tag";
     const bodyWithType = {
@@ -5066,10 +5068,10 @@ export class TurnkeySDKClientBase {
   updateRootQuorum = async (
     input: SdkApiTypes.TUpdateRootQuorumBody,
   ): Promise<SdkApiTypes.TUpdateRootQuorumResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_root_quorum",
       {
@@ -5092,10 +5094,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_root_quorum";
     const bodyWithType = {
@@ -5118,10 +5120,10 @@ export class TurnkeySDKClientBase {
   updateUser = async (
     input: SdkApiTypes.TUpdateUserBody,
   ): Promise<SdkApiTypes.TUpdateUserResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_user",
       {
@@ -5144,10 +5146,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user";
     const bodyWithType = {
       parameters,
@@ -5169,10 +5171,10 @@ export class TurnkeySDKClientBase {
   updateUserEmail = async (
     input: SdkApiTypes.TUpdateUserEmailBody,
   ): Promise<SdkApiTypes.TUpdateUserEmailResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_user_email",
       {
@@ -5195,10 +5197,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_email";
     const bodyWithType = {
@@ -5221,10 +5223,10 @@ export class TurnkeySDKClientBase {
   updateUserName = async (
     input: SdkApiTypes.TUpdateUserNameBody,
   ): Promise<SdkApiTypes.TUpdateUserNameResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_user_name",
       {
@@ -5247,10 +5249,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_name";
     const bodyWithType = {
@@ -5273,10 +5275,10 @@ export class TurnkeySDKClientBase {
   updateUserPhoneNumber = async (
     input: SdkApiTypes.TUpdateUserPhoneNumberBody,
   ): Promise<SdkApiTypes.TUpdateUserPhoneNumberResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_user_phone_number",
       {
@@ -5299,10 +5301,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_phone_number";
     const bodyWithType = {
@@ -5325,10 +5327,10 @@ export class TurnkeySDKClientBase {
   updateUserTag = async (
     input: SdkApiTypes.TUpdateUserTagBody,
   ): Promise<SdkApiTypes.TUpdateUserTagResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_user_tag",
       {
@@ -5351,10 +5353,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_tag";
     const bodyWithType = {
@@ -5377,10 +5379,10 @@ export class TurnkeySDKClientBase {
   updateWallet = async (
     input: SdkApiTypes.TUpdateWalletBody,
   ): Promise<SdkApiTypes.TUpdateWalletResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/update_wallet",
       {
@@ -5403,10 +5405,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_wallet";
     const bodyWithType = {
       parameters,
@@ -5428,10 +5430,10 @@ export class TurnkeySDKClientBase {
   verifyOtp = async (
     input: SdkApiTypes.TVerifyOtpBody,
   ): Promise<SdkApiTypes.TVerifyOtpResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command(
       "/public/v1/submit/verify_otp",
       {
@@ -5454,10 +5456,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/verify_otp";
     const bodyWithType = {
       parameters,
@@ -5479,8 +5481,8 @@ export class TurnkeySDKClientBase {
   testRateLimits = async (
     input: SdkApiTypes.TTestRateLimitsBody,
   ): Promise<SdkApiTypes.TTestRateLimitsResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/tkhq/api/v1/test_rate_limits", {
       ...input,
       organizationId:
@@ -5497,8 +5499,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/tkhq/api/v1/test_rate_limits";
     const body = {
       ...input,

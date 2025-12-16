@@ -487,7 +487,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
     const bodyWithType = {
       parameters,
