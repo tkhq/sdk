@@ -400,6 +400,12 @@ export class TurnkeySDKClientBase {
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
+    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
+      .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+      .toUpperCase()}`;
+    const versionedActivityType =
+      VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
+
     if (methodType === "query") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}${
@@ -414,12 +420,6 @@ export class TurnkeySDKClientBase {
   }`,
       );
     } else if (methodType === "command") {
-      const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-        .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
-        .toUpperCase()}`;
-      const versionedActivityType =
-        VERSIONED_ACTIVITY_TYPES[unversionedActivityType];
-
       const resultKey = operationNameWithoutNamespace + "Result";
       const versionedMethodName = latestVersions[resultKey].formattedKeyName;
 
@@ -450,22 +450,62 @@ export class TurnkeySDKClientBase {
   }`,
       );
     }
+
     // generate a stamping method for each method
-    codeBuffer.push(
-      `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkApiTypes.${inputType}): Promise<TSignedRequest | undefined> => {
+    if (methodType === "noop") {
+      // we skip stamp method generation for noop methods
+      continue;
+    } else if (methodType === "query") {
+      // for query methods, we use flat body structure
+      codeBuffer.push(
+        `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkApiTypes.${inputType}): Promise<TSignedRequest | undefined> => {
     if (!this.stamper) {
       return undefined;
     }
+
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
-    const body = JSON.stringify(input);
-    const stamp = await this.stamper.stamp(body);
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
     return {
-      body: body,
+      body: stringifiedBody,
       stamp: stamp,
       url: fullUrl,
     };
   }`,
-    );
+      );
+    } else {
+      // for command and activityDecision methods, both use the same stamp structure
+      codeBuffer.push(
+        `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkApiTypes.${inputType}): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+
+    const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "${versionedActivityType ?? unversionedActivityType}"
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  }`,
+      );
+    }
   }
 
   // End of the TurnkeySDKClient Class Definition
