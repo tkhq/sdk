@@ -346,11 +346,11 @@ export class WalletConnectWallet implements WalletConnectInterface {
    *   - If no pairing is in progress, this will throw (e.g., "call pair() before approve()").
    * - Ethereum:
    *   - `SignMessage` → `personal_sign` (returns hex signature).
-   *   - `SignAndSendTransaction` → `eth_sendTransaction` (returns tx hash).
+   *   - `SignAndSendRawTransaction` → `eth_sendTransaction` (returns tx hash).
    * - Solana:
    *   - `SignMessage` → `solana_signMessage` (returns hex signature).
    *   - `SignTransaction` → `solana_signTransaction` (returns hex signature).
-   *   - `SignAndSendTransaction` → `solana_sendTransaction` (returns hex signature of the submitted tx).
+   *   - `SignAndSendRawTransaction` → `solana_sendTransaction` (returns hex signature of the submitted tx).
    *
    * @param payload - Payload or serialized transaction to sign.
    * @param provider - The WalletProvider to use.

@@ -2503,7 +2503,7 @@ export class TurnkeyClient {
    * Behavior differs depending on the type of wallet:
    *
    * - **Connected wallets**
-   *   - Ethereum: does not support raw transaction signing. Calling this function will throw an error instructing you to use `signAndSendTransaction` instead.
+   *   - Ethereum: does not support raw transaction signing. Calling this function will throw an error instructing you to use `signAndSendRawTransaction` instead.
    *   - Solana: supports raw transaction signing via the connected wallet provider.
    *   - Other chains: not supported; will throw an error.
    *
@@ -2539,7 +2539,7 @@ export class TurnkeyClient {
           switch (walletAccount.chainInfo.namespace) {
             case Chain.Ethereum:
               throw new TurnkeyError(
-                "Ethereum connected wallets do not support raw transaction signing. Use signAndSendTransaction instead.",
+                "Ethereum connected wallets do not support raw transaction signing. Use signAndSendRawTransaction instead.",
                 TurnkeyErrorCodes.INVALID_REQUEST,
               );
 
@@ -2651,7 +2651,7 @@ export class TurnkeyClient {
 
             default:
               throw new TurnkeyError(
-                "Connected wallets do not support signAndSendTransaction for this transaction type.",
+                "Connected wallets do not support signAndSendRawTransaction for this transaction type.",
                 TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
               );
           }
@@ -2699,6 +2699,8 @@ export class TurnkeyClient {
   };
 
   /**
+   * @beta
+   * 
    * * **🔶 BETA — API subject to change**
    *
    * Signs and submits an Ethereum transaction using a Turnkey-managed (embedded) wallet.
@@ -2839,6 +2841,8 @@ export class TurnkeyClient {
   };
 
   /**
+   * @beta
+   * 
    * * **🔶 BETA — API subject to change**
    *
    * Polls Turnkey for the final result of a previously submitted Ethereum transaction.
