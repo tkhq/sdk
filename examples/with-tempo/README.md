@@ -2,8 +2,7 @@
 
 This example shows how to construct and broadcast a transaction on the Tempo testnet using Turnkey.
 
-**Important:** During Tempo's testnet period Turnkey supports [Ethereum legacy transactions](https://docs.tempo.xyz/quickstart/evm-compatibility#transaction-differences)
-with full parsing & policy support, and Tempo transactions with raw payload signing and some limited policy support. This SDK example demonstrates a Tempo transaction with raw payload signing. Legacy Ethereum transactions on Tempo can be utilized on Turnkey with [viem](https://github.com/tkhq/sdk/tree/main/examples/with-viem) and [ethers](https://github.com/tkhq/sdk/tree/main/examples/with-ethers).
+**Important:** During Tempo's testnet period Turnkey supports [Ethereum legacy transactions](https://docs.tempo.xyz/quickstart/evm-compatibility#transaction-differences) with full parsing & policy support, and Tempo transactions with raw payload signing and some limited policy support. This SDK example demonstrates a Tempo transaction with raw payload signing. Legacy Ethereum transactions on Tempo can be utilized on Turnkey with [viem](https://github.com/tkhq/sdk/tree/main/examples/with-viem) and [ethers](https://github.com/tkhq/sdk/tree/main/examples/with-ethers).
 
 ## Getting started
 
