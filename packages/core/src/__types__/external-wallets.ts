@@ -178,7 +178,7 @@ export interface ConnectedEthereumWalletAccount extends v1WalletAccount {
   chainInfo: EvmChainInfo;
   isAuthenticator: boolean;
   signMessage: (message: string) => Promise<string>;
-  signAndSendTransaction: (unsignedTransaction: string) => Promise<string>;
+  signAndSendRawTransaction: (unsignedTransaction: string) => Promise<string>;
 }
 
 /**

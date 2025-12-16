@@ -2271,8 +2271,8 @@ export class TurnkeyClient {
                 ),
                 signMessage: (msg: string) =>
                   sign(msg, provider, SignIntent.SignMessage),
-                signAndSendTransaction: (tx: string) =>
-                  sign(tx, provider, SignIntent.SignAndSendTransaction),
+                signAndSendRawTransaction: (tx: string) =>
+                  sign(tx, provider, SignIntent.SignAndSendRawTransaction),
               };
 
               connected.push(evmAccount);
@@ -2629,7 +2629,7 @@ export class TurnkeyClient {
               // if namespace is Chain.Ethereum, then it must be a ConnectedEthereumWalletAccount
               return await (
                 walletAccount as ConnectedEthereumWalletAccount
-              ).signAndSendTransaction(unsignedTransaction);
+              ).signAndSendRawTransaction(unsignedTransaction);
 
             case Chain.Solana:
               if (!rpcUrl) {
@@ -2726,19 +2726,6 @@ export class TurnkeyClient {
    * @param params.stampWith - Optional stamper to authorize signing (e.g., passkey).
    *
    * @param params.transaction - The Ethereum transaction details.
-   *   @param params.transaction.from - Ethereum address to sign with.
-   *   @param params.transaction.to - Recipient address.
-   *   @param params.transaction.caip2 - CAIP-2 chain identifier (e.g. `"eip155:1"`).
-   *   @param params.transaction.value - Native value in wei.
-   *   @param params.transaction.data - Hex-encoded call data.
-   *   @param params.transaction.nonce - Explicit nonce (non-sponsored transactions).
-   *   @param params.transaction.gasLimit - Gas limit (non-sponsored only).
-   *   @param params.transaction.maxFeePerGas - Max fee (non-sponsored only).
-   *   @param params.transaction.maxPriorityFeePerGas - Max priority fee.
-   *   @param params.transaction.sponsor - Whether to use Turnkey Gas Station.
-   *   @param params.transaction.deadline - Optional sponsorship deadline.
-   *   @param params.transaction.gasStationNonce - Optional Gas Station nonce.
-   *
    * @returns A promise resolving to the `sendTransactionStatusId`.
    *          This ID must be passed to `pollTransactionStatus`.
    *
@@ -2861,7 +2848,7 @@ export class TurnkeyClient {
    *
    * Terminal states:
    * - **COMPLETED** or **INCLUDED** → resolves with `{ txHash }`
-   * - **FAILED** or **CANCELLED** → rejects with an error
+   * - **FAILED** rejects with an error
    *
    * Behavior:
    *
@@ -2916,14 +2903,14 @@ export class TurnkeyClient {
 
             if (!txStatus) return;
 
-            if (txError || txStatus === "FAILED" || txStatus === "CANCELLED") {
+            if (txError || txStatus === "FAILED" || txStatus === "CANCELLED") { // TODO: use API enum in the future
               clearInterval(ref);
               clearTimeout(timeoutRef);
               reject(txError || `Transaction ${txStatus}`);
               return;
             }
 
-            if (txStatus === "COMPLETED" || txStatus === "INCLUDED") {
+            if (txStatus === "COMPLETED" || txStatus === "INCLUDED") { // TODO: use API enum in the future
               clearInterval(ref);
               clearTimeout(timeoutRef);
               resolve(resp);

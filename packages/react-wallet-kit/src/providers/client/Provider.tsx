@@ -196,7 +196,6 @@ import { OnRampPage } from "../../components/onramp/OnRamp";
 import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 import {
-  DEFAULT_RPC_BY_CHAIN,
   getChainLogo,
 } from "../../components/send-transaction/helpers";
 
@@ -5567,11 +5566,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         maxPriorityFeePerGas,
         sponsor,
       } = transaction;
-
-      const rpcUrl = DEFAULT_RPC_BY_CHAIN[caip2];
-      if (!rpcUrl) {
-        throw new Error(`No RPC mapping found for chain '${caip2}'`);
-      }
 
       const cleanedData =
         data && data !== "0x" && data !== "" ? data : undefined;

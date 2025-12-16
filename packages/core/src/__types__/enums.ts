@@ -63,5 +63,5 @@ export enum WalletSource {
 export enum SignIntent {
   SignMessage = "sign_message",
   SignTransaction = "sign_transaction",
-  SignAndSendTransaction = "sign_and_send",
+  SignAndSendRawTransaction = "sign_and_send_raw_transaction",
 }

@@ -381,7 +381,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
             payload as Hex,
             address,
           ])) as string;
-        case SignIntent.SignAndSendTransaction:
+        case SignIntent.SignAndSendRawTransaction:
           const account = provider.connectedAddresses[0] as Hex;
           if (!account) throw new Error("no connected address");
           const tx = Transaction.from(payload);
@@ -473,7 +473,7 @@ export class WalletConnectWallet implements WalletConnectInterface {
           );
           return uint8ArrayToHexString(bs58.decode(sigB58));
         }
-        case SignIntent.SignAndSendTransaction: {
+        case SignIntent.SignAndSendRawTransaction: {
           const txBytes = uint8ArrayFromHexString(payload);
           const txBase64 = stringToBase64urlString(
             String.fromCharCode(...txBytes),

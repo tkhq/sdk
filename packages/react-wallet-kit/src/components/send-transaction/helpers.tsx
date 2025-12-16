@@ -1,10 +1,4 @@
 import { EthereumLogo, SolanaLogo } from "../design/Svg";
-export const DEFAULT_RPC_BY_CHAIN: Record<string, string> = {
-  "eip155:8453": "https://mainnet.base.org",
-  "eip155:84532": "https://sepolia.base.org",
-  "eip155:1": "https://ethereum.publicnode.com",
-  "eip155:11155111": "https://ethereum-sepolia.publicnode.com",
-};
 
 export function getExplorerUrl(txHash: string, caip2: string): string {
   switch (caip2) {

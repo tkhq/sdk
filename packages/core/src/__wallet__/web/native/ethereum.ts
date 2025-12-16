@@ -276,13 +276,13 @@ export class EthereumWallet extends BaseEthereumWallet {
    * Signs a message or sends a transaction depending on intent.
    *
    * - `SignMessage` → `personal_sign` (hex signature).
-   * - `SignAndSendTransaction` → `eth_sendTransaction` (tx hash).
+   * - `SignAndSendRawTransaction` → `eth_sendTransaction` (tx hash).
    * - For transactions, `message` must be a raw tx that `Transaction.from(...)` can parse.
    * - May prompt the user (account access, signing, or send).
    *
    * @param payload - The payload or raw transaction to be signed/sent.
    * @param provider - The wallet provider to use.
-   * @param intent - Signing intent (SignMessage or SignAndSendTransaction).
+   * @param intent - Signing intent (SignMessage or SignAndSendRawTransaction).
    * @returns A promise that resolves to a hex string (signature or tx hash).
    * @throws {Error} If the intent is unsupported or the wallet rejects the request.
    */
@@ -301,7 +301,7 @@ export class EthereumWallet extends BaseEthereumWallet {
           params: [payload as Hex, account],
         });
 
-      case SignIntent.SignAndSendTransaction: {
+      case SignIntent.SignAndSendRawTransaction: {
         const tx = Transaction.from(payload);
 
         const base: EvmTransactionParams = {
