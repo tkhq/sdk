@@ -43,6 +43,7 @@ export type {
   SetActiveSessionParams,
   SignAndSendTransactionParams,
   EthSendTransactionParams,
+  PollTransactionStatusParams,
   SignMessageParams,
   SignTransactionParams,
   SignUpWithOauthParams,

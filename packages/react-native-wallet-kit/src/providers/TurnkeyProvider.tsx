@@ -1251,7 +1251,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         () => client.ethSendTransaction(params),
         () => logout(),
         callbacks,
-        "Failed to sign transaction",
+        "Failed to send eth transaction",
       );
     },
     [client, callbacks],

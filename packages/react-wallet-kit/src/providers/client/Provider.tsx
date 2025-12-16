@@ -2496,7 +2496,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         () => client.ethSendTransaction(params),
         () => logout(),
         callbacks,
-        "Failed to eth send transaction",
+        "Failed to send eth transaction",
       );
     },
     [client, callbacks, logout],
