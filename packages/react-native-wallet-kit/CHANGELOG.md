@@ -1,5 +1,24 @@
 # @turnkey/react-native-wallet-kit
 
+## 1.3.0
+
+### Minor Changes
+
+- [#1118](https://github.com/tkhq/sdk/pull/1118) [`29a42db`](https://github.com/tkhq/sdk/commit/29a42db8f5f3ef8b9c23c90cd00f4c21027aac2e) Thanks [@moe-dev](https://github.com/moe-dev)! - Add support for high-level Ethereum transaction utilities:
+  - **`ethSendTransaction`** — new helper used as a dedicated method for submitting Ethereum transactions (sign and broadcast) via the Turnkey API.
+  - **`pollTransactionStatus`** — new helper for polling Turnkey’s transaction status endpoint until the transaction reaches a terminal state.
+
+  These methods enable a clean two-step flow:
+  1. Submit the transaction intent using `ethSendTransaction`, receiving a `sendTransactionStatusId`.
+  2. Poll for completion using `pollTransactionStatus` to retrieve the final on-chain transaction hash and execution status.
+
+### Patch Changes
+
+- Updated dependencies [[`29a42db`](https://github.com/tkhq/sdk/commit/29a42db8f5f3ef8b9c23c90cd00f4c21027aac2e), [`29a42db`](https://github.com/tkhq/sdk/commit/29a42db8f5f3ef8b9c23c90cd00f4c21027aac2e)]:
+  - @turnkey/sdk-types@0.10.0
+  - @turnkey/core@1.9.0
+  - @turnkey/crypto@2.8.7
+
 ## 1.2.1
 
 ### Patch Changes

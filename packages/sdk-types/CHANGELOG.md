@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.10.0
+
+### Minor Changes
+
+- [#1118](https://github.com/tkhq/sdk/pull/1118) [`29a42db`](https://github.com/tkhq/sdk/commit/29a42db8f5f3ef8b9c23c90cd00f4c21027aac2e) Thanks [@moe-dev](https://github.com/moe-dev)! - Update as per mono v2025.12.2
+
 ## 0.9.0
 
 ### Minor Changes

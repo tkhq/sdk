@@ -1,5 +1,14 @@
 # with-lifi
 
+## 0.1.13
+
+### Patch Changes
+
+- Updated dependencies [[`29a42db`](https://github.com/tkhq/sdk/commit/29a42db8f5f3ef8b9c23c90cd00f4c21027aac2e)]:
+  - @turnkey/react-wallet-kit@1.7.0
+  - @turnkey/solana@1.1.19
+  - @turnkey/viem@0.14.19
+
 ## 0.1.12
 
 ### Patch Changes
