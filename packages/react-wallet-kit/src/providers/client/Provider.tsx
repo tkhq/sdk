@@ -76,7 +76,7 @@ import {
   type RemoveUserEmailParams,
   type RemoveUserPhoneNumberParams,
   type SetActiveSessionParams,
-  type SignAndSendTransactionParams,
+  type EthSendTransactionParams,
   type SignMessageParams,
   type SignTransactionParams,
   type SignUpWithOauthParams,
@@ -100,7 +100,7 @@ import {
   type BuildWalletLoginRequestResult,
   type VerifyAppProofsParams,
   type PollTransactionStatusParams,
-  type SignAndSendRawTransactionParams,
+  type SignAndSendTransactionParams,
   type EthTransaction,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
@@ -195,10 +195,7 @@ import { VerifyPage } from "../../components/verify/Verify";
 import { OnRampPage } from "../../components/onramp/OnRamp";
 import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
-import {
-  DEFAULT_RPC_BY_CHAIN,
-  getChainLogo,
-} from "../../components/send-transaction/helpers";
+import { getChainLogo } from "../../components/send-transaction/helpers";
 
 /**
  * @inline
@@ -2488,6 +2485,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks, logout],
   );
 
+  const ethSendTransaction = useCallback(
+    async (params: EthSendTransactionParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.ethSendTransaction(params),
+        () => logout(),
+        callbacks,
+        "Failed to eth send transaction",
+      );
+    },
+    [client, callbacks, logout],
+  );
+
   const signAndSendTransaction = useCallback(
     async (params: SignAndSendTransactionParams): Promise<string> => {
       if (!client)
@@ -2499,24 +2513,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         () => client.signAndSendTransaction(params),
         () => logout(),
         callbacks,
-        "Failed to sign transaction",
-      );
-    },
-    [client, callbacks, logout],
-  );
-
-  const signAndSendRawTransaction = useCallback(
-    async (params: SignAndSendRawTransactionParams): Promise<string> => {
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      return withTurnkeyErrorHandling(
-        () => client.signAndSendRawTransaction(params),
-        () => logout(),
-        callbacks,
-        "Failed to sign and send raw transaction",
+        "Failed to sign and send transaction",
       );
     },
     [client, callbacks, logout],
@@ -5568,11 +5565,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         sponsor,
       } = transaction;
 
-      const rpcUrl = DEFAULT_RPC_BY_CHAIN[caip2];
-      if (!rpcUrl) {
-        throw new Error(`No RPC mapping found for chain '${caip2}'`);
-      }
-
       const cleanedData =
         data && data !== "0x" && data !== "" ? data : undefined;
 
@@ -5591,7 +5583,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             ...(maxPriorityFeePerGas ? { maxPriorityFeePerGas } : {}),
           };
 
-          const sendTransactionStatusId = await signAndSendTransaction({
+          const sendTransactionStatusId = await ethSendTransaction({
             organizationId,
             transaction: tx,
             stampWith,
@@ -5600,7 +5592,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           if (!sendTransactionStatusId) {
             throw new TurnkeyError(
               "Missing sendTransactionStatusId",
-              TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+              TurnkeyErrorCodes.ETH_SEND_TRANSACTION_ERROR,
             );
           }
 
@@ -5613,7 +5605,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           if (!txHash) {
             throw new TurnkeyError(
               "Missing txHash in transaction result",
-              TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+              TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
             );
           }
 
@@ -6089,8 +6081,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         refreshWallets,
         signMessage,
         signTransaction,
+        ethSendTransaction,
         signAndSendTransaction,
-        signAndSendRawTransaction,
         pollTransactionStatus,
         fetchUser,
         fetchOrCreateP256ApiKeyUser,

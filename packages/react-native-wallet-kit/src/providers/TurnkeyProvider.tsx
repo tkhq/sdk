@@ -52,7 +52,7 @@ import {
   type RemoveUserEmailParams,
   type RemoveUserPhoneNumberParams,
   type SetActiveSessionParams,
-  type SignAndSendTransactionParams,
+  type EthSendTransactionParams,
   type SignMessageParams,
   type SignTransactionParams,
   type SignUpWithOauthParams,
@@ -70,7 +70,7 @@ import {
   type TurnkeySDKClientBase,
   type FetchBootProofForAppProofParams,
   type VerifyAppProofsParams,
-  type SignAndSendRawTransactionParams,
+  type SignAndSendTransactionParams,
   type PollTransactionStatusParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
@@ -1240,6 +1240,23 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks],
   );
 
+  const ethSendTransaction = useCallback(
+    async (params: EthSendTransactionParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.ethSendTransaction(params),
+        () => logout(),
+        callbacks,
+        "Failed to sign transaction",
+      );
+    },
+    [client, callbacks],
+  );
+
   const signAndSendTransaction = useCallback(
     async (params: SignAndSendTransactionParams): Promise<string> => {
       if (!client)
@@ -1249,23 +1266,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         () => client.signAndSendTransaction(params),
-        () => logout(),
-        callbacks,
-        "Failed to sign transaction",
-      );
-    },
-    [client, callbacks],
-  );
-
-  const signAndSendRawTransaction = useCallback(
-    async (params: SignAndSendRawTransactionParams): Promise<string> => {
-      if (!client)
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      return withTurnkeyErrorHandling(
-        () => client.signAndSendRawTransaction(params),
         () => logout(),
         callbacks,
         "Failed to sign and send raw transaction",
@@ -3345,7 +3345,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         signMessage,
         signTransaction,
         signAndSendTransaction,
-        signAndSendRawTransaction,
+        ethSendTransaction,
         pollTransactionStatus,
         fetchUser,
         fetchOrCreateP256ApiKeyUser,

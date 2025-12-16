@@ -1693,7 +1693,7 @@ export default function AuthPage() {
                 EthTransaction.from(tx).unsignedSerialized;
               console.log("Unsigned Transaction:", unsignedTransaction);
 
-              const signature = await turnkey.signAndSendRawTransaction({
+              const signature = await turnkey.signAndSendTransaction({
                 unsignedTransaction,
                 walletAccount: activeWalletAccount,
                 transactionType: "TRANSACTION_TYPE_ETHEREUM",
@@ -2187,7 +2187,7 @@ export default function AuthPage() {
               const unsignedTransaction = raw.toString("hex");
               console.log("Unsigned Solana tx (hex):", unsignedTransaction);
 
-              const signature = await turnkey.signAndSendRawTransaction({
+              const signature = await turnkey.signAndSendTransaction({
                 unsignedTransaction,
                 walletAccount: solanaAccount,
                 transactionType: "TRANSACTION_TYPE_SOLANA",

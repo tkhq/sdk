@@ -70,8 +70,8 @@ import {
   type FetchPrivateKeysParams,
   type SignMessageParams,
   type SignTransactionParams,
-  type SignAndSendRawTransactionParams,
   type SignAndSendTransactionParams,
+  type EthSendTransactionParams,
   type FetchUserParams,
   type FetchOrCreateP256ApiKeyUserParams,
   type FetchOrCreatePoliciesParams,
@@ -2586,7 +2586,7 @@ export class TurnkeyClient {
    * Behavior differs depending on the type of wallet:
    *
    * - **Connected wallets**
-   *   - *Ethereum*: delegates to the wallet’s native `signAndSendRawTransaction` method.
+   *   - *Ethereum*: delegates to the wallet’s native `signAndSendTransaction` method.
    *     - Does **not** require an `rpcUrl` (the wallet handles broadcasting).
    *   - *Solana*: signs the transaction locally with the connected wallet, but requires an `rpcUrl` to broadcast it.
    *   - Other chains: not supported; will throw an error.
@@ -2607,8 +2607,8 @@ export class TurnkeyClient {
    * @returns A promise that resolves to a transaction signature or hash.
    * @throws {TurnkeyError} If the wallet type is unsupported, or if signing/broadcasting fails.
    */
-  signAndSendRawTransaction = async (
-    params: SignAndSendRawTransactionParams,
+  signAndSendTransaction = async (
+    params: SignAndSendTransactionParams,
   ): Promise<string> => {
     const {
       walletAccount,
@@ -2699,7 +2699,8 @@ export class TurnkeyClient {
   };
 
   /**
-   * * **🔶 BETA — API subject to change**
+   * @beta
+   * * **API subject to change**
    *
    * Signs and submits an Ethereum transaction using a Turnkey-managed (embedded) wallet.
    *
@@ -2711,7 +2712,7 @@ export class TurnkeyClient {
    *
    * - **Connected wallets**
    *   - Connected wallets are **not supported** by this method.
-   *   - They must instead use `signAndSendRawTransaction`.
+   *   - They must instead use `signAndSendTransaction`.
    *
    * - **Embedded wallets**
    *   - Constructs the payload for Turnkey's `eth_send_transaction` endpoint.
@@ -2726,26 +2727,13 @@ export class TurnkeyClient {
    * @param params.stampWith - Optional stamper to authorize signing (e.g., passkey).
    *
    * @param params.transaction - The Ethereum transaction details.
-   *   @param params.transaction.from - Ethereum address to sign with.
-   *   @param params.transaction.to - Recipient address.
-   *   @param params.transaction.caip2 - CAIP-2 chain identifier (e.g. `"eip155:1"`).
-   *   @param params.transaction.value - Native value in wei.
-   *   @param params.transaction.data - Hex-encoded call data.
-   *   @param params.transaction.nonce - Explicit nonce (non-sponsored transactions).
-   *   @param params.transaction.gasLimit - Gas limit (non-sponsored only).
-   *   @param params.transaction.maxFeePerGas - Max fee (non-sponsored only).
-   *   @param params.transaction.maxPriorityFeePerGas - Max priority fee.
-   *   @param params.transaction.sponsor - Whether to use Turnkey Gas Station.
-   *   @param params.transaction.deadline - Optional sponsorship deadline.
-   *   @param params.transaction.gasStationNonce - Optional Gas Station nonce.
-   *
    * @returns A promise resolving to the `sendTransactionStatusId`.
    *          This ID must be passed to `pollTransactionStatus`.
    *
    * @throws {TurnkeyError} If the transaction is invalid or Turnkey rejects it.
    */
-  signAndSendTransaction = async (
-    params: SignAndSendTransactionParams,
+  ethSendTransaction = async (
+    params: EthSendTransactionParams,
   ): Promise<string> => {
     const {
       organizationId: organizationIdFromParams,
@@ -2838,7 +2826,7 @@ export class TurnkeyClient {
         if (!id) {
           throw new TurnkeyError(
             "Missing sendTransactionStatusId",
-            TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+            TurnkeyErrorCodes.ETH_SEND_TRANSACTION_ERROR,
           );
         }
 
@@ -2846,13 +2834,14 @@ export class TurnkeyClient {
       },
       {
         errorMessage: "Failed to sign and send Ethereum transaction",
-        errorCode: TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+        errorCode: TurnkeyErrorCodes.ETH_SEND_TRANSACTION_ERROR,
       },
     );
   };
 
   /**
-   * * **🔶 BETA — API subject to change**
+   * @beta
+   * **API subject to change**
    *
    * Polls Turnkey for the final result of a previously submitted Ethereum transaction.
    *
@@ -2861,7 +2850,7 @@ export class TurnkeyClient {
    *
    * Terminal states:
    * - **COMPLETED** or **INCLUDED** → resolves with `{ txHash }`
-   * - **FAILED** or **CANCELLED** → rejects with an error
+   * - **FAILED** rejects with an error
    *
    * Behavior:
    *
@@ -2870,7 +2859,7 @@ export class TurnkeyClient {
    * - Extracts the canonical on-chain hash via `resp.eth.txHash` when available.
    *
    * @param organizationId - Organization ID under which the transaction was submitted.
-   * @param sendTransactionStatusId - Status ID returned by `signAndSendTransaction` or `ethSendTransaction`.
+   * @param sendTransactionStatusId - Status ID returned by `ethSendTransaction.
    * @param pollingIntervalMs - Optional polling interval in milliseconds (default: 500ms).
    *
    * @returns A promise resolving to `{ txHash?: string }` if successful.
@@ -2917,6 +2906,7 @@ export class TurnkeyClient {
             if (!txStatus) return;
 
             if (txError || txStatus === "FAILED" || txStatus === "CANCELLED") {
+              // TODO: use API enum in the future
               clearInterval(ref);
               clearTimeout(timeoutRef);
               reject(txError || `Transaction ${txStatus}`);
@@ -2924,6 +2914,7 @@ export class TurnkeyClient {
             }
 
             if (txStatus === "COMPLETED" || txStatus === "INCLUDED") {
+              // TODO: use API enum in the future
               clearInterval(ref);
               clearTimeout(timeoutRef);
               resolve(resp);
@@ -2938,7 +2929,7 @@ export class TurnkeyClient {
       },
       {
         errorMessage: "Failed to poll transaction status",
-        errorCode: TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+        errorCode: TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
       },
     );
   }

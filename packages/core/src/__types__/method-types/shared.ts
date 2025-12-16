@@ -226,7 +226,7 @@ export type SignTransactionParams = {
   organizationId?: string;
 };
 
-export type SignAndSendRawTransactionParams = {
+export type SignAndSendTransactionParams = {
   unsignedTransaction: string;
   transactionType: v1TransactionType;
   walletAccount: WalletAccount;
@@ -259,7 +259,7 @@ export type EthTransaction = {
   gasStationNonce?: string;
 };
 
-export type SignAndSendTransactionParams = {
+export type EthSendTransactionParams = {
   organizationId?: string;
   stampWith?: StamperType | undefined;
   transaction: EthTransaction;
