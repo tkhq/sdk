@@ -1,5 +1,13 @@
 # @turnkey/otp-auth-without-backend
 
+## 0.1.5
+
+### Patch Changes
+
+- Updated dependencies [[`29a42db`](https://github.com/tkhq/sdk/commit/29a42db8f5f3ef8b9c23c90cd00f4c21027aac2e), [`29a42db`](https://github.com/tkhq/sdk/commit/29a42db8f5f3ef8b9c23c90cd00f4c21027aac2e)]:
+  - @turnkey/sdk-types@0.10.0
+  - @turnkey/react-wallet-kit@1.7.0
+
 ## 0.1.4
 
 ### Patch Changes

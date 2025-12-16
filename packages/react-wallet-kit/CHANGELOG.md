@@ -1,5 +1,26 @@
 # @turnkey/react-wallet-kit
 
+## 1.7.0
+
+### Minor Changes
+
+- [#1118](https://github.com/tkhq/sdk/pull/1118) [`29a42db`](https://github.com/tkhq/sdk/commit/29a42db8f5f3ef8b9c23c90cd00f4c21027aac2e) Thanks [@moe-dev](https://github.com/moe-dev)! - Add a new `handleSendTransaction` helper to the Wallet Kit (**for embedded wallet use only**).
+
+  This handler provides a complete transaction-submission flow, including:
+  - Construction of the Ethereum transaction intent (sponsored and non-sponsored)
+  - Submission via `ethSendTransaction` from `@turnkey/core`
+  - Integrated modal UI for progress + success states
+  - Polling for transaction confirmation using `pollTransactionStatus`
+  - Surfacing of the final on-chain `txHash` back to the caller
+
+  This addition centralizes all transaction UX and logic into a single, reusable helper and enables consistent send-transaction flows across applications using the Wallet Kit.
+
+### Patch Changes
+
+- Updated dependencies [[`29a42db`](https://github.com/tkhq/sdk/commit/29a42db8f5f3ef8b9c23c90cd00f4c21027aac2e), [`29a42db`](https://github.com/tkhq/sdk/commit/29a42db8f5f3ef8b9c23c90cd00f4c21027aac2e)]:
+  - @turnkey/sdk-types@0.10.0
+  - @turnkey/core@1.9.0
+
 ## 1.6.3
 
 ### Patch Changes
