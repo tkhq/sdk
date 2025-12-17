@@ -35,7 +35,7 @@ Our main web SDK packages are as follows:
 
 The diagram below helps visualize how each package can be used to devlop the appropriate service in your Turnkey Powered Application, and how Turnkey requests would flow between those services.
 
-<img src="./img/sdk-web-diagram.png" alt="homepage screenshot" width="1000px" />
+<img src="./img/sdk-diagram.png" alt="homepage screenshot" width="1000px" />
 
 ## Chain/Ecosystem-Specific Signing SDK Packages
 
