@@ -93,6 +93,10 @@ interface AuthProps {
   otpConfig?: OtpConfig;
 }
 
+/**
+ * @deprecated Use @turnkey/react-wallet-kit instead.
+ * This component will be removed in a future release.
+ */
 const Auth: React.FC<AuthProps> = ({
   onAuthSuccess,
   onError,
@@ -246,6 +250,7 @@ const Auth: React.FC<AuthProps> = ({
 
     const publicKey = await indexedDbClient!.getPublicKey();
     const initAuthResponse = await server.sendOtp({
+      appName: "Turnkey Wallet",
       otpType,
       contact: value,
       ...(emailCustomization && { emailCustomization }),

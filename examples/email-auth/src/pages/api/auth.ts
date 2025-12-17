@@ -36,6 +36,9 @@ export default async function auth(
     });
 
     const emailAuthResponse = await turnkeyClient.apiClient().emailAuth({
+      emailCustomization: {
+        appName: "Turnkey Wallet",
+      },
       email: request.email,
       targetPublicKey: request.targetPublicKey,
       invalidateExisting: request.invalidateExisting,

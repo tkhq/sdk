@@ -40,19 +40,26 @@ export async function sendCredential(
   request: InitEmailAuthRequest,
 ): Promise<void> {
   try {
+    if (!request.emailCustomization?.appName) {
+      throw new Error("appName is required in emailCustomization");
+    }
+
+    const emailCustomization = {
+      ...request.emailCustomization,
+      appName: request.emailCustomization.appName,
+    };
+
     const response = await turnkeyClient.apiClient().emailAuth({
       email: request.email,
       targetPublicKey: request.targetPublicKey,
       organizationId: request.suborgID,
+      emailCustomization,
       ...(request.apiKeyName && { apiKeyName: request.apiKeyName }),
       ...(request.sessionLengthSeconds !== undefined && {
         expirationSeconds: request.sessionLengthSeconds.toString(),
       }),
       ...(request.invalidateExisting && {
         invalidateExisting: request.invalidateExisting,
-      }),
-      ...(request.emailCustomization && {
-        emailCustomization: request.emailCustomization,
       }),
       ...(request.sendFromEmailAddress && {
         sendFromEmailAddress: request.sendFromEmailAddress,
@@ -74,6 +81,7 @@ export async function sendOtp(
     const response = await turnkeyClient.apiClient().initOtp({
       contact: request.contact,
       otpType: request.otpType,
+      appName: request.appName,
       ...(request.emailCustomization && {
         emailCustomization: request.emailCustomization,
       }),

@@ -92,6 +92,7 @@ export default function Dashboard() {
   };
   const handleResendEmail = async () => {
     const sendOtpResponse = await server.sendOtp({
+      appName: "Turnkey Wallet",
       otpType: OtpType.Email,
       contact: emailInput,
       userIdentifier: publicKey,
@@ -104,6 +105,7 @@ export default function Dashboard() {
   };
   const handleResendSms = async () => {
     const sendOtpResponse = await server.sendOtp({
+      appName: "Turnkey Wallet",
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
@@ -145,6 +147,7 @@ export default function Dashboard() {
     });
 
     const sendOtpResponse = await server.sendOtp({
+      appName: "Turnkey Wallet",
       otpType: OtpType.Email,
       contact: emailInput,
       userIdentifier: publicKey!,
@@ -178,6 +181,7 @@ export default function Dashboard() {
     });
 
     const sendOtpResponse = await server.sendOtp({
+      appName: "Turnkey Wallet",
       otpType: OtpType.Sms,
       contact: phoneInput,
       customSmsMessage: "Your Turnkey Demo OTP is {{.OtpCode}}",
