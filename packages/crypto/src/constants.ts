@@ -23,9 +23,10 @@ export const IV_INFO = new Uint8Array([
 ]); //base_nonce
 export const QUORUM_ENCRYPT_NONCE_LENGTH_BYTES = 12;
 export const UNCOMPRESSED_PUB_KEY_LENGTH_BYTES = 65;
-export const QOS_ENCRYPTION_HMAC_MESSAGE = new TextEncoder().encode(
-  "qos_encryption_hmac_message",
-); // used for encrypting messages to quorum keys matched whats found here: https://github.com/tkhq/qos/blob/ae01904c756107f850aea42000137ef124df3fe4/src/qos_p256/src/encrypt.rs#L22
+export const QOS_ENCRYPTION_HMAC_MESSAGE = new Uint8Array([
+  113, 111, 115, 95, 101, 110, 99, 114, 121, 112, 116, 105, 111, 110, 95, 104,
+  109, 97, 99, 95, 109, 101, 115, 115, 97, 103, 101,
+]); // used for encrypting messages to quorum keys matched whats found here: https://github.com/tkhq/qos/blob/ae01904c756107f850aea42000137ef124df3fe4/src/qos_p256/src/encrypt.rs#L22
 export const PRODUCTION_SIGNER_SIGN_PUBLIC_KEY =
   "04cf288fe433cc4e1aa0ce1632feac4ea26bf2f5a09dcfe5a42c398e06898710330f0572882f4dbdf0f5304b8fc8703acd69adca9a4bbf7f5d00d20a5e364b2569";
 
