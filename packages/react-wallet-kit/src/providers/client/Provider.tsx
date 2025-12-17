@@ -348,10 +348,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     error instanceof TurnkeyError
                       ? error
                       : new TurnkeyError(
-                        "Facebook authentication failed",
-                        TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-                        error,
-                      ),
+                          "Facebook authentication failed",
+                          TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+                          error,
+                        ),
                   );
                 }
               });
@@ -414,10 +414,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                               err instanceof TurnkeyError
                                 ? err
                                 : new TurnkeyError(
-                                  "Discord authentication failed",
-                                  TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-                                  err,
-                                ),
+                                    "Discord authentication failed",
+                                    TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+                                    err,
+                                  ),
                             );
                           }
                         }
@@ -494,10 +494,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                               err instanceof TurnkeyError
                                 ? err
                                 : new TurnkeyError(
-                                  "Twitter authentication failed",
-                                  TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-                                  err,
-                                ),
+                                    "Twitter authentication failed",
+                                    TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+                                    err,
+                                  ),
                             );
                           }
                         }
@@ -920,7 +920,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     walletProviders: WalletProvider[],
     onUpdateState: () => Promise<void>,
   ): Promise<() => void> {
-    if (walletProviders.length === 0) return () => { };
+    if (walletProviders.length === 0) return () => {};
 
     const cleanups: Array<() => void> = [];
 
@@ -930,20 +930,20 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     const ethProviders = masterConfig?.walletConfig?.chains.ethereum?.native
       ? walletProviders.filter(
-        (provider) =>
-          provider.chainInfo.namespace === Chain.Ethereum &&
-          nativeOnly(provider) &&
-          provider.connectedAddresses.length > 0,
-      )
+          (provider) =>
+            provider.chainInfo.namespace === Chain.Ethereum &&
+            nativeOnly(provider) &&
+            provider.connectedAddresses.length > 0,
+        )
       : [];
 
     const solProviders = masterConfig?.walletConfig?.chains.solana?.native
       ? walletProviders.filter(
-        (provider) =>
-          provider.chainInfo.namespace === Chain.Solana &&
-          nativeOnly(provider) &&
-          provider.connectedAddresses.length > 0,
-      )
+          (provider) =>
+            provider.chainInfo.namespace === Chain.Solana &&
+            nativeOnly(provider) &&
+            provider.connectedAddresses.length > 0,
+        )
       : [];
 
     // WalletConnect is excluded from native event wiring. Instead,
@@ -3257,18 +3257,26 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     stateParam.includes("provider=discord")
                   ) {
                     // Validate state to prevent CSRF attacks
-                    const returnedRandomState = new URLSearchParams(stateParam).get("randomState");
-                    const expectedRandomState = sessionStorage.getItem("discord_state");
+                    const returnedRandomState = new URLSearchParams(
+                      stateParam,
+                    ).get("randomState");
+                    const expectedRandomState =
+                      sessionStorage.getItem("discord_state");
 
-                    if (!returnedRandomState || returnedRandomState !== expectedRandomState) {
+                    if (
+                      !returnedRandomState ||
+                      returnedRandomState !== expectedRandomState
+                    ) {
                       authWindow.close();
                       clearInterval(interval);
                       sessionStorage.removeItem("discord_verifier");
                       sessionStorage.removeItem("discord_state");
-                      reject(new TurnkeyError(
-                        "OAuth state mismatch - possible CSRF attack",
-                        TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-                      ));
+                      reject(
+                        new TurnkeyError(
+                          "OAuth state mismatch - possible CSRF attack",
+                          TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                        ),
+                      );
                       return;
                     }
 
@@ -3282,7 +3290,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       return;
                     }
 
-                    const sessionKey = new URLSearchParams(stateParam).get("sessionKey");
+                    const sessionKey = new URLSearchParams(stateParam).get(
+                      "sessionKey",
+                    );
 
                     client?.httpClient
                       .proxyOAuth2Authenticate({
@@ -3465,18 +3475,26 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     stateParam.includes("provider=twitter")
                   ) {
                     // Validate state to prevent CSRF attacks
-                    const returnedRandomState = new URLSearchParams(stateParam).get("randomState");
-                    const expectedRandomState = sessionStorage.getItem("twitter_state");
+                    const returnedRandomState = new URLSearchParams(
+                      stateParam,
+                    ).get("randomState");
+                    const expectedRandomState =
+                      sessionStorage.getItem("twitter_state");
 
-                    if (!returnedRandomState || returnedRandomState !== expectedRandomState) {
+                    if (
+                      !returnedRandomState ||
+                      returnedRandomState !== expectedRandomState
+                    ) {
                       authWindow.close();
                       clearInterval(interval);
                       sessionStorage.removeItem("twitter_verifier");
                       sessionStorage.removeItem("twitter_state");
-                      reject(new TurnkeyError(
-                        "OAuth state mismatch - possible CSRF attack",
-                        TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-                      ));
+                      reject(
+                        new TurnkeyError(
+                          "OAuth state mismatch - possible CSRF attack",
+                          TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                        ),
+                      );
                       return;
                     }
 
@@ -3490,7 +3508,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       return;
                     }
 
-                    const sessionKey = new URLSearchParams(stateParam).get("sessionKey");
+                    const sessionKey = new URLSearchParams(stateParam).get(
+                      "sessionKey",
+                    );
 
                     client?.httpClient
                       .proxyOAuth2Authenticate({
@@ -5666,7 +5686,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                     let currentUrl = "";
                     try {
                       currentUrl = onRampWindow?.location.href || "";
-                    } catch { }
+                    } catch {}
 
                     if (
                       currentUrl &&
@@ -5694,7 +5714,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       cleanup();
                       try {
                         onRampWindow?.close();
-                      } catch { }
+                      } catch {}
                       setCompleted(true);
                       resolveAction();
                     }
@@ -5881,7 +5901,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
     };
 
-    let cleanup = () => { };
+    let cleanup = () => {};
     initializeWalletProviderListeners(walletProviders, handleUpdateState)
       .then((fn) => {
         cleanup = fn;
