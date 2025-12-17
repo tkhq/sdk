@@ -10,15 +10,15 @@ title: "Turnkey SDK"
 
 The Turnkey SDK includes functionality to interact with Turnkey in various contexts and ecosystems. It consists of three main NPM package groups.
 
-- the [Primary Turnkey Web SDK Packages](#primary-turnkey-web-sdk-packages) which expose the main functionality required to build Turnkey-powered applications in different web environments
-- the [Chain/Ecosystem-Specific Signing Packages](#chainecosystem-specific-signing-sdk-packages) which expose signers with support for specific ecosystems, built on top of our Web SDK packages
-- the [Advanced Functionality SDK Packages](#advanced-functionality-sdk-packages) which exposes lower level functionality that is leveraged by our Primary Web SDK Packages for those with highly-specific implementations looking to use them.
+- the [Primary Turnkey SDK Packages](#primary-turnkey-sdk-packages) which expose the main functionality required to build Turnkey-powered applications in different web and mobile environments
+- the [Chain/Ecosystem-Specific Signing Packages](#chainecosystem-specific-signing-sdk-packages) which expose signers with support for specific ecosystems, built on top of our SDK packages
+- the [Advanced Functionality SDK Packages](#advanced-functionality-sdk-packages) which exposes lower level functionality that is leveraged by our Primary SDK Packages for those with highly-specific implementations looking to use them.
 
 The diagram below helps visualize the packages in our SDK organized by the functionality they expose.
 
 <img src="./img/sdk-map.png" alt="homepage screenshot" width="1000px" />
 
-## Primary Turnkey Web SDK Packages
+## Primary Turnkey SDK Packages
 
 The following packages expose the main functionality required to build Turnkey-powered applications. Each package exposes functions, and/or client classes with methods that manage the process of authenticating requests to the Turnkey API in the contexts of a generic browser environment or react client environment, or a server environment.
 
@@ -39,7 +39,7 @@ The diagram below helps visualize how each package can be used to devlop the app
 
 ## Chain/Ecosystem-Specific Signing SDK Packages
 
-The following packages contain chain or ecosystem specific signers that take some of our [Primary Turnkey Web SDK Packages](#primary-turnkey-web-sdk-packages) (usually @turnkey/core or @turnkey/sdk-server) and add additional support based on the signing process or transaction structure relevant to that specific chain or ecosystem.
+The following packages contain chain or ecosystem specific signers that take some of our [Primary Turnkey SDK Packages](#primary-turnkey-sdk-packages) and add additional support based on the signing process or transaction structure relevant to that specific chain or ecosystem.
 
 | Package                                                     | NPM                                                                                                                                         | Description                                                                                       | Changelog                                             |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
@@ -52,7 +52,7 @@ The following packages contain chain or ecosystem specific signers that take som
 
 ## Advanced Functionality SDK Packages
 
-For those with more specialized use cases, Turnkey exposes it's lower level-libraries stamping and encryption libraries to be used directly. Note: for most use-cases, these libraries are not meant to be used directly and we encourage working on designing your application mainlyusing our [Primary Turnkey Web SDK Packages](#primary-turnkey-web-sdk-packages) along with our [Chain and Ecosystem Specific SDK Packages](#chainecosystem-specific-signing-sdk-packages) as per your use case!
+For those with more specialized use cases, Turnkey exposes it's lower level-libraries stamping and encryption libraries to be used directly. Note: for most use-cases, these libraries are not meant to be used directly and we encourage working on designing your application mainly using our [Primary Turnkey SDK Packages](#primary-turnkey-sdk-packages) along with our [Chain and Ecosystem Specific SDK Packages](#chainecosystem-specific-signing-sdk-packages) as per your use case!
 
 ### Request Stamping
 
