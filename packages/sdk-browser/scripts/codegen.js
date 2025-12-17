@@ -425,8 +425,8 @@ export class TurnkeySDKClientBase {
             ? " = {}"
             : ""
         }): Promise<SdkApiTypes.${responseType}> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("${endpointPath}", {
       ...input,
       organizationId: input.organizationId ?? session?.organizationId ?? this.config.organizationId
@@ -439,10 +439,10 @@ export class TurnkeySDKClientBase {
 
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...rest } = input;
     return this.command("${endpointPath}", {
       parameters: rest,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
@@ -454,9 +454,10 @@ export class TurnkeySDKClientBase {
     } else if (methodType === "activityDecision") {
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkApiTypes.${inputType}): Promise<SdkApiTypes.${responseType}> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
     const { organizationId, timestampMs, ...rest } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
     return this.activityDecision("${endpointPath}",
       {
         parameters: rest,
@@ -482,8 +483,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
     const body = {
       ...input,
@@ -507,10 +508,10 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    const { organizationId, timestampMs, ...parameters } = input;
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
 
+    const { organizationId, timestampMs, ...parameters } = input;
     const fullUrl = this.config.apiBaseUrl + "${endpointPath}";
     const bodyWithType = {
       parameters,

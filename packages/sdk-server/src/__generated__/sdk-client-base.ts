@@ -1263,7 +1263,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/approve_activity";
     const bodyWithType = {
@@ -1306,7 +1305,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_api_keys";
     const bodyWithType = {
@@ -1349,7 +1347,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_api_only_users";
     const bodyWithType = {
@@ -1392,7 +1389,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_authenticators";
     const bodyWithType = {
@@ -1435,7 +1431,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/create_fiat_on_ramp_credential";
@@ -1479,7 +1474,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_invitations";
     const bodyWithType = {
@@ -1522,7 +1516,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_oauth2_credential";
     const bodyWithType = {
@@ -1565,7 +1558,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_oauth_providers";
     const bodyWithType = {
@@ -1608,7 +1600,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_policies";
     const bodyWithType = {
@@ -1651,7 +1642,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_policy";
     const bodyWithType = {
       parameters,
@@ -1693,7 +1683,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_private_key_tag";
     const bodyWithType = {
@@ -1736,7 +1725,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_private_keys";
     const bodyWithType = {
@@ -1779,7 +1767,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_read_only_session";
     const bodyWithType = {
@@ -1822,7 +1809,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_read_write_session";
     const bodyWithType = {
@@ -1865,7 +1851,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/create_smart_contract_interface";
@@ -1909,7 +1894,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_sub_organization";
     const bodyWithType = {
@@ -1952,7 +1936,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_user_tag";
     const bodyWithType = {
@@ -1995,7 +1978,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_users";
     const bodyWithType = {
       parameters,
@@ -2037,7 +2019,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/create_wallet";
     const bodyWithType = {
       parameters,
@@ -2079,7 +2060,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/create_wallet_accounts";
     const bodyWithType = {
@@ -2122,7 +2102,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_api_keys";
     const bodyWithType = {
@@ -2165,7 +2144,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_authenticators";
     const bodyWithType = {
@@ -2208,7 +2186,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/delete_fiat_on_ramp_credential";
@@ -2252,7 +2229,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_invitation";
     const bodyWithType = {
@@ -2295,7 +2271,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_oauth2_credential";
     const bodyWithType = {
@@ -2338,7 +2313,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_oauth_providers";
     const bodyWithType = {
@@ -2381,7 +2355,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_policies";
     const bodyWithType = {
@@ -2424,7 +2397,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_policy";
     const bodyWithType = {
       parameters,
@@ -2466,7 +2438,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_key_tags";
     const bodyWithType = {
@@ -2509,7 +2480,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_private_keys";
     const bodyWithType = {
@@ -2552,7 +2522,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/delete_smart_contract_interface";
@@ -2596,7 +2565,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_sub_organization";
     const bodyWithType = {
@@ -2639,7 +2607,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_user_tags";
     const bodyWithType = {
@@ -2682,7 +2649,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_users";
     const bodyWithType = {
       parameters,
@@ -2724,7 +2690,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/delete_wallet_accounts";
     const bodyWithType = {
@@ -2767,7 +2732,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/delete_wallets";
     const bodyWithType = {
       parameters,
@@ -2809,7 +2773,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/email_auth";
     const bodyWithType = {
       parameters,
@@ -2851,7 +2814,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/eth_send_raw_transaction";
     const bodyWithType = {
@@ -2894,7 +2856,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/eth_send_transaction";
     const bodyWithType = {
@@ -2937,7 +2898,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/export_private_key";
     const bodyWithType = {
@@ -2980,7 +2940,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/export_wallet";
     const bodyWithType = {
       parameters,
@@ -3022,7 +2981,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/export_wallet_account";
     const bodyWithType = {
@@ -3065,7 +3023,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/import_private_key";
     const bodyWithType = {
@@ -3108,7 +3065,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/import_wallet";
     const bodyWithType = {
       parameters,
@@ -3150,7 +3106,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_fiat_on_ramp";
     const bodyWithType = {
@@ -3193,7 +3148,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_import_private_key";
     const bodyWithType = {
@@ -3236,7 +3190,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_import_wallet";
     const bodyWithType = {
@@ -3279,7 +3232,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp";
     const bodyWithType = {
       parameters,
@@ -3321,7 +3273,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/init_otp_auth";
     const bodyWithType = {
       parameters,
@@ -3363,7 +3314,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/init_user_email_recovery";
     const bodyWithType = {
@@ -3406,7 +3356,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth";
     const bodyWithType = {
       parameters,
@@ -3448,7 +3397,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/oauth2_authenticate";
     const bodyWithType = {
@@ -3491,7 +3439,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/oauth_login";
     const bodyWithType = {
       parameters,
@@ -3533,7 +3480,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_auth";
     const bodyWithType = {
       parameters,
@@ -3575,7 +3521,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/otp_login";
     const bodyWithType = {
       parameters,
@@ -3617,7 +3562,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/recover_user";
     const bodyWithType = {
       parameters,
@@ -3655,7 +3599,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/reject_activity";
     const bodyWithType = {
@@ -3698,7 +3641,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/remove_organization_feature";
     const bodyWithType = {
@@ -3741,7 +3683,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/set_organization_feature";
     const bodyWithType = {
@@ -3784,7 +3725,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payload";
     const bodyWithType = {
@@ -3827,7 +3767,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_raw_payloads";
     const bodyWithType = {
@@ -3870,7 +3809,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/sign_transaction";
     const bodyWithType = {
@@ -3913,7 +3851,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/stamp_login";
     const bodyWithType = {
       parameters,
@@ -3955,7 +3892,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/submit/update_fiat_on_ramp_credential";
@@ -3999,7 +3935,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_oauth2_credential";
     const bodyWithType = {
@@ -4042,7 +3977,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_policy";
     const bodyWithType = {
       parameters,
@@ -4084,7 +4018,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_private_key_tag";
     const bodyWithType = {
@@ -4127,7 +4060,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_root_quorum";
     const bodyWithType = {
@@ -4170,7 +4102,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_user";
     const bodyWithType = {
       parameters,
@@ -4212,7 +4143,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_email";
     const bodyWithType = {
@@ -4255,7 +4185,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_name";
     const bodyWithType = {
@@ -4298,7 +4227,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_phone_number";
     const bodyWithType = {
@@ -4341,7 +4269,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/submit/update_user_tag";
     const bodyWithType = {
@@ -4384,7 +4311,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/update_wallet";
     const bodyWithType = {
       parameters,
@@ -4426,7 +4352,6 @@ export class TurnkeySDKClientBase {
     }
 
     const { organizationId, timestampMs, ...parameters } = input;
-
     const fullUrl = this.config.apiBaseUrl + "/public/v1/submit/verify_otp";
     const bodyWithType = {
       parameters,
