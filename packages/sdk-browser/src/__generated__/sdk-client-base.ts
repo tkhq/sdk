@@ -444,8 +444,8 @@ export class TurnkeySDKClientBase {
   getGasUsage = async (
     input: SdkApiTypes.TGetGasUsageBody,
   ): Promise<SdkApiTypes.TGetGasUsageResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_gas_usage", {
       ...input,
       organizationId:
@@ -462,8 +462,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_gas_usage";
     const body = {
       ...input,
@@ -527,8 +527,8 @@ export class TurnkeySDKClientBase {
   getNonces = async (
     input: SdkApiTypes.TGetNoncesBody,
   ): Promise<SdkApiTypes.TGetNoncesResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_nonces", {
       ...input,
       organizationId:
@@ -545,8 +545,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_nonces";
     const body = {
       ...input,
@@ -902,8 +902,8 @@ export class TurnkeySDKClientBase {
   getSendTransactionStatus = async (
     input: SdkApiTypes.TGetSendTransactionStatusBody,
   ): Promise<SdkApiTypes.TGetSendTransactionStatusResponse> => {
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     return this.request("/public/v1/query/get_send_transaction_status", {
       ...input,
       organizationId:
@@ -920,8 +920,8 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
-    let session = await getStorageValue(StorageKeys.Session);
-    session = parseSession(session!);
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_send_transaction_status";
     const body = {
@@ -4281,7 +4281,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
+        type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
       },
       "initUserEmailRecoveryResult",
     );
@@ -4305,7 +4305,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
+      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

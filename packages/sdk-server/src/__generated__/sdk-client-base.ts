@@ -3394,7 +3394,7 @@ export class TurnkeySDKClientBase {
         parameters: rest,
         organizationId: organizationId ?? this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
+        type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
       },
       "initUserEmailRecoveryResult",
     );
@@ -3414,7 +3414,7 @@ export class TurnkeySDKClientBase {
       parameters,
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
+      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
