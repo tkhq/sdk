@@ -1,5 +1,20 @@
 # @turnkey/sdk-react
 
+## 5.5.0
+
+### Minor Changes
+
+- [#1153](https://github.com/tkhq/sdk/pull/1153) [`78ec1d9`](https://github.com/tkhq/sdk/commit/78ec1d9afcafde3ca7107fc720323d486d6afaea) Thanks [@moe-dev](https://github.com/moe-dev)! - Deprecated auth component. Developers should use @turnkey/react-wallet-kit instead
+
+### Patch Changes
+
+- Updated dependencies [[`78ec1d9`](https://github.com/tkhq/sdk/commit/78ec1d9afcafde3ca7107fc720323d486d6afaea), [`dbd4d8e`](https://github.com/tkhq/sdk/commit/dbd4d8e4ea567240c4d287452dd0d8f53050beca), [`cfd34ab`](https://github.com/tkhq/sdk/commit/cfd34ab14ff2abed0e22dca9a802c58a96b9e8e1), [`78ec1d9`](https://github.com/tkhq/sdk/commit/78ec1d9afcafde3ca7107fc720323d486d6afaea)]:
+  - @turnkey/sdk-server@5.0.0
+  - @turnkey/sdk-browser@5.14.0
+  - @turnkey/sdk-types@0.11.0
+  - @turnkey/crypto@2.8.8
+  - @turnkey/wallet-stamper@1.1.10
+
 ## 5.4.19
 
 ### Patch Changes
