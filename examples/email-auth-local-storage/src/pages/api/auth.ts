@@ -38,6 +38,9 @@ export default async function auth(
     const response = await turnkeyClient.apiClient().emailAuth({
       // This is simple in the case of a single organization.
       // If you use sub-organizations for each user, this needs to be replaced by the user's specific sub-organization.
+      emailCustomization: {
+        appName: "Turnkey Wallet",
+      },
       organizationId:
         request.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
       email: request.email,

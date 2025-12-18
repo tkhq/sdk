@@ -176,6 +176,7 @@ export type CreateOauthProvidersResponse =
 export type SendOtpRequest = {
   otpType: string;
   contact: string;
+  appName: string;
   emailCustomization?: EmailCustomization | undefined;
   sendFromEmailAddress?: string | undefined;
   sendFromEmailSenderName?: string | undefined;

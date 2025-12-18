@@ -497,6 +497,10 @@
         "verificationToken": {
           "type": "string",
           "description": "Signed JWT containing a unique id, expiry, verification type, contact. Used to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'."
+        },
+        "oidcToken": {
+          "type": "string",
+          "description": "OIDC token to verify access to PII (email/phone number) when filter_type is 'EMAIL' or 'PHONE_NUMBER'. Needed for social linking when verification_token is not available."
         }
       },
       "required": ["filterType", "filterValue"]

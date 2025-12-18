@@ -52,6 +52,7 @@ export async function initOtpAction(params: {
   publicKey: string;
 }) {
   const res = await turnkey.apiClient().initOtp({
+    appName: "Turnkey Wallet",
     otpType: "OTP_TYPE_EMAIL",
     contact: params.email,
     userIdentifier: params.publicKey,

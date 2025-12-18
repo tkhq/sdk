@@ -441,6 +441,47 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getGasUsage = async (
+    input: SdkApiTypes.TGetGasUsageBody,
+  ): Promise<SdkApiTypes.TGetGasUsageResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/get_gas_usage", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetGasUsage = async (
+    input: SdkApiTypes.TGetGasUsageBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_gas_usage";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getLatestBootProof = async (
     input: SdkApiTypes.TGetLatestBootProofBody,
   ): Promise<SdkApiTypes.TGetLatestBootProofResponse> => {
@@ -466,6 +507,47 @@ export class TurnkeySDKClientBase {
     const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_latest_boot_proof";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getNonces = async (
+    input: SdkApiTypes.TGetNoncesBody,
+  ): Promise<SdkApiTypes.TGetNoncesResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/get_nonces", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetNonces = async (
+    input: SdkApiTypes.TGetNoncesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_nonces";
     const body = {
       ...input,
       organizationId:
@@ -800,6 +882,48 @@ export class TurnkeySDKClientBase {
     const sessionData = await getStorageValue(StorageKeys.Session);
     const session = sessionData ? parseSession(sessionData) : null;
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_private_key";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getSendTransactionStatus = async (
+    input: SdkApiTypes.TGetSendTransactionStatusBody,
+  ): Promise<SdkApiTypes.TGetSendTransactionStatusResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/get_send_transaction_status", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetSendTransactionStatus = async (
+    input: SdkApiTypes.TGetSendTransactionStatusBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_send_transaction_status";
     const body = {
       ...input,
       organizationId:
@@ -3486,7 +3610,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
+        type: "ACTIVITY_TYPE_EMAIL_AUTH_V3",
       },
       "emailAuthResult",
     );
@@ -3509,7 +3633,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
+      type: "ACTIVITY_TYPE_EMAIL_AUTH_V3",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4055,7 +4179,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_OTP",
+        type: "ACTIVITY_TYPE_INIT_OTP_V2",
       },
       "initOtpResult",
     );
@@ -4078,7 +4202,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_OTP",
+      type: "ACTIVITY_TYPE_INIT_OTP_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4106,7 +4230,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
+        type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3",
       },
       "initOtpAuthResultV2",
     );
@@ -4129,7 +4253,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
+      type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4157,7 +4281,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
+        type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
       },
       "initUserEmailRecoveryResult",
     );
@@ -4181,7 +4305,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
+      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

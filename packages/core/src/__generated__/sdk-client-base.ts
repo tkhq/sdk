@@ -601,10 +601,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_gas_usage";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -690,10 +694,14 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_nonces";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -1106,11 +1114,15 @@ export class TurnkeySDKClientBase {
       return undefined;
     }
 
+    const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_send_transaction_status";
     const body = {
       ...input,
-      organizationId: input.organizationId,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
     };
 
     const stringifiedBody = JSON.stringify(body);
@@ -3962,7 +3974,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
+        type: "ACTIVITY_TYPE_EMAIL_AUTH_V3",
       },
       "emailAuthResult",
       stampWith,
@@ -3987,7 +3999,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_EMAIL_AUTH_V2",
+      type: "ACTIVITY_TYPE_EMAIL_AUTH_V3",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4553,7 +4565,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_OTP",
+        type: "ACTIVITY_TYPE_INIT_OTP_V2",
       },
       "initOtpResult",
       stampWith,
@@ -4578,7 +4590,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_OTP",
+      type: "ACTIVITY_TYPE_INIT_OTP_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4606,7 +4618,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
+        type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3",
       },
       "initOtpAuthResult",
       stampWith,
@@ -4631,7 +4643,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V2",
+      type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4659,7 +4671,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
+        type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
       },
       "initUserEmailRecoveryResult",
       stampWith,
@@ -4685,7 +4697,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY",
+      type: "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

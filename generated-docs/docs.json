@@ -26,7 +26,14 @@
                   "concepts/overview",
                   "concepts/organizations",
                   "concepts/sub-organizations",
-                  "concepts/users/introduction",
+                  {
+                    "group": "Users",
+                    "pages": [
+                      "concepts/users/introduction",
+                      "concepts/users/credentials",
+                      "concepts/users/root-quorum"
+                    ]
+                  },
                   "concepts/wallets",
                   "concepts/resource-limits",
                   "concepts/policies/overview"
@@ -46,6 +53,7 @@
                 "group": "Quickstarts",
                 "pages": [
                   "getting-started/embedded-wallet-quickstart",
+                  "getting-started/migration-guide",
                   "getting-started/signing-automation-quickstart"
                 ]
               },
@@ -53,6 +61,7 @@
                 "group": "Production checklist",
                 "pages": [
                   "production-checklist/production-checklist",
+                  "production-checklist/backup-recovery",
                   "production-checklist/embedded-wallet",
                   "production-checklist/transaction-automation"
                 ]
@@ -118,8 +127,9 @@
                     "pages": [
                       "sdks/react/landing",
                       "sdks/react-native",
-                      "sdks/flutter",
-                      "sdks/swift",
+                      "sdks/flutter/landing",
+                      "sdks/swift/landing",
+                      "sdks/kotlin/landing",
                       "sdks/typescript-frontend/landing",
                       "sdks/javascript-server"
                     ]
@@ -131,9 +141,9 @@
                       "embedded-wallets/code-examples/create-sub-org-passkey",
                       "embedded-wallets/code-examples/authenticate-user-passkey",
                       "embedded-wallets/code-examples/create-passkey-session",
+                      "embedded-wallets/code-examples/sending-sponsored-transactions",
                       "embedded-wallets/code-examples/create-user-email",
                       "embedded-wallets/code-examples/authenticate-user-email",
-                      "embedded-wallets/code-examples/email-recovery",
                       "embedded-wallets/code-examples/add-credential",
                       "embedded-wallets/code-examples/wallet-auth",
                       "embedded-wallets/code-examples/signing-transactions",
@@ -164,7 +174,8 @@
                       "sdks/ruby",
                       "sdks/rust",
                       "sdks/python",
-                      "sdks/javascript-server"
+                      "sdks/javascript-server",
+                      "sdks/foundry"
                     ]
                   },
                   {
@@ -188,12 +199,14 @@
                   "networks/ethereum",
                   "networks/solana",
                   "networks/bitcoin",
+                  "networks/hyperliquid",
                   "networks/cosmos",
                   "networks/tron",
                   "networks/sui",
                   "networks/sei",
                   "networks/stacks",
                   "networks/aptos",
+                  "networks/tempo",
                   "networks/movement",
                   "networks/iota",
                   "networks/doge",
@@ -202,7 +215,15 @@
               },
               {
                 "group": "Cookbook",
-                "pages": ["cookbook/morpho", "cookbook/aave"]
+                "pages": [
+                  "cookbook/morpho",
+                  "cookbook/aave",
+                  "cookbook/breeze",
+                  "cookbook/jupiter",
+                  "cookbook/lifi",
+                  "cookbook/0x",
+                  "cookbook/yieldxyz"
+                ]
               }
             ]
           },
@@ -233,10 +254,18 @@
                       "concepts/policies/examples/signing-control",
                       "concepts/policies/examples/ethereum",
                       "concepts/policies/examples/solana",
-                      "concepts/policies/examples/tron"
+                      "concepts/policies/examples/tron",
+                      "concepts/policies/examples/bitcoin"
                     ]
                   },
-                  "concepts/policies/delegated-access",
+                  {
+                    "group": "Delegated access",
+                    "pages": [
+                      "concepts/policies/delegated-access-overview",
+                      "concepts/policies/delegated-access-frontend",
+                      "concepts/policies/delegated-access-backend"
+                    ]
+                  },
                   "concepts/policies/smart-contract-interfaces"
                 ]
               },
@@ -280,6 +309,7 @@
                     "pages": [
                       "generated-docs/react-wallet-kit/client-context-type-add-oauth-provider",
                       "generated-docs/react-wallet-kit/client-context-type-add-passkey",
+                      "generated-docs/react-wallet-kit/client-context-type-build-wallet-login-request",
                       "generated-docs/react-wallet-kit/client-context-type-clear-all-sessions",
                       "generated-docs/react-wallet-kit/client-context-type-clear-session",
                       "generated-docs/react-wallet-kit/client-context-type-clear-unused-key-pairs",
@@ -287,14 +317,17 @@
                       "generated-docs/react-wallet-kit/client-context-type-complete-otp",
                       "generated-docs/react-wallet-kit/client-context-type-connect-wallet-account",
                       "generated-docs/react-wallet-kit/client-context-type-create-api-key-pair",
+                      "generated-docs/react-wallet-kit/client-context-type-create-http-client",
                       "generated-docs/react-wallet-kit/client-context-type-create-passkey",
                       "generated-docs/react-wallet-kit/client-context-type-create-wallet",
                       "generated-docs/react-wallet-kit/client-context-type-create-wallet-accounts",
                       "generated-docs/react-wallet-kit/client-context-type-delete-sub-organization",
                       "generated-docs/react-wallet-kit/client-context-type-disconnect-wallet-account",
+                      "generated-docs/react-wallet-kit/client-context-type-eth-send-transaction",
                       "generated-docs/react-wallet-kit/client-context-type-export-private-key",
                       "generated-docs/react-wallet-kit/client-context-type-export-wallet",
                       "generated-docs/react-wallet-kit/client-context-type-export-wallet-account",
+                      "generated-docs/react-wallet-kit/client-context-type-fetch-boot-proof-for-app-proof",
                       "generated-docs/react-wallet-kit/client-context-type-fetch-or-create-p256-api-key-user",
                       "generated-docs/react-wallet-kit/client-context-type-fetch-or-create-policies",
                       "generated-docs/react-wallet-kit/client-context-type-fetch-private-keys",
@@ -321,14 +354,17 @@
                       "generated-docs/react-wallet-kit/client-context-type-handle-import-private-key",
                       "generated-docs/react-wallet-kit/client-context-type-handle-import-wallet",
                       "generated-docs/react-wallet-kit/client-context-type-handle-login",
+                      "generated-docs/react-wallet-kit/client-context-type-handle-on-ramp",
                       "generated-docs/react-wallet-kit/client-context-type-handle-remove-oauth-provider",
                       "generated-docs/react-wallet-kit/client-context-type-handle-remove-passkey",
                       "generated-docs/react-wallet-kit/client-context-type-handle-remove-user-email",
                       "generated-docs/react-wallet-kit/client-context-type-handle-remove-user-phone-number",
+                      "generated-docs/react-wallet-kit/client-context-type-handle-send-transaction",
                       "generated-docs/react-wallet-kit/client-context-type-handle-sign-message",
                       "generated-docs/react-wallet-kit/client-context-type-handle-update-user-email",
                       "generated-docs/react-wallet-kit/client-context-type-handle-update-user-name",
                       "generated-docs/react-wallet-kit/client-context-type-handle-update-user-phone-number",
+                      "generated-docs/react-wallet-kit/client-context-type-handle-verify-app-proofs",
                       "generated-docs/react-wallet-kit/client-context-type-handle-xoauth",
                       "generated-docs/react-wallet-kit/client-context-type-import-private-key",
                       "generated-docs/react-wallet-kit/client-context-type-import-wallet",
@@ -359,19 +395,92 @@
                       "generated-docs/react-wallet-kit/client-context-type-update-user-email",
                       "generated-docs/react-wallet-kit/client-context-type-update-user-name",
                       "generated-docs/react-wallet-kit/client-context-type-update-user-phone-number",
+                      "generated-docs/react-wallet-kit/client-context-type-verify-app-proofs",
                       "generated-docs/react-wallet-kit/client-context-type-verify-otp"
                     ]
                   }
                 ]
               },
-              "sdks/react-native",
-              "sdks/flutter",
+              {
+                "group": "React Native",
+                "pages": [
+                  "sdks/react-native/overview",
+                  "sdks/react-native/getting-started",
+                  {
+                    "group": "Authentication",
+                    "pages": [
+                      "sdks/react-native/authentication/overview",
+                      "sdks/react-native/authentication/email-sms",
+                      "sdks/react-native/authentication/passkey",
+                      "sdks/react-native/authentication/social-logins"
+                    ]
+                  },
+                  "sdks/react-native/sub-organization-customization",
+                  "sdks/react-native/using-embedded-wallets",
+                  "sdks/react-native/signing",
+                  "sdks/react-native/advanced-api-requests"
+                ]
+              },
+              {
+                "group": "Flutter",
+                "pages": [
+                  "sdks/flutter/index",
+                  "sdks/flutter/getting-started",
+                  {
+                    "group": "Authentication",
+                    "pages": [
+                      "sdks/flutter/authentication/overview",
+                      "sdks/flutter/authentication/email-sms",
+                      "sdks/flutter/authentication/passkey",
+                      "sdks/flutter/authentication/social-logins"
+                    ]
+                  },
+                  "sdks/flutter/sub-organization-customization",
+                  "sdks/flutter/using-embedded-wallets",
+                  "sdks/flutter/signing",
+                  "sdks/flutter/advanced-api-requests"
+                ]
+              },
               {
                 "group": "Swift",
                 "pages": [
-                  "sdks/swift",
-                  "sdks/swift/proxy-middleware",
-                  "sdks/swift/register-passkey"
+                  "sdks/swift/overview",
+                  "sdks/swift/getting-started",
+                  {
+                    "group": "Authentication",
+                    "pages": [
+                      "sdks/swift/authentication/overview",
+                      "sdks/swift/authentication/email-sms",
+                      "sdks/swift/authentication/passkey",
+                      "sdks/swift/authentication/social-logins"
+                    ]
+                  },
+                  "sdks/swift/signing",
+                  "sdks/swift/sub-organization-customization",
+                  "sdks/swift/advanced-api-requests",
+                  "sdks/swift/using-embedded-wallets",
+                  "sdks/swift/advanced-backend-authentication"
+                ]
+              },
+              {
+                "group": "Kotlin",
+                "pages": [
+                  "sdks/kotlin/overview",
+                  "sdks/kotlin/getting-started",
+                  {
+                    "group": "Authentication",
+                    "pages": [
+                      "sdks/kotlin/authentication/overview",
+                      "sdks/kotlin/authentication/email-sms",
+                      "sdks/kotlin/authentication/passkey",
+                      "sdks/kotlin/authentication/social-logins",
+                      "sdks/kotlin/authentication/rp-id-setup"
+                    ]
+                  },
+                  "sdks/kotlin/sub-organization-customization",
+                  "sdks/kotlin/using-embedded-wallets",
+                  "sdks/kotlin/signing",
+                  "sdks/kotlin/advanced-api-requests"
                 ]
               },
               {
@@ -388,6 +497,7 @@
                     "pages": [
                       "generated-docs/core/turnkey-client-add-oauth-provider",
                       "generated-docs/core/turnkey-client-add-passkey",
+                      "generated-docs/core/turnkey-client-build-wallet-login-request",
                       "generated-docs/core/turnkey-client-clear-all-sessions",
                       "generated-docs/core/turnkey-client-clear-session",
                       "generated-docs/core/turnkey-client-clear-unused-key-pairs",
@@ -396,14 +506,17 @@
                       "generated-docs/core/turnkey-client-connect-wallet-account",
                       "generated-docs/core/turnkey-client-constructor",
                       "generated-docs/core/turnkey-client-create-api-key-pair",
+                      "generated-docs/core/turnkey-client-create-http-client",
                       "generated-docs/core/turnkey-client-create-passkey",
                       "generated-docs/core/turnkey-client-create-wallet",
                       "generated-docs/core/turnkey-client-create-wallet-accounts",
                       "generated-docs/core/turnkey-client-delete-sub-organization",
                       "generated-docs/core/turnkey-client-disconnect-wallet-account",
+                      "generated-docs/core/turnkey-client-eth-send-transaction",
                       "generated-docs/core/turnkey-client-export-private-key",
                       "generated-docs/core/turnkey-client-export-wallet",
                       "generated-docs/core/turnkey-client-export-wallet-account",
+                      "generated-docs/core/turnkey-client-fetch-boot-proof-for-app-proof",
                       "generated-docs/core/turnkey-client-fetch-or-create-p256-api-key-user",
                       "generated-docs/core/turnkey-client-fetch-or-create-policies",
                       "generated-docs/core/turnkey-client-fetch-private-keys",
@@ -425,6 +538,7 @@
                       "generated-docs/core/turnkey-client-login-with-passkey",
                       "generated-docs/core/turnkey-client-login-with-wallet",
                       "generated-docs/core/turnkey-client-logout",
+                      "generated-docs/core/turnkey-client-poll-transaction-status",
                       "generated-docs/core/turnkey-client-refresh-session",
                       "generated-docs/core/turnkey-client-remove-oauth-providers",
                       "generated-docs/core/turnkey-client-remove-passkeys",
@@ -443,6 +557,7 @@
                       "generated-docs/core/turnkey-client-update-user-email",
                       "generated-docs/core/turnkey-client-update-user-name",
                       "generated-docs/core/turnkey-client-update-user-phone-number",
+                      "generated-docs/core/turnkey-client-verify-app-proofs",
                       "generated-docs/core/turnkey-client-verify-otp"
                     ]
                   }
@@ -462,7 +577,8 @@
                   "sdks/web3/viem",
                   "sdks/web3/cosmjs",
                   "sdks/web3/eip-1193",
-                  "sdks/web3/solana"
+                  "sdks/web3/solana",
+                  "sdks/web3/gas-station"
                 ]
               },
               {
@@ -490,6 +606,8 @@
             "pages": [
               "api-reference/activities/overview",
               "api-reference/activities/approve-activity",
+              "api-reference/activities/create-a-fiat-on-ramp-credential",
+              "api-reference/activities/create-an-oauth-20-credential",
               "api-reference/activities/create-api-keys",
               "api-reference/activities/create-authenticators",
               "api-reference/activities/create-invitations",
@@ -505,11 +623,14 @@
               "api-reference/activities/create-user-tag",
               "api-reference/activities/create-users",
               "api-reference/activities/create-wallet",
+              "api-reference/activities/delete-a-fiat-on-ramp-credential",
+              "api-reference/activities/delete-an-oauth-20-credential",
               "api-reference/activities/create-wallet-accounts",
               "api-reference/activities/delete-api-keys",
               "api-reference/activities/delete-authenticators",
               "api-reference/activities/delete-invitation",
               "api-reference/activities/delete-oauth-providers",
+              "api-reference/activities/delete-policies",
               "api-reference/activities/delete-policy",
               "api-reference/activities/delete-private-key-tags",
               "api-reference/activities/delete-private-keys",
@@ -518,6 +639,7 @@
               "api-reference/activities/delete-user-tags",
               "api-reference/activities/delete-users",
               "api-reference/activities/delete-wallets",
+              "api-reference/activities/delete-wallet-accounts",
               "api-reference/activities/export-private-key",
               "api-reference/activities/export-wallet",
               "api-reference/activities/export-wallet-account",
@@ -532,6 +654,7 @@
               "api-reference/activities/login-with-a-stamp",
               "api-reference/activities/login-with-oauth",
               "api-reference/activities/login-with-otp",
+              "api-reference/activities/oauth-20-authentication",
               "api-reference/activities/oauth",
               "api-reference/activities/otp-auth",
               "api-reference/activities/perform-email-auth",
@@ -542,6 +665,10 @@
               "api-reference/activities/sign-raw-payload",
               "api-reference/activities/sign-raw-payloads",
               "api-reference/activities/sign-transaction",
+              "api-reference/activities/submit-a-raw-transaction-for-broadcasting",
+              "api-reference/activities/submit-a-transaction-intent-for-broadcasting",
+              "api-reference/activities/update-a-fiat-on-ramp-credential",
+              "api-reference/activities/update-an-oauth-20-credential",
               "api-reference/activities/update-policy",
               "api-reference/activities/update-private-key-tag",
               "api-reference/activities/update-root-quorum",
@@ -558,23 +685,30 @@
             "group": "Queries",
             "pages": [
               "api-reference/queries/overview",
+              "api-reference/queries/get-a-specific-boot-proof",
               "api-reference/queries/get-activity",
               "api-reference/queries/get-api-key",
               "api-reference/queries/get-api-keys",
               "api-reference/queries/get-authenticator",
               "api-reference/queries/get-authenticators",
               "api-reference/queries/get-configs",
+              "api-reference/queries/get-oauth-20-credential",
               "api-reference/queries/get-oauth-providers",
+              "api-reference/queries/get-on-ramp-transaction-status",
               "api-reference/queries/get-policy",
               "api-reference/queries/get-policy-evaluations",
               "api-reference/queries/get-private-key",
               "api-reference/queries/get-smart-contract-interface",
               "api-reference/queries/get-sub-organizations",
+              "api-reference/queries/get-the-latest-boot-proof-for-an-app",
               "api-reference/queries/get-user",
               "api-reference/queries/get-verified-sub-organizations",
               "api-reference/queries/get-wallet",
               "api-reference/queries/get-wallet-account",
               "api-reference/queries/list-activities",
+              "api-reference/queries/list-app-proofs-for-an-activity",
+              "api-reference/queries/list-fiat-on-ramp-credentials",
+              "api-reference/queries/list-oauth-20-credentials",
               "api-reference/queries/list-policies",
               "api-reference/queries/list-private-key-tags",
               "api-reference/queries/list-private-keys",
@@ -600,6 +734,7 @@
               "security/secure-enclaves",
               "security/quorum-deployments",
               "security/verifiable-data",
+              "security/turnkey-verified",
               "security/disaster-recovery",
               "security/enclave-secure-channels",
               "security/whitepaper",
