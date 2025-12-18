@@ -1,9 +1,9 @@
 {
-  "name": "@turnkey/example-sweeper",
-  "version": "0.1.3",
+  "name": "@turnkey/example-sweeper-new",
   "private": true,
+  "version": "0.1.0",
   "scripts": {
-    "start": "pnpm -w run build-all && tsx src/scripts/index.ts",
+    "start": "tsx src/scripts/index.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -13,7 +13,6 @@
     "@uniswap/sdk-core": "^3.1.1",
     "dotenv": "^16.0.3",
     "ethers": "^6.10.0",
-    "hardhat": "^2.12.7",
     "prompts": "^2.4.2"
   },
   "devDependencies": {
