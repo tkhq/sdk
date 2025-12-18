@@ -1,5 +1,13 @@
 # @turnkey/react-wallet-kit
 
+## 1.7.1
+
+### Patch Changes
+
+- Updated dependencies [[`6261eed`](https://github.com/tkhq/sdk/commit/6261eed95af8627bf1e95e7291b9760a2267e301), [`78ec1d9`](https://github.com/tkhq/sdk/commit/78ec1d9afcafde3ca7107fc720323d486d6afaea)]:
+  - @turnkey/core@1.10.0
+  - @turnkey/sdk-types@0.11.0
+
 ## 1.7.0
 
 ### Minor Changes

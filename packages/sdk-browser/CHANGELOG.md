@@ -1,5 +1,37 @@
 # @turnkey/sdk-browser
 
+## 5.14.0
+
+### Minor Changes
+
+- [#1153](https://github.com/tkhq/sdk/pull/1153) [`78ec1d9`](https://github.com/tkhq/sdk/commit/78ec1d9afcafde3ca7107fc720323d486d6afaea) Thanks [@moe-dev](https://github.com/moe-dev)! - Update as per mono v2025.12.3.
+
+  ### Breaking/Behavioral Changes
+  - `appName` is now **required**:
+    - In `emailCustomization` for Email Auth activities
+    - At the top-level intent for OTP activities
+  - Auth proxy endpoints are **not affected**
+
+  ### Activity Version Bumps
+
+  The following activity types have been versioned:
+  - `ACTIVITY_TYPE_INIT_OTP` → `ACTIVITY_TYPE_INIT_OTP_V2`
+  - `ACTIVITY_TYPE_INIT_OTP_AUTH_V2` → `ACTIVITY_TYPE_INIT_OTP_V3`
+  - `ACTIVITY_TYPE_EMAIL_AUTH_V2` → `ACTIVITY_TYPE_EMAIL_AUTH_V3`
+  - `ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY` -> `ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2`
+
+### Patch Changes
+
+- [#1145](https://github.com/tkhq/sdk/pull/1145) [`cfd34ab`](https://github.com/tkhq/sdk/commit/cfd34ab14ff2abed0e22dca9a802c58a96b9e8e1) Author [@moeodeh3](https://github.com/moeodeh3) - Stamp function improvements
+  - Queries: add `organizationId` fallback from config
+  - Activities: fix request structure to include the `parameters wrapper`, `organizationId`, `timestampMs`, and `type` fields
+
+- Updated dependencies [[`78ec1d9`](https://github.com/tkhq/sdk/commit/78ec1d9afcafde3ca7107fc720323d486d6afaea)]:
+  - @turnkey/sdk-types@0.11.0
+  - @turnkey/http@3.16.0
+  - @turnkey/crypto@2.8.8
+  - @turnkey/wallet-stamper@1.1.10
+
 ## 5.13.6
 
 ### Patch Changes
