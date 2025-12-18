@@ -45,7 +45,7 @@ async function sweepTokens(
 ) {
   for (const token of tokens) {
     const contract = new ethers.Contract(token.address, ERC20_ABI, provider);
-    const balance: bigint = await contract!.balanceOf?(ownerAddress);
+    const balance: bigint = await (contract as any).balanceOf(ownerAddress);
 
     if (balance === 0n) {
       console.log(`No ${token.symbol}. Skipping...`);
