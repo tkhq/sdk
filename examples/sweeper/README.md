@@ -38,7 +38,7 @@ Now open `.env.local` and add the missing environment variables:
 - `BASE_URL`
 - `ORGANIZATION_ID`
 - `SIGN_WITH` -- a Turnkey wallet account address, private key address, or private key ID. If you leave this blank, we'll create a wallet for you.
-- `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
+- `DESTINATION_ADDRESS` -- Destination address for sweeping tokens
 
 ### 3/ Running the script
 
@@ -46,13 +46,11 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm start
 ```
 
-The script constructs and signs a series of sweep transactions via Turnkey, and broadcasts via Infura. If the script exits because your account isn't funded, you can request funds on https://goerlifaucet.com/. By default, this utility will sweep USDC, UNI, WETH, and ETH. To add any additional tokens, see `utils.ts`.
-
-NOTE: in this script, we wait for 1 block confirmation per transfer. Feel free to customize as you please.
+The script constructs and signs a and sends series of sweep transactions via Turnkey. If the script exits because your account isn't funded, you can request funds on https://cloud.google.com/application/web3/faucet/ethereum/sepolia. By default, this utility will sweep USDC, UNI, and ETH.
 
 ```
 Network:
-        goerli (chain ID 5)
+        sepolia
 
 Address:
         0x2A5111A1b0c0da37750b595b89BBaf1E6B7a8a27

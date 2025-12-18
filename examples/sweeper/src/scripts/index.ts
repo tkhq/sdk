@@ -1,193 +1,180 @@
 import * as path from "path";
 import * as dotenv from "dotenv";
-
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { ethers } from "ethers";
-import type { Token } from "@uniswap/sdk-core";
-import { toReadableAmount } from "../utils";
-import { getProvider, getTurnkeySigner } from "../provider";
-import {
-  ERC20_ABI,
-  UNI_TOKEN_GOERLI,
-  USDC_TOKEN_GOERLI,
-  WETH_TOKEN_GOERLI,
-} from "../utils";
-
 import prompts from "prompts";
+import { getTurnkeyClient, pollTransactionStatus } from "../turnkey";
+import { toReadableAmount } from "../utils";
+import { ERC20_ABI, USDC_SEPOLIA, WETH_SEPOLIA } from "../tokens";
 
-async function main() {
-  if (!process.env.SIGN_WITH) {
-    console.log("Missing SIGN_WITH env var");
-    return;
-  }
+const RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
+const provider = new ethers.JsonRpcProvider(RPC_URL);
 
-  // Connect it with a Provider (https://docs.ethers.org/v6/api/providers/)
-  const provider = getProvider();
-  const connectedSigner = getTurnkeySigner(provider);
+export async function main() {
+  const orgId = process.env.ORGANIZATION_ID!;
+  const signWith = process.env.SIGN_WITH!;
+  const turnkey = getTurnkeyClient();
+  const address = signWith;
+  const destination = process.env.DESTINATION_ADDRESS!;
 
-  const network = await provider.getNetwork();
-  const chainId = (await connectedSigner.provider?.getNetwork())?.chainId ?? 0n;
-  const address = await connectedSigner.getAddress();
-  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
-  const destinationAddress = "0x2Ad9eA1E677949a536A270CEC812D6e868C88108";
+  // Fetch ETH balance
+  const balance = await provider.getBalance(address);
 
-  print("Network:", `${network.name} (chain ID ${chainId})`);
-  print("Address:", address);
-  print("Balance:", `${ethers.formatEther(balance)} Ether`);
+  console.log("Address:", address);
+  console.log("Balance:", ethers.formatEther(balance));
 
   if (balance === 0n) {
-    let warningMessage =
-      "The transaction won't be broadcasted because your account balance is zero.\n";
-    if (network.name === "goerli") {
-      warningMessage +=
-        "Use https://goerlifaucet.com/ to request funds on Goerli, then run the script again.\n";
-    }
-
-    console.warn(warningMessage);
+    console.warn("Not enough ETH.");
     return;
   }
 
-  if (network.name === "goerli") {
-    const tokens: Token[] = [
-      UNI_TOKEN_GOERLI,
-      USDC_TOKEN_GOERLI,
-      WETH_TOKEN_GOERLI,
-    ];
+  const tokens = [USDC_SEPOLIA, WETH_SEPOLIA];
 
-    await sweepTokens(
-      connectedSigner,
-      network.name,
-      tokens,
-      address,
-      destinationAddress,
-    );
-    await sweepEth(connectedSigner, network.name, destinationAddress);
-  }
+  await sweepTokens(turnkey, orgId, address, destination, tokens);
+  await sweepEth(turnkey, orgId, address, destination);
 }
 
 async function sweepTokens(
-  connectedSigner: ethers.Signer,
-  network: string,
-  tokens: Token[],
-  address: string,
-  destinationAddress: string,
+  turnkey: any,
+  organizationId: string,
+  ownerAddress: string,
+  destination: string,
+  tokens: any[],
 ) {
-  for (let t of tokens) {
-    let contract = new ethers.Contract(t.address, ERC20_ABI, connectedSigner);
-    let balance: bigint = (await contract.balanceOf?.(address)) ?? 0n;
+  for (const token of tokens) {
+    const contract = new ethers.Contract(token.address, ERC20_ABI, provider);
+    const balance: bigint = await contract!.balanceOf?(ownerAddress);
 
     if (balance === 0n) {
-      console.warn(`No balance for ${t.symbol}. Skipping...`);
+      console.log(`No ${token.symbol}. Skipping...`);
       continue;
     }
 
-    let { confirmed } = await prompts([
-      {
-        type: "confirm",
-        name: "confirmed",
-        message: `Please confirm: transfer ${toReadableAmount(
-          balance.toString(),
-          t.decimals,
-          12,
-        )} ${t.symbol || "<missing symbol>"} (token address ${
-          t.address
-        }) to ${destinationAddress}?`,
-      },
+    const { confirmed } = await prompts({
+      type: "confirm",
+      name: "confirmed",
+      message: `Transfer ${toReadableAmount(
+        balance,
+        token.decimals,
+      )} ${token.symbol} to ${destination}?`,
+    });
+
+    if (!confirmed) continue;
+
+    // Build calldata manually for ERC-20 transfer
+    const iface = new ethers.Interface(ERC20_ABI);
+    const calldata = iface.encodeFunctionData("transfer", [
+      destination,
+      balance,
     ]);
 
-    if (confirmed) {
-      let transferTx = await contract.transfer?.(destinationAddress, balance);
+    // Fetch nonce (same pattern as sweepEth)
+    const { nonce } = await turnkey.apiClient().getNonces({
+      organizationId,
+      address: ownerAddress,
+      caip2: "eip155:11155111", // Sepolia
+      nonce: true,
+    });
 
-      console.log("Awaiting confirmation...");
+    // Submit transaction via Turnkey
+    const { sendTransactionStatusId } = await turnkey
+      .apiClient()
+      .ethSendTransaction({
+        organizationId,
+        from: ownerAddress,
+        to: token.address,
+        caip2: "eip155:11155111", // Sepolia
+        nonce,
+        data: calldata,
+        gasLimit: "200000",
+      });
 
-      await connectedSigner.provider?.waitForTransaction(transferTx.hash, 1);
+    // Poll for final inclusion
+    const status = await pollTransactionStatus({
+      apiClient: turnkey.apiClient(),
+      organizationId,
+      sendTransactionStatusId,
+    });
 
-      print(
-        `Sent ${toReadableAmount(balance.toString(), t.decimals)} ${
-          t.symbol || "<missing symbol>"
-        } (token address ${t.address}) to ${destinationAddress}:`,
-        `https://${network}.etherscan.io/tx/${transferTx.hash}`,
+    if (status.txStatus !== "INCLUDED") {
+      throw new Error(
+        `${token.symbol} sweep failed with status: ${status.txStatus}`,
       );
-    } else {
-      print(`Skipping transfer...`, ``);
     }
+
+    console.log(
+      `Sent ${token.symbol}: https://sepolia.etherscan.io/tx/${status.eth?.txHash}`,
+    );
   }
 }
 
 async function sweepEth(
-  connectedSigner: ethers.Signer,
-  network: string,
-  destinationAddress: string,
+  turnkey: any,
+  organizationId: string,
+  ownerAddress: string,
+  destination: string,
 ) {
-  const address = await connectedSigner.getAddress();
-  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
+  const balance = await provider.getBalance(ownerAddress);
+  const feeData = await provider.getFeeData();
 
-  const feeData = await connectedSigner.provider?.getFeeData();
-  const gasRequired = feeData?.maxFeePerGas
-    ? feeData?.maxFeePerGas * 21000n
-    : 0n;
-  const value = balance - gasRequired;
+  const gas = 21000n;
+  const maxFee = feeData.maxFeePerGas ?? 0n;
+  const maxPriorityFee = feeData.maxPriorityFeePerGas ?? 0n;
 
-  if (value <= 0) {
-    console.warn(`Insufficient ETH balance to sweep. Skipping...`);
+  const gasCost = gas * maxFee;
+  const value = balance - gasCost;
+
+  if (value <= 0n) {
+    console.warn("Not enough ETH to sweep.");
     return;
   }
 
-  const transactionRequest = {
-    to: destinationAddress,
-    value: value,
-    type: 2,
-    maxFeePerGas: feeData?.maxFeePerGas ?? 0n,
-    maxPriorityFeePerGas: feeData?.maxPriorityFeePerGas ?? 0n,
-  };
+  const { confirmed } = await prompts({
+    type: "confirm",
+    name: "confirmed",
+    message: `Sweep ${ethers.formatEther(value)} ETH to ${destination}?`,
+  });
 
-  let { confirmed } = await prompts([
-    {
-      type: "confirm",
-      name: "confirmed",
-      message: `Please confirm: transfer ${toReadableAmount(
-        value.toString(),
-        18,
-        12,
-      )} ETH (balance of ${toReadableAmount(
-        balance.toString(),
-        18,
-        12,
-      )} - ${toReadableAmount(
-        gasRequired.toString(),
-        18,
-        12,
-      )} for gas) to ${destinationAddress}?`,
-    },
-  ]);
+  if (!confirmed) return;
 
-  if (confirmed) {
-    const sentTx = await connectedSigner.sendTransaction(transactionRequest);
+  const { nonce } = await turnkey.apiClient().getNonces({
+    organizationId,
+    address: ownerAddress,
+    caip2: "eip155:11155111", // Sepolia
+    nonce: true,
+  });
+  // Submit transaction via Turnkey
+  const { sendTransactionStatusId } = await turnkey
+    .apiClient()
+    .ethSendTransaction({
+      organizationId,
+      from: ownerAddress,
+      to: destination,
+      nonce: nonce,
+      caip2: "eip155:11155111",
+      value: value.toString(),
+      gasLimit: gas.toString(),
+      maxFeePerGas: maxFee.toString(),
+      maxPriorityFeePerGas: maxPriorityFee.toString(),
+    });
+  // Poll for final inclusion
+  const status = await pollTransactionStatus({
+    apiClient: turnkey.apiClient(),
+    organizationId,
+    sendTransactionStatusId,
+  });
 
-    console.log("Awaiting confirmation...");
-
-    await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
-
-    print(
-      `Sent ${toReadableAmount(
-        value.toString(),
-        18,
-        12,
-      )} ETH to ${destinationAddress}:`,
-      `https://${network}.etherscan.io/tx/${sentTx.hash}`,
-    );
-  } else {
-    print(`Skipping transfer...`, ``);
+  if (status.txStatus !== "INCLUDED") {
+    throw new Error(`ETH sweep failed with status: ${status.txStatus}`);
   }
-}
 
+  console.log(
+    `Sent ETH: https://sepolia.etherscan.io/tx/${status.eth?.txHash}`,
+  );
+}
 main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-
-function print(header: string, body: string): void {
-  console.log(`${header}\n\t${body}\n`);
-}
