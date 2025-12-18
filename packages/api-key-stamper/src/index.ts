@@ -1,5 +1,9 @@
 /// <reference lib="dom" />
-import { stringToBase64urlString } from "@turnkey/encoding";
+import {
+  stringToBase64urlString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
+import { fromDerSignature } from "@turnkey/crypto";
 
 // Header name for an API key stamp
 const stampHeaderName = "X-Stamp";
@@ -11,6 +15,11 @@ export type TApiKeyStamperConfig = {
   apiPrivateKey: string;
   runtimeOverride?: Runtime | undefined;
 };
+
+export enum SignatureFormat {
+  Der = "der",
+  Raw = "raw",
+}
 
 // `window.document` ensures that we're in a browser context
 // and `crypto.subtle` ensures that it supports the web crypto APIs
@@ -101,6 +110,35 @@ export class ApiKeyStamper {
       stampHeaderName,
       stampHeaderValue: stringToBase64urlString(JSON.stringify(stamp)),
     };
+  }
+
+  async sign(payload: string, format: SignatureFormat) {
+    switch (format) {
+      case SignatureFormat.Raw: {
+        const derSignature = await signWithApiKey(
+          {
+            publicKey: this.apiPublicKey,
+            privateKey: this.apiPrivateKey,
+            content: payload,
+          },
+          this.runtimeOverride,
+        );
+        const raw = fromDerSignature(derSignature);
+        return uint8ArrayToHexString(raw);
+      }
+      case SignatureFormat.Der: {
+        return signWithApiKey(
+          {
+            publicKey: this.apiPublicKey,
+            privateKey: this.apiPrivateKey,
+            content: payload,
+          },
+          this.runtimeOverride,
+        );
+      }
+      default:
+        throw new Error(`Unsupported signature format: ${format}`);
+    }
   }
 }
 

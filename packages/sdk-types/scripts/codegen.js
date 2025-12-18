@@ -87,6 +87,15 @@ function stripVersionPrefix(name) {
   return name.replace(/^v\d+/, "");
 }
 
+// only replace the last occurrence of _V\d+ at the end of the string
+/**
+ * @param {string} activityType
+ * @returns {string}
+ */
+function stripVersionSuffix(activityType) {
+  return activityType.replace(/(_V\d+)$/, "");
+}
+
 /**
  * @param {string} ref
  * @returns {string}
@@ -301,7 +310,9 @@ function generateApiTypes(swagger, prefix = "") {
             const baseActivity = reqTypeName
               .replace(/^v\d+/, "")
               .replace(/Request(V\d+)?$/, "");
-            activityTypeKey = reqDef.properties.type.enum[0];
+            activityTypeKey = stripVersionSuffix(
+              reqDef.properties.type.enum[0],
+            );
             const mapped = VERSIONED_ACTIVITY_TYPES[activityTypeKey];
             if (mapped) {
               // Extract version suffix from mapped value
@@ -400,7 +411,38 @@ function generateApiTypes(swagger, prefix = "") {
         const intentTypeName = refToTs(
           requestTypeDef.properties.parameters.$ref,
         );
-        const intentDef = definitions[intentTypeName];
+
+        const baseActivity = requestTypeName
+          .replace(/^v\d+/, "")
+          .replace(/Request(V\d+)?$/, "");
+
+        const activityTypeKey = stripVersionSuffix(
+          requestTypeDef.properties.type.enum[0],
+        );
+        const mapped = VERSIONED_ACTIVITY_TYPES[activityTypeKey];
+        let versionSuffix = null;
+        if (mapped) {
+          // Extract version suffix from mapped value
+          const mappedVersionSuffixMatch = mapped.match(/(V\d+)$/);
+          versionSuffix = mappedVersionSuffixMatch
+            ? mappedVersionSuffixMatch[1]
+            : "";
+        }
+        // Adjust intentTypeName to include version suffix if applicable
+        let adjustedIntentTypeName = intentTypeName;
+        if (versionSuffix || mapped) {
+          const candidate = Object.keys(definitions).find(
+            (k) =>
+              k.startsWith("v1" + baseActivity + "Intent") &&
+              k.endsWith(versionSuffix),
+          );
+          console.log("Adjusted intent candidate:", candidate);
+          if (candidate) {
+            adjustedIntentTypeName = candidate;
+          }
+        }
+
+        const intentDef = definitions[adjustedIntentTypeName];
         output += generateInlineProperties(intentDef, isAllOptional);
       }
     } else if (methodType === "query" || methodType === "noop") {

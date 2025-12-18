@@ -1,4 +1,4 @@
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { ApiKeyStamper, SignatureFormat } from "@turnkey/api-key-stamper";
 import { generateP256KeyPair } from "@turnkey/crypto";
 import type { TStamp, ApiKeyStamperBase } from "../../../__types__";
 
@@ -74,5 +74,30 @@ export class ReactNativeKeychainStamper implements ApiKeyStamperBase {
     });
     const { stampHeaderName, stampHeaderValue } = await stamper.stamp(payload);
     return { stampHeaderName, stampHeaderValue };
+  }
+
+  async sign(
+    payload: string,
+    publicKeyHex: string,
+    format: SignatureFormat,
+  ): Promise<string> {
+    const privateKey = await this.getPrivateKey(publicKeyHex);
+    if (!privateKey) {
+      throw new Error(`No private key found for public key: ${publicKeyHex}`);
+    }
+    const stamper = new ApiKeyStamper({
+      apiPublicKey: publicKeyHex,
+      apiPrivateKey: privateKey,
+    });
+
+    switch (format) {
+      case SignatureFormat.Raw: {
+        return stamper.sign(payload, SignatureFormat.Raw);
+      }
+      case SignatureFormat.Der:
+        return stamper.sign(payload, SignatureFormat.Der);
+      default:
+        throw new Error(`Unsupported signature format: ${format}`);
+    }
   }
 }

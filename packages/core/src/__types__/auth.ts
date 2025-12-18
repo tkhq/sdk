@@ -1,3 +1,4 @@
+import type { SignatureFormat } from "@turnkey/api-key-stamper";
 import type {
   v1ApiKeyCurve,
   v1Attestation,
@@ -28,6 +29,11 @@ export interface ApiKeyStamperBase {
   deleteKeyPair(publicKeyHex: string): Promise<void>;
   clearKeyPairs(): Promise<void>;
   stamp(payload: string, publicKeyHex: string): Promise<TStamp>;
+  sign(
+    payload: string,
+    publicKeyHex: string,
+    format?: SignatureFormat,
+  ): Promise<string>;
 }
 
 /** @internal */

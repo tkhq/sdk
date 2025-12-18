@@ -5,6 +5,7 @@ import {
 } from "@turnkey/encoding";
 import type { TStamp, ApiKeyStamperBase } from "../../../__types__";
 import { assertValidP256ECDSAKeyPair } from "@utils";
+import { SignatureFormat } from "@turnkey/api-key-stamper";
 
 const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";
@@ -204,7 +205,11 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
     });
   }
 
-  private async sign(payload: string, publicKeyHex: string): Promise<string> {
+  async sign(
+    payload: string,
+    publicKeyHex: string,
+    format: SignatureFormat,
+  ): Promise<string> {
     const privateKey = await this.getPrivateKey(publicKeyHex);
     if (!privateKey) {
       throw new Error("Key not found for publicKey: " + publicKeyHex);
@@ -215,14 +220,21 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
       privateKey,
       encodedPayload,
     );
-    const signatureDer = convertEcdsaIeee1363ToDer(
-      new Uint8Array(signatureIeee1363),
-    );
-    return uint8ArrayToHexString(signatureDer);
+    if (format === SignatureFormat.Raw) {
+      return uint8ArrayToHexString(new Uint8Array(signatureIeee1363));
+    } else {
+      return uint8ArrayToHexString(
+        convertEcdsaIeee1363ToDer(new Uint8Array(signatureIeee1363)),
+      );
+    }
   }
 
   async stamp(payload: string, publicKeyHex: string): Promise<TStamp> {
-    const signature = await this.sign(payload, publicKeyHex);
+    const signature = await this.sign(
+      payload,
+      publicKeyHex,
+      SignatureFormat.Der,
+    );
     const stamp = {
       publicKey: publicKeyHex,
       scheme: "SIGNATURE_SCHEME_TK_API_P256",

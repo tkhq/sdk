@@ -1,5 +1,8 @@
+/** @jest-environment node */
+
 import { verify, verifyAppProofSignature } from "../proof";
 import type { v1AppProof, v1BootProof } from "@turnkey/sdk-types";
+import { test, expect, describe } from "@jest/globals";
 
 describe("Proof verification tests", () => {
   const testAppProof1: v1AppProof = {
