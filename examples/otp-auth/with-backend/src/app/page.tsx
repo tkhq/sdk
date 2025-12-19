@@ -42,7 +42,7 @@ export default function AuthPage() {
       setWorking("Preparing…");
 
       // 1) Create a fresh session key for this OTP attempt
-      const publicKey = await createApiKeyPair({ storeOverride: true });
+      const publicKey = await createApiKeyPair();
       pubKeyRef.current = publicKey;
 
       // reset any prior OTP attempt UI state
