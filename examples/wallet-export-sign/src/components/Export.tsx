@@ -113,7 +113,6 @@ export function Export(props: ExportProps) {
     }
 
     // At this point, we're relying on having the decrypted (Solana) private key in-memory within the iframe for signing
-    // Note that the embedded key has been wiped out at this point as it was used once to initially decrypt.
     try {
       const signedMessage = await iframeStamper.signMessage(
         {
@@ -141,7 +140,6 @@ export function Export(props: ExportProps) {
     }
 
     // At this point, we're relying on having the decrypted (Solana) private key in-memory within the iframe for signing
-    // Note that the embedded key has been wiped out at this point as it was used once to initially decrypt.
     try {
       const signedTransaction = await iframeStamper.signTransaction(
         {
