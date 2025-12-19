@@ -7,7 +7,7 @@ export const ERC20_ABI = [
 // Wrapped ETH (Sepolia)
 export const WETH_SEPOLIA = {
   chainId: 11155111,
-  address: "0xdd13E55209Fd76AfE204dBda4007C227904f0a81",
+  address: "0xfff9976782d46cc05630d1f6ebab18b2324d6b14",
   decimals: 18,
   symbol: "WETH",
   name: "Wrapped Ether",

@@ -18,7 +18,7 @@ export async function pollTransactionStatus({
   apiClient,
   organizationId,
   sendTransactionStatusId,
-  intervalMs = 500,
+  intervalMs = 200,
   timeoutMs = 60_000,
 }: {
   apiClient: any;
@@ -28,7 +28,7 @@ export async function pollTransactionStatus({
   timeoutMs?: number;
 }): Promise<{ eth?: { txHash?: string }; txStatus: string }> {
   const start = Date.now();
-
+  console.log(`Polling transaction status for ${sendTransactionStatusId}...`);
   return new Promise((resolve, reject) => {
     const ref = setInterval(async () => {
       try {
@@ -51,12 +51,7 @@ export async function pollTransactionStatus({
         if (!status) return;
 
         // Failure states
-        if (
-          txError ||
-          status === "FAILED" ||
-          status === "CANCELLED" ||
-          status === "DROPPED"
-        ) {
+        if (txError || status === "FAILED" || status === "CANCELLED") {
           clearInterval(ref);
           reject(
             new Error(

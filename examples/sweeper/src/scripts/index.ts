@@ -31,9 +31,17 @@ export async function main() {
   }
 
   const tokens = [USDC_SEPOLIA, WETH_SEPOLIA];
+  let sponsor = false;
+  const { useSponsor } = await prompts({
+    type: "confirm",
+    name: "useSponsor",
+    message: "Use Turnkey gas sponsorship for sweep transactions?",
+    initial: false,
+  });
+  sponsor = !!useSponsor;
 
-  await sweepTokens(turnkey, orgId, address, destination, tokens);
-  await sweepEth(turnkey, orgId, address, destination);
+  await sweepTokens(turnkey, orgId, address, destination, tokens, sponsor);
+  await sweepEth(turnkey, orgId, address, destination, sponsor);
 }
 
 async function sweepTokens(
@@ -42,6 +50,7 @@ async function sweepTokens(
   ownerAddress: string,
   destination: string,
   tokens: any[],
+  sponsor: boolean,
 ) {
   for (const token of tokens) {
     const contract = new ethers.Contract(token.address, ERC20_ABI, provider);
@@ -71,13 +80,16 @@ async function sweepTokens(
     ]);
 
     // Fetch nonce (same pattern as sweepEth)
-    const { nonce } = await turnkey.apiClient().getNonces({
+    const resp = await turnkey.apiClient().getNonces({
       organizationId,
       address: ownerAddress,
       caip2: "eip155:11155111", // Sepolia
-      nonce: true,
+      nonce: sponsor ? false : true,
+      gasStationNonce: sponsor ? true : false,
     });
 
+    const { nonce } = resp;
+    const { gasStationNonce } = resp;
     // Submit transaction via Turnkey
     const { sendTransactionStatusId } = await turnkey
       .apiClient()
@@ -86,9 +98,11 @@ async function sweepTokens(
         from: ownerAddress,
         to: token.address,
         caip2: "eip155:11155111", // Sepolia
-        nonce,
+        gasStationNonce: sponsor ? gasStationNonce : undefined,
+        nonce: sponsor ? undefined : nonce,
+        sponsor,
         data: calldata,
-        gasLimit: "200000",
+        gasLimit: sponsor ? undefined : "200000",
       });
 
     // Poll for final inclusion
@@ -115,15 +129,18 @@ async function sweepEth(
   organizationId: string,
   ownerAddress: string,
   destination: string,
+  sponsor: boolean,
 ) {
   const balance = await provider.getBalance(ownerAddress);
   const feeData = await provider.getFeeData();
 
-  const gas = 21000n;
-  const maxFee = feeData.maxFeePerGas ?? 0n;
-  const maxPriorityFee = feeData.maxPriorityFeePerGas ?? 0n;
+  const gas = 93000n;
 
-  const gasCost = gas * maxFee;
+  const maxPriorityFee = feeData.maxPriorityFeePerGas;
+
+  const maxFee = feeData.maxFeePerGas;
+
+  const gasCost = gas * maxFee!;
   const value = balance - gasCost;
 
   if (value <= 0n) {
@@ -138,13 +155,15 @@ async function sweepEth(
   });
 
   if (!confirmed) return;
-
-  const { nonce } = await turnkey.apiClient().getNonces({
+  const resp = await turnkey.apiClient().getNonces({
     organizationId,
     address: ownerAddress,
     caip2: "eip155:11155111", // Sepolia
-    nonce: true,
+    nonce: sponsor ? false : true,
+    gasStationNonce: sponsor ? true : false,
   });
+  const { nonce } = resp;
+  const { gasStationNonce } = resp;
   // Submit transaction via Turnkey
   const { sendTransactionStatusId } = await turnkey
     .apiClient()
@@ -152,12 +171,14 @@ async function sweepEth(
       organizationId,
       from: ownerAddress,
       to: destination,
-      nonce: nonce,
+      gasStationNonce: sponsor ? gasStationNonce : undefined,
+      nonce: sponsor ? undefined : nonce,
+      sponsor,
       caip2: "eip155:11155111",
       value: value.toString(),
-      gasLimit: gas.toString(),
-      maxFeePerGas: maxFee.toString(),
-      maxPriorityFeePerGas: maxPriorityFee.toString(),
+      gasLimit: sponsor ? undefined : gas.toString(),
+      maxFeePerGas: sponsor ? undefined : maxFee!.toString(),
+      maxPriorityFeePerGas: sponsor ? undefined : maxPriorityFee!.toString(),
     });
   // Poll for final inclusion
   const status = await pollTransactionStatus({
