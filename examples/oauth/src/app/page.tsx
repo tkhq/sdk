@@ -43,7 +43,7 @@ export default function AuthPage() {
 
     (async () => {
       try {
-        const pubKey = await createApiKeyPair({ storeOverride: true });
+        const pubKey = await createApiKeyPair();
         pubKeyRef.current = pubKey;
         setNonce(bytesToHex(sha256(pubKey)));
         createdOnceRef.current = true; // don’t regenerate (avoids nonce mismatch)
