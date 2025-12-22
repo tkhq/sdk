@@ -106,6 +106,9 @@ import {
   type BuildWalletLoginRequestParams,
   type VerifyAppProofsParams,
   type PollTransactionStatusParams,
+  type OverrideApiKeyStamperParams,
+  type OverridePasskeyStamperParams,
+  type OverrideWalletManagerParams,
 } from "../__types__";
 import {
   buildSignUpBody,
@@ -281,6 +284,104 @@ export class TurnkeyClient {
   };
 
   /**
+   * Overrides the API key stamper with a new temporary public key.
+   *
+   * - This function sets a temporary public key on the API key stamper or clears it if not provided.
+   * - Useful for dynamically changing the API key used for signing requests.
+   *
+   * @param params.temporaryPublicKey - temporary public key to use for the API key stamper.
+   * @returns A promise that resolves when the stamper and HTTP client have been updated.
+   * @throws {TurnkeyError} If there is an error initializing the new stamper.
+   */
+  overrideApiKeyStamper = async (
+    params?: OverrideApiKeyStamperParams,
+  ): Promise<void> => {
+    const { temporaryPublicKey } = params || {};
+    // Note: we can expand on this function in the future if we want
+    return withTurnkeyErrorHandling(
+      async () => {
+        if (temporaryPublicKey) {
+          this.apiKeyStamper?.setTemporaryPublicKey(temporaryPublicKey);
+        } else {
+          this.apiKeyStamper?.clearTemporaryPublicKey();
+        }
+      },
+      {
+        errorMessage: "Failed to override API key stamper",
+        errorCode: TurnkeyErrorCodes.INITIALIZE_API_KEY_STAMPER_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Overrides the passkey stamper with a new configuration.
+   *
+   * - This function creates a new passkey stamper instance with the provided configuration.
+   * - Reinitializes the stamper and recreates the HTTP client with the new stamper.
+   * - Useful for dynamically changing passkey configuration (e.g., allowCredentials, rpId, timeout).
+   *
+   * @param params.newConfig - new passkey stamper configuration to use.
+   * @returns A promise that resolves when the stamper and HTTP client have been updated.
+   * @throws {TurnkeyError} If there is an error initializing the new stamper.
+   */
+  overridePasskeyStamper = async (
+    params: OverridePasskeyStamperParams,
+  ): Promise<void> => {
+    const { newConfig } = params;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        // Create a new passkey stamper with the new configuration
+        const passkeyStamper = new CrossPlatformPasskeyStamper(newConfig);
+
+        // Initialize the new stamper
+        await passkeyStamper.init();
+
+        // Set the new stamper
+        this.passkeyStamper = passkeyStamper;
+
+        // Recreate the HTTP client with the new stamper
+        this.httpClient = this.createHttpClient();
+      },
+      {
+        errorMessage: "Failed to override passkey stamper",
+        errorCode: TurnkeyErrorCodes.INITIALIZE_PASSKEY_STAMPER_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Overrides the wallet manager with a new configuration.
+   *
+   * - This function creates a new wallet manager instance with the provided configuration.
+   * - Recreates the HTTP client with the new wallet manager's stamper.
+   * - Useful for dynamically changing wallet configuration (e.g., chains, features, WalletConnect settings).
+   *
+   * @param params.newConfig - new wallet manager configuration to use.
+   * @returns A promise that resolves when the wallet manager and HTTP client have been updated.
+   * @throws {TurnkeyError} If there is an error creating the new wallet manager.
+   */
+  overrideWalletManager = async (
+    params: OverrideWalletManagerParams,
+  ): Promise<void> => {
+    const { newConfig } = params;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        // Create a new wallet manager with the new configuration
+        this.walletManager = await createWalletManager(newConfig);
+
+        // Recreate the HTTP client with the new wallet manager
+        this.httpClient = this.createHttpClient();
+      },
+      {
+        errorMessage: "Failed to override wallet manager",
+        errorCode: TurnkeyErrorCodes.INITIALIZE_WALLET_MANAGER_ERROR,
+      },
+    );
+  };
+
+  /**
    * Creates a new passkey authenticator for the user.
    *
    * - This function generates a new passkey attestation and challenge, suitable for registration with the user's device.
@@ -421,6 +522,7 @@ export class TurnkeyClient {
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.allowCredentials - optional list of allowed credentials for passkey authentication. This allows you to restrict which passkeys can be used for login.
    * @returns A promise that resolves to a {@link PasskeyAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    *          - `credentialId`: an empty string.
@@ -430,6 +532,12 @@ export class TurnkeyClient {
     params?: LoginWithPasskeyParams,
   ): Promise<PasskeyAuthResult> => {
     let generatedPublicKey: string | undefined = undefined;
+
+    const shouldOverrideConfig =
+      params?.allowCredentials && this.passkeyStamper;
+
+    const currentConfig = this.config.passkeyConfig;
+
     return await withTurnkeyErrorHandling(
       async () => {
         generatedPublicKey =
@@ -445,6 +553,16 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.INTERNAL_ERROR,
           );
         }
+
+        if (shouldOverrideConfig) {
+          // Override passkey stamper config to include allowCredentials
+          const mergedConfig = {
+            ...currentConfig,
+            allowCredentials: params?.allowCredentials!, // Can safely assert non-null due to check above
+          };
+          await this.overridePasskeyStamper({ newConfig: mergedConfig });
+        }
+
         const sessionResponse = await this.httpClient.stampLogin(
           {
             publicKey: generatedPublicKey,
@@ -493,6 +611,13 @@ export class TurnkeyClient {
                 cleanupError,
               );
             }
+          }
+
+          if (shouldOverrideConfig) {
+            // Restore previous stamper after login attempt
+            await this.overridePasskeyStamper({
+              newConfig: currentConfig!, // can safely assert non-null since passkeyStamper exists
+            });
           }
         },
       },

@@ -22,6 +22,8 @@ import type {
   WalletProvider,
   Wallet,
   TSignedRequest,
+  TPasskeyStamperConfig,
+  TWalletManagerConfig,
 } from "../index";
 
 export type CreateHttpClientParams = {
@@ -30,6 +32,18 @@ export type CreateHttpClientParams = {
   authProxyUrl?: string | undefined;
   authProxyConfigId?: string | undefined;
   defaultStamperType?: StamperType | undefined;
+};
+
+export type OverrideApiKeyStamperParams = {
+  temporaryPublicKey?: string | undefined;
+};
+
+export type OverridePasskeyStamperParams = {
+  newConfig: TPasskeyStamperConfig;
+};
+
+export type OverrideWalletManagerParams = {
+  newConfig: TWalletManagerConfig;
 };
 
 export type CreatePasskeyParams = {
@@ -53,6 +67,7 @@ export type LoginWithPasskeyParams = {
   sessionKey?: string;
   expirationSeconds?: string;
   organizationId?: string;
+  allowCredentials?: PublicKeyCredentialDescriptor[];
 };
 
 export type SignUpWithPasskeyParams = {
