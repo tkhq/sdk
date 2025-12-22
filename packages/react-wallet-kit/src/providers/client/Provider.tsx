@@ -118,7 +118,9 @@ import {
   type PollTransactionStatusParams,
   type SignAndSendTransactionParams,
   type EthTransaction,
-  type SolanaTransaction,
+  type OverrideApiKeyStamperParams,
+  type OverridePasskeyStamperParams,
+  type OverrideWalletManagerParams,
   buildSecondaryOauthProviders,
   buildSecondaryOidcClaims,
 } from "@turnkey/core";
@@ -1369,6 +1371,45 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
       return client.createHttpClient(params);
+    },
+    [client],
+  );
+
+  const overrideApiKeyStamper = useCallback(
+    (params?: OverrideApiKeyStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideApiKeyStamper(params);
+    },
+    [client],
+  );
+
+  const overridePasskeyStamper = useCallback(
+    (params: OverridePasskeyStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overridePasskeyStamper(params);
+    },
+    [client],
+  );
+
+  const overrideWalletManager = useCallback(
+    (params: OverrideWalletManagerParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideWalletManager(params);
     },
     [client],
   );
@@ -6163,6 +6204,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         config: masterConfig,
         httpClient: client?.httpClient,
         createHttpClient,
+        overrideApiKeyStamper,
+        overridePasskeyStamper,
+        overrideWalletManager,
         createPasskey,
         logout,
         loginWithPasskey,

@@ -77,7 +77,9 @@ import {
   type VerifyAppProofsParams,
   type SignAndSendTransactionParams,
   type PollTransactionStatusParams,
-  type SolSendTransactionParams,
+  type OverrideApiKeyStamperParams,
+  type OverridePasskeyStamperParams,
+  type OverrideWalletManagerParams,
   buildSecondaryOauthProviders,
 } from "@turnkey/core";
 import {
@@ -756,6 +758,45 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       }
       return client.createHttpClient(params);
+    },
+    [client],
+  );
+
+  const overrideApiKeyStamper = useCallback(
+    (params?: OverrideApiKeyStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideApiKeyStamper(params);
+    },
+    [client],
+  );
+
+  const overridePasskeyStamper = useCallback(
+    (params: OverridePasskeyStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overridePasskeyStamper(params);
+    },
+    [client],
+  );
+
+  const overrideWalletManager = useCallback(
+    (params: OverrideWalletManagerParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideWalletManager(params);
     },
     [client],
   );
@@ -3515,6 +3556,9 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         config: masterConfig,
         httpClient: client?.httpClient,
         createHttpClient,
+        overrideApiKeyStamper,
+        overridePasskeyStamper,
+        overrideWalletManager,
         createPasskey,
         logout,
         loginWithPasskey,
