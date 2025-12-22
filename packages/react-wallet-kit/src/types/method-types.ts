@@ -132,6 +132,7 @@ export type HandleImportPrivateKeyParams = {
   curve: v1Curve;
   addressFormats: v1AddressFormat[];
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
+  keyFormat?: KeyFormat | undefined;
   stampWith?: StamperType | undefined;
   keyName?: string;
   clearClipboardOnPaste?: boolean | undefined; // If true, the clipboard will be cleared when pasting into the import iframe. Defaults to true.
