@@ -1,0 +1,22 @@
+{
+  "name": "@turnkey/example-sweeper-new",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "tsx src/scripts/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/ethers": "workspace:*",
+    "@uniswap/sdk-core": "^3.1.1",
+    "dotenv": "^16.0.3",
+    "ethers": "^6.10.0",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2",
+    "typescript": "5.4.3"
+  }
+}
