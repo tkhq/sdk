@@ -267,6 +267,34 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/eth-usdc-swap:
+    dependencies:
+      '@turnkey/ethers':
+        specifier: workspace:*
+        version: link:../../packages/ethers
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      '@uniswap/sdk-core':
+        specifier: ^3.1.1
+        version: 3.2.6
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/export-in-node:
     dependencies:
       '@peculiar/webcrypto':
@@ -903,34 +931,6 @@ importers:
       ethers:
         specifier: ^6.10.0
         version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-
-  examples/swap-tokens:
-    dependencies:
-      '@turnkey/ethers':
-        specifier: workspace:*
-        version: link:../../packages/ethers
-      '@turnkey/sdk-server':
-        specifier: workspace:*
-        version: link:../../packages/sdk-server
-      '@uniswap/sdk-core':
-        specifier: ^3.1.1
-        version: 3.2.6
-      dotenv:
-        specifier: ^16.0.3
-        version: 16.0.3
-      ethers:
-        specifier: ^6.10.0
-        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-    devDependencies:
-      '@types/prompts':
-        specifier: ^2.4.2
-        version: 2.4.2
-      typescript:
-        specifier: 5.4.3
-        version: 5.4.3
 
   examples/sweeper:
     dependencies:
@@ -34033,7 +34033,7 @@ snapshots:
 
   ox@0.4.4(typescript@5.4.3)(zod@3.25.76):
     dependencies:
-      '@adraffy/ens-normalize': 1.11.0
+      '@adraffy/ens-normalize': 1.11.1
       '@noble/curves': 1.9.0
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
@@ -34047,7 +34047,7 @@ snapshots:
 
   ox@0.4.4(typescript@5.4.3)(zod@4.1.11):
     dependencies:
-      '@adraffy/ens-normalize': 1.11.0
+      '@adraffy/ens-normalize': 1.11.1
       '@noble/curves': 1.9.0
       '@noble/hashes': 1.8.0
       '@scure/bip32': 1.7.0
@@ -34162,7 +34162,7 @@ snapshots:
 
   ox@0.9.3(typescript@5.4.3)(zod@3.25.76):
     dependencies:
-      '@adraffy/ens-normalize': 1.11.0
+      '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -34177,7 +34177,7 @@ snapshots:
 
   ox@0.9.3(typescript@5.4.3)(zod@4.1.11):
     dependencies:
-      '@adraffy/ens-normalize': 1.11.0
+      '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0
@@ -34252,7 +34252,7 @@ snapshots:
 
   ox@0.9.8(typescript@5.4.3)(zod@4.1.11):
     dependencies:
-      '@adraffy/ens-normalize': 1.11.0
+      '@adraffy/ens-normalize': 1.11.1
       '@noble/ciphers': 1.3.0
       '@noble/curves': 1.9.1
       '@noble/hashes': 1.8.0

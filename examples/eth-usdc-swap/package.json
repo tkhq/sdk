@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/example-sweeper-new",
+  "name": "@turnkey/eth-usdc-swap",
   "private": true,
   "version": "0.1.0",
   "scripts": {
