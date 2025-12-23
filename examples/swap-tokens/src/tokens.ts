@@ -2,7 +2,7 @@ export const UNIVERSAL_ROUTER = "0x3A9D48AB9751398BbFa63ad67599Bb04e4BdF98b";
 export const PERMIT2 = "0x000000000022D473030F116dDEE9F6B43aC78BA3";
 
 export const PERMIT2_ABI = [
-  "function approve(address token, uint160 amount, uint48 expiration) external",
+  "function approve(address token, address spender, uint160 amount, uint48 expiration) external",
   "function allowance(address user, address token, address spender) view returns (uint160 amount, uint48 expiration)"
 ];
 
