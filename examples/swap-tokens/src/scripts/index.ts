@@ -5,17 +5,11 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { ethers } from "ethers";
 import prompts from "prompts";
 import { getTurnkeyClient, pollTransactionStatus } from "../turnkey";
-import { ERC20_ABI, USDC, WETH } from "../tokens";
-
-const UNIVERSAL_ROUTER = "0x3A9D48AB9751398BbFa63ad67599Bb04e4BdF98b";
-const UNIVERSAL_ROUTER_ABI = [
-  "function execute(bytes commands, bytes[] inputs) payable"
-];
+import { ERC20_ABI, PERMIT2, PERMIT2_ABI, UNIVERSAL_ROUTER, UNIVERSAL_ROUTER_ABI, USDC, WETH } from "../tokens";
 
 const RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
 const provider = new ethers.JsonRpcProvider(RPC_URL);
 
-// ONLY valid pool on Sepolia
 const FEE_TIER = 500;
 
 export async function main() {
@@ -42,35 +36,39 @@ export async function main() {
   });
 
   const usdc = new ethers.Contract(ethers.getAddress(USDC.address), ERC20_ABI, provider);
-  const weth = new ethers.Contract(ethers.getAddress(WETH.address), ERC20_ABI, provider);
 
   const usdcBalance = await usdc.balanceOf!(wallet);
   const ethBalance = await provider.getBalance(wallet);
 
-  if (direction === "USDC_ETH" && usdcBalance < ethers.parseUnits("5", USDC.decimals)) return;
-  if (direction === "ETH_USDC" && ethBalance < ethers.parseEther("0.0025")) return;
+  if (direction === "USDC_ETH" && usdcBalance < ethers.parseUnits("0.1", USDC.decimals)) {
+    console.log("Insufficient USDC balance");
+    return;
+  }
+  if (direction === "ETH_USDC" && ethBalance < ethers.parseEther("0.0001")) {
+    console.log("Insufficient ETH balance");
+    return;
+  }
 
   const amountIn =
     direction === "USDC_ETH"
-      ? ethers.parseUnits("5", USDC.decimals)
-      : ethers.parseEther("0.0025");
+      ? ethers.parseUnits("0.1", USDC.decimals)
+      : ethers.parseEther("0.0001");
 
-  const amountOutMin = 0n;
+  const amountOutMin = 1n;
 
-  //
-  // APPROVE USDC IF NEEDED
-  //
   if (direction === "USDC_ETH") {
-    const approveData = new ethers.Interface(ERC20_ABI)
-      .encodeFunctionData("approve", [UNIVERSAL_ROUTER, amountIn]);
+    const expiration = 281474976710655n;
+
+    const approveData = new ethers.Interface(PERMIT2_ABI)
+      .encodeFunctionData("approve", [ethers.getAddress(USDC.address), UNIVERSAL_ROUTER, amountIn, expiration]);
 
     let approvePayload: any = {
       organizationId,
       from: wallet,
-      to: ethers.getAddress(USDC.address),
+      to: PERMIT2,
       caip2: "eip155:11155111",
       data: approveData,
-      gasLimit: "150000",
+      gasLimit: sponsored ? undefined : "150000",
     };
 
     if (sponsored) {
@@ -96,11 +94,10 @@ export async function main() {
       organizationId,
       sendTransactionStatusId,
     });
+
+    console.log("USDC approved via Permit2");
   }
 
-  //
-  // UNIVERSAL ROUTER SWAP — SEPOLIA COMPATIBLE FORMAT
-  //
   console.log("→ Preparing Universal Router calldata…");
 
   const router = new ethers.Interface(UNIVERSAL_ROUTER_ABI);
@@ -108,50 +105,41 @@ export async function main() {
   let commands: Uint8Array;
   let inputs: string[];
 
+  const path = ethers.concat([
+    direction === "ETH_USDC" ? ethers.getAddress(WETH.address) : ethers.getAddress(USDC.address),
+    ethers.zeroPadValue(ethers.toBeHex(FEE_TIER), 3),
+    direction === "ETH_USDC" ? ethers.getAddress(USDC.address) : ethers.getAddress(WETH.address),
+  ]);
+
   if (direction === "ETH_USDC") {
-    //
-    // COMMANDS: wrapETH (0x09) → v3ExactInput (0x0b)
-    //
-    commands = new Uint8Array([0x09, 0x0b]);
+    commands = new Uint8Array([0x0b, 0x00]);
 
-    const wrapInput = ethers.zeroPadValue("0x", 32);
+    const wrapInput = ethers.AbiCoder.defaultAbiCoder().encode(
+      ["address", "uint256"],
+      [UNIVERSAL_ROUTER, amountIn]
+    );
 
-    //
-    // OLD STRUCT FORMAT (NO PATH BYTES!)
-    //
     const swapInput = ethers.AbiCoder.defaultAbiCoder().encode(
-      ["address", "address", "uint24", "address", "uint256", "uint256"],
-      [
-        ethers.getAddress(WETH.address),
-        ethers.getAddress(USDC.address),
-        FEE_TIER,
-        wallet,
-        amountIn,
-        amountOutMin
-      ]
+      ["address", "uint256", "uint256", "bytes", "bool"],
+      [wallet, amountIn, amountOutMin, path, true]
     );
 
     inputs = [wrapInput, swapInput];
 
   } else {
-    //
-    // COMMAND: v3ExactInput (0x0b)
-    //
-    commands = new Uint8Array([0x0b]);
+    commands = new Uint8Array([0x00, 0x0c]);
 
     const swapInput = ethers.AbiCoder.defaultAbiCoder().encode(
-      ["address", "address", "uint24", "address", "uint256", "uint256"],
-      [
-        ethers.getAddress(USDC.address),
-        ethers.getAddress(WETH.address),
-        FEE_TIER,
-        wallet,
-        amountIn,
-        amountOutMin
-      ]
+      ["address", "uint256", "uint256", "bytes", "bool"],
+      [wallet, amountIn, amountOutMin, path, false]
     );
 
-    inputs = [swapInput];
+    const unwrapInput = ethers.AbiCoder.defaultAbiCoder().encode(
+      ["address", "uint256"],
+      [wallet, 0]
+    );
+
+    inputs = [swapInput, unwrapInput];
   }
 
   const calldata = router.encodeFunctionData("execute", [
@@ -165,7 +153,7 @@ export async function main() {
     to: UNIVERSAL_ROUTER,
     caip2: "eip155:11155111",
     data: calldata,
-    gasLimit: "600000",
+    gasLimit: sponsored ? undefined : "600000",
     value: direction === "ETH_USDC" ? amountIn.toString() : "0",
   };
 
