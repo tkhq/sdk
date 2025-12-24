@@ -100,6 +100,7 @@ import {
   type GetSessionParams,
   type SetActiveSessionParams,
   type CreateApiKeyPairParams,
+  type DeleteApiKeyPairParams,
   type FetchBootProofForAppProofParams,
   type CreateHttpClientParams,
   type BuildWalletLoginRequestResult,
@@ -464,13 +465,13 @@ export class TurnkeyClient {
             params.sessionKey,
           );
           this.storageManager.clearSession(params.sessionKey);
-          this.apiKeyStamper?.deleteKeyPair(session?.publicKey!);
+          this.deleteApiKeyPair({ publicKey: session?.publicKey! });
         } else {
           const sessionKey = await this.storageManager.getActiveSessionKey();
           const session = await this.storageManager.getActiveSession();
           if (sessionKey) {
             this.storageManager.clearSession(sessionKey);
-            this.apiKeyStamper?.deleteKeyPair(session?.publicKey!);
+            this.deleteApiKeyPair({ publicKey: session?.publicKey! });
           } else {
             throw new TurnkeyError(
               "No active session found to log out from.",
@@ -574,7 +575,7 @@ export class TurnkeyClient {
         },
         catchFn: async () => {
           try {
-            await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
+            await this.deleteApiKeyPair({ publicKey: generatedPublicKey });
           } catch (cleanupError) {
             throw new TurnkeyError(
               `Failed to clean up generated key pair`,
@@ -712,7 +713,7 @@ export class TurnkeyClient {
         finallyFn: async () => {
           try {
             await this.overrideApiKeyStamper({ temporaryPublicKey: "" });
-            await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
+            await this.deleteApiKeyPair({ publicKey: generatedPublicKey });
           } catch (cleanupError) {
             throw new TurnkeyError(
               `Failed to clean up generated key pair`,
@@ -923,7 +924,9 @@ export class TurnkeyClient {
     const expirationSeconds =
       params.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
 
-    let generatedPublicKey: string | undefined = undefined;
+    const futureSessionPublicKey =
+      providedPublicKey ?? (await this.createApiKeyPair());
+
     return withTurnkeyErrorHandling(
       async () => {
         if (!this.walletManager?.stamper) {
@@ -932,10 +935,6 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
           );
         }
-
-        const futureSessionPublicKey =
-          providedPublicKey ??
-          (generatedPublicKey = await this.createApiKeyPair());
 
         if (!futureSessionPublicKey) {
           throw new TurnkeyError(
@@ -1027,9 +1026,12 @@ export class TurnkeyClient {
         errorCode: TurnkeyErrorCodes.WALLET_BUILD_LOGIN_REQUEST_ERROR,
         errorMessage: "Failed to build wallet login request",
         catchFn: async () => {
-          if (generatedPublicKey) {
+          // we only clean up the generated key pair if we created it here
+          if (!providedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
+              await this.deleteApiKeyPair({
+                publicKey: futureSessionPublicKey,
+              });
             } catch (cleanupError) {
               throw new TurnkeyError(
                 `Failed to clean up generated key pair`,
@@ -1126,7 +1128,7 @@ export class TurnkeyClient {
         errorCode: TurnkeyErrorCodes.WALLET_LOGIN_AUTH_ERROR,
         catchFn: async () => {
           try {
-            await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
+            await this.deleteApiKeyPair({ publicKey: generatedPublicKey });
           } catch (cleanupError) {
             throw new TurnkeyError(
               "Failed to clean up generated key pair",
@@ -1259,7 +1261,7 @@ export class TurnkeyClient {
         finallyFn: async () => {
           try {
             await this.overrideApiKeyStamper({ temporaryPublicKey: "" });
-            await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
+            await this.deleteApiKeyPair({ publicKey: generatedPublicKey });
           } catch (cleanupError) {
             throw new TurnkeyError(
               "Failed to clean up generated key pair",
@@ -1383,7 +1385,7 @@ export class TurnkeyClient {
         errorMessage: "Failed to log in or sign up with wallet",
         catchFn: async () => {
           try {
-            await this.apiKeyStamper?.deleteKeyPair(publicKey);
+            await this.deleteApiKeyPair({ publicKey });
           } catch (cleanupError) {
             throw new TurnkeyError(
               `Failed to clean up generated key pair`,
@@ -1458,7 +1460,7 @@ export class TurnkeyClient {
   verifyOtp = async (params: VerifyOtpParams): Promise<VerifyOtpResult> => {
     const { otpId, otpCode, contact, otpType } = params;
     const resolvedPublicKey =
-      params.publicKey ?? (await this.apiKeyStamper?.createKeyPair());
+      params.publicKey ?? (await this.createApiKeyPair());
 
     return withTurnkeyErrorHandling(
       async () => {
@@ -1501,6 +1503,20 @@ export class TurnkeyClient {
             message: "The provided OTP code is invalid.",
             code: TurnkeyErrorCodes.INVALID_OTP_CODE,
           },
+        },
+        catchFn: async () => {
+          // we only clean up the generated key pair if we created it here
+          if (!params.publicKey) {
+            try {
+              await this.deleteApiKeyPair({ publicKey: resolvedPublicKey });
+            } catch (cleanupError) {
+              throw new TurnkeyError(
+                "Failed to clean up generated key pair",
+                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+                cleanupError,
+              );
+            }
+          }
         },
       },
     );
@@ -1600,7 +1616,7 @@ export class TurnkeyClient {
         errorCode: TurnkeyErrorCodes.OTP_LOGIN_ERROR,
         catchFn: async () => {
           try {
-            await this.apiKeyStamper?.deleteKeyPair(publicKey);
+            await this.deleteApiKeyPair({ publicKey });
           } catch (cleanupError) {
             throw new TurnkeyError(
               `Failed to clean up generated key pair`,
@@ -1722,7 +1738,7 @@ export class TurnkeyClient {
       {
         catchFn: async () => {
           try {
-            await this.apiKeyStamper?.deleteKeyPair(publicKey);
+            await this.deleteApiKeyPair({ publicKey });
           } catch (cleanupError) {
             throw new TurnkeyError(
               `Failed to clean up generated key pair`,
@@ -2002,7 +2018,7 @@ export class TurnkeyClient {
         },
         catchFn: async () => {
           try {
-            await this.apiKeyStamper?.deleteKeyPair(publicKey);
+            await this.deleteApiKeyPair({ publicKey });
           } catch (cleanupError) {
             throw new TurnkeyError(
               `Failed to clean up generated key pair`,
@@ -4732,7 +4748,7 @@ export class TurnkeyClient {
         const session = await this.storageManager.getSession(sessionKey);
         if (session) {
           await Promise.all([
-            this.apiKeyStamper?.deleteKeyPair(session.publicKey!),
+            this.deleteApiKeyPair({ publicKey: session.publicKey! }),
             this.storageManager.clearSession(sessionKey),
           ]);
         } else {
@@ -4863,10 +4879,10 @@ export class TurnkeyClient {
         errorMessage: "Failed to refresh session",
         errorCode: TurnkeyErrorCodes.REFRESH_SESSION_ERROR,
         catchFn: async () => {
-          // we only delete the keypair if we generated it
+          // we only delete the keypair if we generated it here
           if (keyPair && !publicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(keyPair);
+              await this.deleteApiKeyPair({ publicKey: keyPair });
             } catch (cleanupError) {
               throw new TurnkeyError(
                 "Failed to clean up generated key pair",
@@ -5020,7 +5036,7 @@ export class TurnkeyClient {
         for (const publicKey of publicKeys) {
           if (!sessionTokensMap[publicKey]) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(publicKey);
+              await this.deleteApiKeyPair({ publicKey });
             } catch (error) {
               throw new TurnkeyError(
                 `Failed to delete unused key pair ${publicKey}`,
@@ -5041,7 +5057,7 @@ export class TurnkeyClient {
   /**
    * Creates a new API key pair and returns the public key.
    *
-   * - This function generates a new API key pair and stores it in the underlying key store (IndexedDB).
+   * - This function generates a new API key pair and stores it in the underlying key store.
    * - If an external key pair is provided, it will use that key pair for creation instead of generating a new one.
    * - If `storeOverride` is set to true, the generated or provided public key will be set as the override key in the API key stamper, making it the active key for subsequent signing operations.
    * - Ensures the API key stamper is initialized before proceeding.
@@ -5079,6 +5095,38 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to create API key pair",
         errorCode: TurnkeyErrorCodes.CREATE_API_KEY_PAIR_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Deletes an API key pair from persistent storage.
+   *
+   * - This function removes a stored API key pair from the underlying key store (IndexedDB) based on its public key.
+   * - Ensures that the API key stamper is initialized before proceeding with deletion.
+   * - Intended for cleaning up key pairs that are not associated with active sessions, such as after failed authentication attempts where a temporary key pair was created but never used.
+   * - Should NOT be used to delete key pairs that are associated with active sessions; use `clearSession` or `clearAllSessions` instead.
+   *
+   * @param params.publicKey - The public key of the API key pair to delete.
+   * @returns A promise that resolves when the key pair is successfully deleted.
+   * @throws {TurnkeyError} If the API key stamper is not initialized or if there is an error during key pair deletion.
+   */
+  deleteApiKeyPair = async (params: DeleteApiKeyPairParams): Promise<void> => {
+    const { publicKey } = params;
+    return withTurnkeyErrorHandling(
+      async () => {
+        if (!this.apiKeyStamper) {
+          throw new TurnkeyError(
+            "API Key Stamper is not initialized.",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
+        await this.apiKeyStamper.deleteKeyPair(publicKey);
+      },
+      {
+        errorMessage: "Failed to delete API key pair",
+        errorCode: TurnkeyErrorCodes.DELETE_API_KEY_PAIR_ERROR,
       },
     );
   };

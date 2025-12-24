@@ -415,6 +415,10 @@ export type CreateApiKeyPairParams = {
   storeOverride?: boolean;
 };
 
+export type DeleteApiKeyPairParams = {
+  publicKey: string;
+};
+
 export type FetchBootProofForAppProofParams = {
   appProof?: v1AppProof;
   organizationId?: string;

@@ -44,6 +44,7 @@ import {
   type CompleteOauthParams,
   type CompleteOtpParams,
   type CreateApiKeyPairParams,
+  type DeleteApiKeyPairParams,
   type CreatePasskeyParams,
   type CreatePasskeyResult,
   type CreateWalletAccountsParams,
@@ -3157,6 +3158,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks],
   );
 
+  const deleteApiKeyPair = useCallback(
+    async (params: DeleteApiKeyPairParams): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.deleteApiKeyPair(params),
+        undefined,
+        callbacks,
+        "Failed to delete API key pair",
+      );
+    },
+    [client, callbacks],
+  );
+
   const getProxyAuthConfig =
     useCallback(async (): Promise<ProxyTGetWalletKitConfigResponse> => {
       if (!client)
@@ -6145,6 +6163,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         clearUnusedKeyPairs,
         getActiveSessionKey,
         createApiKeyPair,
+        deleteApiKeyPair,
         getProxyAuthConfig,
         fetchBootProofForAppProof,
         verifyAppProofs,
