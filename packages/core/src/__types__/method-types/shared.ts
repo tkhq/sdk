@@ -463,6 +463,10 @@ export type CreateApiKeyPairParams = {
   storeOverride?: boolean;
 };
 
+export type DeleteApiKeyPairParams = {
+  publicKey: string;
+};
+
 export type SignWithApiKeyParams = {
   message: string;
   publicKey: string;

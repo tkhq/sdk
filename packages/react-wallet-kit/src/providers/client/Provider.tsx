@@ -56,6 +56,7 @@ import {
   type CompleteOauthParams,
   type CompleteOtpParams,
   type CreateApiKeyPairParams,
+  type DeleteApiKeyPairParams,
   type SignWithApiKeyParams,
   type CreatePasskeyParams,
   type CreatePasskeyResult,
@@ -3311,6 +3312,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks],
   );
 
+  const deleteApiKeyPair = useCallback(
+    async (params: DeleteApiKeyPairParams): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.deleteApiKeyPair(params),
+        undefined,
+        callbacks,
+        "Failed to delete API key pair",
+      );
+    },
+    [client, callbacks],
+  );
+
   const signWithApiKey = useCallback(
     async (params: SignWithApiKeyParams): Promise<string> => {
       if (!client)
@@ -6254,6 +6272,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         clearUnusedKeyPairs,
         getActiveSessionKey,
         createApiKeyPair,
+        deleteApiKeyPair,
         signWithApiKey,
         getProxyAuthConfig,
         fetchBootProofForAppProof,
