@@ -120,7 +120,6 @@ import {
   type EthTransaction,
   type OverrideApiKeyStamperParams,
   type OverridePasskeyStamperParams,
-  type OverrideWalletManagerParams,
   buildSecondaryOauthProviders,
   buildSecondaryOidcClaims,
 } from "@turnkey/core";
@@ -1376,7 +1375,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const overrideApiKeyStamper = useCallback(
-    (params?: OverrideApiKeyStamperParams): Promise<void> => {
+    (params: OverrideApiKeyStamperParams): Promise<void> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -1397,19 +1396,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
       return client.overridePasskeyStamper(params);
-    },
-    [client],
-  );
-
-  const overrideWalletManager = useCallback(
-    (params: OverrideWalletManagerParams): Promise<void> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      return client.overrideWalletManager(params);
     },
     [client],
   );
@@ -6206,7 +6192,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         createHttpClient,
         overrideApiKeyStamper,
         overridePasskeyStamper,
-        overrideWalletManager,
         createPasskey,
         logout,
         loginWithPasskey,

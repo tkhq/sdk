@@ -25,7 +25,6 @@ import type {
   Wallet,
   TSignedRequest,
   TPasskeyStamperConfig,
-  TWalletManagerConfig,
 } from "../index";
 
 export type CreateHttpClientParams = {
@@ -41,11 +40,7 @@ export type OverrideApiKeyStamperParams = {
 };
 
 export type OverridePasskeyStamperParams = {
-  newConfig: TPasskeyStamperConfig;
-};
-
-export type OverrideWalletManagerParams = {
-  newConfig: TWalletManagerConfig;
+  config: TPasskeyStamperConfig;
 };
 
 export type CreatePasskeyParams = {
@@ -463,6 +458,8 @@ export type SetActiveSessionParams = { sessionKey: string };
 
 export type CreateApiKeyPairParams = {
   externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string };
+
+  // TODO: (breaking change): remove this, we should only use `overrideApiKeyStamper()`
   storeOverride?: boolean;
 };
 

@@ -79,7 +79,6 @@ import {
   type PollTransactionStatusParams,
   type OverrideApiKeyStamperParams,
   type OverridePasskeyStamperParams,
-  type OverrideWalletManagerParams,
   buildSecondaryOauthProviders,
 } from "@turnkey/core";
 import {
@@ -763,7 +762,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   );
 
   const overrideApiKeyStamper = useCallback(
-    (params?: OverrideApiKeyStamperParams): Promise<void> => {
+    (params: OverrideApiKeyStamperParams): Promise<void> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -784,19 +783,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       }
       return client.overridePasskeyStamper(params);
-    },
-    [client],
-  );
-
-  const overrideWalletManager = useCallback(
-    (params: OverrideWalletManagerParams): Promise<void> => {
-      if (!client) {
-        throw new TurnkeyError(
-          "Client is not initialized.",
-          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-        );
-      }
-      return client.overrideWalletManager(params);
     },
     [client],
   );
@@ -3558,7 +3544,6 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         createHttpClient,
         overrideApiKeyStamper,
         overridePasskeyStamper,
-        overrideWalletManager,
         createPasskey,
         logout,
         loginWithPasskey,
