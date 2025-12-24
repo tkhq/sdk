@@ -366,6 +366,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             const nonce = stateParams.get("nonce");
             const sessionKey = stateParams.get("sessionKey");
 
+            // Validate state to prevent CSRF attacks
+            const returnedRandomState = stateParams.get("randomState");
+            const expectedRandomState =
+              sessionStorage.getItem("discord_state");
+
+            if (
+              !returnedRandomState ||
+              returnedRandomState !== expectedRandomState
+            ) {
+              sessionStorage.removeItem("discord_verifier");
+              sessionStorage.removeItem("discord_state");
+              if (callbacks?.onError) {
+                callbacks.onError(
+                  new TurnkeyError(
+                    "OAuth state mismatch - possible CSRF attack",
+                    TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                  ),
+                );
+              }
+              return;
+            }
+
             if (clientId && redirectURI && verifier && nonce) {
               await new Promise((resolve, reject) => {
                 pushPage({
@@ -386,6 +408,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                             });
 
                           sessionStorage.removeItem("discord_verifier");
+                          sessionStorage.removeItem("discord_state");
 
                           const oidcToken = resp?.oidcToken;
                           if (!oidcToken) {
@@ -446,6 +469,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             const nonce = stateParams.get("nonce");
             const sessionKey = stateParams.get("sessionKey");
 
+            // Validate state to prevent CSRF attacks
+            const returnedRandomState = stateParams.get("randomState");
+            const expectedRandomState =
+              sessionStorage.getItem("twitter_state");
+
+            if (
+              !returnedRandomState ||
+              returnedRandomState !== expectedRandomState
+            ) {
+              sessionStorage.removeItem("twitter_verifier");
+              sessionStorage.removeItem("twitter_state");
+              if (callbacks?.onError) {
+                callbacks.onError(
+                  new TurnkeyError(
+                    "OAuth state mismatch - possible CSRF attack",
+                    TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                  ),
+                );
+              }
+              return;
+            }
+
             if (clientId && redirectURI && verifier && nonce) {
               await new Promise((resolve, reject) => {
                 pushPage({
@@ -466,6 +511,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                             });
 
                           sessionStorage.removeItem("twitter_verifier");
+                          sessionStorage.removeItem("twitter_state");
 
                           const oidcToken = resp?.oidcToken;
                           if (!oidcToken) {
