@@ -16,8 +16,22 @@ import { v4 as uuidv4 } from "uuid";
 
 let PasskeyStamperModule: typeof import("@turnkey/react-native-passkey-stamper");
 
+/**
+ * Extension of TStamper that includes public config properties
+ * that both WebauthnStamper and PasskeyStamper implement
+ */
+interface ConfigurableStamper extends TStamper {
+  rpId: string | undefined;
+  timeout: number | undefined;
+  userVerification: UserVerificationRequirement | undefined;
+
+  // Web uses PublicKeyCredentialDescriptor[] (id: BufferSource)
+  // React Native uses its own PublicKeyCredentialDescriptor[] (id: string)
+  allowCredentials: any[];
+}
+
 export class CrossPlatformPasskeyStamper implements TStamper {
-  private stamper!: TStamper;
+  private stamper!: ConfigurableStamper;
   private config: TPasskeyStamperConfig;
 
   constructor(config: TPasskeyStamperConfig) {
@@ -67,6 +81,27 @@ export class CrossPlatformPasskeyStamper implements TStamper {
 
   async stamp(payload: string): Promise<TStamp> {
     return await this.stamper.stamp(payload);
+  }
+
+  updateConfig(config: TPasskeyStamperConfig): void {
+    this.config = config;
+
+    if (this.stamper) {
+      this.stamper.rpId = config.rpId;
+      this.stamper.timeout = config.timeout;
+      this.stamper.userVerification = config.userVerification;
+
+      if (isReactNative()) {
+        this.stamper.allowCredentials =
+          config.allowCredentials?.map((cred) => ({
+            id: uint8ArrayToHexString(cred.id as Uint8Array),
+            type: cred.type,
+            transports: cred.transports,
+          })) || [];
+      } else {
+        this.stamper.allowCredentials = config.allowCredentials || [];
+      }
+    }
   }
 
   /**
