@@ -729,6 +729,23 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client],
   );
 
+  const createHttpClientWithPasskeyCredentials = useCallback(
+    async (
+      params: CreateHttpClientParams & {
+        allowCredentials: PublicKeyCredentialDescriptor[];
+      },
+    ): Promise<TurnkeySDKClientBase> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.createHttpClientWithPasskeyCredentials(params);
+    },
+    [client],
+  );
+
   const logout: (params?: LogoutParams) => Promise<void> = useCallback(
     async (params?: { sessionKey?: string }): Promise<void> => {
       if (!client) {
@@ -3325,6 +3342,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         config: masterConfig,
         httpClient: client?.httpClient,
         createHttpClient,
+        createHttpClientWithPasskeyCredentials,
         createPasskey,
         logout,
         loginWithPasskey,
