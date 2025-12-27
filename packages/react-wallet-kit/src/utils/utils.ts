@@ -139,6 +139,7 @@ function parseAppleOAuthRedirect(hash: string): {
   publicKey: string | null;
   openModal: string | null;
   sessionKey: string | null;
+  randomState: string | null;
 } {
   // Apple's format has unencoded parameters in the state portion
   const idTokenMatch = hash.match(/id_token=([^&]+)$/);
@@ -155,6 +156,7 @@ function parseAppleOAuthRedirect(hash: string): {
       publicKey: null,
       openModal: null,
       sessionKey: null,
+      randomState: null,
     };
 
   const stateContent = hash.substring(6, stateEndIndex); // Remove "state=" prefix
@@ -167,6 +169,7 @@ function parseAppleOAuthRedirect(hash: string): {
     publicKey: stateParams.get("publicKey"),
     openModal: stateParams.get("openModal"),
     sessionKey: stateParams.get("sessionKey"),
+    randomState: stateParams.get("randomState"),
   };
 }
 
@@ -178,6 +181,7 @@ function parseGoogleOAuthRedirect(hash: string): {
   publicKey: string | null;
   openModal: string | null;
   sessionKey: string | null;
+  randomState: string | null;
 } {
   const hashParams = new URLSearchParams(hash);
   const idToken = hashParams.get("id_token");
@@ -188,6 +192,7 @@ function parseGoogleOAuthRedirect(hash: string): {
   let publicKey = null;
   let openModal = null;
   let sessionKey = null;
+  let randomState = null;
 
   if (state) {
     const stateParams = new URLSearchParams(state);
@@ -196,6 +201,7 @@ function parseGoogleOAuthRedirect(hash: string): {
     publicKey = stateParams.get("publicKey");
     openModal = stateParams.get("openModal");
     sessionKey = stateParams.get("sessionKey");
+    randomState = stateParams.get("randomState");
   }
 
   return {
@@ -205,6 +211,7 @@ function parseGoogleOAuthRedirect(hash: string): {
     publicKey,
     openModal,
     sessionKey,
+    randomState,
   };
 }
 
@@ -216,6 +223,7 @@ export function parseOAuthRedirect(hash: string): {
   publicKey: string | null;
   openModal: string | null;
   sessionKey: string | null;
+  randomState: string | null;
 } {
   // Check if this is an Apple redirect
   if (hash.startsWith("state=provider=apple")) {
@@ -322,8 +330,9 @@ export async function handleFacebookPKCEFlow({
       verifier,
     );
 
-    // Clean up the verifier as it's no longer needed
+    // Clean up the verifier and state as they're no longer needed
     sessionStorage.removeItem("facebook_verifier");
+    sessionStorage.removeItem("facebook_state");
 
     // Handle different UI flows based on openModal parameter
     if (openModal === "true") {

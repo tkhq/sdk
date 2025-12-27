@@ -286,6 +286,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           const sessionKey = stateParams.get("sessionKey");
 
           if (provider === "facebook" && flow === "redirect" && publicKey) {
+            // Validate state to prevent CSRF attacks
+            const returnedRandomState = stateParams.get("randomState");
+            const expectedRandomState =
+              sessionStorage.getItem("facebook_state");
+
+            if (
+              !returnedRandomState ||
+              returnedRandomState !== expectedRandomState
+            ) {
+              sessionStorage.removeItem("facebook_verifier");
+              sessionStorage.removeItem("facebook_state");
+              if (callbacks?.onError) {
+                callbacks.onError(
+                  new TurnkeyError(
+                    "OAuth state mismatch",
+                    TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                  ),
+                );
+              }
+              return;
+            }
+
             // We have all the required parameters for a Facebook PKCE flow
             const clientId = masterConfig?.auth?.oauthConfig?.facebookClientId;
             const redirectURI =
@@ -380,7 +402,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               if (callbacks?.onError) {
                 callbacks.onError(
                   new TurnkeyError(
-                    "OAuth state mismatch - possible CSRF attack",
+                    "OAuth state mismatch ",
                     TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
                   ),
                 );
@@ -483,7 +505,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               if (callbacks?.onError) {
                 callbacks.onError(
                   new TurnkeyError(
-                    "OAuth state mismatch - possible CSRF attack",
+                    "OAuth state mismatch",
                     TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
                   ),
                 );
@@ -571,10 +593,47 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         const hash = window.location.hash.substring(1);
 
         // Parse the hash using our helper functions
-        const { idToken, provider, flow, publicKey, openModal, sessionKey } =
-          parseOAuthRedirect(hash);
+        const {
+          idToken,
+          provider,
+          flow,
+          publicKey,
+          openModal,
+          sessionKey,
+          randomState,
+        } = parseOAuthRedirect(hash);
 
         if (idToken && flow === "redirect" && publicKey) {
+          // Validate state to prevent CSRF attacks
+          const expectedRandomState =
+            provider === "google"
+              ? sessionStorage.getItem("google_state")
+              : sessionStorage.getItem("apple_state");
+
+          if (!randomState || randomState !== expectedRandomState) {
+            if (provider === "google") {
+              sessionStorage.removeItem("google_state");
+            } else if (provider === "apple") {
+              sessionStorage.removeItem("apple_state");
+            }
+            if (callbacks?.onError) {
+              callbacks.onError(
+                new TurnkeyError(
+                  "OAuth state mismatch",
+                  TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                ),
+              );
+            }
+            return;
+          }
+
+          // Clean up sessionStorage after validation
+          if (provider === "google") {
+            sessionStorage.removeItem("google_state");
+          } else if (provider === "apple") {
+            sessionStorage.removeItem("apple_state");
+          }
+
           if (openModal === "true") {
             const providerName = provider
               ? provider.charAt(0).toUpperCase() + provider.slice(1)
@@ -3187,7 +3246,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const {
         clientId = masterConfig?.auth?.oauthConfig?.discordClientId,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
-        additionalState: additionalParameters,
+        additionalState,
       } = params || {};
       try {
         if (!masterConfig) {
@@ -3225,14 +3284,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
         // Generate random state for CSRF protection
         const randomState = crypto.randomUUID();
-        sessionStorage.setItem("discord_state", randomState);
 
         // Build state string with all parameters
         let state = `provider=discord&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}&randomState=${randomState}`;
 
         // Append additional state parameters
-        if (additionalParameters) {
-          const extra = Object.entries(additionalParameters)
+        if (additionalState) {
+          const extra = Object.entries(additionalState)
             .map(
               ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
             )
@@ -3241,6 +3299,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             state += `&${extra}`;
           }
         }
+        sessionStorage.setItem("discord_state", randomState);
 
         // Construct Discord Auth URL
         const discordAuthUrl = new URL(DISCORD_AUTH_URL);
@@ -3319,7 +3378,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       sessionStorage.removeItem("discord_state");
                       reject(
                         new TurnkeyError(
-                          "OAuth state mismatch - possible CSRF attack",
+                          "OAuth state mismatch",
                           TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
                         ),
                       );
@@ -3336,6 +3395,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       return;
                     }
 
+                    sessionStorage.removeItem("discord_verifier");
+                    sessionStorage.removeItem("discord_state");
+
                     const sessionKey = new URLSearchParams(stateParam).get(
                       "sessionKey",
                     );
@@ -3350,9 +3412,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         nonce: nonce,
                       })
                       .then((resp) => {
-                        sessionStorage.removeItem("discord_verifier");
-                        sessionStorage.removeItem("discord_state");
-
                         const oidcToken = resp.oidcToken;
                         if (params?.onOauthSuccess) {
                           params.onOauthSuccess({
@@ -3405,7 +3464,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const {
         clientId = masterConfig?.auth?.oauthConfig?.xClientId,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
-        additionalState: additionalParameters,
+        additionalState,
       } = params || {};
       try {
         if (!masterConfig) {
@@ -3443,14 +3502,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
         // Generate random state for CSRF protection
         const randomState = crypto.randomUUID();
-        sessionStorage.setItem("twitter_state", randomState);
 
         // Build state string with all parameters
         let state = `provider=twitter&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}&randomState=${randomState}`;
 
         // Append additional state parameters
-        if (additionalParameters) {
-          const extra = Object.entries(additionalParameters)
+        if (additionalState) {
+          const extra = Object.entries(additionalState)
             .map(
               ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
             )
@@ -3459,6 +3517,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             state += `&${extra}`;
           }
         }
+        sessionStorage.setItem("twitter_state", randomState);
 
         // Construct Twitter Auth URL
         const twitterAuthUrl = new URL(X_AUTH_URL);
@@ -3537,7 +3596,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       sessionStorage.removeItem("twitter_state");
                       reject(
                         new TurnkeyError(
-                          "OAuth state mismatch - possible CSRF attack",
+                          "OAuth state mismatch",
                           TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
                         ),
                       );
@@ -3554,6 +3613,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       return;
                     }
 
+                    sessionStorage.removeItem("twitter_verifier");
+                    sessionStorage.removeItem("twitter_state");
+
                     const sessionKey = new URLSearchParams(stateParam).get(
                       "sessionKey",
                     );
@@ -3568,9 +3630,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                         nonce,
                       })
                       .then((resp) => {
-                        sessionStorage.removeItem("twitter_verifier");
-                        sessionStorage.removeItem("twitter_state");
-
                         const oidcToken = resp.oidcToken;
                         if (params?.onOauthSuccess) {
                           params.onOauthSuccess({
@@ -3623,7 +3682,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const {
         clientId = masterConfig?.auth?.oauthConfig?.googleClientId,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
-        additionalState: additionalParameters,
+        additionalState,
       } = params || {};
       try {
         if (!masterConfig) {
@@ -3656,6 +3715,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
         const nonce = bytesToHex(sha256(publicKey));
 
+        // Generate random state for CSRF protection
+        const randomState = crypto.randomUUID();
+
+        // Build state string with all parameters
+        let state = `provider=google&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}&randomState=${randomState}`;
+
+        // Append additional state parameters
+        if (additionalState) {
+          const extra = Object.entries(additionalState)
+            .map(
+              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+            )
+            .join("&");
+          if (extra) {
+            state += `&${extra}`;
+          }
+        }
+        sessionStorage.setItem("google_state", randomState);
+
         // Construct Google Auth URL
         const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
         googleAuthUrl.searchParams.set("client_id", clientId);
@@ -3664,21 +3742,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         googleAuthUrl.searchParams.set("scope", "openid email profile");
         googleAuthUrl.searchParams.set("nonce", nonce);
         googleAuthUrl.searchParams.set("prompt", "select_account");
-
-        // Create state parameter
-        let state = `provider=google&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
-        if (additionalParameters) {
-          const additionalState = Object.entries(additionalParameters)
-            .map(
-              ([key, value]) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-            )
-            .join("&");
-          if (additionalState) {
-            state += `&${additionalState}`;
-          }
-        }
         googleAuthUrl.searchParams.set("state", state);
+
         if (openInPage) {
           // Redirect current page to Google Auth
           window.location.href = googleAuthUrl.toString();
@@ -3722,6 +3787,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 // Check if window was closed without completing auth
                 if (authWindow.closed) {
                   clearInterval(interval);
+                  sessionStorage.removeItem("google_state");
                   reject(new Error("Authentication window was closed."));
                   return;
                 }
@@ -3730,14 +3796,45 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 if (url.startsWith(window.location.origin)) {
                   const hashParams = new URLSearchParams(url.split("#")[1]);
                   const idToken = hashParams.get("id_token");
-                  const stateParams = hashParams.get("state");
-                  const sessionKey = stateParams
-                    ?.split("&")
-                    .find((param) => param.startsWith("sessionKey="))
-                    ?.split("=")[1];
-                  if (idToken) {
+                  const stateParam = hashParams.get("state");
+
+                  if (
+                    idToken &&
+                    stateParam &&
+                    stateParam.includes("provider=google")
+                  ) {
+                    // Validate state to prevent CSRF attacks
+                    const returnedRandomState = new URLSearchParams(
+                      stateParam,
+                    ).get("randomState");
+                    const expectedRandomState =
+                      sessionStorage.getItem("google_state");
+
+                    if (
+                      !returnedRandomState ||
+                      returnedRandomState !== expectedRandomState
+                    ) {
+                      authWindow.close();
+                      clearInterval(interval);
+                      sessionStorage.removeItem("google_state");
+                      reject(
+                        new TurnkeyError(
+                          "OAuth state mismatch",
+                          TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                        ),
+                      );
+                      return;
+                    }
+
                     authWindow.close();
                     clearInterval(interval);
+
+                    // Clean up sessionStorage immediately
+                    sessionStorage.removeItem("google_state");
+
+                    const sessionKey = new URLSearchParams(stateParam).get(
+                      "sessionKey",
+                    );
 
                     if (params?.onOauthSuccess) {
                       params.onOauthSuccess({
@@ -3788,7 +3885,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const {
         clientId = masterConfig?.auth?.oauthConfig?.appleClientId,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
-        additionalState: additionalParameters,
+        additionalState,
       } = params || {};
       try {
         if (!masterConfig) {
@@ -3820,6 +3917,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         }
         const nonce = bytesToHex(sha256(publicKey));
 
+        // Generate random state for CSRF protection
+        const randomState = crypto.randomUUID();
+
+        // Build state string with all parameters
+        let state = `provider=apple&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}&randomState=${randomState}`;
+
+        // Append additional state parameters
+        if (additionalState) {
+          const extra = Object.entries(additionalState)
+            .map(
+              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+            )
+            .join("&");
+          if (extra) {
+            state += `&${extra}`;
+          }
+        }
+        sessionStorage.setItem("apple_state", randomState);
+
         // Construct Apple Auth URL
         const appleAuthUrl = new URL(APPLE_AUTH_URL);
         appleAuthUrl.searchParams.set("client_id", clientId);
@@ -3827,20 +3943,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         appleAuthUrl.searchParams.set("response_type", "code id_token");
         appleAuthUrl.searchParams.set("response_mode", "fragment");
         appleAuthUrl.searchParams.set("nonce", nonce);
-
-        // Create state parameter
-        let state = `provider=apple&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
-        if (additionalParameters) {
-          const additionalState = Object.entries(additionalParameters)
-            .map(
-              ([key, value]) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-            )
-            .join("&");
-          if (additionalState) {
-            state += `&${additionalState}`;
-          }
-        }
         appleAuthUrl.searchParams.set("state", state);
 
         if (openInPage) {
@@ -3883,6 +3985,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 // Check if window was closed without completing auth
                 if (authWindow.closed) {
                   clearInterval(interval);
+                  sessionStorage.removeItem("apple_state");
                   reject(new Error("Authentication window was closed."));
                   return;
                 }
@@ -3891,14 +3994,45 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 if (url.startsWith(window.location.origin)) {
                   const hashParams = new URLSearchParams(url.split("#")[1]);
                   const idToken = hashParams.get("id_token");
-                  const stateParams = hashParams.get("state");
-                  const sessionKey = stateParams
-                    ?.split("&")
-                    .find((param) => param.startsWith("sessionKey="))
-                    ?.split("=")[1];
-                  if (idToken) {
+                  const stateParam = hashParams.get("state");
+
+                  if (
+                    idToken &&
+                    stateParam &&
+                    stateParam.includes("provider=apple")
+                  ) {
+                    // Validate state to prevent CSRF attacks
+                    const returnedRandomState = new URLSearchParams(
+                      stateParam,
+                    ).get("randomState");
+                    const expectedRandomState =
+                      sessionStorage.getItem("apple_state");
+
+                    if (
+                      !returnedRandomState ||
+                      returnedRandomState !== expectedRandomState
+                    ) {
+                      authWindow.close();
+                      clearInterval(interval);
+                      sessionStorage.removeItem("apple_state");
+                      reject(
+                        new TurnkeyError(
+                          "OAuth state mismatch",
+                          TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                        ),
+                      );
+                      return;
+                    }
+
                     authWindow.close();
                     clearInterval(interval);
+
+                    // Clean up sessionStorage immediately
+                    sessionStorage.removeItem("apple_state");
+
+                    const sessionKey = new URLSearchParams(stateParam).get(
+                      "sessionKey",
+                    );
 
                     if (params?.onOauthSuccess) {
                       params.onOauthSuccess({
@@ -3949,7 +4083,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const {
         clientId = masterConfig?.auth?.oauthConfig?.facebookClientId,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
-        additionalState: additionalParameters,
+        additionalState,
       } = params || {};
       try {
         if (!masterConfig) {
@@ -3986,6 +4120,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         // Store verifier for later token exchange
         sessionStorage.setItem("facebook_verifier", verifier);
 
+        // Generate random state for CSRF protection
+        const randomState = crypto.randomUUID();
+
+        // Build state string with all parameters
+        let state = `provider=facebook&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}&randomState=${randomState}`;
+
+        // Append additional state parameters
+        if (additionalState) {
+          const extra = Object.entries(additionalState)
+            .map(
+              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
+            )
+            .join("&");
+          if (extra) {
+            state += `&${extra}`;
+          }
+        }
+        sessionStorage.setItem("facebook_state", randomState);
+
         // Construct Facebook Auth URL
         const facebookAuthUrl = new URL(FACEBOOK_AUTH_URL);
         facebookAuthUrl.searchParams.set("client_id", clientId);
@@ -3995,20 +4148,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         facebookAuthUrl.searchParams.set("code_challenge_method", "S256");
         facebookAuthUrl.searchParams.set("nonce", nonce);
         facebookAuthUrl.searchParams.set("scope", "openid");
-
-        // Create state parameter
-        let state = `provider=facebook&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
-        if (additionalParameters) {
-          const additionalState = Object.entries(additionalParameters)
-            .map(
-              ([key, value]) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-            )
-            .join("&");
-          if (additionalState) {
-            state += `&${additionalState}`;
-          }
-        }
         facebookAuthUrl.searchParams.set("state", state);
 
         if (openInPage) {
@@ -4051,6 +4190,8 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 // Check if window was closed without completing auth
                 if (authWindow.closed) {
                   clearInterval(interval);
+                  sessionStorage.removeItem("facebook_verifier");
+                  sessionStorage.removeItem("facebook_state");
                   reject(new Error("Authentication window was closed."));
                   return;
                 }
@@ -4060,26 +4201,55 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   const urlParams = new URLSearchParams(new URL(url).search);
                   const authCode = urlParams.get("code");
                   const stateParam = urlParams.get("state");
+
                   if (
                     authCode &&
                     stateParam &&
                     stateParam.includes("provider=facebook")
                   ) {
-                    const sessionKey = stateParam
-                      ?.split("&")
-                      .find((param) => param.startsWith("sessionKey="))
-                      ?.split("=")[1];
+                    // Validate state to prevent CSRF attacks
+                    const returnedRandomState = new URLSearchParams(
+                      stateParam,
+                    ).get("randomState");
+                    const expectedRandomState =
+                      sessionStorage.getItem("facebook_state");
+
+                    if (
+                      !returnedRandomState ||
+                      returnedRandomState !== expectedRandomState
+                    ) {
+                      authWindow.close();
+                      clearInterval(interval);
+                      sessionStorage.removeItem("facebook_verifier");
+                      sessionStorage.removeItem("facebook_state");
+                      reject(
+                        new TurnkeyError(
+                          "OAuth state mismatch",
+                          TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                        ),
+                      );
+                      return;
+                    }
+
                     authWindow.close();
                     clearInterval(interval);
 
-                    // Exchange code for token
                     const verifier =
                       sessionStorage.getItem("facebook_verifier");
                     if (!verifier) {
+                      sessionStorage.removeItem("facebook_state");
                       reject(new Error("Missing PKCE verifier"));
                       return;
                     }
 
+                    sessionStorage.removeItem("facebook_verifier");
+                    sessionStorage.removeItem("facebook_state");
+
+                    const sessionKey = new URLSearchParams(stateParam).get(
+                      "sessionKey",
+                    );
+
+                    // Exchange code for token
                     exchangeCodeForToken(
                       clientId,
                       redirectURI,
@@ -4087,7 +4257,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       verifier,
                     )
                       .then((tokenData) => {
-                        sessionStorage.removeItem("facebook_verifier");
 
                         if (params?.onOauthSuccess) {
                           params.onOauthSuccess({
