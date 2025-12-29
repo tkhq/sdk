@@ -80,6 +80,8 @@ export interface ClientContextType
   wallets: Wallet[];
   /** @internal */
   walletProviders: WalletProvider[];
+  /** @internal */
+  walletConnectApps: WalletProvider[];
 
   /**
    * Connects the specified wallet account.
@@ -333,7 +335,7 @@ export interface ClientContextType
    * @return A void promise.
    */
   handleExportPrivateKey: (
-    params: HandleExportPrivateKeyParams,
+    params: HandleExportPrivateKeyParams
   ) => Promise<void>;
 
   /**
@@ -360,7 +362,7 @@ export interface ClientContextType
    */
 
   handleExportWalletAccount: (
-    params: HandleExportWalletAccountParams,
+    params: HandleExportWalletAccountParams
   ) => Promise<void>;
 
   /**
@@ -407,7 +409,7 @@ export interface ClientContextType
    * @returns A promise that resolves to the new private key's ID.
    */
   handleImportPrivateKey: (
-    params?: HandleImportPrivateKeyParams,
+    params?: HandleImportPrivateKeyParams
   ) => Promise<string>;
 
   /**
@@ -432,7 +434,7 @@ export interface ClientContextType
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error updating the user name.
    */
   handleUpdateUserEmail: (
-    params?: HandleUpdateUserEmailParams,
+    params?: HandleUpdateUserEmailParams
   ) => Promise<string>;
 
   /**
@@ -459,7 +461,7 @@ export interface ClientContextType
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, SMS OTP is not enabled, or if there is an error updating the phone number.
    */
   handleUpdateUserPhoneNumber: (
-    params?: HandleUpdateUserPhoneNumberParams,
+    params?: HandleUpdateUserPhoneNumberParams
   ) => Promise<string>;
   /**
    * Handles the update user email flow.
@@ -484,7 +486,7 @@ export interface ClientContextType
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error updating the email.
    */
   handleUpdateUserName: (
-    params?: HandleUpdateUserNameParams,
+    params?: HandleUpdateUserNameParams
   ) => Promise<string>;
   /**
    * Handles the add user email flow.
@@ -534,7 +536,7 @@ export interface ClientContextType
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the phone number.
    */
   handleAddPhoneNumber: (
-    params?: HandleAddPhoneNumberParams,
+    params?: HandleAddPhoneNumberParams
   ) => Promise<string>;
 
   /**
@@ -558,7 +560,7 @@ export interface ClientContextType
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the provider.
    */
   handleAddOauthProvider: (
-    params: HandleAddOauthProviderParams,
+    params: HandleAddOauthProviderParams
   ) => Promise<void>;
 
   /**
@@ -584,7 +586,7 @@ export interface ClientContextType
    * if there is an error removing the provider, or if the user cancels the action.
    */
   handleRemoveOauthProvider: (
-    params: HandleRemoveOauthProviderParams,
+    params: HandleRemoveOauthProviderParams
   ) => Promise<string[]>;
 
   /**
@@ -655,7 +657,7 @@ export interface ClientContextType
    * @throws {TurnkeyError} If the client is not initialized, if there is an error during the signing process, or if the user cancels the action.
    */
   handleSignMessage: (
-    params: HandleSignMessageParams,
+    params: HandleSignMessageParams
   ) => Promise<v1SignRawPayloadResult>;
 
   /**
@@ -676,7 +678,7 @@ export interface ClientContextType
    * @throws {TurnkeyError} If the client is not initialized or if the user cancels the action.
    */
   handleConnectExternalWallet: (
-    params?: HandleConnectExternalWalletParams,
+    params?: HandleConnectExternalWalletParams
   ) => Promise<{
     type: "connect" | "disconnect";
     account: WalletAccount;
@@ -699,7 +701,7 @@ export interface ClientContextType
    * if the user cancels the action, or if there is an error during the removal process.
    */
   handleRemoveUserEmail: (
-    params?: HandleRemoveUserEmailParams,
+    params?: HandleRemoveUserEmailParams
   ) => Promise<string>;
 
   /**
@@ -719,7 +721,7 @@ export interface ClientContextType
    * if the user cancels the action, or if there is an error during the removal process.
    */
   handleRemoveUserPhoneNumber: (
-    params?: HandleRemoveUserPhoneNumberParams,
+    params?: HandleRemoveUserPhoneNumberParams
   ) => Promise<string>;
 
   /**
@@ -787,9 +789,11 @@ export interface ClientContextType
    * @throws {TurnkeyError} If submission fails, polling fails, or the user cancels the flow.
    */
   handleSendTransaction: (params: HandleSendTransactionParams) => Promise<void>;
+
+  fetchAndBuildWalletConnectApps: () => Promise<WalletProvider[]>;
 }
 
 /** @internal */
 export const ClientContext = createContext<ClientContextType | undefined>(
-  undefined,
+  undefined
 );

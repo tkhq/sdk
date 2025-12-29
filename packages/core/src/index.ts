@@ -37,6 +37,7 @@ export {
   decodeVerificationToken,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
+  fetchWalletConnectApps,
   addressFormatConfig,
 } from "./utils";
 

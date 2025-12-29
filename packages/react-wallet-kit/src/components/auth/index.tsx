@@ -19,6 +19,7 @@ import { PasskeyButtons } from "./Passkey";
 import { Spinner } from "../design/Spinners";
 import {
   ExternalWalletSelector,
+  MobileWalletConnectScreen,
   WalletAuthButton,
   WalletConnectScreen,
 } from "./Wallet";
@@ -53,6 +54,7 @@ export function AuthComponent({
     loginWithPasskey,
     signUpWithPasskey,
     loginOrSignupWithWallet,
+    connectWalletAccount,
     disconnectWalletAccount,
   } = useTurnkey();
   const { pushPage, isMobile, openSheet } = useModal();
@@ -324,7 +326,31 @@ export function AuthComponent({
     try {
       pushPage({
         key: "Select wallet provider",
-        content: <ExternalWalletSelector onSelect={handleSelect} />,
+        content: (
+          <ExternalWalletSelector
+            onSelect={handleSelect}
+            onSelectMobileApp={async (provider) => {
+              pushPage({
+                key: `Open app`,
+                content: (
+                  <MobileWalletConnectScreen
+                    provider={provider}
+                    onConnect={async (wcProvider) => {
+                      await connectWalletAccount(wcProvider);
+                    }}
+                    onSign={async (wcProvider) => {
+                      await loginOrSignupWithWallet({
+                        walletProvider: wcProvider,
+                        ...(sessionKey && { sessionKey: sessionKey }),
+                      });
+                    }}
+                    successPageDuration={undefined} // TODO (Amir): wat do we want here?
+                  />
+                ),
+              });
+            }}
+          />
+        ),
       });
     } catch (error) {
       throw new Error(`Error fetching wallet providers: ${error}`);
@@ -443,7 +469,7 @@ export function AuthComponent({
     <div
       className={clsx(
         "flex flex-col items-center ",
-        isMobile ? "w-full" : "w-96",
+        isMobile ? "w-full" : "w-96"
       )}
     >
       {config.authProxyConfigId ? (
