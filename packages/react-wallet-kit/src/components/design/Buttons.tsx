@@ -15,7 +15,7 @@ interface IconButtonProps {
 }
 
 export function BaseButton(
-  props: React.ButtonHTMLAttributes<HTMLButtonElement>,
+  props: React.ButtonHTMLAttributes<HTMLButtonElement>
 ) {
   const { children, className, disabled, name, ...buttonProps } = props;
 
@@ -45,7 +45,7 @@ export function IconButton(props: IconButtonProps) {
       className={clsx(
         "flex items-center justify-center p-2 rounded-full border-none text-icon-text-light dark:text-icon-text-dark bg-icon-background-light dark:bg-icon-background-dark active:outline-2 active:outline-primary-light active:dark:outline-primary-dark",
         disabled && "opacity-50 cursor-not-allowed",
-        className,
+        className
       )}
       onClick={onClick}
       disabled={!!disabled}
@@ -71,6 +71,7 @@ interface ActionButtonProps {
   loading?: boolean;
   loadingText?: string;
   className?: string;
+  style?: React.CSSProperties;
   spinnerClassName?: string;
   name?: string;
 }
@@ -85,6 +86,7 @@ export function ActionButton(props: ActionButtonProps) {
     loading,
     loadingText,
     className,
+    style,
     spinnerClassName,
     name,
   } = props;
@@ -98,8 +100,9 @@ export function ActionButton(props: ActionButtonProps) {
       className={clsx(
         "w-full px-4 py-3 rounded-md border border-modal-background-dark/15 dark:border-modal-background-light/15 focus:outline-primary-light focus:dark:outline-primary-dark focus:outline-[1px] focus:outline-offset-0 transition-all duration-300",
         (disabled || loading) && "opacity-50 cursor-not-allowed",
-        className,
+        className
       )}
+      style={style}
     >
       {loading ? (
         <div className="flex justify-center space-x-2 items-center text-sm">

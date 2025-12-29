@@ -31,6 +31,7 @@ import {
   type CreateSubOrgParams,
   type WalletProvider,
   type TPasskeyStamperConfig,
+  type WalletConnectApp,
   Chain,
   EvmChainInfo,
   SolanaChainInfo,
@@ -1568,4 +1569,38 @@ export async function resetPasskeyScope(
   await client.overridePasskeyStamper({
     config: buildScopedPasskeyConfig(passkeyConfig, undefined),
   });
+}
+
+export async function fetchWalletConnectApps(
+  projectId: string,
+): Promise<WalletConnectApp[]> {
+  const url =
+    `https://explorer-api.walletconnect.com/v3/wallets` +
+    `?projectId=${projectId}`;
+
+  const res = await fetch(url, {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(
+      `Failed to fetch WalletConnect apps: ${res.status} ${res.statusText}`,
+    );
+  }
+
+  const json = await res.json();
+
+  /**
+   * API shape:
+   * {
+   *   listings: {
+   *     [id: string]: WalletConnectApp
+   *   }
+   * }
+   */
+  const listings = json.listings ?? {};
+
+  return Object.values(listings) as WalletConnectApp[];
 }

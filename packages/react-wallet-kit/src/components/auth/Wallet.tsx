@@ -3,14 +3,16 @@ import { EthereumLogo, SolanaLogo } from "../design/Svg";
 import { Spinner } from "../design/Spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+  faArrowUpRightFromSquare,
   faCheck,
   faChevronRight,
   faClose,
   faCopy,
   faLaptop,
   faMobileScreen,
+  faSearch,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import clsx from "clsx";
 import type { WalletProvider } from "@turnkey/core";
 import { QRCodeSVG as QRCode } from "qrcode.react";
@@ -18,7 +20,9 @@ import { SuccessPage } from "../design/Success";
 import { isEthereumProvider, isSolanaProvider } from "@turnkey/core";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
-import { useDebouncedCallback } from "../../utils/utils";
+import { isWalletConnect, useDebouncedCallback } from "../../utils/utils";
+import { ActionPage } from "./Action";
+import { Input } from "@headlessui/react";
 
 interface WalletAuthButtonProps {
   onContinue: () => Promise<void>;
@@ -52,7 +56,7 @@ export function WalletAuthButton(props: WalletAuthButtonProps) {
 
 const canDisconnect = (
   provider: WalletProvider,
-  shouldShowDisconnect?: boolean,
+  shouldShowDisconnect?: boolean
 ) => {
   return (
     shouldShowDisconnect &&
@@ -67,7 +71,7 @@ interface ExternalWalletChainSelectorProps {
   onSelect: (provider: WalletProvider) => Promise<void>;
 }
 export function ExternalWalletChainSelector(
-  props: ExternalWalletChainSelectorProps,
+  props: ExternalWalletChainSelectorProps
 ) {
   const { providers, onSelect, onDisconnect } = props;
 
@@ -80,8 +84,8 @@ export function ExternalWalletChainSelector(
       walletProviders.find(
         (p) =>
           p.interfaceType === inputProvider.interfaceType &&
-          p.chainInfo.namespace === inputProvider.chainInfo.namespace,
-      ),
+          p.chainInfo.namespace === inputProvider.chainInfo.namespace
+      )
     )
     .filter((p): p is WalletProvider => p !== undefined);
 
@@ -107,7 +111,7 @@ export function ExternalWalletChainSelector(
     <div
       className={clsx(
         "flex flex-col w-72 gap-4 mt-11 items-center justify-center",
-        isMobile ? "w-full" : "w-72",
+        isMobile ? "w-full" : "w-72"
       )}
     >
       <img src={providers[0]?.info.icon} className="size-14 rounded-full" />
@@ -172,7 +176,7 @@ export function ExternalWalletChainSelector(
                   isHovering ? "right-4" : "-right-4",
                   canDisconnect(p, shouldShowDisconnect)
                     ? "text-danger-light dark:text-danger-dark"
-                    : "text-icon-text-light dark:text-icon-text-dark",
+                    : "text-icon-text-light dark:text-icon-text-dark"
                 )}
                 size={canDisconnect(p, shouldShowDisconnect) ? "lg" : "1x"}
                 icon={
@@ -189,12 +193,103 @@ export function ExternalWalletChainSelector(
   );
 }
 
+interface WalletButtonProps {
+  icon: string;
+  name: string;
+  chains: Array<{
+    // TODO (Amir): this is supposed to be generic but, maybe this should be typed
+    namespace: string;
+    isConnected: boolean;
+  }>;
+  onClick: () => void;
+  shouldShowDisconnect?: boolean;
+}
+
+function WalletButton(props: WalletButtonProps) {
+  const { icon, name, chains, onClick, shouldShowDisconnect = false } = props;
+  const [isHovering, setIsHovering] = useState(false);
+
+  return (
+    <ActionButton
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onClick={onClick}
+      style={{ height: `${WALLET_BUTTON_HEIGHT}px` }}
+      className="relative flex items-center justify-between w-full text-inherit bg-button-light dark:bg-button-dark overflow-hidden"
+    >
+      <div className="flex items-center gap-2 overflow-hidden w-3/4 ">
+        <img
+          src={icon}
+          alt={name}
+          className="size-6 rounded-full flex-shrink-0"
+        />
+        <span className="text-ellipsis whitespace-nowrap overflow-hidden">
+          {name}
+        </span>
+      </div>
+      <div className={clsx(`flex items-center transition-all gap-1`)}>
+        {chains.map((c, idx) => {
+          let Logo;
+          if (c.namespace === "ethereum") {
+            Logo = EthereumLogo;
+          } else if (c.namespace === "solana") {
+            Logo = SolanaLogo;
+          } else {
+            // we should never reach here
+            // if we do then it means we forgot to update the auth component after adding a new chain
+            throw new Error(
+              `Unsupported provider namespace. Expected Ethereum or Solana.`
+            );
+          }
+
+          const delay = 50 + idx * 30; // Staggered delay: leftmost has largest
+          return (
+            <div
+              key={c.namespace}
+              style={{ transitionDelay: `${delay}ms` }}
+              className={clsx(
+                "relative",
+                "size-4",
+                "transition-all duration-200",
+                isHovering ? "-translate-x-8" : "translate-x-0"
+              )}
+            >
+              <Logo className="size-4" />
+              {c.isConnected && <ConnectedIndicator isPinging={isHovering} />}
+            </div>
+          );
+        })}
+      </div>
+      <FontAwesomeIcon
+        className={clsx(
+          `absolute transition-all duration-200`,
+          isHovering ? "right-4" : "-right-4",
+          chains.length === 1 && chains[0]!.isConnected && shouldShowDisconnect
+            ? "text-danger-light dark:text-danger-dark"
+            : "text-icon-text-light dark:text-icon-text-dark"
+        )}
+        size={
+          chains.length === 1 && chains[0]!.isConnected && shouldShowDisconnect
+            ? "lg"
+            : "1x"
+        }
+        icon={
+          chains.length === 1 && chains[0]!.isConnected && shouldShowDisconnect
+            ? faClose
+            : faChevronRight
+        }
+      />
+    </ActionButton>
+  );
+}
+
 interface ExternalWalletSelectorProps {
   onDisconnect?: ((provider: WalletProvider) => Promise<void>) | undefined;
   onSelect: (provider: WalletProvider) => Promise<void>;
+  onSelectMobileApp?: (provider: WalletProvider) => Promise<void>;
 }
 export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
-  const { onDisconnect, onSelect } = props;
+  const { onDisconnect, onSelect, onSelectMobileApp } = props;
 
   const { pushPage, popPage, isMobile } = useModal();
   const { walletProviders } = useTurnkey();
@@ -209,7 +304,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
       acc[name]!.push(provider);
       return acc;
     },
-    {},
+    {}
   );
 
   const handleSelectGroup = (group: WalletProvider[]) => {
@@ -220,6 +315,35 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
         onSelect(group[0]!);
       }
     } else {
+      if (isWalletConnect(group[0]!)) {
+        // TODO (Amir):
+        // When ready to mobilescope, add `&& isMobile` to this if statement
+        // For wallet connect, conditionally take us to he correct screen:
+        // For mobile, take us to the allwallets. For web, take us to the chainselect
+
+        pushPage({
+          key: "Connect WalletConnect",
+          content: (
+            <ShowAllWalletsScreen
+              onSelect={onSelectMobileApp!}
+              onSelectQRCode={async () => {
+                pushPage({
+                  key: `Select chain`,
+                  content: (
+                    <ExternalWalletChainSelector
+                      providers={group} // Interesting
+                      onDisconnect={onDisconnect}
+                      onSelect={onSelect}
+                    />
+                  ),
+                });
+              }}
+            />
+          ),
+        });
+
+        return;
+      }
       pushPage({
         key: `Select chain`,
         content: (
@@ -246,7 +370,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     <div
       className={clsx(
         "flex flex-col h-40 mt-4 gap-2 justify-center items-center text-xs text-center text-icon-text-light dark:text-icon-text-dark",
-        isMobile ? "w-full" : "w-72",
+        isMobile ? "w-full" : "w-80"
       )}
     >
       <span className="text-sm font-medium">
@@ -260,92 +384,29 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
   ) : (
     <div
       className={clsx(
-        "w-72 min-h-42 max-h-64 mt-12 overflow-y-auto tk-scrollbar p-0.5",
-        isMobile ? "w-full" : "w-72",
+        "min-h-42 max-h-64 mt-12 overflow-y-auto tk-scrollbar p-0.5",
+        isMobile ? "w-full" : "w-80"
       )}
     >
       <div className="flex flex-col gap-2">
         {Object.entries(grouped).map(
           ([name, group]: [string, WalletProvider[]]) => {
-            const [isHovering, setIsHovering] = useState(false);
             const first = group[0];
 
             return (
-              <ActionButton
+              <WalletButton
                 key={name}
-                onMouseEnter={() => setIsHovering(true)}
-                onMouseLeave={() => setIsHovering(false)}
+                icon={first?.info.icon ?? ""}
+                name={first?.info.name ?? ""}
+                chains={group.map((c) => ({
+                  namespace: c.chainInfo.namespace,
+                  isConnected: !!canDisconnect(c, shouldShowDisconnect),
+                }))}
                 onClick={() => handleSelectGroup(group)}
-                className="relative flex items-center justify-between w-full text-inherit bg-button-light dark:bg-button-dark overflow-hidden"
-              >
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <img
-                    src={first?.info.icon}
-                    alt={first?.info.name}
-                    className="size-6 rounded-full"
-                  />
-                  {first?.info.name}
-                </div>
-                <div className={clsx(`flex items-center transition-all gap-1`)}>
-                  {group.map((c, idx) => {
-                    let Logo;
-                    if (isEthereumProvider(c)) {
-                      Logo = EthereumLogo;
-                    } else if (isSolanaProvider(c)) {
-                      Logo = SolanaLogo;
-                    } else {
-                      // we should never reach here
-                      // if we do then it means we forgot to update the auth component after adding a new chain
-                      throw new Error(
-                        `Unsupported provider namespace. Expected Ethereum or Solana.`,
-                      );
-                    }
-
-                    const delay = 50 + idx * 30; // Staggered delay: leftmost has largest
-                    return (
-                      <div
-                        key={c.chainInfo.namespace}
-                        style={{ transitionDelay: `${delay}ms` }}
-                        className={clsx(
-                          "relative",
-                          "size-4",
-                          "transition-all duration-200",
-                          isHovering ? "-translate-x-8" : "translate-x-0",
-                        )}
-                      >
-                        <Logo className="size-4" />
-                        {canDisconnect(c, shouldShowDisconnect) && (
-                          <ConnectedIndicator isPinging={isHovering} />
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                <FontAwesomeIcon
-                  className={clsx(
-                    `absolute transition-all duration-200`,
-                    isHovering ? "right-4" : "-right-4",
-                    group.length === 1 &&
-                      canDisconnect(group[0]!, shouldShowDisconnect)
-                      ? "text-danger-light dark:text-danger-dark"
-                      : "text-icon-text-light dark:text-icon-text-dark",
-                  )}
-                  size={
-                    group.length === 1 &&
-                    canDisconnect(group[0]!, shouldShowDisconnect)
-                      ? "lg"
-                      : "1x"
-                  }
-                  icon={
-                    group.length === 1 &&
-                    canDisconnect(group[0]!, shouldShowDisconnect)
-                      ? faClose
-                      : faChevronRight
-                  }
-                />
-              </ActionButton>
+                shouldShowDisconnect={shouldShowDisconnect}
+              />
             );
-          },
+          }
         )}
       </div>
     </div>
@@ -382,7 +443,7 @@ export function DisconnectWalletScreen(props: DisconnectWalletScreenProps) {
         <div
           className={clsx(
             "text-2xl font-bold text-center",
-            hasError && "text-danger-light dark:text-danger-dark",
+            hasError && "text-danger-light dark:text-danger-dark"
           )}
         >
           {hasError
@@ -402,7 +463,7 @@ export function DisconnectWalletScreen(props: DisconnectWalletScreenProps) {
           loading={isLoading}
           className={clsx(
             "w-full max-w-md bg-danger-light dark:bg-danger-dark text-primary-text-light dark:text-primary-text-dark",
-            hasError && "animate-shake opacity-50",
+            hasError && "animate-shake opacity-50"
           )}
           spinnerClassName="text-primary-danger-text-light dark:text-primary-danger-text-dark"
         >
@@ -443,7 +504,7 @@ function QRCodeDisplay(props: QRCodeDisplayProps) {
         className={clsx(
           "block border border-modal-background-dark/20 dark:border-modal-background-light/20",
           "shadow-[0_0_42px] shadow-primary-light/50 dark:shadow-[0_0_42px] dark:shadow-primary-dark/50",
-          isLoading && "blur-sm",
+          isLoading && "blur-sm"
         )}
         value={uri}
         imageSettings={{
@@ -485,7 +546,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [disconnectError, setDisconnectError] = useState(false);
   const [showConnectedScreen, setShowConnectedScreen] = useState(
-    inputProvider.connectedAddresses?.length > 0,
+    inputProvider.connectedAddresses?.length > 0
   );
   const [showCopied, setShowCopied] = useState(false);
 
@@ -496,7 +557,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const provider = walletProviders.find(
     (p) =>
       p.interfaceType === inputProvider.interfaceType &&
-      p.chainInfo.namespace === inputProvider.chainInfo.namespace,
+      p.chainInfo.namespace === inputProvider.chainInfo.namespace
   );
 
   // if provider is not found then that means that the user entered this screen
@@ -549,7 +610,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         setIsConnecting(false);
       }
     },
-    100,
+    100
   );
 
   const handleCopy = () => {
@@ -583,14 +644,14 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         <div
           className={clsx(
             "mt-8 flex flex-col items-center gap-3",
-            isMobile ? "w-full" : "w-96",
+            isMobile ? "w-full" : "w-96"
           )}
         >
           <div className="w-full justify-between flex items-center flex-1">
             <div
               className={clsx(
                 "flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 text-icon-text-light dark:text-icon-text-dark",
-                isMobile ? "size-18" : "size-24",
+                isMobile ? "size-18" : "size-24"
               )}
             >
               <FontAwesomeIcon
@@ -622,7 +683,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             <div
               className={clsx(
                 "flex items-center justify-center bg-icon-background-light dark:bg-icon-background-dark rounded-full p-2 text-icon-text-light dark:text-icon-text-dark",
-                isMobile ? "size-18" : "size-24",
+                isMobile ? "size-18" : "size-24"
               )}
             >
               <FontAwesomeIcon icon={faLaptop} size={isMobile ? "3x" : "4x"} />
@@ -631,7 +692,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
 
           <div
             className={clsx(
-              "flex flex-row items-center mt-5 text-2xl font-bold text-center",
+              "flex flex-row items-center mt-5 text-2xl font-bold text-center"
             )}
           >
             Already connected
@@ -666,7 +727,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
         <div
           className={clsx(
             "mt-8 flex flex-col items-center gap-3",
-            isMobile ? "w-full" : "w-96",
+            isMobile ? "w-full" : "w-96"
           )}
         >
           <QRCodeDisplay
@@ -685,7 +746,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
               "text-xs font-semibold bg-transparent border-none text-icon-text-light dark:text-icon-text-dark",
               "flex flex-row items-center gap-x-2 px-3 py-2 rounded-full transition-all",
               "hover:bg-icon-background-light dark:hover:bg-icon-background-dark active:scale-95",
-              provider?.isLoading && "invisible pointer-events-none",
+              provider?.isLoading && "invisible pointer-events-none"
             )}
           >
             <span>Copy link</span>
@@ -697,7 +758,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
                   "transition-colors",
                   showCopied
                     ? "text-success-light dark:text-success-dark"
-                    : "text-icon-text-light dark:text-icon-text-dark",
+                    : "text-icon-text-light dark:text-icon-text-dark"
                 )}
               />
               {showCopied && (
@@ -718,6 +779,418 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
             {provider?.isLoading
               ? "Preparing your connection. This will only take a moment."
               : "Scan this QR code with your WalletConnect-compatible wallet to connect"}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface ShowAllWalletsScreenProps {
+  onSelect: (provider: WalletProvider) => Promise<void>;
+  onSelectQRCode: () => Promise<void>;
+}
+
+const WALLET_BUTTON_HEIGHT = 56; // Height of each wallet button in pixels. TODO (Amir): Once we separate into multiple files, have these exported in a "global" or "consts" file or something in the same folder
+const BUFFER_SIZE = 5; // Number of items to render outside visible area
+
+export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
+  const { onSelect, onSelectQRCode } = props;
+  const { walletConnectApps } = useTurnkey();
+  const { isMobile, pushPage } = useModal();
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 20 });
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Group wallets by name
+  const grouped = useMemo(
+    () =>
+      walletConnectApps.reduce<Record<string, WalletProvider[]>>(
+        (acc, provider) => {
+          const name = provider.info.name;
+          if (!acc[name]) acc[name] = [];
+          acc[name]!.push(provider);
+          return acc;
+        },
+        {}
+      ),
+    [walletConnectApps]
+  );
+
+  // Convert to array and filter by search query
+  const walletEntries = useMemo(() => {
+    const entries = Object.entries(grouped);
+    if (!searchQuery.trim()) return entries;
+
+    const query = searchQuery.toLowerCase();
+    return entries.filter(([name]) => name.toLowerCase().includes(query));
+  }, [grouped, searchQuery]);
+
+  const handleSelectGroup = useCallback(
+    (group: WalletProvider[]) => {
+      if (group.length === 1) {
+        onSelect(group[0]!);
+      } else {
+        pushPage({
+          key: `Select chain`,
+          content: (
+            <ExternalWalletChainSelector
+              providers={group}
+              onSelect={onSelect}
+            />
+          ),
+        });
+      }
+    },
+    [onSelect, pushPage]
+  );
+
+  // Handle scroll to update visible range
+  const handleScroll = useDebouncedCallback(() => {
+    if (!scrollContainerRef.current) return;
+
+    const scrollTop = scrollContainerRef.current.scrollTop;
+    const containerHeight = scrollContainerRef.current.clientHeight;
+
+    const start = Math.max(
+      0,
+      Math.floor(scrollTop / WALLET_BUTTON_HEIGHT) - BUFFER_SIZE
+    );
+    const end = Math.min(
+      walletEntries.length,
+      Math.ceil((scrollTop + containerHeight) / WALLET_BUTTON_HEIGHT) +
+        BUFFER_SIZE
+    );
+
+    setVisibleRange({ start, end });
+  }, 50);
+
+  // Update visible range when search results change
+  useEffect(() => {
+    setVisibleRange({ start: 0, end: Math.min(20, walletEntries.length) });
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [walletEntries.length]);
+
+  // Debounced search handler
+  const debouncedSetSearch = useDebouncedCallback(
+    (value: string) => setSearchQuery(value),
+    300
+  );
+
+  const visibleItems = useMemo(
+    () => walletEntries.slice(visibleRange.start, visibleRange.end),
+    [walletEntries, visibleRange]
+  );
+
+  const totalHeight = walletEntries.length * WALLET_BUTTON_HEIGHT;
+  const offsetY = visibleRange.start * WALLET_BUTTON_HEIGHT;
+
+  return (
+    <div
+      className={clsx(
+        "flex flex-col mt-10 gap-3",
+        isMobile ? "w-full" : "w-80"
+      )}
+    >
+      {/* Search Input. TODO (Amir): Make this separate component */}
+      <div className="w-full flex items-center gap-2 rounded-md text-inherit bg-button-light dark:bg-button-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus-within:outline-primary-light focus-within:dark:outline-primary-dark focus-within:outline-[1px] focus-within:outline-offset-0 box-border transition-all">
+        <FontAwesomeIcon
+          icon={faSearch}
+          className="relative text-icon-text-light dark:text-icon-text-dark px-2"
+        />
+        <Input
+          type="text"
+          placeholder="Search wallets..."
+          onChange={(e) => debouncedSetSearch(e.target.value)}
+          className="w-full py-3 bg-transparent border-none text-inherit placeholder-icon-text-light dark:placeholder-icon-text-dark focus:outline-none focus:ring-0 focus:border-none"
+        />
+
+        {searchQuery && (
+          <BaseButton
+            className="flex text-icon-text-light dark:text-icon-text-dark text-sm border-none self-stretch px-2 items-center justify-center"
+            onClick={() => {
+              setSearchQuery("");
+              const input =
+                scrollContainerRef.current?.previousElementSibling?.querySelector(
+                  "input"
+                );
+              if (input instanceof HTMLInputElement) {
+                input.value = "";
+              }
+            }}
+          >
+            Clear
+          </BaseButton>
+        )}
+      </div>
+
+      {/* Wallet List with Virtual Scrolling */}
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className={clsx("min-h-42 max-h-72 overflow-y-auto tk-scrollbar p-0.5")}
+      >
+        <div style={{ height: totalHeight, position: "relative" }}>
+          <div
+            style={{
+              transform: `translateY(${offsetY}px)`,
+              position: "absolute",
+              width: "100%",
+            }}
+            className="flex flex-col gap-2"
+          >
+            {/* QR Code option always on top (only when not searching) */}
+            {visibleRange.start === 0 && !searchQuery && (
+              <WalletButton
+                key="qr-code-walletconnect"
+                icon=""
+                name="Scan QR Code"
+                chains={[
+                  { namespace: "ethereum", isConnected: false },
+                  { namespace: "solana", isConnected: false },
+                ]}
+                onClick={onSelectQRCode}
+              />
+            )}
+
+            {/* Wallet Buttons */}
+            {visibleItems.map(([name, group]: [string, WalletProvider[]]) => {
+              const first = group[0];
+
+              return (
+                <WalletButton
+                  key={name}
+                  icon={first?.info.icon ?? ""}
+                  name={first?.info.name ?? ""}
+                  chains={group.map((c) => ({
+                    namespace: c.chainInfo.namespace,
+                    isConnected: false,
+                  }))}
+                  onClick={() => handleSelectGroup(group)}
+                  shouldShowDisconnect={false}
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* No results message */}
+        {searchQuery && walletEntries.length === 0 && (
+          <div className="flex items-center justify-center w-full h-40 text-center text-icon-text-light dark:text-icon-text-dark">
+            No wallets found matching "{searchQuery}"
+          </div>
+        )}
+      </div>
+
+      {/* Results count */}
+      {searchQuery && walletEntries.length > 0 && (
+        <div className="text-xs text-center text-icon-text-light dark:text-icon-text-dark">
+          Showing {walletEntries.length} wallet
+          {walletEntries.length !== 1 ? "s" : ""}
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface MobileWalletConnectScreenProps {
+  provider: WalletProvider;
+  successPageDuration: number | undefined;
+  onConnect: (provider: WalletProvider) => Promise<void>;
+  onSign?: (provider: WalletProvider) => Promise<void>;
+}
+export function MobileWalletConnectScreen(
+  props: MobileWalletConnectScreenProps
+) {
+  const { provider: targetApp, onConnect, onSign, successPageDuration } = props;
+
+  const { pushPage, popPages, closeModal, isMobile } = useModal();
+  const { walletProviders } = useTurnkey();
+
+  const latestProviderRef = useRef<WalletProvider | null>(null);
+
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [canSign, setCanSign] = useState(false);
+  const [appNotInstalled, setAppNotInstalled] = useState(false);
+  const [completed, setCompleted] = useState(false);
+
+  // TODO (Amir): This screen shares a lot in common with WalletConnectScreen aside from the disconnect logic. Refactor to share code.
+
+  // Find the current WalletConnect provider state
+  const walletConnectProvider = walletProviders.find(
+    (p) =>
+      p.interfaceType === targetApp.interfaceType &&
+      p.chainInfo.namespace === targetApp.chainInfo.namespace
+  );
+
+  // if provider is not found then that means that the user entered this screen
+  // while WalletConnect was still initializing, and then it failed to initialize
+  useEffect(() => {
+    if (!walletConnectProvider) {
+      // we have to go back two pages here since thats the screen
+      // we get wallet providers from state
+      popPages(2);
+    }
+  }, [walletConnectProvider, popPages]);
+
+  // Initial connection effect
+  useEffect(() => {
+    if (walletConnectProvider) {
+      latestProviderRef.current = walletConnectProvider;
+
+      // we don't try to connect if WalletConnect is still initializing or we are already connecting
+      if (!isConnecting && !walletConnectProvider.isLoading) {
+        if (walletConnectProvider.connectedAddresses?.length) {
+          if (onSign) {
+            setCanSign(true);
+          } else {
+            setCompleted(true);
+          }
+        } else {
+          handleOpenApp(
+            `wc?uri=${encodeURIComponent(
+              latestProviderRef?.current?.uri ?? ""
+            )}`
+          );
+          runConnectAction(walletConnectProvider);
+        }
+      }
+    }
+  }, [walletConnectProvider]);
+
+  // Handle the connection action - uses the ref to get latest provider
+  const runConnectAction = useDebouncedCallback(
+    async (targetProvider: WalletProvider) => {
+      setIsConnecting(true);
+
+      try {
+        await onConnect(targetProvider);
+        setCanSign(true);
+      } catch {
+        // noop
+      } finally {
+        setIsConnecting(false);
+      }
+    },
+    100
+  );
+
+  // Handle the sign action - uses the ref to get latest provider
+  const runSignAction = useDebouncedCallback(
+    async (targetProvider: WalletProvider) => {
+      setIsConnecting(true);
+
+      try {
+        await onSign!(targetProvider);
+        setCompleted(true);
+      } catch (e) {
+        console.error(e);
+        // noop
+      } finally {
+        setIsConnecting(false);
+      }
+    },
+    100
+  );
+
+  const handleOpenApp = (linkParams?: string) => {
+    try {
+      const link = `${targetApp.uri}${linkParams ? `${linkParams}` : ""}`;
+      window.location.href = link;
+    } catch {
+      setAppNotInstalled(true);
+    }
+  };
+
+  useEffect(() => {
+    if (completed) {
+      pushPage({
+        key: "Connect Success",
+        content: (
+          <SuccessPage
+            text="Successfully connected to WalletConnect!"
+            onComplete={closeModal}
+            duration={successPageDuration}
+          />
+        ),
+        preventBack: true,
+        showTitle: false,
+      });
+    }
+  }, [completed]);
+
+  return (
+    <div
+      className={clsx(
+        "flex flex-col items-center justify-center py-5 text-center",
+        isMobile ? "w-full" : "w-auto"
+      )}
+    >
+      {appNotInstalled ? (
+        <div className="mt-4">Not installed</div>
+      ) : canSign ? (
+        <div
+          className={clsx(
+            "flex flex-col w-72 gap-4 mt-6 items-center justify-center",
+            isMobile ? "w-full" : "w-72"
+          )}
+        >
+          <img src={targetApp.info.icon} className="size-14 rounded-full" />
+          <span className="text-sm text-center text-icon-text-light dark:text-icon-text-dark">
+            {targetApp.info.name ?? "This wallet provider"}
+            {
+              " is connected! Please sign the login request using the app to continue."
+            }
+          </span>
+          <ActionButton
+            onClick={() => {
+              handleOpenApp();
+              runSignAction(latestProviderRef.current!);
+            }}
+            loading={isConnecting}
+            loadingText="Check the app..."
+            className="w-full text-inherit bg-button-light dark:bg-button-dark"
+          >
+            <div className="flex flex-row w-full justify-center items-center gap-1.5">
+              Sign login request
+              <FontAwesomeIcon
+                icon={faArrowUpRightFromSquare}
+                size="sm"
+                className="text-icon-text-light dark:text-icon-text-dark"
+              />
+            </div>
+          </ActionButton>
+        </div>
+      ) : (
+        <div className="flex flex-col">
+          <ActionPage
+            // Run the action from a separate useEffect. No need to pass it here
+            title={`Connecting to ${targetApp.info.name}`}
+            icon={
+              <img
+                className="size-11 rounded-full"
+                src={targetApp.info.icon || ""}
+              />
+            }
+          />
+          <div className="text-icon-text-light text-sm dark:text-icon-text-dark text-center !p-0">
+            App not opening? Please ensure you have {targetApp.info.name}{" "}
+            installed or{" "}
+            <span
+              className="text-primary-light dark:text-primary-dark cursor-pointer underline"
+              onClick={() => {
+                handleOpenApp(
+                  `wc?uri=${encodeURIComponent(
+                    latestProviderRef?.current?.uri ?? ""
+                  )}`
+                );
+              }}
+            >
+              try opening {targetApp.info.name} again.
+            </span>
           </div>
         </div>
       )}

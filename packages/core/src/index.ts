@@ -37,6 +37,7 @@ export {
   getClientSignatureMessageForSignup,
   buildSecondaryOidcClaims,
   buildSecondaryOauthProviders,
+  fetchWalletConnectApps,
   addressFormatConfig,
   AUTHENTICATOR_TRANSPORT_MAP,
   buildAllowCredentialsFromAuthenticators,

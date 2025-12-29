@@ -4,6 +4,9 @@ import {
   type Wallet,
   WalletProvider,
   WalletInterfaceType,
+  Chain,
+  type ChainInfo,
+  fetchWalletConnectApps,
 } from "@turnkey/core";
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
@@ -44,7 +47,7 @@ export const authErrors = {
 
 export const useDebouncedCallback = <T extends (...args: any[]) => void>(
   fn: T,
-  wait = 100,
+  wait = 100
 ): T => {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fnRef = useRef(fn);
@@ -59,7 +62,7 @@ export const useDebouncedCallback = <T extends (...args: any[]) => void>(
         timer.current = null;
       }, wait);
     },
-    [wait],
+    [wait]
   ) as T;
 };
 
@@ -72,7 +75,7 @@ export async function withTurnkeyErrorHandling<T>(
   sessionExpireFn?: () => Promise<void>,
   callbacks?: { onError?: (error: TurnkeyError) => void },
   fallbackMessage = "An unknown error occurred",
-  fallbackCode = TurnkeyErrorCodes.UNKNOWN,
+  fallbackCode = TurnkeyErrorCodes.UNKNOWN
 ): Promise<T> {
   try {
     return await fn();
@@ -92,7 +95,7 @@ export async function withTurnkeyErrorHandling<T>(
           throw new TurnkeyError(
             "SESSION_EXPIRED received without sessionExpireFn handler",
             TurnkeyErrorCodes.INTERNAL_ERROR,
-            error,
+            error
           );
         }
       }
@@ -115,10 +118,10 @@ export async function withTurnkeyErrorHandling<T>(
 // Custom hook to get the current screen size
 export function useScreenSize() {
   const [width, setWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 1024,
+    typeof window !== "undefined" ? window.innerWidth : 1024
   );
   const [height, setHeight] = useState(
-    typeof window !== "undefined" ? window.innerHeight : 768,
+    typeof window !== "undefined" ? window.innerHeight : 768
   );
 
   useEffect(() => {
@@ -178,7 +181,7 @@ export function useWalletProviderState(initialState: WalletProvider[] = []) {
       }
       // we do nothing if the wallet providers are the same
     },
-    [],
+    []
   );
 
   return [walletProviders, updateWalletProviders] as const;
@@ -186,11 +189,70 @@ export function useWalletProviderState(initialState: WalletProvider[] = []) {
 
 export function mergeWalletsWithoutDuplicates(
   existingWallets: Wallet[],
-  newWallets: Wallet[],
+  newWallets: Wallet[]
 ): Wallet[] {
   const existingWalletIds = new Set(existingWallets.map((w) => w.walletId));
   const uniqueNewWallets = newWallets.filter(
-    (w) => !existingWalletIds.has(w.walletId),
+    (w) => !existingWalletIds.has(w.walletId)
   );
   return [...existingWallets, ...uniqueNewWallets];
+}
+
+// TODO (Amir): Comment. Should this live in core?
+export async function buildWalletConnectProviders(params: {
+  projectId: string;
+}): Promise<WalletProvider[]> {
+  const { projectId } = params;
+  const newProviders: WalletProvider[] = [];
+
+  // Fetch apps and build the array
+  const fetchedApps = await fetchWalletConnectApps(projectId);
+
+  for (const app of fetchedApps) {
+    const supportedChains: Chain[] = [];
+
+    // Check if the app supports Ethereum
+    const supportsEthereum = app.chains.some((chain) =>
+      chain.startsWith("eip155:")
+    );
+    if (supportsEthereum) {
+      supportedChains.push(Chain.Ethereum);
+    }
+
+    // Check if the app supports Solana
+    const supportsSolana = app.chains.some((chain) =>
+      chain.startsWith("solana:")
+    );
+    if (supportsSolana) {
+      supportedChains.push(Chain.Solana);
+    }
+
+    // Create a provider for each supported chain
+    for (const chain of supportedChains) {
+      const chainInfo: ChainInfo =
+        chain === Chain.Ethereum
+          ? {
+              namespace: Chain.Ethereum as const,
+              chainId: "1",
+            }
+          : {
+              namespace: Chain.Solana as const,
+            };
+
+      newProviders.push({
+        chainInfo,
+        connectedAddresses: [],
+        info: {
+          icon: app.image_url?.md ?? "",
+          name: app.name,
+          uuid: app.id,
+        },
+        uri: app.mobile?.native ?? app.mobile?.universal ?? "",
+        interfaceType: WalletInterfaceType.WalletConnect,
+        provider: {} as any, // This is not needed for these dummy WalletProviders
+      });
+    }
+  }
+
+  return newProviders;
 }
