@@ -2628,7 +2628,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
       },
-      "createPrivateKeysResult",
+      "createPrivateKeysResultV2",
       stampWith,
     );
   };
@@ -2736,7 +2736,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
-      "createReadWriteSessionResult",
+      "createReadWriteSessionResultV2",
       stampWith,
     );
   };
@@ -2845,7 +2845,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
       },
-      "createSubOrganizationResult",
+      "createSubOrganizationResultV7",
       stampWith,
     );
   };
@@ -4620,7 +4620,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_INIT_OTP_AUTH_V3",
       },
-      "initOtpAuthResult",
+      "initOtpAuthResultV2",
       stampWith,
     );
   };
@@ -5530,7 +5530,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_UPDATE_POLICY_V2",
       },
-      "updatePolicyResult",
+      "updatePolicyResultV2",
       stampWith,
     );
   };
