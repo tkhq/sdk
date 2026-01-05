@@ -58,10 +58,10 @@ export async function broadcast(
   let signature: Uint8Array;
 
   if ("version" in signedTransaction) {
-    // VersionedTransaction
+    // VersionedTransaction: extract signature directly
     signature = signedTransaction.signatures[0]!;
   } else {
-    // Legacy Transaction - signatures are stored as SignaturePubkeyPair objects
+    // Legacy Transaction: extract nested signature (from within object)
     const sig = signedTransaction.signatures[0];
     if (!sig || !sig.signature) {
       throw new Error("Transaction is not signed");

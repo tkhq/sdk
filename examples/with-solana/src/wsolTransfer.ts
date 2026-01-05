@@ -233,8 +233,11 @@ async function main() {
     },
   ]);
 
+  const solAmount = parseFloat(
+    (Number(transferAmount) / LAMPORTS_PER_SOL).toFixed(9),
+  ).toString();
   console.log(
-    `\n💸 Transferring ${Number(transferAmount) / LAMPORTS_PER_SOL} WSOL to ${destination}...`,
+    `\n💸 Transferring ${solAmount} WSOL (${transferAmount} lamports) to ${destination}...`,
   );
 
   const destinationPubkey = new PublicKey(destination);
