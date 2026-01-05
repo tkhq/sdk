@@ -253,9 +253,7 @@ async function main() {
   );
 
   if (!destAccountInfo) {
-    console.log(
-      "Creating associated token account for destination address...",
-    );
+    console.log("Creating associated token account for destination address...");
     transferTransaction.add(
       createAssociatedTokenAccountInstruction(
         fromPubkey, // payer
