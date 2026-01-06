@@ -55,10 +55,19 @@ export async function broadcast(
   connection: Connection,
   signedTransaction: Transaction | VersionedTransaction,
 ) {
-  const signature =
-    "version" in signedTransaction
-      ? signedTransaction.signatures[0]!
-      : signedTransaction.signature!;
+  let signature: Uint8Array;
+
+  if ("version" in signedTransaction) {
+    // VersionedTransaction: extract signature directly
+    signature = signedTransaction.signatures[0]!;
+  } else {
+    // Legacy Transaction: extract nested signature (from within object)
+    const sig = signedTransaction.signatures[0];
+    if (!sig || !sig.signature) {
+      throw new Error("Transaction is not signed");
+    }
+    signature = sig.signature;
+  }
 
   const confirmationStrategy = await getConfirmationStrategy(
     connection,
