@@ -389,6 +389,18 @@ export function isWalletConnect(wallet: WalletProvider): boolean {
   return wallet.interfaceType == WalletInterfaceType.WalletConnect;
 }
 
+// Finds and returns the WalletConnect provider for the specified chain
+export function findWalletConnectProvider(
+  walletProviders: WalletProvider[],
+  chain: Chain
+): WalletProvider | undefined {
+  return walletProviders.find(
+    (p) =>
+      p.interfaceType === WalletInterfaceType.WalletConnect &&
+      p.chainInfo.namespace === chain
+  );
+}
+
 export function useWalletProviderState(initialState: WalletProvider[] = []) {
   const [walletProviders, setWalletProviders] =
     useState<WalletProvider[]>(initialState);
