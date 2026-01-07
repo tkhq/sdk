@@ -10,6 +10,7 @@ import {
   faCopy,
   faLaptop,
   faMobileScreen,
+  faQrcode,
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
@@ -20,9 +21,14 @@ import { SuccessPage } from "../design/Success";
 import { isEthereumProvider, isSolanaProvider } from "@turnkey/core";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
-import { isWalletConnect, useDebouncedCallback } from "../../utils/utils";
+import {
+  findWalletConnectProvider,
+  isWalletConnect,
+  useDebouncedCallback,
+} from "../../utils/utils";
 import { ActionPage } from "./Action";
 import { Input } from "@headlessui/react";
+import qrIcon from "../../assets/qr-icon.svg";
 
 interface WalletAuthButtonProps {
   onContinue: () => Promise<void>;
@@ -78,6 +84,8 @@ export function ExternalWalletChainSelector(
   const { walletProviders } = useTurnkey();
   const { isMobile, popPage } = useModal();
 
+  const [loadingProvider, setLoadingProvider] = useState<WalletProvider>();
+
   // we find matching providers in current state
   const currentProviders = providers
     .map((inputProvider) =>
@@ -99,12 +107,14 @@ export function ExternalWalletChainSelector(
 
   const shouldShowDisconnect = onDisconnect !== undefined;
 
-  const handleSelect = (provider: WalletProvider) => {
+  const handleSelect = async (provider: WalletProvider) => {
+    setLoadingProvider(provider);
     if (canDisconnect(provider, shouldShowDisconnect)) {
-      onDisconnect!(provider);
+      await onDisconnect!(provider);
     } else {
-      onSelect(provider);
+      await onSelect(provider);
     }
+    setLoadingProvider(undefined);
   };
 
   return (
@@ -125,9 +135,14 @@ export function ExternalWalletChainSelector(
           return (
             <ActionButton
               key={p.chainInfo.namespace}
+              loading={loadingProvider === p}
+              loadingText="Preparing..."
               onClick={() => handleSelect(p)}
-              onMouseEnter={() => setIsHovering(true)}
-              onMouseLeave={() => setIsHovering(false)}
+              {...(!isMobile && {
+                // This looks weird on mobile since there's no hover state
+                onMouseEnter: () => setIsHovering(true),
+                onMouseLeave: () => setIsHovering(false),
+              })}
               className="relative overflow-hidden flex items-center justify-start gap-2 w-full text-inherit bg-button-light dark:bg-button-dark"
             >
               {isEthereumProvider(p) ? (
@@ -203,16 +218,27 @@ interface WalletButtonProps {
   }>;
   onClick: () => void;
   shouldShowDisconnect?: boolean;
+  isMobile?: boolean;
 }
 
 function WalletButton(props: WalletButtonProps) {
-  const { icon, name, chains, onClick, shouldShowDisconnect = false } = props;
+  const {
+    icon,
+    name,
+    chains,
+    onClick,
+    shouldShowDisconnect = false,
+    isMobile = false,
+  } = props;
   const [isHovering, setIsHovering] = useState(false);
 
   return (
     <ActionButton
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      {...(!isMobile && {
+        // This looks weird on mobile since there's no hover state
+        onMouseEnter: () => setIsHovering(true),
+        onMouseLeave: () => setIsHovering(false),
+      })}
       onClick={onClick}
       style={{ height: `${WALLET_BUTTON_HEIGHT}px` }}
       className="relative flex items-center justify-between w-full text-inherit bg-button-light dark:bg-button-dark overflow-hidden"
@@ -286,10 +312,13 @@ function WalletButton(props: WalletButtonProps) {
 interface ExternalWalletSelectorProps {
   onDisconnect?: ((provider: WalletProvider) => Promise<void>) | undefined;
   onSelect: (provider: WalletProvider) => Promise<void>;
-  onSelectMobileApp?: (provider: WalletProvider) => Promise<void>;
+  onWCConnect?: (provider: WalletProvider) => Promise<void>;
+  onWCDisconnect?: (provider: WalletProvider) => Promise<void>;
+  onWCSign?: (provider: WalletProvider) => Promise<void>;
 }
 export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
-  const { onDisconnect, onSelect, onSelectMobileApp } = props;
+  const { onDisconnect, onSelect, onWCConnect, onWCSign, onWCDisconnect } =
+    props;
 
   const { pushPage, popPage, isMobile } = useModal();
   const { walletProviders } = useTurnkey();
@@ -316,31 +345,197 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
       }
     } else {
       if (isWalletConnect(group[0]!)) {
-        // TODO (Amir):
-        // When ready to mobilescope, add `&& isMobile` to this if statement
         // For wallet connect, conditionally take us to he correct screen:
-        // For mobile, take us to the allwallets. For web, take us to the chainselect
+        // For mobile, take us to the ShowAllWalletsScreen -> MobileWalletConnectScreen.
+        // For web, take us to the ExternalWalletChainSelector -> WalletConnectScreen
 
-        pushPage({
-          key: "Connect WalletConnect",
-          content: (
-            <ShowAllWalletsScreen
-              onSelect={onSelectMobileApp!}
-              onSelectQRCode={async () => {
-                pushPage({
-                  key: `Select chain`,
-                  content: (
-                    <ExternalWalletChainSelector
-                      providers={group} // Interesting
-                      onDisconnect={onDisconnect}
-                      onSelect={onSelect}
-                    />
-                  ),
-                });
-              }}
-            />
-          ),
-        });
+        // For the Connect screen (not signup/login), we should always route to the desktop WalletConnect flow if we're able to disconnect the wallet.
+        // That's why we check canDisconnect here.
+        if (isMobile && !canDisconnect(group[0]!, shouldShowDisconnect)) {
+          pushPage({
+            key: "Connect WalletConnect",
+            content: (
+              <ShowAllWalletsScreen
+                onSelect={async (provider) => {
+                  pushPage({
+                    key: `Open app`,
+                    content: (
+                      <MobileWalletConnectScreen
+                        provider={provider} // This is the provider object for the mobile wallet app (e.g. MetaMask, Rainbow, etc.). There is just for name, icon and app link. Connection happens with the WalletConnect provider
+                        onConnect={onWCConnect!}
+                        onSign={onWCSign}
+                        onSelectQRCode={async () => {
+                          pushPage({
+                            key: `Select chain`,
+                            content: (
+                              <ExternalWalletChainSelector
+                                providers={group} // Interesting
+                                onDisconnect={onDisconnect}
+                                onSelect={async (provider) => {
+                                  // For WalletConnect desktop, we route to a dedicated screen
+                                  // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
+                                  pushPage({
+                                    key: "Connect WalletConnect",
+                                    content: (
+                                      <WalletConnectScreen
+                                        provider={provider}
+                                        onAction={(onWCSign ?? onWCConnect)!} // For desktop flow, we can just use onWCSign since it will also connect. The onWCConnect is only needed for the ConnectWallet screen. In that case onWCSign won't be passed in
+                                        onDisconnect={onWCDisconnect!}
+                                        successPageDuration={undefined}
+                                      />
+                                    ),
+                                  });
+                                }}
+                              />
+                            ),
+                          });
+                        }}
+                        successPageDuration={undefined} // TODO (Amir): wat do we want here?
+                      />
+                    ),
+                  });
+                }}
+                onSelectQRCode={async () => {
+                  pushPage({
+                    key: `Select chain`,
+                    content: (
+                      <ExternalWalletChainSelector
+                        providers={group} // Interesting
+                        onDisconnect={onDisconnect}
+                        onSelect={async (provider) => {
+                          // For WalletConnect desktop, we route to a dedicated screen
+                          // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
+                          pushPage({
+                            key: "Connect WalletConnect",
+                            content: (
+                              <WalletConnectScreen
+                                provider={provider}
+                                onAction={(onWCSign ?? onWCConnect)!} // For desktop flow, we can just use onWCSign since it will also connect. The onWCConnect is only needed for the ConnectWallet screen. In that case onWCSign won't be passed in
+                                onDisconnect={onWCDisconnect!}
+                                successPageDuration={undefined}
+                              />
+                            ),
+                          });
+                        }}
+                      />
+                    ),
+                  });
+                }}
+              />
+            ),
+          });
+        } else {
+          pushPage({
+            key: `Select chain`,
+            content: (
+              <ExternalWalletChainSelector
+                providers={group}
+                onDisconnect={onDisconnect}
+                onSelect={async (provider) => {
+                  // this is a wallet connect provider, so we need to show the WalletConnect screen
+
+                  // for WalletConnect we route to a dedicated screen
+                  // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
+                  pushPage({
+                    key: "Connect WalletConnect",
+                    content: (
+                      <WalletConnectScreen
+                        provider={provider}
+                        onAction={(onWCSign ?? onWCConnect)!} // For desktop flow, we can just use onWCSign since it will also connect. The onWCConnect is only needed for the ConnectWallet screen. In that case onWCSign won't be passed in
+                        onDisconnect={onWCDisconnect!}
+                        onSelectAllWallets={async () => {
+                          popPage();
+                          pushPage({
+                            key: "Connect WalletConnect",
+                            content: (
+                              <ShowAllWalletsScreen
+                                onSelect={async (provider) => {
+                                  pushPage({
+                                    key: `Open app`,
+                                    content: (
+                                      <MobileWalletConnectScreen
+                                        provider={provider} // This is the provider object for the mobile wallet app (e.g. MetaMask, Rainbow, etc.). There is just for name, icon and app link. Connection happens with the WalletConnect provider
+                                        onConnect={onWCConnect!}
+                                        onSign={onWCSign}
+                                        onSelectQRCode={async () => {
+                                          pushPage({
+                                            key: `Select chain`,
+                                            content: (
+                                              <ExternalWalletChainSelector
+                                                providers={group} // Interesting
+                                                onDisconnect={onDisconnect}
+                                                onSelect={async (provider) => {
+                                                  // For WalletConnect desktop, we route to a dedicated screen
+                                                  // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
+                                                  pushPage({
+                                                    key: "Connect WalletConnect",
+                                                    content: (
+                                                      <WalletConnectScreen
+                                                        provider={provider}
+                                                        onAction={
+                                                          (onWCSign ??
+                                                            onWCConnect)!
+                                                        } // For desktop flow, we can just use onWCSign since it will also connect. The onWCConnect is only needed for the ConnectWallet screen. In that case onWCSign won't be passed in
+                                                        onDisconnect={
+                                                          onWCDisconnect!
+                                                        }
+                                                        successPageDuration={
+                                                          undefined
+                                                        }
+                                                      />
+                                                    ),
+                                                  });
+                                                }}
+                                              />
+                                            ),
+                                          });
+                                        }}
+                                        successPageDuration={undefined} // TODO (Amir): wat do we want here?
+                                      />
+                                    ),
+                                  });
+                                }}
+                                onSelectQRCode={async () => {
+                                  pushPage({
+                                    key: `Select chain`,
+                                    content: (
+                                      <ExternalWalletChainSelector
+                                        providers={group} // Interesting
+                                        onDisconnect={onDisconnect}
+                                        onSelect={async (provider) => {
+                                          // For WalletConnect desktop, we route to a dedicated screen
+                                          // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
+                                          pushPage({
+                                            key: "Connect WalletConnect",
+                                            content: (
+                                              <WalletConnectScreen
+                                                provider={provider}
+                                                onAction={
+                                                  (onWCSign ?? onWCConnect)!
+                                                } // For desktop flow, we can just use onWCSign since it will also connect. The onWCConnect is only needed for the ConnectWallet screen. In that case onWCSign won't be passed in
+                                                onDisconnect={onWCDisconnect!}
+                                                successPageDuration={undefined}
+                                              />
+                                            ),
+                                          });
+                                        }}
+                                      />
+                                    ),
+                                  });
+                                }}
+                              />
+                            ),
+                          });
+                        }}
+                        successPageDuration={undefined}
+                      />
+                    ),
+                  });
+                }}
+              />
+            ),
+          });
+        }
 
         return;
       }
@@ -404,6 +599,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
                 }))}
                 onClick={() => handleSelectGroup(group)}
                 shouldShowDisconnect={shouldShowDisconnect}
+                isMobile={isMobile}
               />
             );
           }
@@ -529,6 +725,7 @@ export interface WalletConnectScreenProps {
   successPageDuration: number | undefined;
   onAction: (provider: WalletProvider) => Promise<void>;
   onDisconnect?: (provider: WalletProvider) => Promise<void>;
+  onSelectAllWallets?: () => Promise<void>;
 }
 
 export function WalletConnectScreen(props: WalletConnectScreenProps) {
@@ -536,6 +733,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
     provider: inputProvider,
     onAction,
     onDisconnect,
+    onSelectAllWallets,
     successPageDuration,
   } = props;
 
@@ -554,10 +752,9 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
   const latestProviderRef = useRef<WalletProvider | null>(null);
 
   // Find the current provider state
-  const provider = walletProviders.find(
-    (p) =>
-      p.interfaceType === inputProvider.interfaceType &&
-      p.chainInfo.namespace === inputProvider.chainInfo.namespace
+  const provider = findWalletConnectProvider(
+    walletProviders,
+    inputProvider.chainInfo.namespace
   );
 
   // if provider is not found then that means that the user entered this screen
@@ -780,6 +977,20 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
               ? "Preparing your connection. This will only take a moment."
               : "Scan this QR code with your WalletConnect-compatible wallet to connect"}
           </div>
+          {onSelectAllWallets && (
+            <span className="text-icon-text-light dark:text-icon-text-dark text-center text-xs !p-0 mt-2">
+              Not what you're looking for?{" "}
+              <span
+                className="text-primary-light dark:text-primary-dark cursor-pointer underline"
+                onClick={() => {
+                  popPages(2);
+                  onSelectAllWallets();
+                }}
+              >
+                See all WalletConnect apps.
+              </span>
+            </span>
+          )}
         </div>
       )}
     </div>
@@ -787,7 +998,7 @@ export function WalletConnectScreen(props: WalletConnectScreenProps) {
 }
 
 interface ShowAllWalletsScreenProps {
-  onSelect: (provider: WalletProvider) => Promise<void>;
+  onSelect: (targetApp: WalletProvider) => Promise<void>;
   onSelectQRCode: () => Promise<void>;
 }
 
@@ -796,7 +1007,8 @@ const BUFFER_SIZE = 5; // Number of items to render outside visible area
 
 export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
   const { onSelect, onSelectQRCode } = props;
-  const { walletConnectApps } = useTurnkey();
+  const { walletProviders, walletConnectApps, disconnectWalletAccount } =
+    useTurnkey();
   const { isMobile, pushPage } = useModal();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -830,21 +1042,39 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
   const handleSelectGroup = useCallback(
     (group: WalletProvider[]) => {
       if (group.length === 1) {
-        onSelect(group[0]!);
+        disconnectAndSelect(group[0]!);
       } else {
         pushPage({
           key: `Select chain`,
           content: (
             <ExternalWalletChainSelector
               providers={group}
-              onSelect={onSelect}
+              onSelect={disconnectAndSelect}
             />
           ),
         });
       }
     },
-    [onSelect, pushPage]
+    [walletProviders, onSelect, pushPage]
   );
+
+  // To make our lives easier and avoid confusing the end user, we always disconnect
+  // the existing WalletConnect session before starting a new one.
+  // Note that this doesn't happen for desktop wallet connecting (QR code or native browser extension)
+  const disconnectAndSelect = async (targetApp: WalletProvider) => {
+    const walletConnectProvider = findWalletConnectProvider(
+      walletProviders,
+      targetApp.chainInfo.namespace
+    );
+
+    if (
+      walletConnectProvider &&
+      walletConnectProvider.connectedAddresses.length > 0
+    ) {
+      await disconnectWalletAccount(walletConnectProvider);
+    }
+    await onSelect(targetApp);
+  };
 
   // Handle scroll to update visible range
   const handleScroll = useDebouncedCallback(() => {
@@ -903,6 +1133,8 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
         />
         <Input
           type="text"
+          autoCapitalize="none"
+          autoComplete="off"
           placeholder="Search wallets..."
           onChange={(e) => debouncedSetSearch(e.target.value)}
           className="w-full py-3 bg-transparent border-none text-inherit placeholder-icon-text-light dark:placeholder-icon-text-dark focus:outline-none focus:ring-0 focus:border-none"
@@ -946,13 +1178,14 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
             {visibleRange.start === 0 && !searchQuery && (
               <WalletButton
                 key="qr-code-walletconnect"
-                icon=""
+                icon={qrIcon}
                 name="Scan QR Code"
                 chains={[
                   { namespace: "ethereum", isConnected: false },
                   { namespace: "solana", isConnected: false },
                 ]}
                 onClick={onSelectQRCode}
+                isMobile={isMobile}
               />
             )}
 
@@ -971,6 +1204,7 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
                   }))}
                   onClick={() => handleSelectGroup(group)}
                   shouldShowDisconnect={false}
+                  isMobile={isMobile}
                 />
               );
             })}
@@ -1000,12 +1234,19 @@ interface MobileWalletConnectScreenProps {
   provider: WalletProvider;
   successPageDuration: number | undefined;
   onConnect: (provider: WalletProvider) => Promise<void>;
-  onSign?: (provider: WalletProvider) => Promise<void>;
+  onSign?: ((provider: WalletProvider) => Promise<void>) | undefined;
+  onSelectQRCode: () => Promise<void>;
 }
 export function MobileWalletConnectScreen(
   props: MobileWalletConnectScreenProps
 ) {
-  const { provider: targetApp, onConnect, onSign, successPageDuration } = props;
+  const {
+    provider: targetApp,
+    onConnect,
+    onSign,
+    onSelectQRCode,
+    successPageDuration,
+  } = props;
 
   const { pushPage, popPages, closeModal, isMobile } = useModal();
   const { walletProviders } = useTurnkey();
@@ -1014,16 +1255,13 @@ export function MobileWalletConnectScreen(
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [canSign, setCanSign] = useState(false);
-  const [appNotInstalled, setAppNotInstalled] = useState(false);
   const [completed, setCompleted] = useState(false);
-
-  // TODO (Amir): This screen shares a lot in common with WalletConnectScreen aside from the disconnect logic. Refactor to share code.
+  const [shouldStartConnecting, setShouldStartConnecting] = useState(isMobile);
 
   // Find the current WalletConnect provider state
-  const walletConnectProvider = walletProviders.find(
-    (p) =>
-      p.interfaceType === targetApp.interfaceType &&
-      p.chainInfo.namespace === targetApp.chainInfo.namespace
+  const walletConnectProvider = findWalletConnectProvider(
+    walletProviders,
+    targetApp.chainInfo.namespace
   );
 
   // if provider is not found then that means that the user entered this screen
@@ -1038,18 +1276,23 @@ export function MobileWalletConnectScreen(
 
   // Initial connection effect
   useEffect(() => {
+    if (!shouldStartConnecting) return;
+
     if (walletConnectProvider) {
       latestProviderRef.current = walletConnectProvider;
 
       // we don't try to connect if WalletConnect is still initializing or we are already connecting
       if (!isConnecting && !walletConnectProvider.isLoading) {
-        if (walletConnectProvider.connectedAddresses?.length) {
+        if (walletConnectProvider.connectedAddresses.length > 0) {
+          // Connection already established. Try to connect if possible
           if (onSign) {
             setCanSign(true);
           } else {
             setCompleted(true);
           }
         } else {
+          // Start connection flow
+          setCanSign(false);
           handleOpenApp(
             `wc?uri=${encodeURIComponent(
               latestProviderRef?.current?.uri ?? ""
@@ -1059,7 +1302,7 @@ export function MobileWalletConnectScreen(
         }
       }
     }
-  }, [walletConnectProvider]);
+  }, [walletConnectProvider, shouldStartConnecting]);
 
   // Handle the connection action - uses the ref to get latest provider
   const runConnectAction = useDebouncedCallback(
@@ -1068,7 +1311,12 @@ export function MobileWalletConnectScreen(
 
       try {
         await onConnect(targetProvider);
-        setCanSign(true);
+        if (onSign) {
+          setCanSign(true);
+        } else {
+          // Skip signing step if no signature is required (Connect only, not signup/login)
+          setCompleted(true);
+        }
       } catch {
         // noop
       } finally {
@@ -1086,8 +1334,7 @@ export function MobileWalletConnectScreen(
       try {
         await onSign!(targetProvider);
         setCompleted(true);
-      } catch (e) {
-        console.error(e);
+      } catch {
         // noop
       } finally {
         setIsConnecting(false);
@@ -1097,12 +1344,8 @@ export function MobileWalletConnectScreen(
   );
 
   const handleOpenApp = (linkParams?: string) => {
-    try {
-      const link = `${targetApp.uri}${linkParams ? `${linkParams}` : ""}`;
-      window.location.href = link;
-    } catch {
-      setAppNotInstalled(true);
-    }
+    const link = `${targetApp.uri}${linkParams ? `${linkParams}` : ""}`;
+    window.location.href = link;
   };
 
   useEffect(() => {
@@ -1129,12 +1372,48 @@ export function MobileWalletConnectScreen(
         isMobile ? "w-full" : "w-auto"
       )}
     >
-      {appNotInstalled ? (
-        <div className="mt-4">Not installed</div>
+      {!shouldStartConnecting ? (
+        <div
+          className={clsx(
+            "flex flex-col gap-4 mt-6 items-center justify-center",
+            isMobile ? "w-full" : "w-96"
+          )}
+        >
+          <img src={targetApp.info.icon} className="size-14 rounded-full" />
+          <span className="text-sm text-center text-icon-text-light dark:text-icon-text-dark">
+            {"You can connect"} {targetApp.info.name ?? "this wallet provider"}
+            {
+              " using your mobile device. Open this page on your mobile device to continue or scan the QR code with your wallet app."
+            }
+          </span>
+          <span className="text-sm text-center text-icon-text-light dark:text-icon-text-dark">
+            {"Already on mobile?"}{" "}
+            <span
+              className="text-primary-light dark:text-primary-dark cursor-pointer underline"
+              onClick={() => setShouldStartConnecting(true)}
+            >
+              Try opening {targetApp.info.name} anyways.
+            </span>
+          </span>
+
+          <ActionButton
+            onClick={onSelectQRCode}
+            className="w-full text-inherit bg-button-light dark:bg-button-dark"
+          >
+            <div className="flex flex-row w-full justify-center items-center gap-2">
+              Scan QR code
+              <FontAwesomeIcon
+                icon={faQrcode}
+                size="lg"
+                className="text-icon-text-light dark:text-icon-text-dark"
+              />
+            </div>
+          </ActionButton>
+        </div>
       ) : canSign ? (
         <div
           className={clsx(
-            "flex flex-col w-72 gap-4 mt-6 items-center justify-center",
+            "flex flex-col gap-4 mt-6 items-center justify-center",
             isMobile ? "w-full" : "w-72"
           )}
         >
