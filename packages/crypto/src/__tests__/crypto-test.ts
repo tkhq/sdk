@@ -1,6 +1,7 @@
 import { test, expect, describe } from "@jest/globals";
-import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 import { uint8ArrayFromHexString } from "@turnkey/encoding";
+import { p256 } from "@noble/curves/p256";
+import { sha256 } from "@noble/hashes/sha256";
 import {
   getPublicKey,
   generateP256KeyPair,
@@ -198,10 +199,6 @@ describe("Turnkey Crypto Primitives", () => {
   test("verifyRequestStamp", async () => {
     const { publicKey: apiPublicKey, privateKey: apiPrivateKey } =
       generateP256KeyPair();
-    const apiKeyStamper = new ApiKeyStamper({
-      apiPublicKey,
-      apiPrivateKey,
-    });
 
     // we create a sample request payload
     const requestBody = JSON.stringify({
@@ -209,16 +206,16 @@ describe("Turnkey Crypto Primitives", () => {
       timestampMs: Date.now().toString(),
     });
 
-    // we stamp the request payload to get the signature
-    const { stampHeaderValue } = await apiKeyStamper.stamp(requestBody);
+    // we manually create a signature using @noble/curves directly
+    // to avoid a circular dependency with ApiKeyStamper
+    const messageHash = sha256(new TextEncoder().encode(requestBody));
+    const privateKeyBytes = uint8ArrayFromHexString(apiPrivateKey);
+    const signatureBytes = p256.sign(messageHash, privateKeyBytes).toDERHex();
 
-    const decodedStampContents = atob(stampHeaderValue);
-    const parsedStampContents = JSON.parse(decodedStampContents);
-    const signature = parsedStampContents.signature;
-
+    // we verify the signature
     const verified = await verifyStampSignature(
       apiPublicKey,
-      signature,
+      signatureBytes,
       requestBody,
     );
 

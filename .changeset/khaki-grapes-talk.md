@@ -2,4 +2,4 @@
 "@turnkey/crypto": patch
 ---
 
-Remove `@turnkey/http` from devDependencies
+Remove `@turnkey/http` and `@turnkey/api-key-stamper` from devDependencies
