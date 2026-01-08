@@ -57,7 +57,6 @@
   },
   "devDependencies": {
     "@turnkey/api-key-stamper": "workspace:*",
-    "@turnkey/http": "workspace:*",
     "@types/cbor-js": "^0.1.1",
     "@types/jest": "^29.5.3",
     "jest": "29.7.0"
