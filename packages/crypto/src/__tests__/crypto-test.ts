@@ -1,6 +1,5 @@
 import { test, expect, describe } from "@jest/globals";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { TurnkeyClient } from "@turnkey/http";
 import { uint8ArrayFromHexString } from "@turnkey/encoding";
 import {
   getPublicKey,
@@ -204,26 +203,23 @@ describe("Turnkey Crypto Primitives", () => {
       apiPrivateKey,
     });
 
-    const turnkeyClient = new TurnkeyClient(
-      {
-        baseUrl: "https://api.turnkey.com",
-      },
-      apiKeyStamper,
-    );
-
-    const stampedRequest = await turnkeyClient.stampGetWhoami({
+    // we create a sample request payload
+    const requestBody = JSON.stringify({
       organizationId: "00000000-00000000-00000000-00000000",
+      timestampMs: Date.now().toString(),
     });
 
-    const stampContents = stampedRequest.stamp.stampHeaderValue;
-    const decodedStampContents = atob(stampContents);
+    // we stamp the request payload to get the signature
+    const { stampHeaderValue } = await apiKeyStamper.stamp(requestBody);
+
+    const decodedStampContents = atob(stampHeaderValue);
     const parsedStampContents = JSON.parse(decodedStampContents);
     const signature = parsedStampContents.signature;
 
     const verified = await verifyStampSignature(
       apiPublicKey,
       signature,
-      stampedRequest.body,
+      requestBody,
     );
 
     expect(verified).toEqual(true);
