@@ -12,10 +12,11 @@ import {
 } from "@headlessui/react";
 import { Listbox } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faSearch } from "@fortawesome/free-solid-svg-icons";
 import parsePhoneNumberFromString from "libphonenumber-js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useScreenSize } from "../../utils/utils";
+import { BaseButton } from "./Buttons";
 
 const FlagImage = OriginalFlagImage as React.ElementType;
 
@@ -290,6 +291,53 @@ export function PhoneInputBox(props: PhoneInputBoxProps) {
         placeholder="Phone number"
         className="w-full py-3 bg-transparent border-none text-inherit placeholder-icon-text-light dark:placeholder-icon-text-dark focus:outline-none focus:ring-0 focus:border-none"
       />
+    </div>
+  );
+}
+
+export interface SearchInputBoxProps {
+  value: string;
+  onChange: (value: string) => void;
+  onClear?: () => void;
+  placeholder?: string;
+}
+
+export function SearchInputBox(props: SearchInputBoxProps) {
+  const { value, onChange, onClear, placeholder = "Search..." } = props;
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleClear = () => {
+    onChange("");
+    onClear?.();
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <div className="w-full flex items-center gap-2 rounded-md text-inherit bg-button-light dark:bg-button-dark border border-modal-background-dark/20 dark:border-modal-background-light/20 focus-within:outline-primary-light focus-within:dark:outline-primary-dark focus-within:outline-[1px] focus-within:outline-offset-0 box-border transition-all">
+      <FontAwesomeIcon
+        icon={faSearch}
+        className="relative text-icon-text-light dark:text-icon-text-dark px-2"
+      />
+      <Input
+        ref={inputRef}
+        type="text"
+        autoCapitalize="none"
+        autoComplete="off"
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full py-3 bg-transparent border-none text-inherit placeholder-icon-text-light dark:placeholder-icon-text-dark focus:outline-none focus:ring-0 focus:border-none"
+      />
+
+      {value && (
+        <BaseButton
+          className="flex text-icon-text-light dark:text-icon-text-dark text-sm border-none self-stretch px-2 items-center justify-center"
+          onClick={handleClear}
+        >
+          Clear
+        </BaseButton>
+      )}
     </div>
   );
 }
