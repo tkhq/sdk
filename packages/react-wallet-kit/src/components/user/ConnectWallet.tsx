@@ -1,4 +1,3 @@
-import { ExternalWalletSelector, DisconnectWalletScreen } from "../auth/Wallet";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ActionPage } from "../auth/Action";
@@ -9,6 +8,8 @@ import {
   type WalletAccount,
   type WalletProvider,
 } from "@turnkey/core";
+import { DisconnectWalletScreen } from "../auth/wallet/DisconnectWalletScreen";
+import { ExternalWalletSelector } from "../auth/wallet/ExternalWalletSelector";
 
 interface ConnectWalletModalProps {
   successPageDuration?: number | undefined;
@@ -71,7 +72,7 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
             // we narrow to only connected wallets
             // because we know the account must come from one of them
             const connectedWallets = wallets.filter(
-              (w): w is ConnectedWallet => w.source === WalletSource.Connected
+              (w): w is ConnectedWallet => w.source === WalletSource.Connected,
             );
 
             // find the matching account

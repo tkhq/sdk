@@ -17,11 +17,12 @@ import { PhoneNumberInput } from "./Phone";
 import { ActionPage } from "./Action";
 import { PasskeyButtons } from "./Passkey";
 import { Spinner } from "../design/Spinners";
-import { ExternalWalletSelector, WalletAuthButton } from "./Wallet";
 import { DeveloperError } from "../design/Failure";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ClientState } from "../../types/base";
+import { WalletAuthButton } from "./wallet/WalletAuthButton";
+import { ExternalWalletSelector } from "./wallet/ExternalWalletSelector";
 
 type AuthComponentProps = {
   sessionKey?: string | undefined;
@@ -427,7 +428,7 @@ export function AuthComponent({
     <div
       className={clsx(
         "flex flex-col items-center ",
-        isMobile ? "w-full" : "w-96"
+        isMobile ? "w-full" : "w-96",
       )}
     >
       {config.authProxyConfigId ? (

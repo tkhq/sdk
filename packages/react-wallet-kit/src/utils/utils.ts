@@ -66,7 +66,7 @@ export const authErrors = {
 
 export const useDebouncedCallback = <T extends (...args: any[]) => void>(
   fn: T,
-  wait = 100
+  wait = 100,
 ): T => {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fnRef = useRef(fn);
@@ -81,7 +81,7 @@ export const useDebouncedCallback = <T extends (...args: any[]) => void>(
         timer.current = null;
       }, wait);
     },
-    [wait]
+    [wait],
   ) as T;
 };
 
@@ -94,7 +94,7 @@ export async function withTurnkeyErrorHandling<T>(
   sessionExpireFn?: () => Promise<void>,
   callbacks?: { onError?: (error: TurnkeyError) => void },
   fallbackMessage = "An unknown error occurred",
-  fallbackCode = TurnkeyErrorCodes.UNKNOWN
+  fallbackCode = TurnkeyErrorCodes.UNKNOWN,
 ): Promise<T> {
   try {
     return await fn();
@@ -114,7 +114,7 @@ export async function withTurnkeyErrorHandling<T>(
           throw new TurnkeyError(
             "SESSION_EXPIRED received without sessionExpireFn handler",
             TurnkeyErrorCodes.INTERNAL_ERROR,
-            error
+            error,
           );
         }
       }
@@ -257,7 +257,7 @@ export async function exchangeCodeForToken(
   clientId: string,
   redirectUri: string,
   code: string,
-  codeVerifier: string
+  codeVerifier: string,
 ): Promise<{ id_token: string }> {
   const params = new URLSearchParams({
     client_id: clientId,
@@ -278,7 +278,7 @@ export async function exchangeCodeForToken(
   if (!response.ok) {
     const errorData = await response.json();
     throw new Error(
-      `Facebook token exchange failed: ${JSON.stringify(errorData)}`
+      `Facebook token exchange failed: ${JSON.stringify(errorData)}`,
     );
   }
 
@@ -312,7 +312,7 @@ export async function handleFacebookPKCEFlow({
   if (!verifier) {
     throw new TurnkeyError(
       "Missing PKCE verifier for Facebook authentication",
-      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR
+      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
     );
   }
 
@@ -322,7 +322,7 @@ export async function handleFacebookPKCEFlow({
       clientId,
       redirectURI,
       code,
-      verifier
+      verifier,
     );
 
     // Clean up the verifier as it's no longer needed
@@ -352,7 +352,7 @@ export async function handleFacebookPKCEFlow({
     throw new TurnkeyError(
       "Failed to complete Facebook authentication",
       TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-      error
+      error,
     );
   }
 }
@@ -360,10 +360,10 @@ export async function handleFacebookPKCEFlow({
 // Custom hook to get the current screen size
 export function useScreenSize() {
   const [width, setWidth] = useState(
-    typeof window !== "undefined" ? window.innerWidth : 1024
+    typeof window !== "undefined" ? window.innerWidth : 1024,
   );
   const [height, setHeight] = useState(
-    typeof window !== "undefined" ? window.innerHeight : 768
+    typeof window !== "undefined" ? window.innerHeight : 768,
   );
 
   useEffect(() => {
@@ -392,12 +392,12 @@ export function isWalletConnect(wallet: WalletProvider): boolean {
 // Finds and returns the WalletConnect provider for the specified chain
 export function findWalletConnectProvider(
   walletProviders: WalletProvider[],
-  chain: Chain
+  chain: Chain,
 ): WalletProvider | undefined {
   return walletProviders.find(
     (p) =>
       p.interfaceType === WalletInterfaceType.WalletConnect &&
-      p.chainInfo.namespace === chain
+      p.chainInfo.namespace === chain,
   );
 }
 
@@ -435,7 +435,7 @@ export function useWalletProviderState(initialState: WalletProvider[] = []) {
       }
       // we do nothing if the wallet providers are the same
     },
-    []
+    [],
   );
 
   return [walletProviders, updateWalletProviders] as const;
@@ -443,11 +443,11 @@ export function useWalletProviderState(initialState: WalletProvider[] = []) {
 
 export function mergeWalletsWithoutDuplicates(
   existingWallets: Wallet[],
-  newWallets: Wallet[]
+  newWallets: Wallet[],
 ): Wallet[] {
   const existingWalletIds = new Set(existingWallets.map((w) => w.walletId));
   const uniqueNewWallets = newWallets.filter(
-    (w) => !existingWalletIds.has(w.walletId)
+    (w) => !existingWalletIds.has(w.walletId),
   );
   return [...existingWallets, ...uniqueNewWallets];
 }
@@ -467,7 +467,7 @@ export async function buildWalletConnectProviders(params: {
 
     // Check if the app supports Ethereum
     const supportsEthereum = app.chains.some((chain) =>
-      chain.startsWith("eip155:")
+      chain.startsWith("eip155:"),
     );
     if (supportsEthereum) {
       supportedChains.push(Chain.Ethereum);
@@ -475,7 +475,7 @@ export async function buildWalletConnectProviders(params: {
 
     // Check if the app supports Solana
     const supportsSolana = app.chains.some((chain) =>
-      chain.startsWith("solana:")
+      chain.startsWith("solana:"),
     );
     if (supportsSolana) {
       supportedChains.push(Chain.Solana);
