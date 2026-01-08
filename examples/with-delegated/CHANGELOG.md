@@ -1,5 +1,13 @@
 # with-delegated
 
+## 0.1.17
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/react-wallet-kit@1.7.2
+  - @turnkey/sdk-server@5.0.1
+
 ## 0.1.16
 
 ### Patch Changes

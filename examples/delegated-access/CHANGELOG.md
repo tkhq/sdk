@@ -1,5 +1,12 @@
 # @turnkey/delegated-access
 
+## 0.1.13
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@5.0.1
+
 ## 0.1.12
 
 ### Patch Changes

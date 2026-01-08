@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.11.1
+
+### Patch Changes
+
+- [#1135](https://github.com/tkhq/sdk/pull/1135) [`91d6a9e`](https://github.com/tkhq/sdk/commit/91d6a9eb1b9ac9e21745749615ac7a7be66f5cf6) Author [@ethankonk](https://github.com/ethankonk) - - Synced with `mono` v2025.12.2
+
 ## 0.11.0
 
 ### Minor Changes

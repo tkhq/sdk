@@ -1,5 +1,17 @@
 # @turnkey/api-key-stamper
 
+## 0.6.0
+
+### Minor Changes
+
+- [#1135](https://github.com/tkhq/sdk/pull/1135) [`91d6a9e`](https://github.com/tkhq/sdk/commit/91d6a9eb1b9ac9e21745749615ac7a7be66f5cf6) Author [@ethankonk](https://github.com/ethankonk) - Exposed a `sign` method from the stamper for signing arbitrary payloads
+  - Accepts a string payload and returns a signature in either `RAW` or `DER` format.
+
+### Patch Changes
+
+- Updated dependencies [[`d0dba04`](https://github.com/tkhq/sdk/commit/d0dba0412fa7b0c7c9b135e73cc0ef6f55187314)]:
+  - @turnkey/crypto@2.8.9
+
 ## 0.5.0
 
 ### Minor Changes
