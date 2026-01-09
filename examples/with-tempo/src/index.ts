@@ -4,8 +4,8 @@ import prompts from "prompts";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { tempo } from "tempo.ts/chains";
-import { tempoActions, Actions, withFeePayer } from "tempo.ts/viem";
+import {tempoModerato } from "viem/chains";
+import { Actions, tempoActions, withFeePayer } from "viem/tempo";
 import {
   Account,
   createClient,
@@ -19,7 +19,8 @@ import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { createAccount, createNewWallet } from "./turnkey";
 import { print } from "./util";
 
-const TIP20_TOKEN = "0x20c0000000000000000000000000000000000001" as const;
+// const TIP20_TOKEN = "0x20c0000000000000000000000000000000000001" as const;
+const TIP20_TOKEN = "0x20c0000000000000000000000000000000000002" as const;
 
 async function ensureFunded(
   client: ReturnType<typeof createClient>,
@@ -50,7 +51,7 @@ async function ensureFunded(
   });
 
   print(
-    `${address} ${token.name} Balance:`,
+    `${token.name} Balance for ${address}:`,
     formatUnits(newBalance, token.decimals),
   );
   print(
@@ -82,10 +83,10 @@ async function main() {
 
   const client = createClient({
     account: account as Account,
-    chain: tempo({ feeToken: TIP20_TOKEN }),
+    chain: tempoModerato.extend({ feeToken: TIP20_TOKEN }),
     transport: withFeePayer(
-      http(undefined, {}),
-      http("https://sponsor.testnet.tempo.xyz"),
+      http("https://rpc.moderato.tempo.xyz"),
+      http("https://sponsor.moderato.tempo.xyz"),
     ),
   })
     .extend(publicActions)
@@ -117,7 +118,7 @@ async function main() {
       name: "useSponsor",
       message: process.env.SPONSOR_WITH
         ? `Sponsor fees with ${process.env.SPONSOR_WITH}?`
-        : "Sponsor fees via sponsor.testnet.tempo.xyz?",
+        : "Sponsor fees via sponsor.moderato.tempo.xyz?",
       initial: true,
     },
   ]);

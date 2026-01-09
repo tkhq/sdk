@@ -44,7 +44,7 @@ export async function createNewWallet() {
         `- Address: ${address}`,
         ``,
         "Now you can take the address, put it in `.env.local` (`SIGN_WITH=<address>`), then re-run the script.",
-      ].join("\n"),
+      ].join("\n")
     );
   } catch (error) {
     throw new Error("Failed to create a new Ethereum wallet: " + error);
@@ -52,21 +52,25 @@ export async function createNewWallet() {
 }
 
 export async function createAccount(
-  parameters: Parameters<typeof createTurnkeyAccount>[0],
+  parameters: Parameters<typeof createTurnkeyAccount>[0]
 ): Promise<Account> {
   const account = await createTurnkeyAccount(parameters);
+
   // @ts-expect-error: viem version conflicts in turnkey monorepo
   return {
     ...account,
     async signTransaction(transaction, options = {}) {
       const { serializer } = options;
+
       if (!serializer) throw new Error("serializer is required");
+      const serialized = await serializer!(transaction);
+      console.log("serialized", serialized);
       const signature = await account.sign!({
         hash: keccak256(await serializer(transaction)),
       });
       return (await serializer(
         transaction,
-        parseSignature(signature),
+        parseSignature(signature)
       )) as never;
     },
   };
