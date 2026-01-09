@@ -35,6 +35,7 @@ export function ImportComponent(props: {
   defaultWalletAccounts?: v1AddressFormat[] | v1WalletAccountParams[];
   addressFormats?: v1AddressFormat[] | undefined; // Only used if importType is ImportType.PrivateKey
   curve?: v1Curve | undefined; // Only used if importType is ImportType.PrivateKey
+  keyFormat?: KeyFormat | undefined; // Only used if importType is ImportType.PrivateKey
   onSuccess: (id: string) => void;
   onError: (error: TurnkeyError) => void;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
@@ -55,6 +56,7 @@ export function ImportComponent(props: {
     clearClipboardOnPaste,
     stampWith,
     name,
+    keyFormat,
   } = props;
 
   const { config, session, importWallet, importPrivateKey, httpClient } =
@@ -292,11 +294,7 @@ export function ImportComponent(props: {
           }
 
           const encryptedKeyBundle =
-            await importIframeClient.extractKeyEncryptedBundle(
-              curve === "CURVE_ED25519"
-                ? KeyFormat.Solana
-                : KeyFormat.Hexadecimal,
-            );
+            await importIframeClient.extractKeyEncryptedBundle(keyFormat);
           if (!encryptedKeyBundle || encryptedKeyBundle.trim() === "") {
             throw new TurnkeyError(
               "Encrypted bundle is empty",
