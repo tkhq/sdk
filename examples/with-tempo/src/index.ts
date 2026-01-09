@@ -146,6 +146,7 @@ async function main() {
     token: TIP20_TOKEN,
     to: destination as `0x${string}`,
     feePayer,
+    gas: 100000n,
   });
 
   print("Receipt:", `https://explore.tempo.xyz/tx/${receipt.transactionHash}`);
