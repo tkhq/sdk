@@ -1,5 +1,14 @@
 # @turnkey/crypto
 
+## 2.8.9
+
+### Patch Changes
+
+- [#1165](https://github.com/tkhq/sdk/pull/1165) [`d0dba04`](https://github.com/tkhq/sdk/commit/d0dba0412fa7b0c7c9b135e73cc0ef6f55187314) Author [@moeodeh3](https://github.com/moeodeh3) - Remove `@turnkey/http` and `@turnkey/api-key-stamper` from devDependencies
+
+- Updated dependencies [[`91d6a9e`](https://github.com/tkhq/sdk/commit/91d6a9eb1b9ac9e21745749615ac7a7be66f5cf6)]:
+  - @turnkey/sdk-types@0.11.1
+
 ## 2.8.8
 
 ### Patch Changes

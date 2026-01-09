@@ -1,5 +1,16 @@
 # @turnkey/viem
 
+## 0.14.21
+
+### Patch Changes
+
+- Updated dependencies [[`91d6a9e`](https://github.com/tkhq/sdk/commit/91d6a9eb1b9ac9e21745749615ac7a7be66f5cf6), [`91d6a9e`](https://github.com/tkhq/sdk/commit/91d6a9eb1b9ac9e21745749615ac7a7be66f5cf6), [`699fbd7`](https://github.com/tkhq/sdk/commit/699fbd75ef3f44f768ae641ab4f652e966b8e289)]:
+  - @turnkey/core@1.11.0
+  - @turnkey/api-key-stamper@0.6.0
+  - @turnkey/sdk-browser@5.14.1
+  - @turnkey/http@3.16.1
+  - @turnkey/sdk-server@5.0.1
+
 ## 0.14.20
 
 ### Patch Changes
