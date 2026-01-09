@@ -4,6 +4,27 @@ export * from "./providers";
 export * from "./types/base";
 export * from "./types/method-types";
 
+/**
+ * Preload phone authentication components and libraries.
+ * 
+ * Call this function early in your app to prefetch the phone auth chunk
+ * so it's ready when users click "Sign in with Phone".
+ * 
+ * @example
+ * ```tsx
+ * import { preloadPhoneAuth } from '@turnkey/react-wallet-kit';
+ * 
+ * // Prefetch on app init or when user hovers over phone login button
+ * preloadPhoneAuth();
+ * ```
+ */
+export function preloadPhoneAuth(): Promise<void> {
+  return Promise.all([
+    import("./components/auth/Phone"),
+    import("./components/user/UpdatePhoneNumber"),
+  ]).then(() => {});
+}
+
 // Re-export selected values from @turnkey/core
 export {
   TurnkeyClient,

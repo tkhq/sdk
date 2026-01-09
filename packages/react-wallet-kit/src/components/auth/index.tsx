@@ -13,7 +13,7 @@ import { OAuthButton } from "./OAuth";
 import { EmailInput } from "./Email";
 import { OrSeparator } from "./OrSeparator";
 import { OtpVerification } from "./OTP";
-import { PhoneNumberInput } from "./Phone";
+import { PhoneNumberInput } from "./PhoneLazy";
 import { ActionPage } from "./Action";
 import { PasskeyButtons } from "./Passkey";
 import { Spinner } from "../design/Spinners";
