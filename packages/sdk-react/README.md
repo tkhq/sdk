@@ -1,3 +1,8 @@
+# ⚠️ Deprecated: Use the New React SDK
+
+> This package is deprecated and no longer actively maintained.
+> We’ve released a new, improved React package — [@turnkey/react-wallet-kit](https://docs.turnkey.com/sdks/react/index) which provides a simpler, more powerful developer experience and better integration with modern React apps.
+
 # @turnkey/sdk-react
 
 The `@turnkey/sdk-react` package simplifies the integration of the Turnkey API into React-based applications. It builds on top of the `@turnkey/sdk-browser` package, enabling developers to implement authentication and wallet functionalities using React components.

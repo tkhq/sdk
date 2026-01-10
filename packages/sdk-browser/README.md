@@ -1,3 +1,9 @@
+# ⚠️ Deprecated: Use the New Core SDK
+
+> This package is deprecated and no longer actively maintained.
+> We’ve released a new, improved core TypeScript client-side SDK package — [@turnkey/core](https://docs.turnkey.com/sdks/typescript-frontend) which provides a simpler, more powerful developer experience and better integration with modern JS frameworks.
+> If you’re using React, please consider using the [@turnkey/react-wallet-kit](https://docs.turnkey.com/sdks/react/index) for a more tailored experience.
+
 # @turnkey/sdk-browser
 
 [![npm](https://img.shields.io/npm/v/@turnkey/sdk-browser?color=%234C48FF)](https://www.npmjs.com/package/@turnkey/sdk-browser)
