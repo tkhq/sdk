@@ -397,6 +397,7 @@ export interface ClientContextType
    *
    * @param params.curve - curve type (v1Curve) for the private key (Eg: "CURVE_SECP256K1" for Ethereum, "CURVE_ED25519" for Solana).
    * @param params.addressFormats - array of address formats (v1AddressFormat[]) that the private key supports (Eg: "ADDRESS_FORMAT_ETHEREUM" for Ethereum, "ADDRESS_FORMAT_SOLANA" for Solana).
+   * @param params.keyFormat - format of the private key to import (KeyFormat.Hexadecimal, KeyFormat.BitcoinMainNetWIF, KeyFormat.BitcoinTestNetWIF, KeyFormat.SuiBech32 or KeyFormat.Solana). Defaults to Hexadecimal.
    * @param params.successPageDuration - duration (in ms) for the success page after import (default: 0, no success page).
    * @param params.stampWith - parameter to specify the stamper to use for the import (Passkey, ApiKey, or Wallet).
    * @param params.keyName - name for the imported private key, if not provided, an input box will be shown for the name.
