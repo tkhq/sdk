@@ -281,6 +281,79 @@ export class TurnkeyClient {
   };
 
   /**
+   * Creates a new TurnkeySDKClientBase instance with custom passkey credentials.
+   * This async method allows you to create an HTTP client with specific `allowCredentials`
+   * to filter which passkeys are shown during signing operations.
+   *
+   * Use this method when you need to dynamically control which passkeys are presented
+   * to the user, for example to show only a specific user's registered passkey.
+   *
+   * @param params - Configuration parameters for the HTTP client.
+   * @param params.allowCredentials - Array of PublicKeyCredentialDescriptor to filter passkeys shown during signing.
+   * @param params.apiBaseUrl - The base URL of the Turnkey API (defaults to `https://api.turnkey.com`).
+   * @param params.organizationId - The organization ID to associate requests with.
+   * @param params.authProxyUrl - The base URL of the Auth Proxy (defaults to `https://authproxy.turnkey.com`).
+   * @param params.authProxyConfigId - The configuration ID to use when making Auth Proxy requests.
+   * @param params.defaultStamperType - The default stamper type to use for signing requests.
+   *
+   * @returns A promise that resolves to a new instance of {@link TurnkeySDKClientBase}.
+   * @throws {TurnkeyError} If passkey configuration is not available or initialization fails.
+   *
+   * @example
+   * ```typescript
+   * const client = await turnkey.createHttpClientWithPasskeyCredentials({
+   *   allowCredentials: [{
+   *     id: credentialIdAsUint8Array,
+   *     type: 'public-key',
+   *   }],
+   * });
+   * ```
+   */
+  createHttpClientWithPasskeyCredentials = async (
+    params: CreateHttpClientParams & {
+      allowCredentials: PublicKeyCredentialDescriptor[];
+    },
+  ): Promise<TurnkeySDKClientBase> => {
+    if (!this.config.passkeyConfig) {
+      throw new TurnkeyError(
+        "Passkey configuration is not available. Initialize the client with passkeyConfig to use this method.",
+        TurnkeyErrorCodes.INTERNAL_ERROR,
+      );
+    }
+
+    // Create a new passkey stamper with the merged config including allowCredentials
+    const passkeyStamper = new CrossPlatformPasskeyStamper({
+      ...this.config.passkeyConfig,
+      allowCredentials: params.allowCredentials,
+    });
+
+    await passkeyStamper.init();
+
+    // We can comfortably default to the prod urls here
+    const apiBaseUrl =
+      params?.apiBaseUrl || this.config.apiBaseUrl || "https://api.turnkey.com";
+    const authProxyUrl =
+      params?.authProxyUrl ||
+      this.config.authProxyUrl ||
+      "https://authproxy.turnkey.com";
+
+    const organizationId = params?.organizationId || this.config.organizationId;
+
+    return new TurnkeySDKClientBase({
+      ...this.config,
+      ...params,
+
+      apiBaseUrl,
+      authProxyUrl,
+      organizationId,
+      apiKeyStamper: this.apiKeyStamper,
+      passkeyStamper: passkeyStamper,
+      walletStamper: this.walletManager?.stamper,
+      storageManager: this.storageManager,
+    });
+  };
+
+  /**
    * Creates a new passkey authenticator for the user.
    *
    * - This function generates a new passkey attestation and challenge, suitable for registration with the user's device.
