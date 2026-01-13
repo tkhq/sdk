@@ -19,7 +19,7 @@ async function main() {
 
   // initialize Turnkey client
   const turnkeyClient = new Turnkey({
-    apiBaseUrl: "https://api.turnkey.com",
+    apiBaseUrl: process.env.BASE_URL!,
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     apiPublicKey: process.env.API_PUBLIC_KEY!,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
@@ -72,7 +72,7 @@ async function main() {
 
   // create a new client for the new user with their credentials
   const newUserTurnkeyClient = new Turnkey({
-    apiBaseUrl: "https://api.turnkey.com",
+    apiBaseUrl: process.env.BASE_URL!,
     apiPrivateKey: keypair.privateKey,
     apiPublicKey: keypair.publicKey,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
