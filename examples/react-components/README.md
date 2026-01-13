@@ -1,3 +1,11 @@
+# ⚠️ Deprecated: Use the New React SDK
+
+> This example uses the deprecated `@turnkey/sdk-react` package.
+>
+> We’ve released a new, improved React package — [@turnkey/react-wallet-kit](https://docs.turnkey.com/sdks/react/index) which provides a simpler, more powerful developer experience and better integration with modern React apps.
+>
+> Check out the updated [demo](https://wallets.turnkey.com) here: https://github.com/tkhq/sdk/tree/main/examples/react-wallet-kit
+
 # Example: `react-components`
 
 This example shows an example app created using our react components from @turnkey/sdk-react. For more information [check out our documentation](https://docs.turnkey.com/features/TODO). #TODO docs for react components and is also hosted [here](TODO) #TODO add hosted URL - e.g demo.turnkey.com
