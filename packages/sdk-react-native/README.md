@@ -1,6 +1,6 @@
 # ⚠️ Deprecated: Use the New React Native SDK
 
-> This demo is deprecated and no longer actively maintained.
+> This package is deprecated and no longer actively maintained.
 >
 > We’ve released a new, improved React Native package — [@turnkey/react-native-wallet-kit](https://docs.turnkey.com/sdks/react-native/overview) which provides a simpler, more powerful developer experience and better integration with modern React Native apps.
 >
