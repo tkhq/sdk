@@ -11,6 +11,9 @@ import {
   type Wallet,
   WalletProvider,
   WalletInterfaceType,
+  Chain,
+  type ChainInfo,
+  fetchWalletConnectApps,
 } from "@turnkey/core";
 
 export const DISCORD_AUTH_URL = "https://discord.com/oauth2/authorize";
@@ -386,6 +389,18 @@ export function isWalletConnect(wallet: WalletProvider): boolean {
   return wallet.interfaceType == WalletInterfaceType.WalletConnect;
 }
 
+// Finds and returns the WalletConnect provider for the specified chain
+export function findWalletConnectProvider(
+  walletProviders: WalletProvider[],
+  chain: Chain,
+): WalletProvider | undefined {
+  return walletProviders.find(
+    (p) =>
+      p.interfaceType === WalletInterfaceType.WalletConnect &&
+      p.chainInfo.namespace === chain,
+  );
+}
+
 export function useWalletProviderState(initialState: WalletProvider[] = []) {
   const [walletProviders, setWalletProviders] =
     useState<WalletProvider[]>(initialState);
@@ -435,4 +450,63 @@ export function mergeWalletsWithoutDuplicates(
     (w) => !existingWalletIds.has(w.walletId),
   );
   return [...existingWallets, ...uniqueNewWallets];
+}
+
+// TODO (Amir): Comment. Should this live in core?
+export async function buildWalletConnectProviders(params: {
+  projectId: string;
+}): Promise<WalletProvider[]> {
+  const { projectId } = params;
+  const newProviders: WalletProvider[] = [];
+
+  // Fetch apps and build the array
+  const fetchedApps = await fetchWalletConnectApps(projectId);
+
+  for (const app of fetchedApps) {
+    const supportedChains: Chain[] = [];
+
+    // Check if the app supports Ethereum
+    const supportsEthereum = app.chains.some((chain) =>
+      chain.startsWith("eip155:"),
+    );
+    if (supportsEthereum) {
+      supportedChains.push(Chain.Ethereum);
+    }
+
+    // Check if the app supports Solana
+    const supportsSolana = app.chains.some((chain) =>
+      chain.startsWith("solana:"),
+    );
+    if (supportsSolana) {
+      supportedChains.push(Chain.Solana);
+    }
+
+    // Create a provider for each supported chain
+    for (const chain of supportedChains) {
+      const chainInfo: ChainInfo =
+        chain === Chain.Ethereum
+          ? {
+              namespace: Chain.Ethereum as const,
+              chainId: "1",
+            }
+          : {
+              namespace: Chain.Solana as const,
+            };
+
+      newProviders.push({
+        chainInfo,
+        connectedAddresses: [],
+        info: {
+          icon: app.image_url?.md ?? "",
+          name: app.name,
+          uuid: app.id,
+        },
+        uri: app.mobile?.native ?? app.mobile?.universal ?? "",
+        interfaceType: WalletInterfaceType.WalletConnect,
+        provider: {} as any, // This is not needed for these dummy WalletProviders
+      });
+    }
+  }
+
+  return newProviders;
 }
