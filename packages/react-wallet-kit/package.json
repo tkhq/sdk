@@ -28,7 +28,10 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.MD"
+  ],
+  "sideEffects": [
+    "**/*.css"
   ],
   "scripts": {
     "build": "rollup -c",
