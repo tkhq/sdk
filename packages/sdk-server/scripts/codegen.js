@@ -339,8 +339,8 @@ export class TurnkeySDKClientBase {
 
     let attempts = 0;
 
-    const pollStatus = async (activityId: string): Promise<TResponseType> => {
-      const pollBody = { activityId };
+    const pollStatus = async (activityId: string, organizationId: string): Promise<TResponseType> => {
+      const pollBody = { activityId, organizationId };
       const pollData = await this.getActivity(pollBody) as TActivityResponse;
 
       if (attempts > maxRetries) {
@@ -351,7 +351,7 @@ export class TurnkeySDKClientBase {
       
       if (!TERMINAL_ACTIVITY_STATUSES.includes(pollData.activity.status as TActivityStatus)) {
         await sleep(pollingDuration);
-        return pollStatus(activityId);
+        return pollStatus(activityId, organizationId);
       }
 
       return handleResponse(pollData);
@@ -360,7 +360,7 @@ export class TurnkeySDKClientBase {
     const responseData = await this.request<TBodyType, TResponseType>(url, body) as TActivityResponse;
     
     if (!TERMINAL_ACTIVITY_STATUSES.includes(responseData.activity.status as TActivityStatus)) {
-      return pollStatus(responseData.activity.id);
+      return pollStatus(responseData.activity.id, responseData.activity.organizationId);
     }
 
     return handleResponse(responseData);
