@@ -195,6 +195,7 @@ describe("parseOAuthRedirect", () => {
         publicKey: "pk_abc123",
         openModal: "true",
         sessionKey: "sess_1",
+        oauthIntent: null,
       });
     });
 
@@ -209,6 +210,7 @@ describe("parseOAuthRedirect", () => {
         publicKey: null,
         openModal: null,
         sessionKey: null,
+        oauthIntent: null,
       });
     });
 
@@ -243,6 +245,7 @@ describe("parseOAuthRedirect", () => {
         publicKey: "pk_g123",
         openModal: "false",
         sessionKey: "sess_g1",
+        oauthIntent: null,
       });
     });
 
@@ -270,6 +273,7 @@ describe("parseOAuthRedirect", () => {
         publicKey: null,
         openModal: null,
         sessionKey: null,
+        oauthIntent: null,
       });
     });
   });

@@ -4,18 +4,22 @@ import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import {
   APPLE_AUTH_URL,
+  clearOAuthAddProviderMetadata,
   DISCORD_AUTH_URL,
   exchangeCodeForToken,
   FACEBOOK_AUTH_URL,
   generateChallengePair,
+  getOAuthAddProviderMetadata,
   GOOGLE_AUTH_URL,
   handleFacebookPKCEFlow,
   isValidSession,
   mergeWalletsWithoutDuplicates,
+  OAUTH_INTENT_ADD_PROVIDER,
   parseOAuthRedirect,
   popupHeight,
   popupWidth,
   SESSION_WARNING_THRESHOLD_MS,
+  storeOAuthAddProviderMetadata,
   useDebouncedCallback,
   useWalletProviderState,
   withTurnkeyErrorHandling,
@@ -34,6 +38,7 @@ import {
   Chain,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   OtpType,
+  StamperType,
   TurnkeyClient,
   WalletInterfaceType,
   WalletProvider,
@@ -291,12 +296,17 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           const publicKey = stateParams.get("publicKey");
           const openModal = stateParams.get("openModal");
           const sessionKey = stateParams.get("sessionKey");
+          const oauthIntent = stateParams.get("oauthIntent");
 
           if (provider === "facebook" && flow === "redirect" && publicKey) {
             // We have all the required parameters for a Facebook PKCE flow
             const clientId = masterConfig?.auth?.oauthConfig?.facebookClientId;
             const redirectURI =
               masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
+            const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
+            const metadata = isAddProvider
+              ? getOAuthAddProviderMetadata()
+              : null;
 
             if (clientId && redirectURI) {
               await handleFacebookPKCEFlow({
@@ -313,23 +323,67 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       key: `Facebook OAuth`,
                       content: (
                         <ActionPage
-                          title={`Authenticating with Facebook...`}
+                          title={
+                            isAddProvider
+                              ? `Adding Facebook provider...`
+                              : `Authenticating with Facebook...`
+                          }
                           action={async () => {
                             try {
-                              await completeOauth({
-                                oidcToken,
-                                publicKey,
-                                providerName: "facebook",
-                                ...(sessionKey && { sessionKey }),
-                              });
-                              // Clean up the URL after processing
-                              window.history.replaceState(
-                                null,
-                                document.title,
-                                window.location.pathname,
-                              );
-                              resolve();
+                              if (isAddProvider && metadata) {
+                                await addOauthProvider({
+                                  providerName: "facebook",
+                                  oidcToken,
+                                  organizationId: metadata.organizationId,
+                                  userId: metadata.userId,
+                                  ...(metadata.stampWith && {
+                                    stampWith:
+                                      metadata.stampWith as StamperType,
+                                  }),
+                                });
+                                clearOAuthAddProviderMetadata();
+                                // Clean up the URL after processing
+                                window.history.replaceState(
+                                  null,
+                                  document.title,
+                                  window.location.pathname,
+                                );
+                                resolve();
+                                pushPage({
+                                  key: "OAuth Provider Added",
+                                  content: (
+                                    <SuccessPage
+                                      text={`Successfully added Facebook OAuth provider!`}
+                                      duration={
+                                        metadata.successPageDuration ?? 2000
+                                      }
+                                      onComplete={() => {
+                                        closeModal();
+                                      }}
+                                    />
+                                  ),
+                                  preventBack: true,
+                                  showTitle: false,
+                                });
+                              } else {
+                                await completeOauth({
+                                  oidcToken,
+                                  publicKey,
+                                  providerName: "facebook",
+                                  ...(sessionKey && { sessionKey }),
+                                });
+                                // Clean up the URL after processing
+                                window.history.replaceState(
+                                  null,
+                                  document.title,
+                                  window.location.pathname,
+                                );
+                                resolve();
+                              }
                             } catch (err) {
+                              if (isAddProvider) {
+                                clearOAuthAddProviderMetadata();
+                              }
                               reject(err);
                             }
                           }}
@@ -338,9 +392,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       ),
                       showTitle: false,
                       onClose: () => {
+                        if (isAddProvider) {
+                          clearOAuthAddProviderMetadata();
+                        }
                         reject(
                           new TurnkeyError(
-                            "User canceled the Facebook authentication process.",
+                            isAddProvider
+                              ? "User canceled the Facebook add provider process."
+                              : "User canceled the Facebook authentication process.",
                             TurnkeyErrorCodes.USER_CANCELED,
                           ),
                         );
@@ -372,14 +431,24 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             const verifier = sessionStorage.getItem("discord_verifier");
             const nonce = stateParams.get("nonce");
             const sessionKey = stateParams.get("sessionKey");
+            const oauthIntent = stateParams.get("oauthIntent");
 
             if (clientId && redirectURI && verifier && nonce) {
               await new Promise((resolve, reject) => {
+                const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
+                const metadata = isAddProvider
+                  ? getOAuthAddProviderMetadata()
+                  : null;
+
                 pushPage({
                   key: `Discord OAuth`,
                   content: (
                     <ActionPage
-                      title={`Authenticating with Discord...`}
+                      title={
+                        isAddProvider
+                          ? `Adding Discord provider...`
+                          : `Authenticating with Discord...`
+                      }
                       action={async () => {
                         try {
                           const resp =
@@ -401,20 +470,60 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                               TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
                             );
                           }
-                          await completeOauth({
-                            oidcToken,
-                            publicKey,
-                            providerName: "discord",
-                            ...(sessionKey && { sessionKey }),
-                          });
-                          // Clean up the URL after processing
-                          window.history.replaceState(
-                            null,
-                            document.title,
-                            window.location.pathname,
-                          );
-                          resolve(null);
+
+                          if (isAddProvider && metadata) {
+                            await addOauthProvider({
+                              providerName: "discord",
+                              oidcToken,
+                              organizationId: metadata.organizationId,
+                              userId: metadata.userId,
+                              ...(metadata.stampWith && {
+                                stampWith: metadata.stampWith as StamperType,
+                              }),
+                            });
+                            clearOAuthAddProviderMetadata();
+                            // Clean up the URL after processing
+                            window.history.replaceState(
+                              null,
+                              document.title,
+                              window.location.pathname,
+                            );
+                            resolve(null);
+                            pushPage({
+                              key: "OAuth Provider Added",
+                              content: (
+                                <SuccessPage
+                                  text={`Successfully added Discord OAuth provider!`}
+                                  duration={
+                                    metadata.successPageDuration ?? 2000
+                                  }
+                                  onComplete={() => {
+                                    closeModal();
+                                  }}
+                                />
+                              ),
+                              preventBack: true,
+                              showTitle: false,
+                            });
+                          } else {
+                            await completeOauth({
+                              oidcToken,
+                              publicKey,
+                              providerName: "discord",
+                              ...(sessionKey && { sessionKey }),
+                            });
+                            // Clean up the URL after processing
+                            window.history.replaceState(
+                              null,
+                              document.title,
+                              window.location.pathname,
+                            );
+                            resolve(null);
+                          }
                         } catch (err) {
+                          if (isAddProvider) {
+                            clearOAuthAddProviderMetadata();
+                          }
                           reject(err);
                           if (callbacks?.onError) {
                             callbacks.onError(
@@ -434,9 +543,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   ),
                   showTitle: false,
                   onClose: () => {
+                    if (isAddProvider) {
+                      clearOAuthAddProviderMetadata();
+                    }
                     reject(
                       new TurnkeyError(
-                        "User canceled the Discord authentication process.",
+                        isAddProvider
+                          ? "User canceled the Discord add provider process."
+                          : "User canceled the Discord authentication process.",
                         TurnkeyErrorCodes.USER_CANCELED,
                       ),
                     );
@@ -452,14 +566,24 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             const verifier = sessionStorage.getItem("twitter_verifier");
             const nonce = stateParams.get("nonce");
             const sessionKey = stateParams.get("sessionKey");
+            const oauthIntent = stateParams.get("oauthIntent");
 
             if (clientId && redirectURI && verifier && nonce) {
               await new Promise((resolve, reject) => {
+                const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
+                const metadata = isAddProvider
+                  ? getOAuthAddProviderMetadata()
+                  : null;
+
                 pushPage({
                   key: `Twitter OAuth`,
                   content: (
                     <ActionPage
-                      title={`Authenticating with Twitter...`}
+                      title={
+                        isAddProvider
+                          ? `Adding X provider...`
+                          : `Authenticating with X...`
+                      }
                       action={async () => {
                         try {
                           const resp =
@@ -481,20 +605,60 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                               TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
                             );
                           }
-                          await completeOauth({
-                            oidcToken,
-                            publicKey,
-                            providerName: "twitter",
-                            ...(sessionKey && { sessionKey }),
-                          });
-                          // Clean up the URL after processing
-                          window.history.replaceState(
-                            null,
-                            document.title,
-                            window.location.pathname,
-                          );
-                          resolve(null);
+
+                          if (isAddProvider && metadata) {
+                            await addOauthProvider({
+                              providerName: "twitter",
+                              oidcToken,
+                              organizationId: metadata.organizationId,
+                              userId: metadata.userId,
+                              ...(metadata.stampWith && {
+                                stampWith: metadata.stampWith as StamperType,
+                              }),
+                            });
+                            clearOAuthAddProviderMetadata();
+                            // Clean up the URL after processing
+                            window.history.replaceState(
+                              null,
+                              document.title,
+                              window.location.pathname,
+                            );
+                            resolve(null);
+                            pushPage({
+                              key: "OAuth Provider Added",
+                              content: (
+                                <SuccessPage
+                                  text={`Successfully added X OAuth provider!`}
+                                  duration={
+                                    metadata.successPageDuration ?? 2000
+                                  }
+                                  onComplete={() => {
+                                    closeModal();
+                                  }}
+                                />
+                              ),
+                              preventBack: true,
+                              showTitle: false,
+                            });
+                          } else {
+                            await completeOauth({
+                              oidcToken,
+                              publicKey,
+                              providerName: "twitter",
+                              ...(sessionKey && { sessionKey }),
+                            });
+                            // Clean up the URL after processing
+                            window.history.replaceState(
+                              null,
+                              document.title,
+                              window.location.pathname,
+                            );
+                            resolve(null);
+                          }
                         } catch (err) {
+                          if (isAddProvider) {
+                            clearOAuthAddProviderMetadata();
+                          }
                           reject(err);
                           if (callbacks?.onError) {
                             callbacks.onError(
@@ -514,9 +678,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   ),
                   showTitle: false,
                   onClose: () => {
+                    if (isAddProvider) {
+                      clearOAuthAddProviderMetadata();
+                    }
                     reject(
                       new TurnkeyError(
-                        "User canceled the Twitter authentication process.",
+                        isAddProvider
+                          ? "User canceled the X add provider process."
+                          : "User canceled the Twitter authentication process.",
                         TurnkeyErrorCodes.USER_CANCELED,
                       ),
                     );
@@ -532,10 +701,96 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         const hash = window.location.hash.substring(1);
 
         // Parse the hash using our helper functions
-        const { idToken, provider, flow, publicKey, openModal, sessionKey } =
-          parseOAuthRedirect(hash);
+        const {
+          idToken,
+          provider,
+          flow,
+          publicKey,
+          openModal,
+          sessionKey,
+          oauthIntent,
+        } = parseOAuthRedirect(hash);
 
         if (idToken && flow === "redirect" && publicKey) {
+          // Handle addProvider intent
+          if (oauthIntent === OAUTH_INTENT_ADD_PROVIDER) {
+            const metadata = getOAuthAddProviderMetadata();
+            if (metadata) {
+              const providerName = provider
+                ? provider.charAt(0).toUpperCase() + provider.slice(1)
+                : "Provider";
+
+              let icon;
+              if (provider === "apple") {
+                icon = <FontAwesomeIcon size="3x" icon={faApple} />;
+              } else {
+                icon = <FontAwesomeIcon size="3x" icon={faGoogle} />;
+              }
+
+              await new Promise((resolve, reject) => {
+                pushPage({
+                  key: `${providerName} OAuth`,
+                  content: (
+                    <ActionPage
+                      title={`Adding ${providerName} provider...`}
+                      action={async () => {
+                        try {
+                          await addOauthProvider({
+                            providerName:
+                              provider || providerName.toLowerCase(),
+                            oidcToken: idToken,
+                            organizationId: metadata.organizationId,
+                            userId: metadata.userId,
+                            ...(metadata.stampWith && {
+                              stampWith: metadata.stampWith as StamperType,
+                            }),
+                          });
+                          clearOAuthAddProviderMetadata();
+                          resolve(null);
+                          pushPage({
+                            key: "OAuth Provider Added",
+                            content: (
+                              <SuccessPage
+                                text={`Successfully added ${providerName} OAuth provider!`}
+                                duration={metadata.successPageDuration ?? 2000}
+                                onComplete={() => {
+                                  closeModal();
+                                }}
+                              />
+                            ),
+                            preventBack: true,
+                            showTitle: false,
+                          });
+                        } catch (err) {
+                          clearOAuthAddProviderMetadata();
+                          reject(err);
+                        }
+                      }}
+                      icon={icon}
+                    />
+                  ),
+                  showTitle: false,
+                  onClose: () => {
+                    clearOAuthAddProviderMetadata();
+                    reject(
+                      new TurnkeyError(
+                        `User canceled the ${providerName} add provider process.`,
+                        TurnkeyErrorCodes.USER_CANCELED,
+                      ),
+                    );
+                  },
+                });
+              });
+            }
+            // Clean up the URL after processing
+            window.history.replaceState(
+              null,
+              document.title,
+              window.location.pathname + window.location.search,
+            );
+            return;
+          }
+
           if (openModal === "true") {
             const providerName = provider
               ? provider.charAt(0).toUpperCase() + provider.slice(1)
@@ -5276,7 +5531,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      const { providerName, stampWith, successPageDuration = 2000 } = params;
+      const {
+        providerName,
+        stampWith,
+        successPageDuration = 2000,
+        openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
+      } = params;
       const s = await getSession();
       const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
@@ -5322,35 +5582,53 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             });
           };
 
+          if (openInPage) {
+            storeOAuthAddProviderMetadata({
+              organizationId,
+              userId,
+              ...(stampWith && { stampWith: stampWith as string }),
+              successPageDuration,
+            });
+          }
+
+          const additionalState = openInPage
+            ? { oauthIntent: OAUTH_INTENT_ADD_PROVIDER }
+            : undefined;
+
           switch (providerName) {
             case OAuthProviders.DISCORD: {
               return await handleDiscordOauth({
-                openInPage: false,
-                onOauthSuccess,
+                openInPage,
+                ...(additionalState && { additionalState }),
+                ...(!openInPage && { onOauthSuccess }),
               });
             }
             case OAuthProviders.X: {
               return await handleXOauth({
-                openInPage: false,
-                onOauthSuccess,
+                openInPage,
+                ...(additionalState && { additionalState }),
+                ...(!openInPage && { onOauthSuccess }),
               });
             }
             case OAuthProviders.GOOGLE: {
               return await handleGoogleOauth({
-                openInPage: false,
-                onOauthSuccess,
+                openInPage,
+                ...(additionalState && { additionalState }),
+                ...(!openInPage && { onOauthSuccess }),
               });
             }
             case OAuthProviders.APPLE: {
               return await handleAppleOauth({
-                openInPage: false,
-                onOauthSuccess,
+                openInPage,
+                ...(additionalState && { additionalState }),
+                ...(!openInPage && { onOauthSuccess }),
               });
             }
             case OAuthProviders.FACEBOOK: {
               return await handleFacebookOauth({
-                openInPage: false,
-                onOauthSuccess,
+                openInPage,
+                ...(additionalState && { additionalState }),
+                ...(!openInPage && { onOauthSuccess }),
               });
             }
             default: {

@@ -27,6 +27,39 @@ export const popupHeight = 600;
 
 export const SESSION_WARNING_THRESHOLD_MS = 60 * 1000; // 1 minute in milliseconds
 
+export const OAUTH_INTENT_ADD_PROVIDER = "addProvider";
+export const OAUTH_ADD_PROVIDER_METADATA_KEY = "oauth_add_provider_metadata";
+
+export type OAuthAddProviderMetadata = {
+  organizationId: string;
+  userId: string;
+  stampWith?: string;
+  successPageDuration?: number;
+};
+
+export function storeOAuthAddProviderMetadata(
+  metadata: OAuthAddProviderMetadata,
+): void {
+  sessionStorage.setItem(
+    OAUTH_ADD_PROVIDER_METADATA_KEY,
+    JSON.stringify(metadata),
+  );
+}
+
+export function getOAuthAddProviderMetadata(): OAuthAddProviderMetadata | null {
+  const stored = sessionStorage.getItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored) as OAuthAddProviderMetadata;
+  } catch {
+    return null;
+  }
+}
+
+export function clearOAuthAddProviderMetadata(): void {
+  sessionStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+}
+
 export const authErrors = {
   // Passkey-related errors
   passkey: {
@@ -139,6 +172,7 @@ function parseAppleOAuthRedirect(hash: string): {
   publicKey: string | null;
   openModal: string | null;
   sessionKey: string | null;
+  oauthIntent: string | null;
 } {
   // Apple's format has unencoded parameters in the state portion
   const idTokenMatch = hash.match(/id_token=([^&]+)$/);
@@ -155,6 +189,7 @@ function parseAppleOAuthRedirect(hash: string): {
       publicKey: null,
       openModal: null,
       sessionKey: null,
+      oauthIntent: null,
     };
 
   const stateContent = hash.substring(6, stateEndIndex); // Remove "state=" prefix
@@ -167,6 +202,7 @@ function parseAppleOAuthRedirect(hash: string): {
     publicKey: stateParams.get("publicKey"),
     openModal: stateParams.get("openModal"),
     sessionKey: stateParams.get("sessionKey"),
+    oauthIntent: stateParams.get("oauthIntent"),
   };
 }
 
@@ -178,6 +214,7 @@ function parseGoogleOAuthRedirect(hash: string): {
   publicKey: string | null;
   openModal: string | null;
   sessionKey: string | null;
+  oauthIntent: string | null;
 } {
   const hashParams = new URLSearchParams(hash);
   const idToken = hashParams.get("id_token");
@@ -188,6 +225,7 @@ function parseGoogleOAuthRedirect(hash: string): {
   let publicKey = null;
   let openModal = null;
   let sessionKey = null;
+  let oauthIntent = null;
 
   if (state) {
     const stateParams = new URLSearchParams(state);
@@ -196,6 +234,7 @@ function parseGoogleOAuthRedirect(hash: string): {
     publicKey = stateParams.get("publicKey");
     openModal = stateParams.get("openModal");
     sessionKey = stateParams.get("sessionKey");
+    oauthIntent = stateParams.get("oauthIntent");
   }
 
   return {
@@ -205,6 +244,7 @@ function parseGoogleOAuthRedirect(hash: string): {
     publicKey,
     openModal,
     sessionKey,
+    oauthIntent,
   };
 }
 
@@ -216,6 +256,7 @@ export function parseOAuthRedirect(hash: string): {
   publicKey: string | null;
   openModal: string | null;
   sessionKey: string | null;
+  oauthIntent: string | null;
 } {
   // Check if this is an Apple redirect
   if (hash.startsWith("state=provider=apple")) {

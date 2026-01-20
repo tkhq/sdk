@@ -197,6 +197,7 @@ export type HandleAddOauthProviderParams = {
   organizationId?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   userId?: string;
+  openInPage?: boolean;
 };
 
 export type HandleRemoveOauthProviderParams = {
