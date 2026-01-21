@@ -174,6 +174,7 @@ import { RemoveOAuthProvider } from "../../components/user/RemoveOAuthProvider";
 import { RemovePasskey } from "../../components/user/RemovePasskey";
 import { ConnectWalletModal } from "../../components/user/ConnectWallet";
 import { ClientContext } from "./Types";
+import { WalletConnectProvider } from "../WalletConnectProvider";
 import { OtpVerification } from "../../components/auth/OTP";
 import { RemoveEmail } from "../../components/user/RemoveEmail";
 import { RemovePhoneNumber } from "../../components/user/RemovePhoneNumber";
@@ -275,10 +276,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   // we use this custom hook to only update the state if the value is different
   // this is so our useEffect that calls `initializeWalletProviderListeners()` only runs when it needs to
   const [walletProviders, setWalletProviders] = useWalletProviderState();
-
-  const [walletConnectApps, setWalletConnectApps] = useState<WalletProvider[]>(
-    [],
-  );
 
   const expiryTimeoutsRef = useRef<TimerMap>({});
   const proxyAuthConfigRef = useRef<ProxyTGetWalletKitConfigResponse | null>(
@@ -1697,38 +1694,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     },
     [masterConfig, refreshWallets],
   );
-
-  const fetchAndBuildWalletConnectApps = useCallback(async (): Promise<
-    WalletProvider[]
-  > => {
-    if (!client) {
-      throw new TurnkeyError(
-        "Client is not initialized.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-
-    if (!masterConfig?.walletConfig?.walletConnect?.projectId) {
-      throw new TurnkeyError(
-        "WalletConnect project ID is not configured.",
-        TurnkeyErrorCodes.WALLET_CONNECT_INITIALIZATION_ERROR,
-      );
-    }
-
-    const providers = await withTurnkeyErrorHandling(
-      async () => {
-        return await buildWalletConnectProviders({
-          projectId: masterConfig?.walletConfig?.walletConnect?.projectId!,
-        });
-      },
-      undefined,
-      callbacks,
-      "Failed to fetch and build WalletConnect apps",
-    );
-
-    setWalletConnectApps(providers);
-    return providers;
-  }, [client, callbacks, masterConfig, walletProviders, walletConnectApps]);
 
   const clearSession = useCallback(
     async (params?: ClearSessionParams): Promise<void> => {
@@ -4235,6 +4200,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           />
         ),
         showTitle: logo ? false : true,
+        contextProvider: WalletConnectProvider,
       });
     },
     [pushPage, masterConfig],
@@ -5602,6 +5568,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 TurnkeyErrorCodes.USER_CANCELED,
               ),
             ),
+          contextProvider: WalletConnectProvider,
         });
       });
     },
@@ -6306,9 +6273,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         masterConfig.walletConfig?.features?.connecting
       ) {
         fetchWalletProviders();
-        if (masterConfig.walletConfig?.walletConnect?.projectId) {
-          fetchAndBuildWalletConnectApps(); // TODO (Amir): is there a better place to put this? Does this block init?
-        }
       }
 
       initializeSessions().finally(() => {
@@ -6332,7 +6296,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         user,
         wallets,
         walletProviders,
-        walletConnectApps,
         config: masterConfig,
         httpClient: client?.httpClient,
         createHttpClient,
@@ -6372,7 +6335,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         fetchUser,
         fetchOrCreateP256ApiKeyUser,
         fetchOrCreatePolicies,
-        fetchAndBuildWalletConnectApps,
         refreshUser,
         updateUserEmail,
         removeUserEmail,

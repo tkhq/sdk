@@ -247,6 +247,8 @@ export function ModalRoot(props: ModalRootProps) {
                           "An underlying error occurred. Try refreshing the page",
                         ]}
                       />
+                    ) : root?.contextProvider ? (
+                      <root.contextProvider>{current?.content}</root.contextProvider>
                     ) : (
                       current?.content
                     )}

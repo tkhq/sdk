@@ -5,6 +5,7 @@ import clsx from "clsx";
 import { Chain, type WalletProvider } from "@turnkey/core";
 import { useModal } from "../../../providers/modal/Hook";
 import { useTurnkey } from "../../../providers/client/Hook";
+import { useWalletConnect } from "../../../providers/WalletConnectProvider";
 import {
   findWalletConnectProvider,
   useDebouncedCallback,
@@ -12,6 +13,7 @@ import {
 import { WalletButton, WALLET_BUTTON_HEIGHT } from "./WalletButton";
 import { ExternalWalletChainSelector } from "./ExternalWalletChainSelector";
 import { SearchInputBox } from "../../design/Inputs";
+import { Spinner } from "../../design/Spinners";
 
 interface ShowAllWalletsScreenProps {
   onSelect: (targetApp: WalletProvider) => Promise<void>;
@@ -22,8 +24,8 @@ const BUFFER_SIZE = 5; // Number of items to render outside visible area
 
 export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
   const { onSelect, onSelectQRCode } = props;
-  const { walletProviders, walletConnectApps, disconnectWalletAccount } =
-    useTurnkey();
+  const { walletProviders, disconnectWalletAccount } = useTurnkey();
+  const { walletConnectApps, isLoadingApps } = useWalletConnect();
   const { isMobile, pushPage } = useModal();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -136,6 +138,15 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
 
   const totalHeight = walletEntries.length * WALLET_BUTTON_HEIGHT;
   const offsetY = visibleRange.start * WALLET_BUTTON_HEIGHT;
+
+  // Show loading state while fetching wallet apps
+  if (isLoadingApps) {
+    return (
+      <div className="flex flex-col items-center py-5">
+        <Spinner strokeWidth={2} className="w-12 h-12" />
+      </div>
+    );
+  }
 
   return (
     <div
