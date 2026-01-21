@@ -3732,7 +3732,10 @@ export class TurnkeyClient {
           );
         }
 
-        if (accountRes.organizationId) {
+        if (
+          accountRes.organizationId &&
+          accountRes.organizationId !== session?.organizationId
+        ) {
           throw new TurnkeyError(
             "Account already exists with this OIDC token",
             TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
