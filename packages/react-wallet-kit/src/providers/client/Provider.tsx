@@ -3,27 +3,36 @@
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import {
-  APPLE_AUTH_URL,
+  buildOAuthUrl,
+  capitalizeProviderName,
+  cleanupOAuthUrl,
+  cleanupOAuthUrlPreserveSearch,
   clearOAuthAddProviderMetadata,
-  DISCORD_AUTH_URL,
-  exchangeCodeForToken,
-  FACEBOOK_AUTH_URL,
+  completeOAuthFlow,
+  completeOAuthPopup,
+  exchangeFacebookCodeForToken,
   generateChallengePair,
   getOAuthAddProviderMetadata,
-  GOOGLE_AUTH_URL,
-  handleFacebookPKCEFlow,
+  getProviderIcon,
+  handlePKCEFlow,
+  hasPKCEVerifier,
+  OAUTH_INTENT_ADD_PROVIDER,
+  openOAuthPopup,
+  parseOAuthPopupResponse,
+  parseOAuthRedirect,
+  parseStateParam,
+  type PKCEProvider,
+  redirectToOAuthProvider,
+  storeOAuthAddProviderMetadata,
+  storePKCEVerifier,
+} from "../../utils/oauth";
+import {
   isValidSession,
   mergeWalletsWithoutDuplicates,
-  OAUTH_INTENT_ADD_PROVIDER,
-  parseOAuthRedirect,
-  popupHeight,
-  popupWidth,
   SESSION_WARNING_THRESHOLD_MS,
-  storeOAuthAddProviderMetadata,
   useDebouncedCallback,
   useWalletProviderState,
   withTurnkeyErrorHandling,
-  X_AUTH_URL,
 } from "../../utils/utils";
 import {
   type TimerMap,
@@ -143,13 +152,6 @@ import {
 } from "../../types/base";
 import { AuthComponent } from "../../components/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faApple,
-  faDiscord,
-  faFacebook,
-  faGoogle,
-  faXTwitter,
-} from "@fortawesome/free-brands-svg-icons";
 import { ActionPage } from "../../components/auth/Action";
 import { SignMessageModal } from "../../components/sign/Message";
 import { ExportComponent } from "../../components/export/Export";
@@ -221,7 +223,7 @@ interface ClientProviderProps {
  * wallet management, and user profile operations, as well as UI handlers for modal-driven flows.
  *
  * Features:
- * - Passkey, Wallet, OTP (Email/SMS), and OAuth (Google, Apple, Facebook) authentication and sign-up flows.
+ * - Passkey, Wallet, OTP (Email/SMS), and OAuth (Google, Apple, Facebook, X, Discord) authentication and sign-up flows.
  * - Session management: creation, expiration scheduling, refresh, and clearing.
  * - Wallet management: fetch, connect, import, export, account management.
  * - User profile management: email, phone, name, OAuth provider, and passkey linking/removal.
@@ -271,591 +273,356 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
   >(undefined);
-  const { isMobile, pushPage, closeModal } = useModal();
+  const { isMobile, pushPage, popPage, closeModal } = useModal();
 
   const completeRedirectOauth = async () => {
     // Check for either hash or search parameters that could indicate an OAuth redirect
-    if (window.location.hash || window.location.search) {
-      // Handle Facebook redirect (uses search params with code)
-      if (
-        window.location.search &&
-        window.location.search.includes("code=") &&
-        window.location.search.includes("state=")
-      ) {
-        const searchParams = new URLSearchParams(
-          window.location.search.substring(1),
-        );
-        const code = searchParams.get("code");
-        const state = searchParams.get("state");
+    if (!window.location.hash && !window.location.search) {
+      // No OAuth redirect parameters found, nothing to do
+      return;
+    }
 
-        // Parse state parameter
-        if (state && code) {
-          const stateParams = new URLSearchParams(state);
-          const provider = stateParams.get("provider");
-          const flow = stateParams.get("flow");
-          const publicKey = stateParams.get("publicKey");
-          const openModal = stateParams.get("openModal");
-          const sessionKey = stateParams.get("sessionKey");
-          const oauthIntent = stateParams.get("oauthIntent");
+    /**
+     * Wraps an OAuth completion action with optional modal UI.
+     * This is the key difference between redirect and popup flows:
+     * - Popup: No modal needed (the popup window itself is the UI)
+     * - Redirect: Optional modal to show loading/success states on return
+     */
+    const withModalWrapper = async (params: {
+      provider: string;
+      isAddProvider: boolean;
+      metadata: ReturnType<typeof getOAuthAddProviderMetadata>;
+      openModal?: string | undefined;
+      action: () => Promise<void>;
+    }) => {
+      const { provider, isAddProvider, metadata, openModal, action } = params;
+      const providerDisplayName = capitalizeProviderName(provider);
+      const icon = getProviderIcon(provider);
 
-          if (provider === "facebook" && flow === "redirect" && publicKey) {
-            // We have all the required parameters for a Facebook PKCE flow
-            const clientId = masterConfig?.auth?.oauthConfig?.facebookClientId;
-            const redirectURI =
-              masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
-            const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-            const metadata = isAddProvider
-              ? getOAuthAddProviderMetadata()
-              : null;
+      if (openModal === "true") {
+        // Show modal UI for the completion
+        await new Promise<void>((resolve, reject) => {
+          pushPage({
+            key: `${providerDisplayName} OAuth`,
+            content: (
+              <ActionPage
+                closeOnComplete={isAddProvider ? false : true} // Don't close automatically if adding provider, we show the success screen
+                title={
+                  isAddProvider
+                    ? `Adding ${providerDisplayName} provider...`
+                    : `Authenticating with ${providerDisplayName}...`
+                }
+                action={async () => {
+                  try {
+                    await action();
+                    if (isAddProvider && metadata) {
+                      // Don't show success for auth. Not needed
+                      pushPage({
+                        key: "OAuth Provider Added",
+                        content: (
+                          <SuccessPage
+                            text={`Successfully added ${providerDisplayName} OAuth provider!`}
+                            duration={metadata.successPageDuration ?? 2000}
+                            onComplete={() => {
+                              closeModal();
+                            }}
+                          />
+                        ),
+                        preventBack: true,
+                        showTitle: false,
+                      });
+                    }
+                    resolve();
+                  } catch (err) {
+                    if (isAddProvider) {
+                      clearOAuthAddProviderMetadata();
+                    }
+                    reject(err);
+                    popPage();
+                  }
+                }}
+                icon={<FontAwesomeIcon icon={icon} size="3x" />}
+              />
+            ),
+            showTitle: false,
+            onClose: () => {
+              if (isAddProvider) {
+                clearOAuthAddProviderMetadata();
+              }
+              reject(
+                new TurnkeyError(
+                  isAddProvider
+                    ? `User canceled the ${providerDisplayName} add provider process.`
+                    : `User canceled the ${providerDisplayName} authentication process.`,
+                  TurnkeyErrorCodes.USER_CANCELED,
+                ),
+              );
+            },
+          });
+        });
+      } else {
+        // No modal - execute directly
+        try {
+          await action();
+        } catch (err) {
+          if (isAddProvider) {
+            clearOAuthAddProviderMetadata();
+          }
+          throw err;
+        }
+      }
+    };
 
-            if (clientId && redirectURI) {
-              await handleFacebookPKCEFlow({
-                code,
-                publicKey,
-                openModal,
+    // Handle PKCE-based OAuth redirects (Facebook, Discord, X) with code in search parameters
+    if (
+      window.location.search &&
+      window.location.search.includes("code=") &&
+      window.location.search.includes("state=")
+    ) {
+      const searchParams = new URLSearchParams(
+        window.location.search.substring(1),
+      );
+      const code = searchParams.get("code");
+      const state = searchParams.get("state");
+
+      if (!state || !code) {
+        return;
+      }
+
+      // Parse state parameter
+      const {
+        provider,
+        flow,
+        publicKey,
+        oauthIntent,
+        sessionKey,
+        nonce,
+        openModal,
+      } = parseStateParam(state);
+
+      if (flow !== "redirect" || !publicKey) {
+        return;
+      }
+
+      const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
+      const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
+
+      /**
+       * Helper to complete PKCE redirect flow with optional modal wrapper.
+       * Uses handlePKCEFlow from oauth utils for the core logic.
+       * We put this in a separate function to avoid duplicating for each provider.
+       */
+      const completePKCERedirect = async (
+        providerName: PKCEProvider,
+        exchangeCodeFn: (codeVerifier: string) => Promise<string>,
+      ) => {
+        const action = async () => {
+          try {
+            await handlePKCEFlow({
+              publicKey,
+              providerName,
+              sessionKey: sessionKey ?? undefined,
+              callbacks,
+              completeOauth,
+              onAddProvider:
+                // Only set onAddProvider if we are adding a provider and have metadata
+                isAddProvider && metadata
+                  ? async (oidcToken: string) => {
+                      await addOauthProvider({
+                        providerName: provider!,
+                        oidcToken,
+                        organizationId: metadata.organizationId,
+                        userId: metadata.userId,
+                        ...(metadata.stampWith && {
+                          stampWith: metadata.stampWith as StamperType,
+                        }),
+                      });
+                      clearOAuthAddProviderMetadata();
+                    }
+                  : undefined,
+              exchangeCodeForToken: exchangeCodeFn,
+            });
+          } catch (err) {
+            if (callbacks?.onError) {
+              const providerDisplayName = capitalizeProviderName(providerName);
+              callbacks.onError(
+                err instanceof TurnkeyError
+                  ? err
+                  : new TurnkeyError(
+                      `${providerDisplayName} authentication failed`,
+                      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+                      err,
+                    ),
+              );
+            }
+            throw err;
+          }
+        };
+
+        await withModalWrapper({
+          provider: providerName,
+          isAddProvider,
+          metadata,
+          openModal,
+          action,
+        });
+
+        // Clean up URL after successful completion
+        cleanupOAuthUrl();
+      };
+
+      // FACEBOOK
+      if (provider === OAuthProviders.FACEBOOK) {
+        const clientId = masterConfig?.auth?.oauthConfig?.facebookClientId;
+        const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
+        const hasVerifier = hasPKCEVerifier(OAuthProviders.FACEBOOK);
+
+        if (clientId && redirectURI && hasVerifier) {
+          await completePKCERedirect(
+            OAuthProviders.FACEBOOK,
+            async (codeVerifier) => {
+              const tokenResponse = await exchangeFacebookCodeForToken(
                 clientId,
                 redirectURI,
-                callbacks,
-                completeOauth,
-                onPushPage: (oidcToken) => {
-                  return new Promise((resolve, reject) => {
-                    pushPage({
-                      key: `Facebook OAuth`,
-                      content: (
-                        <ActionPage
-                          title={
-                            isAddProvider
-                              ? `Adding Facebook provider...`
-                              : `Authenticating with Facebook...`
-                          }
-                          action={async () => {
-                            try {
-                              if (isAddProvider && metadata) {
-                                await addOauthProvider({
-                                  providerName: "facebook",
-                                  oidcToken,
-                                  organizationId: metadata.organizationId,
-                                  userId: metadata.userId,
-                                  ...(metadata.stampWith && {
-                                    stampWith:
-                                      metadata.stampWith as StamperType,
-                                  }),
-                                });
-                                clearOAuthAddProviderMetadata();
-                                // Clean up the URL after processing
-                                window.history.replaceState(
-                                  null,
-                                  document.title,
-                                  window.location.pathname,
-                                );
-                                resolve();
-                                pushPage({
-                                  key: "OAuth Provider Added",
-                                  content: (
-                                    <SuccessPage
-                                      text={`Successfully added Facebook OAuth provider!`}
-                                      duration={
-                                        metadata.successPageDuration ?? 2000
-                                      }
-                                      onComplete={() => {
-                                        closeModal();
-                                      }}
-                                    />
-                                  ),
-                                  preventBack: true,
-                                  showTitle: false,
-                                });
-                              } else {
-                                await completeOauth({
-                                  oidcToken,
-                                  publicKey,
-                                  providerName: "facebook",
-                                  ...(sessionKey && { sessionKey }),
-                                });
-                                // Clean up the URL after processing
-                                window.history.replaceState(
-                                  null,
-                                  document.title,
-                                  window.location.pathname,
-                                );
-                                resolve();
-                              }
-                            } catch (err) {
-                              if (isAddProvider) {
-                                clearOAuthAddProviderMetadata();
-                              }
-                              reject(err);
-                            }
-                          }}
-                          icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
-                        />
-                      ),
-                      showTitle: false,
-                      onClose: () => {
-                        if (isAddProvider) {
-                          clearOAuthAddProviderMetadata();
-                        }
-                        reject(
-                          new TurnkeyError(
-                            isAddProvider
-                              ? "User canceled the Facebook add provider process."
-                              : "User canceled the Facebook authentication process.",
-                            TurnkeyErrorCodes.USER_CANCELED,
-                          ),
-                        );
-                      },
-                    });
-                  });
-                },
-              }).catch((error) => {
-                // Handle errors
-                if (callbacks?.onError) {
-                  callbacks.onError(
-                    error instanceof TurnkeyError
-                      ? error
-                      : new TurnkeyError(
-                          "Facebook authentication failed",
-                          TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-                          error,
-                        ),
-                  );
-                }
-              });
-            }
-          }
-
-          if (provider === "discord" && flow === "redirect" && publicKey) {
-            const clientId = masterConfig?.auth?.oauthConfig?.discordClientId;
-            const redirectURI =
-              masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
-            const verifier = sessionStorage.getItem("discord_verifier");
-            const nonce = stateParams.get("nonce");
-            const sessionKey = stateParams.get("sessionKey");
-            const oauthIntent = stateParams.get("oauthIntent");
-
-            if (clientId && redirectURI && verifier && nonce) {
-              await new Promise((resolve, reject) => {
-                const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-                const metadata = isAddProvider
-                  ? getOAuthAddProviderMetadata()
-                  : null;
-
-                pushPage({
-                  key: `Discord OAuth`,
-                  content: (
-                    <ActionPage
-                      title={
-                        isAddProvider
-                          ? `Adding Discord provider...`
-                          : `Authenticating with Discord...`
-                      }
-                      action={async () => {
-                        try {
-                          const resp =
-                            await client?.httpClient.proxyOAuth2Authenticate({
-                              provider: "OAUTH2_PROVIDER_DISCORD",
-                              authCode: code,
-                              redirectUri: redirectURI,
-                              codeVerifier: verifier,
-                              clientId,
-                              nonce: nonce,
-                            });
-
-                          sessionStorage.removeItem("discord_verifier");
-
-                          const oidcToken = resp?.oidcToken;
-                          if (!oidcToken) {
-                            throw new TurnkeyError(
-                              "Missing OIDC token",
-                              TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-                            );
-                          }
-
-                          if (isAddProvider && metadata) {
-                            await addOauthProvider({
-                              providerName: "discord",
-                              oidcToken,
-                              organizationId: metadata.organizationId,
-                              userId: metadata.userId,
-                              ...(metadata.stampWith && {
-                                stampWith: metadata.stampWith as StamperType,
-                              }),
-                            });
-                            clearOAuthAddProviderMetadata();
-                            // Clean up the URL after processing
-                            window.history.replaceState(
-                              null,
-                              document.title,
-                              window.location.pathname,
-                            );
-                            resolve(null);
-                            pushPage({
-                              key: "OAuth Provider Added",
-                              content: (
-                                <SuccessPage
-                                  text={`Successfully added Discord OAuth provider!`}
-                                  duration={
-                                    metadata.successPageDuration ?? 2000
-                                  }
-                                  onComplete={() => {
-                                    closeModal();
-                                  }}
-                                />
-                              ),
-                              preventBack: true,
-                              showTitle: false,
-                            });
-                          } else {
-                            await completeOauth({
-                              oidcToken,
-                              publicKey,
-                              providerName: "discord",
-                              ...(sessionKey && { sessionKey }),
-                            });
-                            // Clean up the URL after processing
-                            window.history.replaceState(
-                              null,
-                              document.title,
-                              window.location.pathname,
-                            );
-                            resolve(null);
-                          }
-                        } catch (err) {
-                          if (isAddProvider) {
-                            clearOAuthAddProviderMetadata();
-                          }
-                          reject(err);
-                          if (callbacks?.onError) {
-                            callbacks.onError(
-                              err instanceof TurnkeyError
-                                ? err
-                                : new TurnkeyError(
-                                    "Discord authentication failed",
-                                    TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-                                    err,
-                                  ),
-                            );
-                          }
-                        }
-                      }}
-                      icon={<FontAwesomeIcon size="3x" icon={faDiscord} />}
-                    />
-                  ),
-                  showTitle: false,
-                  onClose: () => {
-                    if (isAddProvider) {
-                      clearOAuthAddProviderMetadata();
-                    }
-                    reject(
-                      new TurnkeyError(
-                        isAddProvider
-                          ? "User canceled the Discord add provider process."
-                          : "User canceled the Discord authentication process.",
-                        TurnkeyErrorCodes.USER_CANCELED,
-                      ),
-                    );
-                  },
-                });
-              });
-            }
-          }
-          if (provider === "twitter" && flow === "redirect" && publicKey) {
-            const clientId = masterConfig?.auth?.oauthConfig?.xClientId;
-            const redirectURI =
-              masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
-            const verifier = sessionStorage.getItem("twitter_verifier");
-            const nonce = stateParams.get("nonce");
-            const sessionKey = stateParams.get("sessionKey");
-            const oauthIntent = stateParams.get("oauthIntent");
-
-            if (clientId && redirectURI && verifier && nonce) {
-              await new Promise((resolve, reject) => {
-                const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-                const metadata = isAddProvider
-                  ? getOAuthAddProviderMetadata()
-                  : null;
-
-                pushPage({
-                  key: `Twitter OAuth`,
-                  content: (
-                    <ActionPage
-                      title={
-                        isAddProvider
-                          ? `Adding X provider...`
-                          : `Authenticating with X...`
-                      }
-                      action={async () => {
-                        try {
-                          const resp =
-                            await client?.httpClient.proxyOAuth2Authenticate({
-                              provider: "OAUTH2_PROVIDER_X",
-                              authCode: code,
-                              redirectUri: redirectURI,
-                              codeVerifier: verifier,
-                              clientId,
-                              nonce: nonce,
-                            });
-
-                          sessionStorage.removeItem("twitter_verifier");
-
-                          const oidcToken = resp?.oidcToken;
-                          if (!oidcToken) {
-                            throw new TurnkeyError(
-                              "Missing OIDC token",
-                              TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-                            );
-                          }
-
-                          if (isAddProvider && metadata) {
-                            await addOauthProvider({
-                              providerName: "twitter",
-                              oidcToken,
-                              organizationId: metadata.organizationId,
-                              userId: metadata.userId,
-                              ...(metadata.stampWith && {
-                                stampWith: metadata.stampWith as StamperType,
-                              }),
-                            });
-                            clearOAuthAddProviderMetadata();
-                            // Clean up the URL after processing
-                            window.history.replaceState(
-                              null,
-                              document.title,
-                              window.location.pathname,
-                            );
-                            resolve(null);
-                            pushPage({
-                              key: "OAuth Provider Added",
-                              content: (
-                                <SuccessPage
-                                  text={`Successfully added X OAuth provider!`}
-                                  duration={
-                                    metadata.successPageDuration ?? 2000
-                                  }
-                                  onComplete={() => {
-                                    closeModal();
-                                  }}
-                                />
-                              ),
-                              preventBack: true,
-                              showTitle: false,
-                            });
-                          } else {
-                            await completeOauth({
-                              oidcToken,
-                              publicKey,
-                              providerName: "twitter",
-                              ...(sessionKey && { sessionKey }),
-                            });
-                            // Clean up the URL after processing
-                            window.history.replaceState(
-                              null,
-                              document.title,
-                              window.location.pathname,
-                            );
-                            resolve(null);
-                          }
-                        } catch (err) {
-                          if (isAddProvider) {
-                            clearOAuthAddProviderMetadata();
-                          }
-                          reject(err);
-                          if (callbacks?.onError) {
-                            callbacks.onError(
-                              err instanceof TurnkeyError
-                                ? err
-                                : new TurnkeyError(
-                                    "Twitter authentication failed",
-                                    TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-                                    err,
-                                  ),
-                            );
-                          }
-                        }
-                      }}
-                      icon={<FontAwesomeIcon size="3x" icon={faXTwitter} />}
-                    />
-                  ),
-                  showTitle: false,
-                  onClose: () => {
-                    if (isAddProvider) {
-                      clearOAuthAddProviderMetadata();
-                    }
-                    reject(
-                      new TurnkeyError(
-                        isAddProvider
-                          ? "User canceled the X add provider process."
-                          : "User canceled the Twitter authentication process.",
-                        TurnkeyErrorCodes.USER_CANCELED,
-                      ),
-                    );
-                  },
-                });
-              });
-            }
-          }
-        }
-      }
-      // Handle Google/Apple redirects (uses hash with id_token)
-      else if (window.location.hash) {
-        const hash = window.location.hash.substring(1);
-
-        // Parse the hash using our helper functions
-        const {
-          idToken,
-          provider,
-          flow,
-          publicKey,
-          openModal,
-          sessionKey,
-          oauthIntent,
-        } = parseOAuthRedirect(hash);
-
-        if (idToken && flow === "redirect" && publicKey) {
-          // Handle addProvider intent
-          if (oauthIntent === OAUTH_INTENT_ADD_PROVIDER) {
-            const metadata = getOAuthAddProviderMetadata();
-            if (metadata) {
-              const providerName = provider
-                ? provider.charAt(0).toUpperCase() + provider.slice(1)
-                : "Provider";
-
-              let icon;
-              if (provider === "apple") {
-                icon = <FontAwesomeIcon size="3x" icon={faApple} />;
-              } else {
-                icon = <FontAwesomeIcon size="3x" icon={faGoogle} />;
+                code,
+                codeVerifier,
+              );
+              const oidcToken = tokenResponse?.id_token;
+              if (!oidcToken) {
+                throw new TurnkeyError(
+                  "Missing OIDC token",
+                  TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                );
               }
-
-              await new Promise((resolve, reject) => {
-                pushPage({
-                  key: `${providerName} OAuth`,
-                  content: (
-                    <ActionPage
-                      title={`Adding ${providerName} provider...`}
-                      action={async () => {
-                        try {
-                          await addOauthProvider({
-                            providerName:
-                              provider || providerName.toLowerCase(),
-                            oidcToken: idToken,
-                            organizationId: metadata.organizationId,
-                            userId: metadata.userId,
-                            ...(metadata.stampWith && {
-                              stampWith: metadata.stampWith as StamperType,
-                            }),
-                          });
-                          clearOAuthAddProviderMetadata();
-                          resolve(null);
-                          pushPage({
-                            key: "OAuth Provider Added",
-                            content: (
-                              <SuccessPage
-                                text={`Successfully added ${providerName} OAuth provider!`}
-                                duration={metadata.successPageDuration ?? 2000}
-                                onComplete={() => {
-                                  closeModal();
-                                }}
-                              />
-                            ),
-                            preventBack: true,
-                            showTitle: false,
-                          });
-                        } catch (err) {
-                          clearOAuthAddProviderMetadata();
-                          reject(err);
-                        }
-                      }}
-                      icon={icon}
-                    />
-                  ),
-                  showTitle: false,
-                  onClose: () => {
-                    clearOAuthAddProviderMetadata();
-                    reject(
-                      new TurnkeyError(
-                        `User canceled the ${providerName} add provider process.`,
-                        TurnkeyErrorCodes.USER_CANCELED,
-                      ),
-                    );
-                  },
-                });
-              });
-            }
-            // Clean up the URL after processing
-            window.history.replaceState(
-              null,
-              document.title,
-              window.location.pathname + window.location.search,
-            );
-            return;
-          }
-
-          if (openModal === "true") {
-            const providerName = provider
-              ? provider.charAt(0).toUpperCase() + provider.slice(1)
-              : "Provider";
-
-            // Determine which icon to show based on the provider
-            let icon;
-            if (provider === "apple") {
-              icon = <FontAwesomeIcon size="3x" icon={faApple} />;
-            } else {
-              // Default to Google icon
-              icon = <FontAwesomeIcon size="3x" icon={faGoogle} />;
-            }
-
-            // This state is set when the OAuth flow comes from the AuthComponent
-            await new Promise((resolve, reject) => {
-              pushPage({
-                key: `${providerName} OAuth`,
-                content: (
-                  <ActionPage
-                    title={`Authenticating with ${providerName}...`}
-                    action={async () => {
-                      try {
-                        await completeOauth({
-                          oidcToken: idToken,
-                          publicKey,
-                          ...(provider ? { providerName: provider } : {}),
-                          ...(sessionKey && { sessionKey }),
-                        });
-                        resolve(null);
-                      } catch (err) {
-                        reject(err);
-                      }
-                    }}
-                    icon={icon}
-                  />
-                ),
-                showTitle: false,
-                onClose: () => {
-                  reject(
-                    new TurnkeyError(
-                      `User canceled the ${providerName} authentication process.`,
-                      TurnkeyErrorCodes.USER_CANCELED,
-                    ),
-                  );
-                },
-              });
-            });
-          } else if (callbacks?.onOauthRedirect) {
-            callbacks.onOauthRedirect({ idToken, publicKey });
-          } else {
-            completeOauth({
-              oidcToken: idToken,
-              publicKey,
-              ...(provider ? { providerName: provider } : {}),
-            });
-          }
-          // Clean up the URL after processing
-          window.history.replaceState(
-            null,
-            document.title,
-            window.location.pathname + window.location.search,
+              return oidcToken;
+            },
           );
         }
+        return;
       }
+
+      // DISCORD
+      if (provider === OAuthProviders.DISCORD) {
+        const clientId = masterConfig?.auth?.oauthConfig?.discordClientId;
+        const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
+        const hasVerifier = hasPKCEVerifier(OAuthProviders.DISCORD);
+
+        if (clientId && redirectURI && hasVerifier && nonce) {
+          await completePKCERedirect(
+            OAuthProviders.DISCORD,
+            async (codeVerifier) => {
+              const resp = await client?.httpClient.proxyOAuth2Authenticate({
+                provider: "OAUTH2_PROVIDER_DISCORD",
+                authCode: code,
+                redirectUri: redirectURI,
+                codeVerifier,
+                clientId,
+                nonce,
+              });
+              const oidcToken = resp?.oidcToken;
+              if (!oidcToken) {
+                throw new TurnkeyError(
+                  "Missing OIDC token",
+                  TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                );
+              }
+              return oidcToken;
+            },
+          );
+        }
+        return;
+      }
+
+      // X (Twitter)
+      if (provider === OAuthProviders.X) {
+        const clientId = masterConfig?.auth?.oauthConfig?.xClientId;
+        const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
+        const hasVerifier = hasPKCEVerifier(OAuthProviders.X);
+
+        if (clientId && redirectURI && hasVerifier && nonce) {
+          await completePKCERedirect(OAuthProviders.X, async (codeVerifier) => {
+            const resp = await client?.httpClient.proxyOAuth2Authenticate({
+              provider: "OAUTH2_PROVIDER_X",
+              authCode: code,
+              redirectUri: redirectURI,
+              codeVerifier,
+              clientId,
+              nonce,
+            });
+            const oidcToken = resp?.oidcToken;
+            if (!oidcToken) {
+              throw new TurnkeyError(
+                "Missing OIDC token",
+                TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+              );
+            }
+            return oidcToken;
+          });
+        }
+        return;
+      }
+    }
+
+    // Handle Google/Apple redirects (uses hash with id_token - non-PKCE)
+    if (window.location.hash) {
+      const hash = window.location.hash.substring(1);
+
+      // Parse the hash using our helper functions
+      const {
+        idToken,
+        provider,
+        flow,
+        publicKey,
+        openModal,
+        sessionKey,
+        oauthIntent,
+      } = parseOAuthRedirect(hash);
+
+      if (!idToken || flow !== "redirect" || !publicKey) {
+        return;
+      }
+
+      const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
+      const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
+      const resolvedProvider = provider || OAuthProviders.GOOGLE;
+
+      // Use completeOAuthFlow from utils for the core completion logic
+      const action = async () => {
+        await completeOAuthFlow({
+          provider: resolvedProvider as OAuthProviders,
+          publicKey,
+          oidcToken: idToken,
+          sessionKey: sessionKey ?? undefined,
+          callbacks,
+          completeOauth,
+          onAddProvider:
+            isAddProvider && metadata
+              ? async (oidcToken) => {
+                  await addOauthProvider({
+                    providerName: resolvedProvider,
+                    oidcToken,
+                    organizationId: metadata.organizationId,
+                    userId: metadata.userId,
+                    ...(metadata.stampWith && {
+                      stampWith: metadata.stampWith as StamperType,
+                    }),
+                  });
+                  clearOAuthAddProviderMetadata();
+                }
+              : undefined,
+        });
+      };
+
+      await withModalWrapper({
+        provider: resolvedProvider,
+        isAddProvider,
+        metadata,
+        openModal: openModal ?? undefined,
+        action,
+      });
+
+      // Clean up the URL after processing
+      cleanupOAuthUrlPreserveSearch();
     }
   };
 
@@ -3440,182 +3207,117 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
       } = params || {};
-      try {
-        if (!masterConfig) {
-          throw new TurnkeyError(
-            "Config is not ready yet!",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
-        if (!clientId) {
-          throw new TurnkeyError(
-            "Discord Client ID is not configured.",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
-        if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
-          throw new TurnkeyError(
-            "OAuth Redirect URI is not configured.",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
 
-        const flow = openInPage ? "redirect" : "popup";
-        const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri;
+      const provider = OAuthProviders.DISCORD;
 
-        // Create key pair and generate nonce
-        const publicKey = await createApiKeyPair();
-        if (!publicKey) {
-          throw new Error("Failed to create public key for OAuth.");
-        }
-        const nonce = bytesToHex(sha256(publicKey));
-
-        // Generate PKCE challenge pair
-        const { verifier, codeChallenge } = await generateChallengePair();
-        sessionStorage.setItem("discord_verifier", verifier);
-
-        // Construct Discord Auth URL
-        const discordAuthUrl = new URL(DISCORD_AUTH_URL);
-        discordAuthUrl.searchParams.set("client_id", clientId);
-        discordAuthUrl.searchParams.set("redirect_uri", redirectURI);
-        discordAuthUrl.searchParams.set("response_type", "code");
-        discordAuthUrl.searchParams.set("code_challenge", codeChallenge);
-        discordAuthUrl.searchParams.set("code_challenge_method", "S256");
-        discordAuthUrl.searchParams.set("scope", "identify email");
-        discordAuthUrl.searchParams.set(
-          "state",
-          `provider=discord&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}`,
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
         );
+      }
+      if (!clientId) {
+        throw new TurnkeyError(
+          "Discord Client ID is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
+        throw new TurnkeyError(
+          "OAuth Redirect URI is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
 
-        if (additionalParameters) {
-          const extra = Object.entries(additionalParameters)
-            .map(
-              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
-            )
-            .join("&");
-          if (extra) {
-            discordAuthUrl.searchParams.set(
-              "state",
-              discordAuthUrl.searchParams.get("state")! + `&${extra}`,
-            );
-          }
-        }
+      const flow = openInPage ? "redirect" : "popup";
+      const redirectUri = masterConfig.auth?.oauthConfig.oauthRedirectUri;
 
-        if (openInPage) {
-          window.location.href = discordAuthUrl.toString();
-          return new Promise((_, reject) => {
-            const timeout = setTimeout(() => {
-              reject(new Error("Authentication timed out."));
-            }, 300000);
-            window.addEventListener("beforeunload", () =>
-              clearTimeout(timeout),
-            );
-          });
-        } else {
-          const width = popupWidth;
-          const height = popupHeight;
-          const left = window.screenX + (window.innerWidth - width) / 2;
-          const top = window.screenY + (window.innerHeight - height) / 2;
+      // Create key pair and generate nonce
+      const publicKey = await createApiKeyPair();
+      if (!publicKey) {
+        throw new Error("Failed to create public key for OAuth.");
+      }
+      const nonce = bytesToHex(sha256(publicKey));
 
-          const authWindow = window.open(
-            "about:blank",
-            "_blank",
-            `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-          );
+      // Generate PKCE challenge pair and store verifier
+      const { verifier, codeChallenge } = await generateChallengePair();
+      storePKCEVerifier(provider, verifier);
 
-          if (!authWindow) {
-            throw new Error("Failed to open Discord login window.");
-          }
+      // Build OAuth URL
+      const authUrl = buildOAuthUrl({
+        provider,
+        clientId,
+        redirectUri,
+        publicKey,
+        nonce,
+        flow,
+        codeChallenge,
+        additionalState: additionalParameters,
+      });
 
-          authWindow.location.href = discordAuthUrl.toString();
+      if (openInPage) {
+        // Remainder of logic will occur in completeRedirectOauth
+        return redirectToOAuthProvider(authUrl);
+      }
 
-          return new Promise<void>((resolve, reject) => {
-            const interval = setInterval(() => {
-              try {
-                if (authWindow.closed) {
-                  clearInterval(interval);
-                  reject(new Error("Authentication window was closed."));
-                  return;
-                }
+      // Popup flow
+      const authWindow = openOAuthPopup();
+      if (!authWindow) {
+        throw new Error(
+          `Failed to open ${capitalizeProviderName(provider)} login window.`,
+        );
+      }
+      authWindow.location.href = authUrl;
 
-                const url = authWindow.location.href || "";
-                if (url.startsWith(window.location.origin)) {
-                  const urlParams = new URLSearchParams(new URL(url).search);
-                  const authCode = urlParams.get("code");
-                  const stateParam = urlParams.get("state");
-                  const sessionKey = stateParam
-                    ?.split("&")
-                    .find((param) => param.startsWith("sessionKey="))
-                    ?.split("=")[1];
-                  if (
-                    authCode &&
-                    stateParam &&
-                    stateParam.includes("provider=discord")
-                  ) {
-                    authWindow.close();
-                    clearInterval(interval);
-
-                    const verifier = sessionStorage.getItem("discord_verifier");
-                    if (!verifier) {
-                      reject(new Error("Missing PKCE verifier"));
-                      return;
-                    }
-
-                    client?.httpClient
-                      .proxyOAuth2Authenticate({
-                        provider: "OAUTH2_PROVIDER_DISCORD",
-                        authCode,
-                        redirectUri: redirectURI,
-                        codeVerifier: verifier,
-                        clientId,
-                        nonce: nonce,
-                      })
-                      .then((resp) => {
-                        sessionStorage.removeItem("discord_verifier");
-
-                        const oidcToken = resp.oidcToken;
-                        if (params?.onOauthSuccess) {
-                          params.onOauthSuccess({
-                            publicKey,
-                            oidcToken,
-                            providerName: "discord",
-                            ...(sessionKey && { sessionKey }),
-                          });
-                        } else if (callbacks?.onOauthRedirect) {
-                          callbacks.onOauthRedirect({
-                            idToken: oidcToken,
-                            publicKey,
-                            ...(sessionKey && { sessionKey }),
-                          });
-                        } else {
-                          completeOauth({
-                            oidcToken,
-                            publicKey,
-                            providerName: "discord",
-                            ...(sessionKey && { sessionKey }),
-                          })
-                            .then(() => resolve())
-                            .catch(reject);
-                          return;
-                        }
-                        resolve();
-                      })
-                      .catch(reject);
-                  }
-                }
-              } catch {
-                // ignore cross-origin
-              }
-            }, 500);
-
+      return new Promise<void>((resolve, reject) => {
+        const interval = setInterval(() => {
+          try {
             if (authWindow.closed) {
               clearInterval(interval);
+              reject(new Error("Authentication window was closed."));
+              return;
             }
-          });
+
+            const url = authWindow.location.href || "";
+            if (url.startsWith(window.location.origin)) {
+              const result = parseOAuthPopupResponse(url, provider);
+              if (result) {
+                authWindow.close();
+                clearInterval(interval);
+
+                completeOAuthPopup({
+                  provider,
+                  publicKey,
+                  result,
+                  callbacks,
+                  completeOauth,
+                  onOauthSuccess: params?.onOauthSuccess,
+                  exchangeCodeForToken: async (codeVerifier) => {
+                    const resp =
+                      await client?.httpClient.proxyOAuth2Authenticate({
+                        provider: "OAUTH2_PROVIDER_DISCORD",
+                        authCode: result.authCode!,
+                        redirectUri,
+                        codeVerifier,
+                        clientId,
+                        nonce,
+                      });
+                    return resp?.oidcToken ?? "";
+                  },
+                })
+                  .then(() => resolve())
+                  .catch(reject);
+              }
+            }
+          } catch {
+            // ignore cross-origin
+          }
+        }, 500);
+
+        if (authWindow.closed) {
+          clearInterval(interval);
         }
-      } catch (error) {
-        throw error;
-      }
+      });
     },
     [client, callbacks, completeOauth, createApiKeyPair, masterConfig],
   );
@@ -3627,182 +3329,117 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
       } = params || {};
-      try {
-        if (!masterConfig) {
-          throw new TurnkeyError(
-            "Config is not ready yet!",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
-        if (!clientId) {
-          throw new TurnkeyError(
-            "Twitter Client ID is not configured.",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
-        if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
-          throw new TurnkeyError(
-            "OAuth Redirect URI is not configured.",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
 
-        const flow = openInPage ? "redirect" : "popup";
-        const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri;
+      const provider = OAuthProviders.X;
 
-        // Create key pair and generate nonce
-        const publicKey = await createApiKeyPair();
-        if (!publicKey) {
-          throw new Error("Failed to create public key for OAuth.");
-        }
-        const nonce = bytesToHex(sha256(publicKey));
-
-        // Generate PKCE challenge pair
-        const { verifier, codeChallenge } = await generateChallengePair();
-        sessionStorage.setItem("twitter_verifier", verifier);
-
-        // Construct Twitter Auth URL
-        const twitterAuthUrl = new URL(X_AUTH_URL);
-        twitterAuthUrl.searchParams.set("client_id", clientId);
-        twitterAuthUrl.searchParams.set("redirect_uri", redirectURI);
-        twitterAuthUrl.searchParams.set("response_type", "code");
-        twitterAuthUrl.searchParams.set("code_challenge", codeChallenge);
-        twitterAuthUrl.searchParams.set("code_challenge_method", "S256");
-        twitterAuthUrl.searchParams.set("scope", "tweet.read users.read");
-        twitterAuthUrl.searchParams.set(
-          "state",
-          `provider=twitter&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}`,
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
         );
+      }
+      if (!clientId) {
+        throw new TurnkeyError(
+          "Twitter Client ID is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
+        throw new TurnkeyError(
+          "OAuth Redirect URI is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
 
-        if (additionalParameters) {
-          const extra = Object.entries(additionalParameters)
-            .map(
-              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
-            )
-            .join("&");
-          if (extra) {
-            twitterAuthUrl.searchParams.set(
-              "state",
-              twitterAuthUrl.searchParams.get("state")! + `&${extra}`,
-            );
-          }
-        }
+      const flow = openInPage ? "redirect" : "popup";
+      const redirectUri = masterConfig.auth?.oauthConfig.oauthRedirectUri;
 
-        if (openInPage) {
-          window.location.href = twitterAuthUrl.toString();
-          return new Promise((_, reject) => {
-            const timeout = setTimeout(() => {
-              reject(new Error("Authentication timed out."));
-            }, 300000);
-            window.addEventListener("beforeunload", () =>
-              clearTimeout(timeout),
-            );
-          });
-        } else {
-          const width = popupWidth;
-          const height = popupHeight;
-          const left = window.screenX + (window.innerWidth - width) / 2;
-          const top = window.screenY + (window.innerHeight - height) / 2;
+      // Create key pair and generate nonce
+      const publicKey = await createApiKeyPair();
+      if (!publicKey) {
+        throw new Error("Failed to create public key for OAuth.");
+      }
+      const nonce = bytesToHex(sha256(publicKey));
 
-          const authWindow = window.open(
-            "about:blank",
-            "_blank",
-            `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-          );
+      // Generate PKCE challenge pair and store verifier
+      const { verifier, codeChallenge } = await generateChallengePair();
+      storePKCEVerifier(provider, verifier);
 
-          if (!authWindow) {
-            throw new Error("Failed to open Twitter login window.");
-          }
+      // Build OAuth URL
+      const authUrl = buildOAuthUrl({
+        provider,
+        clientId,
+        redirectUri,
+        publicKey,
+        nonce,
+        flow,
+        codeChallenge,
+        additionalState: additionalParameters,
+      });
 
-          authWindow.location.href = twitterAuthUrl.toString();
+      if (openInPage) {
+        // Remainder of logic will occur in completeRedirectOauth
+        return redirectToOAuthProvider(authUrl);
+      }
 
-          return new Promise<void>((resolve, reject) => {
-            const interval = setInterval(() => {
-              try {
-                if (authWindow.closed) {
-                  clearInterval(interval);
-                  reject(new Error("Authentication window was closed."));
-                  return;
-                }
+      // Popup flow
+      const authWindow = openOAuthPopup();
+      if (!authWindow) {
+        throw new Error(
+          `Failed to open ${capitalizeProviderName(provider)} login window.`,
+        );
+      }
+      authWindow.location.href = authUrl;
 
-                const url = authWindow.location.href || "";
-                if (url.startsWith(window.location.origin)) {
-                  const urlParams = new URLSearchParams(new URL(url).search);
-                  const authCode = urlParams.get("code");
-                  const stateParam = urlParams.get("state");
-                  const sessionKey = stateParam
-                    ?.split("&")
-                    .find((param) => param.startsWith("sessionKey="))
-                    ?.split("=")[1];
-                  if (
-                    authCode &&
-                    stateParam &&
-                    stateParam.includes("provider=twitter")
-                  ) {
-                    authWindow.close();
-                    clearInterval(interval);
-
-                    const verifier = sessionStorage.getItem("twitter_verifier");
-                    if (!verifier) {
-                      reject(new Error("Missing PKCE verifier"));
-                      return;
-                    }
-
-                    client?.httpClient
-                      .proxyOAuth2Authenticate({
-                        provider: "OAUTH2_PROVIDER_X",
-                        authCode,
-                        redirectUri: redirectURI,
-                        codeVerifier: verifier,
-                        clientId,
-                        nonce,
-                      })
-                      .then((resp) => {
-                        sessionStorage.removeItem("twitter_verifier");
-
-                        const oidcToken = resp.oidcToken;
-                        if (params?.onOauthSuccess) {
-                          params.onOauthSuccess({
-                            publicKey,
-                            oidcToken,
-                            providerName: "twitter",
-                            ...(sessionKey && { sessionKey }),
-                          });
-                        } else if (callbacks?.onOauthRedirect) {
-                          callbacks.onOauthRedirect({
-                            idToken: oidcToken,
-                            publicKey,
-                            ...(sessionKey && { sessionKey }),
-                          });
-                        } else {
-                          completeOauth({
-                            oidcToken,
-                            publicKey,
-                            providerName: "twitter",
-                            ...(sessionKey && { sessionKey }),
-                          })
-                            .then(() => resolve())
-                            .catch(reject);
-                          return;
-                        }
-                        resolve();
-                      })
-                      .catch(reject);
-                  }
-                }
-              } catch {
-                // ignore cross-origin
-              }
-            }, 500);
-
+      return new Promise<void>((resolve, reject) => {
+        const interval = setInterval(() => {
+          try {
             if (authWindow.closed) {
               clearInterval(interval);
+              reject(new Error("Authentication window was closed."));
+              return;
             }
-          });
+
+            const url = authWindow.location.href || "";
+            if (url.startsWith(window.location.origin)) {
+              const result = parseOAuthPopupResponse(url, provider);
+              if (result) {
+                authWindow.close();
+                clearInterval(interval);
+
+                completeOAuthPopup({
+                  provider,
+                  publicKey,
+                  result,
+                  callbacks,
+                  completeOauth,
+                  onOauthSuccess: params?.onOauthSuccess,
+                  exchangeCodeForToken: async (codeVerifier) => {
+                    const resp =
+                      await client?.httpClient.proxyOAuth2Authenticate({
+                        provider: "OAUTH2_PROVIDER_X",
+                        authCode: result.authCode!,
+                        redirectUri,
+                        codeVerifier,
+                        clientId,
+                        nonce,
+                      });
+                    return resp?.oidcToken ?? "";
+                  },
+                })
+                  .then(() => resolve())
+                  .catch(reject);
+              }
+            }
+          } catch {
+            // ignore cross-origin
+          }
+        }, 500);
+
+        if (authWindow.closed) {
+          clearInterval(interval);
         }
-      } catch (error) {
-        throw error;
-      }
+      });
     },
     [client, callbacks, completeOauth, createApiKeyPair, masterConfig],
   );
@@ -3814,160 +3451,102 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
       } = params || {};
-      try {
-        if (!masterConfig) {
-          throw new TurnkeyError(
-            "Config is not ready yet!",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
-        if (!clientId) {
-          throw new TurnkeyError(
-            "Google Client ID is not configured.",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
-        if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
-          throw new TurnkeyError(
-            "OAuth Redirect URI is not configured.",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
 
-        const flow = openInPage ? "redirect" : "popup";
-        const redirectURI =
-          masterConfig.auth?.oauthConfig.oauthRedirectUri.replace(/\/$/, "");
+      const provider = OAuthProviders.GOOGLE;
 
-        // Create key pair and generate nonce
-        const publicKey = await createApiKeyPair();
-        if (!publicKey) {
-          throw new Error("Failed to create public key for OAuth.");
-        }
-        const nonce = bytesToHex(sha256(publicKey));
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!clientId) {
+        throw new TurnkeyError(
+          "Google Client ID is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
+        throw new TurnkeyError(
+          "OAuth Redirect URI is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
 
-        // Construct Google Auth URL
-        const googleAuthUrl = new URL(GOOGLE_AUTH_URL);
-        googleAuthUrl.searchParams.set("client_id", clientId);
-        googleAuthUrl.searchParams.set("redirect_uri", redirectURI);
-        googleAuthUrl.searchParams.set("response_type", "id_token");
-        googleAuthUrl.searchParams.set("scope", "openid email profile");
-        googleAuthUrl.searchParams.set("nonce", nonce);
-        googleAuthUrl.searchParams.set("prompt", "select_account");
+      const flow = openInPage ? "redirect" : "popup";
+      // Google requires no trailing slash
+      const redirectUri =
+        masterConfig.auth?.oauthConfig.oauthRedirectUri.replace(/\/$/, "");
 
-        // Create state parameter
-        let state = `provider=google&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
-        if (additionalParameters) {
-          const additionalState = Object.entries(additionalParameters)
-            .map(
-              ([key, value]) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-            )
-            .join("&");
-          if (additionalState) {
-            state += `&${additionalState}`;
-          }
-        }
-        googleAuthUrl.searchParams.set("state", state);
-        if (openInPage) {
-          // Redirect current page to Google Auth
-          window.location.href = googleAuthUrl.toString();
-          return new Promise((_, reject) => {
-            // By here, the page should have already redirected. We wait here since the function is async.
-            // We want any function that runs this to simply wait until the page redirects.
-            // A 5 min timeout is set just in case, idk
-            const timeout = setTimeout(() => {
-              reject(new Error("Authentication timed out."));
-            }, 300000); // 5 minutes
+      // Create key pair and generate nonce
+      const publicKey = await createApiKeyPair();
+      if (!publicKey) {
+        throw new Error("Failed to create public key for OAuth.");
+      }
+      const nonce = bytesToHex(sha256(publicKey));
 
-            // If the page is unloaded (user navigates away), clear the timeout
-            window.addEventListener("beforeunload", () =>
-              clearTimeout(timeout),
-            );
-          });
-        } else {
-          // Open popup window
-          const width = popupWidth;
-          const height = popupHeight;
-          const left = window.screenX + (window.innerWidth - width) / 2;
-          const top = window.screenY + (window.innerHeight - height) / 2;
+      // Build OAuth URL
+      const authUrl = buildOAuthUrl({
+        provider,
+        clientId,
+        redirectUri,
+        publicKey,
+        nonce,
+        flow,
+        additionalState: additionalParameters,
+      });
 
-          const authWindow = window.open(
-            "about:blank",
-            "_blank",
-            `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-          );
+      if (openInPage) {
+        // Remainder of logic will occur in completeRedirectOauth
+        return redirectToOAuthProvider(authUrl);
+      }
 
-          if (!authWindow) {
-            throw new Error("Failed to open Google login window.");
-          }
+      // Popup flow
+      const authWindow = openOAuthPopup();
+      if (!authWindow) {
+        throw new Error(
+          `Failed to open ${capitalizeProviderName(provider)} login window.`,
+        );
+      }
+      authWindow.location.href = authUrl;
 
-          authWindow.location.href = googleAuthUrl.toString();
-
-          // Return a promise that resolves when the OAuth flow completes
-          // This following code will only run for the popup flow
-          return new Promise<void>((resolve, reject) => {
-            const interval = setInterval(() => {
-              try {
-                // Check if window was closed without completing auth
-                if (authWindow.closed) {
-                  clearInterval(interval);
-                  reject(new Error("Authentication window was closed."));
-                  return;
-                }
-
-                const url = authWindow.location.href || "";
-                if (url.startsWith(window.location.origin)) {
-                  const hashParams = new URLSearchParams(url.split("#")[1]);
-                  const idToken = hashParams.get("id_token");
-                  const stateParams = hashParams.get("state");
-                  const sessionKey = stateParams
-                    ?.split("&")
-                    .find((param) => param.startsWith("sessionKey="))
-                    ?.split("=")[1];
-                  if (idToken) {
-                    authWindow.close();
-                    clearInterval(interval);
-
-                    if (params?.onOauthSuccess) {
-                      params.onOauthSuccess({
-                        publicKey,
-                        oidcToken: idToken,
-                        providerName: "google",
-                        ...(sessionKey && { sessionKey }),
-                      });
-                    } else if (callbacks?.onOauthRedirect) {
-                      callbacks.onOauthRedirect({
-                        idToken,
-                        publicKey,
-                        ...(sessionKey && { sessionKey }),
-                      });
-                    } else {
-                      completeOauth({
-                        oidcToken: idToken,
-                        publicKey,
-                        providerName: "google",
-                        ...(sessionKey && { sessionKey }),
-                      })
-                        .then(() => resolve())
-                        .catch(reject);
-                      return;
-                    }
-                    resolve();
-                  }
-                }
-              } catch (error) {
-                // Ignore cross-origin errors
-              }
-            }, 500);
-
+      return new Promise<void>((resolve, reject) => {
+        const interval = setInterval(() => {
+          try {
             if (authWindow.closed) {
               clearInterval(interval);
+              reject(new Error("Authentication window was closed."));
+              return;
             }
-          });
+
+            const url = authWindow.location.href || "";
+            if (url.startsWith(window.location.origin)) {
+              const result = parseOAuthPopupResponse(url, provider);
+              if (result) {
+                authWindow.close();
+                clearInterval(interval);
+
+                completeOAuthPopup({
+                  provider,
+                  publicKey,
+                  result,
+                  callbacks,
+                  completeOauth,
+                  onOauthSuccess: params?.onOauthSuccess,
+                })
+                  .then(() => resolve())
+                  .catch(reject);
+              }
+            }
+          } catch {
+            // Ignore cross-origin errors
+          }
+        }, 500);
+
+        if (authWindow.closed) {
+          clearInterval(interval);
         }
-      } catch (error) {
-        throw error;
-      }
+      });
     },
     [callbacks, completeOauth, createApiKeyPair, masterConfig],
   );
@@ -3979,156 +3558,101 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
       } = params || {};
-      try {
-        if (!masterConfig) {
-          throw new TurnkeyError(
-            "Config is not ready yet!",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
-        if (!clientId) {
-          throw new TurnkeyError(
-            "Apple Client ID is not configured.",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
-        if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
-          throw new TurnkeyError(
-            "OAuth Redirect URI is not configured.",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
 
-        const flow = openInPage ? "redirect" : "popup";
-        const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri; // TODO (Amir): Apple needs the '/' at the end. Maybe we should add it if not there?
+      const provider = OAuthProviders.APPLE;
 
-        // Create key pair and generate nonce
-        const publicKey = await createApiKeyPair();
-        if (!publicKey) {
-          throw new Error("Failed to create public key for OAuth.");
-        }
-        const nonce = bytesToHex(sha256(publicKey));
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!clientId) {
+        throw new TurnkeyError(
+          "Apple Client ID is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
+        throw new TurnkeyError(
+          "OAuth Redirect URI is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
 
-        // Construct Apple Auth URL
-        const appleAuthUrl = new URL(APPLE_AUTH_URL);
-        appleAuthUrl.searchParams.set("client_id", clientId);
-        appleAuthUrl.searchParams.set("redirect_uri", redirectURI);
-        appleAuthUrl.searchParams.set("response_type", "code id_token");
-        appleAuthUrl.searchParams.set("response_mode", "fragment");
-        appleAuthUrl.searchParams.set("nonce", nonce);
+      const flow = openInPage ? "redirect" : "popup";
+      // TODO (Amir): Apple needs the '/' at the end. Maybe we should add it if not there?
+      const redirectUri = masterConfig.auth?.oauthConfig.oauthRedirectUri;
 
-        // Create state parameter
-        let state = `provider=apple&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
-        if (additionalParameters) {
-          const additionalState = Object.entries(additionalParameters)
-            .map(
-              ([key, value]) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-            )
-            .join("&");
-          if (additionalState) {
-            state += `&${additionalState}`;
-          }
-        }
-        appleAuthUrl.searchParams.set("state", state);
+      // Create key pair and generate nonce
+      const publicKey = await createApiKeyPair();
+      if (!publicKey) {
+        throw new Error("Failed to create public key for OAuth.");
+      }
+      const nonce = bytesToHex(sha256(publicKey));
 
-        if (openInPage) {
-          // Redirect current page to Apple Auth
-          window.location.href = appleAuthUrl.toString();
-          return new Promise((_, reject) => {
-            // Set a timeout just in case the redirect doesn't happen
-            const timeout = setTimeout(() => {
-              reject(new Error("Authentication timed out."));
-            }, 300000); // 5 minutes
+      // Build OAuth URL
+      const authUrl = buildOAuthUrl({
+        provider,
+        clientId,
+        redirectUri,
+        publicKey,
+        nonce,
+        flow,
+        additionalState: additionalParameters,
+      });
 
-            // If the page is unloaded (user navigates away), clear the timeout
-            window.addEventListener("beforeunload", () =>
-              clearTimeout(timeout),
-            );
-          });
-        } else {
-          // Open popup window
-          const width = popupWidth;
-          const height = popupHeight;
-          const left = window.screenX + (window.innerWidth - width) / 2;
-          const top = window.screenY + (window.innerHeight - height) / 2;
+      if (openInPage) {
+        // Remainder of logic will occur in completeRedirectOauth
+        return redirectToOAuthProvider(authUrl);
+      }
 
-          const authWindow = window.open(
-            "about:blank",
-            "_blank",
-            `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-          );
+      // Popup flow
+      const authWindow = openOAuthPopup();
+      if (!authWindow) {
+        throw new Error(
+          `Failed to open ${capitalizeProviderName(provider)} login window.`,
+        );
+      }
+      authWindow.location.href = authUrl;
 
-          if (!authWindow) {
-            throw new Error("Failed to open Apple login window.");
-          }
-
-          authWindow.location.href = appleAuthUrl.toString();
-
-          // Return a promise that resolves when the OAuth flow completes
-          return new Promise<void>((resolve, reject) => {
-            const interval = setInterval(() => {
-              try {
-                // Check if window was closed without completing auth
-                if (authWindow.closed) {
-                  clearInterval(interval);
-                  reject(new Error("Authentication window was closed."));
-                  return;
-                }
-
-                const url = authWindow.location.href || "";
-                if (url.startsWith(window.location.origin)) {
-                  const hashParams = new URLSearchParams(url.split("#")[1]);
-                  const idToken = hashParams.get("id_token");
-                  const stateParams = hashParams.get("state");
-                  const sessionKey = stateParams
-                    ?.split("&")
-                    .find((param) => param.startsWith("sessionKey="))
-                    ?.split("=")[1];
-                  if (idToken) {
-                    authWindow.close();
-                    clearInterval(interval);
-
-                    if (params?.onOauthSuccess) {
-                      params.onOauthSuccess({
-                        publicKey,
-                        oidcToken: idToken,
-                        providerName: "apple",
-                        ...(sessionKey && { sessionKey }),
-                      });
-                    } else if (callbacks?.onOauthRedirect) {
-                      callbacks.onOauthRedirect({
-                        idToken,
-                        publicKey,
-                        ...(sessionKey && { sessionKey }),
-                      });
-                    } else {
-                      completeOauth({
-                        oidcToken: idToken,
-                        publicKey,
-                        providerName: "apple",
-                        ...(sessionKey && { sessionKey }),
-                      })
-                        .then(() => resolve())
-                        .catch(reject);
-                      return;
-                    }
-                    resolve();
-                  }
-                }
-              } catch (error) {
-                // Ignore cross-origin errors
-              }
-            }, 500);
-
+      return new Promise<void>((resolve, reject) => {
+        const interval = setInterval(() => {
+          try {
             if (authWindow.closed) {
               clearInterval(interval);
+              reject(new Error("Authentication window was closed."));
+              return;
             }
-          });
+
+            const url = authWindow.location.href || "";
+            if (url.startsWith(window.location.origin)) {
+              const result = parseOAuthPopupResponse(url, provider);
+              if (result) {
+                authWindow.close();
+                clearInterval(interval);
+
+                completeOAuthPopup({
+                  provider,
+                  publicKey,
+                  result,
+                  callbacks,
+                  completeOauth,
+                  onOauthSuccess: params?.onOauthSuccess,
+                })
+                  .then(() => resolve())
+                  .catch(reject);
+              }
+            }
+          } catch {
+            // Ignore cross-origin errors
+          }
+        }, 500);
+
+        if (authWindow.closed) {
+          clearInterval(interval);
         }
-      } catch (error) {
-        throw error;
-      }
+      });
     },
     [callbacks, completeOauth, createApiKeyPair, masterConfig],
   );
@@ -4140,186 +3664,114 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
       } = params || {};
-      try {
-        if (!masterConfig) {
-          throw new TurnkeyError(
-            "Config is not ready yet!",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
-        if (!clientId) {
-          throw new TurnkeyError(
-            "Facebook Client ID is not configured.",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
-        if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
-          throw new TurnkeyError(
-            "OAuth Redirect URI is not configured.",
-            TurnkeyErrorCodes.INVALID_CONFIGURATION,
-          );
-        }
 
-        const flow = openInPage ? "redirect" : "popup";
-        const redirectURI = masterConfig.auth?.oauthConfig.oauthRedirectUri;
+      const provider = OAuthProviders.FACEBOOK;
 
-        // Create key pair and generate nonce
-        const publicKey = await createApiKeyPair();
-        if (!publicKey) {
-          throw new Error("Failed to create public key for OAuth.");
-        }
-        const nonce = bytesToHex(sha256(publicKey));
+      if (!masterConfig) {
+        throw new TurnkeyError(
+          "Config is not ready yet!",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!clientId) {
+        throw new TurnkeyError(
+          "Facebook Client ID is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
+      if (!masterConfig.auth?.oauthConfig?.oauthRedirectUri) {
+        throw new TurnkeyError(
+          "OAuth Redirect URI is not configured.",
+          TurnkeyErrorCodes.INVALID_CONFIGURATION,
+        );
+      }
 
-        // Generate PKCE challenge pair
-        const { verifier, codeChallenge } = await generateChallengePair();
-        // Store verifier for later token exchange
-        sessionStorage.setItem("facebook_verifier", verifier);
+      const flow = openInPage ? "redirect" : "popup";
+      const redirectUri = masterConfig.auth?.oauthConfig.oauthRedirectUri;
 
-        // Construct Facebook Auth URL
-        const facebookAuthUrl = new URL(FACEBOOK_AUTH_URL);
-        facebookAuthUrl.searchParams.set("client_id", clientId);
-        facebookAuthUrl.searchParams.set("redirect_uri", redirectURI);
-        facebookAuthUrl.searchParams.set("response_type", "code");
-        facebookAuthUrl.searchParams.set("code_challenge", codeChallenge);
-        facebookAuthUrl.searchParams.set("code_challenge_method", "S256");
-        facebookAuthUrl.searchParams.set("nonce", nonce);
-        facebookAuthUrl.searchParams.set("scope", "openid");
+      // Create key pair and generate nonce
+      const publicKey = await createApiKeyPair();
+      if (!publicKey) {
+        throw new Error("Failed to create public key for OAuth.");
+      }
+      const nonce = bytesToHex(sha256(publicKey));
 
-        // Create state parameter
-        let state = `provider=facebook&flow=${flow}&publicKey=${encodeURIComponent(publicKey)}`;
-        if (additionalParameters) {
-          const additionalState = Object.entries(additionalParameters)
-            .map(
-              ([key, value]) =>
-                `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-            )
-            .join("&");
-          if (additionalState) {
-            state += `&${additionalState}`;
-          }
-        }
-        facebookAuthUrl.searchParams.set("state", state);
+      // Generate PKCE challenge pair and store verifier
+      const { verifier, codeChallenge } = await generateChallengePair();
+      storePKCEVerifier(provider, verifier);
 
-        if (openInPage) {
-          // Redirect current page to Facebook Auth
-          window.location.href = facebookAuthUrl.toString();
-          return new Promise((_, reject) => {
-            // Set a timeout just in case the redirect doesn't happen
-            const timeout = setTimeout(() => {
-              reject(new Error("Authentication timed out."));
-            }, 300000); // 5 minutes
+      // Build OAuth URL
+      const authUrl = buildOAuthUrl({
+        provider,
+        clientId,
+        redirectUri,
+        publicKey,
+        nonce,
+        flow,
+        codeChallenge,
+        additionalState: additionalParameters,
+      });
 
-            // If the page is unloaded (user navigates away), clear the timeout
-            window.addEventListener("beforeunload", () =>
-              clearTimeout(timeout),
-            );
-          });
-        } else {
-          // Open popup window
-          const width = popupWidth;
-          const height = popupHeight;
-          const left = window.screenX + (window.innerWidth - width) / 2;
-          const top = window.screenY + (window.innerHeight - height) / 2;
+      if (openInPage) {
+        // Remainder of logic will occur in completeRedirectOauth
+        return redirectToOAuthProvider(authUrl);
+      }
 
-          const authWindow = window.open(
-            "about:blank",
-            "_blank",
-            `width=${width},height=${height},top=${top},left=${left},scrollbars=yes,resizable=yes`,
-          );
+      // Popup flow
+      const authWindow = openOAuthPopup();
+      if (!authWindow) {
+        throw new Error(
+          `Failed to open ${capitalizeProviderName(provider)} login window.`,
+        );
+      }
+      authWindow.location.href = authUrl;
 
-          if (!authWindow) {
-            throw new Error("Failed to open Facebook login window.");
-          }
-
-          authWindow.location.href = facebookAuthUrl.toString();
-
-          // Return a promise that resolves when the OAuth flow completes
-          return new Promise<void>((resolve, reject) => {
-            const interval = setInterval(() => {
-              try {
-                // Check if window was closed without completing auth
-                if (authWindow.closed) {
-                  clearInterval(interval);
-                  reject(new Error("Authentication window was closed."));
-                  return;
-                }
-
-                const url = authWindow.location.href || "";
-                if (url.startsWith(window.location.origin)) {
-                  const urlParams = new URLSearchParams(new URL(url).search);
-                  const authCode = urlParams.get("code");
-                  const stateParam = urlParams.get("state");
-                  if (
-                    authCode &&
-                    stateParam &&
-                    stateParam.includes("provider=facebook")
-                  ) {
-                    const sessionKey = stateParam
-                      ?.split("&")
-                      .find((param) => param.startsWith("sessionKey="))
-                      ?.split("=")[1];
-                    authWindow.close();
-                    clearInterval(interval);
-
-                    // Exchange code for token
-                    const verifier =
-                      sessionStorage.getItem("facebook_verifier");
-                    if (!verifier) {
-                      reject(new Error("Missing PKCE verifier"));
-                      return;
-                    }
-
-                    exchangeCodeForToken(
-                      clientId,
-                      redirectURI,
-                      authCode,
-                      verifier,
-                    )
-                      .then((tokenData) => {
-                        sessionStorage.removeItem("facebook_verifier");
-
-                        if (params?.onOauthSuccess) {
-                          params.onOauthSuccess({
-                            publicKey,
-                            oidcToken: tokenData.id_token,
-                            providerName: "facebook",
-                            ...(sessionKey && { sessionKey }),
-                          });
-                        } else if (callbacks?.onOauthRedirect) {
-                          callbacks.onOauthRedirect({
-                            idToken: tokenData.id_token,
-                            publicKey,
-                            ...(sessionKey && { sessionKey }),
-                          });
-                        } else {
-                          completeOauth({
-                            oidcToken: tokenData.id_token,
-                            publicKey,
-                            providerName: "facebook",
-                            ...(sessionKey && { sessionKey }),
-                          })
-                            .then(() => resolve())
-                            .catch(reject);
-                          return;
-                        }
-                        resolve();
-                      })
-                      .catch(reject);
-                  }
-                }
-              } catch (error) {
-                // Ignore cross-origin errors
-              }
-            }, 500);
-
+      return new Promise<void>((resolve, reject) => {
+        const interval = setInterval(() => {
+          try {
             if (authWindow.closed) {
               clearInterval(interval);
+              reject(new Error("Authentication window was closed."));
+              return;
             }
-          });
+
+            const url = authWindow.location.href || "";
+            if (url.startsWith(window.location.origin)) {
+              const result = parseOAuthPopupResponse(url, provider);
+              if (result) {
+                authWindow.close();
+                clearInterval(interval);
+
+                completeOAuthPopup({
+                  provider,
+                  publicKey,
+                  result,
+                  callbacks,
+                  completeOauth,
+                  onOauthSuccess: params?.onOauthSuccess,
+                  exchangeCodeForToken: async (codeVerifier) => {
+                    const tokenData = await exchangeFacebookCodeForToken(
+                      clientId,
+                      redirectUri,
+                      result.authCode!,
+                      codeVerifier,
+                    );
+                    return tokenData.id_token;
+                  },
+                })
+                  .then(() => resolve())
+                  .catch(reject);
+              }
+            }
+          } catch {
+            // Ignore cross-origin errors
+          }
+        }, 500);
+
+        if (authWindow.closed) {
+          clearInterval(interval);
         }
-      } catch (error) {
-        throw error;
-      }
+      });
     },
     [callbacks, completeOauth, createApiKeyPair, masterConfig],
   );
@@ -5592,7 +5044,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           }
 
           const additionalState = openInPage
-            ? { oauthIntent: OAUTH_INTENT_ADD_PROVIDER }
+            ? {
+                oauthIntent: OAUTH_INTENT_ADD_PROVIDER,
+                ...(successPageDuration > 0 && { openModal: "true" }),
+              }
             : undefined;
 
           switch (providerName) {

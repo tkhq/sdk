@@ -545,6 +545,8 @@ export interface ClientContextType
    * - Uses the handleGoogleOauth, handleAppleOauth, and handleFacebookOauth functions to initiate the provider-specific OAuth authentication process.
    * - After successful authentication, the provider is linked to the user's account and a success page is shown.
    * - Automatically refreshes the user details state after linking to ensure the latest provider list is available in the provider.
+   * - If `openInPage` is true, the current page is redirected to the OAuth URL and the function returns a promise that resolves on redirect or rejects after 5 minutes if no redirect occurs.
+   * - If `openInPage` is false, a popup window is opened for the OAuth flow, and the function returns a promise that resolves when the OAuth code is captured or rejects if the popup is closed or times out.
    * - Optionally allows specifying the stamper to use for the addition (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet) for granular authentication control.
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes.
    *
@@ -553,6 +555,7 @@ export interface ClientContextType
    * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @param params.successPageDuration - duration (in ms) for the success page after addition (default: 0, no success page).
    * @param params.userId - user ID to target (defaults to the session's user ID).
+   * @param params.openInPage - whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    *
    * @returns A void promise.
    * @throws {TurnkeyError} If the client is not initialized, no active session is found, or if there is an error adding the provider.
