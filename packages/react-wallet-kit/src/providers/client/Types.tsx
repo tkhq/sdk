@@ -80,6 +80,8 @@ export interface ClientContextType
   wallets: Wallet[];
   /** @internal */
   walletProviders: WalletProvider[];
+  /** @internal */
+  walletConnectApps: WalletProvider[];
 
   /**
    * Connects the specified wallet account.
@@ -787,6 +789,18 @@ export interface ClientContextType
    * @throws {TurnkeyError} If submission fails, polling fails, or the user cancels the flow.
    */
   handleSendTransaction: (params: HandleSendTransactionParams) => Promise<void>;
+
+  /**
+   * Fetches WalletConnect apps from the WalletConnect 'v3/wallets' api and builds Turnkey WalletProvider objects.
+   *
+   * - This function retrieves WalletConnect providers and updates the 'walletConnectApps' state with the fetched providers.
+   * - It throws an error if the client is not initialized or if the WalletConnect project ID is not configured.
+   * - These providers will be built with an empty 'WalletRpcProvider' object. You will need to use the WalletConnect provider from the 'walletProviders' state to use WalletConnect functionality.
+   *
+   * @returns A promise that resolves to an array of WalletProvider objects representing the WalletConnect apps.
+   * @throws {TurnkeyError} If the client is not initialized or if the WalletConnect project ID is not configured.
+   */
+  fetchAndBuildWalletConnectApps: () => Promise<WalletProvider[]>;
 }
 
 /** @internal */

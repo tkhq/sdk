@@ -1,8 +1,3 @@
-import {
-  ExternalWalletSelector,
-  DisconnectWalletScreen,
-  WalletConnectScreen,
-} from "../auth/Wallet";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ActionPage } from "../auth/Action";
@@ -13,7 +8,8 @@ import {
   type WalletAccount,
   type WalletProvider,
 } from "@turnkey/core";
-import { isWalletConnect } from "../../utils/utils";
+import { DisconnectWalletScreen } from "../auth/wallet/DisconnectWalletScreen";
+import { ExternalWalletSelector } from "../auth/wallet/ExternalWalletSelector";
 
 interface ConnectWalletModalProps {
   successPageDuration?: number | undefined;
@@ -26,25 +22,6 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
     useTurnkey();
 
   const handleConnectWallet = async (provider: WalletProvider) => {
-    if (isWalletConnect(provider)) {
-      // for WalletConnect we route to a dedicated screen
-      // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
-      pushPage({
-        key: "Connect WalletConnect",
-        content: (
-          <WalletConnectScreen
-            provider={provider}
-            onAction={async (provider: WalletProvider) => {
-              const account = await connectWalletAccount(provider);
-              onSuccess("connect", account);
-            }}
-            successPageDuration={successPageDuration}
-          />
-        ),
-      });
-      return;
-    }
-
     pushPage({
       key: `Connect ${provider.info.name}`,
       content: (
@@ -133,6 +110,12 @@ export function ConnectWalletModal(props: ConnectWalletModalProps) {
     <ExternalWalletSelector
       onSelect={handleConnectWallet}
       onDisconnect={handleDisconnectWallet}
+      onWCConnect={async (wcProvider) => {
+        await connectWalletAccount(wcProvider);
+      }}
+      onWCDisconnect={async (provider) => {
+        await disconnectWalletAccount(provider);
+      }}
     />
   );
 }

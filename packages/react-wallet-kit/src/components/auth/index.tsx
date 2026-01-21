@@ -17,16 +17,12 @@ import { PhoneNumberInput } from "./Phone";
 import { ActionPage } from "./Action";
 import { PasskeyButtons } from "./Passkey";
 import { Spinner } from "../design/Spinners";
-import {
-  ExternalWalletSelector,
-  WalletAuthButton,
-  WalletConnectScreen,
-} from "./Wallet";
 import { DeveloperError } from "../design/Failure";
 import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ClientState } from "../../types/base";
-import { isWalletConnect } from "../../utils/utils";
+import { WalletAuthButton } from "./wallet/WalletAuthButton";
+import { ExternalWalletSelector } from "./wallet/ExternalWalletSelector";
 
 type AuthComponentProps = {
   sessionKey?: string | undefined;
@@ -53,6 +49,7 @@ export function AuthComponent({
     loginWithPasskey,
     signUpWithPasskey,
     loginOrSignupWithWallet,
+    connectWalletAccount,
     disconnectWalletAccount,
   } = useTurnkey();
   const { pushPage, isMobile, openSheet } = useModal();
@@ -290,41 +287,29 @@ export function AuthComponent({
     });
   };
 
-  const handleSelect = async (provider: WalletProvider) => {
-    // this is a wallet connect provider, so we need to show the WalletConnect screen
-    if (isWalletConnect(provider)) {
-      // for WalletConnect we route to a dedicated screen
-      // to handle the connection process, as it requires a different flow (pairing via QR code or deep link)
-      pushPage({
-        key: "Connect WalletConnect",
-        content: (
-          <WalletConnectScreen
-            provider={provider}
-            onAction={async (provider) => {
-              await loginOrSignupWithWallet({
-                walletProvider: provider,
-                ...(sessionKey && { sessionKey: sessionKey }),
-              });
-            }}
-            onDisconnect={async (provider) => {
-              await disconnectWalletAccount(provider);
-            }}
-            successPageDuration={undefined}
-          />
-        ),
-      });
-      return;
-    }
-
-    // this is a regular wallet provider, so we can just select it
-    await handleWalletLoginOrSignup(provider);
-  };
-
   const handleShowWalletSelector = async () => {
     try {
       pushPage({
         key: "Select wallet provider",
-        content: <ExternalWalletSelector onSelect={handleSelect} />,
+        content: (
+          <ExternalWalletSelector
+            onSelect={handleWalletLoginOrSignup}
+            onWCConnect={async (wcProvider) => {
+              // Specifically, this will target the WalletConnect provider
+              await connectWalletAccount(wcProvider);
+            }}
+            onWCSign={async (wcProvider) => {
+              // This will also target the WalletConnect provider
+              await loginOrSignupWithWallet({
+                walletProvider: wcProvider,
+                ...(sessionKey && { sessionKey: sessionKey }),
+              });
+            }}
+            onWCDisconnect={async (provider) => {
+              await disconnectWalletAccount(provider);
+            }}
+          />
+        ),
       });
     } catch (error) {
       throw new Error(`Error fetching wallet providers: ${error}`);

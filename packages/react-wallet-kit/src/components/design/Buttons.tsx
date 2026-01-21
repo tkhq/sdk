@@ -71,6 +71,7 @@ interface ActionButtonProps {
   loading?: boolean;
   loadingText?: string;
   className?: string;
+  style?: React.CSSProperties;
   spinnerClassName?: string;
   name?: string;
 }
@@ -85,6 +86,7 @@ export function ActionButton(props: ActionButtonProps) {
     loading,
     loadingText,
     className,
+    style,
     spinnerClassName,
     name,
   } = props;
@@ -100,6 +102,7 @@ export function ActionButton(props: ActionButtonProps) {
         (disabled || loading) && "opacity-50 cursor-not-allowed",
         className,
       )}
+      style={style}
     >
       {loading ? (
         <div className="flex justify-center space-x-2 items-center text-sm">
