@@ -2290,6 +2290,28 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
 
+  examples/with-paymaster:
+    dependencies:
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      ethers:
+        specifier: ^6.10.0
+        version: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/with-porto:
     dependencies:
       '@turnkey/sdk-server':
