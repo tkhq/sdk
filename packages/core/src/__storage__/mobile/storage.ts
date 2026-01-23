@@ -30,7 +30,7 @@ export class MobileStorageManager implements StorageBase {
   };
 
   setActiveSessionKey = async (sessionKey: string): Promise<void> => {
-    await AsyncStorage.setItem(
+    await this.setStorageValue(
       MobileStorageManager.ACTIVE_SESSION_KEY,
       sessionKey,
     );
