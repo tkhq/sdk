@@ -22,6 +22,7 @@ import type {
   WalletProvider,
   Wallet,
   TSignedRequest,
+  TPasskeyStamperConfig,
 } from "../index";
 
 export type CreateHttpClientParams = {
@@ -30,6 +31,14 @@ export type CreateHttpClientParams = {
   authProxyUrl?: string | undefined;
   authProxyConfigId?: string | undefined;
   defaultStamperType?: StamperType | undefined;
+};
+
+export type OverrideApiKeyStamperParams = {
+  temporaryPublicKey?: string | undefined;
+};
+
+export type OverridePasskeyStamperParams = {
+  config: TPasskeyStamperConfig;
 };
 
 export type CreatePasskeyParams = {
@@ -53,6 +62,7 @@ export type LoginWithPasskeyParams = {
   sessionKey?: string;
   expirationSeconds?: string;
   organizationId?: string;
+  allowCredentials?: PublicKeyCredentialDescriptor[];
 };
 
 export type SignUpWithPasskeyParams = {
@@ -400,7 +410,13 @@ export type SetActiveSessionParams = { sessionKey: string };
 
 export type CreateApiKeyPairParams = {
   externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string };
+
+  // TODO: (breaking change): remove this, we should only use `overrideApiKeyStamper()`
   storeOverride?: boolean;
+};
+
+export type DeleteApiKeyPairParams = {
+  publicKey: string;
 };
 
 export type FetchBootProofForAppProofParams = {

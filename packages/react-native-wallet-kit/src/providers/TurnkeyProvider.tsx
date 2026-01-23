@@ -27,6 +27,7 @@ import {
   type CompleteOauthParams,
   type CompleteOtpParams,
   type CreateApiKeyPairParams,
+  type DeleteApiKeyPairParams,
   type CreatePasskeyParams,
   type CreatePasskeyResult,
   type CreateWalletAccountsParams,
@@ -72,6 +73,8 @@ import {
   type VerifyAppProofsParams,
   type SignAndSendTransactionParams,
   type PollTransactionStatusParams,
+  type OverrideApiKeyStamperParams,
+  type OverridePasskeyStamperParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
@@ -725,6 +728,32 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         );
       }
       return client.createHttpClient(params);
+    },
+    [client],
+  );
+
+  const overrideApiKeyStamper = useCallback(
+    (params: OverrideApiKeyStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overrideApiKeyStamper(params);
+    },
+    [client],
+  );
+
+  const overridePasskeyStamper = useCallback(
+    (params: OverridePasskeyStamperParams): Promise<void> => {
+      if (!client) {
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      }
+      return client.overridePasskeyStamper(params);
     },
     [client],
   );
@@ -2298,6 +2327,23 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks, session, user, masterConfig],
   );
 
+  const deleteApiKeyPair = useCallback(
+    async (params: DeleteApiKeyPairParams): Promise<void> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.deleteApiKeyPair(params),
+        () => logout(),
+        callbacks,
+        "Failed to delete API key pair",
+      );
+    },
+    [client, callbacks, session, user, masterConfig],
+  );
+
   const getProxyAuthConfig =
     useCallback(async (): Promise<ProxyTGetWalletKitConfigResponse> => {
       if (!client)
@@ -3325,6 +3371,8 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         config: masterConfig,
         httpClient: client?.httpClient,
         createHttpClient,
+        overrideApiKeyStamper,
+        overridePasskeyStamper,
         createPasskey,
         logout,
         loginWithPasskey,
@@ -3378,6 +3426,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clearUnusedKeyPairs,
         getActiveSessionKey,
         createApiKeyPair,
+        deleteApiKeyPair,
         getProxyAuthConfig,
         handleGoogleOauth,
         handleXOauth,
