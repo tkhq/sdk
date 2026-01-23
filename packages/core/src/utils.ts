@@ -1446,7 +1446,7 @@ export function getClientSignatureMessageForSignup({
 export const withTimeoutFallback = <T>(
   promise: Promise<T>,
   fallback: T,
-  timeoutMs?: number
+  timeoutMs?: number,
 ): Promise<T> => {
   const timeout = timeoutMs ?? 1000;
   return Promise.race([
