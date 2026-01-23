@@ -1433,3 +1433,24 @@ export function getClientSignatureMessageForSignup({
     );
   }
 }
+
+/**
+ * Wraps a promise with a timeout. If the promise doesn't resolve within
+ * the specified duration, it resolves to the fallback value instead of throwing.
+ *
+ * @param promise - The promise to wrap.
+ * @param fallback - Value to return if the timeout is reached.
+ * @param timeoutMs - Timeout duration in milliseconds. Defaults to 1000ms.
+ * @returns The result of the promise, or the fallback if timed out.
+ */
+export const withTimeoutFallback = <T>(
+  promise: Promise<T>,
+  fallback: T,
+  timeoutMs?: number,
+): Promise<T> => {
+  const timeout = timeoutMs ?? 1000;
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), timeout)),
+  ]);
+};
