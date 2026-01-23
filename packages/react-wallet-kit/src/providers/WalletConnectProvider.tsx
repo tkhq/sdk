@@ -8,13 +8,15 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import type { WalletProvider } from "@turnkey/core";
-import { buildWalletConnectProviders } from "../utils/utils";
+import {
+  buildWalletConnectAppEntries,
+  type WalletConnectAppEntry,
+} from "@turnkey/core";
 import { useTurnkey } from "./client/Hook";
 
 interface WalletConnectState {
   /** List of WalletConnect-compatible wallet apps (for mobile deep linking) */
-  walletConnectApps: WalletProvider[];
+  walletConnectApps: WalletConnectAppEntry[];
   /** Whether we're currently fetching wallet apps */
   isLoadingApps: boolean;
 }
@@ -49,11 +51,11 @@ export function WalletConnectProvider({
 
   const [state, setState] = useState<WalletConnectState>(initialState);
 
-  const fetchWalletConnectApps = useCallback(async (pid: string) => {
+  const fetchApps = useCallback(async (pid: string) => {
     setState((s) => ({ ...s, isLoadingApps: true }));
     try {
-      const apps = await buildWalletConnectProviders({ projectId: pid });
-      setState({ walletConnectApps: apps, isLoadingApps: false });
+      const entries = await buildWalletConnectAppEntries(pid);
+      setState({ walletConnectApps: entries, isLoadingApps: false });
     } catch {
       setState((s) => ({ ...s, isLoadingApps: false }));
     }
@@ -62,9 +64,9 @@ export function WalletConnectProvider({
   // Auto-fetch wallet apps on mount if projectId is available
   useEffect(() => {
     if (projectId) {
-      fetchWalletConnectApps(projectId);
+      fetchApps(projectId);
     }
-  }, [projectId, fetchWalletConnectApps]);
+  }, [projectId, fetchApps]);
 
   return (
     <WalletConnectContext.Provider value={state}>

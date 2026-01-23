@@ -195,6 +195,24 @@ export interface WalletConnectApp {
 }
 
 /**
+ * A WalletConnect app entry for display in the wallet selection UI.
+ * This is a simplified representation of a WalletConnect app, containing only
+ * the information needed for display and deep linking.
+ */
+export interface WalletConnectAppEntry {
+  /** Unique identifier for the app (from WalletConnect registry) */
+  id: string;
+  /** Display name of the wallet app */
+  name: string;
+  /** Icon URL for the wallet app */
+  icon: string;
+  /** Deep link URI for opening the wallet app on mobile */
+  uri: string;
+  /** Which chain this entry represents (an app may have multiple entries for different chains) */
+  chain: Chain;
+}
+
+/**
  * Union of supported wallet behavior interfaces.
  * @internal
  */

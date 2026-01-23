@@ -38,6 +38,7 @@ export {
   buildSecondaryOidcClaims,
   buildSecondaryOauthProviders,
   fetchWalletConnectApps,
+  buildWalletConnectAppEntries,
   addressFormatConfig,
   AUTHENTICATOR_TRANSPORT_MAP,
   buildAllowCredentialsFromAuthenticators,

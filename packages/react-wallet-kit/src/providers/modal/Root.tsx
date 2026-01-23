@@ -248,7 +248,9 @@ export function ModalRoot(props: ModalRootProps) {
                         ]}
                       />
                     ) : root?.contextProvider ? (
-                      <root.contextProvider>{current?.content}</root.contextProvider>
+                      <root.contextProvider>
+                        {current?.content}
+                      </root.contextProvider>
                     ) : (
                       current?.content
                     )}

@@ -2,7 +2,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQrcode } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import clsx from "clsx";
-import { Chain, type WalletProvider } from "@turnkey/core";
+import {
+  Chain,
+  type WalletConnectAppEntry,
+  type WalletProvider,
+} from "@turnkey/core";
 import { useModal } from "../../../providers/modal/Hook";
 import { useTurnkey } from "../../../providers/client/Hook";
 import { useWalletConnect } from "../../../providers/WalletConnectProvider";
@@ -11,12 +15,12 @@ import {
   useDebouncedCallback,
 } from "../../../utils/utils";
 import { WalletButton, WALLET_BUTTON_HEIGHT } from "./WalletButton";
-import { ExternalWalletChainSelector } from "./ExternalWalletChainSelector";
+import { WalletConnectAppChainSelector } from "./WalletConnectAppChainSelector";
 import { SearchInputBox } from "../../design/Inputs";
 import { Spinner } from "../../design/Spinners";
 
 interface ShowAllWalletsScreenProps {
-  onSelect: (targetApp: WalletProvider) => Promise<void>;
+  onSelect: (provider: WalletProvider) => Promise<void>;
   onSelectQRCode: () => Promise<void>;
 }
 
@@ -26,20 +30,23 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
   const { onSelect, onSelectQRCode } = props;
   const { walletProviders, disconnectWalletAccount } = useTurnkey();
   const { walletConnectApps, isLoadingApps } = useWalletConnect();
-  const { isMobile, pushPage } = useModal();
+  const { isMobile, pushPage, popPage } = useModal();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 20 });
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Group wallets by uuid
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Data processing
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  // Group wallet apps by id (same wallet across different chains)
   const grouped = useMemo(
     () =>
-      walletConnectApps.reduce<Record<string, WalletProvider[]>>(
-        (acc, provider) => {
-          const uuid = provider.info.uuid!;
-          if (!acc[uuid]) acc[uuid] = [];
-          acc[uuid]!.push(provider);
+      walletConnectApps.reduce<Record<string, WalletConnectAppEntry[]>>(
+        (acc, app) => {
+          if (!acc[app.id]) acc[app.id] = [];
+          acc[app.id]!.push(app);
           return acc;
         },
         {},
@@ -47,62 +54,84 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
     [walletConnectApps],
   );
 
-  // Convert to array and filter by search query
+  // Filter by search query
   const walletEntries = useMemo(() => {
     const entries = Object.entries(grouped);
     if (!searchQuery.trim()) return entries;
 
     const query = searchQuery.toLowerCase();
     return entries.filter(([_, group]) => {
-      // Search by wallet name
-      const walletName = group[0]?.info.name?.toLowerCase() ?? "";
+      const walletName = group[0]?.name?.toLowerCase() ?? "";
       return walletName.includes(query);
     });
   }, [grouped, searchQuery]);
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Selection handlers
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Merges WalletConnectAppEntry (display info) with the actual WalletProvider
+   * and triggers selection. Disconnects any existing session first.
+   */
+  const selectApp = useCallback(
+    async (targetApp: WalletConnectAppEntry) => {
+      const provider = findWalletConnectProvider(
+        walletProviders,
+        targetApp.chain,
+      );
+
+      if (!provider) {
+        // WalletConnect provider not ready - go back
+        popPage();
+        return;
+      }
+
+      // Disconnect existing session to avoid confusion
+      if (provider.connectedAddresses.length > 0) {
+        await disconnectWalletAccount(provider);
+      }
+
+      // Merge app display info with the actual provider
+      const mergedProvider: WalletProvider = {
+        ...provider,
+        uri: targetApp.uri,
+        info: {
+          ...provider.info,
+          name: targetApp.name,
+          icon: targetApp.icon,
+        },
+      };
+
+      await onSelect(mergedProvider);
+    },
+    [walletProviders, disconnectWalletAccount, onSelect, popPage],
+  );
+
   const handleSelectGroup = useCallback(
-    (group: WalletProvider[]) => {
+    (group: WalletConnectAppEntry[]) => {
       if (group.length === 1) {
-        disconnectAndSelect(group[0]!);
+        selectApp(group[0]!);
       } else {
         pushPage({
           key: `Select chain`,
           content: (
-            <ExternalWalletChainSelector
-              providers={group}
-              onSelect={disconnectAndSelect}
-            />
+            <WalletConnectAppChainSelector apps={group} onSelect={selectApp} />
           ),
         });
       }
     },
-    [walletProviders, onSelect, pushPage],
+    [selectApp, pushPage],
   );
 
-  // To make our lives easier and avoid confusing the end user, we always disconnect
-  // the existing WalletConnect session before starting a new one.
-  // Note that this doesn't happen for desktop wallet connecting (QR code or native browser extension)
-  const disconnectAndSelect = async (targetApp: WalletProvider) => {
-    const walletConnectProvider = findWalletConnectProvider(
-      walletProviders,
-      targetApp.chainInfo.namespace,
-    );
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Virtual scrolling
+  // ─────────────────────────────────────────────────────────────────────────────
 
-    if (
-      walletConnectProvider &&
-      walletConnectProvider.connectedAddresses.length > 0
-    ) {
-      await disconnectWalletAccount(walletConnectProvider);
-    }
-    await onSelect(targetApp);
-  };
-
-  // Handle scroll to update visible range
   const handleScroll = useDebouncedCallback(() => {
     if (!scrollContainerRef.current) return;
 
-    const scrollTop = scrollContainerRef.current.scrollTop;
-    const containerHeight = scrollContainerRef.current.clientHeight;
+    const { scrollTop, clientHeight } = scrollContainerRef.current;
 
     const start = Math.max(
       0,
@@ -110,14 +139,14 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
     );
     const end = Math.min(
       walletEntries.length,
-      Math.ceil((scrollTop + containerHeight) / WALLET_BUTTON_HEIGHT) +
+      Math.ceil((scrollTop + clientHeight) / WALLET_BUTTON_HEIGHT) +
         BUFFER_SIZE,
     );
 
     setVisibleRange({ start, end });
   }, 50);
 
-  // Update visible range when search results change
+  // Reset scroll when search results change
   useEffect(() => {
     setVisibleRange({ start: 0, end: Math.min(20, walletEntries.length) });
     if (scrollContainerRef.current) {
@@ -125,7 +154,6 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
     }
   }, [walletEntries.length]);
 
-  // Debounced search handler
   const debouncedSetSearch = useDebouncedCallback(
     (value: string) => setSearchQuery(value),
     300,
@@ -139,7 +167,10 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
   const totalHeight = walletEntries.length * WALLET_BUTTON_HEIGHT;
   const offsetY = visibleRange.start * WALLET_BUTTON_HEIGHT;
 
-  // Show loading state while fetching wallet apps
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Render
+  // ─────────────────────────────────────────────────────────────────────────────
+
   if (isLoadingApps) {
     return (
       <div className="flex flex-col items-center py-5">
@@ -200,24 +231,26 @@ export function ShowAllWalletsScreen(props: ShowAllWalletsScreenProps) {
             )}
 
             {/* Wallet Buttons */}
-            {visibleItems.map(([name, group]: [string, WalletProvider[]]) => {
-              const first = group[0];
+            {visibleItems.map(
+              ([id, group]: [string, WalletConnectAppEntry[]]) => {
+                const first = group[0];
 
-              return (
-                <WalletButton
-                  key={name}
-                  icon={first?.info.icon ?? ""}
-                  name={first?.info.name ?? ""}
-                  chains={group.map((c) => ({
-                    namespace: c.chainInfo.namespace,
-                    isConnected: false,
-                  }))}
-                  onClick={() => handleSelectGroup(group)}
-                  shouldShowDisconnect={false}
-                  isMobile={isMobile}
-                />
-              );
-            })}
+                return (
+                  <WalletButton
+                    key={id}
+                    icon={first?.icon ?? ""}
+                    name={first?.name ?? ""}
+                    chains={group.map((app) => ({
+                      namespace: app.chain,
+                      isConnected: false,
+                    }))}
+                    onClick={() => handleSelectGroup(group)}
+                    shouldShowDisconnect={false}
+                    isMobile={isMobile}
+                  />
+                );
+              },
+            )}
           </div>
         </div>
 

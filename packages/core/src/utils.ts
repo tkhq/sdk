@@ -32,6 +32,7 @@ import {
   type WalletProvider,
   type TPasskeyStamperConfig,
   type WalletConnectApp,
+  type WalletConnectAppEntry,
   Chain,
   EvmChainInfo,
   SolanaChainInfo,
@@ -1603,4 +1604,45 @@ export async function fetchWalletConnectApps(
   const listings = json.listings ?? {};
 
   return Object.values(listings) as WalletConnectApp[];
+}
+
+/**
+ * Fetches WalletConnect apps and transforms them into simplified app entries
+ * for display in the wallet selection UI.
+ *
+ * @param projectId - WalletConnect project ID
+ * @returns Array of WalletConnectAppEntry objects, one per app per supported chain
+ */
+export async function buildWalletConnectAppEntries(
+  projectId: string,
+): Promise<WalletConnectAppEntry[]> {
+  const rawApps = await fetchWalletConnectApps(projectId);
+  const entries: WalletConnectAppEntry[] = [];
+
+  for (const app of rawApps) {
+    const supportedChains: Chain[] = [];
+
+    // Check if the app supports Ethereum
+    if (app.chains.some((chain) => chain.startsWith("eip155:"))) {
+      supportedChains.push(Chain.Ethereum);
+    }
+
+    // Check if the app supports Solana
+    if (app.chains.some((chain) => chain.startsWith("solana:"))) {
+      supportedChains.push(Chain.Solana);
+    }
+
+    // Create an entry for each supported chain
+    for (const chain of supportedChains) {
+      entries.push({
+        id: app.id,
+        name: app.name,
+        icon: app.image_url?.md ?? "",
+        uri: app.mobile?.native ?? app.mobile?.universal ?? "",
+        chain,
+      });
+    }
+  }
+
+  return entries;
 }
