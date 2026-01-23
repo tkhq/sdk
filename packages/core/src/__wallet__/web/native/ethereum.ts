@@ -24,6 +24,7 @@ import {
   uint8ArrayFromHexString,
   uint8ArrayToHexString,
 } from "@turnkey/encoding";
+import { withTimeoutFallback } from "../../../utils";
 
 /**
  * Abstract base class for Ethereum wallet implementations.
@@ -111,9 +112,13 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
         let chainId = "0x1";
 
         try {
-          const accounts = await (provider as any).request?.({
-            method: "eth_accounts",
-          });
+          // wrap provider calls in a timeout to prevent hanging providers from blocking discovery
+          const accounts = await withTimeoutFallback<string[]>(
+            (provider as any).request?.({
+              method: "eth_accounts",
+            }) ?? Promise.resolve([]),
+            [],
+          );
           if (Array.isArray(accounts)) connectedAddresses = accounts;
 
           // we only request the chainId if there is a connected account because:
@@ -123,9 +128,12 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
           // 2. some non-Ethereum-native wallets (e.g., Cosmos-based wallets) veer off EIP-1193 standards and prompt
           //    the user on chain-related RPC calls like `eth_chainId` because they enforce chain-level permissions
           if (connectedAddresses.length > 0) {
-            chainId = await (provider as any).request({
-              method: "eth_chainId",
-            });
+            chainId = await withTimeoutFallback(
+              (provider as any).request({
+                method: "eth_chainId",
+              }),
+              "0x1",
+            );
           }
         } catch {
           // fail silently

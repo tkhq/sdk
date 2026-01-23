@@ -14,6 +14,7 @@ import {
   WalletProvider,
   WalletRpcProvider,
 } from "../../../__types__";
+import { withTimeoutFallback } from "../../../utils";
 
 /**
  * Abstract base class for Solana wallet implementations using Wallet Standard.
@@ -71,13 +72,17 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
 
     await Promise.all(
       providers.map(async (wallet) => {
-        let connectedAddresses: string[] = [];
-        try {
-          connectedAddresses =
-            wallet.accounts?.map((a: any) => a.address) ?? [];
-        } catch {
-          connectedAddresses = [];
-        }
+        // wrap account access in a timeout to prevent hanging providers from blocking discovery
+        const connectedAddresses = await withTimeoutFallback<string[]>(
+          (async () => {
+            try {
+              return wallet.accounts?.map((a: any) => a.address) ?? [];
+            } catch {
+              return [];
+            }
+          })(),
+          [],
+        );
 
         discovered.push({
           interfaceType: WalletInterfaceType.Solana,
