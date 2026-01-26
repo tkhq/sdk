@@ -82,6 +82,74 @@ export class TurnkeySDKClientBase {
     }
   }
 
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Poll for activity completion until terminal status or max retries.
+   * @internal
+   */
+  private async pollForCompletion(
+    activityId: string,
+    stampWith?: StamperType,
+  ): Promise<TActivityResponse> {
+    const pollingDuration = this.config.activityPoller?.intervalMs ?? 1000;
+    const maxRetries = this.config.activityPoller?.numRetries ?? 3;
+
+    let attempts = 0;
+    let activityData: TActivityResponse;
+
+    do {
+      await this.sleep(pollingDuration);
+      activityData = (await this.getActivity(
+        { activityId },
+        stampWith,
+      )) as TActivityResponse;
+      attempts++;
+    } while (
+      !TERMINAL_ACTIVITY_STATUSES.includes(
+        activityData.activity.status as TActivityStatus,
+      ) &&
+      attempts < maxRetries
+    );
+
+    return activityData;
+  }
+
+  /**
+   * Extract and flatten result fields from a completed activity response.
+   * @internal
+   */
+  private handleActivityResponse<TResponseType>(
+    activityData: TActivityResponse,
+    resultKey?: string,
+  ): TResponseType {
+    const { result, status } = activityData.activity;
+
+    if (status === "ACTIVITY_STATUS_COMPLETED" && result) {
+      // If a specific resultKey was provided, use it
+      if (resultKey && result[resultKey as keyof SdkTypes.v1Result]) {
+        return {
+          ...result[resultKey as keyof SdkTypes.v1Result],
+          ...activityData,
+        } as TResponseType;
+      }
+
+      // Otherwise, try to find any result field and flatten it
+      for (const key of Object.keys(result)) {
+        if (key.endsWith("Result") && result[key as keyof SdkTypes.v1Result]) {
+          return {
+            ...result[key as keyof SdkTypes.v1Result],
+            ...activityData,
+          } as TResponseType;
+        }
+      }
+    }
+
+    return activityData as TResponseType;
+  }
+
   async request<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
@@ -129,69 +197,27 @@ export class TurnkeySDKClientBase {
     resultKey: string,
     stampWith?: StamperType,
   ): Promise<TResponseType> {
-    const pollingDuration = this.config.activityPoller?.intervalMs ?? 1000;
-    const maxRetries = this.config.activityPoller?.numRetries ?? 3;
-
-    const sleep = (ms: number) =>
-      new Promise((resolve) => setTimeout(resolve, ms));
-
-    const handleResponse = (activityData: TActivityResponse): TResponseType => {
-      const { result, status } = activityData.activity;
-
-      if (status === "ACTIVITY_STATUS_COMPLETED") {
-        return {
-          ...result[`${resultKey}` as keyof SdkTypes.v1Result],
-          ...activityData,
-        } as TResponseType;
-      }
-
-      return activityData as TResponseType;
-    };
-
-    let attempts = 0;
-
-    const pollStatus = async (activityId: string): Promise<TResponseType> => {
-      const pollBody = { activityId };
-      // Pass the stampWith parameter to getActivity
-      const pollData = (await this.getActivity(
-        pollBody,
-        stampWith,
-      )) as TActivityResponse;
-
-      if (attempts > maxRetries) {
-        return handleResponse(pollData);
-      }
-
-      attempts += 1;
-
-      if (
-        !TERMINAL_ACTIVITY_STATUSES.includes(
-          pollData.activity.status as TActivityStatus,
-        )
-      ) {
-        await sleep(pollingDuration);
-        return pollStatus(activityId);
-      }
-
-      return handleResponse(pollData);
-    };
-
-    // Use the specified stamper for the initial request
-    const responseData = (await this.request<TBodyType, TResponseType>(
+    // Make the initial request
+    const responseData = await this.request<TBodyType, TActivityResponse>(
       url,
       body,
       stampWith,
-    )) as TActivityResponse;
+    );
 
+    // Poll if not in terminal status
+    let activityData = responseData;
     if (
       !TERMINAL_ACTIVITY_STATUSES.includes(
-        responseData.activity.status as TActivityStatus,
+        activityData.activity.status as TActivityStatus,
       )
     ) {
-      return pollStatus(responseData.activity.id);
+      activityData = await this.pollForCompletion(
+        activityData.activity.id,
+        stampWith,
+      );
     }
 
-    return handleResponse(responseData);
+    return this.handleActivityResponse<TResponseType>(activityData, resultKey);
   }
 
   async activityDecision<TBodyType, TResponseType>(
@@ -247,6 +273,72 @@ export class TurnkeySDKClientBase {
     }
 
     const data = await response.json();
+    return data as TResponseType;
+  }
+
+  /**
+   * Submit a pre-signed request to Turnkey.
+   *
+   * Use this method to execute any TSignedRequest returned by the SDK's
+   * stamping methods (stampCreateApiKeys, stampGetPolicies, stampGetWallets, etc.).
+   *
+   * Works for both query and activity requests:
+   * - For queries: returns the response directly
+   * - For activities: automatically polls until completion and extracts the result
+   *
+   * @param signedRequest - A TSignedRequest object returned by a stamping method
+   * @param options - Optional configuration for the request
+   * @param options.resultKey - For activity requests, the key to extract from the result (e.g., "createApiKeysResultV2")
+   * @returns The parsed response, with activity result fields flattened if applicable
+   */
+  async sendSignedRequest<TResponseType = any>(
+    signedRequest: TSignedRequest,
+    options?: { resultKey?: string },
+  ): Promise<TResponseType> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "X-Client-Version": VERSION,
+      [signedRequest.stamp.stampHeaderName]:
+        signedRequest.stamp.stampHeaderValue,
+    };
+
+    const response = await fetch(signedRequest.url, {
+      method: "POST",
+      headers,
+      body: signedRequest.body,
+    });
+
+    if (!response.ok) {
+      let res: GrpcStatus;
+      try {
+        res = await response.json();
+      } catch (_) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+      throw new TurnkeyRequestError(res);
+    }
+
+    const data = await response.json();
+
+    // Check if this is an activity response that needs polling
+    if (data.activity) {
+      let activityData = data as TActivityResponse;
+
+      // Poll if not in terminal status
+      if (
+        !TERMINAL_ACTIVITY_STATUSES.includes(
+          activityData.activity.status as TActivityStatus,
+        )
+      ) {
+        activityData = await this.pollForCompletion(activityData.activity.id);
+      }
+
+      return this.handleActivityResponse<TResponseType>(
+        activityData,
+        options?.resultKey,
+      );
+    }
+
     return data as TResponseType;
   }
 

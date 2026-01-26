@@ -133,7 +133,6 @@ import {
   mapAccountsToWallet,
   getActiveSessionOrThrowIfRequired,
   fetchAllWalletAccountsWithCursor,
-  sendSignedRequest,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
 } from "../utils";
@@ -893,39 +892,15 @@ export class TurnkeyClient {
           );
         }
 
-        let publicKey: string | undefined;
-        switch (walletProvider.chainInfo.namespace) {
-          case Chain.Ethereum: {
-            // for Ethereum, there is no way to get the public key from the wallet address
-            // so we derive it from the signed request
-            publicKey = getPublicKeyFromStampHeader(
-              signedRequest.stamp.stampHeaderValue,
-            );
-            break;
-          }
-
-          case Chain.Solana: {
-            // for Solana, we can get the public key from the wallet address
-            // since the wallet address is the public key
-            // this doesn't require any action from the user as long as the wallet is connected
-            // which it has to be since they just called stampStampLogin()
-            publicKey = await this.walletManager.stamper.getPublicKey(
-              walletProvider.interfaceType,
-              walletProvider,
-            );
-            break;
-          }
-
-          default:
-            throw new TurnkeyError(
-              `Unsupported interface type: ${walletProvider.interfaceType}`,
-              TurnkeyErrorCodes.INVALID_REQUEST,
-            );
-        }
+        // the wallet's public key is embedded in the stamp header by the wallet stamper
+        // so we extract it from there
+        const publicKey = getPublicKeyFromStampHeader(
+          signedRequest.stamp.stampHeaderValue,
+        );
 
         return {
           signedRequest,
-          publicKey: publicKey,
+          publicKey,
         };
       },
       {
@@ -970,80 +945,43 @@ export class TurnkeyClient {
   loginWithWallet = async (
     params: LoginWithWalletParams,
   ): Promise<WalletAuthResult> => {
-    let generatedPublicKey =
-      params.publicKey || (await this.apiKeyStamper?.createKeyPair());
+    const { walletProvider, sessionKey = SessionKey.DefaultSessionkey } =
+      params;
+
     return withTurnkeyErrorHandling(
       async () => {
-        if (!this.walletManager?.stamper) {
+        const { signedRequest, publicKey } =
+          await this.buildWalletLoginRequest(params);
+
+        const sessionResponse =
+          await this.httpClient.sendSignedRequest<TStampLoginResponse>(
+            signedRequest,
+          );
+
+        const sessionToken = sessionResponse.session;
+        if (!sessionToken) {
           throw new TurnkeyError(
-            "Wallet stamper is not initialized",
-            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
+            "Session token not found in the response",
+            TurnkeyErrorCodes.BAD_RESPONSE,
           );
         }
-        const sessionKey = params.sessionKey || SessionKey.DefaultSessionkey;
-        const walletProvider = params.walletProvider;
-
-        const expirationSeconds =
-          params?.expirationSeconds || DEFAULT_SESSION_EXPIRATION_IN_SECONDS;
-
-        if (!generatedPublicKey) {
-          throw new TurnkeyError(
-            "A publickey could not be found or generated.",
-            TurnkeyErrorCodes.INTERNAL_ERROR,
-          );
-        }
-
-        this.walletManager.stamper.setProvider(
-          walletProvider.interfaceType,
-          walletProvider,
-        );
-
-        const sessionResponse = await this.httpClient.stampLogin(
-          {
-            publicKey: generatedPublicKey,
-            organizationId:
-              params?.organizationId ?? this.config.organizationId,
-            expirationSeconds,
-          },
-          StamperType.Wallet,
-        );
 
         await this.storeSession({
           sessionToken: sessionResponse.session,
           sessionKey,
         });
 
-        // TODO (Moe): What happens if a user connects to MetaMask on Ethereum,
-        // then switches to a Solana account within MetaMask? Will this flow break?
-        const address = addressFromPublicKey(
-          walletProvider.chainInfo.namespace,
-          generatedPublicKey,
-        );
-
-        generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
         return {
           sessionToken: sessionResponse.session,
-          address,
+          address: addressFromPublicKey(
+            walletProvider.chainInfo.namespace,
+            publicKey,
+          ),
         };
       },
       {
         errorMessage: "Unable to log in with the provided wallet",
         errorCode: TurnkeyErrorCodes.WALLET_LOGIN_AUTH_ERROR,
-      },
-      {
-        finallyFn: async () => {
-          if (generatedPublicKey) {
-            try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
-            } catch (cleanupError) {
-              throw new TurnkeyError(
-                "Failed to clean up generated key pair",
-                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
-              );
-            }
-          }
-        },
       },
     );
   };
@@ -1074,37 +1012,12 @@ export class TurnkeyClient {
       walletProvider,
       createSubOrgParams,
       sessionKey = SessionKey.DefaultSessionkey,
-      expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
     } = params;
 
-    let generatedPublicKey: string | undefined = undefined;
     return withTurnkeyErrorHandling(
       async () => {
-        if (!this.walletManager?.stamper) {
-          throw new TurnkeyError(
-            "Wallet stamper is not initialized",
-            TurnkeyErrorCodes.WALLET_MANAGER_COMPONENT_NOT_INITIALIZED,
-          );
-        }
-
-        generatedPublicKey = await this.apiKeyStamper?.createKeyPair();
-
-        this.walletManager.stamper.setProvider(
-          walletProvider.interfaceType,
-          walletProvider,
-        );
-
-        const publicKey = await this.walletManager.stamper.getPublicKey(
-          walletProvider.interfaceType,
-          walletProvider,
-        );
-
-        if (!publicKey) {
-          throw new TurnkeyError(
-            "Failed to get public key from wallet",
-            TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
-          );
-        }
+        const { signedRequest, publicKey } =
+          await this.buildWalletLoginRequest(params);
 
         const signUpBody = buildSignUpBody({
           createSubOrgParams: {
@@ -1114,12 +1027,6 @@ export class TurnkeyClient {
                 apiKeyName: `wallet-auth:${publicKey}`,
                 publicKey: publicKey,
                 curveType: getCurveTypeFromProvider(walletProvider),
-              },
-              {
-                apiKeyName: `wallet-auth-${generatedPublicKey}`,
-                publicKey: generatedPublicKey!,
-                curveType: "API_KEY_CURVE_P256",
-                expirationSeconds: "60",
               },
             ],
           },
@@ -1134,29 +1041,26 @@ export class TurnkeyClient {
           );
         }
 
-        const newGeneratedKeyPair = await this.apiKeyStamper?.createKeyPair();
-        this.apiKeyStamper?.setTemporaryPublicKey(generatedPublicKey!);
+        // now we can send the stamped request to Turnkey
+        const sessionResponse =
+          await this.httpClient.sendSignedRequest<TStampLoginResponse>(
+            signedRequest,
+          );
+        const sessionToken = sessionResponse.session;
+        if (!sessionToken) {
+          throw new TurnkeyError(
+            "Session token not found in the response",
+            TurnkeyErrorCodes.BAD_RESPONSE,
+          );
+        }
 
-        const sessionResponse = await this.httpClient.stampLogin({
-          publicKey: newGeneratedKeyPair!,
-          organizationId: this.config.organizationId,
-          expirationSeconds,
+        await this.storeSession({
+          sessionToken: sessionToken,
+          sessionKey,
         });
 
-        await Promise.all([
-          this.apiKeyStamper?.deleteKeyPair(generatedPublicKey!),
-          this.storeSession({
-            sessionToken: sessionResponse.session,
-            sessionKey,
-          }),
-        ]);
-
-        generatedPublicKey = undefined; // Key pair was successfully used, set to null to prevent cleanup
-
-        // TODO (Moe): What happens if a user connects to MetaMask on Ethereum,
-        // then switches to a Solana account within MetaMask? Will this flow break?
         return {
-          sessionToken: sessionResponse.session,
+          sessionToken: sessionToken,
           appProofs: res.appProofs,
           address: addressFromPublicKey(
             walletProvider.chainInfo.namespace,
@@ -1167,22 +1071,6 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to sign up with wallet",
         errorCode: TurnkeyErrorCodes.WALLET_SIGNUP_AUTH_ERROR,
-      },
-      {
-        finallyFn: async () => {
-          this.apiKeyStamper?.clearTemporaryPublicKey();
-          if (generatedPublicKey) {
-            try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
-            } catch (cleanupError) {
-              throw new TurnkeyError(
-                "Failed to clean up generated key pair",
-                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
-              );
-            }
-          }
-        },
       },
     );
   };
@@ -1212,11 +1100,12 @@ export class TurnkeyClient {
   loginOrSignupWithWallet = async (
     params: LoginOrSignupWithWalletParams,
   ): Promise<WalletAuthResult & { action: AuthAction }> => {
-    const createSubOrgParams = params.createSubOrgParams;
-    const sessionKey = params.sessionKey || SessionKey.DefaultSessionkey;
-    const walletProvider = params.walletProvider;
+    const {
+      walletProvider,
+      createSubOrgParams,
+      sessionKey = SessionKey.DefaultSessionkey,
+    } = params;
 
-    let generatedPublicKey: string | undefined = undefined;
     return withTurnkeyErrorHandling(
       async () => {
         const { signedRequest, publicKey } =
@@ -1267,9 +1156,10 @@ export class TurnkeyClient {
 
         // now we can send the stamped request to Turnkey
         const sessionResponse =
-          await sendSignedRequest<TStampLoginResponse>(signedRequest);
-        const sessionToken =
-          sessionResponse.activity.result.stampLoginResult?.session;
+          await this.httpClient.sendSignedRequest<TStampLoginResponse>(
+            signedRequest,
+          );
+        const sessionToken = sessionResponse.session;
         if (!sessionToken) {
           throw new TurnkeyError(
             "Session token not found in the response",
@@ -1297,19 +1187,6 @@ export class TurnkeyClient {
       {
         errorCode: TurnkeyErrorCodes.WALLET_LOGIN_OR_SIGNUP_ERROR,
         errorMessage: "Failed to log in or sign up with wallet",
-        catchFn: async () => {
-          if (generatedPublicKey) {
-            try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
-            } catch (cleanupError) {
-              throw new TurnkeyError(
-                `Failed to clean up generated key pair`,
-                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
-              );
-            }
-          }
-        },
       },
     );
   };
@@ -2080,9 +1957,9 @@ export class TurnkeyClient {
               TurnkeyErrorCodes.INVALID_REQUEST,
             );
           }
-          userPromise = sendSignedRequest<TGetUserResponse>(
-            signedUserRequest,
-          ).then((response) => getAuthenticatorAddresses(response.user));
+          userPromise = this.httpClient
+            .sendSignedRequest<TGetUserResponse>(signedUserRequest)
+            .then((response) => getAuthenticatorAddresses(response.user));
         }
 
         // if connectedOnly is true, we skip fetching embedded wallets
@@ -2123,7 +2000,9 @@ export class TurnkeyClient {
               organizationId,
               stampWith,
             ),
-            sendSignedRequest<TGetWalletsResponse>(signedWalletsRequest),
+            this.httpClient.sendSignedRequest<TGetWalletsResponse>(
+              signedWalletsRequest,
+            ),
           ]);
 
           // create a map of walletId to EmbeddedWallet for easy lookup
