@@ -99,7 +99,15 @@ export interface BaseWalletInterface {
   ) => Promise<string>;
 
   /**
-   * Derive or fetch the public key from the given provider.
+   * Derive or fetch the public key from the given provider
+   *
+   * This method is only called in the stamp function for Solana wallets.
+   * Ed25519 (used by Solana) does not support public key recovery from a signature,
+   * so we must explicitly request the public key from the wallet.
+   * In the Solana Wallet Standard, this does not require any user action
+   *
+   * For Ethereum wallets, we recover the public key from the signature during stamping,
+   * so this method is never called, it's only implemented to satisfy the interface
    */
   getPublicKey: (provider: WalletProvider) => Promise<string>;
 

@@ -885,24 +885,31 @@ export function findWalletProviderFromAddress(
  * Derives a wallet address from a given public key and chain.
  *
  * @param chain - "ethereum" or "solana"
- * @param publicKey - The raw public key string
+ * @param publicKey - The raw public key string (can be compressed or uncompressed)
  * @returns The derived wallet address
  */
 export function addressFromPublicKey(chain: Chain, publicKey: string): string {
   if (chain === Chain.Ethereum) {
-    const compressedBytes = uint8ArrayFromHexString(publicKey);
+    const publicKeyBytes = uint8ArrayFromHexString(publicKey);
 
-    const publicKeyUncompressed = uint8ArrayToHexString(
-      uncompressRawPublicKey(compressedBytes, Curve.SECP256K1),
-    );
+    let uncompressedKey: string;
 
-    // drop 04 prefix
-    const key = publicKeyUncompressed.startsWith("04")
-      ? publicKeyUncompressed.slice(2)
-      : publicKeyUncompressed;
+    if (publicKeyBytes.length === 65 && publicKeyBytes[0] === 0x04) {
+      // it's already uncompressed so we just convert
+      // to hex without the 04 prefix
+      uncompressedKey = uint8ArrayToHexString(publicKeyBytes.slice(1));
+    } else {
+      // it's compressed, so we need to uncompress it first
+      // then convert to hex without the 04 prefix
+      const publicKeyUncompressed = uncompressRawPublicKey(
+        publicKeyBytes,
+        Curve.SECP256K1,
+      );
+      uncompressedKey = uint8ArrayToHexString(publicKeyUncompressed.slice(1));
+    }
 
     // hash with Keccak256 and take last 20 bytes
-    const hash = keccak256(uint8ArrayFromHexString(key));
+    const hash = keccak256(uint8ArrayFromHexString(uncompressedKey));
     return "0x" + hash.slice(-40);
   }
 
@@ -972,10 +979,14 @@ export async function getAuthProxyConfig(
  * You can pass in the SignedRequest returned by any of the SDK's
  * stamping methods (stampStampLogin, stampGetPolicies, etc.).
  *
+ * @deprecated Use `httpClient.sendSignedRequest()` instead, which includes
+ * automatic activity polling and result extraction.
+ *
  * @param signedRequest A SignedRequest object returned by a stamping method.
  * @returns The parsed JSON response from Turnkey.
  * @throws TurnkeyNetworkError if the request fails.
  */
+// TODO: (breaking change) remove this function
 export async function sendSignedRequest<T = any>(
   signedRequest: TSignedRequest,
 ): Promise<T> {
