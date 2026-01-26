@@ -18,9 +18,7 @@ import {
   hasPKCEVerifier,
   OAUTH_INTENT_ADD_PROVIDER,
   openOAuthPopup,
-  parseOAuthPopupResponse,
-  parseOAuthRedirect,
-  parseStateParam,
+  parseOAuthResponse,
   type PKCEProvider,
   redirectToOAuthProvider,
   storeOAuthAddProviderMetadata,
@@ -292,7 +290,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       provider: string;
       isAddProvider: boolean;
       metadata: ReturnType<typeof getOAuthAddProviderMetadata>;
-      openModal?: string | undefined;
+      openModal?: string | null | undefined;
       action: () => Promise<void>;
     }) => {
       const { provider, isAddProvider, metadata, openModal, action } = params;
@@ -379,30 +377,27 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       window.location.search.includes("code=") &&
       window.location.search.includes("state=")
     ) {
-      const searchParams = new URLSearchParams(
-        window.location.search.substring(1),
-      );
-      const code = searchParams.get("code");
-      const state = searchParams.get("state");
+      // Parse the URL using our unified helper
+      const result = parseOAuthResponse(window.location.href);
 
-      if (!state || !code) {
+      if (!result || !result.authCode || !result.publicKey) {
         return;
       }
 
-      // Parse state parameter
+      if (result.flow !== "redirect") {
+        // To complete OAuth we need redirect flow
+        return;
+      }
+
       const {
+        authCode: code,
         provider,
-        flow,
         publicKey,
         oauthIntent,
         sessionKey,
         nonce,
         openModal,
-      } = parseStateParam(state);
-
-      if (flow !== "redirect" || !publicKey) {
-        return;
-      }
+      } = result;
 
       const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
       const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
@@ -563,24 +558,29 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       }
     }
 
-    // Handle Google/Apple redirects (uses hash with id_token - non-PKCE)
+    // Handle Google/Apple redirects (uses hash with idToken - non-PKCE)
     if (window.location.hash) {
-      const hash = window.location.hash.substring(1);
+      // Parse the URL using our unified helper
+      const result = parseOAuthResponse(window.location.href);
 
-      // Parse the hash using our helper functions
+      if (
+        !result ||
+        !result.idToken ||
+        result.flow !== "redirect" ||
+        !result.publicKey
+      ) {
+        // idToken and publicKey are required to complete OAuth. These are both in the hash for non-PKCE providers
+        return;
+      }
+
       const {
         idToken,
         provider,
-        flow,
         publicKey,
         openModal,
         sessionKey,
         oauthIntent,
-      } = parseOAuthRedirect(hash);
-
-      if (!idToken || flow !== "redirect" || !publicKey) {
-        return;
-      }
+      } = result;
 
       const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
       const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
@@ -3280,7 +3280,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             const url = authWindow.location.href || "";
             if (url.startsWith(window.location.origin)) {
-              const result = parseOAuthPopupResponse(url, provider);
+              const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
@@ -3402,7 +3402,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             const url = authWindow.location.href || "";
             if (url.startsWith(window.location.origin)) {
-              const result = parseOAuthPopupResponse(url, provider);
+              const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
@@ -3521,7 +3521,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             const url = authWindow.location.href || "";
             if (url.startsWith(window.location.origin)) {
-              const result = parseOAuthPopupResponse(url, provider);
+              const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
@@ -3627,7 +3627,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             const url = authWindow.location.href || "";
             if (url.startsWith(window.location.origin)) {
-              const result = parseOAuthPopupResponse(url, provider);
+              const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);
@@ -3737,7 +3737,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
             const url = authWindow.location.href || "";
             if (url.startsWith(window.location.origin)) {
-              const result = parseOAuthPopupResponse(url, provider);
+              const result = parseOAuthResponse(url, provider);
               if (result) {
                 authWindow.close();
                 clearInterval(interval);

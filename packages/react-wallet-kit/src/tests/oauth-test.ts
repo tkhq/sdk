@@ -4,54 +4,58 @@ import {
   buildOAuthState,
   buildOAuthUrl,
   parseStateParam,
-  parseOAuthPopupResponse,
-  parseOAuthRedirect,
+  parseOAuthResponse,
 } from "../utils/oauth";
 describe("parseOAuthRedirect", () => {
   describe("Apple redirects", () => {
     it("parses an Apple hash with unencoded state and id_token at the end", () => {
-      const hash =
-        "state=provider=apple&flow=redirect&publicKey=pk_abc123&openModal=true&sessionKey=sess_1&code=xyz&id_token=apple.id.token";
-      const out = parseOAuthRedirect(hash);
+      const url =
+        "https://example.com/callback#state=provider=apple&flow=redirect&publicKey=pk_abc123&openModal=true&sessionKey=sess_1&code=xyz&id_token=apple.id.token";
+      const out = parseOAuthResponse(url);
 
       expect(out).toEqual({
         idToken: "apple.id.token",
+        authCode: null,
         provider: "apple",
         flow: "redirect",
         publicKey: "pk_abc123",
         openModal: "true",
         sessionKey: "sess_1",
         oauthIntent: null,
+        nonce: null,
       });
     });
 
     it("returns nulls for state fields when &code= is missing, but still extracts id_token if last", () => {
-      const hash = "state=provider=apple&id_token=final.apple.token";
-      const out = parseOAuthRedirect(hash);
+      const url =
+        "https://example.com/callback#state=provider=apple&id_token=final.apple.token";
+      const out = parseOAuthResponse(url);
 
       expect(out).toEqual({
         idToken: "final.apple.token",
+        authCode: null,
         provider: null,
         flow: null,
         publicKey: null,
         openModal: null,
-        sessionKey: null,
+        sessionKey: undefined,
         oauthIntent: null,
+        nonce: null,
       });
     });
 
     it("returns null idToken if id_token is not the last parameter", () => {
       // Implementation’s regex requires id_token at the end ($).
-      const hash =
-        "state=provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess&id_token=apple123&code=zzz";
-      const out = parseOAuthRedirect(hash);
+      const url =
+        "https://example.com/callback#state=provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess&id_token=apple123&code=zzz";
+      const out = parseOAuthResponse(url);
 
-      expect(out.idToken).toBeNull(); // because id_token is not at the end
-      expect(out.provider).toBe("apple");
-      expect(out.flow).toBe("redirect");
-      expect(out.publicKey).toBe("pk");
-      expect(out.openModal).toBe("true");
-      expect(out.sessionKey).toBe("sess");
+      expect(out?.idToken).toBeNull(); // because id_token is not at the end
+      expect(out?.provider).toBe("apple");
+      expect(out?.flow).toBe("redirect");
+      expect(out?.publicKey).toBe("pk");
+      expect(out?.openModal).toBe("true");
+      expect(out?.sessionKey).toBe("sess");
     });
   });
 
@@ -61,45 +65,50 @@ describe("parseOAuthRedirect", () => {
       const state = encodeURIComponent(
         "provider=google&flow=popup&publicKey=pk_g123&openModal=false&sessionKey=sess_g1",
       );
-      const hash = `id_token=google.id.token&state=${state}`;
-      const out = parseOAuthRedirect(hash);
+      const url = `https://example.com/callback#id_token=google.id.token&state=${state}`;
+      const out = parseOAuthResponse(url);
 
       expect(out).toEqual({
         idToken: "google.id.token",
+        authCode: null,
         provider: "google",
         flow: "popup",
         publicKey: "pk_g123",
         openModal: "false",
         sessionKey: "sess_g1",
         oauthIntent: null,
+        nonce: null,
       });
     });
 
     it("with UNencoded state only captures the first segment as state (current behavior)", () => {
       // URLSearchParams will split on '&', so only 'provider=google' is captured as the state value.
-      const hash =
-        "id_token=tok123&state=provider=google&flow=popup&publicKey=pk&openModal=true&sessionKey=sess";
-      const out = parseOAuthRedirect(hash);
+      const url =
+        "https://example.com/callback#id_token=tok123&state=provider=google&flow=popup&publicKey=pk&openModal=true&sessionKey=sess";
+      const out = parseOAuthResponse(url);
 
       // current behavior:
-      expect(out.idToken).toBe("tok123");
-      expect(out.provider).toBe("google");
-      expect(out.flow).toBeNull(); // not in the captured state segment
-      expect(out.publicKey).toBeNull();
-      expect(out.openModal).toBeNull();
-      expect(out.sessionKey).toBeNull();
+      expect(out?.idToken).toBe("tok123");
+      expect(out?.provider).toBe("google");
+      expect(out?.flow).toBeNull(); // not in the captured state segment
+      expect(out?.publicKey).toBeNull();
+      expect(out?.openModal).toBeNull();
+      expect(out?.sessionKey).toBeUndefined();
     });
 
     it("returns nulls if neither id_token nor state are present", () => {
-      const out = parseOAuthRedirect("access_token=abc123");
+      const url = "https://example.com/callback#access_token=abc123";
+      const out = parseOAuthResponse(url);
       expect(out).toEqual({
         idToken: null,
+        authCode: null,
         provider: null,
         flow: null,
         publicKey: null,
         openModal: null,
-        sessionKey: null,
+        sessionKey: undefined,
         oauthIntent: null,
+        nonce: null,
       });
     });
   });
@@ -107,27 +116,27 @@ describe("parseOAuthRedirect", () => {
   describe("Provider detection logic", () => {
     it("uses Apple path only when hash starts with 'state=provider=apple'", () => {
       // Starts with something else: should go down the Google path
-      const hash =
-        "id_token=zzz&state=" +
+      const url =
+        "https://example.com/callback#id_token=zzz&state=" +
         encodeURIComponent(
           "provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess",
         );
-      const out = parseOAuthRedirect(hash);
+      const out = parseOAuthResponse(url);
 
       // Parsed by Google path (since it didn't start with 'state=provider=apple')
-      expect(out.provider).toBe("apple");
-      expect(out.flow).toBe("redirect");
-      expect(out.publicKey).toBe("pk");
-      expect(out.openModal).toBe("true");
-      expect(out.sessionKey).toBe("sess");
-      expect(out.idToken).toBe("zzz");
+      expect(out?.provider).toBe("apple");
+      expect(out?.flow).toBe("redirect");
+      expect(out?.publicKey).toBe("pk");
+      expect(out?.openModal).toBe("true");
+      expect(out?.sessionKey).toBe("sess");
+      expect(out?.idToken).toBe("zzz");
     });
 
     it("routes to Apple path when prefix matches exactly", () => {
-      const hash =
-        "state=provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess&code=abc&id_token=tok";
-      const out = parseOAuthRedirect(hash);
-      expect(out.provider).toBe("apple");
+      const url =
+        "https://example.com/callback#state=provider=apple&flow=redirect&publicKey=pk&openModal=true&sessionKey=sess&code=abc&id_token=tok";
+      const out = parseOAuthResponse(url);
+      expect(out?.provider).toBe("apple");
     });
   });
 });
@@ -228,32 +237,44 @@ describe("OAuth utils", () => {
     });
   });
 
-  describe("parseOAuthPopupResponse", () => {
-    it("parses non-PKCE popup hash (Google)", () => {
+  describe("parseOAuthResponse (popup flows)", () => {
+    it("parses non-PKCE popup hash (Google) with provider validation", () => {
       const state = encodeURIComponent(
         "provider=google&flow=popup&publicKey=pk1&sessionKey=sess1",
       );
       const url = `https://example.com/callback#id_token=tok123&state=${state}`;
 
-      const result = parseOAuthPopupResponse(url, OAuthProviders.GOOGLE);
+      const result = parseOAuthResponse(url, OAuthProviders.GOOGLE);
       expect(result).toEqual({
         idToken: "tok123",
+        authCode: null,
         sessionKey: "sess1",
         provider: "google",
+        flow: "popup",
+        publicKey: "pk1",
+        openModal: null,
+        oauthIntent: null,
+        nonce: null,
       });
     });
 
-    it("parses PKCE popup search params (Discord)", () => {
+    it("parses PKCE popup search params (Discord) with provider validation", () => {
       const state = encodeURIComponent(
         "provider=discord&flow=popup&publicKey=pk2&sessionKey=sess2",
       );
       const url = "https://example.com/discord?code=code123&state=" + state;
 
-      const result = parseOAuthPopupResponse(url, OAuthProviders.DISCORD);
+      const result = parseOAuthResponse(url, OAuthProviders.DISCORD);
       expect(result).toEqual({
+        idToken: null,
         authCode: "code123",
         sessionKey: "sess2",
         provider: "discord",
+        flow: "popup",
+        publicKey: "pk2",
+        openModal: null,
+        oauthIntent: null,
+        nonce: null,
       });
     });
   });

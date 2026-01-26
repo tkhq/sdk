@@ -60,22 +60,36 @@ export type OAuthAddProviderMetadata = {
 export function storeOAuthAddProviderMetadata(
   metadata: OAuthAddProviderMetadata,
 ): void {
-  sessionStorage.setItem(
-    OAUTH_ADD_PROVIDER_METADATA_KEY,
-    JSON.stringify(metadata),
-  );
+  try {
+    sessionStorage.setItem(
+      OAUTH_ADD_PROVIDER_METADATA_KEY,
+      JSON.stringify(metadata),
+    );
+  } catch (error) {
+    throw new TurnkeyError(
+      `Failed to store OAuth add provider metadata: ${error instanceof Error ? error.message : "Unknown error"}`,
+      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+    );
+  }
 }
 
 /**
  * Retrieves OAuth add provider metadata from session storage
  */
 export function getOAuthAddProviderMetadata(): OAuthAddProviderMetadata | null {
-  const stored = sessionStorage.getItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
-  if (!stored) return null;
   try {
-    return JSON.parse(stored) as OAuthAddProviderMetadata;
-  } catch {
-    return null;
+    const stored = sessionStorage.getItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+    if (!stored) return null;
+    try {
+      return JSON.parse(stored) as OAuthAddProviderMetadata;
+    } catch {
+      return null;
+    }
+  } catch (error) {
+    throw new TurnkeyError(
+      `Failed to retrieve OAuth add provider metadata: ${error instanceof Error ? error.message : "Unknown error"}`,
+      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+    );
   }
 }
 
@@ -83,7 +97,14 @@ export function getOAuthAddProviderMetadata(): OAuthAddProviderMetadata | null {
  * Clears OAuth add provider metadata from session storage
  */
 export function clearOAuthAddProviderMetadata(): void {
-  sessionStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+  try {
+    sessionStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+  } catch (error) {
+    throw new TurnkeyError(
+      `Failed to clear OAuth add provider metadata: ${error instanceof Error ? error.message : "Unknown error"}`,
+      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+    );
+  }
 }
 
 // ============================================================================
@@ -144,10 +165,11 @@ export function openOAuthPopup(): Window | null {
  */
 export function redirectToOAuthProvider(url: string): Promise<never> {
   window.location.href = url;
+  const timeLimit = 5 * 60 * 1000; // 5 minutes
   return new Promise((_, reject) => {
     const timeout = setTimeout(() => {
       reject(new Error("Authentication timed out."));
-    }, 300000); // 5 minutes
+    }, timeLimit);
     window.addEventListener("beforeunload", () => clearTimeout(timeout));
   });
 }
@@ -206,115 +228,122 @@ export function parseStateParam(stateParam: string | null | undefined): {
 }
 
 // ============================================================================
-// OAuth Redirect Parsing
+// OAuth Response Parsing
 // ============================================================================
 
 /**
- * Helper function to parse Apple OAuth redirects
+ * Result from parsing an OAuth response (both popup and redirect flows)
  */
-function parseAppleOAuthRedirect(hash: string): {
-  idToken: string | null | undefined;
-  provider: string | null;
-  flow: string | null;
-  publicKey: string | null;
-  openModal: string | null;
-  sessionKey: string | null;
-  oauthIntent: string | null;
-} {
-  // Apple's format has unencoded parameters in the state portion
-  const idTokenMatch = hash.match(/id_token=([^&]+)$/);
-  const idToken = idTokenMatch ? idTokenMatch[1] : null;
-
-  // Extract state parameters - state is at the beginning
-  // It typically looks like: state=provider=apple&flow=redirect&publicKey=123...&openModal=true&code=...&id_token=...
-  const stateEndIndex = hash.indexOf("&code=");
-  if (stateEndIndex === -1)
-    return {
-      idToken,
-      provider: null,
-      flow: null,
-      publicKey: null,
-      openModal: null,
-      sessionKey: null,
-      oauthIntent: null,
-    };
-
-  const stateContent = hash.substring(6, stateEndIndex); // Remove "state=" prefix
-  const stateParams = new URLSearchParams(stateContent);
-
-  return {
-    idToken,
-    provider: stateParams.get("provider"),
-    flow: stateParams.get("flow"),
-    publicKey: stateParams.get("publicKey"),
-    openModal: stateParams.get("openModal"),
-    sessionKey: stateParams.get("sessionKey"),
-    oauthIntent: stateParams.get("oauthIntent"),
-  };
+export interface OAuthResponseResult {
+  /** The OIDC token (for non-PKCE providers) */
+  idToken?: string | null | undefined;
+  /** The authorization code (for PKCE providers) */
+  authCode?: string | null | undefined;
+  /** Session key from state */
+  sessionKey?: string | undefined;
+  /** The provider from state */
+  provider?: string | null;
+  /** Flow type from state */
+  flow?: string | null;
+  /** Public key from state */
+  publicKey?: string | null;
+  /** Open modal flag from state */
+  openModal?: string | null;
+  /** OAuth intent from state */
+  oauthIntent?: string | null;
+  /** Nonce from state */
+  nonce?: string | null;
 }
 
 /**
- * Helper function to parse Google OAuth redirects
+ * Unified OAuth response parser for both popup and redirect flows.
+ * Handles both:
+ * - PKCE flows (Facebook, Discord, X): code in search parameters
+ * - Non-PKCE flows (Google, Apple): id_token in hash parameters
+ * - Apple's non-standard hash format where state parameters are directly embedded
+ *
+ * @param url - The full URL to parse (from popup or redirect)
+ * @param expectedProvider - Optional provider if already known (for popup flows)
+ * @returns Parsed OAuth response data including tokens, codes, and state parameters, or null if invalid
  */
-function parseGoogleOAuthRedirect(hash: string): {
-  idToken: string | null;
-  provider: string | null;
-  flow: string | null;
-  publicKey: string | null;
-  openModal: string | null;
-  sessionKey: string | null;
-  oauthIntent: string | null;
-} {
-  const hashParams = new URLSearchParams(hash);
-  const idToken = hashParams.get("id_token");
-  const state = hashParams.get("state");
+export function parseOAuthResponse(
+  url: string,
+  expectedProvider?: OAuthProviders,
+): OAuthResponseResult | null {
+  let idToken: string | null | undefined = null;
+  let authCode: string | null | undefined = null;
+  let stateString: string | null = null;
 
-  let provider = null;
-  let flow = null;
-  let publicKey = null;
-  let openModal = null;
-  let sessionKey = null;
-  let oauthIntent = null;
+  const parsedUrl = new URL(url);
+  const search = parsedUrl.search.substring(1); // Remove leading '?'
+  const hash = parsedUrl.hash.substring(1); // Remove leading '#'
 
-  if (state) {
-    const stateParams = new URLSearchParams(state);
-    provider = stateParams.get("provider");
-    flow = stateParams.get("flow");
-    publicKey = stateParams.get("publicKey");
-    openModal = stateParams.get("openModal");
-    sessionKey = stateParams.get("sessionKey");
-    oauthIntent = stateParams.get("oauthIntent");
+  // Handle PKCE flows (code in search parameters)
+  if (search && search.includes("code=")) {
+    const searchParams = new URLSearchParams(search);
+    authCode = searchParams.get("code");
+    stateString = searchParams.get("state");
+  }
+  // Handle non-PKCE flows (id_token in hash)
+  else if (hash) {
+    // Handle Apple's non-standard format: state=provider=apple&flow=redirect&...&code=...&id_token=...
+    if (hash.startsWith("state=provider=apple")) {
+      // Extract id_token from the end
+      const idTokenMatch = hash.match(/id_token=([^&]+)$/);
+      idToken = idTokenMatch ? idTokenMatch[1] : null;
+
+      // Extract state content between "state=" and "&code="
+      const stateEndIndex = hash.indexOf("&code=");
+      if (stateEndIndex !== -1) {
+        stateString = hash.substring(6, stateEndIndex); // Remove "state=" prefix
+      }
+    } else {
+      // Standard OAuth format - parse as URLSearchParams
+      const hashParams = new URLSearchParams(hash);
+      idToken = hashParams.get("id_token");
+      stateString = hashParams.get("state");
+    }
   }
 
-  return {
-    idToken,
+  // Parse state parameters
+  const {
     provider,
     flow,
     publicKey,
     openModal,
     sessionKey,
     oauthIntent,
-  };
-}
+    nonce,
+  } = parseStateParam(stateString);
 
-/**
- * Main function to determine provider and parse OAuth redirect accordingly
- */
-export function parseOAuthRedirect(hash: string): {
-  idToken: string | null | undefined;
-  provider: string | null;
-  flow: string | null;
-  publicKey: string | null;
-  openModal: string | null;
-  sessionKey: string | null;
-  oauthIntent: string | null;
-} {
-  // Check if this is an Apple redirect
-  if (hash.startsWith("state=provider=apple")) {
-    return parseAppleOAuthRedirect(hash);
-  } else {
-    return parseGoogleOAuthRedirect(hash);
+  // If we have an expected provider (popup flow), validate it matches
+  if (expectedProvider) {
+    const config = OAUTH_PROVIDER_CONFIGS[expectedProvider];
+
+    if (config.usesPKCE) {
+      // PKCE providers must have authCode and matching provider in state
+      if (!authCode || !stateString || provider !== expectedProvider) {
+        return null;
+      }
+    } else {
+      // Non-PKCE providers must have idToken
+      if (!idToken) {
+        return null;
+      }
+    }
   }
+
+  return {
+    idToken,
+    authCode,
+    provider: provider ?? null,
+    flow: flow ?? null,
+    publicKey: publicKey ?? null,
+    openModal: openModal ?? null,
+    sessionKey: sessionKey ?? undefined,
+    oauthIntent: oauthIntent ?? null,
+    nonce: nonce ?? null,
+  };
 }
 
 // ============================================================================
@@ -536,16 +565,26 @@ export function getPKCEVerifierKey(provider: PKCEProvider): string {
  * @throws TurnkeyError if verifier is not found
  */
 export function consumePKCEVerifier(provider: PKCEProvider): string {
-  const key = getPKCEVerifierKey(provider);
-  const verifier = sessionStorage.getItem(key);
-  if (!verifier) {
+  try {
+    const key = getPKCEVerifierKey(provider);
+    const verifier = sessionStorage.getItem(key);
+    if (!verifier) {
+      throw new TurnkeyError(
+        `Missing PKCE verifier for ${provider} authentication`,
+        TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+      );
+    }
+    sessionStorage.removeItem(key);
+    return verifier;
+  } catch (error) {
+    if (error instanceof TurnkeyError) {
+      throw error;
+    }
     throw new TurnkeyError(
-      `Missing PKCE verifier for ${provider} authentication`,
+      `Failed to access PKCE verifier for ${provider}: ${error instanceof Error ? error.message : "Unknown error"}`,
       TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
     );
   }
-  sessionStorage.removeItem(key);
-  return verifier;
 }
 
 /**
@@ -557,7 +596,14 @@ export function storePKCEVerifier(
   provider: PKCEProvider,
   verifier: string,
 ): void {
-  sessionStorage.setItem(getPKCEVerifierKey(provider), verifier);
+  try {
+    sessionStorage.setItem(getPKCEVerifierKey(provider), verifier);
+  } catch (error) {
+    throw new TurnkeyError(
+      `Failed to store PKCE verifier for ${provider}: ${error instanceof Error ? error.message : "Unknown error"}`,
+      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+    );
+  }
 }
 
 /**
@@ -566,7 +612,14 @@ export function storePKCEVerifier(
  * @returns true if verifier exists
  */
 export function hasPKCEVerifier(provider: PKCEProvider): boolean {
-  return sessionStorage.getItem(getPKCEVerifierKey(provider)) !== null;
+  try {
+    return sessionStorage.getItem(getPKCEVerifierKey(provider)) !== null;
+  } catch (error) {
+    throw new TurnkeyError(
+      `Failed to check PKCE verifier for ${provider}: ${error instanceof Error ? error.message : "Unknown error"}`,
+      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+    );
+  }
 }
 
 /**
@@ -765,61 +818,6 @@ export function buildOAuthUrl(params: BuildOAuthUrlParams): string {
 }
 
 // ============================================================================
-// OAuth Popup Response Parsing
-// ============================================================================
-
-/**
- * Result from parsing an OAuth popup response
- */
-export interface OAuthPopupResult {
-  /** The OIDC token (for non-PKCE providers) */
-  idToken?: string | undefined;
-  /** The authorization code (for PKCE providers) */
-  authCode?: string | undefined;
-  /** Session key from state */
-  sessionKey?: string | undefined;
-  /** The provider from state */
-  provider?: string | undefined;
-}
-
-/**
- * Parses the OAuth response from a popup window URL
- * @param url - The popup window URL after OAuth redirect
- * @param provider - The expected OAuth provider
- * @returns Parsed OAuth result or null if not valid
- */
-export function parseOAuthPopupResponse(
-  url: string,
-  provider: OAuthProviders,
-): OAuthPopupResult | null {
-  const config = OAUTH_PROVIDER_CONFIGS[provider];
-
-  if (config.usesPKCE) {
-    // PKCE providers return code in search params
-    const urlParams = new URLSearchParams(new URL(url).search);
-    const authCode = urlParams.get("code");
-    const stateParam = urlParams.get("state");
-    const { sessionKey, provider: stateProvider } = parseStateParam(stateParam);
-
-    if (authCode && stateParam && stateProvider === provider) {
-      return { authCode, sessionKey, provider: stateProvider };
-    }
-  } else {
-    // Non-PKCE providers return id_token in hash
-    const hashParams = new URLSearchParams(url.split("#")[1]);
-    const idToken = hashParams.get("id_token");
-    const stateParams = hashParams.get("state");
-    const { sessionKey } = parseStateParam(stateParams);
-
-    if (idToken) {
-      return { idToken, sessionKey, provider };
-    }
-  }
-
-  return null;
-}
-
-// ============================================================================
 // OAuth Popup Completion
 // ============================================================================
 
@@ -830,7 +828,7 @@ export function parseOAuthPopupResponse(
 export interface OAuthPopupCompletionParams {
   provider: OAuthProviders;
   publicKey: string;
-  result: OAuthPopupResult;
+  result: OAuthResponseResult;
   callbacks?: TurnkeyCallbacks | undefined;
   completeOauth: (params: {
     oidcToken: string;
