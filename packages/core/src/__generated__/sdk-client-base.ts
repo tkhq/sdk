@@ -198,14 +198,13 @@ export class TurnkeySDKClientBase {
     stampWith?: StamperType,
   ): Promise<TResponseType> {
     // Make the initial request
-    const responseData = await this.request<TBodyType, TActivityResponse>(
+    let activityData = await this.request<TBodyType, TActivityResponse>(
       url,
       body,
       stampWith,
     );
 
     // Poll if not in terminal status
-    let activityData = responseData;
     if (
       !TERMINAL_ACTIVITY_STATUSES.includes(
         activityData.activity.status as TActivityStatus,
@@ -291,7 +290,7 @@ export class TurnkeySDKClientBase {
    * @param options.resultKey - For activity requests, the key to extract from the result (e.g., "createApiKeysResultV2")
    * @returns The parsed response, with activity result fields flattened if applicable
    */
-  async sendSignedRequest<TResponseType = any>(
+  async sendSignedRequest<TResponseType>(
     signedRequest: TSignedRequest,
     options?: { resultKey?: string },
   ): Promise<TResponseType> {

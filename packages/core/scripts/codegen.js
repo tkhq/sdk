@@ -314,10 +314,9 @@ const generateSDKClientFromSwagger = async (
         stampWith?: StamperType
     ): Promise<TResponseType> {
         // Make the initial request
-        const responseData = await this.request<TBodyType, TActivityResponse>(url, body, stampWith);
+        let activityData = await this.request<TBodyType, TActivityResponse>(url, body, stampWith);
         
         // Poll if not in terminal status
-        let activityData = responseData;
         if (!TERMINAL_ACTIVITY_STATUSES.includes(activityData.activity.status as TActivityStatus)) {
         activityData = await this.pollForCompletion(activityData.activity.id, stampWith);
         }
@@ -389,7 +388,7 @@ const generateSDKClientFromSwagger = async (
      * @param options.resultKey - For activity requests, the key to extract from the result (e.g., "createApiKeysResultV2")
      * @returns The parsed response, with activity result fields flattened if applicable
      */
-    async sendSignedRequest<TResponseType = any>(
+    async sendSignedRequest<TResponseType>(
         signedRequest: TSignedRequest,
         options?: { resultKey?: string }
     ): Promise<TResponseType> {
