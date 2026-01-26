@@ -6,7 +6,7 @@ import {
   faGoogle,
   faXTwitter,
 } from "@fortawesome/free-brands-svg-icons";
-import { OtpType, type WalletProvider } from "@turnkey/core";
+import { OtpType } from "@turnkey/core";
 import { faEllipsisH, faFingerprint } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
 import { OAuthButton } from "./OAuth";
@@ -22,7 +22,10 @@ import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ClientState } from "../../types/base";
 import { WalletAuthButton } from "./wallet/WalletAuthButton";
-import { ExternalWalletSelector } from "./wallet/ExternalWalletSelector";
+import {
+  ExternalWalletSelector,
+  WalletSelectorMode,
+} from "./wallet/ExternalWalletSelector";
 
 type AuthComponentProps = {
   sessionKey?: string | undefined;
@@ -48,9 +51,6 @@ export function AuthComponent({
     initOtp,
     loginWithPasskey,
     signUpWithPasskey,
-    loginOrSignupWithWallet,
-    connectWalletAccount,
-    disconnectWalletAccount,
   } = useTurnkey();
   const { pushPage, isMobile, openSheet } = useModal();
 
@@ -272,51 +272,14 @@ export function AuthComponent({
     });
   };
 
-  const handleWalletLoginOrSignup = async (provider: WalletProvider) => {
-    pushPage({
-      key: "Wallet Login/Signup",
-      content: (
-        <ActionPage
-          title={`Authenticating with ${provider.info.name}...`}
-          action={async () => {
-            await loginOrSignupWithWallet({
-              walletProvider: provider,
-              ...(sessionKey && { sessionKey: sessionKey }),
-            });
-          }}
-          icon={
-            <img
-              className="size-11 rounded-full"
-              src={provider.info.icon || ""}
-            />
-          }
-        />
-      ),
-      showTitle: false,
-    });
-  };
-
   const handleShowWalletSelector = async () => {
     try {
       pushPage({
         key: "Select wallet provider",
         content: (
           <ExternalWalletSelector
-            onSelect={handleWalletLoginOrSignup}
-            onWCConnect={async (wcProvider) => {
-              // Specifically, this will target the WalletConnect provider
-              await connectWalletAccount(wcProvider);
-            }}
-            onWCSign={async (wcProvider) => {
-              // This will also target the WalletConnect provider
-              await loginOrSignupWithWallet({
-                walletProvider: wcProvider,
-                ...(sessionKey && { sessionKey: sessionKey }),
-              });
-            }}
-            onWCDisconnect={async (provider) => {
-              await disconnectWalletAccount(provider);
-            }}
+            mode={WalletSelectorMode.Auth}
+            sessionKey={sessionKey}
           />
         ),
       });

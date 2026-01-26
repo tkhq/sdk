@@ -1,32 +1,175 @@
 import { useEffect } from "react";
 import clsx from "clsx";
-import type { WalletProvider } from "@turnkey/core";
+import {
+  WalletSource,
+  type ConnectedWallet,
+  type WalletAccount,
+  type WalletProvider,
+} from "@turnkey/core";
 import { useModal } from "../../../providers/modal/Hook";
 import { useTurnkey } from "../../../providers/client/Hook";
 import { isWalletConnect } from "../../../utils/utils";
 import { WalletButton } from "./WalletButton";
 import { ExternalWalletChainSelector } from "./ExternalWalletChainSelector";
-import { DesktopWalletConnectScreen } from "./DesktopWalletConnectScreen";
-import { MobileWalletConnectScreen } from "./MobileWalletConnectScreen";
-import { ShowAllWalletsScreen } from "./ShowAllWalletsScreen";
+import { WalletConnectFlow } from "./WalletConnectFlow";
 import { canDisconnect } from "./utils";
+import { ActionPage } from "../Action";
+import { SuccessPage } from "../../design/Success";
+import { DisconnectWalletScreen } from "./DisconnectWalletScreen";
+import { WalletSelectorMode } from "../../../types/base";
 
-interface ExternalWalletSelectorProps {
-  onSelect: (provider: WalletProvider) => Promise<void>;
-  onDisconnect?: ((provider: WalletProvider) => Promise<void>) | undefined;
-  onWCConnect?: (provider: WalletProvider) => Promise<void>;
-  onWCDisconnect?: (provider: WalletProvider) => Promise<void>;
-  onWCSign?: (provider: WalletProvider) => Promise<void>;
+// Re-export for consumers
+export { WalletSelectorMode } from "../../../types/base";
+
+interface AuthModeProps {
+  mode: WalletSelectorMode.Auth;
+  /** Session key for the auth flow */
+  sessionKey?: string | undefined;
 }
 
+interface ConnectModeProps {
+  mode: WalletSelectorMode.Connect;
+  /** Called when a wallet is successfully connected or disconnected */
+  onSuccess: (type: "connect" | "disconnect", account: WalletAccount) => void;
+  /** Duration to show success page (ms). If 0 or undefined, closes immediately */
+  successPageDuration?: number | undefined;
+}
+
+export type ExternalWalletSelectorProps = AuthModeProps | ConnectModeProps;
+
 export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
-  const { onDisconnect, onSelect, onWCConnect, onWCSign, onWCDisconnect } =
-    props;
+  const { mode } = props;
 
-  const { pushPage, popPage, isMobile } = useModal();
-  const { walletProviders } = useTurnkey();
+  const { pushPage, popPage, closeModal, isMobile } = useModal();
+  const {
+    walletProviders,
+    wallets,
+    loginOrSignupWithWallet,
+    connectWalletAccount,
+    disconnectWalletAccount,
+  } = useTurnkey();
 
-  const shouldShowDisconnect = onDisconnect !== undefined;
+  // Derive config based on mode
+  const isConnectMode = mode === WalletSelectorMode.Connect;
+  const sessionKey = isConnectMode ? undefined : props.sessionKey;
+  const shouldShowDisconnect = isConnectMode;
+  const successPageDuration = isConnectMode
+    ? props.successPageDuration
+    : undefined;
+  const onSuccess = isConnectMode ? props.onSuccess : undefined;
+
+  // Auth mode: show ActionPage and call loginOrSignupWithWallet
+  const handleAuthSelect = async (provider: WalletProvider) => {
+    pushPage({
+      key: "Wallet Login/Signup",
+      content: (
+        <ActionPage
+          title={`Authenticating with ${provider.info.name}...`}
+          action={async () => {
+            await loginOrSignupWithWallet({
+              walletProvider: provider,
+              ...(sessionKey && { sessionKey }),
+            });
+          }}
+          icon={
+            <img
+              className="size-11 rounded-full"
+              src={provider.info.icon || ""}
+            />
+          }
+        />
+      ),
+      showTitle: false,
+    });
+  };
+
+  // Connect mode: show ActionPage, connect wallet, show success
+  const handleConnectSelect = async (provider: WalletProvider) => {
+    pushPage({
+      key: `Connect ${provider.info.name}`,
+      content: (
+        <ActionPage
+          title={`Connecting ${provider.info.name}`}
+          icon={
+            <img
+              className="size-11 rounded-full"
+              src={provider.info.icon || ""}
+            />
+          }
+          closeOnComplete={false}
+          action={async () => {
+            const account = await connectWalletAccount(provider);
+            onSuccess?.("connect", account);
+            if (successPageDuration && successPageDuration > 0) {
+              pushPage({
+                key: "Connecting Success",
+                content: (
+                  <SuccessPage
+                    text="Successfully connected wallet!"
+                    onComplete={() => closeModal()}
+                    duration={successPageDuration}
+                  />
+                ),
+                preventBack: true,
+                showTitle: false,
+              });
+            } else {
+              closeModal();
+            }
+          }}
+        />
+      ),
+      showTitle: false,
+    });
+  };
+
+  // Connect mode: show disconnect confirmation, then disconnect
+  const handleDisconnect = async (provider: WalletProvider) => {
+    pushPage({
+      key: `Disconnect ${provider.info.name}`,
+      content: (
+        <DisconnectWalletScreen
+          provider={provider}
+          onDisconnect={async () => {
+            const address = provider.connectedAddresses[0];
+
+            // Find the matching account from connected wallets
+            const connectedWallets = wallets.filter(
+              (w): w is ConnectedWallet => w.source === WalletSource.Connected,
+            );
+            const matchedAccount = connectedWallets
+              .flatMap((w) => w.accounts)
+              .find((a) => a.address === address);
+
+            await disconnectWalletAccount(provider);
+            onSuccess?.("disconnect", matchedAccount!);
+
+            if (successPageDuration && successPageDuration > 0) {
+              pushPage({
+                key: "Disconnect Success",
+                content: (
+                  <SuccessPage
+                    text="Successfully disconnected wallet!"
+                    onComplete={() => closeModal()}
+                    duration={successPageDuration}
+                  />
+                ),
+                preventBack: true,
+                showTitle: false,
+              });
+            } else {
+              closeModal();
+            }
+          }}
+        />
+      ),
+      showTitle: false,
+    });
+  };
+
+  // Select the appropriate handler based on mode
+  const onSelect = isConnectMode ? handleConnectSelect : handleAuthSelect;
+  const onDisconnect = isConnectMode ? handleDisconnect : undefined;
 
   // Group providers by name
   const grouped = walletProviders.reduce<Record<string, WalletProvider[]>>(
@@ -52,105 +195,23 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     });
   };
 
-  const pushDesktopQRCodeScreen = (
-    provider: WalletProvider,
-    onSelectAllWallets?: () => Promise<void>,
-  ) => {
+  const pushWalletConnectFlow = (group: WalletProvider[]) => {
     pushPage({
-      key: "Connect WalletConnect",
+      key: "WalletConnect",
       content: (
-        <DesktopWalletConnectScreen
-          provider={provider}
-          // For desktop flow, onWCSign handles both connect + sign. onWCConnect is only needed for ConnectWallet screen.
-          onAction={(onWCSign ?? onWCConnect)!}
-          onDisconnect={onWCDisconnect!}
-          onSelectAllWallets={onSelectAllWallets}
-        />
-      ),
-    });
-  };
-
-  const pushDesktopChainSelector = (
-    group: WalletProvider[],
-    onSelectAllWallets?: () => Promise<void>,
-  ) => {
-    pushPage({
-      key: `Select chain`,
-      content: (
-        <ExternalWalletChainSelector
+        <WalletConnectFlow
           providers={group}
-          onDisconnect={onDisconnect}
-          onSelect={async (provider) =>
-            pushDesktopQRCodeScreen(provider, onSelectAllWallets)
-          }
+          mode={mode}
+          sessionKey={sessionKey}
         />
       ),
-    });
-  };
-
-  /** Mobile: Deep link screen to open wallet app */
-  const pushMobileDeepLinkScreen = (
-    provider: WalletProvider,
-    group: WalletProvider[],
-  ) => {
-    pushPage({
-      key: `Open app`,
-      content: (
-        <MobileWalletConnectScreen
-          provider={provider}
-          onConnect={onWCConnect!}
-          onSign={onWCSign}
-          onSelectQRCode={async (chain) => {
-            // Fallback to QR code if deep link doesn't work
-            const chainProvider = group.find(
-              (p) => p.chainInfo.namespace === chain,
-            )!;
-            pushDesktopQRCodeScreen(chainProvider);
-          }}
-        />
-      ),
-    });
-  };
-
-  /** Mobile: Show all WalletConnect-compatible apps */
-  const pushMobileAppSelector = (group: WalletProvider[]) => {
-    pushPage({
-      key: "Connect WalletConnect",
-      content: (
-        <ShowAllWalletsScreen
-          onSelect={async (provider) =>
-            pushMobileDeepLinkScreen(provider, group)
-          }
-          onSelectQRCode={async () => pushDesktopChainSelector(group)}
-        />
-      ),
+      showTitle: false,
     });
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Selection handlers
   // ─────────────────────────────────────────────────────────────────────────────
-
-  const handleWalletConnectGroup = (
-    group: WalletProvider[],
-    isConnected: boolean,
-  ) => {
-    // Mobile flow: App list -> deep link to wallet app
-    // Desktop flow: Chain selector -> QR code
-    //
-    // Exception: For "Connect Wallet" screen (disconnect possible),
-    // always use desktop flow since it shows connection status.
-    const useDesktopFlow = !isMobile || isConnected;
-
-    if (useDesktopFlow) {
-      pushDesktopChainSelector(group, async () => {
-        popPage();
-        pushMobileAppSelector(group);
-      });
-    } else {
-      pushMobileAppSelector(group);
-    }
-  };
 
   const handleSelectGroup = (group: WalletProvider[]) => {
     const provider = group[0]!;
@@ -168,7 +229,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
 
     // Multiple chains - need chain selector
     if (isWalletConnect(provider)) {
-      handleWalletConnectGroup(group, isConnected);
+      pushWalletConnectFlow(group);
     } else {
       pushStandardChainSelector(group);
     }
