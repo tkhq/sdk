@@ -1,5 +1,22 @@
 # @turnkey/react-wallet-kit
 
+## 1.8.0
+
+### Minor Changes
+
+- [#1180](https://github.com/tkhq/sdk/pull/1180) [`8e075b7`](https://github.com/tkhq/sdk/commit/8e075b7161ccc68cb446b10b54737856fa0c6d31) Author [@amircheikh](https://github.com/amircheikh) - Added optional `openInPage` boolean parameter to `handleAddOauthProvider` which open the oAuth flow in the current page (redirect). This respects the `openInPage` value passed into the `TurnkeyConfig` and defaults to `true` on mobile devices.
+
+  Twitter oAuth credentials created from `handleXOauth` or `handleAddOauthProvider` will now be stored with the `providerName` `"x"` in the user's `oauthProviders` list. This only affects new credentials.
+
+- [#1126](https://github.com/tkhq/sdk/pull/1126) [`fb0ff3e`](https://github.com/tkhq/sdk/commit/fb0ff3e38e061c48f01b35c44294f4549b61d61d) Author [@ethankonk](https://github.com/ethankonk) - Added Bitcoin WIF & Sui Bech32 private key formats to import/export with iframe flows
+
+### Patch Changes
+
+- Updated dependencies [[`8e075b7`](https://github.com/tkhq/sdk/commit/8e075b7161ccc68cb446b10b54737856fa0c6d31), [`2d19991`](https://github.com/tkhq/sdk/commit/2d19991bcf4e1c9704b73a48c54e870373b4bd95), [`89d4084`](https://github.com/tkhq/sdk/commit/89d40844d791b0bbb6d439da5e778b1fdeca4273), [`ba2521d`](https://github.com/tkhq/sdk/commit/ba2521d5d1c1f6baaa58ee65dce8cc4839f7dc7b), [`a85153c`](https://github.com/tkhq/sdk/commit/a85153c8ccc7454cd5aca974bc463fb47c7f8cd4), [`fb0ff3e`](https://github.com/tkhq/sdk/commit/fb0ff3e38e061c48f01b35c44294f4549b61d61d)]:
+  - @turnkey/sdk-types@0.11.2
+  - @turnkey/core@1.11.1
+  - @turnkey/iframe-stamper@2.10.0
+
 ## 1.7.2
 
 ### Patch Changes
