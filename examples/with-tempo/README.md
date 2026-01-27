@@ -62,21 +62,25 @@ See the following for a sample output:
 
 ```
 Network:
-        Tempo Andantino (chain ID 42429)
+        Tempo Testnet (Moderato) (chain ID 42431)
 
 Address:
-        0x3758c7492Ea25199E6871A6F40fbE8118aED4848
+        0xe7532637Fd519492bc92ec97433f99a3F2da0366
 
-TIP-20 Balance:
-        999999.999729 tokens
-
-Transaction count:
+Nonce:
         1
 
-✔ Amount to send  (default is 1 ) … 3
-✔ Destination address (default is yourself) … 0x3758c7492Ea25199E6871A6F40fbE8118aED4848
-Sent 3 TIP-20 tokens to 0x3758c7492Ea25199E6871A6F40fbE8118aED4848:
-        https://explore.tempo.xyz/tx/0xe6a0cd779ae0ab8b8e92870d5373dfcaf09faf164a2e388cdca8c69760285b8f
+✔ Amount to send … 1
+✔ Destination address … 0xe7532637Fd519492bc92ec97433f99a3F2da0366
+✔ Sponsor fees via sponsor.moderato.tempo.xyz? … yes
+0xe7532637Fd519492bc92ec97433f99a3F2da0366 AlphaUSD Balance:
+        1000000
+
+Receipt:
+        https://explore.tempo.xyz/tx/0x65688bd5f243d44381ef0215cf530f54d2bebae929349271adfa31879e9025d9
+
+Sent 1 AlphaUSD to 0xe7532637Fd519492bc92ec97433f99a3F2da0366!
+        https://docs.tempo.xyz/guide/payments/sponsor-user-fees
 ```
 
 Note: if you have a consensus-related policy resembling the following
