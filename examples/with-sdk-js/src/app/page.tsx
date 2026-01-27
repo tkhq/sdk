@@ -3,14 +3,17 @@ import Image from "next/image";
 
 import { useEffect, useState } from "react";
 import {
+  externaldatav1Address,
   OAuthProviders,
   v1AddressFormat,
   v1CreatePolicyIntentV3,
+  v1PrivateKey,
 } from "@turnkey/sdk-types";
 import {
   AuthState,
   Chain,
   ClientState,
+  KeyFormat,
   OtpType,
   useTurnkey,
   Wallet,
@@ -46,6 +49,11 @@ export default function AuthPage() {
   const [activeWallet, setActiveWallet] = useState<Wallet | null>(null);
   const [activeWalletAccount, setActiveWalletAccount] =
     useState<WalletAccount | null>(null);
+
+  const [privateKeys, setPrivateKeys] = useState<v1PrivateKey[]>([]);
+  const [activePrivateKey, setActivePrivateKey] = useState<v1PrivateKey | null>(
+    null,
+  );
 
   const {
     httpClient,
@@ -102,12 +110,18 @@ export default function AuthPage() {
 
     if (authState === AuthState.Authenticated) {
       handleGetActiveSessionKey();
+      handleGetPrivateKeys();
     }
   }, [authState, session, turnkey]);
 
   useEffect(() => {
     console.log("Client state", clientState);
   }, [clientState]);
+
+  const handleGetPrivateKeys = async () => {
+    const privateKeys = (await httpClient?.getPrivateKeys())?.privateKeys;
+    setPrivateKeys(privateKeys || []);
+  };
 
   const handleVerifyOtp = async (
     otpCode: string,
@@ -584,6 +598,110 @@ export default function AuthPage() {
                 })
               : null}
           </div>
+          <div className="flex items-center gap-4 my-2">
+            <h3>Turnkey Private Keys</h3>
+            <button
+              onClick={async () => {
+                console.log(
+                  await httpClient?.createPrivateKeys({
+                    privateKeys: [
+                      {
+                        curve: "CURVE_SECP256K1",
+                        privateKeyName: `ETH Private Key ${new Date().toISOString()}`,
+                        privateKeyTags: [],
+                        addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+                      },
+                    ],
+                  }),
+                );
+                await handleGetPrivateKeys();
+              }}
+              style={{
+                backgroundColor: "yellowgreen",
+                borderRadius: "8px",
+                padding: "4px 16px",
+                color: "black",
+              }}
+            >
+              Create ETH Private Key
+            </button>
+            <button
+              onClick={async () => {
+                console.log(
+                  await httpClient?.createPrivateKeys({
+                    privateKeys: [
+                      {
+                        curve: "CURVE_ED25519",
+                        privateKeyName: `SOL Private Key ${new Date().toISOString()}`,
+                        privateKeyTags: [],
+                        addressFormats: ["ADDRESS_FORMAT_SOLANA"],
+                      },
+                    ],
+                  }),
+                );
+                await handleGetPrivateKeys();
+              }}
+              style={{
+                backgroundColor: "yellowgreen",
+                borderRadius: "8px",
+                padding: "4px 16px",
+                color: "black",
+              }}
+            >
+              Create SOL Private Key
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {privateKeys && privateKeys.length > 0
+              ? privateKeys.map((privateKey: v1PrivateKey) => {
+                  let count = 0;
+                  return (
+                    <div
+                      key={privateKey.privateKeyId}
+                      className="p-2 text-xs border bg-neutral-100 rounded justify-between flex flex-col"
+                    >
+                      <div>
+                        <p className="truncate">
+                          Private Key ID: <span>{privateKey.privateKeyId}</span>
+                        </p>
+                        <p className="truncate">
+                          Private Key Name:{" "}
+                          <span>{privateKey.privateKeyName}</span>
+                        </p>
+                        <p className="truncate">Addresses:</p>
+                        <div className="flex flex-col gap-1">
+                          {privateKey.addresses.map((address, i) => {
+                            return (
+                              <p>
+                                <span
+                                  data-testid={`wallet-account-address-value-${count}-${i}`}
+                                >
+                                  {address.address}
+                                </span>
+                              </p>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setActivePrivateKey(privateKey)}
+                        className={`transition-all  mt-auto p-1 rounded w-full text-xs ${activePrivateKey?.privateKeyId !== privateKey.privateKeyId ? "bg-blue-200" : "bg-neutral-300"}`}
+                        disabled={
+                          activePrivateKey?.privateKeyId ===
+                          privateKey.privateKeyId
+                        }
+                      >
+                        {activePrivateKey?.privateKeyId ===
+                        privateKey.privateKeyId
+                          ? "Active"
+                          : "Set Active"}
+                      </button>
+                    </div>
+                  );
+                  count++;
+                })
+              : null}
+          </div>
         </div>
       </div>
       <div>
@@ -638,6 +756,106 @@ export default function AuthPage() {
                 Show Export Wallet Modal
               </button>
               <button
+                onClick={async () => {
+                  const res = await turnkey.httpClient?.getPrivateKeys();
+
+                  if (!res || res.privateKeys.length === 0) {
+                    console.error("No private keys found to export");
+                    return;
+                  }
+
+                  await turnkey.handleExportPrivateKey({
+                    privateKeyId: res.privateKeys[0].privateKeyId,
+                    keyFormat: KeyFormat.BitcoinTestNetWIF,
+                  });
+                }}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Show Export Private Key Modal
+              </button>
+              <button
+                onClick={async () => {
+                  const pkToExport = activePrivateKey?.addresses.some((addr) =>
+                    addr.format
+                      ?.toString()
+                      .startsWith("ADDRESS_FORMAT_BITCOIN_TESTNET"),
+                  );
+                  if (!pkToExport) {
+                    console.error(
+                      "No Bitcoin Testnet private key found to export",
+                    );
+                    return;
+                  }
+                  await turnkey.handleExportPrivateKey({
+                    privateKeyId: activePrivateKey!.privateKeyId,
+                    keyFormat: KeyFormat.BitcoinTestNetWIF,
+                  });
+                }}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Show Export Private Key Modal (Bitcoin Testnet WIF Format)
+              </button>
+              <button
+                onClick={async () => {
+                  const pkToExport = activePrivateKey?.addresses.some(
+                    (addr) => addr.format === "ADDRESS_FORMAT_SUI",
+                  );
+                  if (!pkToExport) {
+                    console.error("No SUI Bech32 private key found to export");
+                    return;
+                  }
+                  await turnkey.handleExportPrivateKey({
+                    privateKeyId: activePrivateKey!.privateKeyId,
+                    keyFormat: KeyFormat.SuiBech32,
+                  });
+                }}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Show Export Private Key Modal (SUI Bech32 Format)
+              </button>
+              <button
+                onClick={async () => {
+                  const pkToExport = activePrivateKey?.addresses.some((addr) =>
+                    addr.format
+                      ?.toString()
+                      .startsWith("ADDRESS_FORMAT_BITCOIN_MAINNET"),
+                  );
+                  if (!pkToExport) {
+                    console.error(
+                      "No Bitcoin Mainnet private key found to export",
+                    );
+                    return;
+                  }
+                  await turnkey.handleExportPrivateKey({
+                    privateKeyId: activePrivateKey!.privateKeyId,
+                    keyFormat: KeyFormat.BitcoinMainNetWIF,
+                  });
+                }}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Show Export Private Key Modal (Bitcoin Mainnet WIF Format)
+              </button>
+              <button
                 data-testid="show-export-wallet-account-modal"
                 onClick={async () => {
                   if (!activeWalletAccount) {
@@ -683,6 +901,86 @@ export default function AuthPage() {
                 Show Import Wallet Modal
               </button>
 
+              <button
+                onClick={async () =>
+                  console.log(
+                    await turnkey.handleImportPrivateKey({
+                      curve: "CURVE_SECP256K1",
+                      keyFormat: KeyFormat.BitcoinTestNetWIF,
+                      addressFormats: ["ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"],
+                      successPageDuration: 5000,
+                    }),
+                  )
+                }
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Show Import Private Key Modal
+              </button>
+              <button
+                onClick={async () =>
+                  console.log(
+                    await turnkey.handleImportPrivateKey({
+                      curve: "CURVE_SECP256K1",
+                      keyFormat: KeyFormat.BitcoinTestNetWIF,
+                      addressFormats: ["ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"],
+                      successPageDuration: 5000,
+                    }),
+                  )
+                }
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Show Import Private Key Modal (Bitcoin Mainnet WIF Format)
+              </button>
+              <button
+                onClick={async () =>
+                  console.log(
+                    await turnkey.handleImportPrivateKey({
+                      curve: "CURVE_SECP256K1",
+                      keyFormat: KeyFormat.BitcoinTestNetWIF,
+                      addressFormats: ["ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"],
+                      successPageDuration: 5000,
+                    }),
+                  )
+                }
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Show Import Private Key Modal (Bitcoin Testnet WIF Format)
+              </button>
+              <button
+                onClick={async () =>
+                  console.log(
+                    await turnkey.handleImportPrivateKey({
+                      curve: "CURVE_ED25519",
+                      keyFormat: KeyFormat.SuiBech32,
+                      addressFormats: ["ADDRESS_FORMAT_SUI"],
+                      successPageDuration: 5000,
+                    }),
+                  )
+                }
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Show Import Private Key Modal (Sui Bech32 Format)
+              </button>
               <button
                 data-testid="show-update-user-email-modal"
                 onClick={async () =>
@@ -1057,6 +1355,8 @@ export default function AuthPage() {
             data-testid="logout-button"
             onClick={async () => {
               await turnkey.logout();
+              setPrivateKeys([]);
+              setActivePrivateKey(null);
             }}
             style={{
               backgroundColor: "rebeccapurple",
@@ -1156,6 +1456,52 @@ export default function AuthPage() {
               }}
             >
               Fetch Wallets
+            </button>
+
+            <button
+              data-testid="fetch-private-keys"
+              onClick={async () => {
+                console.log(
+                  "Successfully called getPrivateKeys",
+                  await turnkey.httpClient?.getPrivateKeys(),
+                );
+              }}
+              style={{
+                backgroundColor: "green",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              Fetch Private Keys
+            </button>
+
+            <button
+              onClick={async () => {
+                const res = await turnkey.httpClient?.getPrivateKeys();
+                if (!res?.privateKeys || res.privateKeys.length === 0) {
+                  console.error("No private keys found to sign with");
+                  return;
+                }
+
+                console.log(
+                  "Successfully signed message",
+                  await turnkey.httpClient?.signRawPayload({
+                    signWith: res.privateKeys[0].privateKeyId,
+                    payload: "Hello, Turnkey!",
+                    encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+                    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+                  }),
+                );
+              }}
+              style={{
+                backgroundColor: "green",
+                borderRadius: "8px",
+                padding: "8px 16px",
+                color: "white",
+              }}
+            >
+              Sign Message With Private Key
             </button>
 
             <button
