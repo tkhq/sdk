@@ -55,7 +55,6 @@ export async function createAccount(
   parameters: Parameters<typeof createTurnkeyAccount>[0],
 ): Promise<Account> {
   const account = await createTurnkeyAccount(parameters);
-
   // @ts-expect-error: viem version conflicts in turnkey monorepo
   return {
     ...account,

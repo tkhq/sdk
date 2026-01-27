@@ -19,8 +19,14 @@ import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 import { createAccount, createNewWallet } from "./turnkey";
 import { print } from "./util";
 
-// const TIP20_TOKEN = "0x20c0000000000000000000000000000000000001" as const;
-const TIP20_TOKEN = "0x20c0000000000000000000000000000000000002" as const;
+// @ts-ignore
+const PATH_USD = "0x20c0000000000000000000000000000000000000" as const;
+// @ts-ignore
+const ALPHA_USD = "0x20c0000000000000000000000000000000000001" as const;
+// @ts-ignore
+const BETA_USD = "0x20c0000000000000000000000000000000000002" as const;
+// @ts-ignore
+const THETA_USD = "0x20c0000000000000000000000000000000000003" as const;
 
 async function ensureFunded(
   client: ReturnType<typeof createClient>,
@@ -83,7 +89,7 @@ async function main() {
 
   const client = createClient({
     account: account as Account,
-    chain: tempoModerato.extend({ feeToken: TIP20_TOKEN }),
+    chain: tempoModerato.extend({ feeToken: ALPHA_USD }),
     transport: withFeePayer(
       http("https://rpc.moderato.tempo.xyz"),
       http("https://sponsor.moderato.tempo.xyz"),
@@ -94,9 +100,9 @@ async function main() {
     .extend(tempoActions());
 
   const { name, decimals } = await Actions.token.getMetadata(client, {
-    token: TIP20_TOKEN,
+    token: ALPHA_USD,
   });
-  const token = { address: TIP20_TOKEN, name, decimals };
+  const token = { address: ALPHA_USD, name, decimals };
 
   print("Network:", `${client.chain.name} (chain ID ${client.chain.id})`);
   print("Address:", client.account.address);
@@ -146,7 +152,7 @@ async function main() {
     token: TIP20_TOKEN,
     to: destination as `0x${string}`,
     feePayer,
-    gas: 100000n, // temp: need to manually set higher workaround 
+    gas: 100000n, // temp workaround: need to manually set higher gas limit
   });
 
   print("Receipt:", `https://explore.tempo.xyz/tx/${receipt.transactionHash}`);
