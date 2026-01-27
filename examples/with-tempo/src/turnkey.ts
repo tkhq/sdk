@@ -1,9 +1,7 @@
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
-import { createAccount as createTurnkeyAccount } from "@turnkey/viem";
 
 import * as crypto from "crypto";
 import { refineNonNull } from "./util";
-import { Account, keccak256, parseSignature } from "viem";
 
 export async function createNewWallet() {
   console.log("creating a new wallet on Turnkey...\n");
@@ -49,25 +47,4 @@ export async function createNewWallet() {
   } catch (error) {
     throw new Error("Failed to create a new Ethereum wallet: " + error);
   }
-}
-
-export async function createAccount(
-  parameters: Parameters<typeof createTurnkeyAccount>[0],
-): Promise<Account> {
-  const account = await createTurnkeyAccount(parameters);
-  // @ts-expect-error: viem version conflicts in turnkey monorepo
-  return {
-    ...account,
-    async signTransaction(transaction, options = {}) {
-      const { serializer } = options;
-      if (!serializer) throw new Error("serializer is required");
-      const signature = await account.sign!({
-        hash: keccak256(await serializer(transaction)),
-      });
-      return (await serializer(
-        transaction,
-        parseSignature(signature),
-      )) as never;
-    },
-  };
 }

@@ -16,7 +16,8 @@ import {
   formatUnits,
 } from "viem";
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
-import { createAccount, createNewWallet } from "./turnkey";
+import { createAccount } from "@turnkey/viem";
+import { createNewWallet } from "./turnkey";
 import { print } from "./util";
 
 // @ts-ignore
@@ -133,11 +134,11 @@ async function main() {
 
   const sponsorAccount =
     useSponsor && process.env.SPONSOR_WITH
-      ? await createAccount({
+      ? ((await createAccount({
           client: sdk.apiClient(),
           organizationId: process.env.ORGANIZATION_ID!,
           signWith: process.env.SPONSOR_WITH,
-        })
+        })) as Account)
       : undefined;
 
   if (sponsorAccount) {
@@ -149,7 +150,7 @@ async function main() {
 
   const { receipt } = await client.token.transferSync({
     amount: parseUnits(amount, decimals),
-    token: TIP20_TOKEN,
+    token: ALPHA_USD,
     to: destination as `0x${string}`,
     feePayer,
     gas: 100000n, // temp workaround: need to manually set higher gas limit
