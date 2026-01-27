@@ -4,7 +4,7 @@ import prompts from "prompts";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import {tempoModerato } from "viem/chains";
+import { tempoModerato } from "viem/chains";
 import { Actions, tempoActions, withFeePayer } from "viem/tempo";
 import {
   Account,
@@ -146,7 +146,7 @@ async function main() {
     token: TIP20_TOKEN,
     to: destination as `0x${string}`,
     feePayer,
-    gas: 100000n,
+    gas: 100000n, // temp: need to manually set higher workaround 
   });
 
   print("Receipt:", `https://explore.tempo.xyz/tx/${receipt.transactionHash}`);
