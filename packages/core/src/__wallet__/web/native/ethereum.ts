@@ -145,7 +145,13 @@ export abstract class BaseEthereumWallet implements EthereumWalletInterface {
             namespace: Chain.Ethereum,
             chainId,
           },
-          info,
+          // Some wallet providers include leading whitespace in their icon URLs.
+          // Next.js 15+ and other frameworks are strict about URL formatting,
+          // so we trim
+          info: {
+            ...info,
+            ...(info.icon && { icon: info.icon.trim() }),
+          },
           provider,
           connectedAddresses,
         });
