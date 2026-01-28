@@ -2637,6 +2637,34 @@ export default function AuthPage() {
           </button>
         </div>
       </div>
+      <div>
+        <h2>HTTP Client Methods</h2>
+        <div className="flex flex-wrap gap-2 mb-2">
+          <button
+            onClick={async () => {
+              const res = await turnkey.httpClient?.createPrivateKeys({
+                privateKeys: [
+                  {
+                    privateKeyName: "AAAAAAAA" + Date.now(),
+                    curve: "CURVE_SECP256K1",
+                    addressFormats: ["ADDRESS_FORMAT_ETHEREUM"],
+                    privateKeyTags: [],
+                  },
+                ],
+              });
+              console.log("Create Private Keys Result:", res);
+            }}
+            style={{
+              backgroundColor: "salmon",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Create Private Keys
+          </button>
+        </div>
+      </div>
     </main>
   );
 }
