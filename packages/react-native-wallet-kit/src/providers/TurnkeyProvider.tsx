@@ -2,12 +2,14 @@ import {
   isValidSession,
   SESSION_WARNING_THRESHOLD_MS,
   withTurnkeyErrorHandling,
-  TURNKEY_OAUTH_ORIGIN_URL,
   TURNKEY_OAUTH_REDIRECT_URL,
-  DISCORD_AUTH_URL,
-  X_AUTH_URL,
   generateChallengePair,
   exchangeCodeForToken,
+  buildOAuthUrl,
+  storePKCEVerifier,
+  handlePKCEFlow,
+  completeOAuthFlow,
+  parseInAppBrowserResult,
   type TimerMap,
   clearKey,
   clearAll,
@@ -79,11 +81,6 @@ import DeviceInfo from "react-native-device-info";
 import { InAppBrowser } from "react-native-inappbrowser-reborn";
 import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
-import AsyncStorageModule from "@react-native-async-storage/async-storage";
-
-// some bundlers wrap the module as { default: AsyncStorage } instead of
-// returning AsyncStorage directly. This handles both cases
-const AsyncStorage = (AsyncStorageModule as any).default ?? AsyncStorageModule;
 
 import {
   TurnkeyError,
@@ -101,6 +98,7 @@ import {
   type PasskeyAuthResult,
   v1BootProof,
   TGetSendTransactionStatusResponse,
+  OAuthProviders,
 } from "@turnkey/sdk-types";
 
 import {
@@ -294,9 +292,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     } as TurnkeyProviderConfig;
   };
 
-  const getOauthProviderSettings = (
-    provider: "google" | "apple" | "facebook" | "x" | "discord",
-  ) => {
+  const getOauthProviderSettings = (provider: OAuthProviders) => {
     const oauth = masterConfig?.auth?.oauth;
     const providerConfig = oauth ? (oauth as any)[provider] : undefined;
     const providerObjectConfig =
@@ -2427,7 +2423,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clientId,
         redirectUri,
         appScheme: scheme,
-      } = getOauthProviderSettings("discord");
+      } = getOauthProviderSettings(OAuthProviders.DISCORD);
       try {
         if (!masterConfig) {
           throw new TurnkeyError(
@@ -2467,31 +2463,21 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
         const nonce = bytesToHex(sha256(publicKey));
 
-        // Generate PKCE challenge pair
+        // Generate PKCE challenge pair and store verifier
         const { verifier, codeChallenge } = await generateChallengePair();
-        await AsyncStorage.setItem("discord_verifier", verifier);
+        await storePKCEVerifier(OAuthProviders.DISCORD, verifier);
 
-        // Create state parameter
-        let state = `provider=discord&flow=redirect&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}`;
-        if (additionalParameters) {
-          const extra = Object.entries(additionalParameters)
-            .map(
-              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
-            )
-            .join("&");
-          if (extra) state += `&${extra}`;
-        }
-
-        // Construct Discord Auth URL
-        const discordAuthUrl =
-          DISCORD_AUTH_URL +
-          `?client_id=${encodeURIComponent(clientId)}` +
-          `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-          `&response_type=code` +
-          `&code_challenge=${encodeURIComponent(codeChallenge)}` +
-          `&code_challenge_method=S256` +
-          `&scope=${encodeURIComponent("identify email")}` +
-          `&state=${encodeURIComponent(state)}`;
+        // Build OAuth URL (direct Discord URL, not proxy)
+        const discordAuthUrl = buildOAuthUrl({
+          provider: OAuthProviders.DISCORD,
+          clientId,
+          redirectUri,
+          publicKey,
+          nonce,
+          codeChallenge,
+          additionalState: additionalParameters,
+          useOauthProxyOrigin: false,
+        });
 
         if (!(await InAppBrowser.isAvailable())) {
           throw new TurnkeyError(
@@ -2519,83 +2505,43 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        // Extract params from deep link
-        const qsIndex = result.url.indexOf("?");
-        const queryString =
-          qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
-        const urlParams = new URLSearchParams(queryString);
-        const authCode = urlParams.get("code");
-        const stateParam = urlParams.get("state");
-        const sessionKey = stateParam
-          ?.split("&")
-          .find((param) => param.startsWith("sessionKey="))
-          ?.split("=")[1];
-
-        if (!authCode) {
+        // Parse the deep link result
+        const parsed = parseInAppBrowserResult(result.url);
+        if (!parsed.authCode) {
           throw new TurnkeyError(
             "Missing authorization code from Discord OAuth",
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
 
-        const storedVerifier = await AsyncStorage.getItem("discord_verifier");
-        if (!storedVerifier) {
-          throw new TurnkeyError(
-            "Missing PKCE verifier",
-            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-          );
-        }
-
-        try {
-          const resp = await client?.httpClient?.proxyOAuth2Authenticate({
-            provider: "OAUTH2_PROVIDER_DISCORD",
-            authCode,
-            redirectUri,
-            codeVerifier: storedVerifier,
-            clientId,
-            nonce,
-          });
-
-          await AsyncStorage.removeItem("discord_verifier");
-
-          const oidcToken = resp?.oidcToken as string;
-          if (!oidcToken) {
-            throw new TurnkeyError(
-              "Missing oidcToken from OAuth exchange",
-              TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-            );
-          }
-
-          if (params?.onOauthSuccess) {
-            params.onOauthSuccess({
-              oidcToken,
-              providerName: "discord",
-              publicKey,
-              ...(sessionKey && { sessionKey }),
+        // Handle PKCE flow: exchange code for token and complete
+        await handlePKCEFlow({
+          provider: OAuthProviders.DISCORD,
+          publicKey,
+          authCode: parsed.authCode,
+          ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
+          ...(callbacks && { callbacks }),
+          completeOauth,
+          exchangeCodeForToken: async (codeVerifier) => {
+            const resp = await client?.httpClient?.proxyOAuth2Authenticate({
+              provider: "OAUTH2_PROVIDER_DISCORD",
+              authCode: parsed.authCode!,
+              redirectUri,
+              codeVerifier,
+              clientId,
+              nonce,
             });
-            return;
-          }
-
-          if (callbacks?.onOauthRedirect) {
-            callbacks.onOauthRedirect({
-              idToken: oidcToken,
-              publicKey,
-              ...(sessionKey && { sessionKey }),
-            });
-            return;
-          }
-
-          await completeOauth({
-            oidcToken,
-            publicKey,
-            providerName: "discord",
-            ...(sessionKey && { sessionKey }),
-          });
-          return;
-        } finally {
-          // Ensure cleanup even on error
-          await AsyncStorage.removeItem("discord_verifier");
-        }
+            const oidcToken = resp?.oidcToken as string;
+            if (!oidcToken) {
+              throw new TurnkeyError(
+                "Missing oidcToken from OAuth exchange",
+                TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+              );
+            }
+            return oidcToken;
+          },
+        });
+        return;
       } catch (error) {
         throw error;
       }
@@ -2610,7 +2556,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clientId,
         redirectUri,
         appScheme: scheme,
-      } = getOauthProviderSettings("x");
+      } = getOauthProviderSettings(OAuthProviders.X);
       try {
         if (!masterConfig) {
           throw new TurnkeyError(
@@ -2649,27 +2595,21 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
         const nonce = bytesToHex(sha256(publicKey));
 
+        // Generate PKCE challenge pair and store verifier
         const { verifier, codeChallenge } = await generateChallengePair();
-        await AsyncStorage.setItem("twitter_verifier", verifier);
+        await storePKCEVerifier(OAuthProviders.X, verifier);
 
-        let state = `provider=twitter&flow=redirect&publicKey=${encodeURIComponent(publicKey)}&nonce=${nonce}`;
-        if (additionalParameters) {
-          const extra = Object.entries(additionalParameters)
-            .map(
-              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
-            )
-            .join("&");
-          if (extra) state += `&${extra}`;
-        }
-        const twitterAuthUrl =
-          X_AUTH_URL +
-          `?client_id=${encodeURIComponent(clientId)}` +
-          `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-          `&response_type=code` +
-          `&code_challenge=${encodeURIComponent(codeChallenge)}` +
-          `&code_challenge_method=S256` +
-          `&scope=${encodeURIComponent("tweet.read users.read")}` +
-          `&state=${encodeURIComponent(state)}`;
+        // Build OAuth URL (direct X/Twitter URL, not proxy)
+        const twitterAuthUrl = buildOAuthUrl({
+          provider: OAuthProviders.X,
+          clientId,
+          redirectUri,
+          publicKey,
+          nonce,
+          codeChallenge,
+          additionalState: additionalParameters,
+          useOauthProxyOrigin: false,
+        });
 
         if (!(await InAppBrowser.isAvailable())) {
           throw new TurnkeyError(
@@ -2697,82 +2637,43 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const qsIndex = result.url.indexOf("?");
-        const queryString =
-          qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
-        const urlParams = new URLSearchParams(queryString);
-        const authCode = urlParams.get("code");
-        const stateParam = urlParams.get("state");
-        const sessionKey = stateParam
-          ?.split("&")
-          .find((param) => param.startsWith("sessionKey="))
-          ?.split("=")[1];
-
-        if (!authCode) {
+        // Parse the deep link result
+        const parsed = parseInAppBrowserResult(result.url);
+        if (!parsed.authCode) {
           throw new TurnkeyError(
             "Missing authorization code from Twitter OAuth",
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
 
-        const storedVerifier = await AsyncStorage.getItem("twitter_verifier");
-        if (!storedVerifier) {
-          throw new TurnkeyError(
-            "Missing PKCE verifier",
-            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-          );
-        }
-
-        try {
-          const resp = await client?.httpClient?.proxyOAuth2Authenticate({
-            provider: "OAUTH2_PROVIDER_X",
-            authCode,
-            redirectUri,
-            codeVerifier: storedVerifier,
-            clientId,
-            nonce,
-          });
-
-          await AsyncStorage.removeItem("twitter_verifier");
-
-          const oidcToken = resp?.oidcToken as string;
-          if (!oidcToken) {
-            throw new TurnkeyError(
-              "Missing oidcToken from OAuth exchange",
-              TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-            );
-          }
-
-          if (params?.onOauthSuccess) {
-            params.onOauthSuccess({
-              oidcToken,
-              providerName: "twitter",
-              publicKey,
-              ...(sessionKey && { sessionKey }),
+        // Handle PKCE flow: exchange code for token and complete
+        await handlePKCEFlow({
+          provider: OAuthProviders.X,
+          publicKey,
+          authCode: parsed.authCode,
+          ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
+          ...(callbacks && { callbacks }),
+          completeOauth,
+          exchangeCodeForToken: async (codeVerifier) => {
+            const resp = await client?.httpClient?.proxyOAuth2Authenticate({
+              provider: "OAUTH2_PROVIDER_X",
+              authCode: parsed.authCode!,
+              redirectUri,
+              codeVerifier,
+              clientId,
+              nonce,
             });
-            return;
-          }
-
-          if (callbacks?.onOauthRedirect) {
-            callbacks.onOauthRedirect({
-              idToken: oidcToken,
-              publicKey,
-              ...(sessionKey && { sessionKey }),
-            });
-            return;
-          }
-
-          await completeOauth({
-            oidcToken,
-            publicKey,
-            providerName: "twitter",
-            ...(sessionKey && { sessionKey }),
-          });
-          return;
-        } finally {
-          // Ensure cleanup even on error
-          await AsyncStorage.removeItem("twitter_verifier");
-        }
+            const oidcToken = resp?.oidcToken as string;
+            if (!oidcToken) {
+              throw new TurnkeyError(
+                "Missing oidcToken from OAuth exchange",
+                TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+              );
+            }
+            return oidcToken;
+          },
+        });
+        return;
       } catch (error) {
         throw error;
       }
@@ -2787,7 +2688,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clientId,
         redirectUri,
         appScheme: scheme,
-      } = getOauthProviderSettings("google");
+      } = getOauthProviderSettings(OAuthProviders.GOOGLE);
 
       try {
         if (!masterConfig) {
@@ -2830,13 +2731,15 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
         const nonce = bytesToHex(sha256(publicKey));
 
-        // Build OAuth Origin URL which will redirect to Google
-        const oauthUrl =
-          TURNKEY_OAUTH_ORIGIN_URL +
-          `?provider=google` +
-          `&clientId=${encodeURIComponent(clientId)}` +
-          `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
-          `&nonce=${encodeURIComponent(nonce)}`;
+        // Build OAuth URL using Turnkey OAuth proxy
+        const oauthUrl = buildOAuthUrl({
+          provider: OAuthProviders.GOOGLE,
+          clientId,
+          redirectUri: finalRedirectUri,
+          publicKey,
+          nonce,
+          useOauthProxyOrigin: true,
+        });
 
         if (!(await InAppBrowser.isAvailable())) {
           throw new TurnkeyError(
@@ -2864,45 +2767,23 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        // result.url is expected to be like: <scheme>://?id_token=...&state=... (from oauth-redirect)
-        const qsIndex = result.url.indexOf("?");
-        const queryString =
-          qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
-        const urlParams = new URLSearchParams(queryString);
-        const idToken = urlParams.get("id_token");
-        const sessionKey = urlParams.get("sessionKey") || undefined;
-
-        if (!idToken) {
+        // Parse the deep link result
+        const parsed = parseInAppBrowserResult(result.url);
+        if (!parsed.idToken) {
           throw new TurnkeyError(
             "oidcToken not found in the response",
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
 
-        if (params?.onOauthSuccess) {
-          params.onOauthSuccess({
-            oidcToken: idToken,
-            providerName: "google",
-            publicKey,
-            ...(sessionKey && { sessionKey }),
-          });
-          return;
-        }
-
-        if (callbacks?.onOauthRedirect) {
-          callbacks.onOauthRedirect({
-            idToken,
-            publicKey,
-            ...(sessionKey && { sessionKey }),
-          });
-          return;
-        }
-
-        await completeOauth({
-          oidcToken: idToken,
+        // Complete OAuth flow
+        await completeOAuthFlow({
+          provider: OAuthProviders.GOOGLE,
           publicKey,
-          providerName: "google",
-          ...(sessionKey && { sessionKey }),
+          oidcToken: parsed.idToken,
+          ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
+          ...(callbacks && { callbacks }),
+          completeOauth,
         });
         return;
       } catch (error) {
@@ -2919,7 +2800,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clientId,
         redirectUri,
         appScheme: scheme,
-      } = getOauthProviderSettings("apple");
+      } = getOauthProviderSettings(OAuthProviders.APPLE);
 
       try {
         if (!masterConfig) {
@@ -2962,25 +2843,16 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
         const nonce = bytesToHex(sha256(publicKey));
 
-        // Create state parameter (parity with web Provider.tsx)
-        let state = `provider=apple&flow=redirect&publicKey=${encodeURIComponent(publicKey)}`;
-        if (additionalParameters) {
-          const extra = Object.entries(additionalParameters)
-            .map(
-              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
-            )
-            .join("&");
-          if (extra) state += `&${extra}`;
-        }
-
-        // Build OAuth Origin URL which will redirect to Apple
-        const oauthUrl =
-          TURNKEY_OAUTH_ORIGIN_URL +
-          `?provider=apple` +
-          `&clientId=${encodeURIComponent(clientId)}` +
-          `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
-          `&nonce=${encodeURIComponent(nonce)}` +
-          `&state=${encodeURIComponent(state)}`;
+        // Build OAuth URL using Turnkey OAuth proxy
+        const oauthUrl = buildOAuthUrl({
+          provider: OAuthProviders.APPLE,
+          clientId,
+          redirectUri: finalRedirectUri,
+          publicKey,
+          nonce,
+          additionalState: additionalParameters,
+          useOauthProxyOrigin: true,
+        });
 
         if (!(await InAppBrowser.isAvailable())) {
           throw new TurnkeyError(
@@ -3008,49 +2880,23 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        // Extract params from deep link
-        const qsIndex = result.url.indexOf("?");
-        const queryString =
-          qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
-        const urlParams = new URLSearchParams(queryString);
-        const idToken = urlParams.get("id_token");
-        const stateParam = urlParams.get("state");
-        const sessionKey = stateParam
-          ?.split("&")
-          .find((param) => param.startsWith("sessionKey="))
-          ?.split("=")[1];
-
-        if (!idToken) {
+        // Parse the deep link result
+        const parsed = parseInAppBrowserResult(result.url);
+        if (!parsed.idToken) {
           throw new TurnkeyError(
             "oidcToken not found in the response",
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
 
-        if (params?.onOauthSuccess) {
-          params.onOauthSuccess({
-            oidcToken: idToken,
-            providerName: "apple",
-            publicKey,
-            ...(sessionKey && { sessionKey }),
-          });
-          return;
-        }
-
-        if (callbacks?.onOauthRedirect) {
-          callbacks.onOauthRedirect({
-            idToken,
-            publicKey,
-            ...(sessionKey && { sessionKey }),
-          });
-          return;
-        }
-
-        await completeOauth({
-          oidcToken: idToken,
+        // Complete OAuth flow
+        await completeOAuthFlow({
+          provider: OAuthProviders.APPLE,
           publicKey,
-          providerName: "apple",
-          ...(sessionKey && { sessionKey }),
+          oidcToken: parsed.idToken,
+          ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
+          ...(callbacks && { callbacks }),
+          completeOauth,
         });
         return;
       } catch (error) {
@@ -3067,7 +2913,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clientId,
         redirectUri,
         appScheme: scheme,
-      } = getOauthProviderSettings("facebook");
+      } = getOauthProviderSettings(OAuthProviders.FACEBOOK);
 
       try {
         if (!masterConfig) {
@@ -3110,30 +2956,21 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         }
         const nonce = bytesToHex(sha256(publicKey));
 
-        // Generate PKCE challenge pair
+        // Generate PKCE challenge pair and store verifier
         const { verifier, codeChallenge } = await generateChallengePair();
-        await AsyncStorage.setItem("facebook_verifier", verifier);
+        await storePKCEVerifier(OAuthProviders.FACEBOOK, verifier);
 
-        // Create state parameter
-        let state = `provider=facebook&flow=redirect&publicKey=${encodeURIComponent(publicKey)}`;
-        if (additionalParameters) {
-          const extra = Object.entries(additionalParameters)
-            .map(
-              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
-            )
-            .join("&");
-          if (extra) state += `&${extra}`;
-        }
-
-        // Construct Facebook Auth URL
-        const facebookAuthUrl =
-          TURNKEY_OAUTH_ORIGIN_URL +
-          `?provider=facebook` +
-          `&clientId=${encodeURIComponent(clientId)}` +
-          `&redirectUri=${encodeURIComponent(finalRedirectUri)}` +
-          `&codeChallenge=${encodeURIComponent(codeChallenge)}` +
-          `&nonce=${encodeURIComponent(nonce)}` +
-          `&state=${encodeURIComponent(state)}`;
+        // Build OAuth URL using Turnkey OAuth proxy
+        const oauthUrl = buildOAuthUrl({
+          provider: OAuthProviders.FACEBOOK,
+          clientId,
+          redirectUri: finalRedirectUri,
+          publicKey,
+          nonce,
+          codeChallenge,
+          additionalState: additionalParameters,
+          useOauthProxyOrigin: true,
+        });
 
         if (!(await InAppBrowser.isAvailable())) {
           throw new TurnkeyError(
@@ -3142,7 +2979,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        const result = await InAppBrowser.openAuth(facebookAuthUrl, scheme, {
+        const result = await InAppBrowser.openAuth(oauthUrl, scheme, {
           dismissButtonStyle: "cancel",
           animated: true,
           modalPresentationStyle: "fullScreen",
@@ -3161,81 +2998,41 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           );
         }
 
-        // Extract params from deep link
-        const qsIndex = result.url.indexOf("?");
-        const queryString =
-          qsIndex >= 0 ? result.url.substring(qsIndex + 1) : "";
-        const urlParams = new URLSearchParams(queryString);
-        const authCode = urlParams.get("code");
-        const stateParam = urlParams.get("state");
-        const sessionKey = stateParam
-          ?.split("&")
-          .find((param) => param.startsWith("sessionKey="))
-          ?.split("=")[1];
-
-        if (!authCode) {
+        // Parse the deep link result
+        const parsed = parseInAppBrowserResult(result.url);
+        if (!parsed.authCode) {
           throw new TurnkeyError(
             "Missing authorization code from Facebook OAuth",
             TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
           );
         }
 
-        const storedVerifier = await AsyncStorage.getItem("facebook_verifier");
-        if (!storedVerifier) {
-          throw new TurnkeyError(
-            "Missing PKCE verifier",
-            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-          );
-        }
-
-        try {
-          const tokenData = await exchangeCodeForToken(
-            clientId,
-            finalRedirectUri,
-            authCode,
-            storedVerifier,
-          );
-
-          await AsyncStorage.removeItem("facebook_verifier");
-
-          const idToken = tokenData?.id_token as string;
-          if (!idToken) {
-            throw new TurnkeyError(
-              "Missing oidcToken from OAuth exchange",
-              TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+        // Handle PKCE flow: exchange code for token and complete
+        await handlePKCEFlow({
+          provider: OAuthProviders.FACEBOOK,
+          publicKey,
+          authCode: parsed.authCode,
+          ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
+          ...(callbacks && { callbacks }),
+          completeOauth,
+          exchangeCodeForToken: async (codeVerifier) => {
+            const tokenData = await exchangeCodeForToken(
+              clientId,
+              finalRedirectUri,
+              parsed.authCode!,
+              codeVerifier,
             );
-          }
-
-          if (params?.onOauthSuccess) {
-            params.onOauthSuccess({
-              oidcToken: idToken,
-              providerName: "facebook",
-              publicKey,
-              ...(sessionKey && { sessionKey }),
-            });
-            return;
-          }
-
-          if (callbacks?.onOauthRedirect) {
-            callbacks.onOauthRedirect({
-              idToken,
-              publicKey,
-              ...(sessionKey && { sessionKey }),
-            });
-            return;
-          }
-
-          await completeOauth({
-            oidcToken: idToken,
-            publicKey,
-            providerName: "facebook",
-            ...(sessionKey && { sessionKey }),
-          });
-          return;
-        } finally {
-          // Ensure cleanup even on error
-          await AsyncStorage.removeItem("facebook_verifier");
-        }
+            const idToken = tokenData?.id_token as string;
+            if (!idToken) {
+              throw new TurnkeyError(
+                "Missing oidcToken from OAuth exchange",
+                TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+              );
+            }
+            return idToken;
+          },
+        });
+        return;
       } catch (error) {
         throw error;
       }
