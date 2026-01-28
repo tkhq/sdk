@@ -1,6 +1,6 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { stringToBase64urlString } from "@turnkey/encoding";
-import { OAuthProviders } from "@turnkey/sdk-types";
+import { AuthAction, BaseAuthResult, OAuthProviders } from "@turnkey/sdk-types";
 import AsyncStorageModule from "@react-native-async-storage/async-storage";
 
 // some bundlers wrap the module as { default: AsyncStorage } instead of
@@ -514,7 +514,7 @@ export interface OAuthCompletionCallbacks {
     publicKey: string;
     sessionKey?: string;
   }) => void;
-  /** Called when OAuth should redirect (legacy callback) */
+  /** Called when OAuth should redirect */
   onOauthRedirect?: (params: {
     idToken: string;
     publicKey: string;
@@ -537,7 +537,7 @@ export interface CompleteOAuthFlowParams {
     publicKey: string;
     providerName: string;
     sessionKey?: string;
-  }) => Promise<any>;
+  }) => Promise<BaseAuthResult & { action: AuthAction }>;
 }
 
 /**
@@ -601,7 +601,7 @@ export interface HandlePKCEFlowParams {
     publicKey: string;
     providerName: string;
     sessionKey?: string;
-  }) => Promise<any>;
+  }) => Promise<BaseAuthResult & { action: AuthAction }>;
   /** Function to exchange code for token (provider-specific) */
   exchangeCodeForToken: (codeVerifier: string) => Promise<string>;
 }
