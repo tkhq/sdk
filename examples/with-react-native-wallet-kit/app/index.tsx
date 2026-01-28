@@ -117,11 +117,7 @@ export default function LoginScreen() {
     try {
       setLoading(true);
 
-      await handleGoogleOauth({
-        onOauthSuccess: ({ oidcToken, providerName, publicKey }) => {
-          console.log("OAuth success", { oidcToken, providerName, publicKey });
-        },
-      });
+      await handleGoogleOauth();
     } catch (error) {
       console.error("Error signing in with Google", error);
     } finally {
@@ -133,11 +129,7 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       console.log("signing in with X");
-      await handleXOauth({
-        onOauthSuccess: ({ oidcToken, providerName, publicKey }) => {
-          console.log("OAuth success", { oidcToken, providerName, publicKey });
-        },
-      });
+      await handleXOauth();
     } catch (error) {
       console.error("Error signing in with X", error);
       Alert.alert("Error", `Failed to sign in with X: ${error}`);
@@ -150,11 +142,7 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       console.log("signing in with Discord");
-      await handleDiscordOauth({
-        onOauthSuccess: ({ oidcToken, providerName, publicKey }) => {
-          console.log("OAuth success", { oidcToken, providerName, publicKey });
-        },
-      });
+      await handleDiscordOauth();
     } catch (error) {
       console.error("Error signing in with Discord", error);
       Alert.alert("Error", `Failed to sign in with Discord: ${error}`);
@@ -167,11 +155,7 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       console.log("signing in with Facebook");
-      await handleFacebookOauth({
-        onOauthSuccess: ({ oidcToken, providerName, publicKey }) => {
-          console.log("OAuth success", { oidcToken, providerName, publicKey });
-        },
-      });
+      await handleFacebookOauth();
     } catch (error) {
       console.error("Error signing in with Facebook", error);
       Alert.alert("Error", `Failed to sign in with Facebook: ${error}`);
