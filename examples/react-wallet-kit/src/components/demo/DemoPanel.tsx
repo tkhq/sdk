@@ -83,7 +83,7 @@ export default function DemoPanel() {
           !providersVisited.has(provider.info.name)
         ) {
           providersVisited.add(provider.info.name);
-          icons.push(provider.info.icon ? provider.info.icon : "");
+          icons.push(provider.info.icon ?? "");
         }
       }
       return icons;
