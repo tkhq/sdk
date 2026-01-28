@@ -14,7 +14,7 @@
     "@turnkey/react-wallet-kit": "workspace:*",
     "@turnkey/solana": "workspace:*",
     "@turnkey/viem": "workspace:*",
-    "next": "^15.5.10",
+    "next": "15.5.10",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "viem": "^2.37.11",
@@ -27,7 +27,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "^15.5.10",
+    "eslint-config-next": "15.5.10",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
