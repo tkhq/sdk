@@ -292,9 +292,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     } as TurnkeyProviderConfig;
   };
 
-  const getOauthProviderSettings = (
-    provider: "google" | "apple" | "facebook" | "x" | "discord",
-  ) => {
+  const getOauthProviderSettings = (provider: OAuthProviders) => {
     const oauth = masterConfig?.auth?.oauth;
     const providerConfig = oauth ? (oauth as any)[provider] : undefined;
     const providerObjectConfig =
@@ -2421,12 +2419,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   const handleDiscordOauth = useCallback(
     async (params?: HandleDiscordOauthParams): Promise<void> => {
       const { additionalState: additionalParameters } = params || {};
-      const provider = OAuthProviders.DISCORD;
       const {
         clientId,
         redirectUri,
         appScheme: scheme,
-      } = getOauthProviderSettings(provider);
+      } = getOauthProviderSettings(OAuthProviders.DISCORD);
       try {
         if (!masterConfig) {
           throw new TurnkeyError(
@@ -2468,11 +2465,11 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         // Generate PKCE challenge pair and store verifier
         const { verifier, codeChallenge } = await generateChallengePair();
-        await storePKCEVerifier(provider, verifier);
+        await storePKCEVerifier(OAuthProviders.DISCORD, verifier);
 
         // Build OAuth URL (direct Discord URL, not proxy)
         const discordAuthUrl = buildOAuthUrl({
-          provider,
+          provider: OAuthProviders.DISCORD,
           clientId,
           redirectUri,
           publicKey,
@@ -2519,7 +2516,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
         // Handle PKCE flow: exchange code for token and complete
         await handlePKCEFlow({
-          provider,
+          provider: OAuthProviders.DISCORD,
           publicKey,
           authCode: parsed.authCode,
           ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
@@ -2559,7 +2556,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clientId,
         redirectUri,
         appScheme: scheme,
-      } = getOauthProviderSettings("x");
+      } = getOauthProviderSettings(OAuthProviders.X);
       try {
         if (!masterConfig) {
           throw new TurnkeyError(
@@ -2691,7 +2688,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clientId,
         redirectUri,
         appScheme: scheme,
-      } = getOauthProviderSettings("google");
+      } = getOauthProviderSettings(OAuthProviders.GOOGLE);
 
       try {
         if (!masterConfig) {
@@ -2803,7 +2800,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clientId,
         redirectUri,
         appScheme: scheme,
-      } = getOauthProviderSettings("apple");
+      } = getOauthProviderSettings(OAuthProviders.APPLE);
 
       try {
         if (!masterConfig) {
@@ -2916,7 +2913,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         clientId,
         redirectUri,
         appScheme: scheme,
-      } = getOauthProviderSettings("facebook");
+      } = getOauthProviderSettings(OAuthProviders.FACEBOOK);
 
       try {
         if (!masterConfig) {
