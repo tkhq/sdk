@@ -354,8 +354,19 @@ export const addressFormatConfig: Record<v1AddressFormat, AddressFormatConfig> =
 export const googleISS = "https://accounts.google.com";
 
 export const isReactNative = (): boolean => {
+  const g: any = typeof globalThis !== "undefined" ? globalThis : global;
+
+  // if we have a DOM, it's definitely not RN
+  // RN-web has DOM but we want false for that anyway
+  if (typeof document !== "undefined" && typeof window !== "undefined")
+    return false;
+
+  // check for RN-specific globals
+  // these shouldn't exist in Node, browsers, or webviews
   return (
-    typeof navigator !== "undefined" && navigator.product === "ReactNative"
+    typeof g?.__fbBatchedBridge !== "undefined" ||
+    typeof g?.nativeCallSyncHook !== "undefined" ||
+    typeof g?.RN$Bridgeless !== "undefined"
   );
 };
 
