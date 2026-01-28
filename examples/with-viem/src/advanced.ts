@@ -34,7 +34,7 @@ async function main() {
     new ApiKeyStamper({
       apiPublicKey: process.env.API_PUBLIC_KEY!,
       apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    }),
+    })
   );
 
   const turnkeyAccount = await createAccount({
@@ -47,7 +47,7 @@ async function main() {
     account: turnkeyAccount as Account,
     chain: sepolia,
     transport: http(
-      `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`,
+      `https://sepolia.infura.io/v3/${process.env.INFURA_API_KEY!}`
     ),
   });
 
@@ -83,47 +83,70 @@ async function main() {
   assertEqual(address, recoveredAddress);
 
   // 3. Sign typed data (EIP-712)
-  const domain = {
-    name: "Ether Mail",
-    version: "1",
-    chainId: 1,
-    verifyingContract: "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC",
-  } as const;
-
-  // The named list of all type definitions
-  const types = {
-    Person: [
-      { name: "name", type: "string" },
-      { name: "wallet", type: "address" },
-    ],
-    Mail: [
-      { name: "from", type: "Person" },
-      { name: "to", type: "Person" },
-      { name: "contents", type: "string" },
-    ],
-  } as const;
-
   const typedData = {
     account: turnkeyAccount as Account,
-    domain,
-    types,
-    primaryType: "Mail",
-    message: {
-      from: {
-        name: "Cow",
-        wallet: "0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826",
-      },
-      to: {
-        name: "Bob",
-        wallet: "0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB",
-      },
-      contents: "Hello, Bob!",
+    domain: {
+      name: "Test",
+      version: "1",
+      chainId: 1,
+      verifyingContract: "0x0000000000000000000000000000000000000000",
     },
-  } as const;
+    types: {
+      TestMessage: [{ name: "number", type: "uint256" }],
+    },
+    primaryType: "TestMessage",
+    message: {
+      number: 42n, // BigInt
+    },
+  };
 
-  signature = await client.signTypedData(typedData);
+  const types = {
+    TransferRequest: [
+      { name: "selector", type: "bytes4" },
+      { name: "destination", type: "address" },
+      { name: "token", type: "address" },
+      { name: "nonStandardIndex", type: "uint256" },
+      { name: "tokenId", type: "uint256" },
+      { name: "amount", type: "uint256" },
+      { name: "amounts", type: "uint256[]" },
+      { name: "tokenIds", type: "uint256[]" },
+      { name: "data", type: "bytes" },
+      { name: "nonce", type: "uint256" },
+    ],
+  };
+
+  const request = {
+    destination: "0x54FFabdc775e54bc852010C4AfF553183420E6bb",
+    token: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+    nonStandardIndex: 0n,
+    tokenId: 0n,
+    amount: 11527707n,
+    amounts: [],
+    tokenIds: [],
+    data: "0x",
+    selector: "0xc9a4324f",
+    nonce: 3375574816n,
+  };
+
+  const message = {
+    ...request
+  };
+
+  const td = {
+    domain: {
+      name: "AccountImplementation",
+      version: "1",
+      chainId: sepolia.id,
+      verifyingContract: "0x0000000000000000000000000000000000000000",
+    },
+    types,
+    primaryType: "TransferRequest",
+    message,
+  }
+
+  signature = await client.signTypedData(td);
   recoveredAddress = await recoverTypedDataAddress({
-    ...typedData,
+    ...td,
     signature,
   });
 
