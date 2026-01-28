@@ -149,7 +149,7 @@ async function main() {
 
   const { receipt } = await client.token.transferSync({
     amount: parseUnits(amount, decimals),
-    token: TIP20_TOKEN,
+    token: ALPHA_USD,
     to: destination as `0x${string}`,
     feePayer,
     gas: 100000n, // temp workaround: need to manually set higher gas limit
