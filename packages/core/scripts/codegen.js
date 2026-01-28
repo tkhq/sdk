@@ -451,6 +451,13 @@ const generateSDKClientFromSwagger = async (
     } else if (methodType === "activity") {
       // For activity methods
       const resultKey = operationNameWithoutNamespace + "Result";
+
+      if (!resultKey || !latestVersions[resultKey]) {
+        throw new Error(
+          `No latest version found for activity result key: ${resultKey}`,
+        );
+      }
+
       const versionedMethodName = latestVersions[resultKey].formattedKeyName;
 
       codeBuffer.push(

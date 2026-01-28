@@ -2292,7 +2292,7 @@ export default function AuthPage() {
         </div>
       </div>
       <div>
-        <h2>Random Methods</h2>
+        <h2>HTTP Client Methods</h2>
         <div className="flex flex-wrap gap-2 mb-2">
           <button
             onClick={async () => {
