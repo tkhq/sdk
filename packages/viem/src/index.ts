@@ -7,6 +7,9 @@ import {
   hexToBytes,
   parseTransaction,
   serializeTypedData,
+  createPublicClient,
+  http,
+  Chain,
 } from "viem";
 import {
   SignAuthorizationReturnType,
@@ -23,6 +26,16 @@ import type {
   TypedData,
 } from "viem";
 import { secp256k1 } from "@noble/curves/secp256k1";
+import { getEntryPoint, KERNEL_V3_3 } from "@zerodev/sdk/constants";
+import {
+  create7702KernelAccount,
+  create7702KernelAccountClient,
+} from "@zerodev/ecdsa-validator";
+import {
+  createZeroDevPaymasterClient,
+  getUserOperationGasPrice,
+  KernelAccountClient,
+} from "@zerodev/sdk";
 
 import {
   assertNonNull,
@@ -719,4 +732,87 @@ export function isTurnkeyActivityError(error: any) {
       return e instanceof TurnkeyActivityError;
     })
   );
+}
+
+export async function initSmartAccount(
+  client:
+    | TurnkeyClient
+    | TurnkeyBrowserClient
+    | TurnkeyServerClient
+    | TurnkeySDKClientBase,
+  organizationId: string,
+  signWith: string, // your Ethereum EOA
+  smartAccountParams: {
+    chain: Chain;
+    paymasterUrl: string;
+    sponsor?: boolean;
+  },
+): Promise<KernelAccountClient> {
+  const { paymasterUrl, sponsor, chain } = smartAccountParams;
+  const entryPoint = getEntryPoint("0.7");
+  const kernelVersion = KERNEL_V3_3;
+
+  const publicClient = createPublicClient({
+    transport: http(),
+    chain,
+  });
+
+  const turnkeyAccount = await createAccount({
+    client,
+    organizationId,
+    signWith,
+  });
+
+  const account = await create7702KernelAccount(publicClient, {
+    signer: turnkeyAccount,
+    entryPoint,
+    kernelVersion,
+  });
+
+  const paymasterClient = createZeroDevPaymasterClient({
+    chain,
+    transport: http(paymasterUrl),
+  });
+
+  const kernelClient = create7702KernelAccountClient({
+    account,
+    chain,
+    bundlerTransport: http(paymasterUrl),
+    userOperation: {
+      estimateFeesPerGas: async ({ bundlerClient }) => {
+        return getUserOperationGasPrice(bundlerClient);
+      },
+    },
+    paymaster: sponsor
+      ? {
+          getPaymasterData: (userOperation) => {
+            return paymasterClient.sponsorUserOperation({
+              userOperation,
+            });
+          },
+        }
+      : {},
+    client: publicClient,
+  });
+
+  return kernelClient;
+}
+
+export async function signWithSmartAccount(
+  kernelClient: KernelAccountClient,
+  calls: readonly {
+    to: `0x${string}`;
+    data?: `0x${string}` | undefined;
+    value?: bigint | undefined;
+  }[],
+): Promise<KernelAccountClient> {
+  const userOpHash = await kernelClient.sendUserOperation({
+    callData: await kernelClient.account.encodeCalls(calls),
+  });
+
+  const { receipt } = await kernelClient.waitForUserOperationReceipt({
+    hash: userOpHash,
+  });
+
+  return receipt;
 }
