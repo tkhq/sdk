@@ -89,7 +89,13 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
           chainInfo: {
             namespace: Chain.Solana,
           },
-          info: { name: wallet.name, icon: wallet.icon },
+          // Some wallet providers include leading whitespace in their icon URLs.
+          // Next.js 15+ and other frameworks are strict about URL formatting,
+          // so we trim
+          info: {
+            name: wallet.name,
+            ...(wallet.icon && { icon: wallet.icon.trim() }),
+          },
           provider: wallet as WalletRpcProvider,
           connectedAddresses,
         });
