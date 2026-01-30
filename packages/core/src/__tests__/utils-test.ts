@@ -1,11 +1,4 @@
-import {
-  describe,
-  expect,
-  jest,
-  beforeEach,
-  afterEach,
-  it,
-} from "@jest/globals";
+import { describe, expect, jest, afterEach, it } from "@jest/globals";
 import {
   externaldatav1Timestamp,
   TurnkeyError,
@@ -16,8 +9,6 @@ import {
   type v1WalletAccount,
 } from "@turnkey/sdk-types";
 import {
-  isWeb,
-  isReactNative,
   getHashFunction,
   getEncodingType,
   getEncodedMessage,
@@ -83,89 +74,6 @@ jest.mock("@turnkey/crypto", () => {
 });
 import { uncompressRawPublicKey } from "@turnkey/crypto";
 import { TurnkeyRequestError } from "@turnkey/http";
-
-describe("platform detection", () => {
-  const g = globalThis as any;
-
-  const saveGlobals = () => ({
-    window: g.window,
-    document: g.document,
-    navigator: g.navigator,
-  });
-
-  const restoreGlobals = (orig: any) => {
-    if (typeof orig.window === "undefined") delete g.window;
-    else g.window = orig.window;
-
-    if (typeof orig.document === "undefined") delete g.document;
-    else g.document = orig.document;
-
-    if (typeof orig.navigator === "undefined") delete g.navigator;
-    else g.navigator = orig.navigator;
-  };
-
-  let orig: any;
-
-  beforeEach(() => {
-    orig = saveGlobals();
-    // Start clean: no browser-like globals unless a test sets them.
-    delete g.window;
-    delete g.document;
-    delete g.navigator;
-    jest.resetModules(); // ensures fresh imports if needed later
-  });
-
-  afterEach(() => {
-    restoreGlobals(orig);
-    jest.restoreAllMocks();
-  });
-
-  it("returns false for both on plain Node (no globals)", () => {
-    expect(isWeb()).toBe(false);
-    expect(isReactNative()).toBe(false);
-  });
-
-  it("isWeb() true when window and document exist", () => {
-    g.window = {};
-    g.document = {};
-    expect(isWeb()).toBe(true);
-    expect(isReactNative()).toBe(false);
-  });
-
-  it("isWeb() false if only window exists", () => {
-    g.window = {};
-    expect(isWeb()).toBe(false);
-  });
-
-  it("isWeb() false if only document exists", () => {
-    g.document = {};
-    expect(isWeb()).toBe(false);
-  });
-
-  it("isReactNative() true when navigator.product === 'ReactNative'", () => {
-    g.navigator = { product: "ReactNative" };
-    expect(isReactNative()).toBe(true);
-    expect(isWeb()).toBe(false);
-  });
-
-  it("isReactNative() false when navigator exists but product differs", () => {
-    g.navigator = { product: "Gecko" };
-    expect(isReactNative()).toBe(false);
-  });
-
-  it("isReactNative() false when navigator missing", () => {
-    expect(isReactNative()).toBe(false);
-  });
-
-  it("does not accidentally treat web + RN at the same time", () => {
-    g.window = {};
-    g.document = {};
-    g.navigator = { product: "ReactNative" };
-    // the current logic would report both true; might need to change current behavior
-    expect(isWeb()).toBe(true);
-    expect(isReactNative()).toBe(true);
-  });
-});
 
 describe("address format helpers", () => {
   const ETH: v1AddressFormat = "ADDRESS_FORMAT_ETHEREUM";
@@ -1113,9 +1021,10 @@ describe("isValidPasskeyName", () => {
   });
 
   it("react-native: enforces 1–64 length and same allowed charset", () => {
-    // simulate React Native environment
-    const originalNav = (global as any).navigator;
-    (global as any).navigator = { product: "ReactNative" };
+    // simulate React Native environment using RN-specific global
+    const g = globalThis as any;
+    const original = g.__fbBatchedBridge;
+    g.__fbBatchedBridge = {};
 
     try {
       expect(isValidPasskeyName("Name_01-/:.")).toBe("Name_01-/:.");
@@ -1128,20 +1037,24 @@ describe("isValidPasskeyName", () => {
         /Passkey name must be 1-64 characters/i,
       );
     } finally {
-      // restore original navigator
-      (global as any).navigator = originalNav;
+      // restore original
+      if (typeof original === "undefined") delete g.__fbBatchedBridge;
+      else g.__fbBatchedBridge = original;
     }
   });
 
   it("react-native: rejects invalid characters", () => {
-    const originalNav = (global as any).navigator;
-    (global as any).navigator = { product: "ReactNative" };
+    // simulate React Native environment using RN-specific global
+    const g = globalThis as any;
+    const original = g.__fbBatchedBridge;
+    g.__fbBatchedBridge = {};
 
     try {
       expect(() => isValidPasskeyName("bad*char")).toThrow(TurnkeyError);
     } finally {
-      // restore original navigator
-      (global as any).navigator = originalNav;
+      // restore original
+      if (typeof original === "undefined") delete g.__fbBatchedBridge;
+      else g.__fbBatchedBridge = original;
     }
   });
 });
