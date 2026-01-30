@@ -1,5 +1,16 @@
 # @turnkey/cosmjs
 
+## 0.8.23
+
+### Patch Changes
+
+- Updated dependencies [[`2d19991`](https://github.com/tkhq/sdk/commit/2d19991bcf4e1c9704b73a48c54e870373b4bd95), [`89d4084`](https://github.com/tkhq/sdk/commit/89d40844d791b0bbb6d439da5e778b1fdeca4273), [`4742eaf`](https://github.com/tkhq/sdk/commit/4742eafbfdcc6fe6b6d3aab01569ad94a5198571), [`ba2521d`](https://github.com/tkhq/sdk/commit/ba2521d5d1c1f6baaa58ee65dce8cc4839f7dc7b), [`12ca083`](https://github.com/tkhq/sdk/commit/12ca083314310b05cf41ac29fa2d55eed627f229), [`a85153c`](https://github.com/tkhq/sdk/commit/a85153c8ccc7454cd5aca974bc463fb47c7f8cd4)]:
+  - @turnkey/core@1.11.1
+  - @turnkey/sdk-server@5.0.2
+  - @turnkey/sdk-browser@5.14.2
+  - @turnkey/api-key-stamper@0.6.1
+  - @turnkey/http@3.16.2
+
 ## 0.8.22
 
 ### Patch Changes
