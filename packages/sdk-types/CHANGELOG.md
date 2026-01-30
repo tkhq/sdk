@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.11.2
+
+### Patch Changes
+
+- [#1180](https://github.com/tkhq/sdk/pull/1180) [`8e075b7`](https://github.com/tkhq/sdk/commit/8e075b7161ccc68cb446b10b54737856fa0c6d31) Author [@amircheikh](https://github.com/amircheikh) - `OAuthProviders` enum now maps all provider names to fully lowercase strings.
+
 ## 0.11.1
 
 ### Patch Changes
