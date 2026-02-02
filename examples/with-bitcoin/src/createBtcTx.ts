@@ -144,9 +144,13 @@ async function createUnsignedPsbt(): Promise<PSBTCreationResult> {
       addressType == "MainnetP2WPKH" ||
       addressType == "TestnetP2WPKH"
     ) {
+      // Fetch the full previous transaction to prevent fee manipulation attacks
+      const nonWitnessUtxo = await getTransaction(utxo.hash, network);
+
       psbt.addInput({
         hash: utxo.hash,
         index: utxo.index,
+        nonWitnessUtxo: nonWitnessUtxo,
         witnessUtxo: {
           script: bitcoin.payments.p2wpkh({
             pubkey: pair.publicKey,
@@ -240,6 +244,23 @@ async function getUTXOs(address: string, network: bitcoin.Network) {
     return await response.json();
   } catch (error) {
     console.error("Error fetching UTXOs:", error);
+    throw error;
+  }
+}
+
+async function getTransaction(
+  txid: string,
+  network: bitcoin.Network,
+): Promise<Buffer> {
+  try {
+    const url = isMainnet(network)
+      ? `https://blockstream.info/api/tx/${txid}/hex`
+      : `https://blockstream.info/testnet/api/tx/${txid}/hex`;
+    const response = await fetch(url);
+    const txHex = await response.text();
+    return Buffer.from(txHex, "hex");
+  } catch (error) {
+    console.error("Error fetching transaction:", error);
     throw error;
   }
 }
