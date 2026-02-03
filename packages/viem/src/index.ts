@@ -58,11 +58,28 @@ type TSignatureFormat = "object" | "bytes" | "hex";
 
 type TPayloadEncoding = TurnkeyApiTypes["v1PayloadEncoding"];
 
+type TTransactionType = TurnkeyApiTypes["v1TransactionType"];
+
 type TSignatureExtended = Omit<TSignature, "v"> & {
   v: string | BigInt;
 };
 
 type TSignMessageResult = Uint8Array | Hex | TSignatureExtended;
+
+/**
+ * Detects the transaction type from a serialized transaction payload.
+ * @param serializedTx - The hex-encoded transaction (without 0x prefix)
+ * @returns The transaction type to use with Turnkey API
+ */
+function detectTransactionType(serializedTx: string): TTransactionType {
+  // Check if the transaction starts with 0x76 (Tempo transaction)
+  if (serializedTx.startsWith("76")) {
+    return "TRANSACTION_TYPE_TEMPO" as TTransactionType;
+  }
+
+  // Default to Ethereum for all other transactions
+  return "TRANSACTION_TYPE_ETHEREUM";
+}
 
 export class TurnkeyConsensusNeededError extends BaseError {
   override name = "TurnkeyConsensusNeededError";
@@ -440,11 +457,16 @@ export async function signTransaction<
 
   const serializedTx = await serializer(signableTransaction);
   const nonHexPrefixedSerializedTx = serializedTx.replace(/^0x/, "");
+
+  // Automatically detect transaction type from the serialized payload
+  const transactionType = detectTransactionType(nonHexPrefixedSerializedTx);
+
   const signedTx = await signTransactionWithErrorWrapping(
     client,
     nonHexPrefixedSerializedTx,
     organizationId,
     signWith,
+    transactionType,
   );
 
   if (transaction.type === "eip4844") {
@@ -491,6 +513,7 @@ async function signTransactionWithErrorWrapping(
   unsignedTransaction: string,
   organizationId: string,
   signWith: string,
+  transactionType?: TTransactionType,
 ): Promise<Hex> {
   let signedTx: string;
   try {
@@ -499,6 +522,7 @@ async function signTransactionWithErrorWrapping(
       unsignedTransaction,
       organizationId,
       signWith,
+      transactionType,
     );
   } catch (error: any) {
     // Wrap Turnkey error in Viem-specific error
@@ -535,6 +559,7 @@ async function signTransactionImpl(
   unsignedTransaction: string,
   organizationId: string,
   signWith: string,
+  transactionType?: TTransactionType,
 ): Promise<string> {
   if (isHttpClient(client)) {
     const { activity } = await client.signTransaction({
@@ -542,7 +567,7 @@ async function signTransactionImpl(
       organizationId: organizationId,
       parameters: {
         signWith,
-        type: "TRANSACTION_TYPE_ETHEREUM",
+        type: transactionType ?? "TRANSACTION_TYPE_ETHEREUM",
         unsignedTransaction: unsignedTransaction,
       },
       timestampMs: String(Date.now()), // millisecond timestamp
@@ -557,7 +582,7 @@ async function signTransactionImpl(
     const { activity, signedTransaction } = await client.signTransaction({
       organizationId,
       signWith,
-      type: "TRANSACTION_TYPE_ETHEREUM",
+      type: transactionType ?? "TRANSACTION_TYPE_ETHEREUM",
       unsignedTransaction: unsignedTransaction,
     });
 

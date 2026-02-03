@@ -16,7 +16,8 @@ import {
   formatUnits,
 } from "viem";
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
-import { createAccount, createNewWallet } from "./turnkey";
+import { createAccount } from "@turnkey/viem";
+import { createNewWallet } from "./turnkey";
 import { print } from "./util";
 
 // @ts-ignore
@@ -40,15 +41,15 @@ async function ensureFunded(
 
   if (balance > 0n) {
     print(
-      `${address} ${token.name} Balance:`,
+      `${token.name} balance for ${address}:`,
       formatUnits(balance, token.decimals),
     );
     return;
   }
 
   print(
-    `${address} ${token.name} balance is 0! Funding...`,
-    "https://docs.tempo.xyz/guide/quickstart/faucet",
+    `${token.name} balance for ${address} is 0! Funding... if unsuccessful, please add funds via the faucet:`,
+    "https://docs.tempo.xyz/guide/use-accounts/add-funds",
   );
   const receipts = await Actions.faucet.fundSync(client, { account: address });
   const newBalance = await Actions.token.getBalance(client, {
@@ -129,15 +130,17 @@ async function main() {
     },
   ]);
 
+  console.log();
+
   await ensureFunded(client, client.account.address, token);
 
   const sponsorAccount =
     useSponsor && process.env.SPONSOR_WITH
-      ? await createAccount({
+      ? ((await createAccount({
           client: sdk.apiClient(),
           organizationId: process.env.ORGANIZATION_ID!,
           signWith: process.env.SPONSOR_WITH,
-        })
+        })) as Account)
       : undefined;
 
   if (sponsorAccount) {
