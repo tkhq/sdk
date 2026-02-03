@@ -1,5 +1,18 @@
 # @turnkey/sdk-react
 
+## 5.5.2
+
+### Patch Changes
+
+- [#1185](https://github.com/tkhq/sdk/pull/1185) [`9ac70dd`](https://github.com/tkhq/sdk/commit/9ac70ddbf89b30f339085f86a95e9bacb294b5a4) Author [@moeodeh3](https://github.com/moeodeh3) - Bump `NextJS` to 15.5.10 to address https://github.com/advisories/GHSA-h25m-26qc-wcjf
+
+- Updated dependencies [[`8e075b7`](https://github.com/tkhq/sdk/commit/8e075b7161ccc68cb446b10b54737856fa0c6d31), [`4742eaf`](https://github.com/tkhq/sdk/commit/4742eafbfdcc6fe6b6d3aab01569ad94a5198571)]:
+  - @turnkey/sdk-types@0.11.2
+  - @turnkey/sdk-server@5.0.2
+  - @turnkey/crypto@2.8.10
+  - @turnkey/sdk-browser@5.14.2
+  - @turnkey/wallet-stamper@1.1.12
+
 ## 5.5.1
 
 ### Patch Changes

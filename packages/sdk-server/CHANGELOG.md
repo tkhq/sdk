@@ -1,5 +1,16 @@
 # @turnkey/sdk-server
 
+## 5.0.2
+
+### Patch Changes
+
+- [#1173](https://github.com/tkhq/sdk/pull/1173) [`4742eaf`](https://github.com/tkhq/sdk/commit/4742eafbfdcc6fe6b6d3aab01569ad94a5198571) Author [@ethankonk](https://github.com/ethankonk) - Fix polling logic to use the `organizationId` from the activity response instead of the config, which fixes activity polling for auth functions
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.1
+  - @turnkey/wallet-stamper@1.1.12
+  - @turnkey/http@3.16.2
+
 ## 5.0.1
 
 ### Patch Changes
