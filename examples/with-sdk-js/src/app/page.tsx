@@ -2002,9 +2002,6 @@ export default function AuthPage() {
                   data: "0x",
                   caip2: "eip155:8453", // Base mainnet
                   sponsor: false, // NON-SPONSORED
-                  gasLimit: "21000",
-                  maxFeePerGas: "1000000000",
-                  maxPriorityFeePerGas: "1000000000",
                 },
               });
             }}
@@ -2027,11 +2024,6 @@ export default function AuthPage() {
               const tx = {
                 to: "0x0000000000000000000000000000000000000000",
                 value: parseEther("0.001"),
-                nonce: 0,
-                gasLimit: BigInt("21000"),
-                gasPrice: BigInt("100000000000000"),
-                // maxFeePerGas: BigInt("1000000000"),
-                // maxPriorityFeePerGas: BigInt("1000000000"),
                 chainId: 1,
               };
 
@@ -2172,10 +2164,6 @@ export default function AuthPage() {
                 const tx = {
                   to: "0x0000000000000000000000000000000000000000",
                   value: parseEther("0.001"),
-                  nonce: 0,
-                  gasLimit: BigInt("21000"),
-                  maxFeePerGas: BigInt("1000000000"),
-                  maxPriorityFeePerGas: BigInt("1000000000"),
                   chainId: 1,
                 };
 
