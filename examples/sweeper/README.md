@@ -1,6 +1,6 @@
 # Example: `sweeper`
 
-This example shows how to sweep funds (tokens + native ETH) from one address to another, built on top of [`Ethers`](https://docs.ethers.org/v6/api/providers/#Signer) with Turnkey.
+This example shows how to sweep funds (tokens + native ETH) from one address to another, built on top of [`Ethers`](https://docs.ethers.org/v6/api/providers/#Signer) with Turnkey. Gas sponsorship through Turnkey is available as an option for the sweeps.
 
 ## Getting started
 
@@ -46,7 +46,7 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm start
 ```
 
-The script constructs and signs a and sends series of sweep transactions via Turnkey. If the script exits because your account isn't funded, you can request funds on https://cloud.google.com/application/web3/faucet/ethereum/sepolia. By default, this utility will sweep USDC, UNI, and ETH.
+The script constructs and signs a and sends series of sweep transactions via Turnkey. If the script exits because your account isn't funded, you can request funds on https://cloud.google.com/application/web3/faucet/ethereum/sepolia or use Turnkey's gas sponsorship feature. By default, this utility will sweep USDC, UNI, and ETH.
 
 ```
 Network:
@@ -57,6 +57,10 @@ Address:
 
 Balance:
         0.094678708129562482 Ether
+
+Address: 0x2A5111A1b0c0da37750b595b89BBaf1E6B7a8a27
+Balance: 0.094678708129562482
+? Use Turnkey gas sponsorship for sweep transactions? › (y/N)
 
 ✔ Please confirm: transfer 0.05 UNI (token address 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984) to 0x4A7937B14bb850bd706053e279Db9D9a784A1eF2? … yes
 Sent 0.05 UNI (token address 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984) to 0x4A7937B14bb850bd706053e279Db9D9a784A1eF2:

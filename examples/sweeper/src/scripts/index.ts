@@ -23,12 +23,7 @@ export async function main() {
   const balance = await provider.getBalance(address);
 
   console.log("Address:", address);
-  console.log("Balance:", ethers.formatEther(balance));
-
-  if (balance === 0n) {
-    console.warn("Not enough ETH.");
-    return;
-  }
+  console.log("Eth Balance:", ethers.formatEther(balance));
 
   const tokens = [USDC_SEPOLIA, WETH_SEPOLIA];
   let sponsor = false;
@@ -39,6 +34,13 @@ export async function main() {
     initial: false,
   });
   sponsor = !!useSponsor;
+
+  if (!sponsor) {
+    if (balance === 0n) {
+      console.warn("Not enough ETH.");
+      return;
+    }
+  }
 
   await sweepTokens(turnkey, orgId, address, destination, tokens, sponsor);
   await sweepEth(turnkey, orgId, address, destination, sponsor);
