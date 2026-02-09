@@ -16,6 +16,7 @@ import {
   formatHpkeBuf,
   verifyStampSignature,
   verifySessionJwtSignature,
+  verifyOtpVerificationToken,
   fromDerSignature,
 } from "../";
 
@@ -457,6 +458,38 @@ describe("Session JWT signature", () => {
 
     const ok = await verifySessionJwtSignature(jwt);
     expect(ok).toBe(true);
+  });
+});
+
+describe("OTP Verification Token", () => {
+  test("verifies and decodes the OTP verification token JWT", async () => {
+    const jwt =
+      "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9." +
+      "eyJjb250YWN0IjoidXNlckBleGFtcGxlLmNvbSIsImV4cCI6MTc3MDc1MTgyMSwiaWQiOiI4ZmMxZDQ0NS05ZmI4LTQ3NWQtYWViNy04ZTlkOWY4ZjkwYTUiLCJ2ZXJpZmljYXRpb25fdHlwZSI6Ik9UUF9UWVBFX0VNQUlMIn0." +
+      "YorjdeMCvQmjWe680OeWUDXB7LEBFudvGS8R8TP451DACO02MAyAlKOwXOulG9Z422qXMvVqn7mITT2f1hgWwQ";
+
+    const claims = await verifyOtpVerificationToken(jwt);
+    expect(claims.id).toBe("8fc1d445-9fb8-475d-aeb7-8e9d9f8f90a5");
+    expect(claims.verification_type).toBe("OTP_TYPE_EMAIL");
+    expect(claims.contact).toBe("user@example.com");
+    expect(claims.exp).toBe(1770751821);
+  });
+
+  test("throws error for invalid JWT format", async () => {
+    const invalidJwt = "invalid.jwt";
+    await expect(verifyOtpVerificationToken(invalidJwt)).rejects.toThrow(
+      "invalid JWT: need 3 parts",
+    );
+  });
+
+  test("throws error for missing required claims", async () => {
+    // JWT with missing 'contact' claim (payload: {"id":"test","verification_type":"OTP_TYPE_EMAIL"})
+    const jwtMissingClaim =
+      "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9." +
+      "eyJpZCI6InRlc3QiLCJ2ZXJpZmljYXRpb25fdHlwZSI6Ik9UUF9UWVBFX0VNQUlMIn0." +
+      "dGVzdHNpZ25hdHVyZQ";
+
+    await expect(verifyOtpVerificationToken(jwtMissingClaim)).rejects.toThrow();
   });
 });
 
