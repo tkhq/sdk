@@ -81,16 +81,6 @@ export class CrossPlatformApiKeyStamper implements TStamper {
     return this.stamper.deleteKeyPair(publicKeyHex);
   }
 
-  clearKeyPairs?(): Promise<void> {
-    if (!this.stamper) {
-      throw new TurnkeyError(
-        "Stamper is not initialized. Please call .init() before calling this method.",
-        TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
-      );
-    }
-    return this.stamper.clearKeyPairs();
-  }
-
   // This allows forcing a specific public key to find the key pair for stamping. The key pair must already exist in indexedDB / Keychain.
   // This is useful if you need to stamp with a specific key pair without having an active session.
   // See "signUpWithPasskey" function in core.ts for usage

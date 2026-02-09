@@ -12,16 +12,26 @@ try {
   );
 }
 
+// In versions <=1.8.0, keys were stored using just the publicKey as the keychain service name
+// This caused `listKeyPairs()` to return ALL keychain entries (including non-Turnkey ones),
+// which meant `clearUnusedKeyPairs()` would delete the user's own keychain data
+//
+// To fix this, we now prefix all Turnkey-managed keys with this constant to scope them
+// properly to Turnkey. Methods that read or delete keys still fall back to the unprefixed
+// service name to migrate legacy keys. This fallback can be removed once we're confident
+// all users have  migrated to the prefixed format
+const TURNKEY_KEY_PREFIX = "com.turnkey.keypair:";
+
 export class ReactNativeKeychainStamper implements ApiKeyStamperBase {
-  async listKeyPairs(): Promise<string[]> {
-    return await Keychain.getAllGenericPasswordServices();
+  private serviceName(publicKeyHex: string): string {
+    return `${TURNKEY_KEY_PREFIX}${publicKeyHex}`;
   }
 
-  async clearKeyPairs(): Promise<void> {
-    const keys = await this.listKeyPairs();
-    for (const key of keys) {
-      await this.deleteKeyPair(key);
-    }
+  async listKeyPairs(): Promise<string[]> {
+    const allServices = await Keychain.getAllGenericPasswordServices();
+    return allServices
+      .filter((service: string) => service.startsWith(TURNKEY_KEY_PREFIX))
+      .map((service: string) => service.slice(TURNKEY_KEY_PREFIX.length));
   }
 
   async createKeyPair(externalKeyPair?: {
@@ -40,25 +50,48 @@ export class ReactNativeKeychainStamper implements ApiKeyStamperBase {
       publicKey = pair.publicKey;
     }
 
-    // store in Keychain
+    // we store in Keychain with a
+    // Turnkey-specific service prefix
     await Keychain.setGenericPassword(publicKey, privateKey, {
-      service: publicKey,
+      service: this.serviceName(publicKey),
     });
 
     return publicKey;
   }
 
   async deleteKeyPair(publicKeyHex: string): Promise<void> {
+    // we check if the key exists under the prefixed service name
+    // - if it exists, we delete that
+    // - otherwise, we assume it's a legacy (unprefixed) key and try to delete that
+    const hasPrefixed = await Keychain.getGenericPassword({
+      service: this.serviceName(publicKeyHex),
+    });
     await Keychain.resetGenericPassword({
-      service: publicKeyHex,
+      service: hasPrefixed ? this.serviceName(publicKeyHex) : publicKeyHex,
     });
   }
 
   private async getPrivateKey(publicKeyHex: string): Promise<string | null> {
+    // we check if the key exists under the prefixed service name
+    // - if it exists, we return the private key
+    // - otherwise, we assume it's a legacy (unprefixed) key, migrate it
+    //   to the prefixed format, and return the private key
+    const prefixedCreds = await Keychain.getGenericPassword({
+      service: this.serviceName(publicKeyHex),
+    });
+    if (prefixedCreds) return prefixedCreds.password;
+
+    // we fall back to the unprefixed (legacy) service name
     const creds = await Keychain.getGenericPassword({
       service: publicKeyHex,
     });
     if (!creds) return null;
+
+    // migrate the legacy key to the prefixed format so it's properly scoped going forward
+    await Keychain.setGenericPassword(creds.username, creds.password, {
+      service: this.serviceName(publicKeyHex),
+    });
+    await Keychain.resetGenericPassword({ service: publicKeyHex });
 
     return creds.password;
   }

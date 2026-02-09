@@ -191,20 +191,6 @@ export class IndexedDbStamper implements ApiKeyStamperBase {
     });
   }
 
-  async clearKeyPairs(): Promise<void> {
-    const db = await this.openDb();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(DB_STORE, "readwrite");
-      const store = tx.objectStore(DB_STORE);
-      store.clear();
-      tx.oncomplete = () => {
-        db.close();
-        resolve();
-      };
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-
   async sign(
     payload: string,
     publicKeyHex: string,
