@@ -15,7 +15,7 @@
     "@turnkey/encoding": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/sdk-react": "workspace:*",
-    "axios": "^1.8.2",
+    "axios": "^1.13.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "dotenv": "^16.0.3",
