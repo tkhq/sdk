@@ -16,10 +16,6 @@ export type paths = {
     /** Get details about API keys for a user. */
     post: operations["PublicApiService_GetApiKeys"];
   };
-  "/public/v1/query/get_attestation": {
-    /** Get the attestation document corresponding to an enclave. */
-    post: operations["PublicApiService_GetAttestationDocument"];
-  };
   "/public/v1/query/get_authenticator": {
     /** Get details about an authenticator. */
     post: operations["PublicApiService_GetAuthenticator"];
@@ -84,6 +80,14 @@ export type paths = {
     /** Get details about a smart contract interface. */
     post: operations["PublicApiService_GetSmartContractInterface"];
   };
+  "/public/v1/query/get_tvc_app": {
+    /** Get details about a single TVC App */
+    post: operations["PublicApiService_GetTvcApp"];
+  };
+  "/public/v1/query/get_tvc_deployment": {
+    /** Get details about a single TVC Deployment */
+    post: operations["PublicApiService_GetTvcDeployment"];
+  };
   "/public/v1/query/get_user": {
     /** Get details about a user. */
     post: operations["PublicApiService_GetUser"];
@@ -95,6 +99,10 @@ export type paths = {
   "/public/v1/query/get_wallet_account": {
     /** Get a single wallet account. */
     post: operations["PublicApiService_GetWalletAccount"];
+  };
+  "/public/v1/query/get_wallet_address_balances": {
+    /** Get non-zero balances of supported assets for a single wallet account address on the specified network. */
+    post: operations["PublicApiService_GetWalletAddressBalances"];
   };
   "/public/v1/query/list_activities": {
     /** List all activities within an organization. */
@@ -131,6 +139,14 @@ export type paths = {
   "/public/v1/query/list_suborgs": {
     /** Get all suborg IDs associated given a parent org ID and an optional filter. */
     post: operations["PublicApiService_GetSubOrgIds"];
+  };
+  "/public/v1/query/list_tvc_app_deployments": {
+    /** List all deployments for a given TVC App */
+    post: operations["PublicApiService_GetTvcAppDeployments"];
+  };
+  "/public/v1/query/list_tvc_apps": {
+    /** List all TVC Apps within an organization. */
+    post: operations["PublicApiService_GetTvcApps"];
   };
   "/public/v1/query/list_user_tags": {
     /** List all user tags within an organization. */
@@ -219,6 +235,18 @@ export type paths = {
   "/public/v1/submit/create_sub_organization": {
     /** Create a new sub-organization. */
     post: operations["PublicApiService_CreateSubOrganization"];
+  };
+  "/public/v1/submit/create_tvc_app": {
+    /** Create a new TVC application */
+    post: operations["PublicApiService_CreateTvcApp"];
+  };
+  "/public/v1/submit/create_tvc_deployment": {
+    /** Create a new TVC Deployment */
+    post: operations["PublicApiService_CreateTvcDeployment"];
+  };
+  "/public/v1/submit/create_tvc_manifest_approvals": {
+    /** Post one or more manifest approvals for a TVC Manifest */
+    post: operations["PublicApiService_CreateTvcManifestApprovals"];
   };
   "/public/v1/submit/create_user_tag": {
     /** Create a user tag and add it to users. */
@@ -404,6 +432,10 @@ export type paths = {
     /** Sign a transaction. */
     post: operations["PublicApiService_SignTransaction"];
   };
+  "/public/v1/submit/sol_send_transaction": {
+    /** Submit a transaction intent describing a transaction you would like to broadcast. */
+    post: operations["PublicApiService_SolSendTransaction"];
+  };
   "/public/v1/submit/stamp_login": {
     /** Create a session for a user through stamping client side (API key, wallet client, or passkey client). */
     post: operations["PublicApiService_StampLogin"];
@@ -458,6 +490,10 @@ export type paths = {
   };
   "/tkhq/api/v1/noop-codegen-anchor": {
     post: operations["PublicApiService_NOOPCodegenAnchor"];
+  };
+  "/tkhq/api/v1/refresh_feature_flags": {
+    /** Refresh feature flags by triggering a DB read to flush the in-memory cache. */
+    post: operations["PublicApiService_RefreshFeatureFlags"];
   };
   "/tkhq/api/v1/test_rate_limits": {
     /** Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite. */
@@ -777,7 +813,11 @@ export type definitions = {
     | "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2"
     | "ACTIVITY_TYPE_INIT_OTP_AUTH_V3"
     | "ACTIVITY_TYPE_INIT_OTP_V2"
-    | "ACTIVITY_TYPE_UPSERT_GAS_USAGE_CONFIG";
+    | "ACTIVITY_TYPE_UPSERT_GAS_USAGE_CONFIG"
+    | "ACTIVITY_TYPE_CREATE_TVC_APP"
+    | "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
+    | "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
+    | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -879,6 +919,27 @@ export type definitions = {
     organizationId: string;
     parameters: definitions["v1ApproveActivityIntent"];
     generateAppProofs?: boolean;
+  };
+  v1AssetBalance: {
+    /** @description The caip-19 asset identifier */
+    caip19?: string;
+    /** @description The asset symbol */
+    symbol?: string;
+    /** @description The balance in atomic units */
+    balance?: string;
+    /**
+     * Format: int32
+     * @description The number of decimals this asset uses
+     */
+    decimals?: number;
+    /** @description Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead. */
+    display?: definitions["v1AssetBalanceDisplay"];
+  };
+  v1AssetBalanceDisplay: {
+    /** @description USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+    usd?: string;
+    /** @description Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+    crypto?: string;
   };
   v1Attestation: {
     /** @description The cbor encoded then base64 url encoded id of the credential. */
@@ -1527,6 +1588,113 @@ export type definitions = {
     wallet?: definitions["v1WalletResult"];
     rootUserIds?: string[];
   };
+  v1CreateTvcAppIntent: {
+    /** @description The name of the new TVC application */
+    name: string;
+    /** @description Quorum public key to use for this application */
+    quorumPublicKey: string;
+    /** @description Unique identifier for an existing TVC operator set to use as the Manifest Set for this TVC application. If left empty, a new Manifest Set configuration is required */
+    manifestSetId?: string;
+    /** @description Configuration to create a new TVC operator set, used as the Manifest Set for this TVC application. If left empty, a Manifest Set ID is required */
+    manifestSetParams?: definitions["v1TvcOperatorSetParams"];
+    /** @description Unique identifier for an existing TVC operator set to use as the Share Set for this TVC application. If left empty, a new Share Set configuration is required */
+    shareSetId?: string;
+    /** @description Configuration to create a new TVC operator set, used as the Share Set for this TVC application. If left empty, a Share Set ID is required */
+    shareSetParams?: definitions["v1TvcOperatorSetParams"];
+    /** @description Enables external connectivity for this TVC app. Default if not provided: false. */
+    externalConnectivity?: boolean;
+  };
+  v1CreateTvcAppRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_TVC_APP";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateTvcAppIntent"];
+  };
+  v1CreateTvcAppResult: {
+    /** @description The unique identifier for the TVC application */
+    appId: string;
+    /** @description The unique identifier for the TVC manifest set */
+    manifestSetId: string;
+    /** @description The unique identifier(s) of the manifest set operators */
+    manifestSetOperatorIds: string[];
+    /**
+     * Format: int64
+     * @description The required number of approvals for the manifest set
+     */
+    manifestSetThreshold: number;
+  };
+  v1CreateTvcDeploymentIntent: {
+    /** @description The unique identifier of the to-be-deployed TVC application */
+    appId: string;
+    /** @description The QuorumOS version to use to deploy this application */
+    qosVersion: string;
+    /** @description URL of the container containing the pivot binary */
+    pivotContainerImageUrl: string;
+    /** @description Location of the binary in the pivot container */
+    pivotPath: string;
+    /** @description Arguments to pass to the pivot binary at startup. Encoded as a list of strings, for example ["--foo", "bar"] */
+    pivotArgs: string[];
+    /** @description Digest of the pivot binary in the pivot container. This value will be inserted in the QOS manifest to ensure application integrity. */
+    expectedPivotDigest: string;
+    /** @description URL of the container containing the host binary */
+    hostContainerImageUrl: string;
+    /** @description Location of the binary inside the host container */
+    hostPath: string;
+    /** @description Arguments to pass to the host binary at startup. Encoded as a list of strings, for example ["--foo", "bar"] */
+    hostArgs: string[];
+    /**
+     * Format: int64
+     * @description Optional nonce to ensure uniqueness of the deployment manifest. If not provided, it defaults to the current Unix timestamp in seconds.
+     */
+    nonce?: number;
+    /**
+     * Format: byte
+     * @description Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty.
+     */
+    pivotContainerEncryptedPullSecret?: string;
+    /**
+     * Format: byte
+     * @description Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty.
+     */
+    hostContainerEncryptedPullSecret?: string;
+  };
+  v1CreateTvcDeploymentRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateTvcDeploymentIntent"];
+  };
+  v1CreateTvcDeploymentResult: {
+    /** @description The unique identifier for the TVC deployment */
+    deploymentId: string;
+    /** @description The unique identifier for the TVC manifest */
+    manifestId: string;
+  };
+  v1CreateTvcManifestApprovalsIntent: {
+    /** @description Unique identifier of the TVC deployment to approve */
+    manifestId: string;
+    /** @description List of manifest approvals */
+    approvals: definitions["v1TvcManifestApproval"][];
+  };
+  v1CreateTvcManifestApprovalsRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_APPROVE_TVC_DEPLOYMENT";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1CreateTvcManifestApprovalsIntent"];
+  };
+  v1CreateTvcManifestApprovalsResult: {
+    /** @description The unique identifier(s) for the manifest approvals */
+    approvalIds: string[];
+  };
   v1CreateUserTagIntent: {
     /** @description Human-readable name for a User Tag. */
     userTagName: string;
@@ -1640,7 +1808,13 @@ export type definitions = {
     | "CREDENTIAL_TYPE_OAUTH_KEY_P256"
     | "CREDENTIAL_TYPE_LOGIN";
   /** @enum {string} */
-  v1Curve: "CURVE_SECP256K1" | "CURVE_ED25519";
+  v1Curve: "CURVE_SECP256K1" | "CURVE_ED25519" | "CURVE_P256";
+  v1CustomRevertError: {
+    /** @description The name of the custom error. */
+    errorName?: string;
+    /** @description The decoded parameters as a JSON object. */
+    paramsJson?: string;
+  };
   v1DeleteApiKeysIntent: {
     /** @description Unique identifier for a given User. */
     userId: string;
@@ -2147,7 +2321,7 @@ export type definitions = {
     generateAppProofs?: boolean;
   };
   v1EthSendTransactionResult: {
-    /** @description The send_transaction_status ID associated with the transaction submission for sponsored transactions */
+    /** @description The send_transaction_status ID associated with the transaction submission */
     sendTransactionStatusId: string;
   };
   v1EthSendTransactionStatus: {
@@ -2372,19 +2546,6 @@ export type definitions = {
   v1GetAppProofsResponse: {
     appProofs: definitions["v1AppProof"][];
   };
-  v1GetAttestationDocumentRequest: {
-    /** @description Unique identifier for a given organization. */
-    organizationId: string;
-    /** @description The enclave type, one of: ump, notarizer, signer, evm-parser. */
-    enclaveType: string;
-  };
-  v1GetAttestationDocumentResponse: {
-    /**
-     * Format: byte
-     * @description Raw (CBOR-encoded) attestation document.
-     */
-    attestationDocument: string;
-  };
   v1GetAuthenticatorRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -2561,6 +2722,8 @@ export type definitions = {
     eth?: definitions["v1EthSendTransactionStatus"];
     /** @description The error encountered when broadcasting or confirming the transaction, if any. */
     txError?: string;
+    /** @description Structured error information including revert details, if available. */
+    error?: definitions["v1TxError"];
   };
   v1GetSmartContractInterfaceRequest: {
     /** @description Unique identifier for a given organization. */
@@ -2593,6 +2756,44 @@ export type definitions = {
   v1GetSubOrgIdsResponse: {
     /** @description List of unique identifiers for the matching sub-organizations. */
     organizationIds: string[];
+  };
+  v1GetTvcAppDeploymentsRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given TVC App. */
+    appId: string;
+  };
+  v1GetTvcAppDeploymentsResponse: {
+    /** @description List of deployments for this TVC App */
+    tvcDeployments: definitions["v1TvcDeployment"][];
+  };
+  v1GetTvcAppRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given TVC App. */
+    tvcAppId: string;
+  };
+  v1GetTvcAppResponse: {
+    /** @description Details about a single TVC App */
+    tvcApp: definitions["v1TvcApp"];
+  };
+  v1GetTvcAppsRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+  };
+  v1GetTvcAppsResponse: {
+    /** @description A list of TVC Apps. */
+    tvcApps: definitions["v1TvcApp"][];
+  };
+  v1GetTvcDeploymentRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Unique identifier for a given TVC Deployment. */
+    deploymentId: string;
+  };
+  v1GetTvcDeploymentResponse: {
+    /** @description Details about a single TVC Deployment */
+    tvcDeployment: definitions["v1TvcDeployment"];
   };
   v1GetUserRequest: {
     /** @description Unique identifier for a given organization. */
@@ -2653,6 +2854,18 @@ export type definitions = {
   v1GetWalletAccountsResponse: {
     /** @description A list of accounts generated from a wallet that share a common seed. */
     accounts: definitions["v1WalletAccount"][];
+  };
+  v1GetWalletAddressBalancesRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Address corresponding to a wallet account. */
+    address: string;
+    /** @description The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+    caip2: string;
+  };
+  v1GetWalletAddressBalancesResponse: {
+    /** @description List of asset balances */
+    balances?: definitions["v1AssetBalance"][];
   };
   v1GetWalletRequest: {
     /** @description Unique identifier for a given organization. */
@@ -3144,6 +3357,10 @@ export type definitions = {
     initOtpIntentV2?: definitions["v1InitOtpIntentV2"];
     initOtpAuthIntentV3?: definitions["v1InitOtpAuthIntentV3"];
     upsertGasUsageConfigIntent?: definitions["v1UpsertGasUsageConfigIntent"];
+    createTvcAppIntent?: definitions["v1CreateTvcAppIntent"];
+    createTvcDeploymentIntent?: definitions["v1CreateTvcDeploymentIntent"];
+    createTvcManifestApprovalsIntent?: definitions["v1CreateTvcManifestApprovalsIntent"];
+    solSendTransactionIntent?: definitions["v1SolSendTransactionIntent"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -3228,6 +3445,17 @@ export type definitions = {
   v1NOOPCodegenAnchorResponse: {
     stamp: definitions["v1WebAuthnStamp"];
     tokenUsage?: definitions["v1TokenUsage"];
+  };
+  v1NativeRevertError: {
+    /** @description The type of native error: 'error_string', 'panic', or 'execution_reverted'. */
+    nativeType?: string;
+    /** @description The error message for Error(string) reverts. */
+    message?: string;
+    /**
+     * Format: uint64
+     * @description The panic code for Panic(uint256) reverts.
+     */
+    panicCode?: string;
   };
   v1Oauth2AuthenticateIntent: {
     /** @description The OAuth 2.0 credential id whose client_id and client_secret will be used in the OAuth 2.0 flow */
@@ -3535,6 +3763,8 @@ export type definitions = {
     /** @description ID of the authenticator created. */
     authenticatorId: string[];
   };
+  v1RefreshFeatureFlagsRequest: { [key: string]: unknown };
+  v1RefreshFeatureFlagsResponse: { [key: string]: unknown };
   v1RejectActivityIntent: {
     /** @description An artifact verifying a User's action. */
     fingerprint: string;
@@ -3662,6 +3892,24 @@ export type definitions = {
     deleteFiatOnRampCredentialResult?: definitions["v1DeleteFiatOnRampCredentialResult"];
     ethSendTransactionResult?: definitions["v1EthSendTransactionResult"];
     upsertGasUsageConfigResult?: definitions["v1UpsertGasUsageConfigResult"];
+    createTvcAppResult?: definitions["v1CreateTvcAppResult"];
+    createTvcDeploymentResult?: definitions["v1CreateTvcDeploymentResult"];
+    createTvcManifestApprovalsResult?: definitions["v1CreateTvcManifestApprovalsResult"];
+    solSendTransactionResult?: definitions["v1SolSendTransactionResult"];
+  };
+  v1RevertChainEntry: {
+    /** @description The contract address where the revert occurred. */
+    address?: string;
+    /** @description Type of error: 'unknown', 'native', or 'custom'. */
+    errorType?: string;
+    /** @description Human-readable message describing this revert. */
+    displayMessage?: string;
+    /** @description Details for unknown error types. */
+    unknown?: definitions["v1UnknownRevertError"];
+    /** @description Details for native Solidity errors (Error, Panic, execution reverted). */
+    native?: definitions["v1NativeRevertError"];
+    /** @description Details for custom contract errors. */
+    custom?: definitions["v1CustomRevertError"];
   };
   v1RootUserParams: {
     /** @description Human-readable name for a User. */
@@ -3854,6 +4102,38 @@ export type definitions = {
     /** @description Template containing references to .OtpCode i.e Your OTP is {{.OtpCode}} */
     template?: string;
   };
+  v1SolSendTransactionIntent: {
+    /** @description Base64-encoded serialized unsigned Solana transaction */
+    unsignedTransaction: string;
+    /** @description A wallet or private key address to sign with. This does not support private key IDs. */
+    signWith: string;
+    /** @description Whether to sponsor this transaction via Gas Station. */
+    sponsor?: boolean;
+    /**
+     * @description CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet).
+     * @enum {string}
+     */
+    caip2:
+      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
+      | "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY";
+    /** @description user-provided blockhash for replay protection / deadline control. If omitted and sponsor=true, we fetch a fresh blockhash during execution */
+    recentBlockhash?: string;
+  };
+  v1SolSendTransactionRequest: {
+    /** @enum {string} */
+    type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION";
+    /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+    timestampMs: string;
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    parameters: definitions["v1SolSendTransactionIntent"];
+    generateAppProofs?: boolean;
+  };
+  v1SolSendTransactionResult: {
+    /** @description The send_transaction_status ID associated with the transaction submission */
+    sendTransactionStatusId: string;
+  };
   v1StampLoginIntent: {
     /** @description Client-side public key generated by the user, which will be conditionally added to org data based on the passkey stamp associated with this request */
     publicKey: string;
@@ -3903,7 +4183,158 @@ export type definitions = {
     | "TRANSACTION_TYPE_ETHEREUM"
     | "TRANSACTION_TYPE_SOLANA"
     | "TRANSACTION_TYPE_TRON"
-    | "TRANSACTION_TYPE_BITCOIN";
+    | "TRANSACTION_TYPE_BITCOIN"
+    | "TRANSACTION_TYPE_TEMPO";
+  v1TvcApp: {
+    /** @description Unique Identifier for this TVC App. */
+    id: string;
+    /** @description Unique Identifier of the Organization for this TVC App */
+    organizationId: string;
+    /** @description Name for this TVC App. */
+    name: string;
+    /** @description Public key for the Quorum Key associated with this TVC App */
+    quorumPublicKey: string;
+    /** @description Manifest Set (people who can approve manifests) */
+    manifestSet: definitions["v1TvcOperatorSet"];
+    /** @description Share Set (people who have a share of the Quorum Key) */
+    shareSet: definitions["v1TvcOperatorSet"];
+    /** @description Whether or not this TVC App has external connectivity enabled. */
+    externalConnectivity: boolean;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1TvcContainerSpec: {
+    /** @description The URL for this container image. */
+    containerUrl: string;
+    /** @description The path (in-container) to the executable binary. */
+    path: string;
+    /** @description The arguments to pass to the executable. */
+    args: string[];
+    /** @description Whether or not this container requires a pull secret to access. */
+    hasPullSecret: boolean;
+  };
+  v1TvcDeployment: {
+    /** @description Unique Identifier for this TVC Deployment. */
+    id: string;
+    /** @description Unique Identifier of the Organization for this TVC Deployment */
+    organizationId: string;
+    /** @description Unique Identifier of the TVC App for this deployment */
+    appId: string;
+    /** @description Set of TVC operators who can approve this deployment */
+    manifestSet: definitions["v1TvcOperatorSet"];
+    /** @description Set of TVC operators who have a share of the Quorum Key */
+    shareSet: definitions["v1TvcOperatorSet"];
+    /** @description The manifest used for this deployment */
+    manifest: definitions["v1TvcManifest"];
+    /** @description List of operator approvals for this manifest */
+    manifestApprovals: definitions["v1TvcOperatorApproval"][];
+    /** @description QOS Version used for this deployment */
+    qosVersion: string;
+    /** @description The pivot container spec for this deployment */
+    pivotContainer: definitions["v1TvcContainerSpec"];
+    /** @description The pivot container spec for this deployment */
+    hostContainer: definitions["v1TvcContainerSpec"];
+    /** @description Current stage for this deployment */
+    stage: definitions["v1TvcDeploymentStage"];
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  /** @enum {string} */
+  v1TvcDeploymentStage:
+    | "TVC_DEPLOYMENT_STAGE_APPROVE"
+    | "TVC_DEPLOYMENT_STAGE_PROVISION"
+    | "TVC_DEPLOYMENT_STAGE_LIVE"
+    | "TVC_DEPLOYMENT_STAGE_DELETE";
+  v1TvcManifest: {
+    /** @description Unique Identifier for this TVC Manifest. */
+    id: string;
+    /**
+     * Format: byte
+     * @description The manifest content (raw UTF-8 JSON bytes)
+     */
+    manifest: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1TvcManifestApproval: {
+    /** @description Unique identifier of the operator providing this approval */
+    operatorId: string;
+    /** @description Signature from the operator approving the manifest */
+    signature: string;
+  };
+  v1TvcOperator: {
+    /** @description Unique Identifier for this TVC Operator. */
+    id: string;
+    /** @description Name of this TVC Operator. */
+    name: string;
+    /** @description Public key for this TVC Operator. */
+    publicKey: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1TvcOperatorApproval: {
+    /** @description Unique ID for this approval */
+    id: string;
+    /** @description Unique Identifier of the TVC Manifest being approved */
+    manifestId: string;
+    /** @description The TVC Operator who made this approval */
+    operator: definitions["v1TvcOperator"];
+    /**
+     * Format: byte
+     * @description Signature of the operator over the deployment manifest
+     */
+    approval: string;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1TvcOperatorParams: {
+    /** @description The name for this new operator */
+    name: string;
+    /** @description Public key for this operator */
+    publicKey: string;
+  };
+  v1TvcOperatorSet: {
+    /** @description Unique Identifier for this TVC Operator Set. */
+    id: string;
+    /** @description Name of this TVC Operator Set. */
+    name: string;
+    /** @description Unique Identifier of the Organization for this TVC Operator Set */
+    organizationId: string;
+    /** @description List of TVC Operators in this set */
+    operators: definitions["v1TvcOperator"][];
+    /**
+     * Format: int64
+     * @description Threshold number of operators required for quorum.
+     */
+    threshold: number;
+    createdAt: definitions["externaldatav1Timestamp"];
+    updatedAt: definitions["externaldatav1Timestamp"];
+  };
+  v1TvcOperatorSetParams: {
+    /** @description Short description for this new operator set */
+    name: string;
+    /** @description Operators to create as part of this new operator set */
+    newOperators?: definitions["v1TvcOperatorParams"][];
+    /** @description Existing operators to use as part of this new operator set */
+    existingOperatorIds?: string[];
+    /**
+     * Format: int64
+     * @description The threshold of operators needed to reach consensus in this new Operator Set
+     */
+    threshold: number;
+  };
+  v1TxError: {
+    /** @description Human-readable error message describing what went wrong. */
+    message?: string;
+    /** @description Chain of revert errors from nested contract calls, ordered from outermost to innermost. */
+    revertChain?: definitions["v1RevertChainEntry"][];
+  };
+  v1UnknownRevertError: {
+    /** @description The 4-byte error selector, if available. */
+    selector?: string;
+    /** @description The raw error data, hex-encoded. */
+    data?: string;
+  };
   v1UpdateAllowedOriginsIntent: {
     /** @description Additional origins requests are allowed from besides Turnkey origins */
     allowedOrigins: string[];
@@ -4242,6 +4673,8 @@ export type definitions = {
     subOrgWindowLimitUsd: string;
     /** @description Rolling sponsorship window duration, expressed in minutes. */
     windowDurationMinutes: string;
+    /** @description Whether gas sponsorship is enabled for the organization. */
+    enabled?: boolean;
   };
   v1UpsertGasUsageConfigResult: {
     /** @description Unique identifier for the gas usage configuration that was created or updated. */
@@ -4495,24 +4928,6 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetApiKeysResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the attestation document corresponding to an enclave. */
-  PublicApiService_GetAttestationDocument: {
-    parameters: {
-      body: {
-        body: definitions["v1GetAttestationDocumentRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1GetAttestationDocumentResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -4808,6 +5223,42 @@ export type operations = {
       };
     };
   };
+  /** Get details about a single TVC App */
+  PublicApiService_GetTvcApp: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcAppRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcAppResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get details about a single TVC Deployment */
+  PublicApiService_GetTvcDeployment: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcDeploymentRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcDeploymentResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Get details about a user. */
   PublicApiService_GetUser: {
     parameters: {
@@ -4855,6 +5306,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetWalletAccountResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get non-zero balances of supported assets for a single wallet account address on the specified network. */
+  PublicApiService_GetWalletAddressBalances: {
+    parameters: {
+      body: {
+        body: definitions["v1GetWalletAddressBalancesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetWalletAddressBalancesResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -5017,6 +5486,42 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetSubOrgIdsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all deployments for a given TVC App */
+  PublicApiService_GetTvcAppDeployments: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcAppDeploymentsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcAppDeploymentsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List all TVC Apps within an organization. */
+  PublicApiService_GetTvcApps: {
+    parameters: {
+      body: {
+        body: definitions["v1GetTvcAppsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetTvcAppsResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -5407,6 +5912,60 @@ export type operations = {
     parameters: {
       body: {
         body: definitions["v1CreateSubOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a new TVC application */
+  PublicApiService_CreateTvcApp: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateTvcAppRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Create a new TVC Deployment */
+  PublicApiService_CreateTvcDeployment: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateTvcDeploymentRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Post one or more manifest approvals for a TVC Manifest */
+  PublicApiService_CreateTvcManifestApprovals: {
+    parameters: {
+      body: {
+        body: definitions["v1CreateTvcManifestApprovalsRequest"];
       };
     };
     responses: {
@@ -6248,6 +6807,24 @@ export type operations = {
       };
     };
   };
+  /** Submit a transaction intent describing a transaction you would like to broadcast. */
+  PublicApiService_SolSendTransaction: {
+    parameters: {
+      body: {
+        body: definitions["v1SolSendTransactionRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ActivityResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** Create a session for a user through stamping client side (API key, wallet client, or passkey client). */
   PublicApiService_StampLogin: {
     parameters: {
@@ -6487,6 +7064,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1NOOPCodegenAnchorResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Refresh feature flags by triggering a DB read to flush the in-memory cache. */
+  PublicApiService_RefreshFeatureFlags: {
+    parameters: {
+      body: {
+        body: definitions["v1RefreshFeatureFlagsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1RefreshFeatureFlagsResponse"];
       };
       /** An unexpected error response. */
       default: {
