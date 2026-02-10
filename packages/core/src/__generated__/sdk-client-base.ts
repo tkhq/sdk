@@ -158,6 +158,7 @@ export class TurnkeySDKClientBase {
     const fullUrl = this.config.apiBaseUrl + url;
     const stringifiedBody = JSON.stringify(body);
     var headers: Record<string, string> = {
+      "Content-Type": "application/json",
       "X-Client-Version": VERSION,
     };
 

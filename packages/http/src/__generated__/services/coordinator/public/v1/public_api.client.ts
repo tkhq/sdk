@@ -451,8 +451,9 @@ export class TurnkeyClient {
     const response = await fetch(fullUrl, {
       method: "POST",
       headers: {
-        [stamp.stampHeaderName]: stamp.stampHeaderValue,
+        "Content-Type": "application/json",
         "X-Client-Version": VERSION,
+        [stamp.stampHeaderName]: stamp.stampHeaderValue,
       },
       body: stringifiedBody,
       redirect: "follow",
