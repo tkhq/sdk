@@ -1,5 +1,26 @@
 # @turnkey/core
 
+## 1.11.1
+
+### Patch Changes
+
+- [#1171](https://github.com/tkhq/sdk/pull/1171) [`2d19991`](https://github.com/tkhq/sdk/commit/2d19991bcf4e1c9704b73a48c54e870373b4bd95) Author [@moeodeh3](https://github.com/moeodeh3) - Fix mobile `setActiveSessionKey()` to JSON stringify session key. This fixes parsing errors in `getActiveSessionKey()`
+
+- [#1177](https://github.com/tkhq/sdk/pull/1177) [`89d4084`](https://github.com/tkhq/sdk/commit/89d40844d791b0bbb6d439da5e778b1fdeca4273) Author [@moeodeh3](https://github.com/moeodeh3) - Add a 1-second timeout to external wallet provider discovery. This prevents hanging providers from blocking `fetchUser()` and `fetchWallet()`
+
+- [#1174](https://github.com/tkhq/sdk/pull/1174) [`ba2521d`](https://github.com/tkhq/sdk/commit/ba2521d5d1c1f6baaa58ee65dce8cc4839f7dc7b) Author [@ethankonk](https://github.com/ethankonk) - Fixed bug preventing sub-orgs from adding Google social providers when the parsed email matches their user email
+
+- [#1185](https://github.com/tkhq/sdk/pull/1185) [`12ca083`](https://github.com/tkhq/sdk/commit/12ca083314310b05cf41ac29fa2d55eed627f229) Author [@moeodeh3](https://github.com/moeodeh3) - Remove leading whitespaces in wallet provider icon URLs
+
+- [#1179](https://github.com/tkhq/sdk/pull/1179) [`a85153c`](https://github.com/tkhq/sdk/commit/a85153c8ccc7454cd5aca974bc463fb47c7f8cd4) Author [@moeodeh3](https://github.com/moeodeh3) - - Fix `loginWithWallet()` returning the wrong address and sporadically failing
+  - Deprecate `sendSignedRequest()` in favor of `httpClient.sendSignedRequest()`, which includes automatic activity polling and result extraction
+- Updated dependencies [[`8e075b7`](https://github.com/tkhq/sdk/commit/8e075b7161ccc68cb446b10b54737856fa0c6d31)]:
+  - @turnkey/sdk-types@0.11.2
+  - @turnkey/crypto@2.8.10
+  - @turnkey/api-key-stamper@0.6.1
+  - @turnkey/http@3.16.2
+  - @turnkey/react-native-passkey-stamper@1.2.8
+
 ## 1.11.0
 
 ### Minor Changes
