@@ -1,5 +1,13 @@
 # with-x402
 
+## 0.1.9
+
+### Patch Changes
+
+- Updated dependencies [[`fb5a861`](https://github.com/tkhq/sdk/commit/fb5a86122c8afc51a7a2868fe01dc49dd0d4e076)]:
+  - @turnkey/viem@0.14.23
+  - @turnkey/react-wallet-kit@1.8.1
+
 ## 0.1.8
 
 ### Patch Changes

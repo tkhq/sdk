@@ -1,5 +1,19 @@
 # @turnkey/core
 
+## 1.11.2
+
+### Patch Changes
+
+- [#1188](https://github.com/tkhq/sdk/pull/1188) [`d49ef7e`](https://github.com/tkhq/sdk/commit/d49ef7e9f0f78f16b1324a357f61cf0351198096) Author [@moeodeh3](https://github.com/moeodeh3) - Scope keychain storage to Turnkey keys by prefixing service names. This fixes an issue where `clearUnusedKeyPairs()` was deleting non-Turnkey keychain entries.
+
+- [#1194](https://github.com/tkhq/sdk/pull/1194) [`dced9db`](https://github.com/tkhq/sdk/commit/dced9dbbd8ea533442e19e45ce36e6a05a45a555) Author [@moeodeh3](https://github.com/moeodeh3) - Add `Content-Type: application/json` header to all Turnkey API requests. The missing header caused "Network request failed" errors on React Native, intermittent for some setups and consistent for others, where OkHttp-backed fetch can reject `POST` requests without an explicit `Content-Type`. See also: https://github.com/JakeChampion/fetch/issues/823
+
+  Special thanks to @jrmykolyn and @niroshanS for helping identify and debug this issue
+
+- Updated dependencies [[`dced9db`](https://github.com/tkhq/sdk/commit/dced9dbbd8ea533442e19e45ce36e6a05a45a555)]:
+  - @turnkey/http@3.16.3
+  - @turnkey/react-native-passkey-stamper@1.2.9
+
 ## 1.11.1
 
 ### Patch Changes
