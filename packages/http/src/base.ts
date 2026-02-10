@@ -17,7 +17,9 @@ type THeadersShape = Record<string, TBasicType> | undefined;
 type TBodyShape = Record<string, any>;
 type TSubstitutionShape = Record<string, any>;
 
-const sharedHeaders: THeadersShape = {};
+const sharedHeaders: THeadersShape = {
+  "Content-Type": "application/json",
+};
 
 const sharedRequestOptions: Partial<RequestInit> = {
   redirect: "follow",

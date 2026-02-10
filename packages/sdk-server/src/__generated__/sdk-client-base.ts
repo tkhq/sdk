@@ -42,6 +42,7 @@ export class TurnkeySDKClientBase {
       method: "POST",
       headers: {
         [stamp.stampHeaderName]: stamp.stampHeaderValue,
+        "Content-Type": "application/json",
         "X-Client-Version": VERSION,
       },
       body: stringifiedBody,
