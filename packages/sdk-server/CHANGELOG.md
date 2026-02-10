@@ -1,5 +1,15 @@
 # @turnkey/sdk-server
 
+## 5.0.3
+
+### Patch Changes
+
+- [#1194](https://github.com/tkhq/sdk/pull/1194) [`dced9db`](https://github.com/tkhq/sdk/commit/dced9dbbd8ea533442e19e45ce36e6a05a45a555) Author [@moeodeh3](https://github.com/moeodeh3) - Add `Content-Type: application/json` header to all Turnkey API requests
+
+- Updated dependencies [[`dced9db`](https://github.com/tkhq/sdk/commit/dced9dbbd8ea533442e19e45ce36e6a05a45a555)]:
+  - @turnkey/http@3.16.3
+  - @turnkey/wallet-stamper@1.1.12
+
 ## 5.0.2
 
 ### Patch Changes

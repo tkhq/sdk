@@ -1,5 +1,13 @@
 # with-x
 
+## 0.1.24
+
+### Patch Changes
+
+- Updated dependencies [[`dced9db`](https://github.com/tkhq/sdk/commit/dced9dbbd8ea533442e19e45ce36e6a05a45a555)]:
+  - @turnkey/sdk-server@5.0.3
+  - @turnkey/sdk-react@5.5.3
+
 ## 0.1.23
 
 ### Patch Changes
