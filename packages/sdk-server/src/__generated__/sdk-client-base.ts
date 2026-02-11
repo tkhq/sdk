@@ -871,6 +871,38 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getWalletAddressBalances = async (
+    input: SdkApiTypes.TGetWalletAddressBalancesBody,
+  ): Promise<SdkApiTypes.TGetWalletAddressBalancesResponse> => {
+    return this.request("/public/v1/query/get_wallet_address_balances", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampGetWalletAddressBalances = async (
+    input: SdkApiTypes.TGetWalletAddressBalancesBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_wallet_address_balances";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getActivities = async (
     input: SdkApiTypes.TGetActivitiesBody = {},
   ): Promise<SdkApiTypes.TGetActivitiesResponse> => {
@@ -1142,6 +1174,38 @@ export class TurnkeySDKClientBase {
     }
 
     const fullUrl = this.config.apiBaseUrl + "/public/v1/query/list_suborgs";
+    const body = {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listSupportedAssets = async (
+    input: SdkApiTypes.TListSupportedAssetsBody,
+  ): Promise<SdkApiTypes.TListSupportedAssetsResponse> => {
+    return this.request("/public/v1/query/list_supported_assets", {
+      ...input,
+      organizationId: input.organizationId ?? this.config.organizationId,
+    });
+  };
+
+  stampListSupportedAssets = async (
+    input: SdkApiTypes.TListSupportedAssetsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_supported_assets";
     const body = {
       ...input,
       organizationId: input.organizationId ?? this.config.organizationId,

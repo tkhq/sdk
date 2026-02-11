@@ -1154,6 +1154,62 @@ export const signGetWalletAccount = (
   });
 
 /**
+ * `POST /public/v1/query/get_wallet_address_balances`
+ */
+export type TGetWalletAddressBalancesResponse =
+  operations["PublicApiService_GetWalletAddressBalances"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_wallet_address_balances`
+ */
+export type TGetWalletAddressBalancesInput = {
+  body: TGetWalletAddressBalancesBody;
+};
+
+/**
+ * `POST /public/v1/query/get_wallet_address_balances`
+ */
+export type TGetWalletAddressBalancesBody =
+  operations["PublicApiService_GetWalletAddressBalances"]["parameters"]["body"]["body"];
+
+/**
+ * Get balances
+ *
+ * Get non-zero balances of supported assets for a single wallet account address on the specified network.
+ *
+ * `POST /public/v1/query/get_wallet_address_balances`
+ */
+export const getWalletAddressBalances = (
+  input: TGetWalletAddressBalancesInput,
+) =>
+  request<
+    TGetWalletAddressBalancesResponse,
+    TGetWalletAddressBalancesBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_wallet_address_balances",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetWalletAddressBalances` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetWalletAddressBalances}
+ */
+export const signGetWalletAddressBalances = (
+  input: TGetWalletAddressBalancesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetWalletAddressBalancesBody, never, never>({
+    uri: "/public/v1/query/get_wallet_address_balances",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_activities`
  */
 export type TGetActivitiesResponse =
@@ -1595,6 +1651,58 @@ export const signGetSubOrgIds = (
 ) =>
   signedRequest<TGetSubOrgIdsBody, never, never>({
     uri: "/public/v1/query/list_suborgs",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export type TListSupportedAssetsResponse =
+  operations["PublicApiService_ListSupportedAssets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export type TListSupportedAssetsInput = { body: TListSupportedAssetsBody };
+
+/**
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export type TListSupportedAssetsBody =
+  operations["PublicApiService_ListSupportedAssets"]["parameters"]["body"]["body"];
+
+/**
+ * List supported assets
+ *
+ * List supported assets for the specified network
+ *
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export const listSupportedAssets = (input: TListSupportedAssetsInput) =>
+  request<
+    TListSupportedAssetsResponse,
+    TListSupportedAssetsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_supported_assets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListSupportedAssets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListSupportedAssets}
+ */
+export const signListSupportedAssets = (
+  input: TListSupportedAssetsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListSupportedAssetsBody, never, never>({
+    uri: "/public/v1/query/list_supported_assets",
     body: input.body,
     options,
   });

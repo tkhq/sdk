@@ -87,6 +87,10 @@ import type {
   TGetWalletAccountResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetWalletAddressBalancesBody,
+  TGetWalletAddressBalancesResponse,
+} from "./public_api.fetcher";
+import type {
   TGetActivitiesBody,
   TGetActivitiesResponse,
 } from "./public_api.fetcher";
@@ -121,6 +125,10 @@ import type {
 import type {
   TGetSubOrgIdsBody,
   TGetSubOrgIdsResponse,
+} from "./public_api.fetcher";
+import type {
+  TListSupportedAssetsBody,
+  TListSupportedAssetsResponse,
 } from "./public_api.fetcher";
 import type {
   TListUserTagsBody,
@@ -1175,6 +1183,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Get non-zero balances of supported assets for a single wallet account address on the specified network.
+   *
+   * Sign the provided `TGetWalletAddressBalancesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_wallet_address_balances).
+   *
+   * See also {@link stampGetWalletAddressBalances}.
+   */
+  getWalletAddressBalances = async (
+    input: TGetWalletAddressBalancesBody,
+  ): Promise<TGetWalletAddressBalancesResponse> => {
+    return this.request("/public/v1/query/get_wallet_address_balances", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetWalletAddressBalancesBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetWalletAddressBalances}.
+   */
+  stampGetWalletAddressBalances = async (
+    input: TGetWalletAddressBalancesBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_wallet_address_balances";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * List all activities within an organization.
    *
    * Sign the provided `TGetActivitiesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_activities).
@@ -1454,6 +1494,38 @@ export class TurnkeyClient {
     input: TGetSubOrgIdsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_suborgs";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List supported assets for the specified network
+   *
+   * Sign the provided `TListSupportedAssetsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_supported_assets).
+   *
+   * See also {@link stampListSupportedAssets}.
+   */
+  listSupportedAssets = async (
+    input: TListSupportedAssetsBody,
+  ): Promise<TListSupportedAssetsResponse> => {
+    return this.request("/public/v1/query/list_supported_assets", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListSupportedAssetsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListSupportedAssets}.
+   */
+  stampListSupportedAssets = async (
+    input: TListSupportedAssetsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_supported_assets";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {

@@ -96,6 +96,10 @@ export type paths = {
     /** Get a single wallet account. */
     post: operations["PublicApiService_GetWalletAccount"];
   };
+  "/public/v1/query/get_wallet_address_balances": {
+    /** Get non-zero balances of supported assets for a single wallet account address on the specified network. */
+    post: operations["PublicApiService_GetWalletAddressBalances"];
+  };
   "/public/v1/query/list_activities": {
     /** List all activities within an organization. */
     post: operations["PublicApiService_GetActivities"];
@@ -131,6 +135,10 @@ export type paths = {
   "/public/v1/query/list_suborgs": {
     /** Get all suborg IDs associated given a parent org ID and an optional filter. */
     post: operations["PublicApiService_GetSubOrgIds"];
+  };
+  "/public/v1/query/list_supported_assets": {
+    /** List supported assets for the specified network */
+    post: operations["PublicApiService_ListSupportedAssets"];
   };
   "/public/v1/query/list_user_tags": {
     /** List all user tags within an organization. */
@@ -879,6 +887,34 @@ export type definitions = {
     organizationId: string;
     parameters: definitions["v1ApproveActivityIntent"];
     generateAppProofs?: boolean;
+  };
+  v1AssetBalance: {
+    /** @description The caip-19 asset identifier */
+    caip19?: string;
+    /** @description The asset symbol */
+    symbol?: string;
+    /** @description The balance in atomic units */
+    balance?: string;
+    /**
+     * Format: int32
+     * @description The number of decimals this asset uses
+     */
+    decimals?: number;
+    /** @description Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead. */
+    display?: definitions["v1AssetBalanceDisplay"];
+  };
+  v1AssetBalanceDisplay: {
+    /** @description USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+    usd?: string;
+    /** @description Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+    crypto?: string;
+  };
+  v1AssetMetadata: {
+    caip19?: string;
+    symbol?: string;
+    /** Format: int32 */
+    decimals?: number;
+    logoUrl?: string;
   };
   v1Attestation: {
     /** @description The cbor encoded then base64 url encoded id of the credential. */
@@ -2654,6 +2690,18 @@ export type definitions = {
     /** @description A list of accounts generated from a wallet that share a common seed. */
     accounts: definitions["v1WalletAccount"][];
   };
+  v1GetWalletAddressBalancesRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description Address corresponding to a wallet account. */
+    address: string;
+    /** @description The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+    caip2: string;
+  };
+  v1GetWalletAddressBalancesResponse: {
+    /** @description List of asset balances */
+    balances?: definitions["v1AssetBalance"][];
+  };
   v1GetWalletRequest: {
     /** @description Unique identifier for a given organization. */
     organizationId: string;
@@ -3201,6 +3249,15 @@ export type definitions = {
   v1ListPrivateKeyTagsResponse: {
     /** @description A list of private key tags. */
     privateKeyTags: definitions["datav1Tag"][];
+  };
+  v1ListSupportedAssetsRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+    caip2: string;
+  };
+  v1ListSupportedAssetsResponse: {
+    assets?: definitions["v1AssetMetadata"][];
   };
   v1ListUserTagsRequest: {
     /** @description Unique identifier for a given organization. */
@@ -4862,6 +4919,24 @@ export type operations = {
       };
     };
   };
+  /** Get non-zero balances of supported assets for a single wallet account address on the specified network. */
+  PublicApiService_GetWalletAddressBalances: {
+    parameters: {
+      body: {
+        body: definitions["v1GetWalletAddressBalancesRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetWalletAddressBalancesResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** List all activities within an organization. */
   PublicApiService_GetActivities: {
     parameters: {
@@ -5017,6 +5092,24 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetSubOrgIdsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** List supported assets for the specified network */
+  PublicApiService_ListSupportedAssets: {
+    parameters: {
+      body: {
+        body: definitions["v1ListSupportedAssetsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListSupportedAssetsResponse"];
       };
       /** An unexpected error response. */
       default: {
