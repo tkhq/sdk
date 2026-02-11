@@ -114,6 +114,7 @@ import {
   type PollTransactionStatusParams,
   type SignAndSendTransactionParams,
   type EthTransaction,
+  type SolanaTransaction,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -188,7 +189,6 @@ import type {
   HandleRemoveUserPhoneNumberParams,
   HandleSendTransactionParams,
   HandleSignMessageParams,
-  SolSendTransactionIntent,
   HandleUpdateUserEmailParams,
   HandleUpdateUserNameParams,
   HandleUpdateUserPhoneNumberParams,
@@ -2529,7 +2529,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     async (params: {
       organizationId?: string;
       stampWith?: StamperType | undefined;
-      transaction: SolSendTransactionIntent;
+      transaction: SolanaTransaction;
     }): Promise<string> => {
       const httpClient = client?.httpClient;
       if (!httpClient)
@@ -2539,6 +2539,30 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       return withTurnkeyErrorHandling(
         async () => {
+          const normalizeSolanaUnsignedTransaction = (
+            unsignedTransaction: string,
+          ): string => {
+            const trimmed = unsignedTransaction.trim().replace(/^0x/i, "");
+            const isHex =
+              trimmed.length > 0 &&
+              trimmed.length % 2 === 0 &&
+              /^[0-9a-fA-F]+$/.test(trimmed);
+            if (isHex) {
+              return trimmed.toLowerCase();
+            }
+
+            // Fallback: treat as base64/base64url and convert to hex
+            const normalizedBase64 = unsignedTransaction
+              .trim()
+              .replace(/-/g, "+")
+              .replace(/_/g, "/");
+            const padding = "=".repeat((4 - (normalizedBase64.length % 4)) % 4);
+            const binary = atob(normalizedBase64 + padding);
+            return Array.from(binary)
+              .map((char) => char.charCodeAt(0).toString(16).padStart(2, "0"))
+              .join("");
+          };
+
           const solSendTransactionFn = (
             httpClient as unknown as {
               solSendTransaction?: (
@@ -2567,6 +2591,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 ? { organizationId: params.organizationId }
                 : {}),
               ...params.transaction,
+              unsignedTransaction: normalizeSolanaUnsignedTransaction(
+                params.transaction.unsignedTransaction,
+              ),
             },
             params.stampWith,
           );
@@ -5359,7 +5386,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           const sendTransactionStatusId = isSolanaTransaction
             ? await solSendTransaction({
                 organizationId,
-                transaction: transaction as SolSendTransactionIntent,
+                transaction: transaction as SolanaTransaction,
                 stampWith,
               })
             : await (async () => {

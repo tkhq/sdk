@@ -1,6 +1,7 @@
 import type {
   EthTransaction,
   OAuthProviders,
+  SolanaTransaction,
   StamperType,
   v1AddressFormat,
   v1AppProof,
@@ -16,14 +17,6 @@ import type {
   WalletAccount,
 } from "@turnkey/core";
 import type { KeyFormat } from "./base";
-
-export type SolSendTransactionIntent = {
-  unsignedTransaction: string;
-  signWith: string;
-  caip2: string;
-  sponsor?: boolean;
-  recentBlockhash?: string;
-};
 
 export type RefreshUserParams = {
   stampWith?: StamperType | undefined;
@@ -298,7 +291,7 @@ export type HandleSendTransactionParams = {
   organizationId?: string;
 
   // EVM or Solana transaction
-  transaction: EthTransaction | SolSendTransactionIntent;
+  transaction: EthTransaction | SolanaTransaction;
 
   // UI behavior
   successPageDuration?: number;
