@@ -771,15 +771,14 @@ export interface ClientContextType
   handleOnRamp: (params: HandleOnRampParams) => Promise<void>;
 
   /**
-   * Handles signing and sending an Ethereum transaction (EIP-1559 or Gas Station–sponsored).
+   * Handles signing and sending an EVM or Solana transaction.
    *
-   * - Submits an Ethereum send-transaction intent to Turnkey for signing and execution.
-   * - Automatically polls the transaction status until it reaches a terminal state
-   *   (`INCLUDED` or `FAILED`).
+   * - Submits a send-transaction intent to Turnkey for signing and execution.
+   * - Automatically polls the transaction status until it reaches a terminal state.
    * - Displays a modal showing progress and a success page upon completion.
-   * - Supports both standard EIP-1559 transactions and sponsored Gas Station meta-transactions.
+   * - Supports EVM (EIP-1559 or sponsored Gas Station meta-transactions) and Solana.
    *
-   * @param params.transaction - The Ethereum transaction to sign and send.
+   * @param params.transaction - The EVM or Solana transaction to sign and send.
    * @param params.organizationId - Optional Turnkey organization or sub-organization ID
    *   (defaults to the active session).
    * @param params.stampWith - Optional stamper override (e.g. Passkey, API key, Wallet).

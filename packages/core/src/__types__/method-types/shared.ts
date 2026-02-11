@@ -261,6 +261,14 @@ export type EthTransaction = {
   gasStationNonce?: string;
 };
 
+export type SolanaTransaction = {
+  unsignedTransaction: string;
+  signWith: string;
+  caip2: string;
+  sponsor?: boolean;
+  recentBlockhash?: string;
+};
+
 export type EthSendTransactionParams = {
   organizationId?: string;
   stampWith?: StamperType | undefined;

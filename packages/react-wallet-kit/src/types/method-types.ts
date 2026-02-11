@@ -1,6 +1,7 @@
 import type {
   EthTransaction,
   OAuthProviders,
+  SolanaTransaction,
   StamperType,
   v1AddressFormat,
   v1AppProof,
@@ -289,8 +290,8 @@ export type HandleSendTransactionParams = {
   // Required Turnkey context
   organizationId?: string;
 
-  // ETH transaction
-  transaction: EthTransaction;
+  // EVM or Solana transaction
+  transaction: EthTransaction | SolanaTransaction;
 
   // UI behavior
   successPageDuration?: number;

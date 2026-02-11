@@ -2,6 +2,12 @@ import { EthereumLogo, SolanaLogo } from "../design/Svg";
 
 export function getExplorerUrl(txHash: string, caip2: string): string {
   switch (caip2) {
+    case "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp":
+      return `https://solscan.io/tx/${txHash}`;
+    case "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG":
+      return `https://solscan.io/tx/${txHash}?cluster=devnet`;
+    case "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY":
+      return `https://solscan.io/tx/${txHash}?cluster=testnet`;
     case "eip155:8453":
       return `https://basescan.org/tx/${txHash}`;
     case "eip155:84532":
@@ -13,7 +19,9 @@ export function getExplorerUrl(txHash: string, caip2: string): string {
     case "eip155:137":
       return `https://polygonscan.com/tx/${txHash}`;
     default:
-      return `https://etherscan.io/tx/${txHash}`;
+      return caip2.startsWith("solana:")
+        ? `https://solscan.io/tx/${txHash}`
+        : `https://etherscan.io/tx/${txHash}`;
   }
 }
 
