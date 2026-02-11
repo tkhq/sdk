@@ -188,6 +188,7 @@ import type {
   HandleRemoveUserPhoneNumberParams,
   HandleSendTransactionParams,
   HandleSignMessageParams,
+  SolSendTransactionIntent,
   HandleUpdateUserEmailParams,
   HandleUpdateUserNameParams,
   HandleUpdateUserPhoneNumberParams,
@@ -2519,6 +2520,70 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         () => logout(),
         callbacks,
         "Failed to send eth transaction",
+      );
+    },
+    [client, callbacks, logout],
+  );
+
+  const solSendTransaction = useCallback(
+    async (params: {
+      organizationId?: string;
+      stampWith?: StamperType | undefined;
+      transaction: SolSendTransactionIntent;
+    }): Promise<string> => {
+      const httpClient = client?.httpClient;
+      if (!httpClient)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        async () => {
+          const solSendTransactionFn = (
+            httpClient as unknown as {
+              solSendTransaction?: (
+                input: {
+                  organizationId?: string;
+                  unsignedTransaction: string;
+                  signWith: string;
+                  caip2: string;
+                  sponsor?: boolean;
+                  recentBlockhash?: string;
+                },
+                stampWith?: StamperType,
+              ) => Promise<{ sendTransactionStatusId?: string }>;
+            }
+          ).solSendTransaction;
+          if (!solSendTransactionFn) {
+            throw new TurnkeyError(
+              "solSendTransaction is not available on this client version.",
+              TurnkeyErrorCodes.FEATURE_NOT_ENABLED,
+            );
+          }
+
+          const response = await solSendTransactionFn(
+            {
+              ...(params.organizationId
+                ? { organizationId: params.organizationId }
+                : {}),
+              ...params.transaction,
+            },
+            params.stampWith,
+          );
+
+          const sendTransactionStatusId = response?.sendTransactionStatusId;
+          if (!sendTransactionStatusId) {
+            throw new TurnkeyError(
+              "Missing sendTransactionStatusId",
+              TurnkeyErrorCodes.BAD_RESPONSE,
+            );
+          }
+
+          return sendTransactionStatusId;
+        },
+        () => logout(),
+        callbacks,
+        "Failed to send sol transaction",
       );
     },
     [client, callbacks, logout],
@@ -5286,48 +5351,57 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         stampWith,
         successPageDuration = 2000,
       } = params;
-
-      const {
-        from,
-        to,
-        caip2,
-        value,
-        data,
-        nonce,
-        gasLimit,
-        maxFeePerGas,
-        maxPriorityFeePerGas,
-        sponsor,
-      } = transaction;
-
-      const cleanedData =
-        data && data !== "0x" && data !== "" ? data : undefined;
+      const { caip2 } = transaction;
+      const isSolanaTransaction = caip2.startsWith("solana:");
 
       return new Promise((resolve, reject) => {
         const action = async () => {
-          const tx: EthTransaction = {
-            from,
-            to,
-            caip2,
-            sponsor: sponsor ?? false,
-            ...(value ? { value } : {}),
-            ...(cleanedData ? { data: cleanedData } : {}),
-            ...(nonce ? { nonce } : {}),
-            ...(gasLimit ? { gasLimit } : {}),
-            ...(maxFeePerGas ? { maxFeePerGas } : {}),
-            ...(maxPriorityFeePerGas ? { maxPriorityFeePerGas } : {}),
-          };
+          const sendTransactionStatusId = isSolanaTransaction
+            ? await solSendTransaction({
+                organizationId,
+                transaction: transaction as SolSendTransactionIntent,
+                stampWith,
+              })
+            : await (async () => {
+                const {
+                  from,
+                  to,
+                  value,
+                  data,
+                  nonce,
+                  gasLimit,
+                  maxFeePerGas,
+                  maxPriorityFeePerGas,
+                  sponsor,
+                } = transaction as EthTransaction;
 
-          const sendTransactionStatusId = await ethSendTransaction({
-            organizationId,
-            transaction: tx,
-            stampWith,
-          });
+                const cleanedData =
+                  data && data !== "0x" && data !== "" ? data : undefined;
+
+                const tx: EthTransaction = {
+                  from,
+                  to,
+                  caip2,
+                  sponsor: sponsor ?? false,
+                  ...(value ? { value } : {}),
+                  ...(cleanedData ? { data: cleanedData } : {}),
+                  ...(nonce ? { nonce } : {}),
+                  ...(gasLimit ? { gasLimit } : {}),
+                  ...(maxFeePerGas ? { maxFeePerGas } : {}),
+                  ...(maxPriorityFeePerGas ? { maxPriorityFeePerGas } : {}),
+                };
+
+                return ethSendTransaction({
+                  organizationId,
+                  transaction: tx,
+                  stampWith,
+                });
+              })();
 
           if (!sendTransactionStatusId) {
             throw new TurnkeyError(
               "Missing sendTransactionStatusId",
-              TurnkeyErrorCodes.ETH_SEND_TRANSACTION_ERROR,
+              TurnkeyErrorCodes.BAD_RESPONSE,
             );
           }
 
@@ -5336,15 +5410,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             sendTransactionStatusId,
           });
 
-          const txHash = pollResult?.eth?.txHash;
-          if (!txHash) {
-            throw new TurnkeyError(
-              "Missing txHash in transaction result",
-              TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
-            );
-          }
+          const txHash =
+            pollResult?.eth?.txHash ??
+            (pollResult as { txHash?: string })?.txHash;
 
-          return { txHash };
+          return txHash ? { txHash } : {};
         };
 
         pushPage({
@@ -5371,7 +5441,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         });
       });
     },
-    [pushPage, client],
+    [
+      ethSendTransaction,
+      getSession,
+      pollTransactionStatus,
+      pushPage,
+      solSendTransaction,
+    ],
   );
 
   const handleOnRamp = useCallback(

@@ -2020,6 +2020,52 @@ export default function AuthPage() {
 
           <button
             onClick={async () => {
+              if (
+                !activeWalletAccount ||
+                activeWalletAccount.addressFormat !== "ADDRESS_FORMAT_SOLANA"
+              ) {
+                console.error("No active Solana wallet account selected");
+                return;
+              }
+
+              const from = new PublicKey(activeWalletAccount.address);
+              const tx = new Transaction().add(
+                SystemProgram.transfer({
+                  fromPubkey: from,
+                  toPubkey: from,
+                  lamports: 1_000,
+                }),
+              );
+
+              tx.recentBlockhash = "11111111111111111111111111111111";
+              tx.feePayer = from;
+
+              const raw = tx.serialize({
+                requireAllSignatures: false,
+                verifySignatures: false,
+              });
+
+              await turnkey.handleSendTransaction({
+                transaction: {
+                  unsignedTransaction: raw.toString("base64"),
+                  signWith: activeWalletAccount.address,
+                  caip2: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+                  sponsor: false,
+                },
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Send Solana Transaction
+          </button>
+
+          <button
+            onClick={async () => {
               if (!activeWalletAccount) {
                 console.error("No active wallet account selected");
                 return;

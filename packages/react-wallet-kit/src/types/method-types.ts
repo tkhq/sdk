@@ -17,6 +17,14 @@ import type {
 } from "@turnkey/core";
 import type { KeyFormat } from "./base";
 
+export type SolSendTransactionIntent = {
+  unsignedTransaction: string;
+  signWith: string;
+  caip2: string;
+  sponsor?: boolean;
+  recentBlockhash?: string;
+};
+
 export type RefreshUserParams = {
   stampWith?: StamperType | undefined;
   organizationId?: string;
@@ -289,8 +297,8 @@ export type HandleSendTransactionParams = {
   // Required Turnkey context
   organizationId?: string;
 
-  // ETH transaction
-  transaction: EthTransaction;
+  // EVM or Solana transaction
+  transaction: EthTransaction | SolSendTransactionIntent;
 
   // UI behavior
   successPageDuration?: number;

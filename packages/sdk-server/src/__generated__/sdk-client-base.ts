@@ -239,37 +239,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  getAttestationDocument = async (
-    input: SdkApiTypes.TGetAttestationDocumentBody,
-  ): Promise<SdkApiTypes.TGetAttestationDocumentResponse> => {
-    return this.request("/public/v1/query/get_attestation", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampGetAttestationDocument = async (
-    input: SdkApiTypes.TGetAttestationDocumentBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_attestation";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   getAuthenticator = async (
     input: SdkApiTypes.TGetAuthenticatorBody,
   ): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
@@ -541,38 +510,6 @@ export class TurnkeySDKClientBase {
 
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_onramp_transaction_status";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  getOrganization = async (
-    input: SdkApiTypes.TGetOrganizationBody = {},
-  ): Promise<SdkApiTypes.TGetOrganizationResponse> => {
-    return this.request("/public/v1/query/get_organization", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampGetOrganization = async (
-    input: SdkApiTypes.TGetOrganizationBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/query/get_organization";
     const body = {
       ...input,
       organizationId: input.organizationId ?? this.config.organizationId,
@@ -1413,48 +1350,6 @@ export class TurnkeySDKClientBase {
       organizationId: organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_API_KEYS_V2",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  createApiOnlyUsers = async (
-    input: SdkApiTypes.TCreateApiOnlyUsersBody,
-  ): Promise<SdkApiTypes.TCreateApiOnlyUsersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/create_api_only_users",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-      },
-      "createApiOnlyUsersResult",
-    );
-  };
-
-  stampCreateApiOnlyUsers = async (
-    input: SdkApiTypes.TCreateApiOnlyUsersBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_api_only_users";
-    const bodyWithType = {
-      parameters,
-      organizationId: organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2891,48 +2786,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  ethSendRawTransaction = async (
-    input: SdkApiTypes.TEthSendRawTransactionBody,
-  ): Promise<SdkApiTypes.TEthSendRawTransactionResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    return this.command(
-      "/public/v1/submit/eth_send_raw_transaction",
-      {
-        parameters: rest,
-        organizationId: organizationId ?? this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION",
-      },
-      "ethSendRawTransactionResult",
-    );
-  };
-
-  stampEthSendRawTransaction = async (
-    input: SdkApiTypes.TEthSendRawTransactionBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/eth_send_raw_transaction";
-    const bodyWithType = {
-      parameters,
-      organizationId: organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   ethSendTransaction = async (
     input: SdkApiTypes.TEthSendTransactionBody,
   ): Promise<SdkApiTypes.TEthSendTransactionResponse> => {
@@ -3928,6 +3781,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  solSendTransaction = async (
+    input: SdkApiTypes.TSolSendTransactionBody,
+  ): Promise<SdkApiTypes.TSolSendTransactionResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/sol_send_transaction",
+      {
+        parameters: rest,
+        organizationId: organizationId ?? this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+      },
+      "solSendTransactionResult",
+    );
+  };
+
+  stampSolSendTransaction = async (
+    input: SdkApiTypes.TSolSendTransactionBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/sol_send_transaction";
+    const bodyWithType = {
+      parameters,
+      organizationId: organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   stampLogin = async (
     input: SdkApiTypes.TStampLoginBody,
   ): Promise<SdkApiTypes.TStampLoginResponse> => {
@@ -4462,37 +4357,6 @@ export class TurnkeySDKClientBase {
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await this.stamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
-  testRateLimits = async (
-    input: SdkApiTypes.TTestRateLimitsBody,
-  ): Promise<SdkApiTypes.TTestRateLimitsResponse> => {
-    return this.request("/tkhq/api/v1/test_rate_limits", {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    });
-  };
-
-  stampTestRateLimits = async (
-    input: SdkApiTypes.TTestRateLimitsBody,
-  ): Promise<TSignedRequest | undefined> => {
-    if (!this.stamper) {
-      return undefined;
-    }
-
-    const fullUrl = this.config.apiBaseUrl + "/tkhq/api/v1/test_rate_limits";
-    const body = {
-      ...input,
-      organizationId: input.organizationId ?? this.config.organizationId,
-    };
-
-    const stringifiedBody = JSON.stringify(body);
     const stamp = await this.stamper.stamp(stringifiedBody);
     return {
       body: stringifiedBody,

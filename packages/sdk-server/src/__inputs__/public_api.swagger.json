@@ -40,7 +40,7 @@
     },
     {
       "name": "Users",
-      "description": "Users are responsible for any action taken within an Organization. They can have ApiKey or Auuthenticator credentials, allowing you to onboard teammates to the Organization, or create API-only Users to run as part of your infrastructure."
+      "description": "Users are responsible for any action taken within an Organization. They can have ApiKey or Authenticator credentials, allowing you to onboard teammates to the Organization, or create API-only Users to run as part of your infrastructure."
     },
     {
       "name": "User Tags",
@@ -60,7 +60,7 @@
     },
     {
       "name": "Consensus",
-      "description": "Policies can enforce consensus requirements for Activities. For example, adding a new user requires two admins to approve the request.\n\nActivities that have been proposed, but don't yet meet the Consesnsus requirements will have the status: `REQUIRES_CONSENSUS`. Activities in this state can be approved or rejected using the unique fingerprint generated when an Activity is created."
+      "description": "Policies can enforce consensus requirements for Activities. For example, adding a new user requires two admins to approve the request.\n\nActivities that have been proposed, but don't yet meet the Consensus requirements will have the status: `REQUIRES_CONSENSUS`. Activities in this state can be approved or rejected using the unique fingerprint generated when an Activity is created."
     }
   ],
   "host": "api.turnkey.com",
@@ -162,38 +162,6 @@
           }
         ],
         "tags": ["API keys"]
-      }
-    },
-    "/public/v1/query/get_attestation": {
-      "post": {
-        "summary": "Attestation",
-        "description": "Get the attestation document corresponding to an enclave.",
-        "operationId": "PublicApiService_GetAttestationDocument",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetAttestationDocumentResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetAttestationDocumentRequest"
-            }
-          }
-        ],
-        "tags": ["Attestation"]
       }
     },
     "/public/v1/query/get_authenticator": {
@@ -482,38 +450,6 @@
           }
         ],
         "tags": ["On Ramp"]
-      }
-    },
-    "/public/v1/query/get_organization": {
-      "post": {
-        "summary": "Get organization",
-        "description": "Get details about an organization.",
-        "operationId": "PublicApiService_GetOrganization",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetOrganizationResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1GetOrganizationRequest"
-            }
-          }
-        ],
-        "tags": ["Organizations"]
       }
     },
     "/public/v1/query/get_organization_configs": {
@@ -1346,38 +1282,6 @@
           }
         ],
         "tags": ["API Keys"]
-      }
-    },
-    "/public/v1/submit/create_api_only_users": {
-      "post": {
-        "summary": "Create API-only users",
-        "description": "Create API-only users in an existing organization.",
-        "operationId": "PublicApiService_CreateApiOnlyUsers",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateApiOnlyUsersRequest"
-            }
-          }
-        ],
-        "tags": ["Users"]
       }
     },
     "/public/v1/submit/create_authenticators": {
@@ -2468,38 +2372,6 @@
         "tags": ["User Auth"]
       }
     },
-    "/public/v1/submit/eth_send_raw_transaction": {
-      "post": {
-        "summary": "Submit a raw transaction for broadcasting.",
-        "description": "Submit a raw transaction (serialized and signed) for broadcasting to the network.",
-        "operationId": "PublicApiService_EthSendRawTransaction",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1EthSendRawTransactionRequest"
-            }
-          }
-        ],
-        "tags": ["Broadcasting"]
-      }
-    },
     "/public/v1/submit/eth_send_transaction": {
       "post": {
         "summary": "Submit a transaction intent for broadcasting.",
@@ -3268,6 +3140,38 @@
         "tags": ["Signing"]
       }
     },
+    "/public/v1/submit/sol_send_transaction": {
+      "post": {
+        "summary": "Submit a transaction intent for broadcasting.",
+        "description": "Submit a transaction intent describing a transaction you would like to broadcast.",
+        "operationId": "PublicApiService_SolSendTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SolSendTransactionRequest"
+            }
+          }
+        ],
+        "tags": ["Broadcasting"]
+      }
+    },
     "/public/v1/submit/stamp_login": {
       "post": {
         "summary": "Login with a stamp",
@@ -3682,58 +3586,6 @@
           }
         ],
         "tags": ["User Verification"]
-      }
-    },
-    "/tkhq/api/v1/noop-codegen-anchor": {
-      "post": {
-        "operationId": "PublicApiService_NOOPCodegenAnchor",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1NOOPCodegenAnchorResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "tags": ["PublicApiService"]
-      }
-    },
-    "/tkhq/api/v1/test_rate_limits": {
-      "post": {
-        "summary": "Test rate limit",
-        "description": "Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite.",
-        "operationId": "PublicApiService_TestRateLimits",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1TestRateLimitsResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1TestRateLimitsRequest"
-            }
-          }
-        ],
-        "tags": ["RateLimit"]
       }
     }
   },
@@ -4359,7 +4211,11 @@
         "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2",
         "ACTIVITY_TYPE_INIT_OTP_AUTH_V3",
         "ACTIVITY_TYPE_INIT_OTP_V2",
-        "ACTIVITY_TYPE_UPSERT_GAS_USAGE_CONFIG"
+        "ACTIVITY_TYPE_UPSERT_GAS_USAGE_CONFIG",
+        "ACTIVITY_TYPE_CREATE_TVC_APP",
+        "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
+        "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
+        "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
       ]
     },
     "v1AddressFormat": {
@@ -4894,30 +4750,6 @@
         }
       },
       "required": ["apiOnlyUsers"]
-    },
-    "v1CreateApiOnlyUsersRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_API_ONLY_USERS"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1CreateApiOnlyUsersIntent"
-        },
-        "generateAppProofs": {
-          "type": "boolean"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateApiOnlyUsersResult": {
       "type": "object",
@@ -6221,6 +6053,179 @@
       },
       "required": ["subOrganizationId"]
     },
+    "v1CreateTvcAppIntent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the new TVC application"
+        },
+        "quorumPublicKey": {
+          "type": "string",
+          "description": "Quorum public key to use for this application"
+        },
+        "manifestSetId": {
+          "type": "string",
+          "description": "Unique identifier for an existing TVC operator set to use as the Manifest Set for this TVC application. If left empty, a new Manifest Set configuration is required"
+        },
+        "manifestSetParams": {
+          "$ref": "#/definitions/v1TvcOperatorSetParams",
+          "description": "Configuration to create a new TVC operator set, used as the Manifest Set for this TVC application. If left empty, a Manifest Set ID is required"
+        },
+        "shareSetId": {
+          "type": "string",
+          "description": "Unique identifier for an existing TVC operator set to use as the Share Set for this TVC application. If left empty, a new Share Set configuration is required"
+        },
+        "shareSetParams": {
+          "$ref": "#/definitions/v1TvcOperatorSetParams",
+          "description": "Configuration to create a new TVC operator set, used as the Share Set for this TVC application. If left empty, a Share Set ID is required"
+        },
+        "externalConnectivity": {
+          "type": "boolean",
+          "description": "Enables external connectivity for this TVC app. Default if not provided: false."
+        }
+      },
+      "required": ["name", "quorumPublicKey"]
+    },
+    "v1CreateTvcAppResult": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "The unique identifier for the TVC application"
+        },
+        "manifestSetId": {
+          "type": "string",
+          "description": "The unique identifier for the TVC manifest set"
+        },
+        "manifestSetOperatorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The unique identifier(s) of the manifest set operators"
+        },
+        "manifestSetThreshold": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The required number of approvals for the manifest set"
+        }
+      },
+      "required": [
+        "appId",
+        "manifestSetId",
+        "manifestSetOperatorIds",
+        "manifestSetThreshold"
+      ]
+    },
+    "v1CreateTvcDeploymentIntent": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "The unique identifier of the to-be-deployed TVC application"
+        },
+        "qosVersion": {
+          "type": "string",
+          "description": "The QuorumOS version to use to deploy this application"
+        },
+        "pivotContainerImageUrl": {
+          "type": "string",
+          "description": "URL of the container containing the pivot binary"
+        },
+        "pivotPath": {
+          "type": "string",
+          "description": "Location of the binary in the pivot container"
+        },
+        "pivotArgs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Arguments to pass to the pivot binary at startup. Encoded as a list of strings, for example [\"--foo\", \"bar\"]"
+        },
+        "expectedPivotDigest": {
+          "type": "string",
+          "description": "Digest of the pivot binary in the pivot container. This value will be inserted in the QOS manifest to ensure application integrity."
+        },
+        "hostContainerImageUrl": {
+          "type": "string",
+          "description": "URL of the container containing the host binary"
+        },
+        "hostPath": {
+          "type": "string",
+          "description": "Location of the binary inside the host container"
+        },
+        "hostArgs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Arguments to pass to the host binary at startup. Encoded as a list of strings, for example [\"--foo\", \"bar\"]"
+        },
+        "nonce": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Optional nonce to ensure uniqueness of the deployment manifest. If not provided, it defaults to the current Unix timestamp in seconds."
+        }
+      },
+      "required": [
+        "appId",
+        "qosVersion",
+        "pivotContainerImageUrl",
+        "pivotPath",
+        "pivotArgs",
+        "expectedPivotDigest",
+        "hostContainerImageUrl",
+        "hostPath",
+        "hostArgs"
+      ]
+    },
+    "v1CreateTvcDeploymentResult": {
+      "type": "object",
+      "properties": {
+        "deploymentId": {
+          "type": "string",
+          "description": "The unique identifier for the TVC deployment"
+        },
+        "manifestId": {
+          "type": "string",
+          "description": "The unique identifier for the TVC manifest"
+        }
+      },
+      "required": ["deploymentId", "manifestId"]
+    },
+    "v1CreateTvcManifestApprovalsIntent": {
+      "type": "object",
+      "properties": {
+        "manifestId": {
+          "type": "string",
+          "description": "Unique identifier of the TVC deployment to approve"
+        },
+        "approvals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcManifestApproval"
+          },
+          "description": "List of manifest approvals"
+        }
+      },
+      "required": ["manifestId", "approvals"]
+    },
+    "v1CreateTvcManifestApprovalsResult": {
+      "type": "object",
+      "properties": {
+        "approvalIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The unique identifier(s) for the manifest approvals"
+        }
+      },
+      "required": ["approvalIds"]
+    },
     "v1CreateUserTagIntent": {
       "type": "object",
       "properties": {
@@ -6507,7 +6512,20 @@
     },
     "v1Curve": {
       "type": "string",
-      "enum": ["CURVE_SECP256K1", "CURVE_ED25519"]
+      "enum": ["CURVE_SECP256K1", "CURVE_ED25519", "CURVE_P256"]
+    },
+    "v1CustomRevertError": {
+      "type": "object",
+      "properties": {
+        "errorName": {
+          "type": "string",
+          "description": "The name of the custom error."
+        },
+        "paramsJson": {
+          "type": "string",
+          "description": "The decoded parameters as a JSON object."
+        }
+      }
     },
     "v1DeleteApiKeysIntent": {
       "type": "object",
@@ -7629,30 +7647,6 @@
       },
       "required": ["signedTransaction", "caip2"]
     },
-    "v1EthSendRawTransactionRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1EthSendRawTransactionIntent"
-        },
-        "generateAppProofs": {
-          "type": "boolean"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
     "v1EthSendRawTransactionResult": {
       "type": "object",
       "properties": {
@@ -7750,7 +7744,7 @@
       "properties": {
         "sendTransactionStatusId": {
           "type": "string",
-          "description": "The send_transaction_status ID associated with the transaction submission for sponsored transactions"
+          "description": "The send_transaction_status ID associated with the transaction submission"
         }
       },
       "required": ["sendTransactionStatusId"]
@@ -8217,31 +8211,6 @@
       },
       "required": ["appProofs"]
     },
-    "v1GetAttestationDocumentRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given organization."
-        },
-        "enclaveType": {
-          "type": "string",
-          "description": "The enclave type, one of: ump, notarizer, signer, evm-parser."
-        }
-      },
-      "required": ["organizationId", "enclaveType"]
-    },
-    "v1GetAttestationDocumentResponse": {
-      "type": "object",
-      "properties": {
-        "attestationDocument": {
-          "type": "string",
-          "format": "byte",
-          "description": "Raw (CBOR-encoded) attestation document."
-        }
-      },
-      "required": ["attestationDocument"]
-    },
     "v1GetAuthenticatorRequest": {
       "type": "object",
       "properties": {
@@ -8491,26 +8460,6 @@
       },
       "required": ["configs"]
     },
-    "v1GetOrganizationRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given organization."
-        }
-      },
-      "required": ["organizationId"]
-    },
-    "v1GetOrganizationResponse": {
-      "type": "object",
-      "properties": {
-        "organizationData": {
-          "$ref": "#/definitions/v1OrganizationData",
-          "description": "Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization."
-        }
-      },
-      "required": ["organizationData"]
-    },
     "v1GetPoliciesRequest": {
       "type": "object",
       "properties": {
@@ -8662,6 +8611,10 @@
         "txError": {
           "type": "string",
           "description": "The error encountered when broadcasting or confirming the transaction, if any."
+        },
+        "error": {
+          "$ref": "#/definitions/v1TxError",
+          "description": "Structured error information including revert details, if available."
         }
       },
       "required": ["txStatus"]
@@ -10085,61 +10038,20 @@
         },
         "upsertGasUsageConfigIntent": {
           "$ref": "#/definitions/v1UpsertGasUsageConfigIntent"
+        },
+        "createTvcAppIntent": {
+          "$ref": "#/definitions/v1CreateTvcAppIntent"
+        },
+        "createTvcDeploymentIntent": {
+          "$ref": "#/definitions/v1CreateTvcDeploymentIntent"
+        },
+        "createTvcManifestApprovalsIntent": {
+          "$ref": "#/definitions/v1CreateTvcManifestApprovalsIntent"
+        },
+        "solSendTransactionIntent": {
+          "$ref": "#/definitions/v1SolSendTransactionIntent"
         }
       }
-    },
-    "v1Invitation": {
-      "type": "object",
-      "properties": {
-        "invitationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Invitation object."
-        },
-        "receiverUserName": {
-          "type": "string",
-          "description": "The name of the intended Invitation recipient."
-        },
-        "receiverEmail": {
-          "type": "string",
-          "description": "The email address of the intended Invitation recipient."
-        },
-        "receiverUserTags": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of tags assigned to the Invitation recipient."
-        },
-        "accessType": {
-          "$ref": "#/definitions/v1AccessType",
-          "description": "The User's permissible access method(s)."
-        },
-        "status": {
-          "$ref": "#/definitions/v1InvitationStatus",
-          "description": "The current processing status of a specified Invitation."
-        },
-        "createdAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "updatedAt": {
-          "$ref": "#/definitions/externaldatav1Timestamp"
-        },
-        "senderUserId": {
-          "type": "string",
-          "description": "Unique identifier for the Sender of an Invitation."
-        }
-      },
-      "required": [
-        "invitationId",
-        "receiverUserName",
-        "receiverEmail",
-        "receiverUserTags",
-        "accessType",
-        "status",
-        "createdAt",
-        "updatedAt",
-        "senderUserId"
-      ]
     },
     "v1InvitationParams": {
       "type": "object",
@@ -10174,14 +10086,6 @@
         "receiverUserTags",
         "accessType",
         "senderUserId"
-      ]
-    },
-    "v1InvitationStatus": {
-      "type": "string",
-      "enum": [
-        "INVITATION_STATUS_CREATED",
-        "INVITATION_STATUS_ACCEPTED",
-        "INVITATION_STATUS_REVOKED"
       ]
     },
     "v1ListFiatOnRampCredentialsRequest": {
@@ -10278,16 +10182,6 @@
       },
       "required": ["userTags"]
     },
-    "v1LoginUsage": {
-      "type": "object",
-      "properties": {
-        "publicKey": {
-          "type": "string",
-          "description": "Public key for authentication"
-        }
-      },
-      "required": ["publicKey"]
-    },
     "v1MnemonicLanguage": {
       "type": "string",
       "enum": [
@@ -10302,17 +10196,23 @@
         "MNEMONIC_LANGUAGE_SPANISH"
       ]
     },
-    "v1NOOPCodegenAnchorResponse": {
+    "v1NativeRevertError": {
       "type": "object",
       "properties": {
-        "stamp": {
-          "$ref": "#/definitions/v1WebAuthnStamp"
+        "nativeType": {
+          "type": "string",
+          "description": "The type of native error: 'error_string', 'panic', or 'execution_reverted'."
         },
-        "tokenUsage": {
-          "$ref": "#/definitions/v1TokenUsage"
+        "message": {
+          "type": "string",
+          "description": "The error message for Error(string) reverts."
+        },
+        "panicCode": {
+          "type": "string",
+          "format": "uint64",
+          "description": "The panic code for Panic(uint256) reverts."
         }
-      },
-      "required": ["stamp"]
+      }
     },
     "v1Oauth2AuthenticateIntent": {
       "type": "object",
@@ -10620,76 +10520,6 @@
         "OPERATOR_CONTAINS_ONE",
         "OPERATOR_CONTAINS_ALL"
       ]
-    },
-    "v1OrganizationData": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string"
-        },
-        "name": {
-          "type": "string"
-        },
-        "users": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1User"
-          }
-        },
-        "policies": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Policy"
-          }
-        },
-        "privateKeys": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1PrivateKey"
-          }
-        },
-        "invitations": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Invitation"
-          }
-        },
-        "tags": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/datav1Tag"
-          }
-        },
-        "rootQuorum": {
-          "$ref": "#/definitions/externaldatav1Quorum"
-        },
-        "features": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Feature"
-          }
-        },
-        "wallets": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1Wallet"
-          }
-        },
-        "smartContractInterfaceReferences": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1SmartContractInterfaceReference"
-          }
-        }
-      }
     },
     "v1OtpAuthIntent": {
       "type": "object",
@@ -11463,6 +11293,47 @@
         },
         "upsertGasUsageConfigResult": {
           "$ref": "#/definitions/v1UpsertGasUsageConfigResult"
+        },
+        "createTvcAppResult": {
+          "$ref": "#/definitions/v1CreateTvcAppResult"
+        },
+        "createTvcDeploymentResult": {
+          "$ref": "#/definitions/v1CreateTvcDeploymentResult"
+        },
+        "createTvcManifestApprovalsResult": {
+          "$ref": "#/definitions/v1CreateTvcManifestApprovalsResult"
+        },
+        "solSendTransactionResult": {
+          "$ref": "#/definitions/v1SolSendTransactionResult"
+        }
+      }
+    },
+    "v1RevertChainEntry": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string",
+          "description": "The contract address where the revert occurred."
+        },
+        "errorType": {
+          "type": "string",
+          "description": "Type of error: 'unknown', 'native', or 'custom'."
+        },
+        "displayMessage": {
+          "type": "string",
+          "description": "Human-readable message describing this revert."
+        },
+        "unknown": {
+          "$ref": "#/definitions/v1UnknownRevertError",
+          "description": "Details for unknown error types."
+        },
+        "native": {
+          "$ref": "#/definitions/v1NativeRevertError",
+          "description": "Details for native Solidity errors (Error, Panic, execution reverted)."
+        },
+        "custom": {
+          "$ref": "#/definitions/v1CustomRevertError",
+          "description": "Details for custom contract errors."
         }
       }
     },
@@ -11911,38 +11782,6 @@
       },
       "required": ["signedTransaction"]
     },
-    "v1SignupUsage": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "phoneNumber": {
-          "type": "string"
-        },
-        "apiKeys": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1ApiKeyParamsV2"
-          }
-        },
-        "authenticators": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1AuthenticatorParamsV2"
-          }
-        },
-        "oauthProviders": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "$ref": "#/definitions/v1OauthProviderParams"
-          }
-        }
-      }
-    },
     "v1SimpleClientExtensionResults": {
       "type": "object",
       "properties": {
@@ -11954,20 +11793,6 @@
         },
         "credProps": {
           "$ref": "#/definitions/v1CredPropsAuthenticationExtensionsClientOutputs"
-        }
-      }
-    },
-    "v1SmartContractInterfaceReference": {
-      "type": "object",
-      "properties": {
-        "smartContractInterfaceId": {
-          "type": "string"
-        },
-        "smartContractAddress": {
-          "type": "string"
-        },
-        "digest": {
-          "type": "string"
         }
       }
     },
@@ -11986,6 +11811,71 @@
           "description": "Template containing references to .OtpCode i.e Your OTP is {{.OtpCode}}"
         }
       }
+    },
+    "v1SolSendTransactionIntent": {
+      "type": "object",
+      "properties": {
+        "unsignedTransaction": {
+          "type": "string",
+          "description": "Base64-encoded serialized unsigned Solana transaction"
+        },
+        "signWith": {
+          "type": "string",
+          "description": "A wallet or private key address to sign with. This does not support private key IDs."
+        },
+        "sponsor": {
+          "type": "boolean",
+          "description": "Whether to sponsor this transaction via Gas Station."
+        },
+        "caip2": {
+          "type": "string",
+          "enum": [
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+            "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+            "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY"
+          ],
+          "description": "CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet)."
+        },
+        "recentBlockhash": {
+          "type": "string",
+          "description": "user-provided blockhash for replay protection / deadline control. If omitted and sponsor=true, we fetch a fresh blockhash during execution"
+        }
+      },
+      "required": ["unsignedTransaction", "signWith", "caip2"]
+    },
+    "v1SolSendTransactionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_SOL_SEND_TRANSACTION"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1SolSendTransactionIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1SolSendTransactionResult": {
+      "type": "object",
+      "properties": {
+        "sendTransactionStatusId": {
+          "type": "string",
+          "description": "The send_transaction_status ID associated with the transaction submission"
+        }
+      },
+      "required": ["sendTransactionStatusId"]
     },
     "v1StampLoginIntent": {
       "type": "object",
@@ -12043,56 +11933,103 @@
       "type": "string",
       "enum": ["TAG_TYPE_USER", "TAG_TYPE_PRIVATE_KEY"]
     },
-    "v1TestRateLimitsRequest": {
-      "type": "object",
-      "properties": {
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons."
-        },
-        "isSetLimit": {
-          "type": "boolean",
-          "description": "Whether or not to set a limit on this request."
-        },
-        "limit": {
-          "type": "integer",
-          "format": "int64",
-          "description": "Rate limit to set for org, if is_set_limit is set to true."
-        }
-      },
-      "required": ["organizationId", "isSetLimit", "limit"]
-    },
-    "v1TestRateLimitsResponse": {
-      "type": "object"
-    },
-    "v1TokenUsage": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "$ref": "#/definitions/v1UsageType",
-          "description": "Type of token usage"
-        },
-        "tokenId": {
-          "type": "string",
-          "description": "Unique identifier for the verification token"
-        },
-        "signup": {
-          "$ref": "#/definitions/v1SignupUsage"
-        },
-        "login": {
-          "$ref": "#/definitions/v1LoginUsage"
-        }
-      },
-      "required": ["type", "tokenId"]
-    },
     "v1TransactionType": {
       "type": "string",
       "enum": [
         "TRANSACTION_TYPE_ETHEREUM",
         "TRANSACTION_TYPE_SOLANA",
         "TRANSACTION_TYPE_TRON",
-        "TRANSACTION_TYPE_BITCOIN"
+        "TRANSACTION_TYPE_BITCOIN",
+        "TRANSACTION_TYPE_TEMPO"
       ]
+    },
+    "v1TvcManifestApproval": {
+      "type": "object",
+      "properties": {
+        "operatorId": {
+          "type": "string",
+          "description": "Unique identifier of the operator providing this approval"
+        },
+        "signature": {
+          "type": "string",
+          "description": "Signature from the operator approving the manifest"
+        }
+      },
+      "required": ["operatorId", "signature"]
+    },
+    "v1TvcOperatorParams": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name for this new operator"
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Public key for this operator"
+        }
+      },
+      "required": ["name", "publicKey"]
+    },
+    "v1TvcOperatorSetParams": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Short description for this new operator set"
+        },
+        "newOperators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcOperatorParams"
+          },
+          "description": "Operators to create as part of this new operator set"
+        },
+        "existingOperatorIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Existing operators to use as part of this new operator set"
+        },
+        "threshold": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The threshold of operators needed to reach consensus in this new Operator Set"
+        }
+      },
+      "required": ["name", "threshold"]
+    },
+    "v1TxError": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Human-readable error message describing what went wrong."
+        },
+        "revertChain": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RevertChainEntry"
+          },
+          "description": "Chain of revert errors from nested contract calls, ordered from outermost to innermost."
+        }
+      }
+    },
+    "v1UnknownRevertError": {
+      "type": "object",
+      "properties": {
+        "selector": {
+          "type": "string",
+          "description": "The 4-byte error selector, if available."
+        },
+        "data": {
+          "type": "string",
+          "description": "The raw error data, hex-encoded."
+        }
+      }
     },
     "v1UpdateAllowedOriginsIntent": {
       "type": "object",
@@ -12878,6 +12815,10 @@
         "windowDurationMinutes": {
           "type": "string",
           "description": "Rolling sponsorship window duration, expressed in minutes."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether gas sponsorship is enabled for the organization."
         }
       },
       "required": [
@@ -12895,10 +12836,6 @@
         }
       },
       "required": ["gasUsageConfigId"]
-    },
-    "v1UsageType": {
-      "type": "string",
-      "enum": ["USAGE_TYPE_SIGNUP", "USAGE_TYPE_LOGIN"]
     },
     "v1User": {
       "type": "object",
@@ -13403,33 +13340,6 @@
         }
       },
       "required": ["walletId", "addresses"]
-    },
-    "v1WebAuthnStamp": {
-      "type": "object",
-      "properties": {
-        "credentialId": {
-          "type": "string",
-          "description": "A base64 url encoded Unique identifier for a given credential."
-        },
-        "clientDataJson": {
-          "type": "string",
-          "description": "A base64 encoded payload containing metadata about the signing context and the challenge."
-        },
-        "authenticatorData": {
-          "type": "string",
-          "description": "A base64 encoded payload containing metadata about the authenticator."
-        },
-        "signature": {
-          "type": "string",
-          "description": "The base64 url encoded signature bytes contained within the WebAuthn assertion response."
-        }
-      },
-      "required": [
-        "credentialId",
-        "clientDataJson",
-        "authenticatorData",
-        "signature"
-      ]
     }
   },
   "securityDefinitions": {
