@@ -49,7 +49,7 @@ If using the non-sponsored path, ensure your wallet is funded with ETH on Base.
 
 ---
 
-### 4/ Running the script
+### 3/ Running the script
 
 ```bash
 $ pnpm start
