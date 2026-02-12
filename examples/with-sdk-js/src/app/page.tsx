@@ -15,6 +15,7 @@ import {
   ClientState,
   KeyFormat,
   OtpType,
+  useModal,
   useTurnkey,
   Wallet,
   WalletAccount,
@@ -30,6 +31,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 import { StamperType } from "@turnkey/core";
+import { ExportAndSignComponent } from "@/components/ExportAndSign";
 
 export default function AuthPage() {
   const [email, setEmail] = useState<string>("");
@@ -55,6 +57,10 @@ export default function AuthPage() {
     null,
   );
 
+  const [activeEscrowPrivateKeyId, setActiveEscrowPrivateKeyId] = useState<
+    string | null
+  >(null);
+
   const {
     httpClient,
     session,
@@ -66,6 +72,7 @@ export default function AuthPage() {
   } = useTurnkey();
 
   const turnkey = useTurnkey();
+  const { pushPage } = useModal();
 
   // FOR SOLANA TRANSACTIONS TESTING
   // const heliusEndpoint =
@@ -696,6 +703,20 @@ export default function AuthPage() {
                           ? "Active"
                           : "Set Active"}
                       </button>
+
+                      <button
+                        onClick={() =>
+                          setActiveEscrowPrivateKeyId(privateKey.privateKeyId)
+                        }
+                        className={`transition-all  mt-2 p-1 rounded w-full text-xs ${activeEscrowPrivateKeyId !== privateKey.privateKeyId ? "bg-blue-300" : "bg-neutral-400"}`}
+                        disabled={
+                          activeEscrowPrivateKeyId === privateKey.privateKeyId
+                        }
+                      >
+                        {activeEscrowPrivateKeyId === privateKey.privateKeyId
+                          ? "Active Escrow Key"
+                          : "Set Active Escrow Key"}
+                      </button>
                     </div>
                   );
                   count++;
@@ -854,6 +875,57 @@ export default function AuthPage() {
                 }}
               >
                 Show Export Private Key Modal (Bitcoin Mainnet WIF Format)
+              </button>
+              <button
+                onClick={async () => {
+                  const res = await httpClient?.createPrivateKeys({
+                    privateKeys: [
+                      {
+                        privateKeyName:
+                          "Escrow Key " + new Date().toISOString(),
+                        curve: "CURVE_P256",
+                        privateKeyTags: [],
+                        addressFormats: [],
+                      },
+                    ],
+                  });
+
+                  console.log("Created Escrow Key:", res);
+                }}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Create Escrow Key
+              </button>
+              <button
+                onClick={() => {
+                  if (!activeEscrowPrivateKeyId) {
+                    console.error("No active escrow private key selected");
+                    return;
+                  }
+
+                  pushPage({
+                    key: "Export and sign",
+                    content: (
+                      <ExportAndSignComponent
+                        organizationId={session!.organizationId!}
+                        escrowPrivateKeyId={activeEscrowPrivateKeyId}
+                      />
+                    ),
+                  });
+                }}
+                style={{
+                  backgroundColor: "purple",
+                  borderRadius: "8px",
+                  padding: "8px 16px",
+                  color: "white",
+                }}
+              >
+                Export and Sign with Escrow Key
               </button>
               <button
                 data-testid="show-export-wallet-account-modal"
