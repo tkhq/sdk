@@ -77,6 +77,17 @@ export enum IframeEventType {
   // Event sent by the parent page to request that the iframe embedded private key is cleared from memory.
   // Value: none
   clearEmbeddedPrivateKey = "CLEAR_EMBEDDED_PRIVATE_KEY",
+  // Event sent by the parent to its iframe to request injection of a credential bundle for export and sign.
+  StoreEncryptedBundle = "STORE_ENCRYPTED_BUNDLE",
+  // Event sent by the parent to decrypt an escrow P-256 private key
+  InjectDecryptionKeyBundle = "INJECT_DECRYPTION_KEY_BUNDLE",
+  // Event sent by the iframe to clear the escrow decryption key and all in-memory wallet keys
+  BurnSession = "BURN_SESSION",
+  // Event sent by the parent to its iframe to request a JSON array of all wallet addresses
+  // that have encrypted bundles stored in local storage
+  GetStoredWalletAddresses = "GET_STORED_WALLET_ADDRESSES",
+  // Event sent by the parent to remove the encrypted escrow bundles from local storage
+  ClearStoredBundles = "CLEAR_STORED_BUNDLES",
   // Event sent by the iframe to communicate an error
   // Value: serialized error
   Error = "ERROR",
@@ -603,5 +614,55 @@ export class IframeStamper {
    */
   async clearEmbeddedPrivateKey(): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.clearEmbeddedPrivateKey);
+  }
+
+  async storeEncryptedBundle(
+    organizationId: string,
+    bundle: string,
+    keyFormat: KeyFormat,
+    address: string,
+  ): Promise<boolean> {
+    return this.createRequest<boolean>(IframeEventType.StoreEncryptedBundle, {
+      organizationId,
+      value: bundle,
+      keyFormat,
+      address,
+    });
+  }
+
+  async injectDecryptionKeyBundle(
+    organizationId: string,
+    bundle: string,
+  ): Promise<boolean> {
+    return this.createRequest<boolean>(
+      IframeEventType.InjectDecryptionKeyBundle,
+      {
+        organizationId,
+        value: bundle,
+      },
+    );
+  }
+
+  async burnSession(): Promise<boolean> {
+    return this.createRequest<boolean>(IframeEventType.BurnSession);
+  }
+
+  async getStoredWalletAddresses(organizationId: string): Promise<string[]> {
+    return this.createRequest<string[]>(
+      IframeEventType.GetStoredWalletAddresses,
+      {
+        organizationId,
+      },
+    );
+  }
+
+  async clearStoredBundles(
+    organizationId: string,
+    address?: string,
+  ): Promise<boolean> {
+    return this.createRequest<boolean>(IframeEventType.ClearStoredBundles, {
+      organizationId,
+      address,
+    });
   }
 }
