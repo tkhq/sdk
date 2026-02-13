@@ -17,7 +17,6 @@
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/ethers": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-react": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/viem": "workspace:*",
