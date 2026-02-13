@@ -23,24 +23,22 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 async function main() {
   console.log("🤖 Initializing Turnkey Agent...\n");
 
-  // Validate required environment variables
-  const apiPublicKey = process.env.TURNKEY_API_PUBLIC_KEY;
-  const apiPrivateKey = process.env.TURNKEY_API_PRIVATE_KEY;
-  const organizationId = process.env.TURNKEY_ORGANIZATION_ID;
+  const organizationId = process.env.ORGANIZATION_ID!;
+  const apiPublicKey = process.env.API_PUBLIC_KEY!;
+  const apiPrivateKey = process.env.API_PRIVATE_KEY!;
 
   if (!apiPublicKey || !apiPrivateKey || !organizationId) {
     console.error("❌ Missing required environment variables.");
     console.error("Please set the following in your .env.local file:");
-    console.error("  - TURNKEY_API_PUBLIC_KEY");
-    console.error("  - TURNKEY_API_PRIVATE_KEY");
-    console.error("  - TURNKEY_ORGANIZATION_ID");
+    console.error("  - API_PUBLIC_KEY");
+    console.error("  - API_PRIVATE_KEY");
+    console.error("  - ORGANIZATION_ID");
     process.exit(1);
   }
 
   // 1. Initialize Turnkey client with API keys (headless auth)
   const turnkey = new Turnkey({
-    apiBaseUrl:
-      process.env.TURNKEY_API_BASE_URL || "https://api.turnkey.com",
+    apiBaseUrl: process.env.BASE_URL || "https://api.turnkey.com",
     apiPublicKey,
     apiPrivateKey,
     defaultOrganizationId: organizationId,
@@ -106,12 +104,12 @@ async function main() {
         console.log("✅ Content received!");
         console.log("─".repeat(50));
         console.log(
-          content.substring(0, 500) + (content.length > 500 ? "..." : "")
+          content.substring(0, 500) + (content.length > 500 ? "..." : ""),
         );
         console.log("─".repeat(50));
       } else {
         console.log(
-          `❌ Request failed: ${response.status} ${response.statusText}`
+          `❌ Request failed: ${response.status} ${response.statusText}`,
         );
       }
     } catch (error) {
@@ -120,11 +118,11 @@ async function main() {
 
     // Final balance check to show what was spent
     const finalBalance = await connection.getBalance(
-      new PublicKey(solanaAddress)
+      new PublicKey(solanaAddress),
     );
     console.log(`\n💰 Final balance: ${finalBalance / LAMPORTS_PER_SOL} SOL`);
     console.log(
-      `📊 Spent: ${(balance - finalBalance) / LAMPORTS_PER_SOL} SOL`
+      `📊 Spent: ${(balance - finalBalance) / LAMPORTS_PER_SOL} SOL`,
     );
   } else {
     console.log("ℹ️  No TEST_PAYWALL_URL configured.");
@@ -136,15 +134,17 @@ async function main() {
     console.log(`  Wallet Address: ${solanaAddress}`);
     console.log(`  Balance: ${balance / LAMPORTS_PER_SOL} SOL`);
     console.log(
-      `  Network: ${rpcUrl.includes("devnet") ? "devnet" : "mainnet"}`
+      `  Network: ${rpcUrl.includes("devnet") ? "devnet" : "mainnet"}`,
     );
     console.log(`  x402 Client: ready`);
     console.log("─".repeat(50));
     console.log("\n✅ Agent ready for x402 payments!");
   }
+
+  process.exit(0);
 }
 
 main().catch((error) => {
-  console.error("❌ Error:", error);
+  console.error(error);
   process.exit(1);
 });

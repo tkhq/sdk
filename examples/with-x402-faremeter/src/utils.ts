@@ -12,7 +12,7 @@ import * as crypto from "crypto";
  * Otherwise, it creates a new wallet with a Solana account.
  */
 export async function getOrCreateSolanaWallet(
-  client: TurnkeyApiClient
+  client: TurnkeyApiClient,
 ): Promise<string> {
   // Check for existing wallets with Solana accounts
   const existingAddress = await findExistingSolanaWallet(client);
@@ -32,7 +32,7 @@ export async function getOrCreateSolanaWallet(
  * when the real issue is a transient network/auth failure.
  */
 async function findExistingSolanaWallet(
-  client: TurnkeyApiClient
+  client: TurnkeyApiClient,
 ): Promise<string | null> {
   const { wallets } = await client.getWallets();
 
@@ -48,7 +48,7 @@ async function findExistingSolanaWallet(
 
     const solanaAccount = accounts?.find(
       (account: { addressFormat: string; address: string }) =>
-        account.addressFormat === "ADDRESS_FORMAT_SOLANA"
+        account.addressFormat === "ADDRESS_FORMAT_SOLANA",
     );
 
     if (solanaAccount) {
@@ -65,7 +65,7 @@ async function findExistingSolanaWallet(
  * This follows the same pattern as examples/with-solana.
  */
 async function createNewSolanaWallet(
-  client: TurnkeyApiClient
+  client: TurnkeyApiClient,
 ): Promise<string> {
   console.log("Creating a new Solana wallet...\n");
 
@@ -102,7 +102,7 @@ async function createNewSolanaWallet(
         `- Wallet ID: ${walletId}`,
         `- Solana address: ${address}`,
         "",
-      ].join("\n")
+      ].join("\n"),
     );
 
     return address;
