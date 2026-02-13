@@ -1,6 +1,6 @@
-# Example: `with-x402-solana`
+# Example: `with-x402-faremeter`
 
-This example demonstrates how AI agents can use Turnkey wallets for autonomous payments via the [x402 protocol](https://github.com/coinbase/x402) using [Faremeter](https://github.com/faremeter/faremeter).
+This example demonstrates how AI agents can use Turnkey wallets for autonomous payments on Solana via the [x402 protocol](https://github.com/coinbase/x402) using [Faremeter](https://github.com/faremeter/faremeter).
 
 ## Overview
 
@@ -55,7 +55,7 @@ cd sdk/
 corepack enable
 pnpm install -r
 pnpm run build-all
-cd examples/with-x402-solana/
+cd examples/with-x402-faremeter/
 ```
 
 ### 2. Configure Environment
@@ -68,15 +68,15 @@ cp .env.local.example .env.local
 
 Now open `.env.local` and add the missing values:
 
-- `TURNKEY_API_PUBLIC_KEY`
-- `TURNKEY_API_PRIVATE_KEY`
-- `TURNKEY_ORGANIZATION_ID`
+- `API_PUBLIC_KEY`
+- `API_PRIVATE_KEY`
+- `ORGANIZATION_ID`
 
 You can optionally configure:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `TURNKEY_API_BASE_URL` | Turnkey API URL | `https://api.turnkey.com` |
+| `BASE_URL` | Turnkey API URL | `https://api.turnkey.com` |
 | `SOLANA_RPC_URL` | Solana RPC endpoint | `https://api.devnet.solana.com` |
 | `FAREMETER_FACILITATOR_URL` | Faremeter facilitator URL | Public facilitator |
 | `TEST_PAYWALL_URL` | x402-enabled endpoint to test against | _(none)_ |
@@ -136,7 +136,7 @@ import { wrapFetch } from "@faremeter/fetch";
 
 const turnkey = new Turnkey({ /* API key config */ });
 const signer = new TurnkeySigner({
-  organizationId: process.env.TURNKEY_ORGANIZATION_ID,
+  organizationId: process.env.ORGANIZATION_ID,
   client: turnkey.apiClient(),
 });
 

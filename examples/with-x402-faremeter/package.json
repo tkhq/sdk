@@ -1,11 +1,10 @@
 {
-  "name": "@turnkey/example-with-x402-solana",
+  "name": "@turnkey/example-with-x402-faremeter",
   "version": "0.1.0",
   "private": true,
-  "description": "Demo: AI agents paying for resources with Turnkey wallets via x402",
   "scripts": {
     "start": "pnpm tsx src/index.ts",
-    "clean": "rm -rf ./dist ./.cache",
+    "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -15,9 +14,5 @@
     "@turnkey/solana": "workspace:*",
     "dotenv": "^16.0.3"
   },
-  "devDependencies": {
-    "@types/node": "^20.3.1",
-    "tsx": "^4.7.0",
-    "typescript": "^5.4.3"
-  }
+  "devDependencies": {}
 }
