@@ -804,6 +804,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/query/get_wallet_address_balances": {
+      "post": {
+        "summary": "Get balances",
+        "description": "Get non-zero balances of supported assets for a single wallet account address on the specified network.",
+        "operationId": "PublicApiService_GetWalletAddressBalances",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletAddressBalancesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletAddressBalancesRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
+      }
+    },
     "/public/v1/query/list_activities": {
       "post": {
         "summary": "List activities",
@@ -1090,6 +1122,38 @@
           }
         ],
         "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/query/list_supported_assets": {
+      "post": {
+        "summary": "List supported assets",
+        "description": "List supported assets for the specified network",
+        "operationId": "PublicApiService_ListSupportedAssets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListSupportedAssetsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListSupportedAssetsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
       }
     },
     "/public/v1/query/list_user_tags": {
@@ -4552,6 +4616,63 @@
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1AssetBalance": {
+      "type": "object",
+      "properties": {
+        "caip19": {
+          "type": "string",
+          "description": "The caip-19 asset identifier"
+        },
+        "symbol": {
+          "type": "string",
+          "description": "The asset symbol"
+        },
+        "balance": {
+          "type": "string",
+          "description": "The balance in atomic units"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The number of decimals this asset uses"
+        },
+        "display": {
+          "$ref": "#/definitions/v1AssetBalanceDisplay",
+          "description": "Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead."
+        }
+      }
+    },
+    "v1AssetBalanceDisplay": {
+      "type": "object",
+      "properties": {
+        "usd": {
+          "type": "string",
+          "description": "USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise."
+        },
+        "crypto": {
+          "type": "string",
+          "description": "Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise."
+        }
+      }
+    },
+    "v1AssetMetadata": {
+      "type": "object",
+      "properties": {
+        "caip19": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "logoUrl": {
+          "type": "string"
+        }
+      }
     },
     "v1Attestation": {
       "type": "object",
@@ -8900,6 +9021,37 @@
       },
       "required": ["accounts"]
     },
+    "v1GetWalletAddressBalancesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address corresponding to a wallet account."
+        },
+        "caip2": {
+          "type": "string",
+          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
+        }
+      },
+      "required": ["organizationId", "address", "caip2"]
+    },
+    "v1GetWalletAddressBalancesResponse": {
+      "type": "object",
+      "properties": {
+        "balances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AssetBalance"
+          },
+          "description": "List of asset balances"
+        }
+      }
+    },
     "v1GetWalletRequest": {
       "type": "object",
       "properties": {
@@ -10253,6 +10405,32 @@
         }
       },
       "required": ["privateKeyTags"]
+    },
+    "v1ListSupportedAssetsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "caip2": {
+          "type": "string",
+          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
+        }
+      },
+      "required": ["organizationId", "caip2"]
+    },
+    "v1ListSupportedAssetsResponse": {
+      "type": "object",
+      "properties": {
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AssetMetadata"
+          }
+        }
+      }
     },
     "v1ListUserTagsRequest": {
       "type": "object",

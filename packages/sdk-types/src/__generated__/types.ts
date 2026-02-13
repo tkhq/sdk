@@ -442,6 +442,33 @@ export type v1ApproveActivityRequest = {
   generateAppProofs?: boolean;
 };
 
+export type v1AssetBalance = {
+  /** The caip-19 asset identifier */
+  caip19?: string;
+  /** The asset symbol */
+  symbol?: string;
+  /** The balance in atomic units */
+  balance?: string;
+  /** The number of decimals this asset uses */
+  decimals?: number;
+  /** Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead. */
+  display?: v1AssetBalanceDisplay;
+};
+
+export type v1AssetBalanceDisplay = {
+  /** USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+  usd?: string;
+  /** Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+  crypto?: string;
+};
+
+export type v1AssetMetadata = {
+  caip19?: string;
+  symbol?: string;
+  decimals?: number;
+  logoUrl?: string;
+};
+
 export type v1Attestation = {
   /** The cbor encoded then base64 url encoded id of the credential. */
   credentialId: string;
@@ -4554,6 +4581,23 @@ export type TGetWalletAccountBody = {
 
 export type TGetWalletAccountInput = { body: TGetWalletAccountBody };
 
+export type TGetWalletAddressBalancesResponse = {
+  /** List of asset balances */
+  balances?: v1AssetBalance[];
+};
+
+export type TGetWalletAddressBalancesBody = {
+  organizationId?: string;
+  /** Address corresponding to a wallet account. */
+  address: string;
+  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2: string;
+};
+
+export type TGetWalletAddressBalancesInput = {
+  body: TGetWalletAddressBalancesBody;
+};
+
 export type TGetActivitiesResponse = {
   /** A list of activities. */
   activities: v1Activity[];
@@ -4667,6 +4711,19 @@ export type TGetSubOrgIdsBody = {
 };
 
 export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
+
+export type TListSupportedAssetsResponse = {
+  /** List of supported asset metadata */
+  assets?: v1AssetMetadata[];
+};
+
+export type TListSupportedAssetsBody = {
+  organizationId?: string;
+  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2: string;
+};
+
+export type TListSupportedAssetsInput = { body: TListSupportedAssetsBody };
 
 export type TListUserTagsResponse = {
   /** A list of user tags. */
