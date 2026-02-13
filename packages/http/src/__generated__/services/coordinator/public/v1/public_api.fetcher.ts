@@ -313,7 +313,7 @@ export type TGetGasUsageBody =
   operations["PublicApiService_GetGasUsage"]["parameters"]["body"]["body"];
 
 /**
- * Get gas usage and limits.
+ * Get gas usage
  *
  * Get gas usage and gas limits for either the parent organization or a sub-organization.
  *
@@ -411,7 +411,7 @@ export type TGetNoncesBody =
   operations["PublicApiService_GetNonces"]["parameters"]["body"]["body"];
 
 /**
- * Get nonces for an address.
+ * Get nonces
  *
  * Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions.
  *
@@ -1217,7 +1217,7 @@ export type TGetWalletAddressBalancesBody =
   operations["PublicApiService_GetWalletAddressBalances"]["parameters"]["body"]["body"];
 
 /**
- * Get balances of supported assets for wallet account address
+ * Get balances
  *
  * Get non-zero balances of supported assets for a single wallet account address on the specified network.
  *
@@ -4171,9 +4171,9 @@ export type TEthSendTransactionBody =
   operations["PublicApiService_EthSendTransaction"]["parameters"]["body"]["body"];
 
 /**
- * Submit a transaction intent for broadcasting.
+ * Broadcast EVM transaction
  *
- * Submit a transaction intent describing a transaction you would like to broadcast.
+ * Submit a transaction intent describing an EVM transaction you would like to broadcast.
  *
  * `POST /public/v1/submit/eth_send_transaction`
  */
@@ -5341,9 +5341,9 @@ export type TSolSendTransactionBody =
   operations["PublicApiService_SolSendTransaction"]["parameters"]["body"]["body"];
 
 /**
- * Submit a transaction intent for broadcasting.
+ * Broadcast SVM transaction
  *
- * Submit a transaction intent describing a transaction you would like to broadcast.
+ * Submit a transaction intent describing an SVM transaction you would like to broadcast.
  *
  * `POST /public/v1/submit/sol_send_transaction`
  */

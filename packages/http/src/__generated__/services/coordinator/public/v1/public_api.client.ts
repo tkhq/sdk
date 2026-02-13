@@ -484,8 +484,9 @@ export class TurnkeyClient {
     const response = await fetch(fullUrl, {
       method: "POST",
       headers: {
-        [stamp.stampHeaderName]: stamp.stampHeaderValue,
+        "Content-Type": "application/json",
         "X-Client-Version": VERSION,
+        [stamp.stampHeaderName]: stamp.stampHeaderValue,
       },
       body: stringifiedBody,
       redirect: "follow",
@@ -3097,7 +3098,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Submit a transaction intent describing a transaction you would like to broadcast.
+   * Submit a transaction intent describing an EVM transaction you would like to broadcast.
    *
    * Sign the provided `TEthSendTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/eth_send_transaction).
    *
@@ -3831,7 +3832,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Submit a transaction intent describing a transaction you would like to broadcast.
+   * Submit a transaction intent describing an SVM transaction you would like to broadcast.
    *
    * Sign the provided `TSolSendTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sol_send_transaction).
    *

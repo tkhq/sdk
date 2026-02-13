@@ -1176,3 +1176,6 @@ export type TVerifyOtpInput = { body: TVerifyOtpBody };
 export type TVerifyOtpBody =
   operations["PublicApiService_VerifyOtp"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
+
+export type TNOOPCodegenAnchorResponse =
+  operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];

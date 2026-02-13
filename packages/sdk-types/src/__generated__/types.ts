@@ -2957,6 +2957,11 @@ export type v1ListUserTagsResponse = {
   userTags: datav1Tag[];
 };
 
+export type v1LoginUsage = {
+  /** Public key for authentication */
+  publicKey: string;
+};
+
 export type v1MnemonicLanguage =
   | "MNEMONIC_LANGUAGE_ENGLISH"
   | "MNEMONIC_LANGUAGE_SIMPLIFIED_CHINESE"
@@ -2967,6 +2972,11 @@ export type v1MnemonicLanguage =
   | "MNEMONIC_LANGUAGE_JAPANESE"
   | "MNEMONIC_LANGUAGE_KOREAN"
   | "MNEMONIC_LANGUAGE_SPANISH";
+
+export type v1NOOPCodegenAnchorResponse = {
+  stamp: v1WebAuthnStamp;
+  tokenUsage?: v1TokenUsage;
+};
 
 export type v1NativeRevertError = {
   /** The type of native error: 'error_string', 'panic', or 'execution_reverted'. */
@@ -3622,6 +3632,14 @@ export type v1SignTransactionResult = {
   signedTransaction: string;
 };
 
+export type v1SignupUsage = {
+  email?: string;
+  phoneNumber?: string;
+  apiKeys?: v1ApiKeyParamsV2[];
+  authenticators?: v1AuthenticatorParamsV2[];
+  oauthProviders?: v1OauthProviderParams[];
+};
+
 export type v1SimpleClientExtensionResults = {
   appid?: boolean;
   appidExclude?: boolean;
@@ -3690,6 +3708,15 @@ export type v1StampLoginResult = {
 };
 
 export type v1TagType = "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
+
+export type v1TokenUsage = {
+  /** Type of token usage */
+  type: v1UsageType;
+  /** Unique identifier for the verification token */
+  tokenId: string;
+  signup?: v1SignupUsage;
+  login?: v1LoginUsage;
+};
 
 export type v1TransactionType =
   | "TRANSACTION_TYPE_ETHEREUM"
@@ -4095,6 +4122,8 @@ export type v1UpsertGasUsageConfigResult = {
   gasUsageConfigId: string;
 };
 
+export type v1UsageType = "USAGE_TYPE_SIGNUP" | "USAGE_TYPE_LOGIN";
+
 export type v1User = {
   /** Unique identifier for a given User. */
   userId: string;
@@ -4279,6 +4308,17 @@ export type v1WalletResult = {
   walletId: string;
   /** A list of account addresses. */
   addresses: string[];
+};
+
+export type v1WebAuthnStamp = {
+  /** A base64 url encoded Unique identifier for a given credential. */
+  credentialId: string;
+  /** A base64 encoded payload containing metadata about the signing context and the challenge. */
+  clientDataJson: string;
+  /** A base64 encoded payload containing metadata about the authenticator. */
+  authenticatorData: string;
+  /** The base64 url encoded signature bytes contained within the WebAuthn assertion response. */
+  signature: string;
 };
 
 // --- API Types from Swagger Paths ---
@@ -6315,6 +6355,10 @@ export type TVerifyOtpBody = {
 };
 
 export type TVerifyOtpInput = { body: TVerifyOtpBody };
+
+export type TNOOPCodegenAnchorResponse = {
+  activity: v1Activity;
+};
 
 export type ProxyTGetAccountResponse = {
   organizationId?: string;

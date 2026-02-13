@@ -262,7 +262,7 @@
     },
     "/public/v1/query/get_gas_usage": {
       "post": {
-        "summary": "Get gas usage and limits.",
+        "summary": "Get gas usage",
         "description": "Get gas usage and gas limits for either the parent organization or a sub-organization.",
         "operationId": "PublicApiService_GetGasUsage",
         "responses": {
@@ -326,7 +326,7 @@
     },
     "/public/v1/query/get_nonces": {
       "post": {
-        "summary": "Get nonces for an address.",
+        "summary": "Get nonces",
         "description": "Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions.",
         "operationId": "PublicApiService_GetNonces",
         "responses": {
@@ -838,7 +838,7 @@
     },
     "/public/v1/query/get_wallet_address_balances": {
       "post": {
-        "summary": "Get balances of supported assets for wallet account address",
+        "summary": "Get balances",
         "description": "Get non-zero balances of supported assets for a single wallet account address on the specified network.",
         "operationId": "PublicApiService_GetWalletAddressBalances",
         "responses": {
@@ -2726,8 +2726,8 @@
     },
     "/public/v1/submit/eth_send_transaction": {
       "post": {
-        "summary": "Submit a transaction intent for broadcasting.",
-        "description": "Submit a transaction intent describing a transaction you would like to broadcast.",
+        "summary": "Broadcast EVM transaction",
+        "description": "Submit a transaction intent describing an EVM transaction you would like to broadcast.",
         "operationId": "PublicApiService_EthSendTransaction",
         "responses": {
           "200": {
@@ -3494,8 +3494,8 @@
     },
     "/public/v1/submit/sol_send_transaction": {
       "post": {
-        "summary": "Submit a transaction intent for broadcasting.",
-        "description": "Submit a transaction intent describing a transaction you would like to broadcast.",
+        "summary": "Broadcast SVM transaction",
+        "description": "Submit a transaction intent describing an SVM transaction you would like to broadcast.",
         "operationId": "PublicApiService_SolSendTransaction",
         "responses": {
           "200": {

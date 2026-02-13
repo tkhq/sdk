@@ -262,7 +262,7 @@
     },
     "/public/v1/query/get_gas_usage": {
       "post": {
-        "summary": "Get gas usage and limits.",
+        "summary": "Get gas usage",
         "description": "Get gas usage and gas limits for either the parent organization or a sub-organization.",
         "operationId": "PublicApiService_GetGasUsage",
         "responses": {
@@ -326,7 +326,7 @@
     },
     "/public/v1/query/get_nonces": {
       "post": {
-        "summary": "Get nonces for an address.",
+        "summary": "Get nonces",
         "description": "Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions.",
         "operationId": "PublicApiService_GetNonces",
         "responses": {
@@ -2374,8 +2374,8 @@
     },
     "/public/v1/submit/eth_send_transaction": {
       "post": {
-        "summary": "Submit a transaction intent for broadcasting.",
-        "description": "Submit a transaction intent describing a transaction you would like to broadcast.",
+        "summary": "Broadcast EVM transaction",
+        "description": "Submit a transaction intent describing an EVM transaction you would like to broadcast.",
         "operationId": "PublicApiService_EthSendTransaction",
         "responses": {
           "200": {
@@ -3142,8 +3142,8 @@
     },
     "/public/v1/submit/sol_send_transaction": {
       "post": {
-        "summary": "Submit a transaction intent for broadcasting.",
-        "description": "Submit a transaction intent describing a transaction you would like to broadcast.",
+        "summary": "Broadcast SVM transaction",
+        "description": "Submit a transaction intent describing an SVM transaction you would like to broadcast.",
         "operationId": "PublicApiService_SolSendTransaction",
         "responses": {
           "200": {
@@ -3586,6 +3586,26 @@
           }
         ],
         "tags": ["User Verification"]
+      }
+    },
+    "/tkhq/api/v1/noop-codegen-anchor": {
+      "post": {
+        "operationId": "PublicApiService_NOOPCodegenAnchor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1NOOPCodegenAnchorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": ["PublicApiService"]
       }
     }
   },
@@ -10182,6 +10202,16 @@
       },
       "required": ["userTags"]
     },
+    "v1LoginUsage": {
+      "type": "object",
+      "properties": {
+        "publicKey": {
+          "type": "string",
+          "description": "Public key for authentication"
+        }
+      },
+      "required": ["publicKey"]
+    },
     "v1MnemonicLanguage": {
       "type": "string",
       "enum": [
@@ -10195,6 +10225,18 @@
         "MNEMONIC_LANGUAGE_KOREAN",
         "MNEMONIC_LANGUAGE_SPANISH"
       ]
+    },
+    "v1NOOPCodegenAnchorResponse": {
+      "type": "object",
+      "properties": {
+        "stamp": {
+          "$ref": "#/definitions/v1WebAuthnStamp"
+        },
+        "tokenUsage": {
+          "$ref": "#/definitions/v1TokenUsage"
+        }
+      },
+      "required": ["stamp"]
     },
     "v1NativeRevertError": {
       "type": "object",
@@ -11782,6 +11824,38 @@
       },
       "required": ["signedTransaction"]
     },
+    "v1SignupUsage": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParamsV2"
+          }
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          }
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParams"
+          }
+        }
+      }
+    },
     "v1SimpleClientExtensionResults": {
       "type": "object",
       "properties": {
@@ -11932,6 +12006,26 @@
     "v1TagType": {
       "type": "string",
       "enum": ["TAG_TYPE_USER", "TAG_TYPE_PRIVATE_KEY"]
+    },
+    "v1TokenUsage": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1UsageType",
+          "description": "Type of token usage"
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "Unique identifier for the verification token"
+        },
+        "signup": {
+          "$ref": "#/definitions/v1SignupUsage"
+        },
+        "login": {
+          "$ref": "#/definitions/v1LoginUsage"
+        }
+      },
+      "required": ["type", "tokenId"]
     },
     "v1TransactionType": {
       "type": "string",
@@ -12837,6 +12931,10 @@
       },
       "required": ["gasUsageConfigId"]
     },
+    "v1UsageType": {
+      "type": "string",
+      "enum": ["USAGE_TYPE_SIGNUP", "USAGE_TYPE_LOGIN"]
+    },
     "v1User": {
       "type": "object",
       "properties": {
@@ -13340,6 +13438,33 @@
         }
       },
       "required": ["walletId", "addresses"]
+    },
+    "v1WebAuthnStamp": {
+      "type": "object",
+      "properties": {
+        "credentialId": {
+          "type": "string",
+          "description": "A base64 url encoded Unique identifier for a given credential."
+        },
+        "clientDataJson": {
+          "type": "string",
+          "description": "A base64 encoded payload containing metadata about the signing context and the challenge."
+        },
+        "authenticatorData": {
+          "type": "string",
+          "description": "A base64 encoded payload containing metadata about the authenticator."
+        },
+        "signature": {
+          "type": "string",
+          "description": "The base64 url encoded signature bytes contained within the WebAuthn assertion response."
+        }
+      },
+      "required": [
+        "credentialId",
+        "clientDataJson",
+        "authenticatorData",
+        "signature"
+      ]
     }
   },
   "securityDefinitions": {

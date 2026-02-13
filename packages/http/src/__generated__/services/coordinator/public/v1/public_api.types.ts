@@ -337,7 +337,7 @@ export type paths = {
     post: operations["PublicApiService_EthSendRawTransaction"];
   };
   "/public/v1/submit/eth_send_transaction": {
-    /** Submit a transaction intent describing a transaction you would like to broadcast. */
+    /** Submit a transaction intent describing an EVM transaction you would like to broadcast. */
     post: operations["PublicApiService_EthSendTransaction"];
   };
   "/public/v1/submit/export_private_key": {
@@ -433,7 +433,7 @@ export type paths = {
     post: operations["PublicApiService_SignTransaction"];
   };
   "/public/v1/submit/sol_send_transaction": {
-    /** Submit a transaction intent describing a transaction you would like to broadcast. */
+    /** Submit a transaction intent describing an SVM transaction you would like to broadcast. */
     post: operations["PublicApiService_SolSendTransaction"];
   };
   "/public/v1/submit/stamp_login": {
@@ -6365,7 +6365,7 @@ export type operations = {
       };
     };
   };
-  /** Submit a transaction intent describing a transaction you would like to broadcast. */
+  /** Submit a transaction intent describing an EVM transaction you would like to broadcast. */
   PublicApiService_EthSendTransaction: {
     parameters: {
       body: {
@@ -6797,7 +6797,7 @@ export type operations = {
       };
     };
   };
-  /** Submit a transaction intent describing a transaction you would like to broadcast. */
+  /** Submit a transaction intent describing an SVM transaction you would like to broadcast. */
   PublicApiService_SolSendTransaction: {
     parameters: {
       body: {
