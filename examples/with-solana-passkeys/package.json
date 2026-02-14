@@ -16,7 +16,6 @@
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/http": "workspace:*",
-    "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-react": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/solana": "workspace:*",

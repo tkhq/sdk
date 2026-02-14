@@ -17,7 +17,6 @@
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-toast": "^1.1.5",
     "@turnkey/sdk-server": "workspace:*",
-    "@turnkey/sdk-react": "workspace:*",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/eip-1193-provider": "workspace:*",
     "@turnkey/http": "workspace:^",

@@ -1,3 +1,9 @@
+# ⚠️ Deprecated Example
+
+> **Note:** This example uses `@turnkey/sdk-react` which is deprecated in favor of **[`@turnkey/react-wallet-kit`](https://github.com/tkhq/sdk/tree/main/packages/react-wallet-kit)**.
+
+---
+
 # Example: `with-indexed-db`
 
 This example demonstrates how to create a sub-organization, authenticate with a passkey, and persist the session using **unextractable IndexedDB storage**. This provides a secure, user-friendly authentication flow ideal for modern web apps.

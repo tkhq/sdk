@@ -13,7 +13,6 @@
     "@turnkey/http": "workspace:*",
     "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/webauthn-stamper": "workspace:*",
-    "@turnkey/sdk-browser": "workspace:*",
     "@turnkey/sdk-react": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@types/node": "20.3.1",

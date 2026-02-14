@@ -32,8 +32,6 @@
     "@turnkey/core": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/react-wallet-kit": "workspace:*",
-    "@turnkey/sdk-react": "workspace:*",
-    "@turnkey/sdk-server": "workspace:*",
     "@turnkey/sdk-types": "workspace:*",
     "@turnkey/solana": "workspace:*",
     "@types/node": "20.3.1",
