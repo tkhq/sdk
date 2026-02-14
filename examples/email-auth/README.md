@@ -1,6 +1,6 @@
 # ⚠️ Deprecated Example
 
-> **Note:** The iframe-based email authentication pattern used in this example is no longer supported with the latest Turnkey SDK packages.
+> **Note:** The iframe-based email authentication pattern used in this example is no longer supported with the latest `@turnkey/react-wallet-kit` SDK package.
 >
 > **Recommended alternatives:**
 >
