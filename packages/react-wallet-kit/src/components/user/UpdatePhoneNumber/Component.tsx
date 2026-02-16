@@ -1,16 +1,16 @@
 import { faPhone } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useModal } from "../../providers/modal/Hook";
-import { useTurnkey } from "../../providers/client/Hook";
-import { ActionButton } from "../design/Buttons";
+import { useModal } from "../../../providers/modal/Hook";
+import { useTurnkey } from "../../../providers/client/Hook";
+import { ActionButton } from "../../design/Buttons";
 import { useState } from "react";
-import { PhoneInputBox } from "../design/Inputs";
+import { PhoneInputBox } from "../../design/Inputs";
 import clsx from "clsx";
-import { OtpVerification } from "../auth/OTP";
-import { SuccessPage } from "../design/Success";
+import { OtpVerification } from "../../auth/OTP";
+import { SuccessPage } from "../../design/Success";
 import { OtpType, StamperType } from "@turnkey/core";
 
-export function UpdatePhoneNumber(params: {
+export interface UpdatePhoneNumberProps {
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.
   organizationId: string;
   userId: string;
@@ -19,7 +19,9 @@ export function UpdatePhoneNumber(params: {
   title?: string;
   subTitle?: string;
   stampWith?: StamperType | undefined;
-}) {
+}
+
+export function UpdatePhoneNumber(params: UpdatePhoneNumberProps) {
   const { config, user, initOtp, verifyOtp, updateUserPhoneNumber } =
     useTurnkey();
   const { isMobile, pushPage, closeModal } = useModal();

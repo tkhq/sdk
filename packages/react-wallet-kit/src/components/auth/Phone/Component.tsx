@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { ActionButton, IconButton } from "../design/Buttons";
-import { PhoneInputBox } from "../design/Inputs";
+import { ActionButton, IconButton } from "../../design/Buttons";
+import { PhoneInputBox } from "../../design/Inputs";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
-import { useTurnkey } from "../../providers/client/Hook";
+import { useTurnkey } from "../../../providers/client/Hook";
 
-interface PhoneNumberInputProps {
+export interface PhoneNumberInputProps {
   onContinue?: (phone: string, formattedPhone: string) => void;
 }
 

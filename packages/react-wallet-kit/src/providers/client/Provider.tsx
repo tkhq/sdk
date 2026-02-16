@@ -147,7 +147,7 @@ import { ExportComponent } from "../../components/export/Export";
 import { ImportComponent } from "../../components/import/Import";
 import { SuccessPage } from "../../components/design/Success";
 import { UpdateEmail } from "../../components/user/UpdateEmail";
-import { UpdatePhoneNumber } from "../../components/user/UpdatePhoneNumberLazy";
+import { UpdatePhoneNumber } from "../../components/user/UpdatePhoneNumber";
 import { UpdateUserName } from "../../components/user/UpdateUserName";
 import { RemoveOAuthProvider } from "../../components/user/RemoveOAuthProvider";
 import { RemovePasskey } from "../../components/user/RemovePasskey";

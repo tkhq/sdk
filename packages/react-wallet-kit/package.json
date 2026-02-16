@@ -28,7 +28,7 @@
   },
   "files": [
     "dist",
-    "README.MD"
+    "README.md"
   ],
   "sideEffects": [
     "**/*.css"
