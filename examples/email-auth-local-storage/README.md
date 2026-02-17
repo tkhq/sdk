@@ -1,5 +1,9 @@
 # Example: `email-auth-local-storage`
 
+> **Note:** This example demonstrates storing keys in **localStorage for educational purposes only**.
+>
+> For production applications, use **IndexedDB-based storage** with unextractable keys via **[`@turnkey/react-wallet-kit`](https://docs.turnkey.com/sdks/react/getting-started)** or **[`@turnkey/core`](https://github.com/tkhq/sdk/tree/main/packages/core)**.
+
 This example shows a complete email auth flow using a locally stored target embedded key. It contains a NextJS app with:
 
 - a frontend application

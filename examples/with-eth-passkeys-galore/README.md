@@ -1,3 +1,11 @@
+# ⚠️ Deprecated Example
+
+> **Note:** This example uses `@turnkey/sdk-react` which is deprecated in favor of **[`@turnkey/react-wallet-kit`](https://github.com/tkhq/sdk/tree/main/packages/react-wallet-kit)**.
+>
+> However, the **advanced signing patterns** demonstrated here (Viem/Ethers signers, Account Abstraction with Biconomy) remain useful references for integrating Turnkey with these libraries.
+
+---
+
 # Example: `with-eth-passkey-signers`
 
 This repo contains a sample application **for demonstration purposes only**, walking through how to create sub-organizations, create wallets, and sign with the [`@turnkey/viem`](https://github.com/tkhq/sdk/tree/main/packages/viem) or [`@turnkey/ethers`](https://github.com/tkhq/sdk/tree/main/packages/ethers) signer, using passkeys. Please feel free play around and file an issue if there are improvements to be made! ❤️
