@@ -4,7 +4,11 @@ This example demonstrates how AI agents can use Turnkey wallets for autonomous p
 
 ## Overview
 
-Unlike browser-based examples that require user interaction, this example shows **headless agent signing**:
+This example shows **headless agent signing** with **gasless USDC payments**:
+
+- **Gasless**: The server pays SOL transaction fees; the agent only needs USDC
+- **Automatic**: Faremeter handles the 402 payment flow transparently
+- **Headless**: No browser or user interaction required
 
 1. Agent authenticates with Turnkey using API keys (no browser/WebAuthn)
 2. Agent creates or retrieves a Solana wallet
@@ -78,8 +82,15 @@ You can optionally configure:
 |----------|-------------|---------|
 | `BASE_URL` | Turnkey API URL | `https://api.turnkey.com` |
 | `SOLANA_RPC_URL` | Solana RPC endpoint | `https://api.devnet.solana.com` |
-| `FAREMETER_FACILITATOR_URL` | Faremeter facilitator URL | Public facilitator |
 | `TEST_PAYWALL_URL` | x402-enabled endpoint to test against | _(none)_ |
+
+**Recommended test endpoint:**
+
+```bash
+TEST_PAYWALL_URL=https://x402.payai.network/api/solana-devnet/paid-content
+```
+
+This is the [x402 Echo Server](https://x402.payai.network/) — a free test environment that simulates payments on devnet. Tokens are automatically refunded.
 
 ### 3. Run the Demo
 
@@ -93,9 +104,9 @@ pnpm start
 🤖 Initializing Turnkey Agent...
 
 ✅ Turnkey client initialized
-Using existing Solana wallet: ABC123...
-✅ Agent wallet: ABC123...
-💰 Balance: 1 SOL
+✅ Agent wallet: DJr1iJ...
+💰 SOL Balance: 5 SOL
+💵 USDC Balance: 20.00 USDC
 
 ✅ Faremeter x402 client ready
 
@@ -104,20 +115,43 @@ Using existing Solana wallet: ABC123...
 
 ──────────────────────────────────────────────────
 Agent Summary:
-  Wallet Address: ABC123...
-  Balance: 1 SOL
+  Wallet Address: DJr1iJ...
+  SOL Balance: 5 SOL
+  USDC Balance: 20.00 USDC
   Network: devnet
-  x402 Client: ready
+  Faremeter Client: ready
 ──────────────────────────────────────────────────
 
 ✅ Agent ready for x402 payments!
 ```
 
-**With `TEST_PAYWALL_URL`**, the demo also fetches the paywalled resource, automatically pays via Faremeter if a 402 is returned, and displays the content along with the amount spent.
+**With `TEST_PAYWALL_URL`**, the demo fetches the paywalled resource, automatically pays via Faremeter when a 402 is returned, and displays the content along with USDC spent:
+
+```
+📡 Fetching paywalled resource: https://x402.payai.network/api/solana-devnet/paid-content
+
+✅ Content received!
+──────────────────────────────────────────────────
+{"message":"Payment verified! Here is your protected content..."}
+──────────────────────────────────────────────────
+
+💰 Final SOL balance: 5 SOL
+💵 Final USDC balance: 19.99 USDC
+📊 SOL spent: 0 SOL
+📊 USDC spent: 0.010000 USDC
+```
 
 ### 4. Fund Your Agent Wallet
 
-On Solana devnet, request free SOL:
+The agent needs **USDC** to make payments (SOL fees are covered by the server in gasless mode).
+
+**Get devnet USDC:**
+
+1. Visit the [Circle Faucet](https://faucet.circle.com/)
+2. Select "Solana Devnet"
+3. Enter your wallet address
+
+**Get devnet SOL** (optional, for non-gasless servers):
 
 ```bash
 solana airdrop 1 <WALLET_ADDRESS> --url devnet
@@ -127,12 +161,13 @@ Or use the [Solana Faucet](https://faucet.solana.com/).
 
 ## Core Code
 
-The key integration is wrapping `fetch` with Faremeter and a Turnkey signer:
+The key integration is wrapping `fetch` with Faremeter and a custom gasless payment handler:
 
 ```typescript
 import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
-import { wrapFetch } from "@faremeter/fetch";
+import { wrap as wrapFetch } from "@faremeter/fetch";
+import type { PaymentHandler } from "@faremeter/types/client";
 
 const turnkey = new Turnkey({ /* API key config */ });
 const signer = new TurnkeySigner({
@@ -142,17 +177,34 @@ const signer = new TurnkeySigner({
 
 const address = await getOrCreateSolanaWallet(turnkey.apiClient());
 
+// Create a gasless payment handler that uses the server's fee payer
+const gaslessHandler: PaymentHandler = async (_ctx, accepts) => {
+  // Find requirements with a fee payer (gasless)
+  const req = accepts.find((r) => r.extra?.feePayer);
+  if (!req) return [];
+
+  return [{
+    requirements: req,
+    exec: async () => {
+      // Build transaction with server's fee payer
+      // Sign with Turnkey
+      const signedTx = await signer.signTransaction(tx, address);
+      return { payload: { transaction: base64Encode(signedTx) } };
+    },
+  }];
+};
+
 // Wrap fetch so 402 responses are automatically handled
 const x402Fetch = wrapFetch(fetch, {
-  paymentSigner: async (transaction) => {
-    return await signer.signTransaction(transaction, address);
-  },
-  network: "solana:devnet",
+  handlers: [gaslessHandler],
+  retryCount: 3,
 });
 
 // Use x402Fetch like normal fetch — payments happen transparently
-const response = await x402Fetch("https://paywall.example.com/resource");
+const response = await x402Fetch("https://x402.payai.network/api/solana-devnet/paid-content");
 ```
+
+See [`src/index.ts`](./src/index.ts) for the complete implementation including v1/v2 protocol normalization.
 
 ## Security Considerations
 
@@ -167,7 +219,6 @@ When deploying agents with payment capabilities:
 ## Related Examples
 
 - [`with-solana`](../with-solana/) — Interactive Solana signing demo
-- [`with-x402`](../with-x402/) — Browser-based x402 payments with Turnkey embedded wallets
 
 ## Resources
 
@@ -175,4 +226,6 @@ When deploying agents with payment capabilities:
 - [Faremeter GitHub](https://github.com/faremeter/faremeter)
 - [Faremeter Documentation](https://docs.corbits.dev/faremeter/overview)
 - [x402 Protocol](https://github.com/coinbase/x402)
-- [Solana Faucet](https://faucet.solana.com/)
+- [x402 Echo Server](https://x402.payai.network/) — Free test environment
+- [Circle Faucet](https://faucet.circle.com/) — Get devnet USDC
+- [Solana Faucet](https://faucet.solana.com/) — Get devnet SOL
