@@ -10,14 +10,11 @@
   },
   "dependencies": {
     "@faremeter/fetch": "^0.16.0",
-    "@faremeter/info": "^0.16.0",
-    "@faremeter/payment-solana": "^0.16.0",
     "@faremeter/types": "^0.16.0",
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.95.8",
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/solana": "workspace:*",
     "dotenv": "^16.0.3"
-  },
-  "devDependencies": {}
+  }
 }
