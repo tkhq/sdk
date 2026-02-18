@@ -22,6 +22,23 @@ import { getOrCreateSolanaWallet } from "./utils.js";
 
 // USDC has 6 decimal places
 const USDC_DECIMALS = 6;
+const SOLANA_DEVNET_CAIP2 = "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
+const SOLANA_MAINNET_CAIP2 = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
+
+function getExpectedRequirementNetworks(
+  network: "devnet" | "mainnet-beta",
+): Set<string> {
+  if (network === "devnet") {
+    return new Set(["solana-devnet", SOLANA_DEVNET_CAIP2.toLowerCase()]);
+  }
+
+  // Support both common v1 names plus CAIP-2 for mainnet requirements.
+  return new Set([
+    "solana-mainnet-beta",
+    "solana",
+    SOLANA_MAINNET_CAIP2.toLowerCase(),
+  ]);
+}
 
 /**
  * Wallet interface for signing transactions.
@@ -61,30 +78,50 @@ function createGaslessPaymentHandler(
   wallet: GaslessWallet,
   usdcMint: PublicKey,
   connection: Connection,
+  options: {
+    expectedNetworks: ReadonlySet<string>;
+    configuredNetworkLabel: string;
+  },
 ): PaymentHandler {
   return async (_ctx, accepts) => {
     const execers: PaymentExecer[] = [];
+    const incompatibilityReasons: string[] = [];
+    let sawSolanaRequirement = false;
 
     for (const req of accepts) {
-      // Check if this is a Solana requirement with a fee payer
-      const extra = req.extra as Record<string, unknown> | undefined;
-      const feePayer = extra?.feePayer as string | undefined;
+      // Check network compatibility (support both canonical and CAIP-2 formats)
+      const requirementNetwork = req.network.toLowerCase();
+      const isSolana =
+        requirementNetwork.includes("solana") || requirementNetwork.startsWith("solana:");
 
-      if (!feePayer) {
-        // No fee payer provided - skip this requirement
+      if (!isSolana) {
+        continue;
+      }
+      sawSolanaRequirement = true;
+
+      // Fail fast on RPC/payment-network mismatches to avoid confusing settlement errors.
+      if (!options.expectedNetworks.has(requirementNetwork)) {
+        incompatibilityReasons.push(
+          `network '${req.network}' does not match configured RPC network '${options.configuredNetworkLabel}'`,
+        );
         continue;
       }
 
-      // Check network compatibility (support both canonical and CAIP-2 formats)
-      const network = req.network.toLowerCase();
-      const isSolana = network.includes("solana") || network.startsWith("solana:");
-
-      if (!isSolana) {
+      // Check if this is a Solana requirement with a fee payer
+      const extra = req.extra as Record<string, unknown> | undefined;
+      const feePayer = extra?.feePayer as string | undefined;
+      if (!feePayer) {
+        incompatibilityReasons.push(
+          `requirement for network '${req.network}' is missing extra.feePayer`,
+        );
         continue;
       }
 
       // Check asset matches our USDC mint
       if (req.asset.toLowerCase() !== usdcMint.toBase58().toLowerCase()) {
+        incompatibilityReasons.push(
+          `asset mismatch for network '${req.network}': got ${req.asset}, expected ${usdcMint.toBase58()}`,
+        );
         continue;
       }
 
@@ -175,6 +212,13 @@ function createGaslessPaymentHandler(
       });
     }
 
+    if (execers.length === 0 && sawSolanaRequirement && incompatibilityReasons.length > 0) {
+      const hint = `Expected one of: ${Array.from(options.expectedNetworks).join(", ")}`;
+      throw new Error(
+        `No compatible Solana payment requirements found. ${hint}. Reasons: ${incompatibilityReasons.join("; ")}`,
+      );
+    }
+
     return execers;
   };
 }
@@ -202,8 +246,8 @@ function normalizeRequirement(req: Record<string, unknown>): Record<string, unkn
   if (typeof normalized.network === "string" && normalized.network.startsWith("solana:")) {
     const genesisHash = normalized.network.split(":")[1];
     const networkMap: Record<string, string> = {
-      "EtWTRABZaYq6iMfeYKouRu166VU2xqa1": "solana-devnet",
-      "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp": "solana-mainnet-beta",
+      [SOLANA_DEVNET_CAIP2.split(":")[1]]: "solana-devnet",
+      [SOLANA_MAINNET_CAIP2.split(":")[1]]: "solana-mainnet-beta",
     };
     // Keep the original network in extra for the payment header
     normalized.originalNetwork = normalized.network;
@@ -418,6 +462,7 @@ async function main() {
 
   // Determine network and USDC mint
   const network = rpcUrl.includes("devnet") ? "devnet" : "mainnet-beta";
+  const expectedRequirementNetworks = getExpectedRequirementNetworks(network);
   const usdcMint =
     network === "devnet"
       ? new PublicKey("4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU") // USDC devnet
@@ -465,7 +510,15 @@ async function main() {
   //   b) Builds a USDC transfer with the server's fee payer
   //   c) Partially signs with Turnkey (server adds fee payer signature)
   //   d) Returns the transaction for faremeter to send in X-PAYMENT header
-  const gaslessHandler = createGaslessPaymentHandler(turnkeyWallet, usdcMint, connection);
+  const gaslessHandler = createGaslessPaymentHandler(
+    turnkeyWallet,
+    usdcMint,
+    connection,
+    {
+      expectedNetworks: expectedRequirementNetworks,
+      configuredNetworkLabel: network,
+    },
+  );
 
   // Create fetch wrappers for protocol compatibility:
   // - normalizingFetch: Converts v2 402 responses to v1 format for faremeter
