@@ -447,6 +447,8 @@ export type v1AssetBalance = {
   caip19?: string;
   /** The asset symbol */
   symbol?: string;
+  /** The asset name */
+  name?: string;
   /** The balance in atomic units */
   balance?: string;
   /** The number of decimals this asset uses */
@@ -465,6 +467,8 @@ export type v1AssetBalanceDisplay = {
 export type v1AssetMetadata = {
   caip19?: string;
   symbol?: string;
+  /** The asset name */
+  name?: string;
   decimals?: number;
   logoUrl?: string;
 };

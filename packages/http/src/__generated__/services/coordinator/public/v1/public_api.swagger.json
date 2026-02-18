@@ -4628,6 +4628,10 @@
           "type": "string",
           "description": "The asset symbol"
         },
+        "name": {
+          "type": "string",
+          "description": "The asset name"
+        },
         "balance": {
           "type": "string",
           "description": "The balance in atomic units"
@@ -4664,6 +4668,10 @@
         },
         "symbol": {
           "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "description": "The asset name"
         },
         "decimals": {
           "type": "integer",

@@ -1504,7 +1504,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List supported assets for the specified network
+   * List supported assets for the specified network.
    *
    * Sign the provided `TListSupportedAssetsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_supported_assets).
    *

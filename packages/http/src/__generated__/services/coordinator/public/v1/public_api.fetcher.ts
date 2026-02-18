@@ -1675,7 +1675,7 @@ export type TListSupportedAssetsBody =
 /**
  * List supported assets
  *
- * List supported assets for the specified network
+ * List supported assets for the specified network.
  *
  * `POST /public/v1/query/list_supported_assets`
  */

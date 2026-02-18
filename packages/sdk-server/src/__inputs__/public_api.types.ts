@@ -893,6 +893,8 @@ export type definitions = {
     caip19?: string;
     /** @description The asset symbol */
     symbol?: string;
+    /** @description The asset name */
+    name?: string;
     /** @description The balance in atomic units */
     balance?: string;
     /**
@@ -912,6 +914,8 @@ export type definitions = {
   v1AssetMetadata: {
     caip19?: string;
     symbol?: string;
+    /** @description The asset name */
+    name?: string;
     /** Format: int32 */
     decimals?: number;
     logoUrl?: string;
