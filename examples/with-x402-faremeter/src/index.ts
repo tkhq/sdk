@@ -243,17 +243,60 @@ function createV2NormalizingFetch(baseFetch: typeof fetch): typeof fetch {
       return response;
     }
 
-    const body = await response.json();
+    const bodyText = await response.text();
+    const headers = new Headers(response.headers);
+    const contentType = headers.get("content-type")?.toLowerCase() ?? "";
+    const isJsonResponse =
+      contentType.includes("application/json") ||
+      contentType.includes("+json") ||
+      bodyText.trim().startsWith("{") ||
+      bodyText.trim().startsWith("[");
 
-    // Normalize accepts array for faremeter
-    if (body.accepts && Array.isArray(body.accepts)) {
-      body.accepts = body.accepts.map(normalizeRequirement);
+    // If this 402 is not JSON, preserve it exactly as-is for upstream handling.
+    if (!isJsonResponse) {
+      return new Response(bodyText, {
+        status: 402,
+        statusText: response.statusText,
+        headers,
+      });
     }
 
-    return new Response(JSON.stringify(body), {
+    let body: unknown;
+    try {
+      body = JSON.parse(bodyText);
+    } catch {
+      // Malformed JSON in 402 response: keep original body so caller can inspect it.
+      return new Response(bodyText, {
+        status: 402,
+        statusText: response.statusText,
+        headers,
+      });
+    }
+
+    if (!body || typeof body !== "object") {
+      return new Response(bodyText, {
+        status: 402,
+        statusText: response.statusText,
+        headers,
+      });
+    }
+
+    const normalizedBody = body as Record<string, unknown>;
+
+    // Normalize accepts array for faremeter
+    if (Array.isArray(normalizedBody.accepts)) {
+      normalizedBody.accepts = normalizedBody.accepts.map((accept) => {
+        if (!accept || typeof accept !== "object") {
+          return accept;
+        }
+        return normalizeRequirement(accept as Record<string, unknown>);
+      });
+    }
+
+    return new Response(JSON.stringify(normalizedBody), {
       status: 402,
       statusText: response.statusText,
-      headers: response.headers,
+      headers,
     });
   };
 }
