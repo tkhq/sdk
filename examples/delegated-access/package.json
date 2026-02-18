@@ -13,5 +13,8 @@
     "@turnkey/sdk-server": "workspace:*",
     "dotenv": "^16.0.3",
     "viem": "^2.26.2"
+  },
+  "devDependencies": {
+    "typescript": "5.4.3"
   }
 }
