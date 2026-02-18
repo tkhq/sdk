@@ -412,16 +412,17 @@ export interface ClientContextType
   ) => Promise<string>;
 
   /**
-   * Handles the update user name flow.
+   * Handles the update user email flow.
    *
-   * - This function opens a modal with the UpdateUserName component for updating and verifying the user's name.
-   * - If a userName is provided, it will directly update the user name without showing the modal.
-   * - Uses updateUserName under the hood to perform the update and automatically refreshes the user details state after a successful update.
-   * - Optionally displays a success page after the update, with customizable duration.
-   * - Supports passing a custom title and subtitle for the modal UI.
+   * - This function opens a modal with the UpdateEmail component for updating and verifying the user's email address.
+   * - If an email is provided, it will immediately send an OTP request to the user and display the OTP verification modal.
+   * - Supports both manual entry and pre-filled email addresses, as well as custom modal titles and subtitles.
+   * - Uses the updateEmailContinue helper to manage the OTP flow, verification, and update logic.
+   * - After successful verification and update, the user details state is refreshed and an optional success page can be shown.
+   * - Supports customizing the duration of the success page after update.
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes.
    *
-   * @param params.userName - parameter to specify the new user name.
+   * @param params.email - parameter to specify the new email address.
    * @param params.title - title for the modal.
    * @param params.subTitle - subtitle for the modal.
    * @param params.successPageDuration - duration (in ms) for the success page after update (default: 0, no success page).
@@ -463,17 +464,16 @@ export interface ClientContextType
     params?: HandleUpdateUserPhoneNumberParams,
   ) => Promise<string>;
   /**
-   * Handles the update user email flow.
+   * Handles the update user name flow.
    *
-   * - This function opens a modal with the UpdateEmail component for updating and verifying the user's email address.
-   * - If an email is provided, it will immediately send an OTP request to the user and display the OTP verification modal.
-   * - Supports both manual entry and pre-filled email addresses, as well as custom modal titles and subtitles.
-   * - Uses the updateEmailContinue helper to manage the OTP flow, verification, and update logic.
-   * - After successful verification and update, the user details state is refreshed and an optional success page can be shown.
-   * - Supports customizing the duration of the success page after update.
+   * - This function opens a modal with the UpdateUserName component for updating and verifying the user's name.
+   * - If a userName is provided, it will directly update the user name without showing the modal.
+   * - Uses updateUserName under the hood to perform the update and automatically refreshes the user details state after a successful update.
+   * - Optionally displays a success page after the update, with customizable duration.
+   * - Supports passing a custom title and subtitle for the modal UI.
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes.
    *
-   * @param params.email - parameter to specify the new email address.
+   * @param params.userName - parameter to specify the new user name.
    * @param params.title - title for the modal.
    * @param params.subTitle - subtitle for the modal.
    * @param params.successPageDuration - duration (in ms) for the success page after update (default: 0, no success page).
