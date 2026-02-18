@@ -481,7 +481,7 @@
     },
     "v1Curve": {
       "type": "string",
-      "enum": ["CURVE_SECP256K1", "CURVE_ED25519"]
+      "enum": ["CURVE_SECP256K1", "CURVE_ED25519", "CURVE_P256"]
     },
     "v1GetAccountRequest": {
       "type": "object",
