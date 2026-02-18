@@ -31,6 +31,21 @@ interface GaslessWallet {
   signTransaction: (tx: VersionedTransaction) => Promise<VersionedTransaction>;
 }
 
+interface PaymentContext {
+  accepted: {
+    scheme: string;
+    network: string;
+    amount: string;
+    asset: string;
+    payTo: string;
+    maxTimeoutSeconds: number;
+    extra?: Record<string, unknown>;
+  };
+}
+
+// Track per-payment context by transaction payload to avoid cross-request state leaks.
+const pendingPaymentContexts = new Map<string, PaymentContext>();
+
 /**
  * Create a gasless payment handler for x402 servers that provide their own fee payer.
  *
@@ -130,6 +145,27 @@ function createGaslessPaymentHandler(
           // Serialize the partially-signed transaction
           const serialized = Buffer.from(signedTx.serialize()).toString("base64");
 
+          // Preserve per-payment requirement context for v2 header adaptation.
+          const originalNetwork =
+            typeof (req as Record<string, unknown>).originalNetwork === "string"
+              ? ((req as Record<string, unknown>).originalNetwork as string)
+              : req.network;
+          if (originalNetwork.includes(":")) {
+            pendingPaymentContexts.set(serialized, {
+              accepted: {
+                scheme: req.scheme,
+                network: originalNetwork,
+                amount: req.maxAmountRequired,
+                asset: req.asset,
+                payTo: req.payTo,
+                maxTimeoutSeconds: req.maxTimeoutSeconds,
+                ...(req.extra
+                  ? { extra: req.extra as Record<string, unknown> }
+                  : {}),
+              },
+            });
+          }
+
           return {
             payload: {
               transaction: serialized,
@@ -142,9 +178,6 @@ function createGaslessPaymentHandler(
     return execers;
   };
 }
-
-// Store the original server requirements for building v2 payload
-let serverRequirements: Record<string, unknown> | null = null;
 
 /**
  * Normalize an x402 v2 payment requirement to v1 format.
@@ -159,9 +192,6 @@ let serverRequirements: Record<string, unknown> | null = null;
  */
 function normalizeRequirement(req: Record<string, unknown>): Record<string, unknown> {
   const normalized = { ...req };
-
-  // Store the original server requirements for building v2 response payload
-  serverRequirements = { ...req };
 
   // amount → maxAmountRequired
   if (normalized.amount && !normalized.maxAmountRequired) {
@@ -202,18 +232,8 @@ function normalizeRequirement(req: Record<string, unknown>): Record<string, unkn
   return normalized;
 }
 
-// Track the original network format from the server's 402 response
-let serverNetworkFormat: string | null = null;
-
-// Map canonical network names to CAIP-2 format (for v2 servers)
-const canonicalToCAIP2: Record<string, string> = {
-  "solana-devnet": "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
-  "solana-mainnet-beta": "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-};
-
 /**
  * Create a fetch wrapper that normalizes v2 402 responses to v1 format.
- * Also tracks the server's original network format for the payment response.
  */
 function createV2NormalizingFetch(baseFetch: typeof fetch): typeof fetch {
   return async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
@@ -224,11 +244,6 @@ function createV2NormalizingFetch(baseFetch: typeof fetch): typeof fetch {
     }
 
     const body = await response.json();
-
-    // Store the server's original network format
-    if (body.accepts?.[0]?.network) {
-      serverNetworkFormat = body.accepts[0].network;
-    }
 
     // Normalize accepts array for faremeter
     if (body.accepts && Array.isArray(body.accepts)) {
@@ -251,44 +266,33 @@ function createV2NormalizingFetch(baseFetch: typeof fetch): typeof fetch {
 function createAdaptivePaymentFetch(baseFetch: typeof fetch): typeof fetch {
   return async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const headers = new Headers(init?.headers);
-    
+
     const xPayment = headers.get("X-PAYMENT");
-    if (xPayment && serverNetworkFormat) {
+    if (xPayment) {
       try {
         const payloadJson = atob(xPayment);
-        const payload = JSON.parse(payloadJson);
+        const payload = JSON.parse(payloadJson) as Record<string, unknown>;
+        const tx = (payload.payload as Record<string, unknown> | undefined)
+          ?.transaction;
 
-        // Check if server uses CAIP-2 format (v2 protocol)
-        const isV2Server = serverNetworkFormat.includes(":");
+        if (typeof tx === "string") {
+          const context = pendingPaymentContexts.get(tx);
+          if (context) {
+            const v2Payload = {
+              x402Version: 2,
+              scheme: context.accepted.scheme,
+              network: context.accepted.network,
+              accepted: context.accepted,
+              payload: payload.payload,
+              extensions: {},
+            };
 
-        if (isV2Server) {
-          // Convert canonical network back to CAIP-2 for v2 servers
-          const caip2Network = canonicalToCAIP2[payload.network] || payload.network;
-          
-          // Build v2 compliant payload with `accepted` field
-          // The accepted field should mirror the server's requirement (for matching)
-          const v2Payload = {
-            x402Version: 2,
-            scheme: payload.scheme || "exact",
-            network: caip2Network,
-            accepted: serverRequirements ? {
-              scheme: (serverRequirements.scheme as string) || "exact",
-              network: serverNetworkFormat,
-              amount: serverRequirements.amount || serverRequirements.maxAmountRequired,
-              asset: serverRequirements.asset,
-              payTo: serverRequirements.payTo,
-              maxTimeoutSeconds: serverRequirements.maxTimeoutSeconds || 60,
-              // Include extra if server provided it (e.g., feePayer)
-              ...(serverRequirements.extra ? { extra: serverRequirements.extra } : {}),
-            } : undefined,
-            payload: payload.payload,
-            extensions: {},
-          };
-
-          // v2 servers use PAYMENT-SIGNATURE header
-          const fixedPayment = btoa(JSON.stringify(v2Payload));
-          headers.set("X-PAYMENT", fixedPayment);
-          headers.set("PAYMENT-SIGNATURE", fixedPayment);
+            // v2 servers use PAYMENT-SIGNATURE header
+            const fixedPayment = btoa(JSON.stringify(v2Payload));
+            headers.set("X-PAYMENT", fixedPayment);
+            headers.set("PAYMENT-SIGNATURE", fixedPayment);
+            pendingPaymentContexts.delete(tx);
+          }
         }
         // For v1 servers, leave the payment as-is (canonical network, X-PAYMENT only)
       } catch {
