@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true,
+    "ignoreDeprecations": "5.0",
     "tsBuildInfoFile": "./.cache/.tsbuildinfo"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
