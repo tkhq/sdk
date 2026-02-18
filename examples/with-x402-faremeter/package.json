@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "pnpm tsx src/index.ts",
+    "start": "tsx src/index.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
@@ -16,5 +16,8 @@
     "@turnkey/sdk-server": "workspace:*",
     "@turnkey/solana": "workspace:*",
     "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
   }
 }
