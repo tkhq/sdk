@@ -10,6 +10,7 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "noEmit": true,
+    "incremental": true,
     "tsBuildInfoFile": "./.cache/.tsbuildinfo"
   },
   "include": ["src/**/*.ts", "src/**/*.js", "src/**/*.json"]
