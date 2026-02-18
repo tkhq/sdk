@@ -18,7 +18,7 @@ import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 import { wrap as wrapFetch } from "@faremeter/fetch";
 import type { PaymentHandler, PaymentExecer } from "@faremeter/types/client";
-import { getOrCreateSolanaWallet } from "./utils";
+import { getOrCreateSolanaWallet } from "./utils.js";
 
 // USDC has 6 decimal places
 const USDC_DECIMALS = 6;
