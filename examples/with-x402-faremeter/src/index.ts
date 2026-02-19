@@ -92,7 +92,8 @@ function createGaslessPaymentHandler(
       // Check network compatibility (support both canonical and CAIP-2 formats)
       const requirementNetwork = req.network.toLowerCase();
       const isSolana =
-        requirementNetwork.includes("solana") || requirementNetwork.startsWith("solana:");
+        requirementNetwork.includes("solana") ||
+        requirementNetwork.startsWith("solana:");
 
       if (!isSolana) {
         continue;
@@ -134,8 +135,14 @@ function createGaslessPaymentHandler(
 
           // Get or derive token accounts
           // payTo is a wallet address - we need to derive the ATA for the USDC mint
-          const sourceAta = await getAssociatedTokenAddress(usdcMint, wallet.publicKey);
-          const destAta = await getAssociatedTokenAddress(usdcMint, payToPubkey);
+          const sourceAta = await getAssociatedTokenAddress(
+            usdcMint,
+            wallet.publicKey,
+          );
+          const destAta = await getAssociatedTokenAddress(
+            usdcMint,
+            payToPubkey,
+          );
 
           // The x402 protocol requires exactly 3 instructions in this order:
           // 1. setComputeUnitLimit
@@ -180,7 +187,9 @@ function createGaslessPaymentHandler(
           const signedTx = await wallet.signTransaction(tx);
 
           // Serialize the partially-signed transaction
-          const serialized = Buffer.from(signedTx.serialize()).toString("base64");
+          const serialized = Buffer.from(signedTx.serialize()).toString(
+            "base64",
+          );
 
           // Preserve per-payment requirement context for v2 header adaptation.
           const originalNetwork =
@@ -212,7 +221,11 @@ function createGaslessPaymentHandler(
       });
     }
 
-    if (execers.length === 0 && sawSolanaRequirement && incompatibilityReasons.length > 0) {
+    if (
+      execers.length === 0 &&
+      sawSolanaRequirement &&
+      incompatibilityReasons.length > 0
+    ) {
       const hint = `Expected one of: ${Array.from(options.expectedNetworks).join(", ")}`;
       throw new Error(
         `No compatible Solana payment requirements found. ${hint}. Reasons: ${incompatibilityReasons.join("; ")}`,
@@ -234,7 +247,9 @@ function createGaslessPaymentHandler(
  * Faremeter expects v1 format with these fields at top-level and
  * canonical network names like `solana-devnet`.
  */
-function normalizeRequirement(req: Record<string, unknown>): Record<string, unknown> {
+function normalizeRequirement(
+  req: Record<string, unknown>,
+): Record<string, unknown> {
   const normalized = { ...req };
 
   // amount → maxAmountRequired
@@ -243,7 +258,10 @@ function normalizeRequirement(req: Record<string, unknown>): Record<string, unkn
   }
 
   // CAIP-2 network → canonical network name
-  if (typeof normalized.network === "string" && normalized.network.startsWith("solana:")) {
+  if (
+    typeof normalized.network === "string" &&
+    normalized.network.startsWith("solana:")
+  ) {
     const genesisHash = normalized.network.split(":")[1];
     const networkMap: Record<string, string> = {
       [SOLANA_DEVNET_CAIP2.split(":")[1]]: "solana-devnet",
@@ -280,7 +298,10 @@ function normalizeRequirement(req: Record<string, unknown>): Record<string, unkn
  * Create a fetch wrapper that normalizes v2 402 responses to v1 format.
  */
 function createV2NormalizingFetch(baseFetch: typeof fetch): typeof fetch {
-  return async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  return async (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> => {
     const response = await baseFetch(input, init);
 
     if (response.status !== 402) {
@@ -351,7 +372,10 @@ function createV2NormalizingFetch(baseFetch: typeof fetch): typeof fetch {
  * - v2 servers (Echo): Use PAYMENT-SIGNATURE with CAIP-2 network and `accepted` field
  */
 function createAdaptivePaymentFetch(baseFetch: typeof fetch): typeof fetch {
-  return async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+  return async (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> => {
     const headers = new Headers(init?.headers);
 
     const xPayment = headers.get("X-PAYMENT");
@@ -454,8 +478,7 @@ async function main() {
   console.log(`✅ Agent wallet: ${solanaAddress}`);
 
   // 4. Check wallet balances (SOL and USDC)
-  const rpcUrl =
-    process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com";
+  const rpcUrl = process.env.SOLANA_RPC_URL || "https://api.devnet.solana.com";
   const connection = new Connection(rpcUrl, "confirmed");
   const walletPubkey = new PublicKey(solanaAddress);
   const balance = await connection.getBalance(walletPubkey);
@@ -489,7 +512,9 @@ async function main() {
 
   if (usdcBalance < 0.01) {
     console.log("⚠️  Low USDC balance! Get test USDC on devnet:");
-    console.log(`   Visit: https://faucet.circle.com/ (select Solana Devnet)\n`);
+    console.log(
+      `   Visit: https://faucet.circle.com/ (select Solana Devnet)\n`,
+    );
   }
 
   // 5. Create a Turnkey wallet adapter for signing transactions
@@ -594,15 +619,22 @@ async function main() {
     try {
       const usdcAta = await getAssociatedTokenAddress(usdcMint, walletPubkey);
       const tokenAccount = await getAccount(connection, usdcAta);
-      finalUsdcBalance = Number(tokenAccount.amount) / Math.pow(10, USDC_DECIMALS);
+      finalUsdcBalance =
+        Number(tokenAccount.amount) / Math.pow(10, USDC_DECIMALS);
     } catch {
       // Token account doesn't exist
     }
 
-    console.log(`\n💰 Final SOL balance: ${finalSolBalance / LAMPORTS_PER_SOL} SOL`);
+    console.log(
+      `\n💰 Final SOL balance: ${finalSolBalance / LAMPORTS_PER_SOL} SOL`,
+    );
     console.log(`💵 Final USDC balance: ${finalUsdcBalance.toFixed(2)} USDC`);
-    console.log(`📊 SOL spent: ${(balance - finalSolBalance) / LAMPORTS_PER_SOL} SOL`);
-    console.log(`📊 USDC spent: ${(usdcBalance - finalUsdcBalance).toFixed(6)} USDC`);
+    console.log(
+      `📊 SOL spent: ${(balance - finalSolBalance) / LAMPORTS_PER_SOL} SOL`,
+    );
+    console.log(
+      `📊 USDC spent: ${(usdcBalance - finalUsdcBalance).toFixed(6)} USDC`,
+    );
   } else {
     console.log("ℹ️  No TEST_PAYWALL_URL configured.");
     console.log("   Set this env var to test the x402 payment flow.\n");

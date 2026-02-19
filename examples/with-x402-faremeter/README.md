@@ -2,7 +2,6 @@
 
 Build a headless Solana agent that automatically pays x402-protected endpoints, using Turnkey for authentication, wallet management, and signing, plus [Faremeter](https://github.com/faremeter/faremeter) for x402 orchestration.
 
-
 ## Why This Example
 
 - **Headless**: API key auth only (no browser/WebAuthn flow).
@@ -13,12 +12,12 @@ Build a headless Solana agent that automatically pays x402-protected endpoints, 
 
 ## Where Turnkey Is Used
 
-| Capability | How Turnkey is used in this example |
-|----------|-------------|
-| API authentication | `@turnkey/sdk-server` authenticates with `API_PUBLIC_KEY` / `API_PRIVATE_KEY` |
-| Wallet lifecycle | The example gets or creates a Solana wallet in your Turnkey organization |
+| Capability          | How Turnkey is used in this example                                               |
+| ------------------- | --------------------------------------------------------------------------------- |
+| API authentication  | `@turnkey/sdk-server` authenticates with `API_PUBLIC_KEY` / `API_PRIVATE_KEY`     |
+| Wallet lifecycle    | The example gets or creates a Solana wallet in your Turnkey organization          |
 | Transaction signing | `@turnkey/solana` signs Solana payment transactions without exposing private keys |
-| Security controls | You can apply Turnkey policies to constrain what this agent can sign/spend |
+| Security controls   | You can apply Turnkey policies to constrain what this agent can sign/spend        |
 
 Note: In this Echo flow, transaction fees are sponsored by the x402 server's fee payer. Turnkey is the secure signer for the payer wallet.
 
@@ -63,14 +62,14 @@ You should see:
 
 ## Environment Variables
 
-| Variable | Required | Description | Default |
-|----------|----------|-------------|---------|
-| `API_PUBLIC_KEY` | Yes | Turnkey API public key | - |
-| `API_PRIVATE_KEY` | Yes | Turnkey API private key | - |
-| `ORGANIZATION_ID` | Yes | Turnkey organization ID | - |
-| `TEST_PAYWALL_URL` | No | x402 endpoint to test | - |
-| `SOLANA_RPC_URL` | No | Solana RPC endpoint | `https://api.devnet.solana.com` |
-| `BASE_URL` | No | Turnkey API base URL | `https://api.turnkey.com` |
+| Variable           | Required | Description             | Default                         |
+| ------------------ | -------- | ----------------------- | ------------------------------- |
+| `API_PUBLIC_KEY`   | Yes      | Turnkey API public key  | -                               |
+| `API_PRIVATE_KEY`  | Yes      | Turnkey API private key | -                               |
+| `ORGANIZATION_ID`  | Yes      | Turnkey organization ID | -                               |
+| `TEST_PAYWALL_URL` | No       | x402 endpoint to test   | -                               |
+| `SOLANA_RPC_URL`   | No       | Solana RPC endpoint     | `https://api.devnet.solana.com` |
+| `BASE_URL`         | No       | Turnkey API base URL    | `https://api.turnkey.com`       |
 
 Recommended test endpoint:
 
@@ -149,10 +148,15 @@ const turnkeyWallet = {
 
 const expectedRequirementNetworks = getExpectedRequirementNetworks(network);
 
-const gaslessHandler = createGaslessPaymentHandler(turnkeyWallet, usdcMint, connection, {
-  expectedNetworks: expectedRequirementNetworks,
-  configuredNetworkLabel: network,
-});
+const gaslessHandler = createGaslessPaymentHandler(
+  turnkeyWallet,
+  usdcMint,
+  connection,
+  {
+    expectedNetworks: expectedRequirementNetworks,
+    configuredNetworkLabel: network,
+  },
+);
 
 const normalizingFetch = createV2NormalizingFetch(fetch);
 const adaptiveFetch = createAdaptivePaymentFetch(fetch);
@@ -172,18 +176,23 @@ This keeps Faremeter's `wrap()` orchestration while using Turnkey for key custod
 ## Troubleshooting
 
 **`Missing required environment variables`**
+
 - Ensure `API_PUBLIC_KEY`, `API_PRIVATE_KEY`, and `ORGANIZATION_ID` are set in `.env.local`.
 
 **`fetch failed` / `ENOTFOUND api.turnkey.com`**
+
 - Check internet/DNS and verify `BASE_URL`.
 
 **`Payment failed (402)`**
+
 - Check wallet USDC balance and network alignment (`SOLANA_RPC_URL` vs paywall endpoint).
 
 **`No compatible Solana payment requirements found`**
+
 - Required network/asset does not match your configured RPC network or expected mint.
 
 **`bigint: Failed to load bindings`**
+
 - Rebuild native binding:
   - `pnpm --filter @turnkey/example-with-x402-faremeter rebuild bigint-buffer`
 
