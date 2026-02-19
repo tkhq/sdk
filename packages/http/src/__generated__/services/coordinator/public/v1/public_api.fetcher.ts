@@ -1700,6 +1700,58 @@ export const signGetSubOrgIds = (
   });
 
 /**
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export type TListSupportedAssetsResponse =
+  operations["PublicApiService_ListSupportedAssets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export type TListSupportedAssetsInput = { body: TListSupportedAssetsBody };
+
+/**
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export type TListSupportedAssetsBody =
+  operations["PublicApiService_ListSupportedAssets"]["parameters"]["body"]["body"];
+
+/**
+ * List supported assets
+ *
+ * List supported assets for the specified network
+ *
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export const listSupportedAssets = (input: TListSupportedAssetsInput) =>
+  request<
+    TListSupportedAssetsResponse,
+    TListSupportedAssetsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_supported_assets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListSupportedAssets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListSupportedAssets}
+ */
+export const signListSupportedAssets = (
+  input: TListSupportedAssetsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListSupportedAssetsBody, never, never>({
+    uri: "/public/v1/query/list_supported_assets",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_tvc_app_deployments`
  */
 export type TGetTvcAppDeploymentsResponse =

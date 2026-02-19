@@ -128,6 +128,10 @@ import type {
   TGetSubOrgIdsResponse,
 } from "./public_api.fetcher";
 import type {
+  TListSupportedAssetsBody,
+  TListSupportedAssetsResponse,
+} from "./public_api.fetcher";
+import type {
   TGetTvcAppDeploymentsBody,
   TGetTvcAppDeploymentsResponse,
 } from "./public_api.fetcher";
@@ -1546,6 +1550,38 @@ export class TurnkeyClient {
     input: TGetSubOrgIdsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_suborgs";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List supported assets for the specified network
+   *
+   * Sign the provided `TListSupportedAssetsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_supported_assets).
+   *
+   * See also {@link stampListSupportedAssets}.
+   */
+  listSupportedAssets = async (
+    input: TListSupportedAssetsBody,
+  ): Promise<TListSupportedAssetsResponse> => {
+    return this.request("/public/v1/query/list_supported_assets", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListSupportedAssetsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListSupportedAssets}.
+   */
+  stampListSupportedAssets = async (
+    input: TListSupportedAssetsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_supported_assets";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
