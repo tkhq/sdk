@@ -10,6 +10,7 @@ import {
   GoogleSVG,
   TwitterXSVG,
 } from "../Svg";
+import WalletAuthButton from "./AuthButtons/WalletAuthButton";
 import EmailAuthButton from "./AuthButtons/EmailAuthButton";
 import PhoneAuthButton from "./AuthButtons/PhoneAuthButton";
 import SocialButton from "./AuthButtons/SocialButton";
@@ -146,6 +147,9 @@ export default function UserSettings() {
                 <AuthenticatorButton
                   canRemoveAuthMethod={canRemoveAuthMethod}
                 />
+              )}
+              {clientConfig?.auth?.methods?.walletAuthEnabled && (
+                <WalletAuthButton canRemoveAuthMethod={canRemoveAuthMethod} />
               )}
             </div>
           </div>
