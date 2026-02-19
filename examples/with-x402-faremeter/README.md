@@ -1,14 +1,26 @@
 # Example: `with-x402-faremeter`
 
-Build a headless Solana agent that automatically pays x402-protected endpoints with a Turnkey wallet and [Faremeter](https://github.com/faremeter/faremeter).
+Build a headless Solana agent that automatically pays x402-protected endpoints, using Turnkey for authentication, wallet management, and signing, plus [Faremeter](https://github.com/faremeter/faremeter) for x402 orchestration.
 
 
 ## Why This Example
 
 - **Headless**: API key auth only (no browser/WebAuthn flow).
+- **Turnkey-powered**: secure API auth, wallet provisioning, and Solana transaction signing.
 - **Automatic**: Faremeter wraps `fetch` and handles `402` payment retries.
 - **Gasless on Echo**: server pays SOL fees; your agent pays in USDC.
 - **Practical**: includes balance checks, network/asset compatibility checks, and useful errors.
+
+## Where Turnkey Is Used
+
+| Capability | How Turnkey is used in this example |
+|----------|-------------|
+| API authentication | `@turnkey/sdk-server` authenticates with `API_PUBLIC_KEY` / `API_PRIVATE_KEY` |
+| Wallet lifecycle | The example gets or creates a Solana wallet in your Turnkey organization |
+| Transaction signing | `@turnkey/solana` signs Solana payment transactions without exposing private keys |
+| Security controls | You can apply Turnkey policies to constrain what this agent can sign/spend |
+
+Note: In this Echo flow, transaction fees are sponsored by the x402 server's fee payer. Turnkey is the secure signer for the payer wallet.
 
 ## Quickstart
 
@@ -86,7 +98,7 @@ solana airdrop 1 <WALLET_ADDRESS> --url devnet
 
 ## How It Works
 
-1. Initialize Turnkey client + signer
+1. Initialize Turnkey API client + `TurnkeySigner`
 2. Get or create a Solana wallet
 3. Check SOL and USDC balances
 4. Wrap `fetch` with Faremeter and a gasless payment handler
@@ -114,6 +126,27 @@ On Echo, USDC can be refunded quickly, so net spend may show as `0.000000`.
 The central integration in `src/index.ts` looks like this:
 
 ```typescript
+const turnkey = new Turnkey({
+  apiBaseUrl: process.env.BASE_URL || "https://api.turnkey.com",
+  apiPublicKey: process.env.API_PUBLIC_KEY!,
+  apiPrivateKey: process.env.API_PRIVATE_KEY!,
+  defaultOrganizationId: process.env.ORGANIZATION_ID!,
+});
+
+const signer = new TurnkeySigner({
+  organizationId: process.env.ORGANIZATION_ID!,
+  client: turnkey.apiClient(),
+});
+
+const solanaAddress = await getOrCreateSolanaWallet(turnkey.apiClient());
+const walletPubkey = new PublicKey(solanaAddress);
+
+const turnkeyWallet = {
+  publicKey: walletPubkey,
+  signTransaction: async (tx: VersionedTransaction) =>
+    (await signer.signTransaction(tx, solanaAddress)) as VersionedTransaction,
+};
+
 const expectedRequirementNetworks = getExpectedRequirementNetworks(network);
 
 const gaslessHandler = createGaslessPaymentHandler(turnkeyWallet, usdcMint, connection, {
@@ -134,7 +167,7 @@ const x402Fetch = wrapFetch(adaptiveFetch, {
 const response = await x402Fetch(testUrl);
 ```
 
-This keeps Faremeter's `wrap()` orchestration while adding Echo-compatible gasless and v2 adaptation behavior.
+This keeps Faremeter's `wrap()` orchestration while using Turnkey for key custody/signing and adding Echo-compatible gasless + v2 adaptation behavior.
 
 ## Troubleshooting
 
