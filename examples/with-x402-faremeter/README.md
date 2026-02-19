@@ -2,7 +2,6 @@
 
 Build a headless Solana agent that automatically pays x402-protected endpoints with a Turnkey wallet and [Faremeter](https://github.com/faremeter/faremeter).
 
-This README is optimized for fast setup and easy debugging.
 
 ## Why This Example
 
@@ -11,12 +10,11 @@ This README is optimized for fast setup and easy debugging.
 - **Gasless on Echo**: server pays SOL fees; your agent pays in USDC.
 - **Practical**: includes balance checks, network/asset compatibility checks, and useful errors.
 
-## Quickstart (5 Minutes)
+## Quickstart
 
 From repo root:
 
 ```bash
-corepack enable
 pnpm install -r
 pnpm run build-all
 cd examples/with-x402-faremeter
@@ -150,7 +148,7 @@ This keeps Faremeter's `wrap()` orchestration while adding Echo-compatible gasle
 - Check wallet USDC balance and network alignment (`SOLANA_RPC_URL` vs paywall endpoint).
 
 **`No compatible Solana payment requirements found`**
-- Requirement network/asset does not match your configured RPC network or expected mint.
+- Required network/asset does not match your configured RPC network or expected mint.
 
 **`bigint: Failed to load bindings`**
 - Rebuild native binding:
