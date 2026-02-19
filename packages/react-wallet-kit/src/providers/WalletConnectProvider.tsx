@@ -41,7 +41,7 @@ interface WalletConnectProviderProps {
  * WalletConnectProvider provides context for WalletConnect wallet apps.
  *
  * Automatically fetches wallet apps on mount using the projectId from config.
- * This is an internal provider - not exported as part of the public API.
+ * This is an internal provider and not exported
  */
 export function WalletConnectProvider({
   children,
@@ -49,24 +49,32 @@ export function WalletConnectProvider({
   const { config } = useTurnkey();
   const projectId = config?.walletConfig?.walletConnect?.projectId;
 
+  // WalletConnect will only work if the app supports ALL of the configured namespaces, so
+  // we build a list of these namespaces so that `buildWalletConnectAppEntries` can filter
+  // and only returns apps that support all of them
+  const namespaces = [
+    ...(config?.walletConfig?.chains?.ethereum?.walletConnectNamespaces ?? []),
+    ...(config?.walletConfig?.chains?.solana?.walletConnectNamespaces ?? []),
+  ];
+
   const [state, setState] = useState<WalletConnectState>(initialState);
 
-  const fetchApps = useCallback(async (pid: string) => {
+  const fetchApps = useCallback(async (pid: string, ns: string[]) => {
     setState((s) => ({ ...s, isLoadingApps: true }));
     try {
-      const entries = await buildWalletConnectAppEntries(pid);
+      const entries = await buildWalletConnectAppEntries(pid, ns);
       setState({ walletConnectApps: entries, isLoadingApps: false });
     } catch {
       setState((s) => ({ ...s, isLoadingApps: false }));
     }
   }, []);
 
-  // Auto-fetch wallet apps on mount if projectId is available
+  // we auto-fetch wallet apps on mount if projectId and namespaces are available
   useEffect(() => {
-    if (projectId) {
-      fetchApps(projectId);
+    if (projectId && namespaces.length > 0) {
+      fetchApps(projectId, namespaces);
     }
-  }, [projectId, fetchApps]);
+  }, [projectId, namespaces.join(","), fetchApps]);
 
   return (
     <WalletConnectContext.Provider value={state}>

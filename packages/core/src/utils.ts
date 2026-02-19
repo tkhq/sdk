@@ -1610,30 +1610,36 @@ export async function fetchWalletConnectApps(
  * Fetches WalletConnect apps and transforms them into simplified app entries
  * for display in the wallet selection UI.
  *
+ * Only apps that support all of the provided namespaces are included
+ *
  * @param projectId - WalletConnect project ID
- * @returns Array of WalletConnectAppEntry objects, one per app per supported chain
+ * @param namespaces - CAIP-2 namespace strings to require (e.g. ["eip155:1", "solana:mainnet"])
+ * @returns Array of WalletConnectAppEntry objects, one per app per unique chain
  */
 export async function buildWalletConnectAppEntries(
   projectId: string,
+  namespaces: string[],
 ): Promise<WalletConnectAppEntry[]> {
   const rawApps = await fetchWalletConnectApps(projectId);
   const entries: WalletConnectAppEntry[] = [];
 
+  // we derive a unique chains list from the namespaces
+  const chains = new Set<Chain>();
+  for (const ns of namespaces) {
+    if (ns.startsWith("eip155:")) chains.add(Chain.Ethereum);
+    else if (ns.startsWith("solana:")) chains.add(Chain.Solana);
+  }
+
   for (const app of rawApps) {
-    const supportedChains: Chain[] = [];
-
-    // Check if the app supports Ethereum
-    if (app.chains.some((chain) => chain.startsWith("eip155:"))) {
-      supportedChains.push(Chain.Ethereum);
+    // we only include apps that support ALL namespaces
+    if (!namespaces.every((ns) => app.chains.includes(ns))) {
+      continue;
     }
 
-    // Check if the app supports Solana
-    if (app.chains.some((chain) => chain.startsWith("solana:"))) {
-      supportedChains.push(Chain.Solana);
-    }
-
-    // Create an entry for each supported chain
-    for (const chain of supportedChains) {
+    // at this point, all remaining apps support all of the namespaces
+    // so it's safe to assume they support all of the corresponding chains that
+    // we derived from the namespaces as well
+    for (const chain of chains) {
       entries.push({
         id: app.id,
         name: app.name,
