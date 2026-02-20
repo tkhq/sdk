@@ -42,16 +42,12 @@ import type { TurnkeySDKApiTypes as BrowserApiTypes } from "@turnkey/sdk-browser
 import type { TurnkeySDKApiTypes as ServerApiTypes } from "@turnkey/sdk-server";
 import type {
   TGetPrivateKeyBody as SdkTypesGetPrivateKeyBody,
-  TGetPrivateKeyResponse as SdkTypesGetPrivateKeyResponse,
   TSignTransactionBody as SdkTypesSignTransactionBody,
-  TSignTransactionResponse as SdkTypesSignTransactionResponse,
   TSignRawPayloadBody as SdkTypesSignRawPayloadBody,
-  TSignRawPayloadResponse as SdkTypesSignRawPayloadResponse,
 } from "@turnkey/sdk-types";
 
 /**
- * Union types that accept inputs/outputs from any SDK package.
- * All SDK packages generate these from the same OpenAPI spec, so they're structurally identical.
+ * Union types for inputs — accept the body format from any SDK package.
  */
 export type TGetPrivateKeyBody =
   | BrowserApiTypes.TGetPrivateKeyBody
@@ -59,23 +55,11 @@ export type TGetPrivateKeyBody =
   | SdkTypesGetPrivateKeyBody
   | HttpApiTypes.TGetPrivateKeyBody;
 
-export type TGetPrivateKeyResponse =
-  | BrowserApiTypes.TGetPrivateKeyResponse
-  | ServerApiTypes.TGetPrivateKeyResponse
-  | SdkTypesGetPrivateKeyResponse
-  | HttpApiTypes.TGetPrivateKeyResponse;
-
 export type TSignTransactionBody =
   | BrowserApiTypes.TSignTransactionBody
   | ServerApiTypes.TSignTransactionBody
   | SdkTypesSignTransactionBody
   | HttpApiTypes.TSignTransactionBody;
-
-export type TSignTransactionResponse =
-  | BrowserApiTypes.TSignTransactionResponse
-  | ServerApiTypes.TSignTransactionResponse
-  | SdkTypesSignTransactionResponse
-  | HttpApiTypes.TSignTransactionResponse;
 
 export type TSignRawPayloadBody =
   | BrowserApiTypes.TSignRawPayloadBody
@@ -83,17 +67,46 @@ export type TSignRawPayloadBody =
   | SdkTypesSignRawPayloadBody
   | HttpApiTypes.TSignRawPayloadBody;
 
-export type TSignRawPayloadResponse =
-  | BrowserApiTypes.TSignRawPayloadResponse
-  | ServerApiTypes.TSignRawPayloadResponse
-  | SdkTypesSignRawPayloadResponse
-  | HttpApiTypes.TSignRawPayloadResponse;
+/**
+ * Minimal response types — only the fields the viem package actually reads.
+ * This makes responses version-agnostic; any SDK version will satisfy these.
+ */
+type TGetPrivateKeyResponse = {
+  privateKey: {
+    addresses: Array<{ format?: string; address?: string }>;
+  };
+};
+
+type TSignTransactionResponse = {
+  activity: {
+    id: string;
+    status: string;
+    result: {
+      signTransactionResult?: {
+        signedTransaction?: string;
+      };
+    };
+  };
+};
+
+type TSignRawPayloadResponse = {
+  activity: {
+    id: string;
+    status: string;
+    result: {
+      signRawPayloadResult?: {
+        r?: string;
+        s?: string;
+        v?: string;
+      };
+    };
+  };
+};
 
 /**
- * Minimal interface for Turnkey SDK clients (browser, server, core, etc.).
- * Uses union types that accept inputs/outputs from any SDK package.
+ * Generic client interface for any Turnkey client (HTTP, browser SDK, server SDK, core, etc.).
  */
-export interface TurnkeySDKClientInterface {
+export interface TurnkeyClientInterface {
   getPrivateKey(input: TGetPrivateKeyBody): Promise<TGetPrivateKeyResponse>;
   signTransaction(
     input: TSignTransactionBody,
@@ -101,11 +114,7 @@ export interface TurnkeySDKClientInterface {
   signRawPayload(input: TSignRawPayloadBody): Promise<TSignRawPayloadResponse>;
 }
 
-/**
- * Union type for all supported Turnkey client types.
- * TurnkeyClient is the HTTP client, TurnkeySDKClientInterface covers other SDK clients.
- */
-export type TTurnkeyClient = TurnkeySDKClientInterface;
+export type TTurnkeyClient = TurnkeyClientInterface;
 
 export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
   name: "TurnkeyConsensusNeededError";
