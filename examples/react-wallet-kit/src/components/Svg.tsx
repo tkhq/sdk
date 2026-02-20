@@ -348,3 +348,16 @@ export function ImportSVG(props: SVGProps) {
     </svg>
   );
 }
+
+export function WalletSVG(props: SVGProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      {...props}
+    >
+      <path d="M22 7h-1V5a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2h1a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Zm-3 4a1 1 0 1 1 0 2 1 1 0 0 1 0-2Z" />
+    </svg>
+  );
+}
