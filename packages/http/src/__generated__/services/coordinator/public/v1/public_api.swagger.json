@@ -839,7 +839,7 @@
     "/public/v1/query/get_wallet_address_balances": {
       "post": {
         "summary": "Get balances",
-        "description": "Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.",
+        "description": "Get non-zero balances of supported assets for a single wallet account address on the specified network.",
         "operationId": "PublicApiService_GetWalletAddressBalances",
         "responses": {
           "200": {
@@ -1159,7 +1159,7 @@
     "/public/v1/query/list_supported_assets": {
       "post": {
         "summary": "List supported assets",
-        "description": "List supported assets for the specified network. This feature is in beta - please contact support for access.",
+        "description": "List supported assets for the specified network",
         "operationId": "PublicApiService_ListSupportedAssets",
         "responses": {
           "200": {
@@ -4683,10 +4683,7 @@
         "ACTIVITY_TYPE_CREATE_TVC_APP",
         "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
         "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
-        "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
-        "ACTIVITY_TYPE_INIT_OTP_V3",
-        "ACTIVITY_TYPE_VERIFY_OTP_V2",
-        "ACTIVITY_TYPE_OTP_LOGIN_V2"
+        "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
       ]
     },
     "v1AddressFormat": {
@@ -4903,10 +4900,6 @@
         "display": {
           "$ref": "#/definitions/v1AssetBalanceDisplay",
           "description": "Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead."
-        },
-        "name": {
-          "type": "string",
-          "description": "The asset name"
         }
       }
     },
@@ -4927,25 +4920,17 @@
       "type": "object",
       "properties": {
         "caip19": {
-          "type": "string",
-          "description": "The caip-19 asset identifier"
+          "type": "string"
         },
         "symbol": {
-          "type": "string",
-          "description": "The asset symbol"
+          "type": "string"
         },
         "decimals": {
           "type": "integer",
-          "format": "int32",
-          "description": "The number of decimals this asset uses"
+          "format": "int32"
         },
         "logoUrl": {
-          "type": "string",
-          "description": "The url of the asset logo"
-        },
-        "name": {
-          "type": "string",
-          "description": "The asset name"
+          "type": "string"
         }
       }
     },
@@ -6733,6 +6718,21 @@
           "type": "string",
           "description": "Digest of the pivot binary in the pivot container. This value will be inserted in the QOS manifest to ensure application integrity."
         },
+        "hostContainerImageUrl": {
+          "type": "string",
+          "description": "URL of the container containing the host binary"
+        },
+        "hostPath": {
+          "type": "string",
+          "description": "Location of the binary inside the host container"
+        },
+        "hostArgs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Arguments to pass to the host binary at startup. Encoded as a list of strings, for example [\"--foo\", \"bar\"]"
+        },
         "nonce": {
           "type": "integer",
           "format": "int64",
@@ -6742,16 +6742,9 @@
           "type": "string",
           "description": "Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty."
         },
-        "pivotBindAddresses": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Address(es) on which the pivot binary listens. A bind address can be a port alone (e.g. \"3000\") or an ip:port (e.g. \"127.0.0.1:3000\"). If provided as a port alone, the IP is assumed to be 0.0.0.0"
-        },
-        "debugMode": {
-          "type": "boolean",
-          "description": "Optional flag to indicate whether to deploy the TVC app in debug mode, which includes additional logging and debugging tools. Default is false."
+        "hostContainerEncryptedPullSecret": {
+          "type": "string",
+          "description": "Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty."
         }
       },
       "required": [
@@ -6760,7 +6753,10 @@
         "pivotContainerImageUrl",
         "pivotPath",
         "pivotArgs",
-        "expectedPivotDigest"
+        "expectedPivotDigest",
+        "hostContainerImageUrl",
+        "hostPath",
+        "hostArgs"
       ]
     },
     "v1CreateTvcDeploymentRequest": {
@@ -8264,9 +8260,7 @@
             "eip155:1",
             "eip155:11155111",
             "eip155:8453",
-            "eip155:84532",
-            "eip155:137",
-            "eip155:80002"
+            "eip155:84532"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         }
@@ -8983,15 +8977,7 @@
         },
         "caip2": {
           "type": "string",
-          "enum": [
-            "eip155:1",
-            "eip155:11155111",
-            "eip155:8453",
-            "eip155:84532",
-            "eip155:137",
-            "eip155:80002"
-          ],
-          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
+          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
         },
         "nonce": {
           "type": "boolean",
@@ -9644,15 +9630,7 @@
         },
         "caip2": {
           "type": "string",
-          "enum": [
-            "eip155:1",
-            "eip155:11155111",
-            "eip155:8453",
-            "eip155:84532",
-            "eip155:137",
-            "eip155:80002"
-          ],
-          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
+          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
         }
       },
       "required": ["organizationId", "address", "caip2"]
@@ -10378,67 +10356,12 @@
       },
       "required": ["otpType", "contact", "appName"]
     },
-    "v1InitOtpIntentV3": {
-      "type": "object",
-      "properties": {
-        "otpType": {
-          "type": "string",
-          "description": "Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL"
-        },
-        "contact": {
-          "type": "string",
-          "description": "Email or phone number to send the OTP code to"
-        },
-        "appName": {
-          "type": "string",
-          "description": "The name of the application."
-        },
-        "otpLength": {
-          "type": "integer",
-          "format": "int32",
-          "description": "Optional length of the OTP code. Default = 9"
-        },
-        "emailCustomization": {
-          "$ref": "#/definitions/v1EmailCustomizationParamsV2",
-          "description": "Optional parameters for customizing emails. If not provided, the default email will be used."
-        },
-        "smsCustomization": {
-          "$ref": "#/definitions/v1SmsCustomizationParams",
-          "description": "Optional parameters for customizing SMS message. If not provided, the default sms message will be used."
-        },
-        "userIdentifier": {
-          "type": "string",
-          "description": "Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address."
-        },
-        "sendFromEmailAddress": {
-          "type": "string",
-          "description": "Optional custom email address from which to send the OTP email"
-        },
-        "alphanumeric": {
-          "type": "boolean",
-          "description": "Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). If set to false, OTP code will only be numeric. Default = true"
-        },
-        "sendFromEmailSenderName": {
-          "type": "string",
-          "description": "Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications'"
-        },
-        "expirationSeconds": {
-          "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes)"
-        },
-        "replyToEmailAddress": {
-          "type": "string",
-          "description": "Optional custom email address to use as reply-to"
-        }
-      },
-      "required": ["otpType", "contact", "appName"]
-    },
     "v1InitOtpRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_INIT_OTP_V3"]
+          "enum": ["ACTIVITY_TYPE_INIT_OTP_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -10449,7 +10372,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1InitOtpIntentV3"
+          "$ref": "#/definitions/v1InitOtpIntentV2"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -10466,20 +10389,6 @@
         }
       },
       "required": ["otpId"]
-    },
-    "v1InitOtpResultV2": {
-      "type": "object",
-      "properties": {
-        "otpId": {
-          "type": "string",
-          "description": "Unique identifier for an OTP flow"
-        },
-        "otpEncryptionTargetBundle": {
-          "type": "string",
-          "description": "Signed bundle containing a target encryption key to use when submitting OTP codes."
-        }
-      },
-      "required": ["otpId", "otpEncryptionTargetBundle"]
     },
     "v1InitUserEmailRecoveryIntent": {
       "type": "object",
@@ -10936,15 +10845,6 @@
         },
         "solSendTransactionIntent": {
           "$ref": "#/definitions/v1SolSendTransactionIntent"
-        },
-        "initOtpIntentV3": {
-          "$ref": "#/definitions/v1InitOtpIntentV3"
-        },
-        "verifyOtpIntentV2": {
-          "$ref": "#/definitions/v1VerifyOtpIntentV2"
-        },
-        "otpLoginIntentV2": {
-          "$ref": "#/definitions/v1OtpLoginIntentV2"
         }
       }
     },
@@ -11123,17 +11023,7 @@
         },
         "caip2": {
           "type": "string",
-          "enum": [
-            "eip155:1",
-            "eip155:11155111",
-            "eip155:8453",
-            "eip155:84532",
-            "eip155:137",
-            "eip155:80002",
-            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-            "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
-          ],
-          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet)."
+          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
         }
       },
       "required": ["organizationId", "caip2"]
@@ -11146,8 +11036,7 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1AssetMetadata"
-          },
-          "description": "List of asset metadata"
+          }
         }
       }
     },
@@ -11704,38 +11593,12 @@
       },
       "required": ["verificationToken", "publicKey"]
     },
-    "v1OtpLoginIntentV2": {
-      "type": "object",
-      "properties": {
-        "verificationToken": {
-          "type": "string",
-          "description": "Signed Verification Token containing a unique id, expiry, verification type, contact"
-        },
-        "publicKey": {
-          "type": "string",
-          "description": "Client-side public key generated by the user, used as the session public key upon successful login"
-        },
-        "clientSignature": {
-          "$ref": "#/definitions/v1ClientSignature",
-          "description": "Required signature proving authorization for this login. The signature is over the verification token ID and the public key. Required for secure OTP login process."
-        },
-        "expirationSeconds": {
-          "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used."
-        },
-        "invalidateExisting": {
-          "type": "boolean",
-          "description": "Invalidate all other previously generated Login sessions"
-        }
-      },
-      "required": ["verificationToken", "publicKey", "clientSignature"]
-    },
     "v1OtpLoginRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_OTP_LOGIN_V2"]
+          "enum": ["ACTIVITY_TYPE_OTP_LOGIN"]
         },
         "timestampMs": {
           "type": "string",
@@ -11746,7 +11609,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1OtpLoginIntentV2"
+          "$ref": "#/definitions/v1OtpLoginIntent"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -12422,9 +12285,6 @@
         },
         "solSendTransactionResult": {
           "$ref": "#/definitions/v1SolSendTransactionResult"
-        },
-        "initOtpResultV2": {
-          "$ref": "#/definitions/v1InitOtpResultV2"
         }
       }
     },
@@ -13269,6 +13129,10 @@
           "$ref": "#/definitions/v1TvcContainerSpec",
           "description": "The pivot container spec for this deployment"
         },
+        "hostContainer": {
+          "$ref": "#/definitions/v1TvcContainerSpec",
+          "description": "The pivot container spec for this deployment"
+        },
         "stage": {
           "$ref": "#/definitions/v1TvcDeploymentStage",
           "description": "Current stage for this deployment"
@@ -13290,6 +13154,7 @@
         "manifestApprovals",
         "qosVersion",
         "pivotContainer",
+        "hostContainer",
         "stage",
         "createdAt",
         "updatedAt"
@@ -13610,13 +13475,6 @@
         "verificationTokenRequiredForGetAccountPii": {
           "type": "boolean",
           "description": "Verification token required for get account with PII (email/phone number). Default false."
-        },
-        "socialLinkingClientIds": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Whitelisted OAuth client IDs for social account linking. When a user authenticates via a social provider with an email matching an existing account, the accounts will be linked if the client ID is in this list and the issuer is considered a trusted provider."
         }
       }
     },
@@ -14564,30 +14422,12 @@
       },
       "required": ["otpId", "otpCode"]
     },
-    "v1VerifyOtpIntentV2": {
-      "type": "object",
-      "properties": {
-        "otpId": {
-          "type": "string",
-          "description": "UUID representing an OTP flow. A new UUID is created for each init OTP activity."
-        },
-        "encryptedOtpBundle": {
-          "type": "string",
-          "description": "Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result."
-        },
-        "expirationSeconds": {
-          "type": "string",
-          "description": "Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours)"
-        }
-      },
-      "required": ["otpId", "encryptedOtpBundle"]
-    },
     "v1VerifyOtpRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_VERIFY_OTP_V2"]
+          "enum": ["ACTIVITY_TYPE_VERIFY_OTP"]
         },
         "timestampMs": {
           "type": "string",
@@ -14598,7 +14438,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1VerifyOtpIntentV2"
+          "$ref": "#/definitions/v1VerifyOtpIntent"
         },
         "generateAppProofs": {
           "type": "boolean"
