@@ -122,56 +122,178 @@ On Echo, USDC can be refunded quickly, so net spend may show as `0.000000`.
 
 ## Core Integration
 
-The central integration in `src/index.ts` looks like this:
+The `createX402Client` factory in `src/x402-client.ts` handles all the setup:
 
 ```typescript
-const turnkey = new Turnkey({
-  apiBaseUrl: process.env.BASE_URL || "https://api.turnkey.com",
+import { createX402Client } from "./x402-client.js";
+
+const { x402Fetch, walletAddress, getBalances, network } = await createX402Client({
   apiPublicKey: process.env.API_PUBLIC_KEY!,
   apiPrivateKey: process.env.API_PRIVATE_KEY!,
-  defaultOrganizationId: process.env.ORGANIZATION_ID!,
-});
-
-const signer = new TurnkeySigner({
   organizationId: process.env.ORGANIZATION_ID!,
-  client: turnkey.apiClient(),
+  rpcUrl: process.env.SOLANA_RPC_URL,    // optional
+  baseUrl: process.env.BASE_URL,          // optional
 });
 
-const solanaAddress = await getOrCreateSolanaWallet(turnkey.apiClient());
-const walletPubkey = new PublicKey(solanaAddress);
-
-const turnkeyWallet = {
-  publicKey: walletPubkey,
-  signTransaction: async (tx: VersionedTransaction) =>
-    (await signer.signTransaction(tx, solanaAddress)) as VersionedTransaction,
-};
-
-const expectedRequirementNetworks = getExpectedRequirementNetworks(network);
-
-const gaslessHandler = createGaslessPaymentHandler(
-  turnkeyWallet,
-  usdcMint,
-  connection,
-  {
-    expectedNetworks: expectedRequirementNetworks,
-    configuredNetworkLabel: network,
-  },
-);
-
-const normalizingFetch = createV2NormalizingFetch(fetch);
-const adaptiveFetch = createAdaptivePaymentFetch(fetch);
-
-const x402Fetch = wrapFetch(adaptiveFetch, {
-  handlers: [gaslessHandler],
-  phase1Fetch: normalizingFetch,
-  retryCount: 3,
-  returnPaymentFailure: true,
-});
-
-const response = await x402Fetch(testUrl);
+// Use x402Fetch exactly like regular fetch - payments are automatic
+const response = await x402Fetch("https://paid-api.example.com/data");
 ```
 
-This keeps Faremeter's `wrap()` orchestration while using Turnkey for key custody/signing and adding Echo-compatible gasless + v2 adaptation behavior.
+The client handles Turnkey authentication, wallet provisioning, transaction signing, and x402 protocol negotiation internally.
+
+## Integrating With Your Agent Framework
+
+The `x402Fetch` function works like standard `fetch()`, making it easy to expose as a tool in any LLM framework. Below are copy-paste examples for common setups.
+
+### OpenAI Function Calling
+
+```typescript
+import OpenAI from "openai";
+import { createX402Client } from "./x402-client.js";
+
+const { x402Fetch } = await createX402Client({ /* ... */ });
+const openai = new OpenAI();
+
+const tools: OpenAI.ChatCompletionTool[] = [
+  {
+    type: "function",
+    function: {
+      name: "fetch_paid_resource",
+      description: "Fetch data from a URL. Automatically pays if the endpoint requires payment (HTTP 402).",
+      parameters: {
+        type: "object",
+        properties: {
+          url: { type: "string", description: "The URL to fetch" },
+        },
+        required: ["url"],
+      },
+    },
+  },
+];
+
+async function handleToolCall(name: string, args: { url: string }): Promise<string> {
+  if (name === "fetch_paid_resource") {
+    const response = await x402Fetch(args.url);
+    return response.text();
+  }
+  throw new Error(`Unknown tool: ${name}`);
+}
+
+// In your chat loop:
+const response = await openai.chat.completions.create({
+  model: "gpt-4",
+  messages: [{ role: "user", content: "Get the premium data from https://api.example.com/premium" }],
+  tools,
+});
+
+if (response.choices[0].message.tool_calls) {
+  for (const toolCall of response.choices[0].message.tool_calls) {
+    const result = await handleToolCall(
+      toolCall.function.name,
+      JSON.parse(toolCall.function.arguments),
+    );
+    // Continue conversation with tool result...
+  }
+}
+```
+
+### Anthropic Tool Use
+
+```typescript
+import Anthropic from "@anthropic-ai/sdk";
+import { createX402Client } from "./x402-client.js";
+
+const { x402Fetch } = await createX402Client({ /* ... */ });
+const anthropic = new Anthropic();
+
+const tools: Anthropic.Tool[] = [
+  {
+    name: "fetch_paid_resource",
+    description: "Fetch data from a URL. Automatically pays if the endpoint requires payment (HTTP 402).",
+    input_schema: {
+      type: "object",
+      properties: {
+        url: { type: "string", description: "The URL to fetch" },
+      },
+      required: ["url"],
+    },
+  },
+];
+
+async function handleToolUse(name: string, input: { url: string }): Promise<string> {
+  if (name === "fetch_paid_resource") {
+    const response = await x402Fetch(input.url);
+    return response.text();
+  }
+  throw new Error(`Unknown tool: ${name}`);
+}
+
+// In your chat loop:
+const response = await anthropic.messages.create({
+  model: "claude-sonnet-4-20250514",
+  max_tokens: 1024,
+  tools,
+  messages: [{ role: "user", content: "Get the premium data from https://api.example.com/premium" }],
+});
+
+for (const block of response.content) {
+  if (block.type === "tool_use") {
+    const result = await handleToolUse(block.name, block.input as { url: string });
+    // Continue conversation with tool result...
+  }
+}
+```
+
+### Generic Agent Pattern
+
+For custom agent implementations or other frameworks:
+
+```typescript
+import { createX402Client } from "./x402-client.js";
+
+// 1. Initialize once at startup
+const { x402Fetch } = await createX402Client({
+  apiPublicKey: process.env.API_PUBLIC_KEY!,
+  apiPrivateKey: process.env.API_PRIVATE_KEY!,
+  organizationId: process.env.ORGANIZATION_ID!,
+});
+
+// 2. Define your tool interface
+interface AgentTool {
+  name: string;
+  description: string;
+  execute: (params: Record<string, unknown>) => Promise<string>;
+}
+
+const paidFetchTool: AgentTool = {
+  name: "fetch_paid_resource",
+  description: "Fetch data from a URL, automatically paying if required",
+  execute: async (params) => {
+    const response = await x402Fetch(params.url as string);
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+    return response.text();
+  },
+};
+
+// 3. Wire into your agent loop
+async function agentLoop(task: string) {
+  const tools = [paidFetchTool];
+  
+  while (true) {
+    const action = await yourLLM.decide(task, tools);
+    
+    if (action.type === "tool_call") {
+      const tool = tools.find(t => t.name === action.tool);
+      const result = await tool!.execute(action.params);
+      // Feed result back to LLM...
+    } else if (action.type === "done") {
+      return action.response;
+    }
+  }
+}
+```
 
 ## Troubleshooting
 
