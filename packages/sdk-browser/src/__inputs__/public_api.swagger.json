@@ -262,7 +262,7 @@
     },
     "/public/v1/query/get_gas_usage": {
       "post": {
-        "summary": "Get gas usage and limits.",
+        "summary": "Get gas usage",
         "description": "Get gas usage and gas limits for either the parent organization or a sub-organization.",
         "operationId": "PublicApiService_GetGasUsage",
         "responses": {
@@ -326,7 +326,7 @@
     },
     "/public/v1/query/get_nonces": {
       "post": {
-        "summary": "Get nonces for an address.",
+        "summary": "Get nonces",
         "description": "Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions.",
         "operationId": "PublicApiService_GetNonces",
         "responses": {
@@ -740,6 +740,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/query/get_wallet_address_balances": {
+      "post": {
+        "summary": "Get balances",
+        "description": "Get non-zero balances of supported assets for a single wallet account address on the specified network.",
+        "operationId": "PublicApiService_GetWalletAddressBalances",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletAddressBalancesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetWalletAddressBalancesRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
+      }
+    },
     "/public/v1/query/list_activities": {
       "post": {
         "summary": "List activities",
@@ -1026,6 +1058,38 @@
           }
         ],
         "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/query/list_supported_assets": {
+      "post": {
+        "summary": "List supported assets",
+        "description": "List supported assets for the specified network",
+        "operationId": "PublicApiService_ListSupportedAssets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListSupportedAssetsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListSupportedAssetsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
       }
     },
     "/public/v1/query/list_user_tags": {
@@ -2374,8 +2438,8 @@
     },
     "/public/v1/submit/eth_send_transaction": {
       "post": {
-        "summary": "Submit a transaction intent for broadcasting.",
-        "description": "Submit a transaction intent describing a transaction you would like to broadcast.",
+        "summary": "Broadcast EVM transaction",
+        "description": "Submit a transaction intent describing an EVM transaction you would like to broadcast.",
         "operationId": "PublicApiService_EthSendTransaction",
         "responses": {
           "200": {
@@ -3142,8 +3206,8 @@
     },
     "/public/v1/submit/sol_send_transaction": {
       "post": {
-        "summary": "Submit a transaction intent for broadcasting.",
-        "description": "Submit a transaction intent describing a transaction you would like to broadcast.",
+        "summary": "Broadcast SVM transaction",
+        "description": "Submit a transaction intent describing an SVM transaction you would like to broadcast.",
         "operationId": "PublicApiService_SolSendTransaction",
         "responses": {
           "200": {
@@ -3586,6 +3650,26 @@
           }
         ],
         "tags": ["User Verification"]
+      }
+    },
+    "/tkhq/api/v1/noop-codegen-anchor": {
+      "post": {
+        "operationId": "PublicApiService_NOOPCodegenAnchor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1NOOPCodegenAnchorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": ["PublicApiService"]
       }
     }
   },
@@ -4408,6 +4492,63 @@
         }
       },
       "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1AssetBalance": {
+      "type": "object",
+      "properties": {
+        "caip19": {
+          "type": "string",
+          "description": "The caip-19 asset identifier"
+        },
+        "symbol": {
+          "type": "string",
+          "description": "The asset symbol"
+        },
+        "balance": {
+          "type": "string",
+          "description": "The balance in atomic units"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The number of decimals this asset uses"
+        },
+        "display": {
+          "$ref": "#/definitions/v1AssetBalanceDisplay",
+          "description": "Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead."
+        }
+      }
+    },
+    "v1AssetBalanceDisplay": {
+      "type": "object",
+      "properties": {
+        "usd": {
+          "type": "string",
+          "description": "USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise."
+        },
+        "crypto": {
+          "type": "string",
+          "description": "Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise."
+        }
+      }
+    },
+    "v1AssetMetadata": {
+      "type": "object",
+      "properties": {
+        "caip19": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "logoUrl": {
+          "type": "string"
+        }
+      }
     },
     "v1Attestation": {
       "type": "object",
@@ -6167,6 +6308,14 @@
           "type": "integer",
           "format": "int64",
           "description": "Optional nonce to ensure uniqueness of the deployment manifest. If not provided, it defaults to the current Unix timestamp in seconds."
+        },
+        "pivotContainerEncryptedPullSecret": {
+          "type": "string",
+          "description": "Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty."
+        },
+        "hostContainerEncryptedPullSecret": {
+          "type": "string",
+          "description": "Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty."
         }
       },
       "required": [
@@ -8853,6 +9002,37 @@
       },
       "required": ["accounts"]
     },
+    "v1GetWalletAddressBalancesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address corresponding to a wallet account."
+        },
+        "caip2": {
+          "type": "string",
+          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
+        }
+      },
+      "required": ["organizationId", "address", "caip2"]
+    },
+    "v1GetWalletAddressBalancesResponse": {
+      "type": "object",
+      "properties": {
+        "balances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AssetBalance"
+          },
+          "description": "List of asset balances"
+        }
+      }
+    },
     "v1GetWalletRequest": {
       "type": "object",
       "properties": {
@@ -10158,6 +10338,32 @@
       },
       "required": ["privateKeyTags"]
     },
+    "v1ListSupportedAssetsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "caip2": {
+          "type": "string",
+          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
+        }
+      },
+      "required": ["organizationId", "caip2"]
+    },
+    "v1ListSupportedAssetsResponse": {
+      "type": "object",
+      "properties": {
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AssetMetadata"
+          }
+        }
+      }
+    },
     "v1ListUserTagsRequest": {
       "type": "object",
       "properties": {
@@ -10182,6 +10388,16 @@
       },
       "required": ["userTags"]
     },
+    "v1LoginUsage": {
+      "type": "object",
+      "properties": {
+        "publicKey": {
+          "type": "string",
+          "description": "Public key for authentication"
+        }
+      },
+      "required": ["publicKey"]
+    },
     "v1MnemonicLanguage": {
       "type": "string",
       "enum": [
@@ -10195,6 +10411,18 @@
         "MNEMONIC_LANGUAGE_KOREAN",
         "MNEMONIC_LANGUAGE_SPANISH"
       ]
+    },
+    "v1NOOPCodegenAnchorResponse": {
+      "type": "object",
+      "properties": {
+        "stamp": {
+          "$ref": "#/definitions/v1WebAuthnStamp"
+        },
+        "tokenUsage": {
+          "$ref": "#/definitions/v1TokenUsage"
+        }
+      },
+      "required": ["stamp"]
     },
     "v1NativeRevertError": {
       "type": "object",
@@ -11782,6 +12010,38 @@
       },
       "required": ["signedTransaction"]
     },
+    "v1SignupUsage": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParamsV2"
+          }
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          }
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParams"
+          }
+        }
+      }
+    },
     "v1SimpleClientExtensionResults": {
       "type": "object",
       "properties": {
@@ -11932,6 +12192,26 @@
     "v1TagType": {
       "type": "string",
       "enum": ["TAG_TYPE_USER", "TAG_TYPE_PRIVATE_KEY"]
+    },
+    "v1TokenUsage": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1UsageType",
+          "description": "Type of token usage"
+        },
+        "tokenId": {
+          "type": "string",
+          "description": "Unique identifier for the verification token"
+        },
+        "signup": {
+          "$ref": "#/definitions/v1SignupUsage"
+        },
+        "login": {
+          "$ref": "#/definitions/v1LoginUsage"
+        }
+      },
+      "required": ["type", "tokenId"]
     },
     "v1TransactionType": {
       "type": "string",
@@ -12837,6 +13117,10 @@
       },
       "required": ["gasUsageConfigId"]
     },
+    "v1UsageType": {
+      "type": "string",
+      "enum": ["USAGE_TYPE_SIGNUP", "USAGE_TYPE_LOGIN"]
+    },
     "v1User": {
       "type": "object",
       "properties": {
@@ -13340,6 +13624,33 @@
         }
       },
       "required": ["walletId", "addresses"]
+    },
+    "v1WebAuthnStamp": {
+      "type": "object",
+      "properties": {
+        "credentialId": {
+          "type": "string",
+          "description": "A base64 url encoded Unique identifier for a given credential."
+        },
+        "clientDataJson": {
+          "type": "string",
+          "description": "A base64 encoded payload containing metadata about the signing context and the challenge."
+        },
+        "authenticatorData": {
+          "type": "string",
+          "description": "A base64 encoded payload containing metadata about the authenticator."
+        },
+        "signature": {
+          "type": "string",
+          "description": "The base64 url encoded signature bytes contained within the WebAuthn assertion response."
+        }
+      },
+      "required": [
+        "credentialId",
+        "clientDataJson",
+        "authenticatorData",
+        "signature"
+      ]
     }
   },
   "securityDefinitions": {

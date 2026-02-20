@@ -113,7 +113,6 @@ export default function AuthPage() {
     return raw.toString("hex");
   };
 
-
   useEffect(() => {
     if (clientState !== ClientState.Ready) return;
 

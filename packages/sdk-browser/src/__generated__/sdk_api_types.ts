@@ -246,6 +246,19 @@ export type TGetWalletAccountBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetWalletAddressBalancesResponse =
+  operations["PublicApiService_GetWalletAddressBalances"]["responses"]["200"]["schema"];
+
+export type TGetWalletAddressBalancesInput = {
+  body: TGetWalletAddressBalancesBody;
+};
+
+export type TGetWalletAddressBalancesBody = Omit<
+  operations["PublicApiService_GetWalletAddressBalances"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetActivitiesResponse =
   operations["PublicApiService_GetActivities"]["responses"]["200"]["schema"];
 
@@ -345,6 +358,17 @@ export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
 
 export type TGetSubOrgIdsBody = Omit<
   operations["PublicApiService_GetSubOrgIds"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListSupportedAssetsResponse =
+  operations["PublicApiService_ListSupportedAssets"]["responses"]["200"]["schema"];
+
+export type TListSupportedAssetsInput = { body: TListSupportedAssetsBody };
+
+export type TListSupportedAssetsBody = Omit<
+  operations["PublicApiService_ListSupportedAssets"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
@@ -1176,3 +1200,6 @@ export type TVerifyOtpInput = { body: TVerifyOtpBody };
 export type TVerifyOtpBody =
   operations["PublicApiService_VerifyOtp"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
+
+export type TNOOPCodegenAnchorResponse =
+  operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];

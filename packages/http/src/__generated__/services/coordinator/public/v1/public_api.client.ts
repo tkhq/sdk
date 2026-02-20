@@ -488,8 +488,9 @@ export class TurnkeyClient {
     const response = await fetch(fullUrl, {
       method: "POST",
       headers: {
-        [stamp.stampHeaderName]: stamp.stampHeaderValue,
+        "Content-Type": "application/json",
         "X-Client-Version": VERSION,
+        [stamp.stampHeaderName]: stamp.stampHeaderValue,
       },
       body: stringifiedBody,
       redirect: "follow",
@@ -1238,7 +1239,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get non-zero balances of supported assets for a single wallet account address on the specified network.
+   * Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.
    *
    * Sign the provided `TGetWalletAddressBalancesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_wallet_address_balances).
    *
@@ -1559,7 +1560,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List supported assets for the specified network
+   * List supported assets for the specified network. This feature is in beta - please contact support for access.
    *
    * Sign the provided `TListSupportedAssetsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_supported_assets).
    *
@@ -3133,7 +3134,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Submit a transaction intent describing a transaction you would like to broadcast.
+   * Submit a transaction intent describing an EVM transaction you would like to broadcast.
    *
    * Sign the provided `TEthSendTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/eth_send_transaction).
    *
@@ -3867,7 +3868,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Submit a transaction intent describing a transaction you would like to broadcast.
+   * Submit a transaction intent describing an SVM transaction you would like to broadcast.
    *
    * Sign the provided `TSolSendTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sol_send_transaction).
    *
