@@ -74,7 +74,7 @@ import {
   type VerifyAppProofsParams,
   type SignAndSendTransactionParams,
   type PollTransactionStatusParams,
-  SolSendTransactionParams,
+  type SolSendTransactionParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
