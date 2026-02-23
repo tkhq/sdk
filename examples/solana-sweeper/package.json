@@ -1,0 +1,21 @@
+{
+  "name": "@turnkey/example-solana-sweeper",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@solana/spl-token": "^0.4.9",
+    "@solana/web3.js": "^1.95.8",
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "^16.0.3",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2",
+    "typescript": "5.4.3"
+  }
+}

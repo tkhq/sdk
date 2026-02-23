@@ -644,6 +644,70 @@
         "tags": ["Policies"]
       }
     },
+    "/public/v1/query/get_tvc_app": {
+      "post": {
+        "summary": "Get TVC App",
+        "description": "Get details about a single TVC App",
+        "operationId": "PublicApiService_GetTvcApp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/query/get_tvc_deployment": {
+      "post": {
+        "summary": "Get TVC Deployment",
+        "description": "Get details about a single TVC Deployment",
+        "operationId": "PublicApiService_GetTvcDeployment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcDeploymentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcDeploymentRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
     "/public/v1/query/get_user": {
       "post": {
         "summary": "Get user",
@@ -1762,6 +1826,102 @@
           }
         ],
         "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/submit/create_tvc_app": {
+      "post": {
+        "summary": "Create a TVC App",
+        "description": "Create a new TVC application",
+        "operationId": "PublicApiService_CreateTvcApp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTvcAppRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/submit/create_tvc_deployment": {
+      "post": {
+        "summary": "Create a TVC Deployment",
+        "description": "Create a new TVC Deployment",
+        "operationId": "PublicApiService_CreateTvcDeployment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTvcDeploymentRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/submit/create_tvc_manifest_approvals": {
+      "post": {
+        "summary": "Create TVC Manifest Approvals",
+        "description": "Post one or more manifest approvals for a TVC Manifest",
+        "operationId": "PublicApiService_CreateTvcManifestApprovals",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTvcManifestApprovalsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
       }
     },
     "/public/v1/submit/create_user_tag": {
@@ -8851,6 +9011,106 @@
       },
       "required": ["organizationIds"]
     },
+    "v1GetTvcAppDeploymentsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "appId": {
+          "type": "string",
+          "description": "Unique identifier for a given TVC App."
+        }
+      },
+      "required": ["organizationId", "appId"]
+    },
+    "v1GetTvcAppDeploymentsResponse": {
+      "type": "object",
+      "properties": {
+        "tvcDeployments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcDeployment"
+          },
+          "description": "List of deployments for this TVC App"
+        }
+      },
+      "required": ["tvcDeployments"]
+    },
+    "v1GetTvcAppRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "tvcAppId": {
+          "type": "string",
+          "description": "Unique identifier for a given TVC App."
+        }
+      },
+      "required": ["organizationId", "tvcAppId"]
+    },
+    "v1GetTvcAppResponse": {
+      "type": "object",
+      "properties": {
+        "tvcApp": {
+          "$ref": "#/definitions/v1TvcApp",
+          "description": "Details about a single TVC App"
+        }
+      },
+      "required": ["tvcApp"]
+    },
+    "v1GetTvcAppsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetTvcAppsResponse": {
+      "type": "object",
+      "properties": {
+        "tvcApps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcApp"
+          },
+          "description": "A list of TVC Apps."
+        }
+      },
+      "required": ["tvcApps"]
+    },
+    "v1GetTvcDeploymentRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "deploymentId": {
+          "type": "string",
+          "description": "Unique identifier for a given TVC Deployment."
+        }
+      },
+      "required": ["organizationId", "deploymentId"]
+    },
+    "v1GetTvcDeploymentResponse": {
+      "type": "object",
+      "properties": {
+        "tvcDeployment": {
+          "$ref": "#/definitions/v1TvcDeployment",
+          "description": "Details about a single TVC Deployment"
+        }
+      },
+      "required": ["tvcDeployment"]
+    },
     "v1GetUserRequest": {
       "type": "object",
       "properties": {
@@ -11154,6 +11414,12 @@
         }
       },
       "required": ["authenticatorId"]
+    },
+    "v1RefreshFeatureFlagsRequest": {
+      "type": "object"
+    },
+    "v1RefreshFeatureFlagsResponse": {
+      "type": "object"
     },
     "v1RejectActivityIntent": {
       "type": "object",
