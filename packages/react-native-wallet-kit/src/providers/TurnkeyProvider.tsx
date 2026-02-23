@@ -74,6 +74,7 @@ import {
   type VerifyAppProofsParams,
   type SignAndSendTransactionParams,
   type PollTransactionStatusParams,
+  SolSendTransactionParams,
 } from "@turnkey/core";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { Platform } from "react-native";
@@ -1231,6 +1232,23 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         () => logout(),
         callbacks,
         "Failed to sign transaction",
+      );
+    },
+    [client, callbacks],
+  );
+
+    const solSendTransaction = useCallback(
+    async (params: SolSendTransactionParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.solSendTransaction(params),
+        () => logout(),
+        callbacks,
+        "Failed to send sol transaction",
       );
     },
     [client, callbacks],
@@ -3143,6 +3161,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         signTransaction,
         signAndSendTransaction,
         ethSendTransaction,
+        solSendTransaction,
         pollTransactionStatus,
         fetchUser,
         fetchOrCreateP256ApiKeyUser,
