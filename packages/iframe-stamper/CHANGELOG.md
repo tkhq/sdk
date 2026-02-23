@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 2.10.0
+
+### Minor Changes
+
+- [#1126](https://github.com/tkhq/sdk/pull/1126) [`fb0ff3e`](https://github.com/tkhq/sdk/commit/fb0ff3e38e061c48f01b35c44294f4549b61d61d) Author [@ethankonk](https://github.com/ethankonk) - Added Bitcoin WIF & Sui Bech32 private key formats to import/export with iframe flows
+
 ## 2.9.0
 
 ### Minor Changes

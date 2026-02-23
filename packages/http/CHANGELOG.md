@@ -1,5 +1,20 @@
 # @turnkey/http
 
+## 3.16.3
+
+### Patch Changes
+
+- [#1194](https://github.com/tkhq/sdk/pull/1194) [`dced9db`](https://github.com/tkhq/sdk/commit/dced9dbbd8ea533442e19e45ce36e6a05a45a555) Author [@moeodeh3](https://github.com/moeodeh3) - Add `Content-Type: application/json` header to all Turnkey API requests. The missing header caused "Network request failed" errors on React Native, intermittent for some setups and consistent for others, where OkHttp-backed fetch can reject `POST` requests without an explicit `Content-Type`. See also: https://github.com/JakeChampion/fetch/issues/823
+
+  Special thanks to @jrmykolyn and @niroshanS for helping identify and debug this issue
+
+## 3.16.2
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.1
+
 ## 3.16.1
 
 ### Patch Changes

@@ -140,6 +140,10 @@ export type paths = {
     /** Get all suborg IDs associated given a parent org ID and an optional filter. */
     post: operations["PublicApiService_GetSubOrgIds"];
   };
+  "/public/v1/query/list_supported_assets": {
+    /** List supported assets for the specified network */
+    post: operations["PublicApiService_ListSupportedAssets"];
+  };
   "/public/v1/query/list_tvc_app_deployments": {
     /** List all deployments for a given TVC App */
     post: operations["PublicApiService_GetTvcAppDeployments"];
@@ -337,7 +341,7 @@ export type paths = {
     post: operations["PublicApiService_EthSendRawTransaction"];
   };
   "/public/v1/submit/eth_send_transaction": {
-    /** Submit a transaction intent describing a transaction you would like to broadcast. */
+    /** Submit a transaction intent describing an EVM transaction you would like to broadcast. */
     post: operations["PublicApiService_EthSendTransaction"];
   };
   "/public/v1/submit/export_private_key": {
@@ -433,7 +437,7 @@ export type paths = {
     post: operations["PublicApiService_SignTransaction"];
   };
   "/public/v1/submit/sol_send_transaction": {
-    /** Submit a transaction intent describing a transaction you would like to broadcast. */
+    /** Submit a transaction intent describing an SVM transaction you would like to broadcast. */
     post: operations["PublicApiService_SolSendTransaction"];
   };
   "/public/v1/submit/stamp_login": {
@@ -940,6 +944,13 @@ export type definitions = {
     usd?: string;
     /** @description Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
     crypto?: string;
+  };
+  v1AssetMetadata: {
+    caip19?: string;
+    symbol?: string;
+    /** Format: int32 */
+    decimals?: number;
+    logoUrl?: string;
   };
   v1Attestation: {
     /** @description The cbor encoded then base64 url encoded id of the credential. */
@@ -1650,15 +1661,9 @@ export type definitions = {
      * @description Optional nonce to ensure uniqueness of the deployment manifest. If not provided, it defaults to the current Unix timestamp in seconds.
      */
     nonce?: number;
-    /**
-     * Format: byte
-     * @description Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty.
-     */
+    /** @description Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty. */
     pivotContainerEncryptedPullSecret?: string;
-    /**
-     * Format: byte
-     * @description Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty.
-     */
+    /** @description Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty. */
     hostContainerEncryptedPullSecret?: string;
   };
   v1CreateTvcDeploymentRequest: {
@@ -3418,6 +3423,15 @@ export type definitions = {
   v1ListPrivateKeyTagsResponse: {
     /** @description A list of private key tags. */
     privateKeyTags: definitions["datav1Tag"][];
+  };
+  v1ListSupportedAssetsRequest: {
+    /** @description Unique identifier for a given organization. */
+    organizationId: string;
+    /** @description The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+    caip2: string;
+  };
+  v1ListSupportedAssetsResponse: {
+    assets?: definitions["v1AssetMetadata"][];
   };
   v1ListUserTagsRequest: {
     /** @description Unique identifier for a given organization. */
@@ -5493,6 +5507,24 @@ export type operations = {
       };
     };
   };
+  /** List supported assets for the specified network */
+  PublicApiService_ListSupportedAssets: {
+    parameters: {
+      body: {
+        body: definitions["v1ListSupportedAssetsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListSupportedAssetsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
   /** List all deployments for a given TVC App */
   PublicApiService_GetTvcAppDeployments: {
     parameters: {
@@ -6375,7 +6407,7 @@ export type operations = {
       };
     };
   };
-  /** Submit a transaction intent describing a transaction you would like to broadcast. */
+  /** Submit a transaction intent describing an EVM transaction you would like to broadcast. */
   PublicApiService_EthSendTransaction: {
     parameters: {
       body: {
@@ -6807,7 +6839,7 @@ export type operations = {
       };
     };
   };
-  /** Submit a transaction intent describing a transaction you would like to broadcast. */
+  /** Submit a transaction intent describing an SVM transaction you would like to broadcast. */
   PublicApiService_SolSendTransaction: {
     parameters: {
       body: {

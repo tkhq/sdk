@@ -262,7 +262,7 @@
     },
     "/public/v1/query/get_gas_usage": {
       "post": {
-        "summary": "Get gas usage and limits.",
+        "summary": "Get gas usage",
         "description": "Get gas usage and gas limits for either the parent organization or a sub-organization.",
         "operationId": "PublicApiService_GetGasUsage",
         "responses": {
@@ -326,7 +326,7 @@
     },
     "/public/v1/query/get_nonces": {
       "post": {
-        "summary": "Get nonces for an address.",
+        "summary": "Get nonces",
         "description": "Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions.",
         "operationId": "PublicApiService_GetNonces",
         "responses": {
@@ -838,7 +838,7 @@
     },
     "/public/v1/query/get_wallet_address_balances": {
       "post": {
-        "summary": "Get balances of supported assets for wallet account address",
+        "summary": "Get balances",
         "description": "Get non-zero balances of supported assets for a single wallet account address on the specified network.",
         "operationId": "PublicApiService_GetWalletAddressBalances",
         "responses": {
@@ -1154,6 +1154,38 @@
           }
         ],
         "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/query/list_supported_assets": {
+      "post": {
+        "summary": "List supported assets",
+        "description": "List supported assets for the specified network",
+        "operationId": "PublicApiService_ListSupportedAssets",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListSupportedAssetsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListSupportedAssetsRequest"
+            }
+          }
+        ],
+        "tags": ["Wallets"]
       }
     },
     "/public/v1/query/list_tvc_app_deployments": {
@@ -2726,8 +2758,8 @@
     },
     "/public/v1/submit/eth_send_transaction": {
       "post": {
-        "summary": "Submit a transaction intent for broadcasting.",
-        "description": "Submit a transaction intent describing a transaction you would like to broadcast.",
+        "summary": "Broadcast EVM transaction",
+        "description": "Submit a transaction intent describing an EVM transaction you would like to broadcast.",
         "operationId": "PublicApiService_EthSendTransaction",
         "responses": {
           "200": {
@@ -3494,8 +3526,8 @@
     },
     "/public/v1/submit/sol_send_transaction": {
       "post": {
-        "summary": "Submit a transaction intent for broadcasting.",
-        "description": "Submit a transaction intent describing a transaction you would like to broadcast.",
+        "summary": "Broadcast SVM transaction",
+        "description": "Submit a transaction intent describing an SVM transaction you would like to broadcast.",
         "operationId": "PublicApiService_SolSendTransaction",
         "responses": {
           "200": {
@@ -4881,6 +4913,24 @@
         "crypto": {
           "type": "string",
           "description": "Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise."
+        }
+      }
+    },
+    "v1AssetMetadata": {
+      "type": "object",
+      "properties": {
+        "caip19": {
+          "type": "string"
+        },
+        "symbol": {
+          "type": "string"
+        },
+        "decimals": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "logoUrl": {
+          "type": "string"
         }
       }
     },
@@ -6690,12 +6740,10 @@
         },
         "pivotContainerEncryptedPullSecret": {
           "type": "string",
-          "format": "byte",
           "description": "Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty."
         },
         "hostContainerEncryptedPullSecret": {
           "type": "string",
-          "format": "byte",
           "description": "Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty."
         }
       },
@@ -10965,6 +11013,32 @@
         }
       },
       "required": ["privateKeyTags"]
+    },
+    "v1ListSupportedAssetsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "caip2": {
+          "type": "string",
+          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
+        }
+      },
+      "required": ["organizationId", "caip2"]
+    },
+    "v1ListSupportedAssetsResponse": {
+      "type": "object",
+      "properties": {
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AssetMetadata"
+          }
+        }
+      }
     },
     "v1ListUserTagsRequest": {
       "type": "object",

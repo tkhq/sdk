@@ -128,6 +128,10 @@ import type {
   TGetSubOrgIdsResponse,
 } from "./public_api.fetcher";
 import type {
+  TListSupportedAssetsBody,
+  TListSupportedAssetsResponse,
+} from "./public_api.fetcher";
+import type {
   TGetTvcAppDeploymentsBody,
   TGetTvcAppDeploymentsResponse,
 } from "./public_api.fetcher";
@@ -484,8 +488,9 @@ export class TurnkeyClient {
     const response = await fetch(fullUrl, {
       method: "POST",
       headers: {
-        [stamp.stampHeaderName]: stamp.stampHeaderValue,
+        "Content-Type": "application/json",
         "X-Client-Version": VERSION,
+        [stamp.stampHeaderName]: stamp.stampHeaderValue,
       },
       body: stringifiedBody,
       redirect: "follow",
@@ -1125,7 +1130,7 @@ export class TurnkeyClient {
    * See also {@link stampGetTvcDeployment}.
    */
   getTvcDeployment = async (
-    input: TGetTvcDeploymentBody
+    input: TGetTvcDeploymentBody,
   ): Promise<TGetTvcDeploymentResponse> => {
     return this.request("/public/v1/query/get_tvc_deployment", input);
   };
@@ -1136,7 +1141,7 @@ export class TurnkeyClient {
    * See also {@link GetTvcDeployment}.
    */
   stampGetTvcDeployment = async (
-    input: TGetTvcDeploymentBody
+    input: TGetTvcDeploymentBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_tvc_deployment";
     const body = JSON.stringify(input);
@@ -1241,7 +1246,7 @@ export class TurnkeyClient {
    * See also {@link stampGetWalletAddressBalances}.
    */
   getWalletAddressBalances = async (
-    input: TGetWalletAddressBalancesBody
+    input: TGetWalletAddressBalancesBody,
   ): Promise<TGetWalletAddressBalancesResponse> => {
     return this.request("/public/v1/query/get_wallet_address_balances", input);
   };
@@ -1252,7 +1257,7 @@ export class TurnkeyClient {
    * See also {@link GetWalletAddressBalances}.
    */
   stampGetWalletAddressBalances = async (
-    input: TGetWalletAddressBalancesBody
+    input: TGetWalletAddressBalancesBody,
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/get_wallet_address_balances";
@@ -1555,6 +1560,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * List supported assets for the specified network
+   *
+   * Sign the provided `TListSupportedAssetsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_supported_assets).
+   *
+   * See also {@link stampListSupportedAssets}.
+   */
+  listSupportedAssets = async (
+    input: TListSupportedAssetsBody,
+  ): Promise<TListSupportedAssetsResponse> => {
+    return this.request("/public/v1/query/list_supported_assets", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListSupportedAssetsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListSupportedAssets}.
+   */
+  stampListSupportedAssets = async (
+    input: TListSupportedAssetsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_supported_assets";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * List all deployments for a given TVC App
    *
    * Sign the provided `TGetTvcAppDeploymentsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_tvc_app_deployments).
@@ -1562,7 +1599,7 @@ export class TurnkeyClient {
    * See also {@link stampGetTvcAppDeployments}.
    */
   getTvcAppDeployments = async (
-    input: TGetTvcAppDeploymentsBody
+    input: TGetTvcAppDeploymentsBody,
   ): Promise<TGetTvcAppDeploymentsResponse> => {
     return this.request("/public/v1/query/list_tvc_app_deployments", input);
   };
@@ -1573,7 +1610,7 @@ export class TurnkeyClient {
    * See also {@link GetTvcAppDeployments}.
    */
   stampGetTvcAppDeployments = async (
-    input: TGetTvcAppDeploymentsBody
+    input: TGetTvcAppDeploymentsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/list_tvc_app_deployments";
@@ -2311,7 +2348,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateTvcApp}.
    */
   createTvcApp = async (
-    input: TCreateTvcAppBody
+    input: TCreateTvcAppBody,
   ): Promise<TCreateTvcAppResponse> => {
     return this.request("/public/v1/submit/create_tvc_app", input);
   };
@@ -2322,7 +2359,7 @@ export class TurnkeyClient {
    * See also {@link CreateTvcApp}.
    */
   stampCreateTvcApp = async (
-    input: TCreateTvcAppBody
+    input: TCreateTvcAppBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/create_tvc_app";
     const body = JSON.stringify(input);
@@ -2342,7 +2379,7 @@ export class TurnkeyClient {
    * See also {@link stampCreateTvcDeployment}.
    */
   createTvcDeployment = async (
-    input: TCreateTvcDeploymentBody
+    input: TCreateTvcDeploymentBody,
   ): Promise<TCreateTvcDeploymentResponse> => {
     return this.request("/public/v1/submit/create_tvc_deployment", input);
   };
@@ -2353,7 +2390,7 @@ export class TurnkeyClient {
    * See also {@link CreateTvcDeployment}.
    */
   stampCreateTvcDeployment = async (
-    input: TCreateTvcDeploymentBody
+    input: TCreateTvcDeploymentBody,
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_tvc_deployment";
@@ -2374,11 +2411,11 @@ export class TurnkeyClient {
    * See also {@link stampCreateTvcManifestApprovals}.
    */
   createTvcManifestApprovals = async (
-    input: TCreateTvcManifestApprovalsBody
+    input: TCreateTvcManifestApprovalsBody,
   ): Promise<TCreateTvcManifestApprovalsResponse> => {
     return this.request(
       "/public/v1/submit/create_tvc_manifest_approvals",
-      input
+      input,
     );
   };
 
@@ -2388,7 +2425,7 @@ export class TurnkeyClient {
    * See also {@link CreateTvcManifestApprovals}.
    */
   stampCreateTvcManifestApprovals = async (
-    input: TCreateTvcManifestApprovalsBody
+    input: TCreateTvcManifestApprovalsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_tvc_manifest_approvals";
@@ -3097,7 +3134,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Submit a transaction intent describing a transaction you would like to broadcast.
+   * Submit a transaction intent describing an EVM transaction you would like to broadcast.
    *
    * Sign the provided `TEthSendTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/eth_send_transaction).
    *
@@ -3831,14 +3868,14 @@ export class TurnkeyClient {
   };
 
   /**
-   * Submit a transaction intent describing a transaction you would like to broadcast.
+   * Submit a transaction intent describing an SVM transaction you would like to broadcast.
    *
    * Sign the provided `TSolSendTransactionBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/sol_send_transaction).
    *
    * See also {@link stampSolSendTransaction}.
    */
   solSendTransaction = async (
-    input: TSolSendTransactionBody
+    input: TSolSendTransactionBody,
   ): Promise<TSolSendTransactionResponse> => {
     return this.request("/public/v1/submit/sol_send_transaction", input);
   };
@@ -3849,7 +3886,7 @@ export class TurnkeyClient {
    * See also {@link SolSendTransaction}.
    */
   stampSolSendTransaction = async (
-    input: TSolSendTransactionBody
+    input: TSolSendTransactionBody,
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/sol_send_transaction";
@@ -4269,7 +4306,7 @@ export class TurnkeyClient {
    * See also {@link stampRefreshFeatureFlags}.
    */
   refreshFeatureFlags = async (
-    input: TRefreshFeatureFlagsBody
+    input: TRefreshFeatureFlagsBody,
   ): Promise<TRefreshFeatureFlagsResponse> => {
     return this.request("/tkhq/api/v1/refresh_feature_flags", input);
   };
@@ -4280,7 +4317,7 @@ export class TurnkeyClient {
    * See also {@link RefreshFeatureFlags}.
    */
   stampRefreshFeatureFlags = async (
-    input: TRefreshFeatureFlagsBody
+    input: TRefreshFeatureFlagsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/tkhq/api/v1/refresh_feature_flags";
     const body = JSON.stringify(input);

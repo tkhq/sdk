@@ -1,3 +1,11 @@
+# ⚠️ Deprecated Example
+
+> **Note:** This example uses `@turnkey/sdk-react` which is deprecated in favor of **[`@turnkey/react-wallet-kit`](https://github.com/tkhq/sdk/tree/main/packages/react-wallet-kit)**.
+>
+> For a modern implementation of sub-organization creation with passkeys, see the **[React Wallet Kit demo](https://wallets.turnkey.com/)** ([source code](https://github.com/tkhq/sdk/tree/main/examples/react-wallet-kit)).
+
+---
+
 # Example: `with-federated-passkeys`
 
 This example shows how to create a sub organization and facilitate creating a private key for the user's sub organization with Turnkey.

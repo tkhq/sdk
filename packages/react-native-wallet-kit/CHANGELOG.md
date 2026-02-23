@@ -1,5 +1,27 @@
 # @turnkey/react-native-wallet-kit
 
+## 1.4.1
+
+### Patch Changes
+
+- Updated dependencies [[`d49ef7e`](https://github.com/tkhq/sdk/commit/d49ef7e9f0f78f16b1324a357f61cf0351198096), [`dced9db`](https://github.com/tkhq/sdk/commit/dced9dbbd8ea533442e19e45ce36e6a05a45a555)]:
+  - @turnkey/core@1.11.2
+  - @turnkey/react-native-passkey-stamper@1.2.9
+
+## 1.4.0
+
+### Minor Changes
+
+- [#1181](https://github.com/tkhq/sdk/pull/1181) [`c043e41`](https://github.com/tkhq/sdk/commit/c043e412fbc6369c881192cdd50251b210d7a552) Author [@amircheikh](https://github.com/amircheikh) - Twitter oAuth credentials created from `handleXOauth` or `handleAddOauthProvider` will now be stored with the `providerName` `"x"` in the user's `oauthProviders` list. This only affects new credentials.
+
+### Patch Changes
+
+- Updated dependencies [[`8e075b7`](https://github.com/tkhq/sdk/commit/8e075b7161ccc68cb446b10b54737856fa0c6d31), [`2d19991`](https://github.com/tkhq/sdk/commit/2d19991bcf4e1c9704b73a48c54e870373b4bd95), [`89d4084`](https://github.com/tkhq/sdk/commit/89d40844d791b0bbb6d439da5e778b1fdeca4273), [`ba2521d`](https://github.com/tkhq/sdk/commit/ba2521d5d1c1f6baaa58ee65dce8cc4839f7dc7b), [`12ca083`](https://github.com/tkhq/sdk/commit/12ca083314310b05cf41ac29fa2d55eed627f229), [`a85153c`](https://github.com/tkhq/sdk/commit/a85153c8ccc7454cd5aca974bc463fb47c7f8cd4)]:
+  - @turnkey/sdk-types@0.11.2
+  - @turnkey/core@1.11.1
+  - @turnkey/crypto@2.8.10
+  - @turnkey/react-native-passkey-stamper@1.2.8
+
 ## 1.3.2
 
 ### Patch Changes

@@ -329,6 +329,7 @@ const generateSDKClientFromSwagger = async (
         const fullUrl = this.config.apiBaseUrl + url;
         const stringifiedBody = JSON.stringify(body);
         var headers: Record<string, string> = {
+        "Content-Type": "application/json",
         "X-Client-Version": VERSION
         }
         
@@ -607,6 +608,7 @@ const generateSDKClientFromSwagger = async (
       );
     } else {
       // for activity and activityDecision methods, both use the same stamp structure
+      const resultKey = operationNameWithoutNamespace + "Result";
       codeBuffer.push(
         `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
@@ -622,7 +624,7 @@ const generateSDKClientFromSwagger = async (
       parameters,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "${versionedActivityType ?? unversionedActivityType + (latestVersions[resultKey].versionSuffix ? "_" + latestVersions[resultKey].versionSuffix : "")}"
+      type: "${versionedActivityType ?? unversionedActivityType + (latestVersions[resultKey]?.versionSuffix ? "_" + latestVersions[resultKey].versionSuffix : "")}"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

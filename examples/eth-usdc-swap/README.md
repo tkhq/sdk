@@ -45,23 +45,11 @@ Fill in the following values:
 - `ORGANIZATION_ID`
 - `SIGN_WITH` — Turnkey wallet account address (the ETH source)
 
----
-
-### 3/ Network configuration
-
-This example runs on **Base mainnet**.
-
-- RPC: `https://mainnet.base.org`
-- Chain ID: `8453`
-- Swap: **ETH → USDC**
-- DEX: **Uniswap V3 via Universal Router**
-- Fee tier: **500**
-
-Ensure your wallet is funded with ETH on Base.
+If using the non-sponsored path, ensure your wallet is funded with ETH on Base.
 
 ---
 
-### 4/ Running the script
+### 3/ Running the script
 
 ```bash
 $ pnpm start

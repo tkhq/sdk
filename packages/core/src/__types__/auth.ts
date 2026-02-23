@@ -27,7 +27,6 @@ export interface ApiKeyStamperBase {
     externalKeyPair?: CryptoKeyPair | { publicKey: string; privateKey: string },
   ): Promise<string>;
   deleteKeyPair(publicKeyHex: string): Promise<void>;
-  clearKeyPairs(): Promise<void>;
   stamp(payload: string, publicKeyHex: string): Promise<TStamp>;
   sign(
     payload: string,

@@ -313,7 +313,7 @@ export type TGetGasUsageBody =
   operations["PublicApiService_GetGasUsage"]["parameters"]["body"]["body"];
 
 /**
- * Get gas usage and limits.
+ * Get gas usage
  *
  * Get gas usage and gas limits for either the parent organization or a sub-organization.
  *
@@ -411,7 +411,7 @@ export type TGetNoncesBody =
   operations["PublicApiService_GetNonces"]["parameters"]["body"]["body"];
 
 /**
- * Get nonces for an address.
+ * Get nonces
  *
  * Get nonce values for an address on a given network. Can fetch the standard on-chain nonce and/or the gas station nonce used for sponsored transactions.
  *
@@ -993,7 +993,7 @@ export const getTvcApp = (input: TGetTvcAppInput) =>
  */
 export const signGetTvcApp = (
   input: TGetTvcAppInput,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ) =>
   signedRequest<TGetTvcAppBody, never, never>({
     uri: "/public/v1/query/get_tvc_app",
@@ -1045,7 +1045,7 @@ export const getTvcDeployment = (input: TGetTvcDeploymentInput) =>
  */
 export const signGetTvcDeployment = (
   input: TGetTvcDeploymentInput,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ) =>
   signedRequest<TGetTvcDeploymentBody, never, never>({
     uri: "/public/v1/query/get_tvc_deployment",
@@ -1217,14 +1217,14 @@ export type TGetWalletAddressBalancesBody =
   operations["PublicApiService_GetWalletAddressBalances"]["parameters"]["body"]["body"];
 
 /**
- * Get balances of supported assets for wallet account address
+ * Get balances
  *
  * Get non-zero balances of supported assets for a single wallet account address on the specified network.
  *
  * `POST /public/v1/query/get_wallet_address_balances`
  */
 export const getWalletAddressBalances = (
-  input: TGetWalletAddressBalancesInput
+  input: TGetWalletAddressBalancesInput,
 ) =>
   request<
     TGetWalletAddressBalancesResponse,
@@ -1245,7 +1245,7 @@ export const getWalletAddressBalances = (
  */
 export const signGetWalletAddressBalances = (
   input: TGetWalletAddressBalancesInput,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ) =>
   signedRequest<TGetWalletAddressBalancesBody, never, never>({
     uri: "/public/v1/query/get_wallet_address_balances",
@@ -1700,6 +1700,58 @@ export const signGetSubOrgIds = (
   });
 
 /**
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export type TListSupportedAssetsResponse =
+  operations["PublicApiService_ListSupportedAssets"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export type TListSupportedAssetsInput = { body: TListSupportedAssetsBody };
+
+/**
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export type TListSupportedAssetsBody =
+  operations["PublicApiService_ListSupportedAssets"]["parameters"]["body"]["body"];
+
+/**
+ * List supported assets
+ *
+ * List supported assets for the specified network
+ *
+ * `POST /public/v1/query/list_supported_assets`
+ */
+export const listSupportedAssets = (input: TListSupportedAssetsInput) =>
+  request<
+    TListSupportedAssetsResponse,
+    TListSupportedAssetsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_supported_assets",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListSupportedAssets` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListSupportedAssets}
+ */
+export const signListSupportedAssets = (
+  input: TListSupportedAssetsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListSupportedAssetsBody, never, never>({
+    uri: "/public/v1/query/list_supported_assets",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/list_tvc_app_deployments`
  */
 export type TGetTvcAppDeploymentsResponse =
@@ -1743,7 +1795,7 @@ export const getTvcAppDeployments = (input: TGetTvcAppDeploymentsInput) =>
  */
 export const signGetTvcAppDeployments = (
   input: TGetTvcAppDeploymentsInput,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ) =>
   signedRequest<TGetTvcAppDeploymentsBody, never, never>({
     uri: "/public/v1/query/list_tvc_app_deployments",
@@ -1789,7 +1841,7 @@ export const getTvcApps = (input: TGetTvcAppsInput) =>
  */
 export const signGetTvcApps = (
   input: TGetTvcAppsInput,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ) =>
   signedRequest<TGetTvcAppsBody, never, never>({
     uri: "/public/v1/query/list_tvc_apps",
@@ -2943,7 +2995,7 @@ export const createTvcApp = (input: TCreateTvcAppInput) =>
  */
 export const signCreateTvcApp = (
   input: TCreateTvcAppInput,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ) =>
   signedRequest<TCreateTvcAppBody, never, never>({
     uri: "/public/v1/submit/create_tvc_app",
@@ -2995,7 +3047,7 @@ export const createTvcDeployment = (input: TCreateTvcDeploymentInput) =>
  */
 export const signCreateTvcDeployment = (
   input: TCreateTvcDeploymentInput,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ) =>
   signedRequest<TCreateTvcDeploymentBody, never, never>({
     uri: "/public/v1/submit/create_tvc_deployment",
@@ -3030,7 +3082,7 @@ export type TCreateTvcManifestApprovalsBody =
  * `POST /public/v1/submit/create_tvc_manifest_approvals`
  */
 export const createTvcManifestApprovals = (
-  input: TCreateTvcManifestApprovalsInput
+  input: TCreateTvcManifestApprovalsInput,
 ) =>
   request<
     TCreateTvcManifestApprovalsResponse,
@@ -3051,7 +3103,7 @@ export const createTvcManifestApprovals = (
  */
 export const signCreateTvcManifestApprovals = (
   input: TCreateTvcManifestApprovalsInput,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ) =>
   signedRequest<TCreateTvcManifestApprovalsBody, never, never>({
     uri: "/public/v1/submit/create_tvc_manifest_approvals",
@@ -4171,9 +4223,9 @@ export type TEthSendTransactionBody =
   operations["PublicApiService_EthSendTransaction"]["parameters"]["body"]["body"];
 
 /**
- * Submit a transaction intent for broadcasting.
+ * Broadcast EVM transaction
  *
- * Submit a transaction intent describing a transaction you would like to broadcast.
+ * Submit a transaction intent describing an EVM transaction you would like to broadcast.
  *
  * `POST /public/v1/submit/eth_send_transaction`
  */
@@ -5341,9 +5393,9 @@ export type TSolSendTransactionBody =
   operations["PublicApiService_SolSendTransaction"]["parameters"]["body"]["body"];
 
 /**
- * Submit a transaction intent for broadcasting.
+ * Broadcast SVM transaction
  *
- * Submit a transaction intent describing a transaction you would like to broadcast.
+ * Submit a transaction intent describing an SVM transaction you would like to broadcast.
  *
  * `POST /public/v1/submit/sol_send_transaction`
  */
@@ -5367,7 +5419,7 @@ export const solSendTransaction = (input: TSolSendTransactionInput) =>
  */
 export const signSolSendTransaction = (
   input: TSolSendTransactionInput,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ) =>
   signedRequest<TSolSendTransactionBody, never, never>({
     uri: "/public/v1/submit/sol_send_transaction",
@@ -6078,7 +6130,7 @@ export const refreshFeatureFlags = (input: TRefreshFeatureFlagsInput) =>
  */
 export const signRefreshFeatureFlags = (
   input: TRefreshFeatureFlagsInput,
-  options?: TurnkeyCredentialRequestOptions
+  options?: TurnkeyCredentialRequestOptions,
 ) =>
   signedRequest<TRefreshFeatureFlagsBody, never, never>({
     uri: "/tkhq/api/v1/refresh_feature_flags",

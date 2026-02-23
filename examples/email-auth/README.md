@@ -1,3 +1,14 @@
+# ⚠️ Deprecated Example
+
+> **Note:** The iframe-based email authentication pattern used in this example is no longer supported with the latest `@turnkey/react-wallet-kit` SDK package.
+>
+> **Recommended alternatives:**
+>
+> - **[Email OTP Authentication](https://github.com/tkhq/sdk/tree/main/examples/otp-auth)** - Authenticate users with one-time passcodes sent via email
+> - **[Magic Link Authentication](https://github.com/tkhq/sdk/tree/main/examples/magic-link-auth)** - Authenticate users with magic links sent via email
+
+---
+
 # Example: `email-auth`
 
 This example shows a complete email auth flow. It contains a NextJS app with:

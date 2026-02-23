@@ -336,7 +336,11 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_INIT_USER_EMAIL_RECOVERY_V2"
   | "ACTIVITY_TYPE_INIT_OTP_AUTH_V3"
   | "ACTIVITY_TYPE_INIT_OTP_V2"
-  | "ACTIVITY_TYPE_UPSERT_GAS_USAGE_CONFIG";
+  | "ACTIVITY_TYPE_UPSERT_GAS_USAGE_CONFIG"
+  | "ACTIVITY_TYPE_CREATE_TVC_APP"
+  | "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
+  | "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
+  | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -440,6 +444,33 @@ export type v1ApproveActivityRequest = {
   organizationId: string;
   parameters: v1ApproveActivityIntent;
   generateAppProofs?: boolean;
+};
+
+export type v1AssetBalance = {
+  /** The caip-19 asset identifier */
+  caip19?: string;
+  /** The asset symbol */
+  symbol?: string;
+  /** The balance in atomic units */
+  balance?: string;
+  /** The number of decimals this asset uses */
+  decimals?: number;
+  /** Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead. */
+  display?: v1AssetBalanceDisplay;
+};
+
+export type v1AssetBalanceDisplay = {
+  /** USD value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+  usd?: string;
+  /** Normalized crypto value for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. */
+  crypto?: string;
+};
+
+export type v1AssetMetadata = {
+  caip19?: string;
+  symbol?: string;
+  decimals?: number;
+  logoUrl?: string;
 };
 
 export type v1Attestation = {
@@ -578,16 +609,6 @@ export type v1CreateApiKeysResult = {
 export type v1CreateApiOnlyUsersIntent = {
   /** A list of API-only Users to create. */
   apiOnlyUsers: v1ApiOnlyUserParams[];
-};
-
-export type v1CreateApiOnlyUsersRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1CreateApiOnlyUsersIntent;
-  generateAppProofs?: boolean;
 };
 
 export type v1CreateApiOnlyUsersResult = {
@@ -1127,6 +1148,80 @@ export type v1CreateSubOrganizationResultV7 = {
   rootUserIds?: string[];
 };
 
+export type v1CreateTvcAppIntent = {
+  /** The name of the new TVC application */
+  name: string;
+  /** Quorum public key to use for this application */
+  quorumPublicKey: string;
+  /** Unique identifier for an existing TVC operator set to use as the Manifest Set for this TVC application. If left empty, a new Manifest Set configuration is required */
+  manifestSetId?: string;
+  /** Configuration to create a new TVC operator set, used as the Manifest Set for this TVC application. If left empty, a Manifest Set ID is required */
+  manifestSetParams?: v1TvcOperatorSetParams;
+  /** Unique identifier for an existing TVC operator set to use as the Share Set for this TVC application. If left empty, a new Share Set configuration is required */
+  shareSetId?: string;
+  /** Configuration to create a new TVC operator set, used as the Share Set for this TVC application. If left empty, a Share Set ID is required */
+  shareSetParams?: v1TvcOperatorSetParams;
+  /** Enables external connectivity for this TVC app. Default if not provided: false. */
+  externalConnectivity?: boolean;
+};
+
+export type v1CreateTvcAppResult = {
+  /** The unique identifier for the TVC application */
+  appId: string;
+  /** The unique identifier for the TVC manifest set */
+  manifestSetId: string;
+  /** The unique identifier(s) of the manifest set operators */
+  manifestSetOperatorIds: string[];
+  /** The required number of approvals for the manifest set */
+  manifestSetThreshold: number;
+};
+
+export type v1CreateTvcDeploymentIntent = {
+  /** The unique identifier of the to-be-deployed TVC application */
+  appId: string;
+  /** The QuorumOS version to use to deploy this application */
+  qosVersion: string;
+  /** URL of the container containing the pivot binary */
+  pivotContainerImageUrl: string;
+  /** Location of the binary in the pivot container */
+  pivotPath: string;
+  /** Arguments to pass to the pivot binary at startup. Encoded as a list of strings, for example ["--foo", "bar"] */
+  pivotArgs: string[];
+  /** Digest of the pivot binary in the pivot container. This value will be inserted in the QOS manifest to ensure application integrity. */
+  expectedPivotDigest: string;
+  /** URL of the container containing the host binary */
+  hostContainerImageUrl: string;
+  /** Location of the binary inside the host container */
+  hostPath: string;
+  /** Arguments to pass to the host binary at startup. Encoded as a list of strings, for example ["--foo", "bar"] */
+  hostArgs: string[];
+  /** Optional nonce to ensure uniqueness of the deployment manifest. If not provided, it defaults to the current Unix timestamp in seconds. */
+  nonce?: number;
+  /** Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty. */
+  pivotContainerEncryptedPullSecret?: string;
+  /** Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty. */
+  hostContainerEncryptedPullSecret?: string;
+};
+
+export type v1CreateTvcDeploymentResult = {
+  /** The unique identifier for the TVC deployment */
+  deploymentId: string;
+  /** The unique identifier for the TVC manifest */
+  manifestId: string;
+};
+
+export type v1CreateTvcManifestApprovalsIntent = {
+  /** Unique identifier of the TVC deployment to approve */
+  manifestId: string;
+  /** List of manifest approvals */
+  approvals: v1TvcManifestApproval[];
+};
+
+export type v1CreateTvcManifestApprovalsResult = {
+  /** The unique identifier(s) for the manifest approvals */
+  approvalIds: string[];
+};
+
 export type v1CreateUserTagIntent = {
   /** Human-readable name for a User Tag. */
   userTagName: string;
@@ -1247,7 +1342,14 @@ export type v1CredentialType =
   | "CREDENTIAL_TYPE_OAUTH_KEY_P256"
   | "CREDENTIAL_TYPE_LOGIN";
 
-export type v1Curve = "CURVE_SECP256K1" | "CURVE_ED25519";
+export type v1Curve = "CURVE_SECP256K1" | "CURVE_ED25519" | "CURVE_P256";
+
+export type v1CustomRevertError = {
+  /** The name of the custom error. */
+  errorName?: string;
+  /** The decoded parameters as a JSON object. */
+  paramsJson?: string;
+};
 
 export type v1DeleteApiKeysIntent = {
   /** Unique identifier for a given User. */
@@ -1739,16 +1841,6 @@ export type v1EthSendRawTransactionIntent = {
   caip2: string;
 };
 
-export type v1EthSendRawTransactionRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1EthSendRawTransactionIntent;
-  generateAppProofs?: boolean;
-};
-
 export type v1EthSendRawTransactionResult = {
   /** The transaction hash of the sent transaction */
   transactionHash: string;
@@ -1790,7 +1882,7 @@ export type v1EthSendTransactionRequest = {
 };
 
 export type v1EthSendTransactionResult = {
-  /** The send_transaction_status ID associated with the transaction submission for sponsored transactions */
+  /** The send_transaction_status ID associated with the transaction submission */
   sendTransactionStatusId: string;
 };
 
@@ -2034,18 +2126,6 @@ export type v1GetAppProofsResponse = {
   appProofs: v1AppProof[];
 };
 
-export type v1GetAttestationDocumentRequest = {
-  /** Unique identifier for a given organization. */
-  organizationId: string;
-  /** The enclave type, one of: ump, notarizer, signer, evm-parser. */
-  enclaveType: string;
-};
-
-export type v1GetAttestationDocumentResponse = {
-  /** Raw (CBOR-encoded) attestation document. */
-  attestationDocument: string;
-};
-
 export type v1GetAuthenticatorRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
@@ -2165,16 +2245,6 @@ export type v1GetOrganizationConfigsResponse = {
   configs: v1Config;
 };
 
-export type v1GetOrganizationRequest = {
-  /** Unique identifier for a given organization. */
-  organizationId: string;
-};
-
-export type v1GetOrganizationResponse = {
-  /** Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization. */
-  organizationData: v1OrganizationData;
-};
-
 export type v1GetPoliciesRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
@@ -2244,6 +2314,8 @@ export type v1GetSendTransactionStatusResponse = {
   eth?: v1EthSendTransactionStatus;
   /** The error encountered when broadcasting or confirming the transaction, if any. */
   txError?: string;
+  /** Structured error information including revert details, if available. */
+  error?: v1TxError;
 };
 
 export type v1GetSmartContractInterfaceRequest = {
@@ -2352,6 +2424,20 @@ export type v1GetWalletAccountsRequest = {
 export type v1GetWalletAccountsResponse = {
   /** A list of accounts generated from a wallet that share a common seed. */
   accounts: v1WalletAccount[];
+};
+
+export type v1GetWalletAddressBalancesRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** Address corresponding to a wallet account. */
+  address: string;
+  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2: string;
+};
+
+export type v1GetWalletAddressBalancesResponse = {
+  /** List of asset balances */
+  balances?: v1AssetBalance[];
 };
 
 export type v1GetWalletRequest = {
@@ -2859,25 +2945,10 @@ export type v1Intent = {
   initOtpIntentV2?: v1InitOtpIntentV2;
   initOtpAuthIntentV3?: v1InitOtpAuthIntentV3;
   upsertGasUsageConfigIntent?: v1UpsertGasUsageConfigIntent;
-};
-
-export type v1Invitation = {
-  /** Unique identifier for a given Invitation object. */
-  invitationId: string;
-  /** The name of the intended Invitation recipient. */
-  receiverUserName: string;
-  /** The email address of the intended Invitation recipient. */
-  receiverEmail: string;
-  /** A list of tags assigned to the Invitation recipient. */
-  receiverUserTags: string[];
-  /** The User's permissible access method(s). */
-  accessType: v1AccessType;
-  /** The current processing status of a specified Invitation. */
-  status: v1InvitationStatus;
-  createdAt: externaldatav1Timestamp;
-  updatedAt: externaldatav1Timestamp;
-  /** Unique identifier for the Sender of an Invitation. */
-  senderUserId: string;
+  createTvcAppIntent?: v1CreateTvcAppIntent;
+  createTvcDeploymentIntent?: v1CreateTvcDeploymentIntent;
+  createTvcManifestApprovalsIntent?: v1CreateTvcManifestApprovalsIntent;
+  solSendTransactionIntent?: v1SolSendTransactionIntent;
 };
 
 export type v1InvitationParams = {
@@ -2892,11 +2963,6 @@ export type v1InvitationParams = {
   /** Unique identifier for the Sender of an Invitation. */
   senderUserId: string;
 };
-
-export type v1InvitationStatus =
-  | "INVITATION_STATUS_CREATED"
-  | "INVITATION_STATUS_ACCEPTED"
-  | "INVITATION_STATUS_REVOKED";
 
 export type v1ListFiatOnRampCredentialsRequest = {
   /** Unique identifier for a given Organization. */
@@ -2924,6 +2990,17 @@ export type v1ListPrivateKeyTagsRequest = {
 export type v1ListPrivateKeyTagsResponse = {
   /** A list of private key tags. */
   privateKeyTags: datav1Tag[];
+};
+
+export type v1ListSupportedAssetsRequest = {
+  /** Unique identifier for a given organization. */
+  organizationId: string;
+  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2: string;
+};
+
+export type v1ListSupportedAssetsResponse = {
+  assets?: v1AssetMetadata[];
 };
 
 export type v1ListUserTagsRequest = {
@@ -2955,6 +3032,15 @@ export type v1MnemonicLanguage =
 export type v1NOOPCodegenAnchorResponse = {
   stamp: v1WebAuthnStamp;
   tokenUsage?: v1TokenUsage;
+};
+
+export type v1NativeRevertError = {
+  /** The type of native error: 'error_string', 'panic', or 'execution_reverted'. */
+  nativeType?: string;
+  /** The error message for Error(string) reverts. */
+  message?: string;
+  /** The panic code for Panic(uint256) reverts. */
+  panicCode?: string;
 };
 
 export type v1Oauth2AuthenticateIntent = {
@@ -3096,20 +3182,6 @@ export type v1Operator =
   | "OPERATOR_NOT_IN"
   | "OPERATOR_CONTAINS_ONE"
   | "OPERATOR_CONTAINS_ALL";
-
-export type v1OrganizationData = {
-  organizationId?: string;
-  name?: string;
-  users?: v1User[];
-  policies?: v1Policy[];
-  privateKeys?: v1PrivateKey[];
-  invitations?: v1Invitation[];
-  tags?: datav1Tag[];
-  rootQuorum?: externaldatav1Quorum;
-  features?: v1Feature[];
-  wallets?: v1Wallet[];
-  smartContractInterfaceReferences?: v1SmartContractInterfaceReference[];
-};
 
 export type v1OtpAuthIntent = {
   /** ID representing the result of an init OTP activity. */
@@ -3413,6 +3485,25 @@ export type v1Result = {
   deleteFiatOnRampCredentialResult?: v1DeleteFiatOnRampCredentialResult;
   ethSendTransactionResult?: v1EthSendTransactionResult;
   upsertGasUsageConfigResult?: v1UpsertGasUsageConfigResult;
+  createTvcAppResult?: v1CreateTvcAppResult;
+  createTvcDeploymentResult?: v1CreateTvcDeploymentResult;
+  createTvcManifestApprovalsResult?: v1CreateTvcManifestApprovalsResult;
+  solSendTransactionResult?: v1SolSendTransactionResult;
+};
+
+export type v1RevertChainEntry = {
+  /** The contract address where the revert occurred. */
+  address?: string;
+  /** Type of error: 'unknown', 'native', or 'custom'. */
+  errorType?: string;
+  /** Human-readable message describing this revert. */
+  displayMessage?: string;
+  /** Details for unknown error types. */
+  unknown?: v1UnknownRevertError;
+  /** Details for native Solidity errors (Error, Panic, execution reverted). */
+  native?: v1NativeRevertError;
+  /** Details for custom contract errors. */
+  custom?: v1CustomRevertError;
 };
 
 export type v1RootUserParams = {
@@ -3611,12 +3702,6 @@ export type v1SimpleClientExtensionResults = {
   credProps?: v1CredPropsAuthenticationExtensionsClientOutputs;
 };
 
-export type v1SmartContractInterfaceReference = {
-  smartContractInterfaceId?: string;
-  smartContractAddress?: string;
-  digest?: string;
-};
-
 export type v1SmartContractInterfaceType =
   | "SMART_CONTRACT_INTERFACE_TYPE_ETHEREUM"
   | "SMART_CONTRACT_INTERFACE_TYPE_SOLANA";
@@ -3624,6 +3709,34 @@ export type v1SmartContractInterfaceType =
 export type v1SmsCustomizationParams = {
   /** Template containing references to .OtpCode i.e Your OTP is {{.OtpCode}} */
   template?: string;
+};
+
+export type v1SolSendTransactionIntent = {
+  /** Base64-encoded serialized unsigned Solana transaction */
+  unsignedTransaction: string;
+  /** A wallet or private key address to sign with. This does not support private key IDs. */
+  signWith: string;
+  /** Whether to sponsor this transaction via Gas Station. */
+  sponsor?: boolean;
+  /** CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). */
+  caip2: string;
+  /** user-provided blockhash for replay protection / deadline control. If omitted and sponsor=true, we fetch a fresh blockhash during execution */
+  recentBlockhash?: string;
+};
+
+export type v1SolSendTransactionRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1SolSendTransactionIntent;
+  generateAppProofs?: boolean;
+};
+
+export type v1SolSendTransactionResult = {
+  /** The send_transaction_status ID associated with the transaction submission */
+  sendTransactionStatusId: string;
 };
 
 export type v1StampLoginIntent = {
@@ -3652,16 +3765,6 @@ export type v1StampLoginResult = {
 
 export type v1TagType = "TAG_TYPE_USER" | "TAG_TYPE_PRIVATE_KEY";
 
-export type v1TestRateLimitsRequest = {
-  /** Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons. */
-  organizationId: string;
-  /** Whether or not to set a limit on this request. */
-  isSetLimit: boolean;
-  /** Rate limit to set for org, if is_set_limit is set to true. */
-  limit: number;
-};
-
-export type v1TestRateLimitsResponse = {};
 export type v1TokenUsage = {
   /** Type of token usage */
   type: v1UsageType;
@@ -3675,7 +3778,47 @@ export type v1TransactionType =
   | "TRANSACTION_TYPE_ETHEREUM"
   | "TRANSACTION_TYPE_SOLANA"
   | "TRANSACTION_TYPE_TRON"
-  | "TRANSACTION_TYPE_BITCOIN";
+  | "TRANSACTION_TYPE_BITCOIN"
+  | "TRANSACTION_TYPE_TEMPO";
+
+export type v1TvcManifestApproval = {
+  /** Unique identifier of the operator providing this approval */
+  operatorId: string;
+  /** Signature from the operator approving the manifest */
+  signature: string;
+};
+
+export type v1TvcOperatorParams = {
+  /** The name for this new operator */
+  name: string;
+  /** Public key for this operator */
+  publicKey: string;
+};
+
+export type v1TvcOperatorSetParams = {
+  /** Short description for this new operator set */
+  name: string;
+  /** Operators to create as part of this new operator set */
+  newOperators?: v1TvcOperatorParams[];
+  /** Existing operators to use as part of this new operator set */
+  existingOperatorIds?: string[];
+  /** The threshold of operators needed to reach consensus in this new Operator Set */
+  threshold: number;
+};
+
+export type v1TxError = {
+  /** Human-readable error message describing what went wrong. */
+  message?: string;
+  /** Chain of revert errors from nested contract calls, ordered from outermost to innermost. */
+  revertChain?: v1RevertChainEntry[];
+};
+
+export type v1UnknownRevertError = {
+  /** The 4-byte error selector, if available. */
+  selector?: string;
+  /** The raw error data, hex-encoded. */
+  data?: string;
+};
 
 export type v1UpdateAllowedOriginsIntent = {
   /** Additional origins requests are allowed from besides Turnkey origins */
@@ -4026,6 +4169,8 @@ export type v1UpsertGasUsageConfigIntent = {
   subOrgWindowLimitUsd: string;
   /** Rolling sponsorship window duration, expressed in minutes. */
   windowDurationMinutes: string;
+  /** Whether gas sponsorship is enabled for the organization. */
+  enabled?: boolean;
 };
 
 export type v1UpsertGasUsageConfigResult = {
@@ -4272,21 +4417,6 @@ export type TGetApiKeysBody = {
 
 export type TGetApiKeysInput = { body: TGetApiKeysBody };
 
-export type TGetAttestationDocumentResponse = {
-  /** Raw (CBOR-encoded) attestation document. */
-  attestationDocument: string;
-};
-
-export type TGetAttestationDocumentBody = {
-  organizationId?: string;
-  /** The enclave type, one of: ump, notarizer, signer, evm-parser. */
-  enclaveType: string;
-};
-
-export type TGetAttestationDocumentInput = {
-  body: TGetAttestationDocumentBody;
-};
-
 export type TGetAuthenticatorResponse = {
   /** An authenticator. */
   authenticator: v1Authenticator;
@@ -4415,17 +4545,6 @@ export type TGetOnRampTransactionStatusInput = {
   body: TGetOnRampTransactionStatusBody;
 };
 
-export type TGetOrganizationResponse = {
-  /** Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization. */
-  organizationData: v1OrganizationData;
-};
-
-export type TGetOrganizationBody = {
-  organizationId?: string;
-};
-
-export type TGetOrganizationInput = { body: TGetOrganizationBody };
-
 export type TGetOrganizationConfigsResponse = {
   /** Organization configs including quorum settings and organization features. */
   configs: v1Config;
@@ -4484,6 +4603,8 @@ export type TGetSendTransactionStatusResponse = {
   eth?: v1EthSendTransactionStatus;
   /** The error encountered when broadcasting or confirming the transaction, if any. */
   txError?: string;
+  /** Structured error information including revert details, if available. */
+  error?: v1TxError;
 };
 
 export type TGetSendTransactionStatusBody = {
@@ -4553,6 +4674,23 @@ export type TGetWalletAccountBody = {
 };
 
 export type TGetWalletAccountInput = { body: TGetWalletAccountBody };
+
+export type TGetWalletAddressBalancesResponse = {
+  /** List of asset balances */
+  balances?: v1AssetBalance[];
+};
+
+export type TGetWalletAddressBalancesBody = {
+  organizationId?: string;
+  /** Address corresponding to a wallet account. */
+  address: string;
+  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2: string;
+};
+
+export type TGetWalletAddressBalancesInput = {
+  body: TGetWalletAddressBalancesBody;
+};
 
 export type TGetActivitiesResponse = {
   /** A list of activities. */
@@ -4668,6 +4806,18 @@ export type TGetSubOrgIdsBody = {
 
 export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
 
+export type TListSupportedAssetsResponse = {
+  assets?: v1AssetMetadata[];
+};
+
+export type TListSupportedAssetsBody = {
+  organizationId?: string;
+  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2: string;
+};
+
+export type TListSupportedAssetsInput = { body: TListSupportedAssetsBody };
+
 export type TListUserTagsResponse = {
   /** A list of user tags. */
   userTags: datav1Tag[];
@@ -4781,21 +4931,6 @@ export type TCreateApiKeysBody = {
 };
 
 export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
-
-export type TCreateApiOnlyUsersResponse = {
-  activity: v1Activity;
-  /** A list of API-only User IDs. */
-  userIds: string[];
-};
-
-export type TCreateApiOnlyUsersBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** A list of API-only Users to create. */
-  apiOnlyUsers: v1ApiOnlyUserParams[];
-};
-
-export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
 
 export type TCreateAuthenticatorsResponse = {
   activity: v1Activity;
@@ -5451,26 +5586,9 @@ export type TEmailAuthBody = {
 
 export type TEmailAuthInput = { body: TEmailAuthBody };
 
-export type TEthSendRawTransactionResponse = {
-  activity: v1Activity;
-  /** The transaction hash of the sent transaction */
-  transactionHash: string;
-};
-
-export type TEthSendRawTransactionBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** The raw, signed transaction to be sent. */
-  signedTransaction: string;
-  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
-  caip2: string;
-};
-
-export type TEthSendRawTransactionInput = { body: TEthSendRawTransactionBody };
-
 export type TEthSendTransactionResponse = {
   activity: v1Activity;
-  /** The send_transaction_status ID associated with the transaction submission for sponsored transactions */
+  /** The send_transaction_status ID associated with the transaction submission */
   sendTransactionStatusId: string;
 };
 
@@ -6033,6 +6151,29 @@ export type TSignTransactionBody = {
 
 export type TSignTransactionInput = { body: TSignTransactionBody };
 
+export type TSolSendTransactionResponse = {
+  activity: v1Activity;
+  /** The send_transaction_status ID associated with the transaction submission */
+  sendTransactionStatusId: string;
+};
+
+export type TSolSendTransactionBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** Base64-encoded serialized unsigned Solana transaction */
+  unsignedTransaction: string;
+  /** A wallet or private key address to sign with. This does not support private key IDs. */
+  signWith: string;
+  /** Whether to sponsor this transaction via Gas Station. */
+  sponsor?: boolean;
+  /** CAIP-2 chain ID (e.g., 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). */
+  caip2: string;
+  /** user-provided blockhash for replay protection / deadline control. If omitted and sponsor=true, we fetch a fresh blockhash during execution */
+  recentBlockhash?: string;
+};
+
+export type TSolSendTransactionInput = { body: TSolSendTransactionBody };
+
 export type TStampLoginResponse = {
   activity: v1Activity;
   /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
@@ -6303,18 +6444,6 @@ export type TVerifyOtpInput = { body: TVerifyOtpBody };
 export type TNOOPCodegenAnchorResponse = {
   activity: v1Activity;
 };
-
-export type TTestRateLimitsResponse = {};
-
-export type TTestRateLimitsBody = {
-  organizationId?: string;
-  /** Whether or not to set a limit on this request. */
-  isSetLimit: boolean;
-  /** Rate limit to set for org, if is_set_limit is set to true. */
-  limit: number;
-};
-
-export type TTestRateLimitsInput = { body: TTestRateLimitsBody };
 
 export type ProxyTGetAccountResponse = {
   organizationId?: string;

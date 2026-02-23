@@ -1,3 +1,11 @@
+# ⚠️ Deprecated Example
+
+> **Note:** This example uses `@turnkey/sdk-react` which is deprecated in favor of **[`@turnkey/react-wallet-kit`](https://github.com/tkhq/sdk/tree/main/packages/react-wallet-kit)**.
+>
+> However, the **Solana signing patterns** demonstrated here (using `@turnkey/solana` signer with transaction sponsorship) remain useful references for integrating Turnkey with Solana.
+
+---
+
 # Solana 🤝 Passkeys
 
 This repo contains a sample application **for demonstration purposes only**, walking through how to create sub-organizations, create a wallet, and sign with the [`@turnkey/solana`](https://github.com/tkhq/sdk/tree/main/packages/solana) signer (with transactions sponsored by the parent org!), using passkeys. Please feel free to play with this example and file an issue if there are improvements to be made! ❤️

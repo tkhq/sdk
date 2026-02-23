@@ -22,7 +22,8 @@ export type TGetApiKeysInput = { body: TGetApiKeysBody };
 
 export type TGetApiKeysBody = Omit<operations["PublicApiService_GetApiKeys"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams;
 
-export type TGetAuthenticatorResponse = operations["PublicApiService_GetAuthenticator"]["responses"]["200"]["schema"];
+export type TGetAuthenticatorResponse =
+  operations["PublicApiService_GetAuthenticator"]["responses"]["200"]["schema"];
 
 export type TGetAuthenticatorInput = { body: TGetAuthenticatorBody };
 
@@ -76,13 +77,8 @@ export type TGetOnRampTransactionStatusInput = { body: TGetOnRampTransactionStat
 
 export type TGetOnRampTransactionStatusBody = Omit<operations["PublicApiService_GetOnRampTransactionStatus"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams;
 
-export type TGetOrganizationResponse = operations["PublicApiService_GetOrganization"]["responses"]["200"]["schema"];
-
-export type TGetOrganizationInput = { body: TGetOrganizationBody };
-
-export type TGetOrganizationBody = Omit<operations["PublicApiService_GetOrganization"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams;
-
-export type TGetOrganizationConfigsResponse = operations["PublicApiService_GetOrganizationConfigs"]["responses"]["200"]["schema"];
+export type TGetOrganizationConfigsResponse =
+  operations["PublicApiService_GetOrganizationConfigs"]["responses"]["200"]["schema"];
 
 export type TGetOrganizationConfigsInput = { body: TGetOrganizationConfigsBody };
 
@@ -148,13 +144,21 @@ export type TGetWalletAccountInput = { body: TGetWalletAccountBody };
 
 export type TGetWalletAccountBody = Omit<operations["PublicApiService_GetWalletAccount"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams;
 
-export type TGetWalletAddressBalancesResponse = operations["PublicApiService_GetWalletAddressBalances"]["responses"]["200"]["schema"];
+export type TGetWalletAddressBalancesResponse =
+  operations["PublicApiService_GetWalletAddressBalances"]["responses"]["200"]["schema"];
 
-export type TGetWalletAddressBalancesInput = { body: TGetWalletAddressBalancesBody };
+export type TGetWalletAddressBalancesInput = {
+  body: TGetWalletAddressBalancesBody;
+};
 
-export type TGetWalletAddressBalancesBody = Omit<operations["PublicApiService_GetWalletAddressBalances"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams;
+export type TGetWalletAddressBalancesBody = Omit<
+  operations["PublicApiService_GetWalletAddressBalances"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
 
-export type TGetActivitiesResponse = operations["PublicApiService_GetActivities"]["responses"]["200"]["schema"];
+export type TGetActivitiesResponse =
+  operations["PublicApiService_GetActivities"]["responses"]["200"]["schema"];
 
 export type TGetActivitiesInput = { body: TGetActivitiesBody };
 
@@ -208,19 +212,19 @@ export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
 
 export type TGetSubOrgIdsBody = Omit<operations["PublicApiService_GetSubOrgIds"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams;
 
-export type TGetTvcAppDeploymentsResponse = operations["PublicApiService_GetTvcAppDeployments"]["responses"]["200"]["schema"];
+export type TListSupportedAssetsResponse =
+  operations["PublicApiService_ListSupportedAssets"]["responses"]["200"]["schema"];
 
-export type TGetTvcAppDeploymentsInput = { body: TGetTvcAppDeploymentsBody };
+export type TListSupportedAssetsInput = { body: TListSupportedAssetsBody };
 
-export type TGetTvcAppDeploymentsBody = Omit<operations["PublicApiService_GetTvcAppDeployments"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams;
+export type TListSupportedAssetsBody = Omit<
+  operations["PublicApiService_ListSupportedAssets"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
 
-export type TGetTvcAppsResponse = operations["PublicApiService_GetTvcApps"]["responses"]["200"]["schema"];
-
-export type TGetTvcAppsInput = { body: TGetTvcAppsBody };
-
-export type TGetTvcAppsBody = Omit<operations["PublicApiService_GetTvcApps"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams;
-
-export type TListUserTagsResponse = operations["PublicApiService_ListUserTags"]["responses"]["200"]["schema"];
+export type TListUserTagsResponse =
+  operations["PublicApiService_ListUserTags"]["responses"]["200"]["schema"];
 
 export type TListUserTagsInput = { body: TListUserTagsBody };
 
@@ -268,13 +272,9 @@ export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
 
 export type TCreateApiKeysBody = operations["PublicApiService_CreateApiKeys"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
-export type TCreateApiOnlyUsersResponse = operations["PublicApiService_CreateApiOnlyUsers"]["responses"]["200"]["schema"]["activity"]["result"]["createApiOnlyUsersResult"] & definitions["v1ActivityResponse"];
-
-export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
-
-export type TCreateApiOnlyUsersBody = operations["PublicApiService_CreateApiOnlyUsers"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
-
-export type TCreateAuthenticatorsResponse = operations["PublicApiService_CreateAuthenticators"]["responses"]["200"]["schema"]["activity"]["result"]["createAuthenticatorsResult"] & definitions["v1ActivityResponse"];
+export type TCreateAuthenticatorsResponse =
+  operations["PublicApiService_CreateAuthenticators"]["responses"]["200"]["schema"]["activity"]["result"]["createAuthenticatorsResult"] &
+    definitions["v1ActivityResponse"];
 
 export type TCreateAuthenticatorsInput = { body: TCreateAuthenticatorsBody };
 
@@ -496,13 +496,9 @@ export type TEmailAuthInput = { body: TEmailAuthBody };
 
 export type TEmailAuthBody = operations["PublicApiService_EmailAuth"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
-export type TEthSendRawTransactionResponse = operations["PublicApiService_EthSendRawTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendRawTransactionResult"] & definitions["v1ActivityResponse"];
-
-export type TEthSendRawTransactionInput = { body: TEthSendRawTransactionBody };
-
-export type TEthSendRawTransactionBody = operations["PublicApiService_EthSendRawTransaction"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
-
-export type TEthSendTransactionResponse = operations["PublicApiService_EthSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendTransactionResult"] & definitions["v1ActivityResponse"];
+export type TEthSendTransactionResponse =
+  operations["PublicApiService_EthSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendTransactionResult"] &
+    definitions["v1ActivityResponse"];
 
 export type TEthSendTransactionInput = { body: TEthSendTransactionBody };
 
@@ -646,13 +642,19 @@ export type TSignTransactionInput = { body: TSignTransactionBody };
 
 export type TSignTransactionBody = operations["PublicApiService_SignTransaction"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
-export type TSolSendTransactionResponse = operations["PublicApiService_SolSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["solSendTransactionResult"] & definitions["v1ActivityResponse"];
+export type TSolSendTransactionResponse =
+  operations["PublicApiService_SolSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["solSendTransactionResult"] &
+    definitions["v1ActivityResponse"];
 
 export type TSolSendTransactionInput = { body: TSolSendTransactionBody };
 
-export type TSolSendTransactionBody = operations["PublicApiService_SolSendTransaction"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
+export type TSolSendTransactionBody =
+  operations["PublicApiService_SolSendTransaction"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
 
-export type TStampLoginResponse = operations["PublicApiService_StampLogin"]["responses"]["200"]["schema"]["activity"]["result"]["stampLoginResult"] & definitions["v1ActivityResponse"];
+export type TStampLoginResponse =
+  operations["PublicApiService_StampLogin"]["responses"]["200"]["schema"]["activity"]["result"]["stampLoginResult"] &
+    definitions["v1ActivityResponse"];
 
 export type TStampLoginInput = { body: TStampLoginBody };
 
@@ -730,16 +732,5 @@ export type TVerifyOtpInput = { body: TVerifyOtpBody };
 
 export type TVerifyOtpBody = operations["PublicApiService_VerifyOtp"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
 
-export type TNOOPCodegenAnchorResponse = operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
-
-export type TRefreshFeatureFlagsResponse = operations["PublicApiService_RefreshFeatureFlags"]["responses"]["200"]["schema"];
-
-export type TRefreshFeatureFlagsInput = { body: TRefreshFeatureFlagsBody };
-
-export type TRefreshFeatureFlagsBody = operations["PublicApiService_RefreshFeatureFlags"]["parameters"]["body"]["body"]["parameters"] & commandOverrideParams;
-
-export type TTestRateLimitsResponse = operations["PublicApiService_TestRateLimits"]["responses"]["200"]["schema"];
-
-export type TTestRateLimitsInput = { body: TTestRateLimitsBody };
-
-export type TTestRateLimitsBody = Omit<operations["PublicApiService_TestRateLimits"]["parameters"]["body"]["body"], "organizationId"> & queryOverrideParams;
+export type TNOOPCodegenAnchorResponse =
+  operations["PublicApiService_NOOPCodegenAnchor"]["responses"]["200"]["schema"];
