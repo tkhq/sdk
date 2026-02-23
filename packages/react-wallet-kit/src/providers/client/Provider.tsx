@@ -89,6 +89,7 @@ import {
   type RemoveUserPhoneNumberParams,
   type SetActiveSessionParams,
   type EthSendTransactionParams,
+  type SolSendTransactionParams,
   type SignMessageParams,
   type SignTransactionParams,
   type SignUpWithOauthParams,
@@ -2526,88 +2527,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const solSendTransaction = useCallback(
-    async (params: {
-      organizationId?: string;
-      stampWith?: StamperType | undefined;
-      transaction: SolanaTransaction;
-    }): Promise<string> => {
-      const httpClient = client?.httpClient;
-      if (!httpClient)
+    async (params: SolSendTransactionParams): Promise<string> => {
+      if (!client)
         throw new TurnkeyError(
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
       return withTurnkeyErrorHandling(
-        async () => {
-          const normalizeSolanaUnsignedTransaction = (
-            unsignedTransaction: string,
-          ): string => {
-            const trimmed = unsignedTransaction.trim().replace(/^0x/i, "");
-            const isHex =
-              trimmed.length > 0 &&
-              trimmed.length % 2 === 0 &&
-              /^[0-9a-fA-F]+$/.test(trimmed);
-            if (isHex) {
-              return trimmed.toLowerCase();
-            }
-
-            // Fallback: treat as base64/base64url and convert to hex
-            const normalizedBase64 = unsignedTransaction
-              .trim()
-              .replace(/-/g, "+")
-              .replace(/_/g, "/");
-            const padding = "=".repeat((4 - (normalizedBase64.length % 4)) % 4);
-            const binary = atob(normalizedBase64 + padding);
-            return Array.from(binary)
-              .map((char) => char.charCodeAt(0).toString(16).padStart(2, "0"))
-              .join("");
-          };
-
-          const solSendTransactionFn = (
-            httpClient as unknown as {
-              solSendTransaction?: (
-                input: {
-                  organizationId?: string;
-                  unsignedTransaction: string;
-                  signWith: string;
-                  caip2: string;
-                  sponsor?: boolean;
-                  recentBlockhash?: string;
-                },
-                stampWith?: StamperType,
-              ) => Promise<{ sendTransactionStatusId?: string }>;
-            }
-          ).solSendTransaction;
-          if (!solSendTransactionFn) {
-            throw new TurnkeyError(
-              "solSendTransaction is not available on this client version.",
-              TurnkeyErrorCodes.FEATURE_NOT_ENABLED,
-            );
-          }
-
-          const response = await solSendTransactionFn(
-            {
-              ...(params.organizationId
-                ? { organizationId: params.organizationId }
-                : {}),
-              ...params.transaction,
-              unsignedTransaction: normalizeSolanaUnsignedTransaction(
-                params.transaction.unsignedTransaction,
-              ),
-            },
-            params.stampWith,
-          );
-
-          const sendTransactionStatusId = response?.sendTransactionStatusId;
-          if (!sendTransactionStatusId) {
-            throw new TurnkeyError(
-              "Missing sendTransactionStatusId",
-              TurnkeyErrorCodes.BAD_RESPONSE,
-            );
-          }
-
-          return sendTransactionStatusId;
-        },
+        () => client.solSendTransaction(params),
         () => logout(),
         callbacks,
         "Failed to send sol transaction",
@@ -5920,6 +5847,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         signMessage,
         signTransaction,
         ethSendTransaction,
+        solSendTransaction,
         signAndSendTransaction,
         pollTransactionStatus,
         fetchUser,

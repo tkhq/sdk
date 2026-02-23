@@ -15,6 +15,7 @@ import {
   type v1CreatePolicyIntentV3,
   type v1BootProof,
   type TEthSendTransactionBody,
+  type TSolSendTransactionBody,
   type TGetSendTransactionStatusResponse,
   type ProxyTSignupResponse,
   type TGetWalletsResponse,
@@ -73,6 +74,7 @@ import {
   type SignTransactionParams,
   type SignAndSendTransactionParams,
   type EthSendTransactionParams,
+  type SolSendTransactionParams,
   type FetchUserParams,
   type FetchOrCreateP256ApiKeyUserParams,
   type FetchOrCreatePoliciesParams,
@@ -2809,6 +2811,97 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to sign and send Ethereum transaction",
         errorCode: TurnkeyErrorCodes.ETH_SEND_TRANSACTION_ERROR,
+      },
+    );
+  };
+
+  /**
+   * @beta
+   * * **API subject to change**
+   *
+   * Signs and submits a Solana transaction using a Turnkey-managed (embedded) wallet.
+   *
+   * This method performs **authorization and signing**, and submits the transaction
+   * to Turnkey’s coordinator. It **does not perform any polling** — callers must use
+   * `pollTransactionStatus` to obtain the final on-chain result.
+   *
+   * Behavior:
+   *
+   * - **Connected wallets**
+   *   - Connected wallets are **not supported** by this method.
+   *   - They must instead use `signAndSendTransaction`.
+   *
+   * - **Embedded wallets**
+   *   - Constructs the payload for Turnkey's `sol_send_transaction` endpoint.
+   *   - Signs and submits the transaction through Turnkey.
+   *   - Returns a `sendTransactionStatusId`, which the caller must pass to
+   *     `pollTransactionStatus` to obtain the final result (signature + status).
+   *
+   * @param params.organizationId - Organization ID to execute the transaction under.
+   *                                Defaults to the active session's organization.
+   * @param params.stampWith - Optional stamper to authorize signing (e.g., passkey).
+   * @param params.transaction - The Solana transaction details.
+   * @returns A promise resolving to the `sendTransactionStatusId`.
+   *          This ID must be passed to `pollTransactionStatus`.
+   * @throws {TurnkeyError} If the transaction is invalid or Turnkey rejects it.
+   */
+  solSendTransaction = async (
+    params: SolSendTransactionParams,
+  ): Promise<string> => {
+    const {
+      organizationId: organizationIdFromParams,
+      stampWith = this.config.defaultStamperType,
+      transaction,
+    } = params;
+
+    const session = await getActiveSessionOrThrowIfRequired(
+      stampWith,
+      this.storageManager.getActiveSession,
+    );
+
+    const organizationId = organizationIdFromParams || session?.organizationId;
+    if (!organizationId) {
+      throw new TurnkeyError(
+        "Organization ID must be provided to send a transaction",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        const intent: TSolSendTransactionBody = {
+          unsignedTransaction: transaction.unsignedTransaction,
+          signWith: transaction.signWith,
+          caip2: transaction.caip2,
+          ...(transaction.sponsor !== undefined
+            ? { sponsor: transaction.sponsor }
+            : {}),
+          ...(transaction.recentBlockhash
+            ? { recentBlockhash: transaction.recentBlockhash }
+            : {}),
+        };
+
+        const resp = await this.httpClient.solSendTransaction(
+          {
+            ...intent,
+            organizationId,
+          },
+          stampWith,
+        );
+
+        const id = resp.sendTransactionStatusId;
+        if (!id) {
+          throw new TurnkeyError(
+            "Missing sendTransactionStatusId",
+            TurnkeyErrorCodes.SOL_SEND_TRANSACTION_ERROR,
+          );
+        }
+
+        return id;
+      },
+      {
+        errorMessage: "Failed to sign and send Solana transaction",
+        errorCode: TurnkeyErrorCodes.SOL_SEND_TRANSACTION_ERROR,
       },
     );
   };
