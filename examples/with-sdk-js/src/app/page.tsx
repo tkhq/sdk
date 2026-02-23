@@ -23,12 +23,7 @@ import {
 import { createAccount } from "@turnkey/viem";
 import { createWalletClient, http, type Account } from "viem";
 import { parseEther, Transaction as EthTransaction } from "ethers";
-import {
-  Connection,
-  PublicKey,
-  SystemProgram,
-  Transaction,
-} from "@solana/web3.js";
+import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { StamperType } from "@turnkey/core";
 
 export default function AuthPage() {
@@ -67,11 +62,56 @@ export default function AuthPage() {
 
   const turnkey = useTurnkey();
 
-  // FOR SOLANA TRANSACTIONS TESTING
-  // const heliusEndpoint =
-  //   process.env.NEXT_PUBLIC_HELIUS_BASE_URL! +
-  //   process.env.NEXT_PUBLIC_HELIUS_API_KEY!;
-  // const solanaConnection = new Connection(heliusEndpoint);
+  const SOLANA_MAINNET_CAIP2 = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
+  const SOLANA_TEST_LAMPORTS = 1;
+  const PLACEHOLDER_BLOCKHASH = "11111111111111111111111111111111";
+
+  const getSolanaRecentBlockhash = async (): Promise<string> => {
+    const response = await fetch("/api/solana/latest-blockhash");
+    if (!response.ok) {
+      throw new Error(`Failed to fetch recent blockhash: ${response.status}`);
+    }
+
+    const body = (await response.json()) as { blockhash?: string };
+    if (!body.blockhash) {
+      throw new Error("Blockhash missing from response");
+    }
+
+    return body.blockhash;
+  };
+
+  const buildUnsignedSolTransferHex = async (
+    fromAddress: string,
+    toAddress: string,
+    lamports: number,
+    options?: { sponsored?: boolean },
+  ): Promise<string> => {
+    const from = new PublicKey(fromAddress);
+    const to = new PublicKey(toAddress);
+
+    const tx = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: from,
+        toPubkey: to,
+        lamports,
+      }),
+    );
+
+    let blockhash = PLACEHOLDER_BLOCKHASH;
+    if (!options?.sponsored) {
+      blockhash = await getSolanaRecentBlockhash();
+    }
+
+    tx.recentBlockhash = blockhash;
+    tx.feePayer = from;
+
+    const raw = tx.serialize({
+      requireAllSignatures: false,
+      verifySignatures: false,
+    });
+
+    return raw.toString("hex");
+  };
 
   useEffect(() => {
     if (clientState !== ClientState.Ready) return;
@@ -2016,6 +2056,78 @@ export default function AuthPage() {
             }}
           >
             Send Non-Sponsored ETH Transaction
+          </button>
+
+          <button
+            onClick={async () => {
+              if (
+                !activeWalletAccount ||
+                activeWalletAccount.addressFormat !== "ADDRESS_FORMAT_SOLANA"
+              ) {
+                console.error("No active Solana wallet account selected");
+                return;
+              }
+
+              const unsignedTransaction = await buildUnsignedSolTransferHex(
+                activeWalletAccount.address,
+                activeWalletAccount.address,
+                SOLANA_TEST_LAMPORTS,
+                { sponsored: true },
+              );
+
+              await turnkey.handleSendTransaction({
+                transaction: {
+                  unsignedTransaction,
+                  signWith: activeWalletAccount.address,
+                  caip2: SOLANA_MAINNET_CAIP2,
+                  sponsor: true,
+                },
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Send Sponsored Solana Transaction
+          </button>
+
+          <button
+            onClick={async () => {
+              if (
+                !activeWalletAccount ||
+                activeWalletAccount.addressFormat !== "ADDRESS_FORMAT_SOLANA"
+              ) {
+                console.error("No active Solana wallet account selected");
+                return;
+              }
+
+              const unsignedTransaction = await buildUnsignedSolTransferHex(
+                activeWalletAccount.address,
+                activeWalletAccount.address,
+                SOLANA_TEST_LAMPORTS,
+                { sponsored: false },
+              );
+
+              await turnkey.handleSendTransaction({
+                transaction: {
+                  unsignedTransaction,
+                  signWith: activeWalletAccount.address,
+                  caip2: SOLANA_MAINNET_CAIP2,
+                  sponsor: false,
+                },
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Send Non-Sponsored Solana Transaction
           </button>
 
           <button
