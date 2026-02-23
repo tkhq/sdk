@@ -275,6 +275,12 @@ export type EthSendTransactionParams = {
   transaction: EthTransaction;
 };
 
+export type SolSendTransactionParams = {
+  organizationId?: string;
+  stampWith?: StamperType | undefined;
+  transaction: SolanaTransaction;
+};
+
 export type FetchUserParams = {
   organizationId?: string;
   userId?: string;
