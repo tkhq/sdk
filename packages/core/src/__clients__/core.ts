@@ -2910,26 +2910,28 @@ export class TurnkeyClient {
    * @beta
    * **API subject to change**
    *
-   * Polls Turnkey for the final result of a previously submitted Ethereum transaction.
+   * Polls Turnkey for the final result of a previously submitted transaction.
    *
    * This function repeatedly calls `getSendTransactionStatus` until the transaction
    * reaches a terminal state.
    *
    * Terminal states:
-   * - **COMPLETED** or **INCLUDED** → resolves with `{ txHash }`
+   * - **COMPLETED** or **INCLUDED** → resolves with chain-specific transaction details
    * - **FAILED** rejects with an error
    *
    * Behavior:
    *
    * - Queries Turnkey every 500ms.
    * - Stops polling automatically when a terminal state is reached.
-   * - Extracts the canonical on-chain hash via `resp.eth.txHash` when available.
+   * - Returns the full status payload from Turnkey.
+   * - When available, Ethereum transaction details are exposed at `resp.eth.txHash`.
    *
-   * @param organizationId - Organization ID under which the transaction was submitted.
-   * @param sendTransactionStatusId - Status ID returned by `ethSendTransaction.
-   * @param pollingIntervalMs - Optional polling interval in milliseconds (default: 500ms).
+   * @param params.organizationId - Organization ID under which the transaction was submitted.
+   * @param params.sendTransactionStatusId - Status ID returned by `ethSendTransaction` or `solSendTransaction`.
+   * @param params.pollingIntervalMs - Optional polling interval in milliseconds (default: 500ms).
+   * @param params.stampWith - Optional stamper to use for polling.
    *
-   * @returns A promise resolving to `{ txHash?: string }` if successful.
+   * @returns A promise resolving to the transaction status payload if successful.
    * @throws {Error | string} If the transaction fails or is cancelled.
    */
 
