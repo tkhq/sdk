@@ -1,5 +1,17 @@
 # @turnkey/sdk-types
 
+## 0.12.0
+
+### Minor Changes
+
+- [#1206](https://github.com/tkhq/sdk/pull/1206) [`58e04e5`](https://github.com/tkhq/sdk/commit/58e04e5856626d9d2593abb61d8ca32d8ccbb833) Author [@DeRauk](https://github.com/DeRauk) - Adds sdk methods for the GetWalletAddressBalances and ListSupportedAssets apis.
+
+### Patch Changes
+
+- [#1201](https://github.com/tkhq/sdk/pull/1201) [`1f6e240`](https://github.com/tkhq/sdk/commit/1f6e2403fca1fd9cbca646f88c88dbc49ddb0c34) Author [@ethankonk](https://github.com/ethankonk) - Synced with Mono v2026.2.0
+
+- [#1197](https://github.com/tkhq/sdk/pull/1197) [`7458b7c`](https://github.com/tkhq/sdk/commit/7458b7cd6fc64796b376e3374b7c2ed79467459c) Thanks [@moe-dev](https://github.com/moe-dev)! - Add support for SolSendTransaction and associated abstractions
+
 ## 0.11.2
 
 ### Patch Changes

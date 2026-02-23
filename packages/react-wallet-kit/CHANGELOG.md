@@ -1,5 +1,19 @@
 # @turnkey/react-wallet-kit
 
+## 1.9.0
+
+### Minor Changes
+
+- [#1204](https://github.com/tkhq/sdk/pull/1204) [`389a75a`](https://github.com/tkhq/sdk/commit/389a75af8539570a663df366d61ccc7fd390c414) Author [@radusandor](https://github.com/radusandor) - Fix swapped JSDoc comments for handleUpdateUserEmail and handleUpdateUserName
+
+### Patch Changes
+
+- [#1197](https://github.com/tkhq/sdk/pull/1197) [`7458b7c`](https://github.com/tkhq/sdk/commit/7458b7cd6fc64796b376e3374b7c2ed79467459c) Thanks [@moe-dev](https://github.com/moe-dev)! - Add support for SolSendTransaction and associated abstractions
+
+- Updated dependencies [[`af6262f`](https://github.com/tkhq/sdk/commit/af6262f31e1abb3090fcda1eec5318056e6d51fe), [`1f6e240`](https://github.com/tkhq/sdk/commit/1f6e2403fca1fd9cbca646f88c88dbc49ddb0c34), [`58e04e5`](https://github.com/tkhq/sdk/commit/58e04e5856626d9d2593abb61d8ca32d8ccbb833), [`7458b7c`](https://github.com/tkhq/sdk/commit/7458b7cd6fc64796b376e3374b7c2ed79467459c)]:
+  - @turnkey/core@1.12.0
+  - @turnkey/sdk-types@0.12.0
+
 ## 1.8.1
 
 ### Patch Changes
