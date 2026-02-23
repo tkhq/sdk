@@ -2,8 +2,8 @@
  * Lazy wrapper for update phone component.
  *
  * Component.tsx imports heavy phone libraries.
- * Without this wrapper, those libraries load for everyone on page load.
- * With lazy loading, they only download when someone triggers the update phone flow.
+ * Without this wrapper, those libraries load on page initialization.
+ * With lazy loading, they load only when someone tries to update their phone number
  *
  * IMPORTANT: This wrapper must be in a separate file from Component.tsx.
  * React.lazy() only creates a separate chunk when importing across files.

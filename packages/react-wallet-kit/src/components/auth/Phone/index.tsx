@@ -2,8 +2,8 @@
  * Lazy wrapper for phone auth component.
  *
  * Component.tsx imports heavy libraries (react-international-phone, libphonenumber-js).
- * Without this wrapper, those libraries load for everyone on page load.
- * With lazy loading, they only download when someone actually picks phone auth.
+ * Without this wrapper, those libraries load on page initialization.
+ * With lazy loading, they load only when someone has phone auth enabled
  *
  * IMPORTANT: This wrapper must be in a separate file from Component.tsx.
  * React.lazy() only creates a separate chunk when importing across files.
