@@ -1237,7 +1237,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks],
   );
 
-    const solSendTransaction = useCallback(
+  const solSendTransaction = useCallback(
     async (params: SolSendTransactionParams): Promise<string> => {
       if (!client)
         throw new TurnkeyError(
