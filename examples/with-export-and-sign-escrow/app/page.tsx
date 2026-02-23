@@ -188,7 +188,7 @@ export default function Home() {
       targetPublicKey,
     });
 
-    await iframeClient.replaceEmbeddedKey(
+    await iframeClient.setEmbeddedKeyOverride(
       session.organizationId,
       privKeyExportBundle.exportBundle,
     );
