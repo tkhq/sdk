@@ -20,11 +20,7 @@ import {
 import prompts from "prompts";
 import { getTurnkeyClient, pollTransactionStatus } from "./turnkey";
 import { toReadableAmount, lamportsToSol } from "./utils";
-import {
-  type SplToken,
-  USDC_DEVNET,
-  USDC_MAINNET,
-} from "./tokens";
+import { type SplToken, USDC_DEVNET, USDC_MAINNET } from "./tokens";
 
 const SOLANA_NETWORKS = {
   mainnet: {
@@ -261,9 +257,7 @@ async function sweepSol(
     ],
   });
 
-  const versionedTx = new VersionedTransaction(
-    txMessage.compileToV0Message(),
-  );
+  const versionedTx = new VersionedTransaction(txMessage.compileToV0Message());
   const unsignedTransaction = Buffer.from(versionedTx.serialize()).toString(
     "hex",
   );
