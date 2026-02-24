@@ -59,6 +59,7 @@ import {
   type SignUpWithWalletParams,
   type LoginOrSignupWithWalletParams,
   type InitOtpParams,
+  type InitOtpResult,
   type VerifyOtpParams,
   type VerifyOtpResult,
   type LoginWithOtpParams,
@@ -137,6 +138,7 @@ import {
   fetchAllWalletAccountsWithCursor,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
+  encryptOtpCode,
 } from "../utils";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
@@ -1198,18 +1200,19 @@ export class TurnkeyClient {
    *
    * - This function initiates the OTP flow by sending a one-time password (OTP) code to the user's contact information (email address or phone number) via the auth proxy.
    * - Supports both email and SMS OTP types.
-   * - Returns an OTP ID that is required for subsequent OTP verification.
+   * - Returns an OTP ID and an encryption target bundle required for subsequent OTP verification.
+   * - The `otpEncryptionTargetBundle` must be used to encrypt the OTP code and a client-generated public key before calling `verifyOtp`.
    *
    * @param params.otpType - type of OTP to initialize (OtpType.Email or OtpType.Sms).
    * @param params.contact - contact information for the user (e.g., email address or phone number).
    * @param params.organizationId - optional organization ID to target (defaults to the session's organization ID or the parent organization ID).
-   * @returns A promise that resolves to the OTP ID required for verification.
+   * @returns A promise that resolves to an {@link InitOtpResult} containing the OTP ID and encryption target bundle.
    * @throws {TurnkeyError} If there is an error during the OTP initialization process or if the maximum number of OTPs has been reached.
    */
-  initOtp = async (params: InitOtpParams): Promise<string> => {
+  initOtp = async (params: InitOtpParams): Promise<InitOtpResult> => {
     return withTurnkeyErrorHandling(
       async () => {
-        const initOtpRes = await this.httpClient.proxyInitOtp(params);
+        const initOtpRes = await this.httpClient.proxyInitOtpV2(params);
 
         if (!initOtpRes || !initOtpRes.otpId) {
           throw new TurnkeyError(
@@ -1218,7 +1221,10 @@ export class TurnkeyClient {
           );
         }
 
-        return initOtpRes.otpId;
+        return {
+          otpId: initOtpRes.otpId,
+          otpEncryptionTargetBundle: initOtpRes.otpEncryptionTargetBundle,
+        };
       },
       {
         errorMessage: "Failed to initialize OTP",
@@ -1237,32 +1243,35 @@ export class TurnkeyClient {
   /**
    * Verifies the OTP code sent to the user.
    *
-   * - This function verifies the OTP code entered by the user against the OTP sent to their contact information (email or phone) using the auth proxy.
+   * - This function encrypts the OTP code and an ephemeral client public key to the enclave's target key (from `initOtp`), then sends the encrypted bundle to the auth proxy for verification.
    * - If verification is successful, it returns the sub-organization ID associated with the contact (if it exists) and a verification token.
    * - The verification token can be used for subsequent login or sign-up flows.
    * - Handles both email and SMS OTP types.
    *
    * @param params.otpId - ID of the OTP to verify (returned from `initOtp`).
-   * @param params.otpCode - OTP code entered by the user.
+   * @param params.otpCode - the OTP code entered by the user.
+   * @param params.otpEncryptionTargetBundle - the encryption target bundle returned from `initOtp`.
    * @param params.contact - contact information for the user (e.g., email address or phone number).
    * @param params.otpType - type of OTP being verified (OtpType.Email or OtpType.Sms).
-   * @param params.publicKey - public key the verification token is bound to for ownership verification (client signature verification during login/signup). This public key is optional; if not provided, a new key pair will be generated.
    * @returns A promise that resolves to an object containing:
    *   - subOrganizationId: sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
    *   - verificationToken: verification token to be used for login or sign-up.
    * @throws {TurnkeyError} If there is an error during the OTP verification process, such as an invalid code or network failure.
    */
   verifyOtp = async (params: VerifyOtpParams): Promise<VerifyOtpResult> => {
-    const { otpId, otpCode, contact, otpType } = params;
-    const resolvedPublicKey =
-      params.publicKey ?? (await this.apiKeyStamper?.createKeyPair());
+    const { otpId, otpCode, otpEncryptionTargetBundle, contact, otpType } =
+      params;
 
     return withTurnkeyErrorHandling(
       async () => {
-        const verifyOtpRes = await this.httpClient.proxyVerifyOtp({
+        const encryptedOtpBundle = await encryptOtpCode(
+          otpCode,
+          otpEncryptionTargetBundle,
+        );
+
+        const verifyOtpRes = await this.httpClient.proxyVerifyOtpV2({
           otpId: otpId,
-          otpCode: otpCode,
-          publicKey: resolvedPublicKey!,
+          encryptedOtpBundle: encryptedOtpBundle,
         });
 
         if (!verifyOtpRes) {
@@ -1360,11 +1369,11 @@ export class TurnkeyClient {
           signature: signature,
         };
 
-        const res = await this.httpClient.proxyOtpLogin({
+        const res = await this.httpClient.proxyOtpLoginV2({
           verificationToken,
           publicKey: publicKey!,
-          invalidateExisting,
           clientSignature,
+          invalidateExisting,
           ...(organizationId && { organizationId }),
         });
 
@@ -1546,19 +1555,21 @@ export class TurnkeyClient {
   };
 
   /**
-   * Completes the OTP authentication flow by verifying the OTP code and then either signing up or logging in the user.
+   * Completes the OTP authentication flow by verifying the encrypted OTP bundle and then either signing up or logging in the user.
    *
-   * - This function first verifies the OTP code for the provided contact and OTP type.
+   * - This function encrypts the OTP code and the session public key to the enclave's target key, verifies the OTP, and then either signs up or logs in the user.
    * - If the contact is not associated with an existing sub-organization, it will automatically create a new sub-organization and complete the sign-up flow.
    * - If the contact is already associated with a sub-organization, it will complete the login flow.
+   * - The same key pair is used for both the encrypted OTP bundle (binding the verification token) and the subsequent login/signup client signature.
    * - Supports passing a custom public key for authentication, invalidating existing session, specifying a session key, and providing additional sub-organization creation parameters.
    * - Handles both email and SMS OTP types.
    *
    * @param params.otpId - ID of the OTP to complete (returned from `initOtp`).
-   * @param params.otpCode - OTP code entered by the user.
+   * @param params.otpCode - the OTP code entered by the user.
+   * @param params.otpEncryptionTargetBundle - the encryption target bundle returned from `initOtp`.
    * @param params.contact - contact information for the user (e.g., email address or phone number).
    * @param params.otpType - type of OTP being completed (OtpType.Email or OtpType.Sms).
-   * @param params.publicKey - public key to use for authentication. If not provided, a new key pair may be generated.
+   * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
@@ -1576,6 +1587,7 @@ export class TurnkeyClient {
     const {
       otpId,
       otpCode,
+      otpEncryptionTargetBundle,
       contact,
       otpType,
       publicKey = await this.apiKeyStamper?.createKeyPair(),
@@ -1586,13 +1598,41 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const { subOrganizationId, verificationToken } = await this.verifyOtp({
-          otpId: otpId,
-          otpCode: otpCode,
-          contact: contact,
-          otpType: otpType,
-          publicKey: publicKey!,
+        // Encrypt the OTP code with the session public key so the verification
+        // token is bound to the same key used for login/signup
+        const encryptedOtpBundle = await encryptOtpCode(
+          otpCode,
+          otpEncryptionTargetBundle,
+          publicKey,
+        );
+
+        const verifyOtpRes = await this.httpClient.proxyVerifyOtpV2({
+          otpId,
+          encryptedOtpBundle,
         });
+
+        if (!verifyOtpRes) {
+          throw new TurnkeyError(
+            `OTP verification failed`,
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
+        const accountRes = await this.httpClient.proxyGetAccount({
+          filterType: OtpTypeToFilterTypeMap[otpType],
+          filterValue: contact,
+          verificationToken: verifyOtpRes.verificationToken,
+        });
+
+        if (!accountRes) {
+          throw new TurnkeyError(
+            `Account fetch failed`,
+            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+          );
+        }
+
+        const subOrganizationId = accountRes.organizationId;
+        const verificationToken = verifyOtpRes.verificationToken;
 
         if (!verificationToken) {
           throw new TurnkeyError(
