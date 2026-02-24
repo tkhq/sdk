@@ -135,3 +135,15 @@ turnkey.json
 
 # turborepo
 .turbo
+
+# Encrypted wallet store (contains sensitive encrypted data)
+encrypted-wallet-store.json
+
+# Test wallet files (disaster-recovery example)
+test-hd-wallet-*.json
+test-private-key-*.json
+encrypted-recovery-bundle.txt
+
+# Local utility tools (not for public repo)
+examples/keymaker/
+examples/payflow-example/
