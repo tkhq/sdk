@@ -45,18 +45,18 @@ Copy the example env file and fill in your values:
 cp .env.local.example .env.local
 ```
 
-| Variable | Required | Description |
-|---|---|---|
-| `NEXT_PUBLIC_ORGANIZATION_ID` | Yes | Your Turnkey organization ID (from Dashboard) |
-| `NEXT_PUBLIC_AUTH_PROXY_ID` | Yes | Auth Proxy config ID (from Dashboard > Auth) |
-| `NEXT_PUBLIC_BASE_URL` | No | Turnkey API base URL (defaults to `https://api.turnkey.com`) |
-| `NEXT_PUBLIC_AUTH_PROXY_URL` | No | Auth Proxy URL (defaults to `https://authproxy.turnkey.com`) |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | No | [WalletConnect](https://cloud.walletconnect.com/) project ID (required for external wallet connections) |
-| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_URL` | No | Your application URL for WalletConnect metadata |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | No | Google OAuth client ID (for Google social login) |
-| `NEXT_PUBLIC_FACEBOOK_CLIENT_ID` | No | Facebook OAuth client ID |
-| `NEXT_PUBLIC_APPLE_CLIENT_ID` | No | Apple OAuth client ID |
-| `NEXT_PUBLIC_OAUTH_REDIRECT_URI` | No | OAuth callback URL |
+| Variable                                | Required | Description                                                                                             |
+| --------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_ORGANIZATION_ID`           | Yes      | Your Turnkey organization ID (from Dashboard)                                                           |
+| `NEXT_PUBLIC_AUTH_PROXY_ID`             | Yes      | Auth Proxy config ID (from Dashboard > Auth)                                                            |
+| `NEXT_PUBLIC_BASE_URL`                  | No       | Turnkey API base URL (defaults to `https://api.turnkey.com`)                                            |
+| `NEXT_PUBLIC_AUTH_PROXY_URL`            | No       | Auth Proxy URL (defaults to `https://authproxy.turnkey.com`)                                            |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID`  | No       | [WalletConnect](https://cloud.walletconnect.com/) project ID (required for external wallet connections) |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_URL` | No       | Your application URL for WalletConnect metadata                                                         |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID`          | No       | Google OAuth client ID (for Google social login)                                                        |
+| `NEXT_PUBLIC_FACEBOOK_CLIENT_ID`        | No       | Facebook OAuth client ID                                                                                |
+| `NEXT_PUBLIC_APPLE_CLIENT_ID`           | No       | Apple OAuth client ID                                                                                   |
+| `NEXT_PUBLIC_OAUTH_REDIRECT_URI`        | No       | OAuth callback URL                                                                                      |
 
 ### Run
 
@@ -214,7 +214,9 @@ import "@turnkey/react-wallet-kit/styles.css";
       // Handle TurnkeyError by code
       switch (error.code) {
         case TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS:
-          notify("This social login is already associated with another account.");
+          notify(
+            "This social login is already associated with another account.",
+          );
           break;
         default:
           notify(error.message);
@@ -223,7 +225,7 @@ import "@turnkey/react-wallet-kit/styles.css";
   }}
 >
   {children}
-</TurnkeyConfigProvider>
+</TurnkeyConfigProvider>;
 ```
 
 Inside `TurnkeyConfigProvider`, the SDK's `TurnkeyProvider` is rendered with the current config:
@@ -374,7 +376,10 @@ The relevant code:
 const { handleLogin, clientState, authState } = useTurnkey();
 
 useEffect(() => {
-  if (clientState === ClientState.Ready && authState === AuthState.Unauthenticated) {
+  if (
+    clientState === ClientState.Ready &&
+    authState === AuthState.Unauthenticated
+  ) {
     handleLogin();
   }
 }, [clientState]);
@@ -447,49 +452,49 @@ This is the primary API surface. The example uses these methods:
 
 #### State
 
-| Property | Type | Description |
-|---|---|---|
-| `authState` | `AuthState` | `Authenticated` or `Unauthenticated` |
-| `clientState` | `ClientState` | `Loading`, `Ready`, or `Error` |
-| `user` | `User` | Current user (email, phone, authenticators, oauthProviders, apiKeys) |
-| `wallets` | `Wallet[]` | All wallets (embedded + connected), auto-refreshed on changes |
-| `session` | `Session` | Current session (includes `organizationId` for the sub-org) |
-| `config` | `TurnkeyProviderConfig` | The active config (used by `UserSettings` to conditionally render auth methods) |
+| Property      | Type                    | Description                                                                     |
+| ------------- | ----------------------- | ------------------------------------------------------------------------------- |
+| `authState`   | `AuthState`             | `Authenticated` or `Unauthenticated`                                            |
+| `clientState` | `ClientState`           | `Loading`, `Ready`, or `Error`                                                  |
+| `user`        | `User`                  | Current user (email, phone, authenticators, oauthProviders, apiKeys)            |
+| `wallets`     | `Wallet[]`              | All wallets (embedded + connected), auto-refreshed on changes                   |
+| `session`     | `Session`               | Current session (includes `organizationId` for the sub-org)                     |
+| `config`      | `TurnkeyProviderConfig` | The active config (used by `UserSettings` to conditionally render auth methods) |
 
 #### Authentication
 
-| Method | Used In | Description |
-|---|---|---|
-| `handleLogin()` | `page.tsx` | Opens the unified login modal |
-| `handleAddEmail()` | `UserSettings` | Links an email to the current user |
-| `handleRemoveUserEmail()` | `EmailAuthButton` | Removes the linked email |
-| `handleAddPhoneNumber()` | `UserSettings` | Links a phone number |
-| `handleRemoveUserPhoneNumber()` | `PhoneAuthButton` | Removes the linked phone |
-| `handleAddOauthProvider()` | `SocialButton` | Links an OAuth provider (Google, Apple, etc.) |
-| `handleRemoveOauthProvider()` | `SocialButton` | Unlinks an OAuth provider |
-| `handleAddPasskey()` | `AuthenticatorButton` | Adds a new passkey authenticator |
-| `handleRemovePasskey()` | `AuthenticatorButton` | Removes a passkey authenticator |
-| `handleUpdateUserName()` | `UserSettings` | Updates the user's display name |
-| `logout()` | `UserSettings` | Ends the session |
+| Method                          | Used In               | Description                                   |
+| ------------------------------- | --------------------- | --------------------------------------------- |
+| `handleLogin()`                 | `page.tsx`            | Opens the unified login modal                 |
+| `handleAddEmail()`              | `UserSettings`        | Links an email to the current user            |
+| `handleRemoveUserEmail()`       | `EmailAuthButton`     | Removes the linked email                      |
+| `handleAddPhoneNumber()`        | `UserSettings`        | Links a phone number                          |
+| `handleRemoveUserPhoneNumber()` | `PhoneAuthButton`     | Removes the linked phone                      |
+| `handleAddOauthProvider()`      | `SocialButton`        | Links an OAuth provider (Google, Apple, etc.) |
+| `handleRemoveOauthProvider()`   | `SocialButton`        | Unlinks an OAuth provider                     |
+| `handleAddPasskey()`            | `AuthenticatorButton` | Adds a new passkey authenticator              |
+| `handleRemovePasskey()`         | `AuthenticatorButton` | Removes a passkey authenticator               |
+| `handleUpdateUserName()`        | `UserSettings`        | Updates the user's display name               |
+| `logout()`                      | `UserSettings`        | Ends the session                              |
 
 #### Wallet Operations
 
-| Method | Used In | Description |
-|---|---|---|
-| `createWallet()` | `DemoPanel` | Creates a new embedded wallet with Ethereum + Solana accounts |
-| `createWalletAccounts()` | `DemoPanel` | Adds accounts to an existing wallet |
-| `fetchWallets()` | `DemoPanel` | Manually refreshes the wallet list |
-| `handleConnectExternalWallet()` | `DemoPanel` | Opens WalletConnect to link an external wallet |
-| `fetchWalletProviders()` | `DemoPanel` | Gets connected wallet provider metadata (icons, names) |
-| `handleExportWallet()` | `DemoPanel` | Opens the secure export iframe modal |
-| `handleImportWallet()` | `DemoPanel` | Opens the secure import iframe modal |
-| `handleOnRamp()` | `DemoPanel` | Opens MoonPay fiat on-ramp (sandbox mode) |
-| `deleteSubOrganization()` | `DeleteSubOrgWarning` | Permanently deletes the user's sub-org and all wallets |
+| Method                          | Used In               | Description                                                   |
+| ------------------------------- | --------------------- | ------------------------------------------------------------- |
+| `createWallet()`                | `DemoPanel`           | Creates a new embedded wallet with Ethereum + Solana accounts |
+| `createWalletAccounts()`        | `DemoPanel`           | Adds accounts to an existing wallet                           |
+| `fetchWallets()`                | `DemoPanel`           | Manually refreshes the wallet list                            |
+| `handleConnectExternalWallet()` | `DemoPanel`           | Opens WalletConnect to link an external wallet                |
+| `fetchWalletProviders()`        | `DemoPanel`           | Gets connected wallet provider metadata (icons, names)        |
+| `handleExportWallet()`          | `DemoPanel`           | Opens the secure export iframe modal                          |
+| `handleImportWallet()`          | `DemoPanel`           | Opens the secure import iframe modal                          |
+| `handleOnRamp()`                | `DemoPanel`           | Opens MoonPay fiat on-ramp (sandbox mode)                     |
+| `deleteSubOrganization()`       | `DeleteSubOrgWarning` | Permanently deletes the user's sub-org and all wallets        |
 
 #### Signing
 
-| Method | Used In | Description |
-|---|---|---|
+| Method                | Used In     | Description                                                           |
+| --------------------- | ----------- | --------------------------------------------------------------------- |
 | `handleSignMessage()` | `DemoPanel` | Signs a message with a selected wallet account, returns `{ r, s, v }` |
 
 ### Message Signing & Verification
@@ -509,7 +514,7 @@ The signing flow in `DemoPanel` demonstrates end-to-end message signing with cli
 
 ```ts
 // Join r, s, v into a single 65-byte hex signature
-const signature = joinRSV(r, s, v);  // Uses @turnkey/encoding for padding
+const signature = joinRSV(r, s, v); // Uses @turnkey/encoding for padding
 
 // Verify using viem's verifyMessage
 return await publicClient.verifyMessage({ address, message, signature });
@@ -612,7 +617,9 @@ const { pushPage } = useModal();
 // Push signature verification result
 pushPage({
   key: "Signature verification",
-  content: <SignatureVerification verificationPassed={true} signature="0x..." />,
+  content: (
+    <SignatureVerification verificationPassed={true} signature="0x..." />
+  ),
   preventBack: true,
   showTitle: false,
 });
@@ -632,13 +639,15 @@ The `UserSettings` component shows how to manage authentication methods post-log
 
 ```ts
 const userAuthMethods =
-  (user?.authenticators?.length || 0) +         // Passkeys
-  (user?.oauthProviders?.length || 0) +         // OAuth providers
-  (user?.apiKeys?.filter(k =>                   // Wallet-auth API keys
-    k.apiKeyName.startsWith("wallet-auth")
+  (user?.authenticators?.length || 0) + // Passkeys
+  (user?.oauthProviders?.length || 0) + // OAuth providers
+  (user?.apiKeys?.filter(
+    (
+      k, // Wallet-auth API keys
+    ) => k.apiKeyName.startsWith("wallet-auth"),
   ).length || 0) +
-  (user?.userEmail ? 1 : 0) +                   // Email
-  (user?.userPhoneNumber ? 1 : 0);              // Phone
+  (user?.userEmail ? 1 : 0) + // Email
+  (user?.userPhoneNumber ? 1 : 0); // Phone
 
 setCanRemoveAuthMethod(userAuthMethods > 1);
 ```
@@ -661,7 +670,7 @@ if (error instanceof TurnkeyError) {
       // User dismissed the modal — no-op
       break;
     default:
-      // Display error.message to user
+    // Display error.message to user
   }
 }
 ```
@@ -700,15 +709,15 @@ src/
 
 ## Key Dependencies
 
-| Package | Purpose |
-|---|---|
-| `@turnkey/react-wallet-kit` | Core SDK — provider, hooks, modal UI, auth, wallet ops, signing |
-| `@turnkey/sdk-types` | Shared types and enums (`TurnkeyErrorCodes`, `OAuthProviders`) |
-| `@turnkey/encoding` | Byte encoding utilities (hex ↔ Uint8Array, padding normalization) |
-| `viem` | Ethereum signature verification (`verifyMessage`) |
-| `@solana/web3.js` + `tweetnacl` | Solana public key parsing + Ed25519 signature verification |
-| `@headlessui/react` | Accessible unstyled UI components (Menu, RadioGroup, Tab, Transition) |
-| `next` (15.x) | React framework (App Router) |
+| Package                         | Purpose                                                               |
+| ------------------------------- | --------------------------------------------------------------------- |
+| `@turnkey/react-wallet-kit`     | Core SDK — provider, hooks, modal UI, auth, wallet ops, signing       |
+| `@turnkey/sdk-types`            | Shared types and enums (`TurnkeyErrorCodes`, `OAuthProviders`)        |
+| `@turnkey/encoding`             | Byte encoding utilities (hex ↔ Uint8Array, padding normalization)    |
+| `viem`                          | Ethereum signature verification (`verifyMessage`)                     |
+| `@solana/web3.js` + `tweetnacl` | Solana public key parsing + Ed25519 signature verification            |
+| `@headlessui/react`             | Accessible unstyled UI components (Menu, RadioGroup, Tab, Transition) |
+| `next` (15.x)                   | React framework (App Router)                                          |
 
 ## Learn More
 
