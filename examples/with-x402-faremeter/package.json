@@ -1,0 +1,23 @@
+{
+  "name": "@turnkey/example-with-x402-faremeter",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@faremeter/fetch": "^0.16.0",
+    "@faremeter/types": "^0.16.0",
+    "@solana/spl-token": "^0.4.9",
+    "@solana/web3.js": "^1.95.8",
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/solana": "workspace:*",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}
