@@ -193,11 +193,8 @@ async function main() {
     console.log("Step 4: Decrypt recovery bundle");
     console.log("-".repeat(40));
 
-    // The decrypted key bundle contains the private key in hex format
-    const encryptionPrivateKey =
-      typeof decryptedKeyBundle === "string"
-        ? decryptedKeyBundle
-        : decryptedKeyBundle.privateKey;
+    // decryptExportBundle returns a string (the private key) when returnMnemonic is false
+    const encryptionPrivateKey = decryptedKeyBundle as string;
 
     const decryptedRecoveryJson = await decryptWithPrivateKey(
       encryptionPrivateKey,

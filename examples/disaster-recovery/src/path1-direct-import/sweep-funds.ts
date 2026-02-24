@@ -17,10 +17,13 @@ import * as path from "path";
 import prompts from "prompts";
 import { Turnkey } from "@turnkey/sdk-server";
 import { createAccount } from "@turnkey/viem";
-import * as viem from "viem";
+import {
+  createWalletClient,
+  createPublicClient,
+  http,
+  formatEther,
+} from "viem";
 import { sepolia, mainnet } from "viem/chains";
-
-const { createWalletClient, createPublicClient, http, formatEther } = viem;
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 

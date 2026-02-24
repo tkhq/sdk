@@ -144,10 +144,7 @@ async function generateMnemonicWallet() {
   // 12 words = 128 bits of entropy, 24 words = 256 bits
   const strength = wordCount === 24 ? 256 : 128;
 
-  // Generate random bytes for entropy
-  const entropy = crypto.getRandomValues(new Uint8Array(strength / 8));
-
-  // Use viem's generateMnemonic with the entropy
+  // Use viem's generateMnemonic which generates its own secure entropy
   const mnemonic = generateMnemonic(english, strength);
 
   // Derive account from mnemonic

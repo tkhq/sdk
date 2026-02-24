@@ -23,7 +23,12 @@ import {
   decryptExportBundle,
 } from "@turnkey/crypto";
 import { createAccount } from "@turnkey/viem";
-import * as viem from "viem";
+import {
+  createWalletClient,
+  createPublicClient,
+  http,
+  formatEther,
+} from "viem";
 import { sepolia, mainnet } from "viem/chains";
 import {
   generateMnemonic,
@@ -35,8 +40,6 @@ import {
   encryptWithPublicKey,
   decryptWithPrivateKey,
 } from "./shared/crypto-helpers";
-
-const { createWalletClient, createPublicClient, http, formatEther } = viem;
 
 // Polyfill crypto for Node.js
 if (typeof crypto === "undefined") {
@@ -1184,7 +1187,11 @@ async function createNewEncryptionKey(
     ],
   });
 
-  const privateKeyId = privateKeys[0].privateKeyId;
+  const firstKey = privateKeys[0];
+  if (!firstKey?.privateKeyId) {
+    throw new Error("Failed to create encryption key pair");
+  }
+  const privateKeyId = firstKey.privateKeyId;
 
   const { privateKey } = await turnkeyClient.apiClient().getPrivateKey({
     privateKeyId,
@@ -1192,7 +1199,7 @@ async function createNewEncryptionKey(
 
   console.log("Encryption keypair created successfully.");
 
-  return { privateKeyId, publicKey: privateKey.publicKey };
+  return { privateKeyId, publicKey: privateKey?.publicKey ?? "" };
 }
 
 // ============================================================================
@@ -1311,10 +1318,8 @@ async function escrowRecovery(): Promise<void> {
 
     console.log("Step 4: Decrypt recovery bundle");
 
-    const encryptionPrivateKey =
-      typeof decryptedKeyBundle === "string"
-        ? decryptedKeyBundle
-        : decryptedKeyBundle.privateKey;
+    // decryptExportBundle returns a string (the private key) when returnMnemonic is false
+    const encryptionPrivateKey = decryptedKeyBundle as string;
 
     const decryptedRecoveryJson = await decryptWithPrivateKey(
       encryptionPrivateKey,

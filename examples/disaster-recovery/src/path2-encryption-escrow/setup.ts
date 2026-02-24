@@ -319,7 +319,11 @@ async function createNewEncryptionKey(
     ],
   });
 
-  const privateKeyId = privateKeys[0].privateKeyId;
+  const firstKey = privateKeys[0];
+  if (!firstKey?.privateKeyId) {
+    throw new Error("Failed to create encryption key pair");
+  }
+  const privateKeyId = firstKey.privateKeyId;
 
   // Get the public key
   const { privateKey } = await turnkeyClient.apiClient().getPrivateKey({
@@ -330,7 +334,7 @@ async function createNewEncryptionKey(
 
   return {
     privateKeyId,
-    publicKey: privateKey.publicKey,
+    publicKey: privateKey?.publicKey ?? "",
   };
 }
 

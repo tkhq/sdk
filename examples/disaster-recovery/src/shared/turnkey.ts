@@ -79,7 +79,7 @@ export async function pollTransactionStatus({
         if (status === "COMPLETED" || status === "INCLUDED") {
           clearInterval(ref);
           resolve({
-            eth: resp.eth,
+            ...(resp.eth ? { eth: resp.eth } : {}),
             txStatus: status,
           });
         }
