@@ -1,0 +1,31 @@
+{
+  "name": "@turnkey/example-disaster-recovery",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Disaster recovery examples using Turnkey - Direct Wallet Import and Encryption Key Escrow",
+  "scripts": {
+    "start": "tsx src/interactive.ts",
+    "generate-test-wallet": "tsx src/utils/generate-test-wallet.ts",
+    "path1:import-wallet": "tsx src/path1-direct-import/import-wallet.ts",
+    "path1:import-key": "tsx src/path1-direct-import/import-private-key.ts",
+    "path1:sweep-funds": "tsx src/path1-direct-import/sweep-funds.ts",
+    "path2:setup": "tsx src/path2-encryption-escrow/setup.ts",
+    "path2:recovery": "tsx src/path2-encryption-escrow/recovery.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/encoding": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "@turnkey/viem": "workspace:*",
+    "@peculiar/webcrypto": "^1.4.3",
+    "dotenv": "^16.0.3",
+    "prompts": "^2.4.2",
+    "viem": "2.37.5"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2",
+    "typescript": "5.4.3"
+  }
+}
