@@ -42,7 +42,7 @@ export function UpdateEmail(params: {
     if (isValidEmail(emailInput)) {
       try {
         setIsLoading(true);
-        const otpId = await initOtp({
+        const { otpId, otpEncryptionTargetBundle } = await initOtp({
           otpType: OtpType.Email,
           contact: emailInput,
         });
@@ -52,6 +52,7 @@ export function UpdateEmail(params: {
             <OtpVerification
               contact={emailInput}
               otpId={otpId}
+              otpEncryptionTargetBundle={otpEncryptionTargetBundle}
               otpType={OtpType.Email}
               otpLength={
                 config?.auth?.otpLength !== undefined
@@ -63,6 +64,7 @@ export function UpdateEmail(params: {
                 const { verificationToken } = await verifyOtp({
                   otpId,
                   otpCode,
+                  otpEncryptionTargetBundle,
                   contact: emailInput,
                   otpType: OtpType.Email,
                 });

@@ -12,6 +12,7 @@ import clsx from "clsx";
 interface OtpVerificationProps {
   contact: string;
   otpId: string;
+  otpEncryptionTargetBundle: string;
   otpType: OtpType;
   otpLength?: number | undefined; // Length of the OTP code. Defaults to 6.
   alphanumeric?: boolean | undefined; // Whether the OTP is alphanumeric or numeric only. Defaults to true (alphanumeric).
@@ -35,6 +36,8 @@ export function OtpVerification(props: OtpVerificationProps) {
   const [resending, setResending] = useState<boolean>(false);
   const [resent, setResent] = useState<boolean>(false);
   const [otpId, setOtpId] = useState<string>(props.otpId);
+  const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] =
+    useState<string>(props.otpEncryptionTargetBundle);
   const [error, setError] = useState<string | null>(null);
   const [shaking, setShaking] = useState(false);
 
@@ -52,6 +55,7 @@ export function OtpVerification(props: OtpVerificationProps) {
         await completeOtp({
           otpId,
           otpCode,
+          otpEncryptionTargetBundle,
           contact,
           otpType,
           ...(sessionKey && { sessionKey }),
@@ -74,8 +78,9 @@ export function OtpVerification(props: OtpVerificationProps) {
   const handleResend = async () => {
     setResending(true);
     try {
-      const id = await initOtp({ otpType, contact });
-      setOtpId(id);
+      const result = await initOtp({ otpType, contact });
+      setOtpId(result.otpId);
+      setOtpEncryptionTargetBundle(result.otpEncryptionTargetBundle);
       setResent(true);
     } catch (error) {
       throw new Error(`Error resending OTP: ${error}`);

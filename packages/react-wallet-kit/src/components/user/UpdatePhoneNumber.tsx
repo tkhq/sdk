@@ -41,7 +41,7 @@ export function UpdatePhoneNumber(params: {
   const handleContinue = async () => {
     if (isValid) {
       try {
-        const otpId = await initOtp({
+        const { otpId, otpEncryptionTargetBundle } = await initOtp({
           otpType: OtpType.Sms,
           contact: phoneInput,
         });
@@ -52,6 +52,7 @@ export function UpdatePhoneNumber(params: {
               contact={phoneInput}
               {...(formattedPhone && { formattedPhone })}
               otpId={otpId}
+              otpEncryptionTargetBundle={otpEncryptionTargetBundle}
               otpType={OtpType.Sms}
               otpLength={
                 config?.auth?.otpLength !== undefined
@@ -63,6 +64,7 @@ export function UpdatePhoneNumber(params: {
                 const { verificationToken } = await verifyOtp({
                   otpId,
                   otpCode,
+                  otpEncryptionTargetBundle,
                   contact: phoneInput,
                   otpType: OtpType.Sms,
                 });
