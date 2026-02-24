@@ -1,0 +1,21 @@
+{
+  "name": "@turnkey/solana-usdc-swap",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.8",
+    "@turnkey/sdk-server": "workspace:*",
+    "cross-fetch": "^4.1.0",
+    "dotenv": "^16.0.3",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/prompts": "^2.4.2",
+    "typescript": "5.4.3"
+  }
+}
