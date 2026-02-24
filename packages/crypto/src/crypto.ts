@@ -789,6 +789,25 @@ export const toDerSignature = (rawSignature: string) => {
 };
 
 /**
+ * Signs a message with a P-256 private key using ECDSA (SHA-256 + P-256).
+ *
+ * Hashes the input message with SHA-256, then signs the hash with the
+ * provided P-256 private key. Returns the signature as a raw r||s hex
+ * string (64 bytes / 128 hex characters), where each of r and s is
+ * left-padded to 32 bytes.
+ *
+ * @param {string} message - The UTF-8 message string to sign.
+ * @param {string} privateKey - The P-256 private key as a hex string.
+ * @returns {string} - The raw r||s signature as a hex string (128 hex chars).
+ */
+export const signP256 = (message: string, privateKey: string): string => {
+  const messageBytes = new TextEncoder().encode(message);
+  const hash = sha256(messageBytes);
+  const signature = p256.sign(hash, uint8ArrayFromHexString(privateKey));
+  return signature.toCompactHex();
+};
+
+/**
  * Create a shared AES-GCM secret with the quorum key encryption SHA-512 HMAC
  *
  * This function takes an ephemeral Sender public key generated for each encryption operation
