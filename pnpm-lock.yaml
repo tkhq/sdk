@@ -287,8 +287,8 @@ importers:
         specifier: ^2.4.2
         version: 2.4.2
       viem:
-        specifier: ^2.7.6
-        version: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
+        specifier: 2.37.5
+        version: 2.37.5(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
     devDependencies:
       '@types/node':
         specifier: ^20.3.1

@@ -15,7 +15,7 @@
     "@turnkey/sdk-server": "workspace:*",
     "dotenv": "^16.3.1",
     "prompts": "^2.4.2",
-    "viem": "^2.7.6"
+    "viem": "2.37.5"
   },
   "devDependencies": {
     "@types/node": "^20.3.1",
