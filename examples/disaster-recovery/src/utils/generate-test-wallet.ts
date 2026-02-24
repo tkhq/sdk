@@ -86,8 +86,8 @@ async function main() {
           ...results,
         },
         null,
-        2
-      )
+        2,
+      ),
     );
 
     console.log();
@@ -164,7 +164,9 @@ async function generateMnemonicWallet() {
   for (let i = 0; i < words.length; i += columns) {
     const row = words
       .slice(i, i + columns)
-      .map((word, idx) => `${String(i + idx + 1).padStart(2)}. ${word.padEnd(10)}`)
+      .map(
+        (word, idx) => `${String(i + idx + 1).padStart(2)}. ${word.padEnd(10)}`,
+      )
       .join("  ");
     console.log(`  ${row}`);
   }

@@ -99,7 +99,7 @@ function getTurnkeyClient(): Turnkey {
   if (!apiPublicKey || !apiPrivateKey || !organizationId) {
     throw new Error(
       "Missing required environment variables: API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID\n" +
-        "Please copy .env.local.example to .env.local and fill in your credentials."
+        "Please copy .env.local.example to .env.local and fill in your credentials.",
     );
   }
 
@@ -123,7 +123,9 @@ async function mainMenu(): Promise<void> {
   console.log("╚════════════════════════════════════════════════════════════╝");
   console.log();
   console.log("2-of-2 Security Model:");
-  console.log("  • Encrypted data → Your infrastructure (Turnkey never sees it)");
+  console.log(
+    "  • Encrypted data → Your infrastructure (Turnkey never sees it)",
+  );
   console.log("  • Encryption key → Turnkey secure enclave");
   console.log();
 
@@ -240,13 +242,23 @@ async function mainMenu(): Promise<void> {
       message: "Press Enter to continue...",
     });
     console.clear();
-    console.log("╔════════════════════════════════════════════════════════════╗");
-    console.log("║         ENCRYPTION KEY ESCROW                              ║");
-    console.log("║   Turnkey as Secure Key Storage & Retrieval Service        ║");
-    console.log("╚════════════════════════════════════════════════════════════╝");
+    console.log(
+      "╔════════════════════════════════════════════════════════════╗",
+    );
+    console.log(
+      "║         ENCRYPTION KEY ESCROW                              ║",
+    );
+    console.log(
+      "║   Turnkey as Secure Key Storage & Retrieval Service        ║",
+    );
+    console.log(
+      "╚════════════════════════════════════════════════════════════╝",
+    );
     console.log();
     console.log("2-of-2 Security Model:");
-    console.log("  • Encrypted data → Your infrastructure (Turnkey never sees it)");
+    console.log(
+      "  • Encrypted data → Your infrastructure (Turnkey never sees it)",
+    );
     console.log("  • Encryption key → Turnkey secure enclave");
     console.log();
   }
@@ -339,8 +351,12 @@ async function generateAndEncryptWallets(): Promise<void> {
   console.log("GENERATE & ENCRYPT TEST DATA");
   console.log("─".repeat(60));
   console.log();
-  console.log("This demonstrates encrypting sensitive data with Turnkey's public key.");
-  console.log("In production, this could be: wallets, recovery bundles, credentials, etc.");
+  console.log(
+    "This demonstrates encrypting sensitive data with Turnkey's public key.",
+  );
+  console.log(
+    "In production, this could be: wallets, recovery bundles, credentials, etc.",
+  );
   console.log();
   console.log("Key point: Turnkey NEVER sees the plaintext or encrypted data.");
   console.log("You store the encrypted bundles in YOUR infrastructure.");
@@ -351,7 +367,7 @@ async function generateAndEncryptWallets(): Promise<void> {
 
   if (!encryptionKeyId) {
     throw new Error(
-      "Missing ENCRYPTION_KEY_ID. Run 'Create Encryption Key' first."
+      "Missing ENCRYPTION_KEY_ID. Run 'Create Encryption Key' first.",
     );
   }
 
@@ -404,7 +420,7 @@ async function generateAndEncryptWallets(): Promise<void> {
     // Generate HD wallet
     const mnemonic = generateMnemonic(english, 256);
     const hdKey = HDKey.fromMasterSeed(
-      new Uint8Array(mnemonicToAccount(mnemonic).getHdKey().privateKey!)
+      new Uint8Array(mnemonicToAccount(mnemonic).getHdKey().privateKey!),
     );
 
     console.log("HD wallet generated. Deriving addresses...");
@@ -413,8 +429,7 @@ async function generateAndEncryptWallets(): Promise<void> {
       const derivationPath = `m/44'/60'/0'/0/${i}`;
       const derived = hdKey.derive(derivationPath);
       const privateKeyHex =
-        "0x" +
-        Buffer.from(derived.privateKey!).toString("hex");
+        "0x" + Buffer.from(derived.privateKey!).toString("hex");
       const account = privateKeyToAccount(privateKeyHex as `0x${string}`);
 
       // Encrypt the private key
@@ -507,7 +522,9 @@ async function generateAndEncryptWallets(): Promise<void> {
   console.log("  ✓ Decryption key:    Turnkey secure enclave");
   console.log("  ✓ Turnkey never saw: The plaintext data");
   console.log();
-  console.log("To decrypt, you must authenticate to Turnkey and export the key.");
+  console.log(
+    "To decrypt, you must authenticate to Turnkey and export the key.",
+  );
 }
 
 // ============================================================================
@@ -520,7 +537,9 @@ async function encryptCustomData(): Promise<void> {
   console.log("─".repeat(60));
   console.log();
   console.log("Encrypt any data you choose with the Turnkey escrow key.");
-  console.log("The encrypted bundle is stored locally — Turnkey never sees it.");
+  console.log(
+    "The encrypted bundle is stored locally — Turnkey never sees it.",
+  );
   console.log();
 
   const encryptionKeyId = process.env.ENCRYPTION_KEY_ID;
@@ -528,7 +547,7 @@ async function encryptCustomData(): Promise<void> {
 
   if (!encryptionKeyId) {
     throw new Error(
-      "Missing ENCRYPTION_KEY_ID. Run 'Create Encryption Key' first."
+      "Missing ENCRYPTION_KEY_ID. Run 'Create Encryption Key' first.",
     );
   }
 
@@ -629,7 +648,7 @@ async function startSession(): Promise<void> {
 
   if (!encryptionKeyId) {
     throw new Error(
-      "Missing ENCRYPTION_KEY_ID. Run 'Create Encryption Key' first."
+      "Missing ENCRYPTION_KEY_ID. Run 'Create Encryption Key' first.",
     );
   }
 
@@ -637,7 +656,7 @@ async function startSession(): Promise<void> {
   const storePath = path.resolve(process.cwd(), "encrypted-wallet-store.json");
   if (!fs.existsSync(storePath)) {
     throw new Error(
-      "No encrypted wallet store found. Run 'Generate & Encrypt Wallets' first."
+      "No encrypted wallet store found. Run 'Generate & Encrypt Wallets' first.",
     );
   }
 
@@ -690,7 +709,7 @@ async function startSession(): Promise<void> {
     const bundle = store.bundles[i];
     const decryptedJson = await decryptWithPrivateKey(
       decryptionKey,
-      bundle.encryptedData
+      bundle.encryptedData,
     );
     const parsed = JSON.parse(decryptedJson);
 
@@ -710,7 +729,7 @@ async function startSession(): Promise<void> {
     }
 
     process.stdout.write(
-      `\r  Decrypted ${i + 1}/${store.bundles.length} bundles`
+      `\r  Decrypted ${i + 1}/${store.bundles.length} bundles`,
     );
   }
   console.log();
@@ -730,8 +749,12 @@ async function startSession(): Promise<void> {
   console.log("═".repeat(60));
   console.log();
   console.log("Performance:");
-  console.log(`  Turnkey API call:  ${exportTime}ms (single request to export key)`);
-  console.log(`  Local decryption:  ${decryptTime}ms (${store.bundles.length} bundles)`);
+  console.log(
+    `  Turnkey API call:  ${exportTime}ms (single request to export key)`,
+  );
+  console.log(
+    `  Local decryption:  ${decryptTime}ms (${store.bundles.length} bundles)`,
+  );
   console.log(`  Total:             ${exportTime + decryptTime}ms`);
   console.log();
   console.log(`${decryptedWallets.length} items now available in memory.`);
@@ -755,7 +778,10 @@ async function signDemo(): Promise<void> {
   console.log("a message. Note: NO Turnkey API calls are made here.");
   console.log();
 
-  if (!activeSession.decryptionKey || activeSession.decryptedWallets.length === 0) {
+  if (
+    !activeSession.decryptionKey ||
+    activeSession.decryptedWallets.length === 0
+  ) {
     console.log("No decrypted data available. Export key & decrypt first.");
     return;
   }
@@ -891,7 +917,9 @@ function endSession(): void {
   console.log("  ✓ Encrypted store:  Still in YOUR infrastructure (safe)");
   console.log("  ✓ Turnkey enclave:  Still holds the encryption key");
   console.log();
-  console.log("To access data again, authenticate to Turnkey and export the key.");
+  console.log(
+    "To access data again, authenticate to Turnkey and export the key.",
+  );
 }
 
 // ============================================================================
@@ -920,7 +948,10 @@ async function viewEncryptedStore(): Promise<void> {
   console.log("─".repeat(60));
   console.log("Store Details:");
   console.log("─".repeat(60));
-  console.log("  Location:       ", "encrypted-wallet-store.json (YOUR infrastructure)");
+  console.log(
+    "  Location:       ",
+    "encrypted-wallet-store.json (YOUR infrastructure)",
+  );
   console.log("  Version:        ", store.version);
   console.log("  Encryption Key: ", store.encryptionKeyId.slice(0, 30) + "...");
   console.log("  Bundle count:   ", store.bundles.length);

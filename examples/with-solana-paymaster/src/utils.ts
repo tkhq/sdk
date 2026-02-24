@@ -1,4 +1,7 @@
-export function parseTokenAmount(amountInput: string, decimals: number): bigint {
+export function parseTokenAmount(
+  amountInput: string,
+  decimals: number,
+): bigint {
   const normalized = amountInput.trim();
   if (!/^\d+(\.\d+)?$/.test(normalized)) {
     throw new Error("Amount must be a positive decimal number.");
@@ -6,7 +9,9 @@ export function parseTokenAmount(amountInput: string, decimals: number): bigint 
 
   const [whole, fraction = ""] = normalized.split(".");
   const wholePart = BigInt(whole ?? "0") * 10n ** BigInt(decimals);
-  const fractionPart = BigInt((fraction + "0".repeat(decimals)).slice(0, decimals));
+  const fractionPart = BigInt(
+    (fraction + "0".repeat(decimals)).slice(0, decimals),
+  );
   return wholePart + fractionPart;
 }
 

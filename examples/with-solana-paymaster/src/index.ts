@@ -80,7 +80,9 @@ async function main() {
     sourceBalance = (await getAccount(connection, sourceAta)).amount;
   } catch (error) {
     if (error instanceof TokenAccountNotFoundError) {
-      throw new Error(`Sender does not have a ${network.token.symbol} token account.`);
+      throw new Error(
+        `Sender does not have a ${network.token.symbol} token account.`,
+      );
     }
     throw error;
   }
@@ -103,7 +105,8 @@ async function main() {
   }
 
   const instructions = [];
-  const destinationAccountInfo = await connection.getAccountInfo(destinationAta);
+  const destinationAccountInfo =
+    await connection.getAccountInfo(destinationAta);
   if (!destinationAccountInfo) {
     instructions.push(
       createAssociatedTokenAccountInstruction(
@@ -125,15 +128,19 @@ async function main() {
     instructions,
   });
   const versionedTx = new VersionedTransaction(txMessage.compileToV0Message());
-  const unsignedTransaction = Buffer.from(versionedTx.serialize()).toString("hex");
+  const unsignedTransaction = Buffer.from(versionedTx.serialize()).toString(
+    "hex",
+  );
 
-  const { sendTransactionStatusId } = await turnkey.apiClient().solSendTransaction({
-    organizationId,
-    unsignedTransaction,
-    signWith: senderAddress.toBase58(),
-    caip2: network.caip2,
-    sponsor: true,
-  });
+  const { sendTransactionStatusId } = await turnkey
+    .apiClient()
+    .solSendTransaction({
+      organizationId,
+      unsignedTransaction,
+      signWith: senderAddress.toBase58(),
+      caip2: network.caip2,
+      sponsor: true,
+    });
 
   const status = await pollTransactionStatus({
     apiClient: turnkey.apiClient(),
@@ -147,9 +154,7 @@ async function main() {
   );
 }
 
-async function getTransferParams(
-  token: SplToken,
-): Promise<
+async function getTransferParams(token: SplToken): Promise<
   | {
       recipientAddress: string;
       amountInput: string;

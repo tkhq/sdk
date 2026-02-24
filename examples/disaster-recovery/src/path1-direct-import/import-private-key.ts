@@ -65,7 +65,7 @@ async function main() {
 
   if (!organizationId || !userId) {
     throw new Error(
-      "Missing required environment variables: ORGANIZATION_ID, USER_ID"
+      "Missing required environment variables: ORGANIZATION_ID, USER_ID",
     );
   }
 
@@ -112,7 +112,7 @@ async function main() {
   console.log("Step 2: Encrypt private key material");
   console.log("-".repeat(40));
   console.log(
-    "SECURITY WARNING: In production, perform this step on an air-gapped machine!"
+    "SECURITY WARNING: In production, perform this step on an air-gapped machine!",
   );
   console.log();
 
@@ -191,7 +191,7 @@ async function main() {
   console.log("2. Test fund sweeping with a small amount");
   console.log();
   console.log(
-    "To sweep funds from this key, update SIGN_WITH in .env.local and run:"
+    "To sweep funds from this key, update SIGN_WITH in .env.local and run:",
   );
   console.log("  pnpm run path1:sweep-funds");
 }

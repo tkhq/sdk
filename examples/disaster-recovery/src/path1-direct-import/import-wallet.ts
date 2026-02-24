@@ -36,7 +36,7 @@ async function main() {
 
   if (!organizationId || !userId) {
     throw new Error(
-      "Missing required environment variables: ORGANIZATION_ID, USER_ID"
+      "Missing required environment variables: ORGANIZATION_ID, USER_ID",
     );
   }
 
@@ -51,7 +51,7 @@ async function main() {
   console.log("Step 1: Initialize import bundle from Turnkey");
   console.log("-".repeat(40));
   console.log(
-    "This creates a temporary public key in Turnkey's enclave for encrypting your mnemonic."
+    "This creates a temporary public key in Turnkey's enclave for encrypting your mnemonic.",
   );
   console.log();
 
@@ -67,7 +67,7 @@ async function main() {
   console.log("Step 2: Encrypt wallet material");
   console.log("-".repeat(40));
   console.log(
-    "SECURITY WARNING: In production, perform this step on an air-gapped machine!"
+    "SECURITY WARNING: In production, perform this step on an air-gapped machine!",
   );
   console.log();
 
@@ -141,13 +141,13 @@ async function main() {
   console.log();
   console.log("Next steps:");
   console.log(
-    "1. Create wallet accounts for the chains you need (Ethereum, Bitcoin, etc.)"
+    "1. Create wallet accounts for the chains you need (Ethereum, Bitcoin, etc.)",
   );
   console.log("2. Configure quorum policies for DR access");
   console.log("3. Test fund sweeping with a small amount");
   console.log();
   console.log(
-    "To sweep funds from this wallet, run: pnpm run path1:sweep-funds"
+    "To sweep funds from this wallet, run: pnpm run path1:sweep-funds",
   );
 }
 

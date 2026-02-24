@@ -29,17 +29,15 @@ async function parseJsonResponse(response: Response): Promise<any> {
   }
 }
 
-async function fetchJsonWithFallback(
-  request: {
-    amountLamports: bigint;
-    outputMint: string;
-    signWith: string;
-    jupiterApiKey: string;
-    jupiterBaseUrl: string;
-    jupiterQuotePath: string;
-    jupiterSwapPath: string;
-  },
-) {
+async function fetchJsonWithFallback(request: {
+  amountLamports: bigint;
+  outputMint: string;
+  signWith: string;
+  jupiterApiKey: string;
+  jupiterBaseUrl: string;
+  jupiterQuotePath: string;
+  jupiterSwapPath: string;
+}) {
   const base = request.jupiterBaseUrl;
   const quoteUrl =
     `${base}${request.jupiterQuotePath}` +
@@ -89,9 +87,7 @@ async function main() {
   const signWith = process.env.SIGN_WITH!;
   const jupiterApiKey = process.env.JUPITER_API_KEY!;
   if (!organizationId || !signWith || !jupiterApiKey) {
-    throw new Error(
-      "Missing ORGANIZATION_ID, SIGN_WITH, or JUPITER_API_KEY",
-    );
+    throw new Error("Missing ORGANIZATION_ID, SIGN_WITH, or JUPITER_API_KEY");
   }
 
   const network = MAINNET_CONFIG;
@@ -154,15 +150,15 @@ async function main() {
   const unsignedTransaction = Buffer.from(unsignedBase64, "base64").toString(
     "hex",
   );
-  const { sendTransactionStatusId } = await turnkey.apiClient().solSendTransaction(
-    {
+  const { sendTransactionStatusId } = await turnkey
+    .apiClient()
+    .solSendTransaction({
       organizationId,
       unsignedTransaction,
       signWith,
       caip2: network.caip2,
       sponsor: !!sponsored,
-    },
-  );
+    });
 
   const status = await pollTransactionStatus({
     apiClient: turnkey.apiClient(),
