@@ -73,25 +73,25 @@ The app launches at `http://localhost:3000`.
 
 ### Architecture Overview
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  layout.tsx                                             │
-│  ┌───────────────────────────────────────────────────┐  │
-│  │ TurnkeyConfigProvider  (demo wrapper — manages    │  │
-│  │ mutable config state + config panel UI)           │  │
-│  │  ┌─────────────────────────────────────────────┐  │  │
-│  │  │ TurnkeyProvider  (@turnkey/react-wallet-kit)│  │  │
-│  │  │                                             │  │  │
-│  │  │  Provides: useTurnkey(), useModal()          │  │  │
-│  │  │  Renders:  Auth modal, signing UI, iframes  │  │  │
-│  │  │  ┌───────────────────────────────────────┐  │  │  │
-│  │  │  │ page.tsx  (AuthPage)                  │  │  │  │
-│  │  │  │  ├── UserSettings  (account + auth)   │  │  │  │
-│  │  │  │  └── DemoPanel     (wallets + signing)│  │  │  │
-│  │  │  └───────────────────────────────────────┘  │  │  │
-│  │  └─────────────────────────────────────────────┘  │  │
-│  └───────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph layout.tsx
+        subgraph TurnkeyConfigProvider["TurnkeyConfigProvider (demo wrapper)"]
+            direction TB
+            CP_DESC["Manages mutable config state + config panel UI"]
+            subgraph TurnkeyProvider["TurnkeyProvider (@turnkey/react-wallet-kit)"]
+                direction TB
+                TP_DESC["Provides: useTurnkey(), useModal()<br/>Renders: Auth modal, signing UI, iframes"]
+                subgraph AuthPage["page.tsx (AuthPage)"]
+                    US["UserSettings<br/><i>account + auth methods</i>"]
+                    DP["DemoPanel<br/><i>wallets + signing</i>"]
+                end
+            end
+        end
+    end
+
+    style CP_DESC fill:none,stroke:none
+    style TP_DESC fill:none,stroke:none
 ```
 
 The integration is layered into three tiers:
@@ -104,38 +104,37 @@ The integration is layered into three tiers:
 
 Shows how the browser app communicates with external services. All private key operations happen server-side in Turnkey's secure enclaves — the browser never touches key material directly (except through sandboxed import/export iframes).
 
-```
-                                    ┌──────────────────────────┐
-                                    │    OAuth Providers        │
-                                    │  (Google, Apple, etc.)    │
-                                    └────────────▲─────────────┘
-                                                 │ OIDC tokens
-                                                 │
-┌─────────────────────┐  OTP / OAuth  ┌──────────┴─────────────┐  Wallet CRUD   ┌───────────────────────┐
-│                     │  relay         │                        │  + Signing      │                       │
-│   Browser           ├───────────────►│   Turnkey Auth Proxy   │                │   Turnkey API         │
-│   (Next.js App)     │               │   authproxy.turnkey.com │                │   api.turnkey.com     │
-│                     │               └──────────┬─────────────┘                │                       │
-│  ┌───────────────┐  │                          │ Delegates auth               │  ┌─────────────────┐  │
-│  │ TurnkeyProv.  │  ├──────────────────────────┼──────────────────────────────►│  │ Secure Enclaves │  │
-│  │ useTurnkey()  │  │  Wallet ops + signing    │                              │  │ (key storage &  │  │
-│  └───────────────┘  │                          │                              │  │  signing)       │  │
-│                     │               ┌──────────▼─────────────┐                │  └─────────────────┘  │
-│  ┌───────────────┐  │               │   Sandboxed Iframes    │                │                       │
-│  │ Import/Export │◄─┼──────────────►│   import.turnkey.com   │                └───────────────────────┘
-│  │ Iframes       │  │  Key material │   export.turnkey.com   │
-│  └───────────────┘  │  (encrypted)  └────────────────────────┘                ┌───────────────────────┐
-│                     │                                                         │   WalletConnect       │
-│  ┌───────────────┐  │  WalletConnect protocol                                │   (MetaMask, Phantom, │
-│  │ External      │◄─┼────────────────────────────────────────────────────────►│    etc.)              │
-│  │ Wallets       │  │                                                         └───────────────────────┘
-│  └───────────────┘  │
-│                     │               ┌────────────────────────┐
-│  ┌───────────────┐  │  Fiat → crypto│                        │
-│  │ On-Ramp       │◄─┼──────────────►│   MoonPay (sandbox)    │
-│  └───────────────┘  │               │                        │
-│                     │               └────────────────────────┘
-└─────────────────────┘
+```mermaid
+flowchart LR
+    subgraph Browser["Browser (Next.js App)"]
+        direction TB
+        TP["TurnkeyProvider<br/>useTurnkey()"]
+        IEF["Import/Export<br/>Iframes"]
+        EW["External<br/>Wallets"]
+        OR["On-Ramp"]
+    end
+
+    subgraph Turnkey
+        direction TB
+        API["Turnkey API<br/>api.turnkey.com"]
+        SE["Secure Enclaves<br/>(key storage & signing)"]
+        API --> SE
+    end
+
+    AP["Auth Proxy<br/>authproxy.turnkey.com"]
+    OAuth["OAuth Providers<br/>(Google, Apple, etc.)"]
+    Iframes["Sandboxed Iframes<br/>import.turnkey.com<br/>export.turnkey.com"]
+    WC["WalletConnect<br/>(MetaMask, Phantom, etc.)"]
+    MP["MoonPay<br/>(sandbox)"]
+
+    TP -- "OTP / OAuth relay" --> AP
+    AP -- "OIDC tokens" --> OAuth
+    AP -- "Delegates auth" --> API
+    TP -- "Wallet ops + signing" --> API
+    IEF -- "Encrypted key material" --> Iframes
+    Iframes -- "Export/import requests" --> API
+    EW -- "WalletConnect protocol" --> WC
+    OR -- "Fiat → crypto" --> MP
 ```
 
 ### Component Hierarchy
@@ -387,79 +386,57 @@ useEffect(() => {
 
 When a new user authenticates for the first time (e.g., via email OTP), the SDK creates a sub-organization and provisions wallets automatically based on `createSuborgParams`.
 
-```
-  Browser (App)             TurnkeyProvider (SDK)         Auth Proxy                  Turnkey API
-  ─────────────             ─────────────────────         ──────────                  ───────────
-       │                           │                          │                           │
-       │  handleLogin()            │                          │                           │
-       ├──────────────────────────►│                          │                           │
-       │                           │  Show auth modal         │                           │
-       │                           │  (email/passkey/OAuth)   │                           │
-       │                           │                          │                           │
-       │  User enters email        │                          │                           │
-       ├──────────────────────────►│                          │                           │
-       │                           │  Send OTP request        │                           │
-       │                           ├─────────────────────────►│                           │
-       │                           │                          │  Deliver email OTP        │
-       │                           │                          ├──────────────────────────►│
-       │                           │                          │◄─────────────── OK ───────┤
-       │                           │◄──────────── OK ─────────┤                           │
-       │                           │                          │                           │
-       │  User enters OTP code     │                          │                           │
-       ├──────────────────────────►│                          │                           │
-       │                           │  Verify OTP + create     │                           │
-       │                           │  sub-org request         │                           │
-       │                           ├─────────────────────────►│                           │
-       │                           │                          │  Create sub-org           │
-       │                           │                          │  + HD wallet (ETH + SOL)  │
-       │                           │                          │  + session                │
-       │                           │                          ├──────────────────────────►│
-       │                           │                          │◄──── sub-org + session ───┤
-       │                           │◄──── session token ──────┤                           │
-       │                           │                          │                           │
-       │                           │  Set authState =         │                           │
-       │                           │  Authenticated           │                           │
-       │                           │  Populate user, wallets  │                           │
-       │◄──── re-render ──────────┤                          │                           │
-       │                           │                          │                           │
-       │  App shows UserSettings   │                          │                           │
-       │  + DemoPanel              │                          │                           │
-       │                           │                          │                           │
+```mermaid
+sequenceDiagram
+    actor User as Browser (App)
+    participant SDK as TurnkeyProvider (SDK)
+    participant AP as Auth Proxy
+    participant API as Turnkey API
+
+    User->>SDK: handleLogin()
+    SDK-->>User: Show auth modal (email/passkey/OAuth)
+
+    User->>SDK: User enters email
+    SDK->>AP: Send OTP request
+    AP->>API: Deliver email OTP
+    API-->>AP: OK
+    AP-->>SDK: OK
+
+    User->>SDK: User enters OTP code
+    SDK->>AP: Verify OTP + create sub-org request
+    AP->>API: Create sub-org + HD wallet (ETH + SOL) + session
+    API-->>AP: Sub-org + session
+    AP-->>SDK: Session token
+
+    Note over SDK: Set authState = Authenticated<br/>Populate user, wallets
+    SDK-->>User: Re-render
+    Note over User: App shows UserSettings + DemoPanel
 ```
 
 ### Returning User Login Sequence
 
 When a user with an existing sub-organization logs back in, no sub-org creation occurs — the SDK authenticates against the existing one and restores the session.
 
-```
-  Browser (App)             TurnkeyProvider (SDK)         Auth Proxy                  Turnkey API
-  ─────────────             ─────────────────────         ──────────                  ───────────
-       │                           │                          │                           │
-       │  App mounts               │                          │                           │
-       ├──────────────────────────►│                          │                           │
-       │                           │  Check stored session    │                           │
-       │                           │  (expired or missing)    │                           │
-       │                           │  clientState = Ready     │                           │
-       │                           │  authState = Unauth      │                           │
-       │◄──── re-render ──────────┤                          │                           │
-       │                           │                          │                           │
-       │  useEffect → handleLogin()│                          │                           │
-       ├──────────────────────────►│                          │                           │
-       │                           │  Show login modal        │                           │
-       │                           │                          │                           │
-       │  User selects passkey     │                          │                           │
-       ├──────────────────────────►│                          │                           │
-       │                           │  WebAuthn challenge      │                           │
-       │                           │  (browser-native)        │                           │
-       │                           │──────────────────────────┼──────────────────────────►│
-       │                           │                          │                           │
-       │                           │◄─────────────────────────┼──── session + user data ──┤
-       │                           │                          │                           │
-       │                           │  Set authState =         │                           │
-       │                           │  Authenticated           │                           │
-       │                           │  Populate user, wallets  │                           │
-       │◄──── re-render ──────────┤                          │                           │
-       │                           │                          │                           │
+```mermaid
+sequenceDiagram
+    actor User as Browser (App)
+    participant SDK as TurnkeyProvider (SDK)
+    participant AP as Auth Proxy
+    participant API as Turnkey API
+
+    User->>SDK: App mounts
+    Note over SDK: Check stored session (expired or missing)<br/>clientState = Ready, authState = Unauthenticated
+    SDK-->>User: Re-render
+
+    User->>SDK: useEffect → handleLogin()
+    SDK-->>User: Show login modal
+
+    User->>SDK: User selects passkey
+    SDK->>API: WebAuthn challenge (browser-native)
+    API-->>SDK: Session + user data
+
+    Note over SDK: Set authState = Authenticated<br/>Populate user, wallets
+    SDK-->>User: Re-render
 ```
 
 Note: When `autoRefreshSession: true` is set and a valid session exists in storage, the SDK restores the session automatically without showing the login modal. The user goes straight to the authenticated state.
@@ -552,54 +529,35 @@ return nacl.sign.detached.verify(messageBytes, signature, pubKey.toBytes());
 
 Shows the full round-trip from button click to verified signature displayed in the modal.
 
-```
-  User                DemoPanel                useTurnkey()              Turnkey API           utils.ts
-  ────                ─────────                ────────────              ───────────           ────────
-   │                      │                        │                        │                     │
-   │  Click "Sign Msg"    │                        │                        │                     │
-   ├─────────────────────►│                        │                        │                     │
-   │                      │  handleSignMessage({   │                        │                     │
-   │                      │    message,             │                        │                     │
-   │                      │    walletAccount,       │                        │                     │
-   │                      │    addEthereumPrefix    │                        │                     │
-   │                      │  })                     │                        │                     │
-   │                      ├───────────────────────►│                        │                     │
-   │                      │                        │  Sign request          │                     │
-   │                      │                        │  (stamped with         │                     │
-   │                      │                        │   session credential)  │                     │
-   │                      │                        ├───────────────────────►│                     │
-   │                      │                        │                        │                     │
-   │                      │                        │  Secure enclave signs  │                     │
-   │                      │                        │  with private key      │                     │
-   │                      │                        │                        │                     │
-   │                      │                        │◄──── { r, s, v } ──────┤                     │
-   │                      │◄──── { r, s, v } ──────┤                        │                     │
-   │                      │                        │                        │                     │
-   │                      │  Detect address format │                        │                     │
-   │                      │  (ETH or SOL)          │                        │                     │
-   │                      │                        │                        │                     │
-   │                      │  ┌─── ETH ────────────────────────────────────────────────────────────┐
-   │                      │  │ verifyEthSignature   │                        │                     │
-   │                      │  │ WithAddress()        │                        │    joinRSV(r,s,v)   │
-   │                      │  ├─────────────────────────────────────────────────────────────────────►
-   │                      │  │                      │                        │  viem.verifyMessage │
-   │                      │  │◄──── boolean ───────────────────────────────────────────────────────
-   │                      │  └─────────────────────────────────────────────────────────────────────┘
-   │                      │  ┌─── SOL ────────────────────────────────────────────────────────────┐
-   │                      │  │ verifySolSignature   │                        │                     │
-   │                      │  │ WithAddress()        │                        │  nacl.sign.detached │
-   │                      │  ├──────────────────────────────────────────────────────────────────────►
-   │                      │  │◄──── boolean ────────────────────────────────────────────────────────
-   │                      │  └─────────────────────────────────────────────────────────────────────┘
-   │                      │                        │                        │                     │
-   │                      │  pushPage({            │                        │                     │
-   │                      │    SignatureVerification│                        │                     │
-   │                      │  })                     │                        │                     │
-   │                      │                        │                        │                     │
-   │◄── Modal shows ──────┤                        │                        │                     │
-   │   verified/failed     │                        │                        │                     │
-   │   + signature hex     │                        │                        │                     │
-   │                      │                        │                        │                     │
+```mermaid
+sequenceDiagram
+    actor User
+    participant DP as DemoPanel
+    participant SDK as useTurnkey()
+    participant API as Turnkey API
+    participant Utils as utils.ts
+
+    User->>DP: Click "Sign Message"
+    DP->>SDK: handleSignMessage({ message, walletAccount, addEthereumPrefix })
+    SDK->>API: Sign request (stamped with session credential)
+    Note over API: Secure enclave signs<br/>with private key
+    API-->>SDK: { r, s, v }
+    SDK-->>DP: { r, s, v }
+
+    Note over DP: Detect address format (ETH or SOL)
+
+    alt Ethereum account
+        DP->>Utils: verifyEthSignatureWithAddress()
+        Note over Utils: joinRSV(r, s, v)<br/>viem.verifyMessage()
+        Utils-->>DP: boolean
+    else Solana account
+        DP->>Utils: verifySolSignatureWithAddress()
+        Note over Utils: Combine r + s (64 bytes)<br/>nacl.sign.detached.verify()
+        Utils-->>DP: boolean
+    end
+
+    DP->>DP: pushPage({ SignatureVerification })
+    DP-->>User: Modal shows verified/failed + signature hex
 ```
 
 ### Wallet Model
@@ -624,40 +582,24 @@ The `DemoPanel` distinguishes between embedded and connected wallets — export/
 
 Export uses a Turnkey-hosted sandboxed iframe (`export.turnkey.com`) so that decrypted key material is rendered inside the iframe and never exposed to the parent application's JavaScript context.
 
-```
-  User               DemoPanel              useTurnkey()            Turnkey API         export.turnkey.com
-  ────               ─────────              ────────────            ───────────         ──────────────────
-   │                     │                       │                      │                      │
-   │  Click "Export"     │                       │                      │                      │
-   ├────────────────────►│                       │                      │                      │
-   │                     │  handleExportWallet({ │                      │                      │
-   │                     │    walletId            │                      │                      │
-   │                     │  })                    │                      │                      │
-   │                     ├──────────────────────►│                      │                      │
-   │                     │                       │                      │                      │
-   │                     │                       │  SDK opens modal     │                      │
-   │                     │                       │  with sandboxed      │                      │
-   │                     │                       │  iframe              │                      │
-   │                     │                       │                      │                      │
-   │                     │                       │  Export request       │                      │
-   │                     │                       │  (encrypted)         │                      │
-   │                     │                       ├─────────────────────►│                      │
-   │                     │                       │                      │                      │
-   │                     │                       │                      │  Encrypted key        │
-   │                     │                       │                      │  bundle               │
-   │                     │                       │◄─────────────────────┤                      │
-   │                     │                       │                      │                      │
-   │                     │                       │  Forward encrypted   │                      │
-   │                     │                       │  bundle to iframe    │                      │
-   │                     │                       ├─────────────────────────────────────────────►│
-   │                     │                       │                      │                      │
-   │                     │                       │                      │    Iframe decrypts    │
-   │                     │                       │                      │    + displays key     │
-   │                     │                       │                      │    (never exposed     │
-   │◄── User sees ───────┼───────────────────────┼──────────────────────┼──── to parent JS)    │
-   │   mnemonic/key      │                       │                      │                      │
-   │   inside iframe     │                       │                      │                      │
-   │                     │                       │                      │                      │
+```mermaid
+sequenceDiagram
+    actor User
+    participant DP as DemoPanel
+    participant SDK as useTurnkey()
+    participant API as Turnkey API
+    participant Iframe as export.turnkey.com
+
+    User->>DP: Click "Export Wallet"
+    DP->>SDK: handleExportWallet({ walletId })
+    Note over SDK: SDK opens modal with<br/>sandboxed iframe
+
+    SDK->>API: Export request (encrypted)
+    API-->>SDK: Encrypted key bundle
+
+    SDK->>Iframe: Forward encrypted bundle to iframe
+    Note over Iframe: Iframe decrypts + displays key<br/>(never exposed to parent JS)
+    Iframe-->>User: User sees mnemonic/key inside iframe
 ```
 
 ### The `useModal()` Hook
