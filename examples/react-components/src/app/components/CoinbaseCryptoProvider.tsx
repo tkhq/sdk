@@ -13,7 +13,7 @@ const CoinbaseCryptoProvider = ({ children }: CoinbaseCryptoProviderProps) => {
     <OnchainKitProvider
       apiKey={process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY!}
       projectId={process.env.NEXT_PUBLIC_CDP_PROJECT_ID!}
-      chain={sepolia}
+      chain={sepolia as any}
     >
       {children}
     </OnchainKitProvider>

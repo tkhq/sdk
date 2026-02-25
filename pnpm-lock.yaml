@@ -1027,6 +1027,31 @@ importers:
         specifier: 5.4.3
         version: 5.4.3
 
+  examples/solana-usdc-swap:
+    dependencies:
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      cross-fetch:
+        specifier: ^4.1.0
+        version: 4.1.0(encoding@0.1.13)
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
+
   examples/sweeper:
     dependencies:
       '@turnkey/ethers':
@@ -2709,6 +2734,31 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.0
         version: 18.3.7(@types/react@18.3.24)
+
+  examples/with-solana-paymaster:
+    dependencies:
+      '@solana/spl-token':
+        specifier: ^0.4.9
+        version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@solana/web3.js':
+        specifier: ^1.95.8
+        version: 1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10)
+      '@turnkey/sdk-server':
+        specifier: workspace:*
+        version: link:../../packages/sdk-server
+      dotenv:
+        specifier: ^16.0.3
+        version: 16.0.3
+      prompts:
+        specifier: ^2.4.2
+        version: 2.4.2
+    devDependencies:
+      '@types/prompts':
+        specifier: ^2.4.2
+        version: 2.4.2
+      typescript:
+        specifier: 5.4.3
+        version: 5.4.3
 
   examples/with-stacks:
     dependencies:
@@ -10779,6 +10829,9 @@ packages:
 
   cross-fetch@4.0.0:
     resolution: {integrity: sha512-e4a5N8lVvuLgAWgnCrLr2PP0YyDOTHa9H/Rj54dirp61qXnNq46m82bRhNqIA5VccJtWBvPTFRV3TtvHUKPB1g==}
+
+  cross-fetch@4.1.0:
+    resolution: {integrity: sha512-uKm5PU+MHTootlWEY+mZ4vvXoCn4fLQxT9dSc1sXVMSFkINTJVN8cAQROpwcKm8bJ/c7rgZVIBWzH5T78sNZZw==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -20539,11 +20592,11 @@ snapshots:
     dependencies:
       openapi-fetch: 0.13.8
 
-  '@metamask/sdk-communication-layer@0.33.1(cross-fetch@4.0.0(encoding@0.1.13))(eciesjs@0.4.15)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.8.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+  '@metamask/sdk-communication-layer@0.33.1(cross-fetch@4.1.0(encoding@0.1.13))(eciesjs@0.4.15)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.8.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
       '@metamask/sdk-analytics': 0.0.5
       bufferutil: 4.0.9
-      cross-fetch: 4.0.0(encoding@0.1.13)
+      cross-fetch: 4.1.0(encoding@0.1.13)
       date-fns: 2.30.0
       debug: 4.3.4
       eciesjs: 0.4.15
@@ -20565,11 +20618,11 @@ snapshots:
       '@metamask/onboarding': 1.0.1
       '@metamask/providers': 16.1.0
       '@metamask/sdk-analytics': 0.0.5
-      '@metamask/sdk-communication-layer': 0.33.1(cross-fetch@4.0.0(encoding@0.1.13))(eciesjs@0.4.15)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.8.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+      '@metamask/sdk-communication-layer': 0.33.1(cross-fetch@4.1.0(encoding@0.1.13))(eciesjs@0.4.15)(eventemitter2@6.4.9)(readable-stream@3.6.2)(socket.io-client@4.8.1(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@metamask/sdk-install-modal-web': 0.32.1
       '@paulmillr/qr': 0.2.1
       bowser: 2.12.1
-      cross-fetch: 4.0.0(encoding@0.1.13)
+      cross-fetch: 4.1.0(encoding@0.1.13)
       debug: 4.3.4
       eciesjs: 0.4.15
       eth-rpc-errors: 4.0.3
@@ -25534,7 +25587,7 @@ snapshots:
       blakejs: 1.2.1
       bs58: 6.0.0
       bs58check: 4.0.0
-      cross-fetch: 4.0.0(encoding@0.1.13)
+      cross-fetch: 4.1.0(encoding@0.1.13)
       jws: 4.0.1
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -25587,7 +25640,7 @@ snapshots:
       '@trezor/protocol': 1.2.8(tslib@2.8.1)
       '@trezor/type-utils': 1.1.8
       '@trezor/utils': 9.4.2(tslib@2.8.1)
-      cross-fetch: 4.0.0(encoding@0.1.13)
+      cross-fetch: 4.1.0(encoding@0.1.13)
       tslib: 2.8.1
       usb: 2.16.0
     transitivePeerDependencies:
@@ -30624,6 +30677,12 @@ snapshots:
       - encoding
 
   cross-fetch@4.0.0(encoding@0.1.13):
+    dependencies:
+      node-fetch: 2.7.0(encoding@0.1.13)
+    transitivePeerDependencies:
+      - encoding
+
+  cross-fetch@4.1.0(encoding@0.1.13):
     dependencies:
       node-fetch: 2.7.0(encoding@0.1.13)
     transitivePeerDependencies:
@@ -38472,7 +38531,7 @@ snapshots:
 
   web3-providers-http@4.2.0(encoding@0.1.13):
     dependencies:
-      cross-fetch: 4.0.0(encoding@0.1.13)
+      cross-fetch: 4.1.0(encoding@0.1.13)
       web3-errors: 1.3.1
       web3-types: 1.10.0
       web3-utils: 4.3.3
