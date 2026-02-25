@@ -74,6 +74,9 @@ export enum IframeEventType {
   // Event sent by the parent page to request a signature for a message.
   // Value: payload to sign
   SignMessage = "SIGN_MESSAGE",
+  // Event sent by the parent page to request that the iframe re-encrypt the mnemonic/private key to the passphrase inputted by the user and return it to the parent frame.
+  // Value: none
+  ConfirmPassphraseExport = "CONFIRM_PASSPHRASE_EXPORT",
   // Event sent by the parent page to request that the iframe embedded private key is cleared from memory.
   // Value: none
   clearEmbeddedPrivateKey = "CLEAR_EMBEDDED_PRIVATE_KEY",
@@ -450,6 +453,7 @@ export class IframeStamper {
    * @param {string} organizationId - The organization ID
    * @param {KeyFormat} keyFormat - [Optional] The key format (HEXADECIMAL or SOLANA). Defaults to HEXADECIMAL
    * @param {string} address - [Optional] Address corresponding to the key bundle (case sensitive)
+   * @param {boolean} encryptToPassphrase - [Optional] Whether the bundle was encrypted with a passphrase. Defaults to false.
    * @returns {Promise<boolean>} Returns true on successful injection
    */
   async injectKeyExportBundle(
@@ -457,12 +461,14 @@ export class IframeStamper {
     organizationId: string,
     keyFormat?: KeyFormat,
     address?: string,
+    encryptToPassphrase?: boolean,
   ): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.InjectKeyExportBundle, {
       value: bundle,
       keyFormat,
       organizationId,
       address,
+      encryptToPassphrase: encryptToPassphrase ?? false,
     });
   }
 
@@ -473,17 +479,20 @@ export class IframeStamper {
    * This is used during the wallet export flow.
    * @param {string} bundle - The encrypted wallet export bundle to inject
    * @param {string} organizationId - The organization ID
+   * @param {boolean} encryptToPassphrase - [Optional] Whether the bundle was encrypted with a passphrase. Defaults to false.
    * @returns {Promise<boolean>} Returns true on successful injection
    */
   async injectWalletExportBundle(
     bundle: string,
     organizationId: string,
+    encryptToPassphrase?: boolean,
   ): Promise<boolean> {
     return this.createRequest<boolean>(
       IframeEventType.InjectWalletExportBundle,
       {
         value: bundle,
         organizationId,
+        encryptToPassphrase: encryptToPassphrase ?? false,
       },
     );
   }
@@ -623,5 +632,9 @@ export class IframeStamper {
     return this.createRequest<boolean>(
       IframeEventType.ResetToDefaultEmbeddedKey,
     );
+  }
+
+  async confirmPassphraseExport(): Promise<string> {
+    return this.createRequest<string>(IframeEventType.ConfirmPassphraseExport);
   }
 }
