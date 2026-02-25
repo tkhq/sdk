@@ -16,7 +16,7 @@ export function getTurnkeyClient(): Turnkey {
 
   if (!apiPublicKey || !apiPrivateKey || !organizationId) {
     throw new Error(
-      "Missing required environment variables: API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID"
+      "Missing required environment variables: API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID",
     );
   }
 

@@ -11,9 +11,9 @@ This example demonstrates how to use Turnkey as a **secure key storage and retri
 
 The encryption key escrow pattern separates two components:
 
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| **Encrypted data** | Your infrastructure | Wallet bundles, recovery material, sensitive credentials |
+| Component          | Location               | Purpose                                                   |
+| ------------------ | ---------------------- | --------------------------------------------------------- |
+| **Encrypted data** | Your infrastructure    | Wallet bundles, recovery material, sensitive credentials  |
 | **Encryption key** | Turnkey secure enclave | Decryption only possible via authenticated Turnkey access |
 
 This creates a **2-of-2 security model**: an attacker must compromise both your infrastructure AND Turnkey authentication to access the plaintext data.
@@ -88,11 +88,11 @@ For compliance or architectural requirements where key material must be separate
 
 ### Security Properties
 
-| Scenario | Impact |
-|----------|--------|
-| Your storage compromised | Attacker gets encrypted blobs, cannot decrypt without Turnkey auth |
-| Turnkey credentials compromised | Attacker can export key but has no encrypted bundles |
-| Both compromised | Full access (inherent to any 2-of-2 model) |
+| Scenario                        | Impact                                                             |
+| ------------------------------- | ------------------------------------------------------------------ |
+| Your storage compromised        | Attacker gets encrypted blobs, cannot decrypt without Turnkey auth |
+| Turnkey credentials compromised | Attacker can export key but has no encrypted bundles               |
+| Both compromised                | Full access (inherent to any 2-of-2 model)                         |
 
 ## Quick Start
 
@@ -114,15 +114,18 @@ pnpm start
 The CLI provides a complete walkthrough of the escrow pattern:
 
 ### Initial Setup
+
 1. **Create Encryption Key** - Generate a P-256 keypair in Turnkey
 2. **Generate & Encrypt Wallets** - Create test wallets and encrypt them
 
 ### Per-Session Flow
+
 3. **Start Session** - Export decryption key and decrypt wallet bundles
 4. **Sign Message (Demo)** - Sign with any decrypted wallet (local, instant)
 5. **End Session** - Burn decryption key and clear memory
 
 ### Utilities
+
 - **View Encrypted Store** - Inspect the encrypted wallet bundles
 
 ## Environment Variables
@@ -203,6 +206,7 @@ For sensitive keys, require multi-party approval for export:
 ### Authentication Options
 
 Turnkey supports multiple authentication methods for key export:
+
 - **API keys** - For server-to-server access
 - **Passkeys** - For user-initiated access (WebAuthn)
 - **OAuth** - For social login flows
@@ -211,6 +215,7 @@ Turnkey supports multiple authentication methods for key export:
 ### Storage Options
 
 Encrypted bundles can be stored anywhere you control:
+
 - **Client-side:** localStorage, IndexedDB, secure enclaves (mobile)
 - **Server-side:** Your database, S3, GCS, or any object storage
 - **Hybrid:** Replicated across client and server for redundancy

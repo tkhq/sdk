@@ -66,7 +66,7 @@ async function main() {
   console.log("3. Save the encrypted bundle locally (you store this securely)");
   console.log();
   console.log(
-    "Note: The encrypted bundle should be stored in YOUR infrastructure,"
+    "Note: The encrypted bundle should be stored in YOUR infrastructure,",
   );
   console.log("not on Turnkey. This creates a 2-of-2 security model.");
   console.log();
@@ -270,8 +270,8 @@ async function main() {
         createdAt: new Date().toISOString(),
       },
       null,
-      2
-    )
+      2,
+    ),
   );
 
   console.log();
@@ -293,7 +293,7 @@ async function main() {
 }
 
 async function createNewEncryptionKey(
-  turnkeyClient: Turnkey
+  turnkeyClient: Turnkey,
 ): Promise<{ privateKeyId: string; publicKey: string }> {
   console.log();
   console.log("Step 1: Create encryption keypair in Turnkey");

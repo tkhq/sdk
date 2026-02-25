@@ -62,13 +62,13 @@ async function main() {
 
   if (!signWith) {
     throw new Error(
-      "Missing SIGN_WITH - set this to the imported wallet/key address"
+      "Missing SIGN_WITH - set this to the imported wallet/key address",
     );
   }
 
   if (!safeTreasury) {
     throw new Error(
-      "Missing SAFE_TREASURY_ADDRESS - set this to your safe destination address"
+      "Missing SAFE_TREASURY_ADDRESS - set this to your safe destination address",
     );
   }
 
@@ -208,7 +208,7 @@ async function main() {
     console.log("Transaction Hash:", txHash);
     console.log(
       "Explorer URL:    ",
-      `${networkConfig.explorerUrl}/tx/${txHash}`
+      `${networkConfig.explorerUrl}/tx/${txHash}`,
     );
     console.log();
 

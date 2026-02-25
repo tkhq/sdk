@@ -14,7 +14,7 @@ if (typeof crypto === "undefined") {
  */
 export async function encryptWithPublicKey(
   publicKeyHex: string,
-  plaintext: string
+  plaintext: string,
 ): Promise<string> {
   // Convert hex public key to bytes
   const publicKeyBytes = hexToBytes(publicKeyHex);
@@ -28,7 +28,7 @@ export async function encryptWithPublicKey(
       namedCurve: "P-256",
     },
     false,
-    []
+    [],
   );
 
   // Generate an ephemeral key pair for ECDH
@@ -38,7 +38,7 @@ export async function encryptWithPublicKey(
       namedCurve: "P-256",
     },
     true,
-    ["deriveBits"]
+    ["deriveBits"],
   );
 
   // Derive shared secret
@@ -48,7 +48,7 @@ export async function encryptWithPublicKey(
       public: publicKey,
     },
     ephemeralKeyPair.privateKey,
-    256
+    256,
   );
 
   // Derive AES key from shared secret
@@ -57,7 +57,7 @@ export async function encryptWithPublicKey(
     sharedSecret,
     { name: "AES-GCM" },
     false,
-    ["encrypt"]
+    ["encrypt"],
   );
 
   // Generate IV
@@ -68,19 +68,17 @@ export async function encryptWithPublicKey(
   const ciphertext = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
     aesKey,
-    plaintextBytes
+    plaintextBytes,
   );
 
   // Export ephemeral public key
   const ephemeralPublicKey = await crypto.subtle.exportKey(
     "raw",
-    ephemeralKeyPair.publicKey
+    ephemeralKeyPair.publicKey,
   );
 
   // Combine: ephemeral public key (65 bytes) + IV (12 bytes) + ciphertext
-  const result = new Uint8Array(
-    65 + iv.length + ciphertext.byteLength
-  );
+  const result = new Uint8Array(65 + iv.length + ciphertext.byteLength);
   result.set(new Uint8Array(ephemeralPublicKey), 0);
   result.set(iv, 65);
   result.set(new Uint8Array(ciphertext), 65 + iv.length);
@@ -95,7 +93,7 @@ export async function encryptWithPublicKey(
  */
 export async function decryptWithPrivateKey(
   privateKeyHex: string,
-  encryptedDataHex: string
+  encryptedDataHex: string,
 ): Promise<string> {
   const encryptedData = hexToBytes(encryptedDataHex);
 
@@ -117,7 +115,7 @@ export async function decryptWithPrivateKey(
       namedCurve: "P-256",
     },
     false,
-    ["deriveBits"]
+    ["deriveBits"],
   );
 
   // Import ephemeral public key
@@ -129,7 +127,7 @@ export async function decryptWithPrivateKey(
       namedCurve: "P-256",
     },
     false,
-    []
+    [],
   );
 
   // Derive shared secret
@@ -139,7 +137,7 @@ export async function decryptWithPrivateKey(
       public: ephemeralPublicKey,
     },
     privateKey,
-    256
+    256,
   );
 
   // Derive AES key
@@ -148,14 +146,14 @@ export async function decryptWithPrivateKey(
     sharedSecret,
     { name: "AES-GCM" },
     false,
-    ["decrypt"]
+    ["decrypt"],
   );
 
   // Decrypt
   const plaintext = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv },
     aesKey,
-    ciphertext
+    ciphertext,
   );
 
   return new TextDecoder().decode(plaintext);

@@ -77,6 +77,10 @@ export enum IframeEventType {
   // Event sent by the parent page to request that the iframe embedded private key is cleared from memory.
   // Value: none
   clearEmbeddedPrivateKey = "CLEAR_EMBEDDED_PRIVATE_KEY",
+  // Event sent by the parent to set an override for the iframe's embedded key.
+  SetEmbeddedKeyOverride = "SET_EMBEDDED_KEY_OVERRIDE",
+  // Event sent by the iframe to clear the injected decryption key and use the default embedded key instead.
+  ResetToDefaultEmbeddedKey = "RESET_TO_DEFAULT_EMBEDDED_KEY",
   // Event sent by the iframe to communicate an error
   // Value: serialized error
   Error = "ERROR",
@@ -603,5 +607,21 @@ export class IframeStamper {
    */
   async clearEmbeddedPrivateKey(): Promise<boolean> {
     return this.createRequest<boolean>(IframeEventType.clearEmbeddedPrivateKey);
+  }
+
+  async setEmbeddedKeyOverride(
+    organizationId: string,
+    bundle: string,
+  ): Promise<boolean> {
+    return this.createRequest<boolean>(IframeEventType.SetEmbeddedKeyOverride, {
+      organizationId,
+      value: bundle,
+    });
+  }
+
+  async resetToDefaultEmbeddedKey(): Promise<boolean> {
+    return this.createRequest<boolean>(
+      IframeEventType.ResetToDefaultEmbeddedKey,
+    );
   }
 }

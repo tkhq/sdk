@@ -27,6 +27,7 @@ pnpm start
 ```
 
 The interactive CLI provides a menu-driven interface for all disaster recovery operations:
+
 - Generate test wallets for testing/PoC
 - Path 1: Import wallets and sweep funds
 - Path 2: Set up and recover from encryption escrow
@@ -67,11 +68,13 @@ pnpm run generate-test-wallet
 ```
 
 This will:
+
 1. Generate a random 12 or 24 word mnemonic, OR a raw private key
 2. Show the derived Ethereum address
 3. Optionally save to a JSON file for reference
 
 **Testing flow:**
+
 1. Generate a test wallet
 2. Fund it with Sepolia testnet ETH from a faucet:
    - https://sepoliafaucet.com
@@ -87,12 +90,12 @@ This will:
 
 ### Why This Approach
 
-| Benefit | Description |
-|---------|-------------|
-| Immediate Recovery | Keys are operational within Turnkey instantly—no decryption ceremonies |
-| Asset Agnostic | Single path for Bitcoin, Ethereum, Solana, and any SECP256k1/Ed25519 chains |
-| Fund Sweeping | SDK enables rapid fund movement without custom tooling |
-| Policy Controls | Full access to quorum policies, whitelisting, and transaction limits |
+| Benefit            | Description                                                                 |
+| ------------------ | --------------------------------------------------------------------------- |
+| Immediate Recovery | Keys are operational within Turnkey instantly—no decryption ceremonies      |
+| Asset Agnostic     | Single path for Bitcoin, Ethereum, Solana, and any SECP256k1/Ed25519 chains |
+| Fund Sweeping      | SDK enables rapid fund movement without custom tooling                      |
+| Policy Controls    | Full access to quorum policies, whitelisting, and transaction limits        |
 
 ### Import HD Wallet (Mnemonic)
 
@@ -103,6 +106,7 @@ pnpm run path1:import-wallet
 ```
 
 This will:
+
 1. Initialize an import bundle (temporary encryption key from Turnkey's enclave)
 2. Prompt for your mnemonic seed phrase
 3. Encrypt the mnemonic to Turnkey's ephemeral public key
@@ -117,6 +121,7 @@ pnpm run path1:import-key
 ```
 
 Supports:
+
 - Ethereum/EVM (SECP256K1)
 - Solana (ED25519)
 - Bitcoin (SECP256K1)
@@ -134,6 +139,7 @@ pnpm run path1:sweep-funds
 ```
 
 Features:
+
 - Network selection (Sepolia testnet or Mainnet)
 - Gas estimation and balance checking
 - Confirmation prompts for safety
@@ -183,6 +189,7 @@ pnpm run path2:setup
 ```
 
 This will:
+
 1. Create a P-256 encryption keypair in Turnkey (for encryption only, not on-chain)
 2. Prompt for your recovery material (mnemonic, credentials, or custom data)
 3. Encrypt the bundle with Turnkey's public key
@@ -200,6 +207,7 @@ pnpm run path2:recovery
 ```
 
 This will:
+
 1. Generate a target keypair for receiving the exported key
 2. Export the encryption private key from Turnkey (may require quorum approval)
 3. Decrypt the export bundle to get the raw private key
@@ -207,11 +215,11 @@ This will:
 
 ### Security Properties
 
-| Scenario | Impact |
-|----------|--------|
-| Customer infrastructure breach | Attacker gets encrypted blobs but cannot decrypt without Turnkey authentication |
-| Turnkey user breach | Attacker could access the encryption keypair but doesn't have the encrypted bundles |
-| Both breached | Both parties must be compromised simultaneously for full recovery |
+| Scenario                       | Impact                                                                              |
+| ------------------------------ | ----------------------------------------------------------------------------------- |
+| Customer infrastructure breach | Attacker gets encrypted blobs but cannot decrypt without Turnkey authentication     |
+| Turnkey user breach            | Attacker could access the encryption keypair but doesn't have the encrypted bundles |
+| Both breached                  | Both parties must be compromised simultaneously for full recovery                   |
 
 ### Architecture
 
@@ -253,15 +261,15 @@ This will:
 
 ## Comparison: Path 1 vs Path 2
 
-| Factor | Path 1: Direct Import | Path 2: Encryption Escrow |
-|--------|----------------------|---------------------------|
-| Recovery Speed | Immediate—keys operational in Turnkey | Requires decryption ceremony |
-| Fund Sweeping | Built-in SDK support | Requires wallet tooling after decryption |
-| Key Storage | Turnkey holds wallet keys in enclave | Turnkey holds only encryption keys |
-| Material Location | Turnkey secure enclave | Your storage (encrypted) |
-| Complexity | Lower | Higher |
-| Best For | Enterprise DR, treasury backup | User recovery, compliance separation |
-| Security Model | Single party (authorized Turnkey users) | 2-of-2 (Turnkey auth + bundle access) |
+| Factor            | Path 1: Direct Import                   | Path 2: Encryption Escrow                |
+| ----------------- | --------------------------------------- | ---------------------------------------- |
+| Recovery Speed    | Immediate—keys operational in Turnkey   | Requires decryption ceremony             |
+| Fund Sweeping     | Built-in SDK support                    | Requires wallet tooling after decryption |
+| Key Storage       | Turnkey holds wallet keys in enclave    | Turnkey holds only encryption keys       |
+| Material Location | Turnkey secure enclave                  | Your storage (encrypted)                 |
+| Complexity        | Lower                                   | Higher                                   |
+| Best For          | Enterprise DR, treasury backup          | User recovery, compliance separation     |
+| Security Model    | Single party (authorized Turnkey users) | 2-of-2 (Turnkey auth + bundle access)    |
 
 ---
 
@@ -316,15 +324,19 @@ disaster-recovery/
 ## Troubleshooting
 
 ### "Missing required environment variable"
+
 Ensure all required variables are set in `.env.local`. Copy from `.env.local.example` and fill in your values.
 
 ### "Quorum approval required"
+
 Your Turnkey organization has policies requiring multiple approvers. Coordinate with other key holders.
 
 ### "Not enough ETH to sweep"
+
 The wallet balance is too low to cover gas costs. Fund the wallet or use a different network.
 
 ### Import fails with encryption error
+
 Ensure you're using a valid BIP-39 mnemonic (12 or 24 words) or correctly formatted private key.
 
 ---
