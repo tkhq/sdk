@@ -1,5 +1,11 @@
 # @turnkey/iframe-stamper
 
+## 2.11.0
+
+### Minor Changes
+
+- [#1200](https://github.com/tkhq/sdk/pull/1200) [`207fc93`](https://github.com/tkhq/sdk/commit/207fc932374a8362ec6f803ac0a67c2e5dbfc29e) Author [@ethankonk](https://github.com/ethankonk) - Added the ability to override the iframe's embedded key pair using a Turnkey P256 private key exported and encrypted to the iframe's embedded key pair.
+
 ## 2.10.0
 
 ### Minor Changes

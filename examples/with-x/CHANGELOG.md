@@ -1,5 +1,12 @@
 # with-x
 
+## 0.1.26
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-react@5.5.5
+
 ## 0.1.25
 
 ### Patch Changes
