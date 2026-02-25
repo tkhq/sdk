@@ -3997,6 +3997,9 @@ importers:
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
       cross-fetch:
         specifier: ^4.0.0
         version: 4.0.0(encoding@0.1.13)

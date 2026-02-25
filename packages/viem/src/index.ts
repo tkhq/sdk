@@ -35,11 +35,86 @@ import {
   TurnkeyActivityConsensusNeededError as TurnkeyHttpActivityConsensusNeededError,
   TurnkeyClient,
   type TurnkeyApiTypes,
+  type TurnkeyApi as HttpApiTypes,
 } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import type { TurnkeyBrowserClient } from "@turnkey/sdk-browser";
-import type { TurnkeySDKClientBase } from "@turnkey/core";
-import type { TurnkeyServerClient } from "@turnkey/sdk-server";
+import type { TurnkeySDKApiTypes as BrowserApiTypes } from "@turnkey/sdk-browser";
+import type { TurnkeySDKApiTypes as ServerApiTypes } from "@turnkey/sdk-server";
+import type {
+  TGetPrivateKeyBody as SdkTypesGetPrivateKeyBody,
+  TSignTransactionBody as SdkTypesSignTransactionBody,
+  TSignRawPayloadBody as SdkTypesSignRawPayloadBody,
+} from "@turnkey/sdk-types";
+
+/**
+ * Union types for inputs — accept the body format from any SDK package.
+ */
+export type TGetPrivateKeyBody =
+  | BrowserApiTypes.TGetPrivateKeyBody
+  | ServerApiTypes.TGetPrivateKeyBody
+  | SdkTypesGetPrivateKeyBody
+  | HttpApiTypes.TGetPrivateKeyBody;
+
+export type TSignTransactionBody =
+  | BrowserApiTypes.TSignTransactionBody
+  | ServerApiTypes.TSignTransactionBody
+  | SdkTypesSignTransactionBody
+  | HttpApiTypes.TSignTransactionBody;
+
+export type TSignRawPayloadBody =
+  | BrowserApiTypes.TSignRawPayloadBody
+  | ServerApiTypes.TSignRawPayloadBody
+  | SdkTypesSignRawPayloadBody
+  | HttpApiTypes.TSignRawPayloadBody;
+
+/**
+ * Minimal response types — only the fields the viem package actually reads.
+ * This makes responses version-agnostic; any SDK version will satisfy these.
+ */
+type TGetPrivateKeyResponse = {
+  privateKey: {
+    addresses: Array<{ format?: string; address?: string }>;
+  };
+};
+
+type TSignTransactionResponse = {
+  activity: {
+    id: string;
+    status: string;
+    result: {
+      signTransactionResult?: {
+        signedTransaction?: string;
+      };
+    };
+  };
+};
+
+type TSignRawPayloadResponse = {
+  activity: {
+    id: string;
+    status: string;
+    result: {
+      signRawPayloadResult?: {
+        r?: string;
+        s?: string;
+        v?: string;
+      };
+    };
+  };
+};
+
+/**
+ * Generic client interface for any Turnkey client (HTTP, browser SDK, server SDK, core, etc.).
+ */
+export interface TurnkeyClientInterface {
+  getPrivateKey(input: TGetPrivateKeyBody): Promise<TGetPrivateKeyResponse>;
+  signTransaction(
+    input: TSignTransactionBody,
+  ): Promise<TSignTransactionResponse>;
+  signRawPayload(input: TSignRawPayloadBody): Promise<TSignRawPayloadResponse>;
+}
+
+export type TTurnkeyClient = TurnkeyClientInterface;
 
 export type TTurnkeyConsensusNeededErrorType = TurnkeyConsensusNeededError & {
   name: "TurnkeyConsensusNeededError";
@@ -124,11 +199,7 @@ export class TurnkeyActivityError extends BaseError {
 }
 
 export function createAccountWithAddress(input: {
-  client:
-    | TurnkeyClient
-    | TurnkeyBrowserClient
-    | TurnkeyServerClient
-    | TurnkeySDKClientBase;
+  client: TTurnkeyClient;
   organizationId: string;
   // This can be a wallet account address, private key address, or private key ID.
   signWith: string;
@@ -202,11 +273,7 @@ export function createAccountWithAddress(input: {
 }
 
 export async function createAccount(input: {
-  client:
-    | TurnkeyClient
-    | TurnkeyBrowserClient
-    | TurnkeyServerClient
-    | TurnkeySDKClientBase;
+  client: TTurnkeyClient;
   organizationId: string;
   // This can be a wallet account address, private key address, or private key ID.
   signWith: string;
@@ -371,11 +438,7 @@ export async function createApiKeyAccount(
 }
 
 export async function signAuthorization(
-  client:
-    | TurnkeyClient
-    | TurnkeyBrowserClient
-    | TurnkeyServerClient
-    | TurnkeySDKClientBase,
+  client: TTurnkeyClient,
   parameters: TSignAuthorizationParameters,
   organizationId: string,
   signWith: string,
@@ -417,11 +480,7 @@ export async function signAuthorization(
 }
 
 export async function signMessage(
-  client:
-    | TurnkeyClient
-    | TurnkeyBrowserClient
-    | TurnkeyServerClient
-    | TurnkeySDKClientBase,
+  client: TTurnkeyClient,
   message: SignableMessage,
   organizationId: string,
   signWith: string,
@@ -438,11 +497,7 @@ export async function signMessage(
 export async function signTransaction<
   TTransactionSerializable extends TransactionSerializable,
 >(
-  client:
-    | TurnkeyClient
-    | TurnkeyBrowserClient
-    | TurnkeyServerClient
-    | TurnkeySDKClientBase,
+  client: TTurnkeyClient,
   transaction: TTransactionSerializable,
   serializer: SerializeTransactionFn<TTransactionSerializable>,
   organizationId: string,
@@ -485,11 +540,7 @@ export async function signTransaction<
 }
 
 export async function signTypedData(
-  client:
-    | TurnkeyClient
-    | TurnkeyBrowserClient
-    | TurnkeyServerClient
-    | TurnkeySDKClientBase,
+  client: TTurnkeyClient,
   data: TypedData | { [key: string]: unknown },
   organizationId: string,
   signWith: string,
@@ -505,11 +556,7 @@ export async function signTypedData(
 }
 
 async function signTransactionWithErrorWrapping(
-  client:
-    | TurnkeyClient
-    | TurnkeyBrowserClient
-    | TurnkeyServerClient
-    | TurnkeySDKClientBase,
+  client: TTurnkeyClient,
   unsignedTransaction: string,
   organizationId: string,
   signWith: string,
@@ -551,11 +598,7 @@ async function signTransactionWithErrorWrapping(
 }
 
 async function signTransactionImpl(
-  client:
-    | TurnkeyClient
-    | TurnkeyBrowserClient
-    | TurnkeyServerClient
-    | TurnkeySDKClientBase,
+  client: TTurnkeyClient,
   unsignedTransaction: string,
   organizationId: string,
   signWith: string,
@@ -579,7 +622,7 @@ async function signTransactionImpl(
       activity?.result?.signTransactionResult?.signedTransaction,
     );
   } else {
-    const { activity, signedTransaction } = await client.signTransaction({
+    const { activity } = await client.signTransaction({
       organizationId,
       signWith,
       type: transactionType ?? "TRANSACTION_TYPE_ETHEREUM",
@@ -590,16 +633,14 @@ async function signTransactionImpl(
       activity as any /* Type casting is ok here. The invalid types are both actually strings. TS is too strict here! */,
     );
 
+    const signedTransaction =
+      activity.result.signTransactionResult?.signedTransaction;
     return assertNonNull(signedTransaction);
   }
 }
 
 async function signMessageWithErrorWrapping(
-  client:
-    | TurnkeyClient
-    | TurnkeyBrowserClient
-    | TurnkeyServerClient
-    | TurnkeySDKClientBase,
+  client: TTurnkeyClient,
   message: string,
   organizationId: string,
   signWith: string,
@@ -644,11 +685,7 @@ async function signMessageWithErrorWrapping(
 }
 
 async function signMessageImpl(
-  client:
-    | TurnkeyClient
-    | TurnkeyBrowserClient
-    | TurnkeyServerClient
-    | TurnkeySDKClientBase,
+  client: TTurnkeyClient,
   message: string,
   organizationId: string,
   signWith: string,
@@ -674,7 +711,7 @@ async function signMessageImpl(
 
     result = assertNonNull(activity?.result?.signRawPayloadResult);
   } else {
-    const { activity, r, s, v } = await client.signRawPayload({
+    const { activity } = await client.signRawPayload({
       organizationId,
       signWith,
       payload: message,
@@ -687,9 +724,9 @@ async function signMessageImpl(
     );
 
     result = {
-      r,
-      s,
-      v,
+      r: assertNonNull(activity?.result?.signRawPayloadResult?.r),
+      s: assertNonNull(activity?.result?.signRawPayloadResult?.s),
+      v: assertNonNull(activity?.result?.signRawPayloadResult?.v),
     };
   }
 
