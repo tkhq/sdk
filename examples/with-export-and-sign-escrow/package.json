@@ -14,8 +14,8 @@
     "tweetnacl": "^1.0.3",
     "@turnkey/iframe-stamper": "workspace:*",
     "@turnkey/react-wallet-kit": "workspace:*",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
   },
   "pnpm": {
     "overrides": {
@@ -25,11 +25,11 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "18.2.14",
+    "@types/react-dom": "18.2.6",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5.1.3"
   }
 }
