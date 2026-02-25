@@ -100,7 +100,7 @@ function getTurnkeyClient(): Turnkey {
   if (!apiPublicKey || !apiPrivateKey || !organizationId) {
     throw new Error(
       "Missing required environment variables: API_PUBLIC_KEY, API_PRIVATE_KEY, ORGANIZATION_ID\n" +
-        "Please copy .env.local.example to .env.local and fill in your credentials."
+        "Please copy .env.local.example to .env.local and fill in your credentials.",
     );
   }
 
@@ -214,9 +214,15 @@ async function mainMenu(): Promise<void> {
       message: "Press Enter to continue...",
     });
     console.clear();
-    console.log("╔════════════════════════════════════════════════════════════╗");
-    console.log("║         TURNKEY DISASTER RECOVERY TOOLKIT                  ║");
-    console.log("╚════════════════════════════════════════════════════════════╝");
+    console.log(
+      "╔════════════════════════════════════════════════════════════╗",
+    );
+    console.log(
+      "║         TURNKEY DISASTER RECOVERY TOOLKIT                  ║",
+    );
+    console.log(
+      "╚════════════════════════════════════════════════════════════╝",
+    );
     console.log();
   }
 }
@@ -399,7 +405,7 @@ async function generateMnemonicWallet(): Promise<{
     const row = words
       .slice(i, i + columns)
       .map(
-        (word, idx) => `${String(i + idx + 1).padStart(2)}. ${word.padEnd(10)}`
+        (word, idx) => `${String(i + idx + 1).padStart(2)}. ${word.padEnd(10)}`,
       )
       .join("  ");
     console.log(`  ${row}`);
@@ -463,7 +469,7 @@ async function importHDWallet(): Promise<void> {
 
   if (!organizationId || !userId) {
     throw new Error(
-      "Missing required environment variables: ORGANIZATION_ID, USER_ID"
+      "Missing required environment variables: ORGANIZATION_ID, USER_ID",
     );
   }
 
@@ -471,7 +477,7 @@ async function importHDWallet(): Promise<void> {
 
   console.log("Step 1: Initialize import bundle from Turnkey");
   console.log(
-    "This creates a temporary public key in Turnkey's enclave for encrypting your mnemonic."
+    "This creates a temporary public key in Turnkey's enclave for encrypting your mnemonic.",
   );
   console.log();
 
@@ -484,7 +490,7 @@ async function importHDWallet(): Promise<void> {
 
   console.log("Step 2: Encrypt wallet material");
   console.log(
-    "SECURITY WARNING: In production, perform this step on an air-gapped machine!"
+    "SECURITY WARNING: In production, perform this step on an air-gapped machine!",
   );
   console.log();
 
@@ -629,7 +635,7 @@ async function importPrivateKey(): Promise<void> {
 
   if (!organizationId || !userId) {
     throw new Error(
-      "Missing required environment variables: ORGANIZATION_ID, USER_ID"
+      "Missing required environment variables: ORGANIZATION_ID, USER_ID",
     );
   }
 
@@ -662,7 +668,7 @@ async function importPrivateKey(): Promise<void> {
 
   console.log("Step 2: Encrypt private key material");
   console.log(
-    "SECURITY WARNING: In production, perform this step on an air-gapped machine!"
+    "SECURITY WARNING: In production, perform this step on an air-gapped machine!",
   );
   console.log();
 
@@ -812,13 +818,13 @@ async function sweepFunds(): Promise<void> {
 
   if (!signWith) {
     throw new Error(
-      "Missing SIGN_WITH - set this to the imported wallet/key address in .env.local"
+      "Missing SIGN_WITH - set this to the imported wallet/key address in .env.local",
     );
   }
 
   if (!safeTreasury) {
     throw new Error(
-      "Missing SAFE_TREASURY_ADDRESS - set this to your safe destination address in .env.local"
+      "Missing SAFE_TREASURY_ADDRESS - set this to your safe destination address in .env.local",
     );
   }
 
@@ -933,7 +939,9 @@ async function sweepFunds(): Promise<void> {
   console.log();
 
   console.log("Waiting for transaction confirmation...");
-  const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+  const receipt = await publicClient.waitForTransactionReceipt({
+    hash: txHash,
+  });
 
   if (receipt.status === "success") {
     console.log();
@@ -976,7 +984,9 @@ async function escrowSetup(): Promise<void> {
   console.log("2. Encrypt your recovery material with Turnkey's public key");
   console.log("3. Save the encrypted bundle locally (you store this securely)");
   console.log();
-  console.log("Note: The encrypted bundle should be stored in YOUR infrastructure,");
+  console.log(
+    "Note: The encrypted bundle should be stored in YOUR infrastructure,",
+  );
   console.log("not on Turnkey. This creates a 2-of-2 security model.");
   console.log();
 
@@ -1069,7 +1079,11 @@ async function escrowSetup(): Promise<void> {
     let addMore = true;
     while (addMore) {
       const { service, apiKey } = await prompts([
-        { type: "text", name: "service", message: "Service name (e.g., AWS, Alchemy):" },
+        {
+          type: "text",
+          name: "service",
+          message: "Service name (e.g., AWS, Alchemy):",
+        },
         { type: "password", name: "apiKey", message: "API Key/Secret:" },
       ]);
 
@@ -1141,8 +1155,8 @@ async function escrowSetup(): Promise<void> {
         createdAt: new Date().toISOString(),
       },
       null,
-      2
-    )
+      2,
+    ),
   );
 
   console.log();
@@ -1162,7 +1176,7 @@ async function escrowSetup(): Promise<void> {
 }
 
 async function createNewEncryptionKey(
-  turnkeyClient: Turnkey
+  turnkeyClient: Turnkey,
 ): Promise<{ privateKeyId: string; publicKey: string }> {
   console.log();
   console.log("Step 1: Create encryption keypair in Turnkey");
@@ -1258,7 +1272,7 @@ async function escrowRecovery(): Promise<void> {
 
   const bundleContents = fs.readFileSync(
     path.resolve(process.cwd(), bundlePath),
-    "utf-8"
+    "utf-8",
   );
   const storedBundle: StoredBundle = JSON.parse(bundleContents);
 
@@ -1271,7 +1285,7 @@ async function escrowRecovery(): Promise<void> {
 
   if (!keyIdToUse) {
     throw new Error(
-      "No encryption key ID found in bundle or ENCRYPTION_KEY_ID environment variable"
+      "No encryption key ID found in bundle or ENCRYPTION_KEY_ID environment variable",
     );
   }
 
@@ -1323,7 +1337,7 @@ async function escrowRecovery(): Promise<void> {
 
     const decryptedRecoveryJson = await decryptWithPrivateKey(
       encryptionPrivateKey,
-      storedBundle.encryptedData
+      storedBundle.encryptedData,
     );
 
     const recoveryBundle: RecoveryBundle = JSON.parse(decryptedRecoveryJson);
@@ -1334,7 +1348,9 @@ async function escrowRecovery(): Promise<void> {
     console.log("═".repeat(60));
     console.log();
 
-    console.log("WARNING: Sensitive data displayed below. Clear your terminal after use.");
+    console.log(
+      "WARNING: Sensitive data displayed below. Clear your terminal after use.",
+    );
     console.log();
 
     const { showData } = await prompts({
@@ -1352,8 +1368,14 @@ async function escrowRecovery(): Promise<void> {
       console.log("Created at: ", recoveryBundle.createdAt);
 
       if (recoveryBundle.metadata) {
-        console.log("Description:", recoveryBundle.metadata.description || "N/A");
-        console.log("Organization:", recoveryBundle.metadata.organization || "N/A");
+        console.log(
+          "Description:",
+          recoveryBundle.metadata.description || "N/A",
+        );
+        console.log(
+          "Organization:",
+          recoveryBundle.metadata.organization || "N/A",
+        );
       }
 
       console.log();
@@ -1376,7 +1398,10 @@ async function escrowRecovery(): Promise<void> {
           console.log(`  ${cred.service}: ${cred.apiKey}`);
         }
         console.log();
-      } else if (recoveryBundle.type === "custom" && recoveryBundle.data.custom) {
+      } else if (
+        recoveryBundle.type === "custom" &&
+        recoveryBundle.data.custom
+      ) {
         console.log();
         console.log("CUSTOM DATA:");
         console.log(recoveryBundle.data.custom);
@@ -1420,8 +1445,12 @@ async function escrowRecovery(): Promise<void> {
       console.log("QUORUM APPROVAL REQUIRED");
       console.log("═".repeat(60));
       console.log();
-      console.log("This export requires additional approvals based on your policy.");
-      console.log("Please coordinate with other key holders to complete the export.");
+      console.log(
+        "This export requires additional approvals based on your policy.",
+      );
+      console.log(
+        "Please coordinate with other key holders to complete the export.",
+      );
       console.log();
     } else {
       throw error;

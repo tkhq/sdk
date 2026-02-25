@@ -75,9 +75,7 @@ async function main() {
   console.log("2. Load your encrypted recovery bundle");
   console.log("3. Decrypt and display the recovery material");
   console.log();
-  console.log(
-    "WARNING: The decrypted material will be displayed on screen."
-  );
+  console.log("WARNING: The decrypted material will be displayed on screen.");
   console.log("Ensure you are in a secure environment.");
   console.log();
 
@@ -123,7 +121,7 @@ async function main() {
 
   const bundleContents = fs.readFileSync(
     path.resolve(process.cwd(), bundlePath),
-    "utf-8"
+    "utf-8",
   );
   const storedBundle: StoredBundle = JSON.parse(bundleContents);
 
@@ -137,7 +135,7 @@ async function main() {
 
   if (!keyIdToUse) {
     throw new Error(
-      "No encryption key ID found in bundle or ENCRYPTION_KEY_ID environment variable"
+      "No encryption key ID found in bundle or ENCRYPTION_KEY_ID environment variable",
     );
   }
 
@@ -198,7 +196,7 @@ async function main() {
 
     const decryptedRecoveryJson = await decryptWithPrivateKey(
       encryptionPrivateKey,
-      storedBundle.encryptedData
+      storedBundle.encryptedData,
     );
 
     const recoveryBundle: RecoveryBundle = JSON.parse(decryptedRecoveryJson);
@@ -212,7 +210,7 @@ async function main() {
 
     // Security warning
     console.log(
-      "WARNING: Sensitive data displayed below. Clear your terminal after use."
+      "WARNING: Sensitive data displayed below. Clear your terminal after use.",
     );
     console.log();
 
@@ -231,10 +229,13 @@ async function main() {
       console.log("Created at: ", recoveryBundle.createdAt);
 
       if (recoveryBundle.metadata) {
-        console.log("Description:", recoveryBundle.metadata.description || "N/A");
+        console.log(
+          "Description:",
+          recoveryBundle.metadata.description || "N/A",
+        );
         console.log(
           "Organization:",
-          recoveryBundle.metadata.organization || "N/A"
+          recoveryBundle.metadata.organization || "N/A",
         );
       }
 
@@ -258,7 +259,10 @@ async function main() {
           console.log(`  ${cred.service}: ${cred.apiKey}`);
         }
         console.log();
-      } else if (recoveryBundle.type === "custom" && recoveryBundle.data.custom) {
+      } else if (
+        recoveryBundle.type === "custom" &&
+        recoveryBundle.data.custom
+      ) {
         console.log();
         console.log("CUSTOM DATA:");
         console.log(recoveryBundle.data.custom);
@@ -285,10 +289,7 @@ async function main() {
       });
 
       const resolvedOutput = path.resolve(process.cwd(), outputPath);
-      fs.writeFileSync(
-        resolvedOutput,
-        JSON.stringify(recoveryBundle, null, 2)
-      );
+      fs.writeFileSync(resolvedOutput, JSON.stringify(recoveryBundle, null, 2));
       console.log();
       console.log("Decrypted bundle saved to:", resolvedOutput);
       console.log("SECURITY: Delete this file after use!");
@@ -307,10 +308,10 @@ async function main() {
       console.log("=".repeat(60));
       console.log();
       console.log(
-        "This export requires additional approvals based on your policy."
+        "This export requires additional approvals based on your policy.",
       );
       console.log(
-        "Please coordinate with other key holders to complete the export."
+        "Please coordinate with other key holders to complete the export.",
       );
       console.log();
     } else {
