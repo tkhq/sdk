@@ -3,19 +3,12 @@ import {
   LAMPORTS_PER_SOL,
   PublicKey,
   VersionedTransaction,
-  TransactionMessage,
-  ComputeBudgetProgram,
 } from "@solana/web3.js";
-import {
-  getAssociatedTokenAddress,
-  getAccount,
-  createTransferCheckedInstruction,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
+import { getAssociatedTokenAddress, getAccount } from "@solana/spl-token";
 import { Turnkey } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 import { wrap as wrapFetch } from "@faremeter/fetch";
-import type { PaymentHandler, PaymentExecer } from "@faremeter/types/client";
+import { createPaymentHandler } from "@faremeter/payment-solana/exact";
 import { getOrCreateSolanaWallet } from "./utils.js";
 
 // ============================================================================
@@ -54,9 +47,16 @@ export interface X402Client {
   network: "devnet" | "mainnet-beta";
 }
 
-interface GaslessWallet {
+/**
+ * Wallet interface compatible with faremeter's payment handler.
+ * See: https://docs.corbits.dev/api/reference/payment-solana/overview
+ */
+interface TurnkeyWallet {
+  network: string;
   publicKey: PublicKey;
-  signTransaction: (tx: VersionedTransaction) => Promise<VersionedTransaction>;
+  updateTransaction: (
+    tx: VersionedTransaction,
+  ) => Promise<VersionedTransaction>;
 }
 
 interface PaymentContext {
@@ -122,37 +122,37 @@ export async function createX402Client(
   const connection = new Connection(rpcUrl, "confirmed");
   const network = rpcUrl.includes("devnet") ? "devnet" : "mainnet-beta";
   const usdcMint = USDC_MINTS[network];
-  const expectedNetworks = getExpectedRequirementNetworks(network);
 
-  // Create wallet adapter for signing
-  const wallet: GaslessWallet = {
+  // Create Turnkey wallet adapter compatible with faremeter's interface.
+  // The `updateTransaction` hook is called by faremeter to sign the payment transaction.
+  // See: https://docs.corbits.dev/api/reference/payment-solana/overview
+  const wallet: TurnkeyWallet = {
+    network,
     publicKey: walletPubkey,
-    signTransaction: async (tx: VersionedTransaction) => {
+    updateTransaction: async (tx: VersionedTransaction) => {
       const signedTx = await signer.signTransaction(tx, walletAddress);
       return signedTx as VersionedTransaction;
     },
   };
 
-  // Track per-payment context (module-private state)
+  // Create payment handler using faremeter's exact payment implementation.
+  // This handles gasless transactions (fee payer in extra.feePayer) automatically.
+  const paymentHandler = createPaymentHandler(wallet, usdcMint, connection);
+
+  // Track payment context for v2 header formatting
   const pendingPaymentContexts = new Map<string, PaymentContext>();
 
-  // Create the payment handler
-  const gaslessHandler = createGaslessPaymentHandler(
-    wallet,
-    usdcMint,
-    connection,
-    expectedNetworks,
-    network,
-    pendingPaymentContexts,
-  );
+  // Create normalizing fetch to handle servers that don't include all required fields.
+  // This adds missing fields (description, mimeType, resource) and converts
+  // `amount` to `maxAmountRequired` for protocol compatibility.
+  const normalizingFetch = createNormalizingFetch(fetch, pendingPaymentContexts);
 
-  // Create fetch wrappers for protocol compatibility
-  const normalizingFetch = createV2NormalizingFetch(fetch);
+  // Create adaptive fetch that adds PAYMENT-SIGNATURE header with v2 format
   const adaptiveFetch = createAdaptivePaymentFetch(fetch, pendingPaymentContexts);
 
   // Create the payment-enabled fetch
   const x402Fetch = wrapFetch(adaptiveFetch, {
-    handlers: [gaslessHandler],
+    handlers: [paymentHandler],
     phase1Fetch: normalizingFetch,
     retryCount: 3,
     returnPaymentFailure: true,
@@ -184,162 +184,24 @@ export async function createX402Client(
 }
 
 // ============================================================================
-// INTERNAL: Protocol helpers (not exported)
+// INTERNAL: Protocol normalization
 // ============================================================================
 
-function getExpectedRequirementNetworks(
-  network: "devnet" | "mainnet-beta",
-): Set<string> {
-  if (network === "devnet") {
-    return new Set(["solana-devnet", SOLANA_DEVNET_CAIP2.toLowerCase()]);
-  }
-  return new Set([
-    "solana-mainnet-beta",
-    "solana",
-    SOLANA_MAINNET_CAIP2.toLowerCase(),
-  ]);
-}
-
-function createGaslessPaymentHandler(
-  wallet: GaslessWallet,
-  usdcMint: PublicKey,
-  connection: Connection,
-  expectedNetworks: ReadonlySet<string>,
-  configuredNetworkLabel: string,
-  pendingPaymentContexts: Map<string, PaymentContext>,
-): PaymentHandler {
-  return async (_ctx, accepts) => {
-    const execers: PaymentExecer[] = [];
-    const incompatibilityReasons: string[] = [];
-    let sawSolanaRequirement = false;
-
-    for (const req of accepts) {
-      const requirementNetwork = req.network.toLowerCase();
-      const isSolana =
-        requirementNetwork.includes("solana") ||
-        requirementNetwork.startsWith("solana:");
-
-      if (!isSolana) continue;
-      sawSolanaRequirement = true;
-
-      if (!expectedNetworks.has(requirementNetwork)) {
-        incompatibilityReasons.push(
-          `network '${req.network}' does not match configured RPC network '${configuredNetworkLabel}'`,
-        );
-        continue;
-      }
-
-      const extra = req.extra as Record<string, unknown> | undefined;
-      const feePayer = extra?.feePayer as string | undefined;
-      if (!feePayer) {
-        incompatibilityReasons.push(
-          `requirement for network '${req.network}' is missing extra.feePayer`,
-        );
-        continue;
-      }
-
-      if (req.asset.toLowerCase() !== usdcMint.toBase58().toLowerCase()) {
-        incompatibilityReasons.push(
-          `asset mismatch for network '${req.network}': got ${req.asset}, expected ${usdcMint.toBase58()}`,
-        );
-        continue;
-      }
-
-      execers.push({
-        requirements: req,
-        exec: async () => {
-          const feePayerPubkey = new PublicKey(feePayer);
-          const payToPubkey = new PublicKey(req.payTo);
-          const amount = BigInt(req.maxAmountRequired);
-
-          const sourceAta = await getAssociatedTokenAddress(
-            usdcMint,
-            wallet.publicKey,
-          );
-          const destAta = await getAssociatedTokenAddress(usdcMint, payToPubkey);
-
-          const computeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
-            units: 50000,
-          });
-          const computeUnitPriceIx = ComputeBudgetProgram.setComputeUnitPrice({
-            microLamports: 1,
-          });
-          const transferIx = createTransferCheckedInstruction(
-            sourceAta,
-            usdcMint,
-            destAta,
-            wallet.publicKey,
-            amount,
-            USDC_DECIMALS,
-            [],
-            TOKEN_PROGRAM_ID,
-          );
-
-          const extraBlockhash = extra?.recentBlockhash as string | undefined;
-          const { blockhash } = extraBlockhash
-            ? { blockhash: extraBlockhash }
-            : await connection.getLatestBlockhash("confirmed");
-
-          const message = new TransactionMessage({
-            payerKey: feePayerPubkey,
-            recentBlockhash: blockhash,
-            instructions: [computeUnitLimitIx, computeUnitPriceIx, transferIx],
-          }).compileToV0Message();
-
-          const tx = new VersionedTransaction(message);
-          const signedTx = await wallet.signTransaction(tx);
-          const serialized = Buffer.from(signedTx.serialize()).toString("base64");
-
-          const originalNetwork =
-            typeof (req as Record<string, unknown>).originalNetwork === "string"
-              ? ((req as Record<string, unknown>).originalNetwork as string)
-              : req.network;
-
-          if (originalNetwork.includes(":")) {
-            pendingPaymentContexts.set(serialized, {
-              accepted: {
-                scheme: req.scheme,
-                network: originalNetwork,
-                amount: req.maxAmountRequired,
-                asset: req.asset,
-                payTo: req.payTo,
-                maxTimeoutSeconds: req.maxTimeoutSeconds,
-                ...(req.extra
-                  ? { extra: req.extra as Record<string, unknown> }
-                  : {}),
-              },
-            });
-          }
-
-          return { payload: { transaction: serialized } };
-        },
-      });
-    }
-
-    if (
-      execers.length === 0 &&
-      sawSolanaRequirement &&
-      incompatibilityReasons.length > 0
-    ) {
-      const hint = `Expected one of: ${Array.from(expectedNetworks).join(", ")}`;
-      throw new Error(
-        `No compatible Solana payment requirements found. ${hint}. Reasons: ${incompatibilityReasons.join("; ")}`,
-      );
-    }
-
-    return execers;
-  };
-}
-
+/**
+ * Normalize a payment requirement to include all fields faremeter expects.
+ * Some x402 servers omit optional fields or use `amount` instead of `maxAmountRequired`.
+ */
 function normalizeRequirement(
   req: Record<string, unknown>,
 ): Record<string, unknown> {
   const normalized = { ...req };
 
+  // Convert `amount` to `maxAmountRequired` (protocol variation)
   if (normalized.amount && !normalized.maxAmountRequired) {
     normalized.maxAmountRequired = normalized.amount;
   }
 
+  // Convert CAIP-2 network identifiers to faremeter's expected format
   if (
     typeof normalized.network === "string" &&
     normalized.network.startsWith("solana:")
@@ -353,6 +215,7 @@ function normalizeRequirement(
     normalized.network = networkMap[genesisHash] ?? normalized.network;
   }
 
+  // Extract fields from `extra` if not present at top level
   const extra = normalized.extra as Record<string, unknown> | undefined;
   if (extra) {
     if (!normalized.description && extra.description) {
@@ -366,6 +229,7 @@ function normalizeRequirement(
     }
   }
 
+  // Provide defaults for required fields that faremeter validates
   if (!normalized.description) normalized.description = "";
   if (!normalized.mimeType) normalized.mimeType = "application/octet-stream";
   if (!normalized.resource) normalized.resource = "";
@@ -373,7 +237,15 @@ function normalizeRequirement(
   return normalized;
 }
 
-function createV2NormalizingFetch(baseFetch: typeof fetch): typeof fetch {
+/**
+ * Wrap fetch to normalize 402 responses before faremeter parses them.
+ * This handles servers that don't include all fields faremeter requires.
+ * Also stores original payment context for v2 header formatting.
+ */
+function createNormalizingFetch(
+  baseFetch: typeof fetch,
+  pendingPaymentContexts: Map<string, PaymentContext>,
+): typeof fetch {
   return async (
     input: RequestInfo | URL,
     init?: RequestInit,
@@ -431,6 +303,33 @@ function createV2NormalizingFetch(baseFetch: typeof fetch): typeof fetch {
       });
     }
 
+    // Store payment context for each requirement (for v2 header formatting later)
+    if (Array.isArray(normalizedBody.accepts)) {
+      for (const accept of normalizedBody.accepts) {
+        if (accept && typeof accept === "object") {
+          const req = accept as Record<string, unknown>;
+          const originalNetwork = req.originalNetwork as string | undefined;
+          if (originalNetwork) {
+            // Key by payTo+amount+asset to match later
+            const key = `${req.payTo}:${req.maxAmountRequired}:${req.asset}`;
+            pendingPaymentContexts.set(key, {
+              accepted: {
+                scheme: (req.scheme as string) || "exact",
+                network: originalNetwork,
+                amount: req.maxAmountRequired as string,
+                asset: req.asset as string,
+                payTo: req.payTo as string,
+                maxTimeoutSeconds: (req.maxTimeoutSeconds as number) || 60,
+                ...(req.extra
+                  ? { extra: req.extra as Record<string, unknown> }
+                  : {}),
+              },
+            });
+          }
+        }
+      }
+    }
+
     return new Response(JSON.stringify(normalizedBody), {
       status: 402,
       statusText: response.statusText,
@@ -439,6 +338,10 @@ function createV2NormalizingFetch(baseFetch: typeof fetch): typeof fetch {
   };
 }
 
+/**
+ * Wrap fetch to add PAYMENT-SIGNATURE header with v2 format.
+ * This is required by servers expecting x402 v2 protocol.
+ */
 function createAdaptivePaymentFetch(
   baseFetch: typeof fetch,
   pendingPaymentContexts: Map<string, PaymentContext>,
@@ -454,29 +357,33 @@ function createAdaptivePaymentFetch(
       try {
         const payloadJson = atob(xPayment);
         const payload = JSON.parse(payloadJson) as Record<string, unknown>;
-        const tx = (payload.payload as Record<string, unknown> | undefined)
-          ?.transaction;
 
-        if (typeof tx === "string") {
-          const context = pendingPaymentContexts.get(tx);
-          if (context) {
-            const v2Payload = {
-              x402Version: 2,
-              scheme: context.accepted.scheme,
-              network: context.accepted.network,
-              accepted: context.accepted,
-              payload: payload.payload,
-              extensions: {},
-            };
+        // Find matching context by looking at all stored contexts
+        // and use the first one (since we typically have one payment at a time)
+        const contexts = Array.from(pendingPaymentContexts.entries());
+        if (contexts.length > 0) {
+          const [key, context] = contexts[0];
 
-            const fixedPayment = btoa(JSON.stringify(v2Payload));
-            headers.set("X-PAYMENT", fixedPayment);
-            headers.set("PAYMENT-SIGNATURE", fixedPayment);
-            pendingPaymentContexts.delete(tx);
-          }
+          const v2Payload = {
+            x402Version: 2,
+            scheme: context.accepted.scheme,
+            network: context.accepted.network,
+            accepted: context.accepted,
+            payload: payload.payload ?? payload,
+            extensions: {},
+          };
+
+          const fixedPayment = btoa(JSON.stringify(v2Payload));
+          headers.set("X-PAYMENT", fixedPayment);
+          headers.set("PAYMENT-SIGNATURE", fixedPayment);
+          pendingPaymentContexts.delete(key);
+        } else {
+          // No stored context, just copy X-PAYMENT to PAYMENT-SIGNATURE
+          headers.set("PAYMENT-SIGNATURE", xPayment);
         }
       } catch {
-        // If decoding fails, leave headers unchanged
+        // If decoding fails, just copy the header
+        headers.set("PAYMENT-SIGNATURE", xPayment);
       }
     }
 
