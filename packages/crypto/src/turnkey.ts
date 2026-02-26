@@ -13,6 +13,7 @@ import {
   PRODUCTION_ON_RAMP_CREDENTIALS_ENCRYPTION_PUBLIC_KEY,
   PRODUCTION_SIGNER_SIGN_PUBLIC_KEY,
   PRODUCTION_TLS_FETCHER_ENCRYPT_PUBLIC_KEY,
+  PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
 } from "./constants";
 import {
   formatHpkeBuf,
@@ -22,6 +23,8 @@ import {
   quorumKeyEncrypt,
   uncompressRawPublicKey,
 } from "./crypto";
+
+import type { VerificationToken } from "@turnkey/sdk-types";
 
 import { p256 } from "@noble/curves/p256";
 import { ed25519 } from "@noble/curves/ed25519";
@@ -550,4 +553,85 @@ export const encryptOnRampSecret = (
       ),
     }),
   );
+};
+
+/**
+ * Verifies that an **enclave verification token** (JWT) was signed by
+ * Turnkey's TLS fetcher signing key (P-256 / ES256, compact 64-byte r‖s
+ * signature).
+ *
+ * How it works
+ * ------------
+ * 1.  Split the JWT into `header.payload.signature`.
+ * 2.  **Single-hash** the string `"header.payload"`:
+ *        `msg = sha256(header.payload)`
+ *     (Standard ES256 — unlike session JWTs which use double-SHA256.)
+ * 3.  Base64-URL-decode the signature (`r||s`, 64 bytes).
+ * 4.  Load the TLS fetcher signing public key (hex `04‖X‖Y` → `Uint8Array`).
+ * 5.  Call `p256.verify(signature, msg, publicKey)`.
+ *
+ * @param jwt   The enclave verification token JWT to validate.
+ * @param dangerouslyOverrideTlsFetcherSignPublicKey *(optional)* Hex-encoded
+ *              uncompressed P-256 public key to verify against (use only in
+ *              tests).  Defaults to the production TLS fetcher signing key.
+ * @returns `true` if the signature is valid for the given key, else `false`.
+ * @throws  If the JWT is malformed.
+ */
+export const verifyEnclaveVerificationToken = (
+  jwt: string,
+  dangerouslyOverrideTlsFetcherSignPublicKey?: string,
+): boolean => {
+  const keyHex =
+    dangerouslyOverrideTlsFetcherSignPublicKey ??
+    PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY;
+
+  /* 1. split JWT -------------------------------------------------------- */
+  const parts = jwt.split(".");
+  if (parts.length !== 3 || !parts[2]) {
+    throw new Error("Invalid JWT: expected 3 dot-separated parts");
+  }
+  const signingInput = `${parts[0]}.${parts[1]}`;
+
+  /* 2. sha256(header.payload) — standard ES256 ------------------------- */
+  const msgDigest = sha256(new TextEncoder().encode(signingInput));
+
+  /* 3. base64-url decode signature -------------------------------------- */
+  const toB64 = (u: string) =>
+    (u = u.replace(/-/g, "+").replace(/_/g, "/")).padEnd(
+      u.length + ((4 - (u.length % 4)) % 4),
+      "=",
+    );
+  const signature = Uint8Array.from(
+    atob(toB64(parts[2]))
+      .split("")
+      .map((c) => c.charCodeAt(0)),
+  );
+
+  /* 4. load public key -------------------------------------------------- */
+  const publicKey = uint8ArrayFromHexString(keyHex);
+
+  /* 5. verify ----------------------------------------------------------- */
+  return p256.verify(signature, msgDigest, publicKey);
+};
+
+/**
+ * Decodes an enclave verification token JWT and returns its payload claims.
+ *
+ * This parses the JWT payload (base64 decode) without performing signature
+ * verification.  Use {@link verifyEnclaveVerificationToken} to validate the
+ * signature first if needed.
+ *
+ * @param token  The JWT string (enclave verification token).
+ * @returns The decoded {@link VerificationToken} payload.
+ * @throws  If the token is malformed or missing a payload.
+ */
+export const decodeEnclaveVerificationToken = (
+  token: string,
+): VerificationToken => {
+  const [, payloadB64] = token.split(".");
+  if (!payloadB64) {
+    throw new Error("Invalid token: missing payload");
+  }
+  const json = atob(payloadB64);
+  return JSON.parse(json) as VerificationToken;
 };
