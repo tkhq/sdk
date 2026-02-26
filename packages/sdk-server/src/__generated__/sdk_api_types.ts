@@ -904,7 +904,7 @@ export type TInitImportWalletBody =
     commandOverrideParams;
 
 export type TInitOtpResponse =
-  operations["PublicApiService_InitOtp"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpResult"] &
+  operations["PublicApiService_InitOtp"]["responses"]["200"]["schema"]["activity"]["result"]["initOtpResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TInitOtpInput = { body: TInitOtpBody };

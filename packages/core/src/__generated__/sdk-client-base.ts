@@ -4550,9 +4550,9 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_OTP_V2",
+        type: "ACTIVITY_TYPE_INIT_OTP_V3",
       },
-      "initOtpResult",
+      "initOtpResultV2",
       stampWith,
     );
   };
@@ -4575,7 +4575,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_OTP_V2",
+      type: "ACTIVITY_TYPE_INIT_OTP_V3",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6111,16 +6111,34 @@ export class TurnkeySDKClientBase {
     return this.authProxyRequest("/v1/otp_init", input);
   };
 
+  proxyInitOtpV2 = async (
+    input: SdkTypes.ProxyTInitOtpV2Body,
+  ): Promise<SdkTypes.ProxyTInitOtpV2Response> => {
+    return this.authProxyRequest("/v1/otp_init_v2", input);
+  };
+
   proxyOtpLogin = async (
     input: SdkTypes.ProxyTOtpLoginBody,
   ): Promise<SdkTypes.ProxyTOtpLoginResponse> => {
     return this.authProxyRequest("/v1/otp_login", input);
   };
 
+  proxyOtpLoginV2 = async (
+    input: SdkTypes.ProxyTOtpLoginV2Body,
+  ): Promise<SdkTypes.ProxyTOtpLoginV2Response> => {
+    return this.authProxyRequest("/v1/otp_login_v2", input);
+  };
+
   proxyVerifyOtp = async (
     input: SdkTypes.ProxyTVerifyOtpBody,
   ): Promise<SdkTypes.ProxyTVerifyOtpResponse> => {
     return this.authProxyRequest("/v1/otp_verify", input);
+  };
+
+  proxyVerifyOtpV2 = async (
+    input: SdkTypes.ProxyTVerifyOtpV2Body,
+  ): Promise<SdkTypes.ProxyTVerifyOtpV2Response> => {
+    return this.authProxyRequest("/v1/otp_verify_v2", input);
   };
 
   proxySignup = async (
