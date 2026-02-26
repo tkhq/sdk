@@ -38,7 +38,7 @@ overrides:
   jws: '>=4.0.1'
   preact: '>=10.28.2'
   tar: '>=7.5.8'
-  rollup@>=4.0.0 < 4.59.0: 4.59.0
+  rollup@>=4.0.0 <4.59.0: 4.59.0
 
 importers:
 
