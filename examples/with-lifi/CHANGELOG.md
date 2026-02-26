@@ -1,5 +1,13 @@
 # with-lifi
 
+## 0.1.19
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/solana@1.1.25
+  - @turnkey/viem@0.14.25
+
 ## 0.1.18
 
 ### Patch Changes
