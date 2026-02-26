@@ -1,0 +1,29 @@
+{
+  "name": "with-passphrase-encrypt-export",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@turnkey/react-wallet-kit": "workspace:*",
+    "@turnkey/iframe-stamper": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
+    "@types/node": "20.3.2",
+    "@types/react": "19.2.3",
+    "@types/react-dom": "19.2.3",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
+    "typescript": "5.1.3"
+  }
+}
