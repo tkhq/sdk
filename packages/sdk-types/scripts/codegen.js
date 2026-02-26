@@ -85,9 +85,19 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1InitUserEmailRecoveryResult",
   ],
   ACTIVITY_TYPE_INIT_OTP: [
-    "ACTIVITY_TYPE_INIT_OTP_V2",
-    "v1InitOtpIntentV2",
-    "v1InitOtpResult",
+    "ACTIVITY_TYPE_INIT_OTP_V3",
+    "v1InitOtpIntentV3",
+    "v1InitOtpResultV2",
+  ],
+  ACTIVITY_TYPE_VERIFY_OTP: [
+    "ACTIVITY_TYPE_VERIFY_OTP_V2",
+    "v1VerifyOtpIntentV2",
+    "v1VerifyOtpResult",
+  ],
+  ACTIVITY_TYPE_OTP_LOGIN: [
+    "ACTIVITY_TYPE_OTP_LOGIN_V2",
+    "v1OtpLoginIntentV2",
+    "v1OtpLoginResult",
   ],
 };
 

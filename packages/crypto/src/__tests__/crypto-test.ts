@@ -16,6 +16,9 @@ import {
   formatHpkeBuf,
   verifyStampSignature,
   verifySessionJwtSignature,
+  signP256,
+  verifyEnclaveVerificationToken,
+  decodeEnclaveVerificationToken,
   fromDerSignature,
 } from "../";
 
@@ -457,6 +460,188 @@ describe("Session JWT signature", () => {
 
     const ok = await verifySessionJwtSignature(jwt);
     expect(ok).toBe(true);
+  });
+});
+
+describe("P256 signing", () => {
+  test("signP256 produces a valid signature verifiable with p256.verify", () => {
+    const keyPair = generateP256KeyPair();
+    const message = "test message for signing";
+    const signature = signP256(message, keyPair.privateKey);
+
+    // 64 bytes = 128 hex chars
+    expect(signature).toHaveLength(128);
+
+    // Round-trip: verify the signature with noble p256
+    const messageHash = sha256(new TextEncoder().encode(message));
+    const sigBytes = uint8ArrayFromHexString(signature);
+    const publicKeyBytes = uint8ArrayFromHexString(
+      keyPair.publicKeyUncompressed,
+    );
+    expect(p256.verify(sigBytes, messageHash, publicKeyBytes)).toBe(true);
+  });
+
+  test("signP256 signature fails verification with wrong public key", () => {
+    const keyPair1 = generateP256KeyPair();
+    const keyPair2 = generateP256KeyPair();
+    const message = "test message";
+    const signature = signP256(message, keyPair1.privateKey);
+
+    const messageHash = sha256(new TextEncoder().encode(message));
+    const sigBytes = uint8ArrayFromHexString(signature);
+    const wrongKey = uint8ArrayFromHexString(keyPair2.publicKeyUncompressed);
+    expect(p256.verify(sigBytes, messageHash, wrongKey)).toBe(false);
+  });
+
+  test("signP256 signature fails verification with wrong message", () => {
+    const keyPair = generateP256KeyPair();
+    const signature = signP256("message A", keyPair.privateKey);
+
+    const wrongHash = sha256(new TextEncoder().encode("message B"));
+    const sigBytes = uint8ArrayFromHexString(signature);
+    const publicKeyBytes = uint8ArrayFromHexString(
+      keyPair.publicKeyUncompressed,
+    );
+    expect(p256.verify(sigBytes, wrongHash, publicKeyBytes)).toBe(false);
+  });
+});
+
+describe("Enclave verification token", () => {
+  // Helper to build a test JWT signed with a given key pair
+  const buildTestJwt = (
+    keyPair: ReturnType<typeof generateP256KeyPair>,
+    payload: Record<string, unknown>,
+  ) => {
+    const toB64Url = (s: string) =>
+      btoa(s).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
+
+    const header = toB64Url(JSON.stringify({ alg: "ES256", typ: "JWT" }));
+    const payloadB64 = toB64Url(JSON.stringify(payload));
+    const signingInput = `${header}.${payloadB64}`;
+
+    const hash = sha256(new TextEncoder().encode(signingInput));
+    const sig = p256.sign(hash, uint8ArrayFromHexString(keyPair.privateKey));
+    const sigB64 = btoa(
+      String.fromCharCode.apply(null, Array.from(sig.toCompactRawBytes())),
+    )
+      .replace(/=/g, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_");
+
+    return `${signingInput}.${sigB64}`;
+  };
+
+  test("verifyEnclaveVerificationToken verifies a self-signed test JWT", () => {
+    const keyPair = generateP256KeyPair();
+    const jwt = buildTestJwt(keyPair, {
+      id: "test-token-id",
+      contact: "test@example.com",
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      verification_type: "OTP_EMAIL",
+    });
+
+    const result = verifyEnclaveVerificationToken(
+      jwt,
+      keyPair.publicKeyUncompressed,
+    );
+    expect(result).toBe(true);
+  });
+
+  test("verifyEnclaveVerificationToken rejects a JWT verified with wrong key", () => {
+    const signingKey = generateP256KeyPair();
+    const wrongKey = generateP256KeyPair();
+    const jwt = buildTestJwt(signingKey, {
+      id: "test-token-id",
+      contact: "test@example.com",
+      exp: Math.floor(Date.now() / 1000) + 3600,
+      verification_type: "OTP_EMAIL",
+    });
+
+    const result = verifyEnclaveVerificationToken(
+      jwt,
+      wrongKey.publicKeyUncompressed,
+    );
+    expect(result).toBe(false);
+  });
+
+  test("verifyEnclaveVerificationToken throws on malformed JWT", () => {
+    expect(() => verifyEnclaveVerificationToken("only.two")).toThrow(
+      "Invalid JWT: expected 3 dot-separated parts",
+    );
+  });
+});
+
+describe("decodeEnclaveVerificationToken", () => {
+  test("decodes a valid verification token payload", () => {
+    const payload = {
+      id: "token-123",
+      contact: "user@example.com",
+      exp: 1700000000,
+      public_key: "03abcdef",
+      verification_type: "OTP_EMAIL",
+    };
+    const payloadB64 = btoa(JSON.stringify(payload))
+      .replace(/=/g, "")
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_");
+    const jwt = `eyJhbGciOiJFUzI1NiJ9.${payloadB64}.fakesig`;
+
+    const decoded = decodeEnclaveVerificationToken(jwt);
+    expect(decoded.id).toBe("token-123");
+    expect(decoded.contact).toBe("user@example.com");
+    expect(decoded.exp).toBe(1700000000);
+    expect(decoded.public_key).toBe("03abcdef");
+    expect(decoded.verification_type).toBe("OTP_EMAIL");
+  });
+
+  test("throws on missing payload", () => {
+    expect(() => decodeEnclaveVerificationToken("header_only")).toThrow(
+      "Invalid token: missing payload",
+    );
+  });
+});
+
+describe("buildClientSignature", () => {
+  // Test-only helper — not exported from @turnkey/crypto.
+  // In production the API builds this server-side.
+  const buildClientSignature = (params: {
+    privateKey: string;
+    publicKey: string;
+    message: string;
+  }) => {
+    const signature = signP256(params.message, params.privateKey);
+    return {
+      scheme: "CLIENT_SIGNATURE_SCHEME_API_P256" as const,
+      publicKey: params.publicKey,
+      message: params.message,
+      signature,
+    };
+  };
+
+  test("builds a valid client signature object", () => {
+    const keyPair = generateP256KeyPair();
+    const message = JSON.stringify({
+      type: "USAGE_TYPE_SIGNUP",
+      tokenId: "test-id",
+      signup: { email: "test@test.com" },
+    });
+
+    const clientSig = buildClientSignature({
+      privateKey: keyPair.privateKey,
+      publicKey: keyPair.publicKey,
+      message,
+    });
+
+    expect(clientSig.scheme).toBe("CLIENT_SIGNATURE_SCHEME_API_P256");
+    expect(clientSig.publicKey).toBe(keyPair.publicKey);
+    expect(clientSig.message).toBe(message);
+    expect(clientSig.signature).toHaveLength(128);
+
+    // Verify the embedded signature is valid
+    const hash = sha256(new TextEncoder().encode(message));
+    const sigBytes = uint8ArrayFromHexString(clientSig.signature);
+    const pubBytes = uint8ArrayFromHexString(keyPair.publicKeyUncompressed);
+    expect(p256.verify(sigBytes, hash, pubBytes)).toBe(true);
   });
 });
 
