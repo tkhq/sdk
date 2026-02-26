@@ -635,4 +635,3 @@ export const decodeEnclaveVerificationToken = (
   const json = atob(payloadB64);
   return JSON.parse(json) as VerificationToken;
 };
-

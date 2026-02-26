@@ -1510,7 +1510,7 @@ export async function encryptOtpCode(
 
   // Construct the plaintext: OTP code + client public key
   const plainTextBuf = new TextEncoder().encode(
-    JSON.stringify({ otpCode, publicKey: clientPublicKey }),
+    JSON.stringify({ otp_code: otpCode, public_key: clientPublicKey }),
   );
 
   // HPKE encrypt the plaintext to the enclave's target key
