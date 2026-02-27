@@ -1,10 +1,13 @@
 import type { Runtime } from "@turnkey/api-key-stamper";
-import type {
-  TActivityId,
-  TActivityStatus,
-  TurnkeyApiTypes,
-} from "@turnkey/http";
 import type { WalletType } from "@turnkey/wallet-stamper";
+import type {
+  v1ActivityResponse,
+  v1ActivityStatus,
+  v1CreateOauthProvidersResult,
+  v1EmailCustomizationParams,
+  v1User,
+  v1WalletAccount,
+} from "@turnkey/sdk-types";
 
 export type GrpcStatus = {
   message: string;
@@ -48,21 +51,6 @@ export class TurnkeyRequestError extends Error {
     this.details = input.details ?? null;
     this.code = input.code;
   }
-}
-
-export interface ActivityResponse {
-  activity: {
-    id: TActivityId;
-    status: TActivityStatus;
-    result: Record<string, any>;
-  };
-}
-
-export interface ActivityMetadata {
-  activity: {
-    id: TActivityId;
-    status: TActivityStatus;
-  };
 }
 
 export type queryOverrideParams = {
@@ -129,7 +117,7 @@ export type GetOrCreateSuborgRequest = {
     phoneNumber?: string;
     passkey?: Passkey;
     oauthProviders?: Provider[];
-    customAccounts?: WalletAccount[];
+    customAccounts?: v1WalletAccount[];
     wallet?: {
       publicKey: string;
       type: WalletType;
@@ -171,13 +159,13 @@ export type CreateOauthProvidersRequest = {
 };
 
 export type CreateOauthProvidersResponse =
-  TurnkeyApiTypes["v1CreateOauthProvidersResult"];
+  v1CreateOauthProvidersResult
 
 export type SendOtpRequest = {
   otpType: string;
   contact: string;
   appName: string;
-  emailCustomization?: EmailCustomization | undefined;
+  emailCustomization?: v1EmailCustomizationParams | undefined;
   sendFromEmailAddress?: string | undefined;
   sendFromEmailSenderName?: string | undefined;
   customSmsMessage?: string | undefined;
@@ -210,7 +198,7 @@ export type InitEmailAuthRequest = {
   userIdentifier?: string | undefined;
   sessionLengthSeconds?: number | undefined;
   invalidateExisting?: boolean | undefined;
-  emailCustomization?: EmailCustomization | undefined;
+  emailCustomization?: v1EmailCustomizationParams | undefined;
   sendFromEmailAddress?: string | undefined;
 };
 
@@ -219,7 +207,7 @@ export type GetUsersRequest = {
 };
 
 export type GetUsersResponse = {
-  users: TurnkeyApiTypes["v1User"][];
+  users: v1User[];
 };
 
 export type GetSuborgsRequest = {
@@ -231,54 +219,12 @@ export type GetSuborgsResponse = {
   organizationIds: string[];
 };
 
-export interface WalletAccount {
-  curve: "CURVE_SECP256K1" | "CURVE_ED25519";
-  pathFormat: "PATH_FORMAT_BIP32";
-  path: string;
-  addressFormat:
-    | "ADDRESS_FORMAT_ETHEREUM"
-    | "ADDRESS_FORMAT_UNCOMPRESSED"
-    | "ADDRESS_FORMAT_COMPRESSED"
-    | "ADDRESS_FORMAT_SOLANA"
-    | "ADDRESS_FORMAT_COSMOS"
-    | "ADDRESS_FORMAT_TRON"
-    | "ADDRESS_FORMAT_SEI"
-    | "ADDRESS_FORMAT_XLM"
-    | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2PKH"
-    | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WPKH"
-    | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2WSH"
-    | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2TR"
-    | "ADDRESS_FORMAT_BITCOIN_MAINNET_P2SH"
-    | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2PKH"
-    | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WPKH"
-    | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2WSH"
-    | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2TR"
-    | "ADDRESS_FORMAT_BITCOIN_TESTNET_P2SH"
-    | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2PKH"
-    | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WPKH"
-    | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2WSH"
-    | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2TR"
-    | "ADDRESS_FORMAT_BITCOIN_SIGNET_P2SH"
-    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2PKH"
-    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WPKH"
-    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2WSH"
-    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2TR"
-    | "ADDRESS_FORMAT_BITCOIN_REGTEST_P2SH"
-    | "ADDRESS_FORMAT_DOGE_MAINNET"
-    | "ADDRESS_FORMAT_DOGE_TESTNET"
-    | "ADDRESS_FORMAT_SUI"
-    | "ADDRESS_FORMAT_APTOS"
-    | "ADDRESS_FORMAT_XRP"
-    | "ADDRESS_FORMAT_TON_V3R2"
-    | "ADDRESS_FORMAT_TON_V4R2";
-}
-
 export type CreateSuborgRequest = {
   oauthProviders?: Provider[] | undefined;
   email?: string | undefined;
   phoneNumber?: string | undefined;
   passkey?: Passkey | undefined;
-  customAccounts?: WalletAccount[] | undefined;
+  customAccounts?: v1WalletAccount[] | undefined;
   wallet?: {
     publicKey: string;
     type: WalletType;
@@ -304,4 +250,21 @@ export type GetOrCreateSuborgResponse = {
   subOrganizationIds: string[];
 };
 
-export type EmailCustomization = TurnkeyApiTypes["v1EmailCustomizationParams"];
+/** @internal */
+export type TActivityStatus = v1ActivityStatus;
+/** @internal */
+export type TActivityResponse = v1ActivityResponse;
+
+/** @internal */
+export type TSignedRequest = {
+  body: string;
+  stamp: TStamp;
+  url: string;
+};
+
+/** @internal */
+export const TERMINAL_ACTIVITY_STATUSES: TActivityStatus[] = [
+  "ACTIVITY_STATUS_COMPLETED",
+  "ACTIVITY_STATUS_FAILED",
+  "ACTIVITY_STATUS_REJECTED",
+];
