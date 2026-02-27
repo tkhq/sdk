@@ -5,9 +5,7 @@ import {
   TActivityResponse,
   TActivityStatus,
   TSignedRequest,
-} from "@turnkey/http";
-
-import type { definitions } from "../__inputs__/public_api.types";
+} from "../__types__/base";
 
 import {
   GrpcStatus,
@@ -18,7 +16,7 @@ import {
 
 import { VERSION } from "../__generated__/version";
 
-import type * as SdkApiTypes from "./sdk_api_types";
+import type * as SdkApiTypes from "@turnkey/sdk-types";
 
 export class TurnkeySDKClientBase {
   config: TurnkeySDKClientConfig;
@@ -80,7 +78,7 @@ export class TurnkeySDKClientBase {
 
       if (status === "ACTIVITY_STATUS_COMPLETED") {
         return {
-          ...result[`${resultKey}` as keyof definitions["v1Result"]],
+          ...result[`${resultKey}` as keyof SdkApiTypes.v1Result],
           ...activityData,
         } as TResponseType;
       }
