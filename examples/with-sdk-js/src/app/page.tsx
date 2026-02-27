@@ -65,6 +65,8 @@ export default function AuthPage() {
   const SOLANA_MAINNET_CAIP2 = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
   const SOLANA_TEST_LAMPORTS = 1;
   const PLACEHOLDER_BLOCKHASH = "11111111111111111111111111111111";
+  const BASE_MAINNET_CAIP2 = "eip155:8453";
+  const BASE_MAINNET_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bDa02913";
 
   const getSolanaRecentBlockhash = async (): Promise<string> => {
     const response = await fetch("/api/solana/latest-blockhash");
@@ -2056,6 +2058,46 @@ export default function AuthPage() {
             }}
           >
             Send Non-Sponsored ETH Transaction
+          </button>
+
+          <button
+            data-testid="send-erc20-transfer"
+            onClick={async () => {
+              if (
+                !activeWalletAccount ||
+                activeWalletAccount.addressFormat !== "ADDRESS_FORMAT_ETHEREUM"
+              ) {
+                console.error("No active Ethereum wallet account selected");
+                return;
+              }
+
+              const sendTransactionStatusId = await turnkey.ethSendErc20Transfer({
+                transfer: {
+                  from: activeWalletAccount.address,
+                  to: activeWalletAccount.address,
+                  tokenAddress: BASE_MAINNET_USDC,
+                  amount: "1", // 1 base unit of USDC (0.000001 USDC)
+                  caip2: BASE_MAINNET_CAIP2,
+                  sponsor: false,
+                  gasLimit: "100000",
+                  maxFeePerGas: "1000000000",
+                  maxPriorityFeePerGas: "1000000000",
+                },
+              });
+
+              console.log(
+                "ERC20 transfer sendTransactionStatusId:",
+                sendTransactionStatusId,
+              );
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Send ERC20 Transfer (USDC)
           </button>
 
           <button
