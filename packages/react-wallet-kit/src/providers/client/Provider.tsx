@@ -88,6 +88,7 @@ import {
   type RemoveUserEmailParams,
   type RemoveUserPhoneNumberParams,
   type SetActiveSessionParams,
+  type EthSendErc20TransferParams,
   type EthSendTransactionParams,
   type SolSendTransactionParams,
   type SignMessageParams,
@@ -188,6 +189,7 @@ import type {
   HandleRemovePasskeyParams,
   HandleRemoveUserEmailParams,
   HandleRemoveUserPhoneNumberParams,
+  HandleSendErc20TransferParams,
   HandleSendTransactionParams,
   HandleSignMessageParams,
   HandleUpdateUserEmailParams,
@@ -2521,6 +2523,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         () => logout(),
         callbacks,
         "Failed to send eth transaction",
+      );
+    },
+    [client, callbacks, logout],
+  );
+
+  const ethSendErc20Transfer = useCallback(
+    async (params: EthSendErc20TransferParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.ethSendErc20Transfer(params),
+        () => logout(),
+        callbacks,
+        "Failed to send ERC20 transfer",
       );
     },
     [client, callbacks, logout],
@@ -5404,6 +5423,80 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     ],
   );
 
+  const handleSendErc20Transfer = useCallback(
+    async (params: HandleSendErc20TransferParams): Promise<void> => {
+      const session = await getSession();
+      const organizationId = params.organizationId || session?.organizationId;
+
+      if (!organizationId) {
+        throw new TurnkeyError(
+          "A session or passed in organization ID is required.",
+          TurnkeyErrorCodes.INVALID_REQUEST,
+        );
+      }
+
+      const {
+        transfer,
+        icon,
+        stampWith,
+        successPageDuration = 2000,
+      } = params;
+      const { caip2 } = transfer;
+
+      return new Promise((resolve, reject) => {
+        const action = async () => {
+          const sendTransactionStatusId = await ethSendErc20Transfer({
+            organizationId,
+            transfer,
+            stampWith,
+          });
+
+          if (!sendTransactionStatusId) {
+            throw new TurnkeyError(
+              "Missing sendTransactionStatusId",
+              TurnkeyErrorCodes.BAD_RESPONSE,
+            );
+          }
+
+          const pollResult = await pollTransactionStatus({
+            organizationId,
+            sendTransactionStatusId,
+          });
+
+          const txHash =
+            pollResult?.eth?.txHash ??
+            (pollResult as { txHash?: string })?.txHash;
+
+          return txHash ? { txHash } : {};
+        };
+
+        pushPage({
+          key: "Send ERC20 Transfer",
+          showTitle: false,
+          preventBack: true,
+          onClose: () =>
+            reject(
+              new TurnkeyError(
+                "User canceled the transaction.",
+                TurnkeyErrorCodes.USER_CANCELED,
+              ),
+            ),
+          content: (
+            <SendTransactionPage
+              icon={icon ?? getChainLogo(caip2)}
+              action={action}
+              caip2={caip2}
+              successPageDuration={successPageDuration}
+              onSuccess={() => resolve()}
+              onError={(err) => reject(err)}
+            />
+          ),
+        });
+      });
+    },
+    [ethSendErc20Transfer, getSession, pollTransactionStatus, pushPage],
+  );
+
   const handleOnRamp = useCallback(
     async (params: HandleOnRampParams): Promise<void> => {
       const {
@@ -5847,6 +5940,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         signMessage,
         signTransaction,
         ethSendTransaction,
+        ethSendErc20Transfer,
         solSendTransaction,
         signAndSendTransaction,
         pollTransactionStatus,
@@ -5911,6 +6005,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleVerifyAppProofs,
         handleOnRamp,
         handleSendTransaction,
+        handleSendErc20Transfer,
       }}
     >
       {children}
