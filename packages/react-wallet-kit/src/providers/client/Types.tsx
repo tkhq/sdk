@@ -39,6 +39,7 @@ import type {
   HandleRemovePasskeyParams,
   HandleRemoveUserEmailParams,
   HandleRemoveUserPhoneNumberParams,
+  HandleSendErc20TransferParams,
   HandleSendTransactionParams,
   HandleSignMessageParams,
   HandleUpdateUserEmailParams,
@@ -790,6 +791,28 @@ export interface ClientContextType
    * @throws {TurnkeyError} If submission fails, polling fails, or the user cancels the flow.
    */
   handleSendTransaction: (params: HandleSendTransactionParams) => Promise<void>;
+
+  /**
+   * Handles signing and sending an ERC20 `transfer(address,uint256)` transaction.
+   *
+   * - Submits an ERC20 transfer intent to Turnkey for signing and execution.
+   * - Automatically polls the transaction status until it reaches a terminal state.
+   * - Displays a modal showing progress and a success page upon completion.
+   *
+   * @param params.transfer - ERC20 transfer fields (`from`, `tokenAddress`, `to`, `amount`, `caip2`).
+   * @param params.organizationId - Optional Turnkey organization or sub-organization ID
+   *   (defaults to the active session).
+   * @param params.stampWith - Optional stamper override (e.g. Passkey, API key, Wallet).
+   * @param params.successPageDuration - Optional duration (in ms) to display the success page
+   *   after completion (default: 2000ms).
+   * @param params.icon - Optional icon to display in the transaction modal.
+   *
+   * @returns A promise that resolves when the transfer reaches a terminal state.
+   * @throws {TurnkeyError} If submission fails, polling fails, or the user cancels the flow.
+   */
+  handleSendErc20Transfer: (
+    params: HandleSendErc20TransferParams,
+  ) => Promise<void>;
 }
 
 /** @internal */

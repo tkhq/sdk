@@ -1,4 +1,5 @@
 import type {
+  Erc20Transfer,
   EthTransaction,
   OAuthProviders,
   SolanaTransaction,
@@ -294,6 +295,14 @@ export type HandleSendTransactionParams = {
   transaction: EthTransaction | SolanaTransaction;
 
   // UI behavior
+  successPageDuration?: number;
+  icon?: React.ReactNode;
+  stampWith?: StamperType;
+};
+
+export type HandleSendErc20TransferParams = {
+  organizationId?: string;
+  transfer: Erc20Transfer;
   successPageDuration?: number;
   icon?: React.ReactNode;
   stampWith?: StamperType;

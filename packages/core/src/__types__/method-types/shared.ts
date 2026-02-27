@@ -261,6 +261,21 @@ export type EthTransaction = {
   gasStationNonce?: string;
 };
 
+export type Erc20Transfer = {
+  from: string;
+  to: string;
+  tokenAddress: string;
+  amount: string;
+  caip2: string;
+
+  nonce?: string;
+  gasLimit?: string;
+  maxFeePerGas?: string;
+  maxPriorityFeePerGas?: string;
+
+  sponsor?: boolean;
+};
+
 export type SolanaTransaction = {
   unsignedTransaction: string;
   signWith: string;
@@ -273,6 +288,12 @@ export type EthSendTransactionParams = {
   organizationId?: string;
   stampWith?: StamperType | undefined;
   transaction: EthTransaction;
+};
+
+export type EthSendErc20TransferParams = {
+  organizationId?: string;
+  stampWith?: StamperType | undefined;
+  transfer: Erc20Transfer;
 };
 
 export type SolSendTransactionParams = {
