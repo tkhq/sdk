@@ -4,7 +4,7 @@ import * as dotenv from "dotenv";
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import { TurnkeyClient } from "@turnkey/http";
+import { TurnkeyClient, createActivityPoller } from "@turnkey/http";
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
 
 import * as crypto from "crypto";
@@ -24,7 +24,12 @@ async function main() {
 
   const privateKeyName = `SOL Key ${crypto.randomBytes(2).toString("hex")}`;
 
-  const { activity } = await turnkeyClient.createPrivateKeys({
+  const activityPoller = createActivityPoller({
+    client: turnkeyClient,
+    requestFn: turnkeyClient.createPrivateKeys,
+  });
+
+  const completedActivity = await activityPoller({
     type: "ACTIVITY_TYPE_CREATE_PRIVATE_KEYS_V2",
     organizationId: process.env.ORGANIZATION_ID!,
     parameters: {
@@ -37,14 +42,14 @@ async function main() {
         },
       ],
     },
-    timestampMs: String(Date.now()), // millisecond timestamp
+    timestampMs: String(Date.now()),
   });
 
-  const privateKeys = refineNonNull(
-    activity.result.createPrivateKeysResultV2?.privateKeys,
+  const privateKey = refineNonNull(
+    completedActivity.result.createPrivateKeysResultV2?.privateKeys?.[0],
   );
-  const privateKeyId = refineNonNull(privateKeys?.[0]?.privateKeyId);
-  const address = refineNonNull(privateKeys?.[0]?.addresses?.[0]?.address);
+  const privateKeyId = refineNonNull(privateKey.privateKeyId);
+  const address = refineNonNull(privateKey.addresses?.[0]?.address);
 
   // Success!
   console.log(
