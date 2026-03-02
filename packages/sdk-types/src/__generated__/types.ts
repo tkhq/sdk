@@ -4876,7 +4876,6 @@ export type TGetWalletAccountsInput = { body: TGetWalletAccountsBody };
 
 export type TGetWalletsResponse = {
   /** A list of wallets. */
-  // HEELLOOO, THIS WILL FAIL
   wallets: v1Wallet[];
 };
 
