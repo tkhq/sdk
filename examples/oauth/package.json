@@ -26,6 +26,7 @@
     "eslint-config-next": "15.5.10",
     "esm": "3.2.25",
     "viem": "2.34.0",
+    "@solana/web3.js": "^1.95.8",
     "@tailwindcss/postcss": "4.1.13",
     "tailwindcss": "4.1.13"
   }

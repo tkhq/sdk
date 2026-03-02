@@ -4,18 +4,19 @@ This is a minimal Next.js app showing how to implement **OAuth login (Google)** 
 
 ### What this demo shows
 
-A high-level summary of the user experience and what appears on screen.
-
 After visiting the app, the user can:
 
 - Log in with Google OAuth (via `@react-oauth/google`)
-- Authenticate with Turnkey by exchanging the user’s Google credential through your own backend, implemented here using Next.js Server Actions.
-- Automatically create or access a Turnkey sub-organization / embedded wallet.
+- Authenticate with Turnkey by exchanging the Google credential through your own backend, implemented here using Next.js Server Actions.
+- Automatically create or access a Turnkey sub-organization with an embedded wallet that holds both an Ethereum and a Solana account.
 
 Once logged in, the dashboard is split into two main panels:
 
-- Left side: sign a message and a simple EIP-1559 Ethereum transaction
-- Right side: display the sub-organization embedded wallets
+- **Left side — actions:**
+  - **Sign Message** — sign an arbitrary message with any EVM or Solana account (`signRawPayload`). Automatically selects `HASH_FUNCTION_SHA256` for secp256k1 (EVM) keys and `HASH_FUNCTION_NOT_APPLICABLE` for ed25519 (Solana) keys.
+  - **Send ETH** — submit a Gas Station–sponsored Ethereum transfer on Sepolia or Mainnet via `ethSendTransaction`, then poll for the tx hash with `pollTransactionStatus`. See [Transaction Management](https://docs.turnkey.com/concepts/transaction-management).
+  - **Send SOL** — submit a Gas Station–sponsored Solana transfer on Devnet or Mainnet via `solSendTransaction`, then poll for the transaction signature with `pollTransactionStatus`. See [Transaction Management](https://docs.turnkey.com/concepts/transaction-management).
+- **Right side** — displays the raw embedded wallet data and the sub-organization ID.
 
 ## How it works
 
@@ -23,13 +24,15 @@ Once logged in, the dashboard is split into two main panels:
 2. The Google button is rendered with a `nonce = sha256(publicKey)`.
 3. After Google returns an OIDC token, the client calls your Server Actions to:
 
-- Find (`getSubOrgIds`) or create (`createSubOrganization`) a Turnkey sub-organization with an Ethereum wallet bound to that OIDC identity.
-- Create a Turnkey read-write session jwt (`oauthLogin`) bound to the indexedDb keypair (see: [Sessions](https://docs.turnkey.com/authentication/sessions#read-write-sessions)).
+- Find (`getSubOrgIds`) or create (`createSubOrganization`) a Turnkey sub-organization with an embedded wallet containing both Ethereum and Solana accounts bound to that OIDC identity.
+- Create a Turnkey read-write session JWT (`oauthLogin`) bound to the IndexedDB keypair (see: [Sessions](https://docs.turnkey.com/authentication/sessions#read-write-sessions)).
 
-4. Use the user session in the dashboard to load the sub-org embedded wallets, sign a message (`signRawPayload`) and sign a transaction (`signTransaction`).
+4. On the dashboard, the session is used to:
+   - Sign messages with `signRawPayload` using the selected EVM or Solana account.
+   - Send Gas Station–sponsored transactions with `ethSendTransaction` / `solSendTransaction`, polling for completion via `pollTransactionStatus`.
 
 > Why the `nonce = sha256(publicKey)`?
-> It cryptographically binds the Google OIDC token to the same keypair, that prevents OIDC tokens from being used against multiple public keys.
+> It cryptographically binds the Google OIDC token to the same keypair, preventing OIDC tokens from being replayed against a different public key.
 
 ## Getting started
 
@@ -65,7 +68,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `NEXT_PUBLIC_BASE_URL` (the `NEXT_PUBLIC` prefix makes the env variable accessible to the frontend app)
 - `NEXT_PUBLIC_ORGANIZATION_ID`
-- `NEXT_PUBLIC_GOOGLE_CLIENT_ID`(Google OIDC credentials client id: https://developers.google.com/identity/openid-connect/openid-connect)
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (Google OIDC credentials client id: https://developers.google.com/identity/openid-connect/openid-connect)
 
 ### 3/ Running the app
 
@@ -73,4 +76,4 @@ Now open `.env.local` and add the missing environment variables:
 $ pnpm run dev
 ```
 
-This command will run a NextJS app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to start an oauth activity.
+This command will run a Next.js app on port 3000. If you navigate to http://localhost:3000 in your browser, you can follow the prompts to start an OAuth activity.
