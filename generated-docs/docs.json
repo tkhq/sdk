@@ -10,8 +10,35 @@
   "contextual": {
     "options": ["copy", "view", "chatgpt", "claude"]
   },
+  "integrations": {
+    "ga4": {
+      "measurementId": "G-VRJJ2TSC23"
+    },
+    "gtm": {
+      "tagId": "GTM-PN838HQC"
+    }
+  },
   "favicon": "/favicon.svg",
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Support",
+          "icon": "slack",
+          "href": "https://join.slack.com/t/clubturnkey/shared_invite/zt-3aemp2g38-zIh4V~3vNpbX5PsSmkKxcQ"
+        },
+        {
+          "anchor": "Blog",
+          "icon": "newspaper",
+          "href": "https://www.turnkey.com/blog"
+        },
+        {
+          "anchor": "Contact us",
+          "icon": "headset",
+          "href": "https://www.turnkey.com/contact-us"
+        }
+      ]
+    },
     "tabs": [
       {
         "tab": "Documentation",
@@ -42,9 +69,9 @@
               {
                 "group": "Architecture",
                 "pages": [
-                  "products/transaction-automation/features/security/quorum-os",
-                  "products/transaction-automation/features/security/remote-attestation",
-                  "products/transaction-automation/features/security/secure-hardware",
+                  "products/company-wallets/features/security/quorum-os",
+                  "products/company-wallets/features/security/remote-attestation",
+                  "products/company-wallets/features/security/secure-hardware",
                   "sdks/cli"
                 ]
               },
@@ -54,7 +81,7 @@
                 "pages": [
                   "getting-started/embedded-wallet-quickstart",
                   "getting-started/migration-guide",
-                  "getting-started/signing-automation-quickstart"
+                  "getting-started/company-wallets-quickstart"
                 ]
               },
               {
@@ -63,7 +90,7 @@
                   "production-checklist/production-checklist",
                   "production-checklist/backup-recovery",
                   "production-checklist/embedded-wallet",
-                  "production-checklist/transaction-automation"
+                  "production-checklist/company-wallet"
                 ]
               }
             ]
@@ -72,15 +99,17 @@
             "group": "Products",
             "pages": [
               {
-                "group": "Embedded wallets",
+                "group": "Embedded Wallets",
                 "pages": [
                   "embedded-wallets/overview",
                   {
                     "group": "Features",
                     "pages": [
                       "embedded-wallets/features/overview",
+                      "products/embedded-wallets/features/agentic-wallets",
                       "reference/embedded-wallet-kit",
                       "reference/auth-proxy",
+                      "concepts/transaction-management",
                       {
                         "group": "Authentication",
                         "pages": [
@@ -106,8 +135,6 @@
                       "products/embedded-wallets/features/multi-chain-support",
                       "products/embedded-wallets/features/fiat-on-ramp",
                       "authentication/sessions",
-                      "reference/solana-gasless-transactions",
-                      "reference/tron-gasless-transactions",
                       {
                         "group": "Wallets",
                         "pages": [
@@ -138,10 +165,13 @@
                     "group": "Examples",
                     "pages": [
                       "category/code-examples",
+                      "embedded-wallets/code-examples/embedded-consumer-wallet",
                       "embedded-wallets/code-examples/create-sub-org-passkey",
                       "embedded-wallets/code-examples/authenticate-user-passkey",
                       "embedded-wallets/code-examples/create-passkey-session",
                       "embedded-wallets/code-examples/sending-sponsored-transactions",
+                      "reference/tron-gasless-transactions",
+                      "embedded-wallets/code-examples/client-side-signing",
                       "embedded-wallets/code-examples/create-user-email",
                       "embedded-wallets/code-examples/authenticate-user-email",
                       "embedded-wallets/code-examples/add-credential",
@@ -154,16 +184,16 @@
                 ]
               },
               {
-                "group": "Transaction automation",
+                "group": "Company Wallets",
                 "pages": [
-                  "signing-automation/overview",
+                  "company-wallets/overview",
                   {
                     "group": "Features",
                     "pages": [
-                      "products/transaction-automation/features/multi-chain-support",
-                      "signing-automation/co-signing-transactions",
-                      "products/transaction-automation/features/import-wallets",
-                      "products/transaction-automation/features/export-wallets",
+                      "products/company-wallets/features/multi-chain-support",
+                      "company-wallets/co-signing-transactions",
+                      "products/company-wallets/features/import-wallets",
+                      "products/company-wallets/features/export-wallets",
                       "developer-reference/webhooks"
                     ]
                   },
@@ -182,7 +212,9 @@
                     "group": "Examples",
                     "pages": [
                       "category/code-examples-1",
-                      "signing-automation/code-examples/signing-transactions"
+                      "company-wallets/code-examples/signing-transactions",
+                      "company-wallets/code-examples/smart-contract-management",
+                      "company-wallets/code-examples/payment-orchestration"
                     ]
                   }
                 ]
@@ -222,7 +254,9 @@
                   "cookbook/jupiter",
                   "cookbook/lifi",
                   "cookbook/0x",
-                  "cookbook/yieldxyz"
+                  "cookbook/yieldxyz",
+                  "cookbook/polymarket-builders",
+                  "cookbook/base-builder-codes"
                 ]
               }
             ]
@@ -390,6 +424,7 @@
                       "generated-docs/react-wallet-kit/client-context-type-sign-up-with-otp",
                       "generated-docs/react-wallet-kit/client-context-type-sign-up-with-passkey",
                       "generated-docs/react-wallet-kit/client-context-type-sign-up-with-wallet",
+                      "generated-docs/react-wallet-kit/client-context-type-sol-send-transaction",
                       "generated-docs/react-wallet-kit/client-context-type-store-session",
                       "generated-docs/react-wallet-kit/client-context-type-switch-wallet-account-chain",
                       "generated-docs/react-wallet-kit/client-context-type-update-user-email",
@@ -552,6 +587,7 @@
                       "generated-docs/core/turnkey-client-sign-up-with-otp",
                       "generated-docs/core/turnkey-client-sign-up-with-passkey",
                       "generated-docs/core/turnkey-client-sign-up-with-wallet",
+                      "generated-docs/core/turnkey-client-sol-send-transaction",
                       "generated-docs/core/turnkey-client-store-session",
                       "generated-docs/core/turnkey-client-switch-wallet-account-chain",
                       "generated-docs/core/turnkey-client-update-user-email",
@@ -606,6 +642,8 @@
             "pages": [
               "api-reference/activities/overview",
               "api-reference/activities/approve-activity",
+              "api-reference/activities/broadcast-evm-transaction",
+              "api-reference/activities/broadcast-svm-transaction",
               "api-reference/activities/create-a-fiat-on-ramp-credential",
               "api-reference/activities/create-an-oauth-20-credential",
               "api-reference/activities/create-api-keys",
@@ -623,9 +661,9 @@
               "api-reference/activities/create-user-tag",
               "api-reference/activities/create-users",
               "api-reference/activities/create-wallet",
+              "api-reference/activities/create-wallet-accounts",
               "api-reference/activities/delete-a-fiat-on-ramp-credential",
               "api-reference/activities/delete-an-oauth-20-credential",
-              "api-reference/activities/create-wallet-accounts",
               "api-reference/activities/delete-api-keys",
               "api-reference/activities/delete-authenticators",
               "api-reference/activities/delete-invitation",
@@ -638,8 +676,8 @@
               "api-reference/activities/delete-sub-organization",
               "api-reference/activities/delete-user-tags",
               "api-reference/activities/delete-users",
-              "api-reference/activities/delete-wallets",
               "api-reference/activities/delete-wallet-accounts",
+              "api-reference/activities/delete-wallets",
               "api-reference/activities/export-private-key",
               "api-reference/activities/export-wallet",
               "api-reference/activities/export-wallet-account",
@@ -654,8 +692,8 @@
               "api-reference/activities/login-with-a-stamp",
               "api-reference/activities/login-with-oauth",
               "api-reference/activities/login-with-otp",
-              "api-reference/activities/oauth-20-authentication",
               "api-reference/activities/oauth",
+              "api-reference/activities/oauth-20-authentication",
               "api-reference/activities/otp-auth",
               "api-reference/activities/perform-email-auth",
               "api-reference/activities/recover-a-user",
@@ -665,8 +703,6 @@
               "api-reference/activities/sign-raw-payload",
               "api-reference/activities/sign-raw-payloads",
               "api-reference/activities/sign-transaction",
-              "api-reference/activities/submit-a-raw-transaction-for-broadcasting",
-              "api-reference/activities/submit-a-transaction-intent-for-broadcasting",
               "api-reference/activities/update-a-fiat-on-ramp-credential",
               "api-reference/activities/update-an-oauth-20-credential",
               "api-reference/activities/update-policy",
@@ -691,13 +727,17 @@
               "api-reference/queries/get-api-keys",
               "api-reference/queries/get-authenticator",
               "api-reference/queries/get-authenticators",
+              "api-reference/queries/get-balances",
               "api-reference/queries/get-configs",
+              "api-reference/queries/get-gas-usage",
+              "api-reference/queries/get-nonces",
               "api-reference/queries/get-oauth-20-credential",
               "api-reference/queries/get-oauth-providers",
               "api-reference/queries/get-on-ramp-transaction-status",
               "api-reference/queries/get-policy",
               "api-reference/queries/get-policy-evaluations",
               "api-reference/queries/get-private-key",
+              "api-reference/queries/get-send-transaction-status",
               "api-reference/queries/get-smart-contract-interface",
               "api-reference/queries/get-sub-organizations",
               "api-reference/queries/get-the-latest-boot-proof-for-an-app",
@@ -713,6 +753,7 @@
               "api-reference/queries/list-private-key-tags",
               "api-reference/queries/list-private-keys",
               "api-reference/queries/list-smart-contract-interfaces",
+              "api-reference/queries/list-supported-assets",
               "api-reference/queries/list-user-tags",
               "api-reference/queries/list-users",
               "api-reference/queries/list-wallets",
@@ -781,26 +822,7 @@
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Support",
-          "href": "https://join.slack.com/t/clubturnkey/shared_invite/zt-3aemp2g38-zIh4V~3vNpbX5PsSmkKxcQ",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://www.turnkey.com/blog",
-          "icon": "newspaper"
-        },
-        {
-          "anchor": "Contact us",
-          "href": "https://www.turnkey.com/contact-us",
-          "icon": "headset"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
@@ -907,11 +929,6 @@
       "permanent": true
     },
     {
-      "source": "/integration-guides/sub-organizations-as-wallets",
-      "destination": "/embedded-wallets/sub-organizations-as-wallets",
-      "permanent": true
-    },
-    {
       "source": "/integration-guides/webhooks",
       "destination": "/features/webhooks",
       "permanent": true
@@ -1010,6 +1027,26 @@
       "source": "/sdks/typescript-frontend/sdk-reference",
       "destination": "/generated-docs/formatted/core/turnkey-client-add-oauth-provider",
       "permanent": false
+    },
+    {
+      "source": "/getting-started/signing-automation-quickstart",
+      "destination": "/getting-started/company-wallets-quickstart",
+      "permanent": true
+    },
+    {
+      "source": "/signing-automation/overview",
+      "destination": "/company-wallets/overview",
+      "permanent": true
+    },
+    {
+      "source": "/signing-automation/code-examples/smart-contract-management",
+      "destination": "/company-wallets/code-examples/smart-contract-management",
+      "permanent": true
+    },
+    {
+      "source": "/signing-automation/code-examples/payment-orchestration",
+      "destination": "/company-wallets/code-examples/payment-orchestration",
+      "permanent": true
     }
   ]
 }

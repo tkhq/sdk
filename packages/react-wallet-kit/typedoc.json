@@ -6,7 +6,6 @@
   "includeVersion": true,
   // "fileExtension": "json",
   "alwaysCreateEntryPointModule": false,
-  "gitRevision": "main",
   "router": "structure-dir",
   "projectDocuments": ["documents/*.md", "CHANGELOG.md"],
   "validation": {
