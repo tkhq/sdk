@@ -5435,12 +5435,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      const {
-        transfer,
-        icon,
-        stampWith,
-        successPageDuration = 2000,
-      } = params;
+      const { transfer, icon, stampWith, successPageDuration = 2000 } = params;
       const { caip2 } = transfer;
 
       return new Promise((resolve, reject) => {
