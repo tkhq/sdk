@@ -2789,7 +2789,7 @@ export class TurnkeyClient {
    *
    * - **Embedded wallets**
    *   - Constructs the payload for Turnkey's `eth_send_transaction` endpoint.
-   *   - Fetches nonces automatically when needed (normal nonce or Gas Station nonce).
+   *   - Forwards transaction fields directly to Turnkey's coordinator.
    *   - Signs and submits the transaction through Turnkey.
    *   - Returns a `sendTransactionStatusId`, which the caller must pass to
    *     `pollTransactionStatus` to obtain the final result (tx hash + status).
@@ -2825,6 +2825,7 @@ export class TurnkeyClient {
       maxFeePerGas,
       maxPriorityFeePerGas,
       sponsor,
+      gasStationNonce,
     } = transaction;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -2842,29 +2843,6 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        let gasStationNonce;
-        let fetchedNonce;
-
-        //
-        // Fetch nonce(s) when needed:
-        // - sponsored: Gas Station nonce
-        // - non-sponsored: regular EIP-1559 nonce
-        //
-        if (!nonce || sponsor) {
-          const nonceResp = await this.httpClient.getNonces({
-            organizationId,
-            address: from,
-            caip2,
-            nonce: sponsor ? false : true,
-            gasStationNonce: sponsor ? true : false,
-          });
-
-          gasStationNonce = nonceResp.gasStationNonce;
-          fetchedNonce = nonceResp.nonce;
-        }
-
-        const finalNonce = nonce ?? fetchedNonce;
-
         //
         // Build Turnkey intent
         //
@@ -2874,13 +2852,14 @@ export class TurnkeyClient {
           caip2,
           ...(value ? { value } : {}),
           ...(data ? { data } : {}),
+          ...(nonce !== undefined ? { nonce } : {}),
         };
 
         if (sponsor) {
           intent.sponsor = true;
-          if (gasStationNonce) intent.gasStationNonce = gasStationNonce;
+          if (gasStationNonce !== undefined)
+            intent.gasStationNonce = gasStationNonce;
         } else {
-          if (finalNonce !== undefined) intent.nonce = finalNonce;
           if (gasLimit) intent.gasLimit = gasLimit;
           if (maxFeePerGas) intent.maxFeePerGas = maxFeePerGas;
           if (maxPriorityFeePerGas)

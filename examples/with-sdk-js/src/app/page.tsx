@@ -2071,24 +2071,20 @@ export default function AuthPage() {
                 return;
               }
 
-              const sendTransactionStatusId = await turnkey.ethSendErc20Transfer({
+              await turnkey.handleSendErc20Transfer({
                 transfer: {
                   from: activeWalletAccount.address,
                   to: activeWalletAccount.address,
                   tokenAddress: BASE_MAINNET_USDC,
                   amount: "1", // 1 base unit of USDC (0.000001 USDC)
                   caip2: BASE_MAINNET_CAIP2,
+                  // nonce is intentionally omitted; core auto-fetches it when missing
                   sponsor: false,
                   gasLimit: "100000",
                   maxFeePerGas: "1000000000",
                   maxPriorityFeePerGas: "1000000000",
                 },
               });
-
-              console.log(
-                "ERC20 transfer sendTransactionStatusId:",
-                sendTransactionStatusId,
-              );
             }}
             style={{
               backgroundColor: "rebeccapurple",
