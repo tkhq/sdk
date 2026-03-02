@@ -35,7 +35,7 @@ jobs:
         run: pnpm run version
 
       - name: Run codegen
-        run: pnpm run codegen
+        run: pnpm run codegen-all
 
       # Run prettier again after codegen to ensure generated code is formatted correctly
       - name: Run prettier
