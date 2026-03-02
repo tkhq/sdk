@@ -2076,7 +2076,7 @@ export default function AuthPage() {
                   from: activeWalletAccount.address,
                   to: activeWalletAccount.address,
                   tokenAddress: BASE_MAINNET_USDC,
-                  amount: "1", // 1 base unit of USDC (0.000001 USDC)
+                  amount: "0", // zero-value ERC20 transfer for demo/testing
                   caip2: BASE_MAINNET_CAIP2,
                   // nonce is intentionally omitted; core auto-fetches it when missing
                   sponsor: false,
