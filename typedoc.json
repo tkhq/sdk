@@ -4,7 +4,6 @@
   "includeVersion": true,
   "excludeExternals": true,
   "alwaysCreateEntryPointModule": true,
-  "gitRevision": "main",
   "router": "structure-dir",
   "outputs": [
     {
@@ -17,5 +16,8 @@
   "headings": {
     "readme": false,
     "document": false
+  },
+  "packageOptions": {
+    "gitRevision": "main"
   }
 }

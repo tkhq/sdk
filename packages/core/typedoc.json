@@ -19,7 +19,6 @@
   "externalPattern": ["**/node_modules/**"],
   "includeVersion": true,
   "alwaysCreateEntryPointModule": false,
-  "gitRevision": "main",
   "router": "structure-dir",
   "projectDocuments": ["documents/*.md", "CHANGELOG.md"],
   "validation": {
