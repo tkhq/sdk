@@ -394,9 +394,7 @@ export default function Dashboard() {
                 </p>
               )}
               {ethTxHash && <ResultBox label="Tx Hash" value={ethTxHash} />}
-              {ethBalance && (
-                <ResultBox label="Balance" value={ethBalance} />
-              )}
+              {ethBalance && <ResultBox label="Balance" value={ethBalance} />}
             </div>
 
             <hr />
@@ -456,9 +454,7 @@ export default function Dashboard() {
               {solTxStatus && (
                 <ResultBox label="Tx Signature" value={solTxStatus} />
               )}
-              {solBalance && (
-                <ResultBox label="Balance" value={solBalance} />
-              )}
+              {solBalance && <ResultBox label="Balance" value={solBalance} />}
             </div>
           </section>
 
