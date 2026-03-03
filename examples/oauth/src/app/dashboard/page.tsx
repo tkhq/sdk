@@ -70,6 +70,7 @@ export default function Dashboard() {
   const [ethSending, setEthSending] = useState(false);
   const [ethStatusId, setEthStatusId] = useState<string | null>(null);
   const [ethTxHash, setEthTxHash] = useState<string | null>(null);
+  const [ethBalance, setEthBalance] = useState<string | null>(null);
   const [ethErr, setEthErr] = useState<string | null>(null);
 
   // --- SOL Send ---
@@ -81,6 +82,7 @@ export default function Dashboard() {
   const [solSending, setSolSending] = useState(false);
   const [solStatusId, setSolStatusId] = useState<string | null>(null);
   const [solTxStatus, setSolTxStatus] = useState<string | null>(null);
+  const [solBalance, setSolBalance] = useState<string | null>(null);
   const [solErr, setSolErr] = useState<string | null>(null);
 
   // Embedded wallets only
@@ -194,6 +196,17 @@ export default function Dashboard() {
         sendTransactionStatusId: statusId,
       });
       setEthTxHash(result.eth?.txHash ?? result.txStatus);
+
+      const balRes = await httpClient?.getWalletAddressBalances({
+        address: evmAddress,
+        caip2: ethNetwork.caip2,
+      });
+      const native = balRes?.balances?.[0];
+      if (native) {
+        setEthBalance(
+          `${native.display?.crypto ?? native.balance} ${native.symbol}`,
+        );
+      }
     } catch (e: any) {
       console.error(e);
       setEthErr(e?.message ?? String(e) ?? "Failed to send ETH.");
@@ -247,6 +260,17 @@ export default function Dashboard() {
         sendTransactionStatusId: statusId,
       });
       setSolTxStatus(result.eth?.txHash ?? result.txStatus);
+
+      const balRes = await httpClient?.getWalletAddressBalances({
+        address: solAddress,
+        caip2: solNetwork.caip2,
+      });
+      const native = balRes?.balances?.[0];
+      if (native) {
+        setSolBalance(
+          `${native.display?.crypto ?? native.balance} ${native.symbol}`,
+        );
+      }
     } catch (e: any) {
       console.error(e);
       setSolErr(e?.message ?? String(e) ?? "Failed to send SOL.");
@@ -370,6 +394,9 @@ export default function Dashboard() {
                 </p>
               )}
               {ethTxHash && <ResultBox label="Tx Hash" value={ethTxHash} />}
+              {ethBalance && (
+                <ResultBox label="Balance" value={ethBalance} />
+              )}
             </div>
 
             <hr />
@@ -428,6 +455,9 @@ export default function Dashboard() {
               )}
               {solTxStatus && (
                 <ResultBox label="Tx Signature" value={solTxStatus} />
+              )}
+              {solBalance && (
+                <ResultBox label="Balance" value={solBalance} />
               )}
             </div>
           </section>
