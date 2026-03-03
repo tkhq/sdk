@@ -61,3 +61,5 @@ export type {
 } from "@turnkey/core";
 
 export type * from "../types/method-types";
+
+export type { TurnkeyProviderConfig } from "../types/base";
