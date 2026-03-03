@@ -1,10 +1,8 @@
 {
-  "entryPoints": ["src/index.ts"],
-  "out": "documents/api",
+  "entryPoints": ["src/typedoc-entry/index.ts"],
   "name": "react-native-wallet-kit",
   "includeVersion": true,
   "excludeInternal": true,
-  "gitRevision": "main",
   "router": "structure-dir",
   "alwaysCreateEntryPointModule": false,
   "readme": "README.md",
