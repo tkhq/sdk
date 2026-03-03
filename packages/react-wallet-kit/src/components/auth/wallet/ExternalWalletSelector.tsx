@@ -169,7 +169,6 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
 
   // Select the appropriate handler based on mode
   const onSelect = isConnectMode ? handleConnectSelect : handleAuthSelect;
-  const onDisconnect = isConnectMode ? handleDisconnect : undefined;
 
   // Group providers by name
   const grouped = walletProviders.reduce<Record<string, WalletProvider[]>>(
@@ -188,8 +187,8 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
       content: (
         <ExternalWalletChainSelector
           providers={group}
-          onDisconnect={onDisconnect}
           onSelect={onSelect}
+          onDisconnect={isConnectMode ? handleDisconnect : undefined}
         />
       ),
     });
@@ -203,6 +202,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
           providers={group}
           mode={mode}
           sessionKey={sessionKey}
+          onDisconnect={isConnectMode ? handleDisconnect : undefined}
         />
       ),
       showTitle: false,
@@ -220,7 +220,7 @@ export function ExternalWalletSelector(props: ExternalWalletSelectorProps) {
     // Single chain - direct action
     if (group.length === 1) {
       if (isConnected) {
-        onDisconnect!(provider);
+        handleDisconnect(provider);
       } else {
         onSelect(provider);
       }

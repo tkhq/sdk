@@ -13,8 +13,9 @@ import { canDisconnect } from "./utils";
 
 interface ExternalWalletChainSelectorProps {
   providers: WalletProvider[];
-  onDisconnect?: ((provider: WalletProvider) => Promise<void>) | undefined;
   onSelect: (provider: WalletProvider) => Promise<void>;
+  /** When provided, connected providers show disconnect UI and this handler is called on click. */
+  onDisconnect?: ((provider: WalletProvider) => Promise<void>) | undefined;
 }
 export function ExternalWalletChainSelector(
   props: ExternalWalletChainSelectorProps,
@@ -70,7 +71,7 @@ export function ExternalWalletChainSelector(
         {" supports multiple chains. Select which chain you would like to use."}
       </span>
       <div className="w-full flex flex-col gap-2">
-        {providers.map((p) => {
+        {currentProviders.map((p) => {
           const [isHovering, setIsHovering] = useState(false);
           return (
             <ActionButton

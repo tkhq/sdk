@@ -4,6 +4,7 @@ import { useModal } from "../../../providers/modal/Hook";
 import { useTurnkey } from "../../../providers/client/Hook";
 import { ExternalWalletChainSelector } from "./ExternalWalletChainSelector";
 import { DesktopWalletConnectScreen } from "./DesktopWalletConnectScreen";
+import { DisconnectWalletScreen } from "./DisconnectWalletScreen";
 import { MobileWalletConnectScreen } from "./MobileWalletConnectScreen";
 import { ShowAllWalletsScreen } from "./ShowAllWalletsScreen";
 import { WalletSelectorMode } from "../../../types/base";
@@ -15,6 +16,8 @@ interface WalletConnectFlowProps {
   mode: WalletSelectorMode;
   /** Session key for auth flow (only used when mode is Auth) */
   sessionKey?: string | undefined;
+  /** Custom disconnect handler (e.g. to show success page). Falls back to a simple disconnect + pop. */
+  onDisconnect?: ((provider: WalletProvider) => Promise<void>) | undefined;
 }
 
 /**
@@ -24,7 +27,7 @@ interface WalletConnectFlowProps {
  * Mobile flow: App selector → Deep link screen (with QR fallback)
  */
 export function WalletConnectFlow(props: WalletConnectFlowProps) {
-  const { providers, mode, sessionKey } = props;
+  const { providers, mode, sessionKey, onDisconnect } = props;
 
   const { pushPage, popPage, isMobile } = useModal();
   const {
@@ -44,11 +47,11 @@ export function WalletConnectFlow(props: WalletConnectFlowProps) {
   // ─────────────────────────────────────────────────────────────────────────────
 
   const handleAction = async (provider: WalletProvider) => {
-    if (mode === WalletSelectorMode.Auth && sessionKey) {
+    if (mode === WalletSelectorMode.Auth) {
       // Auth flow: loginOrSignupWithWallet handles connect + sign
       await loginOrSignupWithWallet({
         walletProvider: provider,
-        sessionKey,
+        ...(sessionKey && { sessionKey }),
       });
     } else {
       // Connect-only flow
@@ -58,6 +61,27 @@ export function WalletConnectFlow(props: WalletConnectFlowProps) {
 
   const handleDisconnect = async (provider: WalletProvider) => {
     await disconnectWalletAccount(provider);
+  };
+
+  /** Push the DisconnectWalletScreen for a connected provider */
+  const pushDisconnectScreen = async (provider: WalletProvider) => {
+    if (onDisconnect) {
+      await onDisconnect(provider);
+      return;
+    }
+    pushPage({
+      key: `Disconnect ${provider.info.name}`,
+      content: (
+        <DisconnectWalletScreen
+          provider={provider}
+          onDisconnect={async (p) => {
+            await handleDisconnect(p);
+            popPage();
+          }}
+        />
+      ),
+      showTitle: false,
+    });
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -89,11 +113,13 @@ export function WalletConnectFlow(props: WalletConnectFlowProps) {
       content: (
         <ExternalWalletChainSelector
           providers={providers}
+          onDisconnect={isConnectMode ? pushDisconnectScreen : undefined}
           onSelect={async (provider) =>
             pushDesktopQRCodeScreen(provider, onSelectAllWallets)
           }
         />
       ),
+
     });
   };
 
@@ -108,11 +134,11 @@ export function WalletConnectFlow(props: WalletConnectFlowProps) {
             await connectWalletAccount(p);
           }}
           onSign={
-            mode === WalletSelectorMode.Auth && sessionKey
+            mode === WalletSelectorMode.Auth
               ? async (p) => {
                   await loginOrSignupWithWallet({
                     walletProvider: p,
-                    sessionKey,
+                    ...(sessionKey && { sessionKey }),
                   });
                 }
               : undefined
@@ -154,9 +180,12 @@ export function WalletConnectFlow(props: WalletConnectFlowProps) {
     // always use desktop flow since it shows connection status.
     const useDesktopFlow = !isMobile || isConnected;
 
+    // Pop the WalletConnectFlow page itself so the back button on the next
+    // screen returns to the wallet list, not this empty orchestrator page.
+    popPage();
+
     if (useDesktopFlow) {
       pushDesktopChainSelector(async () => {
-        popPage();
         pushMobileAppSelector();
       });
     } else {
