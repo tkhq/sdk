@@ -519,6 +519,43 @@ function buildMethodMDX({ pkgName, node, pkgNode }) {
   );
 }
 
+// Interfaces listed here will generate a standalone property-listing page
+// in addition to (or instead of) the per-method pages.
+const INTERFACE_ALLOWLIST = new Set(["TurnkeyProviderConfig"]);
+
+function buildInterfaceMDX({ pkgName, node, pkgNode }) {
+  const title = node.name;
+  const descMDX = formatCommentToMDX(node.comment);
+  const definedIn = (node.sources || [])[0];
+
+  const frontmatter = `---\ntitle: "${md.esc(title)}"\n---\n\n`;
+  const imports = MDX_IMPORTS.trim() + "\n\n";
+
+  let pkgBadge = `<p><strong>Package:</strong> <code>${md.esc(pkgName)}</code></p>\n\n`;
+  if (definedIn?.url) {
+    pkgBadge += `<p><strong>Defined in:</strong> <a href="${definedIn.url}">${md.esc(definedIn.fileName)}:${definedIn.line}</a></p>\n\n`;
+  }
+
+  const overview = descMDX
+    ? `<H3Bordered text="Overview" />\n\n${descMDX}\n\n`
+    : "";
+
+  const props = (node.children || []).filter(
+    (c) => c.kind === KINDS.Property || c.kind === KINDS.PropertySignature,
+  );
+
+  let propsBlock = `<H3Bordered text="Properties" />\n\n`;
+  if (props.length) {
+    props.forEach(
+      (p) => (propsBlock += renderParamFieldFromParam(p, pkgNode) + "\n"),
+    );
+  } else {
+    propsBlock += `<p>No properties.</p>\n\n`;
+  }
+
+  return frontmatter + imports + overview + pkgBadge + propsBlock;
+}
+
 function buildCallablePropMDX({ pkgName, propNode, signature, pkgNode }) {
   const title = `${propNode.name}()`;
   const descMDX =
@@ -621,6 +658,17 @@ function walkPackage(pkgNode) {
 
     if (node.kind === KINDS.Interface) {
       const interfaceName = node.name;
+
+      // Generate a standalone property-listing page for allowlisted interfaces
+      if (INTERFACE_ALLOWLIST.has(interfaceName)) {
+        const mdx = buildInterfaceMDX({ pkgName, node, pkgNode });
+        const filename = `${toKebab(interfaceName)}.mdx`;
+        console.log(`  - Generating interface page ${filename}...`);
+        writeFileSync(join(outForPkg, filename), mdx, "utf8");
+        addPage(pkgName, filename);
+        generated++;
+      }
+
       for (const prop of node.children || []) {
         if (
           prop.kind === KINDS.Property ||

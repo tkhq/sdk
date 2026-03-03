@@ -431,7 +431,8 @@
                       "generated-docs/react-wallet-kit/client-context-type-update-user-name",
                       "generated-docs/react-wallet-kit/client-context-type-update-user-phone-number",
                       "generated-docs/react-wallet-kit/client-context-type-verify-app-proofs",
-                      "generated-docs/react-wallet-kit/client-context-type-verify-otp"
+                      "generated-docs/react-wallet-kit/client-context-type-verify-otp",
+                      "generated-docs/react-wallet-kit/turnkey-provider-config"
                     ]
                   }
                 ]
