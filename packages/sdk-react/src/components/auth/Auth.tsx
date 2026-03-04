@@ -114,6 +114,7 @@ const Auth: React.FC<AuthProps> = ({
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
+  const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] = useState<string | null>(null);
   const [step, setStep] = useState<string>("auth");
   const [loading, setLoading] = useState<string | undefined>();
   const [oauthLoading, setOauthLoading] = useState<string>("");
@@ -261,7 +262,8 @@ const Auth: React.FC<AuthProps> = ({
       userIdentifier: publicKey!,
     });
     if (initAuthResponse && initAuthResponse.otpId) {
-      setOtpId(initAuthResponse?.otpId!);
+      setOtpId(initAuthResponse.otpId);
+      setOtpEncryptionTargetBundle(initAuthResponse.otpEncryptionTargetBundle);
       setStep(otpType);
     } else {
       onError(authErrors.otp.sendFailed);
@@ -779,6 +781,7 @@ const Auth: React.FC<AuthProps> = ({
                     type={step}
                     contact={step === OtpType.Email ? email : phone}
                     otpId={otpId!}
+                    otpEncryptionTargetBundle={otpEncryptionTargetBundle!}
                     alphanumeric={otpConfig?.alphanumeric}
                     includeUnverifiedSubOrgs={
                       otpConfig?.includeUnverifiedSubOrgs

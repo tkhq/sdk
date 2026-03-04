@@ -148,6 +148,7 @@ export type OtpLoginRequest = {
   suborgID: string;
   verificationToken: string;
   publicKey: string;
+  clientSignature: TurnkeyApiTypes["v1ClientSignature"];
   sessionLengthSeconds?: number | undefined;
 };
 
@@ -160,7 +161,7 @@ export type OauthLoginRequest = {
 
 export type VerifyOtpRequest = {
   otpId: string;
-  otpCode: string;
+  encryptedOtpBundle: string;
   sessionLengthSeconds?: number | undefined;
 };
 
@@ -188,6 +189,7 @@ export type SendOtpRequest = {
 
 export type SendOtpResponse = {
   otpId: string;
+  otpEncryptionTargetBundle: string;
 };
 
 export type VerifyOtpResponse = {

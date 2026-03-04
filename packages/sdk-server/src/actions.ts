@@ -116,7 +116,7 @@ export async function verifyOtp(
   try {
     const response = await turnkeyClient.apiClient().verifyOtp({
       otpId: request.otpId,
-      otpCode: request.otpCode,
+      encryptedOtpBundle: request.encryptedOtpBundle,
       ...(request.sessionLengthSeconds !== undefined && {
         expirationSeconds: request.sessionLengthSeconds.toString(),
       }),
@@ -137,12 +137,15 @@ export async function otpLogin(
   request: OtpLoginRequest,
 ): Promise<OtpLoginResponse | undefined> {
   try {
+    const { suborgID, verificationToken, clientSignature, publicKey, sessionLengthSeconds } = request;
+
     const response = await turnkeyClient.apiClient().otpLogin({
-      organizationId: request.suborgID,
-      verificationToken: request.verificationToken,
-      publicKey: request.publicKey,
-      ...(request.sessionLengthSeconds !== undefined && {
-        expirationSeconds: request.sessionLengthSeconds.toString(),
+      organizationId: suborgID,
+      verificationToken,
+      clientSignature: clientSignature,
+      publicKey: publicKey,
+      ...(sessionLengthSeconds !== undefined && {
+        expirationSeconds: sessionLengthSeconds.toString(),
       }),
     });
     const { session } = response;
