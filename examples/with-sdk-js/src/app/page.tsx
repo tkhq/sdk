@@ -65,6 +65,8 @@ export default function AuthPage() {
   const SOLANA_MAINNET_CAIP2 = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp";
   const SOLANA_TEST_LAMPORTS = 1;
   const PLACEHOLDER_BLOCKHASH = "11111111111111111111111111111111";
+  const BASE_MAINNET_CAIP2 = "eip155:8453";
+  const BASE_MAINNET_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bDa02913";
 
   const getSolanaRecentBlockhash = async (): Promise<string> => {
     const response = await fetch("/api/solana/latest-blockhash");
@@ -2056,6 +2058,42 @@ export default function AuthPage() {
             }}
           >
             Send Non-Sponsored ETH Transaction
+          </button>
+
+          <button
+            data-testid="send-erc20-transfer"
+            onClick={async () => {
+              if (
+                !activeWalletAccount ||
+                activeWalletAccount.addressFormat !== "ADDRESS_FORMAT_ETHEREUM"
+              ) {
+                console.error("No active Ethereum wallet account selected");
+                return;
+              }
+
+              await turnkey.handleSendErc20Transfer({
+                transfer: {
+                  from: activeWalletAccount.address,
+                  to: activeWalletAccount.address,
+                  tokenAddress: BASE_MAINNET_USDC,
+                  amount: "0", // zero-value ERC20 transfer for demo/testing
+                  caip2: BASE_MAINNET_CAIP2,
+                  // nonce is intentionally omitted; core auto-fetches it when missing
+                  sponsor: false,
+                  gasLimit: "100000",
+                  maxFeePerGas: "1000000000",
+                  maxPriorityFeePerGas: "1000000000",
+                },
+              });
+            }}
+            style={{
+              backgroundColor: "rebeccapurple",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "white",
+            }}
+          >
+            Send ERC20 Transfer (USDC)
           </button>
 
           <button

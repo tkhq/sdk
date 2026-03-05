@@ -73,6 +73,7 @@ import {
   type SignMessageParams,
   type SignTransactionParams,
   type SignAndSendTransactionParams,
+  type EthSendErc20TransferParams,
   type EthSendTransactionParams,
   type SolSendTransactionParams,
   type FetchUserParams,
@@ -150,6 +151,7 @@ import { createWalletManager } from "../__wallet__/base";
 import { toUtf8Bytes } from "ethers";
 import { verify } from "@turnkey/crypto";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
+import { encodeFunctionData } from "viem";
 
 /**
  * @internal
@@ -167,6 +169,19 @@ export type TurnkeyClientMethods = Omit<
   PublicMethods<TurnkeyClient>,
   "init" | "config" | "httpClient" | "constructor"
 >;
+
+const ERC20_TRANSFER_ABI = [
+  {
+    type: "function",
+    name: "transfer",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "to", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [{ name: "success", type: "bool" }],
+  },
+] as const;
 
 export class TurnkeyClient {
   config: TurnkeySDKClientConfig;
@@ -2678,6 +2693,88 @@ export class TurnkeyClient {
    * @beta
    * * **API subject to change**
    *
+   * Signs and submits an ERC20 `transfer(address,uint256)` as an Ethereum transaction
+   * using a Turnkey-managed (embedded) wallet.
+   *
+   * This is a convenience wrapper around `ethSendTransaction`:
+   * - Encodes ERC20 transfer calldata.
+   * - Sends a transaction to the token contract.
+   * - Returns a `sendTransactionStatusId` for polling with `pollTransactionStatus`.
+   *
+   * @param params.organizationId - Organization ID to execute the transaction under.
+   *                                Defaults to the active session's organization.
+   * @param params.stampWith - Optional stamper to authorize signing (e.g., passkey).
+   * @param params.transfer - ERC20 transfer parameters.
+   * @returns A promise resolving to the `sendTransactionStatusId`.
+   * @throws {TurnkeyError} If amount encoding fails or Turnkey rejects the transaction.
+   */
+  ethSendErc20Transfer = async (
+    params: EthSendErc20TransferParams,
+  ): Promise<string> => {
+    const {
+      organizationId,
+      stampWith = this.config.defaultStamperType,
+      transfer,
+    } = params;
+
+    const {
+      from,
+      to,
+      tokenAddress,
+      amount,
+      caip2,
+      nonce,
+      gasLimit,
+      maxFeePerGas,
+      maxPriorityFeePerGas,
+      sponsor,
+    } = transfer;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        let parsedAmount: bigint;
+        try {
+          parsedAmount = BigInt(amount);
+        } catch {
+          throw new TurnkeyError(
+            "Invalid ERC20 amount. Use a base-unit integer string.",
+            TurnkeyErrorCodes.INVALID_REQUEST,
+          );
+        }
+
+        const data = encodeFunctionData({
+          abi: ERC20_TRANSFER_ABI,
+          functionName: "transfer",
+          args: [to as `0x${string}`, parsedAmount],
+        });
+
+        return this.ethSendTransaction({
+          ...(organizationId !== undefined ? { organizationId } : {}),
+          ...(stampWith !== undefined ? { stampWith } : {}),
+          transaction: {
+            from,
+            to: tokenAddress,
+            caip2,
+            data,
+            ...(sponsor !== undefined ? { sponsor } : {}),
+            ...(nonce ? { nonce } : {}),
+            ...(gasLimit ? { gasLimit } : {}),
+            ...(maxFeePerGas ? { maxFeePerGas } : {}),
+            ...(maxPriorityFeePerGas ? { maxPriorityFeePerGas } : {}),
+          },
+        });
+      },
+      {
+        errorMessage: "Failed to sign and send ERC20 transfer",
+        errorCode: TurnkeyErrorCodes.ETH_SEND_TRANSACTION_ERROR,
+      },
+    );
+  };
+
+  /**
+   * @beta
+   * * **API subject to change**
+   *
    * Signs and submits an Ethereum transaction using a Turnkey-managed (embedded) wallet.
    *
    * This method performs **authorization and signing**, and submits the transaction
@@ -2692,7 +2789,7 @@ export class TurnkeyClient {
    *
    * - **Embedded wallets**
    *   - Constructs the payload for Turnkey's `eth_send_transaction` endpoint.
-   *   - Fetches nonces automatically when needed (normal nonce or Gas Station nonce).
+   *   - Forwards transaction fields directly to Turnkey's coordinator.
    *   - Signs and submits the transaction through Turnkey.
    *   - Returns a `sendTransactionStatusId`, which the caller must pass to
    *     `pollTransactionStatus` to obtain the final result (tx hash + status).
@@ -2728,6 +2825,7 @@ export class TurnkeyClient {
       maxFeePerGas,
       maxPriorityFeePerGas,
       sponsor,
+      gasStationNonce,
     } = transaction;
 
     const session = await getActiveSessionOrThrowIfRequired(
@@ -2745,29 +2843,6 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        let gasStationNonce;
-        let fetchedNonce;
-
-        //
-        // Fetch nonce(s) when needed:
-        // - sponsored: Gas Station nonce
-        // - non-sponsored: regular EIP-1559 nonce
-        //
-        if (!nonce || sponsor) {
-          const nonceResp = await this.httpClient.getNonces({
-            organizationId,
-            address: from,
-            caip2,
-            nonce: sponsor ? false : true,
-            gasStationNonce: sponsor ? true : false,
-          });
-
-          gasStationNonce = nonceResp.gasStationNonce;
-          fetchedNonce = nonceResp.nonce;
-        }
-
-        const finalNonce = nonce ?? fetchedNonce;
-
         //
         // Build Turnkey intent
         //
@@ -2777,13 +2852,14 @@ export class TurnkeyClient {
           caip2,
           ...(value ? { value } : {}),
           ...(data ? { data } : {}),
+          ...(nonce !== undefined ? { nonce } : {}),
         };
 
         if (sponsor) {
           intent.sponsor = true;
-          if (gasStationNonce) intent.gasStationNonce = gasStationNonce;
+          if (gasStationNonce !== undefined)
+            intent.gasStationNonce = gasStationNonce;
         } else {
-          if (finalNonce !== undefined) intent.nonce = finalNonce;
           if (gasLimit) intent.gasLimit = gasLimit;
           if (maxFeePerGas) intent.maxFeePerGas = maxFeePerGas;
           if (maxPriorityFeePerGas)
