@@ -54,6 +54,7 @@ import {
   type RemoveUserEmailParams,
   type RemoveUserPhoneNumberParams,
   type SetActiveSessionParams,
+  type EthSendErc20TransferParams,
   type EthSendTransactionParams,
   type SignMessageParams,
   type SignTransactionParams,
@@ -1266,6 +1267,23 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         () => logout(),
         callbacks,
         "Failed to send eth transaction",
+      );
+    },
+    [client, callbacks],
+  );
+
+  const ethSendErc20Transfer = useCallback(
+    async (params: EthSendErc20TransferParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.ethSendErc20Transfer(params),
+        () => logout(),
+        callbacks,
+        "Failed to send ERC20 transfer",
       );
     },
     [client, callbacks],
@@ -3161,6 +3179,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         signTransaction,
         signAndSendTransaction,
         ethSendTransaction,
+        ethSendErc20Transfer,
         solSendTransaction,
         pollTransactionStatus,
         fetchUser,
