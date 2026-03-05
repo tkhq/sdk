@@ -69,9 +69,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       // Encrypt the OTP code to the enclave's target key
       const targetBundle = JSON.parse(otpEncryptionTargetBundle);
       const targetData = JSON.parse(
-        new TextDecoder().decode(
-          uint8ArrayFromHexString(targetBundle.data),
-        ),
+        new TextDecoder().decode(uint8ArrayFromHexString(targetBundle.data)),
       );
       const encryptedPayload = JSON.stringify({
         otpCode: otp.trim(),

@@ -58,20 +58,24 @@ export async function initOtpAction(params: {
     userIdentifier: params.publicKey,
   });
   if (!res.otpId) throw new Error("Expected non-null otpId from initOtp");
-  return { otpId: res.otpId };
+  return {
+    otpId: res.otpId,
+    otpEncryptionTargetBundle: res.otpEncryptionTargetBundle,
+  };
 }
 
 /**
  * Step 2: Verify OTP code → returns verificationToken
+ * - The client encrypts the OTP code into a bundle using the target key from initOtp
  * - Do this before any suborg lookup/creation to prevent org spamming
  */
 export async function verifyOtpAction(params: {
   otpId: string;
-  otpCode: string;
+  encryptedOtpBundle: string;
 }) {
   const res = await turnkey.apiClient().verifyOtp({
     otpId: params.otpId,
-    otpCode: params.otpCode,
+    encryptedOtpBundle: params.encryptedOtpBundle,
   });
   if (!res.verificationToken) {
     throw new Error("Missing verificationToken from verifyOtp");
@@ -88,11 +92,18 @@ export async function otpLoginAction(params: {
   suborgID: string;
   verificationToken: string;
   publicKey: string;
+  clientSignature: {
+    publicKey: string;
+    scheme: "CLIENT_SIGNATURE_SCHEME_API_P256";
+    message: string;
+    signature: string;
+  };
 }) {
   const res = await turnkey.apiClient().otpLogin({
     organizationId: params.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,
     verificationToken: params.verificationToken,
     publicKey: params.publicKey,
+    clientSignature: params.clientSignature,
   });
   if (!res.session) throw new Error("No session returned from otpLogin");
   return { session: res.session };

@@ -72,6 +72,8 @@ export default function Dashboard() {
   const [isVerifiedPhone, setIsVerifiedPhone] = useState<boolean>(false);
   const [user, setUser] = useState<any>("");
   const [otpId, setOtpId] = useState("");
+  const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] =
+    useState("");
   const [messageSigningResult, setMessageSigningResult] = useState<
     string | null
   >(null);
@@ -102,6 +104,7 @@ export default function Dashboard() {
       return;
     }
     setOtpId(sendOtpResponse?.otpId!);
+    setOtpEncryptionTargetBundle(sendOtpResponse?.otpEncryptionTargetBundle!);
   };
   const handleResendSms = async () => {
     const sendOtpResponse = await server.sendOtp({
@@ -116,6 +119,7 @@ export default function Dashboard() {
       return;
     }
     setOtpId(sendOtpResponse?.otpId!);
+    setOtpEncryptionTargetBundle(sendOtpResponse?.otpEncryptionTargetBundle!);
   };
 
   const handleOtpSuccess = async () => {
@@ -157,6 +161,7 @@ export default function Dashboard() {
       return;
     }
     setOtpId(sendOtpResponse?.otpId!);
+    setOtpEncryptionTargetBundle(sendOtpResponse?.otpEncryptionTargetBundle!);
     setIsEmailModalOpen(false);
     setIsOtpModalOpen(true);
   };
@@ -192,6 +197,7 @@ export default function Dashboard() {
       return;
     }
     setOtpId(sendOtpResponse?.otpId!);
+    setOtpEncryptionTargetBundle(sendOtpResponse?.otpEncryptionTargetBundle!);
     setIsEmailModalOpen(false);
     setIsOtpModalOpen(true);
   };
@@ -1108,6 +1114,7 @@ export default function Dashboard() {
               type={emailInput ? OtpType.Email : OtpType.Sms}
               contact={emailInput ? emailInput : phoneInput}
               otpId={otpId!}
+              otpEncryptionTargetBundle={otpEncryptionTargetBundle!}
               onValidateSuccess={handleOtpSuccess}
               onResendCode={emailInput ? handleResendEmail : handleResendSms}
             />
