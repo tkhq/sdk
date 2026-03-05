@@ -137,7 +137,13 @@ export async function otpLogin(
   request: OtpLoginRequest,
 ): Promise<OtpLoginResponse | undefined> {
   try {
-    const { suborgID, verificationToken, clientSignature, publicKey, sessionLengthSeconds } = request;
+    const {
+      suborgID,
+      verificationToken,
+      clientSignature,
+      publicKey,
+      sessionLengthSeconds,
+    } = request;
 
     const response = await turnkeyClient.apiClient().otpLogin({
       organizationId: suborgID,
