@@ -380,7 +380,7 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is no active session or if there is an error during the logout process.
    */
   logout = async (params?: LogoutParams): Promise<void> => {
-    withTurnkeyErrorHandling(
+    return withTurnkeyErrorHandling(
       async () => {
         if (params?.sessionKey) {
           const session = await this.storageManager.getSession(
@@ -4603,7 +4603,7 @@ export class TurnkeyClient {
     const { sessionToken, sessionKey = SessionKey.DefaultSessionkey } = params;
     if (!sessionToken) return;
 
-    withTurnkeyErrorHandling(
+    return withTurnkeyErrorHandling(
       async () => {
         await this.storageManager.storeSession(sessionToken, sessionKey);
       },
@@ -4631,7 +4631,7 @@ export class TurnkeyClient {
    */
   clearSession = async (params?: ClearSessionParams): Promise<void> => {
     const { sessionKey = SessionKey.DefaultSessionkey } = params || {};
-    withTurnkeyErrorHandling(
+    return withTurnkeyErrorHandling(
       async () => {
         const session = await this.storageManager.getSession(sessionKey);
         if (session) {
@@ -4665,7 +4665,7 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If no sessions exist or if there is an error clearing all sessions.
    */
   clearAllSessions = async (): Promise<void> => {
-    withTurnkeyErrorHandling(
+    return withTurnkeyErrorHandling(
       async () => {
         const sessionKeys = await this.storageManager.listSessionKeys();
         if (sessionKeys.length === 0) return;
@@ -4891,7 +4891,7 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is an error listing, checking, or deleting unused key pairs.
    */
   clearUnusedKeyPairs = async (): Promise<void> => {
-    withTurnkeyErrorHandling(
+    return withTurnkeyErrorHandling(
       async () => {
         const publicKeys = await this.apiKeyStamper?.listKeyPairs();
         if (!publicKeys || publicKeys.length === 0) {
