@@ -33,6 +33,7 @@ export {
   isEthereumProvider,
   isSolanaProvider,
   getAuthProxyConfig,
+  getClientParams,
   sendSignedRequest,
   decodeVerificationToken,
   getClientSignatureMessageForLogin,

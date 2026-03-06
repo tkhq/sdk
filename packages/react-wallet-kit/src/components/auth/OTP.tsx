@@ -17,6 +17,7 @@ interface OtpVerificationProps {
   alphanumeric?: boolean | undefined; // Whether the OTP is alphanumeric or numeric only. Defaults to true (alphanumeric).
   formattedContact?: string; // Optional formatted contact for display purposes
   sessionKey?: string; // Optional sessionKey for multisession
+  turnstileToken?: string | null; // Optional Turnstile token for CAPTCHA verification
   onContinue?: (optCode: string) => Promise<void>; // Optional callback for continue action
 }
 export function OtpVerification(props: OtpVerificationProps) {
@@ -27,6 +28,7 @@ export function OtpVerification(props: OtpVerificationProps) {
     alphanumeric = true,
     formattedContact,
     sessionKey,
+    turnstileToken,
     onContinue = null, // Default to null if not provided
   } = props;
   const { initOtp, completeOtp } = useTurnkey();
@@ -55,6 +57,7 @@ export function OtpVerification(props: OtpVerificationProps) {
           contact,
           otpType,
           ...(sessionKey && { sessionKey }),
+          ...(turnstileToken && { captchaToken: turnstileToken }), // Pass the Turnstile token if it exists
         });
         closeModal();
       }
@@ -74,7 +77,11 @@ export function OtpVerification(props: OtpVerificationProps) {
   const handleResend = async () => {
     setResending(true);
     try {
-      const id = await initOtp({ otpType, contact });
+      const id = await initOtp({
+        otpType,
+        contact,
+        ...(turnstileToken && { captchaToken: turnstileToken }),
+      }); // Pass the Turnstile token if it exists
       setOtpId(id);
       setResent(true);
     } catch (error) {

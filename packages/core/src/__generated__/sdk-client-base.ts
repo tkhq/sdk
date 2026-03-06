@@ -241,6 +241,7 @@ export class TurnkeySDKClientBase {
   async authProxyRequest<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
+    captchaToken?: string,
   ): Promise<TResponseType> {
     if (!this.config.authProxyUrl || !this.config.authProxyConfigId) {
       throw new TurnkeyError(
@@ -254,6 +255,10 @@ export class TurnkeySDKClientBase {
       "Content-Type": "application/json",
       "X-Auth-Proxy-Config-ID": this.config.authProxyConfigId,
     };
+
+    if (captchaToken) {
+      headers["X-Captcha-Token"] = captchaToken;
+    }
 
     const response = await fetch(fullUrl, {
       method: "POST",
@@ -2450,9 +2455,9 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
+        type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
       },
-      "createOauthProvidersResult",
+      "createOauthProvidersResultV2",
       stampWith,
     );
   };
@@ -2476,7 +2481,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
+      type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2884,7 +2889,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
       },
-      "createSubOrganizationResultV7",
+      "createSubOrganizationResultV8",
       stampWith,
     );
   };
@@ -4552,7 +4557,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_INIT_OTP_V2",
       },
-      "initOtpResult",
+      "initOtpResultV2",
       stampWith,
     );
   };
@@ -5551,6 +5556,60 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  updateOrganizationName = async (
+    input: SdkTypes.TUpdateOrganizationNameBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TUpdateOrganizationNameResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/update_organization_name",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME",
+      },
+      "updateOrganizationNameResult",
+      stampWith,
+    );
+  };
+
+  stampUpdateOrganizationName = async (
+    input: SdkTypes.TUpdateOrganizationNameBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_organization_name";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   updatePolicy = async (
     input: SdkTypes.TUpdatePolicyBody,
     stampWith?: StamperType,
@@ -6107,8 +6166,16 @@ export class TurnkeySDKClientBase {
 
   proxyInitOtp = async (
     input: SdkTypes.ProxyTInitOtpBody,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTInitOtpResponse> => {
-    return this.authProxyRequest("/v1/otp_init", input);
+    return this.authProxyRequest("/v1/otp_init", input, captchaToken);
+  };
+
+  proxyInitOtpV2 = async (
+    input: SdkTypes.ProxyTInitOtpV2Body,
+    captchaToken?: string,
+  ): Promise<SdkTypes.ProxyTInitOtpV2Response> => {
+    return this.authProxyRequest("/v1/otp_init_v2", input, captchaToken);
   };
 
   proxyOtpLogin = async (
@@ -6117,16 +6184,42 @@ export class TurnkeySDKClientBase {
     return this.authProxyRequest("/v1/otp_login", input);
   };
 
+  proxyOtpLoginV2 = async (
+    input: SdkTypes.ProxyTOtpLoginV2Body,
+  ): Promise<SdkTypes.ProxyTOtpLoginV2Response> => {
+    return this.authProxyRequest("/v1/otp_login_v2", input);
+  };
+
   proxyVerifyOtp = async (
     input: SdkTypes.ProxyTVerifyOtpBody,
   ): Promise<SdkTypes.ProxyTVerifyOtpResponse> => {
     return this.authProxyRequest("/v1/otp_verify", input);
   };
 
+  proxyVerifyOtpV2 = async (
+    input: SdkTypes.ProxyTVerifyOtpV2Body,
+  ): Promise<SdkTypes.ProxyTVerifyOtpV2Response> => {
+    return this.authProxyRequest("/v1/otp_verify_v2", input);
+  };
+
   proxySignup = async (
     input: SdkTypes.ProxyTSignupBody,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTSignupResponse> => {
-    return this.authProxyRequest("/v1/signup", input);
+    return this.authProxyRequest("/v1/signup", input, captchaToken);
+  };
+
+  proxySignupV2 = async (
+    input: SdkTypes.ProxyTSignupV2Body,
+    captchaToken?: string,
+  ): Promise<SdkTypes.ProxyTSignupV2Response> => {
+    return this.authProxyRequest("/v1/signup_v2", input, captchaToken);
+  };
+
+  proxyGetWalletKitClientParams = async (
+    input: SdkTypes.ProxyTGetWalletKitClientParamsBody,
+  ): Promise<SdkTypes.ProxyTGetWalletKitClientParamsResponse> => {
+    return this.authProxyRequest("/v1/wallet_kit_client_params", input);
   };
 
   proxyGetWalletKitConfig = async (
