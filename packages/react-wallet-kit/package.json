@@ -48,6 +48,7 @@
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@headlessui/react": "^2.2.6",
     "@lottiefiles/react-lottie-player": "^3.6.0",
+    "@marsidev/react-turnstile": "^1.4.2",
     "@noble/hashes": "^1.8.0",
     "@turnkey/core": "workspace:*",
     "@turnkey/iframe-stamper": "workspace:^",
