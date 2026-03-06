@@ -84,9 +84,9 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1InitUserEmailRecoveryResult",
   ],
   ACTIVITY_TYPE_INIT_OTP: [
-    "ACTIVITY_TYPE_INIT_OTP_V2",
-    "v1InitOtpIntentV2",
-    "v1InitOtpResult",
+    "ACTIVITY_TYPE_INIT_OTP_V3",
+    "v1InitOtpIntentV3",
+    "v1InitOtpResultV2",
   ],
 };
 

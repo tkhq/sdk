@@ -659,6 +659,9 @@ importers:
 
   examples/otp-auth/with-backend:
     dependencies:
+      '@noble/curves':
+        specifier: ^1.4.0
+        version: 1.9.0
       '@noble/hashes':
         specifier: 1.4.0
         version: 1.4.0
@@ -668,6 +671,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: 4.1.13
         version: 4.1.13
+      '@turnkey/crypto':
+        specifier: workspace:*
+        version: link:../../../packages/crypto
       '@turnkey/encoding':
         specifier: workspace:*
         version: link:../../../packages/encoding
@@ -3872,9 +3878,15 @@ importers:
       '@react-oauth/google':
         specifier: ^0.12.1
         version: 0.12.2(react-dom@19.2.4(react@18.3.1))(react@18.3.1)
+      '@turnkey/core':
+        specifier: workspace:*
+        version: link:../core
       '@turnkey/crypto':
         specifier: workspace:*
         version: link:../crypto
+      '@turnkey/encoding':
+        specifier: workspace:*
+        version: link:../encoding
       '@turnkey/sdk-browser':
         specifier: workspace:*
         version: link:../sdk-browser
