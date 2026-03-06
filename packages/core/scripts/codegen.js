@@ -245,6 +245,13 @@ const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "listUserTags",
 ];
 
+const CAPTCHA_PROTECTED_METHODS = [
+  "proxyInitOtp",
+  "proxySignup",
+  "proxyInitOtpV2",
+  "proxySignupV2",
+];
+
 /**
  * @param {string} methodName
  * @returns {string}
@@ -539,6 +546,7 @@ const generateSDKClientFromSwagger = async (
     async authProxyRequest<TBodyType, TResponseType>(
         url: string,
         body: TBodyType,
+        captchaToken?: string
     ): Promise<TResponseType> {
         if (!this.config.authProxyUrl || !this.config.authProxyConfigId) {
         throw new TurnkeyError("Auth Proxy URL or ID is not configured.", TurnkeyErrorCodes.INVALID_CONFIGURATION);
@@ -548,6 +556,10 @@ const generateSDKClientFromSwagger = async (
         var headers: Record<string, string> = {
         "Content-Type": "application/json",
         "X-Auth-Proxy-Config-ID": this.config.authProxyConfigId,
+        }
+
+        if (captchaToken) {
+        headers["X-Captcha-Token"] = captchaToken;
         }
 
         const response = await fetch(fullUrl, {
@@ -821,15 +833,27 @@ const generateSDKClientFromSwagger = async (
     const inputType = `ProxyT${operationNameWithoutNamespace}Body`;
     const responseType = `ProxyT${operationNameWithoutNamespace}Response`;
 
-    codeBuffer.push(
-      `\n\t${methodName} = async (input: SdkTypes.${inputType}${
-        METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
-          ? " = {}"
-          : ""
-      }): Promise<SdkTypes.${responseType}> => {
+    if (CAPTCHA_PROTECTED_METHODS.includes(methodName)) {
+      codeBuffer.push(
+        `\n\t${methodName} = async (input: SdkTypes.${inputType}${
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
+            ? " = {}"
+            : ""
+        }, captchaToken?: string): Promise<SdkTypes.${responseType}> => {
+      return this.authProxyRequest("${endpointPath}", input, captchaToken);
+    }`,
+      );
+    } else {
+      codeBuffer.push(
+        `\n\t${methodName} = async (input: SdkTypes.${inputType}${
+          METHODS_WITH_ONLY_OPTIONAL_PARAMETERS.includes(methodName)
+            ? " = {}"
+            : ""
+        }): Promise<SdkTypes.${responseType}> => {
       return this.authProxyRequest("${endpointPath}", input);
     }`,
-    );
+      );
+    }
   }
 
   // End of the TurnkeySDKClient Class Definition
