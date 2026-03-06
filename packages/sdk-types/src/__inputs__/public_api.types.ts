@@ -4,34 +4,6 @@
  */
 
 export type paths = {
-  "/public/v1/query/claim_earn_fees_status": {
-    /** Poll the status of a fee claim by its claim_request_id. */
-    post: operations["PublicApiService_ClaimEarnFeesStatus"];
-  };
-  "/public/v1/query/earn_deploy_status": {
-    /** Poll the status of a wrapper deployment by its deploy_request_id. */
-    post: operations["PublicApiService_EarnDeployStatus"];
-  };
-  "/public/v1/query/earn_deposit_status": {
-    /** Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path). */
-    post: operations["PublicApiService_EarnDepositStatus"];
-  };
-  "/public/v1/query/earn_enabled_vaults": {
-    /** Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions. */
-    post: operations["PublicApiService_EarnEnabledVaults"];
-  };
-  "/public/v1/query/earn_positions": {
-    /** Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees. */
-    post: operations["PublicApiService_EarnPositions"];
-  };
-  "/public/v1/query/earn_vaults": {
-    /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
-    post: operations["PublicApiService_EarnVaults"];
-  };
-  "/public/v1/query/earn_withdraw_status": {
-    /** Poll the status of a withdrawal by its withdraw_request_id. */
-    post: operations["PublicApiService_EarnWithdrawStatus"];
-  };
   "/public/v1/query/get_activity": {
     /** Get details about an activity. */
     post: operations["PublicApiService_GetActivity"];
@@ -59,6 +31,22 @@ export type paths = {
   "/public/v1/query/get_boot_proof": {
     /** Get the boot proof for a given ephemeral key. */
     post: operations["PublicApiService_GetBootProof"];
+  };
+  "/public/v1/query/get_claim_earn_fees_status": {
+    /** Poll the status of a fee claim by its claim_request_id. */
+    post: operations["PublicApiService_GetClaimEarnFeesStatus"];
+  };
+  "/public/v1/query/get_earn_deploy_status": {
+    /** Poll the status of a wrapper deployment by its deploy_request_id. */
+    post: operations["PublicApiService_GetEarnDeployStatus"];
+  };
+  "/public/v1/query/get_earn_deposit_status": {
+    /** Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path). */
+    post: operations["PublicApiService_GetEarnDepositStatus"];
+  };
+  "/public/v1/query/get_earn_withdraw_status": {
+    /** Poll the status of a withdrawal by its withdraw_request_id. */
+    post: operations["PublicApiService_GetEarnWithdrawStatus"];
   };
   "/public/v1/query/get_gas_usage": {
     /** Get gas usage and gas limits for either the parent organization or a sub-organization. */
@@ -183,6 +171,18 @@ export type paths = {
   "/public/v1/query/list_app_proofs": {
     /** List the App Proofs for the given activity. */
     post: operations["PublicApiService_GetAppProofs"];
+  };
+  "/public/v1/query/list_earn_enabled_vaults": {
+    /** Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions. */
+    post: operations["PublicApiService_ListEarnEnabledVaults"];
+  };
+  "/public/v1/query/list_earn_positions": {
+    /** Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees. */
+    post: operations["PublicApiService_ListEarnPositions"];
+  };
+  "/public/v1/query/list_earn_vaults": {
+    /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
+    post: operations["PublicApiService_ListEarnVaults"];
   };
   "/public/v1/query/list_email_events": {
     /** List email events for the organization. */
@@ -1348,25 +1348,8 @@ export type definitions = {
     generateAppProofs?: boolean;
   };
   v1ClaimEarnFeesResult: {
-    /** @description Identifier to poll claim status and tx hash via ClaimEarnFeesStatus. */
+    /** @description Identifier to poll claim status and tx hash via GetClaimEarnFeesStatus. */
     claimRequestId: string;
-  };
-  v1ClaimEarnFeesStatusRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description The claim_request_id returned by ClaimEarnFees. */
-    claimRequestId: string;
-  };
-  v1ClaimEarnFeesStatusResponse: {
-    /**
-     * @description Status of the fee claim.
-     * @enum {string}
-     */
-    status: "PENDING" | "COMPLETED" | "FAILED";
-    /** @description Transaction hash of the fee claim, once available. */
-    claimTxHash?: string;
-    /** @description Reason the fee claim transaction failed, when status is FAILED. */
-    error?: string;
   };
   v1ClaimSwapFeesIntent: { [key: string]: unknown };
   v1ClaimSwapFeesRequest: {
@@ -2773,25 +2756,8 @@ export type definitions = {
     /** @description Unique identifier for a given Private Key. */
     privateKeyId: string;
   };
-  v1EarnDeployStatusRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description The deploy_request_id returned by EarnDeployWrapper. */
-    deployRequestId: string;
-  };
-  v1EarnDeployStatusResponse: {
-    /**
-     * @description Status of the wrapper deployment.
-     * @enum {string}
-     */
-    status: "PENDING" | "COMPLETED" | "FAILED";
-    /** @description Transaction hash of the deployment, once available. */
-    deployTxHash?: string;
-    /** @description Reason the deployment transaction failed, when status is FAILED. */
-    error?: string;
-  };
   v1EarnDeployWrapperIntent: {
-    /** @description Address of the underlying yield vault to wrap (from the EarnVaults catalog). */
+    /** @description Address of the underlying yield vault to wrap (from the ListEarnVaults catalog). */
     vaultAddress: string;
     /**
      * @description CAIP-2 chain ID the vault lives on (e.g., 'eip155:8453' for Base).
@@ -2828,7 +2794,7 @@ export type definitions = {
     deployRequestId: string;
   };
   v1EarnDepositIntent: {
-    /** @description Address of the deployed Earn wrapper to deposit into, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers. */
+    /** @description Address of the deployed Earn wrapper to deposit into, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers. */
     wrapperAddress: string;
     /** @description A Wallet account address or Private Key address to deposit from and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
     signWith: string;
@@ -2859,25 +2825,8 @@ export type definitions = {
     generateAppProofs?: boolean;
   };
   v1EarnDepositResult: {
-    /** @description Identifier to poll deposit status and tx hash via EarnDepositStatus. */
+    /** @description Identifier to poll deposit status and tx hash via GetEarnDepositStatus. */
     depositRequestId: string;
-  };
-  v1EarnDepositStatusRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description The deposit_request_id returned by EarnDeposit. */
-    depositRequestId: string;
-  };
-  v1EarnDepositStatusResponse: {
-    /**
-     * @description Status of the deposit.
-     * @enum {string}
-     */
-    status: "PENDING" | "COMPLETED" | "FAILED";
-    /** @description Transaction hash of the deposit, once available. */
-    depositTxHash?: string;
-    /** @description Reason the deposit transaction failed, when status is FAILED. */
-    error?: string;
   };
   v1EarnEnabledVault: {
     /** @description Address of the underlying yield vault. */
@@ -2908,18 +2857,6 @@ export type definitions = {
     claimableClientFee?: string;
     /** @description Normalized claimable_client_fee for display only (usd + crypto). Do not do arithmetic with these; use claimable_client_fee. Unset when a sub-org queries. */
     claimableClientFeeDisplay?: definitions["v1EarnValueDisplay"];
-  };
-  v1EarnEnabledVaultsRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
-    provider?: definitions["v1EarnProvider"];
-    /** @description Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
-    caip19?: string;
-  };
-  v1EarnEnabledVaultsResponse: {
-    /** @description The organization's deployed wrappers. */
-    enabledVaults?: definitions["v1EarnEnabledVault"][];
   };
   v1EarnPosition: {
     /** @description Address of the underlying yield vault. */
@@ -2955,20 +2892,10 @@ export type definitions = {
     /** @description Total withdrawn in the asset's own units, for display only. */
     totalWithdrawnCrypto?: string;
   };
-  v1EarnPositionsRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description The wallet address to return positions for. */
-    walletAddress: string;
-  };
-  v1EarnPositionsResponse: {
-    /** @description The wallet's active Earn positions. */
-    positions?: definitions["v1EarnPosition"][];
-  };
   /** @enum {string} */
   v1EarnProvider: "EARN_PROVIDER_MORPHO" | "EARN_PROVIDER_AAVE";
   v1EarnSetWrapperStateIntent: {
-    /** @description Address of the deployed Earn wrapper to update, from EarnVaults/EarnPositions. Must be one of the org's deployed wrappers. */
+    /** @description Address of the deployed Earn wrapper to update, from ListEarnVaults/ListEarnPositions. Must be one of the org's deployed wrappers. */
     wrapperAddress: string;
     /** @description When true, deposits to this wrapper are rejected; withdrawals are unaffected. Set to false to re-enable deposits. */
     depositsDisabled: boolean;
@@ -3015,22 +2942,8 @@ export type definitions = {
     /** @description Vault curator name(s), comma-separated when a vault has multiple. Empty for providers without curators (e.g. Aave). */
     curator?: string;
   };
-  v1EarnVaultsRequest: {
-    /** @description Unique identifier for a given Organization. Annotates which vaults the organization has already enabled. */
-    organizationId: string;
-    /** @description Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
-    provider?: definitions["v1EarnProvider"];
-    /** @description CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
-    caip19: string;
-    /** @description Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
-    paginationOptions?: definitions["v1Pagination"];
-  };
-  v1EarnVaultsResponse: {
-    /** @description The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
-    vaults?: definitions["v1EarnVault"][];
-  };
   v1EarnWithdrawIntent: {
-    /** @description Address of the deployed Earn wrapper holding the position to withdraw from, from EarnPositions. Must be one of the org's deployed wrappers. */
+    /** @description Address of the deployed Earn wrapper holding the position to withdraw from, from ListEarnPositions. Must be one of the org's deployed wrappers. */
     wrapperAddress: string;
     /** @description A Wallet account address or Private Key address to withdraw to and sign with. Must be an on-chain address; Private Key identifiers are not supported. */
     signWith: string;
@@ -3061,25 +2974,8 @@ export type definitions = {
     generateAppProofs?: boolean;
   };
   v1EarnWithdrawResult: {
-    /** @description Identifier to poll withdrawal status and tx hash via EarnWithdrawStatus. */
+    /** @description Identifier to poll withdrawal status and tx hash via GetEarnWithdrawStatus. */
     withdrawRequestId: string;
-  };
-  v1EarnWithdrawStatusRequest: {
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
-    /** @description The withdraw_request_id returned by EarnWithdraw. */
-    withdrawRequestId: string;
-  };
-  v1EarnWithdrawStatusResponse: {
-    /**
-     * @description Status of the withdrawal.
-     * @enum {string}
-     */
-    status: "PENDING" | "COMPLETED" | "FAILED";
-    /** @description Transaction hash of the withdrawal, once available. */
-    withdrawTxHash?: string;
-    /** @description Reason the withdrawal transaction failed, when status is FAILED. */
-    error?: string;
   };
   /** @enum {string} */
   v1Effect: "EFFECT_ALLOW" | "EFFECT_DENY";
@@ -3712,6 +3608,74 @@ export type definitions = {
     /** @description Hex encoded ephemeral public key. */
     ephemeralKey: string;
   };
+  v1GetClaimEarnFeesStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The claim_request_id returned by ClaimEarnFees. */
+    claimRequestId: string;
+  };
+  v1GetClaimEarnFeesStatusResponse: {
+    /**
+     * @description Status of the fee claim.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the fee claim, once available. */
+    claimTxHash?: string;
+    /** @description Reason the fee claim transaction failed, when status is FAILED. */
+    error?: string;
+  };
+  v1GetEarnDeployStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The deploy_request_id returned by EarnDeployWrapper. */
+    deployRequestId: string;
+  };
+  v1GetEarnDeployStatusResponse: {
+    /**
+     * @description Status of the wrapper deployment.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the deployment, once available. */
+    deployTxHash?: string;
+    /** @description Reason the deployment transaction failed, when status is FAILED. */
+    error?: string;
+  };
+  v1GetEarnDepositStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The deposit_request_id returned by EarnDeposit. */
+    depositRequestId: string;
+  };
+  v1GetEarnDepositStatusResponse: {
+    /**
+     * @description Status of the deposit.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the deposit, once available. */
+    depositTxHash?: string;
+    /** @description Reason the deposit transaction failed, when status is FAILED. */
+    error?: string;
+  };
+  v1GetEarnWithdrawStatusRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The withdraw_request_id returned by EarnWithdraw. */
+    withdrawRequestId: string;
+  };
+  v1GetEarnWithdrawStatusResponse: {
+    /**
+     * @description Status of the withdrawal.
+     * @enum {string}
+     */
+    status: "PENDING" | "COMPLETED" | "FAILED";
+    /** @description Transaction hash of the withdrawal, once available. */
+    withdrawTxHash?: string;
+    /** @description Reason the withdrawal transaction failed, when status is FAILED. */
+    error?: string;
+  };
   v1GetGasUsageRequest: {
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
@@ -4200,8 +4164,7 @@ export type definitions = {
       | "eip155:42161"
       | "eip155:4217"
       | "eip155:42431"
-      | "eip155:421614"
-      | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+      | "eip155:421614solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
   v1GetWalletAddressBalancesResponse: {
@@ -4859,6 +4822,42 @@ export type definitions = {
     label?: string;
     /** @description Creation timestamp as millisecond epoch string. */
     createdAt?: string;
+  };
+  v1ListEarnEnabledVaultsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description Optional filter: only return enabled vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
+    provider?: definitions["v1EarnProvider"];
+    /** @description Optional filter: only return enabled vaults whose underlying asset matches this CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...'). The chain is taken from the CAIP-19 identifier. */
+    caip19?: string;
+  };
+  v1ListEarnEnabledVaultsResponse: {
+    /** @description The organization's deployed wrappers. */
+    enabledVaults?: definitions["v1EarnEnabledVault"][];
+  };
+  v1ListEarnPositionsRequest: {
+    /** @description Unique identifier for a given Organization. */
+    organizationId: string;
+    /** @description The wallet address to return positions for. */
+    walletAddress: string;
+  };
+  v1ListEarnPositionsResponse: {
+    /** @description The wallet's active Earn positions. */
+    positions?: definitions["v1EarnPosition"][];
+  };
+  v1ListEarnVaultsRequest: {
+    /** @description Unique identifier for a given Organization. Annotates which vaults the organization has already enabled. */
+    organizationId: string;
+    /** @description Optional filter: only return vaults from this provider. Leave EARN_PROVIDER_UNSPECIFIED to return all providers. */
+    provider?: definitions["v1EarnProvider"];
+    /** @description CAIP-19 asset ID (e.g. 'eip155:8453/erc20:0x833589...') to return vaults for. Only vaults whose underlying asset matches are returned; the chain is taken from the CAIP-19 identifier. */
+    caip19: string;
+    /** @description Pagination over the TVL-sorted catalog. before/after cursors are a vault_address from a prior page. */
+    paginationOptions?: definitions["v1Pagination"];
+  };
+  v1ListEarnVaultsResponse: {
+    /** @description The catalog of wrappable vaults, sorted by TVL (USD) descending. To page, pass the last vault_address as the pagination after cursor. */
+    vaults?: definitions["v1EarnVault"][];
   };
   v1ListEmailEventsRequest: {
     /** @description Unique identifier for a given organization */
@@ -7314,132 +7313,6 @@ export type definitions = {
 };
 
 export type operations = {
-  /** Poll the status of a fee claim by its claim_request_id. */
-  PublicApiService_ClaimEarnFeesStatus: {
-    parameters: {
-      body: {
-        body: definitions["v1ClaimEarnFeesStatusRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1ClaimEarnFeesStatusResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Poll the status of a wrapper deployment by its deploy_request_id. */
-  PublicApiService_EarnDeployStatus: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnDeployStatusRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnDeployStatusResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path). */
-  PublicApiService_EarnDepositStatus: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnDepositStatusRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnDepositStatusResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions. */
-  PublicApiService_EarnEnabledVaults: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnEnabledVaultsRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnEnabledVaultsResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees. */
-  PublicApiService_EarnPositions: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnPositionsRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnPositionsResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
-  PublicApiService_EarnVaults: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnVaultsRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnVaultsResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
-  /** Poll the status of a withdrawal by its withdraw_request_id. */
-  PublicApiService_EarnWithdrawStatus: {
-    parameters: {
-      body: {
-        body: definitions["v1EarnWithdrawStatusRequest"];
-      };
-    };
-    responses: {
-      /** A successful response. */
-      200: {
-        schema: definitions["v1EarnWithdrawStatusResponse"];
-      };
-      /** An unexpected error response. */
-      default: {
-        schema: definitions["rpcStatus"];
-      };
-    };
-  };
   /** Get details about an activity. */
   PublicApiService_GetActivity: {
     parameters: {
@@ -7559,6 +7432,78 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1BootProofResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Poll the status of a fee claim by its claim_request_id. */
+  PublicApiService_GetClaimEarnFeesStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetClaimEarnFeesStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetClaimEarnFeesStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Poll the status of a wrapper deployment by its deploy_request_id. */
+  PublicApiService_GetEarnDeployStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetEarnDeployStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetEarnDeployStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Poll the status of a deposit by its deposit_request_id (for the async/sponsored deposit path). */
+  PublicApiService_GetEarnDepositStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetEarnDepositStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetEarnDepositStatusResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Poll the status of a withdrawal by its withdraw_request_id. */
+  PublicApiService_GetEarnWithdrawStatus: {
+    parameters: {
+      body: {
+        body: definitions["v1GetEarnWithdrawStatusRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1GetEarnWithdrawStatusResponse"];
       };
       /** An unexpected error response. */
       default: {
@@ -8117,6 +8062,60 @@ export type operations = {
       /** A successful response. */
       200: {
         schema: definitions["v1GetAppProofsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the organization's deployed wrappers with on-chain total deposited and live APY. The management view, distinct from per-wallet positions. */
+  PublicApiService_ListEarnEnabledVaults: {
+    parameters: {
+      body: {
+        body: definitions["v1ListEarnEnabledVaultsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListEarnEnabledVaultsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the active Earn positions for a specific wallet, including current value, cost basis, yield, and projected fees. */
+  PublicApiService_ListEarnPositions: {
+    parameters: {
+      body: {
+        body: definitions["v1ListEarnPositionsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListEarnPositionsResponse"];
+      };
+      /** An unexpected error response. */
+      default: {
+        schema: definitions["rpcStatus"];
+      };
+    };
+  };
+  /** Get the catalog of all wrappable yield vaults across supported chains, enriched with live TVL and APY. Annotates which vaults the organization has already enabled. */
+  PublicApiService_ListEarnVaults: {
+    parameters: {
+      body: {
+        body: definitions["v1ListEarnVaultsRequest"];
+      };
+    };
+    responses: {
+      /** A successful response. */
+      200: {
+        schema: definitions["v1ListEarnVaultsResponse"];
       };
       /** An unexpected error response. */
       default: {

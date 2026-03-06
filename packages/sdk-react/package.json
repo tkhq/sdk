@@ -80,7 +80,7 @@
     }
   },
   "devDependencies": {
-    "@types/react": "18.2.14",
+    "@types/react": "18.3.24",
     "@types/react-dom": "18.2.6",
     "postcss-import": "^16.1.0",
     "react": "^18.2.0",

@@ -7,6 +7,7 @@ import { useTurnkey } from "../../providers/client/Hook";
 
 interface PhoneNumberInputProps {
   onContinue?: (phone: string, formattedPhone: string) => void;
+  disabled?: boolean;
 }
 
 export function PhoneNumberInput(props: PhoneNumberInputProps) {
@@ -29,7 +30,7 @@ export function PhoneNumberInput(props: PhoneNumberInputProps) {
     }
   };
 
-  const buttonDisabled = !isValid;
+  const buttonDisabled = !isValid || (props.disabled ?? false);
 
   const buttonClass = clsx(
     "transition-all duration-300",

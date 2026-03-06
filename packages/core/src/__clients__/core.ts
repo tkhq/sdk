@@ -643,6 +643,7 @@ export class TurnkeyClient {
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
+   * @param params.captchaToken - optional captcha token for bot prevention (must be enabled in the auth proxy config to take effect).
    * @returns A promise that resolves to a {@link PasskeyAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    *          - `credentialId`: the credential ID associated with the passkey created.
@@ -657,6 +658,7 @@ export class TurnkeyClient {
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       createSubOrgParams,
       sessionKey = SessionKey.DefaultSessionkey,
+      captchaToken,
     } = params || {};
 
     const generatedPublicKey = await this.createApiKeyPair();
@@ -708,7 +710,10 @@ export class TurnkeyClient {
           },
         });
 
-        const res = await this.httpClient.proxySignupV2(signUpBody);
+        const res = await this.httpClient.proxySignupV2(
+          signUpBody,
+          captchaToken,
+        );
 
         if (!res) {
           throw new TurnkeyError(
@@ -1223,6 +1228,7 @@ export class TurnkeyClient {
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.captchaToken - optional captcha token for bot prevention during OTP initialization (must be enabled in the auth proxy config to take effect).
    * @returns A promise that resolves to an object containing:
    *          - `sessionToken`: the signed JWT session token.
    *          - `address`: the authenticated wallet address.
@@ -1236,6 +1242,7 @@ export class TurnkeyClient {
       walletProvider,
       createSubOrgParams,
       sessionKey = SessionKey.DefaultSessionkey,
+      captchaToken,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -1276,7 +1283,10 @@ export class TurnkeyClient {
             },
           });
 
-          signupRes = await this.httpClient.proxySignupV2(signUpBody);
+          signupRes = await this.httpClient.proxySignupV2(
+            signUpBody,
+            captchaToken,
+          );
 
           if (!signupRes) {
             throw new TurnkeyError(
@@ -1334,6 +1344,7 @@ export class TurnkeyClient {
    * @param params.otpType - type of OTP to initialize (OtpType.Email or OtpType.Sms).
    * @param params.contact - contact information for the user (e.g., email address or phone number).
    * @param params.organizationId - optional organization ID to target (defaults to the session's organization ID or the parent organization ID).
+   * @param params.captchaToken - optional captcha token for bot prevention during OTP initialization (must be enabled in the auth proxy config to take effect).
    * @returns A promise that resolves to an {@link InitOtpResult}, which includes:
    *          - `otpId`: the ID of the initiated OTP.
    *          - `otpEncryptionTargetBundle`: the signed encryption target bundle for encrypting the OTP code.
@@ -1342,7 +1353,10 @@ export class TurnkeyClient {
   initOtp = async (params: InitOtpParams): Promise<InitOtpResult> => {
     return withTurnkeyErrorHandling(
       async () => {
-        const initOtpRes = await this.httpClient.proxyInitOtpV2(params);
+        const initOtpRes = await this.httpClient.proxyInitOtpV2(
+          params,
+          params.captchaToken,
+        );
 
         if (
           !initOtpRes ||
@@ -1562,6 +1576,7 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
+   * @param params.captchaToken - optional captcha token for bot prevention during OTP initialization (must be enabled in the auth proxy config to take effect).
    * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OTP sign-up process or session storage.
@@ -1576,6 +1591,7 @@ export class TurnkeyClient {
       createSubOrgParams,
       invalidateExisting,
       sessionKey,
+      captchaToken,
     } = params;
 
     // build sign up body without client signature first
@@ -1624,10 +1640,13 @@ export class TurnkeyClient {
           signature: signature,
         };
 
-        const signupRes = await this.httpClient.proxySignupV2({
-          ...signUpBody,
-          clientSignature,
-        });
+        const signupRes = await this.httpClient.proxySignupV2(
+          {
+            ...signUpBody,
+            clientSignature,
+          },
+          captchaToken,
+        );
 
         if (!signupRes) {
           throw new TurnkeyError(
@@ -1673,6 +1692,7 @@ export class TurnkeyClient {
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
+   * @param params.captchaToken - optional captcha token for bot prevention during OTP initialization (must be enabled in the auth proxy config to take effect).
    * @returns A promise that resolves to an object containing:
    *          - `sessionToken`: the signed JWT session token.
    *          - `verificationToken`: the OTP verification token.
@@ -1693,6 +1713,7 @@ export class TurnkeyClient {
       invalidateExisting = false,
       sessionKey,
       createSubOrgParams,
+      captchaToken,
     } = params;
 
     const publicKey = params.publicKey ?? (await this.createApiKeyPair());
@@ -1743,6 +1764,7 @@ export class TurnkeyClient {
             ...(createSubOrgParams && { createSubOrgParams }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(captchaToken && { captchaToken }),
           });
 
           return {
@@ -1799,6 +1821,7 @@ export class TurnkeyClient {
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
+   * @param params.captchaToken - optional captcha token for bot prevention during OAuth completion (must be enabled in the auth proxy config to take effect).
    *
    * @returns A promise that resolves to an object containing:
    *          - `sessionToken`: the signed JWT session token.
@@ -1815,6 +1838,7 @@ export class TurnkeyClient {
       createSubOrgParams,
       invalidateExisting,
       sessionKey,
+      captchaToken,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -1855,6 +1879,7 @@ export class TurnkeyClient {
             }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
+            ...(captchaToken && { captchaToken }),
           });
 
           return {
@@ -1978,6 +2003,7 @@ export class TurnkeyClient {
    * @param params.providerName - name of the OAuth provider (e.g., "Google", "Apple").
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
+   * @param params.captchaToken - optional captcha token for bot prevention during OTP initialization (must be enabled in the auth proxy config to take effect).
    * @returns A promise that resolves to a {@link BaseAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    * @throws {TurnkeyError} If there is an error during the OAuth sign-up or login process.
@@ -1991,6 +2017,7 @@ export class TurnkeyClient {
       providerName = "OpenID Connect Provider" + " " + Date.now(),
       createSubOrgParams,
       sessionKey,
+      captchaToken,
     } = params;
 
     return withTurnkeyErrorHandling(
@@ -2008,7 +2035,10 @@ export class TurnkeyClient {
           },
         });
 
-        const signupRes = await this.httpClient.proxySignupV2(signUpBody);
+        const signupRes = await this.httpClient.proxySignupV2(
+          signUpBody,
+          captchaToken,
+        );
 
         if (!signupRes) {
           throw new TurnkeyError(
