@@ -44,6 +44,7 @@ export type HandleDiscordOauthParams = {
   secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   openInPage?: boolean;
+  captchaToken?: string;
   onOauthSuccess?: (params: {
     publicKey: string;
     oidcToken: string;
@@ -56,6 +57,7 @@ export type HandleXOauthParams = {
   secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   openInPage?: boolean;
+  captchaToken?: string;
   onOauthSuccess?: (params: {
     publicKey: string;
     oidcToken: string;
@@ -68,6 +70,7 @@ export type HandleGoogleOauthParams = {
   secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   openInPage?: boolean;
+  captchaToken?: string;
   onOauthSuccess?: (params: {
     publicKey: string;
     oidcToken: string;
@@ -80,6 +83,7 @@ export type HandleAppleOauthParams = {
   secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   openInPage?: boolean;
+  captchaToken?: string;
   onOauthSuccess?: (params: {
     publicKey: string;
     oidcToken: string;
@@ -92,6 +96,7 @@ export type HandleFacebookOauthParams = {
   secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   openInPage?: boolean;
+  captchaToken?: string;
   onOauthSuccess?: (params: {
     publicKey: string;
     oidcToken: string;

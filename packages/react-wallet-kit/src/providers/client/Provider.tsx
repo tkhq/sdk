@@ -42,6 +42,7 @@ import {
 } from "../../utils/timers";
 import {
   getAuthProxyConfig,
+  getClientParams,
   Chain,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
   OtpType,
@@ -137,6 +138,7 @@ import {
   type TDeleteSubOrganizationResponse,
   type TStampLoginResponse,
   type ProxyTGetWalletKitConfigResponse,
+  type ProxyTGetWalletKitClientParamsResponse,
   type v1SignRawPayloadResult,
   type v1User,
   type v1PrivateKey,
@@ -215,6 +217,7 @@ import { OnRampPage } from "../../components/onramp/OnRamp";
 import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 import { getChainLogo } from "../../components/send-transaction/helpers";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 /**
  * @inline
@@ -268,6 +271,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     AuthState.Unauthenticated,
   );
 
+  // Turnstile state: pre-warm the challenge in the background
+  const turnstileTokenRef = useRef<string | null>(null);
+
+  const getTurnstileToken = useCallback(() => turnstileTokenRef.current, []);
+
+  const setTurnstileToken = useCallback((token: string | null) => {
+    turnstileTokenRef.current = token;
+  }, []);
+
   // if there is no authProxyConfigId or if autoFetchWalletKitConfig is specifically
   // set to false, we don't need to fetch the config
   const shouldFetchWalletKitConfig =
@@ -279,6 +291,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   const expiryTimeoutsRef = useRef<TimerMap>({});
   const proxyAuthConfigRef = useRef<ProxyTGetWalletKitConfigResponse | null>(
+    null,
+  );
+  const clientParamsRef = useRef<ProxyTGetWalletKitClientParamsResponse | null>(
     null,
   );
 
@@ -401,6 +416,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           sessionKey,
           nonce,
           openModal,
+          captchaToken,
         } = result;
 
         const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
@@ -422,6 +438,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 publicKey,
                 providerName,
                 sessionKey: sessionKey ?? undefined,
+                captchaToken: captchaToken ?? undefined,
                 callbacks,
                 completeOauth: (completionParams) => {
                   const existingCreateSubOrgParams =
@@ -624,6 +641,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           openModal,
           sessionKey,
           oauthIntent,
+          captchaToken,
         } = result;
 
         const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
@@ -645,6 +663,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             publicKey,
             oidcToken: idToken,
             sessionKey: sessionKey ?? undefined,
+            captchaToken: captchaToken ?? undefined,
             callbacks,
             completeOauth: (completionParams) => {
               const existingCreateSubOrgParams =
@@ -707,6 +726,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
   const buildConfig = (
     proxyAuthConfig?: ProxyTGetWalletKitConfigResponse | undefined,
+    clientParams?: ProxyTGetWalletKitClientParamsResponse | undefined,
   ) => {
     // Juggle the local overrides with the values set in the dashboard (proxyAuthConfig).
     const resolvedMethods = {
@@ -893,6 +913,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       },
       importIframeUrl: config.importIframeUrl ?? "https://import.turnkey.com",
       exportIframeUrl: config.exportIframeUrl ?? "https://export.turnkey.com",
+      turnstileSiteKey: clientParams?.turnstileSiteKey,
     } as TurnkeyProviderConfig;
   };
 
@@ -3493,6 +3514,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ?.secondaryClientIds ?? [],
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
+        captchaToken,
       } = params || {};
       const clientId = primaryClientId;
 
@@ -3540,7 +3562,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         nonce,
         flow,
         codeChallenge,
-        additionalState: additionalParameters,
+        additionalState: {
+          ...additionalParameters,
+          ...(captchaToken && { captchaToken }),
+        },
       });
 
       if (openInPage) {
@@ -3600,6 +3625,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       }),
                     });
                   },
+                  captchaToken,
                   onOauthSuccess: params?.onOauthSuccess,
                   exchangeCodeForToken: async (codeVerifier) => {
                     const resp =
@@ -3639,6 +3665,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ?.secondaryClientIds ?? [],
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
+        captchaToken,
       } = params || {};
       const clientId = primaryClientId;
 
@@ -3686,7 +3713,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         nonce,
         flow,
         codeChallenge,
-        additionalState: additionalParameters,
+        additionalState: {
+          ...additionalParameters,
+          ...(captchaToken && { captchaToken }),
+        },
       });
 
       if (openInPage) {
@@ -3746,6 +3776,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       }),
                     });
                   },
+                  captchaToken,
                   onOauthSuccess: params?.onOauthSuccess,
                   exchangeCodeForToken: async (codeVerifier) => {
                     const resp =
@@ -3786,6 +3817,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ?.secondaryClientIds ?? [],
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
+        captchaToken,
       } = params || {};
       const clientId = primaryClientId;
 
@@ -3830,7 +3862,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         publicKey,
         nonce,
         flow,
-        additionalState: additionalParameters,
+        additionalState: {
+          ...additionalParameters,
+          ...(captchaToken && { captchaToken }),
+        },
       });
 
       if (openInPage) {
@@ -3890,6 +3925,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       }),
                     });
                   },
+                  captchaToken,
                   onOauthSuccess: params?.onOauthSuccess,
                 })
                   .then(() => resolve())
@@ -3918,6 +3954,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ?.secondaryClientIds ?? [],
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
+        captchaToken,
       } = params || {};
       const clientId = primaryClientId;
 
@@ -3961,7 +3998,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         publicKey,
         nonce,
         flow,
-        additionalState: additionalParameters,
+        additionalState: {
+          ...additionalParameters,
+          ...(captchaToken && { captchaToken }),
+        },
       });
 
       if (openInPage) {
@@ -4021,6 +4061,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       }),
                     });
                   },
+                  captchaToken,
                   onOauthSuccess: params?.onOauthSuccess,
                 })
                   .then(() => resolve())
@@ -4049,6 +4090,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           ?.secondaryClientIds ?? [],
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
+        captchaToken,
       } = params || {};
       const clientId = primaryClientId;
 
@@ -4096,7 +4138,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         nonce,
         flow,
         codeChallenge,
-        additionalState: additionalParameters,
+        additionalState: {
+          ...additionalParameters,
+          ...(captchaToken && { captchaToken }),
+        },
       });
 
       if (openInPage) {
@@ -4156,6 +4201,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       }),
                     });
                   },
+                  captchaToken,
                   onOauthSuccess: params?.onOauthSuccess,
                   exchangeCodeForToken: async (codeVerifier) => {
                     const tokenData = await exchangeFacebookCodeForToken(
@@ -6156,21 +6202,45 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   useEffect(() => {
     if (proxyAuthConfigRef.current) return;
 
-    // Only fetch the proxy auth config once. Use that to build the master config.
+    // Fetch proxy auth config and client params once. Use both to build the master config.
     const fetchProxyAuthConfig = async () => {
       try {
         let proxyAuthConfig: ProxyTGetWalletKitConfigResponse | undefined;
+        let clientParams: ProxyTGetWalletKitClientParamsResponse | undefined;
+
+        const promises: Promise<void>[] = [];
 
         if (shouldFetchWalletKitConfig) {
-          // Only fetch the proxy auth config if we have an authProxyId and the autoFetchWalletKitConfig param is enabled or not passed in.
-          proxyAuthConfig = await getAuthProxyConfig(
-            config.authProxyConfigId!, // Can assert safely. See shouldFetchWalletKitConfig definition.
-            config.authProxyUrl,
+          promises.push(
+            getAuthProxyConfig(
+              config.authProxyConfigId!,
+              config.authProxyUrl,
+            ).then((result) => {
+              proxyAuthConfig = result;
+            }),
           );
-          proxyAuthConfigRef.current = proxyAuthConfig;
         }
 
-        setMasterConfig(buildConfig(proxyAuthConfig));
+        if (config.authProxyConfigId) {
+          promises.push(
+            getClientParams(config.authProxyConfigId, config.authProxyUrl).then(
+              (result: ProxyTGetWalletKitClientParamsResponse) => {
+                clientParams = result;
+              },
+            ),
+          );
+        }
+
+        await Promise.all(promises);
+
+        if (proxyAuthConfig) {
+          proxyAuthConfigRef.current = proxyAuthConfig;
+        }
+        if (clientParams) {
+          clientParamsRef.current = clientParams;
+        }
+
+        setMasterConfig(buildConfig(proxyAuthConfig, clientParams));
       } catch {
         setClientState(ClientState.Error);
       }
@@ -6192,7 +6262,12 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     // If shouldFetchWalletKitConfig is false, we'll never have a proxyAuthConfig to build the master config with, so this useEffect should always run.
     if (!proxyAuthConfigRef.current && shouldFetchWalletKitConfig) return;
 
-    setMasterConfig(buildConfig(proxyAuthConfigRef.current ?? undefined));
+    setMasterConfig(
+      buildConfig(
+        proxyAuthConfigRef.current ?? undefined,
+        clientParamsRef.current ?? undefined,
+      ),
+    );
   }, [config, proxyAuthConfigRef.current]);
 
   /**
@@ -6396,8 +6471,30 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleOnRamp,
         handleSendTransaction,
         handleSendErc20Transfer,
+        getTurnstileToken,
+        setTurnstileToken,
       }}
     >
+      {masterConfig?.turnstileSiteKey &&
+        authState !== AuthState.Authenticated &&
+        !getTurnstileToken() && (
+          <Turnstile
+            siteKey={masterConfig.turnstileSiteKey}
+            onSuccess={(token) => {
+              setTurnstileToken(token);
+            }}
+            onError={() => {
+              setTurnstileToken(null);
+            }}
+            onExpire={() => {
+              setTurnstileToken(null);
+            }}
+            options={{
+              size: "invisible",
+              appearance: "execute",
+            }}
+          />
+        )}
       {children}
     </ClientContext.Provider>
   );

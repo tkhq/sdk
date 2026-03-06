@@ -1417,7 +1417,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.
+   * Get balances of supported assets for an address on the specified network. Only non-zero balances are returned.
    *
    * Sign the provided `TGetWalletAddressBalancesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_wallet_address_balances).
    *
@@ -1738,7 +1738,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List supported assets for the specified network. This feature is in beta - please contact support for access.
+   * List supported assets for the specified network.
    *
    * Sign the provided `TListSupportedAssetsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_supported_assets).
    *

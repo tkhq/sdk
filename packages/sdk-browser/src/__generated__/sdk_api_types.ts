@@ -976,7 +976,7 @@ export type TEmailAuthBody =
     commandOverrideParams;
 
 export type TEthSendTransactionResponse =
-  operations["PublicApiService_EthSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendTransactionResult"] &
+  operations["PublicApiService_EthSendTransaction"]["responses"]["200"]["schema"]["activity"]["result"]["ethSendTransactionResultV2"] &
     definitions["v1ActivityResponse"];
 
 export type TEthSendTransactionInput = { body: TEthSendTransactionBody };

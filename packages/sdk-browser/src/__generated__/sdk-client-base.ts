@@ -4311,7 +4311,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
       },
-      "ethSendTransactionResult",
+      "ethSendTransactionResultV2",
     );
   };
 

@@ -241,6 +241,7 @@ export class TurnkeySDKClientBase {
   async authProxyRequest<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
+    captchaToken?: string,
   ): Promise<TResponseType> {
     if (!this.config.authProxyUrl || !this.config.authProxyConfigId) {
       throw new TurnkeyError(
@@ -254,6 +255,10 @@ export class TurnkeySDKClientBase {
       "Content-Type": "application/json",
       "X-Auth-Proxy-Config-ID": this.config.authProxyConfigId,
     };
+
+    if (captchaToken) {
+      headers["X-Captcha-Token"] = captchaToken;
+    }
 
     const response = await fetch(fullUrl, {
       method: "POST",
@@ -4994,7 +4999,7 @@ export class TurnkeySDKClientBase {
         generateAppProofs: generateAppProofs ?? false,
         type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION",
       },
-      "ethSendTransactionResult",
+      "ethSendTransactionResultV2",
       stampWith,
     );
   };
@@ -7760,14 +7765,16 @@ export class TurnkeySDKClientBase {
 
   proxyInitOtp = async (
     input: SdkTypes.ProxyTInitOtpBody,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTInitOtpResponse> => {
-    return this.authProxyRequest("/v1/otp_init", input);
+    return this.authProxyRequest("/v1/otp_init", input, captchaToken);
   };
 
   proxyInitOtpV2 = async (
     input: SdkTypes.ProxyTInitOtpV2Body,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTInitOtpV2Response> => {
-    return this.authProxyRequest("/v1/otp_init_v2", input);
+    return this.authProxyRequest("/v1/otp_init_v2", input, captchaToken);
   };
 
   proxyOtpLogin = async (
@@ -7796,14 +7803,22 @@ export class TurnkeySDKClientBase {
 
   proxySignup = async (
     input: SdkTypes.ProxyTSignupBody,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTSignupResponse> => {
-    return this.authProxyRequest("/v1/signup", input);
+    return this.authProxyRequest("/v1/signup", input, captchaToken);
   };
 
   proxySignupV2 = async (
     input: SdkTypes.ProxyTSignupV2Body,
+    captchaToken?: string,
   ): Promise<SdkTypes.ProxyTSignupV2Response> => {
-    return this.authProxyRequest("/v1/signup_v2", input);
+    return this.authProxyRequest("/v1/signup_v2", input, captchaToken);
+  };
+
+  proxyGetWalletKitClientParams = async (
+    input: SdkTypes.ProxyTGetWalletKitClientParamsBody,
+  ): Promise<SdkTypes.ProxyTGetWalletKitClientParamsResponse> => {
+    return this.authProxyRequest("/v1/wallet_kit_client_params", input);
   };
 
   proxyGetWalletKitConfig = async (

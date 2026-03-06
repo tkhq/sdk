@@ -139,6 +139,12 @@ export type v1GetAccountResponse = {
   organizationId?: string;
 };
 
+export type v1GetWalletKitClientParamsRequest = {};
+export type v1GetWalletKitClientParamsResponse = {
+  /** Site key for Turnstile, used to protect WalletKit flows with bot detection. */
+  turnstileSiteKey?: string;
+};
+
 export type v1GetWalletKitConfigRequest = {};
 export type v1GetWalletKitConfigResponse = {
   /** List of enabled authentication providers (e.g., 'facebook', 'google', 'apple', 'email', 'sms', 'passkey', 'wallet') */
@@ -384,6 +390,8 @@ export type v1WalletAccountParams = {
   path: string;
   /** Address format used to generate a wallet Acccount. */
   addressFormat: v1AddressFormat;
+  /** Optional human-readable name for the account. */
+  name?: string;
 };
 
 export type v1WalletParams = {
@@ -748,7 +756,8 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER"
   | "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER"
   | "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE"
-  | "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE";
+  | "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE"
+  | "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2";
 
 export type v1ApiKey = {
   /** A User credential that can be used to authenticate to Turnkey. */
@@ -875,9 +884,9 @@ export type v1BootProof = {
   ephemeralPublicKeyHex: string;
   /** The DER encoded COSE Sign1 struct Attestation doc. */
   awsAttestationDocB64: string;
-  /** The borsch serialized base64 encoded Manifest. */
+  /** The base64 encoded QOS manifest. Encoding depends on qos_manifest_version. */
   qosManifestB64: string;
-  /** The borsch serialized base64 encoded Manifest Envelope. */
+  /** The base64 encoded QOS manifest envelope. Encoding depends on qos_manifest_version. */
   qosManifestEnvelopeB64: string;
   /** The label under which the enclave app was deployed. */
   deploymentLabel: string;
@@ -886,6 +895,8 @@ export type v1BootProof = {
   /** Owner of the app i.e. 'tkhq' */
   owner: string;
   createdAt: externaldatav1Timestamp;
+  /** QOS manifest schema version. */
+  qosManifestVersion?: string;
 };
 
 export type v1BootProofResponse = {
@@ -1524,6 +1535,8 @@ export type v1CreateTvcAppIntent = {
   shareSetParams?: v1TvcOperatorSetParams;
   /** Enables network egress for this TVC app. Default if not provided: false. */
   enableEgress?: boolean;
+  /** When true, this app may create deployments in debug-mode. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. Cannot be changed after app creation. Setting this true means the app's quorum key is considered permanently insecure, and a new app with a fresh quorum key must be created. Default if not provided: false. */
+  enableDebugModeDeployments?: boolean;
 };
 
 export type v1CreateTvcAppRequest = {
@@ -2322,6 +2335,15 @@ export type v1EnableAuthProxyResult = {
   userId: string;
 };
 
+export type v1EthCallParams = {
+  /** Recipient address as a hex string with 0x prefix. */
+  to: string;
+  /** Amount of native asset to send in wei. */
+  value?: string;
+  /** Hex-encoded call data for contract interactions. */
+  data?: string;
+};
+
 export type v1EthFailureDetails = {
   /** Ethereum revert chain, ordered from outermost to innermost. */
   revertChain?: v1RevertChainEntry[];
@@ -2337,7 +2359,9 @@ export type v1EthSendRawTransactionIntent = {
     | "eip155:8453"
     | "eip155:84532"
     | "eip155:137"
-    | "eip155:80002";
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
 };
 
 export type v1EthSendRawTransactionResult = {
@@ -2357,7 +2381,9 @@ export type v1EthSendTransactionIntent = {
     | "eip155:8453"
     | "eip155:84532"
     | "eip155:137"
-    | "eip155:80002";
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
   /** Recipient address as a hex string with 0x prefix. */
   to: string;
   /** Amount of native asset to send in wei. */
@@ -2378,17 +2404,53 @@ export type v1EthSendTransactionIntent = {
   gasStationNonce?: string;
 };
 
+export type v1EthSendTransactionIntentV2 = {
+  /** A wallet or private key address to sign with. This does not support private key IDs. */
+  from: string;
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
+  /** Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station. */
+  sponsor?: boolean;
+  /** Outer transaction nonce. Omit to auto-fetch. */
+  nonce?: string;
+  /** Maximum amount of gas for the outer transaction. Omit to auto-estimate. */
+  gasLimit?: string;
+  /** Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate. */
+  maxFeePerGas?: string;
+  /** Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate. */
+  maxPriorityFeePerGas?: string;
+  /** Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true. */
+  deadline?: string;
+  /** The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch. */
+  gasStationNonce?: string;
+  /** Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station. */
+  calls: v1EthCallParams[];
+};
+
 export type v1EthSendTransactionRequest = {
-  type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION";
+  type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1EthSendTransactionIntent;
+  parameters: v1EthSendTransactionIntentV2;
   generateAppProofs?: boolean;
 };
 
 export type v1EthSendTransactionResult = {
+  /** The send_transaction_status ID associated with the transaction submission */
+  sendTransactionStatusId: string;
+};
+
+export type v1EthSendTransactionResultV2 = {
   /** The send_transaction_status ID associated with the transaction submission */
   sendTransactionStatusId: string;
 };
@@ -2721,7 +2783,9 @@ export type v1GetNoncesRequest = {
     | "eip155:8453"
     | "eip155:84532"
     | "eip155:137"
-    | "eip155:80002";
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -3024,6 +3088,12 @@ export type v1GetWalletAddressBalancesRequest = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614"
+    | "eip155:56"
+    | "eip155:97"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -3587,6 +3657,7 @@ export type v1Intent = {
   sparkClaimTransferIntent?: v1SparkClaimTransferIntent;
   sparkPrepareLightningReceiveIntent?: v1SparkPrepareLightningReceiveIntent;
   postTvcQuorumKeyShareIntent?: v1PostTvcQuorumKeyShareIntent;
+  ethSendTransactionIntentV2?: v1EthSendTransactionIntentV2;
 };
 
 export type v1InvitationParams = {
@@ -3670,6 +3741,12 @@ export type v1ListSupportedAssetsRequest = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614"
+    | "eip155:56"
+    | "eip155:97"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -4243,6 +4320,7 @@ export type v1Result = {
   sparkClaimTransferResult?: v1SparkClaimTransferResult;
   sparkPrepareLightningReceiveResult?: v1SparkPrepareLightningReceiveResult;
   postTvcQuorumKeyShareResult?: v1PostTvcQuorumKeyShareResult;
+  ethSendTransactionResultV2?: v1EthSendTransactionResultV2;
 };
 
 export type v1RevertChainEntry = {
@@ -4862,6 +4940,8 @@ export type v1TvcApp = {
   liveDeploymentId?: string;
   /** The public domain for ingress to this TVC App (in the format "app-<ID>.turnkey.cloud"). */
   publicDomain: string;
+  /** Whether this app permits debug-mode deployments. Set at app creation via CreateTvcAppIntent.enable_debug_mode_deployments and never updated thereafter. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. The app's quorum key is therefore considered permanently insecure once enabled — a new app with a fresh quorum key must be created to return to a secure posture. */
+  enableDebugModeDeployments: boolean;
 };
 
 export type v1TvcContainerSpec = {
@@ -5042,6 +5122,8 @@ export type v1UpdateAuthProxyConfigIntent = {
   verificationTokenRequiredForGetAccountPii?: boolean;
   /** Whitelisted OAuth client IDs for social account linking. When a user authenticates via a social provider with an email matching an existing account, the accounts will be linked if the client ID is in this list and the issuer is considered a trusted provider. */
   socialLinkingClientIds?: string[];
+  /** Whether captcha verification is required on sign up & otp init. */
+  captchaEnabled?: boolean;
 };
 
 export type v1UpdateAuthProxyConfigResult = {
@@ -5609,6 +5691,8 @@ export type v1WalletAccount = {
   publicKey?: string;
   /** Wallet details for this account. This is only present when include_wallet_details=true. */
   walletDetails?: v1Wallet;
+  /** Human-readable name for this Wallet Account, unique within the organization. */
+  name?: string;
 };
 
 export type v1WalletKitSettingsParams = {
@@ -5803,7 +5887,9 @@ export type TGetNoncesBody = {
     | "eip155:8453"
     | "eip155:84532"
     | "eip155:137"
-    | "eip155:80002";
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -6029,6 +6115,12 @@ export type TGetWalletAddressBalancesBody = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614"
+    | "eip155:56"
+    | "eip155:97"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -6166,6 +6258,12 @@ export type TListSupportedAssetsBody = {
     | "eip155:84532"
     | "eip155:137"
     | "eip155:80002"
+    | "eip155:42161"
+    | "eip155:4217"
+    | "eip155:42431"
+    | "eip155:421614"
+    | "eip155:56"
+    | "eip155:97"
     | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
     | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
@@ -6664,6 +6762,8 @@ export type TCreateTvcAppBody = {
   shareSetParams?: v1TvcOperatorSetParams;
   /** Enables network egress for this TVC app. Default if not provided: false. */
   enableEgress?: boolean;
+  /** When true, this app may create deployments in debug-mode. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. Cannot be changed after app creation. Setting this true means the app's quorum key is considered permanently insecure, and a new app with a fresh quorum key must be created. Default if not provided: false. */
+  enableDebugModeDeployments?: boolean;
 };
 
 export type TCreateTvcAppInput = { body: TCreateTvcAppBody };
@@ -7208,7 +7308,9 @@ export type TEthSendTransactionBody = {
     | "eip155:8453"
     | "eip155:84532"
     | "eip155:137"
-    | "eip155:80002";
+    | "eip155:80002"
+    | "eip155:56"
+    | "eip155:97";
   /** Recipient address as a hex string with 0x prefix. */
   to: string;
   /** Amount of native asset to send in wei. */
@@ -8511,6 +8613,17 @@ export type ProxyTSignupV2Body = {
 };
 
 export type ProxyTSignupV2Input = { body: ProxyTSignupV2Body };
+
+export type ProxyTGetWalletKitClientParamsResponse = {
+  /** Site key for Turnstile, used to protect WalletKit flows with bot detection. */
+  turnstileSiteKey?: string;
+};
+
+export type ProxyTGetWalletKitClientParamsBody = {};
+
+export type ProxyTGetWalletKitClientParamsInput = {
+  body: ProxyTGetWalletKitClientParamsBody;
+};
 
 export type ProxyTGetWalletKitConfigResponse = {
   /** List of enabled authentication providers (e.g., 'facebook', 'google', 'apple', 'email', 'sms', 'passkey', 'wallet') */

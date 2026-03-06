@@ -53,6 +53,7 @@ describe("parseOAuthRedirect", () => {
         sessionKey: "sess_1",
         oauthIntent: null,
         nonce: null,
+        captchaToken: null,
       });
     });
 
@@ -103,6 +104,7 @@ describe("parseOAuthRedirect", () => {
         sessionKey: "sess_g1",
         oauthIntent: null,
         nonce: null,
+        captchaToken: null,
       });
     });
 
@@ -294,6 +296,7 @@ describe("OAuth utils", () => {
         openModal: null,
         oauthIntent: null,
         nonce: null,
+        captchaToken: null,
       });
     });
 
@@ -315,6 +318,7 @@ describe("OAuth utils", () => {
         openModal: null,
         oauthIntent: null,
         nonce: null,
+        captchaToken: null,
       });
     });
   });
