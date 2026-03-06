@@ -132,6 +132,8 @@ export interface OAuthResponseResult {
   oauthIntent?: string | null;
   /** Nonce from state */
   nonce?: string | null;
+  /** Captcha token from state (encoded before redirect) */
+  captchaToken?: string | null;
 }
 
 /**
@@ -203,6 +205,7 @@ export function parseOAuthResponse(
     sessionKey,
     oauthIntent,
     nonce,
+    captchaToken,
   } = parseStateParam(stateString);
 
   // If we have an expected provider (popup flow), validate it matches
@@ -232,6 +235,7 @@ export function parseOAuthResponse(
     sessionKey: sessionKey ?? undefined,
     oauthIntent: oauthIntent ?? null,
     nonce: nonce ?? null,
+    captchaToken: captchaToken ?? null,
   };
 }
 

@@ -404,6 +404,19 @@ export type TListEmailEventsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TListEthTransactionHistoryResponse =
+  operations["PublicApiService_ListEthTransactionHistory"]["responses"]["200"]["schema"];
+
+export type TListEthTransactionHistoryInput = {
+  body: TListEthTransactionHistoryBody;
+};
+
+export type TListEthTransactionHistoryBody = Omit<
+  operations["PublicApiService_ListEthTransactionHistory"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TListFiatOnRampCredentialsResponse =
   operations["PublicApiService_ListFiatOnRampCredentials"]["responses"]["200"]["schema"];
 
@@ -470,6 +483,19 @@ export type TGetSmartContractInterfacesInput = {
 
 export type TGetSmartContractInterfacesBody = Omit<
   operations["PublicApiService_GetSmartContractInterfaces"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
+export type TListSolTransactionHistoryResponse =
+  operations["PublicApiService_ListSolTransactionHistory"]["responses"]["200"]["schema"];
+
+export type TListSolTransactionHistoryInput = {
+  body: TListSolTransactionHistoryBody;
+};
+
+export type TListSolTransactionHistoryBody = Omit<
+  operations["PublicApiService_ListSolTransactionHistory"]["parameters"]["body"]["body"],
   "organizationId"
 > &
   queryOverrideParams;
