@@ -875,7 +875,7 @@
     "/public/v1/query/get_wallet_address_balances": {
       "post": {
         "summary": "Get balances",
-        "description": "Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.",
+        "description": "Get balances of supported assets for an address on the specified network. Only non-zero balances are returned.",
         "operationId": "PublicApiService_GetWalletAddressBalances",
         "responses": {
           "200": {
@@ -1195,7 +1195,7 @@
     "/public/v1/query/list_supported_assets": {
       "post": {
         "summary": "List supported assets",
-        "description": "List supported assets for the specified network. This feature is in beta - please contact support for access.",
+        "description": "List supported assets for the specified network.",
         "operationId": "PublicApiService_ListSupportedAssets",
         "responses": {
           "200": {
@@ -5127,7 +5127,8 @@
         "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER",
         "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER",
         "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE",
-        "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE"
+        "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE",
+        "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2"
       ]
     },
     "v1AddressFormat": {
@@ -5586,11 +5587,11 @@
         },
         "qosManifestB64": {
           "type": "string",
-          "description": "The borsch serialized base64 encoded Manifest."
+          "description": "The base64 encoded QOS manifest. Encoding depends on qos_manifest_version."
         },
         "qosManifestEnvelopeB64": {
           "type": "string",
-          "description": "The borsch serialized base64 encoded Manifest Envelope."
+          "description": "The base64 encoded QOS manifest envelope. Encoding depends on qos_manifest_version."
         },
         "deploymentLabel": {
           "type": "string",
@@ -5606,6 +5607,10 @@
         },
         "createdAt": {
           "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "qosManifestVersion": {
+          "type": "string",
+          "description": "QOS manifest schema version."
         }
       },
       "required": [
@@ -7188,6 +7193,10 @@
         "enableEgress": {
           "type": "boolean",
           "description": "Enables network egress for this TVC app. Default if not provided: false."
+        },
+        "enableDebugModeDeployments": {
+          "type": "boolean",
+          "description": "When true, this app may create deployments in debug-mode. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. Cannot be changed after app creation. Setting this true means the app's quorum key is considered permanently insecure, and a new app with a fresh quorum key must be created. Default if not provided: false."
         }
       },
       "required": ["name", "quorumPublicKey"]
@@ -9037,6 +9046,24 @@
       },
       "required": ["userId"]
     },
+    "v1EthCallParams": {
+      "type": "object",
+      "properties": {
+        "to": {
+          "type": "string",
+          "description": "Recipient address as a hex string with 0x prefix."
+        },
+        "value": {
+          "type": "string",
+          "description": "Amount of native asset to send in wei."
+        },
+        "data": {
+          "type": "string",
+          "description": "Hex-encoded call data for contract interactions."
+        }
+      },
+      "required": ["to"]
+    },
     "v1EthFailureDetails": {
       "type": "object",
       "properties": {
@@ -9065,7 +9092,9 @@
             "eip155:8453",
             "eip155:84532",
             "eip155:137",
-            "eip155:80002"
+            "eip155:80002",
+            "eip155:56",
+            "eip155:97"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         }
@@ -9101,7 +9130,9 @@
             "eip155:8453",
             "eip155:84532",
             "eip155:137",
-            "eip155:80002"
+            "eip155:80002",
+            "eip155:56",
+            "eip155:97"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
@@ -9144,12 +9175,72 @@
       },
       "required": ["from", "caip2", "to"]
     },
+    "v1EthSendTransactionIntentV2": {
+      "type": "object",
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "A wallet or private key address to sign with. This does not support private key IDs."
+        },
+        "caip2": {
+          "type": "string",
+          "enum": [
+            "eip155:1",
+            "eip155:11155111",
+            "eip155:8453",
+            "eip155:84532",
+            "eip155:137",
+            "eip155:80002",
+            "eip155:56",
+            "eip155:97"
+          ],
+          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
+        },
+        "sponsor": {
+          "type": "boolean",
+          "description": "Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station."
+        },
+        "nonce": {
+          "type": "string",
+          "description": "Outer transaction nonce. Omit to auto-fetch."
+        },
+        "gasLimit": {
+          "type": "string",
+          "description": "Maximum amount of gas for the outer transaction. Omit to auto-estimate."
+        },
+        "maxFeePerGas": {
+          "type": "string",
+          "description": "Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate."
+        },
+        "maxPriorityFeePerGas": {
+          "type": "string",
+          "description": "Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate."
+        },
+        "deadline": {
+          "type": "string",
+          "description": "Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true."
+        },
+        "gasStationNonce": {
+          "type": "string",
+          "description": "The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch."
+        },
+        "calls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1EthCallParams"
+          },
+          "description": "Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station."
+        }
+      },
+      "required": ["from", "caip2", "calls"]
+    },
     "v1EthSendTransactionRequest": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": ["ACTIVITY_TYPE_ETH_SEND_TRANSACTION"]
+          "enum": ["ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2"]
         },
         "timestampMs": {
           "type": "string",
@@ -9160,7 +9251,7 @@
           "description": "Unique identifier for a given Organization."
         },
         "parameters": {
-          "$ref": "#/definitions/v1EthSendTransactionIntent"
+          "$ref": "#/definitions/v1EthSendTransactionIntentV2"
         },
         "generateAppProofs": {
           "type": "boolean"
@@ -9169,6 +9260,16 @@
       "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1EthSendTransactionResult": {
+      "type": "object",
+      "properties": {
+        "sendTransactionStatusId": {
+          "type": "string",
+          "description": "The send_transaction_status ID associated with the transaction submission"
+        }
+      },
+      "required": ["sendTransactionStatusId"]
+    },
+    "v1EthSendTransactionResultV2": {
       "type": "object",
       "properties": {
         "sendTransactionStatusId": {
@@ -9816,7 +9917,9 @@
             "eip155:8453",
             "eip155:84532",
             "eip155:137",
-            "eip155:80002"
+            "eip155:80002",
+            "eip155:56",
+            "eip155:97"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
@@ -10462,6 +10565,12 @@
             "eip155:84532",
             "eip155:137",
             "eip155:80002",
+            "eip155:42161",
+            "eip155:4217",
+            "eip155:42431",
+            "eip155:421614",
+            "eip155:56",
+            "eip155:97",
             "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
           ],
@@ -11812,6 +11921,9 @@
         },
         "postTvcQuorumKeyShareIntent": {
           "$ref": "#/definitions/v1PostTvcQuorumKeyShareIntent"
+        },
+        "ethSendTransactionIntentV2": {
+          "$ref": "#/definitions/v1EthSendTransactionIntentV2"
         }
       }
     },
@@ -11998,6 +12110,12 @@
             "eip155:84532",
             "eip155:137",
             "eip155:80002",
+            "eip155:42161",
+            "eip155:4217",
+            "eip155:42431",
+            "eip155:421614",
+            "eip155:56",
+            "eip155:97",
             "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
             "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
           ],
@@ -13458,6 +13576,9 @@
         },
         "postTvcQuorumKeyShareResult": {
           "$ref": "#/definitions/v1PostTvcQuorumKeyShareResult"
+        },
+        "ethSendTransactionResultV2": {
+          "$ref": "#/definitions/v1EthSendTransactionResultV2"
         }
       }
     },
@@ -14925,6 +15046,10 @@
         "publicDomain": {
           "type": "string",
           "description": "The public domain for ingress to this TVC App (in the format \"app-\u003cID\u003e.turnkey.cloud\")."
+        },
+        "enableDebugModeDeployments": {
+          "type": "boolean",
+          "description": "Whether this app permits debug-mode deployments. Set at app creation via CreateTvcAppIntent.enable_debug_mode_deployments and never updated thereafter. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. The app's quorum key is therefore considered permanently insecure once enabled — a new app with a fresh quorum key must be created to return to a secure posture."
         }
       },
       "required": [
@@ -14937,7 +15062,8 @@
         "enableEgress",
         "createdAt",
         "updatedAt",
-        "publicDomain"
+        "publicDomain",
+        "enableDebugModeDeployments"
       ]
     },
     "v1TvcContainerSpec": {
@@ -15381,6 +15507,10 @@
             "type": "string"
           },
           "description": "Whitelisted OAuth client IDs for social account linking. When a user authenticates via a social provider with an email matching an existing account, the accounts will be linked if the client ID is in this list and the issuer is considered a trusted provider."
+        },
+        "captchaEnabled": {
+          "type": "boolean",
+          "description": "Whether captcha verification is required on sign up \u0026 otp init."
         }
       }
     },
@@ -16749,6 +16879,10 @@
         "walletDetails": {
           "$ref": "#/definitions/v1Wallet",
           "description": "Wallet details for this account. This is only present when include_wallet_details=true."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for this Wallet Account, unique within the organization."
         }
       },
       "required": [
@@ -16782,6 +16916,10 @@
         "addressFormat": {
           "$ref": "#/definitions/v1AddressFormat",
           "description": "Address format used to generate a wallet Acccount."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional human-readable name for the account."
         }
       },
       "required": ["curve", "pathFormat", "path", "addressFormat"]

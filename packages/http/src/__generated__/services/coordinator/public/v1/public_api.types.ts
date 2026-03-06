@@ -113,7 +113,7 @@ export type paths = {
     post: operations["PublicApiService_GetWalletAccount"];
   };
   "/public/v1/query/get_wallet_address_balances": {
-    /** Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access. */
+    /** Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. */
     post: operations["PublicApiService_GetWalletAddressBalances"];
   };
   "/public/v1/query/list_activities": {
@@ -153,7 +153,7 @@ export type paths = {
     post: operations["PublicApiService_GetSubOrgIds"];
   };
   "/public/v1/query/list_supported_assets": {
-    /** List supported assets for the specified network. This feature is in beta - please contact support for access. */
+    /** List supported assets for the specified network. */
     post: operations["PublicApiService_ListSupportedAssets"];
   };
   "/public/v1/query/list_tvc_app_deployments": {
@@ -923,7 +923,8 @@ export type definitions = {
     | "ACTIVITY_TYPE_SPARK_PREPARE_TRANSFER"
     | "ACTIVITY_TYPE_SPARK_CLAIM_TRANSFER"
     | "ACTIVITY_TYPE_SPARK_PREPARE_LIGHTNING_RECEIVE"
-    | "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE";
+    | "ACTIVITY_TYPE_POST_TVC_QUORUM_KEY_SHARE"
+    | "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2";
   /** @enum {string} */
   v1AddressFormat:
     | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -1139,9 +1140,9 @@ export type definitions = {
     ephemeralPublicKeyHex: string;
     /** @description The DER encoded COSE Sign1 struct Attestation doc. */
     awsAttestationDocB64: string;
-    /** @description The borsch serialized base64 encoded Manifest. */
+    /** @description The base64 encoded QOS manifest. Encoding depends on qos_manifest_version. */
     qosManifestB64: string;
-    /** @description The borsch serialized base64 encoded Manifest Envelope. */
+    /** @description The base64 encoded QOS manifest envelope. Encoding depends on qos_manifest_version. */
     qosManifestEnvelopeB64: string;
     /** @description The label under which the enclave app was deployed. */
     deploymentLabel: string;
@@ -1150,6 +1151,8 @@ export type definitions = {
     /** @description Owner of the app i.e. 'tkhq' */
     owner: string;
     createdAt: definitions["externaldatav1Timestamp"];
+    /** @description QOS manifest schema version. */
+    qosManifestVersion?: string;
   };
   v1BootProofResponse: {
     bootProof: definitions["v1BootProof"];
@@ -1776,6 +1779,8 @@ export type definitions = {
     shareSetParams?: definitions["v1TvcOperatorSetParams"];
     /** @description Enables network egress for this TVC app. Default if not provided: false. */
     enableEgress?: boolean;
+    /** @description When true, this app may create deployments in debug-mode. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. Cannot be changed after app creation. Setting this true means the app's quorum key is considered permanently insecure, and a new app with a fresh quorum key must be created. Default if not provided: false. */
+    enableDebugModeDeployments?: boolean;
   };
   v1CreateTvcAppRequest: {
     /** @enum {string} */
@@ -2525,6 +2530,14 @@ export type definitions = {
     /** @description A User ID with permission to initiate authentication. */
     userId: string;
   };
+  v1EthCallParams: {
+    /** @description Recipient address as a hex string with 0x prefix. */
+    to: string;
+    /** @description Amount of native asset to send in wei. */
+    value?: string;
+    /** @description Hex-encoded call data for contract interactions. */
+    data?: string;
+  };
   v1EthFailureDetails: {
     /** @description Ethereum revert chain, ordered from outermost to innermost. */
     revertChain?: definitions["v1RevertChainEntry"][];
@@ -2542,7 +2555,9 @@ export type definitions = {
       | "eip155:8453"
       | "eip155:84532"
       | "eip155:137"
-      | "eip155:80002";
+      | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97";
   };
   v1EthSendRawTransactionRequest: {
     /** @enum {string} */
@@ -2573,7 +2588,9 @@ export type definitions = {
       | "eip155:8453"
       | "eip155:84532"
       | "eip155:137"
-      | "eip155:80002";
+      | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97";
     /** @description Recipient address as a hex string with 0x prefix. */
     to: string;
     /** @description Amount of native asset to send in wei. */
@@ -2593,17 +2610,54 @@ export type definitions = {
     /** @description The gas station delegate contract nonce. Only used when sponsor=true. Include this if you want maximal security posture. */
     gasStationNonce?: string;
   };
+  v1EthSendTransactionIntentV2: {
+    /** @description A wallet or private key address to sign with. This does not support private key IDs. */
+    from: string;
+    /**
+     * @description CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet).
+     * @enum {string}
+     */
+    caip2:
+      | "eip155:1"
+      | "eip155:11155111"
+      | "eip155:8453"
+      | "eip155:84532"
+      | "eip155:137"
+      | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97";
+    /** @description Whether to sponsor this transaction via Gas Station. If false or unset, the EOA pays gas. A single call uses EIP-1559; multiple calls use EIP-7702 batch execution via Gas Station. */
+    sponsor?: boolean;
+    /** @description Outer transaction nonce. Omit to auto-fetch. */
+    nonce?: string;
+    /** @description Maximum amount of gas for the outer transaction. Omit to auto-estimate. */
+    gasLimit?: string;
+    /** @description Maximum total fee per gas unit (base fee + priority fee) in wei. Omit to auto-estimate. */
+    maxFeePerGas?: string;
+    /** @description Maximum priority fee (tip) per gas unit in wei. Omit to auto-estimate. */
+    maxPriorityFeePerGas?: string;
+    /** @description Unix timestamp in seconds for EIP-712 execution deadline. Only used when sponsor=true. */
+    deadline?: string;
+    /** @description The gas station delegate contract nonce. Only used when sponsor=true. Omit to auto-fetch. */
+    gasStationNonce?: string;
+    /** @description Ordered list of calls to execute. Must contain between 1 and 50 entries. A single entry with sponsor=false uses EIP-1559; multiple entries use EIP-7702 batch execution via Gas Station. */
+    calls: definitions["v1EthCallParams"][];
+  };
   v1EthSendTransactionRequest: {
     /** @enum {string} */
-    type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION";
+    type: "ACTIVITY_TYPE_ETH_SEND_TRANSACTION_V2";
     /** @description Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
     timestampMs: string;
     /** @description Unique identifier for a given Organization. */
     organizationId: string;
-    parameters: definitions["v1EthSendTransactionIntent"];
+    parameters: definitions["v1EthSendTransactionIntentV2"];
     generateAppProofs?: boolean;
   };
   v1EthSendTransactionResult: {
+    /** @description The send_transaction_status ID associated with the transaction submission */
+    sendTransactionStatusId: string;
+  };
+  v1EthSendTransactionResultV2: {
     /** @description The send_transaction_status ID associated with the transaction submission */
     sendTransactionStatusId: string;
   };
@@ -2911,7 +2965,9 @@ export type definitions = {
       | "eip155:8453"
       | "eip155:84532"
       | "eip155:137"
-      | "eip155:80002";
+      | "eip155:80002"
+      | "eip155:56"
+      | "eip155:97";
     /** @description Whether to fetch the standard on-chain nonce. */
     nonce?: boolean;
     /** @description Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -3203,6 +3259,12 @@ export type definitions = {
       | "eip155:84532"
       | "eip155:137"
       | "eip155:80002"
+      | "eip155:42161"
+      | "eip155:4217"
+      | "eip155:42431"
+      | "eip155:421614"
+      | "eip155:56"
+      | "eip155:97"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
@@ -3760,6 +3822,7 @@ export type definitions = {
     sparkClaimTransferIntent?: definitions["v1SparkClaimTransferIntent"];
     sparkPrepareLightningReceiveIntent?: definitions["v1SparkPrepareLightningReceiveIntent"];
     postTvcQuorumKeyShareIntent?: definitions["v1PostTvcQuorumKeyShareIntent"];
+    ethSendTransactionIntentV2?: definitions["v1EthSendTransactionIntentV2"];
   };
   v1Invitation: {
     /** @description Unique identifier for a given Invitation object. */
@@ -3858,6 +3921,12 @@ export type definitions = {
       | "eip155:84532"
       | "eip155:137"
       | "eip155:80002"
+      | "eip155:42161"
+      | "eip155:4217"
+      | "eip155:42431"
+      | "eip155:421614"
+      | "eip155:56"
+      | "eip155:97"
       | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
       | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
   };
@@ -4457,6 +4526,7 @@ export type definitions = {
     sparkClaimTransferResult?: definitions["v1SparkClaimTransferResult"];
     sparkPrepareLightningReceiveResult?: definitions["v1SparkPrepareLightningReceiveResult"];
     postTvcQuorumKeyShareResult?: definitions["v1PostTvcQuorumKeyShareResult"];
+    ethSendTransactionResultV2?: definitions["v1EthSendTransactionResultV2"];
   };
   v1RevertChainEntry: {
     /** @description The contract address where the revert occurred. */
@@ -5060,6 +5130,8 @@ export type definitions = {
     liveDeploymentId?: string;
     /** @description The public domain for ingress to this TVC App (in the format "app-<ID>.turnkey.cloud"). */
     publicDomain: string;
+    /** @description Whether this app permits debug-mode deployments. Set at app creation via CreateTvcAppIntent.enable_debug_mode_deployments and never updated thereafter. Debug-mode deployments expose logs and emit zero'd attestation PCRs, so remote attestation cannot succeed. The app's quorum key is therefore considered permanently insecure once enabled — a new app with a fresh quorum key must be created to return to a secure posture. */
+    enableDebugModeDeployments: boolean;
   };
   v1TvcContainerSpec: {
     /** @description The URL for this container image. */
@@ -5257,6 +5329,8 @@ export type definitions = {
     verificationTokenRequiredForGetAccountPii?: boolean;
     /** @description Whitelisted OAuth client IDs for social account linking. When a user authenticates via a social provider with an email matching an existing account, the accounts will be linked if the client ID is in this list and the issuer is considered a trusted provider. */
     socialLinkingClientIds?: string[];
+    /** @description Whether captcha verification is required on sign up & otp init. */
+    captchaEnabled?: boolean;
   };
   v1UpdateAuthProxyConfigResult: {
     /** @description Unique identifier for a given User. (representing the turnkey signer user id) */
@@ -5794,6 +5868,8 @@ export type definitions = {
     publicKey?: string;
     /** @description Wallet details for this account. This is only present when include_wallet_details=true. */
     walletDetails?: definitions["v1Wallet"];
+    /** @description Human-readable name for this Wallet Account, unique within the organization. */
+    name?: string;
   };
   v1WalletAccountParams: {
     /** @description Cryptographic curve used to generate a wallet Account. */
@@ -5804,6 +5880,8 @@ export type definitions = {
     path: string;
     /** @description Address format used to generate a wallet Acccount. */
     addressFormat: definitions["v1AddressFormat"];
+    /** @description Optional human-readable name for the account. */
+    name?: string;
   };
   v1WalletKitSettingsParams: {
     /**
@@ -6359,7 +6437,7 @@ export type operations = {
       };
     };
   };
-  /** Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access. */
+  /** Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. */
   PublicApiService_GetWalletAddressBalances: {
     parameters: {
       body: {
@@ -6539,7 +6617,7 @@ export type operations = {
       };
     };
   };
-  /** List supported assets for the specified network. This feature is in beta - please contact support for access. */
+  /** List supported assets for the specified network. */
   PublicApiService_ListSupportedAssets: {
     parameters: {
       body: {
