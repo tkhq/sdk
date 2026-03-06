@@ -44,6 +44,7 @@ import {
   type FetchWalletsParams,
   type GetSessionParams,
   type InitOtpParams,
+  type InitOtpResult,
   type LoginWithOauthParams,
   type LoginWithOtpParams,
   type LoginWithPasskeyParams,
@@ -858,7 +859,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   );
 
   const initOtp = useCallback(
-    async (params: InitOtpParams): Promise<string> => {
+    async (params: InitOtpParams): Promise<InitOtpResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",

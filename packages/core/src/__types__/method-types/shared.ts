@@ -112,10 +112,15 @@ export type InitOtpParams = {
   contact: string;
 };
 
+export type InitOtpResult = {
+  otpId: string;
+  otpEncryptionTargetBundle: string;
+};
+
 export type VerifyOtpParams = {
   otpId: string;
   otpCode: string;
-  publicKey?: string;
+  otpEncryptionTargetBundle: string;
 
   // TODO (breaking change): we should be able to remove these and make verifyOtp()
   // purely about verifying and not also finding an `organizationId`. That should
@@ -150,6 +155,7 @@ export type SignUpWithOtpParams = {
 export type CompleteOtpParams = {
   otpId: string;
   otpCode: string;
+  otpEncryptionTargetBundle: string;
   contact: string;
   otpType: OtpType;
   publicKey?: string;

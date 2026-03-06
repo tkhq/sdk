@@ -29,6 +29,7 @@ export type {
   ImportPrivateKeyParams,
   ImportWalletParams,
   InitOtpParams,
+  InitOtpResult,
   LoginOrSignupWithWalletParams,
   LoginWithOauthParams,
   LoginWithOtpParams,
