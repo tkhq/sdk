@@ -61,6 +61,7 @@ export type SignUpWithPasskeyParams = {
   passkeyDisplayName?: string;
   expirationSeconds?: string;
   challenge?: string;
+  captchaToken?: string;
 
   // TODO: (breaking change): remove organizationId from here, there is literally
   // no reason to have it
@@ -97,6 +98,7 @@ export type SignUpWithWalletParams = {
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
   expirationSeconds?: string;
+  captchaToken?: string;
 };
 
 export type LoginOrSignupWithWalletParams = {
@@ -105,11 +107,13 @@ export type LoginOrSignupWithWalletParams = {
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
   expirationSeconds?: string;
+  captchaToken?: string;
 };
 
 export type InitOtpParams = {
   otpType: OtpType;
   contact: string;
+  captchaToken?: string;
 };
 
 export type VerifyOtpParams = {
@@ -145,6 +149,7 @@ export type SignUpWithOtpParams = {
   invalidateExisting?: boolean;
   publicKey?: string;
   sessionKey?: string;
+  captchaToken?: string;
 };
 
 export type CompleteOtpParams = {
@@ -156,6 +161,7 @@ export type CompleteOtpParams = {
   invalidateExisting?: boolean;
   sessionKey?: string;
   createSubOrgParams?: CreateSubOrgParams;
+  captchaToken?: string;
 };
 
 export type CompleteOauthParams = {
@@ -165,6 +171,7 @@ export type CompleteOauthParams = {
   sessionKey?: string;
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
+  captchaToken?: string;
 };
 
 export type LoginWithOauthParams = {
@@ -182,6 +189,7 @@ export type SignUpWithOauthParams = {
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
+  captchaToken?: string;
 };
 
 export type FetchWalletsParams = {

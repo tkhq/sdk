@@ -27,6 +27,8 @@ import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ClientState } from "../../types/base";
 import { isWalletConnect } from "../../utils/utils";
+import { Turnstile } from "@marsidev/react-turnstile";
+import { useRef } from "react";
 
 type AuthComponentProps = {
   sessionKey?: string | undefined;
@@ -57,6 +59,8 @@ export function AuthComponent({
   } = useTurnkey();
   const { pushPage, isMobile, openSheet } = useModal();
 
+  const turnstileToken = useRef<string | null>(null);
+
   if (!config || clientState === ClientState.Loading) {
     // Don't check ClientState.Error here. We already check in the modal root
     return (
@@ -70,7 +74,11 @@ export function AuthComponent({
 
   const handleEmailSubmit = async (email: string) => {
     try {
-      const otpId = await initOtp({ otpType: OtpType.Email, contact: email });
+      const otpId = await initOtp({
+        otpType: OtpType.Email,
+        contact: email,
+        ...(turnstileToken.current && { captchaToken: turnstileToken.current }),
+      });
       pushPage({
         key: "Verify OTP",
         content: (
@@ -85,6 +93,9 @@ export function AuthComponent({
             }
             alphanumeric={config.auth?.otpAlphanumeric}
             {...(sessionKey && { sessionKey })}
+            {...(turnstileToken.current && {
+              turnstileToken: turnstileToken.current,
+            })}
           />
         ),
         showTitle: false,
@@ -99,6 +110,7 @@ export function AuthComponent({
       const otpId = await initOtp({
         otpType: OtpType.Sms,
         contact: phone,
+        ...(turnstileToken.current && { captchaToken: turnstileToken.current }),
       });
       pushPage({
         key: "Verify OTP",
@@ -116,6 +128,9 @@ export function AuthComponent({
             }
             alphanumeric={config.auth?.otpAlphanumeric}
             {...(sessionKey && { sessionKey })}
+            {...(turnstileToken.current && {
+              turnstileToken: turnstileToken.current,
+            })}
           />
         ),
         showTitle: false,
@@ -152,6 +167,9 @@ export function AuthComponent({
           action={async () => {
             await signUpWithPasskey({
               ...(sessionKey && { sessionKey: sessionKey }),
+              ...(turnstileToken.current && {
+                captchaToken: turnstileToken.current,
+              }),
             });
           }}
           icon={<FontAwesomeIcon size="3x" icon={faFingerprint} />}
@@ -173,6 +191,9 @@ export function AuthComponent({
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(turnstileToken.current && {
+                captchaToken: turnstileToken.current,
+              }),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
@@ -194,6 +215,9 @@ export function AuthComponent({
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(turnstileToken.current && {
+                captchaToken: turnstileToken.current,
+              }),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faApple} />}
@@ -215,6 +239,9 @@ export function AuthComponent({
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(turnstileToken.current && {
+                captchaToken: turnstileToken.current,
+              }),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
@@ -236,6 +263,9 @@ export function AuthComponent({
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(turnstileToken.current && {
+                captchaToken: turnstileToken.current,
+              }),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faXTwitter} />}
@@ -257,6 +287,9 @@ export function AuthComponent({
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(turnstileToken.current && {
+                captchaToken: turnstileToken.current,
+              }),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faDiscord} />}
@@ -276,6 +309,9 @@ export function AuthComponent({
             await loginOrSignupWithWallet({
               walletProvider: provider,
               ...(sessionKey && { sessionKey: sessionKey }),
+              ...(turnstileToken.current && {
+                captchaToken: turnstileToken.current,
+              }),
             });
           }}
           icon={
@@ -304,6 +340,9 @@ export function AuthComponent({
               await loginOrSignupWithWallet({
                 walletProvider: provider,
                 ...(sessionKey && { sessionKey: sessionKey }),
+                ...(turnstileToken.current && {
+                  captchaToken: turnstileToken.current,
+                }),
               });
             }}
             onDisconnect={async (provider) => {
@@ -490,6 +529,21 @@ export function AuthComponent({
           ]}
           // Users should never see this message ever. We should give a reward for anyone who does see this.
           userMessages={["You touched fuzzy.... and got dizzy."]}
+        />
+      )}
+
+      {config.turnstileSiteKey && (
+        <Turnstile
+          siteKey={config.turnstileSiteKey}
+          onSuccess={(token) => {
+            turnstileToken.current = token;
+          }}
+          onError={() => {
+            turnstileToken.current = null;
+          }}
+          onExpire={() => {
+            turnstileToken.current = null;
+          }}
         />
       )}
 

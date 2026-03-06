@@ -253,6 +253,8 @@ export interface OAuthResponseResult {
   oauthIntent?: string | null;
   /** Nonce from state */
   nonce?: string | null;
+  /** Captcha token from state (encoded before redirect) */
+  captchaToken?: string | null;
 }
 
 /**
@@ -314,6 +316,7 @@ export function parseOAuthResponse(
     sessionKey,
     oauthIntent,
     nonce,
+    captchaToken,
   } = parseStateParam(stateString);
 
   // If we have an expected provider (popup flow), validate it matches
@@ -343,6 +346,7 @@ export function parseOAuthResponse(
     sessionKey: sessionKey ?? undefined,
     oauthIntent: oauthIntent ?? null,
     nonce: nonce ?? null,
+    captchaToken: captchaToken ?? null,
   };
 }
 
@@ -435,6 +439,8 @@ export interface OAuthCompletionParams {
   oidcToken: string;
   /** Optional session key from the state parameter */
   sessionKey?: string | undefined;
+  /** Optional captcha token for bot detection */
+  captchaToken?: string | undefined;
   /** Optional callbacks for custom handling */
   callbacks?: TurnkeyCallbacks | undefined;
   /** Function to complete the OAuth authentication flow */
@@ -443,6 +449,7 @@ export interface OAuthCompletionParams {
     publicKey: string;
     providerName: string;
     sessionKey?: string;
+    captchaToken?: string;
   }) => Promise<BaseAuthResult & { action: AuthAction }>;
   /** Optional callback when OAuth succeeds (alternative to completeOauth) */
   onOauthSuccess?:
@@ -472,6 +479,7 @@ export async function completeOAuthFlow(
     publicKey,
     oidcToken,
     sessionKey,
+    captchaToken,
     callbacks,
     completeOauth,
     onOauthSuccess,
@@ -499,6 +507,7 @@ export async function completeOAuthFlow(
       publicKey,
       providerName: provider,
       ...(sessionKey && { sessionKey }),
+      ...(captchaToken && { captchaToken }),
     });
   }
 }
@@ -518,6 +527,8 @@ export interface PKCEFlowParams {
   providerName: PKCEProvider;
   /** Optional session key from the state parameter */
   sessionKey?: string | undefined;
+  /** Optional captcha token for bot detection */
+  captchaToken?: string | undefined;
   /** Optional callbacks for custom handling */
   callbacks?: TurnkeyCallbacks | undefined;
   /** Function to complete the OAuth flow */
@@ -526,6 +537,7 @@ export interface PKCEFlowParams {
     publicKey: string;
     providerName: string;
     sessionKey?: string;
+    captchaToken?: string;
   }) => Promise<BaseAuthResult & { action: AuthAction }>;
   /** Optional callback when OAuth succeeds (used in popup flow) */
   onOauthSuccess?:
@@ -636,6 +648,7 @@ export async function handlePKCEFlow({
   publicKey,
   providerName,
   sessionKey,
+  captchaToken,
   callbacks,
   completeOauth,
   onOauthSuccess,
@@ -654,6 +667,7 @@ export async function handlePKCEFlow({
     publicKey,
     oidcToken,
     sessionKey,
+    captchaToken,
     callbacks,
     completeOauth,
     onOauthSuccess,
@@ -829,12 +843,15 @@ export interface OAuthPopupCompletionParams {
   provider: OAuthProviders;
   publicKey: string;
   result: OAuthResponseResult;
+  /** Optional captcha token for bot detection */
+  captchaToken?: string | undefined;
   callbacks?: TurnkeyCallbacks | undefined;
   completeOauth: (params: {
     oidcToken: string;
     publicKey: string;
     providerName: string;
     sessionKey?: string;
+    captchaToken?: string;
   }) => Promise<BaseAuthResult & { action: AuthAction }>;
   onOauthSuccess?:
     | ((params: {
@@ -858,6 +875,7 @@ export async function completeOAuthPopup(
     provider,
     publicKey,
     result,
+    captchaToken,
     callbacks,
     completeOauth,
     onOauthSuccess,
@@ -879,6 +897,7 @@ export async function completeOAuthPopup(
       publicKey,
       providerName: provider as PKCEProvider,
       sessionKey: result.sessionKey,
+      captchaToken,
       callbacks,
       completeOauth,
       onOauthSuccess,
@@ -891,6 +910,7 @@ export async function completeOAuthPopup(
       publicKey,
       oidcToken: result.idToken!,
       sessionKey: result.sessionKey,
+      captchaToken,
       callbacks,
       completeOauth,
       onOauthSuccess,

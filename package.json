@@ -67,6 +67,7 @@
       "@confio/ics23@0.6.8>protobufjs": ">=7.2.5",
       "protobufjs@>=6.10.0 <7.2.5": ">=7.2.5",
       "@babel/traverse": ">=7.23.2",
+      "@types/react": "^18.3.24",
       "follow-redirects": ">=1.15.4",
       "web3": ">=4.2.1",
       "web3-core": ">=4.2.1",

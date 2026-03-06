@@ -438,7 +438,6 @@ function QRCodeDisplay(props: QRCodeDisplayProps) {
 
   return (
     <div className="relative inline-block">
-      {/* @ts-expect-error: qrcode.react uses a different React type version */}
       <QRCode
         className={clsx(
           "block border border-modal-background-dark/20 dark:border-modal-background-light/20",
