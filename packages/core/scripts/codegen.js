@@ -88,10 +88,15 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1InitOtpIntentV3",
     "v1InitOtpResultV2",
   ],
-  ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS: [
-    "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
-    "v1CreateOauthProvidersIntent",
-    "v1CreateOauthProvidersResult",
+  ACTIVITY_TYPE_VERIFY_OTP: [
+    "ACTIVITY_TYPE_VERIFY_OTP_V2",
+    "v1VerifyOtpIntentV2",
+    "v1VerifyOtpResult",
+  ],
+  ACTIVITY_TYPE_OTP_LOGIN: [
+    "ACTIVITY_TYPE_OTP_LOGIN_V2",
+    "v1OtpLoginIntentV2",
+    "v1OtpLoginResult",
   ],
 };
 
@@ -547,15 +552,7 @@ const generateSDKClientFromSwagger = async (
         );
       }
 
-      // If this activity type is capped at a specific version via VERSIONED_ACTIVITY_TYPES,
-      // use the capped result type name instead of the latest from swagger
-      const cappedResultType =
-        VERSIONED_ACTIVITY_TYPES[unversionedActivityType]?.[2];
-      const versionedMethodName = cappedResultType
-        ? cappedResultType
-            .replace(/^v\d+/, "")
-            .replace(/^./, (c) => c.toLowerCase())
-        : latestVersions[resultKey].formattedKeyName;
+      const versionedMethodName = latestVersions[resultKey].formattedKeyName;
 
       codeBuffer.push(
         `\n\t${methodName} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<SdkTypes.${responseType}> => {
