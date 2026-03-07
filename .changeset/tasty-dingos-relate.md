@@ -67,19 +67,25 @@ The high-level `completeOtp()` method handles encryption and signing internally.
 const { otpId } = await client.initOtp({ otpType, contact });
 
 // After — response now includes the encryption target bundle
-const { otpId, otpEncryptionTargetBundle } = await client.initOtp({ otpType, contact });
+const { otpId, otpEncryptionTargetBundle } = await client.initOtp({
+  otpType,
+  contact,
+});
 ```
 
 #### Step 2: Encrypt & verify OTP (replaces plaintext submission)
 
 ```typescript
 import { encryptToEnclave, generateP256KeyPair } from "@turnkey/crypto";
-import { uint8ArrayToHexString, uint8ArrayFromHexString } from "@turnkey/encoding";
+import {
+  uint8ArrayToHexString,
+  uint8ArrayFromHexString,
+} from "@turnkey/encoding";
 
 // Parse the encryption target bundle
 const targetBundle = JSON.parse(otpEncryptionTargetBundle);
 const targetData = JSON.parse(
-  new TextDecoder().decode(uint8ArrayFromHexString(targetBundle.data))
+  new TextDecoder().decode(uint8ArrayFromHexString(targetBundle.data)),
 );
 
 // Encrypt OTP code + your session public key to the enclave
@@ -88,10 +94,16 @@ const encrypted = await encryptToEnclave(targetData.targetPublic, payload);
 const encryptedOtpBundle = uint8ArrayToHexString(encrypted);
 
 // Before
-const { verificationToken } = await client.verifyOtp({ otpId, otpCode: "123456" });
+const { verificationToken } = await client.verifyOtp({
+  otpId,
+  otpCode: "123456",
+});
 
 // After
-const { verificationToken } = await client.verifyOtp({ otpId, encryptedOtpBundle });
+const { verificationToken } = await client.verifyOtp({
+  otpId,
+  encryptedOtpBundle,
+});
 ```
 
 #### Step 3: Build client signature & login (signature now required)
@@ -101,10 +113,11 @@ import { getClientSignatureMessageForLogin } from "@turnkey/core";
 import { sha256 } from "@noble/hashes/sha256";
 import { p256 } from "@noble/curves/p256";
 
-const { message, publicKey: signingPublicKey } = getClientSignatureMessageForLogin({
-  verificationToken,
-  sessionPublicKey: publicKey,
-});
+const { message, publicKey: signingPublicKey } =
+  getClientSignatureMessageForLogin({
+    verificationToken,
+    sessionPublicKey: publicKey,
+  });
 
 const messageHash = sha256(new TextEncoder().encode(message));
 const signature = p256.sign(messageHash, uint8ArrayFromHexString(privateKey));
@@ -147,7 +160,12 @@ await server.verifyOtp({ otpId, encryptedOtpBundle });
 // Before
 await server.otpLogin({ suborgID, verificationToken, publicKey });
 // After
-await server.otpLogin({ suborgID, verificationToken, publicKey, clientSignature });
+await server.otpLogin({
+  suborgID,
+  verificationToken,
+  publicKey,
+  clientSignature,
+});
 ```
 
 ### If you use `@turnkey/sdk-browser`
