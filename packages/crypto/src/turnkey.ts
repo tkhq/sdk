@@ -234,7 +234,7 @@ export const verifyStampSignature = async (
  * @param {Environment} dangerouslyOverrideSignerPublicKey - (optional) an enum (PROD or PREPROD) to verify against the correct signer enclave key.
  * @returns {Promise<boolean>} - Returns true if the signature is valid, otherwise throws an error.
  */
-const verifyEnclaveSignature = async (
+export const verifyEnclaveSignature = async (
   enclaveQuorumPublic: string,
   publicSignature: string,
   signedData: string,
