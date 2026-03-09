@@ -121,6 +121,7 @@ export type VerifyOtpParams = {
   otpId: string;
   otpCode: string;
   otpEncryptionTargetBundle: string;
+  publicKey?: string;
 
   // TODO (breaking change): we should be able to remove these and make verifyOtp()
   // purely about verifying and not also finding an `organizationId`. That should
@@ -132,6 +133,7 @@ export type VerifyOtpParams = {
 export type VerifyOtpResult = {
   subOrganizationId: string | undefined;
   verificationToken: string;
+  publicKey: string;
 };
 
 export type LoginWithOtpParams = {

@@ -1274,14 +1274,28 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is an error during the OTP verification process, such as an invalid code or network failure.
    */
   verifyOtp = async (params: VerifyOtpParams): Promise<VerifyOtpResult> => {
-    const { otpId, otpCode, otpEncryptionTargetBundle, contact, otpType } =
-      params;
+    const {
+      otpId,
+      otpCode,
+      otpEncryptionTargetBundle,
+      contact,
+      otpType,
+      publicKey = await this.apiKeyStamper?.createKeyPair(),
+    } = params;
+
+    if (!publicKey) {
+      throw new TurnkeyError(
+        "No public key available. Either pass a publicKey or ensure apiKeyStamper is configured.",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
 
     return withTurnkeyErrorHandling(
       async () => {
         const encryptedOtpBundle = await encryptOtpCode(
           otpCode,
           otpEncryptionTargetBundle,
+          publicKey,
         );
 
         const verifyOtpRes = await this.httpClient.proxyVerifyOtpV2({
@@ -1312,6 +1326,7 @@ export class TurnkeyClient {
         return {
           subOrganizationId: subOrganizationId,
           verificationToken: verifyOtpRes.verificationToken,
+          publicKey,
         };
       },
       {
