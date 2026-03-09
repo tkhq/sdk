@@ -78,10 +78,11 @@ import {
 } from "./turnkey-helpers";
 import {
   fromDerSignature,
-  generateP256KeyPair,
   hpkeEncrypt,
   formatHpkeBuf,
   uncompressRawPublicKey,
+  verifyEnclaveSignature,
+  PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
 } from "@turnkey/crypto";
 import {
   decodeBase64urlToString,
@@ -1491,18 +1492,33 @@ export const withTimeoutFallback = <T>(
  *
  * @param otpCode - The OTP code entered by the user.
  * @param otpEncryptionTargetBundle - The signed target encryption bundle returned from initOtp.
- * @param publicKey - Optional compressed hex public key to embed. If not provided, an ephemeral key pair is generated.
+ * @param publicKey - Compressed hex public key to embed in the encrypted bundle.
+ * @param dangerouslyOverrideTlsFetcherSignPublicKey - Optional override for the TLS fetcher signing key used to verify the bundle signature. Only use in test/preprod environments.
  * @returns A promise resolving to the encrypted OTP bundle string.
  */
 export async function encryptOtpCode(
   otpCode: string,
   otpEncryptionTargetBundle: string,
-  publicKey?: string,
+  publicKey: string,
+  dangerouslyOverrideTlsFetcherSignPublicKey?: string,
 ): Promise<string> {
-  const clientPublicKey = publicKey ?? generateP256KeyPair().publicKey;
-
-  // Parse the signed target bundle to extract the enclave's target public key
+  // Parse the signed target bundle and verify its signature before trusting targetPublic
   const parsedBundle = JSON.parse(otpEncryptionTargetBundle);
+
+  const verified = await verifyEnclaveSignature(
+    parsedBundle.enclaveQuorumPublic,
+    parsedBundle.dataSignature,
+    parsedBundle.data,
+    dangerouslyOverrideTlsFetcherSignPublicKey ??
+      PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
+  );
+  if (!verified) {
+    throw new TurnkeyError(
+      "OTP encryption target bundle signature verification failed",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+
   const signedData = JSON.parse(
     new TextDecoder().decode(uint8ArrayFromHexString(parsedBundle.data)),
   );
@@ -1510,7 +1526,7 @@ export async function encryptOtpCode(
 
   // Construct the plaintext: OTP code + client public key
   const plainTextBuf = new TextEncoder().encode(
-    JSON.stringify({ otp_code: otpCode, public_key: clientPublicKey }),
+    JSON.stringify({ otp_code: otpCode, public_key: publicKey }),
   );
 
   // HPKE encrypt the plaintext to the enclave's target key
