@@ -17,6 +17,12 @@ The OTP flow is now encrypted end-to-end. OTP codes never leave the client unenc
 - `OtpLogin` now **requires** a `clientSignature` (previously optional)
 - `SecuritySettings` gains `socialLinkingClientIds`: OAuth client IDs whitelisted for social account linking
 
+Key lifecycle:
+
+- `loginWithOtp` no longer deletes caller-provided keys on failure — callers retain ownership
+- `verifyOtp`, `signUpWithOtp`, and `completeOtp` now track auto-generated keys separately and only clean them up on failure; caller-provided keys are never deleted
+- `verifyOtp` no longer leaks auto-generated keys when verification fails
+
 Activity type updates:
 
 - `ACTIVITY_TYPE_INIT_OTP_V2` → `ACTIVITY_TYPE_INIT_OTP_V3`
