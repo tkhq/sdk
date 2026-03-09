@@ -117,52 +117,131 @@ export type InitOtpResult = {
   otpEncryptionTargetBundle: string;
 };
 
+/**
+ * Parameters for verifying an OTP code.
+ *
+ * If `publicKey` is not provided, a new key pair is auto-generated via `apiKeyStamper`.
+ * The returned `publicKey` in {@link VerifyOtpResult} must be passed to
+ * `loginWithOtp` or `signUpWithOtp` to complete authentication, since the
+ * verification token is cryptographically bound to that key.
+ */
 export type VerifyOtpParams = {
+  /** ID of the OTP to verify (returned from `initOtp`). */
   otpId: string;
+  /** The OTP code entered by the user. */
   otpCode: string;
+  /** The encryption target bundle returned from `initOtp`. */
   otpEncryptionTargetBundle: string;
+  /**
+   * Optional public key to bind into the verification token.
+   * If not provided, a new key pair is auto-generated via `apiKeyStamper`.
+   * The same key must later be passed to `loginWithOtp` or `signUpWithOtp`.
+   * Auto-generated keys are cleaned up on failure; caller-provided keys are never deleted.
+   */
   publicKey?: string;
 
   // TODO (breaking change): we should be able to remove these and make verifyOtp()
   // purely about verifying and not also finding an `organizationId`. That should
   // be the responsibility of completeOtp()
+  /** Contact information for the user (email address or phone number). */
   contact: string;
+  /** Type of OTP being verified (OtpType.Email or OtpType.Sms). */
   otpType: OtpType;
 };
 
+/**
+ * Result of a successful OTP verification.
+ *
+ * The `publicKey` and `verificationToken` must both be forwarded to
+ * `loginWithOtp` or `signUpWithOtp` to complete the authentication flow.
+ * The verification token is cryptographically bound to `publicKey`.
+ */
 export type VerifyOtpResult = {
+  /** Sub-organization ID if the contact is already associated, or `undefined` if not. */
   subOrganizationId: string | undefined;
+  /** Verification token bound to `publicKey`. Pass to `loginWithOtp` or `signUpWithOtp`. */
   verificationToken: string;
+  /** The public key bound into the verification token. Must be passed to subsequent auth calls. */
   publicKey: string;
 };
 
+/**
+ * Parameters for logging in with an OTP verification token.
+ *
+ * This method does not auto-generate keys. Caller-provided keys are never
+ * deleted by this method — the caller retains ownership and cleanup responsibility.
+ */
 export type LoginWithOtpParams = {
+  /** Verification token received from `verifyOtp`. */
   verificationToken: string;
+  /**
+   * Optional session public key. If provided, the session is created for this key.
+   * If omitted, the verification token key is reused as the session key.
+   */
   publicKey?: string;
+  /** Optional organization ID to target. */
   organizationId?: string;
+  /** Whether to invalidate existing sessions for the user. */
   invalidateExisting?: boolean;
+  /** Session storage key (defaults to the default session key). */
   sessionKey?: string;
 };
 
+/**
+ * Parameters for signing up with an OTP verification token.
+ *
+ * If `publicKey` is not provided, a new key pair is auto-generated via `apiKeyStamper`.
+ * Auto-generated keys are cleaned up on failure; caller-provided keys are never deleted.
+ */
 export type SignUpWithOtpParams = {
+  /** Verification token received from `verifyOtp`. */
   verificationToken: string;
+  /** Contact information (email or phone number). */
   contact: string;
+  /** Type of OTP (OtpType.Email or OtpType.Sms). */
   otpType: OtpType;
+  /** Optional parameters for creating a sub-organization. */
   createSubOrgParams?: CreateSubOrgParams;
+  /** Whether to invalidate existing sessions for the user. */
   invalidateExisting?: boolean;
+  /**
+   * Optional public key for the session. If not provided, a key pair is
+   * auto-generated via `apiKeyStamper`. Auto-generated keys are cleaned up
+   * on failure; caller-provided keys are never deleted.
+   */
   publicKey?: string;
+  /** Session storage key (defaults to the default session key). */
   sessionKey?: string;
 };
 
+/**
+ * Parameters for the complete OTP flow (verify + login or signup).
+ *
+ * If `publicKey` is not provided, a new key pair is auto-generated via `apiKeyStamper`.
+ * Auto-generated keys are cleaned up on failure; caller-provided keys are never deleted.
+ */
 export type CompleteOtpParams = {
+  /** OTP ID returned from `initOtp`. */
   otpId: string;
+  /** The OTP code entered by the user. */
   otpCode: string;
+  /** The encryption target bundle returned from `initOtp`. */
   otpEncryptionTargetBundle: string;
+  /** Contact information (email or phone number). */
   contact: string;
+  /** Type of OTP (OtpType.Email or OtpType.Sms). */
   otpType: OtpType;
+  /**
+   * Optional public key for authentication. If not provided, a key pair is
+   * auto-generated via `apiKeyStamper`. Auto-generated keys are cleaned up
+   * on failure; caller-provided keys are never deleted.
+   */
   publicKey?: string;
+  /** Whether to invalidate existing sessions for the user. */
   invalidateExisting?: boolean;
+  /** Session storage key (defaults to the default session key). */
   sessionKey?: string;
+  /** Optional parameters for sub-organization creation (used if signup is needed). */
   createSubOrgParams?: CreateSubOrgParams;
 };
 

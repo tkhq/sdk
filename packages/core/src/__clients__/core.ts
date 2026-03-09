@@ -1274,14 +1274,15 @@ export class TurnkeyClient {
    * @throws {TurnkeyError} If there is an error during the OTP verification process, such as an invalid code or network failure.
    */
   verifyOtp = async (params: VerifyOtpParams): Promise<VerifyOtpResult> => {
-    const {
-      otpId,
-      otpCode,
-      otpEncryptionTargetBundle,
-      contact,
-      otpType,
-      publicKey = await this.apiKeyStamper?.createKeyPair(),
-    } = params;
+    const { otpId, otpCode, otpEncryptionTargetBundle, contact, otpType } =
+      params;
+
+    // Track auto-generated key separately so we only clean up keys we created,
+    // never caller-provided ones.
+    let generatedPublicKey: string | undefined = undefined;
+    const publicKey =
+      params.publicKey ??
+      (generatedPublicKey = await this.apiKeyStamper?.createKeyPair());
 
     if (!publicKey) {
       throw new TurnkeyError(
@@ -1323,6 +1324,10 @@ export class TurnkeyClient {
         }
 
         const subOrganizationId = accountRes.organizationId;
+
+        // Key successfully bound into the verification token; don't clean up.
+        generatedPublicKey = undefined;
+
         return {
           subOrganizationId: subOrganizationId,
           verificationToken: verifyOtpRes.verificationToken,
@@ -1337,6 +1342,21 @@ export class TurnkeyClient {
             message: "The provided OTP code is invalid.",
             code: TurnkeyErrorCodes.INVALID_OTP_CODE,
           },
+        },
+      },
+      {
+        finallyFn: async () => {
+          if (generatedPublicKey) {
+            try {
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
+            } catch (cleanupError) {
+              throw new TurnkeyError(
+                `Failed to clean up generated key pair`,
+                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+                cleanupError,
+              );
+            }
+          }
         },
       },
     );
@@ -1440,20 +1460,6 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to log in with OTP",
         errorCode: TurnkeyErrorCodes.OTP_LOGIN_ERROR,
-        catchFn: async () => {
-          // Clean up the generated key pair if it wasn't successfully used
-          if (publicKey) {
-            try {
-              await this.apiKeyStamper?.deleteKeyPair(publicKey);
-            } catch (cleanupError) {
-              throw new TurnkeyError(
-                `Failed to clean up generated key pair`,
-                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
-              );
-            }
-          }
-        },
       },
       {
         finallyFn: async () => {
@@ -1492,8 +1498,14 @@ export class TurnkeyClient {
       createSubOrgParams,
       invalidateExisting,
       sessionKey,
-      publicKey = await this.apiKeyStamper?.createKeyPair(),
     } = params;
+
+    // Track auto-generated key separately so we only clean up keys we created,
+    // never caller-provided ones.
+    let generatedPublicKey: string | undefined = undefined;
+    const publicKey =
+      params.publicKey ??
+      (generatedPublicKey = await this.apiKeyStamper?.createKeyPair());
 
     // build sign up body without client signature first
     const signUpBody = buildSignUpBody({
@@ -1561,17 +1573,25 @@ export class TurnkeyClient {
           ...(sessionKey && { sessionKey }),
         });
 
+        // Key pair was successfully used; clear so finallyFn won't delete it.
+        generatedPublicKey = undefined;
+
         return {
           ...otpRes,
           appProofs: signupRes.appProofs,
         };
       },
       {
-        catchFn: async () => {
-          // Clean up the generated key pair if it wasn't successfully used
-          if (publicKey) {
+        errorCode: TurnkeyErrorCodes.OTP_SIGNUP_ERROR,
+        errorMessage: "Failed to sign up with OTP",
+      },
+      {
+        finallyFn: async () => {
+          this.apiKeyStamper?.clearTemporaryPublicKey();
+          // Only clean up keys we auto-generated, never caller-provided ones.
+          if (generatedPublicKey) {
             try {
-              await this.apiKeyStamper?.deleteKeyPair(publicKey);
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
             } catch (cleanupError) {
               throw new TurnkeyError(
                 `Failed to clean up generated key pair`,
@@ -1580,13 +1600,6 @@ export class TurnkeyClient {
               );
             }
           }
-        },
-        errorCode: TurnkeyErrorCodes.OTP_SIGNUP_ERROR,
-        errorMessage: "Failed to sign up with OTP",
-      },
-      {
-        finallyFn: async () => {
-          this.apiKeyStamper?.clearTemporaryPublicKey();
         },
       },
     );
@@ -1628,11 +1641,17 @@ export class TurnkeyClient {
       otpEncryptionTargetBundle,
       contact,
       otpType,
-      publicKey = await this.apiKeyStamper?.createKeyPair(),
       invalidateExisting = false,
       sessionKey,
       createSubOrgParams,
     } = params;
+
+    // Track auto-generated key separately so we only clean up keys we created,
+    // never caller-provided ones.
+    let generatedPublicKey: string | undefined = undefined;
+    const publicKey =
+      params.publicKey ??
+      (generatedPublicKey = await this.apiKeyStamper?.createKeyPair());
 
     if (!publicKey) {
       throw new TurnkeyError(
@@ -1697,6 +1716,9 @@ export class TurnkeyClient {
             publicKey: publicKey!,
           });
 
+          // Key was successfully used for signup; don't clean up.
+          generatedPublicKey = undefined;
+
           return {
             ...signUpRes,
             verificationToken,
@@ -1710,6 +1732,9 @@ export class TurnkeyClient {
             ...(sessionKey && { sessionKey }),
           });
 
+          // Key was successfully used for login; don't clean up.
+          generatedPublicKey = undefined;
+
           return {
             ...loginRes,
             verificationToken,
@@ -1720,6 +1745,22 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to complete OTP process",
         errorCode: TurnkeyErrorCodes.OTP_COMPLETION_ERROR,
+      },
+      {
+        finallyFn: async () => {
+          // Only clean up keys we auto-generated, never caller-provided ones.
+          if (generatedPublicKey) {
+            try {
+              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
+            } catch (cleanupError) {
+              throw new TurnkeyError(
+                `Failed to clean up generated key pair`,
+                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
+                cleanupError,
+              );
+            }
+          }
+        },
       },
     );
   };
