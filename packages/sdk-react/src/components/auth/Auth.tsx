@@ -114,6 +114,7 @@ const Auth: React.FC<AuthProps> = ({
   const [email, setEmail] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [otpId, setOtpId] = useState<string | null>(null);
+  const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] = useState<string | null>(null);
   const [step, setStep] = useState<string>("auth");
   const [loading, setLoading] = useState<string | undefined>();
   const [oauthLoading, setOauthLoading] = useState<string>("");

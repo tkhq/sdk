@@ -1346,13 +1346,13 @@ export class TurnkeyClient {
    * Logs in a user using an OTP verification token.
    *
    * - This function logs in a user using the verification token received after OTP verification (from email or SMS).
-   * - If a public key is not provided, a new API key pair will be generated for authentication.
+   * - The client signature is always produced using the private key bound into the verification token during `verifyOtp`.
+   * - If a `publicKey` is provided, it is used as the session key (the key the new session is created for). Otherwise, the verification token key is reused as the session key.
    * - Optionally invalidates any existing sessions for the user if `invalidateExisting` is set to true.
    * - Stores the resulting session token under the specified session key, or the default session key if not provided.
-   * - Handles cleanup of unused key pairs if login fails.
    *
    * @param params.verificationToken - verification token received after OTP verification.
-   * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
+   * @param params.publicKey - optional session public key. If not provided, the verification token key is used. The private key for the verification token key must be available in the apiKeyStamper.
    * @param params.organizationId - optional organization ID to target (defaults to the verified subOrg ID linked to the verification token contact).
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
@@ -1366,20 +1366,22 @@ export class TurnkeyClient {
     const {
       verificationToken,
       invalidateExisting = false,
-      publicKey = await this.apiKeyStamper?.createKeyPair(),
+      publicKey,
       organizationId,
       sessionKey = SessionKey.DefaultSessionkey,
     } = params;
 
     return withTurnkeyErrorHandling(
       async () => {
-        const { message, publicKey: clientSignaturePublicKey } =
+        const { message, publicKey: verificationPublicKey } =
           getClientSignatureMessageForLogin({
             verificationToken,
-            sessionPublicKey: publicKey!,
+            ...(publicKey && { sessionPublicKey: publicKey }),
           });
 
-        this.apiKeyStamper?.setTemporaryPublicKey(publicKey!);
+        // Sign with the verification token key — this is the key bound during
+        // verifyOtp and is what the server uses to verify the client signature.
+        this.apiKeyStamper?.setTemporaryPublicKey(verificationPublicKey);
         const signature = await this.apiKeyStamper?.sign(
           message,
           SignatureFormat.Raw,
@@ -1394,14 +1396,18 @@ export class TurnkeyClient {
 
         const clientSignature: v1ClientSignature = {
           message: message,
-          publicKey: clientSignaturePublicKey,
+          publicKey: verificationPublicKey,
           scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
           signature: signature,
         };
 
+        // publicKey is the desired session key; defaults to the verification
+        // token key when not provided (same key used for both signing and session).
+        const sessionPublicKey = publicKey || verificationPublicKey;
+
         const res = await this.httpClient.proxyOtpLoginV2({
           verificationToken,
-          publicKey: publicKey!,
+          publicKey: sessionPublicKey,
           clientSignature,
           invalidateExisting,
           ...(organizationId && { organizationId }),
@@ -1502,7 +1508,7 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const { message, publicKey: clientSignaturePublicKey } =
+        const { message, publicKey: verificationPublicKey } =
           getClientSignatureMessageForSignup({
             verificationToken,
             ...(signUpBody.userEmail && { email: signUpBody.userEmail }),
@@ -1514,7 +1520,9 @@ export class TurnkeyClient {
             oauthProviders: signUpBody.oauthProviders,
           });
 
-        this.apiKeyStamper?.setTemporaryPublicKey(publicKey!);
+        // Sign with the verification token key — this is the key bound during
+        // verifyOtp and is what the server uses to verify the client signature.
+        this.apiKeyStamper?.setTemporaryPublicKey(verificationPublicKey);
         const signature = await this.apiKeyStamper?.sign(
           message,
           SignatureFormat.Raw,
@@ -1529,7 +1537,7 @@ export class TurnkeyClient {
 
         const clientSignature: v1ClientSignature = {
           message: message,
-          publicKey: clientSignaturePublicKey,
+          publicKey: verificationPublicKey,
           scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
           signature: signature,
         };
@@ -1625,6 +1633,13 @@ export class TurnkeyClient {
       sessionKey,
       createSubOrgParams,
     } = params;
+
+    if (!publicKey) {
+      throw new TurnkeyError(
+        "No public key available. Either pass a publicKey or ensure apiKeyStamper is configured.",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
 
     return withTurnkeyErrorHandling(
       async () => {
