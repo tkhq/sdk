@@ -76,22 +76,15 @@ const { otpId, otpEncryptionTargetBundle } = await client.initOtp({
 #### Step 2: Encrypt & verify OTP (replaces plaintext submission)
 
 ```typescript
-import { encryptToEnclave, generateP256KeyPair } from "@turnkey/crypto";
-import {
-  uint8ArrayToHexString,
-  uint8ArrayFromHexString,
-} from "@turnkey/encoding";
+import { encryptOtpCode } from "@turnkey/core";
 
-// Parse the encryption target bundle
-const targetBundle = JSON.parse(otpEncryptionTargetBundle);
-const targetData = JSON.parse(
-  new TextDecoder().decode(uint8ArrayFromHexString(targetBundle.data)),
+// encryptOtpCode handles HPKE encryption, snake_case field formatting,
+// and verifies the bundle's enclave signature before trusting targetPublic.
+const encryptedOtpBundle = await encryptOtpCode(
+  otpCode,
+  otpEncryptionTargetBundle,
+  publicKey,
 );
-
-// Encrypt OTP code + your session public key to the enclave
-const payload = JSON.stringify({ otpCode: code.trim(), publicKey });
-const encrypted = await encryptToEnclave(targetData.targetPublic, payload);
-const encryptedOtpBundle = uint8ArrayToHexString(encrypted);
 
 // Before
 const { verificationToken } = await client.verifyOtp({
@@ -106,35 +99,19 @@ const { verificationToken } = await client.verifyOtp({
 });
 ```
 
-#### Step 3: Build client signature & login (signature now required)
+#### Step 3: Login (client signature is built internally)
 
 ```typescript
-import { getClientSignatureMessageForLogin } from "@turnkey/core";
-import { sha256 } from "@noble/hashes/sha256";
-import { p256 } from "@noble/curves/p256";
-
-const { message, publicKey: signingPublicKey } =
-  getClientSignatureMessageForLogin({
-    verificationToken,
-    sessionPublicKey: publicKey,
-  });
-
-const messageHash = sha256(new TextEncoder().encode(message));
-const signature = p256.sign(messageHash, uint8ArrayFromHexString(privateKey));
-
-const clientSignature = {
-  scheme: "CLIENT_SIGNATURE_SCHEME_API_P256" as const,
-  publicKey: signingPublicKey,
-  message,
-  signature: signature.toCompactHex(),
-};
-
 // Before
 await client.loginWithOtp({ verificationToken, publicKey });
 
-// After — clientSignature is required
-await client.loginWithOtp({ verificationToken, publicKey, clientSignature });
+// After — loginWithOtp now builds the clientSignature internally
+// using the verification token key for signing. Pass the same publicKey
+// that was encrypted into the OTP bundle during verifyOtp.
+await client.loginWithOtp({ verificationToken, publicKey });
 ```
+
+If `publicKey` is omitted, `loginWithOtp` reuses the verification token key as the session key.
 
 ### If you use `@turnkey/sdk-server`
 
