@@ -22,6 +22,7 @@ import { useDebouncedCallback } from "../../utils/utils";
 
 interface WalletAuthButtonProps {
   onContinue: () => Promise<void>;
+  disabled?: boolean;
 }
 export function WalletAuthButton(props: WalletAuthButtonProps) {
   const { onContinue } = props;
@@ -43,6 +44,7 @@ export function WalletAuthButton(props: WalletAuthButtonProps) {
         onClick={handleContinue}
         loading={isLoading}
         className="w-full text-inherit bg-button-light dark:bg-button-dark"
+        disabled={props.disabled ?? false}
       >
         Continue with wallet
       </ActionButton>

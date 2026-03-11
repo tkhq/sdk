@@ -207,6 +207,7 @@ import { OnRampPage } from "../../components/onramp/OnRamp";
 import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 import { getChainLogo } from "../../components/send-transaction/helpers";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 /**
  * @inline
@@ -259,6 +260,18 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const [authState, setAuthState] = useState<AuthState>(
     AuthState.Unauthenticated,
   );
+
+  // Turnstile state: pre-warm the challenge in the background
+  const turnstileTokenRef = useRef<string | null>(null);
+
+  const getTurnstileToken = useCallback(
+    () => turnstileTokenRef.current,
+    [],
+  );
+
+  const setTurnstileToken = useCallback((token: string | null) => {
+    turnstileTokenRef.current = token;
+  }, []);
 
   // if there is no authProxyConfigId or if autoFetchWalletKitConfig is specifically
   // set to false, we don't need to fetch the config
@@ -6066,8 +6079,30 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleOnRamp,
         handleSendTransaction,
         handleSendErc20Transfer,
+        getTurnstileToken,
+        setTurnstileToken,
       }}
     >
+      {masterConfig?.turnstileSiteKey &&
+        authState !== AuthState.Authenticated &&
+        !getTurnstileToken() && (
+          <Turnstile
+            siteKey={masterConfig.turnstileSiteKey}
+            onSuccess={(token) => {
+              setTurnstileToken(token);
+            }}
+            onError={() => {
+              setTurnstileToken(null);
+            }}
+            onExpire={() => {
+              setTurnstileToken(null);
+            }}
+            options={{
+              size: "invisible",
+              appearance: "execute",
+            }}
+          />
+        )}
       {children}
     </ClientContext.Provider>
   );

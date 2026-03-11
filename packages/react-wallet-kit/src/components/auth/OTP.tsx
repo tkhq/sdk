@@ -8,6 +8,8 @@ import { OtpType, TurnkeyError, TurnkeyErrorCodes } from "@turnkey/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faPhone } from "@fortawesome/free-solid-svg-icons";
 import clsx from "clsx";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { consumeCaptchaToken } from "../../utils/captcha";
 
 interface OtpVerificationProps {
   contact: string;
@@ -17,7 +19,6 @@ interface OtpVerificationProps {
   alphanumeric?: boolean | undefined; // Whether the OTP is alphanumeric or numeric only. Defaults to true (alphanumeric).
   formattedContact?: string; // Optional formatted contact for display purposes
   sessionKey?: string; // Optional sessionKey for multisession
-  turnstileToken?: string | null; // Optional Turnstile token for CAPTCHA verification
   onContinue?: (optCode: string) => Promise<void>; // Optional callback for continue action
 }
 export function OtpVerification(props: OtpVerificationProps) {
@@ -28,10 +29,9 @@ export function OtpVerification(props: OtpVerificationProps) {
     alphanumeric = true,
     formattedContact,
     sessionKey,
-    turnstileToken,
     onContinue = null, // Default to null if not provided
   } = props;
-  const { initOtp, completeOtp } = useTurnkey();
+  const { initOtp, completeOtp, config, getTurnstileToken, setTurnstileToken } = useTurnkey();
   const { closeModal, isMobile } = useModal();
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [resending, setResending] = useState<boolean>(false);
@@ -39,6 +39,12 @@ export function OtpVerification(props: OtpVerificationProps) {
   const [otpId, setOtpId] = useState<string>(props.otpId);
   const [error, setError] = useState<string | null>(null);
   const [shaking, setShaking] = useState(false);
+
+  const turnstileRef = useRef<TurnstileInstance>(null);
+  const [showTurnstilePrompt, setShowTurnstilePrompt] = useState(false);
+
+  const consumeToken = () =>
+    consumeCaptchaToken(getTurnstileToken, setTurnstileToken, turnstileRef);
 
   const shakeInput = () => {
     setShaking(true);
@@ -57,7 +63,7 @@ export function OtpVerification(props: OtpVerificationProps) {
           contact,
           otpType,
           ...(sessionKey && { sessionKey }),
-          ...(turnstileToken && { captchaToken: turnstileToken }), // Pass the Turnstile token if it exists
+          ...(await consumeToken()),
         });
         closeModal();
       }
@@ -80,8 +86,8 @@ export function OtpVerification(props: OtpVerificationProps) {
       const id = await initOtp({
         otpType,
         contact,
-        ...(turnstileToken && { captchaToken: turnstileToken }),
-      }); // Pass the Turnstile token if it exists
+        ...(await consumeToken()),
+      });
       setOtpId(id);
       setResent(true);
     } catch (error) {
@@ -94,7 +100,7 @@ export function OtpVerification(props: OtpVerificationProps) {
   return (
     <div
       className={clsx(
-        "flex items-center justify-center py-3",
+        "flex flex-col items-center justify-center py-3",
         isMobile ? "w-full" : "min-w-96",
       )}
     >
@@ -152,6 +158,37 @@ export function OtpVerification(props: OtpVerificationProps) {
       {submitting && (
         <div className="absolute flex w-full h-full justify-center items-center">
           <Spinner strokeWidth={1} className="size-1/2" />
+        </div>
+      )}
+      {config?.turnstileSiteKey && !submitting && (
+        <div className="mt-3 flex flex-col text-left w-full">
+          {showTurnstilePrompt && (
+            <p className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-sm mb-0.5">
+              Let us know you're human
+            </p>
+          )}
+          <Turnstile
+            ref={turnstileRef}
+            siteKey={config.turnstileSiteKey}
+            className="!w-full !block [&>iframe]:!w-full"
+            onSuccess={(token) => {
+              setTurnstileToken(token);
+            }}
+            onError={() => {
+              setTurnstileToken(null);
+            }}
+            onExpire={() => {
+              setTurnstileToken(null);
+            }}
+            onBeforeInteractive={() => {
+              setShowTurnstilePrompt(true);
+            }}
+            options={{
+              theme: config.ui?.darkMode ? "dark" : "light",
+              appearance: "interaction-only",
+              size: "flexible",
+            }}
+          />
         </div>
       )}
     </div>

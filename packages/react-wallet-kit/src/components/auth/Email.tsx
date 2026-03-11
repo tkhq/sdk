@@ -11,6 +11,7 @@ function isValidEmail(email: string): boolean {
 
 interface EmailInputProps {
   onContinue?: (email: string) => void;
+  disabled?: boolean;
 }
 
 export function EmailInput(props: EmailInputProps) {
@@ -39,7 +40,7 @@ export function EmailInput(props: EmailInputProps) {
     }
   };
 
-  const buttonDisabled = !emailIsValid;
+  const buttonDisabled = !emailIsValid || (props.disabled ?? false);
 
   const buttonClass = clsx(
     "transition-all duration-300",
