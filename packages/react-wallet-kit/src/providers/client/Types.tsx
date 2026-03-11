@@ -813,6 +813,11 @@ export interface ClientContextType
   handleSendErc20Transfer: (
     params: HandleSendErc20TransferParams,
   ) => Promise<void>;
+
+  /** @internal Get the current Turnstile captcha token */
+  getTurnstileToken: () => string | null;
+  /** @internal Set the Turnstile captcha token (used by the auth component when interactive challenge completes) */
+  setTurnstileToken: (token: string | null) => void;
 }
 
 /** @internal */
