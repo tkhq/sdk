@@ -17,6 +17,7 @@ import {
   type v1SignRawPayloadResult,
   type v1TransactionType,
   type ProxyTGetWalletKitConfigResponse,
+  type ProxyTGetWalletKitClientParamsResponse,
   type v1User,
   type v1CreatePolicyIntentV3,
   type VerificationToken,
@@ -982,6 +983,40 @@ export async function getAuthProxyConfig(
 
   const data = await response.json();
   return data as ProxyTGetWalletKitConfigResponse;
+}
+
+/**@internal */
+export async function getClientParams(
+  authProxyConfigId: string,
+  authProxyUrl?: string | undefined,
+): Promise<ProxyTGetWalletKitClientParamsResponse> {
+  const fullUrl =
+    (authProxyUrl ?? "https://authproxy.turnkey.com") +
+    "/v1/wallet_kit_client_params";
+
+  var headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    "X-Auth-Proxy-Config-ID": authProxyConfigId,
+  };
+
+  const response = await fetch(fullUrl, {
+    method: "POST",
+    headers: headers,
+  });
+
+  if (!response.ok) {
+    let res: GrpcStatus;
+    try {
+      res = await response.json();
+    } catch (_) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+
+    throw new TurnkeyRequestError(res);
+  }
+
+  const data = await response.json();
+  return data as ProxyTGetWalletKitClientParamsResponse;
 }
 
 /**
