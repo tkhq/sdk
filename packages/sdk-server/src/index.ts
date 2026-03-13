@@ -10,10 +10,7 @@ import {
   sealAndStampRequestBody,
   TurnkeyActivityError,
   TurnkeyApi,
-  TurnkeyRequestError,
-  type TSignedRequest,
-  type TActivity,
-  type TurnkeyApiTypes,
+  TurnkeyApiTypes,
 } from "@turnkey/http";
 
 import {
@@ -26,10 +23,11 @@ import type {
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
-  WalletAccount,
+  TSignedRequest,
+  TurnkeyRequestError,
 } from "./__types__/base";
 
-import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
+import type * as TurnkeySDKApiTypes from "@turnkey/sdk-types";
 
 import { fetch } from "./universal";
 import {
@@ -73,12 +71,10 @@ export const server = {
 
 // Types
 export type {
-  TActivity,
-  WalletAccount,
   TApiKeyStamperConfig,
   TSignedRequest,
-  TurnkeyApiTypes,
   TurnkeySDKApiTypes,
+  TurnkeyApiTypes,
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
@@ -160,6 +156,9 @@ export {
   DEFAULT_TON_V3R2_ACCOUNTS,
   defaultTonV4r2AccountAtIndex,
   DEFAULT_TON_V4R2_ACCOUNTS,
+  generateWalletAccountsFromAddressFormat,
+  createWalletAccountFromAddressFormat,
+  addressFormatConfig,
 } from "./turnkey-helpers";
 
 // Base Turnkey API
