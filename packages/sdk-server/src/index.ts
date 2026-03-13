@@ -10,6 +10,7 @@ import {
   sealAndStampRequestBody,
   TurnkeyActivityError,
   TurnkeyApi,
+  TurnkeyApiTypes,
 } from "@turnkey/http";
 
 import {
@@ -23,7 +24,7 @@ import type {
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
   TSignedRequest,
-  TurnkeyRequestError
+  TurnkeyRequestError,
 } from "./__types__/base";
 
 import type * as TurnkeySDKApiTypes from "@turnkey/sdk-types";
@@ -73,6 +74,7 @@ export type {
   TApiKeyStamperConfig,
   TSignedRequest,
   TurnkeySDKApiTypes,
+  TurnkeyApiTypes,
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
