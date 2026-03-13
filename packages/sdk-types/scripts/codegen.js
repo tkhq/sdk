@@ -135,7 +135,12 @@ const ONEOF_FIELDS = {
 function swaggerTypeToTs(type, schema) {
   if (type === "integer" || type === "number") return "number";
   if (type === "boolean") return "boolean";
-  if (type === "string") return "string";
+  if (type === "string") {
+    if (schema.enum) {
+      return schema.enum.map((e) => `"${e}"`).join(" | ");
+    }
+    return "string";
+  }
   if (type === "array") {
     if (schema.items) {
       if (schema.items.$ref) {

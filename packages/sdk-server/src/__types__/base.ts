@@ -6,7 +6,7 @@ import type {
   v1CreateOauthProvidersResult,
   v1EmailCustomizationParams,
   v1User,
-  v1WalletAccount,
+  v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 
 export type GrpcStatus = {
@@ -117,7 +117,7 @@ export type GetOrCreateSuborgRequest = {
     phoneNumber?: string;
     passkey?: Passkey;
     oauthProviders?: Provider[];
-    customAccounts?: v1WalletAccount[];
+    customAccounts?: v1WalletAccountParams[];
     wallet?: {
       publicKey: string;
       type: WalletType;
@@ -159,8 +159,7 @@ export type CreateOauthProvidersRequest = {
   oauthProviders: Provider[];
 };
 
-export type CreateOauthProvidersResponse =
-  v1CreateOauthProvidersResult
+export type CreateOauthProvidersResponse = v1CreateOauthProvidersResult;
 
 export type SendOtpRequest = {
   otpType: string;
@@ -226,7 +225,7 @@ export type CreateSuborgRequest = {
   email?: string | undefined;
   phoneNumber?: string | undefined;
   passkey?: Passkey | undefined;
-  customAccounts?: v1WalletAccount[] | undefined;
+  customAccounts?: v1WalletAccountParams[] | undefined;
   wallet?: {
     publicKey: string;
     type: WalletType;
