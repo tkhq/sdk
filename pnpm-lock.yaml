@@ -38,6 +38,7 @@ overrides:
   preact: '>=10.28.2'
   tar: '>=7.5.11'
   flatted: '>=3.4.0'
+  undici: '>=7.24.0'
   rollup@>=4.0.0 < 4.59.0: 4.59.0
   minimatch@>=10.0.0 <10.2.3: 10.2.3
   serialize-javascript@<=7.0.2: 7.0.3
@@ -5743,10 +5744,6 @@ packages:
       '@farcaster/frame-sdk': ^0.0.28
       '@wagmi/core': ^2.14.1
       viem: ^2.21.55
-
-  '@fastify/busboy@2.1.1':
-    resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
-    engines: {node: '>=14'}
 
   '@fivebinaries/coin-selection@3.0.0':
     resolution: {integrity: sha512-h25Pn1ZA7oqQBQDodGAgIsQt66T2wDge9onBKNqE66WNWL0KJiKJbpij8YOLo5AAlEIg5IS7EB1QjBgDOIg6DQ==}
@@ -15714,12 +15711,8 @@ packages:
   undici-types@7.15.0:
     resolution: {integrity: sha512-Xyn5T99wU4kPhLZMm+ElE6M+IoSeG8Se7eG9xoZ82ZgVHJ07wb/IWcDZeXe2GOPkavcJ8ko5oSlXMDRl/QgY9Q==}
 
-  undici@5.29.0:
-    resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
-    engines: {node: '>=14.0'}
-
-  undici@7.22.0:
-    resolution: {integrity: sha512-RqslV2Us5BrllB+JeiZnK4peryVTndy9Dnqq62S3yYRRTj0tFQCwEniUy2167skdGOy3vqRzEvl1Dm4sV2ReDg==}
+  undici@7.24.4:
+    resolution: {integrity: sha512-BM/JzwwaRXxrLdElV2Uo6cTLEjhSb3WXboncJamZ15NgUURmvlXvxa6xkwIOILIjPNo9i8ku136ZvWV0Uly8+w==}
     engines: {node: '>=20.18.1'}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
@@ -19661,8 +19654,6 @@ snapshots:
       '@farcaster/frame-sdk': 0.0.28(typescript@5.4.3)(zod@4.1.11)
       '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.2)(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
       viem: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
-
-  '@fastify/busboy@2.1.1': {}
 
   '@fivebinaries/coin-selection@3.0.0':
     dependencies:
@@ -32509,7 +32500,7 @@ snapshots:
       stacktrace-parser: 0.1.11
       tinyglobby: 0.2.15
       tsort: 0.0.1
-      undici: 5.29.0
+      undici: 7.24.4
       uuid: 8.3.2
       ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
     optionalDependencies:
@@ -37661,7 +37652,7 @@ snapshots:
       detect-europe-js: 0.1.2
       is-standalone-pwa: 0.1.1
       ua-is-frozen: 0.1.2
-      undici: 7.22.0
+      undici: 7.24.4
 
   uc.micro@2.1.0: {}
 
@@ -37701,11 +37692,7 @@ snapshots:
 
   undici-types@7.15.0: {}
 
-  undici@5.29.0:
-    dependencies:
-      '@fastify/busboy': 2.1.1
-
-  undici@7.22.0: {}
+  undici@7.24.4: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
