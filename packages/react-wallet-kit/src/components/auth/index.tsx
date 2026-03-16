@@ -27,6 +27,9 @@ import { useModal } from "../../providers/modal/Hook";
 import { useTurnkey } from "../../providers/client/Hook";
 import { ClientState } from "../../types/base";
 import { isWalletConnect } from "../../utils/utils";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { useRef, useState } from "react";
+import { consumeCaptchaToken } from "../../utils/captcha";
 
 type AuthComponentProps = {
   sessionKey?: string | undefined;
@@ -54,8 +57,21 @@ export function AuthComponent({
     signUpWithPasskey,
     loginOrSignupWithWallet,
     disconnectWalletAccount,
+    getTurnstileToken,
+    setTurnstileToken,
   } = useTurnkey();
   const { pushPage, isMobile, openSheet } = useModal();
+
+  const turnstileRef = useRef<TurnstileInstance>(null);
+  const [showTurnstilePrompt, setShowTurnstilePrompt] = useState(false);
+  // If a token already existed when the component mounted, we don't need to show the widget at all
+  const [hadTokenOnMount] = useState(() => !!getTurnstileToken());
+  // Auth is enabled immediately if no turnstile is configured, or if the Provider already has a token
+
+  const [showTurnstileError, setShowTurnstileError] = useState(false);
+  const [authEnabled, setAuthEnabled] = useState(
+    !config?.turnstileSiteKey || hadTokenOnMount,
+  );
 
   if (!config || clientState === ClientState.Loading) {
     // Don't check ClientState.Error here. We already check in the modal root
@@ -68,9 +84,16 @@ export function AuthComponent({
 
   const { methods = {}, methodOrder = [], oauthOrder = [] } = config.auth || {};
 
+  const consumeToken = () =>
+    consumeCaptchaToken(getTurnstileToken, setTurnstileToken, turnstileRef);
+
   const handleEmailSubmit = async (email: string) => {
     try {
-      const otpId = await initOtp({ otpType: OtpType.Email, contact: email });
+      const otpId = await initOtp({
+        otpType: OtpType.Email,
+        contact: email,
+        ...(await consumeToken()),
+      });
       pushPage({
         key: "Verify OTP",
         content: (
@@ -99,6 +122,7 @@ export function AuthComponent({
       const otpId = await initOtp({
         otpType: OtpType.Sms,
         contact: phone,
+        ...(await consumeToken()),
       });
       pushPage({
         key: "Verify OTP",
@@ -152,6 +176,7 @@ export function AuthComponent({
           action={async () => {
             await signUpWithPasskey({
               ...(sessionKey && { sessionKey: sessionKey }),
+              ...(await consumeToken()),
             });
           }}
           icon={<FontAwesomeIcon size="3x" icon={faFingerprint} />}
@@ -167,12 +192,13 @@ export function AuthComponent({
       content: (
         <ActionPage
           title="Authenticating with Google..."
-          action={() =>
+          action={async () =>
             handleGoogleOauth({
               additionalState: {
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(await consumeToken()),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faGoogle} />}
@@ -188,12 +214,13 @@ export function AuthComponent({
       content: (
         <ActionPage
           title="Authenticating with Apple..."
-          action={() =>
+          action={async () =>
             handleAppleOauth({
               additionalState: {
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(await consumeToken()),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faApple} />}
@@ -209,12 +236,13 @@ export function AuthComponent({
       content: (
         <ActionPage
           title="Authenticating with Facebook..."
-          action={() =>
+          action={async () =>
             handleFacebookOauth({
               additionalState: {
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(await consumeToken()),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faFacebook} />}
@@ -230,12 +258,13 @@ export function AuthComponent({
       content: (
         <ActionPage
           title="Authenticating with X..."
-          action={() =>
+          action={async () =>
             handleXOauth({
               additionalState: {
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(await consumeToken()),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faXTwitter} />}
@@ -251,12 +280,13 @@ export function AuthComponent({
       content: (
         <ActionPage
           title="Authenticating with Discord..."
-          action={() =>
+          action={async () =>
             handleDiscordOauth({
               additionalState: {
                 openModal: "true",
                 ...(sessionKey && { sessionKey }),
               }, // Tell the provider to reopen the auth modal and show the loading state
+              ...(await consumeToken()),
             })
           }
           icon={<FontAwesomeIcon size="3x" icon={faDiscord} />}
@@ -276,6 +306,7 @@ export function AuthComponent({
             await loginOrSignupWithWallet({
               walletProvider: provider,
               ...(sessionKey && { sessionKey: sessionKey }),
+              ...(await consumeToken()),
             });
           }}
           icon={
@@ -304,6 +335,7 @@ export function AuthComponent({
               await loginOrSignupWithWallet({
                 walletProvider: provider,
                 ...(sessionKey && { sessionKey: sessionKey }),
+                ...(await consumeToken()),
               });
             }}
             onDisconnect={async (provider) => {
@@ -418,19 +450,20 @@ export function AuthComponent({
   const methodComponents: Record<string, JSX.Element | null> = {
     socials: oauthBlock,
     email: methods.emailOtpAuthEnabled ? (
-      <EmailInput onContinue={handleEmailSubmit} />
+      <EmailInput onContinue={handleEmailSubmit} disabled={!authEnabled} />
     ) : null,
     sms: methods.smsOtpAuthEnabled ? (
-      <PhoneNumberInput onContinue={handlePhoneSubmit} />
+      <PhoneNumberInput onContinue={handlePhoneSubmit} disabled={!authEnabled} />
     ) : null,
     passkey: methods.passkeyAuthEnabled ? (
       <PasskeyButtons
         onLogin={handlePasskeyLogin}
         onSignUp={handlePasskeySignUp}
+        disabled={!authEnabled}
       />
     ) : null,
     wallet: methods.walletAuthEnabled ? (
-      <WalletAuthButton onContinue={handleShowWalletSelector} />
+      <WalletAuthButton onContinue={handleShowWalletSelector} disabled={!authEnabled} />
     ) : null,
   };
 
@@ -492,6 +525,43 @@ export function AuthComponent({
           userMessages={["You touched fuzzy.... and got dizzy."]}
         />
       )}
+
+      {config.turnstileSiteKey && (!hadTokenOnMount || showTurnstileError) && (
+          <div className="mt-3 flex flex-col text-left w-full">
+            {showTurnstilePrompt && (
+              <p className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-sm mb-0.5">
+                Let us know you're human
+              </p>
+            )}
+            <Turnstile
+              ref={turnstileRef}
+              id="auth-component-turnstile"
+              siteKey={config.turnstileSiteKey}
+              className="!w-full !block [&>iframe]:!w-full [&>iframe]:!bg-transparent"
+              onSuccess={(token) => {
+                setTurnstileToken(token);
+                setAuthEnabled(true);
+              }}
+              onError={() => {
+                console.error("Turnstile error occurred");
+                setTurnstileToken(null);
+                setShowTurnstileError(true);
+              }}
+              onExpire={() => {
+                setTurnstileToken(null);
+                setAuthEnabled(false);
+              }}
+              onBeforeInteractive={() => {
+                setShowTurnstilePrompt(true);
+              }}
+              options={{
+                theme: config.ui?.darkMode ? "dark" : "light",
+                appearance: "interaction-only",
+                size: "flexible",
+              }}
+            />
+          </div>
+        )}
 
       <div className="text-icon-text-light/70 dark:text-icon-text-dark/70 text-xs mt-4 text-center">
         <span>

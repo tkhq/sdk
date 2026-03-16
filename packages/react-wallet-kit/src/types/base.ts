@@ -111,6 +111,9 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   /** whether to automatically fetch the wallet kit config on initialization. */
   autoFetchWalletKitConfig?: boolean;
 
+  /** site key for Turnstile bot detection. Fetched automatically from the auth proxy. */
+  turnstileSiteKey?: string;
+
   /** default stamper type to use for requests that require stamping. */
   defaultStamperType?: StamperType;
 

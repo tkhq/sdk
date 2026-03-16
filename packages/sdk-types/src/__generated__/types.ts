@@ -340,7 +340,14 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_TVC_APP"
   | "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
   | "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
-  | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION";
+  | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
+  | "ACTIVITY_TYPE_INIT_OTP_V3"
+  | "ACTIVITY_TYPE_VERIFY_OTP_V2"
+  | "ACTIVITY_TYPE_OTP_LOGIN_V2"
+  | "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME"
+  | "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8"
+  | "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2"
+  | "ACTIVITY_TYPE_CREATE_USERS_V4";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -457,6 +464,8 @@ export type v1AssetBalance = {
   decimals?: number;
   /** Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead. */
   display?: v1AssetBalanceDisplay;
+  /** The asset name */
+  name?: string;
 };
 
 export type v1AssetBalanceDisplay = {
@@ -467,10 +476,16 @@ export type v1AssetBalanceDisplay = {
 };
 
 export type v1AssetMetadata = {
+  /** The caip-19 asset identifier */
   caip19?: string;
+  /** The asset symbol */
   symbol?: string;
+  /** The number of decimals this asset uses */
   decimals?: number;
+  /** The url of the asset logo */
   logoUrl?: string;
+  /** The asset name */
+  name?: string;
 };
 
 export type v1Attestation = {
@@ -726,17 +741,29 @@ export type v1CreateOauthProvidersIntent = {
   oauthProviders: v1OauthProviderParams[];
 };
 
+export type v1CreateOauthProvidersIntentV2 = {
+  /** The ID of the User to add an Oauth provider to */
+  userId: string;
+  /** A list of Oauth providers. */
+  oauthProviders: v1OauthProviderParamsV2[];
+};
+
 export type v1CreateOauthProvidersRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1CreateOauthProvidersIntent;
+  parameters: v1CreateOauthProvidersIntentV2;
   generateAppProofs?: boolean;
 };
 
 export type v1CreateOauthProvidersResult = {
+  /** A list of unique identifiers for Oauth Providers */
+  providerIds: string[];
+};
+
+export type v1CreateOauthProvidersResultV2 = {
   /** A list of unique identifiers for Oauth Providers */
   providerIds: string[];
 };
@@ -1102,13 +1129,36 @@ export type v1CreateSubOrganizationIntentV7 = {
   clientSignature?: v1ClientSignature;
 };
 
+export type v1CreateSubOrganizationIntentV8 = {
+  /** Name for this sub-organization */
+  subOrganizationName: string;
+  /** Root users to create within this sub-organization */
+  rootUsers: v1RootUserParamsV5[];
+  /** The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users */
+  rootQuorumThreshold: number;
+  /** The wallet to create for the sub-organization */
+  wallet?: v1WalletParams;
+  /** Disable email recovery for the sub-organization */
+  disableEmailRecovery?: boolean;
+  /** Disable email auth for the sub-organization */
+  disableEmailAuth?: boolean;
+  /** Disable OTP SMS auth for the sub-organization */
+  disableSmsAuth?: boolean;
+  /** Disable OTP email auth for the sub-organization */
+  disableOtpEmailAuth?: boolean;
+  /** Signed JWT containing a unique id, expiry, verification type, contact */
+  verificationToken?: string;
+  /** Optional signature proving authorization for this sub-organization creation. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
+};
+
 export type v1CreateSubOrganizationRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1CreateSubOrganizationIntentV7;
+  parameters: v1CreateSubOrganizationIntentV8;
   generateAppProofs?: boolean;
 };
 
@@ -1148,6 +1198,12 @@ export type v1CreateSubOrganizationResultV7 = {
   rootUserIds?: string[];
 };
 
+export type v1CreateSubOrganizationResultV8 = {
+  subOrganizationId: string;
+  wallet?: v1WalletResult;
+  rootUserIds?: string[];
+};
+
 export type v1CreateTvcAppIntent = {
   /** The name of the new TVC application */
   name: string;
@@ -1161,8 +1217,8 @@ export type v1CreateTvcAppIntent = {
   shareSetId?: string;
   /** Configuration to create a new TVC operator set, used as the Share Set for this TVC application. If left empty, a Share Set ID is required */
   shareSetParams?: v1TvcOperatorSetParams;
-  /** Enables external connectivity for this TVC app. Default if not provided: false. */
-  externalConnectivity?: boolean;
+  /** Enables network egress for this TVC app. Default if not provided: false. */
+  enableEgress?: boolean;
 };
 
 export type v1CreateTvcAppResult = {
@@ -1189,18 +1245,14 @@ export type v1CreateTvcDeploymentIntent = {
   pivotArgs: string[];
   /** Digest of the pivot binary in the pivot container. This value will be inserted in the QOS manifest to ensure application integrity. */
   expectedPivotDigest: string;
-  /** URL of the container containing the host binary */
-  hostContainerImageUrl: string;
-  /** Location of the binary inside the host container */
-  hostPath: string;
-  /** Arguments to pass to the host binary at startup. Encoded as a list of strings, for example ["--foo", "bar"] */
-  hostArgs: string[];
   /** Optional nonce to ensure uniqueness of the deployment manifest. If not provided, it defaults to the current Unix timestamp in seconds. */
   nonce?: number;
   /** Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty. */
   pivotContainerEncryptedPullSecret?: string;
-  /** Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty. */
-  hostContainerEncryptedPullSecret?: string;
+  /** Address(es) on which the pivot binary listens. A bind address can be a port alone (e.g. "3000") or an ip:port (e.g. "127.0.0.1:3000"). If provided as a port alone, the IP is assumed to be 0.0.0.0 */
+  pivotBindAddresses?: string[];
+  /** Optional flag to indicate whether to deploy the TVC app in debug mode, which includes additional logging and debugging tools. Default is false. */
+  debugMode?: boolean;
 };
 
 export type v1CreateTvcDeploymentResult = {
@@ -1261,13 +1313,18 @@ export type v1CreateUsersIntentV3 = {
   users: v1UserParamsV3[];
 };
 
+export type v1CreateUsersIntentV4 = {
+  /** A list of Users. */
+  users: v1UserParamsV4[];
+};
+
 export type v1CreateUsersRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1CreateUsersIntentV3;
+  parameters: v1CreateUsersIntentV4;
   generateAppProofs?: boolean;
 };
 
@@ -2183,7 +2240,7 @@ export type v1GetNoncesRequest = {
   organizationId: string;
   /** The Ethereum address to query nonces for. */
   address: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
   caip2: string;
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
@@ -2431,7 +2488,7 @@ export type v1GetWalletAddressBalancesRequest = {
   organizationId: string;
   /** Address corresponding to a wallet account. */
   address: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
 };
 
@@ -2767,19 +2824,53 @@ export type v1InitOtpIntentV2 = {
   replyToEmailAddress?: string;
 };
 
+export type v1InitOtpIntentV3 = {
+  /** Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+  otpType: string;
+  /** Email or phone number to send the OTP code to */
+  contact: string;
+  /** The name of the application. */
+  appName: string;
+  /** Optional length of the OTP code. Default = 9 */
+  otpLength?: number;
+  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
+  emailCustomization?: v1EmailCustomizationParamsV2;
+  /** Optional parameters for customizing SMS message. If not provided, the default sms message will be used. */
+  smsCustomization?: v1SmsCustomizationParams;
+  /** Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
+  userIdentifier?: string;
+  /** Optional custom email address from which to send the OTP email */
+  sendFromEmailAddress?: string;
+  /** Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). If set to false, OTP code will only be numeric. Default = true */
+  alphanumeric?: boolean;
+  /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+  sendFromEmailSenderName?: string;
+  /** Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes) */
+  expirationSeconds?: string;
+  /** Optional custom email address to use as reply-to */
+  replyToEmailAddress?: string;
+};
+
 export type v1InitOtpRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1InitOtpIntentV2;
+  parameters: v1InitOtpIntentV3;
   generateAppProofs?: boolean;
 };
 
 export type v1InitOtpResult = {
   /** Unique identifier for an OTP authentication */
   otpId: string;
+};
+
+export type v1InitOtpResultV2 = {
+  /** Unique identifier for an OTP flow */
+  otpId: string;
+  /** Signed bundle containing a target encryption key to use when submitting OTP codes. */
+  otpEncryptionTargetBundle: string;
 };
 
 export type v1InitUserEmailRecoveryIntent = {
@@ -2949,6 +3040,13 @@ export type v1Intent = {
   createTvcDeploymentIntent?: v1CreateTvcDeploymentIntent;
   createTvcManifestApprovalsIntent?: v1CreateTvcManifestApprovalsIntent;
   solSendTransactionIntent?: v1SolSendTransactionIntent;
+  initOtpIntentV3?: v1InitOtpIntentV3;
+  verifyOtpIntentV2?: v1VerifyOtpIntentV2;
+  otpLoginIntentV2?: v1OtpLoginIntentV2;
+  updateOrganizationNameIntent?: v1UpdateOrganizationNameIntent;
+  createSubOrganizationIntentV8?: v1CreateSubOrganizationIntentV8;
+  createOauthProvidersIntentV2?: v1CreateOauthProvidersIntentV2;
+  createUsersIntentV4?: v1CreateUsersIntentV4;
 };
 
 export type v1InvitationParams = {
@@ -2995,11 +3093,12 @@ export type v1ListPrivateKeyTagsResponse = {
 export type v1ListSupportedAssetsRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
 };
 
 export type v1ListSupportedAssetsResponse = {
+  /** List of asset metadata */
   assets?: v1AssetMetadata[];
 };
 
@@ -3151,6 +3250,15 @@ export type v1OauthProviderParams = {
   oidcToken: string;
 };
 
+export type v1OauthProviderParamsV2 = {
+  /** Human-readable name to identify a Provider. */
+  providerName: string;
+  /** Base64 encoded OIDC token */
+  oidcToken?: string;
+  /** OIDC claims (iss, sub, aud) to uniquely identify the user */
+  oidcClaims?: v1OidcClaims;
+};
+
 export type v1OauthRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
@@ -3168,6 +3276,15 @@ export type v1OauthResult = {
   apiKeyId: string;
   /** HPKE encrypted credential bundle */
   credentialBundle: string;
+};
+
+export type v1OidcClaims = {
+  /** The issuer identifier from the OIDC token (iss claim) */
+  iss: string;
+  /** The subject identifier from the OIDC token (sub claim) */
+  sub: string;
+  /** The audience from the OIDC token (aud claim) */
+  aud: string;
 };
 
 export type v1Operator =
@@ -3230,13 +3347,26 @@ export type v1OtpLoginIntent = {
   clientSignature?: v1ClientSignature;
 };
 
+export type v1OtpLoginIntentV2 = {
+  /** Signed Verification Token containing a unique id, expiry, verification type, contact */
+  verificationToken: string;
+  /** Client-side public key generated by the user, used as the session public key upon successful login */
+  publicKey: string;
+  /** Required signature proving authorization for this login. The signature is over the verification token ID and the public key. Required for secure OTP login process. */
+  clientSignature: v1ClientSignature;
+  /** Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used. */
+  expirationSeconds?: string;
+  /** Invalidate all other previously generated Login sessions */
+  invalidateExisting?: boolean;
+};
+
 export type v1OtpLoginRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1OtpLoginIntent;
+  parameters: v1OtpLoginIntentV2;
   generateAppProofs?: boolean;
 };
 
@@ -3489,6 +3619,10 @@ export type v1Result = {
   createTvcDeploymentResult?: v1CreateTvcDeploymentResult;
   createTvcManifestApprovalsResult?: v1CreateTvcManifestApprovalsResult;
   solSendTransactionResult?: v1SolSendTransactionResult;
+  initOtpResultV2?: v1InitOtpResultV2;
+  updateOrganizationNameResult?: v1UpdateOrganizationNameResult;
+  createSubOrganizationResultV8?: v1CreateSubOrganizationResultV8;
+  createOauthProvidersResultV2?: v1CreateOauthProvidersResultV2;
 };
 
 export type v1RevertChainEntry = {
@@ -3556,6 +3690,21 @@ export type v1RootUserParamsV4 = {
   authenticators: v1AuthenticatorParamsV2[];
   /** A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
   oauthProviders: v1OauthProviderParams[];
+};
+
+export type v1RootUserParamsV5 = {
+  /** Human-readable name for a User. */
+  userName: string;
+  /** The user's email address. */
+  userEmail?: string;
+  /** The user's phone number in E.164 format e.g. +13214567890 */
+  userPhoneNumber?: string;
+  /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
+  apiKeys: v1ApiKeyParamsV2[];
+  /** A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
+  authenticators: v1AuthenticatorParamsV2[];
+  /** A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
+  oauthProviders: v1OauthProviderParamsV2[];
 };
 
 export type v1Selector = {
@@ -3696,6 +3845,14 @@ export type v1SignupUsage = {
   oauthProviders?: v1OauthProviderParams[];
 };
 
+export type v1SignupUsageV2 = {
+  email?: string;
+  phoneNumber?: string;
+  apiKeys?: v1ApiKeyParamsV2[];
+  authenticators?: v1AuthenticatorParamsV2[];
+  oauthProviders?: v1OauthProviderParamsV2[];
+};
+
 export type v1SimpleClientExtensionResults = {
   appid?: boolean;
   appidExclude?: boolean;
@@ -3772,6 +3929,7 @@ export type v1TokenUsage = {
   tokenId: string;
   signup?: v1SignupUsage;
   login?: v1LoginUsage;
+  signupV2?: v1SignupUsageV2;
 };
 
 export type v1TransactionType =
@@ -3859,6 +4017,10 @@ export type v1UpdateAuthProxyConfigIntent = {
   sendFromEmailSenderName?: string;
   /** Verification token required for get account with PII (email/phone number). Default false. */
   verificationTokenRequiredForGetAccountPii?: boolean;
+  /** Whitelisted OAuth client IDs for social account linking. When a user authenticates via a social provider with an email matching an existing account, the accounts will be linked if the client ID is in this list and the issuer is considered a trusted provider. */
+  socialLinkingClientIds?: string[];
+  /** Whether captcha verification is required on sign up & otp init. */
+  captchaEnabled?: boolean;
 };
 
 export type v1UpdateAuthProxyConfigResult = {
@@ -3920,6 +4082,27 @@ export type v1UpdateOauth2CredentialRequest = {
 export type v1UpdateOauth2CredentialResult = {
   /** Unique identifier of the OAuth 2.0 credential that was updated */
   oauth2CredentialId: string;
+};
+
+export type v1UpdateOrganizationNameIntent = {
+  /** New name for the Organization. */
+  organizationName: string;
+};
+
+export type v1UpdateOrganizationNameRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpdateOrganizationNameIntent;
+};
+
+export type v1UpdateOrganizationNameResult = {
+  /** Unique identifier for the Organization. */
+  organizationId: string;
+  /** The updated organization name. */
+  organizationName: string;
 };
 
 export type v1UpdatePolicyIntent = {
@@ -4246,6 +4429,23 @@ export type v1UserParamsV3 = {
   userTags: string[];
 };
 
+export type v1UserParamsV4 = {
+  /** Human-readable name for a User. */
+  userName: string;
+  /** The user's email address. */
+  userEmail?: string;
+  /** The user's phone number in E.164 format e.g. +13214567890 */
+  userPhoneNumber?: string;
+  /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
+  apiKeys: v1ApiKeyParamsV2[];
+  /** A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
+  authenticators: v1AuthenticatorParamsV2[];
+  /** A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
+  oauthProviders: v1OauthProviderParamsV2[];
+  /** A list of User Tag IDs. This field, if not needed, should be an empty array in your request body. */
+  userTags: string[];
+};
+
 export type v1VerifyOtpIntent = {
   /** ID representing the result of an init OTP activity. */
   otpId: string;
@@ -4257,13 +4457,22 @@ export type v1VerifyOtpIntent = {
   publicKey?: string;
 };
 
+export type v1VerifyOtpIntentV2 = {
+  /** UUID representing an OTP flow. A new UUID is created for each init OTP activity. */
+  otpId: string;
+  /** Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result. */
+  encryptedOtpBundle: string;
+  /** Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours) */
+  expirationSeconds?: string;
+};
+
 export type v1VerifyOtpRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
   organizationId: string;
-  parameters: v1VerifyOtpIntent;
+  parameters: v1VerifyOtpIntentV2;
   generateAppProofs?: boolean;
 };
 
@@ -4493,7 +4702,7 @@ export type TGetNoncesBody = {
   organizationId?: string;
   /** The Ethereum address to query nonces for. */
   address: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
   caip2: string;
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
@@ -4684,7 +4893,7 @@ export type TGetWalletAddressBalancesBody = {
   organizationId?: string;
   /** Address corresponding to a wallet account. */
   address: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
 };
 
@@ -4807,12 +5016,13 @@ export type TGetSubOrgIdsBody = {
 export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
 
 export type TListSupportedAssetsResponse = {
+  /** List of asset metadata */
   assets?: v1AssetMetadata[];
 };
 
 export type TListSupportedAssetsBody = {
   organizationId?: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
 };
 
@@ -5024,7 +5234,7 @@ export type TCreateOauthProvidersBody = {
   /** The ID of the User to add an Oauth provider to */
   userId: string;
   /** A list of Oauth providers. */
-  oauthProviders: v1OauthProviderParams[];
+  oauthProviders: v1OauthProviderParamsV2[];
 };
 
 export type TCreateOauthProvidersInput = { body: TCreateOauthProvidersBody };
@@ -6009,16 +6219,16 @@ export type TOtpLoginResponse = {
 export type TOtpLoginBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Signed JWT containing a unique id, expiry, verification type, contact */
+  /** Signed Verification Token containing a unique id, expiry, verification type, contact */
   verificationToken: string;
-  /** Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the verification token */
+  /** Client-side public key generated by the user, used as the session public key upon successful login */
   publicKey: string;
+  /** Required signature proving authorization for this login. The signature is over the verification token ID and the public key. Required for secure OTP login process. */
+  clientSignature: v1ClientSignature;
   /** Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used. */
   expirationSeconds?: string;
-  /** Invalidate all other previously generated Login API keys */
+  /** Invalidate all other previously generated Login sessions */
   invalidateExisting?: boolean;
-  /** Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
-  clientSignature?: v1ClientSignature;
 };
 
 export type TOtpLoginInput = { body: TOtpLoginBody };
@@ -6243,6 +6453,25 @@ export type TUpdateOauth2CredentialInput = {
   body: TUpdateOauth2CredentialBody;
 };
 
+export type TUpdateOrganizationNameResponse = {
+  activity: v1Activity;
+  /** Unique identifier for the Organization. */
+  organizationId: string;
+  /** The updated organization name. */
+  organizationName: string;
+};
+
+export type TUpdateOrganizationNameBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** New name for the Organization. */
+  organizationName: string;
+};
+
+export type TUpdateOrganizationNameInput = {
+  body: TUpdateOrganizationNameBody;
+};
+
 export type TUpdatePolicyResponse = {
   activity: v1Activity;
   /** Unique identifier for a given Policy. */
@@ -6429,14 +6658,12 @@ export type TVerifyOtpResponse = {
 export type TVerifyOtpBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** ID representing the result of an init OTP activity. */
+  /** UUID representing an OTP flow. A new UUID is created for each init OTP activity. */
   otpId: string;
-  /** OTP sent out to a user's contact (email or SMS) */
-  otpCode: string;
+  /** Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result. */
+  encryptedOtpBundle: string;
   /** Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours) */
   expirationSeconds?: string;
-  /** Client-side public key generated by the user, which will be added to the JWT response and verified in subsequent requests via a client proof signature */
-  publicKey?: string;
 };
 
 export type TVerifyOtpInput = { body: TVerifyOtpBody };
@@ -6518,6 +6745,22 @@ export type ProxyTInitOtpBody = {
 
 export type ProxyTInitOtpInput = { body: ProxyTInitOtpBody };
 
+export type ProxyTInitOtpV2Response = {
+  /** Unique identifier for an OTP flow. */
+  otpId: string;
+  /** Signed bundle containing a target encryption key to use when submitting OTP codes. */
+  otpEncryptionTargetBundle: string;
+};
+
+export type ProxyTInitOtpV2Body = {
+  /** Enum to specifiy whether to send OTP code via SMS or email */
+  otpType: string;
+  /** Email or phone number to send the OTP code to */
+  contact: string;
+};
+
+export type ProxyTInitOtpV2Input = { body: ProxyTInitOtpV2Body };
+
 export type ProxyTOtpLoginResponse = {
   /** Signed JWT containing an expiry, public key, session type, user id, and organization id */
   session: string;
@@ -6538,6 +6781,26 @@ export type ProxyTOtpLoginBody = {
 
 export type ProxyTOtpLoginInput = { body: ProxyTOtpLoginBody };
 
+export type ProxyTOtpLoginV2Response = {
+  /** Session containing an expiry, public key, session type, user id, and organization id */
+  session: string;
+};
+
+export type ProxyTOtpLoginV2Body = {
+  /** Session containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
+  verificationToken: string;
+  /** Client-side public key generated by the user, used as the session public key upon successful login. */
+  publicKey: string;
+  /** Signature proving authorization for this login. The signature is over the verification token ID and the new session public key. */
+  clientSignature: v1ClientSignature;
+  /** Invalidate all other previously generated Login sessions */
+  invalidateExisting?: boolean;
+  /** Unique identifier for a given Organization. If provided, this organization id will be used directly. If omitted, uses the verification token to look up the verified sub-organization based on the contact and verification type. */
+  organizationId?: string;
+};
+
+export type ProxyTOtpLoginV2Input = { body: ProxyTOtpLoginV2Body };
+
 export type ProxyTVerifyOtpResponse = {
   /** Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
   verificationToken: string;
@@ -6553,6 +6816,20 @@ export type ProxyTVerifyOtpBody = {
 };
 
 export type ProxyTVerifyOtpInput = { body: ProxyTVerifyOtpBody };
+
+export type ProxyTVerifyOtpV2Response = {
+  /** Verification Token containing a unique id, expiry, verification type, contact signed by Turnkey's enclaves. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests) */
+  verificationToken: string;
+};
+
+export type ProxyTVerifyOtpV2Body = {
+  /** ID representing the result of an init OTP activity. */
+  otpId: string;
+  /** Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result. */
+  encryptedOtpBundle: string;
+};
+
+export type ProxyTVerifyOtpV2Input = { body: ProxyTVerifyOtpV2Body };
 
 export type ProxyTSignupResponse = {
   organizationId: string;
@@ -6584,6 +6861,48 @@ export type ProxyTSignupBody = {
 };
 
 export type ProxyTSignupInput = { body: ProxyTSignupBody };
+
+export type ProxyTSignupV2Response = {
+  organizationId: string;
+  /** Wallet created for the sub-organization, if provided in the request */
+  wallet?: v1WalletResult;
+  /** Root user ID created for this sub-organization */
+  userId: string;
+  /** A list of App Proofs generated by enclaves during activity execution, providing verifiable attestations of performed operations. */
+  appProofs?: v1AppProof[];
+};
+
+export type ProxyTSignupV2Body = {
+  userEmail?: string;
+  userPhoneNumber?: string;
+  userTag?: string;
+  userName?: string;
+  organizationName?: string;
+  verificationToken?: string;
+  /** A list of API Key parameters. This field, if not needed, should be an empty array in your request body. */
+  apiKeys: v1ApiKeyParamsV2[];
+  /** A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body. */
+  authenticators: v1AuthenticatorParamsV2[];
+  /** A list of Oauth providers. This field, if not needed, should be an empty array in your request body. */
+  oauthProviders: v1OauthProviderParamsV2[];
+  /** The wallet to create for the sub-organization */
+  wallet?: v1WalletParams;
+  /** Optional signature proving authorization for this signup. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
+};
+
+export type ProxyTSignupV2Input = { body: ProxyTSignupV2Body };
+
+export type ProxyTGetWalletKitClientParamsResponse = {
+  /** Site key for Turnstile, used to protect WalletKit flows with bot detection. */
+  turnstileSiteKey?: string;
+};
+
+export type ProxyTGetWalletKitClientParamsBody = {};
+
+export type ProxyTGetWalletKitClientParamsInput = {
+  body: ProxyTGetWalletKitClientParamsBody;
+};
 
 export type ProxyTGetWalletKitConfigResponse = {
   /** List of enabled authentication providers (e.g., 'facebook', 'google', 'apple', 'email', 'sms', 'passkey', 'wallet') */
