@@ -134,11 +134,50 @@ export async function createX402Client(
   // This handles gasless transactions (fee payer in extra.feePayer) automatically.
   const paymentHandler = createPaymentHandler(wallet, usdcMint, connection);
 
+  // Some x402 servers send a PAYMENT-REQUIRED header (v2) but omit the
+  // required `resource` object. This minimal phase1Fetch patches that so
+  // faremeter's v2 validation passes. Once servers fully implement v2,
+  // this can be removed and plain `fetch` used for both.
+  const patchV2Fetch: typeof fetch = async (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+  ): Promise<Response> => {
+    const response = await fetch(input, init);
+    if (response.status !== 402) return response;
+
+    const v2Header = response.headers.get("PAYMENT-REQUIRED");
+    if (!v2Header) return response;
+
+    try {
+      const decoded = JSON.parse(atob(v2Header));
+      if (!decoded.resource) {
+        const url =
+          typeof input === "string"
+            ? input
+            : input instanceof URL
+              ? input.toString()
+              : input.url;
+        decoded.resource = { url };
+        const headers = new Headers(response.headers);
+        headers.set("PAYMENT-REQUIRED", btoa(JSON.stringify(decoded)));
+        return new Response(response.body, {
+          status: 402,
+          statusText: response.statusText,
+          headers,
+        });
+      }
+    } catch {
+      // If decoding fails, let faremeter handle the error
+    }
+    return response;
+  };
+
   // Create the payment-enabled fetch.
-  // As of faremeter v0.17.0, protocol normalization (lenient 402 responses,
+  // As of faremeter v0.17.0, protocol normalization (lenient v1 responses,
   // CAIP-2 network identifiers) and x402 v2 headers are handled internally.
   const x402Fetch = wrapFetch(fetch, {
     handlers: [paymentHandler],
+    phase1Fetch: patchV2Fetch,
     retryCount: 3,
     returnPaymentFailure: true,
   });
