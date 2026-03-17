@@ -70,7 +70,9 @@ async function main() {
 
   if (usdc < 0.01) {
     console.log("⚠️  Low USDC balance! Get test USDC on devnet:");
-    console.log("   Visit: https://faucet.circle.com/ (select Solana Devnet)\n");
+    console.log(
+      "   Visit: https://faucet.circle.com/ (select Solana Devnet)\n",
+    );
   }
 
   console.log("✅ Faremeter x402 client ready\n");
@@ -107,7 +109,9 @@ async function main() {
         const content = await response.text();
         console.log("✅ Content received!");
         console.log("─".repeat(50));
-        console.log(content.substring(0, 500) + (content.length > 500 ? "..." : ""));
+        console.log(
+          content.substring(0, 500) + (content.length > 500 ? "..." : ""),
+        );
         console.log("─".repeat(50));
       } else if (response.status === 402) {
         const body = await response.text();
@@ -122,7 +126,9 @@ async function main() {
         console.log("   - Network mismatch (devnet vs mainnet)");
         console.log("   - Transaction verification failed on server");
       } else {
-        console.log(`❌ Request failed: ${response.status} ${response.statusText}`);
+        console.log(
+          `❌ Request failed: ${response.status} ${response.statusText}`,
+        );
         console.log(await response.text());
       }
     } catch (error) {
@@ -133,8 +139,12 @@ async function main() {
     const finalBalances = await getBalances();
     console.log(`\n💰 Final SOL balance: ${finalBalances.sol} SOL`);
     console.log(`💵 Final USDC balance: ${finalBalances.usdc.toFixed(2)} USDC`);
-    console.log(`📊 SOL spent: ${(initialBalances.sol - finalBalances.sol).toFixed(6)} SOL`);
-    console.log(`📊 USDC spent: ${(initialBalances.usdc - finalBalances.usdc).toFixed(6)} USDC`);
+    console.log(
+      `📊 SOL spent: ${(initialBalances.sol - finalBalances.sol).toFixed(6)} SOL`,
+    );
+    console.log(
+      `📊 USDC spent: ${(initialBalances.usdc - finalBalances.usdc).toFixed(6)} USDC`,
+    );
   } else {
     console.log("ℹ️  No TEST_PAYWALL_URL configured.");
     console.log("   Set this env var to test the x402 payment flow.\n");
