@@ -100,7 +100,7 @@ solana airdrop 1 <WALLET_ADDRESS> --url devnet
 1. Initialize Turnkey API client + `TurnkeySigner`
 2. Get or create a Solana wallet
 3. Check SOL and USDC balances
-4. Wrap `fetch` with Faremeter and a gasless payment handler
+4. Wrap `fetch` with Faremeter's payment handler (protocol normalization, x402 v2 headers, and CAIP-2 network identifiers are handled by Faremeter automatically)
 5. Make request:
    - if `200`: return content
    - if `402`: build/sign payment payload and retry automatically
