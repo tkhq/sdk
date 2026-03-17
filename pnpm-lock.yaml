@@ -3395,14 +3395,14 @@ importers:
   examples/with-x402-faremeter:
     dependencies:
       '@faremeter/fetch':
-        specifier: ^0.16.0
-        version: 0.16.0
+        specifier: ^0.17.0
+        version: 0.17.1
       '@faremeter/payment-solana':
-        specifier: ^0.16.0
-        version: 0.16.0(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
+        specifier: ^0.17.0
+        version: 0.17.1(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@faremeter/types':
-        specifier: ^0.16.0
-        version: 0.16.0
+        specifier: ^0.17.0
+        version: 0.17.1
       '@solana/spl-token':
         specifier: ^0.4.9
         version: 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.0.9)(encoding@0.1.13)(typescript@5.4.3)(utf-8-validate@5.0.10))(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)
@@ -4306,7 +4306,7 @@ packages:
   '@aptos-labs/aptos-client@0.1.1':
     resolution: {integrity: sha512-kJsoy4fAPTOhzVr7Vwq8s/AUg6BQiJDa7WOqRzev4zsuIS3+JCuIZ6vUd7UBsjnxtmguJJulMRs9qWCzVBt2XA==}
     engines: {node: '>=15.10.0'}
-    deprecated: <1.0.0 is no longer supported please upgrade to the latest version
+    deprecated: This version is deprecated.  Please upgrade to version 2.1.0 or later.
 
   '@ark/schema@0.47.0':
     resolution: {integrity: sha512-s5Hc1TUmRiA+NhewAHZJtl7xuFN0y4vAdv/JrvgCxgf1NKwBAylTvqCnQ8iPYn8kG3qAmHwgPpbJ+C5iHKJsbQ==}
@@ -6108,25 +6108,25 @@ packages:
       '@wagmi/core': ^2.14.1
       viem: ^2.21.55
 
-  '@faremeter/fetch@0.16.0':
-    resolution: {integrity: sha512-dcITgX/U1c0hUYhafSgExdLyuv2DM5qyFnhQXLFHrGW1iSgsY8oNBAm4twF6jo/qC7TjZZ2QAt4OtvupwfR07g==}
+  '@faremeter/fetch@0.17.1':
+    resolution: {integrity: sha512-c9JnfunBOH+YDiP9qzusJWWJZg+7RHhctRgkVrQlOml7C0CZJeYwowjkxBQ0IsDTYO3UMBPtMo1lv2lUJKCBDg==}
 
-  '@faremeter/info@0.16.0':
-    resolution: {integrity: sha512-eVg0MjaqfDjSOb6p444EvAuBY0uIqXziVxNxkKAeoq7eON550ukz0cJPdUNEGx3jQfUM6/D4TEHDj3GVv7xlvg==}
+  '@faremeter/info@0.17.1':
+    resolution: {integrity: sha512-Zyv8nvl/wSfsQxtoiR4VrrsGNMuZLf3UbmjqJzqfBGa03R5o9WOjR2QsQw0Srmwj3X/2gRFRdwyMnKXFjQ1RVw==}
 
-  '@faremeter/logs@0.16.0':
-    resolution: {integrity: sha512-1f4XHqGklWtdBd6kdFDEJ9tGLtqIxe3GqclPN4nlO64HLX4nHyzoD+QLEqLqR0008MJj278RyVZ4FwWbCrP6nw==}
+  '@faremeter/logs@0.17.1':
+    resolution: {integrity: sha512-URbANx1IisTw9pGHGswPKOnLAU0FUgnfMYwgMmjkLsqHqYebeAPOnVVGu3SDGgyNudNz0iiLnIfG6sXfZvM0YQ==}
     peerDependencies:
       '@logtape/logtape': 1.0.4
     peerDependenciesMeta:
       '@logtape/logtape':
         optional: true
 
-  '@faremeter/payment-solana@0.16.0':
-    resolution: {integrity: sha512-ohtystWMIqW52lrOWryJrCjkhOihnkjMCcZJG8P17OBQuYhVnBBZ2yg9BOSMEp/XuLH87+KF+VywF5SSczle1A==}
+  '@faremeter/payment-solana@0.17.1':
+    resolution: {integrity: sha512-jZEiExJ9Q6x5DnIs9doWp5KgMDwQKxUcM4vY4AenDRx+qFiZFd6rMiVhlCUcYkFwhcN4RTKqp7QO8d6kfSCNFg==}
 
-  '@faremeter/types@0.16.0':
-    resolution: {integrity: sha512-YwUtY5anged4QC7I+kAFOeuYN4+VXEodmZX/b02hGOjbXc4gjCZV5sUXsFEAoCw+Ru8O2vbPcKcPgekas1ELsA==}
+  '@faremeter/types@0.17.1':
+    resolution: {integrity: sha512-riq7Kmg6QmIynwrJ9SH50Z6qI0HUU6kcJHE4t2j/jIvric3he5iGkiej5Ou0IEKC7nKYC7tlwlmGrri41dwnug==}
 
   '@fivebinaries/coin-selection@3.0.0':
     resolution: {integrity: sha512-h25Pn1ZA7oqQBQDodGAgIsQt66T2wDge9onBKNqE66WNWL0KJiKJbpij8YOLo5AAlEIg5IS7EB1QjBgDOIg6DQ==}
@@ -16379,9 +16379,6 @@ packages:
   undici-types@7.14.0:
     resolution: {integrity: sha512-QQiYxHuyZ9gQUIrmPo3IA+hUl4KYk8uSA7cHrcKd/l3p1OTpZcM0Tbp9x7FAtXdAYhlasd60ncPpgu6ihG6TOA==}
 
-  undici-types@7.15.0:
-    resolution: {integrity: sha512-Xyn5T99wU4kPhLZMm+ElE6M+IoSeG8Se7eG9xoZ82ZgVHJ07wb/IWcDZeXe2GOPkavcJ8ko5oSlXMDRl/QgY9Q==}
-
   undici-types@7.22.0:
     resolution: {integrity: sha512-RKZvifiL60xdsIuC80UY0dq8Z7DbJUV8/l2hOVbyZAxBzEeQU4Z58+4ZzJ6WN2Lidi9KzT5EbiGX+PI/UGYuRw==}
 
@@ -20539,23 +20536,24 @@ snapshots:
       '@wagmi/core': 2.21.2(@tanstack/query-core@5.90.2)(@types/react@18.2.14)(react@18.2.0)(typescript@5.4.3)(use-sync-external-store@1.5.0(react@18.2.0))(viem@2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11))
       viem: 2.44.0(bufferutil@4.0.9)(typescript@5.4.3)(utf-8-validate@5.0.10)(zod@4.1.11)
 
-  '@faremeter/fetch@0.16.0':
+  '@faremeter/fetch@0.17.1':
     dependencies:
-      '@faremeter/types': 0.16.0
+      '@faremeter/info': 0.17.1
+      '@faremeter/types': 0.17.1
       arktype: 2.1.21
 
-  '@faremeter/info@0.16.0':
+  '@faremeter/info@0.17.1':
     dependencies:
-      '@faremeter/types': 0.16.0
+      '@faremeter/types': 0.17.1
       arktype: 2.1.21
 
-  '@faremeter/logs@0.16.0': {}
+  '@faremeter/logs@0.17.1': {}
 
-  '@faremeter/payment-solana@0.16.0(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
+  '@faremeter/payment-solana@0.17.1(bufferutil@4.0.9)(encoding@0.1.13)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(utf-8-validate@5.0.10)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))':
     dependencies:
-      '@faremeter/info': 0.16.0
-      '@faremeter/logs': 0.16.0
-      '@faremeter/types': 0.16.0
+      '@faremeter/info': 0.17.1
+      '@faremeter/logs': 0.17.1
+      '@faremeter/types': 0.17.1
       '@solana-program/compute-budget': 0.8.0(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))
       '@solana-program/memo': 0.10.0(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))
       '@solana-program/token': 0.5.1(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.4.3)(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)))
@@ -20577,7 +20575,7 @@ snapshots:
       - utf-8-validate
       - ws
 
-  '@faremeter/types@0.16.0':
+  '@faremeter/types@0.17.1':
     dependencies:
       arktype: 2.1.21
 
@@ -25503,7 +25501,7 @@ snapshots:
       '@solana/rpc-spec': 2.3.0(typescript@5.4.3)
       '@solana/rpc-spec-types': 2.3.0(typescript@5.4.3)
       typescript: 5.4.3
-      undici-types: 7.15.0
+      undici-types: 7.22.0
 
   '@solana/rpc-transport-http@5.0.0(typescript@5.4.3)':
     dependencies:
@@ -38960,8 +38958,6 @@ snapshots:
   undici-types@6.21.0: {}
 
   undici-types@7.14.0: {}
-
-  undici-types@7.15.0: {}
 
   undici-types@7.22.0: {}
 
