@@ -127,13 +127,14 @@ The `createX402Client` factory in `src/x402-client.ts` handles all the setup:
 ```typescript
 import { createX402Client } from "./x402-client.js";
 
-const { x402Fetch, walletAddress, getBalances, network } = await createX402Client({
-  apiPublicKey: process.env.API_PUBLIC_KEY!,
-  apiPrivateKey: process.env.API_PRIVATE_KEY!,
-  organizationId: process.env.ORGANIZATION_ID!,
-  rpcUrl: process.env.SOLANA_RPC_URL,    // optional
-  baseUrl: process.env.BASE_URL,          // optional
-});
+const { x402Fetch, walletAddress, getBalances, network } =
+  await createX402Client({
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    organizationId: process.env.ORGANIZATION_ID!,
+    rpcUrl: process.env.SOLANA_RPC_URL, // optional
+    baseUrl: process.env.BASE_URL, // optional
+  });
 
 // Use x402Fetch exactly like regular fetch - payments are automatic
 const response = await x402Fetch("https://paid-api.example.com/data");
@@ -151,7 +152,9 @@ The `x402Fetch` function works like standard `fetch()`, making it easy to expose
 import OpenAI from "openai";
 import { createX402Client } from "./x402-client.js";
 
-const { x402Fetch } = await createX402Client({ /* ... */ });
+const { x402Fetch } = await createX402Client({
+  /* ... */
+});
 const openai = new OpenAI();
 
 const tools: OpenAI.ChatCompletionTool[] = [
@@ -159,7 +162,8 @@ const tools: OpenAI.ChatCompletionTool[] = [
     type: "function",
     function: {
       name: "fetch_paid_resource",
-      description: "Fetch data from a URL. Automatically pays if the endpoint requires payment (HTTP 402).",
+      description:
+        "Fetch data from a URL. Automatically pays if the endpoint requires payment (HTTP 402).",
       parameters: {
         type: "object",
         properties: {
@@ -171,7 +175,10 @@ const tools: OpenAI.ChatCompletionTool[] = [
   },
 ];
 
-async function handleToolCall(name: string, args: { url: string }): Promise<string> {
+async function handleToolCall(
+  name: string,
+  args: { url: string },
+): Promise<string> {
   if (name === "fetch_paid_resource") {
     const response = await x402Fetch(args.url);
     return response.text();
@@ -182,7 +189,12 @@ async function handleToolCall(name: string, args: { url: string }): Promise<stri
 // In your chat loop:
 const response = await openai.chat.completions.create({
   model: "gpt-4",
-  messages: [{ role: "user", content: "Get the premium data from https://api.example.com/premium" }],
+  messages: [
+    {
+      role: "user",
+      content: "Get the premium data from https://api.example.com/premium",
+    },
+  ],
   tools,
 });
 
@@ -203,13 +215,16 @@ if (response.choices[0].message.tool_calls) {
 import Anthropic from "@anthropic-ai/sdk";
 import { createX402Client } from "./x402-client.js";
 
-const { x402Fetch } = await createX402Client({ /* ... */ });
+const { x402Fetch } = await createX402Client({
+  /* ... */
+});
 const anthropic = new Anthropic();
 
 const tools: Anthropic.Tool[] = [
   {
     name: "fetch_paid_resource",
-    description: "Fetch data from a URL. Automatically pays if the endpoint requires payment (HTTP 402).",
+    description:
+      "Fetch data from a URL. Automatically pays if the endpoint requires payment (HTTP 402).",
     input_schema: {
       type: "object",
       properties: {
@@ -220,7 +235,10 @@ const tools: Anthropic.Tool[] = [
   },
 ];
 
-async function handleToolUse(name: string, input: { url: string }): Promise<string> {
+async function handleToolUse(
+  name: string,
+  input: { url: string },
+): Promise<string> {
   if (name === "fetch_paid_resource") {
     const response = await x402Fetch(input.url);
     return response.text();
@@ -233,12 +251,20 @@ const response = await anthropic.messages.create({
   model: "claude-sonnet-4-20250514",
   max_tokens: 1024,
   tools,
-  messages: [{ role: "user", content: "Get the premium data from https://api.example.com/premium" }],
+  messages: [
+    {
+      role: "user",
+      content: "Get the premium data from https://api.example.com/premium",
+    },
+  ],
 });
 
 for (const block of response.content) {
   if (block.type === "tool_use") {
-    const result = await handleToolUse(block.name, block.input as { url: string });
+    const result = await handleToolUse(
+      block.name,
+      block.input as { url: string },
+    );
     // Continue conversation with tool result...
   }
 }
@@ -280,12 +306,12 @@ const paidFetchTool: AgentTool = {
 // 3. Wire into your agent loop
 async function agentLoop(task: string) {
   const tools = [paidFetchTool];
-  
+
   while (true) {
     const action = await yourLLM.decide(task, tools);
-    
+
     if (action.type === "tool_call") {
-      const tool = tools.find(t => t.name === action.tool);
+      const tool = tools.find((t) => t.name === action.tool);
       const result = await tool!.execute(action.params);
       // Feed result back to LLM...
     } else if (action.type === "done") {
