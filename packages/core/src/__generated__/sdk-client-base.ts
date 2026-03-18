@@ -2,6 +2,7 @@
 
 import {
   GrpcStatus,
+  MfaContext,
   StorageBase,
   TActivityResponse,
   TActivityStatus,
@@ -150,6 +151,43 @@ export class TurnkeySDKClientBase {
     return activityData as TResponseType;
   }
 
+  /**
+   * If the activity status is AUTHENTICATORS_NEEDED and an onMfaRequired
+   * callback is configured, invoke the callback and then poll for completion.
+   * Returns the (possibly updated) activity data.
+   * @internal
+   */
+  private async handleMfaIfNeeded(
+    activityData: TActivityResponse,
+    stampWith?: StamperType,
+  ): Promise<TActivityResponse> {
+    const MFA_STATUS: TActivityStatus = "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED";
+
+    if (
+      activityData.activity.status === MFA_STATUS &&
+      this.config.onMfaRequired
+    ) {
+      const mfaContext: MfaContext = {
+        activityId: activityData.activity.id,
+        fingerprint: activityData.activity.fingerprint!,
+        organizationId: activityData.activity.organizationId,
+        activityType: activityData.activity.type,
+        status: activityData.activity.status as typeof MFA_STATUS,
+      };
+
+      // Await the callback — it should resolve when MFA approval is complete
+      await this.config.onMfaRequired(mfaContext);
+
+      // After callback resolves, poll for the updated activity status
+      activityData = await this.pollForCompletion(
+        activityData.activity.id,
+        stampWith,
+      );
+    }
+
+    return activityData;
+  }
+
   async request<TBodyType, TResponseType>(
     url: string,
     body: TBodyType,
@@ -216,6 +254,9 @@ export class TurnkeySDKClientBase {
         stampWith,
       );
     }
+
+    // Handle MFA if needed (callback gate + re-poll)
+    activityData = await this.handleMfaIfNeeded(activityData, stampWith);
 
     return this.handleActivityResponse<TResponseType>(activityData, resultKey);
   }
@@ -332,6 +373,9 @@ export class TurnkeySDKClientBase {
       ) {
         activityData = await this.pollForCompletion(activityData.activity.id);
       }
+
+      // Handle MFA if needed (callback gate + re-poll)
+      activityData = await this.handleMfaIfNeeded(activityData);
 
       return this.handleActivityResponse<TResponseType>(
         activityData,
@@ -759,6 +803,145 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getMfaPolicies = async (
+    input: SdkTypes.TGetMfaPoliciesBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetMfaPoliciesResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_mfa_policies",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetMfaPolicies = async (
+    input: SdkTypes.TGetMfaPoliciesBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_mfa_policies";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getMfaPolicy = async (
+    input: SdkTypes.TGetMfaPolicyBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetMfaPolicyResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_mfa_policy",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetMfaPolicy = async (
+    input: SdkTypes.TGetMfaPolicyBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_mfa_policy";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getMfaStatus = async (
+    input: SdkTypes.TGetMfaStatusBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetMfaStatusResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_mfa_status",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetMfaStatus = async (
+    input: SdkTypes.TGetMfaStatusBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_mfa_status";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getNonces = async (
     input: SdkTypes.TGetNoncesBody,
     stampWith?: StamperType,
@@ -1162,6 +1345,100 @@ export class TurnkeySDKClientBase {
     const session = await this.storageManager?.getActiveSession();
     const fullUrl =
       this.config.apiBaseUrl + "/public/v1/query/get_send_transaction_status";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getSessionProfile = async (
+    input: SdkTypes.TGetSessionProfileBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetSessionProfileResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_session_profile",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetSessionProfile = async (
+    input: SdkTypes.TGetSessionProfileBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_session_profile";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  getSessionProfiles = async (
+    input: SdkTypes.TGetSessionProfilesBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TGetSessionProfilesResponse> => {
+    const session = await this.storageManager?.getActiveSession();
+    return this.request(
+      "/public/v1/query/get_session_profiles",
+      {
+        ...input,
+        organizationId:
+          input.organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+      },
+      stampWith,
+    );
+  };
+
+  stampGetSessionProfiles = async (
+    input: SdkTypes.TGetSessionProfilesBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const session = await this.storageManager?.getActiveSession();
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/get_session_profiles";
     const body = {
       ...input,
       organizationId:
@@ -2310,60 +2587,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  createApiOnlyUsers = async (
-    input: SdkTypes.TCreateApiOnlyUsersBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TCreateApiOnlyUsersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    const session = await this.storageManager?.getActiveSession();
-
-    return this.activity(
-      "/public/v1/submit/create_api_only_users",
-      {
-        parameters: rest,
-        organizationId:
-          organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-      },
-      "createApiOnlyUsersResult",
-      stampWith,
-    );
-  };
-
-  stampCreateApiOnlyUsers = async (
-    input: SdkTypes.TCreateApiOnlyUsersBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const session = await this.storageManager?.getActiveSession();
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_api_only_users";
-    const bodyWithType = {
-      parameters,
-      organizationId:
-        organizationId ?? session?.organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   createAuthenticators = async (
     input: SdkTypes.TCreateAuthenticatorsBody,
     stampWith?: StamperType,
@@ -2516,6 +2739,60 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_INVITATIONS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createMfaPolicy = async (
+    input: SdkTypes.TCreateMfaPolicyBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TCreateMfaPolicyResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/create_mfa_policy",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_MFA_POLICY",
+      },
+      "createMfaPolicyResult",
+      stampWith,
+    );
+  };
+
+  stampCreateMfaPolicy = async (
+    input: SdkTypes.TCreateMfaPolicyBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_mfa_policy";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_MFA_POLICY",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2947,6 +3224,60 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createSessionProfile = async (
+    input: SdkTypes.TCreateSessionProfileBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TCreateSessionProfileResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/create_session_profile",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_SESSION_PROFILE",
+      },
+      "createSessionProfileResult",
+      stampWith,
+    );
+  };
+
+  stampCreateSessionProfile = async (
+    input: SdkTypes.TCreateSessionProfileBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_session_profile";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_SESSION_PROFILE",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3541,6 +3872,60 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_DELETE_INVITATION",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  deleteMfaPolicy = async (
+    input: SdkTypes.TDeleteMfaPolicyBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TDeleteMfaPolicyResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/delete_mfa_policy",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_MFA_POLICY",
+      },
+      "deleteMfaPolicyResult",
+      stampWith,
+    );
+  };
+
+  stampDeleteMfaPolicy = async (
+    input: SdkTypes.TDeleteMfaPolicyBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_mfa_policy";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_MFA_POLICY",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5741,6 +6126,60 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_UPDATE_FIAT_ON_RAMP_CREDENTIAL",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await activeStamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  updateMfaPolicy = async (
+    input: SdkTypes.TUpdateMfaPolicyBody,
+    stampWith?: StamperType,
+  ): Promise<SdkTypes.TUpdateMfaPolicyResponse> => {
+    const { organizationId, timestampMs, ...rest } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    return this.activity(
+      "/public/v1/submit/update_mfa_policy",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_MFA_POLICY",
+      },
+      "updateMfaPolicyResult",
+      stampWith,
+    );
+  };
+
+  stampUpdateMfaPolicy = async (
+    input: SdkTypes.TUpdateMfaPolicyBody,
+    stampWith?: StamperType,
+  ): Promise<TSignedRequest | undefined> => {
+    const activeStamper = this.getStamper(stampWith);
+    if (!activeStamper) {
+      return undefined;
+    }
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const session = await this.storageManager?.getActiveSession();
+
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_mfa_policy";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_MFA_POLICY",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
