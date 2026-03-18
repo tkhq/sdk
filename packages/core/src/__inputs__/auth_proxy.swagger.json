@@ -140,6 +140,38 @@
         "tags": ["Auth"]
       }
     },
+    "/v1/otp_init_v2": {
+      "post": {
+        "summary": "Init OTP",
+        "description": "Start a new OTP flow and return a new OTP flow ID.",
+        "operationId": "AuthProxyService_InitOtpV2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1InitOtpV2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1InitOtpV2Request"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
     "/v1/otp_login": {
       "post": {
         "summary": "OTP Login",
@@ -166,6 +198,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1OtpLoginRequest"
+            }
+          }
+        ],
+        "tags": ["Sessions"]
+      }
+    },
+    "/v1/otp_login_v2": {
+      "post": {
+        "summary": "OTP Login",
+        "description": "Login using an existing OTP Verification Token and a client-side signature. The signature's public key must match the public key contained within the OTP Verification Token.",
+        "operationId": "AuthProxyService_OtpLoginV2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1OtpLoginV2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1OtpLoginV2Request"
             }
           }
         ],
@@ -204,6 +268,38 @@
         "tags": ["Auth"]
       }
     },
+    "/v1/otp_verify_v2": {
+      "post": {
+        "summary": "Verify OTP",
+        "description": "Verify the OTP code previously sent to the user's contact and return a verification token.",
+        "operationId": "AuthProxyService_VerifyOtpV2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1VerifyOtpV2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1VerifyOtpV2Request"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
     "/v1/signup": {
       "post": {
         "summary": "Signup",
@@ -230,6 +326,38 @@
             "required": true,
             "schema": {
               "$ref": "#/definitions/v1SignupRequest"
+            }
+          }
+        ],
+        "tags": ["Auth"]
+      }
+    },
+    "/v1/signup_v2": {
+      "post": {
+        "summary": "Signup",
+        "description": "Onboard a new user.",
+        "operationId": "AuthProxyService_SignupV2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SignupV2Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1SignupV2Request"
             }
           }
         ],
@@ -568,7 +696,7 @@
       "properties": {
         "otpType": {
           "type": "string",
-          "description": "Enum to specifiy whether to send OTP via SMS or email"
+          "description": "Enum to specify whether to send OTP via SMS or email"
         },
         "contact": {
           "type": "string",
@@ -586,6 +714,34 @@
         }
       },
       "required": ["otpId"]
+    },
+    "v1InitOtpV2Request": {
+      "type": "object",
+      "properties": {
+        "otpType": {
+          "type": "string",
+          "description": "Enum to specify whether to send OTP code via SMS or email"
+        },
+        "contact": {
+          "type": "string",
+          "description": "Email or phone number to send the OTP code to"
+        }
+      },
+      "required": ["otpType", "contact"]
+    },
+    "v1InitOtpV2Response": {
+      "type": "object",
+      "properties": {
+        "otpId": {
+          "type": "string",
+          "description": "Unique identifier for an OTP flow."
+        },
+        "otpEncryptionTargetBundle": {
+          "type": "string",
+          "description": "Signed bundle containing a target encryption key to use when submitting OTP codes."
+        }
+      },
+      "required": ["otpId", "otpEncryptionTargetBundle"]
     },
     "v1OAuth2AuthenticateRequest": {
       "type": "object",
@@ -683,6 +839,42 @@
       },
       "required": ["providerName", "oidcToken"]
     },
+    "v1OauthProviderParamsV2": {
+      "type": "object",
+      "properties": {
+        "providerName": {
+          "type": "string",
+          "description": "Human-readable name to identify a Provider."
+        },
+        "oidcToken": {
+          "type": "string",
+          "description": "Base64 encoded OIDC token"
+        },
+        "oidcClaims": {
+          "$ref": "#/definitions/v1OidcClaims",
+          "description": "OIDC claims (iss, sub, aud) to uniquely identify the user"
+        }
+      },
+      "required": ["providerName"]
+    },
+    "v1OidcClaims": {
+      "type": "object",
+      "properties": {
+        "iss": {
+          "type": "string",
+          "description": "The issuer identifier from the OIDC token (iss claim)"
+        },
+        "sub": {
+          "type": "string",
+          "description": "The subject identifier from the OIDC token (sub claim)"
+        },
+        "aud": {
+          "type": "string",
+          "description": "The audience from the OIDC token (aud claim)"
+        }
+      },
+      "required": ["iss", "sub", "aud"]
+    },
     "v1OtpLoginRequest": {
       "type": "object",
       "properties": {
@@ -715,6 +907,42 @@
         "session": {
           "type": "string",
           "description": "Signed JWT containing an expiry, public key, session type, user id, and organization id"
+        }
+      },
+      "required": ["session"]
+    },
+    "v1OtpLoginV2Request": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string",
+          "description": "Session containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)"
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Client-side public key generated by the user, used as the session public key upon successful login."
+        },
+        "clientSignature": {
+          "$ref": "#/definitions/v1ClientSignature",
+          "description": "Signature proving authorization for this login. The signature is over the verification token ID and the new session public key."
+        },
+        "invalidateExisting": {
+          "type": "boolean",
+          "description": "Invalidate all other previously generated Login sessions"
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization. If provided, this organization id will be used directly. If omitted, uses the verification token to look up the verified sub-organization based on the contact and verification type."
+        }
+      },
+      "required": ["verificationToken", "publicKey", "clientSignature"]
+    },
+    "v1OtpLoginV2Response": {
+      "type": "object",
+      "properties": {
+        "session": {
+          "type": "string",
+          "description": "Session containing an expiry, public key, session type, user id, and organization id"
         }
       },
       "required": ["session"]
@@ -806,6 +1034,89 @@
       },
       "required": ["organizationId", "userId"]
     },
+    "v1SignupV2Request": {
+      "type": "object",
+      "properties": {
+        "userEmail": {
+          "type": "string"
+        },
+        "userPhoneNumber": {
+          "type": "string"
+        },
+        "userTag": {
+          "type": "string"
+        },
+        "userName": {
+          "type": "string"
+        },
+        "organizationName": {
+          "type": "string"
+        },
+        "verificationToken": {
+          "type": "string"
+        },
+        "apiKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1ApiKeyParamsV2"
+          },
+          "description": "A list of API Key parameters. This field, if not needed, should be an empty array in your request body."
+        },
+        "authenticators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticatorParamsV2"
+          },
+          "description": "A list of Authenticator parameters. This field, if not needed, should be an empty array in your request body."
+        },
+        "oauthProviders": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1OauthProviderParamsV2"
+          },
+          "description": "A list of Oauth providers. This field, if not needed, should be an empty array in your request body."
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletParams",
+          "description": "The wallet to create for the sub-organization"
+        },
+        "clientSignature": {
+          "$ref": "#/definitions/v1ClientSignature",
+          "description": "Optional signature proving authorization for this signup. The signature is over the verification token ID and the root user parameters for the root user associated with the verification token. Only required if a public key was provided during the verification step."
+        }
+      },
+      "required": ["apiKeys", "authenticators", "oauthProviders"]
+    },
+    "v1SignupV2Response": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "wallet": {
+          "$ref": "#/definitions/v1WalletResult",
+          "description": "Wallet created for the sub-organization, if provided in the request",
+          "title": "Wallet"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Root user ID created for this sub-organization",
+          "title": "User ID"
+        },
+        "appProofs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AppProof"
+          },
+          "description": "A list of App Proofs generated by enclaves during activity execution, providing verifiable attestations of performed operations."
+        }
+      },
+      "required": ["organizationId", "userId"]
+    },
     "v1VerifyOtpRequest": {
       "type": "object",
       "properties": {
@@ -830,6 +1141,30 @@
         "verificationToken": {
           "type": "string",
           "description": "Signed JWT containing a unique id, expiry, verification type, contact. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)"
+        }
+      },
+      "required": ["verificationToken"]
+    },
+    "v1VerifyOtpV2Request": {
+      "type": "object",
+      "properties": {
+        "otpId": {
+          "type": "string",
+          "description": "ID representing the result of an init OTP activity."
+        },
+        "encryptedOtpBundle": {
+          "type": "string",
+          "description": "Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result."
+        }
+      },
+      "required": ["otpId", "encryptedOtpBundle"]
+    },
+    "v1VerifyOtpV2Response": {
+      "type": "object",
+      "properties": {
+        "verificationToken": {
+          "type": "string",
+          "description": "Verification Token containing a unique id, expiry, verification type, contact signed by Turnkey's enclaves. Verification status of a user is updated when the token is consumed (in OTP_LOGIN requests)"
         }
       },
       "required": ["verificationToken"]

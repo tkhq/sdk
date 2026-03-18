@@ -44,6 +44,7 @@ import {
   getAuthProxyConfig,
   Chain,
   DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
+  type MfaContext,
   OtpType,
   StamperType,
   TurnkeyClient,
@@ -184,6 +185,7 @@ import type {
   HandleImportPrivateKeyParams,
   HandleImportWalletParams,
   HandleLoginParams,
+  HandleMfaParams,
   HandleOnRampParams,
   HandleRemoveOauthProviderParams,
   HandleRemovePasskeyParams,
@@ -205,6 +207,7 @@ import { OnRampPage } from "../../components/onramp/OnRamp";
 import { CoinbaseLogo, MoonPayLogo } from "../../components/design/Svg";
 import { SendTransactionPage } from "../../components/send-transaction/SendTransaction";
 import { getChainLogo } from "../../components/send-transaction/helpers";
+import { MfaPage } from "../../components/mfa/Mfa";
 
 /**
  * @inline
@@ -271,6 +274,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const proxyAuthConfigRef = useRef<ProxyTGetWalletKitConfigResponse | null>(
     null,
   );
+  // Default built-in MFA handler. Used unless the developer overrides via setMfaHandler.
+  const defaultMfaHandler = useCallback(async (ctx: MfaContext) => {
+    await handleMfa({
+      mfaContext: ctx,
+    });
+  }, []);
+
+  // Stores the active MFA handler. Either the developer's custom handler or the default built-in one.
+  const mfaHandlerRef =
+    useRef<(context: MfaContext) => Promise<void>>(defaultMfaHandler);
 
   const [allSessions, setAllSessions] = useState<
     Record<string, Session> | undefined
@@ -1616,6 +1629,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           callbacks?.beforeSessionExpiry?.({ sessionKey });
 
           if (masterConfig?.auth?.autoRefreshSession) {
+            // TODO (Amir/Moe): Once the sessionProfileId is stored in the session, we need to pass it in here so that we get a new session with the same sessionProfileId
             await refreshSession({
               expirationSeconds: session.expirationSeconds!,
               sessionKey,
@@ -3236,6 +3250,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       );
     },
     [client, callbacks, logout],
+  );
+
+  const setMfaHandler = useCallback(
+    (handler: ((context: MfaContext) => Promise<void>) | undefined) => {
+      mfaHandlerRef.current = handler ?? defaultMfaHandler;
+    },
+    [defaultMfaHandler],
   );
 
   const handleDiscordOauth = useCallback(
@@ -5762,6 +5783,49 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [getSession, pushPage],
   );
 
+  const handleMfa = useCallback(
+    async (params: HandleMfaParams): Promise<void> => {
+      const { mfaContext, successPageDuration = 2000 } = params;
+      try {
+        return new Promise((resolve, reject) => {
+          pushPage({
+            key: "Complete MFA",
+            content: (
+              <MfaPage
+                mfaContext={mfaContext}
+                successPageDuration={successPageDuration}
+                onSuccess={() => {
+                  resolve();
+                }}
+                onError={(error: unknown) => {
+                  reject(error);
+                }}
+              />
+            ),
+            showTitle: false,
+            onClose: () =>
+              reject(
+                new TurnkeyError(
+                  "User canceled the MFA completion process.",
+                  TurnkeyErrorCodes.USER_CANCELED,
+                ),
+              ),
+          });
+        });
+      } catch (error) {
+        if (error instanceof TurnkeyError) {
+          throw error;
+        }
+        throw new TurnkeyError(
+          "Failed to complete MFA.",
+          TurnkeyErrorCodes.MFA_COMPLETION_ERROR,
+          error,
+        );
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
     if (proxyAuthConfigRef.current) return;
 
@@ -5870,8 +5934,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   }, [session]);
 
   useEffect(() => {
-    // This will handle any redirect based oAuth. It then initializes the session. This is the last step before client is considered "ready"
     if (!client || !masterConfig) return;
+
+    // This will handle any redirect based oAuth. It then initializes the session. This is the last step before client is considered "ready"
     completeRedirectOauth().finally(() => {
       clearSessionTimeouts();
 
@@ -5889,6 +5954,11 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         setClientState(ClientState.Ready);
       });
     });
+
+    // This will set the onMfaRequired callback on the httpClient config to our custom handler or one that the developer can set via setMfaHandler.
+    client.httpClient.config.onMfaRequired = async (ctx) => {
+      await mfaHandlerRef.current(ctx);
+    };
 
     return () => {
       clearSessionTimeouts();
@@ -6001,6 +6071,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         handleOnRamp,
         handleSendTransaction,
         handleSendErc20Transfer,
+        setMfaHandler,
       }}
     >
       {children}

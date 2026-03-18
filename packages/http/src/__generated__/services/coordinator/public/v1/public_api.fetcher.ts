@@ -146,6 +146,52 @@ export const signGetApiKeys = (
   });
 
 /**
+ * `POST /public/v1/query/get_app_status`
+ */
+export type TGetAppStatusResponse =
+  operations["PublicApiService_GetAppStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_app_status`
+ */
+export type TGetAppStatusInput = { body: TGetAppStatusBody };
+
+/**
+ * `POST /public/v1/query/get_app_status`
+ */
+export type TGetAppStatusBody =
+  operations["PublicApiService_GetAppStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get TVC App status
+ *
+ * Get live runtime status for a TVC App from the cluster.
+ *
+ * `POST /public/v1/query/get_app_status`
+ */
+export const getAppStatus = (input: TGetAppStatusInput) =>
+  request<TGetAppStatusResponse, TGetAppStatusBody, never, never, never>({
+    uri: "/public/v1/query/get_app_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetAppStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetAppStatus}
+ */
+export const signGetAppStatus = (
+  input: TGetAppStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetAppStatusBody, never, never>({
+    uri: "/public/v1/query/get_app_status",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_authenticator`
  */
 export type TGetAuthenticatorResponse =
@@ -389,6 +435,144 @@ export const signGetLatestBootProof = (
 ) =>
   signedRequest<TGetLatestBootProofBody, never, never>({
     uri: "/public/v1/query/get_latest_boot_proof",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_mfa_policies`
+ */
+export type TGetMfaPoliciesResponse =
+  operations["PublicApiService_GetMfaPolicies"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_mfa_policies`
+ */
+export type TGetMfaPoliciesInput = { body: TGetMfaPoliciesBody };
+
+/**
+ * `POST /public/v1/query/get_mfa_policies`
+ */
+export type TGetMfaPoliciesBody =
+  operations["PublicApiService_GetMfaPolicies"]["parameters"]["body"]["body"];
+
+/**
+ * Get MFA policies
+ *
+ * Get all MFA policies for a user.
+ *
+ * `POST /public/v1/query/get_mfa_policies`
+ */
+export const getMfaPolicies = (input: TGetMfaPoliciesInput) =>
+  request<TGetMfaPoliciesResponse, TGetMfaPoliciesBody, never, never, never>({
+    uri: "/public/v1/query/get_mfa_policies",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetMfaPolicies` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetMfaPolicies}
+ */
+export const signGetMfaPolicies = (
+  input: TGetMfaPoliciesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetMfaPoliciesBody, never, never>({
+    uri: "/public/v1/query/get_mfa_policies",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_mfa_policy`
+ */
+export type TGetMfaPolicyResponse =
+  operations["PublicApiService_GetMfaPolicy"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_mfa_policy`
+ */
+export type TGetMfaPolicyInput = { body: TGetMfaPolicyBody };
+
+/**
+ * `POST /public/v1/query/get_mfa_policy`
+ */
+export type TGetMfaPolicyBody =
+  operations["PublicApiService_GetMfaPolicy"]["parameters"]["body"]["body"];
+
+/**
+ * Get MFA policy
+ *
+ * Get a single MFA policy for a user.
+ *
+ * `POST /public/v1/query/get_mfa_policy`
+ */
+export const getMfaPolicy = (input: TGetMfaPolicyInput) =>
+  request<TGetMfaPolicyResponse, TGetMfaPolicyBody, never, never, never>({
+    uri: "/public/v1/query/get_mfa_policy",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetMfaPolicy` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetMfaPolicy}
+ */
+export const signGetMfaPolicy = (
+  input: TGetMfaPolicyInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetMfaPolicyBody, never, never>({
+    uri: "/public/v1/query/get_mfa_policy",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_mfa_status`
+ */
+export type TGetMfaStatusResponse =
+  operations["PublicApiService_GetMfaStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_mfa_status`
+ */
+export type TGetMfaStatusInput = { body: TGetMfaStatusBody };
+
+/**
+ * `POST /public/v1/query/get_mfa_status`
+ */
+export type TGetMfaStatusBody =
+  operations["PublicApiService_GetMfaStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get MFA status
+ *
+ * Get the MFA status of an activity for a specific user or all voting users.
+ *
+ * `POST /public/v1/query/get_mfa_status`
+ */
+export const getMfaStatus = (input: TGetMfaStatusInput) =>
+  request<TGetMfaStatusResponse, TGetMfaStatusBody, never, never, never>({
+    uri: "/public/v1/query/get_mfa_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetMfaStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetMfaStatus}
+ */
+export const signGetMfaStatus = (
+  input: TGetMfaStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetMfaStatusBody, never, never>({
+    uri: "/public/v1/query/get_mfa_status",
     body: input.body,
     options,
   });
@@ -900,6 +1084,110 @@ export const signGetSendTransactionStatus = (
   });
 
 /**
+ * `POST /public/v1/query/get_session_profile`
+ */
+export type TGetSessionProfileResponse =
+  operations["PublicApiService_GetSessionProfile"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_session_profile`
+ */
+export type TGetSessionProfileInput = { body: TGetSessionProfileBody };
+
+/**
+ * `POST /public/v1/query/get_session_profile`
+ */
+export type TGetSessionProfileBody =
+  operations["PublicApiService_GetSessionProfile"]["parameters"]["body"]["body"];
+
+/**
+ * Get session profile
+ *
+ * Get a single session profile for an organization.
+ *
+ * `POST /public/v1/query/get_session_profile`
+ */
+export const getSessionProfile = (input: TGetSessionProfileInput) =>
+  request<
+    TGetSessionProfileResponse,
+    TGetSessionProfileBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_session_profile",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetSessionProfile` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetSessionProfile}
+ */
+export const signGetSessionProfile = (
+  input: TGetSessionProfileInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetSessionProfileBody, never, never>({
+    uri: "/public/v1/query/get_session_profile",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/get_session_profiles`
+ */
+export type TGetSessionProfilesResponse =
+  operations["PublicApiService_GetSessionProfiles"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_session_profiles`
+ */
+export type TGetSessionProfilesInput = { body: TGetSessionProfilesBody };
+
+/**
+ * `POST /public/v1/query/get_session_profiles`
+ */
+export type TGetSessionProfilesBody =
+  operations["PublicApiService_GetSessionProfiles"]["parameters"]["body"]["body"];
+
+/**
+ * Get session profiles
+ *
+ * Get all session profiles for an organization.
+ *
+ * `POST /public/v1/query/get_session_profiles`
+ */
+export const getSessionProfiles = (input: TGetSessionProfilesInput) =>
+  request<
+    TGetSessionProfilesResponse,
+    TGetSessionProfilesBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/get_session_profiles",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetSessionProfiles` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetSessionProfiles}
+ */
+export const signGetSessionProfiles = (
+  input: TGetSessionProfilesInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetSessionProfilesBody, never, never>({
+    uri: "/public/v1/query/get_session_profiles",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_smart_contract_interface`
  */
 export type TGetSmartContractInterfaceResponse =
@@ -1219,7 +1507,7 @@ export type TGetWalletAddressBalancesBody =
 /**
  * Get balances
  *
- * Get non-zero balances of supported assets for a single wallet account address on the specified network.
+ * Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.
  *
  * `POST /public/v1/query/get_wallet_address_balances`
  */
@@ -1719,7 +2007,7 @@ export type TListSupportedAssetsBody =
 /**
  * List supported assets
  *
- * List supported assets for the specified network
+ * List supported assets for the specified network. This feature is in beta - please contact support for access.
  *
  * `POST /public/v1/query/list_supported_assets`
  */
@@ -2092,6 +2380,58 @@ export const signGetWallets = (
   });
 
 /**
+ * `POST /public/v1/query/list_webhook_endpoints`
+ */
+export type TListWebhookEndpointsResponse =
+  operations["PublicApiService_ListWebhookEndpoints"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_webhook_endpoints`
+ */
+export type TListWebhookEndpointsInput = { body: TListWebhookEndpointsBody };
+
+/**
+ * `POST /public/v1/query/list_webhook_endpoints`
+ */
+export type TListWebhookEndpointsBody =
+  operations["PublicApiService_ListWebhookEndpoints"]["parameters"]["body"]["body"];
+
+/**
+ * List webhook endpoints
+ *
+ * List webhook endpoints within an organization.
+ *
+ * `POST /public/v1/query/list_webhook_endpoints`
+ */
+export const listWebhookEndpoints = (input: TListWebhookEndpointsInput) =>
+  request<
+    TListWebhookEndpointsResponse,
+    TListWebhookEndpointsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_webhook_endpoints",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListWebhookEndpoints` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListWebhookEndpoints}
+ */
+export const signListWebhookEndpoints = (
+  input: TListWebhookEndpointsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListWebhookEndpointsBody, never, never>({
+    uri: "/public/v1/query/list_webhook_endpoints",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/whoami`
  */
 export type TGetWhoamiResponse =
@@ -2437,6 +2777,52 @@ export const signCreateInvitations = (
 ) =>
   signedRequest<TCreateInvitationsBody, never, never>({
     uri: "/public/v1/submit/create_invitations",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_mfa_policy`
+ */
+export type TCreateMfaPolicyResponse =
+  operations["PublicApiService_CreateMfaPolicy"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_mfa_policy`
+ */
+export type TCreateMfaPolicyInput = { body: TCreateMfaPolicyBody };
+
+/**
+ * `POST /public/v1/submit/create_mfa_policy`
+ */
+export type TCreateMfaPolicyBody =
+  operations["PublicApiService_CreateMfaPolicy"]["parameters"]["body"]["body"];
+
+/**
+ * Create MFA policy
+ *
+ * Create a new MFA policy for a user.
+ *
+ * `POST /public/v1/submit/create_mfa_policy`
+ */
+export const createMfaPolicy = (input: TCreateMfaPolicyInput) =>
+  request<TCreateMfaPolicyResponse, TCreateMfaPolicyBody, never, never, never>({
+    uri: "/public/v1/submit/create_mfa_policy",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateMfaPolicy` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateMfaPolicy}
+ */
+export const signCreateMfaPolicy = (
+  input: TCreateMfaPolicyInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateMfaPolicyBody, never, never>({
+    uri: "/public/v1/submit/create_mfa_policy",
     body: input.body,
     options,
   });
@@ -2845,6 +3231,58 @@ export const signCreateReadWriteSession = (
 ) =>
   signedRequest<TCreateReadWriteSessionBody, never, never>({
     uri: "/public/v1/submit/create_read_write_session",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_session_profile`
+ */
+export type TCreateSessionProfileResponse =
+  operations["PublicApiService_CreateSessionProfile"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_session_profile`
+ */
+export type TCreateSessionProfileInput = { body: TCreateSessionProfileBody };
+
+/**
+ * `POST /public/v1/submit/create_session_profile`
+ */
+export type TCreateSessionProfileBody =
+  operations["PublicApiService_CreateSessionProfile"]["parameters"]["body"]["body"];
+
+/**
+ * Create session profile
+ *
+ * Create a new session profile for an organization.
+ *
+ * `POST /public/v1/submit/create_session_profile`
+ */
+export const createSessionProfile = (input: TCreateSessionProfileInput) =>
+  request<
+    TCreateSessionProfileResponse,
+    TCreateSessionProfileBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_session_profile",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateSessionProfile` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateSessionProfile}
+ */
+export const signCreateSessionProfile = (
+  input: TCreateSessionProfileInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateSessionProfileBody, never, never>({
+    uri: "/public/v1/submit/create_session_profile",
     body: input.body,
     options,
   });
@@ -3302,6 +3740,58 @@ export const signCreateWalletAccounts = (
   });
 
 /**
+ * `POST /public/v1/submit/create_webhook_endpoint`
+ */
+export type TCreateWebhookEndpointResponse =
+  operations["PublicApiService_CreateWebhookEndpoint"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_webhook_endpoint`
+ */
+export type TCreateWebhookEndpointInput = { body: TCreateWebhookEndpointBody };
+
+/**
+ * `POST /public/v1/submit/create_webhook_endpoint`
+ */
+export type TCreateWebhookEndpointBody =
+  operations["PublicApiService_CreateWebhookEndpoint"]["parameters"]["body"]["body"];
+
+/**
+ * Create webhook endpoint
+ *
+ * Create a webhook endpoint for an organization.
+ *
+ * `POST /public/v1/submit/create_webhook_endpoint`
+ */
+export const createWebhookEndpoint = (input: TCreateWebhookEndpointInput) =>
+  request<
+    TCreateWebhookEndpointResponse,
+    TCreateWebhookEndpointBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_webhook_endpoint",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateWebhookEndpoint` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateWebhookEndpoint}
+ */
+export const signCreateWebhookEndpoint = (
+  input: TCreateWebhookEndpointInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateWebhookEndpointBody, never, never>({
+    uri: "/public/v1/submit/create_webhook_endpoint",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/delete_api_keys`
  */
 export type TDeleteApiKeysResponse =
@@ -3503,6 +3993,52 @@ export const signDeleteInvitation = (
 ) =>
   signedRequest<TDeleteInvitationBody, never, never>({
     uri: "/public/v1/submit/delete_invitation",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_mfa_policy`
+ */
+export type TDeleteMfaPolicyResponse =
+  operations["PublicApiService_DeleteMfaPolicy"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_mfa_policy`
+ */
+export type TDeleteMfaPolicyInput = { body: TDeleteMfaPolicyBody };
+
+/**
+ * `POST /public/v1/submit/delete_mfa_policy`
+ */
+export type TDeleteMfaPolicyBody =
+  operations["PublicApiService_DeleteMfaPolicy"]["parameters"]["body"]["body"];
+
+/**
+ * Delete MFA policy
+ *
+ * Delete an MFA policy for a user.
+ *
+ * `POST /public/v1/submit/delete_mfa_policy`
+ */
+export const deleteMfaPolicy = (input: TDeleteMfaPolicyInput) =>
+  request<TDeleteMfaPolicyResponse, TDeleteMfaPolicyBody, never, never, never>({
+    uri: "/public/v1/submit/delete_mfa_policy",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteMfaPolicy` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteMfaPolicy}
+ */
+export const signDeleteMfaPolicy = (
+  input: TDeleteMfaPolicyInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteMfaPolicyBody, never, never>({
+    uri: "/public/v1/submit/delete_mfa_policy",
     body: input.body,
     options,
   });
@@ -4103,6 +4639,58 @@ export const signDeleteWallets = (
 ) =>
   signedRequest<TDeleteWalletsBody, never, never>({
     uri: "/public/v1/submit/delete_wallets",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/delete_webhook_endpoint`
+ */
+export type TDeleteWebhookEndpointResponse =
+  operations["PublicApiService_DeleteWebhookEndpoint"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_webhook_endpoint`
+ */
+export type TDeleteWebhookEndpointInput = { body: TDeleteWebhookEndpointBody };
+
+/**
+ * `POST /public/v1/submit/delete_webhook_endpoint`
+ */
+export type TDeleteWebhookEndpointBody =
+  operations["PublicApiService_DeleteWebhookEndpoint"]["parameters"]["body"]["body"];
+
+/**
+ * Delete webhook endpoint
+ *
+ * Delete a webhook endpoint for an organization.
+ *
+ * `POST /public/v1/submit/delete_webhook_endpoint`
+ */
+export const deleteWebhookEndpoint = (input: TDeleteWebhookEndpointInput) =>
+  request<
+    TDeleteWebhookEndpointResponse,
+    TDeleteWebhookEndpointBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_webhook_endpoint",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteWebhookEndpoint` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteWebhookEndpoint}
+ */
+export const signDeleteWebhookEndpoint = (
+  input: TDeleteWebhookEndpointInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteWebhookEndpointBody, never, never>({
+    uri: "/public/v1/submit/delete_webhook_endpoint",
     body: input.body,
     options,
   });
@@ -5530,6 +6118,52 @@ export const signUpdateFiatOnRampCredential = (
   });
 
 /**
+ * `POST /public/v1/submit/update_mfa_policy`
+ */
+export type TUpdateMfaPolicyResponse =
+  operations["PublicApiService_UpdateMfaPolicy"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_mfa_policy`
+ */
+export type TUpdateMfaPolicyInput = { body: TUpdateMfaPolicyBody };
+
+/**
+ * `POST /public/v1/submit/update_mfa_policy`
+ */
+export type TUpdateMfaPolicyBody =
+  operations["PublicApiService_UpdateMfaPolicy"]["parameters"]["body"]["body"];
+
+/**
+ * Update MFA policy
+ *
+ * Update an MFA policy for a user.
+ *
+ * `POST /public/v1/submit/update_mfa_policy`
+ */
+export const updateMfaPolicy = (input: TUpdateMfaPolicyInput) =>
+  request<TUpdateMfaPolicyResponse, TUpdateMfaPolicyBody, never, never, never>({
+    uri: "/public/v1/submit/update_mfa_policy",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateMfaPolicy` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateMfaPolicy}
+ */
+export const signUpdateMfaPolicy = (
+  input: TUpdateMfaPolicyInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateMfaPolicyBody, never, never>({
+    uri: "/public/v1/submit/update_mfa_policy",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/update_oauth2_credential`
  */
 export type TUpdateOauth2CredentialResponse =
@@ -5579,6 +6213,60 @@ export const signUpdateOauth2Credential = (
 ) =>
   signedRequest<TUpdateOauth2CredentialBody, never, never>({
     uri: "/public/v1/submit/update_oauth2_credential",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_organization_name`
+ */
+export type TUpdateOrganizationNameResponse =
+  operations["PublicApiService_UpdateOrganizationName"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_organization_name`
+ */
+export type TUpdateOrganizationNameInput = {
+  body: TUpdateOrganizationNameBody;
+};
+
+/**
+ * `POST /public/v1/submit/update_organization_name`
+ */
+export type TUpdateOrganizationNameBody =
+  operations["PublicApiService_UpdateOrganizationName"]["parameters"]["body"]["body"];
+
+/**
+ * Update organization name
+ *
+ * Update the name of an organization.
+ *
+ * `POST /public/v1/submit/update_organization_name`
+ */
+export const updateOrganizationName = (input: TUpdateOrganizationNameInput) =>
+  request<
+    TUpdateOrganizationNameResponse,
+    TUpdateOrganizationNameBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_organization_name",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateOrganizationName` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateOrganizationName}
+ */
+export const signUpdateOrganizationName = (
+  input: TUpdateOrganizationNameInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateOrganizationNameBody, never, never>({
+    uri: "/public/v1/submit/update_organization_name",
     body: input.body,
     options,
   });
@@ -6011,6 +6699,58 @@ export const signUpdateWallet = (
 ) =>
   signedRequest<TUpdateWalletBody, never, never>({
     uri: "/public/v1/submit/update_wallet",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/update_webhook_endpoint`
+ */
+export type TUpdateWebhookEndpointResponse =
+  operations["PublicApiService_UpdateWebhookEndpoint"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_webhook_endpoint`
+ */
+export type TUpdateWebhookEndpointInput = { body: TUpdateWebhookEndpointBody };
+
+/**
+ * `POST /public/v1/submit/update_webhook_endpoint`
+ */
+export type TUpdateWebhookEndpointBody =
+  operations["PublicApiService_UpdateWebhookEndpoint"]["parameters"]["body"]["body"];
+
+/**
+ * Update webhook endpoint
+ *
+ * Update a webhook endpoint for an organization.
+ *
+ * `POST /public/v1/submit/update_webhook_endpoint`
+ */
+export const updateWebhookEndpoint = (input: TUpdateWebhookEndpointInput) =>
+  request<
+    TUpdateWebhookEndpointResponse,
+    TUpdateWebhookEndpointBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_webhook_endpoint",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateWebhookEndpoint` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateWebhookEndpoint}
+ */
+export const signUpdateWebhookEndpoint = (
+  input: TUpdateWebhookEndpointInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateWebhookEndpointBody, never, never>({
+    uri: "/public/v1/submit/update_webhook_endpoint",
     body: input.body,
     options,
   });
