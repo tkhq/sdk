@@ -3,6 +3,7 @@
 import type {
   TurnkeySDKClientBase,
   TurnkeyClientMethods,
+  MfaContext,
   Wallet,
   WalletProvider,
   WalletAccount,
@@ -813,6 +814,23 @@ export interface ClientContextType
   handleSendErc20Transfer: (
     params: HandleSendErc20TransferParams,
   ) => Promise<void>;
+
+  /**
+   * Registers a custom MFA handler that will be invoked when an activity
+   * requires multi-factor approval (`ACTIVITY_STATUS_AUTHENTICATORS_NEEDED`).
+   *
+   * The handler receives a {@link MfaContext} with activity details
+   * (fingerprint, activityId, organizationId, activityType, status).
+   *
+   * Use the `httpClient` from `useTurnkey()` to approve or reject the activity.
+   *
+   * If no custom handler is set, a built-in MFA modal will be shown.
+   *
+   * @param handler - Async function to handle MFA approval. Pass `undefined` to restore the default handler.
+   */
+  setMfaHandler: (
+    handler: ((context: MfaContext) => Promise<void>) | undefined,
+  ) => void;
 }
 
 /** @internal */

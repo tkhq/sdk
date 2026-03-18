@@ -38,6 +38,7 @@ export default function AuthPage() {
   const [organizationId, setOrganizationId] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [connectedWallets, setConnectedWallets] = useState<Wallet[]>([]);
+  const [mfaFingerprint, setMfaFingerprint] = useState<string>("");
 
   const [activeSessionKey, setActiveSessionKey] = useState<string | null>(null);
   const [sessionKey, setSessionKey] = useState<string>("");
@@ -2814,6 +2815,161 @@ export default function AuthPage() {
             Create Private Keys
           </button>
         </div>
+      </div>
+      <div>
+        <h2>MFA Practice</h2>
+
+        <div className="flex flex-wrap gap-2 mb-2">
+          <button
+            data-testid="mfa-create-mfa-policy"
+            onClick={async () => {
+              console.log(
+                "Creating mfa policy",
+                await httpClient?.createMfaPolicy({
+                  userId: user?.userId!,
+                  mfaPolicyName: "Some policy",
+                  condition: "activity.action == 'SIGN'",
+                  requiredAuthenticationMethods: [
+                    {
+                      any: [{ type: "AUTHENTICATION_TYPE_SESSION" }],
+                    },
+                    {
+                      any: [{ type: "AUTHENTICATION_TYPE_PASSKEY" }],
+                    },
+                  ],
+                  order: 0,
+                }),
+              );
+            }}
+            style={{
+              backgroundColor: "deepskyblue",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Create mfa policy - Passkey + API Key for signing
+          </button>
+
+          <button
+            data-testid="mfa-sign-raw-payload-api-key"
+            onClick={async () => {
+              const res = await httpClient?.signRawPayload({
+                signWith: activeWalletAccount?.address!,
+                payload: "Hello, Turnkey!",
+                encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+                hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+              });
+              if (res) {
+                setMfaFingerprint(res.activity.fingerprint);
+              }
+              console.log("Signing raw payload", res);
+            }}
+            style={{
+              backgroundColor: "deepskyblue",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Sign raw payload using Api Key - should trigger MFA
+          </button>
+          <button
+            data-testid="mfa-sign-raw-payload-passkey"
+            onClick={async () => {
+              const res = await httpClient?.signRawPayload(
+                {
+                  signWith: activeWalletAccount?.address!,
+                  payload: "Hello, Turnkey!",
+                  encoding: "PAYLOAD_ENCODING_TEXT_UTF8",
+                  hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+                },
+                StamperType.Passkey,
+              );
+              if (res) {
+                setMfaFingerprint(res.activity.fingerprint);
+              }
+              console.log("Signing raw payload", res);
+            }}
+            style={{
+              backgroundColor: "deepskyblue",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Sign raw payload using Passkey - should trigger MFA
+          </button>
+        </div>
+        <div className="flex flex-row gap-2">
+          <input
+            data-testid="mfa-fingerprint-input"
+            type="text"
+            placeholder="Enter activity fingerprint"
+            className="p-1 border border-neutral-300 rounded"
+            value={mfaFingerprint}
+            onChange={(e) => setMfaFingerprint(e.target.value)}
+          />
+          <button
+            data-testid="mfa-add-api-key-authenticator"
+            onClick={async () => {
+              console.log(
+                "Adding api-key authenticator to activity",
+                await httpClient?.approveActivity({
+                  fingerprint: mfaFingerprint,
+                }),
+              );
+            }}
+            style={{
+              backgroundColor: "deepskyblue",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Add Api Key authenticator
+          </button>
+
+          <button
+            data-testid="mfa-add-passkey-authenticator"
+            onClick={async () => {
+              console.log(
+                "Adding passkey authenticator to activity",
+                await httpClient?.approveActivity(
+                  {
+                    fingerprint: mfaFingerprint,
+                  },
+                  StamperType.Passkey,
+                ),
+              );
+            }}
+            style={{
+              backgroundColor: "deepskyblue",
+              borderRadius: "8px",
+              padding: "8px 16px",
+              color: "black",
+            }}
+          >
+            Add Passkey authenticator
+          </button>
+        </div>
+
+        <button
+          data-testid="mfa-set-handler"
+          onClick={async () => {
+            turnkey.setMfaHandler(async (ctx) => {
+              console.log("Hello I am a custom MFA handler:", ctx);
+            });
+          }}
+          style={{
+            backgroundColor: "deepskyblue",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            color: "black",
+          }}
+        >
+          Set MFA Handler
+        </button>
       </div>
     </main>
   );

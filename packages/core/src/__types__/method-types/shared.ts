@@ -15,6 +15,7 @@ import type {
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
+  MfaContext,
   OtpType,
   StamperType,
   SwitchableChain,
@@ -30,6 +31,7 @@ export type CreateHttpClientParams = {
   authProxyUrl?: string | undefined;
   authProxyConfigId?: string | undefined;
   defaultStamperType?: StamperType | undefined;
+  onMfaRequired?: ((context: MfaContext) => Promise<void>) | undefined;
 };
 
 export type CreatePasskeyParams = {
