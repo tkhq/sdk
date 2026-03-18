@@ -17,6 +17,7 @@ import type {
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
+  MfaContext,
   OtpType,
   StamperType,
   SwitchableChain,
@@ -32,6 +33,7 @@ export type CreateHttpClientParams = {
   authProxyUrl?: string | undefined;
   authProxyConfigId?: string | undefined;
   defaultStamperType?: StamperType | undefined;
+  onMfaRequired?: ((context: MfaContext) => Promise<void>) | undefined;
 };
 
 export type OverrideApiKeyStamperParams = {
@@ -64,6 +66,7 @@ export type LoginWithPasskeyParams = {
   expirationSeconds?: string;
   organizationId?: string;
   allowCredentials?: PublicKeyCredentialDescriptor[];
+  sessionProfileId?: string;
 };
 
 export type SignUpWithPasskeyParams = {
@@ -72,6 +75,7 @@ export type SignUpWithPasskeyParams = {
   passkeyDisplayName?: string;
   expirationSeconds?: string;
   challenge?: string;
+  sessionProfileId?: string;
 };
 
 export type SwitchWalletAccountChainParams = {
@@ -84,6 +88,7 @@ export type BuildWalletLoginRequestParams = {
   walletProvider: WalletProvider;
   publicKey?: string;
   expirationSeconds?: string;
+  sessionProfileId?: string;
 };
 
 export type BuildWalletLoginRequestResult = {
@@ -97,6 +102,7 @@ export type LoginWithWalletParams = {
   sessionKey?: string;
   expirationSeconds?: string;
   organizationId?: string;
+  sessionProfileId?: string;
 };
 
 export type SignUpWithWalletParams = {
@@ -104,6 +110,7 @@ export type SignUpWithWalletParams = {
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
   expirationSeconds?: string;
+  sessionProfileId?: string;
 };
 
 export type LoginOrSignupWithWalletParams = {
@@ -112,6 +119,7 @@ export type LoginOrSignupWithWalletParams = {
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
   expirationSeconds?: string;
+  sessionProfileId?: string;
 };
 
 export type InitOtpParams = {
@@ -141,6 +149,7 @@ export type LoginWithOtpParams = {
   organizationId?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
 };
 
 export type SignUpWithOtpParams = {
@@ -150,6 +159,7 @@ export type SignUpWithOtpParams = {
   createSubOrgParams?: CreateSubOrgParams;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
 };
 
 export type CompleteOtpParams = {
@@ -162,6 +172,7 @@ export type CompleteOtpParams = {
   invalidateExisting?: boolean;
   sessionKey?: string;
   createSubOrgParams?: CreateSubOrgParams;
+  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
 };
 
 export type CompleteOauthParams = {
@@ -171,6 +182,7 @@ export type CompleteOauthParams = {
   sessionKey?: string;
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
+  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
 };
 
 export type LoginWithOauthParams = {
@@ -179,6 +191,7 @@ export type LoginWithOauthParams = {
   organizationId?: string;
   invalidateExisting?: boolean;
   sessionKey?: string;
+  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
 };
 
 export type SignUpWithOauthParams = {
@@ -188,6 +201,7 @@ export type SignUpWithOauthParams = {
   invalidateExisting?: boolean;
   createSubOrgParams?: CreateSubOrgParams;
   sessionKey?: string;
+  // TODO (Amir/Moe): When we do verification token stamping stuff, switch to stamplogin and pass in this: sessionProfileId?: string;
 };
 
 export type FetchWalletsParams = {
@@ -451,6 +465,7 @@ export type RefreshSessionParams = {
   publicKey?: string;
   sessionKey?: string;
   invalidateExisitng?: boolean;
+  sessionProfileId?: string;
   stampWith?: StamperType | undefined;
 };
 
