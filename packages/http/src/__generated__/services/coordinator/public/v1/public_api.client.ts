@@ -19,6 +19,10 @@ import type {
   TGetApiKeysResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetAppStatusBody,
+  TGetAppStatusResponse,
+} from "./public_api.fetcher";
+import type {
   TGetAuthenticatorBody,
   TGetAuthenticatorResponse,
 } from "./public_api.fetcher";
@@ -37,6 +41,18 @@ import type {
 import type {
   TGetLatestBootProofBody,
   TGetLatestBootProofResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetMfaPoliciesBody,
+  TGetMfaPoliciesResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetMfaPolicyBody,
+  TGetMfaPolicyResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetMfaStatusBody,
+  TGetMfaStatusResponse,
 } from "./public_api.fetcher";
 import type { TGetNoncesBody, TGetNoncesResponse } from "./public_api.fetcher";
 import type {
@@ -71,6 +87,14 @@ import type {
 import type {
   TGetSendTransactionStatusBody,
   TGetSendTransactionStatusResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetSessionProfileBody,
+  TGetSessionProfileResponse,
+} from "./public_api.fetcher";
+import type {
+  TGetSessionProfilesBody,
+  TGetSessionProfilesResponse,
 } from "./public_api.fetcher";
 import type {
   TGetSmartContractInterfaceBody,
@@ -156,6 +180,10 @@ import type {
   TGetWalletsBody,
   TGetWalletsResponse,
 } from "./public_api.fetcher";
+import type {
+  TListWebhookEndpointsBody,
+  TListWebhookEndpointsResponse,
+} from "./public_api.fetcher";
 import type { TGetWhoamiBody, TGetWhoamiResponse } from "./public_api.fetcher";
 import type {
   TApproveActivityBody,
@@ -180,6 +208,10 @@ import type {
 import type {
   TCreateInvitationsBody,
   TCreateInvitationsResponse,
+} from "./public_api.fetcher";
+import type {
+  TCreateMfaPolicyBody,
+  TCreateMfaPolicyResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateOauth2CredentialBody,
@@ -212,6 +244,10 @@ import type {
 import type {
   TCreateReadWriteSessionBody,
   TCreateReadWriteSessionResponse,
+} from "./public_api.fetcher";
+import type {
+  TCreateSessionProfileBody,
+  TCreateSessionProfileResponse,
 } from "./public_api.fetcher";
 import type {
   TCreateSmartContractInterfaceBody,
@@ -250,6 +286,10 @@ import type {
   TCreateWalletAccountsResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreateWebhookEndpointBody,
+  TCreateWebhookEndpointResponse,
+} from "./public_api.fetcher";
+import type {
   TDeleteApiKeysBody,
   TDeleteApiKeysResponse,
 } from "./public_api.fetcher";
@@ -264,6 +304,10 @@ import type {
 import type {
   TDeleteInvitationBody,
   TDeleteInvitationResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteMfaPolicyBody,
+  TDeleteMfaPolicyResponse,
 } from "./public_api.fetcher";
 import type {
   TDeleteOauth2CredentialBody,
@@ -312,6 +356,10 @@ import type {
 import type {
   TDeleteWalletsBody,
   TDeleteWalletsResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteWebhookEndpointBody,
+  TDeleteWebhookEndpointResponse,
 } from "./public_api.fetcher";
 import type { TEmailAuthBody, TEmailAuthResponse } from "./public_api.fetcher";
 import type {
@@ -415,8 +463,16 @@ import type {
   TUpdateFiatOnRampCredentialResponse,
 } from "./public_api.fetcher";
 import type {
+  TUpdateMfaPolicyBody,
+  TUpdateMfaPolicyResponse,
+} from "./public_api.fetcher";
+import type {
   TUpdateOauth2CredentialBody,
   TUpdateOauth2CredentialResponse,
+} from "./public_api.fetcher";
+import type {
+  TUpdateOrganizationNameBody,
+  TUpdateOrganizationNameResponse,
 } from "./public_api.fetcher";
 import type {
   TUpdatePolicyBody,
@@ -453,6 +509,10 @@ import type {
 import type {
   TUpdateWalletBody,
   TUpdateWalletResponse,
+} from "./public_api.fetcher";
+import type {
+  TUpdateWebhookEndpointBody,
+  TUpdateWebhookEndpointResponse,
 } from "./public_api.fetcher";
 import type { TVerifyOtpBody, TVerifyOtpResponse } from "./public_api.fetcher";
 import type {
@@ -587,6 +647,37 @@ export class TurnkeyClient {
    */
   stampGetApiKeys = async (input: TGetApiKeysBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_api_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get live runtime status for a TVC App from the cluster.
+   *
+   * Sign the provided `TGetAppStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_app_status).
+   *
+   * See also {@link stampGetAppStatus}.
+   */
+  getAppStatus = async (
+    input: TGetAppStatusBody,
+  ): Promise<TGetAppStatusResponse> => {
+    return this.request("/public/v1/query/get_app_status", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetAppStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetAppStatus}.
+   */
+  stampGetAppStatus = async (
+    input: TGetAppStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_app_status";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -743,6 +834,99 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/query/get_latest_boot_proof";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get all MFA policies for a user.
+   *
+   * Sign the provided `TGetMfaPoliciesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_mfa_policies).
+   *
+   * See also {@link stampGetMfaPolicies}.
+   */
+  getMfaPolicies = async (
+    input: TGetMfaPoliciesBody,
+  ): Promise<TGetMfaPoliciesResponse> => {
+    return this.request("/public/v1/query/get_mfa_policies", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetMfaPoliciesBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetMfaPolicies}.
+   */
+  stampGetMfaPolicies = async (
+    input: TGetMfaPoliciesBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_mfa_policies";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get a single MFA policy for a user.
+   *
+   * Sign the provided `TGetMfaPolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_mfa_policy).
+   *
+   * See also {@link stampGetMfaPolicy}.
+   */
+  getMfaPolicy = async (
+    input: TGetMfaPolicyBody,
+  ): Promise<TGetMfaPolicyResponse> => {
+    return this.request("/public/v1/query/get_mfa_policy", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetMfaPolicyBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetMfaPolicy}.
+   */
+  stampGetMfaPolicy = async (
+    input: TGetMfaPolicyBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_mfa_policy";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get the MFA status of an activity for a specific user or all voting users.
+   *
+   * Sign the provided `TGetMfaStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_mfa_status).
+   *
+   * See also {@link stampGetMfaStatus}.
+   */
+  getMfaStatus = async (
+    input: TGetMfaStatusBody,
+  ): Promise<TGetMfaStatusResponse> => {
+    return this.request("/public/v1/query/get_mfa_status", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetMfaStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetMfaStatus}.
+   */
+  stampGetMfaStatus = async (
+    input: TGetMfaStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_mfa_status";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1064,6 +1248,70 @@ export class TurnkeyClient {
   };
 
   /**
+   * Get a single session profile for an organization.
+   *
+   * Sign the provided `TGetSessionProfileBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_session_profile).
+   *
+   * See also {@link stampGetSessionProfile}.
+   */
+  getSessionProfile = async (
+    input: TGetSessionProfileBody,
+  ): Promise<TGetSessionProfileResponse> => {
+    return this.request("/public/v1/query/get_session_profile", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetSessionProfileBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetSessionProfile}.
+   */
+  stampGetSessionProfile = async (
+    input: TGetSessionProfileBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_session_profile";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get all session profiles for an organization.
+   *
+   * Sign the provided `TGetSessionProfilesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_session_profiles).
+   *
+   * See also {@link stampGetSessionProfiles}.
+   */
+  getSessionProfiles = async (
+    input: TGetSessionProfilesBody,
+  ): Promise<TGetSessionProfilesResponse> => {
+    return this.request("/public/v1/query/get_session_profiles", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetSessionProfilesBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetSessionProfiles}.
+   */
+  stampGetSessionProfiles = async (
+    input: TGetSessionProfilesBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/get_session_profiles";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Get details about a smart contract interface.
    *
    * Sign the provided `TGetSmartContractInterfaceBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_smart_contract_interface).
@@ -1239,7 +1487,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get non-zero balances of supported assets for a single wallet account address on the specified network.
+   * Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.
    *
    * Sign the provided `TGetWalletAddressBalancesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_wallet_address_balances).
    *
@@ -1560,7 +1808,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List supported assets for the specified network
+   * List supported assets for the specified network. This feature is in beta - please contact support for access.
    *
    * Sign the provided `TListSupportedAssetsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_supported_assets).
    *
@@ -1800,6 +2048,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * List webhook endpoints within an organization.
+   *
+   * Sign the provided `TListWebhookEndpointsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_webhook_endpoints).
+   *
+   * See also {@link stampListWebhookEndpoints}.
+   */
+  listWebhookEndpoints = async (
+    input: TListWebhookEndpointsBody,
+  ): Promise<TListWebhookEndpointsResponse> => {
+    return this.request("/public/v1/query/list_webhook_endpoints", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListWebhookEndpointsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListWebhookEndpoints}.
+   */
+  stampListWebhookEndpoints = async (
+    input: TListWebhookEndpointsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_webhook_endpoints";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Get basic information about your current API or WebAuthN user and their organization. Affords sub-organization look ups via parent organization for WebAuthN or API key users.
    *
    * Sign the provided `TGetWhoamiBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/whoami).
@@ -2010,6 +2290,37 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_invitations";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create a new MFA policy for a user.
+   *
+   * Sign the provided `TCreateMfaPolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_mfa_policy).
+   *
+   * See also {@link stampCreateMfaPolicy}.
+   */
+  createMfaPolicy = async (
+    input: TCreateMfaPolicyBody,
+  ): Promise<TCreateMfaPolicyResponse> => {
+    return this.request("/public/v1/submit/create_mfa_policy", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateMfaPolicyBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateMfaPolicy}.
+   */
+  stampCreateMfaPolicy = async (
+    input: TCreateMfaPolicyBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/create_mfa_policy";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2264,6 +2575,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/create_read_write_session";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Create a new session profile for an organization.
+   *
+   * Sign the provided `TCreateSessionProfileBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_session_profile).
+   *
+   * See also {@link stampCreateSessionProfile}.
+   */
+  createSessionProfile = async (
+    input: TCreateSessionProfileBody,
+  ): Promise<TCreateSessionProfileResponse> => {
+    return this.request("/public/v1/submit/create_session_profile", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateSessionProfileBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateSessionProfile}.
+   */
+  stampCreateSessionProfile = async (
+    input: TCreateSessionProfileBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_session_profile";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2564,6 +2907,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Create a webhook endpoint for an organization.
+   *
+   * Sign the provided `TCreateWebhookEndpointBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_webhook_endpoint).
+   *
+   * See also {@link stampCreateWebhookEndpoint}.
+   */
+  createWebhookEndpoint = async (
+    input: TCreateWebhookEndpointBody,
+  ): Promise<TCreateWebhookEndpointResponse> => {
+    return this.request("/public/v1/submit/create_webhook_endpoint", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateWebhookEndpointBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateWebhookEndpoint}.
+   */
+  stampCreateWebhookEndpoint = async (
+    input: TCreateWebhookEndpointBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_webhook_endpoint";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Remove api keys from a user.
    *
    * Sign the provided `TDeleteApiKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_api_keys).
@@ -2683,6 +3058,37 @@ export class TurnkeyClient {
     input: TDeleteInvitationBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_invitation";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Delete an MFA policy for a user.
+   *
+   * Sign the provided `TDeleteMfaPolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_mfa_policy).
+   *
+   * See also {@link stampDeleteMfaPolicy}.
+   */
+  deleteMfaPolicy = async (
+    input: TDeleteMfaPolicyBody,
+  ): Promise<TDeleteMfaPolicyResponse> => {
+    return this.request("/public/v1/submit/delete_mfa_policy", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteMfaPolicyBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteMfaPolicy}.
+   */
+  stampDeleteMfaPolicy = async (
+    input: TDeleteMfaPolicyBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_mfa_policy";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -3065,6 +3471,38 @@ export class TurnkeyClient {
     input: TDeleteWalletsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_wallets";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Delete a webhook endpoint for an organization.
+   *
+   * Sign the provided `TDeleteWebhookEndpointBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_webhook_endpoint).
+   *
+   * See also {@link stampDeleteWebhookEndpoint}.
+   */
+  deleteWebhookEndpoint = async (
+    input: TDeleteWebhookEndpointBody,
+  ): Promise<TDeleteWebhookEndpointResponse> => {
+    return this.request("/public/v1/submit/delete_webhook_endpoint", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteWebhookEndpointBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteWebhookEndpoint}.
+   */
+  stampDeleteWebhookEndpoint = async (
+    input: TDeleteWebhookEndpointBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_webhook_endpoint";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -3962,6 +4400,37 @@ export class TurnkeyClient {
   };
 
   /**
+   * Update an MFA policy for a user.
+   *
+   * Sign the provided `TUpdateMfaPolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_mfa_policy).
+   *
+   * See also {@link stampUpdateMfaPolicy}.
+   */
+  updateMfaPolicy = async (
+    input: TUpdateMfaPolicyBody,
+  ): Promise<TUpdateMfaPolicyResponse> => {
+    return this.request("/public/v1/submit/update_mfa_policy", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateMfaPolicyBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateMfaPolicy}.
+   */
+  stampUpdateMfaPolicy = async (
+    input: TUpdateMfaPolicyBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/submit/update_mfa_policy";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Update an OAuth 2.0 provider credential
    *
    * Sign the provided `TUpdateOauth2CredentialBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_oauth2_credential).
@@ -3984,6 +4453,38 @@ export class TurnkeyClient {
   ): Promise<TSignedRequest> => {
     const fullUrl =
       this.config.baseUrl + "/public/v1/submit/update_oauth2_credential";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update the name of an organization.
+   *
+   * Sign the provided `TUpdateOrganizationNameBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_organization_name).
+   *
+   * See also {@link stampUpdateOrganizationName}.
+   */
+  updateOrganizationName = async (
+    input: TUpdateOrganizationNameBody,
+  ): Promise<TUpdateOrganizationNameResponse> => {
+    return this.request("/public/v1/submit/update_organization_name", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateOrganizationNameBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateOrganizationName}.
+   */
+  stampUpdateOrganizationName = async (
+    input: TUpdateOrganizationNameBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/update_organization_name";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -4262,6 +4763,38 @@ export class TurnkeyClient {
     input: TUpdateWalletBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update a webhook endpoint for an organization.
+   *
+   * Sign the provided `TUpdateWebhookEndpointBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_webhook_endpoint).
+   *
+   * See also {@link stampUpdateWebhookEndpoint}.
+   */
+  updateWebhookEndpoint = async (
+    input: TUpdateWebhookEndpointBody,
+  ): Promise<TUpdateWebhookEndpointResponse> => {
+    return this.request("/public/v1/submit/update_webhook_endpoint", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateWebhookEndpointBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateWebhookEndpoint}.
+   */
+  stampUpdateWebhookEndpoint = async (
+    input: TUpdateWebhookEndpointBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/update_webhook_endpoint";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
