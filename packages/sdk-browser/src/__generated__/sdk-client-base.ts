@@ -1607,6 +1607,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  listEthTransactionHistory = async (
+    input: SdkApiTypes.TListEthTransactionHistoryBody,
+  ): Promise<SdkApiTypes.TListEthTransactionHistoryResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/list_eth_transaction_history", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampListEthTransactionHistory = async (
+    input: SdkApiTypes.TListEthTransactionHistoryBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_eth_transaction_history";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   listFiatOnRampCredentials = async (
     input: SdkApiTypes.TListFiatOnRampCredentialsBody,
   ): Promise<SdkApiTypes.TListFiatOnRampCredentialsResponse> => {
@@ -1842,6 +1884,48 @@ export class TurnkeySDKClientBase {
     const fullUrl =
       this.config.apiBaseUrl +
       "/public/v1/query/list_smart_contract_interfaces";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  listSolTransactionHistory = async (
+    input: SdkApiTypes.TListSolTransactionHistoryBody,
+  ): Promise<SdkApiTypes.TListSolTransactionHistoryResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/list_sol_transaction_history", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampListSolTransactionHistory = async (
+    input: SdkApiTypes.TListSolTransactionHistoryBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_sol_transaction_history";
     const body = {
       ...input,
       organizationId:
