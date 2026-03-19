@@ -68,7 +68,7 @@ export abstract class BaseSolanaWallet implements SolanaWalletInterface {
     const walletsApi = getWallets();
     const providers = walletsApi
       .get()
-      .filter((w) => w.chains.some((c) => c.startsWith("solana:")));
+      .filter((w) => w.chains?.some((c) => c.startsWith("solana:")));
 
     await Promise.all(
       providers.map(async (wallet) => {

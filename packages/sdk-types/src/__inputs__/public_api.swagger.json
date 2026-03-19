@@ -452,6 +452,38 @@
         "tags": ["On Ramp"]
       }
     },
+    "/public/v1/query/get_organization": {
+      "post": {
+        "summary": "Get organization",
+        "description": "Get details about an organization.",
+        "operationId": "PublicApiService_GetOrganization",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetOrganizationResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetOrganizationRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
+      }
+    },
     "/public/v1/query/get_organization_configs": {
       "post": {
         "summary": "Get configs",
@@ -642,6 +674,70 @@
           }
         ],
         "tags": ["Policies"]
+      }
+    },
+    "/public/v1/query/get_tvc_app": {
+      "post": {
+        "summary": "Get TVC App",
+        "description": "Get details about a single TVC App",
+        "operationId": "PublicApiService_GetTvcApp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/query/get_tvc_deployment": {
+      "post": {
+        "summary": "Get TVC Deployment",
+        "description": "Get details about a single TVC Deployment",
+        "operationId": "PublicApiService_GetTvcDeployment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcDeploymentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcDeploymentRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
       }
     },
     "/public/v1/query/get_user": {
@@ -1092,6 +1188,70 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/query/list_tvc_app_deployments": {
+      "post": {
+        "summary": "List TVC Deployments",
+        "description": "List all deployments for a given TVC App",
+        "operationId": "PublicApiService_GetTvcAppDeployments",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppDeploymentsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppDeploymentsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/query/list_tvc_apps": {
+      "post": {
+        "summary": "List TVC Apps",
+        "description": "List all TVC Apps within an organization.",
+        "operationId": "PublicApiService_GetTvcApps",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetTvcAppsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
     "/public/v1/query/list_user_tags": {
       "post": {
         "summary": "List user tags",
@@ -1346,6 +1506,38 @@
           }
         ],
         "tags": ["API Keys"]
+      }
+    },
+    "/public/v1/submit/create_api_only_users": {
+      "post": {
+        "summary": "Create API-only users",
+        "description": "Create API-only users in an existing organization.",
+        "operationId": "PublicApiService_CreateApiOnlyUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateApiOnlyUsersRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/create_authenticators": {
@@ -1762,6 +1954,102 @@
           }
         ],
         "tags": ["Organizations"]
+      }
+    },
+    "/public/v1/submit/create_tvc_app": {
+      "post": {
+        "summary": "Create a TVC App",
+        "description": "Create a new TVC application",
+        "operationId": "PublicApiService_CreateTvcApp",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTvcAppRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/submit/create_tvc_deployment": {
+      "post": {
+        "summary": "Create a TVC Deployment",
+        "description": "Create a new TVC Deployment",
+        "operationId": "PublicApiService_CreateTvcDeployment",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTvcDeploymentRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
+    "/public/v1/submit/create_tvc_manifest_approvals": {
+      "post": {
+        "summary": "Create TVC Manifest Approvals",
+        "description": "Post one or more manifest approvals for a TVC Manifest",
+        "operationId": "PublicApiService_CreateTvcManifestApprovals",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTvcManifestApprovalsRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
       }
     },
     "/public/v1/submit/create_user_tag": {
@@ -2434,6 +2722,38 @@
           }
         ],
         "tags": ["User Auth"]
+      }
+    },
+    "/public/v1/submit/eth_send_raw_transaction": {
+      "post": {
+        "summary": "Submit a raw transaction for broadcasting.",
+        "description": "Submit a raw transaction (serialized and signed) for broadcasting to the network.",
+        "operationId": "PublicApiService_EthSendRawTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1EthSendRawTransactionRequest"
+            }
+          }
+        ],
+        "tags": ["Broadcasting"]
       }
     },
     "/public/v1/submit/eth_send_transaction": {
@@ -3671,6 +3991,70 @@
         },
         "tags": ["PublicApiService"]
       }
+    },
+    "/tkhq/api/v1/refresh_feature_flags": {
+      "post": {
+        "summary": "Refresh feature flags",
+        "description": "Refresh feature flags by triggering a DB read to flush the in-memory cache.",
+        "operationId": "PublicApiService_RefreshFeatureFlags",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RefreshFeatureFlagsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1RefreshFeatureFlagsRequest"
+            }
+          }
+        ],
+        "tags": ["FeatureFlags"]
+      }
+    },
+    "/tkhq/api/v1/test_rate_limits": {
+      "post": {
+        "summary": "Test rate limit",
+        "description": "Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite.",
+        "operationId": "PublicApiService_TestRateLimits",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TestRateLimitsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1TestRateLimitsRequest"
+            }
+          }
+        ],
+        "tags": ["RateLimit"]
+      }
     }
   },
   "definitions": {
@@ -4891,6 +5275,30 @@
         }
       },
       "required": ["apiOnlyUsers"]
+    },
+    "v1CreateApiOnlyUsersRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_API_ONLY_USERS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateApiOnlyUsersIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateApiOnlyUsersResult": {
       "type": "object",
@@ -6228,6 +6636,27 @@
       },
       "required": ["name", "quorumPublicKey"]
     },
+    "v1CreateTvcAppRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_TVC_APP"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateTvcAppIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1CreateTvcAppResult": {
       "type": "object",
       "properties": {
@@ -6330,6 +6759,27 @@
         "hostArgs"
       ]
     },
+    "v1CreateTvcDeploymentRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateTvcDeploymentIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1CreateTvcDeploymentResult": {
       "type": "object",
       "properties": {
@@ -6361,6 +6811,27 @@
         }
       },
       "required": ["manifestId", "approvals"]
+    },
+    "v1CreateTvcManifestApprovalsRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_APPROVE_TVC_DEPLOYMENT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateTvcManifestApprovalsIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateTvcManifestApprovalsResult": {
       "type": "object",
@@ -7796,6 +8267,30 @@
       },
       "required": ["signedTransaction", "caip2"]
     },
+    "v1EthSendRawTransactionRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_ETH_SEND_RAW_TRANSACTION"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1EthSendRawTransactionIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
     "v1EthSendRawTransactionResult": {
       "type": "object",
       "properties": {
@@ -8609,6 +9104,26 @@
       },
       "required": ["configs"]
     },
+    "v1GetOrganizationRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetOrganizationResponse": {
+      "type": "object",
+      "properties": {
+        "organizationData": {
+          "$ref": "#/definitions/v1OrganizationData",
+          "description": "Object representing the full current and deleted / disabled collection of users, policies, private keys, and invitations attributable to a particular organization."
+        }
+      },
+      "required": ["organizationData"]
+    },
     "v1GetPoliciesRequest": {
       "type": "object",
       "properties": {
@@ -8850,6 +9365,106 @@
         }
       },
       "required": ["organizationIds"]
+    },
+    "v1GetTvcAppDeploymentsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "appId": {
+          "type": "string",
+          "description": "Unique identifier for a given TVC App."
+        }
+      },
+      "required": ["organizationId", "appId"]
+    },
+    "v1GetTvcAppDeploymentsResponse": {
+      "type": "object",
+      "properties": {
+        "tvcDeployments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcDeployment"
+          },
+          "description": "List of deployments for this TVC App"
+        }
+      },
+      "required": ["tvcDeployments"]
+    },
+    "v1GetTvcAppRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "tvcAppId": {
+          "type": "string",
+          "description": "Unique identifier for a given TVC App."
+        }
+      },
+      "required": ["organizationId", "tvcAppId"]
+    },
+    "v1GetTvcAppResponse": {
+      "type": "object",
+      "properties": {
+        "tvcApp": {
+          "$ref": "#/definitions/v1TvcApp",
+          "description": "Details about a single TVC App"
+        }
+      },
+      "required": ["tvcApp"]
+    },
+    "v1GetTvcAppsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetTvcAppsResponse": {
+      "type": "object",
+      "properties": {
+        "tvcApps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcApp"
+          },
+          "description": "A list of TVC Apps."
+        }
+      },
+      "required": ["tvcApps"]
+    },
+    "v1GetTvcDeploymentRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "deploymentId": {
+          "type": "string",
+          "description": "Unique identifier for a given TVC Deployment."
+        }
+      },
+      "required": ["organizationId", "deploymentId"]
+    },
+    "v1GetTvcDeploymentResponse": {
+      "type": "object",
+      "properties": {
+        "tvcDeployment": {
+          "$ref": "#/definitions/v1TvcDeployment",
+          "description": "Details about a single TVC Deployment"
+        }
+      },
+      "required": ["tvcDeployment"]
     },
     "v1GetUserRequest": {
       "type": "object",
@@ -10233,6 +10848,59 @@
         }
       }
     },
+    "v1Invitation": {
+      "type": "object",
+      "properties": {
+        "invitationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Invitation object."
+        },
+        "receiverUserName": {
+          "type": "string",
+          "description": "The name of the intended Invitation recipient."
+        },
+        "receiverEmail": {
+          "type": "string",
+          "description": "The email address of the intended Invitation recipient."
+        },
+        "receiverUserTags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of tags assigned to the Invitation recipient."
+        },
+        "accessType": {
+          "$ref": "#/definitions/v1AccessType",
+          "description": "The User's permissible access method(s)."
+        },
+        "status": {
+          "$ref": "#/definitions/v1InvitationStatus",
+          "description": "The current processing status of a specified Invitation."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "senderUserId": {
+          "type": "string",
+          "description": "Unique identifier for the Sender of an Invitation."
+        }
+      },
+      "required": [
+        "invitationId",
+        "receiverUserName",
+        "receiverEmail",
+        "receiverUserTags",
+        "accessType",
+        "status",
+        "createdAt",
+        "updatedAt",
+        "senderUserId"
+      ]
+    },
     "v1InvitationParams": {
       "type": "object",
       "properties": {
@@ -10266,6 +10934,14 @@
         "receiverUserTags",
         "accessType",
         "senderUserId"
+      ]
+    },
+    "v1InvitationStatus": {
+      "type": "string",
+      "enum": [
+        "INVITATION_STATUS_CREATED",
+        "INVITATION_STATUS_ACCEPTED",
+        "INVITATION_STATUS_REVOKED"
       ]
     },
     "v1ListFiatOnRampCredentialsRequest": {
@@ -10749,6 +11425,76 @@
         "OPERATOR_CONTAINS_ALL"
       ]
     },
+    "v1OrganizationData": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "users": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1User"
+          }
+        },
+        "policies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Policy"
+          }
+        },
+        "privateKeys": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1PrivateKey"
+          }
+        },
+        "invitations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Invitation"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/datav1Tag"
+          }
+        },
+        "rootQuorum": {
+          "$ref": "#/definitions/externaldatav1Quorum"
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Feature"
+          }
+        },
+        "wallets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Wallet"
+          }
+        },
+        "smartContractInterfaceReferences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SmartContractInterfaceReference"
+          }
+        }
+      }
+    },
     "v1OtpAuthIntent": {
       "type": "object",
       "properties": {
@@ -11154,6 +11900,12 @@
         }
       },
       "required": ["authenticatorId"]
+    },
+    "v1RefreshFeatureFlagsRequest": {
+      "type": "object"
+    },
+    "v1RefreshFeatureFlagsResponse": {
+      "type": "object"
     },
     "v1RejectActivityIntent": {
       "type": "object",
@@ -12056,6 +12808,20 @@
         }
       }
     },
+    "v1SmartContractInterfaceReference": {
+      "type": "object",
+      "properties": {
+        "smartContractInterfaceId": {
+          "type": "string"
+        },
+        "smartContractAddress": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        }
+      }
+    },
     "v1SmartContractInterfaceType": {
       "type": "string",
       "enum": [
@@ -12193,6 +12959,28 @@
       "type": "string",
       "enum": ["TAG_TYPE_USER", "TAG_TYPE_PRIVATE_KEY"]
     },
+    "v1TestRateLimitsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization. If the request is being made by a WebAuthN user and their sub-organization ID is unknown, this can be the parent organization ID; using the sub-organization ID when possible is preferred due to performance reasons."
+        },
+        "isSetLimit": {
+          "type": "boolean",
+          "description": "Whether or not to set a limit on this request."
+        },
+        "limit": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Rate limit to set for org, if is_set_limit is set to true."
+        }
+      },
+      "required": ["organizationId", "isSetLimit", "limit"]
+    },
+    "v1TestRateLimitsResponse": {
+      "type": "object"
+    },
     "v1TokenUsage": {
       "type": "object",
       "properties": {
@@ -12223,6 +13011,185 @@
         "TRANSACTION_TYPE_TEMPO"
       ]
     },
+    "v1TvcApp": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Identifier for this TVC App."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique Identifier of the Organization for this TVC App"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name for this TVC App."
+        },
+        "quorumPublicKey": {
+          "type": "string",
+          "description": "Public key for the Quorum Key associated with this TVC App"
+        },
+        "manifestSet": {
+          "$ref": "#/definitions/v1TvcOperatorSet",
+          "description": "Manifest Set (people who can approve manifests)"
+        },
+        "shareSet": {
+          "$ref": "#/definitions/v1TvcOperatorSet",
+          "description": "Share Set (people who have a share of the Quorum Key)"
+        },
+        "externalConnectivity": {
+          "type": "boolean",
+          "description": "Whether or not this TVC App has external connectivity enabled."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "organizationId",
+        "name",
+        "quorumPublicKey",
+        "manifestSet",
+        "shareSet",
+        "externalConnectivity",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1TvcContainerSpec": {
+      "type": "object",
+      "properties": {
+        "containerUrl": {
+          "type": "string",
+          "description": "The URL for this container image."
+        },
+        "path": {
+          "type": "string",
+          "description": "The path (in-container) to the executable binary."
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The arguments to pass to the executable."
+        },
+        "hasPullSecret": {
+          "type": "boolean",
+          "description": "Whether or not this container requires a pull secret to access."
+        }
+      },
+      "required": ["containerUrl", "path", "args", "hasPullSecret"]
+    },
+    "v1TvcDeployment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Identifier for this TVC Deployment."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique Identifier of the Organization for this TVC Deployment"
+        },
+        "appId": {
+          "type": "string",
+          "description": "Unique Identifier of the TVC App for this deployment"
+        },
+        "manifestSet": {
+          "$ref": "#/definitions/v1TvcOperatorSet",
+          "description": "Set of TVC operators who can approve this deployment"
+        },
+        "shareSet": {
+          "$ref": "#/definitions/v1TvcOperatorSet",
+          "description": "Set of TVC operators who have a share of the Quorum Key"
+        },
+        "manifest": {
+          "$ref": "#/definitions/v1TvcManifest",
+          "description": "The manifest used for this deployment"
+        },
+        "manifestApprovals": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcOperatorApproval"
+          },
+          "description": "List of operator approvals for this manifest"
+        },
+        "qosVersion": {
+          "type": "string",
+          "description": "QOS Version used for this deployment"
+        },
+        "pivotContainer": {
+          "$ref": "#/definitions/v1TvcContainerSpec",
+          "description": "The pivot container spec for this deployment"
+        },
+        "hostContainer": {
+          "$ref": "#/definitions/v1TvcContainerSpec",
+          "description": "The pivot container spec for this deployment"
+        },
+        "stage": {
+          "$ref": "#/definitions/v1TvcDeploymentStage",
+          "description": "Current stage for this deployment"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "organizationId",
+        "appId",
+        "manifestSet",
+        "shareSet",
+        "manifest",
+        "manifestApprovals",
+        "qosVersion",
+        "pivotContainer",
+        "hostContainer",
+        "stage",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1TvcDeploymentStage": {
+      "type": "string",
+      "enum": [
+        "TVC_DEPLOYMENT_STAGE_APPROVE",
+        "TVC_DEPLOYMENT_STAGE_PROVISION",
+        "TVC_DEPLOYMENT_STAGE_LIVE",
+        "TVC_DEPLOYMENT_STAGE_DELETE"
+      ]
+    },
+    "v1TvcManifest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Identifier for this TVC Manifest."
+        },
+        "manifest": {
+          "type": "string",
+          "format": "byte",
+          "description": "The manifest content (raw UTF-8 JSON bytes)"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": ["id", "manifest", "createdAt", "updatedAt"]
+    },
     "v1TvcManifestApproval": {
       "type": "object",
       "properties": {
@@ -12237,6 +13204,66 @@
       },
       "required": ["operatorId", "signature"]
     },
+    "v1TvcOperator": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Identifier for this TVC Operator."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of this TVC Operator."
+        },
+        "publicKey": {
+          "type": "string",
+          "description": "Public key for this TVC Operator."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": ["id", "name", "publicKey", "createdAt", "updatedAt"]
+    },
+    "v1TvcOperatorApproval": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique ID for this approval"
+        },
+        "manifestId": {
+          "type": "string",
+          "description": "Unique Identifier of the TVC Manifest being approved"
+        },
+        "operator": {
+          "$ref": "#/definitions/v1TvcOperator",
+          "description": "The TVC Operator who made this approval"
+        },
+        "approval": {
+          "type": "string",
+          "format": "byte",
+          "description": "Signature of the operator over the deployment manifest"
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "manifestId",
+        "operator",
+        "approval",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
     "v1TvcOperatorParams": {
       "type": "object",
       "properties": {
@@ -12250,6 +13277,51 @@
         }
       },
       "required": ["name", "publicKey"]
+    },
+    "v1TvcOperatorSet": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique Identifier for this TVC Operator Set."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of this TVC Operator Set."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique Identifier of the Organization for this TVC Operator Set"
+        },
+        "operators": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1TvcOperator"
+          },
+          "description": "List of TVC Operators in this set"
+        },
+        "threshold": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Threshold number of operators required for quorum."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "organizationId",
+        "operators",
+        "threshold",
+        "createdAt",
+        "updatedAt"
+      ]
     },
     "v1TvcOperatorSetParams": {
       "type": "object",

@@ -340,7 +340,8 @@ export type v1ActivityType =
   | "ACTIVITY_TYPE_CREATE_TVC_APP"
   | "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT"
   | "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS"
-  | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION";
+  | "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
+  | "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME";
 
 export type v1AddressFormat =
   | "ADDRESS_FORMAT_UNCOMPRESSED"
@@ -457,6 +458,8 @@ export type v1AssetBalance = {
   decimals?: number;
   /** Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead. */
   display?: v1AssetBalanceDisplay;
+  /** The asset name */
+  name?: string;
 };
 
 export type v1AssetBalanceDisplay = {
@@ -467,10 +470,16 @@ export type v1AssetBalanceDisplay = {
 };
 
 export type v1AssetMetadata = {
+  /** The caip-19 asset identifier */
   caip19?: string;
+  /** The asset symbol */
   symbol?: string;
+  /** The number of decimals this asset uses */
   decimals?: number;
+  /** The url of the asset logo */
   logoUrl?: string;
+  /** The asset name */
+  name?: string;
 };
 
 export type v1Attestation = {
@@ -609,6 +618,16 @@ export type v1CreateApiKeysResult = {
 export type v1CreateApiOnlyUsersIntent = {
   /** A list of API-only Users to create. */
   apiOnlyUsers: v1ApiOnlyUserParams[];
+};
+
+export type v1CreateApiOnlyUsersRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1CreateApiOnlyUsersIntent;
+  generateAppProofs?: boolean;
 };
 
 export type v1CreateApiOnlyUsersResult = {
@@ -1189,18 +1208,14 @@ export type v1CreateTvcDeploymentIntent = {
   pivotArgs: string[];
   /** Digest of the pivot binary in the pivot container. This value will be inserted in the QOS manifest to ensure application integrity. */
   expectedPivotDigest: string;
-  /** URL of the container containing the host binary */
-  hostContainerImageUrl: string;
-  /** Location of the binary inside the host container */
-  hostPath: string;
-  /** Arguments to pass to the host binary at startup. Encoded as a list of strings, for example ["--foo", "bar"] */
-  hostArgs: string[];
   /** Optional nonce to ensure uniqueness of the deployment manifest. If not provided, it defaults to the current Unix timestamp in seconds. */
   nonce?: number;
   /** Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty. */
   pivotContainerEncryptedPullSecret?: string;
-  /** Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty. */
-  hostContainerEncryptedPullSecret?: string;
+  /** Address(es) on which the pivot binary listens. A bind address can be a port alone (e.g. "3000") or an ip:port (e.g. "127.0.0.1:3000"). If provided as a port alone, the IP is assumed to be 0.0.0.0 */
+  pivotBindAddresses?: string[];
+  /** Optional flag to indicate whether to deploy the TVC app in debug mode, which includes additional logging and debugging tools. Default is false. */
+  debugMode?: boolean;
 };
 
 export type v1CreateTvcDeploymentResult = {
@@ -2183,7 +2198,7 @@ export type v1GetNoncesRequest = {
   organizationId: string;
   /** The Ethereum address to query nonces for. */
   address: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
   caip2: string;
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
@@ -2431,7 +2446,7 @@ export type v1GetWalletAddressBalancesRequest = {
   organizationId: string;
   /** Address corresponding to a wallet account. */
   address: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
 };
 
@@ -2767,6 +2782,33 @@ export type v1InitOtpIntentV2 = {
   replyToEmailAddress?: string;
 };
 
+export type v1InitOtpIntentV3 = {
+  /** Whether to send OTP via SMS or email. Possible values: OTP_TYPE_SMS, OTP_TYPE_EMAIL */
+  otpType: string;
+  /** Email or phone number to send the OTP code to */
+  contact: string;
+  /** The name of the application. */
+  appName: string;
+  /** Optional length of the OTP code. Default = 9 */
+  otpLength?: number;
+  /** Optional parameters for customizing emails. If not provided, the default email will be used. */
+  emailCustomization?: v1EmailCustomizationParamsV2;
+  /** Optional parameters for customizing SMS message. If not provided, the default sms message will be used. */
+  smsCustomization?: v1SmsCustomizationParams;
+  /** Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
+  userIdentifier?: string;
+  /** Optional custom email address from which to send the OTP email */
+  sendFromEmailAddress?: string;
+  /** Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). If set to false, OTP code will only be numeric. Default = true */
+  alphanumeric?: boolean;
+  /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
+  sendFromEmailSenderName?: string;
+  /** Expiration window (in seconds) indicating how long the OTP is valid for. If not provided, a default of 5 minutes will be used. Maximum value is 600 seconds (10 minutes) */
+  expirationSeconds?: string;
+  /** Optional custom email address to use as reply-to */
+  replyToEmailAddress?: string;
+};
+
 export type v1InitOtpRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
@@ -2949,6 +2991,7 @@ export type v1Intent = {
   createTvcDeploymentIntent?: v1CreateTvcDeploymentIntent;
   createTvcManifestApprovalsIntent?: v1CreateTvcManifestApprovalsIntent;
   solSendTransactionIntent?: v1SolSendTransactionIntent;
+  updateOrganizationNameIntent?: v1UpdateOrganizationNameIntent;
 };
 
 export type v1InvitationParams = {
@@ -2995,11 +3038,12 @@ export type v1ListPrivateKeyTagsResponse = {
 export type v1ListSupportedAssetsRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
 };
 
 export type v1ListSupportedAssetsResponse = {
+  /** List of asset metadata */
   assets?: v1AssetMetadata[];
 };
 
@@ -3489,6 +3533,7 @@ export type v1Result = {
   createTvcDeploymentResult?: v1CreateTvcDeploymentResult;
   createTvcManifestApprovalsResult?: v1CreateTvcManifestApprovalsResult;
   solSendTransactionResult?: v1SolSendTransactionResult;
+  updateOrganizationNameResult?: v1UpdateOrganizationNameResult;
 };
 
 export type v1RevertChainEntry = {
@@ -3920,6 +3965,27 @@ export type v1UpdateOauth2CredentialRequest = {
 export type v1UpdateOauth2CredentialResult = {
   /** Unique identifier of the OAuth 2.0 credential that was updated */
   oauth2CredentialId: string;
+};
+
+export type v1UpdateOrganizationNameIntent = {
+  /** New name for the Organization. */
+  organizationName: string;
+};
+
+export type v1UpdateOrganizationNameRequest = {
+  type: string;
+  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
+  timestampMs: string;
+  /** Unique identifier for a given Organization. */
+  organizationId: string;
+  parameters: v1UpdateOrganizationNameIntent;
+};
+
+export type v1UpdateOrganizationNameResult = {
+  /** Unique identifier for the Organization. */
+  organizationId: string;
+  /** The updated organization name. */
+  organizationName: string;
 };
 
 export type v1UpdatePolicyIntent = {
@@ -4493,7 +4559,7 @@ export type TGetNoncesBody = {
   organizationId?: string;
   /** The Ethereum address to query nonces for. */
   address: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
   caip2: string;
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
@@ -4684,7 +4750,7 @@ export type TGetWalletAddressBalancesBody = {
   organizationId?: string;
   /** Address corresponding to a wallet account. */
   address: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
 };
 
@@ -4807,12 +4873,13 @@ export type TGetSubOrgIdsBody = {
 export type TGetSubOrgIdsInput = { body: TGetSubOrgIdsBody };
 
 export type TListSupportedAssetsResponse = {
+  /** List of asset metadata */
   assets?: v1AssetMetadata[];
 };
 
 export type TListSupportedAssetsBody = {
   organizationId?: string;
-  /** The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet). */
+  /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
   caip2: string;
 };
 
@@ -4931,6 +4998,21 @@ export type TCreateApiKeysBody = {
 };
 
 export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
+
+export type TCreateApiOnlyUsersResponse = {
+  activity: v1Activity;
+  /** A list of API-only User IDs. */
+  userIds: string[];
+};
+
+export type TCreateApiOnlyUsersBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** A list of API-only Users to create. */
+  apiOnlyUsers: v1ApiOnlyUserParams[];
+};
+
+export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
 
 export type TCreateAuthenticatorsResponse = {
   activity: v1Activity;
@@ -6241,6 +6323,25 @@ export type TUpdateOauth2CredentialBody = {
 
 export type TUpdateOauth2CredentialInput = {
   body: TUpdateOauth2CredentialBody;
+};
+
+export type TUpdateOrganizationNameResponse = {
+  activity: v1Activity;
+  /** Unique identifier for the Organization. */
+  organizationId: string;
+  /** The updated organization name. */
+  organizationName: string;
+};
+
+export type TUpdateOrganizationNameBody = {
+  timestampMs?: string;
+  organizationId?: string;
+  /** New name for the Organization. */
+  organizationName: string;
+};
+
+export type TUpdateOrganizationNameInput = {
+  body: TUpdateOrganizationNameBody;
 };
 
 export type TUpdatePolicyResponse = {
