@@ -1,5 +1,4 @@
-import type { Session } from "@turnkey/sdk-types";
-import type { TStamper } from "./auth";
+import type { Session, TStamper } from "@turnkey/sdk-types";
 import type { StamperType } from "./enums";
 
 /**

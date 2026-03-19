@@ -20,6 +20,7 @@ import {
   type v1User,
   type v1CreatePolicyIntentV3,
   type VerificationToken,
+  type TSignedRequest,
   TurnkeyError,
   TurnkeyErrorCodes,
   v1OidcClaims,

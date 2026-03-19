@@ -3,11 +3,6 @@
 import {
   GrpcStatus,
   StorageBase,
-  TActivityResponse,
-  TActivityStatus,
-  TERMINAL_ACTIVITY_STATUSES,
-  TSignedRequest,
-  TStamper,
   TurnkeyHttpClientConfig,
   TurnkeyRequestError,
 } from "../__types__";
@@ -16,7 +11,15 @@ import { VERSION } from "../__generated__/version";
 
 import type * as SdkTypes from "@turnkey/sdk-types";
 
-import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
+import {
+  TurnkeyError,
+  TurnkeyErrorCodes,
+  TStamper,
+  TActivityResponse,
+  TActivityStatus,
+  TERMINAL_ACTIVITY_STATUSES,
+  TSignedRequest,
+} from "@turnkey/sdk-types";
 
 import { StamperType } from "../__types__";
 

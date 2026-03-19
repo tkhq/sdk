@@ -29,14 +29,12 @@ export async function handleActivityError(turnkeyClient: Turnkey, error: any) {
       }
 
       // Refresh activity
-      activity = (
-        await turnkeyClient.apiClient().getActivity({
-          activityId,
-          organizationId: process.env.ORGANIZATION_ID!,
-        })
-      ).activity;
-
-      activityStatus = activity.status;
+      const response = await turnkeyClient.apiClient().getActivity({
+        activityId,
+        organizationId: process.env.ORGANIZATION_ID!,
+      });
+      activity = response.activity as TActivity;
+      activityStatus = activity!.status;
     }
 
     console.log("\nConsensus reached! Moving on...\n");
