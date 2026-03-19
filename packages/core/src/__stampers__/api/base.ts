@@ -1,12 +1,12 @@
 import { isReactNative, isWeb } from "@utils";
 import { IndexedDbStamper } from "./web/stamper";
-import type {
-  TStamp,
-  TStamper,
-  StorageBase,
-  ApiKeyStamperBase,
-} from "../../__types__";
-import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
+import type { StorageBase, ApiKeyStamperBase } from "../../__types__";
+import {
+  TurnkeyError,
+  TurnkeyErrorCodes,
+  type TStamp,
+  type TStamper,
+} from "@turnkey/sdk-types";
 import { SignatureFormat } from "@turnkey/api-key-stamper";
 
 /**

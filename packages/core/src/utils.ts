@@ -20,6 +20,7 @@ import {
   type v1User,
   type v1CreatePolicyIntentV3,
   type VerificationToken,
+  type TSignedRequest,
   TurnkeyError,
   TurnkeyErrorCodes,
   TurnkeyNetworkError,
@@ -36,7 +37,6 @@ import {
   EmbeddedWallet,
   WalletSource,
   StamperType,
-  TSignedRequest,
 } from "./__types__";
 import { bs58 } from "@turnkey/encoding";
 
