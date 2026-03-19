@@ -1,8 +1,7 @@
 import type { Runtime } from "@turnkey/api-key-stamper";
 import type { WalletType } from "@turnkey/wallet-stamper";
 import type {
-  v1ActivityResponse,
-  v1ActivityStatus,
+  TStamper,
   v1CreateOauthProvidersResult,
   v1EmailCustomizationParams,
   v1User,
@@ -19,15 +18,6 @@ export enum MethodType {
   Get,
   List,
   Command,
-}
-
-export type TStamp = {
-  stampHeaderName: string;
-  stampHeaderValue: string;
-};
-
-export interface TStamper {
-  stamp: (input: string) => Promise<TStamp>;
 }
 
 export type THttpConfig = {
@@ -52,15 +42,6 @@ export class TurnkeyRequestError extends Error {
     this.code = input.code;
   }
 }
-
-export type queryOverrideParams = {
-  organizationId?: string;
-};
-
-export type commandOverrideParams = {
-  organizationId?: string;
-  timestampMs?: string;
-};
 
 export type TActivityPollerConfig = {
   intervalMs: number;
@@ -248,22 +229,3 @@ export type CreateSuborgResponse = {
 export type GetOrCreateSuborgResponse = {
   subOrganizationIds: string[];
 };
-
-/** @internal */
-export type TActivityStatus = v1ActivityStatus;
-/** @internal */
-export type TActivityResponse = v1ActivityResponse;
-
-/** @internal */
-export type TSignedRequest = {
-  body: string;
-  stamp: TStamp;
-  url: string;
-};
-
-/** @internal */
-export const TERMINAL_ACTIVITY_STATUSES: TActivityStatus[] = [
-  "ACTIVITY_STATUS_COMPLETED",
-  "ACTIVITY_STATUS_FAILED",
-  "ACTIVITY_STATUS_REJECTED",
-];
