@@ -20,14 +20,14 @@ import {
 } from "./sdk-client";
 import type { PollTransactionStatusParams } from "./sdk-client";
 
-import type {
-  TurnkeySDKClientConfig,
-  TurnkeySDKServerConfig,
-  TurnkeyProxyHandlerConfig,
-  TSignedRequest,
+import {
+  type TurnkeySDKClientConfig,
+  type TurnkeySDKServerConfig,
+  type TurnkeyProxyHandlerConfig,
   TurnkeyRequestError,
 } from "./__types__/base";
 
+import type { TSignedRequest } from "@turnkey/sdk-types";
 import type * as TurnkeySDKApiTypes from "@turnkey/sdk-types";
 
 import { fetch } from "./universal";
