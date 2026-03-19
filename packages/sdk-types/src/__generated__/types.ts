@@ -1404,8 +1404,6 @@ export type v1CreateWebhookEndpointIntent = {
   url: string;
   /** Human-readable name for this webhook endpoint. */
   name: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
   /** Event subscriptions to create for this endpoint. */
   subscriptions?: v1WebhookSubscriptionParams[];
 };
@@ -1801,8 +1799,6 @@ export type v1DeleteWalletsResult = {
 export type v1DeleteWebhookEndpointIntent = {
   /** Unique identifier of the webhook endpoint to delete. */
   endpointId: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
 };
 
 export type v1DeleteWebhookEndpointRequest = {
@@ -4493,8 +4489,6 @@ export type v1UpdateWalletResult = {
 export type v1UpdateWebhookEndpointIntent = {
   /** Unique identifier of the webhook endpoint to update. */
   endpointId: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
   /** Updated destination URL for webhook delivery. */
   url?: string;
   /** Updated human-readable name for this webhook endpoint. */
@@ -5742,8 +5736,6 @@ export type TCreateWebhookEndpointBody = {
   url: string;
   /** Human-readable name for this webhook endpoint. */
   name: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
   /** Event subscriptions to create for this endpoint. */
   subscriptions?: v1WebhookSubscriptionParams[];
 };
@@ -6023,8 +6015,6 @@ export type TDeleteWebhookEndpointBody = {
   organizationId?: string;
   /** Unique identifier of the webhook endpoint to delete. */
   endpointId: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
 };
 
 export type TDeleteWebhookEndpointInput = { body: TDeleteWebhookEndpointBody };
@@ -6928,8 +6918,6 @@ export type TUpdateWebhookEndpointBody = {
   organizationId?: string;
   /** Unique identifier of the webhook endpoint to update. */
   endpointId: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
   /** Updated destination URL for webhook delivery. */
   url?: string;
   /** Updated human-readable name for this webhook endpoint. */

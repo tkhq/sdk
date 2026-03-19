@@ -5383,9 +5383,15 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             sendTransactionStatusId,
           });
 
+          const txDetails = pollResult as {
+            eth?: { txHash?: string };
+            solana?: { signature?: string };
+            txHash?: string;
+          };
           const txHash =
-            pollResult?.eth?.txHash ??
-            (pollResult as { txHash?: string })?.txHash;
+            txDetails.eth?.txHash ??
+            txDetails.solana?.signature ??
+            txDetails.txHash;
 
           return txHash ? { txHash } : {};
         };

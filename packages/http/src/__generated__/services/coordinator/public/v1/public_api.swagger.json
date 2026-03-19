@@ -7466,10 +7466,6 @@
           "type": "string",
           "description": "Human-readable name for this webhook endpoint."
         },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
         "subscriptions": {
           "type": "array",
           "items": {
@@ -7479,7 +7475,7 @@
           "description": "Event subscriptions to create for this endpoint."
         }
       },
-      "required": ["url", "name", "organizationId"]
+      "required": ["url", "name"]
     },
     "v1CreateWebhookEndpointRequest": {
       "type": "object",
@@ -8387,13 +8383,9 @@
         "endpointId": {
           "type": "string",
           "description": "Unique identifier of the webhook endpoint to delete."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
         }
       },
-      "required": ["endpointId", "organizationId"]
+      "required": ["endpointId"]
     },
     "v1DeleteWebhookEndpointRequest": {
       "type": "object",
@@ -15142,10 +15134,6 @@
           "type": "string",
           "description": "Unique identifier of the webhook endpoint to update."
         },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
         "url": {
           "type": "string",
           "description": "Updated destination URL for webhook delivery."
@@ -15159,7 +15147,7 @@
           "description": "Whether this webhook endpoint is active."
         }
       },
-      "required": ["endpointId", "organizationId"]
+      "required": ["endpointId"]
     },
     "v1UpdateWebhookEndpointRequest": {
       "type": "object",

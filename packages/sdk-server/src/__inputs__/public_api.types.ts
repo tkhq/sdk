@@ -1904,8 +1904,6 @@ export type definitions = {
     url: string;
     /** @description Human-readable name for this webhook endpoint. */
     name: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
     /** @description Event subscriptions to create for this endpoint. */
     subscriptions?: definitions["v1WebhookSubscriptionParams"][];
   };
@@ -2263,8 +2261,6 @@ export type definitions = {
   v1DeleteWebhookEndpointIntent: {
     /** @description Unique identifier of the webhook endpoint to delete. */
     endpointId: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
   };
   v1DeleteWebhookEndpointRequest: {
     /** @enum {string} */
@@ -5080,8 +5076,6 @@ export type definitions = {
   v1UpdateWebhookEndpointIntent: {
     /** @description Unique identifier of the webhook endpoint to update. */
     endpointId: string;
-    /** @description Unique identifier for a given Organization. */
-    organizationId: string;
     /** @description Updated destination URL for webhook delivery. */
     url?: string;
     /** @description Updated human-readable name for this webhook endpoint. */
