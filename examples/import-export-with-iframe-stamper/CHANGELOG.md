@@ -1,5 +1,12 @@
 # @turnkey/import-export-with-iframe-stamper
 
+## 0.3.11
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/sdk-server@5.1.1
+
 ## 0.3.10
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # with-x
 
+## 0.1.27
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/crypto@2.8.12
+  - @turnkey/sdk-react@5.5.6
+  - @turnkey/sdk-server@5.1.1
+
 ## 0.1.26
 
 ### Patch Changes
