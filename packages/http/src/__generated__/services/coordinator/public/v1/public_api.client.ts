@@ -19,6 +19,10 @@ import type {
   TGetApiKeysResponse,
 } from "./public_api.fetcher";
 import type {
+  TGetAppStatusBody,
+  TGetAppStatusResponse,
+} from "./public_api.fetcher";
+import type {
   TGetAuthenticatorBody,
   TGetAuthenticatorResponse,
 } from "./public_api.fetcher";
@@ -156,6 +160,10 @@ import type {
   TGetWalletsBody,
   TGetWalletsResponse,
 } from "./public_api.fetcher";
+import type {
+  TListWebhookEndpointsBody,
+  TListWebhookEndpointsResponse,
+} from "./public_api.fetcher";
 import type { TGetWhoamiBody, TGetWhoamiResponse } from "./public_api.fetcher";
 import type {
   TApproveActivityBody,
@@ -250,6 +258,10 @@ import type {
   TCreateWalletAccountsResponse,
 } from "./public_api.fetcher";
 import type {
+  TCreateWebhookEndpointBody,
+  TCreateWebhookEndpointResponse,
+} from "./public_api.fetcher";
+import type {
   TDeleteApiKeysBody,
   TDeleteApiKeysResponse,
 } from "./public_api.fetcher";
@@ -312,6 +324,10 @@ import type {
 import type {
   TDeleteWalletsBody,
   TDeleteWalletsResponse,
+} from "./public_api.fetcher";
+import type {
+  TDeleteWebhookEndpointBody,
+  TDeleteWebhookEndpointResponse,
 } from "./public_api.fetcher";
 import type { TEmailAuthBody, TEmailAuthResponse } from "./public_api.fetcher";
 import type {
@@ -419,6 +435,10 @@ import type {
   TUpdateOauth2CredentialResponse,
 } from "./public_api.fetcher";
 import type {
+  TUpdateOrganizationNameBody,
+  TUpdateOrganizationNameResponse,
+} from "./public_api.fetcher";
+import type {
   TUpdatePolicyBody,
   TUpdatePolicyResponse,
 } from "./public_api.fetcher";
@@ -453,6 +473,10 @@ import type {
 import type {
   TUpdateWalletBody,
   TUpdateWalletResponse,
+} from "./public_api.fetcher";
+import type {
+  TUpdateWebhookEndpointBody,
+  TUpdateWebhookEndpointResponse,
 } from "./public_api.fetcher";
 import type { TVerifyOtpBody, TVerifyOtpResponse } from "./public_api.fetcher";
 import type {
@@ -587,6 +611,37 @@ export class TurnkeyClient {
    */
   stampGetApiKeys = async (input: TGetApiKeysBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/get_api_keys";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Get live runtime status for a TVC App from the cluster.
+   *
+   * Sign the provided `TGetAppStatusBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_app_status).
+   *
+   * See also {@link stampGetAppStatus}.
+   */
+  getAppStatus = async (
+    input: TGetAppStatusBody,
+  ): Promise<TGetAppStatusResponse> => {
+    return this.request("/public/v1/query/get_app_status", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TGetAppStatusBody` by using the client's `stamp` function.
+   *
+   * See also {@link GetAppStatus}.
+   */
+  stampGetAppStatus = async (
+    input: TGetAppStatusBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl = this.config.baseUrl + "/public/v1/query/get_app_status";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -1239,7 +1294,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * Get non-zero balances of supported assets for a single wallet account address on the specified network.
+   * Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.
    *
    * Sign the provided `TGetWalletAddressBalancesBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/get_wallet_address_balances).
    *
@@ -1560,7 +1615,7 @@ export class TurnkeyClient {
   };
 
   /**
-   * List supported assets for the specified network
+   * List supported assets for the specified network. This feature is in beta - please contact support for access.
    *
    * Sign the provided `TListSupportedAssetsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_supported_assets).
    *
@@ -1790,6 +1845,38 @@ export class TurnkeyClient {
    */
   stampGetWallets = async (input: TGetWalletsBody): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/query/list_wallets";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * List webhook endpoints within an organization.
+   *
+   * Sign the provided `TListWebhookEndpointsBody` with the client's `stamp` function, and submit the request (POST /public/v1/query/list_webhook_endpoints).
+   *
+   * See also {@link stampListWebhookEndpoints}.
+   */
+  listWebhookEndpoints = async (
+    input: TListWebhookEndpointsBody,
+  ): Promise<TListWebhookEndpointsResponse> => {
+    return this.request("/public/v1/query/list_webhook_endpoints", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TListWebhookEndpointsBody` by using the client's `stamp` function.
+   *
+   * See also {@link ListWebhookEndpoints}.
+   */
+  stampListWebhookEndpoints = async (
+    input: TListWebhookEndpointsBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/query/list_webhook_endpoints";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -2564,6 +2651,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Create a webhook endpoint for an organization.
+   *
+   * Sign the provided `TCreateWebhookEndpointBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/create_webhook_endpoint).
+   *
+   * See also {@link stampCreateWebhookEndpoint}.
+   */
+  createWebhookEndpoint = async (
+    input: TCreateWebhookEndpointBody,
+  ): Promise<TCreateWebhookEndpointResponse> => {
+    return this.request("/public/v1/submit/create_webhook_endpoint", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TCreateWebhookEndpointBody` by using the client's `stamp` function.
+   *
+   * See also {@link CreateWebhookEndpoint}.
+   */
+  stampCreateWebhookEndpoint = async (
+    input: TCreateWebhookEndpointBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/create_webhook_endpoint";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Remove api keys from a user.
    *
    * Sign the provided `TDeleteApiKeysBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_api_keys).
@@ -3065,6 +3184,38 @@ export class TurnkeyClient {
     input: TDeleteWalletsBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/delete_wallets";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Delete a webhook endpoint for an organization.
+   *
+   * Sign the provided `TDeleteWebhookEndpointBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/delete_webhook_endpoint).
+   *
+   * See also {@link stampDeleteWebhookEndpoint}.
+   */
+  deleteWebhookEndpoint = async (
+    input: TDeleteWebhookEndpointBody,
+  ): Promise<TDeleteWebhookEndpointResponse> => {
+    return this.request("/public/v1/submit/delete_webhook_endpoint", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TDeleteWebhookEndpointBody` by using the client's `stamp` function.
+   *
+   * See also {@link DeleteWebhookEndpoint}.
+   */
+  stampDeleteWebhookEndpoint = async (
+    input: TDeleteWebhookEndpointBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/delete_webhook_endpoint";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
@@ -3994,6 +4145,38 @@ export class TurnkeyClient {
   };
 
   /**
+   * Update the name of an organization.
+   *
+   * Sign the provided `TUpdateOrganizationNameBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_organization_name).
+   *
+   * See also {@link stampUpdateOrganizationName}.
+   */
+  updateOrganizationName = async (
+    input: TUpdateOrganizationNameBody,
+  ): Promise<TUpdateOrganizationNameResponse> => {
+    return this.request("/public/v1/submit/update_organization_name", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateOrganizationNameBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateOrganizationName}.
+   */
+  stampUpdateOrganizationName = async (
+    input: TUpdateOrganizationNameBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/update_organization_name";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
    * Update an existing policy.
    *
    * Sign the provided `TUpdatePolicyBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_policy).
@@ -4262,6 +4445,38 @@ export class TurnkeyClient {
     input: TUpdateWalletBody,
   ): Promise<TSignedRequest> => {
     const fullUrl = this.config.baseUrl + "/public/v1/submit/update_wallet";
+    const body = JSON.stringify(input);
+    const stamp = await this.stamper.stamp(body);
+    return {
+      body: body,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  /**
+   * Update a webhook endpoint for an organization.
+   *
+   * Sign the provided `TUpdateWebhookEndpointBody` with the client's `stamp` function, and submit the request (POST /public/v1/submit/update_webhook_endpoint).
+   *
+   * See also {@link stampUpdateWebhookEndpoint}.
+   */
+  updateWebhookEndpoint = async (
+    input: TUpdateWebhookEndpointBody,
+  ): Promise<TUpdateWebhookEndpointResponse> => {
+    return this.request("/public/v1/submit/update_webhook_endpoint", input);
+  };
+
+  /**
+   * Produce a `SignedRequest` from `TUpdateWebhookEndpointBody` by using the client's `stamp` function.
+   *
+   * See also {@link UpdateWebhookEndpoint}.
+   */
+  stampUpdateWebhookEndpoint = async (
+    input: TUpdateWebhookEndpointBody,
+  ): Promise<TSignedRequest> => {
+    const fullUrl =
+      this.config.baseUrl + "/public/v1/submit/update_webhook_endpoint";
     const body = JSON.stringify(input);
     const stamp = await this.stamper.stamp(body);
     return {
