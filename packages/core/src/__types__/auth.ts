@@ -1,5 +1,6 @@
 import type { SignatureFormat } from "@turnkey/api-key-stamper";
 import type {
+  TStamp,
   v1ApiKeyCurve,
   v1Attestation,
   v1OauthProviderParams,
@@ -8,17 +9,6 @@ import type {
 
 /** @internal */
 export const DEFAULT_SESSION_EXPIRATION_IN_SECONDS = "900"; // 15 minutes
-
-/** @internal */
-export type TStamp = {
-  stampHeaderName: string;
-  stampHeaderValue: string;
-};
-
-/** @internal */
-export interface TStamper {
-  stamp: (input: string) => Promise<TStamp>;
-}
 
 /** @internal */
 export interface ApiKeyStamperBase {

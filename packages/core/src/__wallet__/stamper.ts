@@ -1,8 +1,6 @@
 import {
   SignIntent,
   type WalletInterface,
-  type TStamp,
-  type TStamper,
   type WalletProvider,
   WalletInterfaceType,
 } from "../__types__";
@@ -17,6 +15,7 @@ import {
   isEthereumProvider,
   isSolanaProvider,
 } from "../utils";
+import type { TStamp, TStamper } from "@turnkey/sdk-types";
 
 const STAMP_HEADER_NAME = "X-Stamp";
 

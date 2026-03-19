@@ -12,6 +12,7 @@ import type {
   v1TransactionType,
   v1WalletAccountParams,
   v1AppProof,
+  TSignedRequest,
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
@@ -21,7 +22,6 @@ import type {
   WalletAccount,
   WalletProvider,
   Wallet,
-  TSignedRequest,
 } from "../index";
 
 export type CreateHttpClientParams = {
