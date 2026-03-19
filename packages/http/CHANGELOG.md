@@ -1,5 +1,12 @@
 # @turnkey/http
 
+## 3.17.1
+
+### Patch Changes
+
+- Updated dependencies []:
+  - @turnkey/api-key-stamper@0.6.3
+
 ## 3.17.0
 
 ### Minor Changes

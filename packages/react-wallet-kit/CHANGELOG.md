@@ -1,5 +1,30 @@
 # @turnkey/react-wallet-kit
 
+## 1.10.0
+
+### Minor Changes
+
+- [#1228](https://github.com/tkhq/sdk/pull/1228) [`1d108d6`](https://github.com/tkhq/sdk/commit/1d108d6496ad8266db0e997a27aecc81e46008fb) Thanks [@moe-dev](https://github.com/moe-dev)! - This branch adds first-class ERC20 transfer abstractions across `@turnkey/core`, `@turnkey/react-wallet-kit`, and `@turnkey/react-native-wallet-kit`.
+
+  ### `@turnkey/core`
+  - Added `Erc20Transfer` and `EthSendErc20TransferParams` method types.
+  - Added `TurnkeyClient.ethSendErc20Transfer(...)` as a convenience wrapper that ABI-encodes `transfer(address,uint256)` and submits via `ethSendTransaction`.
+  - Updated `ethSendTransaction` to stop prefetching nonces with `getNonces`; transaction fields are now forwarded directly to Turnkey's coordinator (including optional caller-provided `nonce` / `gasStationNonce`).
+
+  ### `@turnkey/react-wallet-kit`
+  - Added low-level `ethSendErc20Transfer(...)` passthrough in the client provider context.
+  - Added `handleSendErc20Transfer(...)` modal flow that submits ERC20 transfers and polls transaction status to terminal state.
+  - Added new public types/docs for `HandleSendErc20TransferParams` and `ClientContextType.handleSendErc20Transfer`.
+
+  ### `@turnkey/react-native-wallet-kit`
+  - Added low-level `ethSendErc20Transfer(...)` passthrough in `TurnkeyProvider` context to match `ClientContextType` and support ERC20 sends from React Native.
+
+### Patch Changes
+
+- Updated dependencies [[`82dc76c`](https://github.com/tkhq/sdk/commit/82dc76c7ce51e5375570bbffab32eb739af90381), [`1d108d6`](https://github.com/tkhq/sdk/commit/1d108d6496ad8266db0e997a27aecc81e46008fb), [`dfdd864`](https://github.com/tkhq/sdk/commit/dfdd8647266fdd0297aaea32046ee815ae8fc27c)]:
+  - @turnkey/core@1.13.0
+  - @turnkey/sdk-types@0.12.1
+
 ## 1.9.0
 
 ### Minor Changes

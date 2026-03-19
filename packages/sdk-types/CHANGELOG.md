@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.12.1
+
+### Patch Changes
+
+- [#1241](https://github.com/tkhq/sdk/pull/1241) [`dfdd864`](https://github.com/tkhq/sdk/commit/dfdd8647266fdd0297aaea32046ee815ae8fc27c) Author [@ethankonk](https://github.com/ethankonk) - Patched solana chain filter in wallet connecting logic
+
 ## 0.12.0
 
 ### Minor Changes
