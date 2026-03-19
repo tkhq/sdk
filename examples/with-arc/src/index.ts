@@ -13,7 +13,10 @@ import {
   TActivity,
 } from "@turnkey/http";
 import { TurnkeySigner } from "@turnkey/ethers";
-import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import {
+  TurnkeySDKApiTypes,
+  Turnkey as TurnkeyServerSDK,
+} from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
 import { print } from "./util";
 
@@ -94,12 +97,12 @@ async function main() {
     signedTx = await connectedSigner.signTransaction(populatedTx);
   } catch (error: any) {
     signedTx = await handleActivityError(error).then(
-      async (activity?: TActivity) => {
+      async (activity?: TurnkeySDKApiTypes.v1Activity) => {
         if (!activity) {
           throw error;
         }
 
-        return getSignedTransactionFromActivity(activity);
+        return getSignedTransactionFromActivity(activity as TActivity);
       },
     );
   }
@@ -133,13 +136,13 @@ async function main() {
     sentTx = await connectedSigner.sendTransaction(populatedTx);
   } catch (error: any) {
     sentTx = await handleActivityError(error).then(
-      async (activity?: TActivity) => {
+      async (activity?: TurnkeySDKApiTypes.v1Activity) => {
         if (!activity) {
           throw error;
         }
 
         return await connectedSigner.provider?.broadcastTransaction(
-          getSignedTransactionFromActivity(activity),
+          getSignedTransactionFromActivity(activity as TActivity),
         );
       },
     );
@@ -154,7 +157,7 @@ async function main() {
     if (error instanceof TurnkeyActivityConsensusNeededError) {
       const activityId = error["activityId"]!;
       let activityStatus = error["activityStatus"]!;
-      let activity: TActivity | undefined;
+      let activity: TurnkeySDKApiTypes.v1Activity | undefined;
 
       while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
         console.log("\nWaiting for consensus...\n");
