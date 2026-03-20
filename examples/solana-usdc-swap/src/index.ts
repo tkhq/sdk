@@ -165,10 +165,16 @@ async function main() {
     organizationId,
     sendTransactionStatusId,
   });
+  const signature = status.solana?.signature;
+  if (!signature) {
+    throw new Error(
+      `Missing Solana transaction signature (status: ${status.txStatus})`,
+    );
+  }
 
   console.log("Swap executed successfully.");
   console.log(
-    `Tx: https://explorer.solana.com/tx/${status.eth?.txHash}${network.explorerSuffix}`,
+    `Tx: https://explorer.solana.com/tx/${signature}${network.explorerSuffix}`,
   );
 }
 

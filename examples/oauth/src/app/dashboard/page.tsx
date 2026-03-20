@@ -259,7 +259,11 @@ export default function Dashboard() {
       const result = await pollTransactionStatus({
         sendTransactionStatusId: statusId,
       });
-      setSolTxStatus(result.eth?.txHash ?? result.txStatus);
+      const txDetails = result as {
+        solana?: { signature?: string };
+        txStatus: string;
+      };
+      setSolTxStatus(txDetails.solana?.signature ?? result.txStatus);
 
       const balRes = await httpClient?.getWalletAddressBalances({
         address: solAddress,

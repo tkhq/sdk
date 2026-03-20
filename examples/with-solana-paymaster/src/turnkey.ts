@@ -25,7 +25,11 @@ export async function pollTransactionStatus({
   sendTransactionStatusId: string;
   intervalMs?: number;
   timeoutMs?: number;
-}): Promise<{ eth?: { txHash?: string }; txStatus: string }> {
+}): Promise<{
+  eth?: { txHash?: string };
+  solana?: { signature?: string };
+  txStatus: string;
+}> {
   const start = Date.now();
   return new Promise((resolve, reject) => {
     const ref = setInterval(async () => {
@@ -59,6 +63,7 @@ export async function pollTransactionStatus({
           clearInterval(ref);
           resolve({
             eth: resp.eth,
+            solana: resp.solana,
             txStatus: status,
           });
         }
