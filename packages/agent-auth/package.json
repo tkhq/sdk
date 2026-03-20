@@ -25,7 +25,6 @@
     "@turnkey/sdk-server": "workspace:*"
   },
   "dependencies": {
-    "@turnkey/api-key-stamper": "workspace:*",
     "@turnkey/crypto": "workspace:*"
   },
   "devDependencies": {

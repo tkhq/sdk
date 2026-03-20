@@ -40,11 +40,16 @@ export function resolvePolicyPlaceholders(
   policies: AgentPolicyParams[],
   agentUserId: string
 ): AgentPolicyParams[] {
-  return policies.map((policy) => ({
-    ...policy,
-    consensus: policy.consensus?.replaceAll(
-      AGENT_USER_ID_PLACEHOLDER,
-      agentUserId
-    ),
-  }));
+  return policies.map((policy) => {
+    if (policy.consensus === undefined) {
+      return policy;
+    }
+    return {
+      ...policy,
+      consensus: policy.consensus.replaceAll(
+        AGENT_USER_ID_PLACEHOLDER,
+        agentUserId
+      ),
+    };
+  });
 }

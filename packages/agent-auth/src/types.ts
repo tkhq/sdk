@@ -85,8 +85,6 @@ export interface CreateAgentSessionResult {
 }
 
 export interface DeleteAgentSessionRequest {
-  /** Parent organization ID */
-  organizationId: string;
   /** Sub-organization ID of the agent session to delete */
   subOrganizationId: string;
   /** Admin API key for the sub-org (from CreateAgentSessionResult.adminApiKey) */

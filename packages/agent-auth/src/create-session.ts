@@ -6,11 +6,18 @@ import type {
 import { defaultSigningPolicy, resolvePolicyPlaceholders } from "./policies";
 
 /**
- * Provision a complete isolated agent identity in 3-4 API calls.
+ * Provision a complete isolated agent identity in 4-5 API calls.
+ *
+ * Two-key pattern: The Turnkey Notarizer requires every user to have at least
+ * one non-expiring API key. We satisfy this by creating an "anchor" key
+ * (non-expiring, private key discarded) on the agent user, then adding a
+ * separate "session" key (expiring, given to the agent). This way
+ * expirationSeconds is enforced by the enclave, not just advisory.
  *
  * Creates a sub-organization with:
- * - A root admin user (orchestrator credential, 5 min TTL)
- * - A non-root agent user (policy-gated, configurable TTL)
+ * - A root admin user (orchestrator credential, non-expiring, discarded after provisioning)
+ * - A non-root agent user with an anchor key (non-expiring, satisfies Notarizer)
+ * - A session key on the agent user (expiring, given to agent)
  * - Optional wallet accounts for signing
  * - ALLOW policies scoped to the agent user (implicit deny for everything else)
  *
@@ -29,9 +36,10 @@ export async function createAgentSession(
 ): Promise<CreateAgentSessionResult> {
   const { generateP256KeyPair } = await import("@turnkey/crypto");
 
-  // Step 1: Generate two P256 key pairs
+  // Step 1: Generate three P256 key pairs
   const adminKeyPair = generateP256KeyPair();
-  const agentKeyPair = generateP256KeyPair();
+  const agentAnchorKeyPair = generateP256KeyPair();
+  const agentSessionKeyPair = generateP256KeyPair();
 
   // Step 2: Build wallet accounts from request
   const walletAccounts = (request.accounts ?? []).map((account, i) => ({
@@ -115,7 +123,9 @@ export async function createAgentSession(
 
   const subOrgClient = subOrgSdk.apiClient();
 
-  // Step 5: Create non-root agent user (as root admin)
+  // Step 5: Create non-root agent user with anchor key (as root admin)
+  // The anchor key satisfies the Notarizer's requirement for a non-expiring credential.
+  // Its private key is never stored or returned.
   let agentUserId: string;
   try {
     const createUsersResponse = await subOrgClient.createUsers({
@@ -126,13 +136,13 @@ export async function createAgentSession(
           userTags: [],
           apiKeys: [
             {
-              apiKeyName: `${request.agentName}-key`,
-              publicKey: agentKeyPair.publicKey,
+              apiKeyName: `${request.agentName}-anchor-key`,
+              publicKey: agentAnchorKeyPair.publicKey,
               curveType: "API_KEY_CURVE_P256",
-              // Note: Turnkey's Notarizer requires at least one non-expiring
-              // credential per user. Lifecycle is managed by deleting the sub-org
-              // when the agent session ends. The expiresAt field in the result
-              // is advisory, based on request.expirationSeconds.
+              // No expirationSeconds: this anchor key satisfies the Notarizer's
+              // requirement for at least one non-expiring credential per user.
+              // The private key is discarded; the anchor exists only to keep
+              // the user valid while the session key handles actual auth.
             },
           ],
           authenticators: [],
@@ -155,6 +165,28 @@ export async function createAgentSession(
     await cleanup();
     throw new Error(
       `Failed to create agent user: ${err instanceof Error ? err.message : String(err)}`
+    );
+  }
+
+  // Step 5b: Create expiring session key on the agent user
+  // This is the key the agent will actually use. It expires per request.expirationSeconds.
+  try {
+    await subOrgClient.createApiKeys({
+      organizationId: subOrgId,
+      userId: agentUserId,
+      apiKeys: [
+        {
+          apiKeyName: `${request.agentName}-session-key`,
+          publicKey: agentSessionKeyPair.publicKey,
+          curveType: "API_KEY_CURVE_P256",
+          expirationSeconds: String(request.expirationSeconds),
+        },
+      ],
+    });
+  } catch (err) {
+    await cleanup();
+    throw new Error(
+      `Failed to create session key: ${err instanceof Error ? err.message : String(err)}`
     );
   }
 
@@ -193,7 +225,7 @@ export async function createAgentSession(
   const requestAccounts = request.accounts ?? [];
 
   for (let i = 0; i < requestAccounts.length; i++) {
-    const config = requestAccounts[i];
+    const config = requestAccounts[i]!;
     const address = walletAddresses[i]; // string (the address itself)
 
     const accountResult: AgentAccountResult = {
@@ -209,7 +241,7 @@ export async function createAgentSession(
         const exportResponse = await subOrgClient.exportWalletAccount({
           organizationId: subOrgId,
           address: address,
-          targetPublicKey: agentKeyPair.publicKeyUncompressed ?? agentKeyPair.publicKey,
+          targetPublicKey: agentSessionKeyPair.publicKeyUncompressed ?? agentSessionKeyPair.publicKey,
         });
 
         // exportBundle spread directly onto response
@@ -223,7 +255,7 @@ export async function createAgentSession(
     accounts.push(accountResult);
   }
 
-  // Step 8: Return result (admin key is discarded, auto-expires in 5 min)
+  // Step 8: Return result (admin key retained for session deletion, anchor key discarded)
   const expiresAt = new Date(
     Date.now() + request.expirationSeconds * 1000
   ).toISOString();
@@ -232,8 +264,8 @@ export async function createAgentSession(
     subOrganizationId: subOrgId,
     agentUserId,
     apiKey: {
-      publicKey: agentKeyPair.publicKey,
-      privateKey: agentKeyPair.privateKey,
+      publicKey: agentSessionKeyPair.publicKey,
+      privateKey: agentSessionKeyPair.privateKey,
     },
     adminApiKey: {
       publicKey: adminKeyPair.publicKey,

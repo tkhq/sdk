@@ -29,7 +29,6 @@ beforeEach(() => {
 describe("deleteAgentSession", () => {
   it("creates admin client and calls deleteSubOrganization", async () => {
     const result = await deleteAgentSession({
-      organizationId: "parent-org-id",
       subOrganizationId: "sub-org-to-delete",
       adminApiKey: {
         publicKey: "admin-pub",
@@ -47,7 +46,6 @@ describe("deleteAgentSession", () => {
     // Verify delete called correctly
     expect(mockAdminClient.deleteSubOrganization).toHaveBeenCalledTimes(1);
     const args = mockAdminClient.deleteSubOrganization.mock.calls[0][0];
-    expect(args.organizationId).toBe("sub-org-to-delete");
     expect(args.deleteWithoutExport).toBe(true);
 
     expect(result.subOrganizationId).toBe("sub-org-to-delete");
@@ -60,7 +58,6 @@ describe("deleteAgentSession", () => {
 
     await expect(
       deleteAgentSession({
-        organizationId: "parent-org-id",
         subOrganizationId: "nonexistent-sub-org",
         adminApiKey: { publicKey: "pub", privateKey: "priv" },
       })

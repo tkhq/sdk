@@ -10,6 +10,7 @@ jest.mock("@turnkey/crypto", () => ({
 // Mock @turnkey/sdk-server
 const mockSubOrgApiClient = {
   createUsers: jest.fn(),
+  createApiKeys: jest.fn(),
   createPolicies: jest.fn(),
   exportWalletAccount: jest.fn(),
   deleteSubOrganization: jest.fn(),
@@ -37,20 +38,28 @@ const ADMIN_KEY_PAIR = {
   publicKeyUncompressed: "admin-public-key-uncompressed-hex",
 };
 
-const AGENT_KEY_PAIR = {
-  privateKey: "agent-private-key-hex",
-  publicKey: "agent-public-key-hex",
-  publicKeyUncompressed: "agent-public-key-uncompressed-hex",
+const AGENT_ANCHOR_KEY_PAIR = {
+  privateKey: "agent-anchor-private-key-hex",
+  publicKey: "agent-anchor-public-key-hex",
+  publicKeyUncompressed: "agent-anchor-public-key-uncompressed-hex",
+};
+
+const AGENT_SESSION_KEY_PAIR = {
+  privateKey: "agent-session-private-key-hex",
+  publicKey: "agent-session-public-key-hex",
+  publicKeyUncompressed: "agent-session-public-key-uncompressed-hex",
 };
 
 beforeEach(() => {
   jest.clearAllMocks();
 
-  // Default: generateP256KeyPair returns admin key first, then agent key
+  // Default: generateP256KeyPair returns admin first, then anchor, then session
   let callCount = 0;
   mockGenerateP256KeyPair.mockImplementation(() => {
     callCount++;
-    return callCount === 1 ? ADMIN_KEY_PAIR : AGENT_KEY_PAIR;
+    if (callCount === 1) return ADMIN_KEY_PAIR;
+    if (callCount === 2) return AGENT_ANCHOR_KEY_PAIR;
+    return AGENT_SESSION_KEY_PAIR;
   });
 
   // Default successful responses
@@ -71,6 +80,14 @@ beforeEach(() => {
     userIds: ["agent-user-001"],
     activity: {
       id: "activity-2",
+      status: "ACTIVITY_STATUS_COMPLETED",
+    },
+  });
+
+  mockSubOrgApiClient.createApiKeys.mockResolvedValue({
+    apiKeyIds: ["session-key-id"],
+    activity: {
+      id: "activity-2b",
       status: "ACTIVITY_STATUS_COMPLETED",
     },
   });
@@ -100,7 +117,7 @@ describe("createAgentSession", () => {
   };
 
   describe("happy path with accounts", () => {
-    it("orchestrates sub-org creation, user creation, and policy creation", async () => {
+    it("orchestrates sub-org creation, user creation, session key, and policy creation", async () => {
       const result = await createAgentSession(mockParentClient, {
         ...baseRequest,
         accounts: [jwtSigning(), gitSigning()],
@@ -130,16 +147,26 @@ describe("createAgentSession", () => {
       expect(subOrgArgs.wallet.accounts[0].curve).toBe("CURVE_P256");
       expect(subOrgArgs.wallet.accounts[1].curve).toBe("CURVE_ED25519");
 
-      // Verify createUsers called with non-root user + agent key
+      // Verify createUsers called with anchor key (no expirationSeconds)
       expect(mockSubOrgApiClient.createUsers).toHaveBeenCalledTimes(1);
       const usersArgs = mockSubOrgApiClient.createUsers.mock.calls[0][0];
       expect(usersArgs.organizationId).toBe("sub-org-123");
       expect(usersArgs.users).toHaveLength(1);
       expect(usersArgs.users[0].userName).toBe("test-agent");
-      expect(usersArgs.users[0].apiKeys[0].publicKey).toBe(AGENT_KEY_PAIR.publicKey);
-      // No expirationSeconds (Notarizer requires non-expiring credentials)
+      expect(usersArgs.users[0].apiKeys[0].publicKey).toBe(AGENT_ANCHOR_KEY_PAIR.publicKey);
+      expect(usersArgs.users[0].apiKeys[0].expirationSeconds).toBeUndefined();
       // No nested "parameters" key
       expect(usersArgs.parameters).toBeUndefined();
+
+      // Verify createApiKeys called with session key (with expirationSeconds)
+      expect(mockSubOrgApiClient.createApiKeys).toHaveBeenCalledTimes(1);
+      const apiKeysArgs = mockSubOrgApiClient.createApiKeys.mock.calls[0][0];
+      expect(apiKeysArgs.organizationId).toBe("sub-org-123");
+      expect(apiKeysArgs.userId).toBe("agent-user-001");
+      expect(apiKeysArgs.apiKeys).toHaveLength(1);
+      expect(apiKeysArgs.apiKeys[0].publicKey).toBe(AGENT_SESSION_KEY_PAIR.publicKey);
+      expect(apiKeysArgs.apiKeys[0].expirationSeconds).toBe("3600");
+      expect(apiKeysArgs.apiKeys[0].curveType).toBe("API_KEY_CURVE_P256");
 
       // Verify createPolicies called with default signing policy
       expect(mockSubOrgApiClient.createPolicies).toHaveBeenCalledTimes(1);
@@ -153,11 +180,11 @@ describe("createAgentSession", () => {
       // No nested "parameters" key
       expect(policiesArgs.parameters).toBeUndefined();
 
-      // Verify result shape
+      // Verify result uses session key (not anchor)
       expect(result.subOrganizationId).toBe("sub-org-123");
       expect(result.agentUserId).toBe("agent-user-001");
-      expect(result.apiKey.publicKey).toBe(AGENT_KEY_PAIR.publicKey);
-      expect(result.apiKey.privateKey).toBe(AGENT_KEY_PAIR.privateKey);
+      expect(result.apiKey.publicKey).toBe(AGENT_SESSION_KEY_PAIR.publicKey);
+      expect(result.apiKey.privateKey).toBe(AGENT_SESSION_KEY_PAIR.privateKey);
       expect(result.adminApiKey.publicKey).toBe(ADMIN_KEY_PAIR.publicKey);
       expect(result.adminApiKey.privateKey).toBe(ADMIN_KEY_PAIR.privateKey);
       expect(result.accounts).toHaveLength(2);
@@ -184,7 +211,7 @@ describe("createAgentSession", () => {
 
   describe("custom policies with placeholder", () => {
     it("replaces <AGENT_USER_ID> placeholder with actual user ID", async () => {
-      const result = await createAgentSession(mockParentClient, {
+      await createAgentSession(mockParentClient, {
         ...baseRequest,
         policies: [
           {
@@ -222,6 +249,21 @@ describe("createAgentSession", () => {
     });
   });
 
+  describe("error handling: createApiKeys failure triggers cleanup", () => {
+    it("triggers cleanup and throws when session key creation fails", async () => {
+      mockSubOrgApiClient.createApiKeys.mockRejectedValue(
+        new Error("api key creation failed")
+      );
+
+      await expect(
+        createAgentSession(mockParentClient, baseRequest)
+      ).rejects.toThrow("Failed to create session key");
+
+      // Verify cleanup was attempted
+      expect(mockParentClient.deleteSubOrganization).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("error handling: createPolicies fails", () => {
     it("triggers cleanup and throws", async () => {
       mockSubOrgApiClient.createPolicies.mockRejectedValue(
@@ -237,6 +279,137 @@ describe("createAgentSession", () => {
     });
   });
 
+  describe("error handling: createSubOrganization failure propagates without cleanup", () => {
+    it("does not call deleteSubOrganization when createSubOrganization throws", async () => {
+      mockParentClient.createSubOrganization.mockRejectedValue(
+        new Error("sub-org creation failed")
+      );
+
+      await expect(
+        createAgentSession(mockParentClient, baseRequest)
+      ).rejects.toThrow("sub-org creation failed");
+
+      // No cleanup because sub-org was never created
+      expect(mockParentClient.deleteSubOrganization).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("error handling: createUsers returns empty userIds triggers cleanup", () => {
+    it("cleans up and throws when no user ID returned", async () => {
+      mockSubOrgApiClient.createUsers.mockResolvedValue({
+        userIds: [],
+        activity: { id: "activity-2", status: "ACTIVITY_STATUS_COMPLETED" },
+      });
+
+      await expect(
+        createAgentSession(mockParentClient, baseRequest)
+      ).rejects.toThrow("Failed to create agent user: no user ID returned");
+
+      expect(mockParentClient.deleteSubOrganization).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("error handling: cleanup failure is swallowed, original error surfaces", () => {
+    it("surfaces the original error even when cleanup also fails", async () => {
+      mockSubOrgApiClient.createUsers.mockRejectedValue(
+        new Error("original user error")
+      );
+      mockParentClient.deleteSubOrganization.mockRejectedValue(
+        new Error("cleanup also failed")
+      );
+
+      await expect(
+        createAgentSession(mockParentClient, baseRequest)
+      ).rejects.toThrow("Failed to create agent user: original user error");
+
+      // Cleanup was attempted
+      expect(mockParentClient.deleteSubOrganization).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("edge case: policyIds undefined returns empty array", () => {
+    it("returns empty policyIds when createPolicies returns undefined", async () => {
+      mockSubOrgApiClient.createPolicies.mockResolvedValue({
+        policyIds: undefined,
+        activity: { id: "activity-3", status: "ACTIVITY_STATUS_COMPLETED" },
+      });
+
+      const result = await createAgentSession(mockParentClient, baseRequest);
+
+      expect(result.policyIds).toEqual([]);
+    });
+  });
+
+  describe("edge case: apiBaseUrl override passed to sub-org SDK", () => {
+    it("passes custom apiBaseUrl to TurnkeyServerSDK", async () => {
+      await createAgentSession(mockParentClient, baseRequest, {
+        apiBaseUrl: "https://custom-api.example.com",
+      });
+
+      expect(mockTurnkeyServerSDK).toHaveBeenCalledTimes(1);
+      const sdkConfig = mockTurnkeyServerSDK.mock.calls[0][0];
+      expect(sdkConfig.apiBaseUrl).toBe("https://custom-api.example.com");
+    });
+  });
+
+  describe("edge case: default path uses account index", () => {
+    it("generates index-based derivation paths when path not specified", async () => {
+      await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        accounts: [
+          { label: "acc-0", curve: "CURVE_P256" },
+          { label: "acc-1", curve: "CURVE_ED25519" },
+        ],
+      });
+
+      const subOrgArgs = mockParentClient.createSubOrganization.mock.calls[0][0];
+      expect(subOrgArgs.wallet.accounts[0].path).toBe("m/44'/1'/0'/0/0");
+      expect(subOrgArgs.wallet.accounts[1].path).toBe("m/44'/1'/1'/0/0");
+    });
+  });
+
+  describe("edge case: export skipped when walletId is undefined", () => {
+    it("does not call exportWalletAccount when no wallet was created", async () => {
+      mockParentClient.createSubOrganization.mockResolvedValue({
+        subOrganizationId: "sub-org-123",
+        rootUserIds: ["root-user-456"],
+        activity: { id: "activity-1", status: "ACTIVITY_STATUS_COMPLETED" },
+        // No wallet in response
+      });
+
+      const result = await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        accounts: [gitSigning({ exportKey: true })],
+      });
+
+      expect(mockSubOrgApiClient.exportWalletAccount).not.toHaveBeenCalled();
+      expect(result.accounts[0]!.exportBundle).toBeUndefined();
+    });
+  });
+
+  describe("edge case: fewer wallet addresses than accounts", () => {
+    it("sets empty publicKey for accounts without a matching address", async () => {
+      mockParentClient.createSubOrganization.mockResolvedValue({
+        subOrganizationId: "sub-org-123",
+        rootUserIds: ["root-user-456"],
+        wallet: {
+          walletId: "wallet-789",
+          addresses: ["0xaddr1"], // Only 1 address for 2 accounts
+        },
+        activity: { id: "activity-1", status: "ACTIVITY_STATUS_COMPLETED" },
+      });
+
+      const result = await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        accounts: [jwtSigning(), gitSigning()],
+      });
+
+      expect(result.accounts).toHaveLength(2);
+      expect(result.accounts[0]!.publicKey).toBe("0xaddr1");
+      expect(result.accounts[1]!.publicKey).toBe("");
+    });
+  });
+
   describe("two-client pattern", () => {
     it("instantiates sub-org SDK with admin key, not agent key", async () => {
       await createAgentSession(mockParentClient, baseRequest);
@@ -249,19 +422,20 @@ describe("createAgentSession", () => {
       expect(sdkConfig.defaultOrganizationId).toBe("sub-org-123");
     });
 
-    it("uses sub-org client for createUsers and createPolicies, not parent client", async () => {
+    it("uses sub-org client for createUsers, createApiKeys, and createPolicies, not parent client", async () => {
       await createAgentSession(mockParentClient, baseRequest);
 
       // Parent client should only be used for createSubOrganization
       expect(mockParentClient.createSubOrganization).toHaveBeenCalledTimes(1);
-      // Sub-org client should be used for createUsers and createPolicies
+      // Sub-org client should be used for createUsers, createApiKeys, and createPolicies
       expect(mockSubOrgApiClient.createUsers).toHaveBeenCalledTimes(1);
+      expect(mockSubOrgApiClient.createApiKeys).toHaveBeenCalledTimes(1);
       expect(mockSubOrgApiClient.createPolicies).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("HPKE export", () => {
-    it("calls exportWalletAccount with uncompressed public key", async () => {
+    it("calls exportWalletAccount with session key uncompressed public key", async () => {
       const result = await createAgentSession(mockParentClient, {
         ...baseRequest,
         accounts: [gitSigning({ exportKey: true })],
@@ -269,11 +443,11 @@ describe("createAgentSession", () => {
 
       expect(mockSubOrgApiClient.exportWalletAccount).toHaveBeenCalledTimes(1);
       const exportArgs = mockSubOrgApiClient.exportWalletAccount.mock.calls[0][0];
-      expect(exportArgs.targetPublicKey).toBe(AGENT_KEY_PAIR.publicKeyUncompressed);
+      expect(exportArgs.targetPublicKey).toBe(AGENT_SESSION_KEY_PAIR.publicKeyUncompressed);
       expect(exportArgs.address).toBe("0xaddr1");
       expect(exportArgs.organizationId).toBe("sub-org-123");
 
-      expect(result.accounts[0].exportBundle).toBe("encrypted-key-bundle-base64");
+      expect(result.accounts[0]!.exportBundle).toBe("encrypted-key-bundle-base64");
     });
 
     it("handles export failure as non-fatal", async () => {
@@ -288,8 +462,8 @@ describe("createAgentSession", () => {
 
       // Account still in result, just no exportBundle
       expect(result.accounts).toHaveLength(1);
-      expect(result.accounts[0].exportBundle).toBeUndefined();
-      expect(result.accounts[0].label).toBe("git-signing");
+      expect(result.accounts[0]!.exportBundle).toBeUndefined();
+      expect(result.accounts[0]!.label).toBe("git-signing");
 
       // No cleanup triggered (export failure is non-fatal)
       expect(mockParentClient.deleteSubOrganization).not.toHaveBeenCalled();
@@ -341,12 +515,12 @@ describe("createAgentSession", () => {
       });
 
       expect(result.accounts).toHaveLength(3);
-      expect(result.accounts[0].label).toBe("jwt-signing");
-      expect(result.accounts[0].publicKey).toBe("p256-addr");
-      expect(result.accounts[1].label).toBe("git-signing");
-      expect(result.accounts[1].publicKey).toBe("ed25519-addr");
-      expect(result.accounts[2].label).toBe("eth-signing");
-      expect(result.accounts[2].publicKey).toBe("secp-addr");
+      expect(result.accounts[0]!.label).toBe("jwt-signing");
+      expect(result.accounts[0]!.publicKey).toBe("p256-addr");
+      expect(result.accounts[1]!.label).toBe("git-signing");
+      expect(result.accounts[1]!.publicKey).toBe("ed25519-addr");
+      expect(result.accounts[2]!.label).toBe("eth-signing");
+      expect(result.accounts[2]!.publicKey).toBe("secp-addr");
     });
   });
 });

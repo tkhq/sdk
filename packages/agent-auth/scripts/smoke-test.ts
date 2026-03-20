@@ -77,6 +77,10 @@ async function main() {
     check("Git signing account", session.accounts[1]?.label === "git-signing");
     check("Has policy IDs", session.policyIds.length > 0);
     check("Has expiry", !!session.expiresAt);
+    check(
+      "Git signing account has exportBundle",
+      !!session.accounts[1]?.exportBundle
+    );
 
     console.log(`\n  Sub-org: ${session.subOrganizationId}`);
     console.log(`  Agent user: ${session.agentUserId}`);
@@ -116,6 +120,23 @@ async function main() {
     }
   }
 
+  // Step 4b: Test Ed25519 signing (git-signing account)
+  if (session.accounts.length > 1 && session.accounts[1].publicKey) {
+    console.log("\n3b. Testing sign_raw_payload with Ed25519 (git-signing)...");
+    try {
+      await agentClient.signRawPayload({
+        organizationId: session.subOrganizationId,
+        signWith: session.accounts[1].publicKey,
+        payload: "48656c6c6f20576f726c64",
+        encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+        hashFunction: "HASH_FUNCTION_NOT_APPLICABLE",
+      });
+      check("Ed25519 sign_raw_payload succeeded", true);
+    } catch (err: any) {
+      check("Ed25519 sign_raw_payload succeeded", false, err.message);
+    }
+  }
+
   // Step 5: Agent should NOT be able to create users (implicit deny)
   console.log("\n4. Testing createUsers (should FAIL, implicit deny)...");
   try {
@@ -140,7 +161,6 @@ async function main() {
   try {
     await deleteAgentSession(
       {
-        organizationId: ORG_ID!,
         subOrganizationId: session.subOrganizationId,
         adminApiKey: session.adminApiKey,
       },
@@ -149,6 +169,21 @@ async function main() {
     check("Session deleted", true);
   } catch (err: any) {
     check("Session deleted", false, err.message);
+  }
+
+  // Step 6b: Double-delete should fail gracefully
+  console.log("\n5b. Testing double-delete (should fail gracefully)...");
+  try {
+    await deleteAgentSession(
+      {
+        subOrganizationId: session.subOrganizationId,
+        adminApiKey: session.adminApiKey,
+      },
+      { apiBaseUrl: API_BASE_URL }
+    );
+    check("Double-delete failed gracefully", false, "should have thrown");
+  } catch {
+    check("Double-delete failed gracefully", true);
   }
 
   // Step 7: Agent key should no longer work

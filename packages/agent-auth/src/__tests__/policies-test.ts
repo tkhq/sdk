@@ -48,7 +48,7 @@ describe("policies", () => {
       ];
 
       const resolved = resolvePolicyPlaceholders(policies, "usr_real_id");
-      expect(resolved[0].consensus).toBe(
+      expect(resolved[0]!.consensus).toBe(
         "approvers.any(user, user.id == 'usr_real_id')"
       );
     });
@@ -64,8 +64,8 @@ describe("policies", () => {
       ];
 
       const resolved = resolvePolicyPlaceholders(policies, "usr_123");
-      expect(resolved[0].consensus).not.toContain("<AGENT_USER_ID>");
-      expect(resolved[0].consensus).toContain("usr_123");
+      expect(resolved[0]!.consensus).not.toContain("<AGENT_USER_ID>");
+      expect(resolved[0]!.consensus).toContain("usr_123");
     });
 
     it("leaves policies without consensus unchanged", () => {
@@ -78,7 +78,7 @@ describe("policies", () => {
       ];
 
       const resolved = resolvePolicyPlaceholders(policies, "usr_123");
-      expect(resolved[0].consensus).toBeUndefined();
+      expect(resolved[0]!.consensus).toBeUndefined();
     });
 
     it("returns empty array for empty input", () => {
