@@ -1,6 +1,7 @@
 import { ApiKeyStamper, SignatureFormat } from "@turnkey/api-key-stamper";
 import { generateP256KeyPair } from "@turnkey/crypto";
-import type { TStamp, ApiKeyStamperBase } from "../../../__types__";
+import type { ApiKeyStamperBase } from "../../../__types__";
+import type { TStamp } from "@turnkey/sdk-types";
 
 let Keychain: typeof import("react-native-keychain");
 
