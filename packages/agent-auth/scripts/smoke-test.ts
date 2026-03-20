@@ -9,7 +9,8 @@
  *   npx tsx scripts/smoke-test.ts
  */
 
-import { TurnkeyServerSDK } from "@turnkey/sdk-server";
+import { Turnkey } from "@turnkey/sdk-server";
+const TurnkeyServerSDK = Turnkey;
 import { createAgentSession, deleteAgentSession, presets } from "../src/index";
 
 const API_BASE_URL = process.env.TURNKEY_API_BASE_URL ?? "http://localhost:8081";
@@ -105,7 +106,7 @@ async function main() {
       await agentClient.signRawPayload({
         organizationId: session.subOrganizationId,
         signWith: session.accounts[0].publicKey,
-        payload: "48656c6c6f", // "Hello" in hex
+        payload: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", // SHA-256 of empty string (32 bytes)
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
       });
@@ -137,10 +138,14 @@ async function main() {
   // Step 6: Delete agent session
   console.log("\n5. Deleting agent session...");
   try {
-    await deleteAgentSession(parentClient, {
-      organizationId: ORG_ID!,
-      subOrganizationId: session.subOrganizationId,
-    });
+    await deleteAgentSession(
+      {
+        organizationId: ORG_ID!,
+        subOrganizationId: session.subOrganizationId,
+        adminApiKey: session.adminApiKey,
+      },
+      { apiBaseUrl: API_BASE_URL }
+    );
     check("Session deleted", true);
   } catch (err: any) {
     check("Session deleted", false, err.message);

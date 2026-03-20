@@ -119,10 +119,10 @@ describe("createAgentSession", () => {
       // No nested "parameters" key
       expect(subOrgArgs.parameters).toBeUndefined();
 
-      // Verify root user has admin key with 5 min TTL
+      // Verify root user has admin key (no expiration, required by Notarizer)
       expect(subOrgArgs.rootUsers).toHaveLength(1);
       expect(subOrgArgs.rootUsers[0].apiKeys[0].publicKey).toBe(ADMIN_KEY_PAIR.publicKey);
-      expect(subOrgArgs.rootUsers[0].apiKeys[0].expirationSeconds).toBe("300");
+      expect(subOrgArgs.rootUsers[0].apiKeys[0].expirationSeconds).toBeUndefined();
       expect(subOrgArgs.rootUsers[0].apiKeys[0].curveType).toBe("API_KEY_CURVE_P256");
 
       // Verify wallet has both accounts
@@ -137,7 +137,7 @@ describe("createAgentSession", () => {
       expect(usersArgs.users).toHaveLength(1);
       expect(usersArgs.users[0].userName).toBe("test-agent");
       expect(usersArgs.users[0].apiKeys[0].publicKey).toBe(AGENT_KEY_PAIR.publicKey);
-      expect(usersArgs.users[0].apiKeys[0].expirationSeconds).toBe("3600");
+      // No expirationSeconds (Notarizer requires non-expiring credentials)
       // No nested "parameters" key
       expect(usersArgs.parameters).toBeUndefined();
 
@@ -158,6 +158,8 @@ describe("createAgentSession", () => {
       expect(result.agentUserId).toBe("agent-user-001");
       expect(result.apiKey.publicKey).toBe(AGENT_KEY_PAIR.publicKey);
       expect(result.apiKey.privateKey).toBe(AGENT_KEY_PAIR.privateKey);
+      expect(result.adminApiKey.publicKey).toBe(ADMIN_KEY_PAIR.publicKey);
+      expect(result.adminApiKey.privateKey).toBe(ADMIN_KEY_PAIR.privateKey);
       expect(result.accounts).toHaveLength(2);
       expect(result.policyIds).toEqual(["policy-aaa", "policy-bbb"]);
       expect(result.expiresAt).toBeDefined();

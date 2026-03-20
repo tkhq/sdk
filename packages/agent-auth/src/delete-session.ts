@@ -3,18 +3,33 @@ import type { DeleteAgentSessionRequest, DeleteAgentSessionResult } from "./type
 /**
  * Delete an agent session and all associated resources.
  *
- * Calls DeleteSubOrganization with deleteWithoutExport: true.
- * This destroys the sub-org, all users, wallets, keys, and policies within it.
+ * Uses the sub-org admin key (from CreateAgentSessionResult.adminApiKey) to
+ * authenticate as the sub-org root user and delete the sub-org.
+ * This destroys all users, wallets, keys, and policies within it.
  *
- * @param parentClient - TurnkeyApiClient authenticated as the parent org
- * @param request - Identifies which agent session to delete
+ * @param request - Identifies which agent session to delete, including admin credentials
+ * @param options - Optional configuration (e.g., apiBaseUrl override)
  */
 export async function deleteAgentSession(
-  parentClient: { deleteSubOrganization: Function; [key: string]: any },
-  request: DeleteAgentSessionRequest
+  request: DeleteAgentSessionRequest,
+  options?: { apiBaseUrl?: string }
 ): Promise<DeleteAgentSessionResult> {
-  // To delete a sub-org, the organizationId in the request should be the sub-org itself
-  await parentClient.deleteSubOrganization({
+  const sdkServer = await import("@turnkey/sdk-server");
+  const TurnkeyServerSDK =
+    (sdkServer as any).TurnkeyServerSDK ?? (sdkServer as any).Turnkey;
+
+  const apiBaseUrl = options?.apiBaseUrl ?? "https://api.turnkey.com";
+
+  const adminSdk = new TurnkeyServerSDK({
+    apiBaseUrl,
+    apiPublicKey: request.adminApiKey.publicKey,
+    apiPrivateKey: request.adminApiKey.privateKey,
+    defaultOrganizationId: request.subOrganizationId,
+  });
+
+  const adminClient = adminSdk.apiClient();
+
+  await adminClient.deleteSubOrganization({
     organizationId: request.subOrganizationId,
     deleteWithoutExport: true,
   });

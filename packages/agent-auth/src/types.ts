@@ -68,11 +68,19 @@ export interface CreateAgentSessionResult {
     publicKey: string;
     privateKey: string;
   };
+  /**
+   * The root admin API key for this sub-org (orchestrator-only, do not share with agent).
+   * Required to delete the agent session via deleteAgentSession().
+   */
+  adminApiKey: {
+    publicKey: string;
+    privateKey: string;
+  };
   /** Created wallet accounts with public keys and optional export bundles */
   accounts: AgentAccountResult[];
   /** IDs of created policies */
   policyIds: string[];
-  /** ISO 8601 expiry timestamp for the agent's API key */
+  /** ISO 8601 expiry timestamp (advisory, based on expirationSeconds from request) */
   expiresAt: string;
 }
 
@@ -81,6 +89,11 @@ export interface DeleteAgentSessionRequest {
   organizationId: string;
   /** Sub-organization ID of the agent session to delete */
   subOrganizationId: string;
+  /** Admin API key for the sub-org (from CreateAgentSessionResult.adminApiKey) */
+  adminApiKey: {
+    publicKey: string;
+    privateKey: string;
+  };
 }
 
 export interface DeleteAgentSessionResult {

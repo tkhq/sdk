@@ -5,9 +5,6 @@ import type {
 } from "./types";
 import { defaultSigningPolicy, resolvePolicyPlaceholders } from "./policies";
 
-// Root admin key TTL: 5 minutes (used only during provisioning, then discarded)
-const ROOT_ADMIN_TTL_SECONDS = "300";
-
 /**
  * Provision a complete isolated agent identity in 3-4 API calls.
  *
@@ -65,7 +62,10 @@ export async function createAgentSession(
             apiKeyName: `${request.agentName}-admin-key`,
             publicKey: adminKeyPair.publicKey,
             curveType: "API_KEY_CURVE_P256",
-            expirationSeconds: ROOT_ADMIN_TTL_SECONDS,
+            // Note: no expirationSeconds here. The Notarizer requires at least one
+            // "long-lived" credential (no expiration) per user for validation.
+            // The admin key is discarded after provisioning and the sub-org can be
+            // deleted to revoke it.
           },
         ],
         authenticators: [],
@@ -100,7 +100,8 @@ export async function createAgentSession(
   };
 
   // Step 4: Create sub-org admin client (as root admin)
-  const { TurnkeyServerSDK } = await import("@turnkey/sdk-server");
+  const sdkServer = await import("@turnkey/sdk-server");
+  const TurnkeyServerSDK = (sdkServer as any).TurnkeyServerSDK ?? (sdkServer as any).Turnkey;
 
   const apiBaseUrl =
     options?.apiBaseUrl ?? "https://api.turnkey.com";
@@ -122,12 +123,16 @@ export async function createAgentSession(
       users: [
         {
           userName: request.agentName,
+          userTags: [],
           apiKeys: [
             {
               apiKeyName: `${request.agentName}-key`,
               publicKey: agentKeyPair.publicKey,
               curveType: "API_KEY_CURVE_P256",
-              expirationSeconds: String(request.expirationSeconds),
+              // Note: Turnkey's Notarizer requires at least one non-expiring
+              // credential per user. Lifecycle is managed by deleting the sub-org
+              // when the agent session ends. The expiresAt field in the result
+              // is advisory, based on request.expirationSeconds.
             },
           ],
           authenticators: [],
@@ -229,6 +234,10 @@ export async function createAgentSession(
     apiKey: {
       publicKey: agentKeyPair.publicKey,
       privateKey: agentKeyPair.privateKey,
+    },
+    adminApiKey: {
+      publicKey: adminKeyPair.publicKey,
+      privateKey: adminKeyPair.privateKey,
     },
     accounts,
     policyIds,
