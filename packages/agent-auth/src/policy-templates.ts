@@ -53,6 +53,9 @@ export function allowAllSigning(): AgentPolicyParams {
 /**
  * Allow Ethereum transactions with optional restrictions.
  *
+ * Note: Without any options, this allows ALL sign_transaction activities
+ * (not just ETH). Use `chainIds` to restrict to specific EVM chains.
+ *
  * @param opts.chainIds - Restrict to specific chain IDs (e.g., [1, 137])
  * @param opts.maxValue - Max transaction value in wei (as string for big numbers)
  * @param opts.allowedAddresses - Restrict destination addresses (auto-lowercased)
@@ -165,6 +168,9 @@ export function allowEip712Signing(opts?: {
 
 /**
  * Allow native SOL transfers with optional recipient restrictions.
+ *
+ * Note: Without `allowedRecipients`, this allows ALL sign_transaction activities
+ * (not just Solana). Use `allowedRecipients` to add Solana-specific restrictions.
  *
  * @param opts.allowedRecipients - Restrict transfer destinations (case-sensitive for Solana)
  */
