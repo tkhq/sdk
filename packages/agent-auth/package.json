@@ -25,7 +25,8 @@
     "@turnkey/sdk-server": "workspace:*"
   },
   "dependencies": {
-    "@turnkey/crypto": "workspace:*"
+    "@turnkey/crypto": "workspace:*",
+    "@turnkey/encoding": "workspace:*"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
