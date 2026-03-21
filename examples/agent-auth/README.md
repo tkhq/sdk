@@ -37,6 +37,16 @@ Complete walkthrough of the agent auth flow:
 
 Simplest possible usage. Creates an agent session with no wallet accounts and the default signing policy, then cleans up. Good starting point for understanding the API.
 
+### Signing Helpers (`pnpm run signing`)
+
+Demonstrates all three signing helpers:
+
+- `signJwt`: Mint ES256 JWTs for API authentication (MCP servers, internal APIs)
+- `signSshCommit`: Sign git commits with Ed25519 in SSHSIG format (for "Verified" badges)
+- `signMessage`: General-purpose signing returning raw r, s, v components
+
+Shows JWT decoding, SSHSIG armored output, and the complete signing flow without ever exposing private keys.
+
 ### Multi-Agent Swarm (`pnpm run multi-agent`)
 
 Provisions three agents with different capabilities (JWT, git, ETH signing) from the same parent org. Demonstrates:
