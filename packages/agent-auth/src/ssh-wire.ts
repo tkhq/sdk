@@ -49,10 +49,10 @@ export function sshStringFromUtf8(str: string): Uint8Array {
  *
  * SSH public key blob format: sshString("ssh-ed25519") + sshString(32-byte-key)
  *
- * @param publicKeyHex - 32-byte Ed25519 public key as hex string (64 chars)
+ * @param publicKey - 32-byte Ed25519 public key as hex string (64 chars) or base58 (Solana address)
  */
-export function sshEd25519PublicKey(publicKeyHex: string): Uint8Array {
-  const keyBytes = hexToBytes(publicKeyHex);
+export function sshEd25519PublicKey(publicKey: string): Uint8Array {
+  const keyBytes = decodePublicKey(publicKey);
   if (keyBytes.length !== 32) {
     throw new Error(
       `Expected 32-byte Ed25519 public key, got ${keyBytes.length} bytes`,
@@ -145,4 +145,47 @@ function hexToBytes(hex: string): Uint8Array {
     bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
   }
   return bytes;
+}
+
+const BASE58_ALPHABET =
+  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+/**
+ * Decode a base58 string to Uint8Array.
+ */
+function base58ToBytes(str: string): Uint8Array {
+  const bytes: number[] = [0];
+  for (const char of str) {
+    const idx = BASE58_ALPHABET.indexOf(char);
+    if (idx === -1) throw new Error(`Invalid base58 character: ${char}`);
+    let carry = idx;
+    for (let j = 0; j < bytes.length; j++) {
+      carry += bytes[j]! * 58;
+      bytes[j] = carry & 0xff;
+      carry >>= 8;
+    }
+    while (carry > 0) {
+      bytes.push(carry & 0xff);
+      carry >>= 8;
+    }
+  }
+  // Leading zeros
+  for (const char of str) {
+    if (char !== "1") break;
+    bytes.push(0);
+  }
+  return new Uint8Array(bytes.reverse());
+}
+
+/**
+ * Decode a public key that may be hex (64 chars) or base58 (Solana address format).
+ * Returns raw 32-byte Uint8Array.
+ */
+export function decodePublicKey(key: string): Uint8Array {
+  // If it's 64 hex chars, treat as raw hex
+  if (key.length === 64 && /^[0-9a-fA-F]+$/.test(key)) {
+    return hexToBytes(key);
+  }
+  // Otherwise try base58 (Solana address format)
+  return base58ToBytes(key);
 }
