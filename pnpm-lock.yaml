@@ -3365,6 +3365,9 @@ importers:
 
   packages/agent-auth:
     dependencies:
+      '@noble/hashes':
+        specifier: ^1.5.0
+        version: 1.8.0
       '@turnkey/crypto':
         specifier: workspace:*
         version: link:../crypto
