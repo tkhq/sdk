@@ -194,7 +194,7 @@ async function main() {
       );
       check(
         "signSshCommit has end marker",
-        sig.endsWith("-----END SSH SIGNATURE-----"),
+        sig.endsWith("-----END SSH SIGNATURE-----\n"),
       );
     } catch (err: any) {
       check("signSshCommit produces armored signature", false, err.message);

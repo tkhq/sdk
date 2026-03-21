@@ -145,7 +145,7 @@ describe("armorSshSignature", () => {
     const binary = new Uint8Array([1, 2, 3, 4, 5]);
     const result = armorSshSignature(binary);
     expect(result).toMatch(/^-----BEGIN SSH SIGNATURE-----\n/);
-    expect(result).toMatch(/\n-----END SSH SIGNATURE-----$/);
+    expect(result).toMatch(/\n-----END SSH SIGNATURE-----\n$/);
   });
 
   it("contains valid base64 content", () => {
@@ -153,7 +153,7 @@ describe("armorSshSignature", () => {
     const result = armorSshSignature(binary);
     const lines = result.split("\n");
     // First and last lines are headers
-    const base64Content = lines.slice(1, -1).join("");
+    const base64Content = lines.slice(1, -2).filter(Boolean).join("");
     // Should be valid base64
     expect(() => atob(base64Content)).not.toThrow();
   });

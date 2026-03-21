@@ -11,11 +11,22 @@ import {
 } from "./ssh-wire";
 
 /**
+ * Convert Uint8Array to base64 string without stack overflow on large inputs.
+ */
+function bytesToBase64(input: Uint8Array): string {
+  let binary = "";
+  for (let i = 0; i < input.length; i++) {
+    binary += String.fromCharCode(input[i]!);
+  }
+  return btoa(binary);
+}
+
+/**
  * Encode a string as base64url (no padding).
  */
 function toBase64url(input: string): string {
   const bytes = new TextEncoder().encode(input);
-  const base64 = btoa(String.fromCharCode(...bytes));
+  const base64 = bytesToBase64(bytes);
   return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
@@ -23,7 +34,7 @@ function toBase64url(input: string): string {
  * Encode raw bytes as base64url (no padding).
  */
 function bytesToBase64url(input: Uint8Array): string {
-  const base64 = btoa(String.fromCharCode(...input));
+  const base64 = bytesToBase64(input);
   return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
@@ -136,6 +147,13 @@ export async function signSshCommit(
   // Step 4: Assemble the 64-byte Ed25519 signature (r || s)
   const r = signResult.r as string;
   const s = signResult.s as string;
+
+  if (r.length !== 64 || s.length !== 64) {
+    throw new Error(
+      `Unexpected Ed25519 signature component length: r=${r.length}, s=${s.length} (expected 64 each)`,
+    );
+  }
+
   const signatureBytes = uint8ArrayFromHexString(r + s);
 
   // Step 5: Build the SSHSIG output envelope

@@ -130,10 +130,14 @@ export function buildSshsigEnvelope(params: {
  *   -----END SSH SIGNATURE-----
  */
 export function armorSshSignature(binary: Uint8Array): string {
-  const base64 = btoa(String.fromCharCode(...binary));
+  let binaryStr = "";
+  for (let i = 0; i < binary.length; i++) {
+    binaryStr += String.fromCharCode(binary[i]!);
+  }
+  const base64 = btoa(binaryStr);
   // Wrap at 76 characters per line (standard PEM)
   const wrapped = base64.match(/.{1,76}/g)?.join("\n") ?? base64;
-  return `-----BEGIN SSH SIGNATURE-----\n${wrapped}\n-----END SSH SIGNATURE-----`;
+  return `-----BEGIN SSH SIGNATURE-----\n${wrapped}\n-----END SSH SIGNATURE-----\n`;
 }
 
 /**
