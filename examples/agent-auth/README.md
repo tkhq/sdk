@@ -1,0 +1,47 @@
+# Agent Auth Examples
+
+Examples demonstrating `@turnkey/agent-auth` for provisioning isolated, policy-gated cryptographic identities for AI agents.
+
+## Setup
+
+1. Copy the environment template:
+
+   ```bash
+   cp .env.local.example .env.local
+   ```
+
+2. Fill in your Turnkey credentials in `.env.local`:
+   - `API_PUBLIC_KEY` and `API_PRIVATE_KEY`: Your parent org API key
+   - `ORGANIZATION_ID`: Your Turnkey organization ID
+   - `BASE_URL`: Turnkey API URL (default: `https://api.turnkey.com`)
+
+3. Install dependencies:
+   ```bash
+   pnpm install
+   ```
+
+## Examples
+
+### Full Lifecycle (`pnpm start`)
+
+Complete walkthrough of the agent auth flow:
+
+- Provisions an agent with JWT signing (P256) and git signing (Ed25519) accounts
+- Adds a custom policy (sign_transaction) beyond the default (sign_raw_payload)
+- Signs payloads with both account types
+- Verifies policy enforcement (createUsers blocked by implicit deny)
+- Exports the Ed25519 key via HPKE (for sandbox injection)
+- Tears down the session
+
+### Minimal (`pnpm run minimal`)
+
+Simplest possible usage. Creates an agent session with no wallet accounts and the default signing policy, then cleans up. Good starting point for understanding the API.
+
+### Multi-Agent Swarm (`pnpm run multi-agent`)
+
+Provisions three agents with different capabilities (JWT, git, ETH signing) from the same parent org. Demonstrates:
+
+- Batch provisioning
+- Per-agent account configuration via presets
+- Cross-agent isolation (Agent 1 cannot access Agent 2's sub-org)
+- Batch cleanup with error handling

@@ -1,0 +1,17 @@
+{
+  "name": "@turnkey/example-agent-auth",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "pnpm tsx src/index.ts",
+    "minimal": "pnpm tsx src/minimal.ts",
+    "multi-agent": "pnpm tsx src/multi-agent.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@turnkey/agent-auth": "workspace:*",
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "^16.0.3"
+  }
+}
