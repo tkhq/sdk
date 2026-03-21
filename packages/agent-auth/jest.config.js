@@ -10,6 +10,7 @@ const config = {
     "^@turnkey/crypto$": "<rootDir>/../crypto/src/index.ts",
     "^@turnkey/sdk-server$": "<rootDir>/../sdk-server/src/index.ts",
     "^@turnkey/api-key-stamper$": "<rootDir>/../api-key-stamper/src/index.ts",
+    "^@turnkey/encoding$": "<rootDir>/../encoding/src/index.ts",
   },
 };
 
