@@ -251,6 +251,26 @@ describe("createAgentSession", () => {
         "<AGENT_USER_ID>",
       );
     });
+
+    it("skips default signing policy when user provides one covering sign_raw_payload", async () => {
+      await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        policies: [
+          {
+            policyName: "allow-all-signing",
+            effect: "EFFECT_ALLOW",
+            condition:
+              "activity.type in ['ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2', 'ACTIVITY_TYPE_SIGN_TRANSACTION_V2']",
+            consensus: "approvers.any(user, user.id == '<AGENT_USER_ID>')",
+          },
+        ],
+      });
+
+      const policiesArgs = mockSubOrgApiClient.createPolicies.mock.calls[0]![0];
+      // Only user policy, no default (dedup)
+      expect(policiesArgs.policies).toHaveLength(1);
+      expect(policiesArgs.policies[0].policyName).toBe("allow-all-signing");
+    });
   });
 
   describe("error handling: createUsers fails", () => {

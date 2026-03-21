@@ -47,6 +47,17 @@ Demonstrates all three signing helpers:
 
 Shows JWT decoding, SSHSIG armored output, and the complete signing flow without ever exposing private keys.
 
+### Policy Templates (`pnpm run policies`)
+
+Demonstrates composable policy templates for fine-grained access control:
+
+- `allowAllSigning()`: Replace default with broader signing permissions
+- `allowEthTransaction()`: Restrict by chain, max value, allowed addresses
+- `allowErc20Transfer()`: Token-specific transfer policies
+- `allowEip712Signing()`: Domain-specific typed data signing
+
+Shows how templates compose to build a complete permission profile.
+
 ### Multi-Agent Swarm (`pnpm run multi-agent`)
 
 Provisions three agents with different capabilities (JWT, git, ETH signing) from the same parent org. Demonstrates:
