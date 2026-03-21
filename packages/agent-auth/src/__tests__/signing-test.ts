@@ -172,7 +172,7 @@ describe("signSshCommit", () => {
   it("produces an armored SSH signature with correct headers", async () => {
     const result = await signSshCommit(mockClient, baseParams);
     expect(result).toMatch(/^-----BEGIN SSH SIGNATURE-----\n/);
-    expect(result).toMatch(/\n-----END SSH SIGNATURE-----$/);
+    expect(result).toMatch(/\n-----END SSH SIGNATURE-----\n$/);
   });
 
   it("uses HASH_FUNCTION_NOT_APPLICABLE for Ed25519", async () => {
@@ -193,7 +193,7 @@ describe("signSshCommit", () => {
     // armored output contains valid base64.
     const result = await signSshCommit(mockClient, baseParams);
     const lines = result.split("\n");
-    const base64Content = lines.slice(1, -1).join("");
+    const base64Content = lines.slice(1, -2).filter(Boolean).join("");
     expect(() => atob(base64Content)).not.toThrow();
   });
 
@@ -210,7 +210,7 @@ describe("signSshCommit", () => {
 
     // Decode the base64 content
     const lines = result.split("\n");
-    const base64Content = lines.slice(1, -1).join("");
+    const base64Content = lines.slice(1, -2).filter(Boolean).join("");
     const binary = Uint8Array.from(atob(base64Content), (c) => c.charCodeAt(0));
 
     // First 6 bytes: "SSHSIG"
