@@ -3,6 +3,12 @@ import {
   uint8ArrayFromHexString,
 } from "@turnkey/encoding";
 import { sha256 } from "@noble/hashes/sha256";
+import { sha512 } from "@noble/hashes/sha512";
+import {
+  buildSshsigSignedData,
+  buildSshsigEnvelope,
+  armorSshSignature,
+} from "./ssh-wire";
 
 /**
  * Encode a string as base64url (no padding).
@@ -79,6 +85,69 @@ export async function signJwt(
   const encodedSignature = bytesToBase64url(signatureBytes);
 
   return `${encodedHeader}.${encodedPayload}.${encodedSignature}`;
+}
+
+/**
+ * Sign a git commit with Ed25519 in SSHSIG format.
+ *
+ * Produces a standards-compliant SSHSIG armored signature that git recognizes
+ * for commit signing. The private key never leaves Turnkey's enclave.
+ *
+ * The signing key must be an Ed25519 wallet account address.
+ *
+ * @param client - TurnkeyApiClient (agent or admin)
+ * @param params - SSHSIG parameters
+ * @returns Armored SSH signature string
+ */
+export async function signSshCommit(
+  client: { signRawPayload: Function; [key: string]: any },
+  params: {
+    organizationId: string;
+    signingKey: string;
+    commitBuffer: string; // hex-encoded git commit content
+    publicKey: string; // Ed25519 public key hex (for SSHSIG envelope)
+    namespace?: string;
+  },
+): Promise<string> {
+  const namespace = params.namespace ?? "git";
+  const hashAlgorithm = "sha512";
+
+  // Step 1: Hash the commit content with SHA-512
+  const commitBytes = uint8ArrayFromHexString(params.commitBuffer);
+  const messageHash = sha512(commitBytes);
+
+  // Step 2: Build the "data to be signed" blob (what Ed25519 signs)
+  const signedData = buildSshsigSignedData({
+    namespace,
+    hashAlgorithm,
+    messageHash,
+  });
+
+  // Step 3: Send to Turnkey for Ed25519 signing
+  const hexPayload = uint8ArrayToHexString(signedData);
+  const signResult = await client.signRawPayload({
+    organizationId: params.organizationId,
+    signWith: params.signingKey,
+    payload: hexPayload,
+    encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
+    hashFunction: "HASH_FUNCTION_NOT_APPLICABLE", // Ed25519 does internal SHA-512 per RFC 8032
+  });
+
+  // Step 4: Assemble the 64-byte Ed25519 signature (r || s)
+  const r = signResult.r as string;
+  const s = signResult.s as string;
+  const signatureBytes = uint8ArrayFromHexString(r + s);
+
+  // Step 5: Build the SSHSIG output envelope
+  const envelope = buildSshsigEnvelope({
+    publicKeyHex: params.publicKey,
+    namespace,
+    hashAlgorithm,
+    signature: signatureBytes,
+  });
+
+  // Step 6: Armor and return
+  return armorSshSignature(envelope);
 }
 
 /**

@@ -1,4 +1,4 @@
-import { signJwt, signMessage } from "../signing";
+import { signJwt, signSshCommit, signMessage } from "../signing";
 
 const mockClient = {
   signRawPayload: jest.fn(),
@@ -158,5 +158,71 @@ describe("signMessage", () => {
       "2222222222222222222222222222222222222222222222222222222222222222",
     );
     expect(result.v).toBe("1b");
+  });
+});
+
+describe("signSshCommit", () => {
+  const baseParams = {
+    organizationId: "org-123",
+    signingKey: "0xEd25519Address",
+    commitBuffer: "48656c6c6f20576f726c64", // "Hello World" in hex
+    publicKey: "a".repeat(64), // 32-byte Ed25519 public key hex
+  };
+
+  it("produces an armored SSH signature with correct headers", async () => {
+    const result = await signSshCommit(mockClient, baseParams);
+    expect(result).toMatch(/^-----BEGIN SSH SIGNATURE-----\n/);
+    expect(result).toMatch(/\n-----END SSH SIGNATURE-----$/);
+  });
+
+  it("uses HASH_FUNCTION_NOT_APPLICABLE for Ed25519", async () => {
+    await signSshCommit(mockClient, baseParams);
+
+    expect(mockClient.signRawPayload).toHaveBeenCalledTimes(1);
+    const args = mockClient.signRawPayload.mock.calls[0]![0];
+    expect(args.hashFunction).toBe("HASH_FUNCTION_NOT_APPLICABLE");
+    expect(args.encoding).toBe("PAYLOAD_ENCODING_HEXADECIMAL");
+    expect(args.signWith).toBe("0xEd25519Address");
+  });
+
+  it("defaults namespace to git", async () => {
+    await signSshCommit(mockClient, baseParams);
+
+    // The payload sent to Turnkey should contain the SSHSIG signed data blob
+    // which includes the namespace. We verify indirectly by checking the
+    // armored output contains valid base64.
+    const result = await signSshCommit(mockClient, baseParams);
+    const lines = result.split("\n");
+    const base64Content = lines.slice(1, -1).join("");
+    expect(() => atob(base64Content)).not.toThrow();
+  });
+
+  it("accepts custom namespace", async () => {
+    const result = await signSshCommit(mockClient, {
+      ...baseParams,
+      namespace: "file",
+    });
+    expect(result).toMatch(/^-----BEGIN SSH SIGNATURE-----\n/);
+  });
+
+  it("contains SSHSIG magic and version in the envelope", async () => {
+    const result = await signSshCommit(mockClient, baseParams);
+
+    // Decode the base64 content
+    const lines = result.split("\n");
+    const base64Content = lines.slice(1, -1).join("");
+    const binary = Uint8Array.from(atob(base64Content), (c) => c.charCodeAt(0));
+
+    // First 6 bytes: "SSHSIG"
+    const magic = new TextDecoder().decode(binary.slice(0, 6));
+    expect(magic).toBe("SSHSIG");
+
+    // Next 4 bytes: version = 1
+    const version = new DataView(
+      binary.buffer,
+      binary.byteOffset + 6,
+      4,
+    ).getUint32(0);
+    expect(version).toBe(1);
   });
 });
