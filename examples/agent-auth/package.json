@@ -6,6 +6,7 @@
     "start": "pnpm tsx src/index.ts",
     "minimal": "pnpm tsx src/minimal.ts",
     "multi-agent": "pnpm tsx src/multi-agent.ts",
+    "signing": "pnpm tsx src/signing.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },

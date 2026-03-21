@@ -22,6 +22,9 @@ import {
   deleteAgentSession,
   presets,
   policies,
+  signJwt,
+  signSshCommit,
+  signMessage,
 } from "@turnkey/agent-auth";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
