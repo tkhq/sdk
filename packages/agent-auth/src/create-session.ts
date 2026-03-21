@@ -195,11 +195,19 @@ export async function createAgentSession(
   }
 
   // Step 6: Create policies (as root admin)
-  const defaultPolicies = [defaultSigningPolicy(agentUserId)];
+  // Dedup: skip default signing policy if user already provides one that covers sign_raw_payload
   const userPolicies = resolvePolicyPlaceholders(
     request.policies ?? [],
     agentUserId,
   );
+  const userCoversSignRawPayload = userPolicies.some(
+    (p) =>
+      p.condition?.includes("ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2") ||
+      p.condition?.includes("ACTIVITY_TYPE_SIGN_RAW_PAYLOAD"),
+  );
+  const defaultPolicies = userCoversSignRawPayload
+    ? []
+    : [defaultSigningPolicy(agentUserId)];
   const allPolicies = [...defaultPolicies, ...userPolicies];
 
   let policyIds: string[] = [];

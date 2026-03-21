@@ -15,6 +15,7 @@ import {
   createAgentSession,
   deleteAgentSession,
   presets,
+  policyTemplates,
   signJwt,
   signSshCommit,
   signMessage,
@@ -72,6 +73,13 @@ async function main() {
           presets.jwtSigning(),
           presets.gitSigning({ exportKey: true }),
         ],
+        policies: [
+          policyTemplates.allowAllSigning(),
+          policyTemplates.allowEthTransaction({
+            chainIds: [1],
+            maxValue: "1000000000000000000",
+          }),
+        ],
       },
       { apiBaseUrl: API_BASE_URL },
     );
@@ -87,6 +95,10 @@ async function main() {
     check("JWT signing account", session.accounts[0]?.label === "jwt-signing");
     check("Git signing account", session.accounts[1]?.label === "git-signing");
     check("Has policy IDs", session.policyIds.length > 0);
+    check(
+      "Policy dedup: allowAllSigning replaces default (2 policies, not 3)",
+      session.policyIds.length === 2,
+    );
     check("Has expiry", !!session.expiresAt);
     check(
       "Git signing account has exportBundle",
