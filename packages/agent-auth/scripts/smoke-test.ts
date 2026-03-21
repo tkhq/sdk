@@ -13,14 +13,15 @@ import { Turnkey } from "@turnkey/sdk-server";
 const TurnkeyServerSDK = Turnkey;
 import { createAgentSession, deleteAgentSession, presets } from "../src/index";
 
-const API_BASE_URL = process.env.TURNKEY_API_BASE_URL ?? "http://localhost:8081";
+const API_BASE_URL =
+  process.env.TURNKEY_API_BASE_URL ?? "http://localhost:8081";
 const API_PUBLIC_KEY = process.env.TURNKEY_API_PUBLIC_KEY;
 const API_PRIVATE_KEY = process.env.TURNKEY_API_PRIVATE_KEY;
 const ORG_ID = process.env.TURNKEY_ORG_ID;
 
 if (!API_PUBLIC_KEY || !API_PRIVATE_KEY || !ORG_ID) {
   console.error(
-    "Required env vars: TURNKEY_API_PUBLIC_KEY, TURNKEY_API_PRIVATE_KEY, TURNKEY_ORG_ID"
+    "Required env vars: TURNKEY_API_PUBLIC_KEY, TURNKEY_API_PRIVATE_KEY, TURNKEY_ORG_ID",
   );
   process.exit(1);
 }
@@ -65,13 +66,16 @@ async function main() {
           presets.gitSigning({ exportKey: true }),
         ],
       },
-      { apiBaseUrl: API_BASE_URL }
+      { apiBaseUrl: API_BASE_URL },
     );
 
     check("Session created", true);
     check("Has sub-org ID", !!session.subOrganizationId);
     check("Has agent user ID", !!session.agentUserId);
-    check("Has API key pair", !!session.apiKey.publicKey && !!session.apiKey.privateKey);
+    check(
+      "Has API key pair",
+      !!session.apiKey.publicKey && !!session.apiKey.privateKey,
+    );
     check("Has 2 accounts", session.accounts.length === 2);
     check("JWT signing account", session.accounts[0]?.label === "jwt-signing");
     check("Git signing account", session.accounts[1]?.label === "git-signing");
@@ -79,12 +83,14 @@ async function main() {
     check("Has expiry", !!session.expiresAt);
     check(
       "Git signing account has exportBundle",
-      !!session.accounts[1]?.exportBundle
+      !!session.accounts[1]?.exportBundle,
     );
 
     console.log(`\n  Sub-org: ${session.subOrganizationId}`);
     console.log(`  Agent user: ${session.agentUserId}`);
-    console.log(`  Accounts: ${session.accounts.map((a) => a.label).join(", ")}`);
+    console.log(
+      `  Accounts: ${session.accounts.map((a) => a.label).join(", ")}`,
+    );
     console.log(`  Policies: ${session.policyIds.length}`);
     console.log(`  Expires: ${session.expiresAt}`);
   } catch (err) {
@@ -110,7 +116,8 @@ async function main() {
       await agentClient.signRawPayload({
         organizationId: session.subOrganizationId,
         signWith: session.accounts[0].publicKey,
-        payload: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", // SHA-256 of empty string (32 bytes)
+        payload:
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", // SHA-256 of empty string (32 bytes)
         encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
         hashFunction: "HASH_FUNCTION_NO_OP",
       });
@@ -164,7 +171,7 @@ async function main() {
         subOrganizationId: session.subOrganizationId,
         adminApiKey: session.adminApiKey,
       },
-      { apiBaseUrl: API_BASE_URL }
+      { apiBaseUrl: API_BASE_URL },
     );
     check("Session deleted", true);
   } catch (err: any) {
@@ -179,7 +186,7 @@ async function main() {
         subOrganizationId: session.subOrganizationId,
         adminApiKey: session.adminApiKey,
       },
-      { apiBaseUrl: API_BASE_URL }
+      { apiBaseUrl: API_BASE_URL },
     );
     check("Double-delete failed gracefully", false, "should have thrown");
   } catch {

@@ -6,7 +6,7 @@ const DEFAULT_PATH_FORMAT = "PATH_FORMAT_BIP32";
  * Ed25519 account for git commit signing and SSH key operations.
  */
 export function gitSigning(
-  opts?: Partial<Pick<AgentAccountConfig, "exportKey" | "path">>
+  opts?: Partial<Pick<AgentAccountConfig, "exportKey" | "path">>,
 ): AgentAccountConfig {
   return {
     label: "git-signing",
@@ -22,7 +22,7 @@ export function gitSigning(
  * P256 account for ES256 JWT signing and OIDC authentication.
  */
 export function jwtSigning(
-  opts?: Partial<Pick<AgentAccountConfig, "exportKey" | "path">>
+  opts?: Partial<Pick<AgentAccountConfig, "exportKey" | "path">>,
 ): AgentAccountConfig {
   return {
     label: "jwt-signing",
@@ -38,7 +38,7 @@ export function jwtSigning(
  * secp256k1 account for Ethereum transaction signing.
  */
 export function ethSigning(
-  opts?: Partial<Pick<AgentAccountConfig, "exportKey" | "path">>
+  opts?: Partial<Pick<AgentAccountConfig, "exportKey" | "path">>,
 ): AgentAccountConfig {
   return {
     label: "eth-signing",

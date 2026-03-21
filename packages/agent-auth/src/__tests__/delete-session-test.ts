@@ -5,7 +5,10 @@ const mockAdminClient = {
   deleteSubOrganization: jest.fn(),
 };
 
-const mockTurnkeyServerSDK = jest.fn().mockImplementation(function (this: any, config: any) {
+const mockTurnkeyServerSDK = jest.fn().mockImplementation(function (
+  this: any,
+  config: any,
+) {
   this.config = config;
   this.apiClient = () => mockAdminClient;
 });
@@ -53,14 +56,14 @@ describe("deleteAgentSession", () => {
 
   it("propagates errors from deleteSubOrganization", async () => {
     mockAdminClient.deleteSubOrganization.mockRejectedValue(
-      new Error("sub-org not found")
+      new Error("sub-org not found"),
     );
 
     await expect(
       deleteAgentSession({
         subOrganizationId: "nonexistent-sub-org",
         adminApiKey: { publicKey: "pub", privateKey: "priv" },
-      })
+      }),
     ).rejects.toThrow("sub-org not found");
   });
 });

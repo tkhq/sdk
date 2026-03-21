@@ -30,9 +30,13 @@ import { defaultSigningPolicy, resolvePolicyPlaceholders } from "./policies";
  * @returns Complete agent identity including API key, wallet accounts, and policy IDs
  */
 export async function createAgentSession(
-  parentClient: { createSubOrganization: Function; deleteSubOrganization: Function; [key: string]: any },
+  parentClient: {
+    createSubOrganization: Function;
+    deleteSubOrganization: Function;
+    [key: string]: any;
+  },
   request: CreateAgentSessionRequest,
-  options?: { apiBaseUrl?: string }
+  options?: { apiBaseUrl?: string },
 ): Promise<CreateAgentSessionResult> {
   const { generateP256KeyPair } = await import("@turnkey/crypto");
 
@@ -109,10 +113,10 @@ export async function createAgentSession(
 
   // Step 4: Create sub-org admin client (as root admin)
   const sdkServer = await import("@turnkey/sdk-server");
-  const TurnkeyServerSDK = (sdkServer as any).TurnkeyServerSDK ?? (sdkServer as any).Turnkey;
+  const TurnkeyServerSDK =
+    (sdkServer as any).TurnkeyServerSDK ?? (sdkServer as any).Turnkey;
 
-  const apiBaseUrl =
-    options?.apiBaseUrl ?? "https://api.turnkey.com";
+  const apiBaseUrl = options?.apiBaseUrl ?? "https://api.turnkey.com";
 
   const subOrgSdk = new TurnkeyServerSDK({
     apiBaseUrl,
@@ -164,7 +168,7 @@ export async function createAgentSession(
     }
     await cleanup();
     throw new Error(
-      `Failed to create agent user: ${err instanceof Error ? err.message : String(err)}`
+      `Failed to create agent user: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
 
@@ -186,7 +190,7 @@ export async function createAgentSession(
   } catch (err) {
     await cleanup();
     throw new Error(
-      `Failed to create session key: ${err instanceof Error ? err.message : String(err)}`
+      `Failed to create session key: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
 
@@ -194,7 +198,7 @@ export async function createAgentSession(
   const defaultPolicies = [defaultSigningPolicy(agentUserId)];
   const userPolicies = resolvePolicyPlaceholders(
     request.policies ?? [],
-    agentUserId
+    agentUserId,
   );
   const allPolicies = [...defaultPolicies, ...userPolicies];
 
@@ -216,7 +220,7 @@ export async function createAgentSession(
   } catch (err) {
     await cleanup();
     throw new Error(
-      `Failed to create policies: ${err instanceof Error ? err.message : String(err)}`
+      `Failed to create policies: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
 
@@ -241,7 +245,9 @@ export async function createAgentSession(
         const exportResponse = await subOrgClient.exportWalletAccount({
           organizationId: subOrgId,
           address: address,
-          targetPublicKey: agentSessionKeyPair.publicKeyUncompressed ?? agentSessionKeyPair.publicKey,
+          targetPublicKey:
+            agentSessionKeyPair.publicKeyUncompressed ??
+            agentSessionKeyPair.publicKey,
         });
 
         // exportBundle spread directly onto response
@@ -257,7 +263,7 @@ export async function createAgentSession(
 
   // Step 8: Return result (admin key retained for session deletion, anchor key discarded)
   const expiresAt = new Date(
-    Date.now() + request.expirationSeconds * 1000
+    Date.now() + request.expirationSeconds * 1000,
   ).toISOString();
 
   return {

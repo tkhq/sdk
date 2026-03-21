@@ -1,4 +1,7 @@
-import type { DeleteAgentSessionRequest, DeleteAgentSessionResult } from "./types";
+import type {
+  DeleteAgentSessionRequest,
+  DeleteAgentSessionResult,
+} from "./types";
 
 /**
  * Delete an agent session and all associated resources.
@@ -12,7 +15,7 @@ import type { DeleteAgentSessionRequest, DeleteAgentSessionResult } from "./type
  */
 export async function deleteAgentSession(
   request: DeleteAgentSessionRequest,
-  options?: { apiBaseUrl?: string }
+  options?: { apiBaseUrl?: string },
 ): Promise<DeleteAgentSessionResult> {
   const sdkServer = await import("@turnkey/sdk-server");
   const TurnkeyServerSDK =

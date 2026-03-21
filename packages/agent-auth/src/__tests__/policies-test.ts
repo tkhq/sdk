@@ -11,7 +11,7 @@ describe("policies", () => {
       expect(policy.policyName).toBe("allow-sign-raw-payload");
       expect(policy.effect).toBe("EFFECT_ALLOW");
       expect(policy.condition).toBe(
-        "activity.type == 'ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2'"
+        "activity.type == 'ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2'",
       );
       expect(policy.consensus).toContain("usr_abc123");
     });
@@ -19,7 +19,7 @@ describe("policies", () => {
     it("uses approvers.any pattern in consensus", () => {
       const policy = defaultSigningPolicy("usr_xyz");
       expect(policy.consensus).toBe(
-        "approvers.any(user, user.id == 'usr_xyz')"
+        "approvers.any(user, user.id == 'usr_xyz')",
       );
     });
   });
@@ -30,7 +30,7 @@ describe("policies", () => {
       expect(policy.policyName).toBe("allow-sign-transaction");
       expect(policy.effect).toBe("EFFECT_ALLOW");
       expect(policy.condition).toBe(
-        "activity.type == 'ACTIVITY_TYPE_SIGN_TRANSACTION_V2'"
+        "activity.type == 'ACTIVITY_TYPE_SIGN_TRANSACTION_V2'",
       );
       expect(policy.consensus).toContain("usr_abc123");
     });
@@ -49,7 +49,7 @@ describe("policies", () => {
 
       const resolved = resolvePolicyPlaceholders(policies, "usr_real_id");
       expect(resolved[0]!.consensus).toBe(
-        "approvers.any(user, user.id == 'usr_real_id')"
+        "approvers.any(user, user.id == 'usr_real_id')",
       );
     });
 

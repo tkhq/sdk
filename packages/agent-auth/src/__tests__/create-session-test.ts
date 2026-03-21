@@ -16,7 +16,10 @@ const mockSubOrgApiClient = {
   deleteSubOrganization: jest.fn(),
 };
 
-const mockTurnkeyServerSDK = jest.fn().mockImplementation(function (this: any, config: any) {
+const mockTurnkeyServerSDK = jest.fn().mockImplementation(function (
+  this: any,
+  config: any,
+) {
   this.config = config;
   this.apiClient = () => mockSubOrgApiClient;
 });
@@ -125,7 +128,8 @@ describe("createAgentSession", () => {
 
       // Verify sub-org creation called with flat params (no nested parameters)
       expect(mockParentClient.createSubOrganization).toHaveBeenCalledTimes(1);
-      const subOrgArgs = mockParentClient.createSubOrganization.mock.calls[0][0];
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0][0];
       expect(subOrgArgs.organizationId).toBe("parent-org-id");
       expect(subOrgArgs.subOrganizationName).toBe("test-agent");
       expect(subOrgArgs.rootQuorumThreshold).toBe(1);
@@ -138,9 +142,15 @@ describe("createAgentSession", () => {
 
       // Verify root user has admin key (no expiration, required by Notarizer)
       expect(subOrgArgs.rootUsers).toHaveLength(1);
-      expect(subOrgArgs.rootUsers[0].apiKeys[0].publicKey).toBe(ADMIN_KEY_PAIR.publicKey);
-      expect(subOrgArgs.rootUsers[0].apiKeys[0].expirationSeconds).toBeUndefined();
-      expect(subOrgArgs.rootUsers[0].apiKeys[0].curveType).toBe("API_KEY_CURVE_P256");
+      expect(subOrgArgs.rootUsers[0].apiKeys[0].publicKey).toBe(
+        ADMIN_KEY_PAIR.publicKey,
+      );
+      expect(
+        subOrgArgs.rootUsers[0].apiKeys[0].expirationSeconds,
+      ).toBeUndefined();
+      expect(subOrgArgs.rootUsers[0].apiKeys[0].curveType).toBe(
+        "API_KEY_CURVE_P256",
+      );
 
       // Verify wallet has both accounts
       expect(subOrgArgs.wallet.accounts).toHaveLength(2);
@@ -153,7 +163,9 @@ describe("createAgentSession", () => {
       expect(usersArgs.organizationId).toBe("sub-org-123");
       expect(usersArgs.users).toHaveLength(1);
       expect(usersArgs.users[0].userName).toBe("test-agent");
-      expect(usersArgs.users[0].apiKeys[0].publicKey).toBe(AGENT_ANCHOR_KEY_PAIR.publicKey);
+      expect(usersArgs.users[0].apiKeys[0].publicKey).toBe(
+        AGENT_ANCHOR_KEY_PAIR.publicKey,
+      );
       expect(usersArgs.users[0].apiKeys[0].expirationSeconds).toBeUndefined();
       // No nested "parameters" key
       expect(usersArgs.parameters).toBeUndefined();
@@ -164,7 +176,9 @@ describe("createAgentSession", () => {
       expect(apiKeysArgs.organizationId).toBe("sub-org-123");
       expect(apiKeysArgs.userId).toBe("agent-user-001");
       expect(apiKeysArgs.apiKeys).toHaveLength(1);
-      expect(apiKeysArgs.apiKeys[0].publicKey).toBe(AGENT_SESSION_KEY_PAIR.publicKey);
+      expect(apiKeysArgs.apiKeys[0].publicKey).toBe(
+        AGENT_SESSION_KEY_PAIR.publicKey,
+      );
       expect(apiKeysArgs.apiKeys[0].expirationSeconds).toBe("3600");
       expect(apiKeysArgs.apiKeys[0].curveType).toBe("API_KEY_CURVE_P256");
 
@@ -173,7 +187,9 @@ describe("createAgentSession", () => {
       const policiesArgs = mockSubOrgApiClient.createPolicies.mock.calls[0][0];
       expect(policiesArgs.organizationId).toBe("sub-org-123");
       expect(policiesArgs.policies).toHaveLength(1);
-      expect(policiesArgs.policies[0].policyName).toBe("allow-sign-raw-payload");
+      expect(policiesArgs.policies[0].policyName).toBe(
+        "allow-sign-raw-payload",
+      );
       expect(policiesArgs.policies[0].effect).toBe("EFFECT_ALLOW");
       expect(policiesArgs.policies[0].notes).toBe("");
       expect(policiesArgs.policies[0].consensus).toContain("agent-user-001");
@@ -203,7 +219,8 @@ describe("createAgentSession", () => {
 
       const result = await createAgentSession(mockParentClient, baseRequest);
 
-      const subOrgArgs = mockParentClient.createSubOrganization.mock.calls[0][0];
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0][0];
       expect(subOrgArgs.wallet).toBeUndefined();
       expect(result.accounts).toEqual([]);
     });
@@ -228,20 +245,22 @@ describe("createAgentSession", () => {
       expect(policiesArgs.policies).toHaveLength(2);
       // Custom policy should have real user ID
       expect(policiesArgs.policies[1].consensus).toBe(
-        "approvers.any(user, user.id == 'agent-user-001')"
+        "approvers.any(user, user.id == 'agent-user-001')",
       );
-      expect(policiesArgs.policies[1].consensus).not.toContain("<AGENT_USER_ID>");
+      expect(policiesArgs.policies[1].consensus).not.toContain(
+        "<AGENT_USER_ID>",
+      );
     });
   });
 
   describe("error handling: createUsers fails", () => {
     it("triggers cleanup and throws", async () => {
       mockSubOrgApiClient.createUsers.mockRejectedValue(
-        new Error("user creation failed")
+        new Error("user creation failed"),
       );
 
       await expect(
-        createAgentSession(mockParentClient, baseRequest)
+        createAgentSession(mockParentClient, baseRequest),
       ).rejects.toThrow("Failed to create agent user");
 
       // Verify cleanup was attempted
@@ -252,11 +271,11 @@ describe("createAgentSession", () => {
   describe("error handling: createApiKeys failure triggers cleanup", () => {
     it("triggers cleanup and throws when session key creation fails", async () => {
       mockSubOrgApiClient.createApiKeys.mockRejectedValue(
-        new Error("api key creation failed")
+        new Error("api key creation failed"),
       );
 
       await expect(
-        createAgentSession(mockParentClient, baseRequest)
+        createAgentSession(mockParentClient, baseRequest),
       ).rejects.toThrow("Failed to create session key");
 
       // Verify cleanup was attempted
@@ -267,11 +286,11 @@ describe("createAgentSession", () => {
   describe("error handling: createPolicies fails", () => {
     it("triggers cleanup and throws", async () => {
       mockSubOrgApiClient.createPolicies.mockRejectedValue(
-        new Error("policy creation failed")
+        new Error("policy creation failed"),
       );
 
       await expect(
-        createAgentSession(mockParentClient, baseRequest)
+        createAgentSession(mockParentClient, baseRequest),
       ).rejects.toThrow("Failed to create policies");
 
       // Verify cleanup was attempted
@@ -282,11 +301,11 @@ describe("createAgentSession", () => {
   describe("error handling: createSubOrganization failure propagates without cleanup", () => {
     it("does not call deleteSubOrganization when createSubOrganization throws", async () => {
       mockParentClient.createSubOrganization.mockRejectedValue(
-        new Error("sub-org creation failed")
+        new Error("sub-org creation failed"),
       );
 
       await expect(
-        createAgentSession(mockParentClient, baseRequest)
+        createAgentSession(mockParentClient, baseRequest),
       ).rejects.toThrow("sub-org creation failed");
 
       // No cleanup because sub-org was never created
@@ -302,7 +321,7 @@ describe("createAgentSession", () => {
       });
 
       await expect(
-        createAgentSession(mockParentClient, baseRequest)
+        createAgentSession(mockParentClient, baseRequest),
       ).rejects.toThrow("Failed to create agent user: no user ID returned");
 
       expect(mockParentClient.deleteSubOrganization).toHaveBeenCalledTimes(1);
@@ -312,14 +331,14 @@ describe("createAgentSession", () => {
   describe("error handling: cleanup failure is swallowed, original error surfaces", () => {
     it("surfaces the original error even when cleanup also fails", async () => {
       mockSubOrgApiClient.createUsers.mockRejectedValue(
-        new Error("original user error")
+        new Error("original user error"),
       );
       mockParentClient.deleteSubOrganization.mockRejectedValue(
-        new Error("cleanup also failed")
+        new Error("cleanup also failed"),
       );
 
       await expect(
-        createAgentSession(mockParentClient, baseRequest)
+        createAgentSession(mockParentClient, baseRequest),
       ).rejects.toThrow("Failed to create agent user: original user error");
 
       // Cleanup was attempted
@@ -362,7 +381,8 @@ describe("createAgentSession", () => {
         ],
       });
 
-      const subOrgArgs = mockParentClient.createSubOrganization.mock.calls[0][0];
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0][0];
       expect(subOrgArgs.wallet.accounts[0].path).toBe("m/44'/1'/0'/0/0");
       expect(subOrgArgs.wallet.accounts[1].path).toBe("m/44'/1'/1'/0/0");
     });
@@ -442,17 +462,22 @@ describe("createAgentSession", () => {
       });
 
       expect(mockSubOrgApiClient.exportWalletAccount).toHaveBeenCalledTimes(1);
-      const exportArgs = mockSubOrgApiClient.exportWalletAccount.mock.calls[0][0];
-      expect(exportArgs.targetPublicKey).toBe(AGENT_SESSION_KEY_PAIR.publicKeyUncompressed);
+      const exportArgs =
+        mockSubOrgApiClient.exportWalletAccount.mock.calls[0][0];
+      expect(exportArgs.targetPublicKey).toBe(
+        AGENT_SESSION_KEY_PAIR.publicKeyUncompressed,
+      );
       expect(exportArgs.address).toBe("0xaddr1");
       expect(exportArgs.organizationId).toBe("sub-org-123");
 
-      expect(result.accounts[0]!.exportBundle).toBe("encrypted-key-bundle-base64");
+      expect(result.accounts[0]!.exportBundle).toBe(
+        "encrypted-key-bundle-base64",
+      );
     });
 
     it("handles export failure as non-fatal", async () => {
       mockSubOrgApiClient.exportWalletAccount.mockRejectedValue(
-        new Error("export failed")
+        new Error("export failed"),
       );
 
       const result = await createAgentSession(mockParentClient, {
@@ -486,7 +511,8 @@ describe("createAgentSession", () => {
         accounts: [jwtSigning(), gitSigning(), ethSigning()],
       });
 
-      const subOrgArgs = mockParentClient.createSubOrganization.mock.calls[0][0];
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0][0];
       const accounts = subOrgArgs.wallet.accounts;
 
       expect(accounts).toHaveLength(3);

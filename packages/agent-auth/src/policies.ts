@@ -6,9 +6,7 @@ const AGENT_USER_ID_PLACEHOLDER = "<AGENT_USER_ID>";
  * Default policy: allow sign_raw_payload scoped to the agent user.
  * This is the minimum policy most agents need for signing operations.
  */
-export function defaultSigningPolicy(
-  agentUserId: string
-): AgentPolicyParams {
+export function defaultSigningPolicy(agentUserId: string): AgentPolicyParams {
   return {
     policyName: "allow-sign-raw-payload",
     effect: "EFFECT_ALLOW",
@@ -21,9 +19,7 @@ export function defaultSigningPolicy(
  * Allow sign_transaction scoped to the agent user.
  * Use for agents that need to sign blockchain transactions.
  */
-export function signTransactionPolicy(
-  agentUserId: string
-): AgentPolicyParams {
+export function signTransactionPolicy(agentUserId: string): AgentPolicyParams {
   return {
     policyName: "allow-sign-transaction",
     effect: "EFFECT_ALLOW",
@@ -38,7 +34,7 @@ export function signTransactionPolicy(
  */
 export function resolvePolicyPlaceholders(
   policies: AgentPolicyParams[],
-  agentUserId: string
+  agentUserId: string,
 ): AgentPolicyParams[] {
   return policies.map((policy) => {
     if (policy.consensus === undefined) {
@@ -48,7 +44,7 @@ export function resolvePolicyPlaceholders(
       ...policy,
       consensus: policy.consensus.replaceAll(
         AGENT_USER_ID_PLACEHOLDER,
-        agentUserId
+        agentUserId,
       ),
     };
   });
