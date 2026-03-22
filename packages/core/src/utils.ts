@@ -4,7 +4,7 @@ import {
   type v1PayloadEncoding,
   type Session,
   type externaldatav1Timestamp,
-  type ProxyTSignupBody,
+  type ProxyTSignupV2Body,
   type v1ApiKeyParamsV2,
   type v1ApiKeyCurve,
   type v1AuthenticatorParamsV2,
@@ -12,8 +12,8 @@ import {
   type v1WalletAccount,
   type v1LoginUsage,
   type v1TokenUsage,
-  type v1OauthProviderParams,
-  type v1SignupUsage,
+  type v1OauthProviderParamsV2,
+  type v1SignupUsageV2,
   type v1SignRawPayloadResult,
   type v1TransactionType,
   type ProxyTGetWalletKitConfigResponse,
@@ -724,7 +724,7 @@ export function generateWalletAccountsFromAddressFormat(params: {
 
 export function buildSignUpBody(params: {
   createSubOrgParams: CreateSubOrgParams | undefined;
-}): ProxyTSignupBody {
+}): ProxyTSignupV2Body {
   const { createSubOrgParams } = params;
   const authenticatorName = isWeb()
     ? `${window.location.hostname}-${Date.now()}`
@@ -1424,7 +1424,7 @@ export function getClientSignatureMessageForSignup({
   phoneNumber?: string;
   apiKeys?: v1ApiKeyParamsV2[];
   authenticators?: v1AuthenticatorParamsV2[];
-  oauthProviders?: v1OauthProviderParams[];
+  oauthProviders?: v1OauthProviderParamsV2[];
 }) {
   try {
     const decoded = decodeVerificationToken(verificationToken);
@@ -1437,7 +1437,7 @@ export function getClientSignatureMessageForSignup({
 
     const verificationPublicKey = decoded.public_key as string;
 
-    const usage: v1SignupUsage = {
+    const usage: v1SignupUsageV2 = {
       ...(apiKeys ? { apiKeys } : {}),
       ...(authenticators ? { authenticators } : {}),
       ...(oauthProviders ? { oauthProviders } : {}),
@@ -1446,7 +1446,7 @@ export function getClientSignatureMessageForSignup({
     };
 
     const payload: v1TokenUsage = {
-      signup: usage,
+      signupV2: usage,
       tokenId: decoded.id as string,
       type: "USAGE_TYPE_SIGNUP",
     };
