@@ -120,6 +120,12 @@ const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "listUserTags",
 ];
 
+// Fields that should be treated as oneOf unions rather than both-optional
+// Maps type name to array of field names that form the oneOf group
+const ONEOF_FIELDS = {
+  v1OauthProviderParamsV2: ["oidcToken", "oidcClaims"],
+};
+
 // Helper: Convert Swagger type to TS type
 /**
  * @param {string} type
@@ -255,9 +261,14 @@ function generateTsType(name, def) {
     def.type === "object" &&
     (def.properties || def.additionalProperties !== undefined)
   ) {
-    let out = `export type ${name} = {\n`;
+    const oneofFields = ONEOF_FIELDS[name];
+    const oneofSet = new Set(oneofFields || []);
+
+    // Collect base properties (not part of the oneOf group)
+    let baseProps = "";
     if (def.properties) {
       for (const [prop, schema] of Object.entries(def.properties)) {
+        if (oneofSet.has(prop)) continue;
         const required = def.required && def.required.includes(prop) ? "" : "?";
         let type = "any";
         if (schema.$ref) {
@@ -268,17 +279,34 @@ function generateTsType(name, def) {
         const desc = schema.description
           ? `  /** ${schema.description} */\n`
           : "";
-        // Quote property if not a valid identifier
         const propName = isValidIdentifier(prop) ? prop : `"${prop}"`;
-        out += `${desc}  ${propName}${required}: ${type};\n`;
+        baseProps += `${desc}  ${propName}${required}: ${type};\n`;
       }
     }
-    // If additionalProperties is present, allow arbitrary keys
     if (def.additionalProperties !== undefined) {
-      out += `  [key: string]: any;\n`;
+      baseProps += `  [key: string]: any;\n`;
     }
-    out += "};\n";
-    return out;
+
+    // If no oneOf, emit a plain type
+    if (!oneofFields) {
+      return `export type ${name} = {\n${baseProps}};\n`;
+    }
+
+    // Build union branches for the oneOf group
+    const branches = oneofFields.map((field) => {
+      const schema = def.properties[field];
+      let type = "any";
+      if (schema.$ref) {
+        type = refToTs(schema.$ref);
+      } else if (schema.type) {
+        type = swaggerTypeToTs(schema.type, schema);
+      }
+      const desc = schema.description ? ` /** ${schema.description} */` : "";
+      const propName = isValidIdentifier(field) ? field : `"${field}"`;
+      return `{${desc} ${propName}: ${type} }`;
+    });
+
+    return `export type ${name} = {\n${baseProps}} & (${branches.join(" | ")});\n`;
   }
   if (def.type === "string" && def.enum) {
     return `export type ${name} =\n  ${def.enum.map((e) => `"${e}"`).join(" |\n  ")};\n`;

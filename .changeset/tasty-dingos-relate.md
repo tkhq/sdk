@@ -6,155 +6,178 @@
 "@turnkey/http": major
 ---
 
-## End-to-end encrypted OTP
+### `INIT_OTP`
 
-The OTP flow is now encrypted end-to-end. OTP codes never leave the client unencrypted — they are encrypted to Turnkey's secure enclaves before submission. Login and signup now require a `clientSignature` proving possession of the session private key.
+`ACTIVITY_TYPE_INIT_OTP_V2` → `ACTIVITY_TYPE_INIT_OTP_V3`
 
-### What changed
+**What changed:** Added required `otpEncryptionTargetBundle` to the result.
 
-- `InitOtp` now returns `{ otpId, otpEncryptionTargetBundle }` (previously just `{ otpId }`)
-- `VerifyOtp` now takes `encryptedOtpBundle` instead of a plaintext `otpCode`
-- `OtpLogin` now **requires** a `clientSignature` (previously optional)
-- `SecuritySettings` gains `socialLinkingClientIds`: OAuth client IDs whitelisted for social account linking
+```ts
+// before — v1InitOtpResult
+{
+  otpId: string;
+}
 
-Key lifecycle:
-
-- `loginWithOtp` no longer deletes caller-provided keys on failure — callers retain ownership
-- `verifyOtp`, `signUpWithOtp`, and `completeOtp` now track auto-generated keys separately and only clean them up on failure; caller-provided keys are never deleted
-- `verifyOtp` no longer leaks auto-generated keys when verification fails
-
-Activity type updates:
-
-- `ACTIVITY_TYPE_INIT_OTP_V2` → `ACTIVITY_TYPE_INIT_OTP_V3`
-- `ACTIVITY_TYPE_VERIFY_OTP` → `ACTIVITY_TYPE_VERIFY_OTP_V2`
-- `ACTIVITY_TYPE_OTP_LOGIN` → `ACTIVITY_TYPE_OTP_LOGIN_V2`
+// after — v1InitOtpResultV2
+{
+  otpId: string;
+  otpEncryptionTargetBundle: string; // new
+}
+```
 
 ---
 
-## Migration Guide
+### `VERIFY_OTP`
 
-### If you use `@turnkey/react-wallet-kit` or `@turnkey/sdk-react`
+`ACTIVITY_TYPE_VERIFY_OTP` → `ACTIVITY_TYPE_VERIFY_OTP_V2`
 
-The `Auth` component handles the encrypted OTP flow internally — **no code changes needed** for most users.
+**What changed:** Replaced plaintext `otpCode` + `publicKey` with an `encryptedOtpBundle`.
 
-If you use the `OtpVerification` component directly, it now requires an `otpEncryptionTargetBundle` prop:
+`encryptedOtpBundle` is an HPKE-encrypted `{ otp_code, public_key }` payload, encrypted to the enclave's target public key from `otpEncryptionTargetBundle` (returned by `initOtp`). This way the OTP code never leaves the client in plaintext.
 
-```tsx
-// Before
-<OtpVerification
-  type={OtpType.Email}
-  contact={email}
-  otpId={otpId}
-  onValidateSuccess={handleSuccess}
-  onResendCode={handleResend}
-/>
+```ts
+// before — v1VerifyOtpIntent
+{
+  otpId: string;
+  otpCode: string;           // removed
+  expirationSeconds?: string;
+  publicKey?: string;         // removed
+}
 
-// After
-<OtpVerification
-  type={OtpType.Email}
-  contact={email}
-  otpId={otpId}
-  otpEncryptionTargetBundle={otpEncryptionTargetBundle}
-  onValidateSuccess={handleSuccess}
-  onResendCode={handleResend}
-/>
+// after — v1VerifyOtpIntentV2
+{
+  otpId: string;
+  encryptedOtpBundle: string; // new — replaces otpCode + publicKey
+  expirationSeconds?: string;
+}
 ```
 
-The `otpEncryptionTargetBundle` comes from the `sendOtp()` response alongside `otpId`.
+---
 
-### If you use `@turnkey/core` directly
+### `OTP_LOGIN`
 
-The high-level `completeOtp()` method handles encryption and signing internally. If you call `verifyOtp()` / `loginWithOtp()` / `signUpWithOtp()` individually, here's the new flow:
+`ACTIVITY_TYPE_OTP_LOGIN` → `ACTIVITY_TYPE_OTP_LOGIN_V2`
 
-#### Step 1: Init OTP (response shape changed)
+**What changed:** `clientSignature` promoted from optional to required.
 
-```typescript
-// Before
-const { otpId } = await client.initOtp({ otpType, contact });
+```ts
+// before — v1OtpLoginIntent
+{
+  verificationToken: string;
+  publicKey: string;
+  expirationSeconds?: string;
+  invalidateExisting?: boolean;
+  clientSignature?: v1ClientSignature; // optional
+}
 
-// After — response now includes the encryption target bundle
-const { otpId, otpEncryptionTargetBundle } = await client.initOtp({
-  otpType,
-  contact,
-});
+// after — v1OtpLoginIntentV2
+{
+  verificationToken: string;
+  publicKey: string;
+  expirationSeconds?: string;
+  invalidateExisting?: boolean;
+  clientSignature: v1ClientSignature;  // now required
+}
 ```
 
-#### Step 2: Encrypt & verify OTP (replaces plaintext submission)
+---
 
-```typescript
-import { encryptOtpCode } from "@turnkey/core";
+### `CREATE_OAUTH_PROVIDERS`
 
-// encryptOtpCode handles HPKE encryption, snake_case field formatting,
-// and verifies the bundle's enclave signature before trusting targetPublic.
-const encryptedOtpBundle = await encryptOtpCode(
-  otpCode,
-  otpEncryptionTargetBundle,
-  publicKey,
-);
+`ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS` → `ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2`
 
-// Before
-const { verificationToken } = await client.verifyOtp({
-  otpId,
-  otpCode: "123456",
-});
+**What changed:** `oidcToken` and `oidcClaims` are now a oneOf union — you must provide exactly one.
 
-// After
-const { verificationToken } = await client.verifyOtp({
-  otpId,
-  encryptedOtpBundle,
-});
+```ts
+// before — v1OauthProviderParams
+{
+  providerName: string;
+  oidcToken: string;
+}
+
+// after — v1OauthProviderParamsV2
+{
+  providerName: string;
+} & (
+  | { oidcToken: string }
+  | { oidcClaims: { iss: string; sub: string; aud: string } }
+)
 ```
 
-#### Step 3: Login (client signature is built internally)
+---
 
-```typescript
-// Before
-await client.loginWithOtp({ verificationToken, publicKey });
+### `CREATE_SUB_ORGANIZATION`
 
-// After — loginWithOtp now builds the clientSignature internally
-// using the verification token key for signing. Pass the same publicKey
-// that was encrypted into the OTP bundle during verifyOtp.
-await client.loginWithOtp({ verificationToken, publicKey });
+`ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7` → `ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8`
+
+**What changed:** `rootUsers` items updated from `v1RootUserParamsV4` → `v1RootUserParamsV5`, which updates `oauthProviders` from `v1OauthProviderParams` → `v1OauthProviderParamsV2`.
+
+```ts
+// before — v1RootUserParamsV4
+{
+  userName: string;
+  userEmail?: string;
+  userPhoneNumber?: string;
+  apiKeys: v1ApiKeyParamsV2[];
+  authenticators: v1AuthenticatorParamsV2[];
+  oauthProviders: {              // v1OauthProviderParams
+    providerName: string;
+    oidcToken: string;           // was required
+  }[];
+}
+
+// after — v1RootUserParamsV5
+{
+  userName: string;
+  userEmail?: string;
+  userPhoneNumber?: string;
+  apiKeys: v1ApiKeyParamsV2[];
+  authenticators: v1AuthenticatorParamsV2[];
+  oauthProviders: ({             // v1OauthProviderParamsV2
+    providerName: string;
+  } & (
+    | { oidcToken: string }
+    | { oidcClaims: { iss: string; sub: string; aud: string } }
+  ))[];
+}
 ```
 
-If `publicKey` is omitted, `loginWithOtp` reuses the verification token key as the session key.
+---
 
-### If you use `@turnkey/sdk-server`
+### `CREATE_USERS`
 
-Server-side types have been updated to match the new encrypted flow:
+`ACTIVITY_TYPE_CREATE_USERS_V3` → `ACTIVITY_TYPE_CREATE_USERS_V4`
 
-```typescript
-// sendOtp response now includes the encryption target bundle
-const { otpId, otpEncryptionTargetBundle } = await server.sendOtp({
-  appName: "My App",
-  otpType: OtpType.Email,
-  contact: email,
-  userIdentifier: publicKey,
-});
-// Pass otpEncryptionTargetBundle to your client for encryption
+**What changed:** `users` items updated from `v1UserParamsV3` → `v1UserParamsV4`, which updates `oauthProviders` from `v1OauthProviderParams` → `v1OauthProviderParamsV2`.
 
-// verifyOtp now takes encryptedOtpBundle instead of otpCode
-// Before
-await server.verifyOtp({ otpId, otpCode: "123456" });
-// After
-await server.verifyOtp({ otpId, encryptedOtpBundle });
+```ts
+// before — v1UserParamsV3
+{
+  userName: string;
+  userEmail?: string;
+  userPhoneNumber?: string;
+  apiKeys: v1ApiKeyParamsV2[];
+  authenticators: v1AuthenticatorParamsV2[];
+  oauthProviders: {              // v1OauthProviderParams
+    providerName: string;
+    oidcToken: string;           // was required
+  }[];
+  userTags: string[];
+}
 
-// otpLogin now requires clientSignature
-// Before
-await server.otpLogin({ suborgID, verificationToken, publicKey });
-// After
-await server.otpLogin({
-  suborgID,
-  verificationToken,
-  publicKey,
-  clientSignature,
-});
+// after — v1UserParamsV4
+{
+  userName: string;
+  userEmail?: string;
+  userPhoneNumber?: string;
+  apiKeys: v1ApiKeyParamsV2[];
+  authenticators: v1AuthenticatorParamsV2[];
+  oauthProviders: ({             // v1OauthProviderParamsV2
+    providerName: string;
+  } & (
+    | { oidcToken: string }
+    | { oidcClaims: { iss: string; sub: string; aud: string } }
+  ))[];
+  userTags: string[];
+}
 ```
-
-### If you use `@turnkey/sdk-browser`
-
-The generated client methods now use V2/V3 activity types. The input shapes mirror the changes above — `encryptedOtpBundle` replaces `otpCode` in `verifyOtp`, and `clientSignature` is required for `otpLogin`.
-
-### `@turnkey/sdk-types` and `@turnkey/http` (minor)
-
-Updated generated types to include the new activity types and request/response shapes. No breaking changes — new types are additive.
