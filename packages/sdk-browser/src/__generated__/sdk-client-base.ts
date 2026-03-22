@@ -276,6 +276,47 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  getAppStatus = async (
+    input: SdkApiTypes.TGetAppStatusBody,
+  ): Promise<SdkApiTypes.TGetAppStatusResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/get_app_status", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampGetAppStatus = async (
+    input: SdkApiTypes.TGetAppStatusBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl = this.config.apiBaseUrl + "/public/v1/query/get_app_status";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getAuthenticator = async (
     input: SdkApiTypes.TGetAuthenticatorBody,
   ): Promise<SdkApiTypes.TGetAuthenticatorResponse> => {
@@ -1691,6 +1732,48 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  listWebhookEndpoints = async (
+    input: SdkApiTypes.TListWebhookEndpointsBody,
+  ): Promise<SdkApiTypes.TListWebhookEndpointsResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    return this.request("/public/v1/query/list_webhook_endpoints", {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    });
+  };
+
+  stampListWebhookEndpoints = async (
+    input: SdkApiTypes.TListWebhookEndpointsBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/query/list_webhook_endpoints";
+    const body = {
+      ...input,
+      organizationId:
+        input.organizationId ??
+        session?.organizationId ??
+        this.config.organizationId,
+    };
+
+    const stringifiedBody = JSON.stringify(body);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   getWhoami = async (
     input: SdkApiTypes.TGetWhoamiBody = {},
   ): Promise<SdkApiTypes.TGetWhoamiResponse> => {
@@ -2055,9 +2138,9 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
+        type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
       },
-      "createOauthProvidersResult",
+      "createOauthProvidersResultV2",
     );
   };
 
@@ -2079,7 +2162,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
+      type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2471,9 +2554,9 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
+        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
       },
-      "createSubOrganizationResultV7",
+      "createSubOrganizationResultV8",
     );
   };
 
@@ -2495,7 +2578,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
+      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2575,7 +2658,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_USERS_V3",
+        type: "ACTIVITY_TYPE_CREATE_USERS_V4",
       },
       "createUsersResult",
     );
@@ -2598,7 +2681,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_USERS_V3",
+      type: "ACTIVITY_TYPE_CREATE_USERS_V4",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2702,6 +2785,58 @@ export class TurnkeySDKClientBase {
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
       type: "ACTIVITY_TYPE_CREATE_WALLET_ACCOUNTS",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
+  createWebhookEndpoint = async (
+    input: SdkApiTypes.TCreateWebhookEndpointBody,
+  ): Promise<SdkApiTypes.TCreateWebhookEndpointResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/create_webhook_endpoint",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT",
+      },
+      "createWebhookEndpointResult",
+    );
+  };
+
+  stampCreateWebhookEndpoint = async (
+    input: SdkApiTypes.TCreateWebhookEndpointBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/create_webhook_endpoint";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3544,6 +3679,58 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  deleteWebhookEndpoint = async (
+    input: SdkApiTypes.TDeleteWebhookEndpointBody,
+  ): Promise<SdkApiTypes.TDeleteWebhookEndpointResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/delete_webhook_endpoint",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT",
+      },
+      "deleteWebhookEndpointResult",
+    );
+  };
+
+  stampDeleteWebhookEndpoint = async (
+    input: SdkApiTypes.TDeleteWebhookEndpointBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/delete_webhook_endpoint";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   emailAuth = async (
     input: SdkApiTypes.TEmailAuthBody,
   ): Promise<SdkApiTypes.TEmailAuthResponse> => {
@@ -4077,9 +4264,9 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_OTP_V2",
+        type: "ACTIVITY_TYPE_INIT_OTP_V3",
       },
-      "initOtpResult",
+      "initOtpResultV2",
     );
   };
 
@@ -4100,7 +4287,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_OTP_V2",
+      type: "ACTIVITY_TYPE_INIT_OTP_V3",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4436,7 +4623,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OTP_LOGIN",
+        type: "ACTIVITY_TYPE_OTP_LOGIN_V2",
       },
       "otpLoginResult",
     );
@@ -4459,7 +4646,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OTP_LOGIN",
+      type: "ACTIVITY_TYPE_OTP_LOGIN_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5036,6 +5223,58 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  updateOrganizationName = async (
+    input: SdkApiTypes.TUpdateOrganizationNameBody,
+  ): Promise<SdkApiTypes.TUpdateOrganizationNameResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/update_organization_name",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME",
+      },
+      "updateOrganizationNameResult",
+    );
+  };
+
+  stampUpdateOrganizationName = async (
+    input: SdkApiTypes.TUpdateOrganizationNameBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_organization_name";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   updatePolicy = async (
     input: SdkApiTypes.TUpdatePolicyBody,
   ): Promise<SdkApiTypes.TUpdatePolicyResponse> => {
@@ -5501,6 +5740,58 @@ export class TurnkeySDKClientBase {
     };
   };
 
+  updateWebhookEndpoint = async (
+    input: SdkApiTypes.TUpdateWebhookEndpointBody,
+  ): Promise<SdkApiTypes.TUpdateWebhookEndpointResponse> => {
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...rest } = input;
+    return this.command(
+      "/public/v1/submit/update_webhook_endpoint",
+      {
+        parameters: rest,
+        organizationId:
+          organizationId ??
+          session?.organizationId ??
+          this.config.organizationId,
+        timestampMs: timestampMs ?? String(Date.now()),
+        type: "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
+      },
+      "updateWebhookEndpointResult",
+    );
+  };
+
+  stampUpdateWebhookEndpoint = async (
+    input: SdkApiTypes.TUpdateWebhookEndpointBody,
+  ): Promise<TSignedRequest | undefined> => {
+    if (!this.stamper) {
+      return undefined;
+    }
+
+    const sessionData = await getStorageValue(StorageKeys.Session);
+    const session = sessionData ? parseSession(sessionData) : null;
+
+    const { organizationId, timestampMs, ...parameters } = input;
+    const fullUrl =
+      this.config.apiBaseUrl + "/public/v1/submit/update_webhook_endpoint";
+    const bodyWithType = {
+      parameters,
+      organizationId:
+        organizationId ?? session?.organizationId ?? this.config.organizationId,
+      timestampMs: timestampMs ?? String(Date.now()),
+      type: "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
+    };
+
+    const stringifiedBody = JSON.stringify(bodyWithType);
+    const stamp = await this.stamper.stamp(stringifiedBody);
+    return {
+      body: stringifiedBody,
+      stamp: stamp,
+      url: fullUrl,
+    };
+  };
+
   verifyOtp = async (
     input: SdkApiTypes.TVerifyOtpBody,
   ): Promise<SdkApiTypes.TVerifyOtpResponse> => {
@@ -5517,7 +5808,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_VERIFY_OTP",
+        type: "ACTIVITY_TYPE_VERIFY_OTP_V2",
       },
       "verifyOtpResult",
     );
@@ -5540,7 +5831,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_VERIFY_OTP",
+      type: "ACTIVITY_TYPE_VERIFY_OTP_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

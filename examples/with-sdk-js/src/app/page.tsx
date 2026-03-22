@@ -32,6 +32,8 @@ export default function AuthPage() {
   const [emailOtpCode, setEmailOtpCode] = useState<string>("");
   const [smsOtpCode, setSmsOtpCode] = useState<string>("");
   const [otpId, setOtpId] = useState<string>("");
+  const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] =
+    useState<string>("");
   const [newEmail, setNewEmail] = useState<string>("");
   const [newPhoneNumber, setNewPhoneNumber] = useState<string>("");
   const [newUserName, setNewUserName] = useState<string>("");
@@ -173,6 +175,7 @@ export default function AuthPage() {
     const res = await turnkey.completeOtp({
       otpId,
       otpCode,
+      otpEncryptionTargetBundle,
       contact,
       otpType,
     });
@@ -2408,7 +2411,10 @@ export default function AuthPage() {
                   console.error("Failed to initialize OTP");
                   return;
                 }
-                setOtpId(res);
+                setOtpId(res.otpId);
+                setOtpEncryptionTargetBundle(
+                  res.otpEncryptionTargetBundle ?? "",
+                );
               }}
               style={{
                 backgroundColor: "rebeccapurple",
@@ -2472,15 +2478,18 @@ export default function AuthPage() {
               className="h-fit"
               onClick={async () => {
                 const res = await turnkey.initOtp({
-                  otpType: OtpType.Email,
-                  contact: email,
+                  otpType: OtpType.Sms,
+                  contact: phoneNumber,
                 });
 
                 if (!res) {
                   console.error("Failed to initialize OTP");
                   return;
                 }
-                setOtpId(res);
+                setOtpId(res.otpId);
+                setOtpEncryptionTargetBundle(
+                  res.otpEncryptionTargetBundle ?? "",
+                );
               }}
               style={{
                 backgroundColor: "rebeccapurple",

@@ -4,7 +4,7 @@ import {
   type v1PayloadEncoding,
   type Session,
   type externaldatav1Timestamp,
-  type ProxyTSignupBody,
+  type ProxyTSignupV2Body,
   type v1ApiKeyParamsV2,
   type v1ApiKeyCurve,
   type v1AuthenticatorParamsV2,
@@ -12,8 +12,8 @@ import {
   type v1WalletAccount,
   type v1LoginUsage,
   type v1TokenUsage,
-  type v1OauthProviderParams,
-  type v1SignupUsage,
+  type v1OauthProviderParamsV2,
+  type v1SignupUsageV2,
   type v1SignRawPayloadResult,
   type v1TransactionType,
   type ProxyTGetWalletKitConfigResponse,
@@ -76,7 +76,14 @@ import {
   DEFAULT_TON_V3R2_ACCOUNTS,
   DEFAULT_TON_V4R2_ACCOUNTS,
 } from "./turnkey-helpers";
-import { fromDerSignature, uncompressRawPublicKey } from "@turnkey/crypto";
+import {
+  fromDerSignature,
+  hpkeEncrypt,
+  formatHpkeBuf,
+  uncompressRawPublicKey,
+  verifyEnclaveSignature,
+  PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
+} from "@turnkey/crypto";
 import {
   decodeBase64urlToString,
   uint8ArrayFromHexString,
@@ -717,7 +724,7 @@ export function generateWalletAccountsFromAddressFormat(params: {
 
 export function buildSignUpBody(params: {
   createSubOrgParams: CreateSubOrgParams | undefined;
-}): ProxyTSignupBody {
+}): ProxyTSignupV2Body {
   const { createSubOrgParams } = params;
   const authenticatorName = isWeb()
     ? `${window.location.hostname}-${Date.now()}`
@@ -1417,7 +1424,7 @@ export function getClientSignatureMessageForSignup({
   phoneNumber?: string;
   apiKeys?: v1ApiKeyParamsV2[];
   authenticators?: v1AuthenticatorParamsV2[];
-  oauthProviders?: v1OauthProviderParams[];
+  oauthProviders?: v1OauthProviderParamsV2[];
 }) {
   try {
     const decoded = decodeVerificationToken(verificationToken);
@@ -1430,7 +1437,7 @@ export function getClientSignatureMessageForSignup({
 
     const verificationPublicKey = decoded.public_key as string;
 
-    const usage: v1SignupUsage = {
+    const usage: v1SignupUsageV2 = {
       ...(apiKeys ? { apiKeys } : {}),
       ...(authenticators ? { authenticators } : {}),
       ...(oauthProviders ? { oauthProviders } : {}),
@@ -1439,7 +1446,7 @@ export function getClientSignatureMessageForSignup({
     };
 
     const payload: v1TokenUsage = {
-      signup: usage,
+      signupV2: usage,
       tokenId: decoded.id as string,
       type: "USAGE_TYPE_SIGNUP",
     };
@@ -1476,3 +1483,53 @@ export const withTimeoutFallback = <T>(
     new Promise<T>((resolve) => setTimeout(() => resolve(fallback), timeout)),
   ]);
 };
+
+/**
+ * Encrypts an OTP code and a client public key to the target encryption key
+ * provided by the enclave during initOtp. The resulting encrypted bundle is
+ * sent to verifyOtpV2 so the enclave can decrypt it, verify the OTP code,
+ * and issue a verification token bound to the client's public key.
+ *
+ * @param otpCode - The OTP code entered by the user.
+ * @param otpEncryptionTargetBundle - The signed target encryption bundle returned from initOtp.
+ * @param publicKey - Compressed hex public key to embed in the encrypted bundle.
+ * @param dangerouslyOverrideTlsFetcherSignPublicKey - Optional override for the TLS fetcher signing key used to verify the bundle signature. Only use in test/preprod environments.
+ * @returns A promise resolving to the encrypted OTP bundle string.
+ */
+export async function encryptOtpCode(
+  otpCode: string,
+  otpEncryptionTargetBundle: string,
+  publicKey: string,
+  dangerouslyOverrideTlsFetcherSignPublicKey?: string,
+): Promise<string> {
+  // Parse the signed target bundle and verify its signature before trusting targetPublic
+  const parsedBundle = JSON.parse(otpEncryptionTargetBundle);
+
+  const verified = await verifyEnclaveSignature(
+    parsedBundle.enclaveQuorumPublic,
+    parsedBundle.dataSignature,
+    parsedBundle.data,
+    dangerouslyOverrideTlsFetcherSignPublicKey ??
+      PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
+  );
+  if (!verified) {
+    throw new TurnkeyError(
+      "OTP encryption target bundle signature verification failed",
+      TurnkeyErrorCodes.INVALID_REQUEST,
+    );
+  }
+
+  const signedData = JSON.parse(
+    new TextDecoder().decode(uint8ArrayFromHexString(parsedBundle.data)),
+  );
+  const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
+
+  // Construct the plaintext: OTP code + client public key
+  const plainTextBuf = new TextEncoder().encode(
+    JSON.stringify({ otp_code: otpCode, public_key: publicKey }),
+  );
+
+  // HPKE encrypt the plaintext to the enclave's target key
+  const encryptedBuf = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
+  return formatHpkeBuf(encryptedBuf);
+}

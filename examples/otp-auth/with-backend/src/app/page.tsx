@@ -3,7 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useTurnkey, AuthState } from "@turnkey/react-wallet-kit";
+import {
+  useTurnkey,
+  AuthState,
+  getClientSignatureMessageForLogin,
+} from "@turnkey/react-wallet-kit";
+import { generateP256KeyPair, encryptToEnclave } from "@turnkey/crypto";
+import {
+  uint8ArrayFromHexString,
+  uint8ArrayToHexString,
+} from "@turnkey/encoding";
+import { p256 } from "@noble/curves/p256";
+import { sha256 } from "@noble/hashes/sha256";
 import {
   getSuborgsAction,
   createSuborgAction,
@@ -21,8 +32,14 @@ export default function AuthPage() {
   const [err, setErr] = useState<string | null>(null);
   const [working, setWorking] = useState<string | null>(null);
 
-  // The exact session public key tied to this OTP attempt
-  const pubKeyRef = useRef<string | null>(null);
+  // The key pair for this OTP attempt (need private key for client signature)
+  const keyPairRef = useRef<{
+    publicKey: string;
+    privateKey: string;
+  } | null>(null);
+
+  // The encryption target bundle from initOtp, needed to encrypt the OTP code
+  const encryptionTargetRef = useRef<string | null>(null);
 
   const { storeSession, createApiKeyPair, authState } = useTurnkey();
 
@@ -41,9 +58,17 @@ export default function AuthPage() {
 
       setWorking("Preparing…");
 
-      // 1) Create a fresh session key for this OTP attempt
-      const publicKey = await createApiKeyPair();
-      pubKeyRef.current = publicKey;
+      // 1) Generate a fresh P256 key pair for this OTP attempt.
+      //    We need the private key later to build the client signature,
+      //    so we generate it ourselves and register it with the stamper.
+      const keyPair = generateP256KeyPair();
+      const publicKey = await createApiKeyPair({
+        externalKeyPair: {
+          publicKey: keyPair.publicKey,
+          privateKey: keyPair.privateKey,
+        },
+      });
+      keyPairRef.current = { publicKey, privateKey: keyPair.privateKey };
 
       // reset any prior OTP attempt UI state
       setOtpCode("");
@@ -53,7 +78,11 @@ export default function AuthPage() {
 
       // 2) Kick off OTP with backend, binds this attempt to the current session key
       // Note: publicKey here is used (optionally) for rate limiting SMS OTP requests per user
-      const { otpId } = await initOtpAction({ email: trimmed, publicKey });
+      const { otpId, otpEncryptionTargetBundle } = await initOtpAction({
+        email: trimmed,
+        publicKey,
+      });
+      encryptionTargetRef.current = otpEncryptionTargetBundle;
       setOtpId(otpId);
     } catch (e: any) {
       console.error(e);
@@ -68,15 +97,30 @@ export default function AuthPage() {
       setErr(null);
       if (!otpId) throw new Error("No OTP in progress.");
       if (!otpCode) throw new Error("Enter the code from your email.");
-      if (!pubKeyRef.current)
+      if (!keyPairRef.current || !encryptionTargetRef.current)
         throw new Error("Session key missing. Please resend the code.");
 
       setWorking("Verifying…");
 
-      // 1) Verify the code first (prevents suborg spaming with unverified emails)
+      // 1) Encrypt the OTP code to the enclave's target key, then verify.
+      //    The OTP code never leaves the client unencrypted.
+      const targetBundle = JSON.parse(encryptionTargetRef.current);
+      const targetData = JSON.parse(
+        new TextDecoder().decode(uint8ArrayFromHexString(targetBundle.data)),
+      );
+      const payload = JSON.stringify({
+        otpCode: otpCode.trim(),
+        publicKey: keyPairRef.current.publicKey,
+      });
+      const encrypted = await encryptToEnclave(
+        targetData.targetPublic,
+        payload,
+      );
+      const encryptedOtpBundle = uint8ArrayToHexString(encrypted);
+
       const { verificationToken } = await verifyOtpAction({
         otpId,
-        otpCode: otpCode.trim(),
+        encryptedOtpBundle,
       });
 
       // 2) Find or create suborg for this email
@@ -87,14 +131,36 @@ export default function AuthPage() {
         suborgId = created.subOrganizationId;
       }
 
-      // 3) Complete login using the same public key generated before initOtp
+      // 3) Build the client signature proving we hold the private key
+      const { publicKey, privateKey } = keyPairRef.current;
+      const { message, publicKey: signingPublicKey } =
+        getClientSignatureMessageForLogin({
+          verificationToken,
+          sessionPublicKey: publicKey,
+        });
+
+      const messageHash = sha256(new TextEncoder().encode(message));
+      const signature = p256.sign(
+        messageHash,
+        uint8ArrayFromHexString(privateKey),
+      );
+
+      const clientSignature = {
+        scheme: "CLIENT_SIGNATURE_SCHEME_API_P256" as const,
+        publicKey: signingPublicKey,
+        message,
+        signature: signature.toCompactHex(),
+      };
+
+      // 4) Complete login with the client signature
       const { session } = await otpLoginAction({
         suborgID: suborgId!,
         verificationToken,
-        publicKey: pubKeyRef.current!,
+        publicKey,
+        clientSignature,
       });
 
-      // 4) Store session & go
+      // 5) Store session & go
       await storeSession({ sessionToken: session });
       router.replace("/dashboard");
     } catch (e: any) {
