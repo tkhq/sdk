@@ -591,7 +591,7 @@ export class TurnkeyClient {
           },
         });
 
-        const res = await this.httpClient.proxySignup(signUpBody);
+        const res = await this.httpClient.proxySignupV2(signUpBody);
 
         if (!res) {
           throw new TurnkeyError(
@@ -1051,7 +1051,7 @@ export class TurnkeyClient {
           },
         });
 
-        const res = await this.httpClient.proxySignup(signUpBody);
+        const res = await this.httpClient.proxySignupV2(signUpBody);
 
         if (!res) {
           throw new TurnkeyError(
@@ -1163,7 +1163,7 @@ export class TurnkeyClient {
             },
           });
 
-          signupRes = await this.httpClient.proxySignup(signUpBody);
+          signupRes = await this.httpClient.proxySignupV2(signUpBody);
 
           if (!signupRes) {
             throw new TurnkeyError(
@@ -1554,7 +1554,7 @@ export class TurnkeyClient {
           signature: signature,
         };
 
-        const signupRes = await this.httpClient.proxySignup({
+        const signupRes = await this.httpClient.proxySignupV2({
           ...signUpBody,
           clientSignature,
         });
@@ -1989,7 +1989,7 @@ export class TurnkeyClient {
           },
         });
 
-        const signupRes = await this.httpClient.proxySignup(signUpBody);
+        const signupRes = await this.httpClient.proxySignupV2(signUpBody);
 
         if (!signupRes) {
           throw new TurnkeyError(
