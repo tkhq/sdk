@@ -2,8 +2,8 @@
 "@turnkey/sdk-browser": major
 "@turnkey/sdk-server": major
 "@turnkey/core": major
-"@turnkey/sdk-types": minor
-"@turnkey/http": minor
+"@turnkey/sdk-types": major
+"@turnkey/http": major
 ---
 
 ## End-to-end encrypted OTP
