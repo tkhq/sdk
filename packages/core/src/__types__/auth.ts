@@ -2,7 +2,7 @@ import type { SignatureFormat } from "@turnkey/api-key-stamper";
 import type {
   v1ApiKeyCurve,
   v1Attestation,
-  v1OauthProviderParams,
+  v1OauthProviderParamsV2,
   v1WalletAccountParams,
 } from "@turnkey/sdk-types";
 
@@ -104,7 +104,7 @@ export type CreateSubOrgParams = {
   /** custom wallets to create during sub-org creation time */
   customWallet?: CustomWallet | undefined;
   /** list of oauth providers */
-  oauthProviders?: Provider[] | undefined;
+  oauthProviders?: v1OauthProviderParamsV2[] | undefined;
 };
 
 /** @expand */
@@ -113,38 +113,4 @@ export type CustomWallet = {
   walletName: string;
   /** list of wallet accounts to create */
   walletAccounts: v1WalletAccountParams[];
-};
-
-/** @internal */
-export type Provider = {
-  providerName: string;
-  oidcToken: string;
-};
-
-/** @internal */
-export type SignUpBody = {
-  userName: string;
-  subOrgName: string;
-  userEmail?: string | undefined;
-  userTag?: string | undefined;
-  authenticators?: {
-    authenticatorName: string;
-    challenge: string;
-    attestation: v1Attestation;
-  }[];
-  userPhoneNumber?: string | undefined;
-  verificationToken?: string | undefined;
-  apiKeys?: {
-    apiKeyName: string;
-    publicKey: string;
-    expirationSeconds: string;
-    curveType?: v1ApiKeyCurve | undefined;
-  }[];
-  customWallet?:
-    | {
-        walletName: string;
-        walletAccounts: v1WalletAccountParams[];
-      }
-    | undefined;
-  oauthProviders?: v1OauthProviderParams[] | undefined;
 };
