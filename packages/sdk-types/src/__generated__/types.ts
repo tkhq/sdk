@@ -3195,6 +3195,19 @@ export type v1OauthProviderParams = {
   oidcToken: string;
 };
 
+<<<<<<< HEAD
+=======
+export type v1OauthProviderParamsV2 = {
+  /** Human-readable name to identify a Provider. */
+  providerName: string;
+} & (
+  | { /** Base64 encoded OIDC token */ oidcToken: string }
+  | {
+      /** OIDC claims (iss, sub, aud) to uniquely identify the user */ oidcClaims: v1OidcClaims;
+    }
+);
+
+>>>>>>> b386601a5 (cleanup changset, add special hanling for oneof types)
 export type v1OauthRequest = {
   type: string;
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
