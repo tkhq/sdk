@@ -40,13 +40,13 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1CreatePrivateKeysResultV2",
   ],
   ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION: [
-    "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
-    "v1CreateSubOrganizationIntentV7",
-    "v1CreateSubOrganizationResultV7",
+    "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
+    "v1CreateSubOrganizationIntentV8",
+    "v1CreateSubOrganizationResultV8",
   ],
   ACTIVITY_TYPE_CREATE_USERS: [
-    "ACTIVITY_TYPE_CREATE_USERS_V3",
-    "v1CreateUsersIntentV3",
+    "ACTIVITY_TYPE_CREATE_USERS_V4",
+    "v1CreateUsersIntentV4",
     "v1CreateUsersResult",
   ],
   ACTIVITY_TYPE_SIGN_RAW_PAYLOAD: [
@@ -99,6 +99,11 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1OtpLoginIntentV2",
     "v1OtpLoginResult",
   ],
+  ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS: [
+    "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
+    "v1CreateOAuthProvidersIntentV2",
+    "v1CreateOAuthProvidersResultV2",
+  ],
 };
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
@@ -114,6 +119,12 @@ const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "listPrivateKeys",
   "listUserTags",
 ];
+
+// Fields that should be treated as oneOf unions rather than both-optional
+// Maps type name to array of field names that form the oneOf group
+const ONEOF_FIELDS = {
+  v1OauthProviderParamsV2: ["oidcToken", "oidcClaims"],
+};
 
 // Helper: Convert Swagger type to TS type
 /**
@@ -250,9 +261,14 @@ function generateTsType(name, def) {
     def.type === "object" &&
     (def.properties || def.additionalProperties !== undefined)
   ) {
-    let out = `export type ${name} = {\n`;
+    const oneofFields = ONEOF_FIELDS[name];
+    const oneofSet = new Set(oneofFields || []);
+
+    // Collect base properties (not part of the oneOf group)
+    let baseProps = "";
     if (def.properties) {
       for (const [prop, schema] of Object.entries(def.properties)) {
+        if (oneofSet.has(prop)) continue;
         const required = def.required && def.required.includes(prop) ? "" : "?";
         let type = "any";
         if (schema.$ref) {
@@ -263,17 +279,34 @@ function generateTsType(name, def) {
         const desc = schema.description
           ? `  /** ${schema.description} */\n`
           : "";
-        // Quote property if not a valid identifier
         const propName = isValidIdentifier(prop) ? prop : `"${prop}"`;
-        out += `${desc}  ${propName}${required}: ${type};\n`;
+        baseProps += `${desc}  ${propName}${required}: ${type};\n`;
       }
     }
-    // If additionalProperties is present, allow arbitrary keys
     if (def.additionalProperties !== undefined) {
-      out += `  [key: string]: any;\n`;
+      baseProps += `  [key: string]: any;\n`;
     }
-    out += "};\n";
-    return out;
+
+    // If no oneOf, emit a plain type
+    if (!oneofFields) {
+      return `export type ${name} = {\n${baseProps}};\n`;
+    }
+
+    // Build union branches for the oneOf group
+    const branches = oneofFields.map((field) => {
+      const schema = def.properties[field];
+      let type = "any";
+      if (schema.$ref) {
+        type = refToTs(schema.$ref);
+      } else if (schema.type) {
+        type = swaggerTypeToTs(schema.type, schema);
+      }
+      const desc = schema.description ? ` /** ${schema.description} */` : "";
+      const propName = isValidIdentifier(field) ? field : `"${field}"`;
+      return `{${desc} ${propName}: ${type} }`;
+    });
+
+    return `export type ${name} = {\n${baseProps}} & (${branches.join(" | ")});\n`;
   }
   if (def.type === "string" && def.enum) {
     return `export type ${name} =\n  ${def.enum.map((e) => `"${e}"`).join(" |\n  ")};\n`;
