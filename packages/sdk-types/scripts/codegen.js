@@ -40,13 +40,13 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1CreatePrivateKeysResultV2",
   ],
   ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION: [
-    "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
-    "v1CreateSubOrganizationIntentV7",
-    "v1CreateSubOrganizationResultV7",
+    "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
+    "v1CreateSubOrganizationIntentV8",
+    "v1CreateSubOrganizationResultV8",
   ],
   ACTIVITY_TYPE_CREATE_USERS: [
-    "ACTIVITY_TYPE_CREATE_USERS_V3",
-    "v1CreateUsersIntentV3",
+    "ACTIVITY_TYPE_CREATE_USERS_V4",
+    "v1CreateUsersIntentV4",
     "v1CreateUsersResult",
   ],
   ACTIVITY_TYPE_SIGN_RAW_PAYLOAD: [
@@ -98,6 +98,11 @@ const VERSIONED_ACTIVITY_TYPES = {
     "ACTIVITY_TYPE_OTP_LOGIN_V2",
     "v1OtpLoginIntentV2",
     "v1OtpLoginResult",
+  ],
+  ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS: [
+    "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
+    "v1CreateOAuthProvidersIntentV2",
+    "v1CreateOAuthProvidersResultV2",
   ],
 };
 
