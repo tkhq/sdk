@@ -96,7 +96,7 @@ export const createUserSubOrg = async ({
     : [];
 
   const completedActivity = await activityPoller({
-    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
+    type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
     timestampMs,
     organizationId,
     parameters: {

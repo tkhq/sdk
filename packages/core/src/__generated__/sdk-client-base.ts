@@ -2357,60 +2357,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  createApiOnlyUsers = async (
-    input: SdkTypes.TCreateApiOnlyUsersBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TCreateApiOnlyUsersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    const session = await this.storageManager?.getActiveSession();
-
-    return this.activity(
-      "/public/v1/submit/create_api_only_users",
-      {
-        parameters: rest,
-        organizationId:
-          organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-      },
-      "createApiOnlyUsersResult",
-      stampWith,
-    );
-  };
-
-  stampCreateApiOnlyUsers = async (
-    input: SdkTypes.TCreateApiOnlyUsersBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const session = await this.storageManager?.getActiveSession();
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_api_only_users";
-    const bodyWithType = {
-      parameters,
-      organizationId:
-        organizationId ?? session?.organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   createAuthenticators = async (
     input: SdkTypes.TCreateAuthenticatorsBody,
     stampWith?: StamperType,
