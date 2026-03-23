@@ -34,25 +34,24 @@ jobs:
       - name: Run version script
         run: pnpm run version
 
-      # TEMPORARILY DISABLED: Re-enable on next release
-      # - name: Run codegen
-      #   run: pnpm run codegen-all
+      - name: Run codegen
+        run: pnpm run codegen-all
 
-      # # Run prettier again after codegen to ensure generated code is formatted correctly
-      # - name: Run prettier
-      #   run: pnpm run prettier-codegen:write
+      # Run prettier again after codegen to ensure generated code is formatted correctly
+      - name: Run prettier
+        run: pnpm run prettier-codegen:write
 
-      # - name: Ensure git is clean
-      #   run: |
-      #     if [ -z "$( git status --porcelain )" ]; then
-      #       echo "Git is clean!"
-      #       exit 0
-      #     else
-      #       echo "Git is dirty!"
-      #       git add -A
-      #       git --no-pager diff HEAD
-      #       exit 1
-      #     fi
+      - name: Ensure git is clean
+        run: |
+          if [ -z "$( git status --porcelain )" ]; then
+            echo "Git is clean!"
+            exit 0
+          else
+            echo "Git is dirty!"
+            git add -A
+            git --no-pager diff HEAD
+            exit 1
+          fi
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

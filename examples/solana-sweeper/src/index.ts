@@ -207,9 +207,15 @@ async function sweepTokens(
         `${token.symbol} sweep failed with status: ${status.txStatus}`,
       );
     }
+    const signature = status.solana?.signature;
+    if (!signature) {
+      throw new Error(
+        `Missing Solana transaction signature (status: ${status.txStatus})`,
+      );
+    }
 
     console.log(
-      `Sent ${token.symbol}: ${network.explorerBase}/${status.eth?.txHash}${network.explorerSuffix}`,
+      `Sent ${token.symbol}: ${network.explorerBase}/${signature}${network.explorerSuffix}`,
     );
   }
 }
@@ -281,9 +287,15 @@ async function sweepSol(
   if (status.txStatus !== "INCLUDED" && status.txStatus !== "COMPLETED") {
     throw new Error(`SOL sweep failed with status: ${status.txStatus}`);
   }
+  const signature = status.solana?.signature;
+  if (!signature) {
+    throw new Error(
+      `Missing Solana transaction signature (status: ${status.txStatus})`,
+    );
+  }
 
   console.log(
-    `Sent SOL: ${network.explorerBase}/${status.eth?.txHash}${network.explorerSuffix}`,
+    `Sent SOL: ${network.explorerBase}/${signature}${network.explorerSuffix}`,
   );
 }
 

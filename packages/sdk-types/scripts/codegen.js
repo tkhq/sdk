@@ -89,6 +89,11 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1InitOtpIntentV2",
     "v1InitOtpResult",
   ],
+  ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS: [
+    "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
+    "v1CreateOauthProvidersIntent",
+    "v1CreateOauthProvidersResult",
+  ],
 };
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
