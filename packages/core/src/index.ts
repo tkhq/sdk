@@ -38,7 +38,6 @@ export {
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
   addressFormatConfig,
-  encryptOtpCode,
 } from "./utils";
 
 export * from "@turnkey/sdk-types";

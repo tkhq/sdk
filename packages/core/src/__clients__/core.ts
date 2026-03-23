@@ -104,6 +104,7 @@ import {
   type GetSessionParams,
   type SetActiveSessionParams,
   type CreateApiKeyPairParams,
+  type SignWithApiKeyParams,
   type FetchBootProofForAppProofParams,
   type CreateHttpClientParams,
   type BuildWalletLoginRequestResult,
@@ -139,8 +140,8 @@ import {
   fetchAllWalletAccountsWithCursor,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,
-  encryptOtpCode,
 } from "../utils";
+import { encryptOtpCodeToBundle } from "@turnkey/crypto";
 import { createStorageManager } from "../__storage__/base";
 import { CrossPlatformApiKeyStamper } from "../__stampers__/api/base";
 import { CrossPlatformPasskeyStamper } from "../__stampers__/passkey/base";
@@ -1290,7 +1291,7 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const encryptedOtpBundle = await encryptOtpCode(
+        const encryptedOtpBundle = await encryptOtpCodeToBundle(
           otpCode,
           otpEncryptionTargetBundle,
           publicKey,
@@ -5077,6 +5078,50 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to create API key pair",
         errorCode: TurnkeyErrorCodes.CREATE_API_KEY_PAIR_ERROR,
+      },
+    );
+  };
+
+  /**
+   * Signs a message using a key pair stored in the API key stamper.
+   *
+   * - This function signs the provided message string with the private key identified by `publicKey`.
+   * - The message is SHA-256 hashed internally before signing (ECDSA P-256).
+   * - Returns a compact hex signature (r || s) suitable for use as a client signature.
+   * - The key pair must already exist in the key store (e.g., created via `createApiKeyPair`).
+   *
+   * @param params.message - the message string to sign.
+   * @param params.publicKey - the public key identifying which key pair to sign with.
+   * @returns A promise that resolves to the compact hex signature string.
+   * @throws {TurnkeyError} If the API key stamper is not initialized or the key pair is not found.
+   */
+  signWithApiKey = async (params: SignWithApiKeyParams): Promise<string> => {
+    const { message, publicKey } = params;
+
+    let previousTemporaryKey: string | undefined;
+
+    return withTurnkeyErrorHandling(
+      async () => {
+        if (!this.apiKeyStamper) {
+          throw new TurnkeyError(
+            "API Key Stamper is not initialized.",
+            TurnkeyErrorCodes.INTERNAL_ERROR,
+          );
+        }
+
+        previousTemporaryKey = this.apiKeyStamper.getTemporaryPublicKey();
+        this.apiKeyStamper.setTemporaryPublicKey(publicKey);
+
+        return await this.apiKeyStamper.sign(message, SignatureFormat.Raw);
+      },
+      {
+        errorMessage: "Failed to sign with API key",
+        errorCode: TurnkeyErrorCodes.INTERNAL_ERROR,
+      },
+      {
+        finallyFn: async () => {
+          this.apiKeyStamper?.setTemporaryPublicKey(previousTemporaryKey);
+        },
       },
     );
   };

@@ -56,6 +56,7 @@ import {
   type CompleteOauthParams,
   type CompleteOtpParams,
   type CreateApiKeyPairParams,
+  type SignWithApiKeyParams,
   type CreatePasskeyParams,
   type CreatePasskeyResult,
   type CreateWalletAccountsParams,
@@ -3190,6 +3191,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks],
   );
 
+  const signWithApiKey = useCallback(
+    async (params: SignWithApiKeyParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.signWithApiKey(params),
+        undefined,
+        callbacks,
+        "Failed to sign with API key",
+      );
+    },
+    [client, callbacks],
+  );
+
   const getProxyAuthConfig =
     useCallback(async (): Promise<ProxyTGetWalletKitConfigResponse> => {
       if (!client)
@@ -5977,6 +5995,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         clearUnusedKeyPairs,
         getActiveSessionKey,
         createApiKeyPair,
+        signWithApiKey,
         getProxyAuthConfig,
         fetchBootProofForAppProof,
         verifyAppProofs,
