@@ -93,6 +93,16 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1CreateOauthProvidersIntent",
     "v1CreateOauthProvidersResult",
   ],
+  ACTIVITY_TYPE_VERIFY_OTP: [
+    "ACTIVITY_TYPE_VERIFY_OTP",
+    "v1VerifyOtpIntent",
+    "v1VerifyOtpResult",
+  ],
+  ACTIVITY_TYPE_OTP_LOGIN: [
+    "ACTIVITY_TYPE_OTP_LOGIN",
+    "v1OtpLoginIntent",
+    "v1OtpLoginResult",
+  ],
 };
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
