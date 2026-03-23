@@ -4267,8 +4267,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                             otpId,
                             otpCode,
                             otpEncryptionTargetBundle,
-                            contact: params.phoneNumber!,
-                            otpType: OtpType.Sms,
                           });
                           const res = await updateUserPhoneNumber({
                             phoneNumber: params.phoneNumber!,
@@ -4429,8 +4427,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                             otpId,
                             otpCode,
                             otpEncryptionTargetBundle,
-                            contact: params.email!,
-                            otpType: OtpType.Email,
                           });
                           const res = await updateUserEmail({
                             email: params.email!,
@@ -4590,8 +4586,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                             otpId,
                             otpCode,
                             otpEncryptionTargetBundle,
-                            contact: params.email!,
-                            otpType: OtpType.Email,
                           });
                           const res = await updateUserEmail({
                             email: params.email!,
@@ -4769,8 +4763,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                             otpId,
                             otpCode,
                             otpEncryptionTargetBundle,
-                            contact: params.phoneNumber!,
-                            otpType: OtpType.Sms,
                           });
                           const res = await updateUserPhoneNumber({
                             phoneNumber: params.phoneNumber!,
