@@ -6,6 +6,7 @@ import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   DEFAULT_SOLANA_ACCOUNTS,
 } from "@turnkey/sdk-server";
+import type { v1ClientSignature } from "@turnkey/sdk-types";
 
 const turnkey = new TurnkeyServerSDK({
   apiBaseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
@@ -92,12 +93,7 @@ export async function otpLoginAction(params: {
   suborgID: string;
   verificationToken: string;
   publicKey: string;
-  clientSignature: {
-    publicKey: string;
-    scheme: "CLIENT_SIGNATURE_SCHEME_API_P256";
-    message: string;
-    signature: string;
-  };
+  clientSignature: v1ClientSignature;
 }) {
   const res = await turnkey.apiClient().otpLogin({
     organizationId: params.suborgID || process.env.NEXT_PUBLIC_ORGANIZATION_ID!,

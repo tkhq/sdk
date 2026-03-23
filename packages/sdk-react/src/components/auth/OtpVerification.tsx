@@ -11,11 +11,11 @@ import { OtpType, FilterType } from "./constants";
 import { server } from "@turnkey/sdk-server";
 import { useTurnkey } from "../../hooks/use-turnkey";
 import type { WalletAccount } from "@turnkey/sdk-browser";
-import { fromDerSignature } from "@turnkey/crypto";
+import type { v1ClientSignature } from "@turnkey/sdk-types";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
+import { fromDerSignature, encryptOtpCodeToBundle } from "@turnkey/crypto";
 import {
   getClientSignatureMessageForLogin,
-  encryptOtpCodeToBundle,
 } from "@turnkey/core";
 
 const resendTimerMs = 15000;
@@ -66,8 +66,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         setOtpError("Public key not found. Please try again.");
         return;
       }
-      // Encrypt the OTP code + public key to the enclave's target key using HPKE.
-      // encryptOtpCodeToBundle also verifies the bundle signature before trusting targetPublic.
+  
       const encryptedOtpBundle = await encryptOtpCodeToBundle(
         otp.trim(),
         otpEncryptionTargetBundle,
@@ -117,7 +116,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       const compactSignature = uint8ArrayToHexString(
         fromDerSignature(derSignature),
       );
-      const clientSignature = {
+      const clientSignature: v1ClientSignature = {
         scheme: "CLIENT_SIGNATURE_SCHEME_API_P256" as const,
         publicKey: signingPublicKey,
         message,

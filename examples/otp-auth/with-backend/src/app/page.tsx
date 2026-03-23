@@ -9,6 +9,7 @@ import {
   getClientSignatureMessageForLogin,
 } from "@turnkey/react-wallet-kit";
 import { encryptOtpCodeToBundle } from "@turnkey/crypto";
+import type { v1ClientSignature } from "@turnkey/sdk-types";
 import {
   getSuborgsAction,
   createSuborgAction,
@@ -114,8 +115,8 @@ export default function AuthPage() {
 
       const signature = await signWithApiKey({ message, publicKey });
 
-      const clientSignature = {
-        scheme: "CLIENT_SIGNATURE_SCHEME_API_P256" as const,
+      const clientSignature: v1ClientSignature = {
+        scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
         publicKey,
         message,
         signature,

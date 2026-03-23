@@ -1222,7 +1222,9 @@ export class TurnkeyClient {
    * @param params.otpType - type of OTP to initialize (OtpType.Email or OtpType.Sms).
    * @param params.contact - contact information for the user (e.g., email address or phone number).
    * @param params.organizationId - optional organization ID to target (defaults to the session's organization ID or the parent organization ID).
-   * @returns A promise that resolves to an {@link InitOtpResult} containing the OTP ID and encryption target bundle.
+   * @returns A promise that resolves to an {@link InitOtpResult}, which includes:
+   *          - `otpId`: the ID of the initiated OTP.
+   *          - `otpEncryptionTargetBundle`: the signed encryption target bundle for encrypting the OTP code.
    * @throws {TurnkeyError} If there is an error during the OTP initialization process or if the maximum number of OTPs has been reached.
    */
   initOtp = async (params: InitOtpParams): Promise<InitOtpResult> => {
@@ -1230,9 +1232,13 @@ export class TurnkeyClient {
       async () => {
         const initOtpRes = await this.httpClient.proxyInitOtpV2(params);
 
-        if (!initOtpRes || !initOtpRes.otpId) {
+        if (
+          !initOtpRes ||
+          !initOtpRes.otpId ||
+          !initOtpRes.otpEncryptionTargetBundle
+        ) {
           throw new TurnkeyError(
-            "Failed to initialize OTP: otpId is missing",
+            "Failed to initialize OTP: otpId or otpEncryptionTargetBundle is missing",
             TurnkeyErrorCodes.INIT_OTP_ERROR,
           );
         }
@@ -1259,7 +1265,8 @@ export class TurnkeyClient {
   /**
    * Verifies the OTP code sent to the user.
    *
-   * - This function encrypts the OTP code and an ephemeral client public key to the enclave's target key (from `initOtp`), then sends the encrypted bundle to the auth proxy for verification.
+   * - This function verifies the OTP code entered by the user against the OTP sent to their contact information (email or phone) using the auth proxy.
+   * - Under the hood, the OTP code and an ephemeral client public key are encrypted to the enclave's target key (from `initOtp`) before being sent for verification.
    * - If verification is successful, it returns the sub-organization ID associated with the contact (if it exists) and a verification token.
    * - The verification token can be used for subsequent login or sign-up flows.
    * - Handles both email and SMS OTP types.
@@ -1275,8 +1282,7 @@ export class TurnkeyClient {
   verifyOtp = async (params: VerifyOtpParams): Promise<VerifyOtpResult> => {
     const { otpId, otpCode, otpEncryptionTargetBundle } = params;
 
-    // Track auto-generated key separately so we only clean up keys we created,
-    // never caller-provided ones.
+    // we track auto-generated keys so we can clean them up on errors
     let generatedPublicKey: string | undefined = undefined;
     const publicKey =
       params.publicKey ??
@@ -1372,7 +1378,7 @@ export class TurnkeyClient {
         const { message, publicKey: verificationPublicKey } =
           getClientSignatureMessageForLogin({ verificationToken });
 
-        // Sign with the verification token key. This is the key bound during
+        // we sign with the verification token key. This is the key bound during
         // verifyOtp() and is what Turnkey expects to sign the client signature for login
         this.apiKeyStamper?.setTemporaryPublicKey(verificationPublicKey);
         const signature = await this.apiKeyStamper?.sign(
@@ -1494,7 +1500,7 @@ export class TurnkeyClient {
             oauthProviders: signUpBody.oauthProviders,
           });
 
-        // Sign with the verification token key. This is the key bound during
+        // we sign with the verification token key. This is the key bound during
         // verifyOtp() and is what Turnkey expects to sign the client signature for signup
         this.apiKeyStamper?.setTemporaryPublicKey(verificationPublicKey);
         const signature = await this.apiKeyStamper?.sign(
@@ -1608,17 +1614,24 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const verifyOtpRes = await this.verifyOtp({
+        const { verificationToken } = await this.verifyOtp({
           otpId,
           otpCode,
           otpEncryptionTargetBundle,
           publicKey,
         });
 
+        if (!verificationToken) {
+          throw new TurnkeyError(
+            "No verification token returned from OTP verification",
+            TurnkeyErrorCodes.VERIFY_OTP_ERROR,
+          );
+        }
+
         const accountRes = await this.httpClient.proxyGetAccount({
           filterType: OtpTypeToFilterTypeMap[otpType],
           filterValue: contact,
-          verificationToken: verifyOtpRes.verificationToken,
+          verificationToken: verificationToken,
         });
 
         if (!accountRes) {
@@ -1629,14 +1642,6 @@ export class TurnkeyClient {
         }
 
         const subOrganizationId = accountRes.organizationId;
-        const verificationToken = verifyOtpRes.verificationToken;
-
-        if (!verificationToken) {
-          throw new TurnkeyError(
-            "No verification token returned from OTP verification",
-            TurnkeyErrorCodes.VERIFY_OTP_ERROR,
-          );
-        }
 
         if (!subOrganizationId) {
           const signUpRes = await this.signUpWithOtp({

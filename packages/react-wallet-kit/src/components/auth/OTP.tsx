@@ -78,9 +78,9 @@ export function OtpVerification(props: OtpVerificationProps) {
   const handleResend = async () => {
     setResending(true);
     try {
-      const result = await initOtp({ otpType, contact });
-      setOtpId(result.otpId);
-      setOtpEncryptionTargetBundle(result.otpEncryptionTargetBundle);
+      const { otpId, otpEncryptionTargetBundle } = await initOtp({ otpType, contact });
+      setOtpId(otpId);
+      setOtpEncryptionTargetBundle(otpEncryptionTargetBundle);
       setResent(true);
     } catch (error) {
       throw new Error(`Error resending OTP: ${error}`);
