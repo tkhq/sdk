@@ -1266,16 +1266,13 @@ export class TurnkeyClient {
    * @param params.otpId - ID of the OTP to verify (returned from `initOtp`).
    * @param params.otpCode - the OTP code entered by the user.
    * @param params.otpEncryptionTargetBundle - the encryption target bundle returned from `initOtp`.
-   * @param params.contact - contact information for the user (e.g., email address or phone number).
-   * @param params.otpType - type of OTP being verified (OtpType.Email or OtpType.Sms).
    * @returns A promise that resolves to an object containing:
    *   - subOrganizationId: sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
    *   - verificationToken: verification token to be used for login or sign-up.
    * @throws {TurnkeyError} If there is an error during the OTP verification process, such as an invalid code or network failure.
    */
   verifyOtp = async (params: VerifyOtpParams): Promise<VerifyOtpResult> => {
-    const { otpId, otpCode, otpEncryptionTargetBundle, contact, otpType } =
-      params;
+    const { otpId, otpCode, otpEncryptionTargetBundle } = params;
 
     // Track auto-generated key separately so we only clean up keys we created,
     // never caller-provided ones.
@@ -1310,26 +1307,8 @@ export class TurnkeyClient {
             TurnkeyErrorCodes.INTERNAL_ERROR,
           );
         }
-        const accountRes = await this.httpClient.proxyGetAccount({
-          filterType: OtpTypeToFilterTypeMap[otpType],
-          filterValue: contact,
-          verificationToken: verifyOtpRes.verificationToken,
-        });
-
-        if (!accountRes) {
-          throw new TurnkeyError(
-            `Account fetch failed`,
-            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
-          );
-        }
-
-        const subOrganizationId = accountRes.organizationId;
-
-        // Key successfully bound into the verification token; don't clean up.
-        generatedPublicKey = undefined;
 
         return {
-          subOrganizationId: subOrganizationId,
           verificationToken: verifyOtpRes.verificationToken,
           publicKey,
         };
@@ -1343,9 +1322,7 @@ export class TurnkeyClient {
             code: TurnkeyErrorCodes.INVALID_OTP_CODE,
           },
         },
-      },
-      {
-        finallyFn: async () => {
+        catchFn: async () => {
           if (generatedPublicKey) {
             try {
               await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
@@ -1366,13 +1343,12 @@ export class TurnkeyClient {
    * Logs in a user using an OTP verification token.
    *
    * - This function logs in a user using the verification token received after OTP verification (from email or SMS).
-   * - The client signature is always produced using the private key bound into the verification token during `verifyOtp`.
-   * - If a `publicKey` is provided, it is used as the session key (the key the new session is created for). Otherwise, the verification token key is reused as the session key.
+   * - The client signature is always produced using the private key bound to the verification token during `verifyOtp`.
+   * - The verification token's embedded key becomes the session public key.
    * - Optionally invalidates any existing sessions for the user if `invalidateExisting` is set to true.
    * - Stores the resulting session token under the specified session key, or the default session key if not provided.
    *
    * @param params.verificationToken - verification token received after OTP verification.
-   * @param params.publicKey - optional session public key. If not provided, the verification token key is used. The private key for the verification token key must be available in the apiKeyStamper.
    * @param params.organizationId - optional organization ID to target (defaults to the verified subOrg ID linked to the verification token contact).
    * @param params.invalidateExisting - flag to invalidate existing session for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
@@ -1386,7 +1362,6 @@ export class TurnkeyClient {
     const {
       verificationToken,
       invalidateExisting = false,
-      publicKey,
       organizationId,
       sessionKey = SessionKey.DefaultSessionkey,
     } = params;
@@ -1394,13 +1369,10 @@ export class TurnkeyClient {
     return withTurnkeyErrorHandling(
       async () => {
         const { message, publicKey: verificationPublicKey } =
-          getClientSignatureMessageForLogin({
-            verificationToken,
-            ...(publicKey && { sessionPublicKey: publicKey }),
-          });
+          getClientSignatureMessageForLogin({ verificationToken });
 
-        // Sign with the verification token key — this is the key bound during
-        // verifyOtp and is what the server uses to verify the client signature.
+        // Sign with the verification token key. This is the key bound during
+        // verifyOtp() and is what Turnkey expects to sign the client signature for login
         this.apiKeyStamper?.setTemporaryPublicKey(verificationPublicKey);
         const signature = await this.apiKeyStamper?.sign(
           message,
@@ -1421,26 +1393,22 @@ export class TurnkeyClient {
           signature: signature,
         };
 
-        // publicKey is the desired session key; defaults to the verification
-        // token key when not provided (same key used for both signing and session).
-        const sessionPublicKey = publicKey || verificationPublicKey;
-
-        const res = await this.httpClient.proxyOtpLoginV2({
+        // the verification token's public key is also used as the session public key for login
+        const loginRes = await this.httpClient.proxyOtpLoginV2({
           verificationToken,
-          publicKey: sessionPublicKey,
+          publicKey: verificationPublicKey,
           clientSignature,
           invalidateExisting,
           ...(organizationId && { organizationId }),
         });
 
-        if (!res) {
+        if (!loginRes) {
           throw new TurnkeyError(
             `Auth proxy OTP login failed`,
             TurnkeyErrorCodes.OTP_LOGIN_ERROR,
           );
         }
 
-        const loginRes = await res;
         if (!loginRes.session) {
           throw new TurnkeyError(
             "No session returned from OTP login",
@@ -1474,7 +1442,7 @@ export class TurnkeyClient {
    *
    * - This function signs up a user using the verification token received after OTP verification (from email or SMS).
    * - Creates a new sub-organization for the user with the provided parameters and associates the contact (email or phone) with the sub-organization.
-   * - Automatically generates a new API key pair for authentication and session management.
+   * - The verification token's embedded key becomes the session public key.
    * - Stores the resulting session token under the specified session key, or the default session key if not provided.
    * - Handles both email and SMS OTP types, and supports additional sub-organization creation parameters.
    *
@@ -1499,13 +1467,6 @@ export class TurnkeyClient {
       invalidateExisting,
       sessionKey,
     } = params;
-
-    // Track auto-generated key separately so we only clean up keys we created,
-    // never caller-provided ones.
-    let generatedPublicKey: string | undefined = undefined;
-    const publicKey =
-      params.publicKey ??
-      (generatedPublicKey = await this.apiKeyStamper?.createKeyPair());
 
     // build sign up body without client signature first
     const signUpBody = buildSignUpBody({
@@ -1532,8 +1493,8 @@ export class TurnkeyClient {
             oauthProviders: signUpBody.oauthProviders,
           });
 
-        // Sign with the verification token key — this is the key bound during
-        // verifyOtp and is what the server uses to verify the client signature.
+        // Sign with the verification token key. This is the key bound during
+        // verifyOtp() and is what Turnkey expects to sign the client signature for signup
         this.apiKeyStamper?.setTemporaryPublicKey(verificationPublicKey);
         const signature = await this.apiKeyStamper?.sign(
           message,
@@ -1568,13 +1529,9 @@ export class TurnkeyClient {
 
         const otpRes = await this.loginWithOtp({
           verificationToken,
-          publicKey: publicKey!,
           ...(invalidateExisting && { invalidateExisting }),
           ...(sessionKey && { sessionKey }),
         });
-
-        // Key pair was successfully used; clear so finallyFn won't delete it.
-        generatedPublicKey = undefined;
 
         return {
           ...otpRes,
@@ -1588,18 +1545,6 @@ export class TurnkeyClient {
       {
         finallyFn: async () => {
           this.apiKeyStamper?.clearTemporaryPublicKey();
-          // Only clean up keys we auto-generated, never caller-provided ones.
-          if (generatedPublicKey) {
-            try {
-              await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
-            } catch (cleanupError) {
-              throw new TurnkeyError(
-                `Failed to clean up generated key pair`,
-                TurnkeyErrorCodes.KEY_PAIR_CLEANUP_ERROR,
-                cleanupError,
-              );
-            }
-          }
         },
       },
     );
@@ -1611,8 +1556,8 @@ export class TurnkeyClient {
    * - This function encrypts the OTP code and the session public key to the enclave's target key, verifies the OTP, and then either signs up or logs in the user.
    * - If the contact is not associated with an existing sub-organization, it will automatically create a new sub-organization and complete the sign-up flow.
    * - If the contact is already associated with a sub-organization, it will complete the login flow.
-   * - The same key pair is used for both the encrypted OTP bundle (binding the verification token) and the subsequent login/signup client signature.
-   * - Supports passing a custom public key for authentication, invalidating existing session, specifying a session key, and providing additional sub-organization creation parameters.
+   * - The key bound to the verification token during `verifyOtp` is always reused as the session public key.
+   * - Supports passing a custom public key for binding into the verification token, invalidating existing session, specifying a session key, and providing additional sub-organization creation parameters.
    * - Handles both email and SMS OTP types.
    *
    * @param params.otpId - ID of the OTP to complete (returned from `initOtp`).
@@ -1620,7 +1565,7 @@ export class TurnkeyClient {
    * @param params.otpEncryptionTargetBundle - the encryption target bundle returned from `initOtp`.
    * @param params.contact - contact information for the user (e.g., email address or phone number).
    * @param params.otpType - type of OTP being completed (OtpType.Email or OtpType.Sms).
-   * @param params.publicKey - public key to use for authentication. If not provided, a new key pair will be generated.
+   * @param params.publicKey - public key to bind to the verification token via `verifyOtp`. If not provided, a new key pair will be generated. This key becomes the session public key.
    * @param params.invalidateExisting - flag to invalidate existing sessions for the user.
    * @param params.sessionKey - session key to use for session creation (defaults to the default session key).
    * @param params.createSubOrgParams - parameters for sub-organization creation (e.g., authenticators, user metadata).
@@ -1662,25 +1607,12 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        // Encrypt the OTP code with the session public key so the verification
-        // token is bound to the same key used for login/signup
-        const encryptedOtpBundle = await encryptOtpCode(
+        const verifyOtpRes = await this.verifyOtp({
+          otpId,
           otpCode,
           otpEncryptionTargetBundle,
           publicKey,
-        );
-
-        const verifyOtpRes = await this.httpClient.proxyVerifyOtpV2({
-          otpId,
-          encryptedOtpBundle,
         });
-
-        if (!verifyOtpRes) {
-          throw new TurnkeyError(
-            `OTP verification failed`,
-            TurnkeyErrorCodes.INTERNAL_ERROR,
-          );
-        }
 
         const accountRes = await this.httpClient.proxyGetAccount({
           filterType: OtpTypeToFilterTypeMap[otpType],
@@ -1713,11 +1645,7 @@ export class TurnkeyClient {
             ...(createSubOrgParams && { createSubOrgParams }),
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
-            publicKey: publicKey!,
           });
-
-          // Key was successfully used for signup; don't clean up.
-          generatedPublicKey = undefined;
 
           return {
             ...signUpRes,
@@ -1727,13 +1655,9 @@ export class TurnkeyClient {
         } else {
           const loginRes = await this.loginWithOtp({
             verificationToken,
-            publicKey: publicKey!,
             ...(invalidateExisting && { invalidateExisting }),
             ...(sessionKey && { sessionKey }),
           });
-
-          // Key was successfully used for login; don't clean up.
-          generatedPublicKey = undefined;
 
           return {
             ...loginRes,
@@ -1745,10 +1669,7 @@ export class TurnkeyClient {
       {
         errorMessage: "Failed to complete OTP process",
         errorCode: TurnkeyErrorCodes.OTP_COMPLETION_ERROR,
-      },
-      {
-        finallyFn: async () => {
-          // Only clean up keys we auto-generated, never caller-provided ones.
+        catchFn: async () => {
           if (generatedPublicKey) {
             try {
               await this.apiKeyStamper?.deleteKeyPair(generatedPublicKey);
