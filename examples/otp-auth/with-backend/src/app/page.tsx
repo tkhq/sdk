@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -8,13 +8,7 @@ import {
   AuthState,
   getClientSignatureMessageForLogin,
 } from "@turnkey/react-wallet-kit";
-import { generateP256KeyPair, encryptToEnclave } from "@turnkey/crypto";
-import {
-  uint8ArrayFromHexString,
-  uint8ArrayToHexString,
-} from "@turnkey/encoding";
-import { p256 } from "@noble/curves/p256";
-import { sha256 } from "@noble/hashes/sha256";
+import { encryptOtpCodeToBundle } from "@turnkey/crypto";
 import {
   getSuborgsAction,
   createSuborgAction,
@@ -31,17 +25,15 @@ export default function AuthPage() {
   const [otpCode, setOtpCode] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [working, setWorking] = useState<string | null>(null);
-
-  // The key pair for this OTP attempt (need private key for client signature)
-  const keyPairRef = useRef<{
-    publicKey: string;
-    privateKey: string;
-  } | null>(null);
+  const [publicKey, setPublicKey] = useState<string | null>(null);
 
   // The encryption target bundle from initOtp, needed to encrypt the OTP code
-  const encryptionTargetRef = useRef<string | null>(null);
+  const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] = useState<
+    string | null
+  >(null);
 
-  const { storeSession, createApiKeyPair, authState } = useTurnkey();
+  const { storeSession, createApiKeyPair, signWithApiKey, authState } =
+    useTurnkey();
 
   // If already authenticated, go to dashboard.
   useEffect(() => {
@@ -58,17 +50,9 @@ export default function AuthPage() {
 
       setWorking("Preparing…");
 
-      // 1) Generate a fresh P256 key pair for this OTP attempt.
-      //    We need the private key later to build the client signature,
-      //    so we generate it ourselves and register it with the stamper.
-      const keyPair = generateP256KeyPair();
-      const publicKey = await createApiKeyPair({
-        externalKeyPair: {
-          publicKey: keyPair.publicKey,
-          privateKey: keyPair.privateKey,
-        },
-      });
-      keyPairRef.current = { publicKey, privateKey: keyPair.privateKey };
+      // 1) Create a fresh P256 key pair for this OTP attempt.
+      const pk = await createApiKeyPair();
+      setPublicKey(pk);
 
       // reset any prior OTP attempt UI state
       setOtpCode("");
@@ -80,9 +64,9 @@ export default function AuthPage() {
       // Note: publicKey here is used (optionally) for rate limiting SMS OTP requests per user
       const { otpId, otpEncryptionTargetBundle } = await initOtpAction({
         email: trimmed,
-        publicKey,
+        publicKey: pk,
       });
-      encryptionTargetRef.current = otpEncryptionTargetBundle;
+      setOtpEncryptionTargetBundle(otpEncryptionTargetBundle);
       setOtpId(otpId);
     } catch (e: any) {
       console.error(e);
@@ -97,26 +81,18 @@ export default function AuthPage() {
       setErr(null);
       if (!otpId) throw new Error("No OTP in progress.");
       if (!otpCode) throw new Error("Enter the code from your email.");
-      if (!keyPairRef.current || !encryptionTargetRef.current)
+      if (!publicKey || !otpEncryptionTargetBundle)
         throw new Error("Session key missing. Please resend the code.");
 
       setWorking("Verifying…");
 
       // 1) Encrypt the OTP code to the enclave's target key, then verify.
       //    The OTP code never leaves the client unencrypted.
-      const targetBundle = JSON.parse(encryptionTargetRef.current);
-      const targetData = JSON.parse(
-        new TextDecoder().decode(uint8ArrayFromHexString(targetBundle.data)),
+      const encryptedOtpBundle = await encryptOtpCodeToBundle(
+        otpCode.trim(),
+        otpEncryptionTargetBundle,
+        publicKey,
       );
-      const payload = JSON.stringify({
-        otpCode: otpCode.trim(),
-        publicKey: keyPairRef.current.publicKey,
-      });
-      const encrypted = await encryptToEnclave(
-        targetData.targetPublic,
-        payload,
-      );
-      const encryptedOtpBundle = uint8ArrayToHexString(encrypted);
 
       const { verificationToken } = await verifyOtpAction({
         otpId,
@@ -132,24 +108,17 @@ export default function AuthPage() {
       }
 
       // 3) Build the client signature proving we hold the private key
-      const { publicKey, privateKey } = keyPairRef.current;
-      const { message, publicKey: signingPublicKey } =
-        getClientSignatureMessageForLogin({
-          verificationToken,
-          sessionPublicKey: publicKey,
-        });
+      const { message } = getClientSignatureMessageForLogin({
+        verificationToken,
+      });
 
-      const messageHash = sha256(new TextEncoder().encode(message));
-      const signature = p256.sign(
-        messageHash,
-        uint8ArrayFromHexString(privateKey),
-      );
+      const signature = await signWithApiKey({ message, publicKey });
 
       const clientSignature = {
         scheme: "CLIENT_SIGNATURE_SCHEME_API_P256" as const,
-        publicKey: signingPublicKey,
+        publicKey,
         message,
-        signature: signature.toCompactHex(),
+        signature,
       };
 
       // 4) Complete login with the client signature

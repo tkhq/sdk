@@ -15,7 +15,7 @@ import { fromDerSignature } from "@turnkey/crypto";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
 import {
   getClientSignatureMessageForLogin,
-  encryptOtpCode,
+  encryptOtpCodeToBundle,
 } from "@turnkey/core";
 
 const resendTimerMs = 15000;
@@ -67,8 +67,8 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         return;
       }
       // Encrypt the OTP code + public key to the enclave's target key using HPKE.
-      // encryptOtpCode also verifies the bundle signature before trusting targetPublic.
-      const encryptedOtpBundle = await encryptOtpCode(
+      // encryptOtpCodeToBundle also verifies the bundle signature before trusting targetPublic.
+      const encryptedOtpBundle = await encryptOtpCodeToBundle(
         otp.trim(),
         otpEncryptionTargetBundle,
         publicKey,

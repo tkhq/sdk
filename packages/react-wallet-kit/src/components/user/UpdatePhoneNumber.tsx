@@ -65,8 +65,6 @@ export function UpdatePhoneNumber(params: {
                   otpId,
                   otpCode,
                   otpEncryptionTargetBundle,
-                  contact: phoneInput,
-                  otpType: OtpType.Sms,
                 });
                 const res = await updateUserPhoneNumber({
                   phoneNumber: phoneInput,

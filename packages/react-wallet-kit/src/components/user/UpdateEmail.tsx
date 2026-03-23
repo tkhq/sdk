@@ -65,8 +65,6 @@ export function UpdateEmail(params: {
                   otpId,
                   otpCode,
                   otpEncryptionTargetBundle,
-                  contact: emailInput,
-                  otpType: OtpType.Email,
                 });
                 const res = await updateUserEmail({
                   email: emailInput,
