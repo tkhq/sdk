@@ -34,9 +34,7 @@ export default function AuthPage() {
   const [otpId, setOtpId] = useState<string>("");
   const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] =
     useState<string>("");
-  const [newEmail, setNewEmail] = useState<string>("");
-  const [newPhoneNumber, setNewPhoneNumber] = useState<string>("");
-  const [newUserName, setNewUserName] = useState<string>("");
+
   const [organizationId, setOrganizationId] = useState<string>("");
   const [userId, setUserId] = useState<string>("");
   const [connectedWallets, setConnectedWallets] = useState<Wallet[]>([]);
@@ -717,7 +715,7 @@ export default function AuthPage() {
                         <div className="flex flex-col gap-1">
                           {privateKey.addresses.map((address, i) => {
                             return (
-                              <p>
+                              <p key={i}>
                                 <span
                                   data-testid={`wallet-account-address-value-${count}-${i}`}
                                 >
