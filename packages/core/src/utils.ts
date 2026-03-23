@@ -76,14 +76,7 @@ import {
   DEFAULT_TON_V3R2_ACCOUNTS,
   DEFAULT_TON_V4R2_ACCOUNTS,
 } from "./turnkey-helpers";
-import {
-  fromDerSignature,
-  hpkeEncrypt,
-  formatHpkeBuf,
-  uncompressRawPublicKey,
-  verifyEnclaveSignature,
-  PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
-} from "@turnkey/crypto";
+import { fromDerSignature, uncompressRawPublicKey } from "@turnkey/crypto";
 import {
   decodeBase64urlToString,
   uint8ArrayFromHexString,
@@ -1483,53 +1476,3 @@ export const withTimeoutFallback = <T>(
     new Promise<T>((resolve) => setTimeout(() => resolve(fallback), timeout)),
   ]);
 };
-
-/**
- * Encrypts an OTP code and a client public key to the target encryption key
- * provided by the enclave during initOtp. The resulting encrypted bundle is
- * sent to verifyOtpV2 so the enclave can decrypt it, verify the OTP code,
- * and issue a verification token bound to the client's public key.
- *
- * @param otpCode - The OTP code entered by the user.
- * @param otpEncryptionTargetBundle - The signed target encryption bundle returned from initOtp.
- * @param publicKey - Compressed hex public key to embed in the encrypted bundle.
- * @param dangerouslyOverrideTlsFetcherSignPublicKey - Optional override for the TLS fetcher signing key used to verify the bundle signature. Only use in test/preprod environments.
- * @returns A promise resolving to the encrypted OTP bundle string.
- */
-export async function encryptOtpCode(
-  otpCode: string,
-  otpEncryptionTargetBundle: string,
-  publicKey: string,
-  dangerouslyOverrideTlsFetcherSignPublicKey?: string,
-): Promise<string> {
-  // Parse the signed target bundle and verify its signature before trusting targetPublic
-  const parsedBundle = JSON.parse(otpEncryptionTargetBundle);
-
-  const verified = await verifyEnclaveSignature(
-    parsedBundle.enclaveQuorumPublic,
-    parsedBundle.dataSignature,
-    parsedBundle.data,
-    dangerouslyOverrideTlsFetcherSignPublicKey ??
-      PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY,
-  );
-  if (!verified) {
-    throw new TurnkeyError(
-      "OTP encryption target bundle signature verification failed",
-      TurnkeyErrorCodes.INVALID_REQUEST,
-    );
-  }
-
-  const signedData = JSON.parse(
-    new TextDecoder().decode(uint8ArrayFromHexString(parsedBundle.data)),
-  );
-  const targetKeyBuf = uint8ArrayFromHexString(signedData.targetPublic);
-
-  // Construct the plaintext: OTP code + client public key
-  const plainTextBuf = new TextEncoder().encode(
-    JSON.stringify({ otp_code: otpCode, public_key: publicKey }),
-  );
-
-  // HPKE encrypt the plaintext to the enclave's target key
-  const encryptedBuf = hpkeEncrypt({ plainTextBuf, targetKeyBuf });
-  return formatHpkeBuf(encryptedBuf);
-}
