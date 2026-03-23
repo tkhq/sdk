@@ -19,11 +19,7 @@ import {
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-import {
-  getSignedTransactionFromActivity,
-  type TActivity,
-} from "@turnkey/http";
-import { Turnkey } from "@turnkey/sdk-server";
+import { Turnkey, v1Activity } from "@turnkey/sdk-server";
 import { TurnkeySigner } from "@turnkey/solana";
 import {
   createNewSolanaWallet,
@@ -176,13 +172,13 @@ async function main() {
     )) as Transaction;
   } catch (error: any) {
     await handleActivityError(turnkeyClient, error).then(
-      (activity?: TActivity) => {
+      (activity?: v1Activity) => {
         if (!activity) {
           throw error;
         }
 
         const decodedTransaction = Buffer.from(
-          getSignedTransactionFromActivity(activity),
+          activity.result!.signTransactionResult!.signedTransaction,
           "hex",
         );
         signedWrapTransaction = Transaction.from(decodedTransaction);
@@ -294,13 +290,13 @@ async function main() {
     )) as Transaction;
   } catch (error: any) {
     await handleActivityError(turnkeyClient, error).then(
-      (activity?: TActivity) => {
+      (activity?: v1Activity) => {
         if (!activity) {
           throw error;
         }
 
         const decodedTransaction = Buffer.from(
-          getSignedTransactionFromActivity(activity),
+          activity.result!.signTransactionResult!.signedTransaction,
           "hex",
         );
         signedTransferTransaction = Transaction.from(decodedTransaction);

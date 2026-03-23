@@ -639,7 +639,7 @@ export type v1CreateApiOnlyUsersIntent = {
 };
 
 export type v1CreateApiOnlyUsersRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -771,7 +771,7 @@ export type v1CreateOauthProvidersIntentV2 = {
 };
 
 export type v1CreateOauthProvidersRequest = {
-  type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS";
+  type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1175,7 +1175,7 @@ export type v1CreateSubOrganizationIntentV8 = {
 };
 
 export type v1CreateSubOrganizationRequest = {
-  type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7";
+  type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1345,7 +1345,7 @@ export type v1CreateUsersIntentV4 = {
 };
 
 export type v1CreateUsersRequest = {
-  type: "ACTIVITY_TYPE_CREATE_USERS_V3";
+  type: "ACTIVITY_TYPE_CREATE_USERS_V4";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1419,7 +1419,7 @@ export type v1CreateWebhookEndpointIntent = {
 };
 
 export type v1CreateWebhookEndpointRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1812,7 +1812,7 @@ export type v1DeleteWebhookEndpointIntent = {
 };
 
 export type v1DeleteWebhookEndpointRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -1983,7 +1983,13 @@ export type v1EthSendRawTransactionIntent = {
   /** The raw, signed transaction to be sent. */
   signedTransaction: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
-  caip2: "eip155:1" | "eip155:11155111" | "eip155:8453" | "eip155:84532";
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002";
 };
 
 export type v1EthSendRawTransactionResult = {
@@ -2348,7 +2354,13 @@ export type v1GetNoncesRequest = {
   /** The Ethereum address to query nonces for. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -2598,7 +2610,15 @@ export type v1GetWalletAddressBalancesRequest = {
   /** Address corresponding to a wallet account. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
 export type v1GetWalletAddressBalancesResponse = {
@@ -2961,7 +2981,7 @@ export type v1InitOtpIntentV3 = {
 };
 
 export type v1InitOtpRequest = {
-  type: "ACTIVITY_TYPE_INIT_OTP_V2";
+  type: "ACTIVITY_TYPE_INIT_OTP_V3";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -3206,7 +3226,15 @@ export type v1ListSupportedAssetsRequest = {
   /** Unique identifier for a given organization. */
   organizationId: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
 export type v1ListSupportedAssetsResponse = {
@@ -3482,7 +3510,7 @@ export type v1OtpLoginIntentV2 = {
 };
 
 export type v1OtpLoginRequest = {
-  type: "ACTIVITY_TYPE_OTP_LOGIN";
+  type: "ACTIVITY_TYPE_OTP_LOGIN_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4250,7 +4278,7 @@ export type v1UpdateOrganizationNameIntent = {
 };
 
 export type v1UpdateOrganizationNameRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4517,7 +4545,7 @@ export type v1UpdateWebhookEndpointIntent = {
 };
 
 export type v1UpdateWebhookEndpointRequest = {
-  type: string;
+  type: "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4657,7 +4685,7 @@ export type v1VerifyOtpIntentV2 = {
 };
 
 export type v1VerifyOtpRequest = {
-  type: "ACTIVITY_TYPE_VERIFY_OTP";
+  type: "ACTIVITY_TYPE_VERIFY_OTP_V2";
   /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
   timestampMs: string;
   /** Unique identifier for a given Organization. */
@@ -4930,7 +4958,13 @@ export type TGetNoncesBody = {
   /** The Ethereum address to query nonces for. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet). */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002";
   /** Whether to fetch the standard on-chain nonce. */
   nonce?: boolean;
   /** Whether to fetch the gas station nonce used for sponsored transactions. */
@@ -5123,7 +5157,15 @@ export type TGetWalletAddressBalancesBody = {
   /** Address corresponding to a wallet account. */
   address: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
 export type TGetWalletAddressBalancesInput = {
@@ -5252,7 +5294,15 @@ export type TListSupportedAssetsResponse = {
 export type TListSupportedAssetsBody = {
   organizationId?: string;
   /** CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values. */
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002"
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1";
 };
 
 export type TListSupportedAssetsInput = { body: TListSupportedAssetsBody };
@@ -6515,16 +6565,16 @@ export type TOtpLoginResponse = {
 export type TOtpLoginBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** Signed Verification Token containing a unique id, expiry, verification type, contact */
+  /** Signed JWT containing a unique id, expiry, verification type, contact */
   verificationToken: string;
-  /** Client-side public key generated by the user, used as the session public key upon successful login */
+  /** Client-side public key generated by the user, which will be conditionally added to org data based on the validity of the verification token */
   publicKey: string;
-  /** Required signature proving authorization for this login. The signature is over the verification token ID and the public key. Required for secure OTP login process. */
-  clientSignature: v1ClientSignature;
   /** Expiration window (in seconds) indicating how long the Session is valid for. If not provided, a default of 15 minutes will be used. */
   expirationSeconds?: string;
-  /** Invalidate all other previously generated Login sessions */
+  /** Invalidate all other previously generated Login API keys */
   invalidateExisting?: boolean;
+  /** Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step. */
+  clientSignature?: v1ClientSignature;
 };
 
 export type TOtpLoginInput = { body: TOtpLoginBody };
@@ -6980,12 +7030,14 @@ export type TVerifyOtpResponse = {
 export type TVerifyOtpBody = {
   timestampMs?: string;
   organizationId?: string;
-  /** UUID representing an OTP flow. A new UUID is created for each init OTP activity. */
+  /** ID representing the result of an init OTP activity. */
   otpId: string;
-  /** Encrypted bundle containing the OTP code and a client-generated public key. Turnkey's secure enclaves will decrypt this bundle, verify the OTP code, and issue a new Verification Token. Encrypted using the target encryption key provided in the INIT_OTP activity result. */
-  encryptedOtpBundle: string;
+  /** OTP sent out to a user's contact (email or SMS) */
+  otpCode: string;
   /** Expiration window (in seconds) indicating how long the verification token is valid for. If not provided, a default of 1 hour will be used. Maximum value is 86400 seconds (24 hours) */
   expirationSeconds?: string;
+  /** Client-side public key generated by the user, which will be added to the JWT response and verified in subsequent requests via a client proof signature */
+  publicKey?: string;
 };
 
 export type TVerifyOtpInput = { body: TVerifyOtpBody };

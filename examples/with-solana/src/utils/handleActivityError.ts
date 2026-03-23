@@ -2,15 +2,14 @@ import prompts from "prompts";
 import {
   TurnkeyActivityConsensusNeededError,
   TERMINAL_ACTIVITY_STATUSES,
-  type TActivity,
 } from "@turnkey/http";
-import type { Turnkey } from "@turnkey/sdk-server";
+import type { Turnkey, v1Activity } from "@turnkey/sdk-server";
 
 export async function handleActivityError(turnkeyClient: Turnkey, error: any) {
   if (error instanceof TurnkeyActivityConsensusNeededError) {
     const activityId = error["activityId"]!;
     let activityStatus = error["activityStatus"]!;
-    let activity: TActivity | undefined;
+    let activity: v1Activity | undefined;
 
     while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
       console.log("\nWaiting for consensus...\n");
@@ -33,7 +32,7 @@ export async function handleActivityError(turnkeyClient: Turnkey, error: any) {
         activityId,
         organizationId: process.env.ORGANIZATION_ID!,
       });
-      activity = response.activity as TActivity;
+      activity = response.activity as v1Activity;
       activityStatus = activity!.status;
     }
 
