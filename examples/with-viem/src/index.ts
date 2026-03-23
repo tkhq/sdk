@@ -9,18 +9,13 @@ import {
 } from "viem";
 import { sepolia } from "viem/chains";
 
-import {
-  TERMINAL_ACTIVITY_STATUSES,
-  getSignatureFromActivity,
-  getSignedTransactionFromActivity,
-  type TActivity,
-} from "@turnkey/http";
+import { TERMINAL_ACTIVITY_STATUSES } from "@turnkey/http";
 import {
   createAccount,
   isTurnkeyActivityConsensusNeededError,
   serializeSignature,
 } from "@turnkey/viem";
-import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import { Turnkey as TurnkeyServerSDK, v1Activity } from "@turnkey/sdk-server";
 import { print, assertEqual } from "./util";
 import { createNewWallet } from "./createNewWallet";
 
@@ -95,12 +90,12 @@ async function main() {
     });
   } catch (error: any) {
     signature = await handleActivityError(error).then(
-      async (activity?: TActivity) => {
+      async (activity?: v1Activity) => {
         if (!activity) {
           throw error;
         }
 
-        return serializeSignature(getSignatureFromActivity(activity));
+        return serializeSignature(activity.result!.signRawPayloadResult!);
       },
     );
   }
@@ -140,15 +135,14 @@ async function main() {
     txHash = await client.sendTransaction(transactionRequest);
   } catch (error: any) {
     txHash = await handleActivityError(error).then(
-      async (activity?: TActivity) => {
+      async (activity?: v1Activity) => {
         if (!activity) {
           throw error;
         }
 
         return await client.sendRawTransaction({
-          serializedTransaction: getSignedTransactionFromActivity(
-            activity,
-          ) as `0x${string}`,
+          serializedTransaction: activity.result!.signTransactionResult!
+            .signedTransaction as `0x${string}`,
         });
       },
     );
@@ -163,7 +157,7 @@ async function main() {
       const activityId = error["activityId"] || error["cause"]["activityId"];
       let activityStatus =
         error["activityStatus"] || error["cause"]["activityId"];
-      let activity: TActivity | undefined;
+      let activity: v1Activity | undefined;
 
       while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
         console.log("\nWaiting for consensus...\n");
@@ -186,7 +180,7 @@ async function main() {
           activityId,
           organizationId: process.env.ORGANIZATION_ID!,
         });
-        activity = response.activity as TActivity;
+        activity = response.activity as v1Activity;
         activityStatus = activity!.status;
       }
 
