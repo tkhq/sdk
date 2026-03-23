@@ -2599,7 +2599,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
       },
-      "createOAuthProvidersResult",
+      "createOauthProvidersResult",
       stampWith,
     );
   };

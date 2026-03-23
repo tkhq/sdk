@@ -90,8 +90,8 @@ const VERSIONED_ACTIVITY_TYPES = {
   ],
   ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS: [
     "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
-    "v1CreateOAuthProvidersIntent",
-    "v1CreateOAuthProvidersResult",
+    "v1CreateOauthProvidersIntent",
+    "v1CreateOauthProvidersResult",
   ],
 };
 

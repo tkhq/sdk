@@ -5479,7 +5479,7 @@ export type TCreateOauthProvidersBody = {
   /** The ID of the User to add an Oauth provider to */
   userId: string;
   /** A list of Oauth providers. */
-  oauthProviders: v1OauthProviderParamsV2[];
+  oauthProviders: v1OauthProviderParams[];
 };
 
 export type TCreateOauthProvidersInput = { body: TCreateOauthProvidersBody };
