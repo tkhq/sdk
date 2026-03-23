@@ -10,13 +10,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@noble/curves": "^1.4.0",
-    "@noble/hashes": "1.4.0",
     "@solana/web3.js": "1.95.8",
     "@tailwindcss/postcss": "4.1.13",
     "@turnkey/crypto": "workspace:*",
     "@turnkey/encoding": "workspace:*",
     "@turnkey/react-wallet-kit": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*",
     "@turnkey/sdk-server": "workspace:*",
     "@types/node": "20.3.1",
     "@types/react": "18.2.14",

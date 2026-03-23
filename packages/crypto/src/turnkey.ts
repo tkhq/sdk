@@ -234,7 +234,7 @@ export const verifyStampSignature = async (
  * @param {Environment} dangerouslyOverrideSignerPublicKey - (optional) an enum (PROD or PREPROD) to verify against the correct signer enclave key.
  * @returns {Promise<boolean>} - Returns true if the signature is valid, otherwise throws an error.
  */
-export const verifyEnclaveSignature = async (
+const verifyEnclaveSignature = async (
   enclaveQuorumPublic: string,
   publicSignature: string,
   signedData: string,
@@ -601,65 +601,6 @@ export const encryptOnRampSecret = (
       ),
     }),
   );
-};
-
-/**
- * Verifies that an **enclave verification token** (JWT) was signed by
- * Turnkey's TLS fetcher signing key (P-256 / ES256, compact 64-byte r‖s
- * signature).
- *
- * How it works
- * ------------
- * 1.  Split the JWT into `header.payload.signature`.
- * 2.  **Single-hash** the string `"header.payload"`:
- *        `msg = sha256(header.payload)`
- *     (Standard ES256 — unlike session JWTs which use double-SHA256.)
- * 3.  Base64-URL-decode the signature (`r||s`, 64 bytes).
- * 4.  Load the TLS fetcher signing public key (hex `04‖X‖Y` → `Uint8Array`).
- * 5.  Call `p256.verify(signature, msg, publicKey)`.
- *
- * @param jwt   The enclave verification token JWT to validate.
- * @param dangerouslyOverrideTlsFetcherSignPublicKey *(optional)* Hex-encoded
- *              uncompressed P-256 public key to verify against (use only in
- *              tests).  Defaults to the production TLS fetcher signing key.
- * @returns `true` if the signature is valid for the given key, else `false`.
- * @throws  If the JWT is malformed.
- */
-export const verifyEnclaveVerificationToken = (
-  jwt: string,
-  dangerouslyOverrideTlsFetcherSignPublicKey?: string,
-): boolean => {
-  const keyHex =
-    dangerouslyOverrideTlsFetcherSignPublicKey ??
-    PRODUCTION_TLS_FETCHER_SIGN_PUBLIC_KEY;
-
-  /* 1. split JWT -------------------------------------------------------- */
-  const parts = jwt.split(".");
-  if (parts.length !== 3 || !parts[2]) {
-    throw new Error("Invalid JWT: expected 3 dot-separated parts");
-  }
-  const signingInput = `${parts[0]}.${parts[1]}`;
-
-  /* 2. sha256(header.payload) — standard ES256 ------------------------- */
-  const msgDigest = sha256(new TextEncoder().encode(signingInput));
-
-  /* 3. base64-url decode signature -------------------------------------- */
-  const toB64 = (u: string) =>
-    (u = u.replace(/-/g, "+").replace(/_/g, "/")).padEnd(
-      u.length + ((4 - (u.length % 4)) % 4),
-      "=",
-    );
-  const signature = Uint8Array.from(
-    atob(toB64(parts[2]))
-      .split("")
-      .map((c) => c.charCodeAt(0)),
-  );
-
-  /* 4. load public key -------------------------------------------------- */
-  const publicKey = uint8ArrayFromHexString(keyHex);
-
-  /* 5. verify ----------------------------------------------------------- */
-  return p256.verify(signature, msgDigest, publicKey);
 };
 
 /**

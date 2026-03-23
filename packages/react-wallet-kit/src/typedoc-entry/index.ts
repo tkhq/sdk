@@ -47,6 +47,7 @@ export type {
   PollTransactionStatusParams,
   SignMessageParams,
   SignTransactionParams,
+  SignWithApiKeyParams,
   SignUpWithOauthParams,
   SignUpWithOtpParams,
   SignUpWithPasskeyParams,
