@@ -1,4 +1,18 @@
 /**
+ * Information about the human user who delegated authority to this agent.
+ * Used for audit logging (blended identity, OWASP ASI03).
+ * Encoded in the sub-org name so it appears in every Turnkey activity log.
+ */
+export interface DelegatedByInfo {
+  /** Human user identifier (user ID, username, etc.) */
+  userId?: string;
+  /** Human user email */
+  email?: string;
+  /** How the human authenticated (e.g., "oauth", "passkey", "api-key") */
+  source?: string;
+}
+
+/**
  * Configuration for a wallet account to be created for the agent.
  * Use presets from `./presets` for common configurations, or specify custom curve/path combos.
  */
@@ -46,6 +60,11 @@ export interface CreateAgentSessionRequest {
   accounts?: AgentAccountConfig[];
   /** Additional ALLOW policies beyond the default sign_raw_payload policy */
   policies?: AgentPolicyParams[];
+  /**
+   * Optional: human user who delegated authority to this agent (blended identity).
+   * Encoded in the sub-org name for audit logging. Appears in every Turnkey activity log.
+   */
+  delegatedBy?: DelegatedByInfo;
 }
 
 export interface AgentAccountResult {
@@ -82,6 +101,8 @@ export interface CreateAgentSessionResult {
   policyIds: string[];
   /** ISO 8601 expiry timestamp (advisory, based on expirationSeconds from request) */
   expiresAt: string;
+  /** The delegating human's identity, if provided in the request */
+  delegatedBy?: DelegatedByInfo;
 }
 
 export interface DeleteAgentSessionRequest {

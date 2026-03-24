@@ -251,6 +251,26 @@ describe("createAgentSession", () => {
         "<AGENT_USER_ID>",
       );
     });
+
+    it("skips default signing policy when user provides one covering sign_raw_payload", async () => {
+      await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        policies: [
+          {
+            policyName: "allow-all-signing",
+            effect: "EFFECT_ALLOW",
+            condition:
+              "activity.type in ['ACTIVITY_TYPE_SIGN_RAW_PAYLOAD_V2', 'ACTIVITY_TYPE_SIGN_TRANSACTION_V2']",
+            consensus: "approvers.any(user, user.id == '<AGENT_USER_ID>')",
+          },
+        ],
+      });
+
+      const policiesArgs = mockSubOrgApiClient.createPolicies.mock.calls[0]![0];
+      // Only user policy, no default (dedup)
+      expect(policiesArgs.policies).toHaveLength(1);
+      expect(policiesArgs.policies[0].policyName).toBe("allow-all-signing");
+    });
   });
 
   describe("error handling: createUsers fails", () => {
@@ -547,6 +567,74 @@ describe("createAgentSession", () => {
       expect(result.accounts[1]!.publicKey).toBe("ed25519-addr");
       expect(result.accounts[2]!.label).toBe("eth-signing");
       expect(result.accounts[2]!.publicKey).toBe("secp-addr");
+    });
+  });
+
+  describe("blended identity (delegatedBy)", () => {
+    it("encodes email in sub-org name when delegatedBy.email provided", async () => {
+      await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        delegatedBy: { email: "alice@company.com", source: "oauth" },
+      });
+
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0]![0];
+      expect(subOrgArgs.subOrganizationName).toBe(
+        "test-agent [delegated:alice@company.com]",
+      );
+    });
+
+    it("encodes userId in sub-org name when only userId provided", async () => {
+      await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        delegatedBy: { userId: "user-uuid-123" },
+      });
+
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0]![0];
+      expect(subOrgArgs.subOrganizationName).toBe(
+        "test-agent [delegated:user-uuid-123]",
+      );
+    });
+
+    it("uses 'unknown' when delegatedBy has no email or userId", async () => {
+      await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        delegatedBy: { source: "oauth" },
+      });
+
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0]![0];
+      expect(subOrgArgs.subOrganizationName).toBe(
+        "test-agent [delegated:unknown]",
+      );
+    });
+
+    it("leaves sub-org name unchanged when delegatedBy is undefined", async () => {
+      await createAgentSession(mockParentClient, baseRequest);
+
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0]![0];
+      expect(subOrgArgs.subOrganizationName).toBe("test-agent");
+    });
+
+    it("returns delegatedBy in the result", async () => {
+      const delegatedBy = {
+        email: "alice@company.com",
+        userId: "user-123",
+        source: "oauth",
+      };
+      const result = await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        delegatedBy,
+      });
+
+      expect(result.delegatedBy).toEqual(delegatedBy);
+    });
+
+    it("returns undefined delegatedBy when not provided", async () => {
+      const result = await createAgentSession(mockParentClient, baseRequest);
+      expect(result.delegatedBy).toBeUndefined();
     });
   });
 });
