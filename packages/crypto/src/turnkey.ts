@@ -602,25 +602,3 @@ export const encryptOnRampSecret = (
     }),
   );
 };
-
-/**
- * Decodes an enclave verification token JWT and returns its payload claims.
- *
- * This parses the JWT payload (base64 decode) without performing signature
- * verification.  Use {@link verifyEnclaveVerificationToken} to validate the
- * signature first if needed.
- *
- * @param token  The JWT string (enclave verification token).
- * @returns The decoded {@link VerificationToken} payload.
- * @throws  If the token is malformed or missing a payload.
- */
-export const decodeEnclaveVerificationToken = (
-  token: string,
-): VerificationToken => {
-  const [, payloadB64] = token.split(".");
-  if (!payloadB64) {
-    throw new Error("Invalid token: missing payload");
-  }
-  const json = atob(payloadB64);
-  return JSON.parse(json) as VerificationToken;
-};
