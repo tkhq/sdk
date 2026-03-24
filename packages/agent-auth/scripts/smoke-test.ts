@@ -2,7 +2,7 @@
  * Smoke test for @turnkey/agent-auth against a real Turnkey instance.
  *
  * Usage:
- *   TURNKEY_API_BASE_URL=http://localhost:8081 \
+ *   TURNKEY_API_BASE_URL=<your-api-url> \
  *   TURNKEY_API_PUBLIC_KEY=<your-public-key> \
  *   TURNKEY_API_PRIVATE_KEY=<your-private-key> \
  *   TURNKEY_ORG_ID=<your-org-id> \
@@ -13,15 +13,14 @@ import { Turnkey } from "@turnkey/sdk-server";
 const TurnkeyServerSDK = Turnkey;
 import { createAgentSession, deleteAgentSession, presets } from "../src/index";
 
-const API_BASE_URL =
-  process.env.TURNKEY_API_BASE_URL ?? "http://localhost:8081";
+const API_BASE_URL = process.env.TURNKEY_API_BASE_URL;
 const API_PUBLIC_KEY = process.env.TURNKEY_API_PUBLIC_KEY;
 const API_PRIVATE_KEY = process.env.TURNKEY_API_PRIVATE_KEY;
 const ORG_ID = process.env.TURNKEY_ORG_ID;
 
-if (!API_PUBLIC_KEY || !API_PRIVATE_KEY || !ORG_ID) {
+if (!API_BASE_URL || !API_PUBLIC_KEY || !API_PRIVATE_KEY || !ORG_ID) {
   console.error(
-    "Required env vars: TURNKEY_API_PUBLIC_KEY, TURNKEY_API_PRIVATE_KEY, TURNKEY_ORG_ID",
+    "Required env vars: TURNKEY_API_BASE_URL, TURNKEY_API_PUBLIC_KEY, TURNKEY_API_PRIVATE_KEY, TURNKEY_ORG_ID",
   );
   process.exit(1);
 }

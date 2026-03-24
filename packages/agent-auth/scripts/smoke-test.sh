@@ -2,11 +2,11 @@
 # Smoke test for @turnkey/agent-auth
 #
 # Prerequisites:
-#   - Local Turnkey infra running (cd ~/turnkey/mono && make launch)
-#   - Or set env vars for staging/production
+#   - A running Turnkey instance (local or production)
+#   - Set env vars below
 #
 # Usage:
-#   TURNKEY_API_BASE_URL=http://localhost:8081 \
+#   TURNKEY_API_BASE_URL=<your-api-url> \
 #   TURNKEY_API_PUBLIC_KEY=<key> \
 #   TURNKEY_API_PRIVATE_KEY=<key> \
 #   TURNKEY_ORG_ID=<org-id> \
