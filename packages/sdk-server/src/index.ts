@@ -27,7 +27,6 @@ import {
 } from "./__types__/base";
 
 import type { TSignedRequest } from "@turnkey/sdk-types";
-import type * as TurnkeySDKApiTypes from "@turnkey/sdk-types";
 
 import { fetch } from "./universal";
 import {
@@ -73,12 +72,13 @@ export const server = {
 export type {
   TApiKeyStamperConfig,
   TSignedRequest,
-  TurnkeySDKApiTypes,
   TurnkeyApiTypes,
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
 };
+
+export * from "@turnkey/sdk-types";
 
 // Functions
 export {

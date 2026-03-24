@@ -7,14 +7,11 @@ import { ethers } from "ethers";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import {
-  getSignatureFromActivity,
-  getSignedTransactionFromActivity,
   TurnkeyActivityConsensusNeededError,
   TERMINAL_ACTIVITY_STATUSES,
-  TActivity,
 } from "@turnkey/http";
 import { TurnkeySigner, serializeSignature } from "@turnkey/ethers";
-import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
+import { Turnkey as TurnkeyServerSDK, v1Activity } from "@turnkey/sdk-server";
 import { createNewWallet } from "./createNewWallet";
 import { print, assertEqual } from "./util";
 import WETH_TOKEN_ABI from "./weth-contract-abi.json";
@@ -85,12 +82,12 @@ async function main() {
     signature = await connectedSigner.signMessage(message);
   } catch (error: any) {
     signature = await handleActivityError(error).then(
-      async (activity?: TActivity) => {
+      async (activity?: v1Activity) => {
         if (!activity) {
           throw error;
         }
 
-        return serializeSignature(getSignatureFromActivity(activity));
+        return serializeSignature(activity.result!.signRawPayloadResult!);
       },
     );
   }
@@ -130,12 +127,12 @@ async function main() {
     signedTx = await connectedSigner.signTransaction(populatedTx);
   } catch (error: any) {
     signedTx = await handleActivityError(error).then(
-      async (activity?: TActivity) => {
+      async (activity?: v1Activity) => {
         if (!activity) {
           throw error;
         }
 
-        return getSignedTransactionFromActivity(activity);
+        return `0x${activity.result!.signTransactionResult!.signedTransaction}`;
       },
     );
   }
@@ -170,13 +167,13 @@ async function main() {
     sentTx = await connectedSigner.sendTransaction(populatedTx);
   } catch (error: any) {
     sentTx = await handleActivityError(error).then(
-      async (activity?: TActivity) => {
+      async (activity?: v1Activity) => {
         if (!activity) {
           throw error;
         }
 
         return await connectedSigner.provider?.broadcastTransaction(
-          getSignedTransactionFromActivity(activity),
+          `0x${activity.result!.signTransactionResult!.signedTransaction}`,
         );
       },
     );
@@ -217,13 +214,13 @@ async function main() {
       });
     } catch (error: any) {
       depositTx = await handleActivityError(error).then(
-        async (activity?: TActivity) => {
+        async (activity?: v1Activity) => {
           if (!activity) {
             throw error;
           }
 
           return await connectedSigner.provider?.broadcastTransaction(
-            getSignedTransactionFromActivity(activity),
+            `0x${activity.result!.signTransactionResult!.signedTransaction}`,
           );
         },
       );
@@ -239,7 +236,7 @@ async function main() {
     if (error instanceof TurnkeyActivityConsensusNeededError) {
       const activityId = error["activityId"]!;
       let activityStatus = error["activityStatus"]!;
-      let activity: TActivity | undefined;
+      let activity: v1Activity | undefined;
 
       while (!TERMINAL_ACTIVITY_STATUSES.includes(activityStatus)) {
         console.log("\nWaiting for consensus...\n");
@@ -262,7 +259,7 @@ async function main() {
           activityId,
           organizationId: process.env.ORGANIZATION_ID!,
         });
-        activity = response.activity as TActivity;
+        activity = response.activity;
         activityStatus = activity!.status;
       }
 
