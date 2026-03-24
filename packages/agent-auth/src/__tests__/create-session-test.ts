@@ -569,4 +569,72 @@ describe("createAgentSession", () => {
       expect(result.accounts[2]!.publicKey).toBe("secp-addr");
     });
   });
+
+  describe("blended identity (delegatedBy)", () => {
+    it("encodes email in sub-org name when delegatedBy.email provided", async () => {
+      await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        delegatedBy: { email: "alice@company.com", source: "oauth" },
+      });
+
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0]![0];
+      expect(subOrgArgs.subOrganizationName).toBe(
+        "test-agent [delegated:alice@company.com]",
+      );
+    });
+
+    it("encodes userId in sub-org name when only userId provided", async () => {
+      await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        delegatedBy: { userId: "user-uuid-123" },
+      });
+
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0]![0];
+      expect(subOrgArgs.subOrganizationName).toBe(
+        "test-agent [delegated:user-uuid-123]",
+      );
+    });
+
+    it("uses 'unknown' when delegatedBy has no email or userId", async () => {
+      await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        delegatedBy: { source: "oauth" },
+      });
+
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0]![0];
+      expect(subOrgArgs.subOrganizationName).toBe(
+        "test-agent [delegated:unknown]",
+      );
+    });
+
+    it("leaves sub-org name unchanged when delegatedBy is undefined", async () => {
+      await createAgentSession(mockParentClient, baseRequest);
+
+      const subOrgArgs =
+        mockParentClient.createSubOrganization.mock.calls[0]![0];
+      expect(subOrgArgs.subOrganizationName).toBe("test-agent");
+    });
+
+    it("returns delegatedBy in the result", async () => {
+      const delegatedBy = {
+        email: "alice@company.com",
+        userId: "user-123",
+        source: "oauth",
+      };
+      const result = await createAgentSession(mockParentClient, {
+        ...baseRequest,
+        delegatedBy,
+      });
+
+      expect(result.delegatedBy).toEqual(delegatedBy);
+    });
+
+    it("returns undefined delegatedBy when not provided", async () => {
+      const result = await createAgentSession(mockParentClient, baseRequest);
+      expect(result.delegatedBy).toBeUndefined();
+    });
+  });
 });

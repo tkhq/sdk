@@ -45,6 +45,12 @@ export async function createAgentSession(
   const agentAnchorKeyPair = generateP256KeyPair();
   const agentSessionKeyPair = generateP256KeyPair();
 
+  // Step 1b: Build sub-org name with optional delegation suffix (blended identity)
+  const delegationSuffix = request.delegatedBy
+    ? ` [delegated:${request.delegatedBy.email ?? request.delegatedBy.userId ?? "unknown"}]`
+    : "";
+  const subOrgName = `${request.agentName}${delegationSuffix}`;
+
   // Step 2: Build wallet accounts from request
   const walletAccounts = (request.accounts ?? []).map((account, i) => ({
     curve: account.curve,
@@ -65,7 +71,7 @@ export async function createAgentSession(
   // SDK methods destructure {organizationId, timestampMs, ...rest} and wrap rest as parameters
   const subOrgResponse = await parentClient.createSubOrganization({
     organizationId: request.organizationId,
-    subOrganizationName: request.agentName,
+    subOrganizationName: subOrgName,
     rootUsers: [
       {
         userName: `${request.agentName}-admin`,
@@ -288,5 +294,6 @@ export async function createAgentSession(
     accounts,
     policyIds,
     expiresAt,
+    ...(request.delegatedBy ? { delegatedBy: request.delegatedBy } : {}),
   };
 }

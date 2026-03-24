@@ -10,6 +10,7 @@ export type {
   AgentPolicyParams,
   CreateAgentSessionRequest,
   CreateAgentSessionResult,
+  DelegatedByInfo,
   DeleteAgentSessionRequest,
   DeleteAgentSessionResult,
 } from "./types";
