@@ -31,9 +31,29 @@
 
 `ACTIVITY_TYPE_VERIFY_OTP` → `ACTIVITY_TYPE_VERIFY_OTP_V2`
 
-**What changed:** Replaced plaintext `otpCode` + `publicKey` with an `encryptedOtpBundle`.
+**What changed:** Replaced plaintext `otpCode` + `publicKey` with a single `encryptedOtpBundle`.
 
-`encryptedOtpBundle` is an HPKE-encrypted `{ otp_code, public_key }` payload, encrypted to the enclave's target public key from `otpEncryptionTargetBundle` (returned by `initOtp`). This way the OTP code never leaves the client in plaintext.
+Instead of sending the OTP code in plaintext, you now HPKE-encrypt it (along with your public key) to Turnkey's enclave using the `otpEncryptionTargetBundle` returned by `initOtp`. This ensures the OTP code never leaves the client in plaintext.
+
+Use `encryptOtpCodeToBundle` from `@turnkey/crypto` to build the bundle:
+
+```ts
+import { encryptOtpCodeToBundle } from "@turnkey/crypto";
+
+const { otpId, otpEncryptionTargetBundle } = await client.initOtp({ ... });
+
+// After the user enters their OTP code:
+const encryptedOtpBundle = await encryptOtpCodeToBundle(
+  otpCode,                    // the code the user entered
+  otpEncryptionTargetBundle,  // from the initOtp response
+  publicKey,                  // your target public key
+);
+
+await client.verifyOtp({
+  otpId,
+  encryptedOtpBundle,
+});
+```
 
 ```ts
 // before — v1VerifyOtpIntent
@@ -86,7 +106,7 @@
 
 `ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS` → `ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2`
 
-**What changed:** `oidcToken` and `oidcClaims` are now a oneOf union — you must provide exactly one.
+**What changed:** Added `oidcClaims` as a new option alongside `oidcToken`; you must provide exactly one. This updated type feeds into the `CREATE_SUB_ORGANIZATION` and `CREATE_USERS` changes below.
 
 ```ts
 // before — v1OauthProviderParams

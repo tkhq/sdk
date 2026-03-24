@@ -14,9 +14,7 @@ import type { WalletAccount } from "@turnkey/sdk-browser";
 import type { v1ClientSignature } from "@turnkey/sdk-types";
 import { uint8ArrayToHexString } from "@turnkey/encoding";
 import { fromDerSignature, encryptOtpCodeToBundle } from "@turnkey/crypto";
-import {
-  getClientSignatureMessageForLogin,
-} from "@turnkey/core";
+import { getClientSignatureMessageForLogin } from "@turnkey/core";
 
 const resendTimerMs = 15000;
 interface OtpVerificationProps {
@@ -66,7 +64,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         setOtpError("Public key not found. Please try again.");
         return;
       }
-  
+
       const encryptedOtpBundle = await encryptOtpCodeToBundle(
         otp.trim(),
         otpEncryptionTargetBundle,
