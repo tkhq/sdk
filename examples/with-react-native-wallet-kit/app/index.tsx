@@ -59,12 +59,12 @@ export default function LoginScreen() {
 
     setLoading(true);
 
-    const otpId = await initOtp({
+    const initOtpResult = await initOtp({
       otpType: OtpType.Email,
       contact: email,
     });
 
-    if (!otpId) {
+    if (!initOtpResult) {
       Alert.alert("Error", "Failed to initialize OTP");
       return;
     }
@@ -74,7 +74,11 @@ export default function LoginScreen() {
 
     router.push({
       pathname: "/otp",
-      params: { email, otpId },
+      params: {
+        email,
+        otpId: initOtpResult.otpId,
+        otpEncryptionTargetBundle: initOtpResult.otpEncryptionTargetBundle,
+      },
     });
   };
 
