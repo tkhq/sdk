@@ -12,6 +12,7 @@ import type {
   v1TransactionType,
   v1WalletAccountParams,
   v1AppProof,
+  TSignedRequest,
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
@@ -21,7 +22,6 @@ import type {
   WalletAccount,
   WalletProvider,
   Wallet,
-  TSignedRequest,
 } from "../index";
 
 export type CreateHttpClientParams = {
@@ -247,7 +247,13 @@ export type PollTransactionStatusParams = {
 export type EthTransaction = {
   from: string;
   to: string;
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002";
 
   value?: string;
   data?: string;
@@ -266,7 +272,13 @@ export type Erc20Transfer = {
   to: string;
   tokenAddress: string;
   amount: string;
-  caip2: string;
+  caip2:
+    | "eip155:1"
+    | "eip155:11155111"
+    | "eip155:8453"
+    | "eip155:84532"
+    | "eip155:137"
+    | "eip155:80002";
 
   nonce?: string;
   gasLimit?: string;
@@ -279,7 +291,10 @@ export type Erc20Transfer = {
 export type SolanaTransaction = {
   unsignedTransaction: string;
   signWith: string;
-  caip2: string;
+  caip2:
+    | "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
+    | "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
+    | "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY";
   sponsor?: boolean;
   recentBlockhash?: string;
 };

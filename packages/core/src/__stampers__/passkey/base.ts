@@ -1,8 +1,6 @@
 import { generateRandomBuffer, isReactNative, isWeb } from "@utils";
 import type {
   Passkey,
-  TStamp,
-  TStamper,
   TPasskeyStamperConfig,
   TurnkeyAuthenticatorParams,
 } from "../../__types__";
@@ -13,6 +11,7 @@ import {
 } from "@turnkey/encoding";
 import { getWebAuthnAttestation } from "@turnkey/http";
 import { v4 as uuidv4 } from "uuid";
+import type { TStamp, TStamper } from "@turnkey/sdk-types";
 
 let PasskeyStamperModule: typeof import("@turnkey/react-native-passkey-stamper");
 

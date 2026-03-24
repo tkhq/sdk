@@ -267,7 +267,11 @@ export default function Dashboard() {
 
       const balRes = await httpClient?.getWalletAddressBalances({
         address: solAddress,
-        caip2: solNetwork.caip2,
+        caip2:
+          solNetwork.caip2 ==
+          "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
+            ? "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+            : solNetwork.caip2, // TODO: hacky fix - need to consolidate this in our API
       });
       const native = balRes?.balances?.[0];
       if (native) {
