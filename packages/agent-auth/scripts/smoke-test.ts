@@ -11,7 +11,14 @@
 
 import { Turnkey } from "@turnkey/sdk-server";
 const TurnkeyServerSDK = Turnkey;
-import { createAgentSession, deleteAgentSession, presets } from "../src/index";
+import {
+  createAgentSession,
+  deleteAgentSession,
+  presets,
+  signJwt,
+  signSshCommit,
+  signMessage,
+} from "../src/index";
 
 const API_BASE_URL = process.env.TURNKEY_API_BASE_URL;
 const API_PUBLIC_KEY = process.env.TURNKEY_API_PUBLIC_KEY;
@@ -140,6 +147,79 @@ async function main() {
       check("Ed25519 sign_raw_payload succeeded", true);
     } catch (err: any) {
       check("Ed25519 sign_raw_payload succeeded", false, err.message);
+    }
+  }
+
+  // Step 4c: Test signJwt helper
+  if (session.accounts.length > 0 && session.accounts[0].publicKey) {
+    console.log("\n3c. Testing signJwt helper...");
+    try {
+      const jwt = await signJwt(agentClient, {
+        organizationId: session.subOrganizationId,
+        signingKey: session.accounts[0].publicKey,
+        payload: {
+          iss: session.subOrganizationId,
+          sub: session.agentUserId,
+          aud: "smoke-test",
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + 300,
+        },
+      });
+      const parts = jwt.split(".");
+      check("signJwt produces 3-part JWT", parts.length === 3);
+      // Decode and verify header
+      const header = JSON.parse(
+        atob(parts[0]!.replace(/-/g, "+").replace(/_/g, "/")),
+      );
+      check("signJwt header has ES256", header.alg === "ES256");
+    } catch (err: any) {
+      check("signJwt produces 3-part JWT", false, err.message);
+    }
+  }
+
+  // Step 4d: Test signSshCommit helper
+  if (session.accounts.length > 1 && session.accounts[1].publicKey) {
+    console.log("\n3d. Testing signSshCommit helper...");
+    try {
+      const sig = await signSshCommit(agentClient, {
+        organizationId: session.subOrganizationId,
+        signingKey: session.accounts[1].publicKey,
+        commitBuffer: "48656c6c6f20576f726c64", // "Hello World" hex
+        publicKey: session.accounts[1].publicKey,
+      });
+      check(
+        "signSshCommit produces armored signature",
+        sig.startsWith("-----BEGIN SSH SIGNATURE-----"),
+      );
+      check(
+        "signSshCommit has end marker",
+        sig.endsWith("-----END SSH SIGNATURE-----\n"),
+      );
+    } catch (err: any) {
+      check("signSshCommit produces armored signature", false, err.message);
+    }
+  }
+
+  // Step 4e: Test signMessage helper
+  if (session.accounts.length > 0 && session.accounts[0].publicKey) {
+    console.log("\n3e. Testing signMessage helper...");
+    try {
+      const sig = await signMessage(agentClient, {
+        organizationId: session.subOrganizationId,
+        signingKey: session.accounts[0].publicKey,
+        message:
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      });
+      check(
+        "signMessage returns r",
+        typeof sig.r === "string" && sig.r.length === 64,
+      );
+      check(
+        "signMessage returns s",
+        typeof sig.s === "string" && sig.s.length === 64,
+      );
+    } catch (err: any) {
+      check("signMessage returns r", false, err.message);
     }
   }
 
