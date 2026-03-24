@@ -61,7 +61,7 @@ async function main() {
   const agentClient = agentTurnkey.apiClient();
 
   // 2. signJwt: Mint an ES256 JWT
-  //    Use case: authenticate to MCP servers, internal APIs, Pierre
+  //    Use case: authenticate to MCP servers, external APIs, service-to-service auth
   console.log("--- signJwt ---");
   const jwt = await signJwt(agentClient, {
     organizationId: session.subOrganizationId,
