@@ -24,8 +24,6 @@ import {
   uncompressRawPublicKey,
 } from "./crypto";
 
-import type { VerificationToken } from "@turnkey/sdk-types";
-
 import { p256 } from "@noble/curves/p256";
 import { ed25519 } from "@noble/curves/ed25519";
 import type { ProjPointType } from "@noble/curves/abstract/weierstrass";

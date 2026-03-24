@@ -2868,7 +2868,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
-      "createReadWriteSessionResult",
+      "createReadWriteSessionResultV2",
       stampWith,
     );
   };
