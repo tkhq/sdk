@@ -3,7 +3,7 @@ export function parseTokenAmount(
   decimals: number,
 ): bigint {
   const normalized = amountInput.trim();
-  if (!/^\d+(\.\d+)?$/.test(normalized)) {
+  if (!/^\d*\.?\d+$/.test(normalized)) {
     throw new Error("Amount must be a positive decimal number.");
   }
 
