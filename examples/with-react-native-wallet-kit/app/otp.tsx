@@ -21,15 +21,23 @@ import { useTurnkey } from "@turnkey/react-native-wallet-kit";
 export default function OtpScreen() {
   const router = useRouter();
   const { completeOtp, initOtp } = useTurnkey();
-  const { email, otpId: otpIdParam } = useLocalSearchParams<{
+  const {
+    email,
+    otpId: otpIdParam,
+    otpEncryptionTargetBundle: otpEncryptionTargetBundleParam,
+  } = useLocalSearchParams<{
     email: string;
     otpId: string;
+    otpEncryptionTargetBundle: string;
   }>();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? "light"];
 
   const [otpCode, setOtpCode] = useState("");
   const [otpId, setOtpId] = useState(otpIdParam);
+  const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] = useState(
+    otpEncryptionTargetBundleParam,
+  );
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
 
@@ -58,16 +66,11 @@ export default function OtpScreen() {
     }
 
     setLoading(true);
-    console.log("completeOtp", {
-      otpId,
-      otpCode: codeToVerify,
-      contact: email,
-      otpType: OtpType.Email,
-    });
     try {
       await completeOtp({
         otpId,
         otpCode: codeToVerify,
+        otpEncryptionTargetBundle,
         contact: email,
         otpType: OtpType.Email,
       });
@@ -84,17 +87,18 @@ export default function OtpScreen() {
   const handleResendCode = async () => {
     setResendLoading(true);
 
-    const newOtpId = await initOtp({
+    const newOtpResult = await initOtp({
       otpType: OtpType.Email,
       contact: email,
     });
 
-    if (!newOtpId) {
+    if (!newOtpResult) {
       Alert.alert("Error", "Failed to initialize OTP");
       return;
     }
 
-    setOtpId(newOtpId);
+    setOtpId(newOtpResult.otpId);
+    setOtpEncryptionTargetBundle(newOtpResult.otpEncryptionTargetBundle);
 
     // Mock resend
     setTimeout(() => {
