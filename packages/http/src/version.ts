@@ -1,1 +1,1 @@
-export const VERSION = "@turnkey/http@3.17.1";
+export const VERSION = "@turnkey/http@3.18.0";

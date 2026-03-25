@@ -1,5 +1,12 @@
 # @turnkey/crypto
 
+## 2.8.13
+
+### Patch Changes
+
+- Updated dependencies [[`068abcb`](https://github.com/tkhq/sdk/commit/068abcb11e05972329034222bed52865f405f1c4)]:
+  - @turnkey/sdk-types@0.13.0
+
 ## 2.8.12
 
 ### Patch Changes

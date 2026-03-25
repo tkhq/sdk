@@ -1,5 +1,12 @@
 # @turnkey/import-export-with-iframe-stamper
 
+## 0.3.12
+
+### Patch Changes
+
+- Updated dependencies [[`46b4d2f`](https://github.com/tkhq/sdk/commit/46b4d2fa807fb87d06bb606623ba1f86582aa4ef)]:
+  - @turnkey/sdk-server@5.2.0
+
 ## 0.3.11
 
 ### Patch Changes

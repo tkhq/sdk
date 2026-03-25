@@ -1,7 +1,7 @@
 {
   "name": "@turnkey/solana-usdc-swap",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "scripts": {
     "start": "tsx src/index.ts",
     "clean": "rimraf ./dist ./.cache",

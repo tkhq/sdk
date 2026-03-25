@@ -1,5 +1,15 @@
 # @turnkey/react-native-wallet-kit
 
+## 1.5.1
+
+### Patch Changes
+
+- Updated dependencies [[`068abcb`](https://github.com/tkhq/sdk/commit/068abcb11e05972329034222bed52865f405f1c4)]:
+  - @turnkey/sdk-types@0.13.0
+  - @turnkey/core@1.14.0
+  - @turnkey/react-native-passkey-stamper@1.2.12
+  - @turnkey/crypto@2.8.13
+
 ## 1.5.0
 
 ### Minor Changes
