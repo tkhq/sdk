@@ -1,10 +1,16 @@
-name: Version Packages Create Release Branch and Publish
+name: Test, Build, Publish
 
 on:
-  workflow_dispatch: # allows manual invocation
-  push:
-    tags:
-      - "v*.*.*" # triggers on tags like v1.0.0
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag (leave empty to auto-generate v{year}.{month}.{counter})"
+        required: false
+        type: string
+  pull_request:
+    types: [closed]
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -14,6 +20,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract-version.outputs.version }}
     steps:
       # https://github.com/actions/checkout
       - name: Checkout
@@ -22,23 +30,46 @@ jobs:
           fetch-depth: 0 # required for git tags and history
           ref: ${{ github.event.repository.default_branch }}
 
+      - name: Extract or generate version
+        id: extract-version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Manual trigger
+            if [[ -n "${{ inputs.version }}" ]]; then
+              # Use provided version
+              VERSION="${{ inputs.version }}"
+            else
+              # Auto-generate: v{year}.{month}.{counter}
+              YEAR=$(date +%Y)
+              MONTH=$(date +%-m)  # No leading zero
+              PREFIX="v${YEAR}.${MONTH}."
+
+              # Find highest existing counter for this month
+              HIGHEST=$(git tag -l "${PREFIX}*" | sed "s/${PREFIX}//" | sort -n | tail -1)
+              if [[ -z "$HIGHEST" ]]; then
+                COUNTER=0
+              else
+                COUNTER=$((HIGHEST + 1))
+              fi
+
+              VERSION="${PREFIX}${COUNTER}"
+            fi
+          else
+            # PR trigger - extract from branch name
+            VERSION="${GITHUB_HEAD_REF#release/}"
+          fi
+
+          if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Version does not match expected format vX.X.X (got: $VERSION)"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Extracted version: $VERSION"
+
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
-
-      # Check if there are pending changesets
-      - name: Check for pending releases
-        run: |
-          echo "Checking for pending changesets..."
-          git fetch origin main
-          CHANGES_STATUS=$(pnpm changeset status --verbose)
-          echo "$CHANGES_STATUS"
-          if echo "$CHANGES_STATUS" | grep -qi "packages to be bumped"; then
-            echo "Changesets found, continuing"
-          else
-            echo "No unreleased changesets found, exiting"
-            exit 1
-          fi
 
       - name: Debug Foundry
         run: anvil --version || echo "anvil not found"
@@ -52,68 +83,10 @@ jobs:
       - name: Prettier
         run: pnpm run prettier-all:check
 
-  version-and-rebuild:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          fetch-depth: 0 # required for git tags and history
-          ref: ${{ github.event.repository.default_branch }}
-
-      - name: Setup JS
-        uses: ./.github/actions/js-setup
-
-      - name: Configure Git User
-        run: |
-          git config user.name "tkhq-deploy"
-          git config user.email "github@turnkey.engineering"
-
-      - name: Create and switch to release branch
-        run: |
-          git fetch origin
-          git checkout -B release/${{ github.ref_name }} origin/release/${{ github.ref_name }} || \
-          git checkout -B release/${{ github.ref_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Process changesets, update versions, and rebuild packages to include latest versions
-      - name: Version and rebuild packages
-        run: |
-          pnpm changeset version
-          pnpm run version
-          pnpm install -r
-          pnpm run build-all
-          pnpm run typecheck-all
-          pnpm run prettier-all:check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Debug Git Status
-        run: |
-          echo "Git status before commit:"
-          git status --short
-          echo "Listing .changeset directory:"
-          ls -la .changeset || echo ".changeset directory not found"
-
-      - name: Commit versioned changes
-        run: |
-          git add -A
-          git commit -m "chore: release packages" || echo "No changes to commit"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Push changes to release branch
-        run: |
-          git push -u origin release/${{ github.ref_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Upload updated release artifacts
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: release-artifacts-${{ github.ref_name }}
+          name: release-artifacts-${{ steps.extract-version.outputs.version }}
           path: |
             examples/**
             !examples/*/node_modules
@@ -126,23 +99,24 @@ jobs:
 
   test-pre-prod:
     runs-on: ubuntu-latest
-    needs: version-and-rebuild
+    needs: build
     steps:
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: release/${{ github.ref_name }}
+          ref: ${{ github.event.repository.default_branch }}
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
+      # download the release artifacts generated by the release workflow
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-${{ github.ref_name }}
+          name: release-artifacts-${{ needs.build.outputs.version }}
           path: .
 
       - name: Install latest dependencies
@@ -166,23 +140,24 @@ jobs:
 
   test-prod:
     runs-on: ubuntu-latest
-    needs: test-pre-prod
+    needs: build
     steps:
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: release/${{ github.ref_name }}
+          ref: ${{ github.event.repository.default_branch }}
 
       # Install and cache JS toolchain and dependencies (node_modules)
       - name: Setup JS
         uses: ./.github/actions/js-setup
 
+      # download the release artifacts generated by the release workflow
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-${{ github.ref_name }}
+          name: release-artifacts-${{ needs.build.outputs.version }}
           path: .
 
       - name: Install latest dependencies
@@ -205,7 +180,7 @@ jobs:
           WALLET_ID: ${{ secrets.WALLET_ID }}
 
   publish:
-    needs: test-prod
+    needs: [test-pre-prod, test-prod, build]
     runs-on:
       group: package-deploy
     environment: production # require manual approval for production deployments
@@ -215,7 +190,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: release/${{ github.ref_name }}
+          ref: ${{ github.event.repository.default_branch }}
 
       - name: Configure Git User
         run: |
@@ -229,7 +204,7 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-${{ github.ref_name }}
+          name: release-artifacts-${{ needs.build.outputs.version }}
           path: .
 
       - name: Install latest dependencies
@@ -264,14 +239,14 @@ jobs:
 
   prepare-release:
     runs-on: ubuntu-latest
-    needs: publish
+    needs: [publish, build]
     steps:
       # https://github.com/actions/checkout
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0 # required for git tags and history
-          ref: release/${{ github.ref_name }}
+          ref: ${{ github.event.repository.default_branch }}
 
       - name: Setup JS
         uses: ./.github/actions/js-setup
@@ -279,7 +254,7 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
-          name: release-artifacts-${{ github.ref_name }}
+          name: release-artifacts-${{ needs.build.outputs.version }}
           path: .
 
       - name: Install latest dependencies
@@ -288,8 +263,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 #v2.2.2
         with:
-          tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          tag_name: ${{ needs.build.outputs.version }}
+          name: Release ${{ needs.build.outputs.version }}
           generate_release_notes: true
           draft: false
           prerelease: false
