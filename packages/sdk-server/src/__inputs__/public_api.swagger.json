@@ -164,6 +164,38 @@
         "tags": ["API keys"]
       }
     },
+    "/public/v1/query/get_app_status": {
+      "post": {
+        "summary": "Get TVC App status",
+        "description": "Get live runtime status for a TVC App from the cluster.",
+        "operationId": "PublicApiService_GetAppStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAppStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetAppStatusRequest"
+            }
+          }
+        ],
+        "tags": ["TVC"]
+      }
+    },
     "/public/v1/query/get_authenticator": {
       "post": {
         "summary": "Get authenticator",
@@ -743,7 +775,7 @@
     "/public/v1/query/get_wallet_address_balances": {
       "post": {
         "summary": "Get balances",
-        "description": "Get non-zero balances of supported assets for a single wallet account address on the specified network.",
+        "description": "Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.",
         "operationId": "PublicApiService_GetWalletAddressBalances",
         "responses": {
           "200": {
@@ -1063,7 +1095,7 @@
     "/public/v1/query/list_supported_assets": {
       "post": {
         "summary": "List supported assets",
-        "description": "List supported assets for the specified network",
+        "description": "List supported assets for the specified network. This feature is in beta - please contact support for access.",
         "operationId": "PublicApiService_ListSupportedAssets",
         "responses": {
           "200": {
@@ -1252,6 +1284,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/query/list_webhook_endpoints": {
+      "post": {
+        "summary": "List webhook endpoints",
+        "description": "List webhook endpoints within an organization.",
+        "operationId": "PublicApiService_ListWebhookEndpoints",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListWebhookEndpointsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ListWebhookEndpointsRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
+      }
+    },
     "/public/v1/query/whoami": {
       "post": {
         "summary": "Who am I?",
@@ -1346,6 +1410,38 @@
           }
         ],
         "tags": ["API Keys"]
+      }
+    },
+    "/public/v1/submit/create_api_only_users": {
+      "post": {
+        "summary": "Create API-only users",
+        "description": "Create API-only users in an existing organization.",
+        "operationId": "PublicApiService_CreateApiOnlyUsers",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateApiOnlyUsersRequest"
+            }
+          }
+        ],
+        "tags": ["Users"]
       }
     },
     "/public/v1/submit/create_authenticators": {
@@ -1892,6 +1988,38 @@
         "tags": ["Wallets"]
       }
     },
+    "/public/v1/submit/create_webhook_endpoint": {
+      "post": {
+        "summary": "Create webhook endpoint",
+        "description": "Create a webhook endpoint for an organization.",
+        "operationId": "PublicApiService_CreateWebhookEndpoint",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateWebhookEndpointRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
+      }
+    },
     "/public/v1/submit/delete_api_keys": {
       "post": {
         "summary": "Delete API keys",
@@ -2402,6 +2530,38 @@
           }
         ],
         "tags": ["Wallets"]
+      }
+    },
+    "/public/v1/submit/delete_webhook_endpoint": {
+      "post": {
+        "summary": "Delete webhook endpoint",
+        "description": "Delete a webhook endpoint for an organization.",
+        "operationId": "PublicApiService_DeleteWebhookEndpoint",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteWebhookEndpointRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
       }
     },
     "/public/v1/submit/email_auth": {
@@ -3332,6 +3492,38 @@
         "tags": ["User Auth"]
       }
     },
+    "/public/v1/submit/update_organization_name": {
+      "post": {
+        "summary": "Update organization name",
+        "description": "Update the name of an organization.",
+        "operationId": "PublicApiService_UpdateOrganizationName",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateOrganizationNameRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
+      }
+    },
     "/public/v1/submit/update_policy": {
       "post": {
         "summary": "Update policy",
@@ -3618,6 +3810,38 @@
           }
         ],
         "tags": ["Wallets"]
+      }
+    },
+    "/public/v1/submit/update_webhook_endpoint": {
+      "post": {
+        "summary": "Update webhook endpoint",
+        "description": "Update a webhook endpoint for an organization.",
+        "operationId": "PublicApiService_UpdateWebhookEndpoint",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateWebhookEndpointRequest"
+            }
+          }
+        ],
+        "tags": ["Organizations"]
       }
     },
     "/public/v1/submit/verify_otp": {
@@ -4299,7 +4523,11 @@
         "ACTIVITY_TYPE_CREATE_TVC_APP",
         "ACTIVITY_TYPE_CREATE_TVC_DEPLOYMENT",
         "ACTIVITY_TYPE_CREATE_TVC_MANIFEST_APPROVALS",
-        "ACTIVITY_TYPE_SOL_SEND_TRANSACTION"
+        "ACTIVITY_TYPE_SOL_SEND_TRANSACTION",
+        "ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME",
+        "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT",
+        "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
+        "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
       ]
     },
     "v1AddressFormat": {
@@ -4459,6 +4687,28 @@
       },
       "required": ["scheme", "publicKey", "proofPayload", "signature"]
     },
+    "v1AppStatus": {
+      "type": "object",
+      "properties": {
+        "appId": {
+          "type": "string",
+          "description": "Unique identifier for this TVC App"
+        },
+        "deployments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1DeploymentStatus"
+          },
+          "description": "List of deployment statuses for this app"
+        },
+        "targetedDeploymentId": {
+          "type": "string",
+          "description": "The deployment ID currently serving traffic for this app"
+        }
+      },
+      "required": ["appId", "deployments", "targetedDeploymentId"]
+    },
     "v1ApproveActivityIntent": {
       "type": "object",
       "properties": {
@@ -4516,6 +4766,10 @@
         "display": {
           "$ref": "#/definitions/v1AssetBalanceDisplay",
           "description": "Normalized balance values for display purposes only. Do not do any arithmetic or calculations with these, as the results could be imprecise. Use the balance field instead."
+        },
+        "name": {
+          "type": "string",
+          "description": "The asset name"
         }
       }
     },
@@ -4536,17 +4790,25 @@
       "type": "object",
       "properties": {
         "caip19": {
-          "type": "string"
+          "type": "string",
+          "description": "The caip-19 asset identifier"
         },
         "symbol": {
-          "type": "string"
+          "type": "string",
+          "description": "The asset symbol"
         },
         "decimals": {
           "type": "integer",
-          "format": "int32"
+          "format": "int32",
+          "description": "The number of decimals this asset uses"
         },
         "logoUrl": {
-          "type": "string"
+          "type": "string",
+          "description": "The url of the asset logo"
+        },
+        "name": {
+          "type": "string",
+          "description": "The asset name"
         }
       }
     },
@@ -4891,6 +5153,30 @@
         }
       },
       "required": ["apiOnlyUsers"]
+    },
+    "v1CreateApiOnlyUsersRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_API_ONLY_USERS"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateApiOnlyUsersIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateApiOnlyUsersResult": {
       "type": "object",
@@ -6221,9 +6507,9 @@
           "$ref": "#/definitions/v1TvcOperatorSetParams",
           "description": "Configuration to create a new TVC operator set, used as the Share Set for this TVC application. If left empty, a Share Set ID is required"
         },
-        "externalConnectivity": {
+        "enableEgress": {
           "type": "boolean",
-          "description": "Enables external connectivity for this TVC app. Default if not provided: false."
+          "description": "Enables network egress for this TVC app. Default if not provided: false."
         }
       },
       "required": ["name", "quorumPublicKey"]
@@ -6289,21 +6575,6 @@
           "type": "string",
           "description": "Digest of the pivot binary in the pivot container. This value will be inserted in the QOS manifest to ensure application integrity."
         },
-        "hostContainerImageUrl": {
-          "type": "string",
-          "description": "URL of the container containing the host binary"
-        },
-        "hostPath": {
-          "type": "string",
-          "description": "Location of the binary inside the host container"
-        },
-        "hostArgs": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Arguments to pass to the host binary at startup. Encoded as a list of strings, for example [\"--foo\", \"bar\"]"
-        },
         "nonce": {
           "type": "integer",
           "format": "int64",
@@ -6313,9 +6584,23 @@
           "type": "string",
           "description": "Optional encrypted pull secret to authorize Turnkey to pull the pivot container image. If your image is public, leave this empty."
         },
-        "hostContainerEncryptedPullSecret": {
-          "type": "string",
-          "description": "Optional encrypted pull secret to authorize Turnkey to pull the host container image. If your image is public, leave this empty."
+        "debugMode": {
+          "type": "boolean",
+          "description": "Optional flag to indicate whether to deploy the TVC app in debug mode, which includes additional logging and debugging tools. Default is false."
+        },
+        "healthCheckType": {
+          "$ref": "#/definitions/v1TvcHealthCheckType",
+          "description": "Heath check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol."
+        },
+        "healthCheckPort": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Port to use for health checks."
+        },
+        "publicIngressPort": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Port to use for public ingress."
         }
       },
       "required": [
@@ -6325,9 +6610,9 @@
         "pivotPath",
         "pivotArgs",
         "expectedPivotDigest",
-        "hostContainerImageUrl",
-        "hostPath",
-        "hostArgs"
+        "healthCheckType",
+        "healthCheckPort",
+        "publicIngressPort"
       ]
     },
     "v1CreateTvcDeploymentResult": {
@@ -6634,6 +6919,66 @@
         }
       },
       "required": ["walletId", "addresses"]
+    },
+    "v1CreateWebhookEndpointIntent": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The destination URL for webhook delivery."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for this webhook endpoint."
+        },
+        "subscriptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WebhookSubscriptionParams"
+          },
+          "description": "Event subscriptions to create for this endpoint."
+        }
+      },
+      "required": ["url", "name"]
+    },
+    "v1CreateWebhookEndpointRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateWebhookEndpointIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateWebhookEndpointResult": {
+      "type": "object",
+      "properties": {
+        "endpointId": {
+          "type": "string",
+          "description": "Unique identifier of the created webhook endpoint."
+        },
+        "webhookEndpoint": {
+          "$ref": "#/definitions/v1WebhookEndpointData",
+          "description": "The created webhook endpoint data."
+        }
+      },
+      "required": ["endpointId", "webhookEndpoint"]
     },
     "v1CredPropsAuthenticationExtensionsClientOutputs": {
       "type": "object",
@@ -7497,6 +7842,79 @@
       },
       "required": ["walletIds"]
     },
+    "v1DeleteWebhookEndpointIntent": {
+      "type": "object",
+      "properties": {
+        "endpointId": {
+          "type": "string",
+          "description": "Unique identifier of the webhook endpoint to delete."
+        }
+      },
+      "required": ["endpointId"]
+    },
+    "v1DeleteWebhookEndpointRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteWebhookEndpointIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteWebhookEndpointResult": {
+      "type": "object",
+      "properties": {
+        "endpointId": {
+          "type": "string",
+          "description": "Unique identifier of the deleted webhook endpoint."
+        }
+      },
+      "required": ["endpointId"]
+    },
+    "v1DeploymentStatus": {
+      "type": "object",
+      "properties": {
+        "deploymentId": {
+          "type": "string",
+          "description": "Unique identifier for this deployment (corresponds to k8s deployment label)"
+        },
+        "readyReplicas": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of ready replicas"
+        },
+        "desiredReplicas": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Desired number of replicas"
+        },
+        "lastUpdatedTime": {
+          "$ref": "#/definitions/externaldatav1Timestamp",
+          "description": "Last time this deployment was updated"
+        }
+      },
+      "required": [
+        "deploymentId",
+        "readyReplicas",
+        "desiredReplicas",
+        "lastUpdatedTime"
+      ]
+    },
     "v1DisableAuthProxyIntent": {
       "type": "object"
     },
@@ -7776,6 +8194,19 @@
       },
       "required": ["userId"]
     },
+    "v1EthFailureDetails": {
+      "type": "object",
+      "properties": {
+        "revertChain": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RevertChainEntry"
+          },
+          "description": "Ethereum revert chain, ordered from outermost to innermost."
+        }
+      }
+    },
     "v1EthSendRawTransactionIntent": {
       "type": "object",
       "properties": {
@@ -7789,7 +8220,9 @@
             "eip155:1",
             "eip155:11155111",
             "eip155:8453",
-            "eip155:84532"
+            "eip155:84532",
+            "eip155:137",
+            "eip155:80002"
           ],
           "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         }
@@ -8088,7 +8521,8 @@
         "FEATURE_NAME_WEBHOOK",
         "FEATURE_NAME_SMS_AUTH",
         "FEATURE_NAME_OTP_EMAIL_AUTH",
-        "FEATURE_NAME_AUTH_PROXY"
+        "FEATURE_NAME_AUTH_PROXY",
+        "FEATURE_NAME_SOLANA_RENT_PREFUND_ENABLED"
       ]
     },
     "v1FiatOnRampBlockchainNetwork": {
@@ -8360,6 +8794,30 @@
       },
       "required": ["appProofs"]
     },
+    "v1GetAppStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "appId": {
+          "type": "string",
+          "description": "Unique identifier for a given TVC App."
+        }
+      },
+      "required": ["organizationId", "appId"]
+    },
+    "v1GetAppStatusResponse": {
+      "type": "object",
+      "properties": {
+        "appStatus": {
+          "$ref": "#/definitions/v1AppStatus",
+          "description": "Live runtime status for the TVC App"
+        }
+      },
+      "required": ["appStatus"]
+    },
     "v1GetAuthenticatorRequest": {
       "type": "object",
       "properties": {
@@ -8482,7 +8940,15 @@
         },
         "caip2": {
           "type": "string",
-          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
+          "enum": [
+            "eip155:1",
+            "eip155:11155111",
+            "eip155:8453",
+            "eip155:84532",
+            "eip155:137",
+            "eip155:80002"
+          ],
+          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet)."
         },
         "nonce": {
           "type": "boolean",
@@ -8757,6 +9223,10 @@
           "$ref": "#/definitions/v1EthSendTransactionStatus",
           "description": "Ethereum-specific transaction status."
         },
+        "solana": {
+          "$ref": "#/definitions/v1SolanaSendTransactionStatus",
+          "description": "Solana-specific transaction status."
+        },
         "txError": {
           "type": "string",
           "description": "The error encountered when broadcasting or confirming the transaction, if any."
@@ -9015,7 +9485,17 @@
         },
         "caip2": {
           "type": "string",
-          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
+          "enum": [
+            "eip155:1",
+            "eip155:11155111",
+            "eip155:8453",
+            "eip155:84532",
+            "eip155:137",
+            "eip155:80002",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+            "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+          ],
+          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values."
         }
       },
       "required": ["organizationId", "address", "caip2"]
@@ -9271,7 +9751,7 @@
       "properties": {
         "onrampProvider": {
           "$ref": "#/definitions/v1FiatOnRampProvider",
-          "description": "Enum to specifiy which on-ramp provider to use"
+          "description": "Enum to specify which on-ramp provider to use"
         },
         "walletAddress": {
           "type": "string",
@@ -9456,7 +9936,7 @@
       "properties": {
         "otpType": {
           "type": "string",
-          "description": "Enum to specifiy whether to send OTP via SMS or email"
+          "description": "Enum to specify whether to send OTP via SMS or email"
         },
         "contact": {
           "type": "string",
@@ -9494,7 +9974,7 @@
       "properties": {
         "otpType": {
           "type": "string",
-          "description": "Enum to specifiy whether to send OTP via SMS or email"
+          "description": "Enum to specify whether to send OTP via SMS or email"
         },
         "contact": {
           "type": "string",
@@ -10230,6 +10710,18 @@
         },
         "solSendTransactionIntent": {
           "$ref": "#/definitions/v1SolSendTransactionIntent"
+        },
+        "updateOrganizationNameIntent": {
+          "$ref": "#/definitions/v1UpdateOrganizationNameIntent"
+        },
+        "createWebhookEndpointIntent": {
+          "$ref": "#/definitions/v1CreateWebhookEndpointIntent"
+        },
+        "updateWebhookEndpointIntent": {
+          "$ref": "#/definitions/v1UpdateWebhookEndpointIntent"
+        },
+        "deleteWebhookEndpointIntent": {
+          "$ref": "#/definitions/v1DeleteWebhookEndpointIntent"
         }
       }
     },
@@ -10347,7 +10839,17 @@
         },
         "caip2": {
           "type": "string",
-          "description": "The network identifier in CAIP-2 format (e.g., 'eip155:1' for Ethereum mainnet)."
+          "enum": [
+            "eip155:1",
+            "eip155:11155111",
+            "eip155:8453",
+            "eip155:84532",
+            "eip155:137",
+            "eip155:80002",
+            "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
+            "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+          ],
+          "description": "CAIP-2 chain ID (e.g., 'eip155:1' for Ethereum mainnet or 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp' for Solana mainnet). Human-readable Solana aliases ('solana:mainnet', 'solana:devnet') are also accepted and normalized to canonical CAIP-2 values."
         }
       },
       "required": ["organizationId", "caip2"]
@@ -10360,7 +10862,8 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/v1AssetMetadata"
-          }
+          },
+          "description": "List of asset metadata"
         }
       }
     },
@@ -10387,6 +10890,29 @@
         }
       },
       "required": ["userTags"]
+    },
+    "v1ListWebhookEndpointsRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1ListWebhookEndpointsResponse": {
+      "type": "object",
+      "properties": {
+        "webhookEndpoints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WebhookEndpointData"
+          }
+        }
+      },
+      "required": ["webhookEndpoints"]
     },
     "v1LoginUsage": {
       "type": "object",
@@ -11533,6 +12059,18 @@
         },
         "solSendTransactionResult": {
           "$ref": "#/definitions/v1SolSendTransactionResult"
+        },
+        "updateOrganizationNameResult": {
+          "$ref": "#/definitions/v1UpdateOrganizationNameResult"
+        },
+        "createWebhookEndpointResult": {
+          "$ref": "#/definitions/v1CreateWebhookEndpointResult"
+        },
+        "updateWebhookEndpointResult": {
+          "$ref": "#/definitions/v1UpdateWebhookEndpointResult"
+        },
+        "deleteWebhookEndpointResult": {
+          "$ref": "#/definitions/v1DeleteWebhookEndpointResult"
         }
       }
     },
@@ -12137,6 +12675,62 @@
       },
       "required": ["sendTransactionStatusId"]
     },
+    "v1SolanaConfig": {
+      "type": "object",
+      "properties": {
+        "rentPrefundEnabled": {
+          "type": "boolean",
+          "description": "Whether Solana rent prefunding is enabled for the organization. When omitted, the existing rent-prefund state is left unchanged."
+        }
+      }
+    },
+    "v1SolanaFailureDetails": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "description": "Where the Solana failure occurred, such as simulation or preflight."
+        },
+        "rpcCode": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The Solana JSON-RPC error code, if available."
+        },
+        "rpcMessage": {
+          "type": "string",
+          "description": "The Solana JSON-RPC error message, if available."
+        },
+        "transactionErrorJson": {
+          "type": "string",
+          "description": "The raw Solana transaction error object serialized as JSON, if available."
+        },
+        "logs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Program logs returned by Solana simulation or preflight, if available."
+        },
+        "unitsConsumed": {
+          "type": "string",
+          "format": "uint64",
+          "description": "Compute units consumed during simulation or preflight, if available."
+        },
+        "innerInstructionsJson": {
+          "type": "string",
+          "description": "The raw Solana inner instructions payload serialized as JSON, if available."
+        }
+      }
+    },
+    "v1SolanaSendTransactionStatus": {
+      "type": "object",
+      "properties": {
+        "signature": {
+          "type": "string",
+          "description": "The Solana transaction signature, if available."
+        }
+      }
+    },
     "v1StampLoginIntent": {
       "type": "object",
       "properties": {
@@ -12223,6 +12817,10 @@
         "TRANSACTION_TYPE_TEMPO"
       ]
     },
+    "v1TvcHealthCheckType": {
+      "type": "string",
+      "enum": ["TVC_HEALTH_CHECK_TYPE_HTTP", "TVC_HEALTH_CHECK_TYPE_GRPC"]
+    },
     "v1TvcManifestApproval": {
       "type": "object",
       "properties": {
@@ -12295,6 +12893,14 @@
             "$ref": "#/definitions/v1RevertChainEntry"
           },
           "description": "Chain of revert errors from nested contract calls, ordered from outermost to innermost."
+        },
+        "solana": {
+          "$ref": "#/definitions/v1SolanaFailureDetails",
+          "description": "Solana-specific failure details for simulation or preflight errors, if available."
+        },
+        "eth": {
+          "$ref": "#/definitions/v1EthFailureDetails",
+          "description": "Ethereum-specific failure details, if available."
         }
       }
     },
@@ -12544,6 +13150,51 @@
         }
       },
       "required": ["oauth2CredentialId"]
+    },
+    "v1UpdateOrganizationNameIntent": {
+      "type": "object",
+      "properties": {
+        "organizationName": {
+          "type": "string",
+          "description": "New name for the Organization."
+        }
+      },
+      "required": ["organizationName"]
+    },
+    "v1UpdateOrganizationNameRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_ORGANIZATION_NAME"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateOrganizationNameIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateOrganizationNameResult": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for the Organization."
+        },
+        "organizationName": {
+          "type": "string",
+          "description": "The updated organization name."
+        }
+      },
+      "required": ["organizationId", "organizationName"]
     },
     "v1UpdatePolicyIntent": {
       "type": "object",
@@ -13081,6 +13732,66 @@
       },
       "required": ["walletId"]
     },
+    "v1UpdateWebhookEndpointIntent": {
+      "type": "object",
+      "properties": {
+        "endpointId": {
+          "type": "string",
+          "description": "Unique identifier of the webhook endpoint to update."
+        },
+        "url": {
+          "type": "string",
+          "description": "Updated destination URL for webhook delivery."
+        },
+        "name": {
+          "type": "string",
+          "description": "Updated human-readable name for this webhook endpoint."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether this webhook endpoint is active."
+        }
+      },
+      "required": ["endpointId"]
+    },
+    "v1UpdateWebhookEndpointRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateWebhookEndpointIntent"
+        },
+        "generateAppProofs": {
+          "type": "boolean"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateWebhookEndpointResult": {
+      "type": "object",
+      "properties": {
+        "endpointId": {
+          "type": "string",
+          "description": "Unique identifier of the updated webhook endpoint."
+        },
+        "webhookEndpoint": {
+          "$ref": "#/definitions/v1WebhookEndpointData",
+          "description": "The updated webhook endpoint data."
+        }
+      },
+      "required": ["endpointId", "webhookEndpoint"]
+    },
     "v1UpsertGasUsageConfigIntent": {
       "type": "object",
       "properties": {
@@ -13099,6 +13810,10 @@
         "enabled": {
           "type": "boolean",
           "description": "Whether gas sponsorship is enabled for the organization."
+        },
+        "solanaConfig": {
+          "$ref": "#/definitions/v1SolanaConfig",
+          "description": "Optional Solana sponsorship settings. If omitted, the existing Solana sponsorship state is left unchanged."
         }
       },
       "required": [
@@ -13651,6 +14366,58 @@
         "authenticatorData",
         "signature"
       ]
+    },
+    "v1WebhookEndpointData": {
+      "type": "object",
+      "properties": {
+        "endpointId": {
+          "type": "string",
+          "description": "Unique identifier of the webhook endpoint."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "url": {
+          "type": "string",
+          "description": "The destination URL for webhook delivery."
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name for this webhook endpoint."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether this webhook endpoint is active."
+        },
+        "subscriptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1WebhookSubscriptionParams"
+          },
+          "description": "Current subscriptions attached to this endpoint."
+        }
+      },
+      "required": ["endpointId", "organizationId", "url", "name", "isActive"]
+    },
+    "v1WebhookSubscriptionParams": {
+      "type": "object",
+      "properties": {
+        "eventType": {
+          "type": "string",
+          "description": "The event type to subscribe to (for example, ACTIVITY_UPDATES or BALANCE_UPDATES)."
+        },
+        "filtersJson": {
+          "type": "string",
+          "description": "JSON-encoded filter criteria for this subscription."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Whether this subscription is active."
+        }
+      },
+      "required": ["eventType"]
     }
   },
   "securityDefinitions": {
