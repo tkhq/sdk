@@ -40,6 +40,17 @@ export type TGetApiKeysBody = Omit<
 > &
   queryOverrideParams;
 
+export type TGetAppStatusResponse =
+  operations["PublicApiService_GetAppStatus"]["responses"]["200"]["schema"];
+
+export type TGetAppStatusInput = { body: TGetAppStatusBody };
+
+export type TGetAppStatusBody = Omit<
+  operations["PublicApiService_GetAppStatus"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetAuthenticatorResponse =
   operations["PublicApiService_GetAuthenticator"]["responses"]["200"]["schema"];
 
@@ -428,6 +439,17 @@ export type TGetWalletsBody = Omit<
 > &
   queryOverrideParams;
 
+export type TListWebhookEndpointsResponse =
+  operations["PublicApiService_ListWebhookEndpoints"]["responses"]["200"]["schema"];
+
+export type TListWebhookEndpointsInput = { body: TListWebhookEndpointsBody };
+
+export type TListWebhookEndpointsBody = Omit<
+  operations["PublicApiService_ListWebhookEndpoints"]["parameters"]["body"]["body"],
+  "organizationId"
+> &
+  queryOverrideParams;
+
 export type TGetWhoamiResponse =
   operations["PublicApiService_GetWhoami"]["responses"]["200"]["schema"];
 
@@ -457,6 +479,16 @@ export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
 
 export type TCreateApiKeysBody =
   operations["PublicApiService_CreateApiKeys"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TCreateApiOnlyUsersResponse =
+  operations["PublicApiService_CreateApiOnlyUsers"]["responses"]["200"]["schema"]["activity"]["result"]["createApiOnlyUsersResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
+
+export type TCreateApiOnlyUsersBody =
+  operations["PublicApiService_CreateApiOnlyUsers"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TCreateAuthenticatorsResponse =
@@ -637,6 +669,16 @@ export type TCreateWalletAccountsBody =
   operations["PublicApiService_CreateWalletAccounts"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TCreateWebhookEndpointResponse =
+  operations["PublicApiService_CreateWebhookEndpoint"]["responses"]["200"]["schema"]["activity"]["result"]["createWebhookEndpointResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TCreateWebhookEndpointInput = { body: TCreateWebhookEndpointBody };
+
+export type TCreateWebhookEndpointBody =
+  operations["PublicApiService_CreateWebhookEndpoint"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TDeleteApiKeysResponse =
   operations["PublicApiService_DeleteApiKeys"]["responses"]["200"]["schema"]["activity"]["result"]["deleteApiKeysResult"] &
     definitions["v1ActivityResponse"];
@@ -801,6 +843,16 @@ export type TDeleteWalletsInput = { body: TDeleteWalletsBody };
 
 export type TDeleteWalletsBody =
   operations["PublicApiService_DeleteWallets"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TDeleteWebhookEndpointResponse =
+  operations["PublicApiService_DeleteWebhookEndpoint"]["responses"]["200"]["schema"]["activity"]["result"]["deleteWebhookEndpointResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TDeleteWebhookEndpointInput = { body: TDeleteWebhookEndpointBody };
+
+export type TDeleteWebhookEndpointBody =
+  operations["PublicApiService_DeleteWebhookEndpoint"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TEmailAuthResponse =
@@ -1101,6 +1153,18 @@ export type TUpdateOauth2CredentialBody =
   operations["PublicApiService_UpdateOauth2Credential"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
+export type TUpdateOrganizationNameResponse =
+  operations["PublicApiService_UpdateOrganizationName"]["responses"]["200"]["schema"]["activity"]["result"]["updateOrganizationNameResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateOrganizationNameInput = {
+  body: TUpdateOrganizationNameBody;
+};
+
+export type TUpdateOrganizationNameBody =
+  operations["PublicApiService_UpdateOrganizationName"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
 export type TUpdatePolicyResponse =
   operations["PublicApiService_UpdatePolicy"]["responses"]["200"]["schema"]["activity"]["result"]["updatePolicyResultV2"] &
     definitions["v1ActivityResponse"];
@@ -1189,6 +1253,16 @@ export type TUpdateWalletInput = { body: TUpdateWalletBody };
 
 export type TUpdateWalletBody =
   operations["PublicApiService_UpdateWallet"]["parameters"]["body"]["body"]["parameters"] &
+    commandOverrideParams;
+
+export type TUpdateWebhookEndpointResponse =
+  operations["PublicApiService_UpdateWebhookEndpoint"]["responses"]["200"]["schema"]["activity"]["result"]["updateWebhookEndpointResult"] &
+    definitions["v1ActivityResponse"];
+
+export type TUpdateWebhookEndpointInput = { body: TUpdateWebhookEndpointBody };
+
+export type TUpdateWebhookEndpointBody =
+  operations["PublicApiService_UpdateWebhookEndpoint"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
 export type TVerifyOtpResponse =

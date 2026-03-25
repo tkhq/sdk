@@ -146,6 +146,52 @@ export const signGetApiKeys = (
   });
 
 /**
+ * `POST /public/v1/query/get_app_status`
+ */
+export type TGetAppStatusResponse =
+  operations["PublicApiService_GetAppStatus"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/get_app_status`
+ */
+export type TGetAppStatusInput = { body: TGetAppStatusBody };
+
+/**
+ * `POST /public/v1/query/get_app_status`
+ */
+export type TGetAppStatusBody =
+  operations["PublicApiService_GetAppStatus"]["parameters"]["body"]["body"];
+
+/**
+ * Get TVC App status
+ *
+ * Get live runtime status for a TVC App from the cluster.
+ *
+ * `POST /public/v1/query/get_app_status`
+ */
+export const getAppStatus = (input: TGetAppStatusInput) =>
+  request<TGetAppStatusResponse, TGetAppStatusBody, never, never, never>({
+    uri: "/public/v1/query/get_app_status",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `GetAppStatus` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link GetAppStatus}
+ */
+export const signGetAppStatus = (
+  input: TGetAppStatusInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TGetAppStatusBody, never, never>({
+    uri: "/public/v1/query/get_app_status",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/query/get_authenticator`
  */
 export type TGetAuthenticatorResponse =
@@ -600,52 +646,6 @@ export const signGetOnRampTransactionStatus = (
   });
 
 /**
- * `POST /public/v1/query/get_organization`
- */
-export type TGetOrganizationResponse =
-  operations["PublicApiService_GetOrganization"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_organization`
- */
-export type TGetOrganizationInput = { body: TGetOrganizationBody };
-
-/**
- * `POST /public/v1/query/get_organization`
- */
-export type TGetOrganizationBody =
-  operations["PublicApiService_GetOrganization"]["parameters"]["body"]["body"];
-
-/**
- * Get organization
- *
- * Get details about an organization.
- *
- * `POST /public/v1/query/get_organization`
- */
-export const getOrganization = (input: TGetOrganizationInput) =>
-  request<TGetOrganizationResponse, TGetOrganizationBody, never, never, never>({
-    uri: "/public/v1/query/get_organization",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetOrganization` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetOrganization}
- */
-export const signGetOrganization = (
-  input: TGetOrganizationInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetOrganizationBody, never, never>({
-    uri: "/public/v1/query/get_organization",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/query/get_organization_configs`
  */
 export type TGetOrganizationConfigsResponse =
@@ -956,104 +956,6 @@ export const signGetSmartContractInterface = (
   });
 
 /**
- * `POST /public/v1/query/get_tvc_app`
- */
-export type TGetTvcAppResponse =
-  operations["PublicApiService_GetTvcApp"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_tvc_app`
- */
-export type TGetTvcAppInput = { body: TGetTvcAppBody };
-
-/**
- * `POST /public/v1/query/get_tvc_app`
- */
-export type TGetTvcAppBody =
-  operations["PublicApiService_GetTvcApp"]["parameters"]["body"]["body"];
-
-/**
- * Get TVC App
- *
- * Get details about a single TVC App
- *
- * `POST /public/v1/query/get_tvc_app`
- */
-export const getTvcApp = (input: TGetTvcAppInput) =>
-  request<TGetTvcAppResponse, TGetTvcAppBody, never, never, never>({
-    uri: "/public/v1/query/get_tvc_app",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetTvcApp` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetTvcApp}
- */
-export const signGetTvcApp = (
-  input: TGetTvcAppInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetTvcAppBody, never, never>({
-    uri: "/public/v1/query/get_tvc_app",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/query/get_tvc_deployment`
- */
-export type TGetTvcDeploymentResponse =
-  operations["PublicApiService_GetTvcDeployment"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/get_tvc_deployment`
- */
-export type TGetTvcDeploymentInput = { body: TGetTvcDeploymentBody };
-
-/**
- * `POST /public/v1/query/get_tvc_deployment`
- */
-export type TGetTvcDeploymentBody =
-  operations["PublicApiService_GetTvcDeployment"]["parameters"]["body"]["body"];
-
-/**
- * Get TVC Deployment
- *
- * Get details about a single TVC Deployment
- *
- * `POST /public/v1/query/get_tvc_deployment`
- */
-export const getTvcDeployment = (input: TGetTvcDeploymentInput) =>
-  request<
-    TGetTvcDeploymentResponse,
-    TGetTvcDeploymentBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/query/get_tvc_deployment",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetTvcDeployment` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetTvcDeployment}
- */
-export const signGetTvcDeployment = (
-  input: TGetTvcDeploymentInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetTvcDeploymentBody, never, never>({
-    uri: "/public/v1/query/get_tvc_deployment",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/query/get_user`
  */
 export type TGetUserResponse =
@@ -1219,7 +1121,7 @@ export type TGetWalletAddressBalancesBody =
 /**
  * Get balances
  *
- * Get non-zero balances of supported assets for a single wallet account address on the specified network.
+ * Get balances of supported assets for an address on the specified network. Only non-zero balances are returned. This feature is in beta - please contact support for access.
  *
  * `POST /public/v1/query/get_wallet_address_balances`
  */
@@ -1719,7 +1621,7 @@ export type TListSupportedAssetsBody =
 /**
  * List supported assets
  *
- * List supported assets for the specified network
+ * List supported assets for the specified network. This feature is in beta - please contact support for access.
  *
  * `POST /public/v1/query/list_supported_assets`
  */
@@ -1747,104 +1649,6 @@ export const signListSupportedAssets = (
 ) =>
   signedRequest<TListSupportedAssetsBody, never, never>({
     uri: "/public/v1/query/list_supported_assets",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/query/list_tvc_app_deployments`
- */
-export type TGetTvcAppDeploymentsResponse =
-  operations["PublicApiService_GetTvcAppDeployments"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/list_tvc_app_deployments`
- */
-export type TGetTvcAppDeploymentsInput = { body: TGetTvcAppDeploymentsBody };
-
-/**
- * `POST /public/v1/query/list_tvc_app_deployments`
- */
-export type TGetTvcAppDeploymentsBody =
-  operations["PublicApiService_GetTvcAppDeployments"]["parameters"]["body"]["body"];
-
-/**
- * List TVC Deployments
- *
- * List all deployments for a given TVC App
- *
- * `POST /public/v1/query/list_tvc_app_deployments`
- */
-export const getTvcAppDeployments = (input: TGetTvcAppDeploymentsInput) =>
-  request<
-    TGetTvcAppDeploymentsResponse,
-    TGetTvcAppDeploymentsBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/query/list_tvc_app_deployments",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetTvcAppDeployments` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetTvcAppDeployments}
- */
-export const signGetTvcAppDeployments = (
-  input: TGetTvcAppDeploymentsInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetTvcAppDeploymentsBody, never, never>({
-    uri: "/public/v1/query/list_tvc_app_deployments",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/query/list_tvc_apps`
- */
-export type TGetTvcAppsResponse =
-  operations["PublicApiService_GetTvcApps"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/query/list_tvc_apps`
- */
-export type TGetTvcAppsInput = { body: TGetTvcAppsBody };
-
-/**
- * `POST /public/v1/query/list_tvc_apps`
- */
-export type TGetTvcAppsBody =
-  operations["PublicApiService_GetTvcApps"]["parameters"]["body"]["body"];
-
-/**
- * List TVC Apps
- *
- * List all TVC Apps within an organization.
- *
- * `POST /public/v1/query/list_tvc_apps`
- */
-export const getTvcApps = (input: TGetTvcAppsInput) =>
-  request<TGetTvcAppsResponse, TGetTvcAppsBody, never, never, never>({
-    uri: "/public/v1/query/list_tvc_apps",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `GetTvcApps` request, ready to be POSTed to Turnkey.
- *
- * See {@link GetTvcApps}
- */
-export const signGetTvcApps = (
-  input: TGetTvcAppsInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TGetTvcAppsBody, never, never>({
-    uri: "/public/v1/query/list_tvc_apps",
     body: input.body,
     options,
   });
@@ -2087,6 +1891,58 @@ export const signGetWallets = (
 ) =>
   signedRequest<TGetWalletsBody, never, never>({
     uri: "/public/v1/query/list_wallets",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/query/list_webhook_endpoints`
+ */
+export type TListWebhookEndpointsResponse =
+  operations["PublicApiService_ListWebhookEndpoints"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/query/list_webhook_endpoints`
+ */
+export type TListWebhookEndpointsInput = { body: TListWebhookEndpointsBody };
+
+/**
+ * `POST /public/v1/query/list_webhook_endpoints`
+ */
+export type TListWebhookEndpointsBody =
+  operations["PublicApiService_ListWebhookEndpoints"]["parameters"]["body"]["body"];
+
+/**
+ * List webhook endpoints
+ *
+ * List webhook endpoints within an organization.
+ *
+ * `POST /public/v1/query/list_webhook_endpoints`
+ */
+export const listWebhookEndpoints = (input: TListWebhookEndpointsInput) =>
+  request<
+    TListWebhookEndpointsResponse,
+    TListWebhookEndpointsBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/query/list_webhook_endpoints",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `ListWebhookEndpoints` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link ListWebhookEndpoints}
+ */
+export const signListWebhookEndpoints = (
+  input: TListWebhookEndpointsInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TListWebhookEndpointsBody, never, never>({
+    uri: "/public/v1/query/list_webhook_endpoints",
     body: input.body,
     options,
   });
@@ -2958,160 +2814,6 @@ export const signCreateSubOrganization = (
   });
 
 /**
- * `POST /public/v1/submit/create_tvc_app`
- */
-export type TCreateTvcAppResponse =
-  operations["PublicApiService_CreateTvcApp"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/create_tvc_app`
- */
-export type TCreateTvcAppInput = { body: TCreateTvcAppBody };
-
-/**
- * `POST /public/v1/submit/create_tvc_app`
- */
-export type TCreateTvcAppBody =
-  operations["PublicApiService_CreateTvcApp"]["parameters"]["body"]["body"];
-
-/**
- * Create a TVC App
- *
- * Create a new TVC application
- *
- * `POST /public/v1/submit/create_tvc_app`
- */
-export const createTvcApp = (input: TCreateTvcAppInput) =>
-  request<TCreateTvcAppResponse, TCreateTvcAppBody, never, never, never>({
-    uri: "/public/v1/submit/create_tvc_app",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `CreateTvcApp` request, ready to be POSTed to Turnkey.
- *
- * See {@link CreateTvcApp}
- */
-export const signCreateTvcApp = (
-  input: TCreateTvcAppInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TCreateTvcAppBody, never, never>({
-    uri: "/public/v1/submit/create_tvc_app",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/submit/create_tvc_deployment`
- */
-export type TCreateTvcDeploymentResponse =
-  operations["PublicApiService_CreateTvcDeployment"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/create_tvc_deployment`
- */
-export type TCreateTvcDeploymentInput = { body: TCreateTvcDeploymentBody };
-
-/**
- * `POST /public/v1/submit/create_tvc_deployment`
- */
-export type TCreateTvcDeploymentBody =
-  operations["PublicApiService_CreateTvcDeployment"]["parameters"]["body"]["body"];
-
-/**
- * Create a TVC Deployment
- *
- * Create a new TVC Deployment
- *
- * `POST /public/v1/submit/create_tvc_deployment`
- */
-export const createTvcDeployment = (input: TCreateTvcDeploymentInput) =>
-  request<
-    TCreateTvcDeploymentResponse,
-    TCreateTvcDeploymentBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/create_tvc_deployment",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `CreateTvcDeployment` request, ready to be POSTed to Turnkey.
- *
- * See {@link CreateTvcDeployment}
- */
-export const signCreateTvcDeployment = (
-  input: TCreateTvcDeploymentInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TCreateTvcDeploymentBody, never, never>({
-    uri: "/public/v1/submit/create_tvc_deployment",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/submit/create_tvc_manifest_approvals`
- */
-export type TCreateTvcManifestApprovalsResponse =
-  operations["PublicApiService_CreateTvcManifestApprovals"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/create_tvc_manifest_approvals`
- */
-export type TCreateTvcManifestApprovalsInput = {
-  body: TCreateTvcManifestApprovalsBody;
-};
-
-/**
- * `POST /public/v1/submit/create_tvc_manifest_approvals`
- */
-export type TCreateTvcManifestApprovalsBody =
-  operations["PublicApiService_CreateTvcManifestApprovals"]["parameters"]["body"]["body"];
-
-/**
- * Create TVC Manifest Approvals
- *
- * Post one or more manifest approvals for a TVC Manifest
- *
- * `POST /public/v1/submit/create_tvc_manifest_approvals`
- */
-export const createTvcManifestApprovals = (
-  input: TCreateTvcManifestApprovalsInput,
-) =>
-  request<
-    TCreateTvcManifestApprovalsResponse,
-    TCreateTvcManifestApprovalsBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/create_tvc_manifest_approvals",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `CreateTvcManifestApprovals` request, ready to be POSTed to Turnkey.
- *
- * See {@link CreateTvcManifestApprovals}
- */
-export const signCreateTvcManifestApprovals = (
-  input: TCreateTvcManifestApprovalsInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TCreateTvcManifestApprovalsBody, never, never>({
-    uri: "/public/v1/submit/create_tvc_manifest_approvals",
-    body: input.body,
-    options,
-  });
-
-/**
  * `POST /public/v1/submit/create_user_tag`
  */
 export type TCreateUserTagResponse =
@@ -3297,6 +2999,58 @@ export const signCreateWalletAccounts = (
 ) =>
   signedRequest<TCreateWalletAccountsBody, never, never>({
     uri: "/public/v1/submit/create_wallet_accounts",
+    body: input.body,
+    options,
+  });
+
+/**
+ * `POST /public/v1/submit/create_webhook_endpoint`
+ */
+export type TCreateWebhookEndpointResponse =
+  operations["PublicApiService_CreateWebhookEndpoint"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/create_webhook_endpoint`
+ */
+export type TCreateWebhookEndpointInput = { body: TCreateWebhookEndpointBody };
+
+/**
+ * `POST /public/v1/submit/create_webhook_endpoint`
+ */
+export type TCreateWebhookEndpointBody =
+  operations["PublicApiService_CreateWebhookEndpoint"]["parameters"]["body"]["body"];
+
+/**
+ * Create webhook endpoint
+ *
+ * Create a webhook endpoint for an organization.
+ *
+ * `POST /public/v1/submit/create_webhook_endpoint`
+ */
+export const createWebhookEndpoint = (input: TCreateWebhookEndpointInput) =>
+  request<
+    TCreateWebhookEndpointResponse,
+    TCreateWebhookEndpointBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/create_webhook_endpoint",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `CreateWebhookEndpoint` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link CreateWebhookEndpoint}
+ */
+export const signCreateWebhookEndpoint = (
+  input: TCreateWebhookEndpointInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TCreateWebhookEndpointBody, never, never>({
+    uri: "/public/v1/submit/create_webhook_endpoint",
     body: input.body,
     options,
   });
@@ -4108,6 +3862,58 @@ export const signDeleteWallets = (
   });
 
 /**
+ * `POST /public/v1/submit/delete_webhook_endpoint`
+ */
+export type TDeleteWebhookEndpointResponse =
+  operations["PublicApiService_DeleteWebhookEndpoint"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/delete_webhook_endpoint`
+ */
+export type TDeleteWebhookEndpointInput = { body: TDeleteWebhookEndpointBody };
+
+/**
+ * `POST /public/v1/submit/delete_webhook_endpoint`
+ */
+export type TDeleteWebhookEndpointBody =
+  operations["PublicApiService_DeleteWebhookEndpoint"]["parameters"]["body"]["body"];
+
+/**
+ * Delete webhook endpoint
+ *
+ * Delete a webhook endpoint for an organization.
+ *
+ * `POST /public/v1/submit/delete_webhook_endpoint`
+ */
+export const deleteWebhookEndpoint = (input: TDeleteWebhookEndpointInput) =>
+  request<
+    TDeleteWebhookEndpointResponse,
+    TDeleteWebhookEndpointBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/delete_webhook_endpoint",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `DeleteWebhookEndpoint` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link DeleteWebhookEndpoint}
+ */
+export const signDeleteWebhookEndpoint = (
+  input: TDeleteWebhookEndpointInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TDeleteWebhookEndpointBody, never, never>({
+    uri: "/public/v1/submit/delete_webhook_endpoint",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/email_auth`
  */
 export type TEmailAuthResponse =
@@ -4149,58 +3955,6 @@ export const signEmailAuth = (
 ) =>
   signedRequest<TEmailAuthBody, never, never>({
     uri: "/public/v1/submit/email_auth",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /public/v1/submit/eth_send_raw_transaction`
- */
-export type TEthSendRawTransactionResponse =
-  operations["PublicApiService_EthSendRawTransaction"]["responses"]["200"]["schema"];
-
-/**
- * `POST /public/v1/submit/eth_send_raw_transaction`
- */
-export type TEthSendRawTransactionInput = { body: TEthSendRawTransactionBody };
-
-/**
- * `POST /public/v1/submit/eth_send_raw_transaction`
- */
-export type TEthSendRawTransactionBody =
-  operations["PublicApiService_EthSendRawTransaction"]["parameters"]["body"]["body"];
-
-/**
- * Submit a raw transaction for broadcasting.
- *
- * Submit a raw transaction (serialized and signed) for broadcasting to the network.
- *
- * `POST /public/v1/submit/eth_send_raw_transaction`
- */
-export const ethSendRawTransaction = (input: TEthSendRawTransactionInput) =>
-  request<
-    TEthSendRawTransactionResponse,
-    TEthSendRawTransactionBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/public/v1/submit/eth_send_raw_transaction",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `EthSendRawTransaction` request, ready to be POSTed to Turnkey.
- *
- * See {@link EthSendRawTransaction}
- */
-export const signEthSendRawTransaction = (
-  input: TEthSendRawTransactionInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TEthSendRawTransactionBody, never, never>({
-    uri: "/public/v1/submit/eth_send_raw_transaction",
     body: input.body,
     options,
   });
@@ -5584,6 +5338,60 @@ export const signUpdateOauth2Credential = (
   });
 
 /**
+ * `POST /public/v1/submit/update_organization_name`
+ */
+export type TUpdateOrganizationNameResponse =
+  operations["PublicApiService_UpdateOrganizationName"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_organization_name`
+ */
+export type TUpdateOrganizationNameInput = {
+  body: TUpdateOrganizationNameBody;
+};
+
+/**
+ * `POST /public/v1/submit/update_organization_name`
+ */
+export type TUpdateOrganizationNameBody =
+  operations["PublicApiService_UpdateOrganizationName"]["parameters"]["body"]["body"];
+
+/**
+ * Update organization name
+ *
+ * Update the name of an organization.
+ *
+ * `POST /public/v1/submit/update_organization_name`
+ */
+export const updateOrganizationName = (input: TUpdateOrganizationNameInput) =>
+  request<
+    TUpdateOrganizationNameResponse,
+    TUpdateOrganizationNameBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_organization_name",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateOrganizationName` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateOrganizationName}
+ */
+export const signUpdateOrganizationName = (
+  input: TUpdateOrganizationNameInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateOrganizationNameBody, never, never>({
+    uri: "/public/v1/submit/update_organization_name",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/update_policy`
  */
 export type TUpdatePolicyResponse =
@@ -6016,6 +5824,58 @@ export const signUpdateWallet = (
   });
 
 /**
+ * `POST /public/v1/submit/update_webhook_endpoint`
+ */
+export type TUpdateWebhookEndpointResponse =
+  operations["PublicApiService_UpdateWebhookEndpoint"]["responses"]["200"]["schema"];
+
+/**
+ * `POST /public/v1/submit/update_webhook_endpoint`
+ */
+export type TUpdateWebhookEndpointInput = { body: TUpdateWebhookEndpointBody };
+
+/**
+ * `POST /public/v1/submit/update_webhook_endpoint`
+ */
+export type TUpdateWebhookEndpointBody =
+  operations["PublicApiService_UpdateWebhookEndpoint"]["parameters"]["body"]["body"];
+
+/**
+ * Update webhook endpoint
+ *
+ * Update a webhook endpoint for an organization.
+ *
+ * `POST /public/v1/submit/update_webhook_endpoint`
+ */
+export const updateWebhookEndpoint = (input: TUpdateWebhookEndpointInput) =>
+  request<
+    TUpdateWebhookEndpointResponse,
+    TUpdateWebhookEndpointBody,
+    never,
+    never,
+    never
+  >({
+    uri: "/public/v1/submit/update_webhook_endpoint",
+    method: "POST",
+    body: input.body,
+  });
+
+/**
+ * Request a WebAuthn assertion and return a signed `UpdateWebhookEndpoint` request, ready to be POSTed to Turnkey.
+ *
+ * See {@link UpdateWebhookEndpoint}
+ */
+export const signUpdateWebhookEndpoint = (
+  input: TUpdateWebhookEndpointInput,
+  options?: TurnkeyCredentialRequestOptions,
+) =>
+  signedRequest<TUpdateWebhookEndpointBody, never, never>({
+    uri: "/public/v1/submit/update_webhook_endpoint",
+    body: input.body,
+    options,
+  });
+
+/**
  * `POST /public/v1/submit/verify_otp`
  */
 export type TVerifyOtpResponse =
@@ -6084,102 +5944,4 @@ export const nOOPCodegenAnchor = () =>
 export const signNOOPCodegenAnchor = () =>
   signedRequest<never, never, never>({
     uri: "/tkhq/api/v1/noop-codegen-anchor",
-  });
-
-/**
- * `POST /tkhq/api/v1/refresh_feature_flags`
- */
-export type TRefreshFeatureFlagsResponse =
-  operations["PublicApiService_RefreshFeatureFlags"]["responses"]["200"]["schema"];
-
-/**
- * `POST /tkhq/api/v1/refresh_feature_flags`
- */
-export type TRefreshFeatureFlagsInput = { body: TRefreshFeatureFlagsBody };
-
-/**
- * `POST /tkhq/api/v1/refresh_feature_flags`
- */
-export type TRefreshFeatureFlagsBody =
-  operations["PublicApiService_RefreshFeatureFlags"]["parameters"]["body"]["body"];
-
-/**
- * Refresh feature flags
- *
- * Refresh feature flags by triggering a DB read to flush the in-memory cache.
- *
- * `POST /tkhq/api/v1/refresh_feature_flags`
- */
-export const refreshFeatureFlags = (input: TRefreshFeatureFlagsInput) =>
-  request<
-    TRefreshFeatureFlagsResponse,
-    TRefreshFeatureFlagsBody,
-    never,
-    never,
-    never
-  >({
-    uri: "/tkhq/api/v1/refresh_feature_flags",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `RefreshFeatureFlags` request, ready to be POSTed to Turnkey.
- *
- * See {@link RefreshFeatureFlags}
- */
-export const signRefreshFeatureFlags = (
-  input: TRefreshFeatureFlagsInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TRefreshFeatureFlagsBody, never, never>({
-    uri: "/tkhq/api/v1/refresh_feature_flags",
-    body: input.body,
-    options,
-  });
-
-/**
- * `POST /tkhq/api/v1/test_rate_limits`
- */
-export type TTestRateLimitsResponse =
-  operations["PublicApiService_TestRateLimits"]["responses"]["200"]["schema"];
-
-/**
- * `POST /tkhq/api/v1/test_rate_limits`
- */
-export type TTestRateLimitsInput = { body: TTestRateLimitsBody };
-
-/**
- * `POST /tkhq/api/v1/test_rate_limits`
- */
-export type TTestRateLimitsBody =
-  operations["PublicApiService_TestRateLimits"]["parameters"]["body"]["body"];
-
-/**
- * Test rate limit
- *
- * Set a rate local rate limit just on the current endpoint, for purposes of testing with Vivosuite.
- *
- * `POST /tkhq/api/v1/test_rate_limits`
- */
-export const testRateLimits = (input: TTestRateLimitsInput) =>
-  request<TTestRateLimitsResponse, TTestRateLimitsBody, never, never, never>({
-    uri: "/tkhq/api/v1/test_rate_limits",
-    method: "POST",
-    body: input.body,
-  });
-
-/**
- * Request a WebAuthn assertion and return a signed `TestRateLimits` request, ready to be POSTed to Turnkey.
- *
- * See {@link TestRateLimits}
- */
-export const signTestRateLimits = (
-  input: TTestRateLimitsInput,
-  options?: TurnkeyCredentialRequestOptions,
-) =>
-  signedRequest<TTestRateLimitsBody, never, never>({
-    uri: "/tkhq/api/v1/test_rate_limits",
-    body: input.body,
-    options,
   });
