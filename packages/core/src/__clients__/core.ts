@@ -1265,18 +1265,17 @@ export class TurnkeyClient {
   /**
    * Verifies the OTP code sent to the user.
    *
-   * - This function verifies the OTP code entered by the user against the OTP sent to their contact information (email or phone) using the auth proxy.
    * - Under the hood, the OTP code and an ephemeral client public key are encrypted to the enclave's target key (from `initOtp`) before being sent for verification.
-   * - If verification is successful, it returns the sub-organization ID associated with the contact (if it exists) and a verification token.
+   * - If verification is successful, it returns a verification token bound to the public key.
    * - The verification token can be used for subsequent login or sign-up flows.
-   * - Handles both email and SMS OTP types.
    *
    * @param params.otpId - ID of the OTP to verify (returned from `initOtp`).
    * @param params.otpCode - the OTP code entered by the user.
    * @param params.otpEncryptionTargetBundle - the encryption target bundle returned from `initOtp`.
+   * @param params.publicKey - optional public key to bind to the verification token. If not provided, a new key pair will be generated via the configured `apiKeyStamper`.
    * @returns A promise that resolves to an object containing:
-   *   - subOrganizationId: sub-organization ID if the contact is already associated with a sub-organization, or an empty string if not.
    *   - verificationToken: verification token to be used for login or sign-up.
+   *   - publicKey: the public key bound to the verification token (either the one provided or the auto-generated one).
    * @throws {TurnkeyError} If there is an error during the OTP verification process, such as an invalid code or network failure.
    */
   verifyOtp = async (params: VerifyOtpParams): Promise<VerifyOtpResult> => {
