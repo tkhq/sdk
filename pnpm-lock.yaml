@@ -3618,12 +3618,12 @@ importers:
 
   packages/indexed-db-stamper:
     dependencies:
-      '@turnkey/api-key-stamper':
-        specifier: workspace:*
-        version: link:../api-key-stamper
       '@turnkey/encoding':
         specifier: workspace:*
         version: link:../encoding
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../sdk-types
     devDependencies:
       '@types/jest':
         specifier: ^29.5.3

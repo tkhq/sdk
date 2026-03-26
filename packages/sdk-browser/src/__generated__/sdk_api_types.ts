@@ -481,16 +481,6 @@ export type TCreateApiKeysBody =
   operations["PublicApiService_CreateApiKeys"]["parameters"]["body"]["body"]["parameters"] &
     commandOverrideParams;
 
-export type TCreateApiOnlyUsersResponse =
-  operations["PublicApiService_CreateApiOnlyUsers"]["responses"]["200"]["schema"]["activity"]["result"]["createApiOnlyUsersResult"] &
-    definitions["v1ActivityResponse"];
-
-export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
-
-export type TCreateApiOnlyUsersBody =
-  operations["PublicApiService_CreateApiOnlyUsers"]["parameters"]["body"]["body"]["parameters"] &
-    commandOverrideParams;
-
 export type TCreateAuthenticatorsResponse =
   operations["PublicApiService_CreateAuthenticators"]["responses"]["200"]["schema"]["activity"]["result"]["createAuthenticatorsResult"] &
     definitions["v1ActivityResponse"];
