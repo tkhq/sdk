@@ -165,6 +165,34 @@ type PublicMethods<T> = {
   [K in keyof T as T[K] extends Function ? K : never]: T[K];
 };
 
+type TransactionStatusPollingError = TurnkeyError & {
+  txStatus: string;
+  statusResponse: TGetSendTransactionStatusResponse;
+  transactionError?: NonNullable<TGetSendTransactionStatusResponse["error"]>;
+};
+
+// createTransactionStatusPollingError preserves the structured status payload on
+// polling failures so callers can inspect revert chains without parsing strings.
+function createTransactionStatusPollingError(
+  response: TGetSendTransactionStatusResponse,
+): TransactionStatusPollingError {
+  const error = new TurnkeyError(
+    response.error?.message || `Transaction ${response.txStatus}`,
+    TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
+    response.error,
+  ) as TransactionStatusPollingError;
+
+  error.name = "TransactionStatusPollingError";
+  error.txStatus = response.txStatus;
+  error.statusResponse = response;
+
+  if (response.error) {
+    error.transactionError = response.error;
+  }
+
+  return error;
+}
+
 export type TurnkeyClientMethods = Omit<
   PublicMethods<TurnkeyClient>,
   "init" | "config" | "httpClient" | "constructor"
@@ -3008,7 +3036,7 @@ export class TurnkeyClient {
    * @param params.stampWith - Optional stamper to use for polling.
    *
    * @returns A promise resolving to the transaction status payload if successful.
-   * @throws {Error | string} If the transaction fails or is cancelled.
+   * @throws {TurnkeyError} If the transaction fails, is cancelled, or times out.
    */
 
   async pollTransactionStatus(
@@ -3046,15 +3074,14 @@ export class TurnkeyClient {
             });
 
             const txStatus = resp?.txStatus;
-            const txError = resp?.txError;
 
             if (!txStatus) return;
 
-            if (txError || txStatus === "FAILED" || txStatus === "CANCELLED") {
+            if (txStatus === "FAILED" || txStatus === "CANCELLED") {
               // TODO: use API enum in the future
               clearInterval(ref);
               clearTimeout(timeoutRef);
-              reject(txError || `Transaction ${txStatus}`);
+              reject(createTransactionStatusPollingError(resp));
               return;
             }
 

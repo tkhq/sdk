@@ -9,7 +9,9 @@ import { getTurnkeyClient, pollTransactionStatus } from "../turnkey";
 import { toReadableAmount } from "../utils";
 import { ERC20_ABI, USDC_SEPOLIA, WETH_SEPOLIA } from "../tokens";
 
+const CAIP2 = "eip155:11155111";
 const RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
+const EXPLORER_BASE_URL = "https://sepolia.etherscan.io";
 const provider = new ethers.JsonRpcProvider(RPC_URL);
 
 export async function main() {
@@ -85,7 +87,7 @@ async function sweepTokens(
     const resp = await turnkey.apiClient().getNonces({
       organizationId,
       address: ownerAddress,
-      caip2: "eip155:11155111", // Sepolia
+      caip2: CAIP2,
       nonce: sponsor ? false : true,
       gasStationNonce: sponsor ? true : false,
     });
@@ -99,7 +101,7 @@ async function sweepTokens(
         organizationId,
         from: ownerAddress,
         to: token.address,
-        caip2: "eip155:11155111", // Sepolia
+        caip2: CAIP2,
         gasStationNonce: sponsor ? gasStationNonce : undefined,
         nonce: sponsor ? undefined : nonce,
         sponsor,
@@ -121,7 +123,7 @@ async function sweepTokens(
     }
 
     console.log(
-      `Sent ${token.symbol}: https://sepolia.etherscan.io/tx/${status.eth?.txHash}`,
+      `Sent ${token.symbol}: ${EXPLORER_BASE_URL}/tx/${status.eth?.txHash}`,
     );
   }
 }
@@ -160,7 +162,7 @@ async function sweepEth(
   const resp = await turnkey.apiClient().getNonces({
     organizationId,
     address: ownerAddress,
-    caip2: "eip155:11155111", // Sepolia
+    caip2: CAIP2,
     nonce: sponsor ? false : true,
     gasStationNonce: sponsor ? true : false,
   });
@@ -176,7 +178,7 @@ async function sweepEth(
       gasStationNonce: sponsor ? gasStationNonce : undefined,
       nonce: sponsor ? undefined : nonce,
       sponsor,
-      caip2: "eip155:11155111",
+      caip2: CAIP2,
       value: value.toString(),
       gasLimit: sponsor ? undefined : gas.toString(),
       maxFeePerGas: sponsor ? undefined : maxFee!.toString(),
@@ -194,7 +196,7 @@ async function sweepEth(
   }
 
   console.log(
-    `Sent ETH: https://sepolia.etherscan.io/tx/${status.eth?.txHash}`,
+    `Sent ETH: ${EXPLORER_BASE_URL}/tx/${status.eth?.txHash}`,
   );
 }
 main().catch((error) => {

@@ -14,6 +14,30 @@ export function getTurnkeyClient() {
   });
 }
 
+// createTransactionStatusError preserves the structured status payload on
+// polling failures so example consumers can inspect backend error details.
+function createTransactionStatusError(response: any): Error {
+  const error = new Error(
+    response?.error?.message || `Transaction ${response?.txStatus}`,
+  ) as Error & {
+    cause?: unknown;
+    txStatus?: string;
+    statusResponse?: unknown;
+    transactionError?: unknown;
+  };
+
+  error.name = "TransactionStatusError";
+  error.cause = response?.error;
+  error.txStatus = response?.txStatus;
+  error.statusResponse = response;
+
+  if (response?.error) {
+    error.transactionError = response.error;
+  }
+
+  return error;
+}
+
 export async function pollTransactionStatus({
   apiClient,
   organizationId,
@@ -45,19 +69,14 @@ export async function pollTransactionStatus({
         });
 
         const status = resp?.txStatus;
-        const txError = resp?.txError;
 
         // Keep polling if no status yet
         if (!status) return;
 
         // Failure states
-        if (txError || status === "FAILED" || status === "CANCELLED") {
+        if (status === "FAILED" || status === "CANCELLED") {
           clearInterval(ref);
-          reject(
-            new Error(
-              txError || `Transaction ${status} (no explicit error returned)`,
-            ),
-          );
+          reject(createTransactionStatusError(resp));
           return;
         }
 
