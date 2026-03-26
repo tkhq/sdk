@@ -75,8 +75,7 @@ describe("pollTransactionStatus", () => {
             {
               address: "0xrouter",
               errorType: "ERROR_TYPE_CUSTOM",
-              displayMessage:
-                "SlippageCheckFailed(minOut=1000, actualOut=995)",
+              displayMessage: "SlippageCheckFailed(minOut=1000, actualOut=995)",
               custom: {
                 errorName: "SlippageCheckFailed",
                 paramsJson: '{"minOut":"1000","actualOut":"995"}',

@@ -195,9 +195,7 @@ async function sweepEth(
     throw new Error(`ETH sweep failed with status: ${status.txStatus}`);
   }
 
-  console.log(
-    `Sent ETH: ${EXPLORER_BASE_URL}/tx/${status.eth?.txHash}`,
-  );
+  console.log(`Sent ETH: ${EXPLORER_BASE_URL}/tx/${status.eth?.txHash}`);
 }
 main().catch((error) => {
   console.error(error);
