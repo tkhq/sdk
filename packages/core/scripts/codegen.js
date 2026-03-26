@@ -93,7 +93,42 @@ const VERSIONED_ACTIVITY_TYPES = {
     "v1CreateOauthProvidersIntent",
     "v1CreateOauthProvidersResult",
   ],
+  ACTIVITY_TYPE_OTP_LOGIN: [
+    "ACTIVITY_TYPE_OTP_LOGIN",
+    "v1OtpLoginIntent",
+    "v1OtpLoginResult",
+  ],
+  ACTIVITY_TYPE_VERIFY_OTP: [
+    "ACTIVITY_TYPE_VERIFY_OTP",
+    "v1VerifyOtpIntent",
+    "v1VerifyOtpResult",
+  ],
 };
+
+/**
+ * Extracts the activity type string from a request definition's `type.enum` field.
+ * e.g. for v1Oauth2AuthenticateRequest, returns "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE"
+ *
+ * @param {object} definitions - The swagger spec definitions
+ * @param {object} operation - The swagger operation object for the endpoint
+ * @returns {string | null}
+ */
+function getActivityTypeFromRequestDef(definitions, operation) {
+  const bodyParam = operation.parameters?.find((p) => p.in === "body");
+  if (!bodyParam?.schema?.$ref) return null;
+  const defName = bodyParam.schema.$ref.replace("#/definitions/", "");
+  const def = definitions[defName];
+  return def?.properties?.type?.enum?.[0] ?? null;
+}
+
+/**
+ * Strips a trailing version suffix (e.g. _V2, _V8) from an activity type string.
+ * @param {string} activityType
+ * @returns {string}
+ */
+function stripActivityTypeVersion(activityType) {
+  return activityType.replace(/_V\d+$/, "");
+}
 
 const METHODS_WITH_ONLY_OPTIONAL_PARAMETERS = [
   "getActivities",
@@ -516,11 +551,19 @@ const generateSDKClientFromSwagger = async (
     const inputType = `T${operationNameWithoutNamespace}Body`;
     const responseType = `T${operationNameWithoutNamespace}Response`;
 
-    const unversionedActivityType = `ACTIVITY_TYPE_${operationNameWithoutNamespace
-      .replace(/([a-z])([A-Z])/g, "$1_$2")
-      .toUpperCase()}`;
-    const versionedActivityType =
-      VERSIONED_ACTIVITY_TYPES[unversionedActivityType]?.[0];
+    // Pull the activity type directly from the request definition's type enum
+    const rawActivityType = getActivityTypeFromRequestDef(
+      swaggerSpec.definitions,
+      operation,
+    );
+    const unversionedActivityType = rawActivityType
+      ? stripActivityTypeVersion(rawActivityType)
+      : null;
+    // Use the capped version if one exists, otherwise use the raw swagger value
+    const activityType = unversionedActivityType
+      ? (VERSIONED_ACTIVITY_TYPES[unversionedActivityType]?.[0] ??
+        rawActivityType)
+      : null;
 
     // for query methods, we use flat body structure
     if (methodType === "query") {
@@ -566,7 +609,7 @@ const generateSDKClientFromSwagger = async (
         parameters: rest,
         organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "${versionedActivityType ?? unversionedActivityType + (latestVersions[resultKey].versionSuffix ? "_" + latestVersions[resultKey].versionSuffix : "")}"
+        type: "${activityType}"
       }, "${versionedMethodName}", stampWith);
     }`,
       );
@@ -581,9 +624,7 @@ const generateSDKClientFromSwagger = async (
           parameters: rest,
           organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
           timestampMs: timestampMs ?? String(Date.now()),
-          type: "ACTIVITY_TYPE_${operationNameWithoutNamespace
-            .replace(/([a-z])([A-Z])/g, "$1_$2")
-            .toUpperCase()}"
+          type: "${activityType}"
         }, stampWith);
     }`,
       );
@@ -621,7 +662,6 @@ const generateSDKClientFromSwagger = async (
       );
     } else {
       // for activity and activityDecision methods, both use the same stamp structure
-      const resultKey = operationNameWithoutNamespace + "Result";
       codeBuffer.push(
         `\n\tstamp${operationNameWithoutNamespace} = async (input: SdkTypes.${inputType}, stampWith?: StamperType): Promise<TSignedRequest | undefined> => {
     const activeStamper = this.getStamper(stampWith);
@@ -637,7 +677,7 @@ const generateSDKClientFromSwagger = async (
       parameters,
       organizationId: organizationId ?? (session?.organizationId ?? this.config.organizationId),
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "${versionedActivityType ?? unversionedActivityType + (latestVersions[resultKey]?.versionSuffix ? "_" + latestVersions[resultKey].versionSuffix : "")}"
+      type: "${activityType}"
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
