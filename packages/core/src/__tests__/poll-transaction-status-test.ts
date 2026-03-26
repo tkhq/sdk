@@ -38,10 +38,10 @@ function createClientWithStatusResponse(
   });
 
   (client as any).storageManager = {
-    getActiveSession: jest.fn().mockResolvedValue(undefined),
+    getActiveSession: async () => undefined,
   };
   (client as any).httpClient = {
-    getSendTransactionStatus: jest.fn().mockResolvedValue(response),
+    getSendTransactionStatus: async () => response,
   };
 
   return client;
