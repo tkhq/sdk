@@ -11,9 +11,8 @@ import { OtpType, FilterType } from "./constants";
 import { server } from "@turnkey/sdk-server";
 import { useTurnkey } from "../../hooks/use-turnkey";
 import type { WalletAccount } from "@turnkey/sdk-browser";
-import type { v1ClientSignature } from "@turnkey/sdk-types";
-import { uint8ArrayToHexString } from "@turnkey/encoding";
-import { fromDerSignature, encryptOtpCodeToBundle } from "@turnkey/crypto";
+import { type v1ClientSignature, SignatureFormat } from "@turnkey/sdk-types";
+import { encryptOtpCodeToBundle } from "@turnkey/crypto";
 import { getClientSignatureMessageForLogin } from "@turnkey/core";
 
 const resendTimerMs = 15000;
@@ -108,11 +107,9 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
           verificationToken: verifyResponse!.verificationToken,
           sessionPublicKey: publicKey,
         });
-      const derSignature = await (indexedDbClient!.stamper as any).sign(
+      const compactSignature = await indexedDbClient!.sign(
         message,
-      );
-      const compactSignature = uint8ArrayToHexString(
-        fromDerSignature(derSignature),
+        SignatureFormat.Raw,
       );
       const clientSignature: v1ClientSignature = {
         scheme: "CLIENT_SIGNATURE_SCHEME_API_P256" as const,

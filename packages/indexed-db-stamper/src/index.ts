@@ -3,6 +3,7 @@ import {
   stringToBase64urlString,
   pointEncode,
 } from "@turnkey/encoding";
+import { SignatureFormat } from "@turnkey/sdk-types";
 
 const DB_NAME = "TurnkeyStamperDB";
 const DB_STORE = "KeyStore";
@@ -205,25 +206,37 @@ export class IndexedDbStamper {
     return this.publicKeyHex;
   }
 
-  async sign(payload: string): Promise<string> {
+  async sign(
+    payload: string,
+    format: SignatureFormat = SignatureFormat.Der,
+  ): Promise<string> {
     if (!this.privateKey) {
       throw new Error("Key not initialized. Call init() first.");
     }
 
     const encodedPayload = new TextEncoder().encode(payload);
-    const signatureIeee1363 = await crypto.subtle.sign(
-      {
-        name: "ECDSA",
-        hash: { name: "SHA-256" },
-      },
-      this.privateKey,
-      encodedPayload,
+    const signatureIeee1363 = new Uint8Array(
+      await crypto.subtle.sign(
+        {
+          name: "ECDSA",
+          hash: { name: "SHA-256" },
+        },
+        this.privateKey,
+        encodedPayload,
+      ),
     );
 
-    const signatureDer = convertEcdsaIeee1363ToDer(
-      new Uint8Array(signatureIeee1363),
-    );
-    return uint8ArrayToHexString(signatureDer);
+    switch (format) {
+      case SignatureFormat.Raw: {
+        return uint8ArrayToHexString(signatureIeee1363);
+      }
+      case SignatureFormat.Der: {
+        const signatureDer = convertEcdsaIeee1363ToDer(signatureIeee1363);
+        return uint8ArrayToHexString(signatureDer);
+      }
+      default:
+        throw new Error(`Unsupported signature format: ${format}`);
+    }
   }
 
   async stamp(payload: string): Promise<{
