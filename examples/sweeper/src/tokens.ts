@@ -26,7 +26,8 @@ export const NETWORKS: Record<SupportedNetwork, NetworkConfig> = {
     label: "Ethereum Sepolia",
     caip2: "eip155:11155111",
     rpcUrl:
-      process.env.SEPOLIA_RPC_URL ?? "https://ethereum-sepolia-rpc.publicnode.com",
+      process.env.SEPOLIA_RPC_URL ??
+      "https://ethereum-sepolia-rpc.publicnode.com",
     explorerBaseUrl: "https://sepolia.etherscan.io",
     tokens: [
       {

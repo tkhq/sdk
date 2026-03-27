@@ -19,7 +19,9 @@ const SUPPORTED_NETWORKS = Object.keys(NETWORKS) as SupportedNetwork[];
 // resolveDefaultNetwork validates the env-backed selection so every downstream
 // call can rely on a single network config object.
 function resolveDefaultNetwork(): SupportedNetwork {
-  const configuredNetwork = (process.env.SWEEPER_NETWORK ?? "sepolia").toLowerCase();
+  const configuredNetwork = (
+    process.env.SWEEPER_NETWORK ?? "sepolia"
+  ).toLowerCase();
 
   if (SUPPORTED_NETWORKS.includes(configuredNetwork as SupportedNetwork)) {
     return configuredNetwork as SupportedNetwork;
@@ -96,7 +98,15 @@ export async function main() {
     provider,
     sponsor,
   );
-  await sweepEth(turnkey, orgId, address, destination, network, provider, sponsor);
+  await sweepEth(
+    turnkey,
+    orgId,
+    address,
+    destination,
+    network,
+    provider,
+    sponsor,
+  );
 }
 
 async function sweepTokens(
