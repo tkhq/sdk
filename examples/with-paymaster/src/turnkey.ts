@@ -9,30 +9,6 @@ export function getTurnkeyClient() {
   });
 }
 
-// createTransactionStatusError preserves the structured status payload on
-// polling failures so example consumers can inspect backend error details.
-function createTransactionStatusError(response: any): Error {
-  const error = new Error(
-    response?.error?.message || `Transaction ${response?.txStatus}`,
-  ) as Error & {
-    cause?: unknown;
-    txStatus?: string;
-    statusResponse?: unknown;
-    transactionError?: unknown;
-  };
-
-  error.name = "TransactionStatusError";
-  error.cause = response?.error;
-  error.txStatus = response?.txStatus;
-  error.statusResponse = response;
-
-  if (response?.error) {
-    error.transactionError = response.error;
-  }
-
-  return error;
-}
-
 export async function pollTransactionStatus({
   apiClient,
   organizationId,
@@ -46,42 +22,11 @@ export async function pollTransactionStatus({
   intervalMs?: number;
   timeoutMs?: number;
 }): Promise<{ eth?: { txHash?: string }; txStatus: string }> {
-  const start = Date.now();
   console.log(`Polling transaction status for ${sendTransactionStatusId}...`);
-  return new Promise((resolve, reject) => {
-    const ref = setInterval(async () => {
-      try {
-        if (Date.now() - start > timeoutMs) {
-          clearInterval(ref);
-          reject(new Error("Polling timed out"));
-          return;
-        }
-
-        const resp = await apiClient.getSendTransactionStatus({
-          organizationId,
-          sendTransactionStatusId,
-        });
-
-        const status = resp?.txStatus;
-
-        if (!status) return;
-
-        if (status === "FAILED" || status === "CANCELLED") {
-          clearInterval(ref);
-          reject(createTransactionStatusError(resp));
-          return;
-        }
-
-        if (status === "COMPLETED" || status === "INCLUDED") {
-          clearInterval(ref);
-          resolve({
-            eth: resp.eth,
-            txStatus: status,
-          });
-        }
-      } catch (err) {
-        console.warn("Polling error:", err);
-      }
-    }, intervalMs);
+  return apiClient.pollTransactionStatus({
+    organizationId,
+    sendTransactionStatusId,
+    pollingIntervalMs: intervalMs,
+    timeoutMs,
   });
 }

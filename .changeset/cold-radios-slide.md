@@ -1,5 +1,7 @@
 ---
 "@turnkey/core": minor
+"@turnkey/react-native-wallet-kit": minor
+"@turnkey/react-wallet-kit": minor
 ---
 
-Add rich error object to transaction status
+Add full status response as `error.cause` on errors thrown by `pollTransactionStatus()`
