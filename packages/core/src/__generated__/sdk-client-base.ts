@@ -2543,7 +2543,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_OAUTH2CREDENTIAL",
+        type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL",
       },
       "createOauth2CredentialResult",
       stampWith,
@@ -2569,7 +2569,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_OAUTH2CREDENTIAL",
+      type: "ACTIVITY_TYPE_CREATE_OAUTH2_CREDENTIAL",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3568,7 +3568,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_DELETE_OAUTH2CREDENTIAL",
+        type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
       },
       "deleteOauth2CredentialResult",
       stampWith,
@@ -3594,7 +3594,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_DELETE_OAUTH2CREDENTIAL",
+      type: "ACTIVITY_TYPE_DELETE_OAUTH2_CREDENTIAL",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5018,7 +5018,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OAUTH2AUTHENTICATE",
+        type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
       },
       "oauth2AuthenticateResult",
       stampWith,
@@ -5044,7 +5044,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OAUTH2AUTHENTICATE",
+      type: "ACTIVITY_TYPE_OAUTH2_AUTHENTICATE",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5768,7 +5768,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_UPDATE_OAUTH2CREDENTIAL",
+        type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL",
       },
       "updateOauth2CredentialResult",
       stampWith,
@@ -5794,7 +5794,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_UPDATE_OAUTH2CREDENTIAL",
+      type: "ACTIVITY_TYPE_UPDATE_OAUTH2_CREDENTIAL",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
