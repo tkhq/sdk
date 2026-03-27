@@ -86,6 +86,7 @@
       "form-data": ">=4.0.4",
       "sha.js": ">=2.4.12",
       "hono": ">=4.12.4",
+      "handlebars": "4.7.9",
       "playwright": "1.55.1",
       "@hpke/core": ">=1.7.5",
       "glob": ">=10.5.0",
