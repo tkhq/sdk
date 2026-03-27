@@ -56,6 +56,7 @@ import {
   type CompleteOauthParams,
   type CompleteOtpParams,
   type CreateApiKeyPairParams,
+  type SignWithApiKeyParams,
   type CreatePasskeyParams,
   type CreatePasskeyResult,
   type CreateWalletAccountsParams,
@@ -76,6 +77,7 @@ import {
   type ImportPrivateKeyParams,
   type ImportWalletParams,
   type InitOtpParams,
+  type InitOtpResult,
   type LoginOrSignupWithWalletParams,
   type LoginWithOauthParams,
   type LoginWithOtpParams,
@@ -2109,7 +2111,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   );
 
   const initOtp = useCallback(
-    async (params: InitOtpParams): Promise<string> => {
+    async (params: InitOtpParams): Promise<InitOtpResult> => {
       if (!client) {
         throw new TurnkeyError(
           "Client is not initialized.",
@@ -3189,6 +3191,23 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     [client, callbacks],
   );
 
+  const signWithApiKey = useCallback(
+    async (params: SignWithApiKeyParams): Promise<string> => {
+      if (!client)
+        throw new TurnkeyError(
+          "Client is not initialized.",
+          TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
+        );
+      return withTurnkeyErrorHandling(
+        () => client.signWithApiKey(params),
+        undefined,
+        callbacks,
+        "Failed to sign with API key",
+      );
+    },
+    [client, callbacks],
+  );
+
   const getProxyAuthConfig =
     useCallback(async (): Promise<ProxyTGetWalletKitConfigResponse> => {
       if (!client)
@@ -4239,7 +4258,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             () => logout(),
           );
         } else {
-          const otpId = await initOtp({
+          const { otpId, otpEncryptionTargetBundle } = await initOtp({
             otpType: OtpType.Sms,
             contact: params.phoneNumber,
           });
@@ -4253,6 +4272,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       otpType={OtpType.Sms}
                       contact={params.phoneNumber!}
                       otpId={otpId}
+                      otpEncryptionTargetBundle={otpEncryptionTargetBundle}
                       otpLength={
                         masterConfig.auth?.otpLength !== undefined
                           ? Number(masterConfig.auth.otpLength)
@@ -4264,8 +4284,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                           const { verificationToken } = await verifyOtp({
                             otpId,
                             otpCode,
-                            contact: params.phoneNumber!,
-                            otpType: OtpType.Sms,
+                            otpEncryptionTargetBundle,
                           });
                           const res = await updateUserPhoneNumber({
                             phoneNumber: params.phoneNumber!,
@@ -4399,7 +4418,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             () => logout(),
           );
         } else {
-          const otpId = await initOtp({
+          const { otpId, otpEncryptionTargetBundle } = await initOtp({
             otpType: OtpType.Email,
             contact: params.email,
           });
@@ -4413,6 +4432,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       otpType={OtpType.Email}
                       contact={params.email!}
                       otpId={otpId}
+                      otpEncryptionTargetBundle={otpEncryptionTargetBundle}
                       otpLength={
                         masterConfig?.auth?.otpLength !== undefined
                           ? Number(masterConfig.auth.otpLength)
@@ -4424,8 +4444,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                           const { verificationToken } = await verifyOtp({
                             otpId,
                             otpCode,
-                            contact: params.email!,
-                            otpType: OtpType.Email,
+                            otpEncryptionTargetBundle,
                           });
                           const res = await updateUserEmail({
                             email: params.email!,
@@ -4558,7 +4577,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             () => logout(),
           );
         } else {
-          const otpId = await initOtp({
+          const { otpId, otpEncryptionTargetBundle } = await initOtp({
             otpType: OtpType.Email,
             contact: params.email,
           });
@@ -4572,6 +4591,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       otpType={OtpType.Email}
                       contact={params.email!}
                       otpId={otpId}
+                      otpEncryptionTargetBundle={otpEncryptionTargetBundle}
                       otpLength={
                         masterConfig?.auth?.otpLength !== undefined
                           ? Number(masterConfig.auth.otpLength)
@@ -4583,8 +4603,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                           const { verificationToken } = await verifyOtp({
                             otpId,
                             otpCode,
-                            contact: params.email!,
-                            otpType: OtpType.Email,
+                            otpEncryptionTargetBundle,
                           });
                           const res = await updateUserEmail({
                             email: params.email!,
@@ -4735,7 +4754,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             "Failed to add phone number",
           );
         } else {
-          const otpId = await initOtp({
+          const { otpId, otpEncryptionTargetBundle } = await initOtp({
             otpType: OtpType.Sms,
             contact: params.phoneNumber,
           });
@@ -4749,6 +4768,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                       otpType={OtpType.Sms}
                       contact={params.phoneNumber!}
                       otpId={otpId}
+                      otpEncryptionTargetBundle={otpEncryptionTargetBundle}
                       otpLength={
                         masterConfig.auth?.otpLength !== undefined
                           ? Number(masterConfig.auth.otpLength)
@@ -4760,8 +4780,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                           const { verificationToken } = await verifyOtp({
                             otpId,
                             otpCode,
-                            contact: params.phoneNumber!,
-                            otpType: OtpType.Sms,
+                            otpEncryptionTargetBundle,
                           });
                           const res = await updateUserPhoneNumber({
                             phoneNumber: params.phoneNumber!,
@@ -5976,6 +5995,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         clearUnusedKeyPairs,
         getActiveSessionKey,
         createApiKeyPair,
+        signWithApiKey,
         getProxyAuthConfig,
         fetchBootProofForAppProof,
         verifyAppProofs,

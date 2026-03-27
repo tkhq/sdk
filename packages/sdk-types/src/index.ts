@@ -252,6 +252,11 @@ export enum FiatOnRampPaymentMethod {
   FIAT_WALLET = "FIAT_ON_RAMP_PAYMENT_METHOD_FIAT_WALLET", // Coinbase: FIAT_WALLET
   ACH_BANK_ACCOUNT = "FIAT_ON_RAMP_PAYMENT_METHOD_ACH_BANK_ACCOUNT", // Coinbase: ACH_BANK_ACCOUNT
 }
+export enum SignatureFormat {
+  Der = "der",
+  Raw = "raw",
+}
+
 export enum OAuthProviders {
   DISCORD = "discord",
   APPLE = "apple",

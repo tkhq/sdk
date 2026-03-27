@@ -1412,38 +1412,6 @@
         "tags": ["API Keys"]
       }
     },
-    "/public/v1/submit/create_api_only_users": {
-      "post": {
-        "summary": "Create API-only users",
-        "description": "Create API-only users in an existing organization.",
-        "operationId": "PublicApiService_CreateApiOnlyUsers",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateApiOnlyUsersRequest"
-            }
-          }
-        ],
-        "tags": ["Users"]
-      }
-    },
     "/public/v1/submit/create_authenticators": {
       "post": {
         "summary": "Create authenticators",
@@ -5159,30 +5127,6 @@
         }
       },
       "required": ["apiOnlyUsers"]
-    },
-    "v1CreateApiOnlyUsersRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_API_ONLY_USERS"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1CreateApiOnlyUsersIntent"
-        },
-        "generateAppProofs": {
-          "type": "boolean"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
     },
     "v1CreateApiOnlyUsersResult": {
       "type": "object",

@@ -2310,60 +2310,6 @@ export class TurnkeySDKClientBase {
     };
   };
 
-  createApiOnlyUsers = async (
-    input: SdkTypes.TCreateApiOnlyUsersBody,
-    stampWith?: StamperType,
-  ): Promise<SdkTypes.TCreateApiOnlyUsersResponse> => {
-    const { organizationId, timestampMs, ...rest } = input;
-    const session = await this.storageManager?.getActiveSession();
-
-    return this.activity(
-      "/public/v1/submit/create_api_only_users",
-      {
-        parameters: rest,
-        organizationId:
-          organizationId ??
-          session?.organizationId ??
-          this.config.organizationId,
-        timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-      },
-      "createApiOnlyUsersResult",
-      stampWith,
-    );
-  };
-
-  stampCreateApiOnlyUsers = async (
-    input: SdkTypes.TCreateApiOnlyUsersBody,
-    stampWith?: StamperType,
-  ): Promise<TSignedRequest | undefined> => {
-    const activeStamper = this.getStamper(stampWith);
-    if (!activeStamper) {
-      return undefined;
-    }
-
-    const { organizationId, timestampMs, ...parameters } = input;
-    const session = await this.storageManager?.getActiveSession();
-
-    const fullUrl =
-      this.config.apiBaseUrl + "/public/v1/submit/create_api_only_users";
-    const bodyWithType = {
-      parameters,
-      organizationId:
-        organizationId ?? session?.organizationId ?? this.config.organizationId,
-      timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_API_ONLY_USERS",
-    };
-
-    const stringifiedBody = JSON.stringify(bodyWithType);
-    const stamp = await activeStamper.stamp(stringifiedBody);
-    return {
-      body: stringifiedBody,
-      stamp: stamp,
-      url: fullUrl,
-    };
-  };
-
   createAuthenticators = async (
     input: SdkTypes.TCreateAuthenticatorsBody,
     stampWith?: StamperType,
@@ -2597,9 +2543,9 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
+        type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
       },
-      "createOauthProvidersResult",
+      "createOauthProvidersResultV2",
       stampWith,
     );
   };
@@ -2623,7 +2569,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS",
+      type: "ACTIVITY_TYPE_CREATE_OAUTH_PROVIDERS_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -2922,7 +2868,7 @@ export class TurnkeySDKClientBase {
         timestampMs: timestampMs ?? String(Date.now()),
         type: "ACTIVITY_TYPE_CREATE_READ_WRITE_SESSION_V2",
       },
-      "createReadWriteSessionResult",
+      "createReadWriteSessionResultV2",
       stampWith,
     );
   };
@@ -3029,9 +2975,9 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
+        type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
       },
-      "createSubOrganizationResultV7",
+      "createSubOrganizationResultV8",
       stampWith,
     );
   };
@@ -3055,7 +3001,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V7",
+      type: "ACTIVITY_TYPE_CREATE_SUB_ORGANIZATION_V8",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -3137,7 +3083,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_CREATE_USERS_V3",
+        type: "ACTIVITY_TYPE_CREATE_USERS_V4",
       },
       "createUsersResult",
       stampWith,
@@ -3162,7 +3108,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_CREATE_USERS_V3",
+      type: "ACTIVITY_TYPE_CREATE_USERS_V4",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -4805,9 +4751,9 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_INIT_OTP_V2",
+        type: "ACTIVITY_TYPE_INIT_OTP_V3",
       },
-      "initOtpResult",
+      "initOtpResultV2",
       stampWith,
     );
   };
@@ -4830,7 +4776,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_INIT_OTP_V2",
+      type: "ACTIVITY_TYPE_INIT_OTP_V3",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -5178,7 +5124,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_OTP_LOGIN",
+        type: "ACTIVITY_TYPE_OTP_LOGIN_V2",
       },
       "otpLoginResult",
       stampWith,
@@ -5203,7 +5149,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_OTP_LOGIN",
+      type: "ACTIVITY_TYPE_OTP_LOGIN_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);
@@ -6413,7 +6359,7 @@ export class TurnkeySDKClientBase {
           session?.organizationId ??
           this.config.organizationId,
         timestampMs: timestampMs ?? String(Date.now()),
-        type: "ACTIVITY_TYPE_VERIFY_OTP",
+        type: "ACTIVITY_TYPE_VERIFY_OTP_V2",
       },
       "verifyOtpResult",
       stampWith,
@@ -6438,7 +6384,7 @@ export class TurnkeySDKClientBase {
       organizationId:
         organizationId ?? session?.organizationId ?? this.config.organizationId,
       timestampMs: timestampMs ?? String(Date.now()),
-      type: "ACTIVITY_TYPE_VERIFY_OTP",
+      type: "ACTIVITY_TYPE_VERIFY_OTP_V2",
     };
 
     const stringifiedBody = JSON.stringify(bodyWithType);

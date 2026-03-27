@@ -50,8 +50,8 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@turnkey/api-key-stamper": "workspace:*",
-    "@turnkey/encoding": "workspace:*"
+    "@turnkey/encoding": "workspace:*",
+    "@turnkey/sdk-types": "workspace:*"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",

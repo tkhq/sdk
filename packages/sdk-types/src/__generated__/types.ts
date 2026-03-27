@@ -638,16 +638,6 @@ export type v1CreateApiOnlyUsersIntent = {
   apiOnlyUsers: v1ApiOnlyUserParams[];
 };
 
-export type v1CreateApiOnlyUsersRequest = {
-  type: string;
-  /** Timestamp (in milliseconds) of the request, used to verify liveness of user requests. */
-  timestampMs: string;
-  /** Unique identifier for a given Organization. */
-  organizationId: string;
-  parameters: v1CreateApiOnlyUsersIntent;
-  generateAppProofs?: boolean;
-};
-
 export type v1CreateApiOnlyUsersResult = {
   /** A list of API-only User IDs. */
   userIds: string[];
@@ -3368,11 +3358,12 @@ export type v1OauthProviderParams = {
 export type v1OauthProviderParamsV2 = {
   /** Human-readable name to identify a Provider. */
   providerName: string;
-  /** Base64 encoded OIDC token */
-  oidcToken?: string;
-  /** OIDC claims (iss, sub, aud) to uniquely identify the user */
-  oidcClaims?: v1OidcClaims;
-};
+} & (
+  | { /** Base64 encoded OIDC token */ oidcToken: string }
+  | {
+      /** OIDC claims (iss, sub, aud) to uniquely identify the user */ oidcClaims: v1OidcClaims;
+    }
+);
 
 export type v1OauthRequest = {
   type: string;
@@ -5372,21 +5363,6 @@ export type TCreateApiKeysBody = {
 
 export type TCreateApiKeysInput = { body: TCreateApiKeysBody };
 
-export type TCreateApiOnlyUsersResponse = {
-  activity: v1Activity;
-  /** A list of API-only User IDs. */
-  userIds: string[];
-};
-
-export type TCreateApiOnlyUsersBody = {
-  timestampMs?: string;
-  organizationId?: string;
-  /** A list of API-only Users to create. */
-  apiOnlyUsers: v1ApiOnlyUserParams[];
-};
-
-export type TCreateApiOnlyUsersInput = { body: TCreateApiOnlyUsersBody };
-
 export type TCreateAuthenticatorsResponse = {
   activity: v1Activity;
   /** A list of Authenticator IDs. */
@@ -5479,7 +5455,7 @@ export type TCreateOauthProvidersBody = {
   /** The ID of the User to add an Oauth provider to */
   userId: string;
   /** A list of Oauth providers. */
-  oauthProviders: v1OauthProviderParams[];
+  oauthProviders: v1OauthProviderParamsV2[];
 };
 
 export type TCreateOauthProvidersInput = { body: TCreateOauthProvidersBody };
@@ -5651,7 +5627,7 @@ export type TCreateSubOrganizationBody = {
   /** Name for this sub-organization */
   subOrganizationName: string;
   /** Root users to create within this sub-organization */
-  rootUsers: v1RootUserParamsV4[];
+  rootUsers: v1RootUserParamsV5[];
   /** The threshold of unique approvals to reach root quorum. This value must be less than or equal to the number of root users */
   rootQuorumThreshold: number;
   /** The wallet to create for the sub-organization */
@@ -5701,7 +5677,7 @@ export type TCreateUsersBody = {
   timestampMs?: string;
   organizationId?: string;
   /** A list of Users. */
-  users: v1UserParamsV3[];
+  users: v1UserParamsV4[];
 };
 
 export type TCreateUsersInput = { body: TCreateUsersBody };
@@ -6290,8 +6266,10 @@ export type TInitImportWalletInput = { body: TInitImportWalletBody };
 
 export type TInitOtpResponse = {
   activity: v1Activity;
-  /** Unique identifier for an OTP authentication */
+  /** Unique identifier for an OTP flow */
   otpId: string;
+  /** Signed bundle containing a target encryption key to use when submitting OTP codes. */
+  otpEncryptionTargetBundle: string;
 };
 
 export type TInitOtpBody = {
@@ -6301,19 +6279,19 @@ export type TInitOtpBody = {
   otpType: string;
   /** Email or phone number to send the OTP code to */
   contact: string;
+  /** The name of the application. */
+  appName: string;
   /** Optional length of the OTP code. Default = 9 */
   otpLength?: number;
-  /** The name of the application. This field is required and will be used in email notifications if an email template is not provided. */
-  appName: string;
   /** Optional parameters for customizing emails. If not provided, the default email will be used. */
   emailCustomization?: v1EmailCustomizationParamsV2;
-  /** Optional parameters for customizing SMS message. If not provided, the default SMS message will be used. */
+  /** Optional parameters for customizing SMS message. If not provided, the default sms message will be used. */
   smsCustomization?: v1SmsCustomizationParams;
   /** Optional client-generated user identifier to enable per-user rate limiting for SMS auth. We recommend using a hash of the client-side IP address. */
   userIdentifier?: string;
   /** Optional custom email address from which to send the OTP email */
   sendFromEmailAddress?: string;
-  /** Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). Default = true */
+  /** Optional flag to specify if the OTP code should be alphanumeric (Crockford’s Base32). If set to false, OTP code will only be numeric. Default = true */
   alphanumeric?: boolean;
   /** Optional custom sender name for use with sendFromEmailAddress; if left empty, will default to 'Notifications' */
   sendFromEmailSenderName?: string;
