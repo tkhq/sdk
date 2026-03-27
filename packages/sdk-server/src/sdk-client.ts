@@ -1,4 +1,5 @@
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
 
 import type {
   ApiCredentials,
@@ -6,6 +7,7 @@ import type {
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
 } from "./__types__/base";
+import type { TGetSendTransactionStatusResponse } from "./__generated__/sdk_api_types";
 
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 
@@ -23,6 +25,13 @@ const DEFAULT_API_PROXY_ALLOWED_METHODS = [
   "emailAuth",
   "initUserEmailRecovery",
 ];
+
+export type PollTransactionStatusParams = {
+  organizationId?: string;
+  sendTransactionStatusId: string;
+  pollingIntervalMs?: number;
+  timeoutMs?: number;
+};
 
 export class TurnkeyServerSDK {
   config: TurnkeySDKServerConfig;
@@ -133,5 +142,64 @@ export class TurnkeyServerClient extends TurnkeySDKClientBase {
 export class TurnkeyApiClient extends TurnkeyServerClient {
   constructor(config: TurnkeySDKClientConfig) {
     super(config);
+  }
+
+  // pollTransactionStatus repeatedly fetches the transaction status until it
+  // reaches a terminal state, so server callers do not need to reimplement it.
+  async pollTransactionStatus(
+    params: PollTransactionStatusParams,
+  ): Promise<TGetSendTransactionStatusResponse> {
+    const {
+      organizationId,
+      sendTransactionStatusId,
+      pollingIntervalMs,
+      timeoutMs = 60_000,
+    } = params;
+
+    return new Promise((resolve, reject) => {
+      const interval = pollingIntervalMs ?? 500;
+
+      const ref = setInterval(async () => {
+        try {
+          const resp = await this.getSendTransactionStatus({
+            sendTransactionStatusId,
+            ...(organizationId ? { organizationId } : {}),
+          });
+          const txStatus = resp?.txStatus;
+
+          if (!txStatus) {
+            return;
+          }
+
+          if (txStatus === "FAILED" || txStatus === "CANCELLED") {
+            clearInterval(ref);
+            clearTimeout(timeoutRef);
+            reject(
+              new TurnkeyError(
+                resp.error?.message || `Transaction ${resp.txStatus}`,
+                TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
+                resp,
+              ),
+            );
+            return;
+          }
+
+          if (txStatus === "COMPLETED" || txStatus === "INCLUDED") {
+            clearInterval(ref);
+            clearTimeout(timeoutRef);
+            resolve(resp);
+          }
+        } catch (error) {
+          clearInterval(ref);
+          clearTimeout(timeoutRef);
+          reject(error);
+        }
+      }, interval);
+
+      const timeoutRef = setTimeout(() => {
+        clearInterval(ref);
+        reject(new Error(`Polling timed out after ${timeoutMs}ms`));
+      }, timeoutMs);
+    });
   }
 }
