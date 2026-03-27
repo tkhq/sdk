@@ -52,7 +52,7 @@ describe("pollTransactionStatus", () => {
     jest.useRealTimers();
   });
 
-  it("throws a structured polling error for failed EVM transactions", async () => {
+  it("throws a TurnkeyError with the terminal status payload for failed EVM transactions", async () => {
     jest.useFakeTimers();
 
     const response: TGetSendTransactionStatusResponse = {
@@ -100,15 +100,12 @@ describe("pollTransactionStatus", () => {
     const error = await rejectedError;
 
     expect(error).toMatchObject({
-      name: "TransactionStatusPollingError",
+      name: "TurnkeyError",
       code: TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
       message: "execution reverted: Slippage check failed",
-      txStatus: "FAILED",
-      statusResponse: response,
-      transactionError: response.error,
-      cause: response.error,
+      cause: response,
     });
-    expect((error as any).transactionError?.eth?.revertChain).toEqual(
+    expect((error as any).cause?.error?.eth?.revertChain).toEqual(
       response.error?.eth?.revertChain,
     );
   });
@@ -134,13 +131,10 @@ describe("pollTransactionStatus", () => {
     const error = await rejectedError;
 
     expect(error).toMatchObject({
-      name: "TransactionStatusPollingError",
+      name: "TurnkeyError",
       code: TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
       message: "Transaction CANCELLED",
-      txStatus: "CANCELLED",
-      statusResponse: response,
+      cause: response,
     });
-    expect((error as any).transactionError).toBeUndefined();
-    expect((error as any).cause).toBeUndefined();
   });
 });
