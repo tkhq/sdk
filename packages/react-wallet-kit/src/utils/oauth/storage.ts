@@ -32,36 +32,22 @@ export type PKCEProvider =
 export function storeOAuthAddProviderMetadata(
   metadata: OAuthAddProviderMetadata,
 ): void {
-  try {
-    localStorage.setItem(
-      OAUTH_ADD_PROVIDER_METADATA_KEY,
-      JSON.stringify(metadata),
-    );
-  } catch (error) {
-    throw new TurnkeyError(
-      `Failed to store OAuth add provider metadata: ${error instanceof Error ? error.message : "Unknown error"}`,
-      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-    );
-  }
+  localStorage.setItem(
+    OAUTH_ADD_PROVIDER_METADATA_KEY,
+    JSON.stringify(metadata),
+  );
 }
 
 /**
  * Retrieves OAuth add provider metadata from local storage
  */
 export function getOAuthAddProviderMetadata(): OAuthAddProviderMetadata | null {
+  const stored = localStorage.getItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+  if (!stored) return null;
   try {
-    const stored = localStorage.getItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
-    if (!stored) return null;
-    try {
-      return JSON.parse(stored) as OAuthAddProviderMetadata;
-    } catch {
-      return null;
-    }
-  } catch (error) {
-    throw new TurnkeyError(
-      `Failed to retrieve OAuth add provider metadata: ${error instanceof Error ? error.message : "Unknown error"}`,
-      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-    );
+    return JSON.parse(stored) as OAuthAddProviderMetadata;
+  } catch {
+    return null;
   }
 }
 
@@ -79,26 +65,16 @@ export function getPKCEVerifierKey(provider: PKCEProvider): string {
  * @throws TurnkeyError if verifier is not found
  */
 export function consumePKCEVerifier(provider: PKCEProvider): string {
-  try {
-    const key = getPKCEVerifierKey(provider);
-    const verifier = localStorage.getItem(key);
-    if (!verifier) {
-      throw new TurnkeyError(
-        `Missing PKCE verifier for ${provider} authentication`,
-        TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-      );
-    }
-    localStorage.removeItem(key);
-    return verifier;
-  } catch (error) {
-    if (error instanceof TurnkeyError) {
-      throw error;
-    }
+  const key = getPKCEVerifierKey(provider);
+  const verifier = localStorage.getItem(key);
+  if (!verifier) {
     throw new TurnkeyError(
-      `Failed to access PKCE verifier for ${provider}: ${error instanceof Error ? error.message : "Unknown error"}`,
-      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+      `Missing PKCE verifier for ${provider} authentication`,
+      TurnkeyErrorCodes.NO_PKCE_VERIFIER_FOUND,
     );
   }
+  localStorage.removeItem(key);
+  return verifier;
 }
 
 /**
@@ -110,14 +86,7 @@ export function storePKCEVerifier(
   provider: PKCEProvider,
   verifier: string,
 ): void {
-  try {
-    localStorage.setItem(getPKCEVerifierKey(provider), verifier);
-  } catch (error) {
-    throw new TurnkeyError(
-      `Failed to store PKCE verifier for ${provider}: ${error instanceof Error ? error.message : "Unknown error"}`,
-      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-    );
-  }
+  localStorage.setItem(getPKCEVerifierKey(provider), verifier);
 }
 
 /**
@@ -126,31 +95,20 @@ export function storePKCEVerifier(
  * @returns true if verifier exists
  */
 export function hasPKCEVerifier(provider: PKCEProvider): boolean {
-  try {
-    return localStorage.getItem(getPKCEVerifierKey(provider)) !== null;
-  } catch (error) {
-    throw new TurnkeyError(
-      `Failed to check PKCE verifier for ${provider}: ${error instanceof Error ? error.message : "Unknown error"}`,
-      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-    );
-  }
+  return localStorage.getItem(getPKCEVerifierKey(provider)) !== null;
 }
 
 /**
  * Clears all OAuth-related data from local storage
  */
 export function clearAllOAuthData(): void {
-  try {
-    localStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
-    const pkceProviders: PKCEProvider[] = [
-      OAuthProviders.FACEBOOK,
-      OAuthProviders.DISCORD,
-      OAuthProviders.X,
-    ];
-    for (const provider of pkceProviders) {
-      localStorage.removeItem(getPKCEVerifierKey(provider));
-    }
-  } catch {
-    // Best-effort cleanup
+  localStorage.removeItem(OAUTH_ADD_PROVIDER_METADATA_KEY);
+  const pkceProviders: PKCEProvider[] = [
+    OAuthProviders.FACEBOOK,
+    OAuthProviders.DISCORD,
+    OAuthProviders.X,
+  ];
+  for (const provider of pkceProviders) {
+    localStorage.removeItem(getPKCEVerifierKey(provider));
   }
 }

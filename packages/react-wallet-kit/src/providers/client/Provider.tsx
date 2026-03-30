@@ -14,7 +14,7 @@ import {
   generateChallengePair,
   getOAuthAddProviderMetadata,
   getProviderIcon,
-  handlePKCEFlow,
+  completePKCEFlow,
   hasPKCEVerifier,
   OAUTH_INTENT_ADD_PROVIDER,
   openOAuthPopup,
@@ -398,7 +398,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
         /**
          * Helper to complete PKCE redirect flow with optional modal wrapper.
-         * Uses handlePKCEFlow from oauth utils for the core logic.
+         * Uses completePKCEFlow from oauth utils for the core logic.
          * We put this in a separate function to avoid duplicating for each provider.
          */
         const completePKCERedirect = async (
@@ -407,7 +407,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         ) => {
           const action = async () => {
             try {
-              await handlePKCEFlow({
+              await completePKCEFlow({
                 publicKey,
                 providerName,
                 sessionKey: sessionKey ?? undefined,

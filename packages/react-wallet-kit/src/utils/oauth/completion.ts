@@ -6,9 +6,8 @@ import {
   TurnkeyErrorCodes,
 } from "@turnkey/sdk-types";
 import type { TurnkeyCallbacks } from "../../types/base";
-import type { PKCEProvider } from "./storage";
+import { consumePKCEVerifier, type PKCEProvider } from "./storage";
 import { OAUTH_PROVIDER_CONFIGS } from "./config";
-import { handlePKCEFlow } from "./pkce";
 import type { OAuthResponseResult } from "./url";
 
 /**
@@ -16,7 +15,7 @@ import type { OAuthResponseResult } from "./url";
  * This handles the core completion logic for both popup and redirect flows,
  * for both PKCE and non-PKCE providers.
  */
-export interface OAuthCompletionParams {
+export interface CompleteOAuthFlowParams {
   /** The OAuth provider */
   provider: OAuthProviders;
   /** The public key generated during OAuth initiation */
@@ -55,7 +54,7 @@ export interface OAuthCompletionParams {
  * This is the core completion logic used by both popup and redirect flows.
  */
 export async function completeOAuthFlow(
-  params: OAuthCompletionParams,
+  params: CompleteOAuthFlowParams,
 ): Promise<void> {
   const {
     provider,
@@ -97,7 +96,7 @@ export async function completeOAuthFlow(
  * Common OAuth completion handler for popup flows
  * Handles both PKCE and non-PKCE provider completion
  */
-export interface OAuthPopupCompletionParams {
+export interface CompleteOAuthPopupParams {
   provider: OAuthProviders;
   publicKey: string;
   result: OAuthResponseResult;
@@ -124,7 +123,7 @@ export interface OAuthPopupCompletionParams {
  * Completes OAuth flow in popup - handles both PKCE and non-PKCE providers
  */
 export async function completeOAuthPopup(
-  params: OAuthPopupCompletionParams,
+  params: CompleteOAuthPopupParams,
 ): Promise<void> {
   const {
     provider,
@@ -139,7 +138,7 @@ export async function completeOAuthPopup(
   const config = OAUTH_PROVIDER_CONFIGS[provider];
 
   if (config.usesPKCE) {
-    // PKCE flow - use handlePKCEFlow
+    // PKCE flow, so we use completePKCEFlow
     if (!exchangeCodeForToken) {
       throw new TurnkeyError(
         "exchangeCodeForToken is required for PKCE providers",
@@ -147,7 +146,7 @@ export async function completeOAuthPopup(
       );
     }
 
-    await handlePKCEFlow({
+    await completePKCEFlow({
       publicKey,
       providerName: provider as PKCEProvider,
       sessionKey: result.sessionKey,
@@ -157,7 +156,7 @@ export async function completeOAuthPopup(
       exchangeCodeForToken,
     });
   } else {
-    // Non-PKCE flow - use unified completion handler
+    // this is a non-PKCE flow, so we use our unified completion handler
     await completeOAuthFlow({
       provider,
       publicKey,
@@ -168,4 +167,87 @@ export async function completeOAuthPopup(
       onOauthSuccess,
     });
   }
+}
+
+/**
+ * Parameters for the unified PKCE flow handler.
+ * This is used by all PKCE-based OAuth providers (Facebook, Discord, Twitter/X).
+ */
+export interface CompletePKCEFlowParams {
+  /** The public key generated during OAuth initiation */
+  publicKey: string;
+  /** The provider name */
+  providerName: PKCEProvider;
+  /** Optional session key from the state parameter */
+  sessionKey?: string | undefined;
+  /** Optional callbacks for custom handling */
+  callbacks?: TurnkeyCallbacks | undefined;
+  /** Function to complete the OAuth flow */
+  completeOauth: (params: {
+    oidcToken: string;
+    publicKey: string;
+    providerName: string;
+    sessionKey?: string;
+  }) => Promise<BaseAuthResult & { action: AuthAction }>;
+  /** Optional callback when OAuth succeeds (used in popup flow) */
+  onOauthSuccess?:
+    | ((params: {
+        publicKey: string;
+        oidcToken: string;
+        providerName: string;
+        sessionKey?: string;
+      }) => void)
+    | undefined;
+  /**
+   * Optional callback for handling "add provider" flow in redirect scenarios.
+   * When provided, this is called instead of completeOauth when adding an OAuth provider.
+   * @param oidcToken - The OIDC token from the OAuth provider
+   */
+  onAddProvider?: ((oidcToken: string) => Promise<void>) | undefined;
+  /**
+   * Function to exchange the authorization code for an OIDC token.
+   * This is provider-specific:
+   * - Discord/Twitter: uses proxyOAuth2Authenticate
+   * - Facebook: uses exchangeCodeForToken
+   */
+  exchangeCodeForToken: (verifier: string) => Promise<string>;
+}
+
+/**
+ * Unified PKCE flow handler for all PKCE-based OAuth providers.
+ * Handles the complete PKCE flow: verifier retrieval, token exchange, and completion routing.
+ *
+ * This function abstracts the common logic shared between popup and redirect flows
+ * for Facebook, Discord, and Twitter/X.
+ *
+ * @param params - The PKCE flow parameters
+ * @returns A promise that resolves when the flow is complete
+ */
+export async function completePKCEFlow({
+  publicKey,
+  providerName,
+  sessionKey,
+  callbacks,
+  completeOauth,
+  onOauthSuccess,
+  onAddProvider,
+  exchangeCodeForToken,
+}: CompletePKCEFlowParams): Promise<void> {
+  // Consume the verifier (retrieves and removes from storage)
+  const verifier = consumePKCEVerifier(providerName);
+
+  // Exchange the code for an OIDC token using the provider-specific function
+  const oidcToken = await exchangeCodeForToken(verifier);
+
+  // Use unified completion handler
+  await completeOAuthFlow({
+    provider: providerName,
+    publicKey,
+    oidcToken,
+    sessionKey,
+    callbacks,
+    completeOauth,
+    onOauthSuccess,
+    onAddProvider,
+  });
 }
