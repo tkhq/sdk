@@ -4,7 +4,6 @@ const config = {
     "\\.[jt]sx?$": "@turnkey/jest-config/transformer.js",
   },
   testPathIgnorePatterns: ["<rootDir>/dist/", "<rootDir>/node_modules/"],
-  preset: "ts-jest",
   testEnvironment: "jsdom", // use jsdom to simulate browser
 };
 
