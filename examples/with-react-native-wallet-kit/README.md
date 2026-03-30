@@ -137,7 +137,7 @@ Turnkey’s OAuth flows use a fixed origin and redirect service. Configure your 
 - Authorized redirect URI (use your app scheme):
 
 ```
-https://oauth-redirect.turnkey.com?scheme=withreactnativewalletkit
+https://oauth-redirect.turnkey.com/?scheme=withreactnativewalletkit
 ```
 
 If you change the scheme, update both `app.json` (`expo.scheme`) and `EXPO_PUBLIC_APP_SCHEME` in `.env`.
