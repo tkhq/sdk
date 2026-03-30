@@ -7,14 +7,14 @@ import {
   capitalizeProviderName,
   cleanupOAuthUrl,
   cleanupOAuthUrlPreserveSearch,
-  clearOAuthAddProviderMetadata,
+  clearAllOAuthData,
   completeOAuthFlow,
   completeOAuthPopup,
   exchangeFacebookCodeForToken,
   generateChallengePair,
   getOAuthAddProviderMetadata,
   getProviderIcon,
-  handlePKCEFlow,
+  completePKCEFlow,
   hasPKCEVerifier,
   OAUTH_INTENT_ADD_PROVIDER,
   openOAuthPopup,
@@ -278,355 +278,350 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const { isMobile, pushPage, popPage, closeModal } = useModal();
 
   const completeRedirectOauth = async () => {
-    // Check for either hash or search parameters that could indicate an OAuth redirect
-    if (!window.location.hash && !window.location.search) {
-      // No OAuth redirect parameters found, nothing to do
-      return;
-    }
+    // Since we use localStorage (see storage.ts), we always clean up OAuth data
+    // when this runs — even if there are no OAuth params in the URL (e.g. the
+    // user canceled at the provider and came back manually)
+    try {
+      // Check for either hash or search parameters that could indicate an OAuth redirect
+      if (!window.location.hash && !window.location.search) {
+        // No OAuth redirect parameters found, nothing to do
+        return;
+      }
+      /**
+       * Wraps an OAuth completion action with optional modal UI.
+       * This is the key difference between redirect and popup flows:
+       * - Popup: No modal needed (the popup window itself is the UI)
+       * - Redirect: Optional modal to show loading/success states on return
+       */
+      const withModalWrapper = async (params: {
+        provider: string;
+        isAddProvider: boolean;
+        metadata: ReturnType<typeof getOAuthAddProviderMetadata>;
+        openModal?: string | null | undefined;
+        action: () => Promise<void>;
+      }) => {
+        const { provider, isAddProvider, metadata, openModal, action } = params;
+        const providerDisplayName = capitalizeProviderName(provider);
+        const icon = getProviderIcon(provider);
 
-    /**
-     * Wraps an OAuth completion action with optional modal UI.
-     * This is the key difference between redirect and popup flows:
-     * - Popup: No modal needed (the popup window itself is the UI)
-     * - Redirect: Optional modal to show loading/success states on return
-     */
-    const withModalWrapper = async (params: {
-      provider: string;
-      isAddProvider: boolean;
-      metadata: ReturnType<typeof getOAuthAddProviderMetadata>;
-      openModal?: string | null | undefined;
-      action: () => Promise<void>;
-    }) => {
-      const { provider, isAddProvider, metadata, openModal, action } = params;
-      const providerDisplayName = capitalizeProviderName(provider);
-      const icon = getProviderIcon(provider);
-
-      if (openModal === "true") {
-        // Show modal UI for the completion
-        await new Promise<void>((resolve, reject) => {
-          pushPage({
-            key: `${providerDisplayName} OAuth`,
-            content: (
-              <ActionPage
-                closeOnComplete={isAddProvider ? false : true} // Don't close automatically if adding provider, we show the success screen
-                title={
-                  isAddProvider
-                    ? `Adding ${providerDisplayName} provider...`
-                    : `Authenticating with ${providerDisplayName}...`
-                }
-                action={async () => {
-                  try {
-                    await action();
-                    if (isAddProvider && metadata) {
-                      // Don't show success for auth. Not needed
-                      pushPage({
-                        key: "OAuth Provider Added",
-                        content: (
-                          <SuccessPage
-                            text={`Successfully added ${providerDisplayName} OAuth provider!`}
-                            duration={metadata.successPageDuration ?? 2000}
-                            onComplete={() => {
-                              closeModal();
-                            }}
-                          />
-                        ),
-                        preventBack: true,
-                        showTitle: false,
-                      });
-                    }
-                    resolve();
-                  } catch (err) {
-                    if (isAddProvider) {
-                      clearOAuthAddProviderMetadata();
-                    }
-                    reject(err);
-                    popPage();
+        if (openModal === "true") {
+          // Show modal UI for the completion
+          await new Promise<void>((resolve, reject) => {
+            pushPage({
+              key: `${providerDisplayName} OAuth`,
+              content: (
+                <ActionPage
+                  closeOnComplete={isAddProvider ? false : true} // Don't close automatically if adding provider, we show the success screen
+                  title={
+                    isAddProvider
+                      ? `Adding ${providerDisplayName} provider...`
+                      : `Authenticating with ${providerDisplayName}...`
                   }
-                }}
-                icon={<FontAwesomeIcon icon={icon} size="3x" />}
-              />
-            ),
-            showTitle: false,
-            onClose: () => {
-              if (isAddProvider) {
-                clearOAuthAddProviderMetadata();
-              }
-              reject(
-                new TurnkeyError(
-                  isAddProvider
-                    ? `User canceled the ${providerDisplayName} add provider process.`
-                    : `User canceled the ${providerDisplayName} authentication process.`,
-                  TurnkeyErrorCodes.USER_CANCELED,
-                ),
-              );
-            },
+                  action={async () => {
+                    try {
+                      await action();
+                      if (isAddProvider && metadata) {
+                        // Don't show success for auth. Not needed
+                        pushPage({
+                          key: "OAuth Provider Added",
+                          content: (
+                            <SuccessPage
+                              text={`Successfully added ${providerDisplayName} OAuth provider!`}
+                              duration={metadata.successPageDuration ?? 2000}
+                              onComplete={() => {
+                                closeModal();
+                              }}
+                            />
+                          ),
+                          preventBack: true,
+                          showTitle: false,
+                        });
+                      }
+                      resolve();
+                    } catch (err) {
+                      reject(err);
+                      popPage();
+                    }
+                  }}
+                  icon={<FontAwesomeIcon icon={icon} size="3x" />}
+                />
+              ),
+              showTitle: false,
+              onClose: () => {
+                reject(
+                  new TurnkeyError(
+                    isAddProvider
+                      ? `User canceled the ${providerDisplayName} add provider process.`
+                      : `User canceled the ${providerDisplayName} authentication process.`,
+                    TurnkeyErrorCodes.USER_CANCELED,
+                  ),
+                );
+              },
+            });
           });
-        });
-      } else {
-        // No modal - execute directly
-        try {
+        } else {
+          // No modal - execute directly
           await action();
-        } catch (err) {
-          if (isAddProvider) {
-            clearOAuthAddProviderMetadata();
+        }
+      };
+
+      // Handle PKCE-based OAuth redirects (Facebook, Discord, X) with code in search parameters
+      if (
+        window.location.search &&
+        window.location.search.includes("code=") &&
+        window.location.search.includes("state=")
+      ) {
+        // Parse the URL using our unified helper
+        const result = parseOAuthResponse(window.location.href);
+
+        if (!result || !result.authCode || !result.publicKey) {
+          return;
+        }
+
+        if (result.flow !== "redirect") {
+          // To complete OAuth we need redirect flow
+          return;
+        }
+
+        const {
+          authCode: code,
+          provider,
+          publicKey,
+          oauthIntent,
+          sessionKey,
+          nonce,
+          openModal,
+        } = result;
+
+        const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
+        const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
+
+        /**
+         * Helper to complete PKCE redirect flow with optional modal wrapper.
+         * Uses completePKCEFlow from oauth utils for the core logic.
+         * We put this in a separate function to avoid duplicating for each provider.
+         */
+        const completePKCERedirect = async (
+          providerName: PKCEProvider,
+          exchangeCodeFn: (codeVerifier: string) => Promise<string>,
+        ) => {
+          const action = async () => {
+            try {
+              await completePKCEFlow({
+                publicKey,
+                providerName,
+                sessionKey: sessionKey ?? undefined,
+                callbacks,
+                completeOauth,
+                onAddProvider:
+                  // Only set onAddProvider if we are adding a provider and have metadata
+                  isAddProvider && metadata
+                    ? async (oidcToken: string) => {
+                        await addOauthProvider({
+                          providerName: provider!,
+                          oidcToken,
+                          organizationId: metadata.organizationId,
+                          userId: metadata.userId,
+                          ...(metadata.stampWith && {
+                            stampWith: metadata.stampWith as StamperType,
+                          }),
+                        });
+                      }
+                    : undefined,
+                exchangeCodeForToken: exchangeCodeFn,
+              });
+            } catch (err) {
+              if (callbacks?.onError) {
+                const providerDisplayName =
+                  capitalizeProviderName(providerName);
+                callbacks.onError(
+                  err instanceof TurnkeyError
+                    ? err
+                    : new TurnkeyError(
+                        `${providerDisplayName} authentication failed`,
+                        TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+                        err,
+                      ),
+                );
+              }
+              throw err;
+            }
+          };
+
+          await withModalWrapper({
+            provider: providerName,
+            isAddProvider,
+            metadata,
+            openModal,
+            action,
+          });
+
+          // Clean up URL after successful completion
+          cleanupOAuthUrl();
+        };
+
+        // FACEBOOK
+        if (provider === OAuthProviders.FACEBOOK) {
+          const clientId = masterConfig?.auth?.oauthConfig?.facebookClientId;
+          const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
+          const hasVerifier = hasPKCEVerifier(OAuthProviders.FACEBOOK);
+
+          if (clientId && redirectURI && hasVerifier) {
+            await completePKCERedirect(
+              OAuthProviders.FACEBOOK,
+              async (codeVerifier) => {
+                const tokenResponse = await exchangeFacebookCodeForToken(
+                  clientId,
+                  redirectURI,
+                  code,
+                  codeVerifier,
+                );
+                const oidcToken = tokenResponse?.id_token;
+                if (!oidcToken) {
+                  throw new TurnkeyError(
+                    "Missing OIDC token",
+                    TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                  );
+                }
+                return oidcToken;
+              },
+            );
           }
-          throw err;
+          return;
+        }
+
+        // DISCORD
+        if (provider === OAuthProviders.DISCORD) {
+          const clientId = masterConfig?.auth?.oauthConfig?.discordClientId;
+          const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
+          const hasVerifier = hasPKCEVerifier(OAuthProviders.DISCORD);
+
+          if (clientId && redirectURI && hasVerifier && nonce) {
+            await completePKCERedirect(
+              OAuthProviders.DISCORD,
+              async (codeVerifier) => {
+                const resp = await client?.httpClient.proxyOAuth2Authenticate({
+                  provider: "OAUTH2_PROVIDER_DISCORD",
+                  authCode: code,
+                  redirectUri: redirectURI,
+                  codeVerifier,
+                  clientId,
+                  nonce,
+                });
+                const oidcToken = resp?.oidcToken;
+                if (!oidcToken) {
+                  throw new TurnkeyError(
+                    "Missing OIDC token",
+                    TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                  );
+                }
+                return oidcToken;
+              },
+            );
+          }
+          return;
+        }
+
+        // X (Twitter)
+        if (provider === OAuthProviders.X) {
+          const clientId = masterConfig?.auth?.oauthConfig?.xClientId;
+          const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
+          const hasVerifier = hasPKCEVerifier(OAuthProviders.X);
+
+          if (clientId && redirectURI && hasVerifier && nonce) {
+            await completePKCERedirect(
+              OAuthProviders.X,
+              async (codeVerifier) => {
+                const resp = await client?.httpClient.proxyOAuth2Authenticate({
+                  provider: "OAUTH2_PROVIDER_X",
+                  authCode: code,
+                  redirectUri: redirectURI,
+                  codeVerifier,
+                  clientId,
+                  nonce,
+                });
+                const oidcToken = resp?.oidcToken;
+                if (!oidcToken) {
+                  throw new TurnkeyError(
+                    "Missing OIDC token",
+                    TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                  );
+                }
+                return oidcToken;
+              },
+            );
+          }
+          return;
         }
       }
-    };
 
-    // Handle PKCE-based OAuth redirects (Facebook, Discord, X) with code in search parameters
-    if (
-      window.location.search &&
-      window.location.search.includes("code=") &&
-      window.location.search.includes("state=")
-    ) {
-      // Parse the URL using our unified helper
-      const result = parseOAuthResponse(window.location.href);
+      // Handle Google/Apple redirects (uses hash with idToken - non-PKCE)
+      if (window.location.hash) {
+        // Parse the URL using our unified helper
+        const result = parseOAuthResponse(window.location.href);
 
-      if (!result || !result.authCode || !result.publicKey) {
-        return;
-      }
+        if (
+          !result ||
+          !result.idToken ||
+          result.flow !== "redirect" ||
+          !result.publicKey
+        ) {
+          // idToken and publicKey are required to complete OAuth. These are both in the hash for non-PKCE providers
+          return;
+        }
 
-      if (result.flow !== "redirect") {
-        // To complete OAuth we need redirect flow
-        return;
-      }
+        const {
+          idToken,
+          provider,
+          publicKey,
+          openModal,
+          sessionKey,
+          oauthIntent,
+        } = result;
 
-      const {
-        authCode: code,
-        provider,
-        publicKey,
-        oauthIntent,
-        sessionKey,
-        nonce,
-        openModal,
-      } = result;
+        const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
+        const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
+        const resolvedProvider = provider || OAuthProviders.GOOGLE;
 
-      const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-      const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
-
-      /**
-       * Helper to complete PKCE redirect flow with optional modal wrapper.
-       * Uses handlePKCEFlow from oauth utils for the core logic.
-       * We put this in a separate function to avoid duplicating for each provider.
-       */
-      const completePKCERedirect = async (
-        providerName: PKCEProvider,
-        exchangeCodeFn: (codeVerifier: string) => Promise<string>,
-      ) => {
+        // Use completeOAuthFlow from utils for the core completion logic
         const action = async () => {
-          try {
-            await handlePKCEFlow({
-              publicKey,
-              providerName,
-              sessionKey: sessionKey ?? undefined,
-              callbacks,
-              completeOauth,
-              onAddProvider:
-                // Only set onAddProvider if we are adding a provider and have metadata
-                isAddProvider && metadata
-                  ? async (oidcToken: string) => {
-                      await addOauthProvider({
-                        providerName: provider!,
-                        oidcToken,
-                        organizationId: metadata.organizationId,
-                        userId: metadata.userId,
-                        ...(metadata.stampWith && {
-                          stampWith: metadata.stampWith as StamperType,
-                        }),
-                      });
-                      clearOAuthAddProviderMetadata();
-                    }
-                  : undefined,
-              exchangeCodeForToken: exchangeCodeFn,
-            });
-          } catch (err) {
-            if (callbacks?.onError) {
-              const providerDisplayName = capitalizeProviderName(providerName);
-              callbacks.onError(
-                err instanceof TurnkeyError
-                  ? err
-                  : new TurnkeyError(
-                      `${providerDisplayName} authentication failed`,
-                      TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
-                      err,
-                    ),
-              );
-            }
-            throw err;
-          }
+          await completeOAuthFlow({
+            provider: resolvedProvider as OAuthProviders,
+            publicKey,
+            oidcToken: idToken,
+            sessionKey: sessionKey ?? undefined,
+            callbacks,
+            completeOauth,
+            onAddProvider:
+              isAddProvider && metadata
+                ? async (oidcToken) => {
+                    await addOauthProvider({
+                      providerName: resolvedProvider,
+                      oidcToken,
+                      organizationId: metadata.organizationId,
+                      userId: metadata.userId,
+                      ...(metadata.stampWith && {
+                        stampWith: metadata.stampWith as StamperType,
+                      }),
+                    });
+                  }
+                : undefined,
+          });
         };
 
         await withModalWrapper({
-          provider: providerName,
+          provider: resolvedProvider,
           isAddProvider,
           metadata,
-          openModal,
+          openModal: openModal ?? undefined,
           action,
         });
 
-        // Clean up URL after successful completion
-        cleanupOAuthUrl();
-      };
-
-      // FACEBOOK
-      if (provider === OAuthProviders.FACEBOOK) {
-        const clientId = masterConfig?.auth?.oauthConfig?.facebookClientId;
-        const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
-        const hasVerifier = hasPKCEVerifier(OAuthProviders.FACEBOOK);
-
-        if (clientId && redirectURI && hasVerifier) {
-          await completePKCERedirect(
-            OAuthProviders.FACEBOOK,
-            async (codeVerifier) => {
-              const tokenResponse = await exchangeFacebookCodeForToken(
-                clientId,
-                redirectURI,
-                code,
-                codeVerifier,
-              );
-              const oidcToken = tokenResponse?.id_token;
-              if (!oidcToken) {
-                throw new TurnkeyError(
-                  "Missing OIDC token",
-                  TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-                );
-              }
-              return oidcToken;
-            },
-          );
-        }
-        return;
+        // Clean up the URL after processing
+        cleanupOAuthUrlPreserveSearch();
       }
-
-      // DISCORD
-      if (provider === OAuthProviders.DISCORD) {
-        const clientId = masterConfig?.auth?.oauthConfig?.discordClientId;
-        const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
-        const hasVerifier = hasPKCEVerifier(OAuthProviders.DISCORD);
-
-        if (clientId && redirectURI && hasVerifier && nonce) {
-          await completePKCERedirect(
-            OAuthProviders.DISCORD,
-            async (codeVerifier) => {
-              const resp = await client?.httpClient.proxyOAuth2Authenticate({
-                provider: "OAUTH2_PROVIDER_DISCORD",
-                authCode: code,
-                redirectUri: redirectURI,
-                codeVerifier,
-                clientId,
-                nonce,
-              });
-              const oidcToken = resp?.oidcToken;
-              if (!oidcToken) {
-                throw new TurnkeyError(
-                  "Missing OIDC token",
-                  TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-                );
-              }
-              return oidcToken;
-            },
-          );
-        }
-        return;
-      }
-
-      // X (Twitter)
-      if (provider === OAuthProviders.X) {
-        const clientId = masterConfig?.auth?.oauthConfig?.xClientId;
-        const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
-        const hasVerifier = hasPKCEVerifier(OAuthProviders.X);
-
-        if (clientId && redirectURI && hasVerifier && nonce) {
-          await completePKCERedirect(OAuthProviders.X, async (codeVerifier) => {
-            const resp = await client?.httpClient.proxyOAuth2Authenticate({
-              provider: "OAUTH2_PROVIDER_X",
-              authCode: code,
-              redirectUri: redirectURI,
-              codeVerifier,
-              clientId,
-              nonce,
-            });
-            const oidcToken = resp?.oidcToken;
-            if (!oidcToken) {
-              throw new TurnkeyError(
-                "Missing OIDC token",
-                TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-              );
-            }
-            return oidcToken;
-          });
-        }
-        return;
-      }
-    }
-
-    // Handle Google/Apple redirects (uses hash with idToken - non-PKCE)
-    if (window.location.hash) {
-      // Parse the URL using our unified helper
-      const result = parseOAuthResponse(window.location.href);
-
-      if (
-        !result ||
-        !result.idToken ||
-        result.flow !== "redirect" ||
-        !result.publicKey
-      ) {
-        // idToken and publicKey are required to complete OAuth. These are both in the hash for non-PKCE providers
-        return;
-      }
-
-      const {
-        idToken,
-        provider,
-        publicKey,
-        openModal,
-        sessionKey,
-        oauthIntent,
-      } = result;
-
-      const isAddProvider = oauthIntent === OAUTH_INTENT_ADD_PROVIDER;
-      const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
-      const resolvedProvider = provider || OAuthProviders.GOOGLE;
-
-      // Use completeOAuthFlow from utils for the core completion logic
-      const action = async () => {
-        await completeOAuthFlow({
-          provider: resolvedProvider as OAuthProviders,
-          publicKey,
-          oidcToken: idToken,
-          sessionKey: sessionKey ?? undefined,
-          callbacks,
-          completeOauth,
-          onAddProvider:
-            isAddProvider && metadata
-              ? async (oidcToken) => {
-                  await addOauthProvider({
-                    providerName: resolvedProvider,
-                    oidcToken,
-                    organizationId: metadata.organizationId,
-                    userId: metadata.userId,
-                    ...(metadata.stampWith && {
-                      stampWith: metadata.stampWith as StamperType,
-                    }),
-                  });
-                  clearOAuthAddProviderMetadata();
-                }
-              : undefined,
-        });
-      };
-
-      await withModalWrapper({
-        provider: resolvedProvider,
-        isAddProvider,
-        metadata,
-        openModal: openModal ?? undefined,
-        action,
-      });
-
-      // Clean up the URL after processing
-      cleanupOAuthUrlPreserveSearch();
+    } finally {
+      clearAllOAuthData();
     }
   };
 
