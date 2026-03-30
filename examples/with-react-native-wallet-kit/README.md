@@ -140,6 +140,8 @@ Turnkey’s OAuth flows use a fixed origin and redirect service. Configure your 
 https://oauth-redirect.turnkey.com/?scheme=withreactnativewalletkit
 ```
 
+> **Note**: notice the `/` before the query string — this is required. Apple in particular performs strict URL matching and will reject the flow with "invalid web redirect url" if the slash is missing.
+
 If you change the scheme, update both `app.json` (`expo.scheme`) and `EXPO_PUBLIC_APP_SCHEME` in `.env`.
 
 ### 2. Set your client IDs in `.env`
