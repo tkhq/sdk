@@ -1,6 +1,6 @@
 {
   "name": "with-x",
-  "version": "0.1.28",
+  "version": "0.1.29",
   "private": true,
   "scripts": {
     "dev": "PORT=$(grep PORT .env.local | cut -d '=' -f2) next dev",

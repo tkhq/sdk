@@ -1,5 +1,11 @@
 # @turnkey/sdk-types
 
+## 0.14.0
+
+### Minor Changes
+
+- [#1258](https://github.com/tkhq/sdk/pull/1258) [`8209887`](https://github.com/tkhq/sdk/commit/8209887d48bae7ea617645603a156aeb1cfbd2e7) Author [@moeodeh3](https://github.com/moeodeh3) - Added a new error code `NO_PKCE_VERIFIER_FOUND` in `TurnkeyErrorCodes`
+
 ## 0.13.0
 
 ### Minor Changes

@@ -1,5 +1,19 @@
 # @turnkey/sdk-server
 
+## 5.3.0
+
+### Minor Changes
+
+- [#1257](https://github.com/tkhq/sdk/pull/1257) [`d05bd86`](https://github.com/tkhq/sdk/commit/d05bd86400d463c8f8c9788e69f0918db45662b5) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Expose `pollTransactionStatus()` in client
+
+### Patch Changes
+
+- Updated dependencies [[`8209887`](https://github.com/tkhq/sdk/commit/8209887d48bae7ea617645603a156aeb1cfbd2e7)]:
+  - @turnkey/sdk-types@0.14.0
+  - @turnkey/api-key-stamper@0.6.5
+  - @turnkey/wallet-stamper@1.1.16
+  - @turnkey/http@3.18.1
+
 ## 5.2.0
 
 ### Minor Changes

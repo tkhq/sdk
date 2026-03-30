@@ -1,5 +1,17 @@
 # @turnkey/sdk-browser
 
+## 5.16.1
+
+### Patch Changes
+
+- Updated dependencies [[`8209887`](https://github.com/tkhq/sdk/commit/8209887d48bae7ea617645603a156aeb1cfbd2e7)]:
+  - @turnkey/sdk-types@0.14.0
+  - @turnkey/crypto@2.8.14
+  - @turnkey/api-key-stamper@0.6.5
+  - @turnkey/wallet-stamper@1.1.16
+  - @turnkey/http@3.18.1
+  - @turnkey/indexed-db-stamper@1.2.6
+
 ## 5.16.0
 
 ### Minor Changes

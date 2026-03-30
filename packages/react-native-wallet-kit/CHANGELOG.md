@@ -1,5 +1,17 @@
 # @turnkey/react-native-wallet-kit
 
+## 1.5.2
+
+### Patch Changes
+
+- [#1257](https://github.com/tkhq/sdk/pull/1257) [`aa3e55e`](https://github.com/tkhq/sdk/commit/aa3e55e1e5adea1945647c84fe247bc2761a8f77) Thanks [@Bijan-Massoumi](https://github.com/Bijan-Massoumi)! - Add full status response as `error.cause` on errors thrown by `pollTransactionStatus()`
+
+- Updated dependencies [[`aa3e55e`](https://github.com/tkhq/sdk/commit/aa3e55e1e5adea1945647c84fe247bc2761a8f77), [`8209887`](https://github.com/tkhq/sdk/commit/8209887d48bae7ea617645603a156aeb1cfbd2e7), [`59ebe9b`](https://github.com/tkhq/sdk/commit/59ebe9bc4a5fa3c015ed32cc6b8ab0b66523b0a4)]:
+  - @turnkey/core@1.14.1
+  - @turnkey/sdk-types@0.14.0
+  - @turnkey/crypto@2.8.14
+  - @turnkey/react-native-passkey-stamper@1.2.13
+
 ## 1.5.1
 
 ### Patch Changes
