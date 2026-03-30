@@ -7,10 +7,30 @@ import { ethers } from "ethers";
 import prompts from "prompts";
 import { getTurnkeyClient, pollTransactionStatus } from "../turnkey";
 import { toReadableAmount } from "../utils";
-import { ERC20_ABI, USDC_SEPOLIA, WETH_SEPOLIA } from "../tokens";
+import {
+  ERC20_ABI,
+  NETWORKS,
+  type NetworkConfig,
+  type SupportedNetwork,
+} from "../tokens";
 
-const RPC_URL = "https://ethereum-sepolia-rpc.publicnode.com";
-const provider = new ethers.JsonRpcProvider(RPC_URL);
+const SUPPORTED_NETWORKS = Object.keys(NETWORKS) as SupportedNetwork[];
+
+// resolveDefaultNetwork validates the env-backed selection so every downstream
+// call can rely on a single network config object.
+function resolveDefaultNetwork(): SupportedNetwork {
+  const configuredNetwork = (
+    process.env.SWEEPER_NETWORK ?? "sepolia"
+  ).toLowerCase();
+
+  if (SUPPORTED_NETWORKS.includes(configuredNetwork as SupportedNetwork)) {
+    return configuredNetwork as SupportedNetwork;
+  }
+
+  throw new Error(
+    `Invalid SWEEPER_NETWORK "${configuredNetwork}". Valid options: ${SUPPORTED_NETWORKS.join(", ")}`,
+  );
+}
 
 export async function main() {
   const orgId = process.env.ORGANIZATION_ID!;
@@ -18,14 +38,41 @@ export async function main() {
   const turnkey = getTurnkeyClient();
   const address = signWith;
   const destination = process.env.DESTINATION_ADDRESS!;
+  const defaultNetwork = resolveDefaultNetwork();
+  const { networkName } = await prompts({
+    type: "select",
+    name: "networkName",
+    message: "Select network:",
+    initial: SUPPORTED_NETWORKS.indexOf(defaultNetwork),
+    choices: [
+      {
+        title: "Ethereum Sepolia",
+        description: "Testnet",
+        value: "sepolia",
+      },
+      {
+        title: "Base Mainnet",
+        description: "Production",
+        value: "base",
+      },
+    ],
+  });
+
+  if (!networkName) {
+    console.log("Operation cancelled.");
+    return;
+  }
+
+  const network = NETWORKS[networkName as SupportedNetwork];
+  const provider = new ethers.JsonRpcProvider(network.rpcUrl);
 
   // Fetch ETH balance
   const balance = await provider.getBalance(address);
 
+  console.log("Network:", network.label);
   console.log("Address:", address);
   console.log("Eth Balance:", ethers.formatEther(balance));
 
-  const tokens = [USDC_SEPOLIA, WETH_SEPOLIA];
   let sponsor = false;
   const { useSponsor } = await prompts({
     type: "confirm",
@@ -42,8 +89,24 @@ export async function main() {
     }
   }
 
-  await sweepTokens(turnkey, orgId, address, destination, tokens, sponsor);
-  await sweepEth(turnkey, orgId, address, destination, sponsor);
+  await sweepTokens(
+    turnkey,
+    orgId,
+    address,
+    destination,
+    network,
+    provider,
+    sponsor,
+  );
+  await sweepEth(
+    turnkey,
+    orgId,
+    address,
+    destination,
+    network,
+    provider,
+    sponsor,
+  );
 }
 
 async function sweepTokens(
@@ -51,10 +114,11 @@ async function sweepTokens(
   organizationId: string,
   ownerAddress: string,
   destination: string,
-  tokens: any[],
+  network: NetworkConfig,
+  provider: ethers.JsonRpcProvider,
   sponsor: boolean,
 ) {
-  for (const token of tokens) {
+  for (const token of network.tokens) {
     const contract = new ethers.Contract(token.address, ERC20_ABI, provider);
     const balance: bigint = await (contract as any).balanceOf(ownerAddress);
 
@@ -85,7 +149,7 @@ async function sweepTokens(
     const resp = await turnkey.apiClient().getNonces({
       organizationId,
       address: ownerAddress,
-      caip2: "eip155:11155111", // Sepolia
+      caip2: network.caip2,
       nonce: sponsor ? false : true,
       gasStationNonce: sponsor ? true : false,
     });
@@ -99,7 +163,7 @@ async function sweepTokens(
         organizationId,
         from: ownerAddress,
         to: token.address,
-        caip2: "eip155:11155111", // Sepolia
+        caip2: network.caip2,
         gasStationNonce: sponsor ? gasStationNonce : undefined,
         nonce: sponsor ? undefined : nonce,
         sponsor,
@@ -121,7 +185,7 @@ async function sweepTokens(
     }
 
     console.log(
-      `Sent ${token.symbol}: https://sepolia.etherscan.io/tx/${status.eth?.txHash}`,
+      `Sent ${token.symbol}: ${network.explorerBaseUrl}/tx/${status.eth?.txHash}`,
     );
   }
 }
@@ -131,6 +195,8 @@ async function sweepEth(
   organizationId: string,
   ownerAddress: string,
   destination: string,
+  network: NetworkConfig,
+  provider: ethers.JsonRpcProvider,
   sponsor: boolean,
 ) {
   const balance = await provider.getBalance(ownerAddress);
@@ -160,7 +226,7 @@ async function sweepEth(
   const resp = await turnkey.apiClient().getNonces({
     organizationId,
     address: ownerAddress,
-    caip2: "eip155:11155111", // Sepolia
+    caip2: network.caip2,
     nonce: sponsor ? false : true,
     gasStationNonce: sponsor ? true : false,
   });
@@ -176,7 +242,7 @@ async function sweepEth(
       gasStationNonce: sponsor ? gasStationNonce : undefined,
       nonce: sponsor ? undefined : nonce,
       sponsor,
-      caip2: "eip155:11155111",
+      caip2: network.caip2,
       value: value.toString(),
       gasLimit: sponsor ? undefined : gas.toString(),
       maxFeePerGas: sponsor ? undefined : maxFee!.toString(),
@@ -193,9 +259,7 @@ async function sweepEth(
     throw new Error(`ETH sweep failed with status: ${status.txStatus}`);
   }
 
-  console.log(
-    `Sent ETH: https://sepolia.etherscan.io/tx/${status.eth?.txHash}`,
-  );
+  console.log(`Sent ETH: ${network.explorerBaseUrl}/tx/${status.eth?.txHash}`);
 }
 main().catch((error) => {
   console.error(error);

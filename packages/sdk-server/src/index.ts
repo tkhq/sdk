@@ -21,6 +21,7 @@ import {
   TurnkeyServerClient,
   TurnkeyApiClient,
 } from "./sdk-client";
+import type { PollTransactionStatusParams } from "./sdk-client";
 
 import type {
   TurnkeySDKClientConfig,
@@ -73,6 +74,7 @@ export const server = {
 
 // Types
 export type {
+  PollTransactionStatusParams,
   TActivity,
   WalletAccount,
   TApiKeyStamperConfig,

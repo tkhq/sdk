@@ -3008,7 +3008,7 @@ export class TurnkeyClient {
    * @param params.stampWith - Optional stamper to use for polling.
    *
    * @returns A promise resolving to the transaction status payload if successful.
-   * @throws {Error | string} If the transaction fails or is cancelled.
+   * @throws {TurnkeyError} If the transaction fails, is cancelled, or times out.
    */
 
   async pollTransactionStatus(
@@ -3046,15 +3046,20 @@ export class TurnkeyClient {
             });
 
             const txStatus = resp?.txStatus;
-            const txError = resp?.txError;
 
             if (!txStatus) return;
 
-            if (txError || txStatus === "FAILED" || txStatus === "CANCELLED") {
+            if (txStatus === "FAILED" || txStatus === "CANCELLED") {
               // TODO: use API enum in the future
               clearInterval(ref);
               clearTimeout(timeoutRef);
-              reject(txError || `Transaction ${txStatus}`);
+              reject(
+                new TurnkeyError(
+                  resp.error?.message || `Transaction ${resp.txStatus}`,
+                  TurnkeyErrorCodes.POLL_TRANSACTION_STATUS_ERROR,
+                  resp,
+                ),
+              );
               return;
             }
 
