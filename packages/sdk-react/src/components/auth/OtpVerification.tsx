@@ -11,12 +11,16 @@ import { OtpType, FilterType } from "./constants";
 import { server } from "@turnkey/sdk-server";
 import { useTurnkey } from "../../hooks/use-turnkey";
 import type { WalletAccount } from "@turnkey/sdk-browser";
+import { type v1ClientSignature, SignatureFormat } from "@turnkey/sdk-types";
+import { encryptOtpCodeToBundle } from "@turnkey/crypto";
+import { getClientSignatureMessageForLogin } from "@turnkey/core";
 
 const resendTimerMs = 15000;
 interface OtpVerificationProps {
   type: string;
   contact: string;
   otpId: string;
+  otpEncryptionTargetBundle: string;
   alphanumeric?: boolean | undefined;
   includeUnverifiedSubOrgs?: boolean | undefined;
   sessionLengthSeconds?: number | undefined;
@@ -33,6 +37,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   type,
   contact,
   otpId,
+  otpEncryptionTargetBundle,
   alphanumeric = false,
   includeUnverifiedSubOrgs = false,
   sessionLengthSeconds,
@@ -58,9 +63,16 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         setOtpError("Public key not found. Please try again.");
         return;
       }
+
+      const encryptedOtpBundle = await encryptOtpCodeToBundle(
+        otp.trim(),
+        otpEncryptionTargetBundle,
+        publicKey,
+      );
+
       const verifyResponse = await server.verifyOtp({
         otpId,
-        otpCode: otp,
+        encryptedOtpBundle,
         sessionLengthSeconds,
       });
 
@@ -88,10 +100,29 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         setOtpError("Suborganization ID not found. Please try again.");
         return;
       }
+
+      // Build the client signature proving we hold the session private key
+      const { message, publicKey: signingPublicKey } =
+        getClientSignatureMessageForLogin({
+          verificationToken: verifyResponse!.verificationToken,
+          sessionPublicKey: publicKey,
+        });
+      const compactSignature = await indexedDbClient!.sign(
+        message,
+        SignatureFormat.Raw,
+      );
+      const clientSignature: v1ClientSignature = {
+        scheme: "CLIENT_SIGNATURE_SCHEME_API_P256" as const,
+        publicKey: signingPublicKey,
+        message,
+        signature: compactSignature,
+      };
+
       const sessionResponse = await server.otpLogin({
         suborgID: suborgID,
         verificationToken: verifyResponse!.verificationToken,
         publicKey,
+        clientSignature,
         sessionLengthSeconds,
       });
 

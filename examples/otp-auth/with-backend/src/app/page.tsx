@@ -1,9 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useTurnkey, AuthState } from "@turnkey/react-wallet-kit";
+import {
+  useTurnkey,
+  AuthState,
+  getClientSignatureMessageForLogin,
+} from "@turnkey/react-wallet-kit";
+import { encryptOtpCodeToBundle } from "@turnkey/crypto";
+import type { v1ClientSignature } from "@turnkey/sdk-types";
 import {
   getSuborgsAction,
   createSuborgAction,
@@ -20,11 +26,15 @@ export default function AuthPage() {
   const [otpCode, setOtpCode] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [working, setWorking] = useState<string | null>(null);
+  const [publicKey, setPublicKey] = useState<string | null>(null);
 
-  // The exact session public key tied to this OTP attempt
-  const pubKeyRef = useRef<string | null>(null);
+  // The encryption target bundle from initOtp, needed to encrypt the OTP code
+  const [otpEncryptionTargetBundle, setOtpEncryptionTargetBundle] = useState<
+    string | null
+  >(null);
 
-  const { storeSession, createApiKeyPair, authState } = useTurnkey();
+  const { storeSession, createApiKeyPair, signWithApiKey, authState } =
+    useTurnkey();
 
   // If already authenticated, go to dashboard.
   useEffect(() => {
@@ -41,9 +51,9 @@ export default function AuthPage() {
 
       setWorking("Preparing…");
 
-      // 1) Create a fresh session key for this OTP attempt
-      const publicKey = await createApiKeyPair();
-      pubKeyRef.current = publicKey;
+      // 1) Create a fresh P256 key pair for this OTP attempt.
+      const pk = await createApiKeyPair();
+      setPublicKey(pk);
 
       // reset any prior OTP attempt UI state
       setOtpCode("");
@@ -53,7 +63,11 @@ export default function AuthPage() {
 
       // 2) Kick off OTP with backend, binds this attempt to the current session key
       // Note: publicKey here is used (optionally) for rate limiting SMS OTP requests per user
-      const { otpId } = await initOtpAction({ email: trimmed, publicKey });
+      const { otpId, otpEncryptionTargetBundle } = await initOtpAction({
+        email: trimmed,
+        publicKey: pk,
+      });
+      setOtpEncryptionTargetBundle(otpEncryptionTargetBundle);
       setOtpId(otpId);
     } catch (e: any) {
       console.error(e);
@@ -68,15 +82,22 @@ export default function AuthPage() {
       setErr(null);
       if (!otpId) throw new Error("No OTP in progress.");
       if (!otpCode) throw new Error("Enter the code from your email.");
-      if (!pubKeyRef.current)
+      if (!publicKey || !otpEncryptionTargetBundle)
         throw new Error("Session key missing. Please resend the code.");
 
       setWorking("Verifying…");
 
-      // 1) Verify the code first (prevents suborg spaming with unverified emails)
+      // 1) Encrypt the OTP code to the enclave's target key, then verify.
+      //    The OTP code never leaves the client unencrypted.
+      const encryptedOtpBundle = await encryptOtpCodeToBundle(
+        otpCode.trim(),
+        otpEncryptionTargetBundle,
+        publicKey,
+      );
+
       const { verificationToken } = await verifyOtpAction({
         otpId,
-        otpCode: otpCode.trim(),
+        encryptedOtpBundle,
       });
 
       // 2) Find or create suborg for this email
@@ -87,14 +108,29 @@ export default function AuthPage() {
         suborgId = created.subOrganizationId;
       }
 
-      // 3) Complete login using the same public key generated before initOtp
+      // 3) Build the client signature proving we hold the private key
+      const { message } = getClientSignatureMessageForLogin({
+        verificationToken,
+      });
+
+      const signature = await signWithApiKey({ message, publicKey });
+
+      const clientSignature: v1ClientSignature = {
+        scheme: "CLIENT_SIGNATURE_SCHEME_API_P256",
+        publicKey,
+        message,
+        signature,
+      };
+
+      // 4) Complete login with the client signature
       const { session } = await otpLoginAction({
         suborgID: suborgId!,
         verificationToken,
-        publicKey: pubKeyRef.current!,
+        publicKey,
+        clientSignature,
       });
 
-      // 4) Store session & go
+      // 5) Store session & go
       await storeSession({ sessionToken: session });
       router.replace("/dashboard");
     } catch (e: any) {
