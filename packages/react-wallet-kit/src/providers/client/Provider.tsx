@@ -5349,7 +5349,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                 const tx: EthTransaction = {
                   from,
                   to,
-                  caip2,
+                  caip2: caip2 as
+                    | "eip155:1"
+                    | "eip155:11155111"
+                    | "eip155:8453"
+                    | "eip155:84532"
+                    | "eip155:137"
+                    | "eip155:80002",
                   sponsor: sponsor ?? false,
                   ...(value ? { value } : {}),
                   ...(cleanedData ? { data: cleanedData } : {}),

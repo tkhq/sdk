@@ -1,5 +1,9 @@
 import { ApiKeyStamper } from "@turnkey/api-key-stamper";
-import { TurnkeyError, TurnkeyErrorCodes } from "@turnkey/sdk-types";
+import {
+  TGetSendTransactionStatusResponse,
+  TurnkeyError,
+  TurnkeyErrorCodes,
+} from "@turnkey/sdk-types";
 
 import type {
   ApiCredentials,
@@ -7,7 +11,6 @@ import type {
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
 } from "./__types__/base";
-import type { TGetSendTransactionStatusResponse } from "./__generated__/sdk_api_types";
 
 import { TurnkeySDKClientBase } from "./__generated__/sdk-client-base";
 

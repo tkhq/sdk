@@ -10,10 +10,7 @@ import {
   sealAndStampRequestBody,
   TurnkeyActivityError,
   TurnkeyApi,
-  TurnkeyRequestError,
-  type TSignedRequest,
-  type TActivity,
-  type TurnkeyApiTypes,
+  TurnkeyApiTypes,
 } from "@turnkey/http";
 
 import {
@@ -23,14 +20,14 @@ import {
 } from "./sdk-client";
 import type { PollTransactionStatusParams } from "./sdk-client";
 
-import type {
-  TurnkeySDKClientConfig,
-  TurnkeySDKServerConfig,
-  TurnkeyProxyHandlerConfig,
-  WalletAccount,
+import {
+  type TurnkeySDKClientConfig,
+  type TurnkeySDKServerConfig,
+  type TurnkeyProxyHandlerConfig,
+  TurnkeyRequestError,
 } from "./__types__/base";
 
-import type * as TurnkeySDKApiTypes from "./__generated__/sdk_api_types";
+import type { TSignedRequest } from "@turnkey/sdk-types";
 
 import { fetch } from "./universal";
 import {
@@ -74,17 +71,16 @@ export const server = {
 
 // Types
 export type {
-  PollTransactionStatusParams,
-  TActivity,
-  WalletAccount,
   TApiKeyStamperConfig,
+  PollTransactionStatusParams,
   TSignedRequest,
   TurnkeyApiTypes,
-  TurnkeySDKApiTypes,
   TurnkeySDKClientConfig,
   TurnkeySDKServerConfig,
   TurnkeyProxyHandlerConfig,
 };
+
+export * from "@turnkey/sdk-types";
 
 // Functions
 export {
@@ -162,6 +158,9 @@ export {
   DEFAULT_TON_V3R2_ACCOUNTS,
   defaultTonV4r2AccountAtIndex,
   DEFAULT_TON_V4R2_ACCOUNTS,
+  generateWalletAccountsFromAddressFormat,
+  createWalletAccountFromAddressFormat,
+  addressFormatConfig,
 } from "./turnkey-helpers";
 
 // Base Turnkey API
