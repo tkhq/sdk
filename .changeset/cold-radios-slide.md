@@ -5,4 +5,4 @@
 "@turnkey/sdk-server": minor
 ---
 
-Add full status response as `error.cause` on errors thrown by `pollTransactionStatus()`
+Expose `pollTransactionStatus()` in `@turnkey/sdk-server` clients and add the full status response as `error.cause` on errors it throws
