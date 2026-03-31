@@ -3132,13 +3132,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           "Client is not initialized.",
           TurnkeyErrorCodes.CLIENT_NOT_INITIALIZED,
         );
-      const session = await withTurnkeyErrorHandling(
-        () => client.getSession({ sessionKey: params.sessionKey }),
-        () => logout(),
-        callbacks,
-        "Failed to get session",
-      );
-      const s = await getSession();
+      const s = await getSession({ sessionKey: params.sessionKey });
       if (!s) {
         throw new TurnkeyError(
           "Session not found.",
