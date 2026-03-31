@@ -1,6 +1,30 @@
-import type { Session } from "@turnkey/sdk-types";
+import type {
+  Session,
+  v1ActivityType,
+  v1ActivityStatus,
+} from "@turnkey/sdk-types";
 import type { TStamper } from "./auth";
 import type { StamperType } from "./enums";
+
+/**
+ * Context provided to the `onMfaRequired` callback when an activity
+ * returns `ACTIVITY_STATUS_AUTHENTICATORS_NEEDED`.
+ *
+ * The callback should use these fields to display an approval UI
+ * (e.g. showing the fingerprint) and resolve when MFA is complete.
+ */
+export interface MfaContext {
+  /** The ID of the activity that requires MFA. */
+  activityId: string;
+  /** The fingerprint of the activity, used for approval. */
+  fingerprint: string;
+  /** The organization ID associated with the activity. */
+  organizationId: string;
+  /** The type of the activity (e.g. "ACTIVITY_TYPE_SIGN_TRANSACTION_V2"). */
+  activityType: v1ActivityType;
+  /** The status of the activity. */
+  status: v1ActivityStatus;
+}
 
 /**
  * TurnkeyHttpClientConfig defines the configuration for the Turnkey HTTP client.
@@ -34,6 +58,19 @@ export interface TurnkeyHttpClientConfig {
   storageManager?: StorageBase | undefined;
 
   defaultStamperType?: StamperType | undefined;
+
+  /**
+   * Callback invoked when an activity requires MFA approval
+   * (`ACTIVITY_STATUS_AUTHENTICATORS_NEEDED`).
+   *
+   * The `activity()` method will `await` this callback before resuming polling.
+   * - Resolve the returned promise when MFA approval is complete.
+   * - Reject to abort the operation (the error propagates to the caller).
+   *
+   * If not provided, the activity response is returned as-is with the
+   * `AUTHENTICATORS_NEEDED` status, and the caller is responsible for handling it.
+   */
+  onMfaRequired?: ((context: MfaContext) => Promise<void>) | undefined;
 }
 
 /**
@@ -67,6 +104,12 @@ export interface TurnkeySDKClientConfig {
   walletConfig?: TWalletManagerConfig;
   /** default stamper to be used for all requests */
   defaultStamperType?: StamperType | undefined;
+  /**
+   * Callback invoked when an activity requires MFA approval.
+   * Passed through to the underlying HTTP client.
+   * @see TurnkeyHttpClientConfig.onMfaRequired
+   */
+  onMfaRequired?: ((context: MfaContext) => Promise<void>) | undefined;
 }
 
 /**

@@ -356,6 +356,102 @@
         "tags": ["Boot Proof"]
       }
     },
+    "/public/v1/query/get_mfa_policies": {
+      "post": {
+        "summary": "Get MFA policies",
+        "description": "Get all MFA policies for a user.",
+        "operationId": "PublicApiService_GetMfaPolicies",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaPoliciesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaPoliciesRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
+      }
+    },
+    "/public/v1/query/get_mfa_policy": {
+      "post": {
+        "summary": "Get MFA policy",
+        "description": "Get a single MFA policy for a user.",
+        "operationId": "PublicApiService_GetMfaPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaPolicyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaPolicyRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
+      }
+    },
+    "/public/v1/query/get_mfa_status": {
+      "post": {
+        "summary": "Get MFA status",
+        "description": "Get the MFA status of an activity for a specific user or all voting users.",
+        "operationId": "PublicApiService_GetMfaStatus",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaStatusResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetMfaStatusRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
+      }
+    },
     "/public/v1/query/get_nonces": {
       "post": {
         "summary": "Get nonces",
@@ -642,6 +738,70 @@
           }
         ],
         "tags": ["Send Transactions"]
+      }
+    },
+    "/public/v1/query/get_session_profile": {
+      "post": {
+        "summary": "Get session profile",
+        "description": "Get a single session profile for an organization.",
+        "operationId": "PublicApiService_GetSessionProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSessionProfileResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetSessionProfileRequest"
+            }
+          }
+        ],
+        "tags": ["Session Profiles"]
+      }
+    },
+    "/public/v1/query/get_session_profiles": {
+      "post": {
+        "summary": "Get session profiles",
+        "description": "Get all session profiles for an organization.",
+        "operationId": "PublicApiService_GetSessionProfiles",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSessionProfilesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetSessionProfilesRequest"
+            }
+          }
+        ],
+        "tags": ["Session Profiles"]
       }
     },
     "/public/v1/query/get_smart_contract_interface": {
@@ -1412,38 +1572,6 @@
         "tags": ["API Keys"]
       }
     },
-    "/public/v1/submit/create_api_only_users": {
-      "post": {
-        "summary": "Create API-only users",
-        "description": "Create API-only users in an existing organization.",
-        "operationId": "PublicApiService_CreateApiOnlyUsers",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1ActivityResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/v1CreateApiOnlyUsersRequest"
-            }
-          }
-        ],
-        "tags": ["Users"]
-      }
-    },
     "/public/v1/submit/create_authenticators": {
       "post": {
         "summary": "Create authenticators",
@@ -1538,6 +1666,38 @@
           }
         ],
         "tags": ["Invitations"]
+      }
+    },
+    "/public/v1/submit/create_mfa_policy": {
+      "post": {
+        "summary": "Create MFA policy",
+        "description": "Create a new MFA policy for a user.",
+        "operationId": "PublicApiService_CreateMfaPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateMfaPolicyRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
       }
     },
     "/public/v1/submit/create_oauth2_credential": {
@@ -1794,6 +1954,38 @@
           }
         ],
         "tags": ["Sessions"]
+      }
+    },
+    "/public/v1/submit/create_session_profile": {
+      "post": {
+        "summary": "Create session profile",
+        "description": "Create a new session profile for an organization.",
+        "operationId": "PublicApiService_CreateSessionProfile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateSessionProfileRequest"
+            }
+          }
+        ],
+        "tags": ["Session Profiles"]
       }
     },
     "/public/v1/submit/create_smart_contract_interface": {
@@ -2146,6 +2338,38 @@
           }
         ],
         "tags": ["Invitations"]
+      }
+    },
+    "/public/v1/submit/delete_mfa_policy": {
+      "post": {
+        "summary": "Delete MFA policy",
+        "description": "Delete an MFA policy for a user.",
+        "operationId": "PublicApiService_DeleteMfaPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1DeleteMfaPolicyRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
       }
     },
     "/public/v1/submit/delete_oauth2_credential": {
@@ -3460,6 +3684,38 @@
         "tags": ["On Ramp"]
       }
     },
+    "/public/v1/submit/update_mfa_policy": {
+      "post": {
+        "summary": "Update MFA policy",
+        "description": "Update an MFA policy for a user.",
+        "operationId": "PublicApiService_UpdateMfaPolicy",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivityResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1UpdateMfaPolicyRequest"
+            }
+          }
+        ],
+        "tags": ["MFA Policies"]
+      }
+    },
     "/public/v1/submit/update_oauth2_credential": {
       "post": {
         "summary": "Update an OAuth 2.0 Credential",
@@ -4112,6 +4368,10 @@
         },
         "type": {
           "$ref": "#/definitions/v1CredentialType"
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "The session profile associated with this credential, if any. This field is only applicable for credentials of type CREDENTIAL_TYPE_LOGIN."
         }
       },
       "required": ["publicKey", "type"]
@@ -4401,7 +4661,8 @@
         "ACTIVITY_STATUS_COMPLETED",
         "ACTIVITY_STATUS_FAILED",
         "ACTIVITY_STATUS_CONSENSUS_NEEDED",
-        "ACTIVITY_STATUS_REJECTED"
+        "ACTIVITY_STATUS_REJECTED",
+        "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED"
       ]
     },
     "v1ActivityType": {
@@ -4533,7 +4794,11 @@
         "ACTIVITY_TYPE_CREATE_USERS_V4",
         "ACTIVITY_TYPE_CREATE_WEBHOOK_ENDPOINT",
         "ACTIVITY_TYPE_UPDATE_WEBHOOK_ENDPOINT",
-        "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT"
+        "ACTIVITY_TYPE_DELETE_WEBHOOK_ENDPOINT",
+        "ACTIVITY_TYPE_CREATE_MFA_POLICY",
+        "ACTIVITY_TYPE_UPDATE_MFA_POLICY",
+        "ACTIVITY_TYPE_DELETE_MFA_POLICY",
+        "ACTIVITY_TYPE_CREATE_SESSION_PROFILE"
       ]
     },
     "v1AddressFormat": {
@@ -4848,6 +5113,45 @@
         "transports"
       ]
     },
+    "v1AuthenticationMethod": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1AuthenticationType",
+          "description": "The type of authenticator (e.g., AUTHENTICATION_TYPE_EMAIL, AUTHENTICATION_TYPE_SESSION) required for this MFA step."
+        },
+        "id": {
+          "type": "string",
+          "description": "Optional specific authenticator ID required (e.g., for requiring a specific session profile id)"
+        }
+      },
+      "required": ["type"]
+    },
+    "v1AuthenticationMethodParams": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/v1AuthenticationType",
+          "description": "The type of authenticator (e.g., AUTHENTICATION_TYPE_PASSKEY for passkey authentication)."
+        },
+        "id": {
+          "type": "string",
+          "description": "Optional specific authenticator ID required (e.g., UUID of a passkey authenticator). If not provided, any authenticator of the specified type can be used."
+        }
+      },
+      "required": ["type"]
+    },
+    "v1AuthenticationType": {
+      "type": "string",
+      "enum": [
+        "AUTHENTICATION_TYPE_EMAIL_OTP",
+        "AUTHENTICATION_TYPE_SMS_OTP",
+        "AUTHENTICATION_TYPE_PASSKEY",
+        "AUTHENTICATION_TYPE_API_KEY",
+        "AUTHENTICATION_TYPE_OAUTH",
+        "AUTHENTICATION_TYPE_SESSION"
+      ]
+    },
     "v1Authenticator": {
       "type": "object",
       "properties": {
@@ -5160,30 +5464,6 @@
       },
       "required": ["apiOnlyUsers"]
     },
-    "v1CreateApiOnlyUsersRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["ACTIVITY_TYPE_CREATE_API_ONLY_USERS"]
-        },
-        "timestampMs": {
-          "type": "string",
-          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
-        },
-        "organizationId": {
-          "type": "string",
-          "description": "Unique identifier for a given Organization."
-        },
-        "parameters": {
-          "$ref": "#/definitions/v1CreateApiOnlyUsersIntent"
-        },
-        "generateAppProofs": {
-          "type": "boolean"
-        }
-      },
-      "required": ["type", "timestampMs", "organizationId", "parameters"]
-    },
     "v1CreateApiOnlyUsersResult": {
       "type": "object",
       "properties": {
@@ -5388,6 +5668,78 @@
         }
       },
       "required": ["invitationIds"]
+    },
+    "v1CreateMfaPolicyIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User to add the MFA Policy to."
+        },
+        "mfaPolicyName": {
+          "type": "string",
+          "description": "Human-readable name for a Policy."
+        },
+        "condition": {
+          "type": "string",
+          "description": "A condition expression that evaluates to true or false, determining when this MFA policy applies."
+        },
+        "requiredAuthenticationMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RequiredAuthenticationMethodParams"
+          },
+          "description": "An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA."
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The order in which this MFA policy is evaluated, starting from 1, relative to other MFA policies. Lower order values are evaluated first."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Notes for an MFA Policy."
+        }
+      },
+      "required": [
+        "userId",
+        "mfaPolicyName",
+        "condition",
+        "requiredAuthenticationMethods",
+        "order"
+      ]
+    },
+    "v1CreateMfaPolicyRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_MFA_POLICY"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateMfaPolicyIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateMfaPolicyResult": {
+      "type": "object",
+      "properties": {
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        }
+      },
+      "required": ["mfaPolicyId"]
     },
     "v1CreateOauth2CredentialIntent": {
       "type": "object",
@@ -6090,6 +6442,59 @@
         "credentialBundle"
       ]
     },
+    "v1CreateSessionProfileIntent": {
+      "type": "object",
+      "properties": {
+        "sessionProfileName": {
+          "type": "string",
+          "description": "Human-readable name for a Session Profile."
+        },
+        "capability": {
+          "type": "string",
+          "description": "The capability string that defines the permissions for this Session Profile."
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "The duration in seconds for which sessions created with this Session Profile are valid. If not set, expiration will be determined by the value passed in to the intent of login activities."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Notes for a Session Profile."
+        }
+      },
+      "required": ["sessionProfileName", "capability"]
+    },
+    "v1CreateSessionProfileRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_CREATE_SESSION_PROFILE"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1CreateSessionProfileIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1CreateSessionProfileResult": {
+      "type": "object",
+      "properties": {
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Unique identifier for a given Session Profile."
+        }
+      },
+      "required": ["sessionProfileId"]
+    },
     "v1CreateSmartContractInterfaceIntent": {
       "type": "object",
       "properties": {
@@ -6696,7 +7101,7 @@
         },
         "healthCheckType": {
           "$ref": "#/definitions/v1TvcHealthCheckType",
-          "description": "Heath check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol."
+          "description": "Health check type (TVC_HEALTH_CHECK_TYPE_HTTP or TVC_HEALTH_CHECK_TYPE_GRPC). HTTP health checks are made with a GET request on /health, and gRPC health checks follow the standard gRPC health checking protocol."
         },
         "healthCheckPort": {
           "type": "integer",
@@ -7336,6 +7741,51 @@
         }
       },
       "required": ["invitationId"]
+    },
+    "v1DeleteMfaPolicyIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User to delete the MFA Policy from."
+        },
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        }
+      },
+      "required": ["userId", "mfaPolicyId"]
+    },
+    "v1DeleteMfaPolicyRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_DELETE_MFA_POLICY"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1DeleteMfaPolicyIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1DeleteMfaPolicyResult": {
+      "type": "object",
+      "properties": {
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        }
+      },
+      "required": ["mfaPolicyId"]
     },
     "v1DeleteOauth2CredentialIntent": {
       "type": "object",
@@ -9047,6 +9497,94 @@
       },
       "required": ["organizationId", "appName"]
     },
+    "v1GetMfaPoliciesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given user."
+        }
+      },
+      "required": ["organizationId", "userId"]
+    },
+    "v1GetMfaPoliciesResponse": {
+      "type": "object",
+      "properties": {
+        "mfaPolicies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MfaPolicy"
+          },
+          "description": "A list of multi-factor authentication policies for a user."
+        }
+      },
+      "required": ["mfaPolicies"]
+    },
+    "v1GetMfaPolicyRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given user."
+        },
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA policy."
+        }
+      },
+      "required": ["organizationId", "userId", "mfaPolicyId"]
+    },
+    "v1GetMfaPolicyResponse": {
+      "type": "object",
+      "properties": {
+        "mfaPolicy": {
+          "$ref": "#/definitions/v1MfaPolicy",
+          "description": "Multi-factor authentication policy for a user."
+        }
+      },
+      "required": ["mfaPolicy"]
+    },
+    "v1GetMfaStatusRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "activityId": {
+          "type": "string",
+          "description": "The unique identifier of the activity to get MFA status for."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Optional user ID to filter MFA status for a specific user."
+        }
+      },
+      "required": ["organizationId", "activityId"]
+    },
+    "v1GetMfaStatusResponse": {
+      "type": "object",
+      "properties": {
+        "mfaStatuses": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MfaStatus"
+          },
+          "description": "A list of MFA statuses for the activity's votes."
+        }
+      },
+      "required": ["mfaStatuses"]
+    },
     "v1GetNoncesRequest": {
       "type": "object",
       "properties": {
@@ -9358,6 +9896,54 @@
       },
       "required": ["txStatus"]
     },
+    "v1GetSessionProfileRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Unique identifier for a session profile."
+        }
+      },
+      "required": ["organizationId", "sessionProfileId"]
+    },
+    "v1GetSessionProfileResponse": {
+      "type": "object",
+      "properties": {
+        "sessionProfile": {
+          "$ref": "#/definitions/v1SessionProfile",
+          "description": "Session profile for a user, including details about the user's authenticators, Oauth providers, API keys, and MFA policies."
+        }
+      },
+      "required": ["sessionProfile"]
+    },
+    "v1GetSessionProfilesRequest": {
+      "type": "object",
+      "properties": {
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given organization."
+        }
+      },
+      "required": ["organizationId"]
+    },
+    "v1GetSessionProfilesResponse": {
+      "type": "object",
+      "properties": {
+        "sessionProfiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1SessionProfile"
+          },
+          "description": "A list of session profiles for users in the organization."
+        }
+      },
+      "required": ["sessionProfiles"]
+    },
     "v1GetSmartContractInterfaceRequest": {
       "type": "object",
       "properties": {
@@ -9601,7 +10187,7 @@
         },
         "address": {
           "type": "string",
-          "description": "Address corresponding to a wallet account."
+          "description": "Address corresponding to a wallet account. Private key addresses are not supported."
         },
         "caip2": {
           "type": "string",
@@ -10929,6 +11515,18 @@
         },
         "deleteWebhookEndpointIntent": {
           "$ref": "#/definitions/v1DeleteWebhookEndpointIntent"
+        },
+        "createMfaPolicyIntent": {
+          "$ref": "#/definitions/v1CreateMfaPolicyIntent"
+        },
+        "updateMfaPolicyIntent": {
+          "$ref": "#/definitions/v1UpdateMfaPolicyIntent"
+        },
+        "deleteMfaPolicyIntent": {
+          "$ref": "#/definitions/v1DeleteMfaPolicyIntent"
+        },
+        "createSessionProfileIntent": {
+          "$ref": "#/definitions/v1CreateSessionProfileIntent"
         }
       }
     },
@@ -11131,6 +11729,95 @@
       },
       "required": ["publicKey"]
     },
+    "v1MfaPolicy": {
+      "type": "object",
+      "properties": {
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        },
+        "mfaPolicyName": {
+          "type": "string",
+          "description": "Human-readable name for an MFA Policy."
+        },
+        "condition": {
+          "type": "string",
+          "description": "A condition expression that evaluates to true or false, determining when this MFA policy applies."
+        },
+        "requiredAuthenticationMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RequiredAuthenticationMethod"
+          },
+          "description": "An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA."
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The order in which this policy is evaluated relative to other MFA policies."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional human-readable notes added by a User to describe a particular MFA policy."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "mfaPolicyId",
+        "mfaPolicyName",
+        "condition",
+        "requiredAuthenticationMethods",
+        "order",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "v1MfaStatus": {
+      "type": "object",
+      "properties": {
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Unique identifier for a given User."
+        },
+        "satisfied": {
+          "type": "boolean",
+          "description": "Whether the MFA policy requirements are currently satisfied."
+        },
+        "satisfiedMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticationMethod"
+          },
+          "description": "A list of authentication methods already satisfied for this MFA policy."
+        },
+        "requiredMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RequiredAuthenticationMethod"
+          },
+          "description": "An ordered list of authentication requirements needed to satisfy this MFA policy."
+        }
+      },
+      "required": [
+        "mfaPolicyId",
+        "userId",
+        "satisfied",
+        "satisfiedMethods",
+        "requiredMethods"
+      ]
+    },
     "v1MnemonicLanguage": {
       "type": "string",
       "enum": [
@@ -11332,6 +12019,10 @@
         "invalidateExisting": {
           "type": "boolean",
           "description": "Invalidate all other previously generated Login API keys"
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used."
         }
       },
       "required": ["oidcToken", "publicKey"]
@@ -11612,6 +12303,10 @@
         "clientSignature": {
           "$ref": "#/definitions/v1ClientSignature",
           "description": "Optional signature proving authorization for this login. The signature is over the verification token ID and the public key. Only required if a public key was provided during the verification step."
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used."
         }
       },
       "required": ["verificationToken", "publicKey"]
@@ -11638,6 +12333,10 @@
         "invalidateExisting": {
           "type": "boolean",
           "description": "Invalidate all other previously generated Login sessions"
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used."
         }
       },
       "required": ["verificationToken", "publicKey", "clientSignature"]
@@ -11684,7 +12383,8 @@
         "OUTCOME_DENY_IMPLICIT",
         "OUTCOME_REQUIRES_CONSENSUS",
         "OUTCOME_REJECTED",
-        "OUTCOME_ERROR"
+        "OUTCOME_ERROR",
+        "OUTCOME_REQUIRES_AUTHENTICATORS"
       ]
     },
     "v1Pagination": {
@@ -12032,6 +12732,34 @@
       },
       "required": ["features"]
     },
+    "v1RequiredAuthenticationMethod": {
+      "type": "object",
+      "properties": {
+        "any": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticationMethod"
+          },
+          "description": "A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them."
+        }
+      },
+      "required": ["any"]
+    },
+    "v1RequiredAuthenticationMethodParams": {
+      "type": "object",
+      "properties": {
+        "any": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1AuthenticationMethodParams"
+          },
+          "description": "A list of authentication methods for this MFA step. If only one method is provided, it is required. If multiple are provided, the user must satisfy ANY one of them."
+        }
+      },
+      "required": ["any"]
+    },
     "v1Result": {
       "type": "object",
       "properties": {
@@ -12349,6 +13077,18 @@
         },
         "deleteWebhookEndpointResult": {
           "$ref": "#/definitions/v1DeleteWebhookEndpointResult"
+        },
+        "createMfaPolicyResult": {
+          "$ref": "#/definitions/v1CreateMfaPolicyResult"
+        },
+        "updateMfaPolicyResult": {
+          "$ref": "#/definitions/v1UpdateMfaPolicyResult"
+        },
+        "deleteMfaPolicyResult": {
+          "$ref": "#/definitions/v1DeleteMfaPolicyResult"
+        },
+        "createSessionProfileResult": {
+          "$ref": "#/definitions/v1CreateSessionProfileResult"
         }
       }
     },
@@ -12601,6 +13341,44 @@
           }
         }
       }
+    },
+    "v1SessionProfile": {
+      "type": "object",
+      "properties": {
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Unique identifier for a given Session Profile."
+        },
+        "sessionProfileName": {
+          "type": "string",
+          "description": "Human-readable name for a Session Profile."
+        },
+        "capability": {
+          "type": "string",
+          "description": "The specific capability that a session created with this profile is limited to."
+        },
+        "expirationSeconds": {
+          "type": "string",
+          "description": "Optional window (in seconds) indicating how long sessions created with this profile should last."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Optional human-readable notes added by a User to describe a particular Session Profile."
+        },
+        "createdAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "updatedAt": {
+          "$ref": "#/definitions/externaldatav1Timestamp"
+        }
+      },
+      "required": [
+        "sessionProfileId",
+        "sessionProfileName",
+        "capability",
+        "createdAt",
+        "updatedAt"
+      ]
     },
     "v1SetOrganizationFeatureIntent": {
       "type": "object",
@@ -13097,6 +13875,10 @@
         "invalidateExisting": {
           "type": "boolean",
           "description": "Invalidate all other previously generated Login API keys"
+        },
+        "sessionProfileId": {
+          "type": "string",
+          "description": "Optional session profile ID to specify which Session Profile to use for this login. If not provided, the default read/write session will be used."
         }
       },
       "required": ["publicKey"]
@@ -13451,6 +14233,76 @@
         }
       },
       "required": ["fiatOnRampCredentialId"]
+    },
+    "v1UpdateMfaPolicyIntent": {
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the User to update the MFA Policy for."
+        },
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        },
+        "mfaPolicyName": {
+          "type": "string",
+          "description": "Human-readable name for a Policy."
+        },
+        "condition": {
+          "type": "string",
+          "description": "A condition expression that evaluates to true or false, determining when this MFA policy applies."
+        },
+        "requiredAuthenticationMethods": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1RequiredAuthenticationMethodParams"
+          },
+          "description": "An ordered list of authentication requirements. Each requirement must be satisfied sequentially to complete MFA."
+        },
+        "order": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The order in which this MFA policy is evaluated, starting from 1, relative to other MFA policies. Lower order values are evaluated first."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Notes for an MFA Policy."
+        }
+      },
+      "required": ["userId", "mfaPolicyId"]
+    },
+    "v1UpdateMfaPolicyRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["ACTIVITY_TYPE_UPDATE_MFA_POLICY"]
+        },
+        "timestampMs": {
+          "type": "string",
+          "description": "Timestamp (in milliseconds) of the request, used to verify liveness of user requests."
+        },
+        "organizationId": {
+          "type": "string",
+          "description": "Unique identifier for a given Organization."
+        },
+        "parameters": {
+          "$ref": "#/definitions/v1UpdateMfaPolicyIntent"
+        }
+      },
+      "required": ["type", "timestampMs", "organizationId", "parameters"]
+    },
+    "v1UpdateMfaPolicyResult": {
+      "type": "object",
+      "properties": {
+        "mfaPolicyId": {
+          "type": "string",
+          "description": "Unique identifier for a given MFA Policy."
+        }
+      },
+      "required": ["mfaPolicyId"]
     },
     "v1UpdateOauth2CredentialIntent": {
       "type": "object",
@@ -14253,6 +15105,14 @@
         },
         "updatedAt": {
           "$ref": "#/definitions/externaldatav1Timestamp"
+        },
+        "mfaPolicies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MfaPolicy"
+          },
+          "description": "A list of MFA Policies that define multi-factor authentication requirements for this user."
         }
       },
       "required": [
@@ -14263,7 +15123,8 @@
         "userTags",
         "oauthProviders",
         "createdAt",
-        "updatedAt"
+        "updatedAt",
+        "mfaPolicies"
       ]
     },
     "v1UserParams": {

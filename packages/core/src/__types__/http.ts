@@ -22,6 +22,7 @@ export const TERMINAL_ACTIVITY_STATUSES: TActivityStatus[] = [
   "ACTIVITY_STATUS_COMPLETED",
   "ACTIVITY_STATUS_FAILED",
   "ACTIVITY_STATUS_REJECTED",
+  "ACTIVITY_STATUS_AUTHENTICATORS_NEEDED", // Seems weird but, we just don't wanna poll if we know MFA is needed - we want to trigger the MFA callback immediately
 ];
 
 /** @internal */
