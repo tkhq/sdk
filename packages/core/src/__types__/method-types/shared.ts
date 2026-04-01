@@ -30,6 +30,8 @@ export type CreateHttpClientParams = {
   authProxyUrl?: string | undefined;
   authProxyConfigId?: string | undefined;
   defaultStamperType?: StamperType | undefined;
+  /** Optional allowCredentials to filter which passkeys are shown during signing */
+  allowCredentials?: PublicKeyCredentialDescriptor[] | undefined;
 };
 
 export type CreatePasskeyParams = {
