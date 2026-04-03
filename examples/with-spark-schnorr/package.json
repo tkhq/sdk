@@ -1,0 +1,22 @@
+{
+  "name": "@turnkey/example-with-spark-schnorr",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "clean": "rimraf ./dist ./.cache",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@buildonspark/spark-sdk": "^0.7.2",
+    "@noble/curves": "^1.4.0",
+    "@scure/bip39": "^1.3.0",
+    "@scure/btc-signer": "^1.5.0",
+    "@turnkey/sdk-server": "workspace:*",
+    "dotenv": "^16.0.3"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "5.4.3"
+  }
+}
