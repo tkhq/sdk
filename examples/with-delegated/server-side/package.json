@@ -1,5 +1,5 @@
 {
-  "name": "@turnkey/delegated-access",
+  "name": "@turnkey/with-delegated-server-side",
   "version": "0.1.19",
   "private": true,
   "scripts": {

@@ -1,5 +1,5 @@
 {
-  "name": "with-delegated",
+  "name": "with-delegated-client-side",
   "version": "0.1.23",
   "private": true,
   "scripts": {
