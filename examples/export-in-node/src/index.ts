@@ -76,6 +76,7 @@ async function main() {
     embeddedKey: privateKey,
     organizationId,
     returnMnemonic: exportType == "wallet",
+    dangerouslyOverrideSignerPublicKey: "04bce6666ca6c12e0e00a503a52c301319687dca588165b551d369496bd1189235bd8302ae5e001fde51d1e22baa1d44249f2de9705c63797316fc8b7e3969a665",
   });
   // WARNING: Be VERY careful how you handle this bundle, this can be use to import your private keys/mnemonics anywhere and can lead to a potential loss of funds
   console.log(decryptedBundle);
