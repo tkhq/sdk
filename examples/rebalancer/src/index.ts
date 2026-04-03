@@ -470,8 +470,16 @@ async function approveActivity(options: any) {
   if (!activityId) {
     console.error("Must provide valid activity ID.\n");
   }
-  const activity = await getActivity(turnkeyClient, activityId);
-  await createActivityApproval(turnkeyClient, activityId, activity.fingerprint);
+
+  const turnkeyClientApprover = new Turnkey({
+    apiBaseUrl: process.env.BASE_URL!,
+    apiPrivateKey: process.env.API_PRIVATE_KEY!,
+    apiPublicKey: process.env.API_PUBLIC_KEY!,
+    defaultOrganizationId: process.env.ORGANIZATION_ID!,
+  });
+  
+  const activity = await getActivity(turnkeyClientApprover, activityId);
+  await createActivityApproval(turnkeyClientApprover, activityId, activity.fingerprint);
 }
 
 async function rejectActivity(options: any) {
