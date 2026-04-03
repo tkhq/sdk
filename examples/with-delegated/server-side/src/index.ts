@@ -39,7 +39,7 @@ async function main() {
       },
       {
         userName: "End User",
-        userEmail: "<email_address>",
+        userEmail: "enduser@example.com",
         apiKeys: [],
         authenticators: [],
         oauthProviders: [],
@@ -60,6 +60,8 @@ async function main() {
   });
 
   console.log("Sub-organization id:", subOrg.subOrganizationId);
+  console.log("Wallet id:", subOrg.wallet?.walletId);
+  console.log("Wallet account address:", subOrg.wallet?.addresses?.[0]);
 
   // Initializing the Turkey client used by the Delegated account activities
   // Notice the subOrganizationId created above
