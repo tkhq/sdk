@@ -99,7 +99,7 @@ export async function sendEth(
       `https://${network?.name}.etherscan.io/tx/${sentTx.hash}`,
     );
   } catch (error: any) {
-    if (error.toString().includes("ACTIVITY_STATUS_CONSENSUS_NEEDED")) {
+    if (error.toString().includes("TurnkeyActivityConsensusNeededError")) {
       console.error(
         `Consensus is required for activity ${
           error.activityId
