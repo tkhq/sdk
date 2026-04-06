@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "start": "tsx src/index.ts",
+    "auth-with-turnkey": "tsx src/authenticateWithTurnkey.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
