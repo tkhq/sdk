@@ -23,12 +23,12 @@ import { getProvider, getTurnkeyClient, getTurnkeySigner } from "./provider";
 import { sendEth, broadcastTx } from "./send";
 import keys from "./keys";
 
+const FUND_AMOUNT = 120000000000000n; // 0.00012 ETH
 const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
 const MIN_INTERVAL_MS = 10000; // 10 seconds
 const MAX_INTERVAL_MS = 60000; // 60 seconds
-const TRANSFER_GAS_LIMIT = 21000n;
-const GAS_MULTIPLIER = 2n;
 const ACTIVITIES_LIMIT = "100";
+const SPONSOR = true; // toggle gas sponsorship
 
 // For demonstration purposes, create a globally accessible TurnkeyClient
 const turnkeyClient = new Turnkey({
@@ -218,22 +218,44 @@ async function fundImpl() {
     provider,
     distributionPrivateKeys[0]!.privateKeyId,
   );
+  const distributionAddress = await connectedSigner.getAddress();
+  const balance = (await connectedSigner.provider?.getBalance(distributionAddress)) ?? 0n;
+  const originalFeeData = await connectedSigner.provider?.getFeeData();
 
   for (const pk of shortTermStoragePrivateKeys) {
-    const ethAddress = pk.addresses.find((address: any) => {
+    const shortTermStorage = pk.addresses.find((address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
     });
-    if (!ethAddress || !ethAddress.address) {
+    if (!shortTermStorage || !shortTermStorage.address) {
       throw new Error(
         `couldn't lookup ETH address for private key: ${pk.privateKeyId}`,
       );
     }
 
+    if (balance < FUND_AMOUNT) {
+      console.log(
+        `Address ${distributionAddress} has an insufficient balance for sweep. Moving on...`,
+      );
+      continue;
+    }
+
+    const gasEstimate = await connectedSigner.estimateGas({
+      to: shortTermStorage.address,
+      value: FUND_AMOUNT
+    });
+    const totalGasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
+
+    if (balance < totalGasCost) {
+      console.error(`Insufficient ETH balance of ${balance}. Needs ${totalGasCost}`);
+    }
+
     await sendEth(
       connectedSigner,
-      distributionPrivateKeys[0]!.addresses[0]!.address!,
-      ethAddress.address,
-      120000000000000n, // 0.00012 ETH
+      distributionAddress,
+      shortTermStorage.address,
+      FUND_AMOUNT,
+      SPONSOR,
+      originalFeeData as FeeData,
     );
   }
 }
@@ -272,8 +294,7 @@ async function sweepImpl() {
   );
   if (!longTermStorageAddress || !longTermStorageAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${
-        longTermStoragePrivateKeys[0]!.privateKeyId
+      `couldn't lookup ETH address for private key: ${longTermStoragePrivateKeys[0]!.privateKeyId
       }`,
     );
   }
@@ -281,48 +302,39 @@ async function sweepImpl() {
   for (const pk of shortTermStoragePrivateKeys!) {
     const provider = getProvider();
     const connectedSigner = getTurnkeySigner(provider, pk.privateKeyId);
-    const address = await connectedSigner.getAddress();
-    const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
+    const shortTermStorageAddress = await connectedSigner.getAddress();
+    const balance = (await connectedSigner.provider?.getBalance(shortTermStorageAddress)) ?? 0n;
     const originalFeeData = await connectedSigner.provider?.getFeeData();
-
-    const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
-      ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER
-      : 0n;
-    const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas
-      ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER
-      : 0n;
-    const feeData = new FeeData(
-      originalFeeData?.gasPrice,
-      updatedMaxFeePerGas,
-      updatedMaxPriorityFeePerGas,
-    );
-    const gasRequired =
-      feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
-        ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) *
-          TRANSFER_GAS_LIMIT
-        : 0n;
 
     if (balance < SWEEP_THRESHOLD) {
       console.log(
-        `Address ${address} has an insufficient balance for sweep. Moving on...`,
+        `Address ${shortTermStorageAddress} has an insufficient balance for sweep. Moving on...`,
       );
       continue;
     }
 
-    const sweepAmount = balance - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
+    const gasEstimate = await connectedSigner.estimateGas({
+      to: shortTermStorageAddress,
+      value: SWEEP_THRESHOLD
+    });
 
-    if (sweepAmount === 0n) {
+    const totalGasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
+    const sweepAmount = balance - (totalGasCost * 110n / 100n); // add 10% buffer to total gas cost to prevent overdraft
+
+    if (sweepAmount <= 0n) {
       console.log(
-        `Address ${address} has an insufficient balance for sweep. Moving on...`,
+        `Address ${shortTermStorageAddress} has an insufficient balance for sweep. Moving on...`,
       );
       continue;
     }
 
     await sendEth(
       connectedSigner,
-      address,
+      shortTermStorageAddress,
       longTermStorageAddress.address,
       sweepAmount,
+      SPONSOR,
+      originalFeeData as FeeData
     );
   }
 }
@@ -369,47 +381,39 @@ async function recycleImpl() {
   );
   if (!distributionAddress || !distributionAddress.address) {
     throw new Error(
-      `couldn't lookup ETH address for private key: ${
-        distributionPrivateKeys[0]!.privateKeyId
+      `couldn't lookup ETH address for private key: ${distributionPrivateKeys[0]!.privateKeyId
       }`,
     );
   }
 
   const balance =
     (await connectedSigner.provider?.getBalance(longTermStorageAddress)) ?? 0n;
-
   const originalFeeData = await connectedSigner.provider?.getFeeData();
 
-  const updatedMaxFeePerGas = originalFeeData?.maxFeePerGas
-    ? originalFeeData.maxFeePerGas * GAS_MULTIPLIER
-    : null;
-  const updatedMaxPriorityFeePerGas = originalFeeData?.maxPriorityFeePerGas
-    ? originalFeeData.maxPriorityFeePerGas * GAS_MULTIPLIER
-    : null;
-  const feeData = new FeeData(
-    originalFeeData?.gasPrice,
-    updatedMaxFeePerGas,
-    updatedMaxPriorityFeePerGas,
-  );
-  const gasRequired =
-    feeData?.maxFeePerGas && feeData?.maxPriorityFeePerGas
-      ? (feeData?.maxFeePerGas + feeData?.maxPriorityFeePerGas) *
-        TRANSFER_GAS_LIMIT
-      : 0n;
+  try {
+    const gasEstimate = await connectedSigner.estimateGas({
+      to: distributionAddress.address,
+      value: SWEEP_THRESHOLD
+    });
+    const totalGasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
+    const recycleAmount = balance - totalGasCost;
 
-  const recycleAmount = balance - gasRequired * 2n; // be relatively conservative with sweep amount to prevent overdraft
+    if (recycleAmount <= 0n) {
+      console.log("Insufficient balance for recycle...");
+      return;
+    }
 
-  if (recycleAmount <= 0n) {
-    console.log("Insufficient balance for recycle...");
-    return;
+    await sendEth(
+      connectedSigner,
+      longTermStorageAddress,
+      distributionAddress.address,
+      recycleAmount,
+      SPONSOR,
+      originalFeeData as FeeData
+    );
+  } catch (error: any) {
+    console.error("Encountered error:", error.toString(), "\n");
   }
-
-  await sendEth(
-    connectedSigner,
-    longTermStorageAddress,
-    distributionAddress.address,
-    recycleAmount,
-  );
 }
 
 // two approaches:
@@ -439,10 +443,10 @@ async function pollAndBroadcastImpl() {
 
   const relevantActivities = activities.filter((activity) => {
     return (
-      activity.type === "ACTIVITY_TYPE_SIGN_TRANSACTION" &&
+      activity.type === "ACTIVITY_TYPE_SIGN_TRANSACTION_V2" &&
       activity.status === "ACTIVITY_STATUS_COMPLETED" &&
-      activity.intent.signTransactionIntent?.privateKeyId ===
-        longTermStoragePrivateKeys[0]!.privateKeyId
+      activity.intent.signTransactionIntentV2?.signWith ===
+      longTermStoragePrivateKeys[0]!.privateKeyId
     );
   });
 
@@ -473,7 +477,7 @@ async function approveActivity(options: any) {
   }
 
   const turnkeyClientApprover = getTurnkeyClient();
-  
+
   const activity = await getActivity(turnkeyClientApprover, activityId);
   await createActivityApproval(turnkeyClientApprover, activityId, activity.fingerprint);
 }

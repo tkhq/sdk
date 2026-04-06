@@ -49,12 +49,15 @@ export async function sendEth(
   fromAddress: string,
   destinationAddress: string,
   value: bigint,
+  sponsor: boolean,
+  precalculatedFeeData: ethers.FeeData,
 ) {
   const network = await connectedSigner.provider?.getNetwork();
-  const address = await connectedSigner.getAddress();
-  const balance = (await connectedSigner.provider?.getBalance(address)) ?? 0n;
+  const balance = (await connectedSigner.provider?.getBalance(fromAddress)) ?? 0n;
+  const maxFeePerGas = precalculatedFeeData.maxFeePerGas;
+  const maxPriorityFeePerGas = precalculatedFeeData.maxPriorityFeePerGas;
 
-  print("Address:", address);
+  print("Address:", fromAddress);
   print("Balance:", `${ethers.formatEther(balance)} Ether`);
 
   if (balance === 0n) {
@@ -68,39 +71,57 @@ export async function sendEth(
     throw new Error(warningMessage);
   }
 
-
-  if (balance < value) {
-    console.error(`Insufficient ETH balance of ${balance}. Needs ${value}`);
-  }
-
   const chainId = network?.chainId.toString();
 
-  const transactionRequest = {
+  const nonSponsoredTransactionRequest = {
+    to: destinationAddress,
+    value,
+    type: 2,
+    maxFeePerGas,
+    maxPriorityFeePerGas
+  };
+
+  const sponsoredTransactionRequest = {
     from: fromAddress,
     to: destinationAddress,
     value: value.toString(),
     type: 2,
     caip2: `eip155:${chainId}` as Caip2ChainId,
-    sponsor: true
+    sponsor: sponsor
   };
 
+  const nonce = await connectedSigner.getNonce();
+  console.log("nonce:", nonce)
+
   try {
-    const turnkeyClient = getTurnkeyClient().apiClient();
+    let txHash;
 
-    const transactionResponse = (await turnkeyClient.ethSendTransaction(transactionRequest));
+    // Sponsored transaction if `sponsor: true`
+    if (sponsor) {
+      const turnkeyClient = getTurnkeyClient().apiClient();
 
-    if (transactionResponse.activity.status == "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
-      console.log(
-        `Consensus is required for activity ${transactionResponse.activity.id
-        } in order to send ${toReadableAmount(
-          value.toString(),
-          18,
-          12,
-        )} ETH to ${destinationAddress}.`,
-      );
-      return;
+      const transactionResponse = await turnkeyClient.ethSendTransaction(sponsoredTransactionRequest);
+
+      if (transactionResponse.activity.status == "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+        console.log(
+          `Consensus is required for activity ${transactionResponse.activity.id
+          } in order to send ${toReadableAmount(
+            value.toString(),
+            18,
+            12,
+          )} ETH to ${destinationAddress}.`,
+        );
+        return;
+      }
+      txHash = await pollTransactionStatus(turnkeyClient, transactionResponse.sendTransactionStatusId);
+    } else {
+      // Non-sponsored transaction if `sponsor: false`
+      const sentTx = await connectedSigner.sendTransaction(nonSponsoredTransactionRequest);
+      txHash = sentTx.hash;
+
+      console.log(`Awaiting confirmation for tx hash ${txHash}...\n`);
+      await connectedSigner.provider?.waitForTransaction(txHash, 1);
     }
-    const txHash = await pollTransactionStatus(turnkeyClient, transactionResponse.sendTransactionStatusId);
 
     print(
       `Sent ${toReadableAmount(
@@ -110,7 +131,6 @@ export async function sendEth(
       )} ETH to ${destinationAddress}:`,
       `https://${network?.name}.etherscan.io/tx/${txHash}`,
     );
-
   } catch (error: any) {
     if (error.toString().includes("TurnkeyActivityConsensusNeededError")) {
       console.error(
