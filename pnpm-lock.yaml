@@ -1013,6 +1013,9 @@ importers:
       '@turnkey/sdk-server':
         specifier: workspace:*
         version: link:../../packages/sdk-server
+      '@turnkey/sdk-types':
+        specifier: workspace:*
+        version: link:../../packages/sdk-types
       dotenv:
         specifier: ^16.0.3
         version: 16.0.3

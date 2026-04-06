@@ -1,5 +1,11 @@
 import { ethers } from "ethers";
 import { toReadableAmount, print } from "./utils";
+import { getTurnkeyClient } from "./provider";
+import { TurnkeyErrorCodes } from "@turnkey/sdk-types";
+import { TurnkeyError } from "@turnkey/sdk-types";
+import { TurnkeyApiClient } from "@turnkey/sdk-server";
+
+type Caip2ChainId = "eip155:1" | "eip155:11155111" | "eip155:8453" | "eip155:84532" | "eip155:137" | "eip155:80002"
 
 export async function broadcastTx(
   provider: ethers.Provider,
@@ -40,9 +46,9 @@ export async function broadcastTx(
 
 export async function sendEth(
   connectedSigner: ethers.Signer,
+  fromAddress: string,
   destinationAddress: string,
   value: bigint,
-  precalculatedFeeData: ethers.FeeData | undefined = undefined,
 ) {
   const network = await connectedSigner.provider?.getNetwork();
   const address = await connectedSigner.getAddress();
@@ -62,33 +68,39 @@ export async function sendEth(
     throw new Error(warningMessage);
   }
 
-  const feeData =
-    precalculatedFeeData || (await connectedSigner.provider?.getFeeData());
-  const gasRequired =
-    ((feeData?.maxFeePerGas ?? 0n) + (feeData?.maxPriorityFeePerGas ?? 0n)) *
-    21000n;
 
-  const totalCost = gasRequired + value;
-
-  if (balance < totalCost) {
-    console.error(`Insufficient ETH balance of ${balance}. Needs ${totalCost}`);
+  if (balance < value) {
+    console.error(`Insufficient ETH balance of ${balance}. Needs ${value}`);
   }
 
+  const chainId = network?.chainId.toString();
+
   const transactionRequest = {
+    from: fromAddress,
     to: destinationAddress,
-    value,
+    value: value.toString(),
     type: 2,
-    maxFeePerGas: feeData?.maxFeePerGas || 0n,
-    maxPriorityFeePerGas: feeData?.maxPriorityFeePerGas || 0n,
+    caip2: `eip155:${chainId}` as Caip2ChainId,
+    sponsor: true
   };
 
-  let sentTx;
   try {
-    sentTx = await connectedSigner.sendTransaction(transactionRequest);
+    const turnkeyClient = getTurnkeyClient().apiClient();
 
-    console.log(`Awaiting confirmation for tx hash ${sentTx.hash}...\n`);
-    await connectedSigner.provider?.waitForTransaction(sentTx.hash, 1);
-    const network = await connectedSigner.provider?.getNetwork();
+    const transactionResponse = (await turnkeyClient.ethSendTransaction(transactionRequest));
+
+    if (transactionResponse.activity.status == "ACTIVITY_STATUS_CONSENSUS_NEEDED") {
+      console.log(
+        `Consensus is required for activity ${transactionResponse.activity.id
+        } in order to send ${toReadableAmount(
+          value.toString(),
+          18,
+          12,
+        )} ETH to ${destinationAddress}.`,
+      );
+      return;
+    }
+    const txHash = await pollTransactionStatus(turnkeyClient, transactionResponse.sendTransactionStatusId);
 
     print(
       `Sent ${toReadableAmount(
@@ -96,13 +108,13 @@ export async function sendEth(
         18,
         12,
       )} ETH to ${destinationAddress}:`,
-      `https://${network?.name}.etherscan.io/tx/${sentTx.hash}`,
+      `https://${network?.name}.etherscan.io/tx/${txHash}`,
     );
+
   } catch (error: any) {
     if (error.toString().includes("TurnkeyActivityConsensusNeededError")) {
       console.error(
-        `Consensus is required for activity ${
-          error.activityId
+        `Consensus is required for activity ${error.activityId
         } in order to send ${toReadableAmount(
           value.toString(),
           18,
@@ -114,4 +126,39 @@ export async function sendEth(
 
     console.error("Encountered error:", error.toString(), "\n");
   }
+}
+
+export async function pollTransactionStatus(client: TurnkeyApiClient, sendTransactionStatusId: any) {
+  let txHash;
+
+  try {
+    const pollResult = await client.pollTransactionStatus({
+      organizationId: process.env.ORGANIZATION_ID!,
+      sendTransactionStatusId,
+      pollingIntervalMs: 1000
+    });
+
+    if (!pollResult) {
+      throw new TurnkeyError(
+        "Polling returned no result",
+        TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+      );
+    }
+
+    txHash = pollResult.eth?.txHash; // Ethereum
+
+    if (!txHash) {
+      throw new TurnkeyError(
+        "Missing transaction id in transaction result",
+        TurnkeyErrorCodes.SIGN_AND_SEND_TRANSACTION_ERROR,
+      );
+    }
+    console.log(txHash);
+
+  } catch (error) {
+    console.log("Error polling for status.");
+    console.error(error);
+  }
+
+  return txHash;
 }

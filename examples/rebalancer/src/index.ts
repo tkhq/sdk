@@ -19,7 +19,7 @@ import {
   createActivityApproval,
   createActivityRejection,
 } from "./requests";
-import { getProvider, getTurnkeySigner } from "./provider";
+import { getProvider, getTurnkeyClient, getTurnkeySigner } from "./provider";
 import { sendEth, broadcastTx } from "./send";
 import keys from "./keys";
 
@@ -231,6 +231,7 @@ async function fundImpl() {
 
     await sendEth(
       connectedSigner,
+      distributionPrivateKeys[0]!.addresses[0]!.address!,
       ethAddress.address,
       120000000000000n, // 0.00012 ETH
     );
@@ -319,9 +320,9 @@ async function sweepImpl() {
 
     await sendEth(
       connectedSigner,
+      address,
       longTermStorageAddress.address,
       sweepAmount,
-      feeData,
     );
   }
 }
@@ -405,9 +406,9 @@ async function recycleImpl() {
 
   await sendEth(
     connectedSigner,
+    longTermStorageAddress,
     distributionAddress.address,
     recycleAmount,
-    feeData,
   );
 }
 
@@ -471,12 +472,7 @@ async function approveActivity(options: any) {
     console.error("Must provide valid activity ID.\n");
   }
 
-  const turnkeyClientApprover = new Turnkey({
-    apiBaseUrl: process.env.BASE_URL!,
-    apiPrivateKey: process.env.API_PRIVATE_KEY!,
-    apiPublicKey: process.env.API_PUBLIC_KEY!,
-    defaultOrganizationId: process.env.ORGANIZATION_ID!,
-  });
+  const turnkeyClientApprover = getTurnkeyClient();
   
   const activity = await getActivity(turnkeyClientApprover, activityId);
   await createActivityApproval(turnkeyClientApprover, activityId, activity.fingerprint);
