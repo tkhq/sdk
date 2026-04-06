@@ -11,6 +11,8 @@ import {
   Network,
 } from "@buildonspark/spark-sdk";
 import { Transaction, p2tr, TEST_NETWORK } from "@scure/btc-signer";
+import { schnorr } from "@noble/curves/secp256k1";
+import { sha256 } from "@noble/hashes/sha2";
 import { Turnkey as TurnkeyServerSDK } from "@turnkey/sdk-server";
 
 type SparkNetwork = "MAINNET" | "REGTEST";
@@ -45,10 +47,21 @@ async function compareSchnorrSignatures(
   payload: Uint8Array
 ): Promise<void> {
   console.log("\n── Schnorr signature (identity key) ──────────────────────────");
-  console.log(`Payload (hex): ${hex(payload)}`);
 
-  const sparkSig = await signer.signSchnorrWithIdentityKey(payload);
-  console.log(`Spark SDK sig: ${hex(sparkSig)}`);
+  // noble's schnorr.sign does NOT hash internally — it expects a 32-byte msg.
+  // Pre-hash to 32 bytes so both Spark and Turnkey sign the same thing.
+  const msgHash = sha256(payload);
+  console.log(`Payload (hex):   ${hex(payload)}`);
+  console.log(`SHA-256 (hex):   ${hex(msgHash)}`);
+
+  const identityPubKey = await signer.getIdentityPublicKey();
+  // x-only (32-byte) pubkey required by BIP-340 schnorr.verify
+  const xOnlyPubKey = identityPubKey.slice(1);
+
+  const sparkSig = await signer.signSchnorrWithIdentityKey(msgHash);
+  console.log(`Spark SDK sig:   ${hex(sparkSig)}`);
+  const sparkValid = schnorr.verify(sparkSig, msgHash, xOnlyPubKey);
+  console.log(`Spark sig valid: ${sparkValid ? "✅  YES" : "❌  NO"}`);
 
   const turnkeyAddress = process.env.TURNKEY_IDENTITY_ADDRESS;
   if (
@@ -70,19 +83,22 @@ async function compareSchnorrSignatures(
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
   });
 
+  // Send the pre-hashed 32-byte msg with NO_OP so Turnkey signs it as-is,
+  // matching exactly what Spark's signSchnorrWithIdentityKey received.
   const { r, s } = await client.apiClient().signRawPayload({
     signWith: turnkeyAddress,
     encoding: "PAYLOAD_ENCODING_HEXADECIMAL",
     hashFunction: "HASH_FUNCTION_NO_OP",
-    payload: hex(payload),
+    payload: hex(msgHash),
   });
 
-  const turnkeySig = (r + s).toLowerCase();
-  console.log(`Turnkey sig:   ${turnkeySig}`);
-
-  const match =
-    hex(sparkSig).toLowerCase() === turnkeySig;
-  console.log(`\nSignatures match: ${match ? "✅  YES" : "❌  NO"}`);
+  // Ensure r and s are each zero-padded to 32 bytes (64 hex chars)
+  const rPadded = r.padStart(64, "0");
+  const sPadded = s.padStart(64, "0");
+  const turnkeySigBytes = Buffer.from(rPadded + sPadded, "hex");
+  console.log(`Turnkey sig:     ${hex(turnkeySigBytes)}`);
+  const turnkeyValid = schnorr.verify(turnkeySigBytes, msgHash, xOnlyPubKey);
+  console.log(`Turnkey sig valid: ${turnkeyValid ? "✅  YES" : "❌  NO"}`);
 }
 
 // ---------------------------------------------------------------------------
@@ -166,7 +182,7 @@ async function testSparkWallet(
   }
 
   const sparkAddress = await wallet.getSparkAddress();
-  const identityPubKey = wallet.getIdentityPublicKey();
+  const identityPubKey = await wallet.getIdentityPublicKey();
   const { balance } = await wallet.getBalance();
 
   console.log(`Spark address:       ${sparkAddress}`);
@@ -220,7 +236,7 @@ async function main(): Promise<void> {
 
   // Raw Schnorr comparison (identity key)
   const testPayload = Buffer.from(
-    "spark-schnorr-test:" + Date.now().toString()
+    "spark-schnorr-test:"
   );
   await compareSchnorrSignatures(signer, testPayload);
 
