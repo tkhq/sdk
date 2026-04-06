@@ -2,7 +2,11 @@
 
 A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users.
 
-**Note:** This example uses the Sepolia testnet!
+This demo uses Turnkey's Gas Sponsorship feature. Learn more about sending sponsored transactions in the [Transaction Management docs](https://docs.turnkey.com/company-wallets/code-examples/sending-sponsored-transactions).
+
+> **Note:** This example uses the Sepolia testnet!
+
+> **Note:** Toggle gas sponsorship using the boolean constant `SPONSOR` in `/src/index.ts`
 
 ## Scenario
 
@@ -118,6 +122,8 @@ Consensus is required for activity <ID> in order to send <VALUE> ETH to <ADDRESS
 Save the activity ID in this response. You'll use it when approving the txn
 
 ### 7/ Poll & Broadcast
+
+> **NOTE:** Sponsored transactions do not require this step, the transaction will be broadcasted after consensus is reached
 
 Next, run the "pollAndBroadcast" command to wait for the tx to be confirmed and broadcast once it is.
 
