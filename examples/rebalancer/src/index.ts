@@ -222,6 +222,12 @@ async function fundImpl() {
   const balance = (await connectedSigner.provider?.getBalance(distributionAddress)) ?? 0n;
   const originalFeeData = await connectedSigner.provider?.getFeeData();
 
+  if (balance < FUND_AMOUNT) {
+    console.log(
+      `Address ${distributionAddress} has an insufficient balance for sweep. Moving on...`,
+    );
+  }
+
   for (const pk of shortTermStoragePrivateKeys) {
     const shortTermStorage = pk.addresses.find((address: any) => {
       return address.format == "ADDRESS_FORMAT_ETHEREUM";
@@ -230,13 +236,6 @@ async function fundImpl() {
       throw new Error(
         `couldn't lookup ETH address for private key: ${pk.privateKeyId}`,
       );
-    }
-
-    if (balance < FUND_AMOUNT) {
-      console.log(
-        `Address ${distributionAddress} has an insufficient balance for sweep. Moving on...`,
-      );
-      continue;
     }
 
     const gasEstimate = await connectedSigner.estimateGas({
@@ -256,6 +255,7 @@ async function fundImpl() {
       FUND_AMOUNT,
       SPONSOR,
       originalFeeData as FeeData,
+      gasEstimate
     );
   }
 }
@@ -317,9 +317,11 @@ async function sweepImpl() {
       to: shortTermStorageAddress,
       value: SWEEP_THRESHOLD
     });
+    const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
+    const buffer = (gasCost * 10n) / 100n; // add 10% buffer to total gas cost to prevent overdraft
+    const totalGasCost = gasCost + buffer;
+    const sweepAmount = balance - totalGasCost;
 
-    const totalGasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
-    const sweepAmount = balance - (totalGasCost * 110n / 100n); // add 10% buffer to total gas cost to prevent overdraft
 
     if (sweepAmount <= 0n) {
       console.log(
@@ -334,7 +336,8 @@ async function sweepImpl() {
       longTermStorageAddress.address,
       sweepAmount,
       SPONSOR,
-      originalFeeData as FeeData
+      originalFeeData as FeeData,
+      gasEstimate
     );
   }
 }
@@ -395,7 +398,9 @@ async function recycleImpl() {
       to: distributionAddress.address,
       value: SWEEP_THRESHOLD
     });
-    const totalGasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
+    const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
+    const buffer = (gasCost * 10n) / 100n; // add 10% buffer to total gas cost to prevent overdraft
+    const totalGasCost = gasCost + buffer;
     const recycleAmount = balance - totalGasCost;
 
     if (recycleAmount <= 0n) {
@@ -409,7 +414,8 @@ async function recycleImpl() {
       distributionAddress.address,
       recycleAmount,
       SPONSOR,
-      originalFeeData as FeeData
+      originalFeeData as FeeData,
+      gasEstimate
     );
   } catch (error: any) {
     console.error("Encountered error:", error.toString(), "\n");
