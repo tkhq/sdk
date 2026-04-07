@@ -5,26 +5,15 @@ import { ethers } from "ethers";
 import { TurnkeySigner } from "@turnkey/ethers";
 import { Turnkey as TurnkeySDKServer } from "@turnkey/sdk-server";
 
-import { Environment } from "./utils";
-
-const DEFAULT_INFURA_COMMUNITY_KEY = "84842078b09946638c03157f83405213";
-const DEFAULT_ENV = Environment.SEPOLIA;
-
 // Load environment variables from `.env.local`
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
-let provider = new ethers.InfuraProvider(
-  DEFAULT_ENV,
-  process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY,
-);
 
-export function getProvider(env = Environment.SEPOLIA): ethers.Provider {
-  if (env !== Environment.SEPOLIA) {
-    provider = new ethers.InfuraProvider(
-      env,
-      process.env.INFURA_KEY || DEFAULT_INFURA_COMMUNITY_KEY,
-    );
-  }
+// Bring your own provider using a RPC URL (https://docs.ethers.org/v6/api/providers/jsonrpc/#JsonRpcProvider)
+export function getProvider(): ethers.JsonRpcProvider {
+  const provider = new ethers.JsonRpcProvider(
+    process.env.RPC_URL,
+  );
 
   return provider;
 }
@@ -36,7 +25,7 @@ export function getTurnkeyClient(): TurnkeySDKServer {
     apiPrivateKey: process.env.API_PRIVATE_KEY!,
     defaultOrganizationId: process.env.ORGANIZATION_ID!,
   });
-  
+
   return turnkeyClient;
 }
 

@@ -56,8 +56,8 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
+- `RPC_URL` -- The RPC URL from your RPC provider
 - `USE_GAS_SPONSORSHIP` -- set this to `true` to send sponsored transactions
-- `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Setup
 

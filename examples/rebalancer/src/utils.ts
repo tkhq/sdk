@@ -1,12 +1,5 @@
 import { ethers } from "ethers";
 
-// Environment
-export enum Environment {
-  GOERLI = "goerli",
-  SEPOLIA = "sepolia",
-  MAINNET = "mainnet",
-}
-
 const MAX_DECIMALS = 4;
 
 // fromReadableAmount converts whole amounts to atomic amounts
