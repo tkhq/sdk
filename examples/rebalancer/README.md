@@ -6,8 +6,6 @@ This demo uses Turnkey's Gas Sponsorship feature. Learn more about sending spons
 
 > **Note:** This example uses the Sepolia testnet!
 
-> **Note:** Toggle gas sponsorship using the boolean constant `SPONSOR` in `/src/index.ts`
-
 ## Scenario
 
 This scenario focuses on a cyclical flow of cryptocurrency through three types of accounts: Distribution, Short Term Storage, and Long Term Storage.
@@ -58,6 +56,7 @@ Now open `.env.local` and add the missing environment variables:
 - `API_PRIVATE_KEY`
 - `BASE_URL`
 - `ORGANIZATION_ID`
+- `USE_GAS_SPONSORSHIP` -- set this to `true` to send sponsored transactions
 - `INFURA_KEY` -- if this is not set, it will default to using the Community Infura key
 
 ### 3/ Setup

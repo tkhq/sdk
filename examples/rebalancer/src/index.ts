@@ -28,7 +28,7 @@ const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
 const MIN_INTERVAL_MS = 10000; // 10 seconds
 const MAX_INTERVAL_MS = 60000; // 60 seconds
 const ACTIVITIES_LIMIT = "100";
-const SPONSOR = true; // toggle gas sponsorship
+const SPONSOR = process.env.USE_GAS_SPONSORSHIP === "true"; // toggle gas sponsorship
 
 // For demonstration purposes, create a globally accessible TurnkeyClient
 const turnkeyClient = new Turnkey({
