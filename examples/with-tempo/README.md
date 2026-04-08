@@ -42,7 +42,7 @@ Now open `.env.local` and add the missing environment variables:
 
 ### 3/ Running the scripts
 
-The following is the default:
+#### Single transfer
 
 ```bash
 $ pnpm start
@@ -51,7 +51,7 @@ $ pnpm start
 This script will do the following:
 
 1. connect to and check your testnet balance
-2. send some TIP-20 token via a type 2 EIP-1559 transaction
+2. send a TIP-20 token transfer
 
 The script constructs a transaction, signs it with Turnkey and broadcasts through Tempo's client RPC.
 If the script exits because your account isn't funded, you can request funds on https://docs.tempo.xyz/guide/use-accounts/add-funds.
@@ -67,21 +67,73 @@ Network:
 Address:
         0xDC608F098255C89B36da905D9132A9Ee3DD266D9
 
+Token:
+        AlphaUSD (6 decimals)
+
 Nonce:
         5
 
-✔ Amount to send … 1
-✔ Destination address … 0xDC608F098255C89B36da905D9132A9Ee3DD266D9
+✔ Amount to send (atomic units, 6 decimals) … 1000000
+✔ Destination address (default to TKHQ warchest) … 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7
 ✔ Sponsor fees via sponsor.moderato.tempo.xyz? … yes
 
 AlphaUSD balance for 0xDC608F098255C89B36da905D9132A9Ee3DD266D9:
         1000000
 
 Receipt:
-        https://explore.tempo.xyz/tx/0x71ab0cbbd90b0774be500da229e81596b9402f90fe8cf91ee49002eec77307ec
+        https://explore.testnet.tempo.xyz/tx/0x71ab0cbbd90b0774be500da229e81596b9402f90fe8cf91ee49002eec77307ec
 
-Sent 1 AlphaUSD to 0xDC608F098255C89B36da905D9132A9Ee3DD266D9!
+Sent 1 AlphaUSD to 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7!
         https://docs.tempo.xyz/guide/payments/sponsor-user-fees
+```
+
+#### Batch transfers (multicall)
+
+```bash
+$ pnpm start-multicall
+```
+
+This script demonstrates Tempo's native batch call support — multiple TIP-20 token transfers are sent atomically in a single transaction. All calls either succeed together or revert together.
+
+See the following for a sample output:
+
+```
+Network:
+        Tempo Testnet (Moderato) (chain ID 42431)
+
+Address:
+        0xDC608F098255C89B36da905D9132A9Ee3DD266D9
+
+Token:
+        AlphaUSD (6 decimals)
+
+Nonce:
+        6
+
+✔ Number of transfers to batch … 3
+✔ Destination address (default to TKHQ warchest) … 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7
+✔ Sponsor fees via sponsor.moderato.tempo.xyz? … yes
+✔ Amount for transfer 1/3 (atomic units, 6 decimals) … 1000000
+✔ Amount for transfer 2/3 (atomic units, 6 decimals) … 1000000
+✔ Amount for transfer 3/3 (atomic units, 6 decimals) … 1000000
+
+AlphaUSD balance for 0xDC608F098255C89B36da905D9132A9Ee3DD266D9:
+        1000000
+
+Sending batch of:
+        3 transfers...
+
+Receipt:
+        https://explore.testnet.tempo.xyz/tx/0x...
+
+Sent 3 AlphaUSD to 0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7 in 3 batched transfers!
+        https://docs.tempo.xyz/protocol/transactions#batch-calls
+
+AlphaUSD balance for sender (0xDC608F098255C89B36da905D9132A9Ee3DD266D9):
+        997
+
+AlphaUSD balance for destination (0x08d2b0a37F869FF76BACB5Bab3278E26ab7067B7):
+        3
 ```
 
 Note: if you have a consensus-related policy resembling the following

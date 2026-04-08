@@ -112,12 +112,12 @@ async function main() {
     `${await client.getTransactionCount({ address: client.account.address })}`,
   );
 
-  const { amount, destination, useSponsor } = await prompts([
+  const { numTransfers, destination, useSponsor } = await prompts([
     {
-      type: "text",
-      name: "amount",
-      message: `Amount to send (atomic units, ${decimals} decimals)`,
-      initial: "1000000",
+      type: "number",
+      name: "numTransfers",
+      message: "Number of transfers to batch",
+      initial: 3,
     },
     {
       type: "text",
@@ -134,6 +134,23 @@ async function main() {
       initial: true,
     },
   ]);
+
+  if (!numTransfers || numTransfers <= 0) {
+    console.log("No transfers to send.");
+    return;
+  }
+
+  // Collect amount for each transfer
+  const amounts: string[] = [];
+  for (let i = 0; i < numTransfers; i++) {
+    const { amount } = await prompts({
+      type: "text",
+      name: "amount",
+      message: `Amount for transfer ${i + 1}/${numTransfers} (atomic units, ${decimals} decimals)`,
+      initial: "1000000",
+    });
+    amounts.push(amount);
+  }
 
   console.log();
 
@@ -155,23 +172,56 @@ async function main() {
   // Fee payer: custom sponsor account, public endpoint (true), or self (undefined)
   const feePayer = useSponsor ? (sponsorAccount ?? true) : undefined;
 
-  const { receipt } = await client.token.transferSync({
-    amount: BigInt(amount),
-    token: ALPHA_USD,
-    to: destination as `0x${string}`,
+  // Build batch transfer calls
+  const calls = amounts.map((amount) =>
+    Actions.token.transfer.call({
+      amount: BigInt(amount),
+      token: ALPHA_USD,
+      to: destination as `0x${string}`,
+    }),
+  );
+
+  print("Sending batch of", `${calls.length} transfers...`);
+
+  // Send all transfers atomically in a single Tempo transaction with native batch calls
+  const receipt = await client.sendTransactionSync({
+    calls,
     feePayer,
-    gas: 2000000n, // temp workaround: need to manually set higher gas limit
     feeToken: ALPHA_USD,
+    gas: 2000000n, // temp workaround: need to manually set higher gas limit for batch calls
   });
 
   print(
     "Receipt:",
     `https://explore.testnet.tempo.xyz/tx/${receipt.transactionHash}`,
   );
+
+  const totalAmount = amounts.reduce((sum, a) => sum + BigInt(a), 0n);
   print(
-    `Sent ${formatUnits(BigInt(amount), decimals)} ${name} to ${destination}!`,
-    "https://docs.tempo.xyz/guide/payments/sponsor-user-fees",
+    `Sent ${formatUnits(totalAmount, decimals)} ${name} to ${destination} in ${calls.length} batched transfers!`,
+    "https://docs.tempo.xyz/protocol/transactions#batch-calls",
   );
+
+  // Log post-transfer balances
+  const senderBalance = await Actions.token.getBalance(client, {
+    token: ALPHA_USD,
+    account: client.account.address,
+  });
+  print(
+    `${name} balance for sender (${client.account.address}):`,
+    formatUnits(senderBalance, decimals),
+  );
+
+  if (destination.toLowerCase() !== client.account.address.toLowerCase()) {
+    const destinationBalance = await Actions.token.getBalance(client, {
+      token: ALPHA_USD,
+      account: destination as `0x${string}`,
+    });
+    print(
+      `${name} balance for destination (${destination}):`,
+      formatUnits(destinationBalance, decimals),
+    );
+  }
 }
 
 main().catch((e) => {

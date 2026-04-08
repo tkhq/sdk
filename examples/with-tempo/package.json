@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "start": "tsx src/index.ts",
+    "start-multicall": "tsx src/multicall.ts",
     "clean": "rimraf ./dist ./.cache",
     "typecheck": "tsc --noEmit"
   },
