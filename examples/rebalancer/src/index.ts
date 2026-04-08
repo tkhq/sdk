@@ -242,10 +242,10 @@ async function fundImpl() {
       to: shortTermStorage.address,
       value: FUND_AMOUNT
     });
-    const totalGasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
+    const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
 
-    if (balance < totalGasCost) {
-      console.error(`Insufficient ETH balance of ${balance}. Needs ${totalGasCost}`);
+    if (balance < gasCost) {
+      console.error(`Insufficient ETH balance of ${balance}. Needs ${gasCost}`);
     }
 
     await sendEth(
@@ -314,14 +314,11 @@ async function sweepImpl() {
     }
 
     const gasEstimate = await connectedSigner.estimateGas({
-      to: shortTermStorageAddress,
+      to: longTermStorageAddress.address,
       value: SWEEP_THRESHOLD
     });
     const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
-    const buffer = (gasCost * 10n) / 100n; // add 10% buffer to total gas cost to prevent overdraft
-    const totalGasCost = gasCost + buffer;
-    const sweepAmount = balance - totalGasCost;
-
+    const sweepAmount = balance - gasCost;
 
     if (sweepAmount <= 0n) {
       console.log(
@@ -399,9 +396,7 @@ async function recycleImpl() {
       value: SWEEP_THRESHOLD
     });
     const gasCost = gasEstimate * originalFeeData?.maxFeePerGas!;
-    const buffer = (gasCost * 10n) / 100n; // add 10% buffer to total gas cost to prevent overdraft
-    const totalGasCost = gasCost + buffer;
-    const recycleAmount = balance - totalGasCost;
+    const recycleAmount = balance - gasCost;
 
     if (recycleAmount <= 0n) {
       console.log("Insufficient balance for recycle...");
