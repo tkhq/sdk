@@ -85,9 +85,6 @@ export async function sendEth(
     ...(!sponsor && { maxFeePerGas, maxPriorityFeePerGas, gasLimit }),
   };
 
-  const nonce = await connectedSigner.getNonce();
-  console.log("nonce:", nonce)
-
   try {
     let txHash;
     const turnkeyClient = getTurnkeyClient().apiClient();
