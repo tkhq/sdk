@@ -13,21 +13,19 @@ import {
   createUser,
   createUserTag,
   createPolicy,
-  getActivities,
   getActivity,
   getPrivateKeysForTag,
   createActivityApproval,
   createActivityRejection,
 } from "./requests";
 import { getProvider, getTurnkeyClient, getTurnkeySigner } from "./provider";
-import { sendEth, broadcastTx } from "./send";
+import { sendEth } from "./send";
 import keys from "./keys";
 
 const FUND_AMOUNT = 120000000000000n; // 0.00012 ETH
 const SWEEP_THRESHOLD = 100000000000000; // 0.0001 ETH
 const MIN_INTERVAL_MS = 10000; // 10 seconds
 const MAX_INTERVAL_MS = 60000; // 60 seconds
-const ACTIVITIES_LIMIT = "100";
 const SPONSOR = process.env.USE_GAS_SPONSORSHIP === "true"; // toggle gas sponsorship
 
 // For demonstration purposes, create a globally accessible TurnkeyClient
@@ -83,7 +81,6 @@ async function main() {
     fund: fund,
     sweep: sweep,
     recycle: recycle,
-    pollAndBroadcast: pollAndBroadcast,
     approveActivity: approveActivity,
     rejectActivity: rejectActivity,
   };
@@ -414,59 +411,6 @@ async function recycleImpl() {
     );
   } catch (error: any) {
     console.error("Encountered error:", error.toString(), "\n");
-  }
-}
-
-// two approaches:
-// (1) if there's a pending/consensus needed activity, save its ID and check on it later (stateful)
-// (2) simply attempt to broadcast all signed transactions, based on when the activity was approved/completed
-// Poll for pending recycle transactions (which originate from the `Long Term Storage` address)
-function pollAndBroadcast(options: any) {
-  const interval = parseInt(options["interval"]);
-
-  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
-    console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
-    );
-  }
-
-  pollAndBroadcastImpl();
-  interval && setInterval(pollAndBroadcastImpl, interval);
-}
-
-async function pollAndBroadcastImpl() {
-  // find "Long Term Storage" private key
-  const longTermStoragePrivateKeys = await getPrivateKeysForTag(
-    turnkeyClient,
-    "long-term-storage",
-  );
-  const activities = await getActivities(turnkeyClient, ACTIVITIES_LIMIT);
-
-  const relevantActivities = activities.filter((activity) => {
-    return (
-      activity.type === "ACTIVITY_TYPE_SIGN_TRANSACTION_V2" &&
-      activity.status === "ACTIVITY_STATUS_COMPLETED" &&
-      activity.intent.signTransactionIntentV2?.signWith ===
-      longTermStoragePrivateKeys[0]!.privateKeyId
-    );
-  });
-
-  if (relevantActivities.length === 0) {
-    console.log(
-      "No transactions are ready for broadcasting. Double check activities that need consensus.\n",
-    );
-  }
-
-  for (let activity of relevantActivities) {
-    try {
-      const provider = getProvider();
-      const signedTx = `0x${activity.result.signTransactionResult
-        ?.signedTransaction!}`;
-
-      await broadcastTx(provider, signedTx, activity.id);
-    } catch (error: any) {
-      console.error("Encountered error:", error.toString(), "\n");
-    }
   }
 }
 

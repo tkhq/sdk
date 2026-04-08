@@ -102,7 +102,7 @@ pnpm cli sweep --key=phil --interval=20000
 
 Note that we're using "Phil" to execute this transaction. Recall from the setup, that Phil is tagged as an "executor". Phil is able to unilaterally move funds from a "Short Term Storage" address.
 
-### 6/ Initiate Recycle
+### 7/ Initiate Recycle
 
 Lastly, use the "recycle" command to move the funds stored in the "Long Term Storage" address back to "Distribution".
 
@@ -112,30 +112,22 @@ pnpm cli recycle --key=bob
 
 We're using "Bob", who is tagged as a "manager", to execute this transaction. The policy associated with the "Long Term Storage" address ensures that a "manager" can initiate a transaction from "Long Term Storage" but it must be approved by another "manager" or "admin" in order to actually be signed by Turnkey.
 
-If successful, you'll receive a message like:
+If consensus is needed, you'll receive a message like:
 
 ```
-Consensus is required for activity <ID> in order to send <VALUE> ETH to <ADDRESS>. Please visit the dashboard.
+Consensus is required for activity <ID> in order to send <VALUE> ETH to <ADDRESS>.
 ```
 
-Save the activity ID in this response. You'll use it when approving the txn
-
-### 7/ Poll & Broadcast
-
-> **NOTE:** Sponsored transactions do not require this step, the transaction will be broadcasted after consensus is reached
-
-Next, run the "pollAndBroadcast" command to wait for the tx to be confirmed and broadcast once it is.
-
-```
-pnpm cli pollAndBroadcast --interval=20000
-```
+Save the activity ID — you'll need it in the next step when approving the transaction.
 
 ### 8/ Approve Recycle
 
-Finally, approve the recycle txn using the activity ID from above:
+Approve the recycle transaction using Alice's key and the activity ID from above:
 
 ```
 pnpm cli approveActivity --key=alice --id=<ID>
 ```
 
-Once approved, you should see the "pollAndBroadcast" command detect the approved txn and broadcast it to the Sepolia testnet.
+> **Note:** You can can also approve the transaction from the [Turnkey dashboard](https://app.turnkey.com/dashboard/activities).
+
+Once approved, the transaction will be automatically broadcast to the Sepolia testnet.
