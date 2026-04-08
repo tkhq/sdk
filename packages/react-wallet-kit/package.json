@@ -54,6 +54,7 @@
     "@turnkey/sdk-types": "workspace:*",
     "buffer": "^6.0.3",
     "clsx": "^2.1.1",
+    "jwt-decode": "4.0.0",
     "libphonenumber-js": "^1.11.14",
     "qrcode.react": "^4.2.0",
     "react-international-phone": "^4.3.0",

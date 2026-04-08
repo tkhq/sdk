@@ -18,7 +18,8 @@ export type RefreshWalletsParams = {
 };
 
 export type HandleDiscordOauthParams = {
-  clientId?: string;
+  primaryClientId?: string;
+  secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
     oidcToken: string;
@@ -29,7 +30,8 @@ export type HandleDiscordOauthParams = {
 };
 
 export type HandleXOauthParams = {
-  clientId?: string;
+  primaryClientId?: string;
+  secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
     oidcToken: string;
@@ -40,7 +42,8 @@ export type HandleXOauthParams = {
 };
 
 export type HandleGoogleOauthParams = {
-  clientId?: string;
+  primaryClientId?: string;
+  secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
     oidcToken: string;
@@ -51,7 +54,13 @@ export type HandleGoogleOauthParams = {
 };
 
 export type HandleAppleOauthParams = {
-  clientId?: string;
+  primaryClientId?: {
+    /** The Apple app bundle ID (used as the audience for native iOS Sign-In). */
+    iosBundleId?: string;
+    /** The Apple Services ID (used as the client ID for web-based Android flow). */
+    serviceId?: string;
+  };
+  secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
     oidcToken: string;
@@ -62,7 +71,8 @@ export type HandleAppleOauthParams = {
 };
 
 export type HandleFacebookOauthParams = {
-  clientId?: string;
+  primaryClientId?: string;
+  secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   onOauthSuccess?: (params: {
     oidcToken: string;

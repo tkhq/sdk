@@ -12,6 +12,7 @@ import type {
   v1TransactionType,
   v1WalletAccountParams,
   v1AppProof,
+  v1OidcClaims,
 } from "@turnkey/sdk-types";
 import type {
   CreateSubOrgParams,
@@ -61,10 +62,6 @@ export type SignUpWithPasskeyParams = {
   passkeyDisplayName?: string;
   expirationSeconds?: string;
   challenge?: string;
-
-  // TODO: (breaking change): remove organizationId from here, there is literally
-  // no reason to have it
-  organizationId?: string;
 };
 
 export type SwitchWalletAccountChainParams = {
@@ -364,7 +361,8 @@ export type UpdateUserNameParams = {
 
 export type AddOauthProviderParams = {
   providerName: string;
-  oidcToken: string;
+  oidcToken?: string;
+  oidcClaims?: v1OidcClaims[];
   organizationId?: string;
   userId?: string;
   stampWith?: StamperType | undefined;

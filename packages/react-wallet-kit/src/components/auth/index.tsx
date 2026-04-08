@@ -66,7 +66,11 @@ export function AuthComponent({
     );
   }
 
-  const { methods = {}, methodOrder = [], oauthOrder = [] } = config.auth || {};
+  const {
+    methods = {},
+    methodOrder = [],
+    oauthOrder = [],
+  } = config.ui?.authModal || {};
 
   const handleEmailSubmit = async (email: string) => {
     try {

@@ -199,137 +199,104 @@ export interface ClientContextType
   }) => Promise<Wallet[]>;
 
   /**
-   * Handles the Discord OAuth 2.0 flow.
+   * Handles the Discord OAuth flow.
    *
-   * - This function initiates the OAuth 2.0 PKCE flow with Discord by opening the in-app browser and deep-linking back to the app.
-   * - On React Native, the flow always uses the in-app browser.
-   * - Generates a new ephemeral API key pair and uses its public key as part of the state and a cryptographic nonce to bind the OAuth session.
-   * - Creates a PKCE verifier/challenge pair, storing the verifier in `AsyncStorage` for later use in the token exchange.
-   * - Constructs the Discord OAuth URL with all required parameters, including client ID, redirect URI, response type, scope, PKCE code challenge, nonce, and state.
-   * - The `state` parameter encodes the provider name, flow type, ephemeral public key, and any additional key-value pairs provided in `additionalState`.
-   * - The flow resolves when the app is deep-linked back; it rejects if the in-app browser is closed or times out.
-   * - On receiving an authorization code, the function exchanges it for an OIDC token via the Turnkey proxy (`proxyOAuth2Authenticate`) using the PKCE verifier, redirect URI, and nonce.
-   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
-   * - Handles error cases such as missing configuration, in-app browser failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
+   * - Opens an in-app browser to Discord's OAuth flow and deep-links back to the app via PKCE.
+   * - On successful authentication, calls the `onOauthSuccess` callback, the `onOauthRedirect` TurnkeyProvider callback, or completes the flow internally via `completeOauth`.
    *
-   * @param params.clientId - The Discord Client ID to use (defaults to the client ID from configuration).
-   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
+   * @param params.primaryClientId - The Discord client ID to use (overrides the value from TurnkeyProviderConfig).
+   * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
+   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
-   * onOauthSuccess params:
-   * - oidcToken: The OIDC token issued by Turnkey after exchanging the auth code.
-   * - providerName: The name of the OAuth provider ("discord").
-   * - publicKey: The public key used for the OAuth flow.
-   *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
-   * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
+   * @throws {TurnkeyError} If the TurnkeyProvider is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
   handleDiscordOauth: (params?: HandleDiscordOauthParams) => Promise<void>;
 
   /**
-   * Handles the Twitter (X) OAuth 2.0 flow.
+   * Handles the Twitter (X) OAuth flow.
    *
-   * - This function initiates the OAuth 2.0 PKCE flow with Twitter (X) by opening the in-app browser and deep-linking back to the app.
-   * - On React Native, the flow always uses the in-app browser.
-   * - Generates a new ephemeral API key pair and uses its public key as part of the state and a cryptographic nonce to bind the OAuth session.
-   * - Creates a PKCE verifier/challenge pair, storing the verifier in `AsyncStorage` for later use in the token exchange.
-   * - Constructs the Twitter (X) OAuth URL with all required parameters, including client ID, redirect URI, response type, scope, PKCE code challenge, nonce, and state.
-   * - The `state` parameter encodes the provider name, flow type, ephemeral public key, and any additional key-value pairs provided in `additionalState`.
-   * - The flow resolves when the app is deep-linked back; it rejects if the in-app browser is closed or times out.
-   * - On receiving an authorization code, the function exchanges it for an OIDC token via the Turnkey proxy (`proxyOAuth2Authenticate`) using the PKCE verifier, redirect URI, and nonce.
-   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
-   * - Handles error cases such as missing configuration, in-app browser failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
+   * - Opens an in-app browser to X's OAuth flow and deep-links back to the app via PKCE.
+   * - On successful authentication, calls the `onOauthSuccess` callback, the `onOauthRedirect` TurnkeyProvider callback, or completes the flow internally via `completeOauth`.
    *
-   * @param params.clientId - The Twitter (X) Client ID to use (defaults to the client ID from configuration).
-   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
+   * @param params.primaryClientId - The Twitter (X) client ID to use (overrides the value from TurnkeyProviderConfig).
+   * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
+   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
-   * onOauthSuccess params:
-   * - oidcToken: The OIDC token issued by Turnkey after exchanging the auth code.
-   * - providerName: The name of the OAuth provider ("twitter").
-   * - publicKey: The public key used for the OAuth flow.
-   *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
-   * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
+   * @throws {TurnkeyError} If the TurnkeyProvider is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
   handleXOauth: (params?: HandleXOauthParams) => Promise<void>;
 
   /**
    * Handles the Google OAuth flow.
    *
-   * - This function initiates the Google OAuth flow by opening the in-app browser and deep-linking back to the app.
-   * - On React Native, the flow always uses the in-app browser.
-   * - Generates a new ephemeral API key pair and uses its public key as the nonce for the OAuth request, ensuring cryptographic binding of the session.
-   * - Constructs the Google OAuth URL with all required parameters, including client ID, redirect URI, response type, scope, nonce, and state.
-   * - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
-   * - The flow resolves when the app is deep-linked back; it rejects if the in-app browser is closed or times out.
-   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
-   * - Handles all error cases, including missing configuration, in-app browser failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
+   * - Opens an in-app browser to Google's OAuth flow via the Turnkey OAuth proxy and deep-links back to the app.
+   * - On successful authentication, calls the `onOauthSuccess` callback, the `onOauthRedirect` TurnkeyProvider callback, or completes the flow internally via `completeOauth`.
    *
-   * @param params.clientId - The Google Client ID to use (defaults to the client ID from configuration).
+   * @param params.primaryClientId - The Google client ID to use (overrides the value from TurnkeyProviderConfig).
+   * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
-   * onOauthSuccess params:
-   * - oidcToken: The OIDC token received from the OAuth flow.
-   * - providerName: The name of the OAuth provider ("google").
-   * - publicKey: The public key used for the OAuth flow.
-   *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
-   * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
+   * @throws {TurnkeyError} If the TurnkeyProvider is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
   handleGoogleOauth: (params?: HandleGoogleOauthParams) => Promise<void>;
 
   /**
    * Handles the Apple OAuth flow.
    *
-   * - This function initiates the Apple OAuth flow by opening the in-app browser and deep-linking back to the app.
-   * - On React Native, the flow always uses the in-app browser.
-   * - Generates a new ephemeral API key pair and uses its public key as the nonce for the OAuth request, ensuring cryptographic binding of the session.
-   * - Constructs the Apple OAuth URL with all required parameters, including client ID, redirect URI, response type, response mode, nonce, and state.
-   * - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
-   * - The flow resolves when the app is deep-linked back; it rejects if the in-app browser is closed or times out.
-   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
-   * - Handles all error cases, including missing configuration, in-app browser failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
+   * - On iOS, uses native Apple Sign-In with `primaryClientId.iosBundleId` as the audience, and links `primaryClientId.serviceId` as a secondary audience during sub-organization creation.
+   * - On Android, opens a web-based Apple OAuth flow using `primaryClientId.serviceId` as the audience, and links `primaryClientId.iosBundleId` as a secondary audience during sub-organization creation.
+   * - On successful authentication, calls the `onOauthSuccess` callback, the `onOauthRedirect` TurnkeyProvider callback, or completes the flow internally via `completeOauth`.
    *
-   * @param params.clientId - The Apple Client ID to use (defaults to the client ID from configuration).
+   * @param params.primaryClientId - The Apple `serviceId` and `iosBundleId` to use (overrides the values from TurnkeyProviderConfig).
+   * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
-   * onOauthSuccess params:
-   * - oidcToken: The OIDC token received from the OAuth flow.
-   * - providerName: The name of the OAuth provider ("apple").
-   * - publicKey: The public key used for the OAuth flow.
-   *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
-   * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
+   * @throws {TurnkeyError} If the TurnkeyProvider is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
   handleAppleOauth: (params?: HandleAppleOauthParams) => Promise<void>;
 
   /**
-   * Handles the Facebook OAuth flow.
+   * Handles the Apple OAuth flow using a web-based in-app browser on all platforms.
    *
-   * - This function initiates the Facebook OAuth flow by opening the in-app browser and deep-linking back to the app.
-   * - On React Native, the flow always uses the in-app browser.
+   * - Opens a web-based Apple OAuth flow using `primaryClientId.serviceId` as the audience. The `iosBundleId` is ignored by this function.
    * - Generates a new ephemeral API key pair and uses its public key as the nonce for the OAuth request, ensuring cryptographic binding of the session.
-   * - Uses PKCE (Proof Key for Code Exchange) for enhanced security, generating a code verifier and challenge for the Facebook OAuth flow.
-   * - Constructs the Facebook OAuth URL with all required parameters, including client ID, redirect URI, response type, code challenge, nonce, and state.
-   * - The `state` parameter includes the provider, flow type, public key, and any additional state parameters for tracking or custom logic.
-   * - The flow resolves when the app is deep-linked back; it rejects if the in-app browser is closed or times out.
-   * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
-   * - Handles all error cases, including missing configuration, in-app browser failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
+   * - On successful authentication, calls the `onOauthSuccess` callback, the `onOauthRedirect` TurnkeyProvider callback, or completes the flow internally via `completeOauth`.
    *
-   * @param params.clientId - The Facebook Client ID to use (defaults to the client ID from configuration).
+   * This flow is provided for compatibility with previous versions of react-native-wallet-kit.
+   * It is recommended to use {@link handleAppleOauth} instead, which uses native Apple Sign-In on iOS.
+   *
+   * @param params.primaryClientId - The Apple `serviceId` to use (overrides the value from TurnkeyProviderConfig). The `iosBundleId` is ignored.
+   * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
-   * onOauthSuccess params:
-   * - oidcToken: The OIDC token received from the OAuth flow.
-   * - providerName: The name of the OAuth provider ("facebook").
-   * - publicKey: The public key used for the OAuth flow.
+   * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
+   * @throws {TurnkeyError} If the TurnkeyProvider is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
+   * @deprecated Use {@link handleAppleOauth} instead.
+   */
+  handleAppleWebOauth: (params?: HandleAppleOauthParams) => Promise<void>;
+
+  /**
+   * Handles the Facebook OAuth flow.
+   *
+   * - Opens an in-app browser to Facebook's OAuth flow via the Turnkey OAuth proxy and deep-links back to the app via PKCE.
+   * - On successful authentication, calls the `onOauthSuccess` callback, the `onOauthRedirect` TurnkeyProvider callback, or completes the flow internally via `completeOauth`.
+   *
+   * @param params.primaryClientId - The Facebook client ID to use (overrides the value from TurnkeyProviderConfig).
+   * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth providers during sub-organization creation (overrides secondaryClientIds from TurnkeyProviderConfig).
+   * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
+   * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName, publicKey }`).
    *
    * @returns A promise that resolves when the OAuth flow is successfully initiated and completed, or rejects on error or timeout.
-   * @throws {TurnkeyError} If the configuration is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
+   * @throws {TurnkeyError} If the TurnkeyProvider is not ready, required parameters are missing, or if there is an error initiating or completing the OAuth flow.
    */
   handleFacebookOauth: (params?: HandleFacebookOauthParams) => Promise<void>;
 }

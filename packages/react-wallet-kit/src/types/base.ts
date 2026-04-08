@@ -12,6 +12,13 @@ import type {
 import type { ThemeOverrides } from "../providers/theme/Overrides";
 import { KeyFormat as IframeKeyFormat } from "@turnkey/iframe-stamper";
 
+export type OauthProviderConfig = {
+  /** Client ID for this OAuth provider. Used as the primary audience for the OIDC token. */
+  primaryClientId?: string;
+  /** Additional client IDs to register as secondary OAuth providers (additional audiences) during sub-organization creation or provider linking. */
+  secondaryClientIds?: string[];
+};
+
 export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: {
     idToken: string;
@@ -45,39 +52,23 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
   /** URL for the import iframe. */
   importIframeUrl?: string | undefined;
 
-  /** configuration for authentication methods. */
+  /** configuration for authentication. */
   auth?: {
-    /** enables or disables specific authentication methods. */
-    methods?: {
-      emailOtpAuthEnabled?: boolean;
-      smsOtpAuthEnabled?: boolean;
-      passkeyAuthEnabled?: boolean;
-      walletAuthEnabled?: boolean;
-      googleOauthEnabled?: boolean;
-      appleOauthEnabled?: boolean;
-      xOauthEnabled?: boolean;
-      discordOauthEnabled?: boolean;
-      facebookOauthEnabled?: boolean;
-    };
-    /** order of authentication methods. */
-    methodOrder?: Array<"socials" | "email" | "sms" | "passkey" | "wallet">;
-    /** order of OAuth authentication methods. */
-    oauthOrder?: Array<"google" | "apple" | "facebook" | "x" | "discord">;
     /** configuration for OAuth authentication. */
     oauthConfig?: {
       /** redirect URI for OAuth. */
       oauthRedirectUri?: string;
-      /** client ID for Google OAuth. */
-      googleClientId?: string;
-      /** client ID for Apple OAuth. */
-      appleClientId?: string;
-      /** client ID for Facebook OAuth. */
-      facebookClientId?: string;
-      /** client ID for X (formerly Twitter) OAuth. */
-      xClientId?: string;
-      /** client ID for Discord OAuth. */
-      discordClientId?: string;
-      /** whether to open OAuth in the same page. Always true on mobile. */
+      /** Google OAuth provider configuration. */
+      google?: OauthProviderConfig;
+      /** Apple OAuth provider configuration. */
+      apple?: OauthProviderConfig;
+      /** Facebook OAuth provider configuration. */
+      facebook?: OauthProviderConfig;
+      /** X (formerly Twitter) OAuth provider configuration. */
+      x?: OauthProviderConfig;
+      /** Discord OAuth provider configuration. */
+      discord?: OauthProviderConfig;
+      /** whether to open OAuth in the same page. Always true on mobile devices. */
       openOauthInPage?: boolean;
     };
     /** session expiration time in seconds. If using the auth proxy, you must configure this setting through the dashboard. Changing this through the TurnkeyProvider will have no effect. */
@@ -116,6 +107,24 @@ export interface TurnkeyProviderConfig extends TurnkeySDKClientConfig {
 
   /** UI configuration. */
   ui?: {
+    authModal?: {
+      /** toggles visibility of authentication methods in the auth modal. */
+      methods?: {
+        emailOtpAuthEnabled?: boolean;
+        smsOtpAuthEnabled?: boolean;
+        passkeyAuthEnabled?: boolean;
+        walletAuthEnabled?: boolean;
+        googleOauthEnabled?: boolean;
+        appleOauthEnabled?: boolean;
+        xOauthEnabled?: boolean;
+        discordOauthEnabled?: boolean;
+        facebookOauthEnabled?: boolean;
+      };
+      /** order of authentication methods in the auth modal. */
+      methodOrder?: Array<"socials" | "email" | "sms" | "passkey" | "wallet">;
+      /** order of OAuth authentication methods in the auth modal. */
+      oauthOrder?: Array<"google" | "apple" | "facebook" | "x" | "discord">;
+    };
     /** logo for the auth component */
     logoLight?: string;
     logoDark?: string;

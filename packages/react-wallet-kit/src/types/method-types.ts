@@ -40,7 +40,8 @@ export type HandleLoginParams = {
 };
 
 export type HandleDiscordOauthParams = {
-  clientId?: string;
+  primaryClientId?: string;
+  secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   openInPage?: boolean;
   onOauthSuccess?: (params: {
@@ -51,7 +52,8 @@ export type HandleDiscordOauthParams = {
 };
 
 export type HandleXOauthParams = {
-  clientId?: string;
+  primaryClientId?: string;
+  secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   openInPage?: boolean;
   onOauthSuccess?: (params: {
@@ -62,7 +64,8 @@ export type HandleXOauthParams = {
 };
 
 export type HandleGoogleOauthParams = {
-  clientId?: string;
+  primaryClientId?: string;
+  secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   openInPage?: boolean;
   onOauthSuccess?: (params: {
@@ -73,7 +76,8 @@ export type HandleGoogleOauthParams = {
 };
 
 export type HandleAppleOauthParams = {
-  clientId?: string;
+  primaryClientId?: string;
+  secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   openInPage?: boolean;
   onOauthSuccess?: (params: {
@@ -84,7 +88,8 @@ export type HandleAppleOauthParams = {
 };
 
 export type HandleFacebookOauthParams = {
-  clientId?: string;
+  primaryClientId?: string;
+  secondaryClientIds?: string[];
   additionalState?: Record<string, string>;
   openInPage?: boolean;
   onOauthSuccess?: (params: {
@@ -196,6 +201,8 @@ export type HandleAddPhoneNumberParams = {
 
 export type HandleAddOauthProviderParams = {
   providerName: OAuthProviders;
+  primaryClientId?: string;
+  secondaryClientIds?: string[];
   stampWith?: StamperType | undefined;
   organizationId?: string;
   successPageDuration?: number | undefined; // Duration in milliseconds for the success page to show. If 0, it will not show the success page.

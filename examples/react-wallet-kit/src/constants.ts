@@ -35,24 +35,15 @@ export const initialConfig: TurnkeyProviderConfig = {
     process.env.NEXT_PUBLIC_EXPORT_IFRAME_URL || "https://export.turnkey.com",
   auth: {
     oauthConfig: {
-      googleClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-      facebookClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID,
-      appleClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID,
+      google: {
+        primaryClientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+        secondaryClientIds: ["test-hamburger"],
+      },
+      facebook: { primaryClientId: process.env.NEXT_PUBLIC_FACEBOOK_CLIENT_ID },
+      apple: { primaryClientId: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID },
       oauthRedirectUri: process.env.NEXT_PUBLIC_OAUTH_REDIRECT_URI,
       openOauthInPage: true,
     },
-    methods: {
-      emailOtpAuthEnabled: true,
-      smsOtpAuthEnabled: false,
-      passkeyAuthEnabled: true,
-      walletAuthEnabled: true,
-      googleOauthEnabled: true,
-      appleOauthEnabled: false,
-      facebookOauthEnabled: false,
-      xOauthEnabled: false,
-      discordOauthEnabled: false,
-    },
-    methodOrder: ["socials", "email", "sms", "passkey", "wallet"],
     autoRefreshSession: true,
     createSuborgParams: {
       emailOtpAuth: createSuborgParams,
@@ -64,6 +55,20 @@ export const initialConfig: TurnkeyProviderConfig = {
     verifyWalletOnSignup: true,
   },
   ui: {
+    authModal: {
+      methods: {
+        emailOtpAuthEnabled: true,
+        smsOtpAuthEnabled: false,
+        passkeyAuthEnabled: true,
+        walletAuthEnabled: true,
+        googleOauthEnabled: true,
+        appleOauthEnabled: false,
+        facebookOauthEnabled: false,
+        xOauthEnabled: false,
+        discordOauthEnabled: false,
+      },
+      methodOrder: ["socials", "email", "sms", "passkey", "wallet"],
+    },
     darkMode: true,
     borderRadius: 16,
     backgroundBlur: 8,

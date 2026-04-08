@@ -10,13 +10,55 @@ import type {
   TurnkeyNetworkError,
 } from "@turnkey/sdk-types";
 
-// New OAuth provider config union: boolean enables; object configures and enables
-export type OauthProviderConfig =
-  | boolean
-  | {
-      clientId?: string;
-      redirectUri?: string;
-    };
+export type GoogleOauthProviderConfig = {
+  /** The Google Client ID. */
+  primaryClientId?: string;
+  /** Additional client IDs to register as secondary OAuth providers during sub-organization creation. */
+  secondaryClientIds?: string[];
+  /** Redirect URI override for this provider. */
+  redirectUri?: string;
+};
+
+export type AppleOauthProviderConfig = {
+  /** The Apple client identifiers. */
+  primaryClientId?: {
+    /** The Apple app bundle ID (used as the audience for native iOS Sign-In). */
+    iosBundleId?: string;
+    /** The Apple Services ID (used as the client ID for web-based Android flow). */
+    serviceId?: string;
+  };
+  /** Additional client IDs to register as secondary OAuth providers during sub-organization creation. */
+  secondaryClientIds?: string[];
+  /** Redirect URI override for this provider. */
+  redirectUri?: string;
+};
+
+export type FacebookOauthProviderConfig = {
+  /** The Facebook Client ID. */
+  primaryClientId?: string;
+  /** Additional client IDs to register as secondary OAuth providers during sub-organization creation. */
+  secondaryClientIds?: string[];
+  /** Redirect URI override for this provider. */
+  redirectUri?: string;
+};
+
+export type XOauthProviderConfig = {
+  /** The X (Twitter) Client ID. */
+  primaryClientId?: string;
+  /** Additional client IDs to register as secondary OAuth providers during sub-organization creation. */
+  secondaryClientIds?: string[];
+  /** Redirect URI override for this provider. */
+  redirectUri?: string;
+};
+
+export type DiscordOauthProviderConfig = {
+  /** The Discord Client ID. */
+  primaryClientId?: string;
+  /** Additional client IDs to register as secondary OAuth providers during sub-organization creation. */
+  secondaryClientIds?: string[];
+  /** Redirect URI override for this provider. */
+  redirectUri?: string;
+};
 
 export interface TurnkeyCallbacks {
   onOauthRedirect?: (response: {
@@ -64,12 +106,12 @@ export interface TurnkeyProviderConfig
       redirectUri?: string;
       /** application deep link scheme used to complete OAuth in React Native (e.g., "myapp"). */
       appScheme?: string;
-      /** provider enablement/configuration (boolean enables; object configures and enables) */
-      google?: OauthProviderConfig;
-      apple?: OauthProviderConfig;
-      facebook?: OauthProviderConfig;
-      x?: OauthProviderConfig;
-      discord?: OauthProviderConfig;
+      /** provider-specific OAuth configuration */
+      google?: GoogleOauthProviderConfig;
+      apple?: AppleOauthProviderConfig;
+      facebook?: FacebookOauthProviderConfig;
+      x?: XOauthProviderConfig;
+      discord?: DiscordOauthProviderConfig;
     };
     /** passkey enablement and options */
     passkey?: boolean | { passkeyName?: string };
