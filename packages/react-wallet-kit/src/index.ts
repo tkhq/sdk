@@ -11,7 +11,6 @@ export {
   type TurnkeySDKClientBase,
   isEthereumProvider,
   isSolanaProvider,
-  sendSignedRequest,
   decodeVerificationToken,
   getClientSignatureMessageForLogin,
   getClientSignatureMessageForSignup,

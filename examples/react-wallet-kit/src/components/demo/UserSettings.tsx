@@ -101,48 +101,48 @@ export default function UserSettings() {
           <h2>Auth Methods</h2>
           <div className="flex flex-col gap-2 flex-1 overflow-y-auto tk-scrollbar">
             <div className="flex flex-col gap-2">
-              {clientConfig?.auth?.methods?.emailOtpAuthEnabled && (
+              {clientConfig?.ui?.authModal?.methods?.emailOtpAuthEnabled && (
                 <EmailAuthButton canRemoveAuthMethod={canRemoveAuthMethod} />
               )}
-              {clientConfig?.auth?.methods?.smsOtpAuthEnabled && (
+              {clientConfig?.ui?.authModal?.methods?.smsOtpAuthEnabled && (
                 <PhoneAuthButton canRemoveAuthMethod={canRemoveAuthMethod} />
               )}
-              {clientConfig?.auth?.methods?.googleOauthEnabled && (
+              {clientConfig?.ui?.authModal?.methods?.googleOauthEnabled && (
                 <SocialButton
                   canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.GOOGLE}
                   logo={<GoogleSVG className="w-6 h-6" />}
                 />
               )}
-              {clientConfig?.auth?.methods?.appleOauthEnabled && (
+              {clientConfig?.ui?.authModal?.methods?.appleOauthEnabled && (
                 <SocialButton
                   canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.APPLE}
                   logo={<AppleSVG className="w-6 h-6" />}
                 />
               )}
-              {clientConfig?.auth?.methods?.facebookOauthEnabled && (
+              {clientConfig?.ui?.authModal?.methods?.facebookOauthEnabled && (
                 <SocialButton
                   canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.FACEBOOK}
                   logo={<FacebookSVG className="w-6 h-6" />}
                 />
               )}
-              {clientConfig?.auth?.methods?.xOauthEnabled && (
+              {clientConfig?.ui?.authModal?.methods?.xOauthEnabled && (
                 <SocialButton
                   canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.X}
                   logo={<TwitterXSVG className="w-6 h-6" />}
                 />
               )}
-              {clientConfig?.auth?.methods?.discordOauthEnabled && (
+              {clientConfig?.ui?.authModal?.methods?.discordOauthEnabled && (
                 <SocialButton
                   canRemoveAuthMethod={canRemoveAuthMethod}
                   provider={OAuthProviders.DISCORD}
                   logo={<DiscordSVG className="w-6 h-6" />}
                 />
               )}
-              {clientConfig?.auth?.methods?.passkeyAuthEnabled && (
+              {clientConfig?.ui?.authModal?.methods?.passkeyAuthEnabled && (
                 <AuthenticatorButton
                   canRemoveAuthMethod={canRemoveAuthMethod}
                 />

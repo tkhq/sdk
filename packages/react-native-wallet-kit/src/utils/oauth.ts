@@ -1,7 +1,13 @@
 import { sha256 } from "@noble/hashes/sha256";
 import { stringToBase64urlString } from "@turnkey/encoding";
-import { AuthAction, BaseAuthResult, OAuthProviders } from "@turnkey/sdk-types";
+import {
+  AuthAction,
+  BaseAuthResult,
+  OAuthProviders,
+  type v1OauthProviderParamsV2,
+} from "@turnkey/sdk-types";
 import AsyncStorageModule from "@react-native-async-storage/async-storage";
+import { jwtDecode } from "jwt-decode";
 
 // some bundlers wrap the module as { default: AsyncStorage } instead of
 // returning AsyncStorage directly. This handles both cases
@@ -696,4 +702,23 @@ export async function exchangeCodeForToken(
   }
 
   return await response.json();
+}
+
+/**
+ * Builds secondary OAuth provider entries from secondary client IDs.
+ * Decodes the OIDC token to extract `iss` and `sub`, then creates
+ * an `oidcClaims`-based provider entry for each secondary client ID (used as `aud`).
+ */
+export function buildSecondaryOauthProviders(
+  oidcToken: string,
+  providerName: string,
+  secondaryClientIds: string[],
+): v1OauthProviderParamsV2[] {
+  if (secondaryClientIds.length === 0) return [];
+  const { iss, sub } = jwtDecode<{ iss?: string; sub?: string }>(oidcToken);
+  if (!iss || !sub) return [];
+  return secondaryClientIds.map((aud) => ({
+    providerName,
+    oidcClaims: { iss, sub, aud },
+  }));
 }

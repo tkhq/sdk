@@ -4,6 +4,8 @@ import { sha256 } from "@noble/hashes/sha2";
 import { bytesToHex } from "@noble/hashes/utils";
 import {
   buildOAuthUrl,
+  buildSecondaryOauthProviders,
+  buildSecondaryOidcClaims,
   capitalizeProviderName,
   cleanupOAuthUrl,
   cleanupOAuthUrlPreserveSearch,
@@ -416,6 +418,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const completePKCERedirect = async (
         providerName: PKCEProvider,
         exchangeCodeFn: (codeVerifier: string) => Promise<string>,
+        secondaryClientIds: string[],
       ) => {
         const action = async () => {
           try {
@@ -424,14 +427,39 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               providerName,
               sessionKey: sessionKey ?? undefined,
               callbacks,
-              completeOauth,
+              completeOauth: (completionParams) => {
+                const existingCreateSubOrgParams =
+                  masterConfig?.auth?.createSuborgParams?.oauth;
+                const secondaryProviders = buildSecondaryOauthProviders(
+                  completionParams.oidcToken,
+                  completionParams.providerName ?? providerName,
+                  secondaryClientIds,
+                );
+                return completeOauth({
+                  ...completionParams,
+                  ...(secondaryProviders.length > 0 && {
+                    createSubOrgParams: {
+                      ...existingCreateSubOrgParams,
+                      oauthProviders: [
+                        ...(existingCreateSubOrgParams?.oauthProviders ?? []),
+                        ...secondaryProviders,
+                      ],
+                    },
+                  }),
+                });
+              },
               onAddProvider:
                 // Only set onAddProvider if we are adding a provider and have metadata
                 isAddProvider && metadata
                   ? async (oidcToken: string) => {
+                      const oidcClaims = buildSecondaryOidcClaims(
+                        oidcToken,
+                        secondaryClientIds,
+                      );
                       await addOauthProvider({
                         providerName: provider!,
                         oidcToken,
+                        ...(oidcClaims.length > 0 && { oidcClaims }),
                         organizationId: metadata.organizationId,
                         userId: metadata.userId,
                         ...(metadata.stampWith && {
@@ -474,7 +502,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       // FACEBOOK
       if (provider === OAuthProviders.FACEBOOK) {
-        const clientId = masterConfig?.auth?.oauthConfig?.facebookClientId;
+        const clientId =
+          masterConfig?.auth?.oauthConfig?.facebook?.primaryClientId;
+        const secondaryClientIds =
+          masterConfig?.auth?.oauthConfig?.facebook?.secondaryClientIds ?? [];
         const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
         const hasVerifier = hasPKCEVerifier(OAuthProviders.FACEBOOK);
 
@@ -497,6 +528,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               }
               return oidcToken;
             },
+            secondaryClientIds,
           );
         }
         return;
@@ -504,7 +536,10 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       // DISCORD
       if (provider === OAuthProviders.DISCORD) {
-        const clientId = masterConfig?.auth?.oauthConfig?.discordClientId;
+        const clientId =
+          masterConfig?.auth?.oauthConfig?.discord?.primaryClientId;
+        const secondaryClientIds =
+          masterConfig?.auth?.oauthConfig?.discord?.secondaryClientIds ?? [];
         const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
         const hasVerifier = hasPKCEVerifier(OAuthProviders.DISCORD);
 
@@ -529,6 +564,7 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               }
               return oidcToken;
             },
+            secondaryClientIds,
           );
         }
         return;
@@ -536,29 +572,35 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
       // X (Twitter)
       if (provider === OAuthProviders.X) {
-        const clientId = masterConfig?.auth?.oauthConfig?.xClientId;
+        const clientId = masterConfig?.auth?.oauthConfig?.x?.primaryClientId;
+        const secondaryClientIds =
+          masterConfig?.auth?.oauthConfig?.x?.secondaryClientIds ?? [];
         const redirectURI = masterConfig?.auth?.oauthConfig?.oauthRedirectUri;
         const hasVerifier = hasPKCEVerifier(OAuthProviders.X);
 
         if (clientId && redirectURI && hasVerifier && nonce) {
-          await completePKCERedirect(OAuthProviders.X, async (codeVerifier) => {
-            const resp = await client?.httpClient.proxyOAuth2Authenticate({
-              provider: "OAUTH2_PROVIDER_X",
-              authCode: code,
-              redirectUri: redirectURI,
-              codeVerifier,
-              clientId,
-              nonce,
-            });
-            const oidcToken = resp?.oidcToken;
-            if (!oidcToken) {
-              throw new TurnkeyError(
-                "Missing OIDC token",
-                TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
-              );
-            }
-            return oidcToken;
-          });
+          await completePKCERedirect(
+            OAuthProviders.X,
+            async (codeVerifier) => {
+              const resp = await client?.httpClient.proxyOAuth2Authenticate({
+                provider: "OAUTH2_PROVIDER_X",
+                authCode: code,
+                redirectUri: redirectURI,
+                codeVerifier,
+                clientId,
+                nonce,
+              });
+              const oidcToken = resp?.oidcToken;
+              if (!oidcToken) {
+                throw new TurnkeyError(
+                  "Missing OIDC token",
+                  TurnkeyErrorCodes.OAUTH_LOGIN_ERROR,
+                );
+              }
+              return oidcToken;
+            },
+            secondaryClientIds,
+          );
         }
         return;
       }
@@ -592,6 +634,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       const metadata = isAddProvider ? getOAuthAddProviderMetadata() : null;
       const resolvedProvider = provider || OAuthProviders.GOOGLE;
 
+      // Grab Google/Apple secondary client IDs from config for use in completion
+      const secondaryClientIds =
+        (resolvedProvider === OAuthProviders.GOOGLE
+          ? masterConfig?.auth?.oauthConfig?.google?.secondaryClientIds
+          : resolvedProvider === OAuthProviders.APPLE
+            ? masterConfig?.auth?.oauthConfig?.apple?.secondaryClientIds
+            : undefined) ?? [];
+
       // Use completeOAuthFlow from utils for the core completion logic
       const action = async () => {
         await completeOAuthFlow({
@@ -600,13 +650,38 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
           oidcToken: idToken,
           sessionKey: sessionKey ?? undefined,
           callbacks,
-          completeOauth,
+          completeOauth: (completionParams) => {
+            const existingCreateSubOrgParams =
+              masterConfig?.auth?.createSuborgParams?.oauth;
+            const secondaryProviders = buildSecondaryOauthProviders(
+              completionParams.oidcToken,
+              completionParams.providerName ?? resolvedProvider,
+              secondaryClientIds,
+            );
+            return completeOauth({
+              ...completionParams,
+              ...(secondaryProviders.length > 0 && {
+                createSubOrgParams: {
+                  ...existingCreateSubOrgParams,
+                  oauthProviders: [
+                    ...(existingCreateSubOrgParams?.oauthProviders ?? []),
+                    ...secondaryProviders,
+                  ],
+                },
+              }),
+            });
+          },
           onAddProvider:
             isAddProvider && metadata
               ? async (oidcToken) => {
+                  const oidcClaims = buildSecondaryOidcClaims(
+                    oidcToken,
+                    secondaryClientIds,
+                  );
                   await addOauthProvider({
                     providerName: resolvedProvider,
                     oidcToken,
+                    ...(oidcClaims.length > 0 && { oidcClaims }),
                     organizationId: metadata.organizationId,
                     userId: metadata.userId,
                     ...(metadata.stampWith && {
@@ -638,50 +713,70 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
     // Juggle the local overrides with the values set in the dashboard (proxyAuthConfig).
     const resolvedMethods = {
       emailOtpAuthEnabled:
-        config.auth?.methods?.emailOtpAuthEnabled ??
+        config.ui?.authModal?.methods?.emailOtpAuthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("email"),
       smsOtpAuthEnabled:
-        config.auth?.methods?.smsOtpAuthEnabled ??
+        config.ui?.authModal?.methods?.smsOtpAuthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("sms"),
       passkeyAuthEnabled:
-        config.auth?.methods?.passkeyAuthEnabled ??
+        config.ui?.authModal?.methods?.passkeyAuthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("passkey"),
       walletAuthEnabled:
-        config.auth?.methods?.walletAuthEnabled ??
+        config.ui?.authModal?.methods?.walletAuthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("wallet"),
       googleOauthEnabled:
-        config.auth?.methods?.googleOauthEnabled ??
+        config.ui?.authModal?.methods?.googleOauthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("google"),
       xOauthEnabled:
-        config.auth?.methods?.xOauthEnabled ??
+        config.ui?.authModal?.methods?.xOauthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("x"),
       discordOauthEnabled:
-        config.auth?.methods?.discordOauthEnabled ??
+        config.ui?.authModal?.methods?.discordOauthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("discord"),
       appleOauthEnabled:
-        config.auth?.methods?.appleOauthEnabled ??
+        config.ui?.authModal?.methods?.appleOauthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("apple"),
       facebookOauthEnabled:
-        config.auth?.methods?.facebookOauthEnabled ??
+        config.ui?.authModal?.methods?.facebookOauthEnabled ??
         proxyAuthConfig?.enabledProviders.includes("facebook"),
     };
 
-    const resolvedClientIds = {
-      googleClientId:
-        config.auth?.oauthConfig?.googleClientId ??
-        proxyAuthConfig?.oauthClientIds?.google,
-      appleClientId:
-        config.auth?.oauthConfig?.appleClientId ??
-        proxyAuthConfig?.oauthClientIds?.apple,
-      facebookClientId:
-        config.auth?.oauthConfig?.facebookClientId ??
-        proxyAuthConfig?.oauthClientIds?.facebook,
-      xClientId:
-        config.auth?.oauthConfig?.xClientId ??
-        proxyAuthConfig?.oauthClientIds?.x,
-      discordClientId:
-        config.auth?.oauthConfig?.discordClientId ??
-        proxyAuthConfig?.oauthClientIds?.discord,
+    const resolvedOauthProviders = {
+      google: {
+        primaryClientId:
+          config.auth?.oauthConfig?.google?.primaryClientId ??
+          proxyAuthConfig?.oauthClientIds?.google,
+        secondaryClientIds:
+          config.auth?.oauthConfig?.google?.secondaryClientIds ?? [],
+      },
+      apple: {
+        primaryClientId:
+          config.auth?.oauthConfig?.apple?.primaryClientId ??
+          proxyAuthConfig?.oauthClientIds?.apple,
+        secondaryClientIds:
+          config.auth?.oauthConfig?.apple?.secondaryClientIds ?? [],
+      },
+      facebook: {
+        primaryClientId:
+          config.auth?.oauthConfig?.facebook?.primaryClientId ??
+          proxyAuthConfig?.oauthClientIds?.facebook,
+        secondaryClientIds:
+          config.auth?.oauthConfig?.facebook?.secondaryClientIds ?? [],
+      },
+      x: {
+        primaryClientId:
+          config.auth?.oauthConfig?.x?.primaryClientId ??
+          proxyAuthConfig?.oauthClientIds?.x,
+        secondaryClientIds:
+          config.auth?.oauthConfig?.x?.secondaryClientIds ?? [],
+      },
+      discord: {
+        primaryClientId:
+          config.auth?.oauthConfig?.discord?.primaryClientId ??
+          proxyAuthConfig?.oauthClientIds?.discord,
+        secondaryClientIds:
+          config.auth?.oauthConfig?.discord?.secondaryClientIds ?? [],
+      },
     };
 
     const redirectUrl =
@@ -690,14 +785,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
 
     // Set a default ordering for the oAuth methods
     const oauthOrder =
-      config.auth?.oauthOrder ??
+      config.ui?.authModal?.oauthOrder ??
       (["google", "apple", "x", "discord", "facebook"] as const).filter(
         (provider) => resolvedMethods[`${provider}OauthEnabled` as const],
       );
 
     // Set a default ordering for the overall auth methods
     const methodOrder =
-      config.auth?.methodOrder ??
+      config.ui?.authModal?.methodOrder ??
       ([
         oauthOrder.length > 0 ? "socials" : null,
         resolvedMethods.emailOtpAuthEnabled ? "email" : null,
@@ -747,10 +842,9 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
       auth: {
         ...config.auth,
         ...authProxyPrioSettings,
-        methods: resolvedMethods,
         oauthConfig: {
           ...config.auth?.oauthConfig,
-          ...resolvedClientIds,
+          ...resolvedOauthProviders,
           oauthRedirectUri: redirectUrl,
 
           // on mobile we default to true since many mobile browsers
@@ -759,9 +853,16 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             ? true
             : config.auth?.oauthConfig?.openOauthInPage,
         },
-        methodOrder,
-        oauthOrder,
         autoRefreshSession: config.auth?.autoRefreshSession ?? true,
+      },
+      ui: {
+        ...config.ui,
+        authModal: {
+          ...config.ui?.authModal,
+          methods: resolvedMethods,
+          methodOrder,
+          oauthOrder,
+        },
       },
       autoRefreshManagedState: config.autoRefreshManagedState ?? true,
       walletConfig: {
@@ -3260,10 +3361,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleDiscordOauth = useCallback(
     async (params?: HandleDiscordOauthParams): Promise<void> => {
       const {
-        clientId = masterConfig?.auth?.oauthConfig?.discordClientId,
+        primaryClientId = masterConfig?.auth?.oauthConfig?.discord
+          ?.primaryClientId,
+        secondaryClientIds = masterConfig?.auth?.oauthConfig?.discord
+          ?.secondaryClientIds ?? [],
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
       } = params || {};
+      const clientId = primaryClientId;
 
       const provider = OAuthProviders.DISCORD;
 
@@ -3347,7 +3452,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   publicKey,
                   result,
                   callbacks,
-                  completeOauth,
+                  completeOauth: (completionParams) => {
+                    const existingCreateSubOrgParams =
+                      masterConfig?.auth?.createSuborgParams?.oauth;
+                    const secondaryProviders = buildSecondaryOauthProviders(
+                      completionParams.oidcToken,
+                      completionParams.providerName ?? provider,
+                      secondaryClientIds,
+                    );
+                    return completeOauth({
+                      ...completionParams,
+                      ...(secondaryProviders.length > 0 && {
+                        createSubOrgParams: {
+                          ...existingCreateSubOrgParams,
+                          oauthProviders: [
+                            ...(existingCreateSubOrgParams?.oauthProviders ??
+                              []),
+                            ...secondaryProviders,
+                          ],
+                        },
+                      }),
+                    });
+                  },
                   onOauthSuccess: params?.onOauthSuccess,
                   exchangeCodeForToken: async (codeVerifier) => {
                     const resp =
@@ -3382,10 +3508,13 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleXOauth = useCallback(
     async (params?: HandleXOauthParams): Promise<void> => {
       const {
-        clientId = masterConfig?.auth?.oauthConfig?.xClientId,
+        primaryClientId = masterConfig?.auth?.oauthConfig?.x?.primaryClientId,
+        secondaryClientIds = masterConfig?.auth?.oauthConfig?.x
+          ?.secondaryClientIds ?? [],
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
       } = params || {};
+      const clientId = primaryClientId;
 
       const provider = OAuthProviders.X;
 
@@ -3469,7 +3598,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   publicKey,
                   result,
                   callbacks,
-                  completeOauth,
+                  completeOauth: (completionParams) => {
+                    const existingCreateSubOrgParams =
+                      masterConfig?.auth?.createSuborgParams?.oauth;
+                    const secondaryProviders = buildSecondaryOauthProviders(
+                      completionParams.oidcToken,
+                      completionParams.providerName ?? provider,
+                      secondaryClientIds,
+                    );
+                    return completeOauth({
+                      ...completionParams,
+                      ...(secondaryProviders.length > 0 && {
+                        createSubOrgParams: {
+                          ...existingCreateSubOrgParams,
+                          oauthProviders: [
+                            ...(existingCreateSubOrgParams?.oauthProviders ??
+                              []),
+                            ...secondaryProviders,
+                          ],
+                        },
+                      }),
+                    });
+                  },
                   onOauthSuccess: params?.onOauthSuccess,
                   exchangeCodeForToken: async (codeVerifier) => {
                     const resp =
@@ -3504,10 +3654,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleGoogleOauth = useCallback(
     async (params?: HandleGoogleOauthParams): Promise<void> => {
       const {
-        clientId = masterConfig?.auth?.oauthConfig?.googleClientId,
+        primaryClientId = masterConfig?.auth?.oauthConfig?.google
+          ?.primaryClientId,
+        secondaryClientIds = masterConfig?.auth?.oauthConfig?.google
+          ?.secondaryClientIds ?? [],
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
       } = params || {};
+      const clientId = primaryClientId;
 
       const provider = OAuthProviders.GOOGLE;
 
@@ -3588,7 +3742,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   publicKey,
                   result,
                   callbacks,
-                  completeOauth,
+                  completeOauth: (completionParams) => {
+                    const existingCreateSubOrgParams =
+                      masterConfig?.auth?.createSuborgParams?.oauth;
+                    const secondaryProviders = buildSecondaryOauthProviders(
+                      completionParams.oidcToken,
+                      completionParams.providerName ?? provider,
+                      secondaryClientIds,
+                    );
+                    return completeOauth({
+                      ...completionParams,
+                      ...(secondaryProviders.length > 0 && {
+                        createSubOrgParams: {
+                          ...existingCreateSubOrgParams,
+                          oauthProviders: [
+                            ...(existingCreateSubOrgParams?.oauthProviders ??
+                              []),
+                            ...secondaryProviders,
+                          ],
+                        },
+                      }),
+                    });
+                  },
                   onOauthSuccess: params?.onOauthSuccess,
                 })
                   .then(() => resolve())
@@ -3611,10 +3786,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleAppleOauth = useCallback(
     async (params?: HandleAppleOauthParams): Promise<void> => {
       const {
-        clientId = masterConfig?.auth?.oauthConfig?.appleClientId,
+        primaryClientId = masterConfig?.auth?.oauthConfig?.apple
+          ?.primaryClientId,
+        secondaryClientIds = masterConfig?.auth?.oauthConfig?.apple
+          ?.secondaryClientIds ?? [],
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
       } = params || {};
+      const clientId = primaryClientId;
 
       const provider = OAuthProviders.APPLE;
 
@@ -3694,7 +3873,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   publicKey,
                   result,
                   callbacks,
-                  completeOauth,
+                  completeOauth: (completionParams) => {
+                    const existingCreateSubOrgParams =
+                      masterConfig?.auth?.createSuborgParams?.oauth;
+                    const secondaryProviders = buildSecondaryOauthProviders(
+                      completionParams.oidcToken,
+                      completionParams.providerName ?? provider,
+                      secondaryClientIds,
+                    );
+                    return completeOauth({
+                      ...completionParams,
+                      ...(secondaryProviders.length > 0 && {
+                        createSubOrgParams: {
+                          ...existingCreateSubOrgParams,
+                          oauthProviders: [
+                            ...(existingCreateSubOrgParams?.oauthProviders ??
+                              []),
+                            ...secondaryProviders,
+                          ],
+                        },
+                      }),
+                    });
+                  },
                   onOauthSuccess: params?.onOauthSuccess,
                 })
                   .then(() => resolve())
@@ -3717,10 +3917,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
   const handleFacebookOauth = useCallback(
     async (params?: HandleFacebookOauthParams): Promise<void> => {
       const {
-        clientId = masterConfig?.auth?.oauthConfig?.facebookClientId,
+        primaryClientId = masterConfig?.auth?.oauthConfig?.facebook
+          ?.primaryClientId,
+        secondaryClientIds = masterConfig?.auth?.oauthConfig?.facebook
+          ?.secondaryClientIds ?? [],
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
         additionalState: additionalParameters,
       } = params || {};
+      const clientId = primaryClientId;
 
       const provider = OAuthProviders.FACEBOOK;
 
@@ -3804,7 +4008,28 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
                   publicKey,
                   result,
                   callbacks,
-                  completeOauth,
+                  completeOauth: (completionParams) => {
+                    const existingCreateSubOrgParams =
+                      masterConfig?.auth?.createSuborgParams?.oauth;
+                    const secondaryProviders = buildSecondaryOauthProviders(
+                      completionParams.oidcToken,
+                      completionParams.providerName ?? provider,
+                      secondaryClientIds,
+                    );
+                    return completeOauth({
+                      ...completionParams,
+                      ...(secondaryProviders.length > 0 && {
+                        createSubOrgParams: {
+                          ...existingCreateSubOrgParams,
+                          oauthProviders: [
+                            ...(existingCreateSubOrgParams?.oauthProviders ??
+                              []),
+                            ...secondaryProviders,
+                          ],
+                        },
+                      }),
+                    });
+                  },
                   onOauthSuccess: params?.onOauthSuccess,
                   exchangeCodeForToken: async (codeVerifier) => {
                     const tokenData = await exchangeFacebookCodeForToken(
@@ -4189,13 +4414,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         throw new TurnkeyError(
           "Config is not ready yet!",
           TurnkeyErrorCodes.CONFIG_NOT_INITIALIZED,
-        );
-      }
-
-      if (!masterConfig.auth?.methods?.smsOtpAuthEnabled) {
-        throw new TurnkeyError(
-          "SMS OTP authentication is not enabled in the configuration.",
-          TurnkeyErrorCodes.AUTH_METHOD_NOT_ENABLED,
         );
       }
 
@@ -4680,13 +4898,6 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         );
       }
 
-      if (!masterConfig.auth?.methods?.smsOtpAuthEnabled) {
-        throw new TurnkeyError(
-          "SMS OTP authentication is not enabled in the configuration.",
-          TurnkeyErrorCodes.AUTH_METHOD_NOT_ENABLED,
-        );
-      }
-
       const s = await getSession();
       const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
@@ -5048,6 +5259,25 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
         successPageDuration = 2000,
         openInPage = masterConfig?.auth?.oauthConfig?.openOauthInPage ?? false,
       } = params;
+
+      // Resolve the provider's per-provider config, then apply per-call overrides.
+      const providerConfig =
+        providerName === OAuthProviders.DISCORD
+          ? masterConfig?.auth?.oauthConfig?.discord
+          : providerName === OAuthProviders.X
+            ? masterConfig?.auth?.oauthConfig?.x
+            : providerName === OAuthProviders.GOOGLE
+              ? masterConfig?.auth?.oauthConfig?.google
+              : providerName === OAuthProviders.APPLE
+                ? masterConfig?.auth?.oauthConfig?.apple
+                : providerName === OAuthProviders.FACEBOOK
+                  ? masterConfig?.auth?.oauthConfig?.facebook
+                  : undefined;
+      const primaryClientId =
+        params.primaryClientId ?? providerConfig?.primaryClientId;
+      const secondaryClientIds =
+        params.secondaryClientIds ?? providerConfig?.secondaryClientIds ?? [];
+
       const s = await getSession();
       const organizationId = params?.organizationId || s?.organizationId;
       if (!organizationId) {
@@ -5069,9 +5299,14 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
             providerName: string;
             oidcToken: string;
           }) => {
+            const oidcClaims = buildSecondaryOidcClaims(
+              params.oidcToken,
+              secondaryClientIds,
+            );
             await addOauthProvider({
               providerName: params.providerName,
               oidcToken: params.oidcToken,
+              ...(oidcClaims.length > 0 && { oidcClaims }),
               stampWith,
               organizationId,
               userId,
@@ -5109,41 +5344,30 @@ export const ClientProvider: React.FC<ClientProviderProps> = ({
               }
             : undefined;
 
+          // Forward overrides so the inner handler uses the same client IDs.
+          const sharedOauthParams = {
+            openInPage,
+            ...(primaryClientId && { primaryClientId }),
+            ...(secondaryClientIds.length > 0 && { secondaryClientIds }),
+            ...(additionalState && { additionalState }),
+            ...(!openInPage && { onOauthSuccess }),
+          };
+
           switch (providerName) {
             case OAuthProviders.DISCORD: {
-              return await handleDiscordOauth({
-                openInPage,
-                ...(additionalState && { additionalState }),
-                ...(!openInPage && { onOauthSuccess }),
-              });
+              return await handleDiscordOauth(sharedOauthParams);
             }
             case OAuthProviders.X: {
-              return await handleXOauth({
-                openInPage,
-                ...(additionalState && { additionalState }),
-                ...(!openInPage && { onOauthSuccess }),
-              });
+              return await handleXOauth(sharedOauthParams);
             }
             case OAuthProviders.GOOGLE: {
-              return await handleGoogleOauth({
-                openInPage,
-                ...(additionalState && { additionalState }),
-                ...(!openInPage && { onOauthSuccess }),
-              });
+              return await handleGoogleOauth(sharedOauthParams);
             }
             case OAuthProviders.APPLE: {
-              return await handleAppleOauth({
-                openInPage,
-                ...(additionalState && { additionalState }),
-                ...(!openInPage && { onOauthSuccess }),
-              });
+              return await handleAppleOauth(sharedOauthParams);
             }
             case OAuthProviders.FACEBOOK: {
-              return await handleFacebookOauth({
-                openInPage,
-                ...(additionalState && { additionalState }),
-                ...(!openInPage && { onOauthSuccess }),
-              });
+              return await handleFacebookOauth(sharedOauthParams);
             }
             default: {
               throw new TurnkeyError(

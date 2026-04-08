@@ -165,7 +165,8 @@ export interface ClientContextType
    * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
    * - Handles error cases such as missing configuration, popup failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
    *
-   * @param params.clientId - The Discord Client ID to use (defaults to the client ID from configuration).
+   * @param params.primaryClientId - The Discord Client ID to use (defaults to the client ID from configuration).
+   * @param params.secondaryClientIds - Additional Discord client IDs to register as secondary OAuth audiences during sub-organization creation. Each is added as an `oidcClaims`-style provider entry sharing the same `iss`/`sub` as the primary OIDC token. Defaults to the value from configuration.
    * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
@@ -194,7 +195,8 @@ export interface ClientContextType
    * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
    * - Handles error cases such as missing configuration, popup failures, missing PKCE verifier, or Turnkey proxy failures, throwing a `TurnkeyError` with appropriate error codes.
    *
-   * @param params.clientId - The Twitter (X) Client ID to use (defaults to the client ID from configuration).
+   * @param params.primaryClientId - The Twitter (X) Client ID to use (defaults to the client ID from configuration).
+   * @param params.secondaryClientIds - Additional Twitter (X) client IDs to register as secondary OAuth audiences during sub-organization creation. Each is added as an `oidcClaims`-style provider entry sharing the same `iss`/`sub` as the primary OIDC token. Defaults to the value from configuration.
    * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for tracking or custom logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
@@ -221,7 +223,8 @@ export interface ClientContextType
    * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
    * - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
    *
-   * @param params.clientId - The Google Client ID to use (defaults to the client ID from configuration).
+   * @param params.primaryClientId - The Google Client ID to use (defaults to the client ID from configuration).
+   * @param params.secondaryClientIds - Additional Google client IDs to register as secondary OAuth audiences during sub-organization creation. Each is added as an `oidcClaims`-style provider entry sharing the same `iss`/`sub` as the primary OIDC token. Defaults to the value from configuration.
    * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
@@ -248,7 +251,8 @@ export interface ClientContextType
    * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
    * - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
    *
-   * @param params.clientId - The Apple Client ID to use (defaults to the client ID from configuration).
+   * @param params.primaryClientId - The Apple Client ID to use (defaults to the client ID from configuration).
+   * @param params.secondaryClientIds - Additional Apple client IDs to register as secondary OAuth audiences during sub-organization creation. Each is added as an `oidcClaims`-style provider entry sharing the same `iss`/`sub` as the primary OIDC token. Defaults to the value from configuration.
    * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
@@ -276,7 +280,8 @@ export interface ClientContextType
    * - On successful authentication, the function either calls the provided `onOauthSuccess` callback, triggers the `onOauthRedirect` callback from provider callbacks, or completes the OAuth flow internally by calling `completeOauth`.
    * - Handles all error cases, including missing configuration, popup failures, and timeouts, and throws a `TurnkeyError` with appropriate error codes.
    *
-   * @param params.clientId - The Facebook Client ID to use (defaults to the client ID from configuration).
+   * @param params.primaryClientId - The Facebook Client ID to use (defaults to the client ID from configuration).
+   * @param params.secondaryClientIds - Additional Facebook client IDs to register as secondary OAuth audiences during sub-organization creation. Each is added as an `oidcClaims`-style provider entry sharing the same `iss`/`sub` as the primary OIDC token. Defaults to the value from configuration.
    * @param params.openInPage - Whether to open the OAuth flow in the current page (redirect) or a popup window (default: false).
    * @param params.additionalState - Additional key-value pairs to include in the OAuth state parameter for custom tracking or logic.
    * @param params.onOauthSuccess - Callback function to handle the successful OAuth response (receives `{ oidcToken, providerName }`).
@@ -553,6 +558,8 @@ export interface ClientContextType
    * - Handles all error cases and throws a TurnkeyError with appropriate error codes.
    *
    * @param params.providerName - The name of the OAuth provider to add (OAuthProviders.GOOGLE, OAuthProviders.APPLE, OAuthProviders.FACEBOOK).
+   * @param params.primaryClientId - The client ID to use for the chosen provider (defaults to the value from configuration).
+   * @param params.secondaryClientIds - Additional client IDs to register as secondary OAuth audiences (`oidcClaims`) on the new provider entry, sharing the same `iss`/`sub` as the primary OIDC token. Defaults to the value from configuration.
    * @param params.stampWith - parameter to specify the stamper to use for the addition (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @param params.successPageDuration - duration (in ms) for the success page after addition (default: 0, no success page).

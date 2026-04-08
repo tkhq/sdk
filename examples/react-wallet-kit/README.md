@@ -258,20 +258,22 @@ The **import/export iframes** are Turnkey-hosted secure contexts used for wallet
 #### Authentication Methods
 
 ```ts
-auth: {
-  methods: {
-    emailOtpAuthEnabled: true,     // Email one-time password
-    smsOtpAuthEnabled: false,      // SMS one-time password
-    passkeyAuthEnabled: true,      // WebAuthn (Touch ID, Face ID, Windows Hello)
-    walletAuthEnabled: true,       // Sign-in with external wallet (SIWE/SIWS)
-    googleOauthEnabled: true,      // Google OAuth
-    appleOauthEnabled: false,      // Apple OAuth
-    facebookOauthEnabled: false,   // Facebook OAuth
-    xOauthEnabled: false,          // X/Twitter OAuth
-    discordOauthEnabled: false,    // Discord OAuth
-  },
-  methodOrder: ["socials", "email", "sms", "passkey", "wallet"],
-  autoRefreshSession: true,  // Auto-refresh sessions before expiry
+ui: {
+  authModal: {
+    methods: {
+      emailOtpAuthEnabled: true,     // Email one-time password
+      smsOtpAuthEnabled: false,      // SMS one-time password
+      passkeyAuthEnabled: true,      // WebAuthn (Touch ID, Face ID, Windows Hello)
+      walletAuthEnabled: true,       // Sign-in with external wallet (SIWE/SIWS)
+      googleOauthEnabled: true,      // Google OAuth
+      appleOauthEnabled: false,      // Apple OAuth
+      facebookOauthEnabled: false,   // Facebook OAuth
+      xOauthEnabled: false,          // X/Twitter OAuth
+      discordOauthEnabled: false,    // Discord OAuth
+    },
+    methodOrder: ["socials", "email", "sms", "passkey", "wallet"],
+    autoRefreshSession: true,  // Auto-refresh sessions before expiry
+  }
 }
 ```
 

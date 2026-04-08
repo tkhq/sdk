@@ -28,14 +28,19 @@ import {
   TwitterXSVG,
 } from "@/components/Svg";
 
+// NOTE: Bump this when the config shape changes to invalidate stale localStorage entries.
+const CONFIG_VERSION = 1;
+
 const omitKeys = [
   "apiBaseUrl",
   "authProxyUrl",
   "importIframeUrl",
   "exportIframeUrl",
-  "googleClientId",
-  "appleClientId",
-  "facebookClientId",
+  "google",
+  "apple",
+  "facebook",
+  "x",
+  "discord",
   "oauthRedirectUri",
   "walletConfig",
   "renderModalInProvider",
@@ -121,15 +126,18 @@ export function TurnkeyConfigPanel() {
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
-    const currentOrder = config.auth?.methodOrder ?? [];
+    const currentOrder = config.ui?.authModal?.methodOrder ?? [];
     const reordered = Array.from(currentOrder);
     const [moved] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, moved);
 
     handleSetConfig({
-      auth: {
-        ...config.auth,
-        methodOrder: reordered,
+      ui: {
+        ...config.ui,
+        authModal: {
+          ...config.ui?.authModal,
+          methodOrder: reordered,
+        },
       },
     });
   };
@@ -157,11 +165,20 @@ export function TurnkeyConfigPanel() {
 
     localStorage.setItem("turnkeyConfig", JSON.stringify(filteredConfig));
     localStorage.setItem("turnkeyDemoConfig", JSON.stringify(demoConfig));
+    localStorage.setItem("turnkeyDemoConfigVersion", String(CONFIG_VERSION));
   };
 
   useEffect(() => {
-    // Load config from local storage
+    // Load config from local storage, clearing stale entries if the version doesn't match.
     const loadConfig = () => {
+      const storedVersion = localStorage.getItem("turnkeyDemoConfigVersion");
+      if (storedVersion !== String(CONFIG_VERSION)) {
+        localStorage.removeItem("turnkeyConfig");
+        localStorage.removeItem("turnkeyDemoConfig");
+        localStorage.removeItem("turnkeyDemoConfigVersion");
+        return;
+      }
+
       const storedConfig = localStorage.getItem("turnkeyConfig");
       const storedDemoConfig = localStorage.getItem("turnkeyDemoConfig");
       if (storedConfig) {
@@ -189,134 +206,147 @@ export function TurnkeyConfigPanel() {
                 {...provided.droppableProps}
                 className="space-y-2"
               >
-                {(config.auth?.methodOrder ?? []).map((methodKey, index) => {
-                  const method = authMethods.find(
-                    (m) => m.order === methodKey,
-                  )!;
-                  const someEnabled = method.toggles.some(
-                    (key) =>
-                      config.auth?.methods?.[
-                        key.toggle as keyof typeof config.auth.methods
-                      ] ?? false,
-                  );
-                  return (
-                    <Draggable
-                      key={method.order}
-                      draggableId={method.order}
-                      index={index}
-                    >
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className="bg-draggable-background-light dark:bg-draggable-background-dark px-3 py-2 rounded shadow-sm space-y-2"
-                        >
-                          <div className="flex flex-row gap-2 items-center">
-                            <FontAwesomeIcon icon={faGripLines} />
-                            {/* Top Row: Name + Master Toggle */}
-                            <div className="flex-1">
-                              <ToggleSwitch
-                                label={method.name}
-                                checked={someEnabled}
-                                onChange={(val) => {
-                                  const newToggles = method.toggles.reduce(
-                                    (acc, { toggle }) => {
-                                      acc[toggle] = val;
-                                      return acc;
-                                    },
-                                    {} as Record<string, boolean>,
-                                  );
-
-                                  handleSetConfig({
-                                    auth: {
-                                      ...config.auth,
-                                      methods: {
-                                        ...config.auth?.methods,
-                                        ...newToggles,
+                {(config.ui?.authModal?.methodOrder ?? []).map(
+                  (methodKey, index) => {
+                    const method = authMethods.find(
+                      (m) => m.order === methodKey,
+                    )!;
+                    const someEnabled = method.toggles.some(
+                      (key) =>
+                        config.ui?.authModal?.methods?.[
+                          key.toggle as keyof NonNullable<
+                            typeof config.ui.authModal
+                          >["methods"]
+                        ] ?? false,
+                    );
+                    return (
+                      <Draggable
+                        key={method.order}
+                        draggableId={method.order}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className="bg-draggable-background-light dark:bg-draggable-background-dark px-3 py-2 rounded shadow-sm space-y-2"
+                          >
+                            <div className="flex flex-row gap-2 items-center">
+                              <FontAwesomeIcon icon={faGripLines} />
+                              {/* Top Row: Name + Master Toggle */}
+                              <div className="flex-1">
+                                <ToggleSwitch
+                                  label={method.name}
+                                  checked={someEnabled}
+                                  onChange={(val) => {
+                                    const newToggles = method.toggles.reduce(
+                                      (acc, { toggle }) => {
+                                        acc[toggle] = val;
+                                        return acc;
                                       },
-                                    },
-                                  });
-                                }}
-                              />
-                            </div>
-                          </div>
+                                      {} as Record<string, boolean>,
+                                    );
 
-                          {/* Individual Toggles */}
-                          {method.toggles.length > 1 && (
-                            <div className="flex flex-col justify-between mt-3 w-full">
-                              {method.toggles.map((toggleKey) => {
-                                const isChecked =
-                                  config.auth?.methods?.[
-                                    toggleKey.toggle as keyof typeof config.auth.methods
-                                  ] ?? false;
-                                return (
-                                  <Checkbox
-                                    key={toggleKey.toggle}
-                                    className="flex justify-between items-center cursor-pointer py-1.5"
-                                    checked={isChecked}
-                                    onChange={(val: boolean) =>
-                                      handleSetConfig({
-                                        auth: {
-                                          ...config.auth,
+                                    handleSetConfig({
+                                      ui: {
+                                        ...config.ui,
+                                        authModal: {
+                                          ...config.ui?.authModal,
                                           methods: {
-                                            ...config.auth?.methods,
-                                            [toggleKey.toggle]: val,
+                                            ...config.ui?.authModal?.methods,
+                                            ...newToggles,
                                           },
                                         },
-                                      })
-                                    }
-                                  >
-                                    <p className="flex items-center">
-                                      {toggleKey?.icon && (
-                                        <toggleKey.icon className="mr-3 size-5.5" />
-                                      )}
-                                      {toggleKey?.overrideDisplayName ||
-                                        toggleKey.toggle}
-                                    </p>
-                                    <div
-                                      className={`rounded-md flex items-center justify-center size-5.5 border-2 ${isChecked ? "bg-primary-light dark:bg-primary-dark border-transparent" : "bg-transparent border-primary-text-light dark:border-primary-text-dark"} transition-colors`}
-                                    >
-                                      <FontAwesomeIcon
-                                        icon={faCheck}
-                                        className={`size-4 text-primary-text-light dark:text-primary-text-dark ${isChecked ? "" : "invisible"}`}
-                                      />
-                                    </div>
-                                  </Checkbox>
-                                );
-                              })}
-
-                              {method.name === "OAuth" && (
-                                <>
-                                  <div className="w-full my-3 h-[1px] bg-icon-text-light dark:bg-icon-text-dark" />
-                                  <ToggleSwitch
-                                    label="Open OAuth In Page"
-                                    size="sm"
-                                    checked={
-                                      config.auth?.oauthConfig
-                                        ?.openOauthInPage ?? false
-                                    }
-                                    onChange={(val) =>
-                                      handleSetConfig({
-                                        auth: {
-                                          ...config.auth,
-                                          oauthConfig: {
-                                            ...config.auth?.oauthConfig,
-                                            openOauthInPage: val,
-                                          },
-                                        },
-                                      })
-                                    }
-                                  />
-                                </>
-                              )}
+                                      },
+                                    });
+                                  }}
+                                />
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      )}
-                    </Draggable>
-                  );
-                })}
+
+                            {/* Individual Toggles */}
+                            {method.toggles.length > 1 && (
+                              <div className="flex flex-col justify-between mt-3 w-full">
+                                {method.toggles.map((toggleKey) => {
+                                  const isChecked =
+                                    config.ui?.authModal?.methods?.[
+                                      toggleKey.toggle as keyof NonNullable<
+                                        typeof config.ui.authModal
+                                      >["methods"]
+                                    ] ?? false;
+                                  return (
+                                    <Checkbox
+                                      key={toggleKey.toggle}
+                                      className="flex justify-between items-center cursor-pointer py-1.5"
+                                      checked={isChecked}
+                                      onChange={(val: boolean) =>
+                                        handleSetConfig({
+                                          ui: {
+                                            ...config.ui,
+                                            authModal: {
+                                              ...config.ui?.authModal,
+                                              methods: {
+                                                ...config.ui?.authModal
+                                                  ?.methods,
+                                                [toggleKey.toggle]: val,
+                                              },
+                                            },
+                                          },
+                                        })
+                                      }
+                                    >
+                                      <p className="flex items-center">
+                                        {toggleKey?.icon && (
+                                          <toggleKey.icon className="mr-3 size-5.5" />
+                                        )}
+                                        {toggleKey?.overrideDisplayName ||
+                                          toggleKey.toggle}
+                                      </p>
+                                      <div
+                                        className={`rounded-md flex items-center justify-center size-5.5 border-2 ${isChecked ? "bg-primary-light dark:bg-primary-dark border-transparent" : "bg-transparent border-primary-text-light dark:border-primary-text-dark"} transition-colors`}
+                                      >
+                                        <FontAwesomeIcon
+                                          icon={faCheck}
+                                          className={`size-4 text-primary-text-light dark:text-primary-text-dark ${isChecked ? "" : "invisible"}`}
+                                        />
+                                      </div>
+                                    </Checkbox>
+                                  );
+                                })}
+
+                                {method.name === "OAuth" && (
+                                  <>
+                                    <div className="w-full my-3 h-[1px] bg-icon-text-light dark:bg-icon-text-dark" />
+                                    <ToggleSwitch
+                                      label="Open OAuth In Page"
+                                      size="sm"
+                                      checked={
+                                        config.auth?.oauthConfig
+                                          ?.openOauthInPage ?? false
+                                      }
+                                      onChange={(val) =>
+                                        handleSetConfig({
+                                          auth: {
+                                            ...config.auth,
+                                            oauthConfig: {
+                                              ...config.auth?.oauthConfig,
+                                              openOauthInPage: val,
+                                            },
+                                          },
+                                        })
+                                      }
+                                    />
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </Draggable>
+                    );
+                  },
+                )}
 
                 {provided.placeholder}
               </div>

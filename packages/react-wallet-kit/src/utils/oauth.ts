@@ -4,8 +4,11 @@ import {
   OAuthProviders,
   TurnkeyError,
   TurnkeyErrorCodes,
+  type v1OauthProviderParamsV2,
+  type v1OidcClaims,
 } from "@turnkey/sdk-types";
 import type { TurnkeyCallbacks } from "../types/base";
+import { jwtDecode } from "jwt-decode";
 import {
   faFacebook,
   faDiscord,
@@ -931,4 +934,35 @@ export function getProviderIcon(provider: string | null | undefined) {
     default:
       return faGoogle;
   }
+}
+
+/**
+ * Decodes the OIDC token to extract `iss` and `sub`, then builds a list of
+ * `oidcClaims` (one per secondary client ID) suitable for use as the `aud` in
+ * `v1OauthProviderParamsV2.oidcClaims`. Returns an empty array if there are no
+ * secondary client IDs or if the token is missing `iss`/`sub`.
+ */
+export function buildSecondaryOidcClaims(
+  oidcToken: string,
+  secondaryClientIds: string[],
+): v1OidcClaims[] {
+  if (secondaryClientIds.length === 0) return [];
+  const { iss, sub } = jwtDecode<{ iss?: string; sub?: string }>(oidcToken);
+  if (!iss || !sub) return [];
+  return secondaryClientIds.map((aud) => ({ iss, sub, aud }));
+}
+
+/**
+ * Builds secondary `v1OauthProviderParamsV2` entries (using `oidcClaims`-style
+ * audiences) from a list of secondary client IDs. Each entry is tagged with the
+ * given `providerName`.
+ */
+export function buildSecondaryOauthProviders(
+  oidcToken: string,
+  providerName: string,
+  secondaryClientIds: string[],
+): v1OauthProviderParamsV2[] {
+  return buildSecondaryOidcClaims(oidcToken, secondaryClientIds).map(
+    (oidcClaims) => ({ providerName, oidcClaims }),
+  );
 }

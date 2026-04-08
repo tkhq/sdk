@@ -14,6 +14,7 @@ const APP_SCHEME = process.env.EXPO_PUBLIC_APP_SCHEME || "";
 export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
   organizationId: ORGANIZATION_ID,
   apiBaseUrl: API_BASE_URL,
+  authProxyUrl: AUTH_PROXY_URL,
   ...(AUTH_PROXY_CONFIG_ID ? { authProxyConfigId: AUTH_PROXY_CONFIG_ID } : {}),
   passkeyConfig: {
     rpId: PASSKEY_RP_ID,
@@ -22,31 +23,30 @@ export const TURNKEY_CONFIG: TurnkeyProviderConfig = {
     otp: {
       email: true,
       sms: false,
-      // Optional proxy-controlled values if not using Auth Proxy
-      // alphanumeric: true,
-      // length: "6",
     },
     passkey: true,
     oauth: {
       appScheme: APP_SCHEME,
-      google: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID
-        ? { clientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID }
-        : false,
-      apple: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID
-        ? { clientId: process.env.EXPO_PUBLIC_APPLE_CLIENT_ID }
-        : false,
-      facebook: process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_ID
-        ? { clientId: process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_ID }
-        : false,
-      x: process.env.EXPO_PUBLIC_X_CLIENT_ID
-        ? { clientId: process.env.EXPO_PUBLIC_X_CLIENT_ID }
-        : false,
-      discord: process.env.EXPO_PUBLIC_DISCORD_CLIENT_ID
-        ? { clientId: process.env.EXPO_PUBLIC_DISCORD_CLIENT_ID }
-        : false,
+      google: {
+        primaryClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+      },
+      apple: {
+        primaryClientId: {
+          iosBundleId: process.env.EXPO_PUBLIC_APPLE_BUNDLE_ID,
+          serviceId: process.env.EXPO_PUBLIC_APPLE_SERVICE_ID,
+        },
+      },
+      facebook: {
+        primaryClientId: process.env.EXPO_PUBLIC_FACEBOOK_CLIENT_ID,
+      },
+      x: {
+        primaryClientId: process.env.EXPO_PUBLIC_X_CLIENT_ID,
+      },
+      discord: {
+        primaryClientId: process.env.EXPO_PUBLIC_DISCORD_CLIENT_ID,
+      },
     },
-    // Optional: override default session expiration
-    // sessionExpirationSeconds: "86400",
+
     autoRefreshSession: true,
   },
 };

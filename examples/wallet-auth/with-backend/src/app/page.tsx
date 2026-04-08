@@ -7,9 +7,9 @@ import {
   useTurnkey,
   AuthState,
   type WalletProvider,
-  sendSignedRequest,
 } from "@turnkey/react-wallet-kit";
 import { getSuborgsAction, createSuborgAction } from "@/server/actions/turnkey";
+import { TStampLoginResponse } from "@turnkey/sdk-types";
 
 type CurveType = "API_KEY_CURVE_ED25519" | "API_KEY_CURVE_SECP256K1";
 
@@ -20,6 +20,7 @@ export default function AuthPage() {
     buildWalletLoginRequest,
     storeSession,
     authState,
+    httpClient,
   } = useTurnkey();
 
   // UI state
@@ -113,7 +114,8 @@ export default function AuthPage() {
 
       // Send the signed request → get session
       setWorking("Finishing sign-in…");
-      const resp = await sendSignedRequest(signedRequest);
+      const resp =
+        await httpClient?.sendSignedRequest<TStampLoginResponse>(signedRequest);
       const sessionToken = resp?.activity?.result?.stampLoginResult?.session;
       if (!sessionToken)
         throw new Error("Session token not found in the response.");

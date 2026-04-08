@@ -40,18 +40,23 @@ function RootLayout({ children }: RootLayoutProps) {
               createSuborgParams: {
                 passkeyAuth: createSuborgParams,
               },
-              methods: {
-                smsOtpAuthEnabled: false,
-                googleOauthEnabled: false,
-                xOauthEnabled: false,
-                discordOauthEnabled: false,
-                appleOauthEnabled: false,
-                facebookOauthEnabled: false,
-                passkeyAuthEnabled: true,
-                emailOtpAuthEnabled: false,
-                walletAuthEnabled: false,
-              },
+
               autoRefreshSession: true,
+            },
+            ui: {
+              authModal: {
+                methods: {
+                  smsOtpAuthEnabled: false,
+                  googleOauthEnabled: false,
+                  xOauthEnabled: false,
+                  discordOauthEnabled: false,
+                  appleOauthEnabled: false,
+                  facebookOauthEnabled: false,
+                  passkeyAuthEnabled: true,
+                  emailOtpAuthEnabled: false,
+                  walletAuthEnabled: false,
+                },
+              },
             },
           }}
         >

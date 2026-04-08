@@ -21,6 +21,7 @@ import {
   type TGetWalletsResponse,
   type TGetUserResponse,
   type v1ClientSignature,
+  type v1OauthProviderParamsV2,
   TurnkeyError,
   TurnkeyErrorCodes,
   AuthAction,
@@ -532,7 +533,6 @@ export class TurnkeyClient {
    * @param params.expirationSeconds - session expiration time in seconds (defaults to the configured default).
    * @param params.createSubOrgParams - parameters for creating a sub-organization (e.g., authenticators, user metadata).
    * @param params.sessionKey - session key to use for storing the session (defaults to the default session key).
-   * @param params.organizationId - organization ID to target (defaults to the session's organization ID or the parent organization ID).
    * @returns A promise that resolves to a {@link PasskeyAuthResult}, which includes:
    *          - `sessionToken`: the signed JWT session token.
    *          - `credentialId`: the credential ID associated with the passkey created.
@@ -547,7 +547,6 @@ export class TurnkeyClient {
       expirationSeconds = DEFAULT_SESSION_EXPIRATION_IN_SECONDS,
       createSubOrgParams,
       sessionKey = SessionKey.DefaultSessionkey,
-      organizationId,
     } = params || {};
 
     let generatedPublicKey: string | undefined = undefined;
@@ -606,7 +605,7 @@ export class TurnkeyClient {
 
         const sessionResponse = await this.httpClient.stampLogin({
           publicKey: newGeneratedKeyPair!,
-          organizationId: organizationId ?? this.config.organizationId,
+          organizationId: this.config.organizationId,
           expirationSeconds,
         });
 
@@ -1738,7 +1737,6 @@ export class TurnkeyClient {
           );
         }
         const subOrganizationId = accountRes.organizationId;
-
         if (subOrganizationId) {
           const loginRes = await this.loginWithOauth({
             oidcToken,
@@ -1911,6 +1909,7 @@ export class TurnkeyClient {
                 providerName,
                 oidcToken,
               },
+              ...(createSubOrgParams?.oauthProviders ?? []),
             ],
           },
         });
@@ -3775,22 +3774,23 @@ export class TurnkeyClient {
   };
 
   /**
-   * Adds an OAuth provider to the user.
+   * Adds one or more OAuth provider audiences to the user.
    *
-   * - This function adds an OAuth provider (e.g., Google, Apple) to the user account.
-   * - If a userId is provided, it adds the provider for that specific user; otherwise, it uses the current session's userId.
-   * - Automatically checks if an account already exists for the provided OIDC token and prevents duplicate associations.
-   * - If the user's email is not set or not verified, attempts to update and verify the email using the email from the OIDC token.
-   * - Handles session management and error reporting for the add provider flow.
+   * - Accepts either an `oidcToken`, a list of `oidcClaims`, or both. At least one must be provided.
+   * - The issuer (`iss`) of the `oidcToken` and all `oidcClaims` must match, ensuring they belong to the same OAuth provider.
+   * - Checks for an existing account for the `oidcToken` (if provided) and for each `oidcClaims` entry, and throws if any of them are already associated with a different sub-organization.
+   * - If the user's email is not set or not verified and an `oidcToken` is provided, attempts to update and verify the email using the email from the token.
+   * - Submits a single `createOauthProviders` request containing the token (if any) and all additional claims.
    * - Optionally allows stamping the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    *
    * @param params.providerName - name of the OAuth provider to add (e.g., "Google", "Apple").
-   * @param params.oidcToken - OIDC token for the OAuth provider.
+   * @param params.oidcToken - OIDC token for the OAuth provider. Either `oidcToken` or `oidcClaims` (or both) must be provided.
+   * @param params.oidcClaims - additional `iss`/`sub`/`aud` claims to register as additional audiences for the same identity.
    * @param params.organizationId - organization ID to specify the sub-organization (defaults to the current session's organizationId).
    * @param params.userId - user ID to add the provider for a specific user (defaults to current session's userId).
    * @param params.stampWith - parameter to stamp the request with a specific stamper (StamperType.Passkey, StamperType.ApiKey, or StamperType.Wallet).
    * @returns A promise that resolves to an array of provider IDs associated with the user.
-   * @throws {TurnkeyError} If there is no active session, if the account already exists, or if there is an error adding the OAuth provider.
+   * @throws {TurnkeyError} If there is no active session, if neither `oidcToken` nor `oidcClaims` was provided, if the issuer claims do not all match, if any of the audiences are already associated with another account, or if there is an error adding the OAuth provider.
    */
   addOauthProvider = async (
     params: AddOauthProviderParams,
@@ -3798,8 +3798,17 @@ export class TurnkeyClient {
     const {
       providerName,
       oidcToken,
+      oidcClaims = [],
       stampWith = this.config.defaultStamperType,
     } = params;
+
+    if (!oidcToken && oidcClaims.length === 0) {
+      throw new TurnkeyError(
+        "At least one of `oidcToken` or `oidcClaims` must be provided to add an OAuth provider",
+        TurnkeyErrorCodes.INVALID_REQUEST,
+      );
+    }
+
     const session = await getActiveSessionOrThrowIfRequired(
       stampWith,
       this.storageManager.getActiveSession,
@@ -3807,26 +3816,65 @@ export class TurnkeyClient {
 
     return withTurnkeyErrorHandling(
       async () => {
-        const accountRes = await this.httpClient.proxyGetAccount({
-          filterType: "OIDC_TOKEN",
-          filterValue: oidcToken,
-        });
+        // Parse the oidc token so we can get the email/iss. The email is used to update the user's email for social linking.
+        // The iss is used to ensure all passed-in claims share the same issuer.
+        const { email: oidcEmail, iss: tokenIss } = oidcToken
+          ? jwtDecode<any>(oidcToken) || {}
+          : { email: undefined, iss: undefined };
 
-        if (!accountRes) {
+        // Verify that all passed-in claims share the same issuer (and match the token's issuer if a token was provided).
+        const issuers = new Set<string>();
+        if (tokenIss) issuers.add(tokenIss);
+        for (const claim of oidcClaims) {
+          issuers.add(claim.iss);
+        }
+        if (issuers.size > 1) {
           throw new TurnkeyError(
-            `Account fetch failed`,
-            TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+            "All `oidcToken` and `oidcClaims` entries must share the same issuer (`iss`)",
+            TurnkeyErrorCodes.INVALID_REQUEST,
           );
         }
 
-        if (
-          accountRes.organizationId &&
-          accountRes.organizationId !== session?.organizationId
-        ) {
-          throw new TurnkeyError(
-            "Account already exists with this OIDC token",
-            TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
+        // Check that none of the audiences are already associated with a different sub-organization.
+        const accountChecks: Promise<{
+          organizationId?: string | undefined;
+        }>[] = [];
+        if (oidcToken) {
+          // Look up the sub-organization associated with passed in oidc token
+          accountChecks.push(
+            this.httpClient.proxyGetAccount({
+              filterType: FilterType.OidcToken,
+              filterValue: oidcToken,
+            }),
           );
+        }
+        // Also look up the sub-organization for each oidcClaim
+        for (const claim of oidcClaims) {
+          accountChecks.push(
+            this.httpClient.proxyGetAccount({
+              filterType: FilterType.OidcClaims,
+              filterValue: JSON.stringify(claim),
+            }),
+          );
+        }
+
+        const accountResults = await Promise.all(accountChecks);
+        for (const accountRes of accountResults) {
+          if (!accountRes) {
+            throw new TurnkeyError(
+              `Account fetch failed`,
+              TurnkeyErrorCodes.ACCOUNT_FETCH_ERROR,
+            );
+          }
+          if (
+            accountRes.organizationId &&
+            accountRes.organizationId !== session?.organizationId
+          ) {
+            throw new TurnkeyError(
+              "Account already exists with this OIDC token or claims",
+              TurnkeyErrorCodes.ACCOUNT_ALREADY_EXISTS,
+            );
+          }
         }
 
         const userId = params?.userId || session?.userId;
@@ -3846,10 +3894,7 @@ export class TurnkeyClient {
           );
         }
 
-        // parse the oidc token so we can get the email. Pass it in to updateUser then call createOauthProviders. This will be verified by Turnkey.
-        const { email: oidcEmail, iss } = jwtDecode<any>(oidcToken) || {};
-
-        if (iss === googleISS) {
+        if (oidcToken && tokenIss === googleISS) {
           const verifiedSuborg = await this.httpClient.proxyGetAccount({
             filterType: "EMAIL",
             filterValue: oidcEmail,
@@ -3894,15 +3939,15 @@ export class TurnkeyClient {
           }
         }
 
+        const oauthProviders: v1OauthProviderParamsV2[] = [
+          ...(oidcToken ? [{ providerName, oidcToken }] : []),
+          ...oidcClaims.map((claim) => ({ providerName, oidcClaims: claim })),
+        ];
+
         const createProviderRes = await this.httpClient.createOauthProviders(
           {
             userId,
-            oauthProviders: [
-              {
-                providerName,
-                oidcToken,
-              },
-            ],
+            oauthProviders,
           },
           stampWith,
         );
