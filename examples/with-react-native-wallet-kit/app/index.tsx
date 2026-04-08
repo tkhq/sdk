@@ -40,7 +40,7 @@ export default function LoginScreen() {
     handleXOauth,
     handleDiscordOauth,
     handleFacebookOauth,
-    handleAppleOauth,
+    handleAppleWebOauth,
     authState,
   } = useTurnkey();
   const colorScheme = useColorScheme();
@@ -172,7 +172,7 @@ export default function LoginScreen() {
     try {
       setLoading(true);
       console.log("signing in with Apple");
-      await handleAppleOauth();
+      await handleAppleWebOauth();
     } catch (error) {
       console.error("Error signing in with Apple", error);
       Alert.alert("Error", `Failed to sign in with Apple: ${error}`);

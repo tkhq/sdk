@@ -14,7 +14,9 @@ import type {
 export type OauthProviderConfig =
   | boolean
   | {
-      clientId?: string;
+      // TODO (Amir/Moe): Should we separate this for each provider? We need to include comments somehow since different providers may work differently
+      primaryClientId?: string;
+      secondaryClientIds?: string[];
       redirectUri?: string;
     };
 

@@ -3659,6 +3659,9 @@ importers:
 
   packages/react-native-wallet-kit:
     dependencies:
+      '@invertase/react-native-apple-authentication':
+        specifier: '>=2.5.0'
+        version: 2.5.1
       '@noble/hashes':
         specifier: ^1.8.0
         version: 1.8.0
@@ -3683,6 +3686,9 @@ importers:
       '@types/react':
         specifier: '>=16.8.0 <20'
         version: 18.3.24
+      jwt-decode:
+        specifier: 4.0.0
+        version: 4.0.0
       react:
         specifier: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
         version: 19.1.0
@@ -6104,6 +6110,10 @@ packages:
   '@inquirer/type@1.5.5':
     resolution: {integrity: sha512-MzICLu4yS7V8AA61sANROZ9vT1H3ooca5dSmI1FjZkzq7o/koMsRfQSzRtFo+F3Ao4Sf1C0bpLKejpKB/+j6MA==}
     engines: {node: '>=18'}
+
+  '@invertase/react-native-apple-authentication@2.5.1':
+    resolution: {integrity: sha512-KPKKc0wtRYpH4J0RkDfHzoKSZ+dYPEHmCXhpPdgHsT2MbK5AIkW1cYurjhAgev/kL7nOHFmWITjY1At5WhFEMQ==}
+    engines: {node: '>=14'}
 
   '@iota/bcs@1.2.0':
     resolution: {integrity: sha512-QdRSR0KpJ87tdjVNmM/j0+0DvE0aTxHIa02337iluaOsMqtJ8OdgUCfSyLduC/3qS+8tJE+UB1KOw55tF+sN2w==}
@@ -20109,6 +20119,8 @@ snapshots:
   '@inquirer/type@1.5.5':
     dependencies:
       mute-stream: 1.0.0
+
+  '@invertase/react-native-apple-authentication@2.5.1': {}
 
   '@iota/bcs@1.2.0':
     dependencies:

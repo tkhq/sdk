@@ -20,6 +20,7 @@ export default function HomeScreen() {
     exportWallet,
     exportWalletAccount,
     clientState,
+    deleteSubOrganization,
   } = useTurnkey();
 
   const isClientReady = clientState === ClientState.Ready;
@@ -30,6 +31,11 @@ export default function HomeScreen() {
   }, [clientState]);
 
   const handleLogout = async () => {
+    await logout();
+  };
+
+  const handleDeleteSuborg = async () => {
+    await deleteSubOrganization({ deleteWithoutExport: true });
     await logout();
   };
 
@@ -179,12 +185,19 @@ export default function HomeScreen() {
               </ThemedText>
             </ThemedView>
 
-            {/* Logout Button */}
             <TouchableOpacity
-              style={styles.logoutButton}
+              style={styles.dangerButton}
               onPress={handleLogout}
             >
-              <ThemedText style={styles.logoutButtonText}>Logout</ThemedText>
+              <ThemedText style={styles.dangerButtonText}>Logout</ThemedText>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.dangerButton}
+              onPress={handleDeleteSuborg}
+            >
+              <ThemedText style={styles.dangerButtonText}>
+                Delete Suborg
+              </ThemedText>
             </TouchableOpacity>
           </ThemedView>
         )}
@@ -368,14 +381,14 @@ const styles = StyleSheet.create({
   sessionInfo: {
     gap: 8,
   },
-  logoutButton: {
+  dangerButton: {
     backgroundColor: "#ef4444",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 8,
   },
-  logoutButtonText: {
+  dangerButtonText: {
     color: "#ffffff",
     fontWeight: "bold",
     fontSize: 16,

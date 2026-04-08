@@ -16,6 +16,7 @@ import {
   setCappedTimeoutInMap,
   setTimeoutInMap,
   clearKeys,
+  buildSecondaryOauthProviders,
 } from "../utils";
 
 import {
@@ -108,6 +109,7 @@ import {
 import {
   type TurnkeyCallbacks,
   type TurnkeyProviderConfig,
+  type OauthProviderConfig,
   AuthMethod,
   AuthState,
   ClientState,
@@ -298,10 +300,12 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const getOauthProviderSettings = (provider: OAuthProviders) => {
     const oauth = masterConfig?.auth?.oauth;
-    const providerConfig = oauth ? (oauth as any)[provider] : undefined;
+    const providerConfig = oauth
+      ? (oauth[provider] as OauthProviderConfig | undefined)
+      : undefined;
     const providerObjectConfig =
       providerConfig && typeof providerConfig === "object"
-        ? (providerConfig as { clientId?: string; redirectUri?: string })
+        ? providerConfig
         : undefined;
 
     const proxyClientIds = proxyAuthConfigRef.current?.oauthClientIds as
@@ -309,8 +313,10 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
       | undefined;
 
     const clientId =
-      providerObjectConfig?.clientId ??
+      providerObjectConfig?.primaryClientId ??
       (proxyClientIds ? proxyClientIds[provider] : undefined);
+
+    const secondaryClientIds = providerObjectConfig?.secondaryClientIds ?? [];
 
     const appScheme = oauth?.appScheme;
 
@@ -323,7 +329,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           proxyAuthConfigRef.current?.oauthRedirectUrl ??
           TURNKEY_OAUTH_REDIRECT_URL));
 
-    return { clientId, redirectUri, appScheme } as const;
+    return { clientId, secondaryClientIds, redirectUri, appScheme } as const;
   };
 
   /**
@@ -2473,12 +2479,16 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleDiscordOauth = useCallback(
     async (params?: HandleDiscordOauthParams): Promise<void> => {
-      const { additionalState: additionalParameters } = params || {};
       const {
-        clientId,
-        redirectUri,
-        appScheme: scheme,
-      } = getOauthProviderSettings(OAuthProviders.DISCORD);
+        additionalState: additionalParameters,
+        primaryClientId: paramClientId,
+        secondaryClientIds: paramSecondaryClientIds,
+      } = params || {};
+      const settings = getOauthProviderSettings(OAuthProviders.DISCORD);
+      const clientId = paramClientId ?? settings.clientId;
+      const secondaryClientIds =
+        paramSecondaryClientIds ?? settings.secondaryClientIds;
+      const { redirectUri, appScheme: scheme } = settings;
       try {
         if (!masterConfig) {
           throw new TurnkeyError(
@@ -2576,7 +2586,27 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           authCode: parsed.authCode,
           ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
           ...(callbacks && { callbacks }),
-          completeOauth,
+          completeOauth: (params) => {
+            const existingCreateSubOrgParams =
+              masterConfig?.auth?.createSuborgParams?.oauth;
+            const secondaryProviders = buildSecondaryOauthProviders(
+              params.oidcToken,
+              params.providerName ?? OAuthProviders.DISCORD,
+              secondaryClientIds,
+            );
+            return completeOauth({
+              ...params,
+              ...(secondaryProviders.length > 0 && {
+                createSubOrgParams: {
+                  ...existingCreateSubOrgParams,
+                  oauthProviders: [
+                    ...(existingCreateSubOrgParams?.oauthProviders ?? []),
+                    ...secondaryProviders,
+                  ],
+                },
+              }),
+            });
+          },
           exchangeCodeForToken: async (codeVerifier) => {
             const resp = await client?.httpClient?.proxyOAuth2Authenticate({
               provider: "OAUTH2_PROVIDER_DISCORD",
@@ -2606,12 +2636,16 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleXOauth = useCallback(
     async (params?: HandleXOauthParams): Promise<void> => {
-      const { additionalState: additionalParameters } = params || {};
       const {
-        clientId,
-        redirectUri,
-        appScheme: scheme,
-      } = getOauthProviderSettings(OAuthProviders.X);
+        additionalState: additionalParameters,
+        primaryClientId: paramClientId,
+        secondaryClientIds: paramSecondaryClientIds,
+      } = params || {};
+      const settings = getOauthProviderSettings(OAuthProviders.X);
+      const clientId = paramClientId ?? settings.clientId;
+      const secondaryClientIds =
+        paramSecondaryClientIds ?? settings.secondaryClientIds;
+      const { redirectUri, appScheme: scheme } = settings;
       try {
         if (!masterConfig) {
           throw new TurnkeyError(
@@ -2708,7 +2742,27 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           authCode: parsed.authCode,
           ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
           ...(callbacks && { callbacks }),
-          completeOauth,
+          completeOauth: (params) => {
+            const existingCreateSubOrgParams =
+              masterConfig?.auth?.createSuborgParams?.oauth;
+            const secondaryProviders = buildSecondaryOauthProviders(
+              params.oidcToken,
+              params.providerName ?? OAuthProviders.X,
+              secondaryClientIds,
+            );
+            return completeOauth({
+              ...params,
+              ...(secondaryProviders.length > 0 && {
+                createSubOrgParams: {
+                  ...existingCreateSubOrgParams,
+                  oauthProviders: [
+                    ...(existingCreateSubOrgParams?.oauthProviders ?? []),
+                    ...secondaryProviders,
+                  ],
+                },
+              }),
+            });
+          },
           exchangeCodeForToken: async (codeVerifier) => {
             const resp = await client?.httpClient?.proxyOAuth2Authenticate({
               provider: "OAUTH2_PROVIDER_X",
@@ -2738,12 +2792,15 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleGoogleOauth = useCallback(
     async (params?: HandleGoogleOauthParams): Promise<void> => {
-      const {} = params || {};
       const {
-        clientId,
-        redirectUri,
-        appScheme: scheme,
-      } = getOauthProviderSettings(OAuthProviders.GOOGLE);
+        primaryClientId: paramClientId,
+        secondaryClientIds: paramSecondaryClientIds,
+      } = params || {};
+      const settings = getOauthProviderSettings(OAuthProviders.GOOGLE);
+      const clientId = paramClientId ?? settings.clientId;
+      const secondaryClientIds =
+        paramSecondaryClientIds ?? settings.secondaryClientIds;
+      const { redirectUri, appScheme: scheme } = settings;
 
       try {
         if (!masterConfig) {
@@ -2838,7 +2895,27 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           oidcToken: parsed.idToken,
           ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
           ...(callbacks && { callbacks }),
-          completeOauth,
+          completeOauth: (params) => {
+            const existingCreateSubOrgParams =
+              masterConfig?.auth?.createSuborgParams?.oauth;
+            const secondaryProviders = buildSecondaryOauthProviders(
+              params.oidcToken,
+              params.providerName ?? OAuthProviders.GOOGLE,
+              secondaryClientIds,
+            );
+            return completeOauth({
+              ...params,
+              ...(secondaryProviders.length > 0 && {
+                createSubOrgParams: {
+                  ...existingCreateSubOrgParams,
+                  oauthProviders: [
+                    ...(existingCreateSubOrgParams?.oauthProviders ?? []),
+                    ...secondaryProviders,
+                  ],
+                },
+              }),
+            });
+          },
         });
         return;
       } catch (error) {
@@ -2848,14 +2925,22 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
     [client, callbacks, masterConfig, session, user],
   );
 
-  const handleAppleOauth = useCallback(
+  /**
+   * @deprecated Use `handleAppleOauth` instead, which uses native Apple Sign-In on iOS
+   * and falls back to web-based OAuth on Android.
+   */
+  const handleAppleWebOauth = useCallback(
     async (params?: HandleAppleOauthParams): Promise<void> => {
-      const { additionalState: additionalParameters } = params || {};
       const {
-        clientId,
-        redirectUri,
-        appScheme: scheme,
-      } = getOauthProviderSettings(OAuthProviders.APPLE);
+        additionalState: additionalParameters,
+        primaryClientId: paramClientId,
+        secondaryClientIds: paramSecondaryClientIds,
+      } = params || {};
+      const settings = getOauthProviderSettings(OAuthProviders.APPLE);
+      const clientId = paramClientId ?? settings.clientId;
+      const secondaryClientIds =
+        paramSecondaryClientIds ?? settings.secondaryClientIds;
+      const { redirectUri, appScheme: scheme } = settings;
 
       try {
         if (!masterConfig) {
@@ -2951,8 +3036,206 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           oidcToken: parsed.idToken,
           ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
           ...(callbacks && { callbacks }),
-          completeOauth,
+          completeOauth: (params) => {
+            const existingCreateSubOrgParams =
+              masterConfig?.auth?.createSuborgParams?.oauth;
+            const secondaryProviders = buildSecondaryOauthProviders(
+              params.oidcToken,
+              params.providerName ?? OAuthProviders.APPLE,
+              secondaryClientIds,
+            );
+            return completeOauth({
+              ...params,
+              ...(secondaryProviders.length > 0 && {
+                createSubOrgParams: {
+                  ...existingCreateSubOrgParams,
+                  oauthProviders: [
+                    ...(existingCreateSubOrgParams?.oauthProviders ?? []),
+                    ...secondaryProviders,
+                  ],
+                },
+              }),
+            });
+          },
         });
+        return;
+      } catch (error) {
+        throw error;
+      }
+    },
+    [client, callbacks, masterConfig, session, user],
+  );
+
+  const handleAppleOauth = useCallback(
+    async (params?: HandleAppleOauthParams): Promise<void> => {
+      const {
+        additionalState: additionalParameters,
+        primaryClientId: paramClientId,
+        secondaryClientIds: paramSecondaryClientIds,
+      } = params || {};
+      const settings = getOauthProviderSettings(OAuthProviders.APPLE);
+      const clientId = paramClientId ?? settings.clientId;
+      const secondaryClientIds =
+        paramSecondaryClientIds ?? settings.secondaryClientIds;
+      const { redirectUri, appScheme: scheme } = settings;
+
+      try {
+        if (!masterConfig) {
+          throw new TurnkeyError(
+            "Config is not ready yet!",
+            TurnkeyErrorCodes.INVALID_CONFIGURATION,
+          );
+        }
+
+        // Create key pair and generate nonce
+        const publicKey = await createApiKeyPair();
+        if (!publicKey) {
+          throw new TurnkeyError(
+            "Failed to create public key for OAuth.",
+            TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+          );
+        }
+
+        if (Platform.OS === "ios") {
+          // iOS: Use native Apple Sign-In
+          const { appleAuth } = await import(
+            "@invertase/react-native-apple-authentication"
+          );
+
+          // Apple native Sign-In already SHA256-hashes the nonce before passing it in
+          // Just pass the raw publicKey here
+          const appleAuthResponse = await appleAuth.performRequest({
+            requestedOperation: appleAuth.Operation.LOGIN,
+            requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
+            nonce: publicKey,
+          });
+
+          const oidcToken = appleAuthResponse.identityToken;
+          if (!oidcToken) {
+            throw new TurnkeyError(
+              "Apple Sign-In did not return an identity token.",
+              TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+            );
+          }
+
+          // On iOS, the primaryClientId is the Apple web client ID (used for Android).
+          // Include it alongside secondaryClientIds in createSubOrgParams.
+          const allSecondaryClientIds = clientId
+            ? [clientId, ...secondaryClientIds]
+            : secondaryClientIds;
+
+          await completeOAuthFlow({
+            provider: OAuthProviders.APPLE,
+            publicKey,
+            oidcToken,
+            ...(callbacks && { callbacks }),
+            completeOauth: (completionParams) => {
+              const existingCreateSubOrgParams =
+                masterConfig?.auth?.createSuborgParams?.oauth;
+              const secondaryProviders = buildSecondaryOauthProviders(
+                completionParams.oidcToken,
+                completionParams.providerName ?? OAuthProviders.APPLE,
+                allSecondaryClientIds,
+              );
+              return completeOauth({
+                ...completionParams,
+                ...(secondaryProviders.length > 0 && {
+                  createSubOrgParams: {
+                    ...existingCreateSubOrgParams,
+                    oauthProviders: [
+                      ...(existingCreateSubOrgParams?.oauthProviders ?? []),
+                      ...secondaryProviders,
+                    ],
+                  },
+                }),
+              });
+            },
+          });
+        } else {
+          // Android: Use web-based Apple OAuth via appleAuthAndroid
+          if (!clientId) {
+            throw new TurnkeyError(
+              "Apple Client ID is not configured.",
+              TurnkeyErrorCodes.INVALID_CONFIGURATION,
+            );
+          }
+
+          if (!redirectUri) {
+            throw new TurnkeyError(
+              "OAuth Redirect URI is not configured.",
+              TurnkeyErrorCodes.INVALID_CONFIGURATION,
+            );
+          }
+
+          if (!scheme) {
+            throw new TurnkeyError(
+              "Missing appScheme. Please set auth.oauth.appScheme.",
+              TurnkeyErrorCodes.INVALID_CONFIGURATION,
+            );
+          }
+
+          // Normalize the redirect URI by ensuring there is a trailing slash before the query parameters
+          // The Turnkey OAuth Proxy does this already, so we don't need to do it for the web flow.
+          const finalRedirectUri = new URL(
+            `${redirectUri}?scheme=${encodeURIComponent(scheme)}`,
+          ).toString();
+
+          const { appleAuthAndroid } = await import(
+            "@invertase/react-native-apple-authentication"
+          );
+
+          const nonce = bytesToHex(sha256(publicKey));
+
+          appleAuthAndroid.configure({
+            clientId,
+            redirectUri: finalRedirectUri,
+            responseType: appleAuthAndroid.ResponseType.ALL,
+            scope: appleAuthAndroid.Scope.ALL,
+            nonce,
+            ...(additionalParameters && {
+              state: JSON.stringify(additionalParameters),
+            }),
+          });
+
+          const androidResponse = await appleAuthAndroid.signIn();
+          const oidcToken = androidResponse?.id_token;
+          if (!oidcToken) {
+            throw new TurnkeyError(
+              "Apple Sign-In did not return an identity token.",
+              TurnkeyErrorCodes.OAUTH_SIGNUP_ERROR,
+            );
+          }
+
+          // On Android, primaryClientId is used directly in the OAuth flow.
+          // Only secondaryClientIds are added as extra providers.
+          await completeOAuthFlow({
+            provider: OAuthProviders.APPLE,
+            publicKey,
+            oidcToken,
+            ...(callbacks && { callbacks }),
+            completeOauth: (completionParams) => {
+              const existingCreateSubOrgParams =
+                masterConfig?.auth?.createSuborgParams?.oauth;
+              const secondaryProviders = buildSecondaryOauthProviders(
+                completionParams.oidcToken,
+                completionParams.providerName ?? OAuthProviders.APPLE,
+                secondaryClientIds,
+              );
+              return completeOauth({
+                ...completionParams,
+                ...(secondaryProviders.length > 0 && {
+                  createSubOrgParams: {
+                    ...existingCreateSubOrgParams,
+                    oauthProviders: [
+                      ...(existingCreateSubOrgParams?.oauthProviders ?? []),
+                      ...secondaryProviders,
+                    ],
+                  },
+                }),
+              });
+            },
+          });
+        }
         return;
       } catch (error) {
         throw error;
@@ -2963,12 +3246,16 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
 
   const handleFacebookOauth = useCallback(
     async (params?: HandleFacebookOauthParams): Promise<void> => {
-      const { additionalState: additionalParameters } = params || {};
       const {
-        clientId,
-        redirectUri,
-        appScheme: scheme,
-      } = getOauthProviderSettings(OAuthProviders.FACEBOOK);
+        additionalState: additionalParameters,
+        primaryClientId: paramClientId,
+        secondaryClientIds: paramSecondaryClientIds,
+      } = params || {};
+      const settings = getOauthProviderSettings(OAuthProviders.FACEBOOK);
+      const clientId = paramClientId ?? settings.clientId;
+      const secondaryClientIds =
+        paramSecondaryClientIds ?? settings.secondaryClientIds;
+      const { redirectUri, appScheme: scheme } = settings;
 
       try {
         if (!masterConfig) {
@@ -3069,7 +3356,27 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
           authCode: parsed.authCode,
           ...(parsed.sessionKey && { sessionKey: parsed.sessionKey }),
           ...(callbacks && { callbacks }),
-          completeOauth,
+          completeOauth: (params) => {
+            const existingCreateSubOrgParams =
+              masterConfig?.auth?.createSuborgParams?.oauth;
+            const secondaryProviders = buildSecondaryOauthProviders(
+              params.oidcToken,
+              params.providerName ?? OAuthProviders.FACEBOOK,
+              secondaryClientIds,
+            );
+            return completeOauth({
+              ...params,
+              ...(secondaryProviders.length > 0 && {
+                createSubOrgParams: {
+                  ...existingCreateSubOrgParams,
+                  oauthProviders: [
+                    ...(existingCreateSubOrgParams?.oauthProviders ?? []),
+                    ...secondaryProviders,
+                  ],
+                },
+              }),
+            });
+          },
           exchangeCodeForToken: async (codeVerifier) => {
             const tokenData = await exchangeCodeForToken(
               clientId,
@@ -3238,6 +3545,7 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
         handleXOauth,
         handleDiscordOauth,
         handleAppleOauth,
+        handleAppleWebOauth,
         handleFacebookOauth,
         fetchBootProofForAppProof,
       }}
