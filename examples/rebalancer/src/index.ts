@@ -183,17 +183,24 @@ async function setup(_options: any) {
   );
 }
 
-async function fund(options: any) {
-  const interval = parseInt(options["interval"]);
+function parseInterval(options: any): number | undefined {
+  const raw = options["interval"];
+  if (raw === undefined) return undefined;
 
-  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
-    console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
+  const interval = parseInt(raw);
+  if (isNaN(interval) || interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
+    throw new Error(
+      `Invalid interval: ${raw}. Please specify a value between ${MIN_INTERVAL_MS} and ${MAX_INTERVAL_MS} milliseconds`,
     );
   }
+  return interval;
+}
+
+async function fund(options: any) {
+  const interval = parseInterval(options);
 
   await fundImpl();
-  interval && setInterval(async () => await fundImpl(), interval);
+  if (interval) setInterval(async () => await fundImpl(), interval);
 }
 
 async function fundImpl() {
@@ -258,13 +265,7 @@ async function fundImpl() {
 }
 
 async function sweep(options: any) {
-  const interval = parseInt(options["interval"]);
-
-  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
-    console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
-    );
-  }
+  const interval = parseInterval(options);
 
   await sweepImpl();
   interval && setInterval(async () => await sweepImpl(), interval);
@@ -337,13 +338,7 @@ async function sweepImpl() {
 }
 
 async function recycle(options: any) {
-  const interval = parseInt(options["interval"]);
-
-  if (interval < MIN_INTERVAL_MS || interval > MAX_INTERVAL_MS) {
-    console.log(
-      `Invalid interval: ${interval}. Please specify a value between 10000 and 60000 milliseconds`,
-    );
-  }
+  const interval = parseInterval(options);
 
   await recycleImpl();
   interval && setInterval(async () => await recycleImpl, interval);
