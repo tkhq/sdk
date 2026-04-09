@@ -337,14 +337,7 @@ async function sweepImpl() {
   }
 }
 
-async function recycle(options: any) {
-  const interval = parseInterval(options);
-
-  await recycleImpl();
-  interval && setInterval(async () => await recycleImpl, interval);
-}
-
-async function recycleImpl() {
+async function recycle() {
   // find "Long Term Storage" private key
   const longTermStoragePrivateKeys = await getPrivateKeysForTag(
     turnkeyClient,
