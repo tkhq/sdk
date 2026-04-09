@@ -1,13 +1,12 @@
 # Example: `with-spark-schnorr`
 
-Tests native Schnorr signing via the [Spark SDK](https://spark.money) (`DefaultSparkSigner`) and optionally compares the output against a Turnkey-backed signer — useful for verifying that a custom `SparkSigner` implementation produces identical signatures.
+Demonstrates minting and transferring a [Spark](https://spark.money) token with **Turnkey as the key custodian**. Turnkey signs each token transaction via Schnorr (`signRawPayload`) through a custom `TurnkeySparkSigner`, while the `IssuerSparkWallet` handles all transaction construction, serialization, and broadcasting.
 
-The script covers:
+The script runs three steps in sequence:
 
-1. **Mnemonic → Spark keys**: derives the identity key and deposit (P2TR) key from a BIP-39 mnemonic using `DefaultSparkSigner`.
-2. **Raw Schnorr (identity key)**: calls `signSchnorrWithIdentityKey` and optionally compares against `Turnkey.signRawPayload`.
-3. **Bitcoin P2TR transaction (deposit key)**: if a regtest UTXO is supplied, builds a `@scure/btc-signer` transaction, computes the sighash with `getSigHashFromTx`, and signs with `signTransactionIndex`. The resulting hex can be broadcast via `bitcoin-cli`.
-4. **Spark network acceptance**: initialises a full `SparkWallet` on `REGTEST` and optionally sends a Spark transfer — exercising the complete FROST signing flow against the live network.
+1. **CREATE** — announces a new token (name, ticker, decimals, max supply).
+2. **MINT** — issues tokens to the issuer's own Spark address.
+3. **TRANSFER** — sends tokens to `RECEIVER_SPARK_ADDRESS`.
 
 ---
 
@@ -30,16 +29,22 @@ cd examples/with-spark-schnorr/
 cp .env.local.example .env.local
 ```
 
-| Variable                                                         | Required | Notes                                                |
-| ---------------------------------------------------------------- | -------- | ---------------------------------------------------- |
-| `MNEMONIC`                                                       | No       | Leave blank to auto-generate                         |
-| `SPARK_NETWORK`                                                  | No       | `REGTEST` (default) or `MAINNET`                     |
-| `RECEIVER_SPARK_ADDRESS`                                         | No       | Spark transfer target                                |
-| `TRANSFER_AMOUNT_SATS`                                           | No       | Default 1000                                         |
-| `API_PUBLIC_KEY` / `API_PRIVATE_KEY` / `ORGANIZATION_ID`         | No       | For Turnkey comparison                               |
-| `TURNKEY_IDENTITY_ADDRESS`                                       | No       | Turnkey key that holds the same identity private key |
-| `UTXO_TXID` / `UTXO_VOUT` / `UTXO_VALUE` / `DESTINATION_ADDRESS` | No       | For P2TR Bitcoin tx test                             |
-| `FEE_SATS`                                                       | No       | Default 300                                          |
+| Variable                  | Required | Notes                                              |
+| ------------------------- | -------- | -------------------------------------------------- |
+| `API_PUBLIC_KEY`          | Yes      | Turnkey API public key                             |
+| `API_PRIVATE_KEY`         | Yes      | Turnkey API private key                            |
+| `ORGANIZATION_ID`         | Yes      | Turnkey organization ID                            |
+| `TURNKEY_IDENTITY_ADDRESS`| Yes      | Turnkey key address holding the Spark identity key |
+| `IDENTITY_PUBLIC_KEY_HEX` | Yes      | Compressed 33-byte public key of the identity key (hex) |
+| `RECEIVER_SPARK_ADDRESS`  | Yes      | Spark address to receive the token transfer        |
+| `BASE_URL`                | No       | Turnkey API base URL (default: `https://api.turnkey.com`) |
+| `SPARK_NETWORK`           | No       | `REGTEST` (default) or `MAINNET`                   |
+| `TOKEN_NAME`              | No       | Default: `TurnkeyTestToken`                        |
+| `TOKEN_TICKER`            | No       | Default: `TKT`                                     |
+| `TOKEN_DECIMALS`          | No       | Default: `0`                                       |
+| `TOKEN_SUPPLY`            | No       | Max supply to create (default: `1000000`)           |
+| `MINT_AMOUNT`             | No       | Tokens to mint (default: `TOKEN_SUPPLY`)           |
+| `TRANSFER_AMOUNT`         | No       | Tokens to transfer (default: `MINT_AMOUNT`)        |
 
 ### 3. Run
 
@@ -49,15 +54,36 @@ pnpm start
 
 ---
 
-## Signature comparison with Turnkey
-
-If you have a `SparkSigner` backed by Turnkey (signing via `signRawPayload`) and want to verify it produces the same Schnorr signatures as the native SDK, set the Turnkey env vars and `TURNKEY_IDENTITY_ADDRESS`. The script signs the same payload with both signers and prints whether the signatures match.
+## Expected output
 
 ```
-── Schnorr signature (identity key) ──────────────────────────
-Payload (hex): 737061726b2d7363686e6f72722d74657374...
-Spark SDK sig: <64-byte hex>
-Turnkey sig:   <64-byte hex>
+Initializing IssuerSparkWallet on REGTEST...
+✅ Authenticated to Spark SO
 
-Signatures match: ✅  YES
+Spark address:       sp1...
+Identity public key: 02...
+
+── Step 1: CREATE token ────────────────────────────────────
+  Name:       TurnkeyTestToken
+  Ticker:     TKT
+  Decimals:   0
+  Max supply: 1,000,000
+✅ Token created
+   Token identifier: <hex>
+
+── Step 2: MINT 1,000,000 tokens ────────────────────────────
+✅ Tokens minted
+   Tx ID: <hex>
+   Balance: 1000000 TKT
+
+── Step 3: TRANSFER 1,000,000 tokens ────────────────────
+   To: sp1...
+✅ Transfer broadcast
+   Tx ID: <hex>
+   Status: TRANSFER_STATUS_SENDER_KEY_TWEAKED
+
+── Final balances ─────────────────────────────────────────
+   TKT: 0
+
+✅ All Phase 1 operations succeeded with Turnkey signing!
 ```
