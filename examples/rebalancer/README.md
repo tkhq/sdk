@@ -1,6 +1,6 @@
 # Example: `rebalancer`
 
-A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users.
+A demo application which showcases an example of how to use Turnkey for managing multiple types of keys & users.
 
 This demo uses Turnkey's Gas Sponsorship feature. Learn more about sending sponsored transactions in the [Transaction Management docs](https://docs.turnkey.com/company-wallets/code-examples/sending-sponsored-transactions).
 
@@ -68,13 +68,109 @@ Create the organizational structure required for this demo:
 pnpm cli setup
 ```
 
+The `setup` command will output:
+
+```
+New user tag created!
+- Name: Admin
+- User tag ID: <ADMIN-USER-TAG-ID>
+
+New user tag created!
+- Name: Manager
+- User tag ID: <MANAGER-USER-TAG-ID>
+
+New user tag created!
+- Name: Executor
+- User tag ID: <EXECUTOR-USER-TAG-ID>
+
+New user created!
+- Name: Alice
+- User ID: <ALICE-USER-ID>
+
+New user created!
+- Name: Bob
+- User ID: <BOB-USER-ID>
+
+New user created!
+- Name: Phil
+- User ID: <PHIL-USER-ID>
+
+New private key tag created!
+- Name: distribution
+- Private key tag ID: <DISTRIBUTION-PRIVATE-KEY-TAG-ID>
+
+New private key tag created!
+- Name: short-term-storage
+- Private key tag ID: <SHORT-TERM-STORAGE-PRIVATE-KEY-TAG-ID>
+
+New private key tag created!
+- Name: long-term-storage
+- Private key tag ID: <LONG-TERM-STORAGE-PRIVATE-KEY-TAG-ID>
+
+creating a new Ethereum private key on Turnkey...
+
+New Ethereum private key created!
+- Name: Distribution
+- Private key ID: <DISTRIBUTION-PRIVATE-KEY-ID>
+- Address: <DISTRIBUTION-WALLET-ADDRESS>
+
+creating a new Ethereum private key on Turnkey...
+
+New Ethereum private key created!
+- Name: Long Term Storage
+- Private key ID: <LONG-TERM-STORAGE-PRIVATE-KEY-ID>
+- Address: <LONG-TERM-STORAGE-WALLET-ADDRESS>
+
+creating a new Ethereum private key on Turnkey...
+
+New Ethereum private key created!
+- Name: Short Term Storage 1
+- Private key ID: <SHORT-TERM-STORAGE-1-PRIVATE-KEY-ID>
+- Address: <SHORT-TERM-STORAGE-1-WALLET-ADDRESS>
+
+creating a new Ethereum private key on Turnkey...
+
+New Ethereum private key created!
+- Name: Short Term Storage 2
+- Private key ID: <SHORT-TERM-STORAGE-2-PRIVATE-KEY-ID>
+- Address: <SHORT-TERM-STORAGE-2-WALLET-ADDRESS>
+
+creating a new Ethereum private key on Turnkey...
+
+New Ethereum private key created!
+- Name: Short Term Storage 3
+- Private key ID: <SHORT-TERM-STORAGE-3-PRIVATE-KEY-ID>
+- Address: <SHORT-TERM-STORAGE-3-WALLET-ADDRESS>
+
+New policy created!
+- Name: Admin users can do everything
+- Policy ID: <ADMIN-POLICY-ID>
+- Effect: EFFECT_ALLOW
+- Consensus: approvers.any(user, user.tags.contains('<ADMIN-USER-TAG-ID>'))
+- Condition: true
+
+New policy created!
+- Name: Two Manager or Admin users can use long term storage keys
+- Policy ID: <TWO-MANAGER-OR-ADMIN-POLICY-ID>
+- Effect: EFFECT_ALLOW
+- Consensus: approvers.filter(user, user.tags.contains('<MANAGER-USER-TAG-ID>') || user.tags.contains('<ADMIN-USER-TAG-ID>')).count() >= 2
+- Condition: private_key.tags.contains('<LONG-TERM-STORAGE-PRIVATE-KEY-TAG-ID>')
+
+New policy created!
+- Name: Executor users can use short term storage keys
+- Policy ID: <EXECUTOR-POLICY-ID>
+- Effect: EFFECT_ALLOW
+- Consensus: approvers.any(user, user.tags.contains('<EXECUTOR-USER-TAG-ID>'))
+- Condition: private_key.tags.contains('<SHORT-TERM-STORAGE-PRIVATE-KEY-TAG-ID>')
+```
+
 ### 4/ Pre-Fund
 
-Before executing any txns using Turnkey, you'll first need the "Distribution" address to have some funds. In the Turnkey dashboard, look up the address for "Distribution" and then send some funds to it from an external wallet or directly from a [faucet](https://sepoliafaucet.com/).
+Before executing any transactions using Turnkey, you'll first need the "Distribution" address to have some funds. In the Turnkey dashboard, look up the address for "Distribution" and then send some funds to it from an external wallet or directly from a [faucet](https://sepoliafaucet.com/).
 
 ### 5/ Fund
 
-Once the "Distribution" address has funds in it, execute the "fund" command to transfer funds from "Distribution" to the "Short Term Storage" addresses.
+Once the "Distribution" address has funds in it, execute the `fund` command to transfer funds from "Distribution" to the "Short Term Storage" addresses.
 
 ```
 pnpm cli fund
@@ -86,48 +182,116 @@ Alternatively, this command can be continuously executed using the `--interval` 
 pnpm cli fund --interval=20000
 ```
 
+The output for the `fund` command should look like this:
+
+```
+Address:
+        <DISTRIBUTION-WALLET-ADDRESS>
+
+Balance:
+        <DISTRIBUTION-WALLET-BALANCE> Ether
+
+<TRANSACTION-HASH>
+Sent <VALUE> ETH to <SHORT-TERM-STORAGE-1-WALLET-ADDRESS>:
+        https://sepolia.etherscan.io/tx/<TRANSACTION-HASH>
+```
+
+This output repeats once per short term storage wallet — three logs in total. In each log, `Address` is the distribution wallet (the sender) and the destination is the respective short term storage wallet.
+
 ### 6/ Sweep
 
-Next, use the "sweep" command to move the assets from the "Short Term Storage" addresses to the "Long Term Storage" address.
+Next, use the `sweep` command to move the assets from the "Short Term Storage" addresses to the "Long Term Storage" address.
 
 ```
 pnpm cli sweep --key=phil
 ```
 
-Similar to "fund", this can be executed on an interval:
+Similar to `fund`, this can be executed on an interval:
 
 ```
 pnpm cli sweep --key=phil --interval=20000
 ```
 
+The output for this command should look like this:
+
+```
+Address:
+        <SHORT-TERM-STORAGE-1-WALLET-ADDRESS>
+
+Balance:
+        <SHORT-TERM-STORAGE-1-WALLET-BALANCE> Ether
+
+<TRANSACTION-HASH>
+Sent <VALUE> ETH to <LONG-TERM-STORAGE-WALLET-ADDRESS>:
+        https://sepolia.etherscan.io/tx/<TRANSACTION-HASH>
+```
+
+This output repeats once per short term storage wallet — three logs in total. In each log, `Address` is the short term storage wallet (the sender) and the destination is the long term storage wallet.
+
 Note that we're using "Phil" to execute this transaction. Recall from the setup, that Phil is tagged as an "executor". Phil is able to unilaterally move funds from a "Short Term Storage" address.
 
 ### 7/ Initiate Recycle
 
-Lastly, use the "recycle" command to move the funds stored in the "Long Term Storage" address back to "Distribution".
+Lastly, use the `recycle` command to move the funds stored in the "Long Term Storage" address back to "Distribution".
 
 ```
 pnpm cli recycle --key=bob
 ```
 
-We're using "Bob", who is tagged as a "manager", to execute this transaction. The policy associated with the "Long Term Storage" address ensures that a "manager" can initiate a transaction from "Long Term Storage" but it must be approved by another "manager" or "admin" in order to actually be signed by Turnkey.
-
-If consensus is needed, you'll receive a message like:
+The output for this command should look like this:
 
 ```
-Consensus is required for activity <ID> in order to send <VALUE> ETH to <ADDRESS>.
+Address:
+        <LONG-TERM-STORAGE-WALLET-ADDRESS>
+
+Balance:
+        <LONG-TERM-STORAGE-WALLET-BALANCE> Ether
+
+Consensus is required for activity <ACTIVITY-ID> in order to send <VALUE> ETH to <DISTRIBUTION-WALLET-ADDRESS>.
+```
+
+We're using "Bob", who is tagged as a "manager", to execute this transaction. The policy associated with the "Long Term Storage" address ensures that a "manager" can initiate a transaction from "Long Term Storage" but it must be approved by another "manager" or "admin" in order to actually be signed by Turnkey.
+
+If consensus is needed, the output will include a message like:
+
+```
+Consensus is required for activity <ACTIVITY-ID> in order to send <VALUE> ETH to <DISTRIBUTION-WALLET-ADDRESS>.
 ```
 
 Save the activity ID — you'll need it in the next step when approving the transaction.
 
-### 8/ Approve Recycle
+### 8a/ Approve Recycle
 
 Approve the recycle transaction using Alice's key and the activity ID from above:
 
 ```
-pnpm cli approveActivity --key=alice --id=<ID>
+pnpm cli approveActivity --key=alice --id=<ACTIVITY-ID>
+```
+
+This command will output:
+
+```
+✅ Approved activity!
+- Activity ID: <ACTIVITY-ID>
 ```
 
 > **Note:** You can can also approve the transaction from the [Turnkey dashboard](https://app.turnkey.com/dashboard/activities).
 
 Once approved, the transaction will be automatically broadcast to the Sepolia testnet.
+
+### 8b/ Reject Recycle (Alternative)
+
+Instead of approving, a "manager" or "admin" can reject the recycle activity using the activity ID from step 7:
+
+```
+pnpm cli rejectActivity --key=alice --id=<ACTIVITY-ID>
+```
+
+This command will output:
+
+```
+❌ Rejected activity!
+- Activity ID: <ACTIVITY-ID>
+```
+
+> **Note:** You can also reject the transaction from the [Turnkey dashboard](https://app.turnkey.com/dashboard/activities).
