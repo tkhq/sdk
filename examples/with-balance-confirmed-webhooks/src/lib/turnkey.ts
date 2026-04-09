@@ -22,7 +22,8 @@ export async function getBalances(params: { address: string; caip2: string }) {
     .getWalletAddressBalances({
       organizationId: serverEnv.organizationId,
       address: params.address,
-      caip2: params.caip2,
+      // The SDK currently narrows CAIP-2 to a generated union; this example accepts runtime input.
+      caip2: params.caip2 as any,
     });
 
   return balances;

@@ -97,6 +97,13 @@ export default function Page() {
   const notificationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
+  const queriedAddressRef = useRef(queriedAddress);
+  const queriedCaip2Ref = useRef(queriedCaip2);
+
+  useEffect(() => {
+    queriedAddressRef.current = queriedAddress;
+    queriedCaip2Ref.current = queriedCaip2;
+  }, [queriedAddress, queriedCaip2]);
 
   const showNotification = (event: BalanceWebhookEventEnvelope) => {
     setActiveNotification(event);
@@ -110,6 +117,86 @@ export default function Page() {
         current?.id === event.id ? null : current,
       );
     }, 6_000);
+  };
+
+  const fetchBalancesFromApi = async (params: {
+    address: string;
+    caip2: string;
+    commitQuery: boolean;
+    surfaceErrors: boolean;
+  }) => {
+    const trimmedAddress = params.address.trim();
+    const trimmedCaip2 = params.caip2.trim();
+
+    const queryParams = new URLSearchParams({
+      address: trimmedAddress,
+      caip2: trimmedCaip2,
+    });
+
+    try {
+      const response = await fetch(`/api/balances?${queryParams.toString()}`, {
+        cache: "no-store",
+      });
+      const body = (await response.json()) as BalancesApiResponse;
+
+      if (!response.ok) {
+        throw new Error(body.error ?? "Failed to fetch balances");
+      }
+
+      if (params.commitQuery) {
+        setQueriedAddress(trimmedAddress);
+        setQueriedCaip2(trimmedCaip2);
+      }
+
+      startBalanceTransition(() => {
+        setBalances(body.balances ?? []);
+      });
+    } catch (fetchError) {
+      if (params.surfaceErrors) {
+        setBalances([]);
+        setError(
+          fetchError instanceof Error
+            ? fetchError.message
+            : "Unexpected error while loading balances",
+        );
+      } else {
+        console.error(
+          "Failed to auto-refresh balances after webhook:",
+          fetchError,
+        );
+      }
+    }
+  };
+
+  const maybeRefreshBalancesForWebhook = (
+    event: BalanceWebhookEventEnvelope,
+  ) => {
+    const activeAddress = queriedAddressRef.current.trim();
+    const activeCaip2 = queriedCaip2Ref.current.trim();
+    const eventCaip2 =
+      typeof event.payload.msg.caip2 === "string"
+        ? event.payload.msg.caip2
+        : "";
+
+    if (!activeAddress || !activeCaip2 || eventCaip2 !== activeCaip2) {
+      return;
+    }
+
+    const eventAddress =
+      typeof event.payload.msg.address === "string"
+        ? event.payload.msg.address.toLowerCase()
+        : "";
+
+    if (eventAddress && eventAddress !== activeAddress.toLowerCase()) {
+      return;
+    }
+
+    void fetchBalancesFromApi({
+      address: activeAddress,
+      caip2: activeCaip2,
+      commitQuery: false,
+      surfaceErrors: false,
+    });
   };
 
   useEffect(() => {
@@ -134,6 +221,7 @@ export default function Page() {
           [message.event, ...previous].slice(0, 30),
         );
         showNotification(message.event);
+        maybeRefreshBalancesForWebhook(message.event);
       }
     };
 
@@ -154,36 +242,12 @@ export default function Page() {
   async function handleFetchBalances(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-
-    const params = new URLSearchParams({
-      address: address.trim(),
-      caip2: caip2.trim(),
+    await fetchBalancesFromApi({
+      address,
+      caip2,
+      commitQuery: true,
+      surfaceErrors: true,
     });
-
-    try {
-      const response = await fetch(`/api/balances?${params.toString()}`, {
-        cache: "no-store",
-      });
-      const body = (await response.json()) as BalancesApiResponse;
-
-      if (!response.ok) {
-        throw new Error(body.error ?? "Failed to fetch balances");
-      }
-
-      setQueriedAddress(address.trim());
-      setQueriedCaip2(caip2.trim());
-
-      startBalanceTransition(() => {
-        setBalances(body.balances ?? []);
-      });
-    } catch (fetchError) {
-      setBalances([]);
-      setError(
-        fetchError instanceof Error
-          ? fetchError.message
-          : "Unexpected error while loading balances",
-      );
-    }
   }
 
   return (
