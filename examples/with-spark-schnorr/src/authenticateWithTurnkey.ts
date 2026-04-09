@@ -1,14 +1,11 @@
 /**
- * Demonstrates authenticating to a Spark signing operator using Turnkey
- * as the key custodian.
+ * Authenticates to a Spark signing operator using Turnkey as the key
+ * custodian, then sends a Spark transfer.
  *
  * The authentication handshake:
  *   1. Spark SO issues a challenge (protobuf, SHA-256 hashed by the SDK)
- *   2. SDK calls signMessageWithIdentityKey(hash) → ECDSA, DER-encoded
+ *   2. SDK calls signMessageWithIdentityKey(hash) → 64-byte Schnorr compact
  *   3. Spark SO verifies and returns a session token
- *
- * On success, wallet.getBalance() works — proving the SO accepted our
- * Turnkey-backed identity key.
  *
  * Required env vars (in .env.local):
  *   BASE_URL                  – Turnkey API base (http://localhost:5022 for local)
@@ -18,6 +15,11 @@
  *   TURNKEY_IDENTITY_ADDRESS  – Turnkey key ID holding the Spark identity key
  *   IDENTITY_PUBLIC_KEY_HEX   – compressed 33-byte public key (hex) of that key
  *   SPARK_NETWORK             – REGTEST (default) or MAINNET
+ *   MNEMONIC                  – BIP-39 mnemonic to restore wallet state
+ *
+ * Optional (for the transfer):
+ *   RECEIVER_SPARK_ADDRESS    – Spark address to send to
+ *   TRANSFER_AMOUNT_SATS      – Amount to send (default: 1000)
  */
 
 import * as path from "path";
@@ -61,21 +63,24 @@ async function main() {
   );
 
   const identityPubKey = await signer.getIdentityPublicKey();
-  console.log(`\nIdentity public key: ${Buffer.from(identityPubKey).toString("hex")}`);
+  console.log(
+    `\nIdentity public key: ${Buffer.from(identityPubKey).toString("hex")}`
+  );
   console.log(`Network:             ${network}`);
   console.log(`\nInitializing SparkWallet with Turnkey signer...`);
 
-  const walletOptions =
-    network === "MAINNET" ? WalletConfig.MAINNET : WalletConfig.REGTEST;
+  const walletOptions = {
+    ...(network === "MAINNET" ? WalletConfig.MAINNET : WalletConfig.REGTEST),
+    // Skip seed derivation — keys live in Turnkey, not locally
+    signerWithPreExistingKeys: true,
+  };
 
-  let mnemonic = process.env.MNEMONIC?.trim()!;
-
-  // Pass the TurnkeySparkSigner directly — SparkWallet will use it for auth
   const { wallet } = await SparkWallet.initialize({
     signer,
     options: walletOptions,
-    mnemonicOrSeed: mnemonic,
   });
+
+  wallet.claimDeposit
 
   console.log(`✅ Authenticated to Spark SO successfully`);
 
@@ -84,6 +89,36 @@ async function main() {
 
   console.log(`\nSpark address: ${sparkAddress}`);
   console.log(`Balance:       ${balance.toLocaleString()} sats`);
+
+  // const receiver = process.env.RECEIVER_SPARK_ADDRESS?.trim();
+  // if (!receiver) {
+  //   console.log(
+  //     "\nSet RECEIVER_SPARK_ADDRESS to send a transfer. Skipping."
+  //   );
+  //   wallet.cleanupConnections();
+  //   return;
+  // }
+
+  // const amountSats = parseInt(process.env.TRANSFER_AMOUNT_SATS ?? "1000", 10);
+
+  // if (balance < amountSats) {
+  //   console.log(
+  //     `\nInsufficient balance (${balance} sats) to send ${amountSats} sats. Skipping transfer.`
+  //   );
+  //   wallet.cleanupConnections();
+  //   return;
+  // }
+
+  // console.log(`\nSending ${amountSats} sats to ${receiver} ...`);
+  // const transfer = await wallet.transfer({
+  //   receiverSparkAddress: receiver,
+  //   amountSats,
+  // });
+
+  // console.log(`✅ Transfer complete`);
+  // console.log(`   Transfer ID: ${transfer.id}`);
+  // console.log(`   Status:      ${transfer.status}`);
+  // console.log(`   Amount:      ${transfer.totalValue?.toLocaleString()} sats`);
 
   wallet.cleanupConnections();
 }
