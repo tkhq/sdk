@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { Turnkey } from "@turnkey/sdk-server";
-import { FeeData } from "ethers";
+import type { FeeData } from "ethers";
 import { isKeyOfObject } from "./utils";
 import {
   createPrivateKey,

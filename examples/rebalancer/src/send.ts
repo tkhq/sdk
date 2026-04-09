@@ -3,7 +3,7 @@ import { toReadableAmount, print } from "./utils";
 import { getTurnkeyClient } from "./provider";
 import { TurnkeyErrorCodes } from "@turnkey/sdk-types";
 import { TurnkeyError } from "@turnkey/sdk-types";
-import { TurnkeyApiClient } from "@turnkey/sdk-server";
+import type { TurnkeyApiClient } from "@turnkey/sdk-server";
 
 type Caip2ChainId = "eip155:1" | "eip155:11155111" | "eip155:8453" | "eip155:84532" | "eip155:137" | "eip155:80002"
 
