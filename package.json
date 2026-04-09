@@ -18,7 +18,8 @@
     "prettier-codegen:write": "prettier --write \"packages/{core,sdk-browser,sdk-server,sdk-types}/src/**/*.{css,html,js,json,md,ts,tsx,yaml,yml,mjs}\"",
     "test-all": "pnpm run -r --no-bail test",
     "typecheck-all": "pnpm run -r typecheck",
-    "codegen-all": "pnpm run -r codegen"
+    "codegen-all": "pnpm run -r codegen",
+    "prepare-release": "pnpm changeset version && pnpm run version"
   },
   "license": "Apache-2.0",
   "engines": {
