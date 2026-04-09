@@ -421,9 +421,12 @@ async function rejectActivity(options: any) {
   if (!activityId) {
     console.error("Must provide valid activity ID.\n");
   }
-  const activity = await getActivity(turnkeyClient, activityId);
+
+  const turnkeyClientRejecter = getTurnkeyClient();
+
+  const activity = await getActivity(turnkeyClientRejecter, activityId);
   await createActivityRejection(
-    turnkeyClient,
+    turnkeyClientRejecter,
     activityId,
     activity.fingerprint,
   );
