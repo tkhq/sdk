@@ -164,6 +164,30 @@ New policy created!
 - Condition: private_key.tags.contains('<SHORT-TERM-STORAGE-PRIVATE-KEY-TAG-ID>')
 ```
 
+#### Users and their roles
+
+| User | User Tag | Role |
+|------|----------|------|
+| **Alice** | `Admin` | Can approve or reject any activity in the organization. Used in steps 8a/8b to approve or reject the recycle transaction. |
+| **Bob** | `Manager` | Can initiate a transaction from the Long Term Storage key, but requires a second Manager or Admin to approve it. Used in step 7 to initiate the recycle. |
+| **Phil** | `Executor` | Can unilaterally sign transactions from Short Term Storage keys. Used in step 6 to sweep funds to Long Term Storage. |
+
+Each user is assigned a user tag at creation time.
+
+The user tag is passed as the second argument to `createUser` and determines which policies apply to that user, see [`src/index.ts:107-127`](./src/index.ts).
+
+```typescript
+const adminTagId = await createUserTag(turnkeyClient, "Admin", []);
+
+await createUser(
+    turnkeyClient,
+    "Alice",
+    [adminTagId],
+    "Alice key",
+    keys!.alice!.publicKey!,
+);
+```
+
 ### 4/ Pre-Fund
 
 Before executing any transactions using Turnkey, you'll first need the "Distribution" address to have some funds. In the Turnkey dashboard, look up the address for "Distribution" and then send some funds to it from an external wallet or directly from a [faucet](https://sepoliafaucet.com/).
